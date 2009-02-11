@@ -317,6 +317,17 @@ public class LineTextFigure
 	{
 		return getNodeCount();
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * LineFigure#clone()
+	 */
+	public LineTextFigure clone()
+	{
+		LineTextFigure that = (LineTextFigure) super.clone();
+		that.setText(this.getText());
+		return that;
+	}
 	
 }

@@ -253,8 +253,8 @@ public class EllipseTextFigure
 			
 			double textWidth = fm.stringWidth(text);
 			double textHeight = fm.getAscent();
-			double x = this.getBounds().getCenterX()-textWidth/2;
-			double y = this.getBounds().getCenterY();
+			double x = this.getTransformedShape().getBounds().getCenterX()-textWidth/2;
+			double y = this.getTransformedShape().getBounds().getCenterY();
 			Font font = AttributeKeys.FONT_FACE.get(this);
 			Font viewFont = font.deriveFont(
 					AttributeKeys.FONT_SIZE.get(this).intValue());
@@ -393,5 +393,15 @@ public class EllipseTextFigure
 		return false;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.RotateEllipseFigure#clone()
+	 */
+	public EllipseTextFigure clone()
+	{
+		EllipseTextFigure that = (EllipseTextFigure) super.clone();
+		that.setText(this.getText());
+		return that;
+	}
 	
 }

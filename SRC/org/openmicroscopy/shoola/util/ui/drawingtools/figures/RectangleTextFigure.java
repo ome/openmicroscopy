@@ -369,5 +369,15 @@ public class RectangleTextFigure
 		return false;
 	}
 
-	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * RectangleFigure#clone()
+	 */
+	public RectangleTextFigure clone()
+	{
+		RectangleTextFigure that = (RectangleTextFigure) super.clone();
+		that.setText(this.getText());
+		return that;
+	}
 }

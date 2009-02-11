@@ -305,4 +305,15 @@ public class LineConnectionTextFigure
 		return false;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * LineConnectionFigure#clone()
+	 */
+	public LineConnectionTextFigure clone()
+	{
+		LineConnectionTextFigure that = (LineConnectionTextFigure) super.clone();
+		that.setText(this.getText());
+		return that;
+	}
 }

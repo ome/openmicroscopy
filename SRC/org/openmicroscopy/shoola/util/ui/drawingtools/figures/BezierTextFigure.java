@@ -324,7 +324,17 @@ public class BezierTextFigure
 		return false;
 	}
 
-	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierFigure#clone()
+	 */
+	public BezierTextFigure clone()
+	{
+		BezierTextFigure that = (BezierTextFigure) super.clone();
+		that.setText(this.getText());
+		return that;
+	}
+
 }
 
 
