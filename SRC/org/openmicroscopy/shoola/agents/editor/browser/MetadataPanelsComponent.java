@@ -27,22 +27,28 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
+import org.openmicroscopy.shoola.agents.editor.model.TreeIterator;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
@@ -96,16 +102,27 @@ class MetadataPanelsComponent
 		
 		// root's children
 		DefaultMutableTreeNode root =  (DefaultMutableTreeNode)model.getRoot();
-		int rootChildCount = root.getChildCount();
 		
 		IField field;
 		DefaultMutableTreeNode node;
 		JPanel nodePanel;
 		String fieldName;
-		for (int i=0; i<rootChildCount; i++) {
+		
+		Iterator<TreeNode> iterator = new TreeIterator(root);
+		
+		TreeNode tn;
+		Object userOb;
+		Border border;
+		while (iterator.hasNext()) {
+			tn = iterator.next();
 			
-			node = (DefaultMutableTreeNode)root.getChildAt(i);
-			field = (IField)node.getUserObject();
+			if (!(tn instanceof DefaultMutableTreeNode)) continue;
+				
+			node = (DefaultMutableTreeNode)tn;
+			userOb = node.getUserObject();
+			if (! (userOb instanceof IField)) continue;
+					
+			field = (IField)userOb;
 			
 			// each child node has a list of parameters 
 			List<MetadataComponent> paramComponents = 
@@ -116,8 +133,12 @@ class MetadataPanelsComponent
 			
 			fieldName = TreeOutlineCellRenderer.getFieldDisplayName(field, node);
 			
+			int indent = (node.getLevel() -1) * 10;
 			nodePanel = new JPanel();
-			nodePanel.setBorder(BorderFactory.createTitledBorder(fieldName));
+			border = new EmptyBorder(0,indent,0,0);
+			border = BorderFactory.createCompoundBorder(border, 
+								BorderFactory.createTitledBorder(fieldName));
+			nodePanel.setBorder(border);
 			nodePanel.setBackground(UIUtilities.BACKGROUND_COLOR);
 			nodePanel.setLayout(new GridBagLayout());
 			
