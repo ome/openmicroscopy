@@ -1051,6 +1051,7 @@ class BlitzGateway (threading.Thread):
         p.map = {}
         p.map["oid"] = rlong(long(oid))
         sql = "select im from Image im " \
+              "left outer join fetch im.pixels as p " \
               "join fetch im.details.owner join fetch im.details.group " \
               "where im.id=:oid "
         img = query_serv.findByQuery(sql,p)
@@ -1066,6 +1067,7 @@ class BlitzGateway (threading.Thread):
         p.map["oid"] = rlong(long(oid))
         sql = "select im from Image im " \
               "join fetch im.details.owner join fetch im.details.group " \
+              "left outer join fetch im.pixels as p " \
               "left outer join fetch im.stageLabel as stageLabel  " \
               "left outer join fetch im.imagingEnvironment as imagingEnvironment " \
               "left outer join fetch im.objectiveSettings as os " \
