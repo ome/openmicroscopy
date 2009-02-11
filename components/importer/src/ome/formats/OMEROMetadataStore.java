@@ -586,7 +586,7 @@ public class OMEROMetadataStore
      */
     private void handleReference(WellSample target, Image reference)
     {
-        target.setImage(reference);
+        reference.addWellSample(target);
     }
     
     /**

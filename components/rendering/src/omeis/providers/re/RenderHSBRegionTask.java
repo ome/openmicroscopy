@@ -14,7 +14,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 // Application-internal dependencies
 import ome.io.nio.PixelData;
-import ome.model.display.ColorFix;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.quantum.QuantizationException;
@@ -52,7 +51,7 @@ class RenderHSBRegionTask implements RenderingTask {
      * The color components used when mapping a quantized value onto the color
      * space.
      */
-    private List<ColorFix> colors;
+    private List<int[]> colors;
 
     /** The <i>X1/<i>-axis start */
     private int x1Start;
@@ -94,7 +93,7 @@ class RenderHSBRegionTask implements RenderingTask {
      */
     RenderHSBRegionTask(RGBBuffer dataBuffer, List<Plane2D> wData,
             List<QuantumStrategy> strategies, CodomainChain cc,
-            List<ColorFix> colors, Optimizations optimizations,
+            List<int[]> colors, Optimizations optimizations,
             int x1Start, int x1End, int x2Start, int x2End) {
         this.dataBuffer = dataBuffer;
         this.wData = wData;
@@ -140,13 +139,13 @@ class RenderHSBRegionTask implements RenderingTask {
         byte[] g = dataBuffer.getGreenBand();
         byte[] b = dataBuffer.getBlueBand();
         for (Plane2D plane : wData) {
-            ColorFix color = colors.get(i);
+            int[] color = colors.get(i);
             QuantumStrategy qs = strategies.get(i);
-            int rColor = color.getRed();
-            int gColor = color.getGreen();
-            int bColor = color.getBlue();
+            int rColor = color[ColorsFactory.RED_INDEX];
+            int gColor = color[ColorsFactory.GREEN_INDEX];
+            int bColor = color[ColorsFactory.BLUE_INDEX];
 
-            float alpha = color.getAlpha().floatValue() / 65025;// 255*255
+            float alpha = new Float(color[ColorsFactory.ALPHA_INDEX]).floatValue() / 65025;// 255*255
             for (int x2 = x2Start; x2 < x2End; ++x2) {
                 for (int x1 = x1Start; x1 < x1End; ++x1) {
                     pix = width * x2 + x1;
@@ -203,11 +202,11 @@ class RenderHSBRegionTask implements RenderingTask {
         boolean isPrimaryColor = optimizations.isPrimaryColorEnabled();
         boolean isAlphaless = optimizations.isAlphalessRendering();
         for (Plane2D plane : wData) {
-            ColorFix color = colors.get(i);
+            int[] color = colors.get(i);
             QuantumStrategy qs = strategies.get(i);
-            redRatio = color.getRed() > 0? color.getRed() / 255.0 : 0.0;
-            greenRatio = color.getGreen() > 0? color.getGreen() / 255.0 : 0.0;
-            blueRatio = color.getBlue() > 0? color.getBlue() / 255.0 : 0.0;
+            redRatio = color[ColorsFactory.RED_INDEX] > 0? color[ColorsFactory.RED_INDEX] / 255.0 : 0.0;
+            greenRatio = color[ColorsFactory.GREEN_INDEX] > 0? color[ColorsFactory.GREEN_INDEX] / 255.0 : 0.0;
+            blueRatio = color[ColorsFactory.BLUE_INDEX] > 0? color[ColorsFactory.BLUE_INDEX] / 255.0 : 0.0;
             boolean isXYPlanar = plane.isXYPlanar();
             PixelData data = plane.getData();
             int bytesPerPixel = data.bytesPerPixel();
@@ -217,7 +216,7 @@ class RenderHSBRegionTask implements RenderingTask {
             if (isPrimaryColor)
             	colorOffset = getColorOffset(color);
             
-            float alpha = color.getAlpha().floatValue() / 255;
+            float alpha = new Integer(color[ColorsFactory.ALPHA_INDEX]).floatValue() / 255;
             for (int x2 = x2Start; x2 < x2End; ++x2) {
                 for (int x1 = x1Start; x1 < x1End; ++x1) {
                     pix = width * x2 + x1;
@@ -295,13 +294,13 @@ class RenderHSBRegionTask implements RenderingTask {
      * @param color the color to check.
      * @return an integer color offset in bits.
      */
-    private int getColorOffset(ColorFix color)
+    private int getColorOffset(int[] color)
     {
-    	if (color.getRed() == 255)
+    	if (color[ColorsFactory.RED_INDEX] == 255)
     		return 16;
-    	if (color.getGreen() == 255)
+    	if (color[ColorsFactory.GREEN_INDEX] == 255)
     		return 8;
-    	if (color.getBlue() == 255)
+    	if (color[ColorsFactory.BLUE_INDEX] == 255)
     		return 0;
     	throw new IllegalArgumentException(
     			"Unable to find color component offset in color.");

@@ -14,7 +14,6 @@ package omeis.providers.re;
 // Application-internal dependencies
 import ome.model.core.Channel;
 import ome.model.core.LogicalChannel;
-import ome.model.display.ColorFix;
 
 /**
  * Utility class to determine the color usually associated to a specified
@@ -30,6 +29,18 @@ import ome.model.display.ColorFix;
  * @since OME2.2
  */
 public class ColorsFactory {
+    /** Index of the red component of a color. */
+    public static final int RED_INDEX = 0;
+    
+    /** Index of the red component of a color. */
+    public static final int GREEN_INDEX = 1;
+    
+    /** Index of the red component of a color. */
+    public static final int BLUE_INDEX = 2;
+    
+    /** Index of the red component of a color. */
+    public static final int ALPHA_INDEX = 3;
+    
     /** The Default value for the alpha component. */
     static final int DEFAULT_ALPHA = 255;
 
@@ -110,15 +121,12 @@ public class ColorsFactory {
      * wavelength or explicitly defined for a particular channel.
      * 
      * @param channel The channel to determine the color for.
-     * @return A color.
+     * @return An RGBA array representation of the color.
      */
-    private static ColorFix getColor(Channel channel) {
+    private static int[] getColor(Channel channel) {
     	LogicalChannel lc = channel.getLogicalChannel();
     	if (lc == null) return null;
         Integer emWave = lc.getEmissionWave();
-        String pi = null;
-        if (lc.getPhotometricInterpretation() != null)
-        	pi = lc.getPhotometricInterpretation().getValue();
         
         Integer red = channel.getRed();
         Integer green = channel.getGreen();
@@ -128,12 +136,7 @@ public class ColorsFactory {
         	// We've got a color image of some type that has explicitly
         	// specified which channel is Red, Green, Blue or some other wacky
         	// color.
-        	ColorFix c = new ColorFix();
-        	c.setRed(red);
-        	c.setGreen(green);
-        	c.setBlue(blue);
-        	c.setAlpha(alpha);
-        	return c;
+            return new int[] { red, green, blue, alpha };
         }
 
         if (emWave == null)
@@ -153,41 +156,6 @@ public class ColorsFactory {
             return newRedColor();
         }
         return null;
-        // Handle the pixel data as a set of monochrome (greyscale) channels.
-        /*
-        if (pi != null && pi.equals(Renderer.PHOTOMETRIC_MONOCHROME))
-        {
-            if (emWave == null)
-            {
-                return null;
-            }
-            if (rangeBlue(emWave))
-            {
-                return newBlueColor();
-            }
-            if (rangeGreen(emWave))
-            {
-                return newGreenColor();
-            }
-            if (rangeRed(emWave))
-            {
-                return newRedColor();
-            }
-        }
-        else if (channel.getRed() != null && channel.getGreen() != null && channel.getBlue() != null && channel.getAlpha() != null)
-        {
-        	// We've got a color image of some type that has explicitly
-        	// specified which channel is Red, Green, Blue or some other wacky
-        	// color.
-        	ColorFix c = new ColorFix();
-        	c.setRed(channel.getRed());
-        	c.setGreen(channel.getGreen());
-        	c.setBlue(channel.getBlue());
-        	c.setAlpha(channel.getAlpha());
-        	return c;
-        }
-        return null;
-        */
     }
 
     /**
@@ -200,8 +168,8 @@ public class ColorsFactory {
      *            The channel to determine the color for.
      * @return A color.
      */
-    public static ColorFix getColor(int index, Channel channel) {
-        ColorFix c = ColorsFactory.getColor(channel);
+    public static int[] getColor(int index, Channel channel) {
+        int[] c = ColorsFactory.getColor(channel);
         if (c != null) {
             return c;
         }
@@ -218,42 +186,27 @@ public class ColorsFactory {
     /**
      * Creates a new <i>Red</i> Color object.
      * 
-     * @return a color object.
+     * @return An RGBA array representation of the color Red.
      */
-    public static ColorFix newRedColor() {
-        ColorFix c = new ColorFix();
-        c.setRed(255);
-        c.setGreen(0);
-        c.setBlue(0);
-        c.setAlpha(DEFAULT_ALPHA);
-        return c;
+    public static int[] newRedColor() {
+        return new int[] { 255, 0, 0, DEFAULT_ALPHA };
     }
 
     /**
      * Creates a new <i>Green</i> Color object.
      * 
-     * @return a color object.
+     * @return An RGBA array representation of the color Green.
      */
-    public static ColorFix newGreenColor() {
-        ColorFix c = new ColorFix();
-        c.setRed(0);
-        c.setGreen(255);
-        c.setBlue(0);
-        c.setAlpha(DEFAULT_ALPHA);
-        return c;
+    public static int[] newGreenColor() {
+        return new int[] { 0, 255, 0, DEFAULT_ALPHA };
     }
 
     /**
      * Creates a new <i>Blue</i> Color object.
      * 
-     * @return a color object.
+     * @return An RGBA array representation of the color Blue.
      */
-    public static ColorFix newBlueColor() {
-        ColorFix c = new ColorFix();
-        c.setRed(0);
-        c.setGreen(0);
-        c.setBlue(255);
-        c.setAlpha(DEFAULT_ALPHA);
-        return c;
+    public static int[] newBlueColor() {
+        return new int[] { 0, 0, 255, DEFAULT_ALPHA };
     }
 }

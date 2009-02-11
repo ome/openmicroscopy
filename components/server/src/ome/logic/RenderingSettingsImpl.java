@@ -42,7 +42,6 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
-import ome.model.display.ColorFix;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
@@ -327,11 +326,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             }
     
             // Handle updating or recreating a color for this channel.
-            ColorFix defaultColor = ColorsFactory.getColor(i, channel);
-            channelBinding.setRed(defaultColor.getRed());
-            channelBinding.setGreen(defaultColor.getGreen());
-            channelBinding.setBlue(defaultColor.getBlue());
-            channelBinding.setAlpha(defaultColor.getAlpha());
+            int[] defaultColor = ColorsFactory.getColor(i, channel);
+            channelBinding.setRed(defaultColor[ColorsFactory.RED_INDEX]);
+            channelBinding.setGreen(defaultColor[ColorsFactory.GREEN_INDEX]);
+            channelBinding.setBlue(defaultColor[ColorsFactory.BLUE_INDEX]);
+            channelBinding.setAlpha(defaultColor[ColorsFactory.ALPHA_INDEX]);
 
             channelBinding.setNoiseReduction(false);
             i++;
