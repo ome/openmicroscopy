@@ -1293,12 +1293,21 @@ super class where the property was defined.
 [$jav]           if (toCopy == null) {
 [$jav]              throw new omero.ClientError("Argument cannot be null");
 [$jav]           }
+[$jav]           if (toCopy.getId().getValue() != getId().getValue()) {
+[$jav]              throw new omero.ClientError("Argument must have the same id as this instance");
+[$jav]           }
+#if( ! $type.immutable )
+[$jav]           if (toCopy.getDetails().getUpdateEvent().getId().getValue() < getDetails().getUpdateEvent().getId().getValue()) {
+[$jav]              throw new omero.ClientError("Argument may not be older than this instance");
+[$jav]           }
+#end
 [$jav]           Collection<${property.shortType}> copy = toCopy.copy${PropertyName}(); // May also throw
-[$jav]           for( ${property.shortType} elt : (Collection<${property.shortType}>)${fieldName}) {
+[$jav]           for( ${property.shortType} elt : copy) {
 [$jav]               elt.set$Inverse( this );
 [$jav]           }
 [$jav]           ${fieldName} = new ArrayList<${property.shortType}>(copy);
 [$jav]           toCopy.unload${PropertyName}();
+[$jav]           ${propLoaded} = true;
 [$jav]       }
 [$pyc]       def reload${PropertyName}(self, toCopy, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
@@ -1306,11 +1315,18 @@ super class where the property was defined.
 [$pyc]               raise omero.ClientError("Cannot reload active collection: ${fieldName}")
 [$pyc]           if not toCopy:
 [$pyc]               raise omero.ClientError("Argument cannot be null")
+[$pyc]           if toCopy.getId().getValue() != self.getId().getValue():
+[$pyc]              raise omero.ClientError("Argument must have the same id as this instance")
+#if( ! $type.immutable )
+[$pyc]           if toCopy.getDetails().getUpdateEvent().getId().getValue() < getDetails().getUpdateEvent().getId().getValue():
+[$pyc]              raise omero.ClientError("Argument may not be older than this instance")
+#end
 [$pyc]           copy = toCopy.copy${PropertyName}() # May also throw
-[$pyc]           for elt in self._${fieldName}:
+[$pyc]           for elt in copy:
 [$pyc]               elt.set$Inverse( self )
 [$pyc]           self._${fieldName} = copy
 [$pyc]           toCopy.unload${PropertyName}()
+[$pyc]           self._${propLoaded} = True
 [$pyc]
 [$hdr]       virtual void reload${PropertyName}(const ${ActualPojo}Ptr& toCopy, $HDR_CURRENT);
 [$cpp]       void ${PojoI}::reload${PropertyName}(const ${ActualPojo}Ptr& toCopy, $CPP_CURRENT) {
@@ -1321,14 +1337,24 @@ super class where the property was defined.
 [$cpp]           if (!toCopy) {
 [$cpp]               throw omero::ClientError(__FILE__,__LINE__,"Argument cannot be null");
 [$cpp]           }
+[$cpp]           if (toCopy->getId()->getValue() != getId()->getValue()) {
+[$cpp]              throw omero::ClientError(__FILE__,__LINE__,"Argument must have the same id as this instance");
+[$cpp]           }
+#if( ! $type.immutable )
+[$cpp]           if (toCopy->getDetails()->getUpdateEvent()->getId()->getValue() < getDetails()->getUpdateEvent()->getId()->getValue()) {
+[$cpp]              throw omero::ClientError(__FILE__,__LINE__,"Argument may not be older than this instance");
+[$cpp]           }
+#end
+[$cpp]           Collection<${property.shortType}> copy = toCopy.copy${PropertyName}(); // May also throw
 [$cpp]           ${cppType} copy = toCopy->copy${PropertyName}(); // May also throw
-[$cpp]           $cppType::iterator beg = ${fieldName}.begin();
-[$cpp]           $cppType::iterator end = ${fieldName}.end();
+[$cpp]           $cppType::iterator beg = copy.begin();
+[$cpp]           $cppType::iterator end = copy.end();
 [$cpp]           for(; beg != end; beg++) {
 [$cpp]               (*beg)->set$Inverse( this );
 [$cpp]           }
 [$cpp]           ${fieldName} = copy;
 [$cpp]           toCopy->unload${PropertyName}();
+[$cpp]           ${propLoaded} = true;
 [$cpp]       }
 
 (B) List Modifications
