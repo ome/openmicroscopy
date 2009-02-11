@@ -163,7 +163,7 @@ public class TimelineITest extends TestCase {
         Dataset d = new Dataset("ds");
         d = user.managedSf.getUpdateService().saveAndReturnObject(d);
 
-        List<Event> rv = assertGetEvents(rtime_min(), rtime_max());
+        List<EventLog> rv = assertGetEventLogs(rtime_min(), rtime_max());
         assertTrue(rv.size() > 0);
 
     }
@@ -330,11 +330,11 @@ public class TimelineITest extends TestCase {
         return rv;
     }
 
-    private List<Event> assertGetEvents(RTime start, RTime end)
-            throws ServerError {
+    private List<EventLog> assertGetEventLogs(RTime start, RTime end)
+            throws Exception {
         final boolean[] status = new boolean[] { false, false };
         final Exception[] exc = new Exception[1];
-        final List<Event> rv = new ArrayList<Event>();
+        final List<EventLog> rv = new ArrayList<EventLog>();
         user_t.getEventLogsByPeriod_async(new AMD_ITimeline_getEventLogsByPeriod() {
 
             public void ice_exception(Exception ex) {
@@ -345,15 +345,12 @@ public class TimelineITest extends TestCase {
             public void ice_response(List<EventLog> __ret) {
                 status[1] = true;
                 rv.addAll(__ret);
-                for (Object o : __ret) {
-                    if (!(o instanceof Event)) {
-                        status[1] = false;
-                        exc[0] = new ClassCastException(o.getClass().getName());
-                    }
-                }
             }
         }, start, end, null, null);
-        assertFalse("exception thrown: " + exc[0], status[0]);
+        if (exc[0] != null) {
+            throw exc[0];
+        }
+        assertFalse(status[0]);
         assertTrue("didn't pass", status[1]);
         return rv;
     }

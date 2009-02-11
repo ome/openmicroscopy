@@ -8,6 +8,9 @@
 package ome.services.blitz.impl;
 
 import static omero.rtypes.rint;
+import static omero.rtypes.rstring;
+import static omero.rtypes.rlong;
+import static omero.rtypes.rtime;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -24,6 +27,9 @@ import ome.api.IShare;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.SessionAnnotationLink;
+import ome.model.core.Image;
+import ome.model.meta.Event;
+import ome.model.meta.EventLog;
 import ome.security.AdminAction;
 import ome.security.SecuritySystem;
 import ome.services.blitz.util.BlitzExecutor;
@@ -45,8 +51,6 @@ import omero.api.AMD_ITimeline_getMostRecentAnnotationLinks;
 import omero.api.AMD_ITimeline_getMostRecentObjects;
 import omero.api.AMD_ITimeline_getMostRecentShareCommentLinks;
 import omero.api._ITimelineOperations;
-import omero.model.Event;
-import omero.model.EventLog;
 import omero.sys.Filter;
 import omero.sys.Parameters;
 import omero.util.IceMapper;
@@ -107,25 +111,23 @@ public class TimelineI extends AbstractAmdServant implements
     static final Map<String, String> ORDERBY = new HashMap<String, String>();
     static final Map<String, String> BYPERIOD = new HashMap<String, String>();
     static {
-        
+
         String WHERE_OBJ_DETAILS = "where obj.details.owner.id=:id and "
-            + "    (obj.details.creationEvent.time >= :start "
-            + "  or obj.details.updateEvent.time  >= :start) "
-            + "and (obj.details.creationEvent.time <= :end"
-            + " or obj.details.updateEvent.time <= :end )";
-        
+                + "    (obj.details.creationEvent.time >= :start "
+                + "  or obj.details.updateEvent.time  >= :start) "
+                + "and (obj.details.creationEvent.time <= :end"
+                + " or obj.details.updateEvent.time <= :end )";
+
         BYPERIOD.put("Project", "from Project obj "
                 + "join @FETCH@ obj.details.creationEvent "
                 + "join @FETCH@ obj.details.owner "
-                + "join @FETCH@ obj.details.group "
-                + WHERE_OBJ_DETAILS);
+                + "join @FETCH@ obj.details.group " + WHERE_OBJ_DETAILS);
         BYPERIOD.put("Dataset", "from Dataset obj "
                 + "join @FETCH@ obj.details.creationEvent "
                 + "join @FETCH@ obj.details.owner "
                 + "join @FETCH@ obj.details.group "
                 + "left outer join @FETCH@ obj.projectLinks pdl "
-                + "left outer join @FETCH@ pdl.parent p "
-                + WHERE_OBJ_DETAILS);
+                + "left outer join @FETCH@ pdl.parent p " + WHERE_OBJ_DETAILS);
         BYPERIOD.put("RenderingDef", "from RenderingDef obj join @FETCH@ "
                 + "obj.details.creationEvent join @FETCH@ obj.details.owner "
                 + "join @FETCH@ obj.details.group left outer join @FETCH@ "
@@ -148,30 +150,17 @@ public class TimelineI extends AbstractAmdServant implements
                 + "where obj.details.owner.id=:id and "
                 + "      obj.acquisitionDate >= :start "
                 + "and   obj.acquisitionDate <= :end ");
-        BYPERIOD
-                .put(
-                        "EventLog",
-                        "from EventLog obj "
-                                + "left outer join @FETCH@ obj.event ev where ( "
-                                + "    obj.entityType in ("
-                                + "        'ome.model.core.Image', "
-                                + "        'ome.model.containers.Dataset', "
-                                + "        'ome.model.containers.Project') "
-                                + "    and ev.id in (     "
-                                + "        select id from Event where "
-                                + "        experimenter.id=:id "
-                                + "        and time >= :start and time <= :end)"
-                                + ") OR (             "
-                                + "    obj.entityType = 'ome.model.display.RenderingDef' "
-                                + "    and obj.entityId in ("
-                                + "        select rd from RenderingDef rd where "
-                                + "            rd.pixels.image  in ("
-                                + "                select id from Image i where"
-                                + "                i.details.owner.id = :id))"
-                                + "    and ev.id in ("
-                                + "        select id from Event where     "
-                                + "        time >= :start and time <= :end)"
-                                + ")               ");
+
+        BYPERIOD.put("EventLog", "from EventLog obj "
+                + "left outer join @FETCH@ obj.event ev where "
+                + "    obj.entityType in ("
+                + "        'ome.model.containers.Dataset', "
+                + "        'ome.model.containers.Project') "
+                + "    and obj.action in (" + "        'INSERT', "
+                + "        'UPDATE') " + "    and ev.id in (     "
+                + "        select id from Event where "
+                + "        experimenter.id=:id "
+                + "        and time >= :start and time <= :end)");
     }
 
     public void countByPeriod_async(final AMD_ITimeline_countByPeriod __cb,
@@ -239,10 +228,35 @@ public class TimelineI extends AbstractAmdServant implements
             @SuppressWarnings("unchecked")
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
+
+                Parameters pWithDefaults = applyDefaults(p);
+                long userid = userId();
+
                 Map<String, List<EventLog>> events = (Map<String, List<EventLog>>) do_periodQuery(
-                        false, Arrays.asList("EventLog"), userId(), start, end,
-                        null, session, applyDefaults(p));
-                return events.get("EventLog");
+                        false, Arrays.asList("EventLog"), userid, start, end,
+                        null, session, pWithDefaults);
+                List<EventLog> logs = events.get("EventLog");
+
+                // WORKAROUND - currently there are no events for
+                // Image.acquisitionDate meaning we have to generate them
+                // here.
+                String query = "select i from Image i join fetch i.details.owner join fetch i.details.group "
+                        + "where i.details.owner.id=:id and i.acquisitionDate > :start and i.acquisitionDate < :end";
+                Query q = session.createQuery(query);
+                q.setParameter("id", userid);
+                q.setParameter("start", new Timestamp(start.getValue()));
+                q.setParameter("end", new Timestamp(end.getValue()));
+                List<Image> images = (List<Image>) q.list();
+                for (Image image : images) {
+                    EventLog el = new EventLog();
+                    el.setEntityId(image.getId());
+                    el.setEntityType(image.getClass().getName());
+                    el.setAction("INSERT");
+                    el.setEvent(new Event());
+                    el.getEvent().setTime(image.getAcquisitionDate());
+                    logs.add(el);
+                }
+                return logs;
             }
 
         }));
@@ -310,7 +324,7 @@ public class TimelineI extends AbstractAmdServant implements
                     qb.select("link");
                     qb.from(_parentType + "AnnotationLink", "link");
                     qb.join("link.parent", "parent", false, false);
-                    qb.join("link.child", "child", false, false);
+                    qb.join("link.child", "child", false, true);
                     qb.join("link.details.creationEvent", "creation", false,
                             true);
                     qb.join("link.details.updateEvent", "update", false, true);
@@ -497,14 +511,14 @@ public class TimelineI extends AbstractAmdServant implements
     }
 
     static class Entry {
-        final long updateId;
+        final Timestamp update;
         final String key;
         final IObject obj;
 
         Entry(String key, IObject obj) {
             this.key = key;
             this.obj = obj;
-            this.updateId = obj.getDetails().getUpdateEvent().getId();
+            this.update = obj.getDetails().getUpdateEvent().getTime();
         }
     }
 
@@ -520,8 +534,8 @@ public class TimelineI extends AbstractAmdServant implements
 
         Collections.sort(list, new Comparator<Entry>() {
             public int compare(Entry o1, Entry o2) {
-                long u1 = o1.updateId;
-                long u2 = o2.updateId;
+                long u1 = o1.update.getTime();
+                long u2 = o2.update.getTime();
                 if (u1 < u2) {
                     return 1;
                 } else if (u2 < u1) {
