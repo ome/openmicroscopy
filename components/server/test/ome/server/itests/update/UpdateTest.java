@@ -21,6 +21,7 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.CodomainMapContext;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
+import ome.model.enums.DimensionOrder;
 import ome.model.enums.Format;
 import ome.model.jobs.ImportJob;
 import ome.model.jobs.JobStatus;
@@ -33,10 +34,6 @@ import org.testng.annotations.Test;
 
 public class UpdateTest extends AbstractUpdateTest {
 
-    static {
-        System.setProperty("Context.INITIAL_CONTEXT_FACTORY", "tyrex.naming.MemoryContextFactory");
-    }
-    
     @Test(enabled=false)
     public void testSaveSimpleObject() throws Exception {
         Pixels p = ObjectFactory.createPixelGraph(null);
@@ -396,6 +393,15 @@ public class UpdateTest extends AbstractUpdateTest {
             t.join();
         }
         
+    }
+    
+    @Test
+    public void testPixelsIndexStartsWith0() throws Exception {
+        Pixels p = ObjectFactory.createPixelGraph(null);
+        // p.setDimensionOrder(iQuery.findAll(DimensionOrder.class, null).get(0));
+        Image i = iUpdate.saveAndReturnObject(p.getImage());
+        assertEquals(1, i.sizeOfPixels());
+        assertNotNull(i.collectPixels(null).get(0));
     }
 
     protected void assertLink(ProjectDatasetLink link) {
