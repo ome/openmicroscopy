@@ -22,6 +22,15 @@
         <scons_py>
             <arg value="-j"/>
             <arg value="${env.J}"/>
+            <arg value="src"/>
+        </scons_py>
+    </target>
+
+    <target name="test">
+        <scons_py>
+            <arg value="-j"/>
+            <arg value="${env.J}"/>
+            <arg value="test"/>
         </scons_py>
     </target>
 
