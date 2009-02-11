@@ -281,7 +281,6 @@ class ObjectInspector
 		ROIShape shape;
 		try {
 			while (i.hasNext()) {
-				
 				shape = i.next();
 				tableModel.setData(shape.getFigure());
 				fieldTable.setModel(tableModel);

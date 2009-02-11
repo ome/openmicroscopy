@@ -706,21 +706,23 @@ class MeasurementViewerUI
 		Collection figures = dv.getSelectedFigures();
 		if (figures == null) return;
 		Iterator i = figures.iterator();
-		List roiList = new ArrayList();
+		List<ROIShape> roiShapeList = new ArrayList();
 		ROIFigure f;
-		ROI roi;
+		ROIShape roiShape;
 		try {
 			while (i.hasNext()) {
 				f = (ROIFigure) i.next();
-				roi = model.getROI(f.getROI().getID());
-				if (roi != null) roiList.add(roi);
+			//	roi = model.getROIShape(f.getROIShape().getID());
+			//	if (roi != null) roiList.add(roi);
+				roiShape = f.getROIShape();
+				roiShapeList.add(roiShape);
 			}
 		} catch (Exception e) {
 			handleROIException(e, RETRIEVE_MSG);
 		}
 		dv.grabFocus();
-		roiInspector.setSelectedFigures(roiList);
-		roiManager.setSelectedFigures(roiList, false);
+		roiInspector.setSelectedFigures(roiShapeList);
+		roiManager.setSelectedFigures(roiShapeList, false);
     }
     
     /**
