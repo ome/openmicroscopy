@@ -213,7 +213,8 @@ TOGGLE AND CREATE COLLECTIONS:
 #foreach( $property in $type.propertyClosure )
 #set(     $PropertyName = $property.nameCapped )
 #set(     $javaType = $property.type)
-#set(     $seqName = "${Pojo}${PropertyName.substring(0,1).toUpperCase()}${PropertyName.substring(1,$PropertyName.length())}Seq" )## seqName copied from ice_defs.vm
+#set(     $ActualPojo = $property.actualType.shortname)
+#set(     $seqName = "${ActualPojo}${PropertyName.substring(0,1).toUpperCase()}${PropertyName.substring(1,$PropertyName.length())}Seq" )## seqName copied from ice_defs.vm
 #set($genericType = $property.type)
 #set($genericType = $genericType.replaceFirst("ome.model..+?[.]","omero::model::"))
 #set($genericTypeC = "${genericType.replaceAll('[.]','::')}")
@@ -221,6 +222,10 @@ TOGGLE AND CREATE COLLECTIONS:
 Here we don't have to keep up with the type (set/list)
 since all collections are lists in ice.
 
+##
+## Some lines should only be present in superclasses.
+## Those are marked with an uppercased version.
+##
 #if( $type.id.equals($property.actualType.id) )
 #set($Ice = "ice" )
 #else
@@ -1160,15 +1165,15 @@ addAll set
 [$pyc]           for target in targets:
 [$pyc]               target.set$Inverse( self )
 [$pyc]
-[$hdr]       virtual void addAll${property.shortType}Set($cppType targets, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::addAll${property.shortType}Set($cppType targets, $CPP_CURRENT) {
+[$hdr]       virtual void addAll${property.shortType}Set(const ${cppType}& targets, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::addAll${property.shortType}Set(const ${cppType}& targets, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           $cppType::iterator loc = ${fieldName}.end();
-[$cpp]           $cppType::iterator beg = targets.begin();
-[$cpp]           $cppType::iterator end = targets.end();
+[$cpp]           $cppType::const_iterator beg = targets.begin();
+[$cpp]           $cppType::const_iterator end = targets.end();
 [$cpp]           ${fieldName}.insert(loc,beg,end);
-[$cpp]           for ($cppType::iterator it = targets.begin(); it != targets.end(); ++it) {
+[$cpp]           for ($cppType::const_iterator it = targets.begin(); it != targets.end(); ++it) {
 [$cpp]               ${property.shortType}Ptr target = *it;
 [$cpp]               target->set$Inverse( this );
 [$cpp]           }
@@ -1298,17 +1303,17 @@ super class where the property was defined.
 [$pyc]       def reload${PropertyName}(self, toCopy, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if self._${propLoaded}:
-[$pyc]               throw new omero.ClientError("Cannot reload active collection: ${fieldName}")
+[$pyc]               raise omero.ClientError("Cannot reload active collection: ${fieldName}")
 [$pyc]           if not toCopy:
-[$pyc]               throw new omero.ClientError("Argument cannot be null")
-[$pyc]           copy = toCopy.copy${PropertyName}() // May also throw
+[$pyc]               raise omero.ClientError("Argument cannot be null")
+[$pyc]           copy = toCopy.copy${PropertyName}() # May also throw
 [$pyc]           for elt in self._${fieldName}:
 [$pyc]               elt.set$Inverse( self )
 [$pyc]           self._${fieldName} = copy
 [$pyc]           toCopy.unload${PropertyName}()
 [$pyc]
 [$hdr]       virtual void reload${PropertyName}(const ${ActualPojo}Ptr& toCopy, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::reload${PropertyName}(const ${ActualPojo}& toCopy, $CPP_CURRENT) {
+[$cpp]       void ${PojoI}::reload${PropertyName}(const ${ActualPojo}Ptr& toCopy, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (${propLoaded}) {
 [$cpp]               throw omero::ClientError(__FILE__,__LINE__,"Cannot reload active collection: ${fieldName}");
@@ -1666,7 +1671,7 @@ REMOVE
 Linked Lists
 ==============================
 
-[$Ice]       ${Pojo}Linked${property.shortTarget}Seq linked${property.shortTarget}List();
+[$Ice]       ${ActualPojo}Linked${property.shortTarget}Seq linked${property.shortTarget}List();
 [$jav]        public List<${property.shortTarget}> linked${property.shortTarget}List($JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]            errorIfUnloaded();
 [$jav]            if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
@@ -1677,11 +1682,11 @@ Linked Lists
 [$jav]            return linked;
 [$jav]        }
 
-[$hdr]        virtual ${Pojo}Linked${property.shortTarget}Seq linked${property.shortTarget}List($HDR_CURRENT);
-[$cpp]        ${Pojo}Linked${property.shortTarget}Seq ${PojoI}::linked${property.shortTarget}List($CPP_CURRENT) {
+[$hdr]        virtual ${ActualPojo}Linked${property.shortTarget}Seq linked${property.shortTarget}List($HDR_CURRENT);
+[$cpp]        ${ActualPojo}Linked${property.shortTarget}Seq ${PojoI}::linked${property.shortTarget}List($CPP_CURRENT) {
 [$cpp]            errorIfUnloaded();
 [$cpp]            if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
-[$cpp]            ${Pojo}Linked${property.shortTarget}Seq linked;
+[$cpp]            ${ActualPojo}Linked${property.shortTarget}Seq linked;
 [$cpp]            ${seqName}::iterator beg = ${fieldName}.begin();
 [$cpp]            while (beg != ${fieldName}.end()) {
 [$cpp]                ${property.shortType}Ptr link = *beg;

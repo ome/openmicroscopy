@@ -18,12 +18,14 @@
         </get-source>
     </target>
 
-    <target name="tools-build" depends="tools-init" description="Use scons to build the libraries" unless="env.NOMAKE">
+    <target name="build">
         <scons_py>
             <arg value="-j"/>
             <arg value="${env.J}"/>
         </scons_py>
     </target>
+
+    <target name="tools-build" depends="tools-init,build" description="Use scons to build the libraries" unless="env.NOMAKE"/>
 
     <target name="tools-dist" depends="tools-build" description="Copies files into tools/target" unless="env.NOMAKE">
         <scons_py>
