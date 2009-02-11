@@ -70,6 +70,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
             + "left outer join fetch i.pixels as p "
             + "left outer join fetch p.channels as c "
             + "left outer join fetch c.logicalChannel as lc "
+            + "left outer join fetch lc.channels as c2 "
             + "left outer join fetch c.statsInfo as sinfo "
             + "left outer join fetch p.planeInfo as pinfo "
             + "left outer join fetch p.thumbnails as thumb "
@@ -312,8 +313,11 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
                     Channel channel = channels.set(i, null);
                     delete.call(channel);
                     delete.call(channel.getStatsInfo());
-                    delete.call(channel.getLogicalChannel());
+                    
                     LogicalChannel lc = channel.getLogicalChannel();
+                    if (lc.sizeOfChannels() < 2) {
+                    delete.call(lc);
+                    }
                     // delete.call(lc.getLightSource());
                     // // TODO lightsource
                     // delete.call(lc.getAuxLightSource());

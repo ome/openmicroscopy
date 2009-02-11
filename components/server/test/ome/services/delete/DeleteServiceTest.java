@@ -19,7 +19,9 @@ import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
+import ome.model.core.Channel;
 import ome.model.core.Image;
+import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -164,6 +166,23 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         srv.deleteImagesByDataset(containsAll.getId(), false);
     }
 
+    @Test
+    public void testDeleteHandlesMultiLinkedLogicalChannels() throws Exception {
+        Image i1 = makeImage(true);
+        Image i2 = makeImage(true);
+
+        String sql = "select lc from LogicalChannel lc "
+                + "join fetch lc.channels ch join ch.pixels p join p.image i where i.id = ";
+        List<LogicalChannel> lcs1 = iQuery.findAllByQuery(sql + i1.getId(), null);
+        Channel c1 = lcs1.get(0).iterateChannels().next();
+        List<LogicalChannel> lcs2 = iQuery.findAllByQuery(sql + i2.getId(), null);
+        c1.setLogicalChannel(lcs2.get(0));
+        iUpdate.saveObject(c1);
+
+        IDelete srv = this.factory.getDeleteService();
+        srv.deleteImage(i1.getId(), true);
+    }
+
     // Multiuser tests
     // =========================================================================
 
@@ -211,7 +230,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         Pixels p1 = i1.iteratePixels().next();
 
         Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
-        
+
         // In 4.0, default permissions were made private which prevents this
         // test from being carried out as a regular user. Now testing as
         // admin.
