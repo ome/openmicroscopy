@@ -330,6 +330,14 @@ public class SharingTest extends AbstractManagedContextTest {
         assertEquals(1, share.getContents(id).size());
         assertEquals(1, share.getContentSubList(id, 0, 1).size());
         assertEquals(1, share.getContentMap(id).size());
+        
+        Dataset d2 = new Dataset("elements transitively");
+        Image i2 = new Image(new Timestamp(0), "transitive image");
+        d2.linkImage(i2);
+        d2 = iUpdate.saveAndReturnObject(d2);
+        
+        share.addObject(id, d2);
+        assertEquals(4, share.getContentSize(id));
     }
 
     @Test

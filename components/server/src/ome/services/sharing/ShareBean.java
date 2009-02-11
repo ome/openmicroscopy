@@ -30,6 +30,7 @@ import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.SessionAnnotationLink;
+import ome.model.internal.Details;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
@@ -43,6 +44,8 @@ import ome.services.sharing.data.Obj;
 import ome.services.sharing.data.ShareData;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.util.ContextFilter;
+import ome.util.Filterable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -320,7 +323,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         ShareData data = store.get(shareId);
         throwOnNullData(shareId, data);
         data.enabled = active;
-        store(shareId, data);
+        _store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -339,48 +342,23 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
             @NotNull T... objects) {
         ShareData data = store.get(shareId);
         throwOnNullData(shareId, data);
+        Graph graph = new Graph();
         for (T object : objects) {
-            List<Long> ids = data.objectMap.get(object.getClass().getName());
-            if (ids == null) {
-                ids = new ArrayList<Long>();
-                data.objectMap.put(object.getClass().getName(), ids);
-            }
-            ids.add(object.getId());
-            Obj obj = new Obj();
-            obj.type = object.getClass().getName();
-            obj.id = object.getId();
-            data.objectList.add(obj);
+            graph.filter("top", object);
         }
-        store(shareId, data);
-    }
-
-    private void store(long shareId, ShareData data) {
-        Share share = iQuery.get(Share.class, shareId);
-        this.sec.doAction(new SecureStore(data), share);
-        adminFlush();
+        _addGraph(data, graph);
+        _store(shareId, data);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public <T extends IObject> void addObject(long shareId, @NotNull T object) {
-        
-        if (object == null) {
-            throw new ValidationException("Argument cannot be null.");
-        }
-        
         ShareData data = store.get(shareId);
         throwOnNullData(shareId, data);
-        List<Long> ids = data.objectMap.get(object.getClass().getName());
-        if (ids == null) {
-            ids = new ArrayList<Long>();
-            data.objectMap.put(object.getClass().getName(), ids);
-        }
-        ids.add(object.getId());
-        Obj obj = new Obj();
-        obj.type = object.getClass().getName();
-        obj.id = object.getId();
-        data.objectList.add(obj);
-        store(shareId, data);
+        Graph graph = new Graph();
+        graph.filter("top", object);
+        _addGraph(data, graph);
+        _store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -406,7 +384,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
             }
         }
         data.objectList.removeAll(toRemove);
-        store(shareId, data);
+        _store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -426,7 +404,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
             }
         }
         data.objectList.removeAll(toRemove);
-        store(shareId, data);
+        _store(shareId, data);
     }
 
     // ~ Getting comments
@@ -542,7 +520,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         for (Experimenter experimenter : es) {
             data.members.remove(experimenter.getId());
         }
-        store(shareId, data);
+        _store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -552,7 +530,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         ShareData data = store.get(shareId);
         throwOnNullData(shareId, data);
         data.guests.addAll(addresses);
-        store(shareId, data);
+        _store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -563,7 +541,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         for (Experimenter experimenter : exps) {
             data.members.remove(experimenter.getId());
         }
-        store(shareId, data);
+        _store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -572,7 +550,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         List<String> addresses = Arrays.asList(emailAddresses);
         ShareData data = store.get(shareId);
         data.guests.removeAll(addresses);
-        store(shareId, data);
+        _store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -581,7 +559,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         ShareData data = store.get(shareId);
         throwOnNullData(shareId, data);
         data.members.add(exp.getId());
-        store(shareId, data);
+        _store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -590,7 +568,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         ShareData data = store.get(shareId);
         throwOnNullData(shareId, data);
         data.guests.add(emailAddress);
-        store(shareId, data);
+        _store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -599,7 +577,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         ShareData data = store.get(shareId);
         throwOnNullData(shareId, data);
         data.members.remove(exp.getId());
-        store(shareId, data);
+        _store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -608,7 +586,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         ShareData data = store.get(shareId);
         throwOnNullData(shareId, data);
         data.guests.remove(emailAddress);
-        store(shareId, data);
+        _store(shareId, data);
     }
 
     // Events
@@ -638,12 +616,12 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     // Helpers
     // =========================================================================
 
-    private String idToUuid(long shareId) {
+    protected String idToUuid(long shareId) {
         Session s = iQuery.get(Session.class, shareId);
         return s.getUuid();
     }
 
-    private List<Experimenter> loadMembers(ShareData data) {
+    protected List<Experimenter> loadMembers(ShareData data) {
         List<Experimenter> members = new ArrayList<Experimenter>();
         if (data.members.size() > 0)
             members = iQuery.findAllByQuery("select e from Experimenter e "
@@ -658,7 +636,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
      * 
      * @return the time in milliseconds that this session can exist.
      */
-    private long expirationAsLong(Timestamp expiration) {
+    protected long expirationAsLong(Timestamp expiration) {
         long now = System.currentTimeMillis();
         long time;
         if (expiration != null) {
@@ -674,7 +652,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         return time - now;
     }
 
-    private Set<Session> sharesToSessions(List<ShareData> datas) {
+    protected Set<Session> sharesToSessions(List<ShareData> datas) {
         /*
          * TODO: When Share will have details method can be updated: +
          * "join fetch sh.details.owner where sh.id in (:ids) ",
@@ -697,14 +675,14 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         return sessions;
     }
 
-    private Session shareToSession(ShareData data) {
+    protected Session shareToSession(ShareData data) {
         return iQuery.findByQuery("select sh from Session sh "
                 + "join fetch sh.owner where sh.id = :id ", new Parameters()
                 .addId(data.id));
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends IObject> Map<Class<T>, List<Long>> map(
+    protected <T extends IObject> Map<Class<T>, List<Long>> map(
             Map<String, List<Long>> map) {
         Map<Class<T>, List<Long>> rv = new HashMap<Class<T>, List<Long>>();
         for (String key : map.keySet()) {
@@ -720,7 +698,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends IObject> List<T> list(List<Obj> objectList) {
+    protected <T extends IObject> List<T> list(List<Obj> objectList) {
         List<T> rv = new ArrayList<T>();
         for (Obj o : objectList) {
             T t;
@@ -737,7 +715,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         return rv;
     }
 
-    void adminFlush() {
+    protected void adminFlush() {
         getSecuritySystem().runAsAdmin(new AdminAction() {
             public void runAsAdmin() {
                 iUpdate.flush();
@@ -745,13 +723,13 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         });
     }
 
-    void throwOnNullData(long shareId, ShareData data) {
+    protected void throwOnNullData(long shareId, ShareData data) {
         if (data == null) {
             throw new ValidationException("Share not found: " + shareId);
         }
     }
 
-    ShareData getShareIfAccessibble(long shareId) {
+    protected ShareData getShareIfAccessibble(long shareId) {
 
         ShareData data = store.get(shareId);
         if (data == null) {
@@ -765,5 +743,53 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
             return data;
         }
         return null;
+    }
+
+    protected void _addGraph(ShareData data, Graph g) {
+        for (IObject object : g.objects()) {
+            List<Long> ids = data.objectMap.get(object.getClass().getName());
+            if (ids == null) {
+                ids = new ArrayList<Long>();
+                data.objectMap.put(object.getClass().getName(), ids);
+            }
+            if (!ids.contains(object.getId())) {
+                ids.add(object.getId());
+                Obj obj = new Obj();
+                obj.type = object.getClass().getName();
+                obj.id = object.getId();
+                data.objectList.add(obj);
+            }
+        }
+    }
+
+    protected void _store(long shareId, ShareData data) {
+        Share share = iQuery.get(Share.class, shareId);
+        this.sec.doAction(new SecureStore(data), share);
+        adminFlush();
+    }
+
+    // Graph : used for
+    // =========================================================================
+
+    private static class Graph extends ContextFilter {
+
+        public List<IObject> objects() {
+            List<IObject> rv = new ArrayList<IObject>();
+            for (Object o : _cache.keySet()) {
+                if (o instanceof IObject) {
+                    IObject obj = (IObject) o;
+                    rv.add(obj);
+                }
+            }
+            return rv;
+        }
+
+        @Override
+        protected void doFilter(String fieldId, Filterable f) {
+            if (!(f instanceof Details)) {
+                super.doFilter(fieldId, f);
+            }
+        }
+
     }
 }
