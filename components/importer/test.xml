@@ -1,0 +1,15 @@
+<ivy-module version="1.0">
+  <info
+      organisation="omero"
+      module="importer-test"
+      status="integration"/>
+  <configurations>
+    <conf name="test"/>
+  </configurations>
+  <publications>
+    <artifact name="importer-test" type="jar"/>
+  </publications>
+  <dependencies defaultconfmapping="test->*">
+    <dependency name="importer" rev="${omero.version}" changing="true"/>
+  </dependencies>
+</ivy-module>

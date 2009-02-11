@@ -5,20 +5,19 @@
       status="integration"/>
   <configurations>
     <conf name="build"/>
-    <conf name="test"/>
     <conf name="client"/>
     <conf name="server"/>
   </configurations>
   <publications>
     <artifact name="licenses" type="jar"/>
   </publications>
-  <dependencies defaultconfmapping="build->build;test->test;server->server;client->client">
+  <dependencies defaultconfmapping="build->build;server->server;client->client">
     <!-- Internal -->
     <dependency org="omero" name="common" rev="${omero.version}" changing="true"/>
     <dependency org="omero" name="importer" rev="${omero.version}" changing="true" />
     <dependency org="omero" name="romio" rev="${omero.version}" changing="true" />
     <dependency org="omero" name="rendering" rev="${omero.version}" changing="true" />
-    <dependency org="omero" name="server" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
+    <dependency org="omero" name="server" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" />
   </dependencies>
 </ivy-module>

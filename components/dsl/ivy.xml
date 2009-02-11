@@ -5,19 +5,18 @@
       status="integration"/>
   <configurations>
     <conf name="build"/>
-    <conf name="test"/>
     <conf name="runtime"/>
   </configurations>
   <publications>
     <artifact name="dsl" type="jar"/>
   </publications>
-  <dependencies defaultconfmapping="build,test->default">
+  <dependencies defaultconfmapping="build->default">
     <!-- runtime dependencies for all modules, since dsl is the base of our DAG -->
     <dependency org="log4j" name="log4j" rev="1.2.14" conf="runtime->default"/>
-    <dependency org="omero" name="postgresql" rev="${versions.postgresql}" conf="test,runtime->default"/>
-    <dependency org="org/springframework" name="spring" rev="${versions.spring}" conf="build,test,runtime->default"/>
-    <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="build,test,runtime->default"/>
-    <dependency org="commons-collections" name="commons-collections" rev="${versions.commons-collections}" conf="build,test,runtime->default"/>
+    <dependency org="omero" name="postgresql" rev="${versions.postgresql}" conf="runtime->default"/>
+    <dependency org="org/springframework" name="spring" rev="${versions.spring}" conf="build,runtime->default"/>
+    <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="build,runtime->default"/>
+    <dependency org="commons-collections" name="commons-collections" rev="${versions.commons-collections}" conf="build,runtime->default"/>
     <!-- build requirements -->
     <dependency org="apache" name="ant" rev="${versions.ant}"/>
     <dependency org="velocity-tools" name="velocity-tools-generic" rev="1.1"/>
@@ -25,14 +24,5 @@
     <dependency org="emma" name="emma" rev="${versions.emma}"/>
     <dependency org="emma" name="emma_ant" rev="${versions.emma}"/>
     <dependency org="checkstyle" name="checkstyle" rev="${versions.checkstyle}"/>
-    <!-- test requirements for all modules-->
-    <dependency org="groovy" name="groovy" rev="${versions.groovy}" conf="test->default"/>
-    <dependency org="jmock" name="jmock" rev="1.0.1" conf="test->default"/>
-    <dependency org="junit" name="junit" rev="3.8.1" conf="test->default"/>
-    <dependency org="org/springframework" name="spring-test" rev="${versions.spring}" conf="test->default"/>
-    <dependency org="testng" name="testng" rev="${versions.testng}" conf="test->default"/>
-    <dependency org="findbugs" name="findbugs-ant" rev="${versions.findbugs}" conf="test->default"/>
-    <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}" conf="test->default"/>
-    <dependency org="antlr" name="antlr" rev="2.7.6" conf="test->default"/>
-  </dependencies>
+ </dependencies>
 </ivy-module>

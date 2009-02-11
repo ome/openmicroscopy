@@ -144,6 +144,8 @@
 	</target>
 
 	<target name="testng-init" unless="test.skip">
+		<ivy:resolve file="${basedir}/test.xml" type="jar" log="quiet"/>
+		<ivy:retrieve pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
 		<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="omero.test.classpath"/>
 	</target>
 

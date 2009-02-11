@@ -1,0 +1,23 @@
+<ivy-module version="1.0">
+  <info
+      organisation="omero"
+      module="dsl-test"
+      status="integration"/>
+  <configurations>
+    <conf name="test"/>
+  </configurations>
+  <publications>
+    <artifact name="dsl-test" type="jar"/>
+  </publications>
+  <dependencies defaultconfmapping="test->*">
+    <dependency name="dsl" rev="${omero.version}" changing="true"/>
+    <dependency org="antlr" name="antlr" rev="2.7.6" conf="test->default"/>
+    <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}" conf="test->default"/>
+    <dependency org="jmock" name="jmock" rev="1.0.1" conf="test->default"/>
+    <dependency org="junit" name="junit" rev="3.8.1" conf="test->default"/>
+    <dependency org="findbugs" name="findbugs-ant" rev="${versions.findbugs}" conf="test->default"/>
+    <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="test->default"/>
+    <dependency org="org/springframework" name="spring-test" rev="${versions.spring}" conf="test->default"/>
+    <dependency org="testng" name="testng" rev="${versions.testng}" conf="test->default"/>
+  </dependencies>
+</ivy-module>

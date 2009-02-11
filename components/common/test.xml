@@ -1,0 +1,15 @@
+<ivy-module version="1.0">
+  <info
+      organisation="omero"
+      module="common-test"
+      status="integration"/>
+  <configurations>
+    <conf name="test"/>
+  </configurations>
+  <publications>
+    <artifact name="common-test" type="jar"/>
+  </publications>
+  <dependencies defaultconfmapping="test->*">
+    <dependency name="common" rev="${omero.version}" changing="true"/>
+  </dependencies>
+</ivy-module>

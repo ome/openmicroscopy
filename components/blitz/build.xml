@@ -13,7 +13,7 @@
             <delete dir="${basedir}/generated"/>
         </target>
 
-	<target name="compile" depends="generate" unless="skip.compile">
+	<target name="compile" depends="generate,icegen" unless="skip.compile">
 		<hard-wire file="ome/services/blitz/fire/SessionManagerI.java"
 		    token="&quot;ome.security.basic.BasicSecurityWiring&quot;"/>
 
@@ -45,8 +45,6 @@
                 <delete file="${file.real.sessionmanager}"/>
                 <delete file="${file.fake.sessionmanager}"/><!-- Just in case -->
 	</target>
-
-        <target name="generate" depends="lifecycle.generate,icegen"/>
 
 	<target name="install" depends="lifecycle.install">
 		<standalone conf="server"/>

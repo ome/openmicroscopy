@@ -5,7 +5,6 @@
       status="integration"/>
   <configurations>
     <conf name="build"/>
-    <conf name="test"/>
     <conf name="client"/>
     <conf name="server"/>
   </configurations>
@@ -14,8 +13,7 @@
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="model-${omero.db.profile}" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client;server->server"/>
+    <dependency name="model-${omero.db.profile}" rev="${omero.version}" changing="true" conf="build->build;client->client;server->server"/>
     <!-- Public -->
-    <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="test->default"/>
   </dependencies>
 </ivy-module>

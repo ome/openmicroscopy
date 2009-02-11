@@ -2,7 +2,6 @@
   <info organisation="omero" module="main" revision="${omero.version}" status="integration"/>
   <configurations>
     <conf name="build"/>
-    <conf name="test"/>
     <conf name="runtime"/>
   </configurations>
   <publications>
@@ -16,7 +15,6 @@
     <dependency name="rendering" rev="${omero.version}" changing="true"/>
     <dependency name="blitz" rev="${omero.version}" changing="true" conf="*->server"/>
     <dependency name="server" rev="${omero.version}" changing="true" conf="*->server"/>
-    <dependency name="testing" rev="${omero.version}" changing="true" conf="*->test"/>
     <dependency org="omero-tools" name="omero_client" rev="${omero.version}" changing="true" conf="*->client"/>
     <dependency org="omero-tools" name="OmeroImporter" rev="${omero.version}" changing="true" conf="*->client"/>
     <!-- Ant dependencies for the antlib/resources/omero.ivy build -->

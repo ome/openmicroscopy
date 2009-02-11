@@ -5,7 +5,6 @@
       status="integration"/>
   <configurations>
     <conf name="build"/>
-    <conf name="test"/>
     <conf name="client"/>
     <conf name="server"/>
   </configurations>
@@ -14,10 +13,9 @@
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="server" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
+    <dependency name="server" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <!-- Public -->
-    <dependency org="omero" name="ice" rev="${versions.ice}" conf="build,test,client,server->default"/>
-    <dependency org="jgroups" name="jgroups" rev="${versions.jgroups}" conf="build,test,client,server->default"/>
+    <dependency org="omero" name="ice" rev="${versions.ice}" conf="build,client,server->default"/>
   </dependencies>
 </ivy-module>
 

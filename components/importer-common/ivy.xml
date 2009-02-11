@@ -5,14 +5,13 @@
       status="integration"/>
   <configurations>
     <conf name="build"/>
-    <conf name="test"/>
     <conf name="client"/>
     <conf name="server"/>
   </configurations>
   <publications>
     <artifact name="importer-common" type="jar"/>
   </publications>
-  <dependencies defaultconfmapping="build,test,client,server->default">
-    <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client;server->server"/>
+  <dependencies defaultconfmapping="build,client,server->default">
+    <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;client->client;server->server"/>
   </dependencies>
 </ivy-module>

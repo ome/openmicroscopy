@@ -180,8 +180,12 @@ build-* targets.
     </target>
 
     <target name="test" description="Run all tests" depends="init">
-        <iterate buildpathref="all.buildpath" target="integration"/>
-        <iterate buildpathref="tools.buildpath" target="integration"/>
+        <ivy:settings id="ivy.test"  file="${etc.dir}/ivysettings.xml"/>
+        <ivy:buildlist reference="test.buildpath" settingsRef="ivy.test" ivyfilepath="test.xml">
+            <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
+        </ivy:buildlist>
+        <!-- Single file paths defined in antlib/resources/directories.xml -->
+        <iterate buildpathref="test.buildpath" target="integration"/>
     </target>
 
     <!--

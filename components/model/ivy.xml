@@ -5,16 +5,15 @@
       status="integration"/>
   <configurations>
     <conf name="build"/>
-    <conf name="test"/>
     <conf name="client"/>
     <conf name="server"/>
   </configurations>
   <publications>
     <artifact name="model-${omero.db.profile}" type="jar"/>
   </publications>
-  <dependencies defaultconfmapping="build,test,client,server->default">
+  <dependencies defaultconfmapping="build,client,server->default">
     <!-- Internal -->
-    <dependency name="dsl" rev="${omero.version}" changing="true" conf="build->build;test->test;client->runtime;server->runtime"/>
+    <dependency name="dsl" rev="${omero.version}" changing="true" conf="build->build;client->runtime;server->runtime"/>
     <!-- Hibernate server -->
     <dependency org="antlr" name="antlr" rev="${versions.antlr}" conf="server->default"/>
     <dependency org="asm" name="asm-attrs" rev="${versions.asm}" conf="server->default"/>

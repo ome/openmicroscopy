@@ -5,20 +5,18 @@
       status="integration"/>
   <configurations>
     <conf name="build"/>
-    <conf name="test"/>
     <conf name="server"/>
   </configurations>
   <publications>
     <artifact name="server" type="jar"/>
   </publications>
-  <dependencies defaultconfmapping="build,test,server->default">
+  <dependencies defaultconfmapping="build,server->default">
     <!-- Internal -->
-    <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
-    <dependency name="importer" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
-    <dependency name="importer-common" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
-    <dependency name="romio" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
-    <dependency name="rendering" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
-    <dependency name="testing" rev="${omero.version}" changing="true" conf="test->test" />
+    <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
+    <dependency name="importer" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
+    <dependency name="importer-common" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
+    <dependency name="romio" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
+    <dependency name="rendering" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <!-- Ice -->
     <dependency org="omero" name="ice" rev="${versions.ice}"/>
     <dependency org="omero" name="ice-db" rev="${versions.ice}"/>
