@@ -1526,8 +1526,6 @@ class BlitzGateway (threading.Thread):
         if members is not None:
             p.map["ids"] = rlist([rlong(long(a)) for a in members])
             sql = "select e from Experimenter e " \
-                  #"left outer join fetch e.annotationLinks eal left outer join fetch eal.child fa " \
-                  #"join fetch fa.file f join fetch f.format fm " \
                   "where e.id in (:ids) order by e.omeName"
             ms = q.findAllByQuery(sql, p)
         sid = sh.createShare(message, expiration, items, ms, [], enable)
