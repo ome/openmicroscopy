@@ -99,13 +99,22 @@ public interface IObjectContainerStore
     
     /**
      * Retrieves an IObject container for a given class and location within the
-     * OME-XML data model.
+     * OME-XML data model. <b>NOTE:</b> The container will be created if it
+     * does not already exist.
      * @param klass Class to retrieve a container for.
      * @param indexes Indexes into the OME-XML data model.
      * @return See above.
      */
     IObjectContainer getIObjectContainer(Class<? extends IObject> klass,
     		                             LinkedHashMap<String, Integer> indexes);
+    
+    /**
+     * Retrieves all IObject containers of a given class. <b>NOTE:</b> this
+     * will only return <b>existing</b> containers.
+     * @param klass Class to retrieve containers for.
+     * @return See above.
+     */
+    List<IObjectContainer> getIObjectContainers(Class<? extends IObject> klass);
     
     /**
      * Counts the number of containers the MetadataStore has of a given class

@@ -489,15 +489,11 @@ public class OMEROMetadataStoreClient
      */
     public <T extends IObject> List<T> getSourceObjects(Class<T> klass)
     {
-    	Set<LSID> keys = containerCache.keySet();
-    	List<T> toReturn = new ArrayList<T>();
-    	for (LSID key : keys)
+        List<IObjectContainer> containers = getIObjectContainers(klass);
+    	List<T> toReturn = new ArrayList<T>(containers.size());
+    	for (IObjectContainer container: containers)
     	{
-    		Class<? extends IObject> keyClass = key.getJavaClass();
-    		if (keyClass != null && keyClass.equals(klass))
-    		{
-    			toReturn.add((T) containerCache.get(key).sourceObject);
-    		}
+    	    toReturn.add((T) container.sourceObject);
     	}
     	return toReturn;
     }
@@ -590,6 +586,24 @@ public class OMEROMetadataStoreClient
         }
         
         return containerCache.get(lsid);
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getIObjectContainers(java.lang.Class)
+     */
+    public List<IObjectContainer> getIObjectContainers(Class<? extends IObject> klass)
+    {
+        Set<LSID> keys = containerCache.keySet();
+        List<IObjectContainer> toReturn = new ArrayList<IObjectContainer>();
+        for (LSID key : keys)
+        {
+            Class<? extends IObject> keyClass = key.getJavaClass();
+            if (keyClass != null && keyClass.equals(klass))
+            {
+                toReturn.add(containerCache.get(key));
+            }
+        }
+        return toReturn;
     }
     
     /**
