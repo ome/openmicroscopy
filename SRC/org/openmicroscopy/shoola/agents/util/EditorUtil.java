@@ -1043,10 +1043,10 @@ public class EditorUtil
     	LinkedHashMap<String, Object> 
 			details = new LinkedHashMap<String, Object>(4);
     	List<String> notSet = new ArrayList<String>();
-    	details.put(TEMPERATURE, new Float(0));
-    	details.put(AIR_PRESSURE, new Float(0));
-    	details.put(HUMIDITY, new Float(0));
-    	details.put(CO2_PERCENT, new Float(0));
+    	details.put(TEMPERATURE, new Double(0));
+    	details.put(AIR_PRESSURE, new Double(0));
+    	details.put(HUMIDITY, new Double(0));
+    	details.put(CO2_PERCENT, new Double(0));
     	
     	if (data == null) {
     		notSet.add(TEMPERATURE);
@@ -1060,7 +1060,7 @@ public class EditorUtil
     	double f = 0;
     	if (o == null) {
     		notSet.add(TEMPERATURE);
-    	} else f = (Float) o;
+    	} else f = (Double) o;
     	details.put(TEMPERATURE, f);
     	f = data.getAirPressure();
     	if (f < 0) {
@@ -1097,9 +1097,9 @@ public class EditorUtil
 			details = new LinkedHashMap<String, Object>(4);
     	List<String> notSet = new ArrayList<String>();
     	details.put(NAME, "");
-    	details.put(POSITION_X, new Float(0));
-    	details.put(POSITION_Y, new Float(0));
-    	details.put(POSITION_Z, new Float(0));
+    	details.put(POSITION_X, new Double(0));
+    	details.put(POSITION_Y, new Double(0));
+    	details.put(POSITION_Z, new Double(0));
     	
     	if (data == null) {
     		notSet.add(NAME);
@@ -1114,20 +1114,20 @@ public class EditorUtil
 			notSet.add(NAME);
     	details.put(NAME, s);
     	Object o = data.getPositionX();
-    	float f = 0;
+    	double f = 0;
     	if (o == null) {
     		notSet.add(POSITION_X);
-    	} else f = (Float) o;
+    	} else f = (Double) o;
     	details.put(POSITION_X, f);
     	f = 0;
     	if (o == null) {
     		notSet.add(POSITION_Y);
-    	} else f = (Float) o;
+    	} else f = (Double) o;
     	details.put(POSITION_Y, f);
     	f = 0;
     	if (o == null) {
     		notSet.add(POSITION_Z);
-    	} else f = (Float) o;
+    	} else f = (Double) o;
     	details.put(POSITION_Z, f);
     	
     	details.put(NOT_SET, notSet);
@@ -1152,7 +1152,7 @@ public class EditorUtil
     	details.put(MANUFACTURER, "");
     	details.put(SERIAL_NUMBER, "");
     	details.put(LIGHT_TYPE, "");
-    	details.put(POWER, new Float(0));
+    	details.put(POWER, new Double(0));
     	details.put(TYPE, "");
 
     	if (data == null) {
@@ -1231,8 +1231,6 @@ public class EditorUtil
         		notSet.add(POCKEL_CELL);
         	}
         	details.put(POCKEL_CELL, o); 
-        	
-        	//details.put(PUMP, data.hasPump());
         }
 
 		details.put(NOT_SET, notSet);
@@ -1254,12 +1252,12 @@ public class EditorUtil
     	details.put(MODEL, "");
     	details.put(MANUFACTURER, "");
     	details.put(SERIAL_NUMBER, "");
-    	details.put(GAIN, new Float(0));
-    	details.put(VOLTAGE, new Float(0));
-        details.put(OFFSET, new Float(0));
-        details.put(READ_OUT_RATE, new Float(0));
+    	details.put(GAIN, new Double(0));
+    	details.put(VOLTAGE, new Double(0));
+        details.put(OFFSET, new Double(0));
+        details.put(READ_OUT_RATE, new Double(0));
         details.put(BINNING, "");
-        details.put(ZOOM, new Float(0));
+        details.put(ZOOM, new Double(0));
         details.put(AMPLIFICATION, "");
         details.put(TYPE, ""); 
         if (data == null) {
@@ -1299,7 +1297,7 @@ public class EditorUtil
     		details.put(GAIN, f);
     	}
     	f = data.getDetectorSettingsVoltage();
-    	if (f > 0)  details.put(VOLTAGE, f);
+    	if (f > 0) details.put(VOLTAGE, f);
     	else {
     		f = data.getDetectorVoltage();
     		if (f < 0) {
@@ -1309,7 +1307,7 @@ public class EditorUtil
     		details.put(VOLTAGE, f);
     	}
     	f = data.getDetectorSettingsOffset();
-    	if (f > 0)  details.put(OFFSET, f);
+    	if (f > 0) details.put(OFFSET, f);
     	else {
     		f = data.getDetectorOffset();
     		if (f < 0) {
@@ -1358,11 +1356,11 @@ public class EditorUtil
     {
     	LinkedHashMap<String, Object> 
 		details = new LinkedHashMap<String, Object>(4);
-    	details.put(DELTA_T, new Float(0));
-		details.put(EXPOSURE_TIME, new Float(0));
-		details.put(POSITION_X, new Float(0));
-		details.put(POSITION_Y, new Float(0));
-		details.put(POSITION_Z, new Float(0));
+    	details.put(DELTA_T, new Double(0));
+		details.put(EXPOSURE_TIME, new Double(0));
+		details.put(POSITION_X, new Double(0));
+		details.put(POSITION_Y, new Double(0));
+		details.put(POSITION_Z, new Double(0));
     	if (plane != null) {
     		RDouble o = plane.getDeltaT();
     		if (o != null) 

@@ -975,10 +975,17 @@ class EditorModel
 	void loadChannelData()
 	{
 		Object refObject = getRefObject();
-		if (!(refObject instanceof ImageData)) return;
-		PixelsData data = ((ImageData) refObject).getDefaultPixels();
+		ImageData data = null;
+		if (refObject instanceof ImageData)
+			data = (ImageData) refObject;
+		else if (refObject instanceof WellSampleData) {
+			WellSampleData wsd = (WellSampleData) refObject;
+			data = wsd.getImage();
+			if (data == null || data.getId() < 0) data = null;
+		}
+		PixelsData pixs = data.getDefaultPixels();
 		ChannelDataLoader loader = new ChannelDataLoader(component, 
-									data.getId());
+									pixs.getId());
 		loader.load();
 		loaders.add(loader);
 	}

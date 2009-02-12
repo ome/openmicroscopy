@@ -49,6 +49,7 @@ import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellSampleData;
 
 /** 
  * Component displaying the annotation.
@@ -225,8 +226,13 @@ class GeneralPaneUI
 				s = "Contained in Datasets";
 				controller.loadChannelData();
 			}
+		} else if (refObject instanceof WellSampleData) {
+			if (!multi) {
+				controller.loadChannelData();
+			}
 		} else if ((refObject instanceof ProjectData) || 
-				(refObject instanceof ScreenData))
+				(refObject instanceof ScreenData) ||
+				(refObject instanceof WellSampleData))
 			browserTaskPane.setCollapsed(true);
 		browserTaskPane.setTitle(s);
 		layout.setRow(browserIndex, h);
@@ -334,7 +340,8 @@ class GeneralPaneUI
     void setChannelData()
     { 
     	Object refObject = model.getRefObject();
-    	if (refObject instanceof ImageData) 
+    	if ((refObject instanceof ImageData) || 
+    			(refObject instanceof WellSampleData))
     		propertiesUI.setChannelData(model.getChannelData());
     }
     

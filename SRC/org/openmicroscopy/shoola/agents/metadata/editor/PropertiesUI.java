@@ -222,9 +222,10 @@ class PropertiesUI
      * Builds the panel hosting the information
      * 
      * @param details The information to display.
+     * @param image	  The image of reference.
      * @return See above.
      */
-    private JPanel buildContentPanel(Map details)
+    private JPanel buildContentPanel(Map details, ImageData image)
     {
     	JPanel content = new JPanel();
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -240,7 +241,7 @@ class PropertiesUI
     	layout.insertRow(index, TableLayout.PREFERRED);
     	JLabel label = UIUtilities.setTextFont("Image Date", Font.BOLD, size);
     	JLabel value = UIUtilities.createComponent(null);
-    	String v = model.formatDate((ImageData) model.getRefObject());
+    	String v = model.formatDate(image);
     	value.setText(v);
     	content.add(label, "0, "+index);
     	content.add(value, "2, "+index);
@@ -382,7 +383,8 @@ class PropertiesUI
          if ((refObject instanceof ImageData) || 
             (refObject instanceof DatasetData) ||
         	(refObject instanceof ProjectData) || 
-        	(refObject instanceof TagAnnotationData)) {
+        	(refObject instanceof TagAnnotationData) ||
+        	(refObject instanceof WellSampleData)) {
         	 p.add(Box.createVerticalStrut(5));
         	 descriptionPanel = layoutEditablefield(editDescription, 
         			 			descriptionPane);
@@ -402,13 +404,21 @@ class PropertiesUI
     	setBackground(UIUtilities.BACKGROUND);
         add(buildProperties());
         Object refObject = model.getRefObject();
-    	if (!(refObject instanceof ImageData)) return;
-    	PixelsData data = null;
-    	try {
-    		data = ((ImageData) refObject).getDefaultPixels();
-		} catch (Exception e) {}
-    	add(Box.createVerticalStrut(5));
-    	add(buildContentPanel(EditorUtil.transformPixelsData(data)));
+        PixelsData data = null;
+        ImageData img = null;
+        if (refObject instanceof ImageData) {
+        	img = (ImageData) refObject;
+        	try {
+        		data = ((ImageData) refObject).getDefaultPixels();
+    		} catch (Exception e) {}
+        } else if (refObject instanceof WellSampleData) {
+        	img = ((WellSampleData) refObject).getImage();
+        	if (img != null && img.getId() > 0)
+        		data = img.getDefaultPixels();
+        }
+        if (data == null) return;
+        add(Box.createVerticalStrut(5));
+    	add(buildContentPanel(EditorUtil.transformPixelsData(data), img));
     }
 
 	/**
@@ -538,6 +548,11 @@ class PropertiesUI
 			PlateData p = (PlateData) object;
 			if (name.length() > 0) p.setName(name);
 			p.setDescription(desc);
+		} else if (object instanceof WellSampleData) {
+			WellSampleData well = (WellSampleData) object;
+			ImageData img = well.getImage();
+			if (name.length() > 0) img.setName(name);
+			img.setDescription(desc);
 		}
 	}
 	

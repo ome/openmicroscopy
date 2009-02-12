@@ -60,6 +60,7 @@ import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
 import pojos.URLAnnotationData;
+import pojos.WellSampleData;
 
 /** 
  * Implements the {@link Editor} interface to provide the functionality
@@ -433,12 +434,14 @@ class EditorComponent
 	 */
 	public void loadImageAcquisitionData()
 	{
-		if (!(model.getRefObject() instanceof ImageData)) return;
-		Object data = model.getImageAcquisitionData();
-		if (data != null) return;
-		if (!(model.getRefObject() instanceof ImageData)) return;
-		model.fireImagAcquisitionDataLoading();
-		view.setStatus(true);
+		Object refObject = model.getRefObject();
+		if ((refObject instanceof ImageData) || 
+				(refObject instanceof WellSampleData)) {
+			Object data = model.getImageAcquisitionData();
+			if (data != null) return;
+			model.fireImagAcquisitionDataLoading();
+			view.setStatus(true);
+		}
 	}
 
 	/** 
@@ -447,12 +450,15 @@ class EditorComponent
 	 */
 	public void loadChannelAcquisitionData(ChannelData channel)
 	{
-		if (!(model.getRefObject() instanceof ImageData)) return;
-		if (channel == null) return;
-		Object data = model.getChannelAcquisitionData(channel.getIndex());
-		if (data != null) return;
-		model.fireChannelAcquisitionDataLoading(channel);
-		view.setStatus(true);
+		Object refObject = model.getRefObject();
+		if ((refObject instanceof ImageData) || 
+				(refObject instanceof WellSampleData)) {
+			if (channel == null) return;
+			Object data = model.getChannelAcquisitionData(channel.getIndex());
+			if (data != null) return;
+			model.fireChannelAcquisitionDataLoading(channel);
+			view.setStatus(true);
+		}
 	}
 	
 	/** 
