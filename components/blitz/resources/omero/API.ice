@@ -284,6 +284,8 @@ module omero {
 	["ami", "amd"] interface IMetadata extends ServiceInterface
 	{
 	    idempotent LogicalChannelList loadChannelAcquisitionData(omero::sys::LongList ids) throws ServerError;
+	    idempotent AnnotationMap loadAnnotations(string rootType, omero::sys::LongList rootIds, omero::api::StringSet annotationTypes, omero::sys::LongList annotatorIds) throws ServerError;
+		idempotent AnnotationList loadSpecifiedAnnotations(string annotationType, string nameSpace, omero::sys::LongList annotatorIds, bool linkedObject) throws ServerError;
 	};
 	
 	/*

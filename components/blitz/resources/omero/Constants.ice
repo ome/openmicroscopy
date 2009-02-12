@@ -102,6 +102,13 @@ module omero {
     const string POJOORPHAN       = "orphan";        // omero::RBool (whether or not orphan containers returned)
 	const string POJOACQUISITIONDATA = "acquisitionData"; // omero::RBool (whether or not image acquisition data returned)
 	
+	module metadata {
+	
+		const string NSINSIGHTTAGSET = "openmicroscopy.org/omero/insight/tagset";
+		const string NSINSIGHTRATING = "openmicroscopy.org/omero/insight/rating";
+		const string NSIMPORTERARCHIVED = "openmicroscopy.org/omero/importer/archived";
+	};
+	
     module jobs {
 
       /*

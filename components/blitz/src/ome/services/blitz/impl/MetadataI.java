@@ -35,7 +35,9 @@ import ome.services.blitz.util.BlitzExecutor;
 import omero.RInt;
 import omero.RType;
 import omero.ServerError;
+import omero.api.AMD_IMetadata_loadAnnotations;
 import omero.api.AMD_IMetadata_loadChannelAcquisitionData;
+import omero.api.AMD_IMetadata_loadSpecifiedAnnotations;
 import omero.api._IMetadataOperations;
 import Ice.Current;
 
@@ -76,4 +78,19 @@ public class MetadataI
 		 callInvokerOnRawArgs(__cb, __current, ids);
 	 }
 
+	 public void loadAnnotations_async(AMD_IMetadata_loadAnnotations __cb,
+			 String rootType, List<Long> rootIds, List<String> annotationTypes, 
+			 List<Long> annotatorIds, Current __current) 
+	 throws ServerError {
+		 callInvokerOnRawArgs(__cb, __current, rootType, rootIds, 
+				 annotationTypes, annotatorIds);
+	 }
+	    
+	 public void loadSpecifiedAnnotations_async(AMD_IMetadata_loadSpecifiedAnnotations __cb,
+			 String annotationType, String nameSpace, List<Long> annotatorIds, 
+			 boolean linkObjects, Current __current) 
+	 throws ServerError {
+		 callInvokerOnRawArgs(__cb, __current, annotationType, nameSpace, annotatorIds,
+				 linkObjects);
+	 }
 }
