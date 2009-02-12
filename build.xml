@@ -185,6 +185,10 @@ build-* targets.
         </sequential>
     </macrodef>
 
+    <target name="test-compile" description="Compile all tests" depends="init">
+        <launchSuite suite="test-compile"/>
+    </target>
+
     <target name="test" description="Run all unit tests" depends="init">
         <launchSuite suite="test"/>
     </target>

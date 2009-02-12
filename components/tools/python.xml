@@ -8,10 +8,15 @@
 
     <defineVariables/>
 
+    <target name="test-compile" description="Dummy target for python since no compile needed"/>
+
     <macrodef name="setup_py">
         <attribute name="failonerror" default="true"/>
         <element name="args" implicit="true"/>
         <sequential>
+            <copy todir="${basedir}">
+               <fileset dir="${omero.home}/lib/repository" includes="setuptools*"/>
+            </copy>
             <exec executable="${basedir}/setup.py" failonerror="@{failonerror}">
                 <args/>
             </exec>

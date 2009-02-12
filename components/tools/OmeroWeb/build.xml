@@ -27,6 +27,7 @@
 
     <import file="${import.dir}/global.xml"/>
     <import file="${up-two}/common.xml"/>
+    <import file="${up-two}/python.xml"/>
 
     <target name="_test">
         <exec dir="${basedir}/omeroweb" executable="python" failonerror="fals">

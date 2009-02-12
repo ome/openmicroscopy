@@ -28,23 +28,21 @@
         </scons_py>
     </target>
 
-    <target name="test" unless="env.NOMAKE">
+    <target name="test-compile" unless="env.NOMAKE">
         <scons_py>
             <arg value="-j"/>
             <arg value="${env.J}"/>
             <arg value="test"/>
         </scons_py>
+    </target>
+
+    <target name="test" depends="test-compile" unless="env.NOMAKE">
         <exec dir="${basedir}" executable="test/unit.exe" failonerror="${test.with.fail}">
             <env key="ICE_HOME" value="${ice.home}"/>
         </exec>
     </target>
 
-    <target name="integration" unless="env.NOMAKE">
-        <scons_py>
-            <arg value="-j"/>
-            <arg value="${env.J}"/>
-            <arg value="test"/>
-        </scons_py>
+    <target name="integration" depends="test-compile" unless="env.NOMAKE">
         <exec dir="${basedir}" executable="test/integration.exe" failonerror="${test.with.fail}">
             <env key="ICE_HOME" value="${ice.home}"/>
         </exec>

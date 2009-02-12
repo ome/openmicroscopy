@@ -11,7 +11,7 @@
   </publications>
   <dependencies defaultconfmapping="test->*">
     <dependency name="blitz" rev="${omero.version}" changing="true"/>
-    <dependency name="server-test" rev="${omero.version}" changing="true"/>
+    <dependency name="common-test" rev="${omero.version}" changing="true"/>
   </dependencies>
 </ivy-module>
 
