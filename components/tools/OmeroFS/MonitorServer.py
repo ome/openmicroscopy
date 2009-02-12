@@ -6,8 +6,12 @@
 
 import sys, traceback
 import uuid
-import hashlib
 import socket
+
+try:
+    from hashlib import sha1 as sha
+except:
+    from sha import sha
 
 # logging
 from logger import log
