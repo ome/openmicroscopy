@@ -33,15 +33,12 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -59,6 +56,7 @@ import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
+import org.openmicroscopy.shoola.util.ui.BrowserLauncher;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /**
@@ -192,7 +190,7 @@ public class UrlChooser
 		
 		setLayout(new BorderLayout());
 		
-		int panelWidth = 600;
+		int panelWidth = 700;
 		
 		String headerMessage= "Choose an example file to open.";
 		Icon headerIcon = IconManager.getInstance().getIcon(
@@ -222,7 +220,7 @@ public class UrlChooser
 		webPage.addHyperlinkListener(this);
 		
 		// ... in a scroll pane
-		Dimension scrollPaneSize = new Dimension(panelWidth, 350);
+		Dimension scrollPaneSize = new Dimension(panelWidth, 450);
 		JScrollPane scrollPane = new JScrollPane(webPage, 
 				 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setPreferredSize(scrollPaneSize);
@@ -287,8 +285,16 @@ public class UrlChooser
 			if (event != null) {
 				String url = event.getURL().toString();
 				if (url != null) {
-					urlField.setText(url);
-					importButton.setEnabled(true);
+					
+					boolean cpeFile = url.endsWith(EditorFileFilter.CPE_XML);
+					
+					if (cpeFile) {
+						urlField.setText(url);
+						importButton.setEnabled(true);
+					}
+					else {
+						new BrowserLauncher().openURL(url);
+					}
 				}
 			}
 		}

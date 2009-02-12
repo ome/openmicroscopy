@@ -240,7 +240,11 @@ class EditorUI
     	UIUtilities.showMessageDialog(title, message);
     }
     
-    /** Overrides the {@link #setOnScreen() setOnScreen} method. */
+    /** 
+     * Overrides the {@link #setOnScreen() setOnScreen} method. 
+     * Does not make the window visible, since this only occurs after 
+     * the file has opened. 
+     */
     public void setOnScreen()
     {	
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -259,7 +263,6 @@ class EditorUI
     	setSize(w, h);
     	x = x + offset;
     	y = y + offset;
-    	System.out.println("EditorUI setOnScreen x:" + x + ", y:" + y);
     	setLocation(x, y);
     }
     
