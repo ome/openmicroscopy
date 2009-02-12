@@ -118,14 +118,14 @@ class EditorComponent
 					//view.setOnScreen();	// called by EditorUI initialize()
 				} else {
 					//if (view != null) view.deIconify();
-					if (view != null) UIUtilities.centerAndShow(view);
+					if (view != null) view.setVisible(true);
 				}
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED state.");
 			default:
-			UIUtilities.centerAndShow(view);
+			if (view != null) view.setVisible(true);
 		}
 	}
 	
@@ -220,6 +220,8 @@ class EditorComponent
 		if (model.setFileToEdit(file)) {
 			view.setTitle(model.getFileName());
 			view.displayFile();
+			if (!view.isVisible())
+				view.setVisible(true);
 		}
 		fireStateChange();
 	}

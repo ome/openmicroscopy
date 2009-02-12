@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.editor.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
@@ -241,17 +243,24 @@ class EditorUI
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {	
-    	/*
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize(6*(screenSize.width/10), 6*(screenSize.height/10));
+        int w = 8*(screenSize.width/10);
+        int h = 8*(screenSize.height/10);
 
-        this.setLocation(screenSize.width/5, screenSize.height/5);
-        */
+        w = Math.min(1100, w);
+        h = Math.min(600, h);
+        
+        int x = screenSize.width/9;
+        int y = screenSize.height/10;
+        
     	int windowCount = EditorFactory.getEditorCount();
     	int offset = windowCount * 20;
     	
-    	setSize(1100, 600);
-    	setLocation(150 + offset, 50 + offset);
+    	setSize(w, h);
+    	x = x + offset;
+    	y = y + offset;
+    	System.out.println("EditorUI setOnScreen x:" + x + ", y:" + y);
+    	setLocation(x, y);
     }
     
 }
