@@ -80,69 +80,46 @@ public class ThumbnailsManager
      * for each {@link ImageNode} that represents the given Image. 
      */
     private Map<Long, Set>     	thumbProviders;
-
-    /**
-     * Creates a new instance.
-     * 
-     * @param wells The nodes hosting the wells to display.
-     */
-    public ThumbnailsManager(Collection<ImageDisplay> wells)
-    {
-    	if (wells == null) 
-            throw new NullPointerException("No wells.");
-    	this.totalIDs = wells.size();
-    	processedIDs = new HashSet<Long>();
-    	thumbProviders = new HashMap<Long, Set>();
-    	Iterator i = wells.iterator();
-    	WellImageSet node;
-    	ImageData is;
-    	Long id;
-    	Set<Thumbnail> providers;
-    	int t = 0;
-    	while (i.hasNext()) {
-    		node = (WellImageSet) i.next();
-    		is = node.getSelectedImage();
-    		id = is.getId();
-    		providers = thumbProviders.get(id);
-    		if (providers == null) {
-    			t++;
-    			providers = new HashSet<Thumbnail>();
-    			thumbProviders.put(id, providers);
-    		}
-    		providers.add(node.getSelectedWellSample().getThumbnail());
-    	}
-    }
     
     /**
      * Creates a new instance.
      * 
-     * @param imageNodes All the {@link ImageNode}s in a given visualization
-     *                   tree.  Mustn't be <code>null</code>.
-     * @param totalIDs	 The total number of timages to load.
+     * @param nodes 	All the {@link ImageDisplay}s in a given visualization
+     *                  tree.  Mustn't be <code>null</code>.
+     * @param totalIDs	The total number of timages to load.
      */
-    public ThumbnailsManager(Collection<ImageNode> imageNodes, int totalIDs)
+    public ThumbnailsManager(Collection nodes, int totalIDs)
     {
-        if (imageNodes == null) 
+        if (nodes == null) 
             throw new NullPointerException("No image nodes.");
         //totalIDs = 0;
         this.totalIDs = totalIDs;
         processedIDs = new HashSet<Long>();
         thumbProviders = new HashMap<Long, Set>();
-        Iterator i = imageNodes.iterator();
-        ImageNode node;
-        ImageData is;
+        Iterator<ImageDisplay> i = nodes.iterator();
+        ImageDisplay node;
+        ImageData is = null;
         Long id;
         Set<Thumbnail> providers;
+        Thumbnail thumb = null;
         while (i.hasNext()) {
-            node = (ImageNode) i.next();
-            is = (ImageData) node.getHierarchyObject();
-            id = is.getId();
-            providers = thumbProviders.get(id);
-            if (providers == null) {
-                providers = new HashSet<Thumbnail>();
-                thumbProviders.put(id, providers);
+            node = i.next();
+            if (node instanceof WellImageSet) {
+        		is = ((WellImageSet) node).getSelectedImage();
+        		thumb = ((WellImageSet) node).getSelectedWellSample().getThumbnail();
+            } else if (node instanceof ImageNode) {
+            	 is = (ImageData) node.getHierarchyObject();
+            	 thumb = ((ImageNode) node).getThumbnail();
             }
-            providers.add(node.getThumbnail());
+            if (is != null) {
+            	 id = is.getId();
+                 providers = thumbProviders.get(id);
+                 if (providers == null) {
+                     providers = new HashSet<Thumbnail>();
+                     thumbProviders.put(id, providers);
+                 }
+                 providers.add(thumb);
+            }
         }
     }
     

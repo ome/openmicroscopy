@@ -56,11 +56,9 @@ class DataBrowserWellToolBar
 	extends JPanel
 {
 
-
 	/** Reference to the control. */
 	private DataBrowserControl 	controller;
-	
-	
+
 	/** Reference to the view. */
 	private DataBrowserUI		view;
 	
@@ -80,14 +78,13 @@ class DataBrowserWellToolBar
 		if (f > 1) { 
 			String[] values = new String[f];
  			for (int i = 0; i < f; i++) 
-				values[i] = "Field "+i;
+				values[i] = "Field #"+i;
  			fields = new JComboBox(values);
- 			fields.setSelectedIndex(0);
+ 			fields.setSelectedIndex(view.getSelectedField());
  			fields.addActionListener(new ActionListener() {
 			
 				public void actionPerformed(ActionEvent e) {
 					controller.viewField(fields.getSelectedIndex());
-			
 				}
 			
 			});

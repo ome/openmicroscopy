@@ -470,8 +470,7 @@ class ImViewerComponent
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED state.");
 			default:
-				if (view != null) view.deIconify();
-			if (view != null) UIUtilities.centerOnScreen(view);
+				if (view != null) UIUtilities.centerOnScreen(view);
 		}
 	}
 

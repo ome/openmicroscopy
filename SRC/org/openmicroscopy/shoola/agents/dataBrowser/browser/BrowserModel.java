@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.ImageData;
+import pojos.WellSampleData;
 
 /** 
  * Implements {@link Browser} to maintain presentation state, thus acting
@@ -192,6 +193,7 @@ class BrowserModel
 							fireProperty)
 	{
 		//if (node == null) return;
+		if (node instanceof CellDisplay) return;
 	    thumbSelected = false;
 	    popupPoint = null;
 	    this.multiSelection = multiSelection;
@@ -235,7 +237,6 @@ class BrowserModel
 	    		WellImageSet wiNode = (WellImageSet) parent;
 	    		title = "Well: "+wiNode.getRowDisplay();
 	    		title += "-"+wiNode.getColumnDisplay();
-
 	    	} else {
 	    		title = parent.getTitle();
 	    		if (title == null || title.length() == 0) title = "[..]";
@@ -666,8 +667,12 @@ class BrowserModel
 		if (node == null) return;
 		if (node instanceof ImageNode) {
 			EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
-	    	bus.post(new ViewImage((ImageData) node.getHierarchyObject(), 
-	    				null));
+			Object uo = node.getHierarchyObject();
+			if (uo instanceof ImageData) {
+				bus.post(new ViewImage((ImageData) uo, null));
+			} else if (uo instanceof WellSampleData) {
+				bus.post(new ViewImage(((WellSampleData) uo).getImage(), null));
+			}
 		}
 	}
 	

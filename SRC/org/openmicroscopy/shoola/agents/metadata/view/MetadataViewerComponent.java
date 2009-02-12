@@ -50,6 +50,7 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellSampleData;
 
 /** 
  * Implements the {@link MetadataViewer} interface to provide the functionality
@@ -255,8 +256,10 @@ class MetadataViewerComponent
 	public void setRootObject(Object root)
 	{
 		if (root == null) root = "";
-		//if (root instanceof String) model.getEditor().s;
-		//if (root instanceof Time)
+		if (root instanceof WellSampleData) {
+			WellSampleData ws = (WellSampleData) root;
+			if (ws.getId() < 0) root = null;
+		}
 		model.setRootObject(root);
 		view.setRootObject();
 	}

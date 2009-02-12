@@ -204,7 +204,6 @@ class GeneralPaneUI
 		boolean multi = model.isMultiSelection();
 		Object refObject = model.getRefObject();
 		if (refObject instanceof TagAnnotationData) {
-			propertiesUI.setObjectDescription();
 			TagAnnotationData tag = (TagAnnotationData) refObject;
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
 					tag.getNameSpace())) {

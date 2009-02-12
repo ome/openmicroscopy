@@ -22,13 +22,13 @@
  */
 package org.openmicroscopy.shoola.env.rnd.data;
 
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
  * Packs a sequence of bytes representing an unsigned big-endian integer into 

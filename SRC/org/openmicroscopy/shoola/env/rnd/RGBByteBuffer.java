@@ -61,9 +61,9 @@ class RGBByteBuffer
     {
         super(TYPE_BYTE, buf.sizeX1, buf.sizeX2, 3);
         banks = new byte[3][];
-        banks[0] = buf.bands[omero.romio.RedBand.value];//buf.getRedBand();
-        banks[1] = buf.bands[omero.romio.GreenBand.value];//buf.getGreenBand();
-        banks[2] = buf.bands[omero.romio.BlueBand.value];//buf.getBlueBand();
+        banks[0] = buf.bands[omero.romio.RedBand.value];
+        banks[1] = buf.bands[omero.romio.GreenBand.value];
+        banks[2] = buf.bands[omero.romio.BlueBand.value];
     }
     
     /** 

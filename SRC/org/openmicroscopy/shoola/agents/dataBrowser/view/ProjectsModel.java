@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 
@@ -72,6 +73,6 @@ class ProjectsModel
 	 * No-op implementation in our case.
 	 * @see DataBrowserModel#getNodes()
 	 */
-	protected Set<ImageDisplay> getNodes() { return null; }
+	protected List<ImageDisplay> getNodes() { return null; }
 	
 }

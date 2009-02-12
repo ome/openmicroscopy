@@ -69,6 +69,7 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellSampleData;
 
 /** 
  * Displays the properties of the selected object.
@@ -472,6 +473,7 @@ class PropertiesUI
         else if (refObject instanceof ScreenData) text = "Screen ";
         else if (refObject instanceof PlateData) text = "Plate ";
         else if (refObject instanceof FileAnnotationData) text = "File ";
+        else if (refObject instanceof WellSampleData) text = "Field ";
         else if (refObject instanceof TagAnnotationData) {
         	TagAnnotationData tag = (TagAnnotationData) refObject;
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
@@ -498,30 +500,6 @@ class PropertiesUI
         }
         */
         buildGUI();
-	}
-	
-	/** Sets the description of the object if the object is a tag annotation. */
-	void setObjectDescription()
-	{
-		/*
-		if (!(model.getRefObject() instanceof TagAnnotationData))  return;
-		boolean b = model.isCurrentUserOwner(model.getRefObject());
-		if (b)
-			descriptionPane.getDocument().removeDocumentListener(this);
-		Map<Long, List> annotations = model.getTextualAnnotationByOwner();
-		long userID = MetadataViewerAgent.getUserDetails().getId();
-		List l = annotations.get(userID);
-		if (l != null && l.size() > 0) {
-			TextualAnnotationData data = (TextualAnnotationData) l.get(0);
-			descriptionPane.setText(data.getText());
-			originalDescription = descriptionPane.getText();
-		} else {
-			descriptionPane.setText(DEFAULT_DESCRIPTION_TEXT);
-			originalDescription = DEFAULT_DESCRIPTION_TEXT;
-		}
-		if (b)
-			descriptionPane.getDocument().addDocumentListener(this);
-			*/
 	}
 	
     /** Sets the focus on the name area. */

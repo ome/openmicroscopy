@@ -1466,5 +1466,5 @@ public class EditorUtil
 		taskPane.setFont(font.deriveFont(font.getSize2D()-2));
 		return taskPane;
 	}
-	
+
 }

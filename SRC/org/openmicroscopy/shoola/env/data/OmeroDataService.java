@@ -39,7 +39,6 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.ImageData;
 
 /** 
  * List of methods to retrieve data using OMERO.
@@ -166,37 +165,6 @@ public interface OmeroDataService
 	 */
 	public Set findContainerHierarchy(Class rootNodeType, List leavesIDs,
 			long userID)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Finds all the annotations that have been attached to the specified
-	 * <code>rootNodes</code>. This method looks for all the <i>valid</i>
-	 * annotations that have been attached to each of the specified objects. It
-	 * then maps each <code>rootNodeID</code> onto the set of all annotations
-	 * that were found for that node. If no annotations were found for that
-	 * node, then the entry will be <code>null</code>. Otherwise it will be a
-	 * <code>Set</code> containing <code>Annotation</code> objects.
-	 * 
-	 * @param nodeType      The type of the rootNodes. It can either be
-	 *                      <code>Dataset</code> or <code>Image</code>.
-	 *                      Mustn't be <code>null</code>. 
-	 * @param nodeIDs       TheIds of the objects of type
-	 *                      <code>rootNodeType</code>. 
-	 *                      Mustn't be <code>null</code>.
-	 * @param annotatorIDs  The Ids of the users for whom annotations should be 
-	 *                      retrieved. If <code>null</code>, all annotations 
-	 *                      are returned.
-	 * @param forUser		Pass <code>true</code> to retrieve the annotations
-	 * 						for the current user, <code>false</code>
-	 * 						otherwise.
-	 * @return A map whose key is rootNodeID and value the <code>Set</code> of
-	 *         all annotations for that node or <code>null</code>.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public Map findAnnotations(Class nodeType, List nodeIDs, List annotatorIDs, 
-			boolean forUser)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

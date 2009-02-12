@@ -388,6 +388,11 @@ public interface Browser
 	 */
 	public void setComponentTitle(String title);
 	
+	/**
+	 * Refreshes the collection of passed nodes.
+	 * 
+	 * @param nodes The nodes to refresh.
+	 */
 	public void refresh(Collection<ImageDisplay> nodes);
 	
 }

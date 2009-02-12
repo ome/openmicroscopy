@@ -477,5 +477,17 @@ class DataBrowserUI
 			return ((WellsModel) model).getFieldsNumber();
 		return -1;
 	}
+	
+	/**
+	 * Returns the selected field, the default value is <code>0</code>.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedField()
+	{
+		if (model instanceof WellsModel)
+			return ((WellsModel) model).getSelectedField();
+		return 0;
+	}
 
 }

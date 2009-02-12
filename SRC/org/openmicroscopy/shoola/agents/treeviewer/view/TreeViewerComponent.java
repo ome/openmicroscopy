@@ -85,6 +85,7 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellSampleData;
 
 /** 
  * Implements the {@link TreeViewer} interface to provide the functionality
@@ -616,7 +617,16 @@ class TreeViewerComponent
 				UserNotifier un = 
 					TreeViewerAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("Image Not valid", 
-						"The selected image is not valid");
+						"The selected image is not valid.");
+				return;
+			}
+		} else if (selected instanceof WellSampleData) {
+			WellSampleData ws = (WellSampleData) selected;
+			if (ws.getId() < 0) {
+				UserNotifier un = 
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Well Not valid", 
+						"The selected well is not valid.");
 				return;
 			}
 		}
@@ -1788,6 +1798,8 @@ class TreeViewerComponent
 		dataBrowser.activate();
 		view.removeAllFromWorkingPane();
 		view.addComponent(dataBrowser.getUI());
+		model.setState(READY);
+		fireStateChange();
 	}
 	
 	/**

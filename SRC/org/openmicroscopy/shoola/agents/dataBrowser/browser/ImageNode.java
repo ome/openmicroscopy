@@ -34,6 +34,7 @@ import java.util.Date;
 
 //Application-internal dependencies
 import pojos.ImageData;
+import pojos.WellSampleData;
 
 /** 
  * Represents a leaf in the composite structure used to visualize an
@@ -173,7 +174,13 @@ public class ImageNode
      */
     public Timestamp getAcquisitionTime()
     {
-    	Timestamp t = ((ImageData) getHierarchyObject()).getAcquisitionDate();
+    	Object uo = getHierarchyObject();
+    	Timestamp t = null;
+    	if (uo instanceof ImageData)
+    		t = ((ImageData) uo).getAcquisitionDate();
+    	else if (uo instanceof WellSampleData) {
+    		t = ((WellSampleData) uo).getImage().getAcquisitionDate();
+    	}
     	if (t == null) t = new Timestamp(new Date().getTime());
     	return t;
     }

@@ -704,21 +704,6 @@ class OmeroDataServiceImpl
 			throw new DSAccessException(e.getMessage());
 		}
 	}
-
-	/** 
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#findAnnotations(Class, List, List, boolean)
-	 */
-	public Map findAnnotations(Class nodeType, List nodeIDs, List annotatorIDs,
-			boolean forUser)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		//PojoOptionsI po = new PojoOptionsI();
-		//po.noLeaves();
-		//if (forUser) po.exp(new Long(getUserDetails().getId()));
-		return gateway.findAnnotations(nodeType, nodeIDs, annotatorIDs, 
-				new PojoOptions().map());
-	}
 	
 	/** 
 	 * Implemented as specified by {@link OmeroDataService}. 

@@ -125,7 +125,7 @@ class EditorComponent
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED state.");
 			default:
-			if (view != null) UIUtilities.centerAndShow(view);
+			UIUtilities.centerAndShow(view);
 		}
 	}
 	

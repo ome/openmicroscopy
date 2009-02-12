@@ -80,6 +80,7 @@ import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.WellSampleData;
 
 /** 
  * The Model component in the <code>EditorViewer</code> MVC triad.
@@ -313,6 +314,12 @@ class EditorModel
 			return ((PlateData) refObject).getName();
 		else if (refObject instanceof FileAnnotationData)
 			return ((FileAnnotationData) refObject).getFileName();
+		else if (refObject instanceof WellSampleData) {
+			WellSampleData ws = (WellSampleData) refObject;
+			ImageData img = ws.getImage();
+			if (img != null && img.getId() >= 0) return img.getName();
+			return "";
+		}
 		return "";
 	}
 	
@@ -1238,8 +1245,16 @@ class EditorModel
 	/** Loads the image acquisition data. */
 	void  fireImagAcquisitionDataLoading()
 	{
+		Object ref = getRefObject();
+		ImageData data = null;
+		if (ref instanceof WellSampleData) {
+			data = ((WellSampleData) ref).getImage();
+		} else if (ref instanceof ImageData) {
+			data = (ImageData) ref;
+		}
+		if (data == null) return;
 		AcquisitionDataLoader 
-			loader = new AcquisitionDataLoader(component, getRefObject()); 
+			loader = new AcquisitionDataLoader(component, data); 
 		loader.load();
 	}
 	

@@ -46,6 +46,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
+import pojos.WellSampleData;
 
 /** 
  * Component hosting the various {@link AnnotationUI} entities.
@@ -209,6 +210,15 @@ public class EditorUI
 				if (uo instanceof ImageData) {
 					load = true;
 					tabbedPane.setEnabledAt(ACQUISITION_INDEX, true);
+				} else if (uo instanceof WellSampleData) {
+					ImageData img = ((WellSampleData) uo).getImage();
+					if (img != null && img.getId() >= 0) {
+						load = true;
+						tabbedPane.setEnabledAt(ACQUISITION_INDEX, true);
+					} else {
+						tabbedPane.setSelectedIndex(GENERAL_INDEX);
+						tabbedPane.setEnabledAt(ACQUISITION_INDEX, false);
+					}
 				} else {
 					tabbedPane.setSelectedIndex(GENERAL_INDEX);
 					tabbedPane.setEnabledAt(ACQUISITION_INDEX, false);

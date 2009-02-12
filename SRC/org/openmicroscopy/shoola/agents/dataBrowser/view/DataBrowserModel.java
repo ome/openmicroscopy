@@ -285,7 +285,7 @@ abstract class DataBrowserModel
     {
         if (thumbsManager == null) {
         	if (getType() == WELLS) {
-        		thumbsManager = new ThumbnailsManager(getNodes());
+        		thumbsManager = new ThumbnailsManager(getNodes(), maxEntries);
         	} else {
         		thumbsManager = new ThumbnailsManager(
         		          browser.getVisibleImageNodes(), maxEntries);
@@ -556,6 +556,6 @@ abstract class DataBrowserModel
      */
     protected abstract int getType(); 
     
-    protected abstract Set<ImageDisplay> getNodes();
+    protected abstract List<ImageDisplay> getNodes();
     
 }

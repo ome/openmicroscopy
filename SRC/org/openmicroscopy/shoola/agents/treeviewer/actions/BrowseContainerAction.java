@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import java.util.List;
 import javax.swing.Action;
 
 //Third-party libraries

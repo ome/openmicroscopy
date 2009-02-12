@@ -180,13 +180,17 @@ public class ThumbnailSetLoader
         	long pixelsID;
         	BufferedImage thumbPix;
         	ImageData image;
+        	boolean valid = true;
         	while (i.hasNext()) {
         		pixelsID = (Long) i.next();
         		image = input.get(pixelsID);
         		thumbPix = (BufferedImage) m.get(pixelsID);
-				if (thumbPix == null) 
+				if (thumbPix == null) {
+					valid = false;
 					thumbPix = createDefaultImage(image);
-				result.add(new ThumbnailData(image.getId(), thumbPix));
+				}
+					
+				result.add(new ThumbnailData(image.getId(), thumbPix, valid));
 			}
         	currentThumbs = result;
         	
@@ -274,7 +278,7 @@ public class ThumbnailSetLoader
     			}
     		} catch (Exception e) {
     			notValid.add(new ThumbnailData(img.getId(), 
-						createDefaultImage(img)));
+						createDefaultImage(img), false));
     		} //something went wrong during import
 		}
     	if (l != null && l.size() > 0) toHandle.add(l);

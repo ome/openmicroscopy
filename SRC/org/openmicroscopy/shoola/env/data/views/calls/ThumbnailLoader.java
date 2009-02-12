@@ -107,11 +107,13 @@ public class ThumbnailLoader
     private void loadThumbail(ImageData image, long userID) 
     {
         PixelsData pxd = null;
+        boolean valid = true;
         try {
         	pxd = image.getDefaultPixels();
 		} catch (Exception e) {} //something went wrong during import
         BufferedImage thumbPix = null;
         if (pxd == null) {
+        	valid = false;
         	thumbPix = Factory.createDefaultImageThumbnail();
         } else {
         	int sizeX = maxWidth, sizeY = maxHeight;
@@ -139,10 +141,12 @@ public class ThumbnailLoader
             			"Cannot retrieve thumbnail: "+e.getExtendedMessage());
             }
             if (thumbPix == null) {
+            	valid = false;
             	thumbPix = Factory.createDefaultImageThumbnail(sizeX, sizeY);
             }  
         }
-        currentThumbnail = new ThumbnailData(image.getId(), thumbPix, userID);
+        currentThumbnail = new ThumbnailData(image.getId(), thumbPix, userID, 
+        		valid);
     }
     
     /**

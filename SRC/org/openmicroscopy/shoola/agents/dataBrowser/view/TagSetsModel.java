@@ -175,6 +175,6 @@ class TagSetsModel
 	 * No-op implementation in our case.
 	 * @see DataBrowserModel#getNodes()
 	 */
-	protected Set<ImageDisplay> getNodes() { return null; }
+	protected List<ImageDisplay> getNodes() { return null; }
 	
 }

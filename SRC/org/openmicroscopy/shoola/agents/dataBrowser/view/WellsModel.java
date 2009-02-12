@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -80,7 +82,7 @@ class WellsModel
 	private Dimension 			wellDimension;
 	
 	/** The collection of nodes hosting the wells. */
-	private Set					wellNodes;
+	private List				wellNodes;
 	
 	/** The collection of nodes used to display cells e.g. A-1. */
 	private Set<CellDisplay> 	cells;
@@ -88,6 +90,45 @@ class WellsModel
 	/** The number of fields per well. */
 	private int					fieldsNumber;
 	
+	/** The selected field. */
+	private int					selectedField;
+	
+	/** 
+	 * Sorts the passed nodes by row.
+	 * 
+	 * @param nodes The nodes to sort.
+	 * @return See above.
+	 */
+	private List sortByRow(Set nodes)
+	{
+		List l = new ArrayList();
+		if (nodes == null) return l;
+		Iterator i = nodes.iterator();
+		while (i.hasNext()) {
+			l.add(i.next());
+		}
+		Comparator c = new Comparator() {
+            public int compare(Object o1, Object o2)
+            {
+                WellData w1 = (WellData) ((WellImageSet) o1).getHierarchyObject(),
+                         w2 = (WellData) ((WellImageSet) o2).getHierarchyObject();
+                int n1 = w1.getRow();
+                int n2 = w2.getRow();
+                int v = 0;
+                if (n1 < n2) v = -1;
+                else if (n1 > n2) v = 1;
+                else if (n1 == n2) {
+                	int c1 = w1.getColumn();
+                	int c2 = w2.getColumn();
+                	 if (c1 < c2) v = -1;
+                     else if (c1 > c2) v = 1;
+                }
+                return v;
+            }
+        };
+        Collections.sort(l, c);
+		return l;
+	}
 	/**
 	 * Creates a new instance.
 	 * 
@@ -102,8 +143,11 @@ class WellsModel
 		wellDimension = null;
 		this.parent = parent;
 		long userID = DataBrowserAgent.getUserDetails().getId();
-		wellNodes = DataBrowserTranslator.transformHierarchy(wells, 
+		Set nodes = DataBrowserTranslator.transformHierarchy(wells, 
 							userID, 0);
+		
+		wellNodes = sortByRow(nodes);
+		
 		Set<ImageDisplay> samples = new HashSet<ImageDisplay>();
 		cells = new HashSet<CellDisplay>();
         rows = -1;
@@ -159,6 +203,13 @@ class WellsModel
 	int getFieldsNumber() { return fieldsNumber; }
 	
 	/**
+	 * Returns the selected field, the default value is <code>0</code>.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedField() { return selectedField; }
+	
+	/**
 	 * Views the selected field.
 	 * 
 	 * @param index The index of the field to view.
@@ -166,8 +217,9 @@ class WellsModel
 	void viewField(int index)
 	{
 		if (index < 0 || index >= fieldsNumber) return;
+		selectedField = index;
 		Set<ImageDisplay> samples = new HashSet<ImageDisplay>();
-		Set l = getNodes();
+		List l = getNodes();
 		Iterator i = l.iterator();
 		WellImageSet well;
 		while (i.hasNext()) {
@@ -187,7 +239,7 @@ class WellsModel
 	protected DataBrowserLoader createDataLoader(boolean refresh, 
 			Collection ids)
 	{
-		Set l = getNodes();
+		List l = getNodes();
 		Iterator i = l.iterator();
 		ImageSet node;
 		List<ImageData> images = new ArrayList<ImageData>();
@@ -201,8 +253,8 @@ class WellsModel
 				data = (WellSampleData) selected.getHierarchyObject();
 				if (data.getId() < 0)
 					selected.getThumbnail().setFullScaleThumb(
-							Factory.createDefaultThumbnail(wellDimension.width, 
-									wellDimension.height, "N/A"));
+							Factory.createDefaultImageThumbnail(
+									wellDimension.width, wellDimension.height));
 				else 
 					images.add(data.getImage());
 			}
@@ -222,7 +274,6 @@ class WellsModel
 	 * No-op implementation in our case.
 	 * @see DataBrowserModel#getNodes()
 	 */
-	protected Set<ImageDisplay> getNodes() { return wellNodes; }
-	
+	protected List<ImageDisplay> getNodes() { return wellNodes; }
 	
 }

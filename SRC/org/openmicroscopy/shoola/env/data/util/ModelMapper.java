@@ -256,7 +256,7 @@ public class ModelMapper
             while (it.hasNext()) {
                 link = (ProjectDatasetLink) it.next();
                 if (id == link.getParent().getId().getValue())
-                	p.addProjectDatasetLink2(link, false);
+                	p.addProjectDatasetLink(link);
             }
         } else if (parent instanceof Dataset) {
             if (!(child instanceof Image))
@@ -271,7 +271,7 @@ public class ModelMapper
             while (it.hasNext()) {
                 link = (DatasetImageLink) it.next();
                 if (id == link.getParent().getId().getValue())
-                	p.addDatasetImageLink2(link, false);
+                	p.addDatasetImageLink(link);
             }
         } else
             throw new IllegalArgumentException("DataObject not supported.");
@@ -341,8 +341,7 @@ public class ModelMapper
             List s = mParent.copyDatasetLinks();
             Iterator i = s.iterator();
             while (i.hasNext()) { 
-                mParent.removeProjectDatasetLink2((ProjectDatasetLink) i.next(),
-                		false);
+                mParent.removeProjectDatasetLink((ProjectDatasetLink) i.next());
             }
             return mParent;
         } 

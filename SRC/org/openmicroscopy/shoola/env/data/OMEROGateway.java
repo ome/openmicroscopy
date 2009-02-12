@@ -108,7 +108,6 @@ import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
-import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.OriginalFile;
@@ -179,7 +178,7 @@ class OMEROGateway
 {
 
 	/** Maximum size of pixels read at once. */
-	private static final int				INC = 256000;
+	private static final int				INC = 262144;//256000;
 	
 	/** 
 	 * The maximum number of thumbnails retrieved before restarting the
@@ -1410,8 +1409,38 @@ class OMEROGateway
 			handleException(t, "Cannot find annotations for "+nodeType+".");
 		}
 		return new HashMap();
+		/*
+		List<Class> annotationTypes = new ArrayList<Class>();
+		annotationTypes.add(TagAnnotationData.class);
+		return loadAnnotations(nodeType, nodeIDs, annotationTypes, annotatorIDs);
+		*/
 	}
 
+	Map loadAnnotations(Class nodeType, List nodeIDs, List<Class> annotationTypes, 
+			List annotatorIDs)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		List<String> types = new ArrayList<String>();
+		if (annotationTypes != null && annotationTypes.size() > 0) {
+			types = new ArrayList<String>(annotationTypes.size());
+			Iterator<Class> i = annotationTypes.iterator();
+			while (i.hasNext()) {
+				types.add(convertPojos(i.next()).getName());
+			}
+		}
+		try {
+			IMetadataPrx service = getMetadataService();
+			return PojoMapper.asDataObjects(
+					service.loadAnnotations(convertPojos(nodeType).getName(), 
+							nodeIDs, types, annotatorIDs));
+		} catch (Throwable t) {
+			t.printStackTrace();
+			handleException(t, "Cannot find annotations for "+nodeType+".");
+		}
+		return new HashMap();
+	}
+	
 	/**
 	 * Finds the links if any between the specified parent and child.
 	 * 
@@ -2547,21 +2576,27 @@ class OMEROGateway
 			}
 			
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot set the file's id.");
 		}
-		
 		byte[] buf = new byte[INC]; 
+		FileInputStream stream = null;
 		try {
-			FileInputStream stream = new FileInputStream(file);
+			stream = new FileInputStream(file);
 			long pos = 0;
 			int rlen;
-			while((rlen = stream.read(buf)) > 0) {
+			ByteBuffer bbuf;
+			while ((rlen = stream.read(buf)) > 0) {
 				store.write(buf, pos, rlen);
 				pos += rlen;
-				ByteBuffer.wrap(buf).limit(rlen);
+				bbuf = ByteBuffer.wrap(buf);
+				bbuf.limit(rlen);
 			}
+			stream.close();
 		} catch (Exception e) {
+			try {
+				if (stream != null) stream.close();
+			} catch (Exception ex) {}
+			
 			throw new DSAccessException("Cannot upload the file with path " +
 					file.getAbsolutePath(), e);
 		}
@@ -4206,13 +4241,10 @@ class OMEROGateway
 			List l = service.loadChannelAcquisitionData(ids);
 			if (l != null && l.size() == 1) {
 				LogicalChannel lc = (LogicalChannel) l.get(0);
-				ChannelAcquisitionData data = new ChannelAcquisitionData(lc);
-				//data.setLightSource(lc.getLightSourceSettings().getLightSource());
-				return data;
+				return new ChannelAcquisitionData(lc);
 			}
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot load channel acquisition data.");
 		}
 		return null;

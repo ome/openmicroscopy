@@ -298,6 +298,8 @@ public class DataBrowserTranslator
     	String name = "";
     	ImageData is = wsd.getImage();
     	if (is != null && is.getId() >= 0) name = is.getName();
+    	String[] values = name.split(","); //only for InCell
+    	if (values.length > 1) name = values[1];
         ThumbnailProvider provider = new ThumbnailProvider(is);
         WellSampleNode node = new WellSampleNode(name, wsd, provider, index, 
         									parent);

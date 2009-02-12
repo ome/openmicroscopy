@@ -454,8 +454,10 @@ class DataBrowserToolBar
 		bar.add(rollOverButton);
 		bar.add(createDatasetButton);
 		bar.add(reportButton);
+		bar.add(new JSeparator(JSeparator.VERTICAL));
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+		panel.add(new JLabel("# per row:"));
 		panel.add(itemsPerRow);
 		panel.setToolTipText(itemsPerRow.getToolTipText());
 		bar.add(panel);

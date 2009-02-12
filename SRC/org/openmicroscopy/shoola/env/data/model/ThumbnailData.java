@@ -60,16 +60,22 @@ public class ThumbnailData
     /** The thumbnail pixels. */
     private BufferedImage   thumbnail;
 
+    /** Falg indicating if the image is a default image or not. */
+    private boolean			validImage;
+    
     /**
      * Creates a new instance.
      * 
-     * @param imageID   The id of the image to which the thumbnail belong.
-     *                  Must be positive.
-     * @param thumbnail The thumbnail pixels.  Mustn't be <code>null</code>.
-     * @param userID   	The id of the user the thumbnail is for.
-     *                  Must be positive.
+     * @param imageID    The id of the image to which the thumbnail belong.
+     *                   Must be positive.
+     * @param thumbnail  The thumbnail pixels.  Mustn't be <code>null</code>.
+     * @param userID   	 The id of the user the thumbnail is for.
+     *                   Must be positive.
+     * @param validImage Pass <code>true</code> if the image is a real image, 
+     * 					 <code>false</code> otherwise.
      */
-    public ThumbnailData(long imageID, BufferedImage thumbnail, long userID)
+    public ThumbnailData(long imageID, BufferedImage thumbnail, long userID, 
+    		boolean validImage)
     {
         if (imageID <= 0) 
             throw new IllegalArgumentException("Non-positive image id: "+
@@ -79,18 +85,22 @@ public class ThumbnailData
         this.imageID = imageID;
         this.thumbnail = thumbnail;
         this.userID = userID;
+        this.validImage = validImage;
     }
     
     /**
      * Creates a new instance.
      * 
-     * @param imageID   The id of the image to which the thumbnail belong.
-     *                  Must be positive.
-     * @param thumbnail The thumbnail pixels.  Mustn't be <code>null</code>.
+     * @param imageID    The id of the image to which the thumbnail belong.
+     *                   Must be positive.
+     * @param thumbnail  The thumbnail pixels.  Mustn't be <code>null</code>.
+     * @param validImage Pass <code>true</code> if the image is a real image, 
+     * 					 <code>false</code> otherwise.
      */
-    public ThumbnailData(long imageID, BufferedImage thumbnail)
+    public ThumbnailData(long imageID, BufferedImage thumbnail, 
+    		boolean validImage)
     {
-        this(imageID, thumbnail, -1);
+        this(imageID, thumbnail, -1, validImage);
     }
     
     /**
@@ -107,9 +117,17 @@ public class ThumbnailData
                                         thumbnail.getType());
         Graphics2D g2D = pixClone.createGraphics();
         g2D.drawImage(thumbnail, null, 0, 0); 
-        return new ThumbnailData(imageID, pixClone);
+        return new ThumbnailData(imageID, pixClone, this.validImage);
     }
 
+    /**
+     * Returns <code>true</code> if the image is a real image, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isValidImage() { return validImage; }
+    
     /**
      * Returns the id of the user.
      * 
