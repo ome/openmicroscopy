@@ -425,6 +425,8 @@ public class IceMapper extends ome.util.ModelMapper implements
         Long event = ctx.getCurrentEventId();
         ec.eventId = event == null ? -1 : event;
 
+        Long shareId = ctx.getCurrentShareId();
+        ec.shareId = shareId == null ? -1 : shareId;
         ec.sessionId = ctx.getCurrentSessionId();
         ec.sessionUuid = ctx.getCurrentSessionUuid();
         ec.eventType = ctx.getCurrentEventType();
