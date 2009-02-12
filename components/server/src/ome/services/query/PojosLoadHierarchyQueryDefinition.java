@@ -17,6 +17,8 @@ import java.util.Map;
 import ome.conditions.ApiUsageException;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.screen.Plate;
+import ome.model.screen.Screen;
 import ome.parameters.Parameters;
 import ome.util.builders.PojoOptions;
 
@@ -61,6 +63,16 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
                     + "this.annotationLinksCountPerOwner this_a_c ");
             sb.append("left outer join fetch "
                     + "this.imageLinksCountPerOwner this_i_c ");
+        } else if (Screen.class.isAssignableFrom(klass)) {
+        	sb.append("select this from Screen this ");
+            sb.append("left outer join fetch this.plateLinks pdl ");
+            sb.append("left outer join fetch pdl.child ds ");
+            sb.append("left outer join fetch "
+                    + "this.annotationLinksCountPerOwner this_a_c ");
+        } else if (Plate.class.isAssignableFrom(klass)) {
+        	sb.append("select this from Plate this ");
+            sb.append("left outer join fetch "
+                    + "this.annotationLinksCountPerOwner this_a_c ");
         } else {
             throw new ApiUsageException("Unknown container class: "
                     + klass.getName());
