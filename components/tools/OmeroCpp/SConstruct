@@ -10,6 +10,9 @@ blitz = os.path.abspath( os.path.join(os.path.curdir, os.path.pardir, os.path.pa
 sys.path.append( blitz )
 from blitz_tools import *
 
+BOOST_DEBUG="boost_unit_test_framework-mt-d"
+BOOST_NDEBUG="boost_unit_test_framework-mt"
+
 #
 # At the moment, execution of this script requires,
 # ant tools-init to have been run
@@ -26,6 +29,8 @@ def CheckBoost(context):
     context.Result(result)
     return result
 
+boost_libs = []
+
 env = OmeroEnvironment(CPPPATH=["src","target"])
 if not env.GetOption('clean'):
     conf = Configure(env, custom_tests = {'CheckBoost':CheckBoost})
@@ -33,6 +38,14 @@ if not env.GetOption('clean'):
         print 'Ice/Ice.h not found'
         env.Exit(1)
     has_boost = conf.CheckBoost()
+    if has_boost:
+    	if conf.CheckLib(BOOST_DEBUG):
+	    boost_libs.append(BOOST_DEBUG)
+	elif conf.CheckLib(BOOST_NDEBUG):
+	    boost_libs.append(BOOST_NDEBUG)
+	else:
+	    print "Has boost but doesn't have boost?"
+            env.Exit(1)
     conf.Finish()
 else:
     has_boost = True
@@ -66,7 +79,7 @@ if has_boost:
     def define_test(dir):
         test =  tenv.Program("test/%s.exe" % dir,
             [main, fixture] + tenv.Glob("test/%s/*.cpp" % dir),
-            LIBS=["Ice","Glacier2","IceUtil","omero_client","boost_unit_test_framework-mt-d"]) # -d
+            LIBS=["Ice","Glacier2","IceUtil","omero_client"]+boost_libs)
         return test
 
     unit = define_test("unit")

@@ -183,8 +183,8 @@ BOOST_AUTO_TEST_CASE( LinkGroupAndUser )
 
   map->setId( rlong(1) );
   map->link(group,user);
-  user->addGroupExperimenterMap2( map, false );
-  group->addGroupExperimenterMap2( map, false );
+  user->addGroupExperimenterMapToBoth( map, false );
+  group->addGroupExperimenterMapToBoth( map, false );
 
   typedef ExperimenterGroupExperimenterMapSeq::iterator egm_it; 
   egm_it beg = user->beginGroupExperimenterMap();
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE( LinkingAndUnlinking )
   i = new ImageI();
   dil = new DatasetImageLinkI();
   dil->link(d,i);
-  d->addDatasetImageLink2(dil, false);
+  d->addDatasetImageLinkToBoth(dil, false);
   BOOST_CHECK( d->sizeOfImageLinks() == 1 );
   BOOST_CHECK( i->sizeOfDatasetLinks() == 0 );
 
