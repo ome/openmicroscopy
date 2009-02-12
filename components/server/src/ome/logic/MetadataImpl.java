@@ -23,9 +23,12 @@
 package ome.logic;
 
 //Java imports
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -37,15 +40,24 @@ import ome.annotations.RolesAllowed;
 import ome.annotations.Validate;
 import ome.api.IMetadata;
 import ome.api.ServiceInterface;
+import ome.conditions.ApiUsageException;
+import ome.model.IAnnotated;
+import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.annotations.UriAnnotation;
 import ome.model.acquisition.Arc;
 import ome.model.acquisition.Filament;
 import ome.model.acquisition.Laser;
 import ome.model.acquisition.LightEmittingDiode;
 import ome.model.acquisition.LightSettings;
 import ome.model.acquisition.LightSource;
+import ome.model.annotations.Annotation;
 import ome.model.core.LogicalChannel;
 import ome.parameters.Parameters;
+import ome.services.query.PojosFindAnnotationsQueryDefinition;
+import ome.services.query.Query;
+import ome.util.CBlock;
+import ome.util.builders.PojoOptions;
 
 
 /** 
@@ -135,4 +147,106 @@ public class MetadataImpl
     	return new HashSet<LogicalChannel>(list);
     }
 
+    
+    /**
+     * Implemented as speficied by the {@link IMetadata} I/F
+     * @see IMetadata#loadAnnotations(Class, Set, Set, Set)
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public <T extends IObject, A extends Annotation> 
+    	Map<Long, Set<A>> loadAnnotations(
+            Class<T> rootNodeType, Set<Long> rootNodeIds, 
+            Set<String> annotationTypes, Set<Long> annotatorIds)
+    {
+    	 Map<Long, Set<A>> map = new HashMap<Long, Set<A>>();
+
+         if (rootNodeIds.size() == 0) {
+             return map;
+         }
+
+         if (!IAnnotated.class.isAssignableFrom(rootNodeType)) {
+             throw new ApiUsageException(
+                     "Class parameter for findAnnotation() "
+                             + "must be a subclass of ome.model.IAnnotated");
+         }
+
+         PojoOptions po = new PojoOptions();
+
+         Query<List<IAnnotated>> q = getQueryFactory().lookup(
+                 PojosFindAnnotationsQueryDefinition.class.getName(),
+                 new Parameters().addIds(rootNodeIds).addClass(rootNodeType)
+                         .addSet("annotatorIds", annotatorIds).addOptions(
+                                 po.map()));
+
+         List<IAnnotated> l = iQuery.execute(q);
+         // no count collection
+
+         //
+         // Destructive changes below this point.
+         //
+         for (IAnnotated annotated : l) {
+             iQuery.evict(annotated);
+             annotated.collectAnnotationLinks(new CBlock<ILink>() {
+
+                 public ILink call(IObject object) {
+                     ILink link = (ILink) object;
+                     iQuery.evict(link);
+                     iQuery.evict(link.getChild());
+                     return null;
+                 }
+
+             });
+         }
+
+         // SORT
+         Iterator<IAnnotated> i = new HashSet<IAnnotated>(l).iterator();
+         IAnnotated annotated;
+         Long id; 
+         Set<A> set;
+         List<A> list;
+         List<A> supported;
+         Iterator<A> j;
+         A object;
+         while (i.hasNext()) {
+             annotated = i.next();
+             id = annotated.getId();
+             set = map.get(id);
+             if (set == null) {
+                 set = new HashSet<A>();
+                 map.put(id, set);
+             }
+             list = (List<A>) annotated.linkedAnnotationList();
+             if (list != null) {
+            	 if (annotationTypes != null && annotationTypes.size() > 0) {
+            		 j = list.iterator();
+            		 supported = new ArrayList<A>();
+                	 while (j.hasNext()) {
+                		 object = j.next();
+                		 if (annotationTypes.contains(
+                				 object.getClass().getName())) {
+                			 supported.add(object);
+                		 }
+                	 }
+                	 set.addAll(supported);
+            	 } else {
+            		 set.addAll(list);
+            	 }
+             } else  set.addAll(list);
+             
+         }
+
+         return map;
+    }
+    
+    public <A extends Annotation> Set<A> loadSpecifiedAnnotations(
+    		@NotNull Class<A> type, String nameSpace, 
+    		 @Validate(Long.class) Set<Long> annotatorIds, 
+    		 boolean linkedObjects)
+    {
+    	return new HashSet<A>();
+    }
+    
+    
+    
 }
