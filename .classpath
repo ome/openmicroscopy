@@ -67,7 +67,6 @@
 	<classpathentry kind="lib" path="target/libs/FontBox.jar"/>
 	<classpathentry kind="lib" path="target/libs/freemarker.jar"/>
 	<classpathentry kind="lib" path="target/libs/geronimo-spec-jta.jar"/>
-	<classpathentry kind="lib" path="target/libs/groovy.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-annotations.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-commons-annotations.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-search.jar"/>
@@ -78,7 +77,6 @@
 	<classpathentry kind="lib" path="target/libs/ice.jar"/>
 	<classpathentry kind="lib" path="target/libs/jamon.jar"/>
 	<classpathentry kind="lib" path="target/libs/jdtcore.jar"/>
-	<classpathentry kind="lib" path="target/libs/jgroups.jar"/>
 	<classpathentry kind="lib" path="target/libs/jmock.jar"/>
 	<classpathentry kind="lib" path="target/libs/jtidy.jar"/>
 	<classpathentry kind="lib" path="target/libs/junit.jar"/>
