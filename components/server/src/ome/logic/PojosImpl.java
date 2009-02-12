@@ -34,6 +34,8 @@ import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.model.screen.Plate;
+import ome.model.screen.Screen;
 import ome.parameters.Parameters;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
@@ -85,7 +87,12 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
             + "left outer join fetch d.annotationLinksCountPerOwner "
             + "left outer join fetch d.imageLinksCountPerOwner where d " 
             + "in (:list)";
-
+    
+    /** Query to load the number of annotations per plate. */
+    final static String loadCountsPlates = "select p from Plate p "
+            + "left outer join fetch p.annotationLinksCountPerOwner "
+            //+ "left outer join fetch d.imageLinksCountPerOwner where d " 
+            + "in (:list)";
     /**
      * Implemented as speficied by the {@link IContainer} I/F
      * @see IContainer#loadContainerHierarchy(Class, Set, Map)
@@ -104,10 +111,12 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         }
 
         if (!Project.class.equals(rootNodeType)
-                && !Dataset.class.equals(rootNodeType)) {
+                && !Dataset.class.equals(rootNodeType) 
+                && !Screen.class.equals(rootNodeType)
+                && !Plate.class.equals(rootNodeType)) {
             throw new ApiUsageException(
                     "Class parameter for loadContainerIHierarchy() must be in "
-                            + "{Project,Dataset}, not "
+                            + "{Project,Dataset, Screen, Plate}, not "
                             + rootNodeType);
         }
         // TODO no more "options" just QPs.
@@ -118,6 +127,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         List<IObject> l = iQuery.execute(q);
 
         Dataset d;
+        Plate plate;
         // WORKAROUND ticket:882
         if (Project.class.equals(rootNodeType)) {
 
@@ -176,6 +186,43 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                     d.putAt(Dataset.IMAGELINKS, null);
                 }
             }
+        } else if (Screen.class.isAssignableFrom(rootNodeType)) {
+        	Set<Plate> plates = new HashSet<Plate>();
+            Screen p;
+            for (IObject o : l) {
+                p = (Screen) o;
+                plates.addAll(p.linkedPlateList());
+            }
+            if (po.isOrphan()) {
+            	if (rootNodeIds == null || rootNodeIds.size() == 0) {
+            		Iterator<Plate> i = plates.iterator();
+            		Set<Long> linked = new HashSet<Long>();
+            		while (i.hasNext()) {
+						linked.add(i.next().getId());
+					}
+            		q = getQueryFactory().lookup(
+                            PojosLoadHierarchyQueryDefinition.class.getName(),
+                            new Parameters().addClass(Plate.class).addIds(rootNodeIds)
+                            .addOptions(po.map()));
+            		List<IObject> list = iQuery.execute(q);
+            		Iterator<IObject> j = list.iterator();
+            		Long id;
+            		
+            		while (j.hasNext()) {
+            			plate = (Plate) j.next();
+						id = plate.getId();
+						if (!linked.contains(id)) {
+							l.add(plate);
+							plates.add(plate);
+						}
+					}
+            	}
+            }
+            if (plates.size() > 0) {
+                iQuery.findAllByQuery(loadCountsPlates, new Parameters()
+                        .addSet("list", plates));
+            }
+        } else if (Plate.class.isAssignableFrom(rootNodeType)) {
         }
         return new HashSet<IObject>(l);
 
