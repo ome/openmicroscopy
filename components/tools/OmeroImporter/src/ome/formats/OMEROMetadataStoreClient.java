@@ -32,12 +32,13 @@ import ome.formats.importer.MetaLightSource;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.ChannelProcessor;
 import ome.formats.model.IObjectContainerStore;
+import ome.formats.model.InstrumentProcessor;
+import ome.formats.model.PixelsProcessor;
 import ome.formats.model.InstanceProvider;
 import ome.formats.model.ModelProcessor;
 import ome.formats.model.ReferenceProcessor;
 import omero.RBool;
 import omero.RDouble;
-import omero.RFloat;
 import omero.RInt;
 import omero.RLong;
 import omero.RString;
@@ -162,6 +163,8 @@ public class OMEROMetadataStoreClient
     private InstanceProvider instanceProvider;
 
     private Long currentPixId;
+    
+    private String userSpecifiedImageName;
 
     private void initializeServices()
     	throws ServerError
@@ -182,7 +185,9 @@ public class OMEROMetadataStoreClient
     	
     	// Default model processors
     	modelProcessors.add(new ReferenceProcessor());
+        modelProcessors.add(new PixelsProcessor());
     	modelProcessors.add(new ChannelProcessor());
+    	modelProcessors.add(new InstrumentProcessor());
     }
     
     public IQueryPrx getIQuery()
@@ -387,6 +392,22 @@ public class OMEROMetadataStoreClient
     public void setReader(IFormatReader reader)
     {
     	this.reader = reader;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedImageName()
+     */
+    public String getUserSpecifiedImageName()
+    {
+        return userSpecifiedImageName;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedImageName(java.lang.String)
+     */
+    public void setUserSpecifiedImageName(String name)
+    {
+        this.userSpecifiedImageName = name;
     }
     
     /**

@@ -43,10 +43,8 @@ import ome.formats.importer.util.Actions;
 
 import omero.ServerError;
 import omero.model.BooleanAnnotationI;
-import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.Image;
-import omero.model.LogicalChannel;
 import omero.model.Pixels;
 
 /**
@@ -253,17 +251,9 @@ public class ImportLibrary implements IObservable
     	int series = 0;
     	// 1st we post-process the metadata that we've been given.
     	log.debug("Post-processing metadata.");
-    	store.postProcess();
-    	// 2nd we ensure that the Image name and channel colors are set.
-    	for (Pixels pixels : store.getSourceObjects(Pixels.class))
-    	{
-    		String name = imageName;
-    		String seriesName = reader.getImageName(series);
 
-    		if (seriesName != null && seriesName.length() != 0)
-    			name += " [" + seriesName + "]";
-    		store.setImageName(name, series);
-    	}
+    	store.setUserSpecifiedImageName(imageName);
+    	store.postProcess();
         
         log.debug("Saving pixels to DB.");
         List<Pixels> pixelsList = store.saveToDB();

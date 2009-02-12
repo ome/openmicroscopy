@@ -97,23 +97,6 @@ public class OMEROWrapper extends MinMaxCalculator
             return false;
     } 
     
-    public String getImageName(int series)
-    {
-        if (reader.getSeriesCount() > 1)
-        {
-            List<PixelsI> p = (List<PixelsI>)iReader.getMetadataStoreRoot();
-            try {
-                String name = p.get(series).getImage().getName().getValue(); 
-                return name == null ? "" + series : name;
-            } catch (Exception e)
-            {
-                return "";            
-            }
-
-        }
-        return "";
-    }
-    
 	/**
 	 * Retrieves the global min and max for each channel and sets those values
 	 * in the MetadataStore.

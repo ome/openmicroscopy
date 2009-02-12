@@ -58,6 +58,18 @@ public interface IObjectContainerStore
 	void setReader(IFormatReader reader);
 	
     /**
+     * Returns the user specified image name.
+     * @return See above.
+     */
+    String getUserSpecifiedImageName();
+    
+    /**
+     * Sets the user specified image name.
+     * @param name user specified image name
+     */
+    void setUserSpecifiedImageName(String name);
+    
+    /**
      * Returns the current container cache.
      * @return See above.
      */

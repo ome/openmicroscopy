@@ -96,7 +96,9 @@ public class ChannelProcessor implements ModelProcessor
     					new LinkedHashMap<String, Integer>();
     				indexes.put("imageIndex", i);
     				indexes.put("logicalChannelIndex", c);
-    				store.getIObjectContainer(LogicalChannel.class, indexes);
+                    IObjectContainer container =
+                        store.getIObjectContainer(LogicalChannel.class, indexes);
+                    sourceObject = container.sourceObject;
     			}
     			populateName((LogicalChannel) sourceObject, i, c);
     		}
