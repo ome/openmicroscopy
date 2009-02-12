@@ -22,9 +22,5 @@
     <dependency org="apache" name="ant-launcher" rev="1.6.5"/>
     <dependency org="apache" name="ant-nodeps" rev="1.6.5"/>
     <dependency org="apache" name="ant" rev="1.6.5"/>
-    <!-- Testing dependencies -->
-    <dependency name="server-test" rev="${omero.version}" changing="true" conf="test->test"/>
-    <dependency name="blitz-test" rev="${omero.version}" changing="true" conf="test->test"/>
-    <dependency name="OmeroImporter-test" rev="${omero.version}" changing="true" conf="test->test"/>
   </dependencies>
 </ivy-module>
