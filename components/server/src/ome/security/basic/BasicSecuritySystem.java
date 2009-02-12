@@ -38,6 +38,7 @@ import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.stats.ThreadLocalSessionStats;
 import ome.system.EventContext;
+import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
@@ -48,6 +49,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.util.Assert;
 
@@ -67,7 +71,9 @@ import org.springframework.util.Assert;
  */
 @RevisionDate("$Date: 2007-06-02 12:31:30 +0200 (Sat, 02 Jun 2007) $")
 @RevisionNumber("$Revision: 1581 $")
-public class BasicSecuritySystem implements SecuritySystem {
+public class BasicSecuritySystem implements SecuritySystem,
+        ApplicationContextAware {
+
     private final static Log log = LogFactory.getLog(BasicSecuritySystem.class);
 
     protected final OmeroInterceptor interceptor;
@@ -83,6 +89,8 @@ public class BasicSecuritySystem implements SecuritySystem {
     protected final SessionManager sessionManager;
 
     protected final ServiceFactory sf;
+
+    protected/* final */OmeroContext ctx;
 
     /**
      * Simpilifed factory method which generates all the security primitives
@@ -114,6 +122,11 @@ public class BasicSecuritySystem implements SecuritySystem {
         this.roles = roles;
         this.cd = cd;
         this.sf = sf;
+    }
+
+    public void setApplicationContext(ApplicationContext arg0)
+            throws BeansException {
+        this.ctx = (OmeroContext) arg0;
     }
 
     // ~ Login/logout
@@ -372,8 +385,11 @@ public class BasicSecuritySystem implements SecuritySystem {
             }
         }
         if (foundAdminType) {
-            this.sessionManager.onApplicationEvent(new UserGroupUpdateEvent(
-                    this));
+            if (ctx == null) {
+                log.error("No context found for publishing");
+            } else {
+                this.ctx.publishEvent(new UserGroupUpdateEvent(this));
+            }
         }
         cd.clearLogs();
     }
@@ -479,6 +495,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 
     /**
      * See {@link TokenHolder#copyToken(IObject, IObject)
+
      */
     public void copyToken(IObject source, IObject copy) {
         tokenHolder.copyToken(source, copy);
@@ -486,6 +503,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 
     /**
      * See {@link TokenHolder#hasPrivilegedToken(IObject)
+
      */
     public boolean hasPrivilegedToken(IObject obj) {
         return tokenHolder.hasPrivilegedToken(obj);

@@ -20,7 +20,6 @@
 <!--
 
 	Configuration for services.
-	TODO add log4j configuration (e.g. update intervals)
 
 -->
 
@@ -35,6 +34,13 @@
      class="ome.services.util.DBPatchCheck"
      init-method="start" lazy-init="false">
      <constructor-arg ref="internal-ome.api.IConfig"/>
+     <constructor-arg ref="executor"/>
+  </bean>
+  
+  <bean id="dropBoxDirectoryCheck"
+     class="ome.services.util.DropBoxDirectoryCheck"
+     init-method="run" lazy-init="false">
+     <constructor-arg value="${omero.data.dir}"/>
      <constructor-arg ref="executor"/>
   </bean>
 
