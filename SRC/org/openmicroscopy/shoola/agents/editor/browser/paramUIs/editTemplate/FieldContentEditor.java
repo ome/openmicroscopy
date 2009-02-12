@@ -127,9 +127,7 @@ public class FieldContentEditor
 			
 			setBorder(selectedBorder);
 			
-			// setting font (fires Document Event)... Character moves etc!!!
-			// htmlEditor.setFont(CustomLabel.CUSTOM_FONT);
-			// htmlEditor.dataSaved();  // ... even if you reset edit flag !
+			nameEditor.setVisible(false);
 		}
 		
 		/**
@@ -138,28 +136,6 @@ public class FieldContentEditor
 		 * @see FieldTextArea#showParamDialog(int index, Point point) 
 		 */
 		protected void showParamDialog(int index, Point point) {}
-		
-		/**
-		 * Overridden to disable the display (and editing) of Field Name.
-		 * Returns null.
-		 * 
-		 * @see FieldTextArea#getFieldName()
-		 */
-		protected String getFieldName() { return null; }
-		
-		/**
-		 * Overridden to avoid editing the Field Name. 
-		 * This method only edits the textual content/description.
-		 * 
-		 * @see	FieldTextArea#saveContent(IField, String, List<IFieldContent>, 
-		 * 										JTree, TreeNode)
-		 */
-		protected void saveContent(IField fld, String fieldName,
-					List<IFieldContent> content, JTree tree, TreeNode node) 
-		{
-		    // replace the old content of the field with new content
-			controller.editFieldContent(fld, content, tree, node);
-		}
 		
 		/**
 		 * Overridden to avoid adding a parameter (possible for the "Add Param"

@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.undo.AbstractUndoableEdit;
@@ -214,6 +213,15 @@ public class FieldContentEdit
 	{
 		notifyNodeChanged();
 		TreeModelMethods.selectNode(node, tree);
+	}
+	
+	/**
+	 * Overrides {@link AbstractUndoableEdit#getPresentationName()} to 
+	 * return "Edit Step Content"
+	 */
+	public String getPresentationName()
+	{
+		return "Edit Step Content";
 	}
 	
 	/**

@@ -109,7 +109,11 @@ public class FieldTextArea
 	KeyListener
 {
 	/**  The text area that displays and allows users to edit the text */
-	protected HtmlContentEditor		htmlEditor;
+	protected HtmlContentEditor		contentEditor;
+	
+	/**  The text area that displays and allows users to edit the name */
+	protected HtmlContentEditor		nameEditor;
+	
 	
 	private static String 			addParamToolTip = 
 									"Add a parameter to this step";
@@ -203,10 +207,28 @@ public class FieldTextArea
 	 */
 	private void initialise()
 	{
-		htmlEditor = new HtmlContentEditor();
-		htmlEditor.addFocusListener(this);
-		htmlEditor.addKeyListener(this);
-		htmlEditor.addMouseListener(new ParamMouseListener());
+		// make a content Editor and set a document filter
+		contentEditor = new HtmlContentEditor();
+		contentEditor.addFocusListener(this);
+		contentEditor.addKeyListener(this);
+		contentEditor.addMouseListener(new ParamMouseListener());
+		Document d = contentEditor.getDocument();
+		AbstractDocument doc;
+		if (d instanceof AbstractDocument) {
+            doc = (AbstractDocument)d;
+            if (doc instanceof StyledDocument)
+            doc.setDocumentFilter(new TextAreaFilter((StyledDocument)doc, Tag.A));
+        }
+		
+		nameEditor = new HtmlContentEditor();
+		nameEditor.addFocusListener(this);
+		nameEditor.addKeyListener(this);
+		d = nameEditor.getDocument();
+		if (d instanceof AbstractDocument) {
+            doc = (AbstractDocument)d;
+            if (doc instanceof StyledDocument)
+            doc.setDocumentFilter(new TextAreaNameFilter());
+        }
 		
 		int indent = treeNode.getLevel() * 15;	// indent according to hierarchy
 		Border emptyBorder = new EmptyBorder(7,indent,7,7);
@@ -217,14 +239,6 @@ public class FieldTextArea
 		
 		addParamIcon = IconManager.getInstance().getIcon(IconManager.ADD_NUMBER);
 		blankIcon = IconManager.getInstance().getIcon(IconManager.SPACER);
-		
-		Document d = htmlEditor.getDocument();
-		AbstractDocument doc;
-		if (d instanceof AbstractDocument) {
-            doc = (AbstractDocument)d;
-            if (doc instanceof StyledDocument)
-            doc.setDocumentFilter(new TextAreaFilter((StyledDocument)doc, Tag.A));
-        }
 		
 	}
 	
@@ -237,7 +251,8 @@ public class FieldTextArea
 		setLayout(new BorderLayout());
 		refreshText();
 		
-		add(htmlEditor, BorderLayout.CENTER);
+		add(contentEditor, BorderLayout.CENTER);
+		add(nameEditor, BorderLayout.NORTH);
 		
 		addParamButton = new CustomButton(addParamIcon);
 		addParamButton.setToolTipText(addParamToolTip);
@@ -283,7 +298,7 @@ public class FieldTextArea
     private List<IFieldContent> getNewContent(IFieldContent newParam) 
     {
     	int start = 0;
-    	int end = htmlEditor.getDocument().getLength();
+    	int end = contentEditor.getDocument().getLength();
     	
     	return getNewContent(newParam, start, end);
     }
@@ -304,29 +319,13 @@ public class FieldTextArea
     {
     	List<IFieldContent> contentList = new ArrayList<IFieldContent>();
     	
-    	Document d = htmlEditor.getDocument();
+    	Document d = contentEditor.getDocument();
     	
     	int lastChar = start;	// keep track of the last processed character
     	int docEnd = end;	
- 
-    	// ignore the name token, but need to be sure that we start processing
-    	// content AFTER the name. 
-    	TextToken nameTag = getNameTag();
-    	if (nameTag != null) {
-    		lastChar = Math.max(lastChar, nameTag.getEnd());	
-    		// need to skip new-line character
-    		try {
-				String nextChar = d.getText(lastChar, 1);
-				if (nextChar.trim().length() == 0) 
-					lastChar++;
-			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}
     	
     	// Get the parameter tokens, iterate through them...
-    	List<TextToken> tags = htmlEditor.getElementsByTag
+    	List<TextToken> tags = contentEditor.getElementsByTag
     											(FieldTextArea.PARAM_TAG);
     	
     	String description;
@@ -434,14 +433,7 @@ public class FieldTextArea
 		return navTree.isPathSelected(path);
 	}
 	
-
-	/**
-	 * Method for generating the html representation of the <code>field</code>.
-	 * 
-	 * @param field
-	 * @return
-	 */
-	private String getHtml()
+	private String getNameHtml()
 	{
 		String html = "";
 		
@@ -452,6 +444,19 @@ public class FieldTextArea
 				"='"+ FieldTextArea.NAME_ID +"'>" 
 				+ name.trim() + "</"+ FieldTextArea.NAME_TAG +"><br>";
 		}
+		
+		return html;
+	}
+
+	/**
+	 * Method for generating the html representation of the <code>field</code>.
+	 * 
+	 * @param field
+	 * @return
+	 */
+	private String getContentHtml()
+	{
+		String html = "";
 		
 		String contentText;
 		String contentString;
@@ -507,23 +512,34 @@ public class FieldTextArea
      */
     protected void saveContent() 
     {
-    	if (htmlEditor.hasDataToSave()) {
-    		String fieldName = null;
-    		// get the new name...
-    		TextToken nameTag = getNameTag();
-    		if (nameTag != null) {
-    			fieldName = getEditedName(nameTag.getText());
-    		}
+    	if (contentEditor.hasDataToSave()) {
     		
     		// convert the current text of this editor into a list of
     		// content, in the same format as the data model...
 			List<IFieldContent> newContent = getNewContent();
 			
 			// replace the old content of the field with new content
-			saveContent(field, fieldName, newContent, navTree, treeNode);
+			saveContent(field, newContent, navTree, treeNode);
 			
 			// reset this flag
-			htmlEditor.dataSaved();
+			contentEditor.dataSaved();
+		}
+    }
+    
+    /**
+     * Saves the current field name back to the model, if the 
+     * name has been edited.
+     */
+    protected void saveName() 
+    {
+    	String oldName = getFieldName();
+    	String newName = getEditedName();
+    	if (! oldName.equals(newName)) {
+			
+			saveName(field, newName, navTree, treeNode);
+			
+			// reset this flag, even though not read
+			nameEditor.dataSaved();
 		}
     }
     
@@ -533,41 +549,47 @@ public class FieldTextArea
     * behavior of this class.
     * 
     * @param fld		The field to add a new parameter to.
-	* @param fieldName		The new name of the field
 	* @param content 		The new content, as a list.
 	* @param tree			The JTree to refresh with undo/redo
 	* @param node		The node to highlight / refresh with undo/redo. 
     */
-    protected void saveContent(IField fld, String fieldName,
+    protected void saveContent(IField fld,
 			List<IFieldContent> content, JTree tree, TreeNode node) {
     	
     	// replace the old content of the field with new content
-		controller.editFieldContent(fld, fieldName, content, tree, node);
+		controller.editFieldContent(fld, content, tree, node);
     }
+    
+    /**
+     * Saves the name via the controller, which handles adding to undo/redo.
+     * 
+     * @param fld		The field to add a new parameter to.
+ 	* @param name 		The new name of the field
+ 	* @param tree			The JTree to refresh with undo/redo
+ 	* @param node		The node to highlight / refresh with undo/redo. 
+     */
+     protected void saveName(IField fld, String name, JTree tree, TreeNode node) {
+     	
+ 		controller.editAttribute(field, Field.FIELD_NAME, 
+ 				name, "Edit Name", tree, node);
+     }
     
     /**
      * Splits the field/step into two, creating a new field with the content
      * after the <code>splitChar</code>, adding it after this field as a 
      * sibling in the tree. 
      * 
-     * @param splitChar		The character in the document of {@link #htmlEditor}
+     * @param splitChar		The character in the document of {@link #contentEditor}
      */
     private void splitField(int splitChar) {
     	
     	// can't split root field
     	if (treeNode.isRoot()) return;
-    			
-    	// check that split is after name and before end of doc
-    	String fieldName = null;
-		// get the new name...
-		TextToken nameTag = getNameTag();
-		if (nameTag != null) {
-			fieldName = getEditedName(nameTag.getText());
-			if (splitChar < nameTag.getEnd()) return;
-		}
+    	
+    	String fieldName = getEditedName();
 		
 		int start = 0;
-    	int end = htmlEditor.getDocument().getLength();
+    	int end = contentEditor.getDocument().getLength();
     	
     	List<IFieldContent> content1 = getNewContent(null, start, splitChar-1);
     	List<IFieldContent> content2 = getNewContent(null, splitChar, end);
@@ -575,27 +597,10 @@ public class FieldTextArea
     	controller.splitField(field, fieldName, content1, content2, navTree, treeNode);
     	
     	// reset this flag
-		htmlEditor.dataSaved();
+		contentEditor.dataSaved();
     }
     
-    /**
-     * Gets the {@link TextToken} that defines the Field Name in the 
-     * html editor.
-     * 
-     * @return		The field name, as a text token.
-     */
-    private TextToken getNameTag() {
-
-    	List<TextToken> tags = htmlEditor.getElementsByTag
-    											(FieldTextArea.NAME_TAG);
-    	
-    	for (TextToken token : tags) {
-    		if (FieldTextArea.NAME_ID.equals(token.getId())) {
-    			return token;
-    		}
-    	}
-    	return null;
-    }
+ 
     
     /**
 	 * Inserts a new parameter, of the type defined by <code>paramType</code>
@@ -605,36 +610,11 @@ public class FieldTextArea
 	private void insertParam(String paramType) 
 	{
 		// get the currently selected text and selection positions
-		String selectedText = htmlEditor.getSelectedText();
-		int start = htmlEditor.getSelectionStart();
-		int end = htmlEditor.getSelectionEnd();
+		String selectedText = contentEditor.getSelectedText();
+		int start = contentEditor.getSelectionStart();
+		int end = contentEditor.getSelectionEnd();
 		
-		Document d = htmlEditor.getDocument();
-		
-		int nameEnd = 0;
-		// ignore the name token, but need to know when it ends (content begins)
-    	TextToken nameTag = getNameTag();
-    	if (nameTag != null) {
-    		nameEnd = nameTag.getEnd();	
-    		// need to skip new-line character
-    		try {
-				String nextChar = d.getText(nameEnd, 1);
-				if (nextChar.trim().length() == 0) 
-					nameEnd++;
-			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}
-    	
-    	// if selection is within the name tag, move to end of name before adding
-    	// parameter. (can't have parameters in name). 
-    	if (start < nameEnd) {
-    		start = nameEnd;
-    	}
-    	if (end < nameEnd) {
-    		end = nameEnd;
-    	}
+		Document d = contentEditor.getDocument();
 		
 		// edit the document text, inserting tags around the currently-selected
 		// text (or inserting the tag into the caret position, if no text
@@ -671,14 +651,14 @@ public class FieldTextArea
 		List<IFieldContent> newContent = getNewContent(param);
 		
 		// get the new name, just in case it changed...
-		String fieldName = getEditedName(nameTag.getText());
+		String fieldName = getEditedName();
 		
 		// replace the old content of the field with new content
 		controller.editFieldContent(field, fieldName, 
 				newContent, navTree, treeNode);
 		
 		// reset this flag
-		htmlEditor.dataSaved();
+		contentEditor.dataSaved();
 	}
 	
 	/**
@@ -690,13 +670,17 @@ public class FieldTextArea
 	 * @param currentText
 	 * @return
 	 */
-	private String getEditedName(String currentText)
+	private String getEditedName()
 	{
-		if (currentText == null)	return null;
-		if (currentText.equals(TreeModelMethods.getNodeName(treeNode)))
-				return null;
-		
-		return currentText.trim();
+		Document d = nameEditor.getDocument();
+		String name = "";
+		try {
+			name = d.getText(0, d.getLength());
+		} catch (BadLocationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return name.trim();
 	}
 
 	/**
@@ -735,18 +719,18 @@ public class FieldTextArea
     	public void mouseClicked(MouseEvent e) 
     	{
     		Point mouseLoc = e.getPoint();
-    		int c = htmlEditor.viewToModel(mouseLoc);
+    		int c = contentEditor.viewToModel(mouseLoc);
     		
     		// if any changes have been made to the document, save changes.
     		saveContent();
     		
     		// if click is on a parameter...
-    		if (htmlEditor.isOffsetWithinTag(c, FieldTextArea.PARAM_TAG)) {
+    		if (contentEditor.isOffsetWithinTag(c, FieldTextArea.PARAM_TAG)) {
     			// disable add-param button
     			addParamButton.setEnabled(false);
     			
     			// show edit dialog
-    			String id = htmlEditor.getElementId(c);
+    			String id = contentEditor.getElementId(c);
     			if ((id != null) && (isShowing())) { 
     				Point paneLoc = null;
     				try { 
@@ -780,7 +764,6 @@ public class FieldTextArea
 	public FieldTextArea(IField field, JTree tree, DefaultMutableTreeNode treeNode,
 			BrowserControl controller) 
 	{
-		
 		this.field = field;
 		this.navTree = tree;
 		this.treeNode = treeNode;
@@ -814,17 +797,21 @@ public class FieldTextArea
 	 */
 	public void refreshText() {
 		
-		String content = getHtml();
-
+		// set name html
+		String content = getNameHtml();
 		String html = "<html><head> <style type='text/css'> \n" +
 			FieldTextArea.NAME_TAG + "#" + FieldTextArea.NAME_ID +
 			" {font-weight: 500; font-family: arial} \n" +
 			"</style> </head> " +
 			"<body> " + content + " </body> </html>";
+		nameEditor.setText(html);
 		
-		htmlEditor.setText(html);
+		// set content html
+		content = getContentHtml();
+		html = "<html><body> " + content + " </body> </html>";
+		contentEditor.setText(html);
 		
-		htmlEditor.dataSaved();
+		contentEditor.dataSaved();
 		
 		// if this is a 'Comment Step' it will have a text box that needs update
 		if (field instanceof TextBoxStep) {
@@ -863,8 +850,12 @@ public class FieldTextArea
 		
 		if (treeNode == null) return;
 		TreePath path = new TreePath(treeNode.getPath());
-		if (navTree != null)
-		navTree.setSelectionPath(path);
+		if (navTree != null) {
+			TreePath currentPath = navTree.getSelectionPath();
+			if (!path.equals(currentPath)) {
+				navTree.setSelectionPath(path);
+			}
+		}
 	}
 
 	/**
@@ -874,7 +865,14 @@ public class FieldTextArea
 	 * @see FocusListener#focusLost(FocusEvent)
 	 */
 	public void focusLost(FocusEvent e) {
-		saveContent();
+		Object source = e.getSource();
+		if (source instanceof HtmlContentEditor) {
+			if (source.equals(contentEditor)) {
+				saveContent();
+			} else if (source.equals(nameEditor)) {
+				saveName();
+			}
+		}
 	}
 	
 	
@@ -900,9 +898,6 @@ public class FieldTextArea
 				IAttributes param = src.getParameter();
 				String attrName = src.getAttributeName();
 				String displayName = src.getEditDisplayName();
-				
-				// System.out.println("FieldPanel propChanged: "+ attrName + 
-				//	" " + evt.getNewValue());
 				
 				String newValue;
 				Object newVal = evt.getNewValue();
@@ -943,16 +938,20 @@ public class FieldTextArea
 
 	/**
 	 * Implemented as specified by the {@link KeyListener} interface.
-	 * Handles "Enter" key from the {@link #htmlEditor} and calls 
+	 * Handles "Enter" key from the {@link #contentEditor} and calls 
 	 * {@link #splitField(int)} to split this field into two. 
 	 * 
 	 * @see	KeyListener#keyReleased(KeyEvent)
 	 */
 	public void keyReleased(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-			
-			int splitChar = htmlEditor.getCaretPosition();
-			splitField(splitChar);
+			if (e.getSource().equals(contentEditor)) {
+				int splitChar = contentEditor.getCaretPosition();
+				splitField(splitChar);
+			} else if (e.getSource().equals(nameEditor)) {
+				contentEditor.setCaretPosition(1);
+				contentEditor.requestFocusInWindow();
+			}
 		}
 	}
 
