@@ -367,10 +367,10 @@ class OMEROGateway
 	private String getTableForLink(Class klass)
 	{
 		String table = null;
-		if (klass.equals(Dataset.class)) table = "DatasetImageLink";
-		else if (klass.equals(Project.class)) table = "ProjectDatasetLink";
-		else if (klass.equals(Screen.class)) table = "ScreenPlateLink";
-		else if (klass.equals(TagAnnotation.class)) table = "AnnotationAnnotationLink";
+		if (Dataset.class.equals(klass)) table = "DatasetImageLink";
+		else if (Project.class.equals(klass)) table = "ProjectDatasetLink";
+		else if (Screen.class.equals(klass)) table = "ScreenPlateLink";
+		else if (TagAnnotation.class.equals(klass)) table = "AnnotationAnnotationLink";
 		return table;
 	}
 
@@ -383,6 +383,7 @@ class OMEROGateway
 	private String getTableForAnnotationLink(String klass)
 	{
 		String table = null;
+		if (klass == null) return table;
 		if (klass.equals(Dataset.class.getName())) 
 			table = "DatasetAnnotationLink";
 		else if (klass.equals(Project.class.getName())) 
@@ -436,11 +437,11 @@ class OMEROGateway
 	 */
 	private String getTableForClass(Class klass)
 	{
-		if (klass.equals(DatasetData.class)) return "Dataset";
-		else if (klass.equals(ProjectData.class)) return "Project";
-		else if (klass.equals(ImageData.class)) return "Image";
-		else if (klass.equals(ScreenData.class)) return "Screen";
-		else if (klass.equals(PlateData.class)) return "Plate";
+		if (DatasetData.class.equals(klass)) return "Dataset";
+		else if (ProjectData.class.equals(klass)) return "Project";
+		else if (ImageData.class.equals(klass)) return "Image";
+		else if (ScreenData.class.equals(klass)) return "Screen";
+		else if (PlateData.class.equals(klass)) return "Plate";
 		return null;
 	}
 	
@@ -1018,6 +1019,27 @@ class OMEROGateway
 		return false;
 	}
 
+	private String convertAnnotation(Class pojo)
+	{
+		if (TextualAnnotationData.class.equals(pojo))
+			return "ome.model.annotations.CommentAnnotation";
+		else if (TagAnnotationData.class.equals(pojo))
+			return "ome.model.annotations.TagAnnotation";
+		else if (RatingAnnotationData.class.equals(pojo))
+			return "ome.model.annotations.LongAnnotation";
+		else if (LongAnnotationData.class.equals(pojo))
+			return "ome.model.annotations.LongAnnotation";
+		else if (FileAnnotationData.class.equals(pojo))
+			return "ome.model.annotations.FileAnnotation"; 
+		else if (URLAnnotationData.class.equals(pojo))
+			return "ome.model.annotations.UriAnnotation"; 
+		else if (TimeAnnotationData.class.equals(pojo))
+			return "ome.model.annotations.UriAnnotation"; 
+		else if (BooleanAnnotationData.class.equals(pojo))
+			return "ome.model.annotations.UriAnnotation"; 
+		return null;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -1057,33 +1079,33 @@ class OMEROGateway
 	 */
 	Class convertPojos(Class nodeType)
 	{
-		if (nodeType.equals(ProjectData.class)) 
+		if (ProjectData.class.equals(nodeType)) 
 			return Project.class;
-		else if (nodeType.equals(DatasetData.class)) 
+		else if (DatasetData.class.equals(nodeType)) 
 			return Dataset.class;
-		else if (nodeType.equals(ImageData.class)) 
+		else if (ImageData.class.equals(nodeType)) 
 			return Image.class;
-		else if (nodeType.equals(BooleanAnnotationData.class) ||
-				nodeType.equals(ArchivedAnnotationData.class))
+		else if (BooleanAnnotationData.class.equals(nodeType) ||
+				ArchivedAnnotationData.class.equals(nodeType))
 			return BooleanAnnotation.class;
-		else if (nodeType.equals(RatingAnnotationData.class) ||
-				nodeType.equals(LongAnnotationData.class)) 
+		else if (RatingAnnotationData.class.equals(nodeType) ||
+				LongAnnotationData.class.equals(nodeType)) 
 			return LongAnnotation.class;
-		else if (nodeType.equals(TagAnnotationData.class)) 
+		else if (TagAnnotationData.class.equals(nodeType)) 
 			return TagAnnotation.class;
-		else if (nodeType.equals(TextualAnnotationData.class)) 
+		else if (TextualAnnotationData.class.equals(nodeType)) 
 			return CommentAnnotation.class;
-		else if (nodeType.equals(FileAnnotationData.class))
+		else if (FileAnnotationData.class.equals(nodeType))
 			return FileAnnotation.class;
-		else if (nodeType.equals(URLAnnotationData.class))
+		else if (URLAnnotationData.class.equals(nodeType))
 			return UriAnnotation.class;
-		else if (nodeType.equals(ScreenData.class)) 
+		else if (ScreenData.class.equals(nodeType)) 
 			return Screen.class;
-		else if (nodeType.equals(PlateData.class)) 
+		else if (PlateData.class.equals(nodeType)) 
 			return Plate.class;
-		else if (nodeType.equals(WellData.class)) 
+		else if (WellData.class.equals(nodeType)) 
 			return Well.class;
-		else if (nodeType.equals(WellSampleData.class)) 
+		else if (WellSampleData.class.equals(nodeType)) 
 			return WellSample.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
@@ -1406,14 +1428,15 @@ class OMEROGateway
 					service.findAnnotations(convertPojos(nodeType).getName(), 
 							nodeIDs, annotatorIDs, options));
 		} catch (Throwable t) {
+			t.printStackTrace();
 			handleException(t, "Cannot find annotations for "+nodeType+".");
 		}
 		return new HashMap();
 		/*
 		List<Class> annotationTypes = new ArrayList<Class>();
-		annotationTypes.add(TagAnnotationData.class);
+		annotationTypes.add(TextualAnnotationData.class);
 		return loadAnnotations(nodeType, nodeIDs, annotationTypes, annotatorIDs);
-		*/
+	*/
 	}
 
 	Map loadAnnotations(Class nodeType, List nodeIDs, List<Class> annotationTypes, 
@@ -1425,8 +1448,11 @@ class OMEROGateway
 		if (annotationTypes != null && annotationTypes.size() > 0) {
 			types = new ArrayList<String>(annotationTypes.size());
 			Iterator<Class> i = annotationTypes.iterator();
+			String k;
 			while (i.hasNext()) {
-				types.add(convertPojos(i.next()).getName());
+				k = convertAnnotation(i.next());
+				if (k != null)
+					types.add(k);
 			}
 		}
 		try {

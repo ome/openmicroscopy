@@ -1301,6 +1301,7 @@ class OmeroDataServiceImpl
 			}
 		} 
 		return all;
+		//return loadContainerHierarchy(rootNodeType, rootNodeIDs, false, userID);
 	}
 
 	/**
