@@ -22,6 +22,7 @@
  */
 package pojos;
 
+import omero.RDouble;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
 
@@ -56,6 +57,7 @@ public class WellSampleData extends DataObject {
     public WellSampleData() {
         setDirty(true);
         setValue(new WellSampleI());
+       
     }
 
     /**
@@ -99,6 +101,30 @@ public class WellSampleData extends DataObject {
         }
         setDirty(true);
         asWellSample().setImage(newValue.asImage());
+    }
+
+    /**
+     * Returns the position X.
+     * 
+     * @return See above.
+     */
+    public double getPositionX()
+    {
+    	RDouble value = asWellSample().getPosX();
+    	if (value == null) return 0;
+    	return value.getValue();
+    }
+    
+    /**
+     * Returns the position Y.
+     * 
+     * @return See above.
+     */
+    public double getPositionY()
+    {
+    	RDouble value = asWellSample().getPosY();
+    	if (value == null) return 0;
+    	return value.getValue();
     }
 
 }
