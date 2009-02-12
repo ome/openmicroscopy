@@ -1345,7 +1345,6 @@ super class where the property was defined.
 [$cpp]              throw omero::ClientError(__FILE__,__LINE__,"Argument may not be older than this instance");
 [$cpp]           }
 #end
-[$cpp]           Collection<${property.shortType}> copy = toCopy.copy${PropertyName}(); // May also throw
 [$cpp]           ${cppType} copy = toCopy->copy${PropertyName}(); // May also throw
 [$cpp]           $cppType::iterator beg = copy.begin();
 [$cpp]           $cppType::iterator end = copy.end();
