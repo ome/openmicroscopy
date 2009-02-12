@@ -68,7 +68,7 @@ class BaseShare(BaseController):
         else:
             self.conn_share = conn_share
             self.share = self.conn.getShare(share_id)
-            self.share_share = self.conn_share.getActivateShare(share_id)
+            self.conn_share.activateShare(share_id)
 
     def createShare(self, host, blitz_id, imageInBasket, datasetInBasket, projectInBasket, message, expiration, members, enable):
         # only for python 2.5
@@ -118,8 +118,11 @@ class BaseShare(BaseController):
     def getAllUsers(self, share_id):
          self.allInShare = list(self.conn.getAllUsers(share_id))
 
-    def loadShareContent(self, share_id):
-        content = self.conn_share.getContents(share_id)
+    def loadShareContent(self):
+        if self.conn_share._shareId is not None:
+            content = self.conn_share.getContents(self.conn_share._shareId)
+        else:
+            raise AttributeError('Share was not activated.')
         
         self.imageInShare = list()
         self.datasetInShare = list()

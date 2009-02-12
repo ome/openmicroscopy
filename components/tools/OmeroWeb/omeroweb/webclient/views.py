@@ -2329,8 +2329,8 @@ def load_share_content(request, share_id, **kwargs):
         logger.error(traceback.format_exc())
     
     share = BaseShare(request.session['nav']['menu'], conn, conn_share, share_id)
-    share.loadShareContent(share_id)
-        
+    share.loadShareContent()
+    
     context = {'share':share, 'eContext':share.eContext}
     t = template_loader.get_template(template)
     c = Context(request,context)

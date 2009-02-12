@@ -78,6 +78,7 @@ class BlitzGateway (threading.Thread):
         self._connected = False
         self._user = None
         self._eventContext = None
+        self._shareId = None
         self.allow_thread_timeout = True
         self.updateTimeout()
         self.start()
@@ -1013,11 +1014,12 @@ class BlitzGateway (threading.Thread):
         sh = sh_serv.getShare(long(oid))
         return ShareWrapper(self, sh)
     
-    def getActivateShare (self, oid):
+    def activateShare (self, oid):
         sh_serv = self.getShareService()
         sh = sh_serv.getShare(long(oid))
         sh_serv.activate(long(oid))
-        return ShareWrapper(self, sh)
+        self._shareId = sh.id.val
+        self._eventContext = self._proxies['admin'].getEventContext()
     
     def getProject (self, oid):
         query_serv = self.getQueryService()
@@ -1487,14 +1489,18 @@ class BlitzGateway (threading.Thread):
             p.map["ids"] = rlist([rlong(long(a)) for a in imageInBasket])
             sql = "select i from Image as i " \
                   "left outer join fetch i.pixels as p " \
+                  "left outer join fetch p.pixelsType as pt " \
                   "left outer join fetch p.channels as c " \
                   "left outer join fetch c.logicalChannel as lc " \
-                  "left outer join fetch c.statsInfo as sinfo " \
-                  "left outer join fetch p.planeInfo as pinfo " \
-                  "left outer join fetch p.thumbnails as thumb " \
-                  "left outer join fetch p.pixelsFileMaps as map " \
-                  "left outer join fetch map.parent as ofile " \
-                  "left outer join fetch p.settings as setting " \
+                  "left outer join fetch c.statsInfo " \
+                  "left outer join fetch lc.photometricInterpretation " \
+                  "left outer join fetch p.thumbnails as thumb join fetch thumb.details.updateEvent " \
+                  "left outer join fetch p.settings as rdef join fetch rdef.details.updateEvent join fetch rdef.details.owner " \
+                  "left outer join fetch rdef.quantization " \
+                  "left outer join fetch rdef.model " \
+                  "left outer join fetch rdef.waveRendering as cb " \
+                  "left outer join fetch cb.family " \
+                  "left outer join fetch rdef.spatialDomainEnhancement " \
                   "where i.id in (:ids)"
             items.extend(q.findAllByQuery(sql, p))
         #datasets
@@ -1503,15 +1509,19 @@ class BlitzGateway (threading.Thread):
             sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
                   "left outer join fetch ds.imageLinks dil left outer join fetch dil.child i " \
                   "left outer join fetch i.pixels as p " \
+                  "left outer join fetch p.pixelsType as pt " \
                   "left outer join fetch p.channels as c " \
                   "left outer join fetch c.logicalChannel as lc " \
-                  "left outer join fetch c.statsInfo as sinfo " \
-                  "left outer join fetch p.planeInfo as pinfo " \
-                  "left outer join fetch p.thumbnails as thumb " \
-                  "left outer join fetch p.pixelsFileMaps as map " \
-                  "left outer join fetch map.parent as ofile " \
-                  "left outer join fetch p.settings as setting " \
-                  "where ds.id in (:ids) order by ds.name"
+                  "left outer join fetch c.statsInfo " \
+                  "left outer join fetch lc.photometricInterpretation " \
+                  "left outer join fetch p.thumbnails as thumb join fetch thumb.details.updateEvent " \
+                  "left outer join fetch p.settings as rdef join fetch rdef.details.updateEvent join fetch rdef.details.owner " \
+                  "left outer join fetch rdef.quantization " \
+                  "left outer join fetch rdef.model " \
+                  "left outer join fetch rdef.waveRendering as cb " \
+                  "left outer join fetch cb.family " \
+                  "left outer join fetch rdef.spatialDomainEnhancement " \
+                  "where ds.id in (:ids)"
             items.extend(q.findAllByQuery(sql, p))
         
         # TODO: Sharing project will be available when server will support loading leaves. 
@@ -1531,6 +1541,8 @@ class BlitzGateway (threading.Thread):
                   "where e.id in (:ids) order by e.omeName"
             ms = q.findAllByQuery(sql, p)
         sid = sh.createShare(message, expiration, items, ms, [], enable)
+        for ob in items:
+            sh.addObject(sid, ob)
         
         #send email
         sender = None

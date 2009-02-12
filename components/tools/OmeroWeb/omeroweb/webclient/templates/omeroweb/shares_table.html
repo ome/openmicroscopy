@@ -34,7 +34,7 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/popup.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            {% if share.oshSize %}
+            {% if share.oshSize or share.mshSize %}
             $('div table#shareTable tbody tr').quicksearch({
                 attached: "div#view",
                 position: "befor",
@@ -44,15 +44,11 @@
                 loaderImg: '{% get_webclient_static_url %}/images/tree/spinner.gif',
             });
             {% endif %}
-        })
-    </script>
-    <script type="text/javascript">
-        $(document).ready(function() 
-            { 
-                $("#shareTable").tablesorter( {sortList: [[1,0]]} ); 
-                $("#sharedTable").tablesorter( {sortList: [[1,0]]} ); 
-            } 
-        );
+            
+            $("#shareTable").tablesorter( {sortList: [[1,0]]} ); 
+            $("#sharedTable").tablesorter( {sortList: [[1,0]]} ); 
+
+        });
     </script>
 {% endblock %}
 
@@ -108,7 +104,7 @@
 
 <div id="header_name"><h1>Shared with me ({{ share.mshSize }} items):</h1></div>
 <div class="clear"> </div>
-<table id="shareTable" class="tablesorter"> 
+<table id="sharedTable" class="tablesorter"> 
 <thead> 
 <tr> 
     <th>Type</th> 
