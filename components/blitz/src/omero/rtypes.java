@@ -29,7 +29,7 @@ import Ice.Current;
  * static factory methods. Where possible, factory methods return cached values
  * (the fly-weight pattern) such that <code>rbool(true) == rbool(true)</code>
  * might hold true.
- * 
+ *
  * This class is fairly non-traditional Java and instead is more like a Python
  * module or static methods in C++ to keep the three language bindings fairly in
  * step.
@@ -116,17 +116,17 @@ public abstract class rtypes {
     public static omero.RTime rtime(Date date) {
         return date == null ? null : new RTimeI(date.getTime());
     }
-    
+
     public static omero.RTime rtime_min() {
         String tstr = "0001-01-01 00:00:00";
         return rtime_str(tstr);
     }
-    
+
     public static omero.RTime rtime_max() {
         String tstr = "9999-12-31 23:59:59";
         return rtime_str(tstr);
     }
-    
+
     public static omero.RTime rtime_str(String tstr) {
         Timestamp t = Timestamp.valueOf(tstr);
         return rtime(t.getTime());
@@ -948,9 +948,9 @@ public abstract class rtypes {
 
     private final static omero.RInt rint0 = new RIntI(0);
 
-    private final static omero.RString remptystr = new RStringI(null);
+    private final static omero.RString remptystr = new RStringI("");
 
-    private final static omero.RClass remptyclass = new RClassI(null);
+    private final static omero.RClass remptyclass = new RClassI("");
 
     private final static omero.RInternal rnullinternal = new RInternalI(null);
 
