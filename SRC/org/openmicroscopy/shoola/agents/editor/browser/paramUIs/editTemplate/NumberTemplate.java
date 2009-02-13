@@ -34,6 +34,8 @@ import javax.swing.Box;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.Document;
 
 //Third-party libraries
 
@@ -41,6 +43,7 @@ import javax.swing.event.DocumentListener;
 
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.NumberFilter;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
@@ -88,6 +91,12 @@ public class NumberTemplate
 			(getParameter(), TextParam.DEFAULT_VALUE, "Number Default");
 		defaultEditor.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
+		Document d = defaultEditor.textField.getDocument();
+		AbstractDocument doc;
+		if (d instanceof AbstractDocument) {
+            doc = (AbstractDocument)d;
+            doc.setDocumentFilter(new NumberFilter(doc));
+        }
 		add(defaultEditor);
 		add(Box.createHorizontalStrut(6));
 		

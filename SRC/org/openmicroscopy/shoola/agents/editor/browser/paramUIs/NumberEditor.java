@@ -28,11 +28,16 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.Document;
+import javax.swing.text.StyledDocument;
+import javax.swing.text.html.HTML.Tag;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.browser.TextAreaFilter;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
@@ -68,6 +73,13 @@ public class NumberEditor
 				TextParam.PARAM_VALUE);
 		numberField.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, 
 				this);
+		
+		Document d = numberField.getTextField().getDocument();
+		AbstractDocument doc;
+		if (d instanceof AbstractDocument) {
+            doc = (AbstractDocument)d;
+            doc.setDocumentFilter(new NumberFilter(doc));
+        }
 		
 		add(numberField);
 		
