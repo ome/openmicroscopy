@@ -45,6 +45,7 @@ import ome.model.display.Thumbnail;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.internal.Details;
+import ome.model.meta.Session;
 import ome.parameters.Parameters;
 import ome.system.EventContext;
 import ome.system.SimpleEventContext;
@@ -483,6 +484,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      */
     private Long getCurrentUserId()
     {
+        Long shareId = getSecuritySystem().getEventContext().getCurrentShareId();
+        if (shareId != null) {
+            Session s = iQuery.get(Session.class, shareId);
+            return s.getOwner().getId();
+        } 
         return getSecuritySystem().getEventContext().getCurrentUserId();
     }
 
