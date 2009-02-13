@@ -76,7 +76,6 @@ div.exfile {
 #comment {
     background:transparent url(/webclient/static/images/comment/comment_repeater.png) repeat-y scroll 0 0;
     width:590px;
-    float: right;
     margin-left:50px;
 }
 #comment .head {
@@ -112,13 +111,12 @@ div.exfile {
     width:630px;
 }
 #comment_wrapper_rev .photo {
-    margin-top: 60px;
+    margin-top: -20px;
     float: right;
 }
 #comment_rev {
     background:transparent url(/webclient/static/images/comment/comment_repeater_rev.png) repeat-y scroll 0 0;
     width:590px;
-    float: left;
 }
 #comment_rev .head {
     font-size: 11px;
@@ -147,7 +145,6 @@ div.exfile {
     height:45px;
     margin-top:-30px;
 }
-
 
 .body_url {
 	padding: 0px 20px;

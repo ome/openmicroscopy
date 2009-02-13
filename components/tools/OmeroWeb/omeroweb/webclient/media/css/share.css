@@ -45,7 +45,6 @@ body.share {
 #comment {
     background:transparent url(/webclient/static/images/comment/comment_repeater.png) repeat-y scroll 0 0;
     width:590px;
-    float: right;
     margin-left:50px;
 }
 #comment .head {
@@ -81,13 +80,12 @@ body.share {
     width:630px;
 }
 #comment_wrapper_rev .photo {
-    margin-top: 60px;
+    margin-top: -20px;
     float: right;
 }
 #comment_rev {
     background:transparent url(/webclient/static/images/comment/comment_repeater_rev.png) repeat-y scroll 0 0;
     width:590px;
-    float: left;
 }
 #comment_rev .head {
     font-size: 11px;
