@@ -22,22 +22,25 @@
  */
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 
+//Java imports
+
 import java.awt.Toolkit;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.DocumentFilter;
-import javax.swing.text.DocumentFilter.FilterBypass;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
+ * A filter to allow only addition of digits and "." and "-".
+ * "." and "-" are only allowed if the document does not already contain them. 
  * 
+ * This is not perfect, eg won't allow paste of "3.4" to replace "1.2", but 
+ * in most cases it works OK. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -59,6 +62,15 @@ public class NumberFilter extends DocumentFilter {
 		this.doc = doc;
 	}
 	
+	/**
+	 * Returns false if string contains "." and "-" and the document 
+	 * already contains them. 
+	 * Also returns false if string cannot be parsed as a Float
+	 * 
+	 * @param str
+	 * @return
+	 * @throws BadLocationException
+	 */
 	private boolean canInsert(String str) 
 		throws BadLocationException{
 		
@@ -90,7 +102,7 @@ public class NumberFilter extends DocumentFilter {
 	}
 	
 	/**
-	 * Overridden method, to prevent 'Enter' insertion (new line)
+	 * Overridden method, only allows numbers to be added 
 	 * 
 	 * @see DocumentFilter#insertString(FilterBypass, int, String, AttributeSet)
 	 */
@@ -105,7 +117,7 @@ public class NumberFilter extends DocumentFilter {
 	}
 
 	/**
-	 * Overridden method, to prevent 'Enter' insertion (new line)
+	 * Overridden method, only allows numbers to be added 
 	 * 
 	 * @see DocumentFilter#replace(FilterBypass, int, int, String, AttributeSet)
 	 */
@@ -118,16 +130,5 @@ public class NumberFilter extends DocumentFilter {
 		
 		else
 			Toolkit.getDefaultToolkit().beep();
-	}
-	
-	/**
-	 * Overridden method, to prevent String removal if within a tag. 
-	 * 
-	 * @see DocumentFilter#remove(FilterBypass, int, int)
-	 */
-	public void remove(FilterBypass fb, int offset, int length) 
-	throws BadLocationException {
-		
-		super.remove(fb, offset, length);		
 	}
 }

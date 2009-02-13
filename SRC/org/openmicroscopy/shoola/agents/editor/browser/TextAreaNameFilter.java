@@ -85,14 +85,4 @@ public class TextAreaNameFilter
 			Toolkit.getDefaultToolkit().beep();
 	}
 	
-	/**
-	 * Overridden method, to prevent String removal if within a tag. 
-	 * 
-	 * @see DocumentFilter#remove(FilterBypass, int, int)
-	 */
-	public void remove(FilterBypass fb, int offset, int length) 
-	throws BadLocationException {
-		
-		super.remove(fb, offset, length);		
-	}
 }
