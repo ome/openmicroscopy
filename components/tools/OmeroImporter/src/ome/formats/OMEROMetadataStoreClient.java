@@ -571,7 +571,11 @@ public class OMEROMetadataStoreClient
                     (LightSource) getSourceObjectInstance(klass);
                 mls.copyData(realInstance);
                 container.sourceObject = realInstance;
-                container.LSID = lsid.toString();
+                if (container.LSID == null
+                    || container.LSID.equals(lsLSID.toString()))
+                {
+                    container.LSID = lsid.toString();
+                }
                 containerCache.put(lsid, container);
                 return container;
             }
