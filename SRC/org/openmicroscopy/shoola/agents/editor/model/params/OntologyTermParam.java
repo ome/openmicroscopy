@@ -156,7 +156,7 @@ extends AbstractParam
 		ontologyTerm = ontologyTerm.substring(colonIndex+1);
 		
 		int spaceIndex = ontologyTerm.indexOf(TERM_SEPARATOR);
-		if (colonIndex < 1) return false;
+		if (spaceIndex < 1) return false;
 		
 		// get the term ID from before the space. 
 		String termId = ontologyTerm.substring(0, spaceIndex);
