@@ -12,6 +12,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -19,11 +21,14 @@ import javax.sql.DataSource;
 import ome.api.IContainer;
 import ome.conditions.ApiUsageException;
 import ome.model.ILink;
+import ome.model.IObject;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
+import ome.model.screen.Plate;
+import ome.model.screen.Screen;
 import ome.testing.OMEData;
 import ome.testing.ObjectFactory;
 import ome.util.CBlock;
@@ -167,6 +172,62 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
     }
 
+    @Test
+    public void testSPLoadHierarchy() throws Exception {
+        Screen s = new Screen();
+        s.setName("screen 1");
+        
+        Plate p1 = new Plate();
+        p1.setName("plate 1");
+        s.linkPlate(p1);
+        Plate p2 = new Plate();
+        p2.setName("plate 2");
+
+        s = iUpdate.saveAndReturnObject(s);
+        p2 = iUpdate.saveAndReturnObject(p2);
+        
+        PojoOptions options = new PojoOptions();
+        
+        //no orphan
+        Set screens = iContainer.loadContainerHierarchy(Screen.class, 
+        		new HashSet(), options.map());
+
+        assertTrue(screens.size() == 1);
+        
+        Iterator i = screens.iterator();
+        Screen screen;
+        List<Plate> plates;
+        Iterator j;
+        Plate plate;
+        while (i.hasNext()) {
+        	screen = (Screen) i.next();
+        	assertTrue(screen.getId() == s.getId());
+        	plates = screen.linkedPlateList();
+        	assertTrue(plates.size() == 1);
+        	j = plates.iterator();
+        	while (j.hasNext()) {
+        		plate = (Plate) j.next();
+        		assertTrue(plate.getId() == p1.getId());
+			}
+		}
+
+        //orphan
+        options.orphan();
+        screens = iContainer.loadContainerHierarchy(Screen.class, 
+        		new HashSet(), options.map());
+        assertTrue(screens.size() == 2);
+        i = screens.iterator();
+        IObject object;
+        while (i.hasNext()) {
+        	object = (IObject) i.next();
+        	if (object instanceof Screen) {
+        		assertTrue(object.getId() == s.getId());
+        	} else if (object instanceof Plate) {
+        		assertTrue(object.getId() == p2.getId());
+        	}
+		}
+    }
+    
     // ~ Helpers
     // =========================================================================
 
