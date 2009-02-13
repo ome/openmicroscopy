@@ -112,8 +112,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
         if (!Project.class.equals(rootNodeType)
                 && !Dataset.class.equals(rootNodeType) 
-                && !Screen.class.equals(rootNodeType)
-                && !Plate.class.equals(rootNodeType)) {
+                && !Screen.class.equals(rootNodeType)) {
             throw new ApiUsageException(
                     "Class parameter for loadContainerIHierarchy() must be in "
                             + "{Project,Dataset, Screen, Plate}, not "
@@ -222,10 +221,8 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                 iQuery.findAllByQuery(loadCountsPlates, new Parameters()
                         .addSet("list", plates));
             }
-        } else if (Plate.class.isAssignableFrom(rootNodeType)) {
-        }
+        } 
         return new HashSet<IObject>(l);
-
     }
 
     /**
