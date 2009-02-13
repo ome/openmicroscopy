@@ -117,6 +117,14 @@ public interface Browser
     public void setEdited(boolean editable);
     
     /**
+     * Sets the ID of the original file (on server) that is currently being
+     * displayed. Allows the Browser to display this ID. 
+     * 
+     * @param id		see above.
+     */
+    public void setId(long id);
+    
+    /**
 	 * Queries the current state.
 	 * 
 	 * @return One of the state flags defined by this interface.

@@ -232,7 +232,7 @@ public class FieldTextArea
 		
 		int indent = treeNode.getLevel() * 15;	// indent according to hierarchy
 		Border emptyBorder = new EmptyBorder(7,indent,7,7);
-		Border lb = BorderFactory.createLineBorder(UIUtilities.LIGHT_GREY);
+		Border lb = BorderFactory.createLineBorder(org.openmicroscopy.shoola.util.ui.UIUtilities.LIGHT_GREY);
 		selectedBorder = BorderFactory.createCompoundBorder(lb, emptyBorder);
 		lb = BorderFactory.createLineBorder(Color.white);
 		unselectedBorder = BorderFactory.createCompoundBorder(lb, emptyBorder);

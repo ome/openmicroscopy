@@ -1452,4 +1452,9 @@ public class UIUtilities
 	{
 		return getTotalMemory()-getFreeMemory();
 	}
+
+	/**
+	 * A light grey colour for line borders etc. 
+	 */
+	public static final Color LIGHT_GREY = new Color(200,200,200);
 }

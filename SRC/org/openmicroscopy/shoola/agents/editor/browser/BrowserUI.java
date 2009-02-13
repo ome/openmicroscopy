@@ -50,7 +50,7 @@ import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
  * Displays a Navigation tree, {@link #navTree} on the left, 
  * a tabbed pane containing alternative views of the tree-model in the center,
  * and a {@link FieldEditorDisplay} on the right, for editing fields.
- * Does not include tool-bar, which can be retrieved with getToolBar();  
+ * Does not include tool-bar, which can be retrieved with {@link #getToolBar()}  
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -301,7 +301,8 @@ class BrowserUI
     	editorPanel.refreshEditorDisplay();
     	// should also update the tabbed pane to the correct view, 
     	// but, can assume any change in view-mode will have come from the
-    	// tabbed-pane, so it will already be in correct view. 
+    	// tabbed-pane, so it will already be in correct view.
+    	editorPanel.setId(model.getId());
     }
 
     /**

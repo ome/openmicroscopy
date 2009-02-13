@@ -109,7 +109,7 @@ public class AttributeEditNoLabel
 	{
 		setLayout(new BorderLayout());
 		
-		selectedBorder = BorderFactory.createLineBorder(UIUtilities.LIGHT_GREY);
+		selectedBorder = BorderFactory.createLineBorder(org.openmicroscopy.shoola.util.ui.UIUtilities.LIGHT_GREY);
 		unselectedBorder = BorderFactory.createLineBorder(Color.white);
 		
 		// Add a text field

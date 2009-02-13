@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -39,6 +40,7 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.Scrollable;
@@ -69,7 +71,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * This is the UI Panel that is displayed on the right of the screen, for
@@ -127,6 +129,16 @@ public class FieldParamEditor
 	 * Vertical Box layout panel. Main panel.
 	 */
 	protected JPanel 			attributeFieldsPanel;
+	
+	/**
+	 * A panel that is displayed at the top IF the id > 0
+	 */
+	private JPanel 						uiDisplayPanel;
+	
+	/**
+	 * A label to display the ID.
+	 */
+	private JLabel						uiLabel;
 
 	/**
 	 * Initialises the UI components
@@ -139,19 +151,32 @@ public class FieldParamEditor
 				(attributeFieldsPanel, BoxLayout.Y_AXIS));
 		// set border and background
 		Border emptyBorder = new EmptyBorder(10, 5, 15,5);
-		Border lineBorder = BorderFactory.createMatteBorder(
-                0, 0, 1, 0, UIUtilities.LIGHT_GREY);
+		Border lineBorder = BorderFactory.createMatteBorder(0, 0, 1, 0,
+                 UIUtilities.LIGHT_GREY);
 		Border compoundBorder = BorderFactory.createCompoundBorder
 			(lineBorder, emptyBorder);
 		attributeFieldsPanel.setBorder(compoundBorder);
-		attributeFieldsPanel.setBackground(
-				org.openmicroscopy.shoola.util.ui.UIUtilities.BACKGROUND_COLOR);
+		attributeFieldsPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		
+		// Panel to display ID. Not visisible unless ID is set (>0)
+		uiDisplayPanel = new JPanel(new BorderLayout());
+		uiDisplayPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		Border b = BorderFactory.createCompoundBorder(lineBorder, 
+				new EmptyBorder(0,0,5,5));
+		uiDisplayPanel.setBorder(b);
+		uiLabel = new CustomLabel();
+		uiLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		uiDisplayPanel.add(uiLabel, BorderLayout.WEST);
+		uiDisplayPanel.setVisible(false);
 	}
 	
 	/**
 	 * Builds the UI. 
 	 */
 	private void buildPanel() {
+		
+		// add ID display at top. 
+		attributeFieldsPanel.add(uiDisplayPanel);
 		
 		String defaultName = TreeModelMethods.getNodeName(treeNode);
 		// Name: Label and text box
@@ -449,18 +474,37 @@ public class FieldParamEditor
 		}
 	}
 	
+	/**
+	 * Sets the ID to display. If ID = 0, nothing is displayed. 
+	 * 
+	 * @param id
+	 */
+	public void setId(long id) 
+	{
+		if (id == 0) {
+			// hide panel if not ID to display
+			uiDisplayPanel.setVisible(false);
+			
+		} else {
+			// show panel and set text
+			uiDisplayPanel.setVisible(true);
+			uiLabel.setText("File ID: " + id);
+		}
+		invalidate();
+		repaint();
+	}
 	
+	/**
+	 * Notifies the Tree Model that the node displayed by this class has 
+	 * been Changed. This causes the UI to refresh, and builds a new instance
+	 * of this class. 
+	 */
 	public void rebuildEditorPanel() {
 
 		if ((tree != null) && (treeNode != null)) {
 			DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
 			treeModel.nodeChanged(treeNode);
 		}
-
-		/*validate();
-		repaint();
-		this.firePropertyChange(PANEL_CHANGED_PROPERTY, null, "refresh");
-		*/
 	}
 	
 	

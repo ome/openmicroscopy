@@ -128,6 +128,18 @@ public class BrowserComponent
 		fireStateChange();
 		firePropertyChange(BROWSER_EDIT_PROPERTY, -1, model.getState());
 	}
+	
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setId(long)
+     */
+	public void setId(long id)
+	{
+		model.setId(id);
+		// this is not really a state change. But the Browser doesn't really
+		// have states, and this will simply update the UI
+		fireStateChange();
+	}
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.

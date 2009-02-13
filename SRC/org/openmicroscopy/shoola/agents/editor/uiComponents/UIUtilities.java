@@ -48,11 +48,6 @@ import javax.swing.JOptionPane;
 public class UIUtilities {
 
 	/**
-	 * A light grey colour for line borders etc. 
-	 */
-	public static final Color LIGHT_GREY = new Color(200,200,200);
-	
-	/**
 	 * A light blue colour for highlighting fields, etc. 
 	 */
 	public static final Color BLUE_HIGHLIGHT = new Color(181,213,255);

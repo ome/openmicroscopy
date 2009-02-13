@@ -48,6 +48,14 @@ class BrowserModel
 	/** Holds one of the state flags defined by {@link Browser}. */
 	private int					state;
 	
+	/**
+	 * If the file is saved to the server, this ID will be the ID of the
+	 * original file on the server (not the file annotation).
+	 * The Editor manages file saving etc and this ID is purely for display
+	 * purposes in the Browser. 
+	 */
+	private long 				id;
+	
     /** Reference to the component that embeds this model. */
     protected Browser           component;
 
@@ -109,4 +117,19 @@ class BrowserModel
     	else 
     		state = Browser.TREE_SAVED;
     }
+    
+    /**
+     * Sets the ID so that it can be displayed in the browser.
+     * @param id
+     */
+    void setId(long id) {
+    	this.id = id;
+    }
+    
+    /**
+     * Gets the ID for display. Not used for file saving etc (handled by Editor)
+     * 
+     * @return		see above. 
+     */
+    long getId() {	return id; }
 }

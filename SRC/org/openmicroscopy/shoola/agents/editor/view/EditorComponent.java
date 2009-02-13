@@ -220,6 +220,7 @@ class EditorComponent
 		if (model.setFileToEdit(file)) {
 			view.setTitle(model.getFileName());
 			view.displayFile();
+			model.getBrowser().setId(model.getOriginalFileId());
 			if (!view.isVisible())
 				view.setVisible(true);
 		}
@@ -314,6 +315,7 @@ class EditorComponent
 	{
 		if (model.saveFileAs(file)) {
 			view.setTitle(model.getFileName());
+			model.getBrowser().setId(model.getOriginalFileId()); // should be 0
 			return true;
 		}
 		return false;
@@ -321,6 +323,9 @@ class EditorComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
+	 * This provides 'Save As' functionality, to create a new file
+	 * on the server. 
+	 * 
 	 * @see Editor#saveFileServer(String)
 	 */
 	public void saveFileServer(String fileName) 
@@ -343,6 +348,7 @@ class EditorComponent
 			long id = data.getId();
 			message = "The File has been saved to the server. \nID = " + id;
 			model.setFileAnnotationData(data);
+			model.getBrowser().setId(id);
 		}
 		un.notifyInfo("File Saved", message);
 		model.setState(READY);

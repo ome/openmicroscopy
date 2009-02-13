@@ -27,13 +27,18 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -47,6 +52,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.FieldContentEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.FieldParamEditor;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -87,10 +93,16 @@ public class FieldEditorDisplay
 	
 	/**
 	 * The currently displayed panel. Keep a reference to this so that
-	 * when it disappears, this class can be removed as a 
+	 * when it is replaced (eg selection change), this class can be removed as a 
 	 * {@link PropertyChangeListener}
 	 */
 	private JComponent 					currentDisplay;
+	
+	/**
+	 * A temporary reference to the file ID, used to set the ID for new 
+	 * {@link FieldParamEditor} created by this class. 
+	 */
+	private long 						id;
 	
 	/**
 	 * Sets the content of this panel with a blank {@link JPanel}.
@@ -180,10 +192,25 @@ public class FieldEditorDisplay
 			} else {
 				fe = new FieldParamEditor(field, tree, node, controller);
 			}
+			fe.setId(id);
 			setPanel(fe);
 		}
 		else {
 			setPanel();
+		}
+	}
+	
+	/**
+	 * Sets the ID to display. If ID = 0, nothing is displayed. 
+	 * 
+	 * @param id
+	 */
+	void setId(long id) 
+	{
+		this.id = id;
+		if (currentDisplay != null && 
+				currentDisplay instanceof FieldParamEditor) {
+			((FieldParamEditor)currentDisplay).setId(id);
 		}
 	}
 

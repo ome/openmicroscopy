@@ -355,6 +355,7 @@ class EditorModel
 			fileName = file.getName();
 			// indicates the current file is now local, even if it wasn't before.
 			fileID = 0;	
+			fileAnnotation = null;
 			return true;
 		}
 		return false;
@@ -386,12 +387,26 @@ class EditorModel
 	{
 		this.fileAnnotation = data;
 		if (data == null) {
+			this.fileAnnotation = null;
 			fileID = 0;
 			fileName = null;
 			return;
 		} 
 		this.fileID = data.getFileID();
 		this.fileName = data.getFileName();
-		System.out.println("EditorModel setFileAnnotation() ID = " + fileID + ", size = " + data.getFileSize());
+		System.out.println("EditorModel setFileAnnotation() getFileID() = " + fileID + ", size = " + data.getFileSize());
+	}
+	
+	/**
+	 * Gets a reference to the Original File if this file has been saved to 
+	 * the server. Otherwise returns 0.
+	 * 
+	 * @return		see above
+	 */
+	long getOriginalFileId() 
+	{
+		if (fileAnnotation == null)  return 0;
+		
+		return fileAnnotation.getId();
 	}
 }
