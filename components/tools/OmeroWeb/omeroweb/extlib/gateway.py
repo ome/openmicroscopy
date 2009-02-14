@@ -475,15 +475,20 @@ class BlitzGateway (threading.Thread):
         for e in q.findAllByQuery(sql,p):
             yield DatasetWrapper(self, e)
 
-    def listImagesInDatasetMine (self, oid):
+    def listImagesInDatasetMine (self, oid, page=None):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(self.getEventContext().userId)
         p.map["oid"] = rlong(long(oid))
+        if page is not None:
+            f = omero.sys.Filter()
+            f.limit = rint(24)
+            f.offset = rint((int(page)-1)*24)
+            p.theFilter = f
         sql = "select im from Image im join fetch im.details.owner join fetch im.details.group " \
               "left outer join fetch im.datasetLinks dil left outer join fetch dil.parent d " \
-              "where d.id = :oid and im.details.owner.id=:eid order by im.name"
+              "where d.id = :oid and im.details.owner.id=:eid order by im.id asc"
         for e in q.findAllByQuery(sql, p):
             yield ImageWrapper(self, e)
     
@@ -1245,16 +1250,6 @@ class BlitzGateway (threading.Thread):
         return AnnotationWrapper(self, tg)
     
     def lookupTagsAnnotation (self, names):
-        '''query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["names"] = rlist([rstring(n) for n in names])
-        f = omero.sys.Filter()
-        f.limit = rint(5)
-        p.theFilter = f
-        sql = "select tg from TagAnnotation tg where tg.textValue in (:names) order by tg.textValue"
-        for e in query_serv.findAllByQuery(sql, p):
-            yield AnnotationWrapper(self, e)'''
         query_serv = self.getQueryService()
         res = list()
         for n in names:
@@ -1271,7 +1266,6 @@ class BlitzGateway (threading.Thread):
                 yield None
             else:
                 yield AnnotationWrapper(self, e)
-        
     
     def getFileAnnotation (self, oid):
         query_serv = self.getQueryService()

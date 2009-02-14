@@ -166,3 +166,10 @@ input.disable {
     float:left;
     margin:15px 0 10px 0;
 }
+
+div.paging {
+    font-size: 15px;
+    text-align: center;
+    margin: 0;
+    padding: 10px;
+}

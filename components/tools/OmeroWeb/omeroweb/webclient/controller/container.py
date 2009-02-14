@@ -309,9 +309,10 @@ class BaseContainer(BaseController):
         
         self.containers = {'datasets': ds_list_with_counters}
         self.c_size = len(ds_list_with_counters)
+        
 
-    def listMyImagesInDataset(self, dataset_id):
-        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetMine(dataset_id)), 'name')
+    def listMyImagesInDataset(self, dataset_id, page):
+        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetMine(dataset_id, page)), 'name')
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
@@ -323,7 +324,9 @@ class BaseContainer(BaseController):
                 im_list_with_counters.append(im)
         
         self.containers = {'images': im_list_with_counters}
-        self.c_size = len(im_list_with_counters)
+        self.c_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(dataset_id)])[long(dataset_id)]
+        
+        self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
 
     def loadMyContainerHierarchy(self):
         obj_list = list(self.conn.loadMyContainerHierarchy())
@@ -447,9 +450,9 @@ class BaseContainer(BaseController):
         self.containers = {'datasets': ds_list_with_counters}
         self.c_size = len(ds_list_with_counters)
 
-    def listImagesInDatasetAsUser(self, dataset_id, exp_id):
+    def listImagesInDatasetAsUser(self, dataset_id, exp_id, page):
         self.experimenter = self.conn.getExperimenter(exp_id)
-        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetAsUser(dataset_id, exp_id)), 'name')
+        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetAsUser(dataset_id, exp_id, page)), 'name')
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
@@ -462,7 +465,9 @@ class BaseContainer(BaseController):
                 im_list_with_counters.append(im)
             
         self.containers = {'images': im_list_with_counters}
-        self.c_size = len(im_list_with_counters)
+        self.c_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(dataset_id)])[long(dataset_id)]
+        
+        self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
 
     def loadUserContainerHierarchy(self, exp_id):
         self.experimenter = self.conn.getExperimenter(exp_id)
@@ -624,7 +629,7 @@ class BaseContainer(BaseController):
         self.myGroup = self.conn.getGroup(group_id)
         self.containersMyGroups = dict()
         
-        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetInGroup(dataset_id, group_id)), 'name')
+        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetInGroup(dataset_id, group_id, page)), 'name')
         im_list_with_counters = list()
         im_ids = [im.id for im in im_list]
         if len(im_ids) > 0:
@@ -647,6 +652,8 @@ class BaseContainer(BaseController):
                 self.containersMyGroups[im.details.owner.id.val]['images'].append(im)
 
             self.c_mg_size = len(im_list_with_counters)
+        
+        #TODO paging!!!
 
     def loadGroupContainerHierarchy(self, group_id):
         self.myGroup = self.conn.getGroup(group_id)
@@ -1207,3 +1214,30 @@ class BaseContainer(BaseController):
             self.conn.saveObject(new_pdl)
             return True
 
+    ###########################################################
+    # Paging
+    
+    def doPaging(self, page, page_size, total_size):
+        total = list()
+        t = total_size/24
+        if total_size > 240:
+            print t, page
+            if page > 10 :
+                total.append(-1)
+            for i in range((1, page-9)[ page-9 >= 1 ], (t+1, page+10)[ page+9 < t ]):
+                total.append(i)
+            if page < t-9:
+                total.append(-1)
+
+        elif total_size > 24 and total_size <= 240:
+            for i in range(1, t+2):
+                total.append(i)
+        
+        next = None
+        if page_size == 24 and page*24 < total_size:
+            next = page + 1
+        prev = None
+        if page > 1:
+            prev = page - 1
+        
+        return {'page': page, 'total':total, 'next':next, "prev":prev}

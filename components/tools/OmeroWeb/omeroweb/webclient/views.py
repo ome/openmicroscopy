@@ -622,6 +622,11 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
     except:
         pass
     
+    try:
+        page = int(request.REQUEST['page'])
+    except:
+        page = 1
+    
     view = request.session['nav']['view']
     menu = request.session['nav']['menu']
     whos = request.session['nav']['whos']
@@ -645,7 +650,7 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
             template = "omeroweb/image_details.html"
     elif o2_type and o2_id:
         if o2_type == 'dataset':
-            manager.listMyImagesInDataset(o2_id)
+            manager.listMyImagesInDataset(o2_id, page)
         elif o2_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type and o1_id:
@@ -658,7 +663,7 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
             #if view == 'tree':
                 #manager.loadMyImages(o1_id)
             #else:
-            manager.listMyImagesInDataset(o1_id)
+            manager.listMyImagesInDataset(o1_id, page)
         elif o1_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type == 'orphaned':
@@ -980,6 +985,11 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     except:
         pass
     
+    try:
+        page = int(request.REQUEST['page'])
+    except:
+        page = 1
+        
     view = request.session['nav']['view']
     menu = request.session['nav']['menu']
     whos = request.session['nav']['whos']
@@ -1305,7 +1315,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     elif o2_type and o2_id:
         if o2_type == 'dataset':
             if filter_user_id is not None:
-                manager.listImagesInDatasetAsUser(o2_id, filter_user_id)
+                manager.listImagesInDatasetAsUser(o2_id, filter_user_id, page)
         elif o2_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type and o1_id:
@@ -1322,7 +1332,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
                     #manager.loadUserImages(o1_id, filter_user_id)
             #else:
             if filter_user_id is not None:
-                manager.listImagesInDatasetAsUser(o1_id, filter_user_id)
+                manager.listImagesInDatasetAsUser(o1_id, filter_user_id, page)
         elif o1_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type == 'orphaned':
@@ -1381,6 +1391,11 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
         request.session['nav']['view'] = request.REQUEST['view'] # table, icon, tree 
     except:
         pass
+    
+    try:
+        page = int(request.REQUEST['page'])
+    except:
+        page = 1
     
     view = request.session['nav']['view']
     menu = request.session['nav']['menu']
@@ -1707,7 +1722,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     elif o2_type and o2_id:
         if o2_type == 'dataset':
             if filter_group_id is not None:
-                manager.listImagesInDatasetInGroup(o2_id, filter_group_id)
+                manager.listImagesInDatasetInGroup(o2_id, filter_group_id, page)
         if o2_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type and o1_id:
@@ -1724,7 +1739,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
                     #manager.loadGroupImages(o1_id, filter_group_id)
             #else:
             if filter_group_id is not None:
-                manager.listImagesInDatasetInGroup(o1_id, filter_group_id)
+                manager.listImagesInDatasetInGroup(o1_id, filter_group_id, page)
         if o1_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type == 'orphaned':
