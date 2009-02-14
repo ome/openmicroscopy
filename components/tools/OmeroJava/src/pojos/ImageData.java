@@ -188,15 +188,6 @@ public class ImageData extends DataObject {
     }
 
     /**
-     * Returns the creation time of the image.
-     * 
-     * @return See above.
-     */
-    public Timestamp getCreated() {
-        return timeOfEvent(asImage().getDetails().getCreationEvent());
-    }
-
-    /**
      * Returns the insertion time of the image.
      * 
      * @return See above.

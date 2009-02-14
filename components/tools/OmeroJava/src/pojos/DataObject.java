@@ -354,14 +354,45 @@ public abstract class DataObject {
         return new Timestamp(event.getTime().getValue());
     }
 
+    /**
+     * Returns <code>true</code> if the details are <code>null</code>
+     * otherwise <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
     protected boolean nullDetails() {
         return asIObject().getDetails() == null;
     }
 
+    /**
+     * Returns the details of the object.
+     * 
+     * @return See above.
+     */
     protected Details getDetails() {
         return asIObject().getDetails();
     }
 
+    /**
+     * Returns the creation time of the object.
+     * 
+     * @return See above.
+     */
+    public Timestamp getCreated() {
+    	if (nullDetails()) return null;
+        return timeOfEvent(getDetails().getCreationEvent());
+    }
+    
+    /**
+     * Returns the updated time of the object.
+     * 
+     * @return See above.
+     */
+    public Timestamp getUpdated() {
+    	if (nullDetails()) return null;
+        return timeOfEvent(getDetails().getUpdateEvent());
+    }
+    
     // ~ VIEWS
     // =========================================================================
     // These methods should never a null value
