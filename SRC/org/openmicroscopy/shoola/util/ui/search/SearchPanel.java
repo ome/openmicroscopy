@@ -51,7 +51,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
@@ -63,6 +62,7 @@ import org.jdesktop.swingx.JXDatePicker;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
@@ -289,13 +289,15 @@ class SearchPanel
 	{
 		otherOwners = new LinkedHashMap<Long, String>();
 		otherOwnersPanel = new JPanel();
+		otherOwnersPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
 		advancedSearch = false;
 		scopes = new HashMap<Integer, JCheckBox>(model.getNodes().size());
 		types = new HashMap<Integer, JCheckBox>(model.getTypes().size());
 		IconManager icons = IconManager.getInstance();
  		fromDate = UIUtilities.createDatePicker(false);
+ 		fromDate.setBackground(UIUtilities.BACKGROUND_COLOR);
 		toDate = UIUtilities.createDatePicker(false);
-		
+		toDate.setBackground(UIUtilities.BACKGROUND_COLOR);
 		fullTextArea = new JTextField(AREA_COLUMNS);
 		fullTextArea.addKeyListener(new KeyAdapter() {
 
@@ -323,10 +325,12 @@ class SearchPanel
 		usersAsOwner.setEditable(false);
 		
 		dates = new JComboBox(dateOptions);
+		dates.setBackground(UIUtilities.BACKGROUND_COLOR);
 		dates.addActionListener(model);
 		dates.setActionCommand(""+SearchComponent.DATE);
 		ownerButton = new JButton(icons.getIcon(IconManager.OWNER));
 		ownerButton.setToolTipText("Select the owner of the objects.");
+		ownerButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		//UIUtilities.unifiedButtonLookAndFeel(ownerButton);
 		ownerButton.addActionListener(model);
 		ownerButton.setActionCommand(""+SearchComponent.OWNER);
@@ -335,6 +339,7 @@ class SearchPanel
 		annotatorButton = new JButton(icons.getIcon(IconManager.OWNER));
 		annotatorButton.setToolTipText("Select the users who annotated the " +
 										"objects.");
+		annotatorButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		annotatorButton.setEnabled(false);
 		usersAsAnnotator.setEnabled(false);
 		UIUtilities.unifiedButtonLookAndFeel(annotatorButton);
@@ -343,10 +348,14 @@ class SearchPanel
 		
 		currentUserAsOwner = new JCheckBox("Me");
 		currentUserAsOwner.setSelected(true);
+		currentUserAsOwner.setBackground(UIUtilities.BACKGROUND_COLOR);
 		currentUserAsAnnotator = new JCheckBox("Me");
 		currentUserAsAnnotator.setSelected(true);
+		currentUserAsAnnotator.setBackground(UIUtilities.BACKGROUND_COLOR);
 		othersAsOwner = new JCheckBox("Others");
+		othersAsOwner.setBackground(UIUtilities.BACKGROUND_COLOR);
 		othersAsAnnotator = new JCheckBox("Others");
+		othersAsAnnotator.setBackground(UIUtilities.BACKGROUND_COLOR);
 		othersAsOwner.addChangeListener(new ChangeListener() {
 		
 			public void stateChanged(ChangeEvent e) {
@@ -371,11 +380,13 @@ class SearchPanel
 		areas.put(withoutTermsArea, new JLabel(WITHOUT_WORDS));
 		helpBasicButton = new JButton(icons.getIcon(IconManager.HELP));
 		helpBasicButton.setToolTipText("Search Tips.");
+		helpBasicButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		UIUtilities.unifiedButtonLookAndFeel(helpBasicButton);
 		helpBasicButton.addActionListener(model);
 		helpBasicButton.setActionCommand(""+SearchComponent.HELP);
 		helpAdvancedButton = new JButton(icons.getIcon(IconManager.HELP));
 		helpAdvancedButton.setToolTipText("Advanced search Tips.");
+		helpAdvancedButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		UIUtilities.unifiedButtonLookAndFeel(helpAdvancedButton);
 		helpAdvancedButton.addActionListener(model);
 		helpAdvancedButton.setActionCommand(""+SearchComponent.HELP);
@@ -383,11 +394,13 @@ class SearchPanel
 		//
 		searchBasicButton = new JButton(icons.getIcon(IconManager.FORWARD));
 		searchBasicButton.setToolTipText("Advanced search.");
+		searchBasicButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		UIUtilities.unifiedButtonLookAndFeel(searchBasicButton);
 		searchBasicButton.addActionListener(model);
 		searchBasicButton.setActionCommand(""+SearchComponent.ADVANCED_SEARCH);
 		searchAdvancedButton = new JButton(icons.getIcon(IconManager.BACKWARD));
 		searchAdvancedButton.setToolTipText("Standard Search.");
+		searchAdvancedButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		UIUtilities.unifiedButtonLookAndFeel(searchAdvancedButton);
 		searchAdvancedButton.addActionListener(model);
 		searchAdvancedButton.setActionCommand(""+SearchComponent.BASIC_SEARCH);
@@ -398,7 +411,9 @@ class SearchPanel
 		ButtonGroup group = new ButtonGroup();
 		creationTime = new JRadioButton("Created");
 		creationTime.setSelected(true);
+		creationTime.setBackground(UIUtilities.BACKGROUND_COLOR);
 		updatedTime = new JRadioButton("Updated");
+		updatedTime.setBackground(UIUtilities.BACKGROUND_COLOR);
 		group.add(creationTime);
 		group.add(updatedTime);
 		
@@ -471,15 +486,18 @@ class SearchPanel
 			c.weightx = 0;
 			id = i.next();
 			label = new JLabel(otherOwners.get(id));
+			label.setBackground(UIUtilities.BACKGROUND_COLOR);
 			otherOwnersPanel.add(label, c);
 			c.gridx = 1;
 			button = new JButton(icon);
+			button.setBackground(UIUtilities.BACKGROUND_COLOR);
 			UIUtilities.unifiedButtonLookAndFeel(button);
 			//button.setBorder(null);
 			button.setToolTipText("Remove the user.");
 			button.setActionCommand(""+id);
 			button.addActionListener(this);
 			bar = new JToolBar();
+			bar.setBackground(UIUtilities.BACKGROUND_COLOR);
 			bar.setFloatable(false);
 			bar.setRollover(true);
 			bar.setBorder(null);
@@ -593,6 +611,7 @@ class SearchPanel
 	private JPanel buildTimeRange()
 	{
 		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("From: "));
 		p.add(fromDate);
 		p.add(UIUtilities.setTextFont("To: "));
@@ -608,6 +627,7 @@ class SearchPanel
 	private JPanel buildScope()
 	{
 		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new GridBagLayout());
         //p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
@@ -626,6 +646,7 @@ class SearchPanel
 			for (int i = 0; i < m; i++) {
 				n = nodes.get(i);
 				box = new JCheckBox(n.getDescription());
+				box.setBackground(UIUtilities.BACKGROUND_COLOR);
 				if (i == 0) box.setSelected(true);
 				if (i%2 == 0) c.gridy++;
 				
@@ -636,6 +657,7 @@ class SearchPanel
 			for (int i = 0; i < m; i++) {
 				n = nodes.get(i);
 				box = new JCheckBox(n.getDescription());
+				box.setBackground(UIUtilities.BACKGROUND_COLOR);
 				box.setSelected(ctxNodes.contains(n.getIndex()));
 				if (i%2 == 0) c.gridy++;
 				
@@ -656,6 +678,7 @@ class SearchPanel
 	private JPanel buildType()
 	{
 		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new GridBagLayout());
         //p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
@@ -677,8 +700,8 @@ class SearchPanel
 			for (int i = 0; i < m; i++) {
 				n = nodes.get(i);
 				box = new JCheckBox(n.getDescription());
+				box.setBackground(UIUtilities.BACKGROUND_COLOR);
 				if (i == 0) box.setSelected(true);
-				
 				p.add(box, c);
 				types.put(n.getIndex(), box);
 			}
@@ -686,8 +709,8 @@ class SearchPanel
 			for (int i = 0; i < m; i++) {
 				n = nodes.get(i);
 				box = new JCheckBox(n.getDescription());
+				box.setBackground(UIUtilities.BACKGROUND_COLOR);
 				box.setSelected(ctxNodes.contains(n.getIndex()));
-				
 				p.add(box, c);
 				types.put(n.getIndex(), box);
 			}
@@ -705,17 +728,21 @@ class SearchPanel
 	private JPanel buildBasicSearchComp()
 	{
 		basicSearchComp = new JPanel();
+		basicSearchComp.setBackground(UIUtilities.BACKGROUND_COLOR);
 		UIUtilities.setBoldTitledBorder(SEARCH_TITLE, basicSearchComp);
 		basicSearchComp.setLayout(new BoxLayout(basicSearchComp, 
 				BoxLayout.Y_AXIS));
 		basicSearchComp.add(fullTextArea);
 		JToolBar bar = new JToolBar();
+		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
 		bar.setFloatable(false);
 		bar.setRollover(true);
 		bar.setBorder(null);
 		bar.add(helpBasicButton);
 		bar.add(searchBasicButton);
-		basicSearchComp.add(UIUtilities.buildComponentPanel(bar));
+		JPanel p = UIUtilities.buildComponentPanel(bar);
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		basicSearchComp.add(p);
 		return basicSearchComp;
 	}
 	
@@ -727,7 +754,9 @@ class SearchPanel
 	private JPanel buildAdvancedSearchComp()
 	{
 		advancedSearchComp = new JPanel();
+		advancedSearchComp.setBackground(UIUtilities.BACKGROUND_COLOR);
 		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		UIUtilities.setBoldTitledBorder(ADVANCED_SEARCH_TITLE, 
 				advancedSearchComp);
 		p.setLayout(new GridBagLayout());
@@ -742,6 +771,7 @@ class SearchPanel
             ++c.gridy;
             c.gridx = 0;
             area = (JTextField) i.next();
+            area.setBackground(UIUtilities.BACKGROUND_COLOR);
             label = areas.get(area);
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
             c.weightx = 0.0;  
@@ -764,12 +794,15 @@ class SearchPanel
         
 		//Tool Bar
         JToolBar bar = new JToolBar();
+        bar.setBackground(UIUtilities.BACKGROUND_COLOR);
 		bar.setFloatable(false);
 		bar.setRollover(true);
 		bar.setBorder(null);
 		bar.add(helpAdvancedButton);
 		bar.add(searchAdvancedButton);
-		advancedSearchComp.add(UIUtilities.buildComponentPanel(bar));
+		JPanel comp = UIUtilities.buildComponentPanel(bar);
+	    comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+		advancedSearchComp.add(comp);
 		return advancedSearchComp;
 	}
 	
@@ -782,61 +815,12 @@ class SearchPanel
 	{
 		if (searchFor == null) {
 			searchFor = new JPanel();
+		    searchFor.setBackground(UIUtilities.BACKGROUND_COLOR);
 			searchFor.setLayout(new BoxLayout(searchFor, BoxLayout.Y_AXIS));
 		}
 		searchFor.removeAll();
 		if (advancedSearch) searchFor.add(buildAdvancedSearchComp());
 		else searchFor.add(buildBasicSearchComp());
-			
-		//searchFor.add(basicPanel);
-		/*
-		UIUtilities.setBoldTitledBorder(SEARCH_TITLE, searchFor);
-		JPanel basicPanel = new JPanel();
-		basicPanel.setLayout(new BoxLayout(basicPanel, BoxLayout.X_AXIS));
-		basicPanel.add(fullTextArea);
-		JToolBar bar = new JToolBar();
-		bar.setFloatable(false);
-		bar.setRollover(true);
-		bar.setBorder(null);
-		bar.add(helpButton);
-		basicPanel.add(bar);
-
-		JPanel p = new JPanel();
-		UIUtilities.setBoldTitledBorder(ADVANCED_SEARCH_TITLE, p);
-		p.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(3, 3, 3, 3);
-        Iterator i = areas.keySet().iterator();
-        JLabel label;
-        JTextField area;
-        while (i.hasNext()) {
-            ++c.gridy;
-            c.gridx = 0;
-            area = (JTextField) i.next();
-            label = areas.get(area);
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.weightx = 0.0;  
-            p.add(label, c);
-            label.setLabelFor(area);
-            ++c.gridy;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            p.add(area, c);  
-        }
-        ++c.gridy;
-        c.gridx = 0;
-        c.weightx = 0.0; 
-        p.add(UIUtilities.setTextFont(SEARCH_TIP, TIP_FONT_TYPE, 
-        							TIP_FONT_SIZE), c); 
-        //searchFor.add(UIUtilities.buildComponentPanel(p));
-        searchTree.insertNode(p, UIUtilities.buildCollapsePanel(
-        					ADVANCED_SEARCH_TITLE), false);
-        searchFor.add(UIUtilities.buildComponentPanel(basicPanel));
-        searchFor.add(searchTree);
-        */
 		return searchFor;
 	}
 	
@@ -852,6 +836,7 @@ class SearchPanel
 										JButton button)
 	{
 		JPanel p = new JPanel();
+	    p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new GridBagLayout());
 		//p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		GridBagConstraints c = new GridBagConstraints();
@@ -863,6 +848,7 @@ class SearchPanel
         c.gridx++;
 		p.add(Box.createHorizontalStrut(5), c);
         JToolBar bar = new JToolBar();
+	    bar.setBackground(UIUtilities.BACKGROUND_COLOR);
         bar.setFloatable(false);
         bar.setFloatable(false);
         bar.setRollover(true);
@@ -885,10 +871,12 @@ class SearchPanel
 	 */
 	private JPanel buildUsers()
 	{	
-		JPanel usersPanel= new JPanel();
+		JPanel usersPanel = new JPanel();
+	    usersPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
 		//UIUtilities.setBoldTitledBorder(USER_TITLE, usersPanel);
 		usersPanel.setLayout(new BoxLayout(usersPanel, BoxLayout.Y_AXIS));
 		JPanel content = new JPanel();
+	    content.setBackground(UIUtilities.BACKGROUND_COLOR);
 		content.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
@@ -903,10 +891,12 @@ class SearchPanel
 		c.ipady = 10;
 		content.add(buildOtherUserSelection(othersAsOwner, otherOwnersPanel, 
 				ownerButton), c);
-		
-		usersPanel.add(UIUtilities.buildComponentPanel(content));
+		JPanel p = UIUtilities.buildComponentPanel(content);
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		usersPanel.add(p);
 		//usersPanel.add(new JSeparator());
 		content = new JPanel();
+	    content.setBackground(UIUtilities.BACKGROUND_COLOR);
 		content.setLayout(new GridBagLayout());
 		c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
@@ -925,7 +915,9 @@ class SearchPanel
 		content.add(buildUserSelection(othersAsAnnotator, usersAsAnnotator, 
 				annotatorButton), c);
          */
-		usersPanel.add(UIUtilities.buildComponentPanel(content));
+		p = UIUtilities.buildComponentPanel(content);
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		usersPanel.add(p);
 		return usersPanel;
 	}
 	
@@ -937,11 +929,13 @@ class SearchPanel
 	private JPanel buildDate()
 	{
 		JPanel content = new JPanel();
+		content.setBackground(UIUtilities.BACKGROUND_COLOR);
 		content.setLayout(new BoxLayout(content, BoxLayout.X_AXIS));
 		content.add(creationTime);
 		content.add(updatedTime);
 		
 		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
@@ -955,9 +949,10 @@ class SearchPanel
         c.gridy++;
 		p.add(buildTimeRange(), c);
 		
-		//JPanel panel = UIUtilities.buildComponentPanel(p);
+		JPanel panel = UIUtilities.buildComponentPanel(p);
+		panel.setBackground(UIUtilities.BACKGROUND_COLOR);
 		//UIUtilities.setBoldTitledBorder(DATE_TITLE, panel);
-		return UIUtilities.buildComponentPanel(p);
+		return panel;
 	}
 
 	
@@ -970,8 +965,12 @@ class SearchPanel
 				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 
 			TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
 		setLayout(new TableLayout(size));
+
+		setBackground(UIUtilities.BACKGROUND_COLOR);
 		add(buildSearchFor(), "0, 0");
-		add(new JSeparator(JSeparator.HORIZONTAL), "0, 1");
+		SeparatorPane sep = new SeparatorPane();
+		sep.setBackground(UIUtilities.BACKGROUND_COLOR);
+		add(sep, "0, 1");
 		
 		add(UIUtilities.buildTaskPane(buildScope(), SCOPE_TITLE, false), 
 							"0, 2");

@@ -36,13 +36,13 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 
 //Third-party libraries
 import layout.TableLayout;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -182,6 +182,7 @@ public class SearchComponent
 	{
 		uiDelegate = new SearchPanel(this);
 		cancelButton = new JButton();
+		cancelButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		cancelButton.setToolTipText("Cancel the search");
 		cancelButton.setActionCommand(""+CANCEL);
 		cancelButton.setText("Cancel");
@@ -190,10 +191,13 @@ public class SearchComponent
 		searchButton.setToolTipText("Search");
 		searchButton.setActionCommand(""+SEARCH);
 		searchButton.addActionListener(this);
+
+		searchButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		busyLabel = new JXBusyLabel();
 		busyLabel.setEnabled(false);
 		progressLabel = new JLabel("");
 		progressLabel.setEnabled(false);
+		progressLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 	
 	/**
@@ -204,11 +208,14 @@ public class SearchComponent
 	private JPanel buildToolBar()
 	{
 		JPanel bar = new JPanel();
+		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
         bar.setBorder(null); 
         bar.add(searchButton);
         bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(cancelButton);
-        return UIUtilities.buildComponentPanel(bar);
+        JPanel p = UIUtilities.buildComponentPanel(bar);
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
+        return p;
 	}
 	
 	/** 
@@ -219,9 +226,12 @@ public class SearchComponent
 	private JPanel buildStatusBar()
 	{
 		JPanel bar = new JPanel();
+		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
 		bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
 		bar.add(progressLabel);
-		bar.add(UIUtilities.buildComponentPanelCenter(busyLabel));
+		JPanel p = UIUtilities.buildComponentPanelCenter(busyLabel);
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		bar.add(p);
 		return bar;
 	}
 	
@@ -238,12 +248,16 @@ public class SearchComponent
 					TableLayout.PREFERRED, TableLayout.PREFERRED, 
 					TableLayout.PREFERRED}}; //rows
 		setLayout(new TableLayout(size));
+		setBackground(UIUtilities.BACKGROUND_COLOR);
 		add(uiDelegate, "0, 0");
 		if (showControl) 
 			add(buildToolBar(), "0, 1");
 		add(buildStatusBar(), "0, 2");
 		resultPane = new JPanel();
-		add(new JSeparator(), "0, 3");
+		resultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		JPanel sep = new SeparatorPane();
+		sep.setBackground(UIUtilities.BACKGROUND_COLOR);
+		add(sep, "0, 3");
 		add(resultPane, "0, 3");
 	}
 	

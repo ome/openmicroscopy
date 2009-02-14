@@ -131,6 +131,9 @@ public class ServerEditor
 	/** Button to add new server to the list. */
 	private JButton			addButton;
 	
+	/** Button to edit an existing server. */
+	private JButton			editButton;
+	
 	/** Component displaying the collection of available servers. */
 	private ServerTable		table;
 	
@@ -210,7 +213,7 @@ public class ServerEditor
 		newRow[2] = defaultPort;
 		model.insertRow(m, newRow);
 		model.fireTableDataChanged();
-		requesFocusOnEditedCell(m, 1);
+		requestFocusOnEditedCell(m, 1);
 		setEditing(true);
 	}
 	
@@ -240,6 +243,34 @@ public class ServerEditor
 		addButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { addRow(); }
 		});
+		editButton = new JButton(icons.getIcon(IconManager.EDIT));
+		UIUtilities.unifiedButtonLookAndFeel(editButton);
+		editButton.setToolTipText("Edit an existing server.");
+		editButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) 
+			{ 
+				editRow(table.getSelectedRow()); 
+			}
+		});
+	}
+	
+	/**
+	 * Edits the selected row.
+	 * 
+	 * @param row The selected row.
+	 */
+	private void editRow(int row)
+	{
+		switch (table.getEditingColumn()) {
+			case 1:
+				requestFocusOnEditedCell(row, 2);
+				break;
+			case 2:
+				requestFocusOnEditedCell(row, 1);
+				break;
+			default:
+				requestFocusOnEditedCell(row, 1);
+		}
 	}
 	
 	/** Builds and lays out the UI. */
@@ -312,8 +343,8 @@ public class ServerEditor
         bar.setBorder(null);
         bar.add(addButton);
         bar.add(removeButton);
-        JPanel p = UIUtilities.buildComponentPanel(bar);
-        return p;
+        bar.add(editButton);
+        return UIUtilities.buildComponentPanel(bar);
 	}
 	
 	/**
@@ -326,6 +357,7 @@ public class ServerEditor
 	{
 		addButton.setEnabled(b);
 		removeButton.setEnabled(b);
+		editButton.setEnabled(b);
 	}
 	
 	/**
@@ -385,6 +417,7 @@ public class ServerEditor
 	void setEditing(boolean b)
 	{
 		addButton.setEnabled(!b);
+		editButton.setEnabled(!b);
 		editing = b; 
 	}
 	
@@ -402,7 +435,7 @@ public class ServerEditor
 	 * @param row The selected row.
 	 * @param col The selected column.
 	 */
-	void requesFocusOnEditedCell(int row, int col)
+	void requestFocusOnEditedCell(int row, int col)
 	{
 		if (col == 0) return;
 		if (table.getColumnCount() > 1) {
@@ -675,7 +708,7 @@ public class ServerEditor
 		Map<String, String> servers = getServers();
 		if (servers != null) n = servers.size();
 		if (n == 0) {
-			requesFocusOnEditedCell(table.getRowCount()-1, 1);
+			requestFocusOnEditedCell(table.getRowCount()-1, 1);
 		}
 	}
 

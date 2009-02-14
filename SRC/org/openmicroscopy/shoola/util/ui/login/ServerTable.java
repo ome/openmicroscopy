@@ -85,12 +85,13 @@ class ServerTable
 	{
 		TableCellEditor editor = getCellEditor();
 		if (editor != null) editor.stopCellEditing();
-		
+		/*
 		if (clickCount == 2) {
-				parent.requesFocusOnEditedCell(getSelectedRow(), 
-						getSelectedColumn());
-				parent.setEditing(true);
+			parent.requesFocusOnEditedCell(getSelectedRow(), 
+					getSelectedColumn());
+			parent.setEditing(true);
 		} 
+		*/
 	}
 	
 	/**

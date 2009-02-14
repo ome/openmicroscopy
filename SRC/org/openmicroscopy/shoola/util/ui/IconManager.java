@@ -400,11 +400,14 @@ public class IconManager
     /** A 48x48 version of the <code>Create</code> icon. */
     public static final int CREATE_48 = 115;
     
+    /** A 16x16 version of the <code>Edit</code> icon. */
+    public static final int EDIT = 116;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 115;
+    private static int      MAX_ID = 116;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -527,7 +530,8 @@ public class IconManager
         relPaths[PROJECT_48] = "nuvola_folder_blue_open48.png";
         relPaths[DATASET_48] = "nuvola_folder_image48.png";
         relPaths[SCREEN_48] = "nuvola_knotes48.png";
-        relPaths[CREATE_48] = "nuvola_filenew48.png"; 
+        relPaths[CREATE_48] = "nuvola_filenew48.png";
+        relPaths[EDIT] = "nuvola_ksig16.png";
     }
     
     /** 
