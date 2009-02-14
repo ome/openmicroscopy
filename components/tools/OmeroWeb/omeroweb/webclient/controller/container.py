@@ -1236,7 +1236,8 @@ class BaseContainer(BaseController):
         elif total_size > 24 and total_size <= 240:
             for i in range(1, t+2):
                 total.append(i)
-        
+        else:
+            total.append(1)
         next = None
         if page_size == 24 and page*24 < total_size:
             next = page + 1
