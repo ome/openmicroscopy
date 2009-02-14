@@ -293,8 +293,8 @@ class BaseContainer(BaseController):
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}#, 'images': im_list}
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
 
-    def listMyDatasetsInProject(self, project_id):
-        ds_list = self.sortByAttr(list(self.conn.listDatasetsInProjectMine(project_id)), 'name')
+    def listMyDatasetsInProject(self, project_id, page):
+        ds_list = self.sortByAttr(list(self.conn.listDatasetsInProjectMine(project_id, page)), 'name')
         ds_list_with_counters = list()
         
         ds_ids = [ds.id for ds in ds_list]
@@ -308,7 +308,9 @@ class BaseContainer(BaseController):
                 ds_list_with_counters.append(ds)
         
         self.containers = {'datasets': ds_list_with_counters}
-        self.c_size = len(ds_list_with_counters)
+        self.c_size = self.conn.getCollectionCount("Project", "datasetLinks", [long(project_id)])[long(project_id)]
+        
+        self.paging = self.doPaging(page, len(ds_list_with_counters), self.c_size)
         
 
     def listMyImagesInDataset(self, dataset_id, page):
@@ -432,9 +434,9 @@ class BaseContainer(BaseController):
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}#, 'images': im_list}
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
 
-    def listDatasetsInProjectAsUser(self, project_id, exp_id):
+    def listDatasetsInProjectAsUser(self, project_id, exp_id, page):
         self.experimenter = self.conn.getExperimenter(exp_id)
-        ds_list = self.sortByAttr(list(self.conn.listDatasetsInProjectAsUser(project_id, exp_id)), 'name')
+        ds_list = self.sortByAttr(list(self.conn.listDatasetsInProjectAsUser(project_id, exp_id, page)), 'name')
         ds_list_with_counters = list()
         
         ds_ids = [ds.id for ds in ds_list]
@@ -448,7 +450,9 @@ class BaseContainer(BaseController):
                 ds_list_with_counters.append(ds)
         
         self.containers = {'datasets': ds_list_with_counters}
-        self.c_size = len(ds_list_with_counters)
+        self.c_size = self.conn.getCollectionCount("Project", "datasetLinks", [long(project_id)])[long(project_id)]
+        
+        self.paging = self.doPaging(page, len(ds_list_with_counters), self.c_size)
 
     def listImagesInDatasetAsUser(self, dataset_id, exp_id, page):
         self.experimenter = self.conn.getExperimenter(exp_id)

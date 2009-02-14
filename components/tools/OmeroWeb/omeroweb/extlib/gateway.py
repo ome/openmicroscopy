@@ -452,26 +452,36 @@ class BlitzGateway (threading.Thread):
         for e in q.findAllByQuery(sql, p):
             yield DatasetWrapper(self, e)
 
-    def listImagesOutoffDatasetMine (self):
+    def listImagesOutoffDatasetMine (self, page=None):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(self.getEventContext().userId)
+        if page is not None:
+            f = omero.sys.Filter()
+            f.limit = rint(24)
+            f.offset = rint((int(page)-1)*24)
+            p.theFilter = f
         sql = "select im from Image as im join fetch im.details.owner join fetch im.details.group " \
                 "where im.details.owner.id=:eid and "\
-                "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id) order by im.name"
+                "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id) order by im.id asc"
         for e in q.findAllByQuery(sql,p):
             yield ImageWrapper(self, e)
 
-    def listDatasetsInProjectMine (self, oid):
+    def listDatasetsInProjectMine (self, oid, page=None):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(self.getEventContext().userId)
         p.map["oid"] = rlong(long(oid))
+        if page is not None:
+            f = omero.sys.Filter()
+            f.limit = rint(24)
+            f.offset = rint((int(page)-1)*24)
+            p.theFilter = f
         sql = "select ds from Dataset ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
               "left outer join fetch ds.projectLinks pdl left outer join fetch pdl.parent p " \
-              "where p.id=:oid and ds.details.owner.id=:eid order by ds.name"
+              "where p.id=:oid and ds.details.owner.id=:eid order by ds.id asc"
         for e in q.findAllByQuery(sql,p):
             yield DatasetWrapper(self, e)
 
@@ -518,38 +528,53 @@ class BlitzGateway (threading.Thread):
         for e in q.findAllByQuery(sql, p):
             yield DatasetWrapper(self, e)
 
-    def listImagesOutoffDatasetAsUser (self, eid):
+    def listImagesOutoffDatasetAsUser (self, eid, page):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(long(eid))
+        if page is not None:
+            f = omero.sys.Filter()
+            f.limit = rint(24)
+            f.offset = rint((int(page)-1)*24)
+            p.theFilter = f
         sql = "select im from Image as im join fetch im.details.owner join fetch im.details.group " \
                 "where im.details.owner.id=:eid and "\
-                "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id) order by im.name"
+                "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id) order by im.id asc"
         for e in q.findAllByQuery(sql,p):
             yield ImageWrapper(self, e)
 
-    def listDatasetsInProjectAsUser (self, oid, eid):
+    def listDatasetsInProjectAsUser (self, oid, eid, page=None):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(long(eid))
         p.map["oid"] = rlong(long(oid))
+        if page is not None:
+            f = omero.sys.Filter()
+            f.limit = rint(24)
+            f.offset = rint((int(page)-1)*24)
+            p.theFilter = f
         sql = "select ds from Dataset ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
               "left outer join fetch ds.projectLinks pdl left outer join fetch pdl.parent p " \
-              "where p.id=:oid and ds.details.owner.id=:eid order by ds.name"
+              "where p.id=:oid and ds.details.owner.id=:eid order by ds.id asc"
         for e in q.findAllByQuery(sql,p):
             yield DatasetWrapper(self, e)
 
-    def listImagesInDatasetAsUser (self, oid, eid):
+    def listImagesInDatasetAsUser (self, oid, eid, page=None):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(long(eid))
         p.map["oid"] = rlong(long(oid))
+        if page is not None:
+            f = omero.sys.Filter()
+            f.limit = rint(24)
+            f.offset = rint((int(page)-1)*24)
+            p.theFilter = f
         sql = "select im from Image im join fetch im.details.owner join fetch im.details.group " \
               "left outer join fetch im.datasetLinks dil left outer join fetch dil.parent d " \
-              "where d.id = :oid and im.details.owner.id=:eid order by im.name"
+              "where d.id = :oid and im.details.owner.id=:eid order by im.id asc"
         for e in q.findAllByQuery(sql, p):
             yield ImageWrapper(self, e)
     

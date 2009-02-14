@@ -658,7 +658,7 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
             template = "omeroweb/container_subtree.html"
             manager.loadMyImages(o1_id)
         elif o1_type == 'project':
-            manager.listMyDatasetsInProject(o1_id)
+            manager.listMyDatasetsInProject(o1_id, page)
         elif o1_type == 'dataset':
             #if view == 'tree':
                 #manager.loadMyImages(o1_id)
@@ -1325,7 +1325,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
                 manager.loadUserImages(o1_id, filter_user_id)
         elif o1_type == 'project':
             if filter_user_id is not None:
-                manager.listDatasetsInProjectAsUser(o1_id, filter_user_id)
+                manager.listDatasetsInProjectAsUser(o1_id, filter_user_id, page)
         elif o1_type == 'dataset':
             #if view == 'tree':
                 #if filter_user_id is not None:
@@ -1722,7 +1722,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     elif o2_type and o2_id:
         if o2_type == 'dataset':
             if filter_group_id is not None:
-                manager.listImagesInDatasetInGroup(o2_id, filter_group_id, page)
+                manager.listImagesInDatasetInGroup(o2_id, filter_group_id)
         if o2_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type and o1_id:
@@ -1739,7 +1739,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
                     #manager.loadGroupImages(o1_id, filter_group_id)
             #else:
             if filter_group_id is not None:
-                manager.listImagesInDatasetInGroup(o1_id, filter_group_id, page)
+                manager.listImagesInDatasetInGroup(o1_id, filter_group_id)
         if o1_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type == 'orphaned':

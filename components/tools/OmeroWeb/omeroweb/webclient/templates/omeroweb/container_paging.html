@@ -1,0 +1,21 @@
+{% load custom_tags %}
+
+{% if manager.paging %} 
+
+<div class="paging"> 
+    {% if manager.paging.prev %}<a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}?view=table&page={{manager.paging.prev}}">prev</a>{% endif %} Page 
+    {% for p in manager.paging.total %}
+        {% ifequal manager.paging.page p %}
+            {{ p }} 
+        {% else %}
+            {% ifequal p -1 %}
+                ...
+            {% else %}
+                <a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}?view=table&page={{ p }}">{{ p }}</a>
+            {% endifequal %}
+        {% endifequal %}
+    {% endfor %}
+    {% if manager.paging.next %}<a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}?view=table&page={{manager.paging.next}}">next</a>{% endif %}
+
+</div>
+{% endif %}
