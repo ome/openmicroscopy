@@ -384,13 +384,14 @@ public class SelectionWizard
 	private JPanel layoutSelectionPane()
 	{
 		JPanel container = new JPanel();
-		container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
 		container.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		container.add(createAvailableItemsPane());
-		container.add(Box.createHorizontalStrut(20));
-		container.add(createSelectionPane());
-		container.add(Box.createHorizontalStrut(20));
-		container.add(createSelectedItemsPane());
+		
+		double[][] size = {{TableLayout.FILL, 40, TableLayout.FILL},
+				{TableLayout.PREFERRED}};
+		container.setLayout(new TableLayout(size));
+		container.add(createAvailableItemsPane(), "0, 0");
+		container.add(createSelectionPane(), "1, 0, c, c");
+		container.add(createSelectedItemsPane(), "2, 0");
 		return container;
 	}
 	
@@ -722,8 +723,7 @@ public class SelectionWizard
 	public void insertUpdate(DocumentEvent e)
 	{
 		String text = addField.getText();
-		boolean b = false;
-		if (text != null && text.trim().length() > 0) b = true;
+		boolean b = (text != null && text.trim().length() > 0);
 		addNewButton.setEnabled(b);
 	}
 
@@ -734,8 +734,7 @@ public class SelectionWizard
 	public void removeUpdate(DocumentEvent e)
 	{
 		String text = addField.getText();
-		boolean b = false;
-		if (text != null && text.trim().length() > 0) b = true;
+		boolean b = (text != null && text.trim().length() > 0);
 		addNewButton.setEnabled(b);
 	}
 

@@ -262,8 +262,12 @@ public class ViewerSorter
         Timestamp t = null;
         if (o instanceof ImageData) {
             try {
-                t = ((ImageData) o).getInserted();
+                t = ((ImageData) o).getAcquisitionDate();
             } catch (Exception e) {}
+        } else {
+        	try {
+                t = o.getCreated();
+            } catch (Exception e) {} 
         }
         if (t == null) t = new Timestamp(new Date().getTime());
         return t;
