@@ -55,16 +55,7 @@ import pojos.DataObject;
 public class TagsLoader
 	extends BatchCallTree
 {
-	
-	/** Indicates to retrieve the tags. */
-	public static final int LEVEL_TAG = OmeroMetadataService.LEVEL_TAG;
-	
-	/** Indicates to retrieve the tag sets. */
-	public static final int LEVEL_TAG_SET = OmeroMetadataService.LEVEL_TAG_SET;
 
-	/** Indicates to retrieve the tag sets and the tags. */
-	public static final int LEVEL_ALL = OmeroMetadataService.LEVEL_ALL;
-	
 	/** The result of the call. */
     private Object		result;
     
@@ -137,84 +128,25 @@ public class TagsLoader
      * Creates a {@link BatchCall} to retrieve the tagSets owned by the passed
      * user.
      * 
-     * @param userID	The id of the user.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall loadExistingDataCall(final long userID)
-    {
-        return new BatchCall("Loading tags.") {
-            public void doCall() throws Exception
-            {
-            	OmeroMetadataService os = context.getMetadataService();
-            	List l = new ArrayList();
-            	l.addAll(os.loadTags(LEVEL_TAG, userID));
-                l.addAll(os.loadTags(LEVEL_TAG_SET, userID));
-            	result = l;
-            }
-        };
-    }
-    
-    /**
-     * Creates a {@link BatchCall} to retrieve the tagSets owned by the passed
-     * user.
-     * 
-     * @param level   The level of tags to retrieve.
-     * @param userID  The id of the user.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall loadExistingTagsCall(final int level, final long userID)
-    {
-        return new BatchCall("Loading tags.") {
-            public void doCall() throws Exception
-            {
-            	OmeroMetadataService os = context.getMetadataService();
-            	result = os.loadTags(level, userID);
-            }
-        };
-    }
-    
-    /**
-     * Creates a {@link BatchCall} to retrieve the tagSets owned by the passed
-     * user.
-     * 
      * @param id			The id of the tag or <code>-1</code>.
      * @param dataObject    Pass <code>true</code> to load the 
 	 * 						<code>DataObject</code> related 
      * 						to the tags, <code>false</code> otherwise.
+     * @param topLevel  	Pass <code>true</code> to load <code>Tag Set</code>,
+     * 						<code>false</code> to load <code>Tag</code>.
+     * 						This will be taken into account if the Id is 
+     * 						negative.
      * @param userID		The id of the user.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadTagsCall(final Long id, final boolean dataObject, 
-    								final long userID)
+    							final boolean topLevel,	final long userID)
     {
         return new BatchCall("Loading tags.") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-            	result = os.loadTagsContainer(id, dataObject, userID);
-            }
-        };
-    }
-    
-    /**
-     * Creates a {@link BatchCall} to retrieve the tagSets owned by the passed
-     * user.
-     * 
-     * @param id			The id of the tag or <code>-1</code>.
-     * @param dataObject    Pass <code>true</code> to load the 
-	 * 						<code>DataObject</code> related 
-     * 						to the tags, <code>false</code> otherwise.
-     * @param userID		The id of the user.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall loadTagSetsCall(final Long id, final boolean dataObject,
-    								final long userID)
-    {
-        return new BatchCall("Loading tagSets.") {
-            public void doCall() throws Exception
-            {
-            	OmeroMetadataService os = context.getMetadataService();
-            	result = os.loadTagSetsContainer(id, dataObject, userID);
+            	result = os.loadTags(id, dataObject, topLevel, userID);
             }
         };
     }
@@ -234,61 +166,20 @@ public class TagsLoader
     /**
      * Creates a new instance.
      * 
-     * @param id		The id of the parent the tags are related to, or 
-     * 					<code>-1</code>.
-     * @param index 	One of the constants defined by this class.
-     * @param images	Pass <code>true</code> to load the images related 
-     * 					to the tags, <code>false</code> otherwise.
-     * @param userID	The id of the user who owns the tags or tag sets.
+     * @param id			The id of the parent the tags are related to, or 
+     * 						<code>-1</code>.
+     * @param withObjects	Pass <code>true</code> to load the objects related 
+     * 						to the tags, <code>false</code> otherwise.
+     * @param topLevel  	Pass <code>true</code> to load <code>Tag Set</code>,
+     * 						<code>false</code> to load <code>Tag</code>.
+     * 						This will be taken into account if the Id is 
+     * 						negative.
+     * @param userID		The id of the user who owns the tags or tag sets.
      */
-	public TagsLoader(int index, Long id, boolean images , long userID)
+	public TagsLoader(Long id, boolean withObjects, boolean topLevel, 
+			long userID)
 	{
-		switch (index) {
-			case LEVEL_TAG:
-				loadCall = loadTagsCall(id, images, userID);
-				break;
-			case LEVEL_TAG_SET:
-				loadCall = loadTagSetsCall(id, images, userID);
-				break;
-			default:
-				throw new IllegalArgumentException("Index not supported.");
-		}
+		loadCall = loadTagsCall(id, withObjects, topLevel, userID);
 	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param index One of the constants defined by this class.
-	 * @param nodes	The nodes to refresh.
-	 */
-	public TagsLoader(int index, Map<Long, List> nodes)
-	{
-		switch (index) {
-			case LEVEL_TAG:
-			case LEVEL_TAG_SET:
-				loadCall = reloadTags(nodes);
-				break;
-			default:
-				throw new IllegalArgumentException("Index not supported.");
-		}
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param level  One of the constants defined by this class.
-	 * @param userID The id of the user this loader is for.
-	 */
-	public TagsLoader(int level, long userID)
-	{
-		switch (level) {
-			case LEVEL_TAG:
-			case LEVEL_TAG_SET:
-				loadCall = loadExistingTagsCall(level, userID);
-				break;
-			case LEVEL_ALL:
-				loadCall = loadExistingDataCall(userID);
-		}
-	}
-	
+
 }

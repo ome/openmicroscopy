@@ -32,6 +32,8 @@ import java.util.Collection;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
+import pojos.TagAnnotationData;
+
 /** 
  * Loads the existing tags.
  * This class calls one of the <code>loadExistingAnnotations</code> methods 
@@ -75,7 +77,8 @@ public class TagsLoader
 	public void load()
 	{
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		handle = dmView.loadTagSets(-1L, false, userID, this);
+		handle = mhView.loadExistingAnnotations(TagAnnotationData.class, 
+				userID, this);
 	}
 	
 	/** 

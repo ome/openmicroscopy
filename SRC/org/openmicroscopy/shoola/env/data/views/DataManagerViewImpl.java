@@ -41,20 +41,16 @@ import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMRefreshLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectRemover;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
-import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlateWellsLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.ScreenPlatesLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.TagsHierarchyLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
-import pojos.TagAnnotationData;
 
 /** 
 * Implementation of the {@link DataManagerView} implementation.
@@ -145,20 +141,7 @@ class DataManagerViewImpl
 				userID);
 		return cmd.exec(observer);
 	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadExistingObjects(Class, List, long, 
-	 *                                          AgentEventListener)
-	 */
-	public CallHandle loadExistingObjects(Class nodeType, List nodeIDs, 
-			long userID, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ExistingObjectsLoader(nodeType, nodeIDs, 
-				userID);
-		return cmd.exec(observer);
-	}
-
+	
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see DataManagerView#addExistingObjects(DataObject, Set, 
@@ -248,9 +231,12 @@ class DataManagerViewImpl
 			Map<Long, List> m, AgentEventListener observer)
 	{
 		BatchCallTree cmd;
+		/*
 		if (TagAnnotationData.class.equals(rootNodeType))
 			cmd = new TagsLoader(TagsLoader.LEVEL_TAG_SET, m);
-		else cmd = new DMRefreshLoader(rootNodeType, m);
+		else 
+		*/	
+			cmd = new DMRefreshLoader(rootNodeType, m);
 		return cmd.exec(observer);
 	}
 
@@ -269,48 +255,12 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadTags(Long, boolean, long, AgentEventListener)
+	 * @see DataManagerView#loadTags(Long, boolean, boolean, long, AgentEventListener)
 	 */
-	public CallHandle loadTags(Long id, boolean dataObject, long userID, 
-			AgentEventListener observer)
+	public CallHandle loadTags(Long id, boolean dataObject, boolean topLevel,
+			long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new TagsLoader(TagsLoader.LEVEL_TAG, id, dataObject, 
-				                          userID);
-		return cmd.exec(observer);
-	}
-	
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadTagHierarchy(Long, long, AgentEventListener)
-	 */
-	public CallHandle loadTagHierarchy(Long id, long userID, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new TagsHierarchyLoader(id, userID);
-		return cmd.exec(observer);
-	}
-	
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadTagSets(Long, boolean, long, AgentEventListener)
-	 */
-	public CallHandle loadTagSets(Long id, boolean dataObject, long userID, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new TagsLoader(TagsLoader.LEVEL_TAG_SET, id, 
-										dataObject, userID);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadScreenPlates(Class, List, long, 
-	 * 										AgentEventListener)
-	 */
-	public CallHandle loadScreenPlates(Class rootType, List rootIDs, long userID, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ScreenPlatesLoader(rootType, rootIDs, userID);
+		BatchCallTree cmd = new TagsLoader(id, dataObject, topLevel, userID);
 		return cmd.exec(observer);
 	}
 

@@ -142,18 +142,6 @@ public interface DataManagerView
 	public CallHandle loadThumbnail(ImageData image, int maxWidth, 
 			int maxHeight, long userID, AgentEventListener observer);
 
-	/**
-	 * Loads existing objects not contained in the specifed containers.
-	 * @param nodeType      The type of the node. One out of the following 
-	 *                      types:
-	 *                      <code>DatasetData</code>, <code>ProjectData</code>.      
-	 * @param nodeIDs       The id of the nodes.
-	 * @param userID		The Id of the user.
-	 * @param observer      Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadExistingObjects(Class nodeType, List nodeIDs, 
-			long userID, AgentEventListener observer);
 
 	/**
 	 * Adds the specified items to the parent.
@@ -268,52 +256,16 @@ public interface DataManagerView
 	 * @param dataObject    Pass <code>true</code> to load the 
 	 * 						<code>DataObject</code> related 
      * 						to the tags, <code>false</code> otherwise.
+     * @param topLevel		Pass <code>true</code> to indicate to load the
+     * 						from the <code>Tag Set</code>, <code>false</code>
+     * 						otherwise. This parameters will be taken into
+     * 						account if the passed id is not negative.
 	 * @param userID		The user id.
 	 * @param observer 		Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadTags(Long id, boolean dataObject, long userID, 
-							AgentEventListener observer);
-	
-	/**
-	 * Loads the tag and  the objects (including images) related to it.
-	 * 
-	 * @param id        	The id of the tag or <code>-1</code>.
-	 * @param userID		The user id.
-	 * @param observer 		Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadTagHierarchy(Long id, long userID, 
-							AgentEventListener observer);
-	
-	/**
-	 * Loads the tags containing tags and creates a pseudo hierarchy.
-	 * 
-	 * @param id        	The id of the tag or <code>-1</code>.
-	 * @param dataObject    Pass <code>true</code> to load the 
-	 * 						<code>DataObject</code> related 
-     * 						to the tags, <code>false</code> otherwise.
-	 * @param userID		The user id.
-	 * @param observer 		Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadTagSets(Long id, boolean dataObject, long userID, 
-			AgentEventListener observer);
-
-	/**
-	 * Loads the Screen/Plate hierarchy.
-	 * 
-	 * @param rootType  The type of the root node. Can only be one out of:
-	 *                  <code>ScreenData</code> or <code>PlateData</code>.
-	 * @param rootIDs   A set of the IDs of top-most containers. Passed
-	 *                  <code>null</code> to retrieve all the top-most
-	 *                  container specified by the rootNodeType. 
-	 * @param userID	The Id of the user.
-	 * @param observer  Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadScreenPlates(Class rootType, List rootIDs, 
-									long userID, AgentEventListener observer);
+	public CallHandle loadTags(Long id, boolean dataObject, boolean topLevel, 
+			long userID, AgentEventListener observer);
 	
 	/**
 	 * Loads to the wells contained within the specified plate.

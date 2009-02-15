@@ -1025,6 +1025,11 @@ class TreeViewerComponent
 		
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 		bus.post(new CopyItems(model.getDataToCopyType()));
+		if (index == CUT_AND_PASTE) {
+			if (model.cut()) {
+				fireStateChange();
+			}
+		}
 	}
 
 	/**
@@ -1049,8 +1054,6 @@ class TreeViewerComponent
 			"be added to the selected nodes."); 
 		} else fireStateChange();
 	}
-
-	
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
@@ -1910,14 +1913,17 @@ class TreeViewerComponent
 		
 		view.removeAllFromWorkingPane();
 		DataBrowserFactory.discardAll();
+		
+		Browser browser = model.getSelectedBrowser();
+		browser.refreshTree();
+		/*
 		Map browsers = model.getBrowsers();
-		Browser browser;
-		//REview that code depending on the type of objects deleted.
 		Iterator i = browsers.keySet().iterator();
 		while (i.hasNext()) {
 			browser = (Browser) browsers.get(i.next());
 			browser.refreshTree();
 		}
+		*/
 		//onSelectedDisplay();
 		model.getMetadataViewer().setRootObject(null);
 		setStatus(false, "", true);

@@ -617,9 +617,11 @@ class OmeroDataServiceImpl
 			boolean withLeaves, long userID)
 		throws DSOutOfServiceException, DSAccessException 
 	{
+		/*
 		if (ScreenData.class.equals(rootNodeType)) {
 			return loadScreenPlates(rootNodeType, rootNodeIDs, userID);
 		}
+		*/
 		PojoOptions po = new PojoOptions();
 		if (rootNodeIDs == null) po.exp(omero.rtypes.rlong(userID));
 		if (withLeaves) po.leaves();
@@ -828,49 +830,6 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#loadExistingObjects(Class, List, long)
-	 */
-	public Set loadExistingObjects(Class nodeType, List nodeIDs, long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		Set all = null;
-		Set<Long> objects = new HashSet<Long>();
-		if (nodeType.equals(ProjectData.class)) {
-			Set in = loadContainerHierarchy(nodeType, nodeIDs, true, userID);
-			all = loadContainerHierarchy(DatasetData.class, null, true, userID);
-			Iterator i = in.iterator();
-			Iterator j; 
-			while (i.hasNext()) {
-				j = (((ProjectData) i.next()).getDatasets()).iterator();
-				while (j.hasNext()) {
-					objects.add(new Long(((DatasetData) j.next()).getId()));
-				} 
-			}
-		}  else if (nodeType.equals(DatasetData.class)) {
-			Set in = getImages(nodeType, nodeIDs, userID);
-			all = getExperimenterImages(userID);
-			Iterator i = in.iterator();
-			while (i.hasNext()) {
-				objects.add(new Long(((ImageData) i.next()).getId()));
-			}
-
-		}
-		if (all == null) return new HashSet(1);
-		Iterator k = all.iterator();
-		Set<DataObject> toRemove = new HashSet<DataObject>();
-		DataObject ho;
-		Long id;
-		while (k.hasNext()) {
-			ho = (DataObject) k.next();
-			id = new Long(ho.getId());
-			if (objects.contains(id)) toRemove.add(ho);
-		}
-		all.removeAll(toRemove);
-		return all;
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#addExistingObjects(DataObject, Set)
 	 */
 	public void addExistingObjects(DataObject parent, Set children)
@@ -941,10 +900,8 @@ class OmeroDataServiceImpl
 	public void cutAndPaste(Map toPaste, Map toCut)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if ((toPaste == null || toCut == null) || 
-				(toPaste.size() == 0 || toCut.size() == 0)) {
-			throw new IllegalArgumentException("No data to cut and Paste.");
-		}
+		if (toPaste == null) toPaste = new HashMap();
+		if (toCut == null) toCut = new HashMap();
 		Iterator i;
 		Object parent;
 		i = toCut.keySet().iterator();
@@ -1265,53 +1222,11 @@ class OmeroDataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#loadScreenPlates(Class, List, long)
-	 */
-	public Set loadScreenPlates(Class rootNodeType, List rootNodeIDs, 
-									long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		//Add controls
-		Set all = new HashSet();
-		Set<Long> plateIDs = new HashSet<Long>();
-		Collection r = gateway.loadScreenPlate(rootNodeType, userID);
-		all.addAll(r);
-		if (ScreenData.class.equals(rootNodeType)) {
-			Iterator i = r.iterator();
-			ScreenData screen;
-			
-			Set<PlateData> plates;
-			Iterator j;
-			PlateData plate;
-			while (i.hasNext()) {
-				screen = (ScreenData) i.next();
-				plates = screen.getPlates();
-				j = plates.iterator();
-				while (j.hasNext()) {
-					plate = (PlateData) j.next();
-					plateIDs.add(plate.getId());
-				}
-			}
-			r = gateway.loadScreenPlate(PlateData.class, userID);
-			i = r.iterator();
-			while (i.hasNext()) {
-				plate = (PlateData) i.next();
-				if (!plateIDs.contains(plate.getId()))
-					all.add(plate);
-			}
-		} 
-		return all;
-		//return loadContainerHierarchy(rootNodeType, rootNodeIDs, false, userID);
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#loadPlateWells(long, long)
 	 */
 	public Collection loadPlateWells(long plateID, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		
 		return gateway.loadPlateWells(plateID, userID);
 	}
 

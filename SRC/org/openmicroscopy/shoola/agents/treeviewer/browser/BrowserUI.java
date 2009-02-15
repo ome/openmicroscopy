@@ -72,6 +72,9 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -604,6 +607,43 @@ class BrowserUI
 	}
     
     /**
+     * Organizes the sorted list so that the Project/Screen/Tag Set 
+     * are displayed first.
+     * 
+     * @param sorted The collection to organize.
+     * @return See above.
+     */
+    private List prepareSortedList(List sorted)
+    {
+    	List top = new ArrayList();
+		List bottom = new ArrayList();
+		Iterator j = sorted.iterator();
+		TreeImageDisplay object;
+		Object uo;
+		while (j.hasNext()) {
+			object = (TreeImageDisplay) j.next();
+			uo = object.getUserObject();
+			if ((uo instanceof ProjectData) ||
+					(uo instanceof ScreenData))
+				top.add(object);
+			else if ((uo instanceof DatasetData) ||
+					(uo instanceof PlateData))
+				bottom.add(object);
+			else if (uo instanceof TagAnnotationData) {
+				if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+					((TagAnnotationData) uo).getNameSpace()))
+					top.add(object);
+				else bottom.add(object);
+			}
+		}
+		List all = new ArrayList();
+		
+		if (top.size() > 0) all.addAll(top);
+		if (bottom.size() > 0) all.addAll(bottom);
+		return all;
+    }
+    
+    /**
      * Creates a new instance.
      * The {@link #initialize(BrowserControl, BrowserModel) initialize} method
      * should be called straight after to link this View to the Controller.
@@ -866,28 +906,6 @@ class BrowserUI
     }
     
     /**
-     * Sets the sorted nodes.
-     * 
-     * @param nodes     The collection of nodes to set.
-     * @param parentNode The parent whose children have been sorted.
-     */
-    void setSortedNodes(List nodes, TreeImageDisplay parentNode)
-    {
-        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-        parentNode.removeAllChildren();
-        Iterator i = nodes.iterator(); 
-        boolean b = (parentNode.equals(dtm.getRoot()));
-        TreeImageDisplay child;
-        while (i.hasNext()) {
-            child = (TreeImageDisplay) i.next();
-            if (b) parentNode.addChildDisplay(child);
-            dtm.insertNodeInto(child, parentNode, parentNode.getChildCount());
-        }
-        dtm.reload(parentNode);
-        expandNode(parentNode);
-    }
-    
-    /**
      * Sorts the nodes in the tree view  according to the specified index.
      * 
      * @param type 	One out of the following constants: 
@@ -905,6 +923,7 @@ class BrowserUI
     	TreeImageDisplay node;
     	List children;
     	Iterator j;
+    	List all;
         switch (model.getBrowserType()) {
 			case Browser.IMAGES_EXPLORER:
 				for (int i = 0; i < n; i++) {
@@ -926,7 +945,12 @@ class BrowserUI
 					node.removeAllChildren();
 					dtm.reload(node);
 					if (children.size() != 0) {
-						buildTreeNode(node, sorter.sort(children), dtm);
+						if (node.getUserObject() instanceof ExperimenterData) {
+							all = prepareSortedList(sorter.sort(children));
+							buildTreeNode(node, all, dtm);
+						} else {
+							buildTreeNode(node, sorter.sort(children), dtm);
+						}
 					} else buildEmptyNode(node);
 					j = nodesToReset.iterator();
 					while (j.hasNext()) {
@@ -1023,8 +1047,9 @@ class BrowserUI
         if (nodes.size() != 0) {
             Iterator i = nodes.iterator();
             while (i.hasNext()) {
-            	expNode.addChildDisplay((TreeImageDisplay) i.next()) ;
-            } buildTreeNode(expNode, sorter.sort(nodes), 
+            	expNode.addChildDisplay((TreeImageDisplay) i.next());
+            } 
+            buildTreeNode(expNode, prepareSortedList(sorter.sort(nodes)), 
                         (DefaultTreeModel) treeDisplay.getModel());
         } else buildEmptyNode(expNode);
         Iterator j = nodesToReset.iterator();

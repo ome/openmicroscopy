@@ -312,15 +312,12 @@ class BrowserModel
             		 currentLoader.load();
             	} else if (ho instanceof TagAnnotationData) {
             		currentLoader = new ExperimenterDataLoader(component, 
-            				ExperimenterDataLoader.TAGS, 
+            				ExperimenterDataLoader.TAG, 
             				(TreeImageSet) expNode, (TreeImageSet) node);
-            		((ExperimenterDataLoader) currentLoader).setTagLevel(
-            				ExperimenterDataLoader.TAG_LEVEL);
             		currentLoader.load();
                 }
             }
     	}
-       
     }
 
     /**
@@ -521,10 +518,10 @@ class BrowserModel
 				index = ExperimenterDataLoader.IMAGE;
 				break;
 			case Browser.TAGS_EXPLORER:
-				index = ExperimenterDataLoader.TAGS;
+				index = ExperimenterDataLoader.TAG_SET;
 				break;
 			case Browser.FILES_EXPLORER:
-				index = ExperimenterDataLoader.FILES;
+				index = ExperimenterDataLoader.FILE;
 		}
 		currentLoader = new ExperimenterDataLoader(component, index, expNode);
         currentLoader.load();

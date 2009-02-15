@@ -84,7 +84,7 @@ public class TagsLoader
 	public void load()
 	{
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		handle = mhView.loadExistingAnnotations(TagAnnotationData.class, null,
+		handle = mhView.loadExistingAnnotations(TagAnnotationData.class,
 												userID, this);
 	}
 	

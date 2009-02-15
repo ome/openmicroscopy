@@ -39,7 +39,6 @@ import org.openmicroscopy.shoola.env.data.views.calls.DataFilter;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.FileDownloader;
 import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
@@ -66,44 +65,7 @@ import pojos.ImageData;
 class MetadataHandlerViewImpl
 	implements MetadataHandlerView
 {
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadTags(Class, long, long, AgentEventListener)
-	 */
-	public CallHandle loadTags(Class rootType, long rootID, long userID,
-							AgentEventListener observer)
-	{
-		 BatchCallTree cmd = new StructuredAnnotationLoader(
-				 	StructuredAnnotationLoader.TAG, rootType, rootID, userID);
-	     return cmd.exec(observer);
-	}
 	
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadAttachments(Class, long, long, 
-	 * 											AgentEventListener)
-	 */
-	public CallHandle loadAttachments(Class rootType, long rootID, long userID,
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new StructuredAnnotationLoader(
-			 	StructuredAnnotationLoader.ATTACHMENT, rootType, rootID, 
-			 	userID);
-		return cmd.exec(observer);
-	}
-	
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadViewedBy(long, long, AgentEventListener)
-	 */
-	public CallHandle loadViewedBy(long imageID, long pixelsID, 
-										AgentEventListener observer)
-	{
-		BatchCallTree cmd = new RenderingSettingsLoader(pixelsID, -1);
-		return cmd.exec(observer);
-	}
-
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadContainers(Class, long, long, 
@@ -116,33 +78,6 @@ class MetadataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadUrls(Class, long, long, 
-	 * 											AgentEventListener)
-	 */
-	public CallHandle loadUrls(Class rootType, long rootID, long userID, 
-							AgentEventListener observer)
-	{
-		BatchCallTree cmd = new StructuredAnnotationLoader(
-			 				StructuredAnnotationLoader.URL, rootType, rootID, 
-			 					userID);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadRatings(Class, long, long, 
-	 * 											AgentEventListener)
-	 */
-	public CallHandle loadRatings(Class rootType, long rootID, long userID, 
-							AgentEventListener observer)
-	{
-		BatchCallTree cmd = new StructuredAnnotationLoader(
- 				StructuredAnnotationLoader.RATING, rootType, rootID, 
- 					userID);
-		return cmd.exec(observer);
-	}
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadThumbnails(ImageData, Set, int, int, 
@@ -181,30 +116,16 @@ class MetadataHandlerViewImpl
 						StructuredAnnotationLoader.ALL, data, userID, viewed);
 		return cmd.exec(observer);
 	}
-	
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadTextualAnnotations(Class, long, long, 
-	 * 											AgentEventListener)
-	 */
-	public CallHandle loadTextualAnnotations(Class rootType, long rootID, 
-							long userID, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new StructuredAnnotationLoader(
- 				StructuredAnnotationLoader.TEXTUAL, rootType, rootID, 
- 					userID);
-		return cmd.exec(observer);
-	}
 
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadExistingAnnotations(Class, Class, 
 	 * 											AgentEventListener)
 	 */
-	public CallHandle loadExistingAnnotations(Class annotation, Class type,
-									long userID, AgentEventListener observer)
+	public CallHandle loadExistingAnnotations(Class annotation, long userID, 
+			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new StructuredAnnotationLoader(annotation, type, 
+		BatchCallTree cmd = new StructuredAnnotationLoader(annotation,
 														userID);
 		return cmd.exec(observer);
 	}
@@ -349,17 +270,6 @@ class MetadataHandlerViewImpl
 								AgentEventListener observer)
 	{
 		BatchCallTree cmd = new DataObjectSaver(parent, data, children);
-		return cmd.exec(observer);
-	}
-	
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadExistingTags(int, long, AgentEventListener)
-	 */
-	public CallHandle loadExistingTags(int level, long userID, 
-			                         AgentEventListener observer)
-	{
-		BatchCallTree cmd = new TagsLoader(level, userID);
 		return cmd.exec(observer);
 	}
 	

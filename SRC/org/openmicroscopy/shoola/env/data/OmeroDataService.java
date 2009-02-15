@@ -247,24 +247,6 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
-	 * Loads the objects that be added to the node.
-	 * 
-	 * @param nodeType  The top-most type which will be searched for.
-	 *                  Can be <code>Project</code>, <code>CategoryGroup</code>,
-	 *                  <code>Dataset</code> or <code>Category</code>.
-	 *                  Mustn't be <code>null</code>.
-	 * @param nodeIDs   A set of the IDs of top-most containers. 
-	 *                  Mustn't be <code>null</code>.
-	 * @param userID    The Id of the user.
-	 * @return  A set of existing nodes.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public Set loadExistingObjects(Class nodeType, List nodeIDs, long userID)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
 	 * Adds the given objects to the specified node.
 	 * 
 	 * @param parent    The <code>DataObject</code> to update. Either a 
@@ -452,27 +434,6 @@ public interface OmeroDataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection getOriginalFiles(long pixelsID)
-		throws DSOutOfServiceException, DSAccessException;
-	
-	/**
-	 * Retrieves hierarchy trees rooted by a given node.
-	 * i.e. the requested node as root and all of its descendants.
-	 * 
-	 * @param rootNodeType  The top-most type which will be searched for 
-	 *                      Can be <code>Screen</code>,
-	 *                      <code>Plate</code>.. 
-	 *                      Mustn't be <code>null</code>.
-	 * @param rootNodeIDs   A set of the IDs of top-most containers. 
-	 *                      Passed <code>null</code> to retrieve all top-most
-	 *                      nodes e.g. all user's screens.
-	 * @param userID		The Id of the selected user.
-	 * @return  A set of hierarchy trees.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public Set loadScreenPlates(Class rootNodeType, List rootNodeIDs, 
-								long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

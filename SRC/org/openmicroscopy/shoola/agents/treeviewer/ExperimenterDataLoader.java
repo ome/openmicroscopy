@@ -66,12 +66,6 @@ public class ExperimenterDataLoader
 	extends DataBrowserLoader
 {
 
-	/** Indicates to load the tags linked to images. */
-	public static final int TAG_LEVEL = 10;
-	
-	/** Indicates to load the tags linked to images. */
-	public static final int TAG_SET_LEVEL = 11;
-	
 	/** Indicates that the root node is of type <code>Project</code>. */
     public static final int PROJECT = 0;
     
@@ -81,11 +75,14 @@ public class ExperimenterDataLoader
     /** Indicates that the root node is of type <code>Image</code>. */
     public static final int IMAGE = 2;
     
-    /** Indicates that the root node is of type <code>Image</code>. */
-    public static final int TAGS = 3;
+    /** Indicates that the root node is of type <code>Tag</code>. */
+    public static final int TAG = 3;
     
-    /** Indicates that the root node is of type <code>Image</code>. */
-    public static final int FILES = 4;
+    /** Indicates that the root node is of type <code>Tag</code>. */
+    public static final int TAG_SET = 4;
+    
+    /** Indicates that the root node is of type <code>File</code>. */
+    public static final int FILE = 5;
     
     /** 
      * Flag to indicate if the images are also retrieved.
@@ -106,11 +103,8 @@ public class ExperimenterDataLoader
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  		handle;
     
-    /** 
-     * One of the following constants: {@link #TAG_SET_LEVEL} or 
-     * {@link #TAG_LEVEL}.
-     */
-    private int					level;
+    /** One of the constants defined by this class. */
+    private int					type;
     
     /**
      * Returns the class corresponding to the specified type.
@@ -122,11 +116,13 @@ public class ExperimenterDataLoader
      */
     private Class getClassType(int type)
     {
+    	this.type = type;
         switch (type) {
             case PROJECT: return ProjectData.class;
             case DATASET: return DatasetData.class; 
-            case TAGS: return TagAnnotationData.class;
-            case FILES: return FileAnnotationData.class;
+            case TAG: return TagAnnotationData.class;
+            case TAG_SET: return TagAnnotationData.class;
+            case FILE: return FileAnnotationData.class;
         }
         return null;
     }
@@ -168,15 +164,8 @@ public class ExperimenterDataLoader
         if (rootNodeType == null)
             throw new IllegalArgumentException("Type not supported");
         if (parent != null)  withImages = true;
-        level = -1;
+        if (type == TAG_SET) withImages = false;
     } 
-    
-    /**
-     * Sets the passed level.
-     * 
-     * @param level The value to set.
-     */
-    public void setTagLevel(int level) { this.level = level; }
     
     /**
      * Retrieves the data.
@@ -187,21 +176,14 @@ public class ExperimenterDataLoader
     	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
     	if (TagAnnotationData.class.equals(rootNodeType)) {
     		long id = -1;
-    		if (parent != null) id = parent.getUserObjectId();
-    		switch (level) {
-				case TAG_LEVEL:
-					handle = dmView.loadTags(id, withImages, exp.getId(), this);
-					break;
-				case TAG_SET_LEVEL:
-					default:
-					handle = dmView.loadTagSets(id, withImages, exp.getId(), 
-							this);
-					break;
-			}
-    		
+    		if (parent != null) {
+    			id = parent.getUserObjectId();
+    		}
+    		boolean top = type == TAG_SET;
+    		handle = dmView.loadTags(id, withImages, top, exp.getId(), this);
     	} else if (FileAnnotationData.class.equals(rootNodeType)) {
-    		handle = mhView.loadExistingAnnotations(rootNodeType, null, 
-    				exp.getId(), this);
+    		handle = mhView.loadExistingAnnotations(rootNodeType, exp.getId(), 
+    				this);
     	} else {
     		if (parent == null) {
         		handle = dmView.loadContainerHierarchy(rootNodeType, null, 

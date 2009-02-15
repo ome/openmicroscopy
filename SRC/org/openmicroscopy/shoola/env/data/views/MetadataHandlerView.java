@@ -58,72 +58,6 @@ public interface MetadataHandlerView
 	extends DataServicesView
 {
 
-	/** Indicates to retrieve the tags. */
-	public static final int LEVEL_TAG = TagsLoader.LEVEL_TAG;
-	
-	/** Indicates to retrieve the tag sets. */
-	public static final int LEVEL_TAG_SET = TagsLoader.LEVEL_TAG_SET;
-
-	/** Indicates to retrieve the tag sets and the tags. */
-	public static final int LEVEL_ALL = TagsLoader.LEVEL_ALL;
-	
-	/**
-	 * Loads the tags related to the object identified the the passed type
-	 * and ID. Retrieves the tags created by the specified user if the 
-	 * userID is not <code>-1</code>.
-	 * 
-	 * @param nodeType	The class identifying the object.
-	 * 					Mustn't be <code>null</code>.
-	 * @param nodeID	The id of the node.
-	 * @param userID	Pass <code>-1</code> if no user specified.
-	 * @param observer  Callback handler.
-     * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadTextualAnnotations(Class nodeType, long nodeID, 
-									long userID, AgentEventListener observer);
-	
-	/**
-	 * Loads the tags related to the object identified the the passed type
-	 * and ID. Retrieves the tags created by the specified user if the 
-	 * userID is not <code>-1</code>.
-	 * 
-	 * @param nodeType	The class identifying the object.
-	 * 					Mustn't be <code>null</code>.
-	 * @param nodeID	The id of the node.
-	 * @param userID	Pass <code>-1</code> if no user specified.
-	 * @param observer  Callback handler.
-     * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadTags(Class nodeType, long nodeID, long userID,
-			AgentEventListener observer);
-	
-	/**
-	 * Loads all the files attached by a given user to the specified object.
-	 * Retrieves the files if the userID is not <code>-1</code>.
-	 * 
-	 * @param nodeType	The class identifying the object.
-	 * 					Mustn't be <code>null</code>.
-	 * @param nodeID	The id of the node.
-	 * @param userID	Pass <code>-1</code> if no user specified.
-	 * @param observer  Callback handler.
-     * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadAttachments(Class nodeType, long nodeID, long userID,
-			AgentEventListener observer);
-
-	/**
-	 * Loads all the containers containing the specified object.
-	 * Retrieves the files if the userID is not <code>-1</code>.
-	 * 
-	 * @param imageID	The image's id. 
-	 * @param pixelsID	The id of the pixels set.
-	 * @param userID	Pass <code>-1</code> if no user specified.
-	 * @param observer  Callback handler.
-     * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadViewedBy(long imageID, long pixelsID,
-									AgentEventListener observer);
-
 	/**
 	 * Loads all the containers containing the specified object.
 	 * Retrieves the files if the userID is not <code>-1</code>.
@@ -137,34 +71,6 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle loadContainers(Class nodeType, long nodeID, long userID,
 							AgentEventListener observer);
-
-	/**
-	 * Loads all the Urls attached by a given user to the specified object.
-	 * Retrieves the files if the userID is not <code>-1</code>.
-	 * 
-	 * @param nodeType	The class identifying the object.
-	 * 					Mustn't be <code>null</code>.
-	 * @param nodeID	The id of the node.
-	 * @param userID	Pass <code>-1</code> if no user specified.
-	 * @param observer  Callback handler.
-     * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadUrls(Class nodeType, long nodeID, long userID, 
-					AgentEventListener observer);
-	
-	/**
-	 * Loads all the ratings attached by a given user to the specified object.
-	 * Retrieves the files if the userID is not <code>-1</code>.
-	 * 
-	 * @param nodeType	The class identifying the object.
-	 * 					Mustn't be <code>null</code>.
-	 * @param nodeID	The id of the node.
-	 * @param userID	Pass <code>-1</code> if no user specified.
-	 * @param observer  Callback handler.
-     * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadRatings(Class nodeType, long nodeID, long userID, 
-			AgentEventListener observer);
 
 	/**
 	 * Loads all the ratings attached by a given user to the specified objects.
@@ -228,14 +134,12 @@ public interface MetadataHandlerView
 	 * Loads all the annotations if the object's type is <code>null</code>.
 	 * 
 	 * @param annotation 	The annotation type. Mustn't be <code>null</code>.
-	 * @param type			The type of object or <code>null</code>.
 	 * @param userID		The id of the user the annotations are owned by,
 	 * 						or <code>-1</code> if no user specified.
 	 * @param observer  	Callback handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadExistingAnnotations(Class annotation, 
-									Class type, long userID, 
+	public CallHandle loadExistingAnnotations(Class annotation, long userID, 
 									AgentEventListener observer);
 
 	/**
@@ -377,17 +281,6 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle createDataObject(DataObject parent, DataObject data,
 							Collection children, AgentEventListener observer);
-	
-	/**
-	 * Loads the existing created by the specified user.
-	 * 
-	 * @param level		One of the constants defined by this class.
-	 * @param userID	The ID of the user.
-	 * @param observer	Callback handler.
-     * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadExistingTags(int level, long userID, 
-			                  AgentEventListener observer);
 	
 	/**
 	 * Saves the file back to the server.

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -190,9 +191,7 @@ public class ExistingObjectsSaver
      */
     public ExistingObjectsSaver(Map toPaste, Map toRemove)
     {
-        if (toPaste == null || toPaste.size() == 0)
-            throw new IllegalArgumentException("No item to add.");
-       
+    	if (toPaste == null) toPaste = new HashMap();
         if (toRemove == null) call = makeBatchCall(toPaste);
         else call = makeBatchCall(toPaste, toRemove);
     }

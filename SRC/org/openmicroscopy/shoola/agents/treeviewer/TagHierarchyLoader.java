@@ -83,7 +83,7 @@ public class TagHierarchyLoader
     public void load()
     {
     	long userID = TreeViewerAgent.getUserDetails().getId();
-    	handle = dmView.loadTagHierarchy(node.getUserObjectId(), userID, this);
+    	handle = dmView.loadTags(node.getUserObjectId(), true, false, userID, this);
     }
 
     /**

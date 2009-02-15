@@ -60,6 +60,9 @@ public class DataObjectUpdater
     /** Identifies the <code>Cut and Paste</code> action. */
     public static final int CUT_AND_PASTE = 1;
     
+    /** Identifies the <code>Cut</code> action. */
+    public static final int CUT = 2;
+    
     /** Action id, one of the constants defined by this class. */
     private int             index;
     
@@ -88,6 +91,7 @@ public class DataObjectUpdater
         switch (i) {
             case COPY_AND_PASTE:
             case CUT_AND_PASTE:    
+            case CUT:
                 return;
             default:
                 throw new IllegalArgumentException("Action not supported.");
@@ -141,7 +145,7 @@ public class DataObjectUpdater
     {
         if (index == COPY_AND_PASTE)
             handle = dmView.addExistingObjects(objectsToUpdate, this);
-        else if (index == CUT_AND_PASTE) 
+        else if ((index == CUT_AND_PASTE) || (index == CUT)) 
             handle = dmView.cutAndPaste(objectsToUpdate, objectsToRemove, this);
     }
     

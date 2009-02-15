@@ -515,13 +515,24 @@ class TreeViewerModel
 			currentLoader = new DataObjectUpdater(component, map, toRemove,
 					DataObjectUpdater.CUT_AND_PASTE);
 		}
-
 		currentLoader.load();
 		state = TreeViewer.SAVE;
 		nodesToCopy = null;
 		return true;
 	}
 
+	boolean cut()
+	{
+		if (copyIndex != TreeViewer.CUT_AND_PASTE) return false;
+		if (nodesToCopy == null || nodesToCopy.length == 0) return false;
+		Map toRemove = buildCutMap(nodesToCopy);
+		currentLoader = new DataObjectUpdater(component, new HashMap(), toRemove,
+				DataObjectUpdater.CUT);
+		currentLoader.load();
+		state = TreeViewer.SAVE;
+		return true;
+	}
+	
 	/**
 	 * Returns the available user groups.
 	 * 

@@ -368,9 +368,15 @@ class OMEROGateway
 	{
 		String table = null;
 		if (Dataset.class.equals(klass)) table = "DatasetImageLink";
+		else if (DatasetI.class.equals(klass)) table = "DatasetImageLink";
 		else if (Project.class.equals(klass)) table = "ProjectDatasetLink";
+		else if (ProjectI.class.equals(klass)) table = "ProjectDatasetLink";
 		else if (Screen.class.equals(klass)) table = "ScreenPlateLink";
-		else if (TagAnnotation.class.equals(klass)) table = "AnnotationAnnotationLink";
+		else if (ScreenI.class.equals(klass)) table = "ScreenPlateLink";
+		else if (TagAnnotation.class.equals(klass)) 
+			table = "AnnotationAnnotationLink";
+		else if (TagAnnotationI.class.equals(klass)) 
+			table = "AnnotationAnnotationLink";
 		return table;
 	}
 
@@ -1019,6 +1025,12 @@ class OMEROGateway
 		return false;
 	}
 
+	/**
+	 * Converts the class to the specified model string.
+	 * 
+	 * @param pojo The class to convert.
+	 * @return See above.
+	 */
 	private String convertAnnotation(Class pojo)
 	{
 		if (TextualAnnotationData.class.equals(pojo))
@@ -1388,9 +1400,9 @@ class OMEROGateway
 		}
 		return new HashSet();
 	}
-
+	
 	/**
-	 * Finds all the annotations that have been attached to the specified
+	 * Loads all the annotations that have been attached to the specified
 	 * <code>rootNodes</code>. This method looks for all the <i>valid</i>
 	 * annotations that have been attached to each of the specified objects. It
 	 * then maps each <code>rootNodeID</code> onto the set of all annotations
@@ -1398,7 +1410,7 @@ class OMEROGateway
 	 * node, then the entry will be <code>null</code>. Otherwise it will be a
 	 * <code>Set</code> containing <code>Annotation</code> objects.
 	 * Wraps the call to the 
-	 * {@link IPojos#findAnnotations(Class, List, List, Map)}
+	 * {@link IMetadataPrx#loadAnnotations(String, List, List, List)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Map)}.
 	 * 
 	 * @param nodeType      The type of the rootNodes.
@@ -1406,6 +1418,9 @@ class OMEROGateway
 	 * @param nodeIDs       TheIds of the objects of type
 	 *                      <code>rootNodeType</code>. 
 	 *                      Mustn't be <code>null</code>.
+	 * @param annotationTypes The collection of annotations to retrieve or 
+	 * 						  passed an empty list if we retrieve all the 
+	 * 						  annotations. 
 	 * @param annotatorIDs  The Ids of the users for whom annotations should be 
 	 *                      retrieved. If <code>null</code>, all annotations 
 	 *                      are returned.
@@ -1417,30 +1432,8 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#findAnnotations(Class, List, List, Map)
 	 */
-	Map findAnnotations(Class nodeType, List nodeIDs, List annotatorIDs, 
-			Map options)
-	throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		try {
-			IContainerPrx service = getPojosService();
-			return PojoMapper.asDataObjects(
-					service.findAnnotations(convertPojos(nodeType).getName(), 
-							nodeIDs, annotatorIDs, options));
-		} catch (Throwable t) {
-			t.printStackTrace();
-			handleException(t, "Cannot find annotations for "+nodeType+".");
-		}
-		return new HashMap();
-		/*
-		List<Class> annotationTypes = new ArrayList<Class>();
-		annotationTypes.add(TextualAnnotationData.class);
-		return loadAnnotations(nodeType, nodeIDs, annotationTypes, annotatorIDs);
-	*/
-	}
-
-	Map loadAnnotations(Class nodeType, List nodeIDs, List<Class> annotationTypes, 
-			List annotatorIDs)
+	Map loadAnnotations(Class nodeType, List nodeIDs, 
+			List<Class> annotationTypes, List annotatorIDs, Map options)
 	throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -1459,9 +1452,8 @@ class OMEROGateway
 			IMetadataPrx service = getMetadataService();
 			return PojoMapper.asDataObjects(
 					service.loadAnnotations(convertPojos(nodeType).getName(), 
-							nodeIDs, types, annotatorIDs));
+							nodeIDs, types, annotatorIDs, options));
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot find annotations for "+nodeType+".");
 		}
 		return new HashMap();
@@ -1704,6 +1696,7 @@ class OMEROGateway
 			r = service.saveAndReturnObject(object, options);
 			return r;//findIObject(r);
 		} catch (Throwable t) {
+			t.printStackTrace();
 			handleException(t, "Cannot update the object.");
 		}
 		return null;
@@ -2920,19 +2913,10 @@ class OMEROGateway
 			//String klass = convertPojos(rootNodeType).getName();
 			Iterator i = nodes.iterator();
 			long id;
-			boolean b = false;
 			if (ImageData.class.equals(rootNodeType)) {
 				Map m = service.applySettingsToImages(pixelsID, nodes);
 				success = (List<Long>) m.get(Boolean.TRUE);
 				failure = (List<Long>) m.get(Boolean.FALSE);
-				/*
-				while (i.hasNext()) {
-					id = (Long) i.next();
-					b = service.applySettingsToImage(pixelsID, id);
-					if (b) success.add(id);
-					else failure.add(id);
-				}
-				*/
 			} else if (DatasetData.class.equals(rootNodeType)) {
 				Map m;
 				List l;
@@ -2957,7 +2941,6 @@ class OMEROGateway
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot paste the rendering settings.");
 		}
 		Map<Boolean, List> result = new HashMap<Boolean, List>(2);
@@ -2985,6 +2968,8 @@ class OMEROGateway
 		Map map = new HashMap();
 		isSessionAlive();
 		try {
+			/*
+		}
 			Parameters param = new ParametersI();
 			param.map.put("pixid", omero.rtypes.rlong(pixelsID));
 			
@@ -3000,10 +2985,13 @@ class OMEROGateway
 				sql += " and rdef.details.owner.id = :userid";
 				param.map.put("userid", omero.rtypes.rlong(userID));
 			}
-			
 			IQueryPrx service = getQueryService();
 			
 			List results = service.findAllByQuery(sql, param);
+			*/
+			IPixelsPrx service = getPixelsService();
+			List results = service.retrieveAllRndSettings(pixelsID, userID);
+			
 			if (results == null || results.size() == 0) return map;
 			Iterator i = results.iterator();
 			RenderingDef rndDef;
@@ -3011,9 +2999,7 @@ class OMEROGateway
 			while (i.hasNext()) {
 				rndDef = (RenderingDef) i.next();
 				exp = rndDef.getDetails().getOwner();
-				//if (exp.getId() != userID) {
 				map.put(PojoMapper.asDataObject(exp), rndDef);
-				//}
 			}
 			return map;
 		} catch (Exception e) {
@@ -3040,20 +3026,8 @@ class OMEROGateway
 		//This method should be pushed server side.
 		isSessionAlive();
 		try {
-			String sql =  "select rdef from RenderingDef as rdef "
-                + "left outer join fetch rdef.quantization "
-                + "left outer join fetch rdef.model "
-                + "left outer join fetch rdef.waveRendering as cb "
-                + "left outer join fetch cb.family "
-                + "left outer join fetch rdef.spatialDomainEnhancement " 
-                + "left outer join fetch rdef.details.owner "
-                + "where rdef.pixels.id = :pixid and " +
-                	"rdef.details.owner.id = :userid";
-
-			Parameters param = new ParametersI();
-			param.map.put("pixid", omero.rtypes.rlong(pixelsID));
-			param.map.put("userid", omero.rtypes.rlong(userID));
-			return (RenderingDef) getQueryService().findByQuery(sql, param);
+			IPixelsPrx service = getPixelsService();
+			return service.retrieveRndSettingsFor(pixelsID, userID);
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the rendering settings");
 		}
@@ -3062,79 +3036,26 @@ class OMEROGateway
 	}
 
 	/**
-	 * Searches for the categories whose name contains the passed term.
-	 * Returns a collection of objects.
 	 * 
-	 * @param id				The id of the annotation.
-	 * @param userID			The id of the user the annotations are for.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	Set fetchAnnotation(long id, long userID)
-	    throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		try {
-			IQueryPrx service = getQueryService();
-			Parameters param = new ParametersI();
-			
-			String sql =  "select ann from Annotation as ann "
-                + "left outer join fetch ann.details.creationEvent "
-                + "left outer join fetch ann.details.owner";
-			if (id >= 0 && userID >= 0) {
-				sql += " where ann.id = :id and ann.details.owner.id = :uid";
-				param.map.put("id", omero.rtypes.rlong(id));
-				param.map.put("uid", omero.rtypes.rlong(userID));
-			} else if (id < 0 && userID >= 0) {
-				sql += " where ann.details.owner.id = :uid";
-				param.map.put("uid", omero.rtypes.rlong(userID));
-			} else if (id >= 0 && userID < 0) {
-				sql += " where ann.id = :id";
-				param.map.put("id", omero.rtypes.rlong(id));
-			}
-			return PojoMapper.asDataObjects(service.findAllByQuery(sql, param));
-		} catch (Exception e) {
-			handleException(e, "Cannot retrieve the annotations");
-		}
-		return null;
-	}
-	
-	/**
-	 * Retrieves the annotations.
-	 * 
-	 * @param ids
-	 * @param userID
-	 * @param asChild
-	 * @return See above
+	 * @param type
+	 * @param nameSpace
+	 * @param options
+	 * @return
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	Set fetchAnnotations(List<Long> ids, long userID, boolean asChild)
-	    throws DSOutOfServiceException, DSAccessException
+	Set loadSpecifiedAnnotation(Class type, String nameSpace, Map options)
+		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			if (ids == null || ids.size() == 0) return null;
-			IQueryPrx service = getQueryService();
-			ParametersI param = new ParametersI();
-			param.addLongs("ids", ids);
-			String sql =  "select ann from Annotation as ann "
-				+ "left outer join ann.annotationLinks link "
-                + "left outer join fetch ann.details.creationEvent "
-                + "left outer join fetch ann.details.owner";
+			IMetadataPrx service = getMetadataService();
 			
-			if (asChild) sql += " where link.child.id in (:ids)";
-			else sql += " where link.parent.id in (:ids)";
-
-			if (userID >= 0) {
-				sql += "and link.details.owner.id = :uid";
-				param.map.put("uid", omero.rtypes.rlong(userID));
-			}
-			return PojoMapper.asDataObjects(service.findAllByQuery(sql, param));
+			return PojoMapper.asDataObjects(
+					service.loadSpecifiedAnnotations(
+							convertPojos(type).getName(), nameSpace, options));
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot retrieve the annotations");
 		}
 		return null;
@@ -4058,7 +3979,6 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			System.err.println(plateID);
 			List results = null;
 			IQueryPrx service = getQueryService();
 			StringBuilder sb = new StringBuilder();
@@ -4192,7 +4112,7 @@ class OMEROGateway
 	            if (plates.size() > 0) {
 	            	String sql = "select p from Plate p "
 	                + "left outer join fetch p.annotationLinksCountPerOwner " +
-	                "where p in (:list)";
+	                "where p.id in (:list)";
 	            	param.addLongs("list", plates);
 	            	service.findAllByQuery(sql, param);
 	            }
@@ -4391,6 +4311,21 @@ class OMEROGateway
 		}
 		return new ArrayList<EnumerationObject>();
 	}
+	
+	Object loadTags(Long id, boolean dataObject, String nameSpace, Map options)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		
+		isSessionAlive();
+		try {
+			IMetadataPrx service = getMetadataService();
+			//service.loadT
+		} catch (Exception e) {
+			handleException(e, "Cannot find the Tags.");
+		}
+		return null;
+	}
+	
 	
 	/**
 	 * Returns the collection of plane info object related to the specified

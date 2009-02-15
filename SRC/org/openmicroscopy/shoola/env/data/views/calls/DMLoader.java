@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DatasetData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Command to find the data trees of a given <i>OME</i> hierarchy type 
@@ -126,7 +127,8 @@ public class DMLoader
         if (userID < 0) 
             throw new IllegalArgumentException("No root ID not valid.");
         if (rootNodeType.equals(ProjectData.class) ||
-                rootNodeType.equals(DatasetData.class))
+                rootNodeType.equals(DatasetData.class) 
+                || rootNodeType.equals(ScreenData.class))
                 loadCall = makeBatchCall(rootNodeType, rootNodeIDs, withLeaves,
                         				userID);
         else 

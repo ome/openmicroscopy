@@ -123,74 +123,7 @@ public interface OmeroMetadataService
 	
 	/** Identified the <code>filament type</code> enumeration. */
 	public static final String FILAMENT_TYPE = FilamentType.class.getName();
-	
-	/**
-	 * Retrieves the textual annotations
-	 * 
-	 * @param type		The type of object the annotations are related to.
-	 * @param id		The id of the object.
-	 * @param userID	The id of the user, or <code>-1</code> if no user
-	 * 					specified. 
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Collection loadTextualAnnotations(Class type, long id, long userID)
-		throws DSOutOfServiceException, DSAccessException;
-	
-	/**
-	 * Loads the tags linked to an object identifying by the specified
-	 * type and id.
-	 * 
-	 * @param type 		The type of the object.
-     * @param id		The id of the object.
-     * @param userID	The id of the user who tagged the object or 
-     * 					<code>-1</code> if the user is not specified.
-     * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Collection loadTags(Class type, long id, long userID)
-		throws DSOutOfServiceException, DSAccessException;
-	
-	/**
-	 * Loads the attachments linked to an object identifying by the specified
-	 * type and id.
-	 * 
-	 * @param type 		The type of the object.
-     * @param id		The id of the object.
-     * @param userID	The id of the user who added attachments to the object 
-     * 					or <code>-1</code> if the user is not specified.
-     * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Collection loadAttachments(Class type, long id, long userID)
-		throws DSOutOfServiceException, DSAccessException;
-	
-	/**
-	 * Loads the urls linked to an object identifying by the specified
-	 * type and id.
-	 * 
-	 * @param type 		The type of the object.
-     * @param id		The id of the object.
-     * @param userID	The id of the user who added attachments to the object 
-     * 					or <code>-1</code> if the user is not specified.
-     * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Collection loadUrls(Class type, long id, long userID)
-		throws DSOutOfServiceException, DSAccessException;
-	
+
 	/**
 	 * Loads the ratings linked to an object identifying by the specified
 	 * type and id.
@@ -262,21 +195,6 @@ public interface OmeroMetadataService
 	 */
 	public Map loadStructuredData(List<DataObject> data, long userID, 
 								boolean viewed)
-		throws DSOutOfServiceException, DSAccessException;
-	
-	/**
-	 * Loads the collection of objects containing information about the 
-	 * user who viewed the image i.e. rating, rendering settings.
-	 * 
-	 * @param imageID	The id of the image.
-	 * @param pixelsID	The id of the pixels set.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Collection loadViewedBy(long imageID, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -391,10 +309,8 @@ public interface OmeroMetadataService
 	 * Loads all annotations of a given type.
 	 * 
 	 * @param annotationType 	The type of annotation to retrieve.
-	 * @param objectType		Restrict search to a given type of object.
-	 * @param objectID			Resctrict the search to a given object,
-	 * 							Pass <code>-1</code> if no object taken into
-	 * 							account.
+	 * @param nameSpace			The name space of the annotation 
+	 * 							or <code>null</code>.
 	 * @param userID			The id of the user the annotations are related
 	 * 							to.
 	 * @return See above.
@@ -403,8 +319,8 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection loadAnnotations(Class annotationType, Class objectType, 
-									long objectID, long userID)
+	public Collection loadAnnotations(Class annotationType, String nameSpace,
+									long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -560,38 +476,6 @@ public interface OmeroMetadataService
 	public Collection filterByAnnotation(Class nodeType, List<Long> ids, 
 										FilterContext filter, long userID)
 		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Loads the data objects related to the passed tag.
-	 * 
-	 * @param id			The id of the tag or <code>-1</code>.
-     * @param dataObject    Pass <code>true</code> to load the 
-	 * 						<code>DataObject</code> related 
-     * 						to the tags, <code>false</code> otherwise.
-     * @param userID		The id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Collection loadTagsContainer(Long id, boolean dataObject, 
-										long userID)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Loads the data objects related to the passed tag.
-	 * 
-	 * @param id		The id of the tag.
-     * @param userID	The id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Collection loadTagsHierarchy(Long id, long userID)
-		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Loads the data objects related to the tags contained within the specified
@@ -610,22 +494,6 @@ public interface OmeroMetadataService
 	 */
 	public Collection loadTagSetsContainer(Long id, boolean images,
 										long userID)
-		throws DSOutOfServiceException, DSAccessException;
-	
-	/**
-	 * Loads the tags linked to images or without links if the passed level
-	 * equals {@link #LEVEL_TAG}, loads the tags linked to other tags or without
-	 * links if the passed level is {@link #LEVEL_TAG_SET}.
-	 * 
-	 * @param level  Either {@link #LEVEL_TAG} or {@link #LEVEL_TAG_SET}.
-	 * @param userID The id of the user who owns the tag or tag sets.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Collection loadTags(int level, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -683,6 +551,24 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object archivedFile(FileAnnotationData fileAnnotation, File file)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads all rendering settings linked to the passed image.
+	 * 
+	 * @param imageID	The id of the image.
+	 * @param pixelsID	The id of the pixels set.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection loadViewedBy(long imageID, long pixelsID) 
+		throws DSOutOfServiceException, DSAccessException;
+
+	public Object loadTags(Long id, boolean dataObject, boolean topLevel,
+			long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }
