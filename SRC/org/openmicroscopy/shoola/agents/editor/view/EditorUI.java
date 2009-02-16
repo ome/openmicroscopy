@@ -80,6 +80,12 @@ class EditorUI
 	/** Reference to the status. */
 	private EditorStatusBar			statusBar;
 	
+	/**
+	 * A Panel to display in the center of this window if there is no file 
+	 * to show. 
+	 */
+	private JPanel 					splashScreen;
+	
 	/** 
 	 * Creates the file menu.
 	 * 
@@ -147,6 +153,9 @@ class EditorUI
 		toolBarContainer.setBorder(new EmptyBorder(4,4,4,4));
 		toolBarBoxAlign.add(toolBarContainer, BorderLayout.WEST);
 		c.add(toolBarBoxAlign, BorderLayout.NORTH);
+		
+		splashScreen = new NoFileOpenUI(controller);
+		c.add(splashScreen);
 		
 		toolBarContainer.add(toolBar);
 		c.add(statusBar, BorderLayout.SOUTH);
@@ -220,7 +229,9 @@ class EditorUI
      */
     void displayFile()
     {
+    	remove(splashScreen);
     	add(model.getBrowser().getUI(), BorderLayout.CENTER);
+    	
     	toolBarContainer.add(new JSeparator(SwingConstants.VERTICAL));
     	toolBarContainer.add(model.getBrowser().getToolBar());
     	

@@ -294,11 +294,23 @@ public class IconManager
     /** The <code>Add-Text-Box</code> icon.*/
     public  static final int			ADD_TEXTBOX_ICON = 78;
     
+    /** The <code>New Blank File</code> icon, 32 x 32*/
+    public  static final int			NEW_FILE_ICON_32 = 79;
+    
+    /** The <code>Open WWW file</code> icon, 32 x 32.*/
+    public  static final int			WWW_FOLDER_ICON_32 = 80;
+    
+    /** The <code>Open file</code> icon, 32 x 32.*/
+    public  static final int			OPEN_FOLDER_ICON_32=  81;
+    
+    /** The <code>OMERO.editor</code> icon, 48 x 48.*/
+    public  static final int			OMERO_EDITOR_48 = 82;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 78;
+    private static final int          MAX_ID = 82;
    
     
     /** Paths of the icon files. */
@@ -391,6 +403,10 @@ public class IconManager
         relPaths[SPLIT_12_ICON] = "split_12.png";
         relPaths[EXP_9_11_ICON] = "exp_9_11.png";
         relPaths[ADD_TEXTBOX_ICON] = "add_textBox16.png";
+        relPaths[NEW_FILE_ICON_32] = "nuvola_filenew32.png";
+        relPaths[WWW_FOLDER_ICON_32] = "nuvola_folder_html32.png";
+        relPaths[OPEN_FOLDER_ICON_32] = "nuvola_folder32.png";
+        relPaths[OMERO_EDITOR_48] = "omeroEditor48.png";
     }
     
     
