@@ -32,7 +32,7 @@
     <script type="text/javascript">
         $(document).ready(function(){
             
-            $("div#share_content").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+            $("div#share_content").html('<p>Loading content... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
             $("div#share_content").load("{% get_webclient_root_url %}/share_content/{{ share.share.id }}/");
 
         });

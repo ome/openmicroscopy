@@ -39,9 +39,9 @@ urlpatterns = patterns('',
     
     ( r'(?i)^$', views.index ),
     ( r'(?i)^context/$', views.index_context ),
-    ( r'(?i)^my_data/$', views.index_my_data ),
     ( r'(?i)^last_imports/$', views.index_last_imports ),
-    ( r'(?i)^most_recent/$', views.index_most_recent ),
+    ( r'(?i)^most_recent_comment/$', views.index_most_recent_comment ),
+    ( r'(?i)^tag_cloud/$', views.index_tag_cloud ),
     
     ( r'(?i)^login/$', views.login ),
     ( r'(?i)^logout/$', views.logout ),

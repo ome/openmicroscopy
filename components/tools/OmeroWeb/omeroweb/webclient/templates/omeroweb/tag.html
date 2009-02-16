@@ -45,16 +45,6 @@
                     loaderImg: '{% get_webclient_static_url %}/images/tree/spinner.gif',
                 });
                 
-                /*$("div#tag").hide();
-                $("div#tagloader").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
-                
-                $.getJSON("{% get_webclient_root_url %}/autocompletetags/", function(json){
-                     // access object
-                     prepareAutocomplite(json);
-                });
-                */
-                
-                
                 $("div#tag").hide();
                 $("div#tagloader").html('<p>Loading filters... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
                 

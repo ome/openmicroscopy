@@ -23,44 +23,43 @@
     <script>
         $(document).ready(function(){
             
-            $("div#last_imports").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+            $("div#last_imports").html('<p>Loading imported images... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
             $("div#last_imports").load("{% get_webclient_root_url %}/last_imports/");
             
-            $("div#my_data").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
-            $("div#my_data").load("{% get_webclient_root_url %}/my_data/");
+            $("div#tagcloud").html('<p>Loading tag cloud... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
+            $("div#tagcloud").load("{% get_webclient_root_url %}/tag_cloud/");
             
-            $("div#comments").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
-            $("div#comments").load("{% get_webclient_root_url %}/most_recent/");
+            $("div#comments").html('<p>Loading comments... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
+            $("div#comments").load("{% get_webclient_root_url %}/most_recent_comment/");
                         
             $("a.loadData").click(function()
             {
-                $("div#context").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
-                $("div#context").load("{% get_webclient_root_url %}/context/", function()  
+                $("div#context").html('<p>Loading your context... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
+                $("div#context").load("{% get_webclient_root_url %}/context/", function()
                     {  
                         $("a.loadData").remove();
                     });
                 return false; 
             });
-
+            
         });
-      </script>
+    </script>
     
 {% endblock %}
 
 {% block center %}
-    
     <div id="left_panel">
+
+        <h1>My last imported images for group '{{ controller.eContext.context.groupName }}':</h1>
+        <div id="last_imports"></div>
         
-        <h1>My data:</h1>
-        <div id="my_data"></div>
+        <div class="clear"> </div>
         
-        <h1>My tasks:</h1>
-        <div><p>Currently you have no task. Go to the calendar and set one.</p></div>
+        <h1>My tags:</h1>
+        <div id="tagcloud"></div>
     </div>
     
     <div id="right_panel">
-        <h1>My last imports for group '{{ controller.eContext.context.groupName }}':</h1>
-        <div id="last_imports"></div>
         
         <h1>Most recent comments:</h1>
         <div id="comments"></div>

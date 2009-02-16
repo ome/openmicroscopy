@@ -880,9 +880,12 @@ class BlitzGateway (threading.Thread):
     
     def getAllTags(self):
         q = self.getQueryService()
-        sql = "select tg from TagAnnotation tg "
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["eid"] = rlong(self.getEventContext().userId)
+        sql = "select tg from TagAnnotation tg where tg.details.owner.id = :eid "
         tags = list()
-        for e in q.findAllByQuery(sql,None):
+        for e in q.findAllByQuery(sql,p):
             t = AnnotationWrapper(self, e)
             tags.append({'tag': t.textValue,'id':t.id, 'desc':(t.tinyDescription())} )
         return tags
@@ -1281,10 +1284,12 @@ class BlitzGateway (threading.Thread):
             p = omero.sys.Parameters()
             p.map = {} 
             p.map["text"] = rstring(str(n))
+            p.map["eid"] = rlong(self.getEventContext().userId)
             f = omero.sys.Filter()
             f.limit = rint(1)
             p.theFilter = f
-            sql = "select tg from TagAnnotation tg where tg.textValue=:text order by tg.textValue"
+            sql = "select tg from TagAnnotation tg " \
+                  "where tg.textValue=:text and tg.details.owner.id=:eid order by tg.textValue"
             res.append(query_serv.findByQuery(sql, p))
         for e in res:
             if e is None:
@@ -1602,7 +1607,7 @@ class BlitzGateway (threading.Thread):
         p.map["id"] = rlong(self.getEventContext().userId)
         p.map["gid"] = rlong(self.getEventContext().groupId)
         f = omero.sys.Filter()
-        f.limit = rint(10)
+        f.limit = rint(6)
         p.theFilter = f
         for e in q.findAllByQuery(sql, p):
             yield ImageWrapper(self, e)
@@ -1613,7 +1618,7 @@ class BlitzGateway (threading.Thread):
         p.map = {}
         p.map["id"] = rlong(self.getEventContext().userId)
         f = omero.sys.Filter()
-        f.limit = rint(10)
+        f.limit = rint(20)
         p.theFilter = f
         for e in tm.getMostRecentShareCommentLinks(p):
             yield SessionAnnotationLinkWrapper(self, e)
@@ -1629,8 +1634,9 @@ class BlitzGateway (threading.Thread):
         for e in tm.getMostRecentAnnotationLinks(None, ['CommentAnnotation'], None, p):
             yield AnnotationLinkWrapper(self, e)
     
-    def getMostRecentTags (self):
-        tm = self.getTimelineService()
+    def getMostRecentTagLinks (self):
+        # TODO: #1175
+        '''tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
         #p.map["id"] = rlong(self.getEventContext().userId)
@@ -1638,6 +1644,27 @@ class BlitzGateway (threading.Thread):
         f.limit = rint(20)
         p.theFilter = f
         for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p):
+            yield AnnotationLinkWrapper(self, e)'''
+        q = self.getQueryService()
+        
+        sql = "select link from ProjectAnnotationLink as link left outer join fetch link.parent as parent left outer join fetch link.child as child join fetch link.details.creationEvent as creation join fetch creation.logs as logs join fetch child.details.creationEvent as childcreation join fetch childcreation.logs as childlogs where childlogs.entityType = :kls order by creation.id desc "
+        sql2 = "select link from DatasetAnnotationLink as link left outer join fetch link.parent as parent left outer join fetch link.child as child join fetch link.details.creationEvent as creation join fetch creation.logs as logs join fetch child.details.creationEvent as childcreation join fetch childcreation.logs as childlogs where childlogs.entityType = :kls order by creation.id desc "
+        sql3 = "select link from ImageAnnotationLink as link left outer join fetch link.parent as parent left outer join fetch link.child as child join fetch link.details.creationEvent as creation join fetch creation.logs as logs join fetch child.details.creationEvent as childcreation join fetch childcreation.logs as childlogs where childlogs.entityType = :kls order by creation.id desc "
+        
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["id"] = rlong(self.getEventContext().userId)
+        p.map["gid"] = rlong(self.getEventContext().groupId)
+        p.map["kls"] = rstring('ome.model.annotations.TagAnnotation')
+        f = omero.sys.Filter()
+        f.limit = rint(20)
+        p.theFilter = f
+        res = list()
+        res = q.findAllByQuery(sql, p)
+        res.extend(q.findAllByQuery(sql2, p))
+        res.extend(q.findAllByQuery(sql3, p))
+        
+        for e in res:
             yield AnnotationLinkWrapper(self, e)
     
     def getDataByPeriod (self, start, end, date_type=None):

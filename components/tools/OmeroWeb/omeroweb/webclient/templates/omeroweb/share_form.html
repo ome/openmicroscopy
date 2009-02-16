@@ -34,7 +34,7 @@
     <script>
       $(document).ready(function(){
           
-          $("div#share_content").html('<img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/>');
+          $("div#share_content").html('<p>Loading content... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
           $("div#share_content").load("{% get_webclient_root_url %}/share_content/{{ share.share.id }}/");
           
           $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});

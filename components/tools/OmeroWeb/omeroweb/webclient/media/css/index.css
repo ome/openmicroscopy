@@ -1,23 +1,51 @@
 #left_panel {
     margin-right: 10px; 
-    width: 490px;
-    min-height: 400px;
-    position: absolute;
-    top: 0;
-    left: 0;
+    width: 520px;
+    min-height: 500px;
+    float: left;
     border-right:1px solid #BBBBBB;
 }
 
 #right_panel {
     margin:0; 
-    width: 490px;
+    width: 460px;
     min-height: 400px;
-    position: absolute;
-    top: 0;
-    right: 0;
+    float: right;
 }
 .loadData {
     font-size: 12px;
     font-weight: normal;
     font-style: italic;
 }
+
+a.smalltag {
+    font-size: 14px;
+    font-weight: normal;
+    font-style: italic;
+}
+a.smalltag:hover,a.smalltag:link,a.smalltag:visited {
+    font-size: 14px;
+    font-weight: normal;
+    font-style: italic;
+}
+
+a.middletag {
+    font-size: 20px;
+    font-weight: normal;
+}
+a.middletag:hover,a.middletag:link,a.middletag:visited {
+    font-size: 20px;
+    font-weight: normal;
+}
+
+a.bigtag {
+    font-size: 24px;
+    font-weight: normal;
+    font-weight: bold;
+}
+a.bigtag:hover,a.bigtag:link,a.bigtag:visited {
+    font-size: 24px;
+    font-weight: normal;
+    font-weight: bold;
+}
+

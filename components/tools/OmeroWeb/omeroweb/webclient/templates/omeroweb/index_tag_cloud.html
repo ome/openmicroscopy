@@ -1,0 +1,17 @@
+{% load markup %}
+{% load custom_tags %}
+{% load wikitags %}
+
+{% if controller.mostRecentTags %}
+    <table>
+        <tbody>
+            <tr><td>
+            {% for key,value in controller.mostRecentTags.items %}
+                {% ifequal value.count controller.font.min %}<a href="{% get_webclient_root_url %}/tag/{{ value.obj.id }}/" class="smalltag">{{ value.obj.textValue }}</a>{% else %}{% ifequal value.count controller.font.max %}<a href="{% get_webclient_root_url %}/tag/{{ value.obj.id }}/" class="bigtag">{{ value.obj.textValue }}</a>{% else %}<a href="{% get_webclient_root_url %}/tag/{{ value.obj.id }}/" class="middletag">{{ value.obj.textValue }}</a>{% endifequal %}{% endifequal %}, 
+            {% endfor %}
+            </td></tr>
+        </tbody>
+    </table>
+{% else %}
+    <div><p>No data commented.</p></div>
+{% endif %}

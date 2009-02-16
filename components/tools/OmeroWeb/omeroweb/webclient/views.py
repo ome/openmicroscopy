@@ -446,25 +446,6 @@ def index(request, **kwargs):
     return HttpResponse(rsp)
 
 @isUserConnected
-def index_my_data(request, **kwargs):
-    template = "omeroweb/index_my_data.html"
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    controller = BaseContainer(conn)
-    #controller.loadMyContainerHierarchy()
-    controller.listMyRoots()
-    
-    context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller}
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
-                
-@isUserConnected
 def index_context(request, **kwargs):
     template = "omeroweb/index_context.html"
     conn = None
@@ -501,8 +482,8 @@ def index_last_imports(request, **kwargs):
     return HttpResponse(rsp)
 
 @isUserConnected
-def index_most_recent(request, **kwargs):
-    template = "omeroweb/index_most_recent.html"
+def index_most_recent_comment(request, **kwargs):
+    template = "omeroweb/index_most_recent_comment.html"
     conn = None
     try:
         conn = kwargs["conn"]
@@ -511,6 +492,23 @@ def index_most_recent(request, **kwargs):
     
     controller = BaseIndex(conn)
     controller.loadMostRecent()
+    
+    context = {'controller':controller, 'eContext': controller.eContext }
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
+
+@isUserConnected
+def index_tag_cloud(request, **kwargs):
+    template = "omeroweb/index_tag_cloud.html"
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+    
+    controller = BaseIndex(conn)
     controller.loadTagCloud()
     
     context = {'controller':controller, 'eContext': controller.eContext }
