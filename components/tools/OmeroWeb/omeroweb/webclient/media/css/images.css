@@ -85,21 +85,22 @@ div#view, div#header_name {
 }
 
 .project {
-    width: 75%;
+    width: 720px;
+    float:left;
 }
 .dataset {
-    width: 75%;
+    width: 720px;
+    float:left;
 }
 .tag {
-    width: 75%;
+    width: 100%;
 }
 .image {
-    width: 75%;
+    width: 720px;
+    float:left;
 }
 .toolbar {
-    position: absolute;
-    top: 0;
-    right: 0;
+    float:right;
     text-align: right;
     background-color: #fff;
     padding: 5px 3px;

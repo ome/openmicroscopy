@@ -79,5 +79,5 @@ class BaseAnnotation(BaseController):
     def getFileAnnotation(self, iid):
         self.annotation = self.conn.getFileAnnotation(iid)
         self.ann_type = self.annotation.file.format.value.val
-        self.originalFile_data = self.conn.getFile(self.annotation.file.id.val)
+        self.originalFile_data = self.conn.getFile(self.annotation.file.id.val, self.annotation.file.size.val)
         

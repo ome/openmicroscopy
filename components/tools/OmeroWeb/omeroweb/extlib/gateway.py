@@ -1308,10 +1308,10 @@ class BlitzGateway (threading.Thread):
             of.file.format = query_serv.find("Format", of.file.format.id.val)
         return AnnotationWrapper(self, of)
     
-    def getFile(self, f_id):
+    def getFile(self, f_id, size):
         store = self.createRawFileStore()
         store.setFileId(long(f_id))
-        return store.read(0,100000)
+        return store.read(0,long(size))
     
     def hasExperimenterPhoto(self, oid=None):
         photo = None
@@ -2035,7 +2035,7 @@ class BlitzObjectWrapper (object):
             elif l >= 45:
                 splited = []
                 for v in range(0,len(name),45):
-                    splited.append(name[v:v+45]+" ")
+                    splited.append(name[v:v+45]+"\n")
                 return "".join(splited)
         except:
             logger.debug(traceback.format_exc())
@@ -2045,12 +2045,12 @@ class BlitzObjectWrapper (object):
         try:
             name = self._obj.name.val
             l = len(name)
-            if l <= 70:
+            if l <= 65:
                 return name
-            elif l > 70:
+            elif l > 65:
                 splited = []
-                for v in range(0,len(name),70):
-                    splited.append(name[v:v+70]+" ")
+                for v in range(0,len(name),65):
+                    splited.append(name[v:v+65]+"\n")
                 return "".join(splited)
         except:
             logger.debug(traceback.format_exc())
@@ -2076,13 +2076,13 @@ class BlitzObjectWrapper (object):
             elif l > 20 and l <= 40:
                 splited = []
                 for v in range(0,len(name),20):
-                    splited.append(name[v:v+20]+" ")
+                    splited.append(name[v:v+20]+"\n")
                 return "".join(splited)
             elif l > 40:
                 nname = "..." + name[l - 36:]
                 splited = list()
                 for v in range(0,len(nname),20):
-                    splited.append(nname[v:v+20]+" ")
+                    splited.append(nname[v:v+20]+"\n")
                 return "".join(splited)
         except:
             logger.debug(traceback.format_exc())
