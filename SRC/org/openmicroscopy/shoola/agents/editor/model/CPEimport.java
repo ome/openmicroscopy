@@ -38,9 +38,11 @@ import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ProtocolLinkEditor;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.EditorLinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
@@ -214,6 +216,14 @@ public class CPEimport {
 	 * (and remove when reading).
 	 */
 	public static final String 			ONTOLOGY_FLAG = "Ontology Term: ";
+	
+	/**  
+	 * In order to distinguish a Protocol file link that has been stored as 
+	 * a TEXT parameter, add this string into the start of 
+	 * the parameter description when saving to cpe.xml 
+	 * (and remove when reading).
+	 */
+	public static final String 			PROTOCOL_LINK_FLAG = "Protocol Link: ";
 
 	/**
 	 * A handy method for getting the content of a child XML element. 
@@ -348,6 +358,11 @@ public class CPEimport {
 				if (desc.startsWith(ONTOLOGY_FLAG)) {
 					paramType = OntologyTermParam.ONTOLOGY_TERM_PARAM;	
 					desc = desc.substring(ONTOLOGY_FLAG.length()); // remove flag
+					if (desc.length() == 0)	desc = null;
+				} else 
+				if (desc.startsWith(PROTOCOL_LINK_FLAG)) {
+					paramType = EditorLinkParam.EDITOR_LINK_PARAM;
+					desc = desc.substring(PROTOCOL_LINK_FLAG.length()); // remove flag
 					if (desc.length() == 0)	desc = null;
 				}
 			} 

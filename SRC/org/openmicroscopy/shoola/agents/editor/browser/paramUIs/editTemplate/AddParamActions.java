@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.EditorLinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.OntologyTermParam;
@@ -131,6 +132,7 @@ public class AddParamActions
 				new AddBooleanParamAction(),
 				new AddEnumParamAction(),
 				new AddDateTimeParamAction(),
+				new AddEditorLinkParamAction(),
 				new AddOntologyParamAction(),
 				new AddDataRefAction()};
 		
@@ -385,6 +387,37 @@ public class AddParamActions
 		{
 			controller.addParamToField(field, 
 					OntologyTermParam.ONTOLOGY_TERM_PARAM, tree, node);
+		}
+	}
+	
+	/**
+	 * Action for adding an Ontology Term Parameter
+	 * 
+	 * @author will
+	 */
+	public class AddEditorLinkParamAction 
+		extends AbstractAction 
+	{
+		/**
+		 * Creates an instance. 
+		 */
+		public AddEditorLinkParamAction() 
+		{
+			putValue(Action.NAME, "Add Editor Link Parameter");
+			putValue(Action.SHORT_DESCRIPTION,
+					"Add a Parameter that links to another Editor file.");
+			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.OMERO_EDITOR)); 
+		}
+		
+		/** 
+	     * Adds a new Editor Link Parameter.
+	     * 
+	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	     */
+		public void actionPerformed(ActionEvent e) 
+		{
+			controller.addParamToField(field, 
+					EditorLinkParam.EDITOR_LINK_PARAM, tree, node);
 		}
 	}
 }

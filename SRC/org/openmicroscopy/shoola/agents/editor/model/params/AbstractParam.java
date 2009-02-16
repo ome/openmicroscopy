@@ -201,12 +201,14 @@ public abstract class AbstractParam
 	}
 
 	/**
+	 * This sets any attribute for the parameter. If it is the 
+	 * 'value' of the parameter you are setting, this delegates to the
+	 * first value of the list. 
+	 * 
 	 * @see		IAttributes.setAttribute(String name, String value)
 	 */
 	public void setAttribute(String name, String value) 
 	{
-		//System.out.println("AbstractParam setAttribute() " + 
-		//	name + " = " + value);
 		if (TextParam.PARAM_VALUE.equals(name)) {
 			setValueAt(0, value);
 		}

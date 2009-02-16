@@ -22,6 +22,9 @@
  */
 package org.openmicroscopy.shoola.agents.editor.model;
 
+//Java imports
+
+import java.io.FileFilter;
 import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
@@ -35,9 +38,16 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 
+//Third-party libraries
+
+import net.n3.nanoxml.IXMLElement;
+
+//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.EditorLinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
@@ -47,14 +57,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.TextBoxParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
 import org.openmicroscopy.shoola.agents.editor.util.Ontologies;
-
-import net.n3.nanoxml.IXMLElement;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
+import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 
 /** 
  * This class is used to read an XML document from Beta-3 Editor (.pro.xml).
@@ -279,36 +282,47 @@ public class PROimport {
 						 DataFieldConstants.ROW_DATA_NUMBER + row);
 			 }
 			 
+			 // if the Field is a link to file OR image....
 		 } else if (paramType.equals(DataFieldConstants.LINK_FIELD) || 
 				 paramType.equals(DataFieldConstants.IMAGE_FIELD)){
-			 DataReference dataRef = new DataReference();
-			 String name = "File link";
+			 
 			 String link = allAttributes.get(
 					 DataFieldConstants.ABSOLUTE_FILE_LINK);
 			 if (link == null) {
 				 link = allAttributes.get(
 						 DataFieldConstants.RELATIVE_FILE_LINK);
-				 name = "Relative File link";
-			 }
-			 if (link == null) {
-				 link = allAttributes.get(DataFieldConstants.URL_LINK);
-				 name = "Url";
-			 }
-			 if (link == null) {
-				 link = allAttributes.get(DataFieldConstants.ABSOLUTE_IMAGE_PATH);
-				 name = "Image link";
-			 }
-			 if (link == null) {
-				 link = allAttributes.get(DataFieldConstants.RELATIVE_IMAGE_PATH);
-				 name = "Relative image link";
-			 }
-			 if (link != null) {
-				dataRef.setAttribute(DataReference.REFERENCE, link);
-				dataRef.setAttribute(DataReference.NAME, name);
+			 } 
+			 
+			 // if the link is to an Editor file, add EditorLinkParam. 
+			 EditorFileFilter ff = new EditorFileFilter(); 
+			 if (link != null && ff.accept(link)) {
+				 param = getFieldParam(EditorLinkParam.EDITOR_LINK_PARAM);
+				 param.setAttribute(TextParam.PARAM_VALUE, link);
+				 field.addContent(param);
+			// Otherwise, this is a Data-Reference (not a parameter). 
 			 } else {
-				 dataRef.setAttribute(DataReference.NAME, "No link");
+				 DataReference dataRef = new DataReference();
+				 String name = "File link";
+				 if (link == null) {
+					 link = allAttributes.get(DataFieldConstants.URL_LINK);
+					 name = "Url";
+				 }
+				 if (link == null) {
+					 link = allAttributes.get(DataFieldConstants.ABSOLUTE_IMAGE_PATH);
+					 name = "Image link";
+				 }
+				 if (link == null) {
+					 link = allAttributes.get(DataFieldConstants.RELATIVE_IMAGE_PATH);
+					 name = "Relative image link";
+				 }
+				 if (link != null) {
+					dataRef.setAttribute(DataReference.REFERENCE, link);
+					dataRef.setAttribute(DataReference.NAME, name);
+				 } else {
+					 dataRef.setAttribute(DataReference.NAME, "No link");
+				 }
+				 field.addDataRef(dataRef);
 			 }
-			 field.addDataRef(dataRef);
 			 
 		 } else if (paramType.equals(DataFieldConstants.MEMO_ENTRY_STEP)) {
 			 // if field was a Text-Box, create a text-box step, which won't

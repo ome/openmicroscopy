@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.EditorLinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
@@ -363,6 +364,15 @@ public class CPEexport {
 			// if text should be a text-box, add flag to parameter description
 			// since text-box parameter type is not supported by cpe.xml
 			paramDesc = CPEimport.TEXT_BOX_FLAG + 
+									(paramDesc == null ? "" : paramDesc);
+		}
+		else 
+		if (param instanceof EditorLinkParam) {
+			addChildContent(parameter, CPEimport.PARAM_TYPE, "TEXT");
+			setValueAndDefault(parameter, param);
+			// if text should be a link to Editor file, add flag to 
+			// parameter description
+			paramDesc = CPEimport.PROTOCOL_LINK_FLAG + 
 									(paramDesc == null ? "" : paramDesc);
 		}
 		else 

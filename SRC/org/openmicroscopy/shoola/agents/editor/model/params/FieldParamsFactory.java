@@ -52,6 +52,7 @@ public class FieldParamsFactory {
 		BooleanParam.BOOLEAN_PARAM, 
 		NumberParam.NUMBER_PARAM, 
 		DateTimeParam.DATE_TIME_PARAM,
+		EditorLinkParam.EDITOR_LINK_PARAM,
 		OntologyTermParam.ONTOLOGY_TERM_PARAM
 		// OBSERVATION_DEFINITION
 	};
@@ -64,7 +65,8 @@ public class FieldParamsFactory {
 		"Drop-down Menu", 
 		"Check-Box", 
 		"Number", 
-		"Date & Time", 
+		"Date & Time",
+		"Editor File Link",
 		"Ontology Term"
 		// "Phenote Observation"
 		};
@@ -137,6 +139,9 @@ public class FieldParamsFactory {
 		}
 		else if (paramType.equals(DateTimeParam.DATE_TIME_PARAM)) {
 			fieldValue = new DateTimeParam();
+		}
+		else if (paramType.equals(EditorLinkParam.EDITOR_LINK_PARAM)) {
+			fieldValue = new EditorLinkParam();
 		}
 		else if (paramType.equals(OntologyTermParam.ONTOLOGY_TERM_PARAM)) {
 			fieldValue = new OntologyTermParam();

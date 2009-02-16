@@ -103,7 +103,7 @@ public interface IField
 	 * Returns a list of the 'Atomic' parameters for this field.
 	 * These are Boolean, Enum, Text, Number, parameters (have a
 	 * single 'value' that can be shown in a table). 
-	 * NOT Table, Date-Time, Text-Box etc. 
+	 * NOT Date-Time, Ontology etc. 
 	 * 
 	 * @return 		see above
 	 */

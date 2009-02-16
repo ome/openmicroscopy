@@ -38,6 +38,7 @@ import javax.swing.table.TableModel;
 
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.EditorLinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
@@ -327,11 +328,13 @@ public class Field
 		List<IParam> params = new ArrayList<IParam>();
 		
 		// check Boolean, Enum, Text, Number
+		// Don't count Date-Time or Ontology parameters as "Atomic" since they
+		// are defined by several parameters. 
 		for (IFieldContent content : fieldParams) {
 			if ((content instanceof BooleanParam) ||
 					(content instanceof EnumParam) ||
-					(TextParam.TEXT_LINE_PARAM.equals(
-							content.getAttribute(AbstractParam.PARAM_TYPE)))|| 
+					(content instanceof TextParam)|| 
+					(content instanceof EditorLinkParam)|| 
 					(content instanceof NumberParam)){
 				params.add((IParam)content);
 			}

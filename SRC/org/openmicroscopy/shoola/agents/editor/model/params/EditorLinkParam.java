@@ -1,8 +1,8 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.model.params.SingleParam
+ * org.openmicroscopy.shoola.agents.editor.model.params.EditorLinkParam 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,49 +29,56 @@ package org.openmicroscopy.shoola.agents.editor.model.params;
 //Application-internal dependencies
 
 /** 
- * This is a Parameter for storing a single line of text.
- * 
+ * This parameter stores a link to another Editor file, either a local file
+ * or a link to Editor file on server, using ID. 
+ *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class TextParam 
+public class EditorLinkParam 
 	extends AbstractParam {
-
-	public static final String PARAM_VALUE = "value";
-	
-	public static final String DEFAULT_VALUE = "default-value";
 	
 	/**
-	 * A parameter defined as a short text string. 
-	 * Equivalent to the "TextField" of Beta 3.0
+	 * This is the param-type string for this parameter. 
 	 */
-	public static final String 		TEXT_LINE_PARAM = "TEXT";
+	public static final String 		EDITOR_LINK_PARAM = "editorLinkParam";
 	
+	/**
+	 * An attribute in which to store the name of the server at the time that
+	 * editor links to server (in the form of an ID) are created. 
+	 * If the file is saved as a local XML file, need to know which server the
+	 * linked Editor files are on. 
+	 */
+	public static final String 		SERVER_NAME = "serverName";
+
 	/**
 	 * Creates an instance. 
-	 * 
-	 * @param fieldType		The String defining the field type
 	 */
-	public TextParam(String fieldType) 
-	{
-		super(fieldType);
+	public EditorLinkParam() {
+		super(EDITOR_LINK_PARAM);
 	}
-
+	
 	/**
-	 * This field is filled if the value isn't null, and 
-	 * is not an empty string. 
+	 * Simple test for whether a link is a valid ID on the server.
+	 * Current implementation simply tests whether it is an integer. 
 	 * 
-	 * @see AbstractParam#isParamFilled()
+	 * @param link
+	 * @return
 	 */
-	public boolean isParamFilled() {
-		String textValue = getParamValue();
+	public static boolean isLinkValidId(String link) {
 		
-		return (textValue != null && textValue.length() > 0);
+		try {
+			int integer = Integer.valueOf(link);
+			return true;
+		} catch (NumberFormatException ex) {
+			
+			return false;
+		}
 	}
 	
 	/**
@@ -85,9 +92,13 @@ public class TextParam
 		
 		String value = getParamValue();
 		if (value != null) {
+			if (isLinkValidId(value)) {
+				text = "File ID: " + value;
+			} else
 			text = value;
 		}
 		
 		return text;
 	}
+
 }
