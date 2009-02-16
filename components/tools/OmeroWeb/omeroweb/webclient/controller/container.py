@@ -1184,7 +1184,7 @@ class BaseContainer(BaseController):
                 if pal is not None:
                     self.conn.deleteObject(pal._obj)
             elif parent[0] == 'ds':
-                dal = self.conn.getDataseteAnnotationLink(parent[1], source[1])
+                dal = self.conn.getDatasetAnnotationLink(parent[1], source[1])
                 if dal is not None:
                     self.conn.deleteObject(dal._obj)
             elif parent[0] == 'img':
