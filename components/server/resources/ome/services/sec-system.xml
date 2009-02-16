@@ -58,6 +58,7 @@
     <constructor-arg ref="basicSecuritySystem"/>
     <constructor-arg ref="hibernateTemplate"/>
     <constructor-arg ref="simpleJdbcTemplate"/>
+    <constructor-arg ref="transactionAttributeSource"/>
   </bean>
 
 </beans>

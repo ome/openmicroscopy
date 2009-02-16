@@ -1,5 +1,5 @@
 /*
- * ome.security.basic.EventHandler
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -22,15 +22,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.StatelessSession;
-import org.springframework.aop.ProxyMethodInvocation;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.transaction.annotation.AnnotationTransactionAttributeSource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAttribute;
+import org.springframework.transaction.interceptor.TransactionAttributeSource;
 import org.springframework.util.Assert;
 
 /**
@@ -54,7 +51,7 @@ public class EventHandler implements MethodInterceptor {
 
     private static Log log = LogFactory.getLog(EventHandler.class);
 
-    protected final AnnotationTransactionAttributeSource txSource = new AnnotationTransactionAttributeSource();
+    protected final TransactionAttributeSource txSource;
 
     protected final BasicSecuritySystem secSys;
 
@@ -72,9 +69,13 @@ public class EventHandler implements MethodInterceptor {
      *            Not null.
      */
     public EventHandler(BasicSecuritySystem securitySystem,
-            HibernateTemplate template, SimpleJdbcOperations jdbc) {
+            HibernateTemplate template, SimpleJdbcOperations jdbc,
+            TransactionAttributeSource txSource)
+ {
         Assert.notNull(securitySystem);
         Assert.notNull(template);
+        Assert.notNull(txSource);
+        this.txSource = txSource;
         this.secSys = securitySystem;
         this.jdbc = jdbc;
         this.ht = template;

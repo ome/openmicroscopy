@@ -456,9 +456,19 @@ class TestIShare(lib.ITest):
               "where im.id=:oid order by im.name"
         res2 = query1.findByQuery(sql, p)
         self.assert_(res2.id.val == img.id.val)
-        
+
         client_share1.sf.closeOnDestroy()
         self.root.sf.closeOnDestroy()
-        
+
+    def test1179(self):
+        rdefs = self.root.sf.getQueryService().findAll("RenderingDef", None)
+        if len(rdefs) == 0:
+            raise "Must have at least one rendering def"
+        share = self.root.sf.getShareService()
+        sid = share.createShare("", None, [], [], [], True)
+        share.activate(sid)
+        tb = self.root.sf.createThumbnailStore()
+        tb.setPixelsId(rdefs[0].pixels.id.val)
+
 if __name__ == '__main__':
     unittest.main()

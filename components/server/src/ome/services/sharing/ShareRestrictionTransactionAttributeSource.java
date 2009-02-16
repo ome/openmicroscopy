@@ -10,8 +10,11 @@ package ome.services.sharing;
 import java.lang.reflect.Method;
 import java.util.NoSuchElementException;
 
-import ome.api.IAdmin;
+import ome.conditions.SessionException;
+import ome.security.basic.CurrentDetails;
+import ome.services.sessions.SessionManager;
 import ome.system.EventContext;
+import ome.system.Principal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,23 +32,30 @@ public class ShareRestrictionTransactionAttributeSource implements
     final private static Log log = LogFactory
             .getLog(ShareRestrictionTransactionAttributeSource.class);
 
-    final private IAdmin admin;
+    final private CurrentDetails current;
 
-    public ShareRestrictionTransactionAttributeSource(IAdmin admin) {
-        this.admin = admin;
+    final private SessionManager manager;
+    
+    public ShareRestrictionTransactionAttributeSource(CurrentDetails details, SessionManager manager) {
+        this.current = details;
+        this.manager = manager;
     }
 
     public TransactionAttribute getTransactionAttribute(Method method,
             Class targetClass) {
         try {
-            EventContext ec = admin.getEventContext();
+            Principal principal = current.getLast();
+            EventContext ec = manager.getEventContext(principal);
             Long shareId = ec.getCurrentShareId();
             if (ec.getCurrentShareId() != null) {
                 log.debug("Returning readOnly tx for shared " + shareId);
                 DefaultTransactionAttribute ta = new DefaultTransactionAttribute();
-                ta.setReadOnly(false);
+                ta.setReadOnly(true);
                 return ta;
             }
+        } catch (SessionException se) {
+            // No worries. It's not our job to enforce anything.
+            return null;
         } catch (NoSuchElementException nse) {
             // No one is logged in so there can't be a share active!
             return null;
