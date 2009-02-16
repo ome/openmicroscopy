@@ -247,6 +247,7 @@ class DSLHandler extends DefaultHandler {
                 clP.setProperty("type", newId);
                 clP.setProperty("target", ann.getId());
                 ChildLink cl = new ChildLink(t, clP);
+                cl.setBidirectional(false);
 
                 cl.validate();
                 t.getProperties().add(cl);
