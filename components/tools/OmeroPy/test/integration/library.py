@@ -19,15 +19,20 @@ from uuid import uuid4 as uuid
 class ITest(unittest.TestCase):
 
     def setUp(self):
-        self.client = omero.client()
-        self.client.createSession()
         self.tmpfiles = []
-        rootpass = self.client.getProperty("omero.rootpass")
+        # Create a client for lookup
+        lookup = omero.client({"Ice.Default.Locator":"tcp"})
+        rootpass = lookup.getProperty("omero.rootpass")
         if rootpass:
             self.root = omero.client()
             self.root.createSession("root",rootpass)
+            newuser = self.new_user()
+            self.client = omero.client()
+            self.client.createSession(newuser.omeName.val, "")
         else:
             self.root = None
+            self.client = omero.client()
+            self.client.createSession()
 
     def tmpfile(self):
         tmpfile = tempfile.NamedTemporaryFile(mode='w+t')

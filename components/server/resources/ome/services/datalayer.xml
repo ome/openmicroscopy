@@ -52,6 +52,13 @@
       <bean class="org.springframework.transaction.interceptor.CompositeTransactionAttributeSource">
         <constructor-arg>
           <list>
+            <!-- This stack first will return readOnly=true for all share activities,
+            then will use the @Transactional annotation on any implementation method (or class),
+            and finally will throw an InternalException if all other return values have
+            been null. -->
+            <bean class="ome.services.sharing.ShareRestrictionTransactionAttributeSource">
+              <constructor-arg ref="internal-ome.api.IAdmin"/>
+            </bean>
             <bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
             <bean class="ome.tools.spring.ForceTransactionAttributeSource"/>
           </list>
