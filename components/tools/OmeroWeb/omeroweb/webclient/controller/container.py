@@ -906,7 +906,10 @@ class BaseContainer(BaseController):
     def createProjectFileAnnotation(self, newFile):
         if newFile.content_type.startswith("image"):
             f = newFile.content_type.split("/") 
-            format = self.conn.getFileFormt(f[1].upper())
+            try:
+                format = self.conn.getFileFormt(f[1].upper())
+            except:
+                format = self.conn.getFileFormt("application/octet-stream")
         else:
             format = self.conn.getFileFormt(newFile.content_type)
         
@@ -930,7 +933,10 @@ class BaseContainer(BaseController):
     def createDatasetFileAnnotation(self, newFile):
         if newFile.content_type.startswith("image"):
             f = newFile.content_type.split("/") 
-            format = self.conn.getFileFormt(f[1].upper())
+            try:
+                format = self.conn.getFileFormt(f[1].upper())
+            except:
+                format = self.conn.getFileFormt("application/octet-stream")
         else:
             format = self.conn.getFileFormt(newFile.content_type)
         
