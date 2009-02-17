@@ -976,23 +976,33 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
 
     @SuppressWarnings("unchecked")
     public boolean acceptFilter(ome.util.Filter __filter){
+        try {
 #if(!$type.superclass)
-        this.id = (Long) __filter.filter(ID, this.id);
+            this.id = (Long) __filter.filter(ID, this.id);
 #end
 #if(!${type.immutable} && !${type.superclass})
-        this.version = (Integer) __filter.filter(VERSION, this.version);
+            this.version = (Integer) __filter.filter(VERSION, this.version);
 #end
 #foreach($prop in $type.classProperties)
 #if($prop.one2Many && $prop.isLink)
-        this.${prop.name}CountPerOwner = (java.util.Map<Long, Long>) __filter.filter(${prop.name.toUpperCase()}COUNTPEROWNER, this.${prop.name}CountPerOwner );
+            this.${prop.name}CountPerOwner = (java.util.Map<Long, Long>) __filter.filter(${prop.name.toUpperCase()}COUNTPEROWNER, this.${prop.name}CountPerOwner );
 #end
-        this.${prop.name} = (${prop.fieldType}) __filter.filter(${prop.name.toUpperCase()}, this.${prop.name} );
+            this.${prop.name} = (${prop.fieldType}) __filter.filter(${prop.name.toUpperCase()}, this.${prop.name} );
 #end
 #if($type.superclass)
-        return super.acceptFilter(__filter);
+            return super.acceptFilter(__filter);
 #else
-        return true;
+            return true;
 #end
+        } catch (RuntimeException re) {
+                // ticket:1183 - Caused by Utils.trueClass(Annotation.class)
+                if (re.getCause() instanceof InstantiationException) {
+                        this.unload();
+                        return true;
+                } else {
+                        throw re;
+                }
+        }
     }
 
     @Override
