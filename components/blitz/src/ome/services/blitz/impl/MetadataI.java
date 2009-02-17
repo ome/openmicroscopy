@@ -31,13 +31,17 @@ import java.util.Map;
 
 //Application-internal dependencies
 import ome.api.IMetadata;
+import ome.model.IObject;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.RInt;
 import omero.RType;
 import omero.ServerError;
+import omero.api.AMD_IMetadata_getTaggedObjectsCount;
 import omero.api.AMD_IMetadata_loadAnnotations;
 import omero.api.AMD_IMetadata_loadChannelAcquisitionData;
 import omero.api.AMD_IMetadata_loadSpecifiedAnnotations;
+import omero.api.AMD_IMetadata_loadTagContent;
+import omero.api.AMD_IMetadata_loadTagSets;
 import omero.api._IMetadataOperations;
 import Ice.Current;
 
@@ -80,17 +84,56 @@ public class MetadataI
 
 	 public void loadAnnotations_async(AMD_IMetadata_loadAnnotations __cb,
 			 String rootType, List<Long> rootIds, List<String> annotationTypes, 
-			 List<Long> annotatorIds, Current __current) 
+			 List<Long> annotatorIds, Map<String, RType> options, Current __current) 
 	 throws ServerError {
 		 callInvokerOnRawArgs(__cb, __current, rootType, rootIds, 
-				 annotationTypes, annotatorIds);
+				 annotationTypes, annotatorIds, options);
 	 }
 	    
 	 public void loadSpecifiedAnnotations_async(AMD_IMetadata_loadSpecifiedAnnotations __cb,
-			 String annotationType, String nameSpace, List<Long> annotatorIds, 
-			 boolean linkObjects, Current __current) 
+			 String annotationType, String nameSpace,
+			Map<String, RType> options, Current __current) 
 	 throws ServerError {
-		 callInvokerOnRawArgs(__cb, __current, annotationType, nameSpace, annotatorIds,
-				 linkObjects);
+		 callInvokerOnRawArgs(__cb, __current, annotationType, nameSpace, 
+				 options);
 	 }
+	 
+	 public void loadTagSets_async(AMD_IMetadata_loadTagSets __cb,  Map<String, RType> options,
+			 Current __current) 
+	 throws ServerError 
+	 {
+		 callInvokerOnRawArgs(__cb, __current, options);
+	 }
+	 
+	 public void loadTagContent_async(AMD_IMetadata_loadTagContent __cb, 
+			 List<Long> ids, Map<String, RType> options, Current __current) 
+	 throws ServerError 
+	 {
+		 callInvokerOnRawArgs(__cb, __current, ids, options);
+	 }
+	 
+	 public void getTaggedObjectsCount_async(AMD_IMetadata_getTaggedObjectsCount __cb, 
+			 List<Long> ids, Map<String, RType> options, Current __current) 
+	 throws ServerError 
+	 {
+		 callInvokerOnRawArgs(__cb, __current, ids, options);
+	 }
+	 
+	 /*
+	 public void loadTags_async(AMD_IMetadata_loadTags __cb,
+			 long id, boolean wihtObjects, Map<String, RType> options, 
+			 Current __current) 
+	 throws ServerError {
+		 
+		callInvokerOnRawArgs(__cb, __current, id, wihtObjects, options);
+	 }
+
+	 public void loadTagSets_async(AMD_IMetadata_loadTagSets __cb,
+			 long id, boolean wihtObjects, Map<String, RType> options, 
+			 Current __current) 
+	 throws ServerError {
+		 callInvokerOnRawArgs(__cb, __current, id, wihtObjects, options);
+	 }
+	 */
+	 
 }

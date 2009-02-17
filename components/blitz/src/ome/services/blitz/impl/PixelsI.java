@@ -22,7 +22,9 @@ import omero.api.AMD_IPixels_getBitDepth;
 import omero.api.AMD_IPixels_getEnumeration;
 import omero.api.AMD_IPixels_loadRndSettings;
 import omero.api.AMD_IPixels_retrievePixDescription;
+import omero.api.AMD_IPixels_retrieveAllRndSettings;
 import omero.api.AMD_IPixels_retrieveRndSettings;
+import omero.api.AMD_IPixels_retrieveRndSettingsFor;
 import omero.api.AMD_IPixels_saveRndSettings;
 import omero.api.AMD_IPixels_setChannelGlobalMinMax;
 import omero.api._IPixelsOperations;
@@ -102,6 +104,16 @@ public class PixelsI extends AbstractAmdServant implements _IPixelsOperations {
         callInvokerOnRawArgs(__cb, __current, pixId);
     }
 
+    public void retrieveRndSettingsFor_async(AMD_IPixels_retrieveRndSettingsFor __cb,
+            long pixId, long userId, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, pixId);
+    }
+    
+    public void retrieveAllRndSettings_async(AMD_IPixels_retrieveAllRndSettings __cb,
+            long pixId, long userId, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, pixId);
+    }
+    
     public void saveRndSettings_async(AMD_IPixels_saveRndSettings __cb,
             RenderingDef rndSettings, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, rndSettings);
