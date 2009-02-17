@@ -162,6 +162,7 @@ class BlitzGateway (threading.Thread):
             self._proxies['query'] = ProxyObjectWrapper(self, 'getQueryService')
             self._proxies['ldap'] = ProxyObjectWrapper(self, 'getLdapService')
             self._proxies['container'] = ProxyObjectWrapper(self, 'getContainerService')
+            self._proxies['metadata'] = ProxyObjectWrapper(self, 'getMetadataService')
             self._proxies['rawfile'] = ProxyObjectWrapper(self, 'createRawFileStore')
             self._proxies['rendering'] = ProxyObjectWrapper(self, 'createRenderingEngine')
             self._proxies['repository'] = ProxyObjectWrapper(self, 'getRepositoryInfoService')
@@ -212,6 +213,7 @@ class BlitzGateway (threading.Thread):
             self._proxies['admin'] = ProxyObjectWrapper(self, 'getAdminService')
             self._proxies['query'] = ProxyObjectWrapper(self, 'getQueryService')
             self._proxies['container'] = ProxyObjectWrapper(self, 'getContainerService')
+            self._proxies['metadata'] = ProxyObjectWrapper(self, 'getMetadataService')
             self._proxies['rawfile'] = ProxyObjectWrapper(self, 'createRawFileStore')
             self._proxies['rendering'] = ProxyObjectWrapper(self, 'createRenderingEngine')
             self._proxies['share'] = ProxyObjectWrapper(self, 'getShareService')
@@ -304,6 +306,9 @@ class BlitzGateway (threading.Thread):
     
     def getUpdateService (self):
         return self._proxies['update']
+    
+    def getMetadataService (self):
+        return self._proxies['metadata']
     
     def getRepositoryInfoService (self):
         return self._proxies['repository']
@@ -1311,16 +1316,35 @@ class BlitzGateway (threading.Thread):
     def getFile(self, f_id, size):
         store = self.createRawFileStore()
         store.setFileId(long(f_id))
-        return store.read(0,long(size))
+        buf = 1048576
+        if size <= buf:
+            return store.read(0,long(size))
+        else:
+            temp = "%s/%i-%s.download" % (settings.FILE_UPLOAD_TEMP_DIR, size, self._sessionUuid)
+            outfile = open (temp, "wb")
+            for pos in range(0,long(size),buf):
+                data = None
+                if size-pos < buf:
+                    data = store.read(pos+1, size-pos)
+                else:
+                    if pos == 0:
+                        data = store.read(pos, buf)
+                    else:
+                        data = store.read(pos+1, buf)
+                outfile.write(data)
+            outfile.close()
+            return temp
+        return None
     
     def hasExperimenterPhoto(self, oid=None):
         photo = None
-        container = self.getContainerService()
+        #container = self.getContainerService()
+        meta = self.getMetadataService()
         try:
             if oid is None:
-                ann = container.findAnnotations("Experimenter", [self.getEventContext().userId], None, None).get(self.getEventContext().userId, [])[0]
+                ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])[0]
             else:
-                ann = container.findAnnotations("Experimenter", [long(oid)], None, None).get(long(oid), [])[0]
+                ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
             if ann is not None:
                 return AnnotationWrapper(self, ann)
             else:
@@ -1330,12 +1354,13 @@ class BlitzGateway (threading.Thread):
     
     def getExperimenterPhoto(self, oid=None):
         photo = None
-        container = self.getContainerService()
+        #container = self.getContainerService()
+        meta = self.getMetadataService()
         try:
             if oid is None:
-                ann = container.findAnnotations("Experimenter", [self.getEventContext().userId], None, None).get(self.getEventContext().userId, [])[0]
+                ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])[0]
             else:
-                ann = container.findAnnotations("Experimenter", [long(oid)], None, None).get(long(oid), [])[0]
+                ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
             store = self.createRawFileStore()
             store.setFileId(ann.file.id.val)
             photo = store.read(0,long(ann.file.size.val))
@@ -1962,9 +1987,9 @@ class BlitzObjectWrapper (object):
                 return 0
     
     def listAnnotations (self):
-        container = self._conn.getContainerService()
-        self.annotations = container.findAnnotations(self._obj.__class__.__name__, [self._oid], None, None).get(self._oid, [])
-        #self.annotationsLoaded = True
+        #container = self._conn.getContainerService()
+        meta = self._conn.getMetadataService()
+        self.annotations = meta.loadAnnotations(self._obj.__class__.__name__, [self._oid], None, None, None).get(self._oid, [])
         for ann in self.annotations:
             yield AnnotationWrapper(self._conn, ann)
     
@@ -2146,7 +2171,17 @@ class BlitzObjectWrapper (object):
         except:
             t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
         return datetime.fromtimestamp(t/1000)
-        #return time.ctime(t/1000)
+    
+    def updateEventDate(self):
+        try:
+            if self._obj.details.updateEvent.time is not None:
+                t = self._obj.details.updateEvent.time.val
+            else:
+                t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val).time.val
+        except:
+            print 'exc'
+            t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val).time.val
+        return datetime.fromtimestamp(t/1000)
     
     def __str__ (self):
         if hasattr(self._obj, 'value'):

@@ -52,7 +52,7 @@
 <h1>Files:</h1>
 <ol>
     {% for fileann in manager.file_annotations %}
-    <li><a href="{% get_webclient_root_url %}/annotation/download/{{ fileann.id }}/" target="_blank">{{ fileann.getFileName }}</a> - {{ fileann.getFileSize|default_if_none:0|filesizeformat }} by {{ fileann.getOwner }} at {{ fileann.creationEventDate|date:" H:i d M Y" }} {% if fileann.isEditable %}<a href="{% get_webclient_root_url %}/action/remove/?parent={% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% endif %}{% if manager.image %}img-{{ manager.image.id}}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}" onClick="return confirm('Unlink file?');"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}</li>
+    <li><a href="{% get_webclient_root_url %}/annotation/download/{{ fileann.id }}/" target="_blank">{{ fileann.getFileName }}</a> (id:{{ fileann.id }}) - {{ fileann.getFileSize|default_if_none:0|filesizeformat }} by {{ fileann.getOwner }} at {{ fileann.creationEventDate|date:" H:i d M Y" }} {% if fileann.isEditable %}<a href="{% get_webclient_root_url %}/action/remove/?parent={% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% endif %}{% if manager.image %}img-{{ manager.image.id}}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}" onClick="return confirm('Unlink file?');"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}</li>
     {% endfor %}
 </ol>
 {% endif %}
