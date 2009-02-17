@@ -90,9 +90,9 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     
     /** Query to load the number of annotations per plate. */
     final static String loadCountsPlates = "select p from Plate p "
-            + "left outer join fetch p.annotationLinksCountPerOwner "
-            //+ "left outer join fetch d.imageLinksCountPerOwner where d " 
+            + "left outer join fetch p.annotationLinksCountPerOwner " 
             + "in (:list)";
+    
     /**
      * Implemented as speficied by the {@link IContainer} I/F
      * @see IContainer#loadContainerHierarchy(Class, Set, Map)
