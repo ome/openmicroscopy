@@ -67,7 +67,7 @@ public class CommentMessenger extends JDialog implements ActionListener
     JPanel                  commentPanel;
     JPanel                  debugPanel;
 
-    JButton                 quitBtn;
+    //JButton                 quitBtn;
     JButton                 sendBtn;
     JButton                 cancelBtn;
     JButton                 copyBtn;
@@ -159,6 +159,7 @@ public class CommentMessenger extends JDialog implements ActionListener
     {
         Object source = e.getSource();
         
+        /*
         if (source == quitBtn)
         {
             if (gui.quitConfirmed(this) == true)
@@ -166,6 +167,7 @@ public class CommentMessenger extends JDialog implements ActionListener
                 System.exit(0);
             }
         }
+        */
         
         if (source == cancelBtn)
         {

@@ -675,6 +675,7 @@ public class GuiCommonElements
                 options,
                 s2);
         if (n == JOptionPane.YES_OPTION) {
+            System.err.println("quitConfirmed returned true");
             return true;
         } else {
             return false;

@@ -60,7 +60,6 @@ import ome.system.UpgradeCheck;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import omero.client;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
@@ -76,7 +75,7 @@ public class Main extends JFrame
 {
     private static final long   serialVersionUID = 1228000122345370913L;
     
-    IniFileLoader   ini;
+    static IniFileLoader   ini;
     
     public static String        dbVersion = "300";
     
@@ -180,7 +179,7 @@ public class Main extends JFrame
         setSize(gui.bounds.width, gui.bounds.height);
         setLocation(gui.bounds.x, gui.bounds.y);      
         setLayout(new BorderLayout());
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         pack();
 
         addWindowListener(this);
@@ -612,7 +611,10 @@ public class Main extends JFrame
      */
     public static void main(String[] args)
     {  
-
+        // Load up the main ini file
+        ini = IniFileLoader.getIniFileLoader(args);
+        USE_QUAQUA = ini.getUseQuaqua();
+        
         String laf = UIManager.getSystemLookAndFeelClassName() ;
 
         //laf = "ch.randelshofer.quaqua.QuaquaLookAndFeel";
@@ -716,7 +718,7 @@ public class Main extends JFrame
         } else if (name.equals("aboutApplication"))
         {
             // HACK - JOptionPane prevents shutdown on dispose
-            setDefaultCloseOperation(EXIT_ON_CLOSE);
+            setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
             About.show(this.getContentPane(), useSplashScreenAbout);
         }
         

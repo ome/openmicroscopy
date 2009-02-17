@@ -158,9 +158,10 @@ public class IQueryEnumProvider implements EnumerationProvider
             		 + klass + "' setting to 'Other'");
             return (T) otherEnumeration;
         }
-        // Step 4, fail hard we have no enumeration to return.
-        throw new EnumerationException("Problem finding enumeration:" + value,
-                                       klass, value);
+        // Step 4, warn we have no enumeration to return.
+        log.warn("Enumeration '" + value + "' does not exist in '" 
+                + klass + "' returning 'null'");
+        return (T) enumeration;
     }
     
 	/* (non-Javadoc)

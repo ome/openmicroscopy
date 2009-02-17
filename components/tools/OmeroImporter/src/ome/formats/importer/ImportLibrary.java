@@ -29,15 +29,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import loci.formats.FormatException;
-import loci.formats.meta.MetadataStore;
 import loci.common.DataTools;
-import ome.formats.LSID;
 import ome.formats.OMEROMetadataStoreClient;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.aop.interceptor.CustomizableTraceInterceptor;
 
 import ome.formats.importer.util.Actions;
 
@@ -120,15 +116,14 @@ public class ImportLibrary implements IObservable
      */
     public ImportLibrary(OMEROMetadataStoreClient store, OMEROWrapper reader)
     {
-        this.store = store;
-        this.reader = reader;
-
         if (store == null || reader == null)
         {
-            // FIXME: Blitz transition, ApiUsageException no longer client side.
-            throw new RuntimeException(
+            throw new NullPointerException(
                     "All arguments to ImportLibrary() must be non-null.");
         }
+        
+        this.store = store;
+        this.reader = reader;
     }
 
     /**
@@ -190,29 +185,12 @@ public class ImportLibrary implements IObservable
         }*/
         
         reader.close();
-    	ProxyFactory pf = new ProxyFactory(store);
-    	CustomizableTraceInterceptor interceptor =
-    		new CustomizableTraceInterceptor();
-    	interceptor.setEnterMessage("$[methodName] $[arguments]");
-    	pf.addAdvice(interceptor);
-    	MetadataStore proxy = (MetadataStore) pf.getProxy();
-        reader.setMetadataStore(proxy);
+        reader.setMetadataStore(store);
         reader.setMinMaxStore(store);
         reader.setId(fileName);
         store.setReader(reader.getImageReader());
         //reset series count
         log.debug("Image Count: " + reader.getImageCount());
-    }
-
-    private void IOException(String fileName)
-    {
-        Object[] args;
-        
-        args = new Object[1];
-        args[0] = fileName;
-        notifyObservers(Actions.IO_EXCEPTION, args);
-        //reset series count
-        log.debug("IO Exception. Unable to retrieve image: " + fileName);
     }
 
     /**
@@ -247,8 +225,6 @@ public class ImportLibrary implements IObservable
 	public List<Pixels> importMetadata(String imageName)
     	throws FormatException, IOException
     {
-    	// Ensure that our metadata is consistent before writing to the DB.
-    	int series = 0;
     	// 1st we post-process the metadata that we've been given.
     	log.debug("Post-processing metadata.");
 
@@ -530,20 +506,6 @@ public class ImportLibrary implements IObservable
                 wSize = tSize * numZSections;
                 
         }
-    }
-
-    /**
-     * Given any specific Z, W, and T, determine the totalOffset from the start
-     * of the file
-     * 
-     * @param currentZ
-     * @param currentW
-     * @param currentT
-     * @return
-     */
-    private int getTotalOffset(int currentZ, int currentW, int currentT)
-    {
-        return (zSize * currentZ) + (wSize * currentW) + (tSize * currentT);
     }
 
     private int getSequenceNumber(String dimOrder)

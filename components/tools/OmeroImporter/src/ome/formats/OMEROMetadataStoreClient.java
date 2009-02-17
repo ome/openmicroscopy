@@ -2058,6 +2058,10 @@ public class OMEROMetadataStoreClient
                 System.err.println(key + " == " + referenceStringCache.get(key));
             }
             
+            System.err.println("\ncontainerCache contains " + containerCache.size() + " entries.");
+            System.err.println("referenceCache contains " + referenceCache.size() + " entries.");
+            
+            
         	delegate.updateObjects(containerArray);
         	delegate.updateReferences(referenceStringCache);
         	pixelsList = delegate.saveToDB();

@@ -80,7 +80,7 @@ public class DebugMessenger extends JDialog implements ActionListener
     JPanel                  commentPanel;
     JPanel                  debugPanel;
 
-    JButton                 quitBtn;
+    //JButton                 quitBtn;
     JButton                 cancelBtn;
     JButton                 sendBtn;
     JButton                 ignoreBtn;
@@ -123,10 +123,12 @@ public class DebugMessenger extends JDialog implements ActionListener
         
         mainPanel = gui.addMainPanel(this, mainTable, 10, 10, 10, 10, debug);
         
+        /*
         // Add the quit, cancel and send buttons to the main panel
         quitBtn = gui.addButton(mainPanel, "Quit Application", 'Q',
                 "Quit the application", "1, 1, f, c", debug);
         quitBtn.addActionListener(this);
+        */
 
         cancelBtn = gui.addButton(mainPanel, "Cancel", 'C',
                 "Cancel your message", "3, 1, f, c", debug);
@@ -222,7 +224,7 @@ public class DebugMessenger extends JDialog implements ActionListener
     {
         Object source = e.getSource();
         
-        
+        /*
         if (source == quitBtn)
         {
             if (gui.quitConfirmed(this) == true)
@@ -230,6 +232,7 @@ public class DebugMessenger extends JDialog implements ActionListener
                 System.exit(0);
             }
         }
+        */
         
         if (source == cancelBtn)
         {
