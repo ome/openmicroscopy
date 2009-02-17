@@ -788,15 +788,15 @@ class BlitzGateway (threading.Thread):
         if o_type == "image":
             sql = "select a from CommentAnnotation as a " \
                 "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.ns!='and ome.share.comment/'"
         elif o_type == "dataset":
             sql = "select a from CommentAnnotation as a " \
                 "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.ns!='and ome.share.comment/'"
         elif o_type == "project":
             sql = "select a from CommentAnnotation as a " \
                 "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.ns!='and ome.share.comment/'"
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -1995,26 +1995,26 @@ class BlitzObjectWrapper (object):
             # lastName = self._obj.details.owner.lastName.val if hasattr(self._obj.details.owner.lastName, 'val') else ""
             # firstName = self._obj.details.owner.firstName.val if hasattr(self._obj.details.owner.firstName, 'val') else ""
             # middleName = self._obj.details.owner.middleName.val if hasattr(self._obj.details.owner.middleName, 'val') else ""
-            lastName = ""
+            lastName = None
             if hasattr(self._obj.details.owner.lastName, 'val'):
                 lastName = self._obj.details.owner.lastName.val
             else:
                 if self._obj.details.owner.lastName is not None:
                     lastName = self._obj.details.owner.lastName
-            firstName = ""
+            firstName = None
             if hasattr(self._obj.details.owner.firstName, 'val'):
                 firstName = self._obj.details.owner.firstName.val
             else:
                 if self._obj.details.owner.firstName is not None:
                     firstName = self._obj.details.owner.firstName
-            middleName = ""
+            middleName = None
             if hasattr(self._obj.details.owner.middleName, 'val'):
                 middleName = self._obj.details.owner.middleName.val
             else:
                 if self._obj.details.owner.middleName is not None:
                     middleName = self._obj.details.owner.middleName
-                    
-            if middleName != '' or middleName is not None:
+            
+            if middleName != '' and middleName is not None:
                 name = "%s %s. %s" % (firstName, middleName[:1], lastName)
             else:
                 name = "%s %s" % (firstName, lastName)
@@ -2146,7 +2146,8 @@ class BlitzObjectWrapper (object):
                 t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
         except:
             t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
-        return time.ctime(t/1000)
+        return datetime.fromtimestamp(t/1000)
+        #return time.ctime(t/1000)
     
     def __str__ (self):
         if hasattr(self._obj, 'value'):
@@ -2188,26 +2189,26 @@ class ExperimenterWrapper (BlitzObjectWrapper):
             # lastName = self._obj.lastName.val if hasattr(self._obj.lastName, 'val') else ""
             # firstName = self._obj.firstName.val if hasattr(self._obj.firstName, 'val') else ""
             # middleName = self._obj.middleName.val if hasattr(self._obj.middleName, 'val') else ""
-            lastName = ""
+            lastName = None
             if hasattr(self._obj.lastName, 'val'):
                 lastName = self._obj.lastName.val
             else:
                 if self._obj.lastName is not None:
                     lastName = self._obj.lastName
-            firstName = ""
+            firstName = None
             if hasattr(self._obj.firstName, 'val'):
                 firstName = self._obj.firstName.val
             else:
                 if self._obj.firstName is not None:
                     firstName = self._obj.firstName
-            middleName = ""
+            middleName = None
             if hasattr(self._obj.middleName, 'val'):
                 middleName = self._obj.middleName.val
             else:
                 if self._obj.middleName is not None:
                     middleName = self._obj.middleName
             
-            if middleName != '':
+            if middleName != '' and middleName!='  ' and middleName is not None:
                 name = "%s %s. %s" % (firstName, middleName[:1], lastName)
             else:
                 name = "%s %s" % (firstName, lastName)
@@ -2733,29 +2734,30 @@ class ShareWrapper (BlitzObjectWrapper):
             # lastName = self._obj.details.owner.lastName.val if hasattr(self._obj.details.owner.lastName, 'val') else ""
             # firstName = self._obj.details.owner.firstName.val if hasattr(self._obj.details.owner.firstName, 'val') else ""
             # middleName = self._obj.details.owner.middleName.val if hasattr(self._obj.details.owner.middleName, 'val') else ""
-            lastName = ""
+            lastName = None
             if hasattr(self._obj.owner.lastName, 'val'):
                 lastName = self._obj.owner.lastName.val
             else:
                 if self._obj.owner.lastName is not None:
                     lastName = self._obj.owner.lastName
-            firstName = ""
+            firstName = None
             if hasattr(self._obj.owner.firstName, 'val'):
                 firstName = self._obj.owner.firstName.val
             else:
                 if self._obj.owner.firstName is not None:
                     firstName = self._obj.owner.firstName
-            middleName = ""
+            middleName = None
             if hasattr(self._obj.owner.middleName, 'val'):
                 middleName = self._obj.owner.middleName.val
             else:
                 if self._obj.owner.middleName is not None:
                     middleName = self._obj.owner.middleName
-                    
-            if middleName != '':
+            
+            if middleName != '' and middleName is not None:
                 name = "%s %s. %s" % (firstName, middleName[:1], lastName)
             else:
                 name = "%s %s" % (firstName, lastName)
+            
             l = len(name)
             if l < 40:
                 return name

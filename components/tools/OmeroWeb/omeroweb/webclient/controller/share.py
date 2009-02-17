@@ -110,7 +110,6 @@ class BaseShare(BaseController):
 
     def getComments(self, share_id):
         self.comments = self.sortByAttr(list(self.conn.getComments(share_id)), 'details.creationEvent.time', True)
-        print self.comments
         self.cmSize = len(self.comments)
 
     def getMembers(self, share_id):
@@ -120,9 +119,12 @@ class BaseShare(BaseController):
          self.allInShare = list(self.conn.getAllUsers(share_id))
 
     def loadShareContent(self):
-        if self.conn_share._shareId is not None:
-            content = self.conn_share.getContents(self.conn_share._shareId)
-        else:
+        try:
+            if self.conn_share._shareId is not None:
+                content = self.conn_share.getContents(self.conn_share._shareId)
+            else:
+                raise AttributeError('Share was not activated.')
+        except:
             raise AttributeError('Share was not activated.')
         
         self.imageInShare = list()

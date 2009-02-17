@@ -237,7 +237,7 @@ def getShareConnection (request):
 
     # gets connection for key if available
     conn = share_connectors.get(conn_key)
-
+    
     if conn is None:
         try:
             if request.session['host']: pass
@@ -2841,23 +2841,26 @@ def render_thumbnail (request, iid, **kwargs):
 
     conn = None
     try:
-        conn = kwargs["conn"]
+        conn = getConnection(request)
     except:
-        logger.error(traceback.format_exc())
-    
-    img = None
-    try:
-        img = conn.getImage(iid)
-    except:
+        logger.debug(traceback.format_exc())
+    if conn is None:
+        raise Http500("Connection not available")
+
+    img = conn.getImage(iid)
+    if img is None:
         try:
             conn = getShareConnection(request)
-        except AttributeError:
-            raise Http404("Connection not available")
+        except :
+            logger.debug(traceback.format_exc())
         if conn is None:
-            raise Http404("Connection not available")
+            raise Http500("Connection not available")
         img = conn.getImage(iid)
+    
     if img is None:
+        logger.debug("Image %s not found..." % (str(iid)))
         raise Http404
+    
     jpeg_data = img.getThumbnail()
     if jpeg_data is None:
         raise Http404
@@ -2869,22 +2872,24 @@ def render_thumbnail_details (request, iid, **kwargs):
 
     conn = None
     try:
-        conn = kwargs["conn"]
+        conn = getConnection(request)
     except:
-        logger.error(traceback.format_exc())
-    
-    img = None
-    try:
-        img = conn.getImage(iid)
-    except:
+        logger.debug(traceback.format_exc())
+    if conn is None:
+        raise Http500("Connection not available")
+
+    img = conn.getImage(iid)
+    if img is None:
         try:
             conn = getShareConnection(request)
-        except AttributeError:
-            raise Http404("Connection not available")
+        except :
+            logger.debug(traceback.format_exc())
         if conn is None:
-            raise Http404("Connection not available")
+            raise Http500("Connection not available")
         img = conn.getImage(iid)
+    
     if img is None:
+        logger.debug("Image %s not found..." % (str(iid)))
         raise Http404
     
     side = 0
@@ -2909,19 +2914,26 @@ def render_thumbnail_resize (request, size, iid, **kwargs):
 
     conn = None
     try:
-        conn = kwargs["conn"]
+        conn = getConnection(request)
     except:
-        logger.error(traceback.format_exc())
-    
+        logger.debug(traceback.format_exc())
+    if conn is None:
+        raise Http500("Connection not available")
+
     img = conn.getImage(iid)
     if img is None:
         try:
             conn = getShareConnection(request)
-        except AttributeError:
-            raise Http404("Connection not available")
+        except :
+            logger.debug(traceback.format_exc())
         if conn is None:
-            raise Http404("Connection not available")
+            raise Http500("Connection not available")
         img = conn.getImage(iid)
+    
+    if img is None:
+        logger.debug("Image %s not found..." % (str(iid)))
+        raise Http404
+        
     jpeg_data = img.getThumbnail((int(size),int(size)))
     if jpeg_data is None:
         raise Http404
@@ -2933,23 +2945,26 @@ def render_big_thumbnail (request, iid, **kwargs):
 
     conn = None
     try:
-        conn = kwargs["conn"]
+        conn = getConnection(request)
     except:
-        logger.error(traceback.format_exc())
-    
-    img = None
-    try:
-        img = conn.getImage(iid)
-    except:
+        logger.debug(traceback.format_exc())
+    if conn is None:
+        raise Http500("Connection not available")
+
+    img = conn.getImage(iid)
+    if img is None:
         try:
             conn = getShareConnection(request)
-        except AttributeError:
-            raise Http404("Connection not available")
+        except :
+            logger.debug(traceback.format_exc())
         if conn is None:
-            raise Http404("Connection not available")
+            raise Http500("Connection not available")
         img = conn.getImage(iid)
+    
     if img is None:
+        logger.debug("Image %s not found..." % (str(iid)))
         raise Http404
+    
     size = 0
     if img.getWidth() >= 200:
         size = img.getWidth()
@@ -2982,24 +2997,28 @@ class UserAgent (object):
 
 def _get_prepared_image (request, iid):
     r = request.REQUEST
+    
+    conn = None
     try:
         conn = getConnection(request)
-    except AttributeError:
-        raise Http404("Connection not available")
-    if conn is None:
-        raise Http404("Connection not available")
-
-    img = None
-    try:
-        img = conn.getImage(iid)
     except:
+        logger.debug(traceback.format_exc())
+    if conn is None:
+        raise Http500("Connection not available")
+
+    img = conn.getImage(iid)
+    if img is None:
         try:
             conn = getShareConnection(request)
-        except AttributeError:
-            raise Http404("Connection not available")
+        except :
+            logger.debug(traceback.format_exc())
         if conn is None:
-            raise Http404("Connection not available")
+            raise Http500("Connection not available")
         img = conn.getImage(iid)
+    
+    if img is None:
+        logger.debug("Image %s not found..." % (str(iid)))
+        raise Http404
 
     if r.has_key('c'):
         logger.debug("c="+r['c'])
@@ -3033,32 +3052,30 @@ def render_image (request, iid, z, t):
 
 def image_viewer (request, iid, dsid=None):
     """ This view is responsible for showing pixel data as images """
-
     user_agent = UserAgent(request)
     rid = _get_img_details_from_req(request)
     rk = "&".join(["%s=%s" % (x[0], x[1]) for x in rid.items()])
+    
+    conn = None
     try:
         conn = getConnection(request)
-    except AttributeError:
-        raise Http404("Connection not available")
-    if conn is None:
-        raise Http404("Connection not available")
-
-
-    img = None
-    try:
-        img = conn.getImage(iid)
     except:
+        logger.debug(traceback.format_exc())
+    if conn is None:
+        raise Http500("Connection not available")
+
+    img = conn.getImage(iid)
+    if img is None:
         try:
             conn = getShareConnection(request)
-        except AttributeError:
-            raise Http404("Connection not available")
+        except :
+            logger.debug(traceback.format_exc())
         if conn is None:
-            raise Http404("Connection not available")
+            raise Http500("Connection not available")
         img = conn.getImage(iid)
     
     if img is None:
-        logger.debug("(a)Image %s not found..." % (str(iid)))
+        logger.debug("Image %s not found..." % (str(iid)))
         raise Http404
     if dsid is not None:
         ds = conn.getDataset(dsid)
@@ -3133,26 +3150,28 @@ def imageData_json (request, iid):
     """ Get a dict with image information """
     r = request.REQUEST
     
+    conn = None
     try:
         conn = getConnection(request)
-    except AttributeError:
-        raise Http404("Connection not available")
-    if conn is None:
-        raise Http404("Connection not available")
-
-    image = None
-    try:
-        image = conn.getImage(iid)
     except:
+        logger.debug(traceback.format_exc())
+    if conn is None:
+        raise Http500("Connection not available")
+
+    image = conn.getImage(iid)
+    if image is None:
         try:
             conn = getShareConnection(request)
-        except AttributeError:
-            raise Http404("Connection not available")
+        except :
+            logger.debug(traceback.format_exc())
         if conn is None:
-            raise Http404("Connection not available")
+            raise Http500("Connection not available")
         image = conn.getImage(iid)
+    
     if image is None:
-        raise Http404("Image not available")
+        logger.debug("Image %s not found..." % (str(iid)))
+        raise Http404
+    
     rv = {
         'id': iid,
         'size': {'width': image.getWidth(),
