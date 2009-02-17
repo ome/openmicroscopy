@@ -135,8 +135,8 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	 */
 	@RolesAllowed("user")
 	public RenderingDef retrieveRndSettings(long pixId) {
-		Long userID = getSecuritySystem().getEventContext().getCurrentUserId();
-		return retrieveRndSettingsFor(pixId, userID);
+        Long userId = getCurrentUserId();
+		return retrieveRndSettingsFor(pixId, userId);
 	}
 
 	/**
