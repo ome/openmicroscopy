@@ -429,6 +429,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
                                         + "join fetch l.details.owner "
                                         + "join fetch l.parent as share "
                                         + "join fetch l.child as comment "
+                                        + "join fetch comment.details.updateEvent "
                                         + "where share.id = :id and comment.ns like :ns ",
                                 new Parameters().addString("ns",
                                         NS_COMMENT + "%").addId(shareId));

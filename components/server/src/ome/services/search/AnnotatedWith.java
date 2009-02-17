@@ -14,6 +14,7 @@ import java.util.List;
 import ome.conditions.ApiUsageException;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.BooleanAnnotation;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.DoubleAnnotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.LongAnnotation;
@@ -111,7 +112,9 @@ public class AnnotatedWith extends SearchAction {
         for (int i = 0; i < annotation.length; i++) {
             if (annotation[i] instanceof TextAnnotation) {
                 // FIXME This should be unneccessary. See ticket:976
-                if (annotation[i] instanceof TagAnnotation) {
+                if (annotation[i] instanceof CommentAnnotation) {
+                    annCls[i] = CommentAnnotation.class;
+                } else if (annotation[i] instanceof TagAnnotation) {
                     annCls[i] = TagAnnotation.class;
                 } else if (annotation[i] instanceof QueryAnnotation) {
                     annCls[i] = QueryAnnotation.class;
