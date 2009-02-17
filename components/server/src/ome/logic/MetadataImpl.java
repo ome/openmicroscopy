@@ -409,7 +409,7 @@ public class MetadataImpl
     		param.addId(id);
     	}
     	if (nameSpace != null && nameSpace.length() > 0) {
-    		//restriction += " and ann.ns = "+nameSpace;
+    		restriction += " and ann.ns is not null and ann.ns = "+nameSpace;
     	}
     	sb.append(restriction);
     	List<A> list = iQuery.findAllByQuery(sb.toString(), param);
@@ -532,9 +532,7 @@ public class MetadataImpl
 		}
     	return counts;
     }
-    
-    
-    
+
     /*
 
 
