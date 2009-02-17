@@ -82,7 +82,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME3.0
  */
 public class ParamEditor 
-	extends JPanel
+	extends AbstractParamEditor
 	implements PropertyChangeListener
 {
 	/**
@@ -185,6 +185,8 @@ public class ParamEditor
 	 */
 	ParamEditor(IParam param, PropertyChangeListener parent) {
 		
+		super(param);
+		
 		this.parameter = param;
 		this.parent = parent;
 		
@@ -224,6 +226,6 @@ public class ParamEditor
 	}
 
 	public String getEditDisplayName() {
-		return "Edit 'Required' status";
+		return "Edit Parameter Type";
 	}
 }

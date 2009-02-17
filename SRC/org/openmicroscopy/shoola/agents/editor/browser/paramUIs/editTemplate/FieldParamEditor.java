@@ -396,6 +396,57 @@ public class FieldParamEditor
 	}
 	
 	/**
+	 * This method is used to refresh the size of the corresponding
+	 * node in the JTree.
+	 * It must also remain in the editing mode, otherwise the user who
+	 * is currently editing it will be required to click again to 
+	 * continue editing.
+	 * This can be achieved by calling startEditingAtPath(tree, path)
+	 */
+	public void updateEditingOfTreeNode() {
+		if ((tree != null) && (treeNode !=null)) {
+			
+			TreePath path = new TreePath(treeNode.getPath());
+			tree.getUI().startEditingAtPath(tree, path);
+		}
+	}
+	
+	/**
+	 * Sets the ID to display. If ID = 0, nothing is displayed. 
+	 * 
+	 * @param id
+	 */
+	public void setId(long id) 
+	{
+		if (id == 0) {
+			// hide panel if not ID to display
+			uiDisplayPanel.setVisible(false);
+			
+		} else {
+			// show panel and set text
+			uiDisplayPanel.setVisible(true);
+			uiLabel.setText("File ID: " + id);
+		}
+		invalidate();
+		repaint();
+	}
+	
+	/**
+	 * Notifies the Tree Model that the node displayed by this class has 
+	 * been Changed. This causes the UI to refresh, and builds a new instance
+	 * of this class. 
+	 */
+	public void rebuildEditorPanel() {
+
+		if ((tree != null) && (treeNode != null)) {
+			DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
+			treeModel.nodeChanged(treeNode);
+		}
+	}
+	
+	
+	
+	/**
 	 * If the size of a sub-component of this panel changes, 
 	 * the JTree in which it is contained must be required to 
 	 * re-draw the panel. 
@@ -457,59 +508,7 @@ public class FieldParamEditor
 			rebuildEditorPanel();
 		}
 	}
-	
-	
-	/**
-	 * This method is used to refresh the size of the corresponding
-	 * node in the JTree.
-	 * It must also remain in the editing mode, otherwise the user who
-	 * is currently editing it will be required to click again to 
-	 * continue editing.
-	 * This can be achieved by calling startEditingAtPath(tree, path)
-	 */
-	public void updateEditingOfTreeNode() {
-		if ((tree != null) && (treeNode !=null)) {
-			
-			TreePath path = new TreePath(treeNode.getPath());
-			tree.getUI().startEditingAtPath(tree, path);
-		}
-	}
-	
-	/**
-	 * Sets the ID to display. If ID = 0, nothing is displayed. 
-	 * 
-	 * @param id
-	 */
-	public void setId(long id) 
-	{
-		if (id == 0) {
-			// hide panel if not ID to display
-			uiDisplayPanel.setVisible(false);
-			
-		} else {
-			// show panel and set text
-			uiDisplayPanel.setVisible(true);
-			uiLabel.setText("File ID: " + id);
-		}
-		invalidate();
-		repaint();
-	}
-	
-	/**
-	 * Notifies the Tree Model that the node displayed by this class has 
-	 * been Changed. This causes the UI to refresh, and builds a new instance
-	 * of this class. 
-	 */
-	public void rebuildEditorPanel() {
 
-		if ((tree != null) && (treeNode != null)) {
-			DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
-			treeModel.nodeChanged(treeNode);
-		}
-	}
-	
-	
-	
 	/**
 	 * Implemented as specified by the {@link Scrollable} interface.
 	 * Returns {@link #getPreferredSize()}

@@ -31,12 +31,21 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
+//Third-party libraries
+
+//Application-internal dependencies
+
+import org.openmicroscopy.shoola.util.ui.OMEComboBox;
+import org.openmicroscopy.shoola.util.ui.OMEComboBoxUI;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
  * This is a JComboBox that has custom size behaviour and 
@@ -46,7 +55,9 @@ import javax.swing.border.EmptyBorder;
  * @author will
  *
  */
-public class CustomComboBox extends JComboBox {
+public class CustomComboBox 
+	extends OMEComboBox 
+	{
 
 	public static final int MAX_LINE_LENGTH = 52;
 	
@@ -65,19 +76,11 @@ public class CustomComboBox extends JComboBox {
 	
 	/**
 	 * Creates an instance 
-	 */
-	public CustomComboBox() {
-		super();
-		initialise();
-	}
-	
-	/**
-	 * Creates an instance 
 	 * 
 	 * @param maxPreferredWidth		The width will be at least this value. 
 	 */
 	public CustomComboBox(int maxPreferredWidth) {
-		super();
+		super(new Object[0]);
 		initialise();
 		setMaxPreferredWidth(maxPreferredWidth);
 	}
@@ -87,7 +90,10 @@ public class CustomComboBox extends JComboBox {
 	 */
 	private void initialise() {
 		this.setFont(CustomLabel.CUSTOM_FONT);
-		setBackground(null);
+		setUI(new OMEComboBoxUI());
+		setBackground(UIUtilities.BACKGROUND_COLOR);
+		setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1,
+                UIUtilities.LIGHT_GREY));
 		this.setRenderer(new TruncatedListItemRenderer());
 		this.addActionListener(new TruncateSelectionListener());
 	}

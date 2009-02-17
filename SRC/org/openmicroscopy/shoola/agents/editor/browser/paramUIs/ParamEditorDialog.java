@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.FieldPanel;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * A dialog for hosting a component for editing a parameter. 
@@ -84,6 +85,7 @@ public class ParamEditorDialog
 		
 		super();
 		setModal(false);
+		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setUndecorated(true);
 		
 		// when focus is lost, dialog is closed. 
