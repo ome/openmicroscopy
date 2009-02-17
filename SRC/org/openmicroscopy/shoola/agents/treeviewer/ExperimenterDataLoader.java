@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -222,20 +223,20 @@ public class ExperimenterDataLoader
     		DataObject object;
     		Class klass = parent.getUserObject().getClass();
     		long id = parent.getUserObjectId();
-    		while (i.hasNext()) {
-    			object = (DataObject) i.next();
-				if (object.getClass().equals(klass)
-						&& object.getId() == id) {
-					if (object instanceof DatasetData) {
-						viewer.setLeaves(((DatasetData) object).getImages(), 
-								parent, expNode);
-					} else if (object instanceof TagAnnotationData) {
-						viewer.setLeaves(
-								((TagAnnotationData) object).getDataObjects(), 
-								parent, expNode);
-					}
-				}
-			}
+    		if (TagAnnotationData.class.equals(klass)) {
+    			viewer.setLeaves((Set) result, parent, expNode);
+    		} else {
+    			while (i.hasNext()) {
+        			object = (DataObject) i.next();
+    				if (object.getClass().equals(klass)
+    						&& object.getId() == id) {
+    					if (object instanceof DatasetData) {
+    						viewer.setLeaves(((DatasetData) object).getImages(), 
+    								parent, expNode);
+    					} 
+    				}
+    			}
+    		}
         }
     }
     

@@ -1570,6 +1570,9 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
+			if (TagAnnotationData.class.equals(rootNodeType)) {
+				return getMetadataService().getTaggedObjectsCount(ids, options);
+			}
 			IContainerPrx service = getPojosService();
 			String p = convertProperty(rootNodeType, property);
 			if (p == null) return null;
@@ -1580,7 +1583,7 @@ class OMEROGateway
 		}
 		return new HashMap();
 	}
-
+	
 	/**
 	 * Creates the speficied object.
 	 * 
@@ -2039,49 +2042,6 @@ class OMEROGateway
 	/**
 	 * Finds the link if any between the specified parent and child.
 	 * 
-	 * @param ids   The ids of either the parent or the child.
-	 * @param union
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	List findlinkedTags(List<Long> ids, boolean union)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		try {
-			if (ids == null) return null;
-			IQueryPrx service = getQueryService();
-			String table = getTableForAnnotationLink(
-					Annotation.class.getName());
-			if (table == null) return null;
-			ParametersI param = new ParametersI();
-			param.addLongs("ids", ids);
-			List r = null;
-			String sql = "select link from "+table+" as link";
-			if (union) {
-				sql += " where link.child.id in (:ids)";
-				r = service.findAllByQuery(sql, param);
-				sql = "select link from "+table+" as link";
-				sql += " where link.parent.id in (:ids)";
-				r.addAll(service.findAllByQuery(sql, param));
-			} else {
-				sql += " where link.child.id in (:ids) and";
-				sql += " link.parent.id in (:ids)";
-				r = service.findAllByQuery(sql, param);
-			}
-			
-			return r;
-		} catch (Throwable t) {
-			handleException(t, "Cannot retrieve the annotation links");
-		}
-		return null;
-	}	
-	
-	/**
-	 * Finds the link if any between the specified parent and child.
-	 * 
 	 * @param parent    The parent.
 	 * @param child     The child.
 	 * @return See above.
@@ -2206,17 +2166,20 @@ class OMEROGateway
 			if (table == null) return null;
 			ParametersI param = new ParametersI();
 			param.map.put("childID", omero.rtypes.rlong(childID));
-
-			String sql = "select link from "+table+" as link where " +
-			"link.child.id = :childID";
+			StringBuffer sb = new StringBuffer();
+			sb.append("select link from "+table+" as link ");
+			sb.append("left outer join fetch link.child as child ");
+			sb.append("left outer join fetch link.parent parent ");
+			sb.append("where link.child.id = :id");
 			if (childID >= 0) {
-				
+				param.addId(childID);
 			}
+			
 			if (userID >= 0) {
-				sql += " and link.details.owner.id = :userID";
+				sb.append(" and link.details.owner.id = :userID");
 				param.map.put("userID", omero.rtypes.rlong(userID));
 			}
-			return getQueryService().findAllByQuery(sql, param);
+			return getQueryService().findAllByQuery(sb.toString(), param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
 					"child ID: "+childID);
@@ -4312,20 +4275,70 @@ class OMEROGateway
 		return new ArrayList<EnumerationObject>();
 	}
 	
-	Object loadTags(Long id, boolean dataObject, String nameSpace, Map options)
+	Collection loadTags(Long id, Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();
-			//service.loadT
+			List<Long> ids = new ArrayList<Long>(1);
+			ids.add(id);
+			Map m = service.loadTagContent(ids, options);
+			if (m == null || m.size() == 0)
+				return new ArrayList();
+			return PojoMapper.asDataObjects((Collection) m.get(id));
 		} catch (Exception e) {
 			handleException(e, "Cannot find the Tags.");
 		}
-		return null;
+		return new ArrayList();
 	}
 	
+	Collection loadTagSets(Map options)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		
+		isSessionAlive();
+		try {
+			IMetadataPrx service = getMetadataService();
+			List<IObject> list = service.loadTagSets(options);
+			List result = new ArrayList();
+			if (list == null) return result;
+			Iterator<IObject> i = list.iterator();
+			AnnotationAnnotationLink link;
+			Annotation parent, child;
+			TagAnnotationData tagSet;
+			Map<Long, TagAnnotationData> 
+				sets = new HashMap<Long, TagAnnotationData>();
+			Set<TagAnnotationData> tags;
+			List<Long> ids = new ArrayList<Long>();
+			IObject object;
+			while (i.hasNext()) {
+				object = i.next();
+				if (object instanceof TagAnnotation) {
+					result.add(new TagAnnotationData((TagAnnotation) object));
+				} else if (object instanceof AnnotationAnnotationLink) {
+					link = (AnnotationAnnotationLink) object;
+					parent = link.getParent();
+					child = link.getChild();
+					if (sets.get(parent.getId()) == null) {
+						tagSet = new TagAnnotationData((TagAnnotation) parent);
+						sets.put(parent.getId().getValue(), tagSet);
+						result.add(tagSet);
+						tagSet.setTags(new HashSet<TagAnnotationData>());
+					} else 
+						tagSet = sets.get(parent.getId().getValue());
+					tags = tagSet.getTags();
+					tags.add(new TagAnnotationData((TagAnnotation) child));
+					ids.add(child.getId().getValue());
+				}
+			}
+			return result;
+		} catch (Exception e) {
+			handleException(e, "Cannot find the Tags.");
+		}
+		return new ArrayList();
+	}
 	
 	/**
 	 * Returns the collection of plane info object related to the specified

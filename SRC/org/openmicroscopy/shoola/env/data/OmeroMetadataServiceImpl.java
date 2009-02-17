@@ -1114,12 +1114,13 @@ class OmeroMetadataServiceImpl
 		if (data == null)
 			throw new IllegalArgumentException("No data to save");
 		OmeroDataService service = context.getDataService();
-		Iterator<DataObject> i = data.iterator();
+		
 		DataObject object;
 		PojoOptions op = new PojoOptions();
 		Project io;
-		Annotation a = toAdd.get(0).asAnnotation();
-		//List<AnnotationData> annotations = prepareAnnotationToAdd(toAdd);
+		List<AnnotationData> annotations = prepareAnnotationToAdd(toAdd);
+		/*
+		 * Iterator<DataObject> i = data.iterator();
 		while (i.hasNext()) {
 			object = i.next();
 			io = object.asProject();
@@ -1129,12 +1130,10 @@ class OmeroMetadataServiceImpl
 			
 			//service.updateDataObject(object);
 		}
-		/*
+		*/
 		Iterator i;
 		Iterator<DataObject> j = data.iterator();
-		DataObject object;
 		//First create the new annotations 
-		List<AnnotationData> annotations = prepareAnnotationToAdd(toAdd);
 		while (j.hasNext()) {
 			object = j.next();
 			if (object instanceof AnnotationData) {
@@ -1153,7 +1152,6 @@ class OmeroMetadataServiceImpl
 					removeAnnotation((AnnotationData) i.next(), object);
 			}
 		}
-		*/
 		return data;
 	}
 
@@ -1912,16 +1910,22 @@ class OmeroMetadataServiceImpl
 		return list;
 	}
 
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroMetadataService#loadTags(Long, boolean, boolean, long)
+	 */
 	public Collection loadTags(Long id, boolean dataObject, boolean topLevel,
 			long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		PojoOptions po = new PojoOptions();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
-		String nameSpace = null;
-		if (topLevel) nameSpace = TagAnnotationData.INSIGHT_TAGSET_NS;
-		gateway.loadTags(id, dataObject, nameSpace, po.map());
-		return new ArrayList();
+		if (topLevel) {
+			po.orphan();
+			return gateway.loadTagSets(po.map());
+		}
+		Collection l = gateway.loadTags(id, po.map());
+		return l;
 	}
 	
 }
