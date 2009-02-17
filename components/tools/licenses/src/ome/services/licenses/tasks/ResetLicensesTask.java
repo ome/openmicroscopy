@@ -70,7 +70,7 @@ public class ResetLicensesTask extends BlitzTask {
         if (useBlitz) {
             try {
                 final omero.client isf = getBlitzServiceFactory();
-                final Ice.ObjectPrx prx = isf.getServiceFactory().getByName(
+                final Ice.ObjectPrx prx = isf.getSession().getByName(
                         LICENSESERVICE.value);
                 final ILicensePrx lic = ILicensePrxHelper.uncheckedCast(prx);
                 lic.resetLicenses();

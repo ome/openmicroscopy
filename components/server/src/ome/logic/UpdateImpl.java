@@ -91,17 +91,6 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     // =========================================================================
 
     @RolesAllowed("user")
-    public void rollback() {
-        getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException, SQLException {
-                session.connection().rollback();
-                return null;
-            };
-        });
-    }
-
-    @RolesAllowed("user")
     public void flush() {
         getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
