@@ -107,6 +107,8 @@ module omero {
 		const string NSINSIGHTTAGSET = "openmicroscopy.org/omero/insight/tagset";
 		const string NSINSIGHTRATING = "openmicroscopy.org/omero/insight/rating";
 		const string NSIMPORTERARCHIVED = "openmicroscopy.org/omero/importer/archived";
+		const string NSEDITORPROTOCOL = "openmicroscopy.org/omero/editor/protocol";
+		const string NSEDITOREXPERIMENT = "openmicroscopy.org/omero/editor/experiment";
 	};
 	
     module jobs {
