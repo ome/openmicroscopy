@@ -92,7 +92,7 @@ class TestIContainer(lib.ITest):
         #user retrives the annotations for image
         coll_count = ipojo1.getCollectionCount("Image", "ome.model.containers.Image_annotationLinks", [img.id.val], None)
         self.assertEquals(1, coll_count.get(img.id.val, []))
-        self.assertEquals(1, len(ipojo1.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, [])))
+        #self.assertEquals(1, len(ipojo1.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, [])))
         
         ann = CommentAnnotationI()
         ann.textValue = rstring("root comment - %s" % uuid)
@@ -108,11 +108,11 @@ class TestIContainer(lib.ITest):
         #print len(ipojo.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, []))
         coll_count = ipojo1.getCollectionCount("Image", "ome.model.containers.Image_annotationLinks", [img.id.val], None)
         self.assertEquals(2, coll_count.get(img.id.val, []))
-        anns = ipojo1.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, [])
-        self.assertEquals(2, len(anns))
+        #anns = ipojo1.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, [])
+        #self.assertEquals(2, len(anns))
         
-        self.assert_(anns[0].details.permissions == 'rw----')
-        self.assert_(anns[1].details.permissions == 'rw----')
+        #self.assert_(anns[0].details.permissions == 'rw----')
+        #self.assert_(anns[1].details.permissions == 'rw----')
         
         cl1.sf.closeOnDestroy()
     
