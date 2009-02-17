@@ -100,7 +100,7 @@ INSTALLED_APPS = (
 )
 
 # cookies config
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False # False
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
 SESSION_COOKIE_AGE = 604800 # 1 day in sec (86400)
 
 # file upload settings

@@ -2423,7 +2423,7 @@ class ImageWrapper (BlitzObjectWrapper):
 
     def getDate(self):
         try:
-            return datetime.fromtimestamp(self._obj.acquisitionDate.val / 1000)
+            return time.ctime(self._obj.acquisitionDate.val / 1000)
         except:
             logger.debug(traceback.format_exc())
             return "unknown"
