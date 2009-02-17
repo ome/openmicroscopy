@@ -41,6 +41,20 @@ import omero.model.OriginalFile;
  */
 public class FileAnnotationData extends AnnotationData {
 
+    /** 
+     * The name space used to indicate that the <code>FileAnnotation</code> 
+     * is an protocol.
+     */
+    public static final String EDITOR_PROTOCOL_NS = 
+    	"openmicroscopy.org/omero/editor/protocol";
+    
+    /** 
+     * The name space used to indicate that the <code>FileAnnotation</code> 
+     * is an experiment.
+     */
+    public static final String EDITOR_EXPERIMENT_NS = 
+    	"openmicroscopy.org/omero/editor/experiment";
+    
     /** Identifies the <code>PDF</code> file formats. */
     public static final String PDF = "pdf";
 
