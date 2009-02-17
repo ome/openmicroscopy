@@ -207,7 +207,7 @@ public class TextAreasView
 		}
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBackground(Color.white);
-		setBorder(new EmptyBorder(10,10,10,10));
+		setBorder(new EmptyBorder(7,7,7,7));
 	}
 	
 	/**
