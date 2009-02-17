@@ -23,7 +23,7 @@ import omero.api.AMD_IContainer_createDataObject;
 import omero.api.AMD_IContainer_createDataObjects;
 import omero.api.AMD_IContainer_deleteDataObject;
 import omero.api.AMD_IContainer_deleteDataObjects;
-import omero.api.AMD_IContainer_findAnnotations;
+//import omero.api.AMD_IContainer_findAnnotations;
 import omero.api.AMD_IContainer_findContainerHierarchies;
 import omero.api.AMD_IContainer_getCollectionCount;
 import omero.api.AMD_IContainer_getImages;
@@ -85,6 +85,7 @@ public class ContainerI extends AbstractAmdServant implements _IContainerOperati
 
     }
 
+    /*
     public void findAnnotations_async(AMD_IContainer_findAnnotations __cb,
             String rootType, List<Long> rootIds, List<Long> annotatorIds,
             Map<String, RType> options, Current __current) throws ServerError {
@@ -92,7 +93,7 @@ public class ContainerI extends AbstractAmdServant implements _IContainerOperati
                 options);
 
     }
-
+*/
     public void findContainerHierarchies_async(
             AMD_IContainer_findContainerHierarchies __cb, String rootType,
             List<Long> imageIds, Map<String, RType> options, Current __current)
