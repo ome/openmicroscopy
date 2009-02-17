@@ -33,6 +33,7 @@ public class PojosTest extends IceTest {
     @Test(enabled = false)
     public void testFindAnnotations() throws Exception {
 
+    	/*
         ImageI i = new ImageI();
         i.setName(rstring("findAnnotationsTest"));
 
@@ -46,5 +47,6 @@ public class PojosTest extends IceTest {
         Map<Long, List<IObject>> retVal = ice.getSession().getContainerService()
                 .findAnnotations("Image", Arrays.asList(i.getId().getValue()), null,
                         null);
+                        */
     }
 }

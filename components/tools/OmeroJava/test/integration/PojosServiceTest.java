@@ -370,26 +370,6 @@ public class PojosServiceTest extends TestCase {
 
     }
 
-    @Test
-    public void test_findAnnotations() throws ServerError {
-
-        Map<Long, List<IObject>> m;
-
-        ids = data.getMax("Image.Annotated.ids", 2);
-        m = iContainer.findAnnotations(Image.class.getName(), ids, null, null);
-        assertAnnotations(m);
-
-        ids = data.getMax("Dataset.Annotated.ids", 2);
-        m = iContainer.findAnnotations(Dataset.class.getName(), ids, null, null);
-        assertTrue(m.size() > 0);
-        assertAnnotations(m);
-
-        Map<Long, Set<AnnotationData>> m2 = DataObject.asPojos(m);
-        AnnotationData data = m2.values().iterator().next().iterator().next();
-        assertNotNull(data.getOwner());
-
-    }
-
     void assertAnnotations(Map<Long, List<IObject>> m) {
         Annotation ann = (Annotation) m.values().iterator().next().iterator()
                 .next();
