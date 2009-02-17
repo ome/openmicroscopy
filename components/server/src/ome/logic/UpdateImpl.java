@@ -17,7 +17,6 @@ package ome.logic;
 import java.sql.SQLException;
 import java.util.Collection;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.IUpdate;
 import ome.api.ServiceInterface;
@@ -37,6 +36,8 @@ import ome.services.util.Executor;
 import ome.tools.hibernate.UpdateFilter;
 import ome.util.Utils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -52,6 +53,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = false)
 public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
+	private final Log log = LogFactory.getLog(UpdateImpl.class);
+	
     protected transient LocalQuery localQuery;
 
     protected transient Executor executor;
@@ -196,14 +199,34 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     public void indexObject(IObject row) {
         if (row == null || row.getId() == null) {
             throw new ValidationException(
-                    "Non-managed object canoot be indexed.");
+                    "Non-managed object cannot be indexed.");
         }
 
         CreationLogLoader logs = new CreationLogLoader(localQuery, row);
         FullTextIndexer fti = new FullTextIndexer(logs);
-        FullTextThread ftt = new FullTextThread(sessionManager, executor, fti,
+        
+        final RuntimeException[] e = new RuntimeException[1];
+        final FullTextThread ftt = new FullTextThread(sessionManager, executor, fti,
                 this.fullTextBridge, true);
-        ftt.run();
+        Thread t = new Thread() {
+        	@Override
+        	public void run() {
+        		try {
+        			ftt.run();
+        		} catch (RuntimeException ex) {
+        			e[0] = ex;
+        		}
+        	}
+        };
+        t.start();
+        try {
+        	t.join();
+        } catch (Exception e2) {
+        	log.error("Exception during FullTextThread.join", e2);
+        }
+        if (e[0] != null) {
+        	throw e[0];
+        }
     }
 
     // ~ Internals
