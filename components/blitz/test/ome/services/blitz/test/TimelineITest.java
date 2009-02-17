@@ -5,6 +5,7 @@
 
 package ome.services.blitz.test;
 
+import static omero.rtypes.rlong;
 import static omero.rtypes.rtime_max;
 import static omero.rtypes.rtime_min;
 
@@ -19,6 +20,7 @@ import junit.framework.TestCase;
 import ome.api.local.LocalQuery;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.LongAnnotation;
+import ome.model.annotations.TagAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.security.SecuritySystem;
@@ -36,9 +38,9 @@ import omero.api.AMD_ITimeline_getEventLogsByPeriod;
 import omero.api.AMD_ITimeline_getMostRecentAnnotationLinks;
 import omero.api.AMD_ITimeline_getMostRecentObjects;
 import omero.api.AMD_ITimeline_getMostRecentShareCommentLinks;
-import omero.model.Event;
 import omero.model.EventLog;
 import omero.model.IObject;
+import omero.sys.Filter;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
@@ -282,6 +284,23 @@ public class TimelineITest extends TestCase {
         assertEquals(baseLineComments.size() + 1, oneMore.size());
     }
 
+    @Test
+    public void testMostRecentAnnotations2() throws Exception {
+        List<IObject> baseLine = assertAnnotations(null, Arrays
+                .asList("TagAnnotation"), null, null);
+
+        // Now add a tag annotations
+        Image i = new Image();
+        i.setName("now");
+        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
+        i.linkAnnotation(new TagAnnotation());
+        i = user.managedSf.getUpdateService().saveAndReturnObject(i);
+
+        List<IObject> oneMore = assertAnnotations(null, Arrays
+                .asList("TagAnnotation"), null, null);
+        assertEquals(baseLine.size() + 1, oneMore.size());
+    }
+
     // Helpers
     // =========================================================================
 
@@ -335,18 +354,19 @@ public class TimelineITest extends TestCase {
         final boolean[] status = new boolean[] { false, false };
         final Exception[] exc = new Exception[1];
         final List<EventLog> rv = new ArrayList<EventLog>();
-        user_t.getEventLogsByPeriod_async(new AMD_ITimeline_getEventLogsByPeriod() {
+        user_t.getEventLogsByPeriod_async(
+                new AMD_ITimeline_getEventLogsByPeriod() {
 
-            public void ice_exception(Exception ex) {
-                status[0] = true;
-                exc[0] = ex;
-            }
+                    public void ice_exception(Exception ex) {
+                        status[0] = true;
+                        exc[0] = ex;
+                    }
 
-            public void ice_response(List<EventLog> __ret) {
-                status[1] = true;
-                rv.addAll(__ret);
-            }
-        }, start, end, null, null);
+                    public void ice_response(List<EventLog> __ret) {
+                        status[1] = true;
+                        rv.addAll(__ret);
+                    }
+                }, start, end, null, null);
         if (exc[0] != null) {
             throw exc[0];
         }
@@ -378,12 +398,24 @@ public class TimelineITest extends TestCase {
         return rv;
     }
 
+    /**
+     * If not filter is provided in the parameters argument, then one is
+     * automatically added for the current user.
+     */
     private List<IObject> assertAnnotations(List<String> parents,
             List<String> children, List<String> namespaces, Parameters p)
             throws ServerError {
         final boolean[] status = new boolean[] { false, false };
         final Exception[] exc = new Exception[1];
         final List<IObject> rv = new ArrayList<IObject>();
+        if (p == null) {
+            p = new ParametersI();
+        }
+        if (p.theFilter == null) {
+            p.theFilter = new Filter();
+            p.theFilter.ownerId = rlong(user.managedSf.getAdminService()
+                    .getEventContext().getCurrentUserId());
+        }
         user_t.getMostRecentAnnotationLinks_async(
                 new AMD_ITimeline_getMostRecentAnnotationLinks() {
 

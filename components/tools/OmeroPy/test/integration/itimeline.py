@@ -14,14 +14,6 @@ import unittest
 import test.integration.library as lib
 import omero, uuid
 import omero_Constants_ice
-from omero_model_ImageI import ImageI
-from omero_model_DatasetI import DatasetI
-from omero_model_ProjectI import ProjectI
-from omero_model_ExperimenterI import ExperimenterI
-from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
-from omero_model_DatasetImageLinkI import DatasetImageLinkI
-from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 from omero.rtypes import *
 
 class TestITimeline(lib.ITest):
@@ -38,7 +30,7 @@ class TestITimeline(lib.ITest):
         
         # create image
         acquired = long(time.time()*1000)
-        img = ImageI()
+        img = omero.model.ImageI()
         img.setName(rstring('test1154-img-%s' % (uuid)))
         img.setAcquisitionDate(rtime(acquired))
         
@@ -76,7 +68,7 @@ class TestITimeline(lib.ITest):
         timeline = self.root.sf.getTimelineService()
         
         # create image
-        ds = DatasetI()
+        ds = omero.model.DatasetI()
         ds.setName(rstring('test1154-ds-%s' % (uuid)))
         ds = update.saveAndReturnObject(ds)
         ds.unload()
@@ -101,27 +93,28 @@ class TestITimeline(lib.ITest):
         timeline = self.root.sf.getTimelineService()
         
         # create dataset
-        ds = DatasetI()
+        ds = omero.model.DatasetI()
         ds.setName(rstring('test1154-ds-%s' % (uuid)))
         ds = update.saveAndReturnObject(ds)
         ds.unload()
         
         # create tag
-        ann = TagAnnotationI()
+        ann = omero.model.TagAnnotationI()
         ann.textValue = rstring('tag-%s' % (uuid))
         ann.setDescription(rstring('tag-%s' % (uuid)))
-        t_ann = DatasetAnnotationLinkI()
+        t_ann = omero.model.DatasetAnnotationLinkI()
         t_ann.setParent(ds)
         t_ann.setChild(ann)
         update.saveObject(t_ann)
         
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["id"] = rlong(self.new_user().id.val)
         f = omero.sys.Filter()
         f.limit = rint(10)
         p.theFilter = f
-        self.assert_(len(timeline.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p)) > 0)
+        p.theFilter.ownerId = rlong( 0 )
+        res = timeline.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p)
+        self.assert_(len(res) > 0)
         
         self.root.sf.closeOnDestroy()
     

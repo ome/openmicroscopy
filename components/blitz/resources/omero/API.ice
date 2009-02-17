@@ -569,6 +569,9 @@ module omero {
 	     * The parents and children will be unloaded. The link will have
 	     * its creation/update events loaded.
 	     *
+	     * If Parameters.theFilter.ownerId or groupId are set, they will be
+	     * AND'ed to the query to filter results.
+	     *
 	     * Merges by default based on parentType.
 	     */
 	    IObjectList

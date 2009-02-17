@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.api.IShare;
+import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.SessionAnnotationLink;
@@ -53,6 +54,7 @@ import omero.api.AMD_ITimeline_getMostRecentShareCommentLinks;
 import omero.api._ITimelineOperations;
 import omero.sys.Filter;
 import omero.sys.Parameters;
+import omero.util.IceMap;
 import omero.util.IceMapper;
 
 import org.hibernate.Query;
@@ -341,12 +343,18 @@ public class TimelineI extends AbstractAmdServant implements
                         }
 
                         for (String _childType : childTypes) {
-                            qb.and("child.class = :kls ");
-                            qb.param("kls", _childType);
+                            try {
+                                Class kls = mapper.omeroClass(_childType, true);
+                                qb.and("child.class = "+kls.getName());
+                            } catch (Exception e) {
+                                throw new ValidationException("Error mapping: "
+                                        + _childType);
+                            }
                         }
 
                     }
 
+                    // NAMESPACES
                     if (namespaces != null && namespaces.size() > 0) {
                         qb.and(" ( ");
                         String param = qb.unique_alias("ns");
@@ -360,6 +368,21 @@ public class TimelineI extends AbstractAmdServant implements
                         }
                         qb.append(" ) ");
                     }
+
+                    // OWNER/GROUP
+                    if (p != null && p.theFilter != null) {
+                        Filter f = p.theFilter;
+                        if (f.ownerId != null) {
+                            qb.and(" link.details.owner.id = :owner_id ");
+                            qb.param("owner_id", f.ownerId.getValue());
+                        }
+                        if (f.groupId != null) {
+                            qb.and(" link.details.group.id = :group_id ");
+                            qb.param("group_id", f.groupId.getValue());
+                        }
+                    }
+
+                    // ORDER
                     qb.order("link.details.updateEvent.id", false);
 
                     Query q = qb.query(session);

@@ -175,17 +175,16 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
     };
 
-
     /**
-     * Specifies a return type which should not be parsed. This should
-     * only be used for objects unknown to the Mapper, and should <em>not</em>
-     * be used for any types which contain by transitivity any ome.model.* types!
+     * Specifies a return type which should not be parsed. This should only be
+     * used for objects unknown to the Mapper, and should <em>not</em> be used
+     * for any types which contain by transitivity any ome.model.* types!
      */
     public final static ReturnMapping UNMAPPED = new ReturnMapping() {
 
         public Object mapReturnValue(IceMapper mapper, Object value)
                 throws Ice.UserException {
-        	return value;
+            return value;
         }
     };
 
@@ -336,9 +335,14 @@ public class IceMapper extends ome.util.ModelMapper implements
             k = _class("omero.model." + className);
         }
 
-        // If either of those attempts worked, map it with IceMap
+        // If either of those attempts worked, map it with IceMap unles
+        // it's already in the key of OMEtoOMERO
         if (k != null) {
-            k = IceMap.OMEROtoOME.get(k);
+            if (IceMap.OMEtoOMERO.containsKey(k)) {
+                // good
+            } else {
+                k = IceMap.OMEROtoOME.get(k);
+            }
         }
 
         // For whatever reason, it's not valid. Log it.
