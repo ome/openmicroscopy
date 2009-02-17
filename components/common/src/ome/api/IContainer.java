@@ -213,38 +213,6 @@ public interface IContainer extends ServiceInterface {
     Set<Long> imagesIds, Map options);
 
     /**
-     * Finds all the annotations that have been attached to the specified
-     * <code>rootNodes</code> for the specified <code>annotatorIds</code>.
-     * This method looks for all annotations that have been attached to each of
-     * the specified objects. It then maps each <code>rootNodeId</code> onto
-     * the set of all annotations that were found for that node. If no
-     * annotations were found for that node, then the entry will be
-     * <code>null</code>. Otherwise it will be a <code>Set</code>
-     * containing {@link Annotation} objects.
-     * 
-     * @param rootNodeType
-     *            The type of the rootNodes Can be {@link Dataset} or
-     *            {@link Image}. Not null.
-     * @param rootNodeIds
-     *            Ids of the objects of type <code>rootNodeType</code>. Not
-     *            null.
-     * @param annotatorIds
-     *            Ids of the users for whom annotations should be retrieved. If
-     *            null, all annotations returned.
-     * @param options
-     *            Map as unused. No notion of <code>experimenter|group</code>
-     *            or <code>leaves</code> or <code>counts</code>
-     * @return A map whose key is rootNodeId and value the <code>Set</code> of
-     *         all annotations for that node or <code>null</code>.
-     */
-    public <T extends IObject, A extends IObject> Map<Long, Set<A>> findAnnotations(
-            @NotNull
-            Class<T> rootNodeType, @NotNull
-            @Validate(Long.class)
-            Set<Long> rootNodeIds, @Validate(Long.class)
-            Set<Long> annotatorIds, Map options);
-
-    /**
      * Retrieve a user's (or all users') images within any given container. For
      * example, all images in project, applying temporal filtering or
      * pagination.
