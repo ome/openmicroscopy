@@ -193,7 +193,7 @@ module omero {
 	    void deleteImage(long id, bool force) throws ApiUsageException, ValidationException, SecurityViolation, ServerError;
 	    void deleteImages(LongList ids, bool force) throws ApiUsageException, ValidationException, SecurityViolation, ServerError;
 	    void deleteImagesByDataset(long datasetId, bool force) throws ApiUsageException, ValidationException, SecurityViolation, ServerError;
-            void deleteSettings(long imageId) throws ServerError;
+        void deleteSettings(long imageId) throws ServerError;
 	};
 
 	/*
@@ -227,6 +227,8 @@ module omero {
 	{
 	    idempotent omero::model::Pixels retrievePixDescription(long pixId) throws ServerError;
 	    idempotent omero::model::RenderingDef retrieveRndSettings(long pixId) throws ServerError;
+	    idempotent omero::model::RenderingDef retrieveRndSettingsFor(long pixId, long userId) throws ServerError;
+	    idempotent IObjectList retrieveAllRndSettings(long pixId, long userId) throws ServerError;
 	    idempotent omero::model::RenderingDef loadRndSettings(long renderingSettingsId) throws ServerError;
 	    void saveRndSettings(omero::model::RenderingDef rndSettings) throws ServerError;
 	    idempotent int getBitDepth(omero::model::PixelsType type) throws ServerError;
@@ -284,9 +286,16 @@ module omero {
 	["ami", "amd"] interface IMetadata extends ServiceInterface
 	{
 	    idempotent LogicalChannelList loadChannelAcquisitionData(omero::sys::LongList ids) throws ServerError;
-	    idempotent AnnotationMap loadAnnotations(string rootType, omero::sys::LongList rootIds, omero::api::StringSet annotationTypes, omero::sys::LongList annotatorIds) throws ServerError;
-		idempotent AnnotationList loadSpecifiedAnnotations(string annotationType, string nameSpace, omero::sys::LongList annotatorIds, bool linkedObject) throws ServerError;
+	    idempotent AnnotationMap loadAnnotations(string rootType, omero::sys::LongList rootIds, omero::api::StringSet annotationTypes, omero::sys::LongList annotatorIds, omero::sys::ParamMap options) throws ServerError;
+		idempotent AnnotationList loadSpecifiedAnnotations(string annotationType, string nameSpace, omero::sys::ParamMap options) throws ServerError;
+	    //idempotent omero::metadata::TagSetContainerList loadTagSets(long id, bool withObjects, omero::sys::ParamMap options) throws ServerError;
+	    //idempotent omero::metadata::TagContainerList loadTags(long id, bool withObjects, omero::sys::ParamMap options) throws ServerError;
+	     idempotent AnnotationMap loadTagContent(omero::sys::LongList ids, omero::sys::ParamMap options) throws ServerError;
+	     idempotent IObjectList loadTagSets(omero::sys::ParamMap options) throws ServerError;
+	     idempotent omero::sys::CountMap getTaggedObjectsCount(omero::sys::LongList ids, omero::sys::ParamMap options) throws ServerError;
 	};
+	
+	//interface IMetadata; // Forward definition. See omero/api/Metadata.ice
 	
 	/*
 	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IProjection.html
@@ -417,11 +426,11 @@ module omero {
 	    void removeUser(long shareId, omero::model::Experimenter exp) throws ServerError;
 	    void removeGuest(long shareId, string emailAddress) throws ServerError;
 
-            // Under construction
-            UserMap getActiveConnections(long shareId) throws ServerError;
-            UserMap getPastConnections(long shareId) throws ServerError;
-            void invalidateConnection(long shareId, omero::model::Experimenter exp) throws ServerError;
-            IObjectList getEvents(long shareId, omero::model::Experimenter exp, omero::RTime from, omero::RTime to) throws ServerError;
+         // Under construction
+        UserMap getActiveConnections(long shareId) throws ServerError;
+        UserMap getPastConnections(long shareId) throws ServerError;
+        void invalidateConnection(long shareId, omero::model::Experimenter exp) throws ServerError;
+        IObjectList getEvents(long shareId, omero::model::Experimenter exp, omero::RTime from, omero::RTime to) throws ServerError;
 	};
 
 	/*

@@ -61,7 +61,6 @@ module omero {
 
         // Lists
 
-
         ["java:type:java.util.ArrayList"]
             sequence<SearchMetadata> SearchMetadataList;
 
@@ -113,19 +112,20 @@ module omero {
         ["java:type:java.util.ArrayList<Integer>:java.util.List<Integer>"]
             sequence<int> IntegerList;
 
+
         // Arrays
 
         sequence<byte> ByteArray;
         sequence<short> ShortArray;
         sequence<int> IntegerArray;
-	sequence<long> LongArray;
-	sequence<double> DoubleArray;
-	sequence<ByteArray> ByteArrayArray;
-	sequence<ShortArray> ShortArrayArray;
-	sequence<IntegerArray> IntegerArrayArray;
+		sequence<long> LongArray;
+		sequence<double> DoubleArray;
+		sequence<ByteArray> ByteArrayArray;
+		sequence<ShortArray> ShortArrayArray;
+		sequence<IntegerArray> IntegerArrayArray;
         sequence<IntegerArrayArray> IntegerArrayArrayArray;
         sequence<LongArray> LongArrayArray;
-	sequence<DoubleArray> DoubleArrayArray;
+		sequence<DoubleArray> DoubleArrayArray;
         sequence<DoubleArrayArray> DoubleArrayArrayArray;
 
         // Dictionaries
