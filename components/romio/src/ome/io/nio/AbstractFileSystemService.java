@@ -9,6 +9,7 @@ package ome.io.nio;
 import java.io.File;
 import java.util.Formatter;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -33,18 +34,17 @@ public class AbstractFileSystemService {
     private final String root;
 
     public AbstractFileSystemService(String path) {
-        if (log.isDebugEnabled()) {
-            log.debug("Using root path: '" + path + "'");
-        }
-
-        this.root = path;
-
-        File rootDirectory = new File(this.root);
+        File rootDirectory = new File(path);
         if (!rootDirectory.isDirectory() || !rootDirectory.canRead()
                 || !rootDirectory.canWrite()) {
             throw new IllegalArgumentException(
                     "Invalid directory specified for file system service."
 		    + rootDirectory);
+        }
+
+        this.root = rootDirectory.getAbsolutePath();
+        if (log.isDebugEnabled()) {
+            log.warn("Using root path: '" + this.root + "'");
         }
     }
 
@@ -52,7 +52,7 @@ public class AbstractFileSystemService {
      * Makes sure that for a given path, it's subpath exists. For example, given
      * the path "/foo/bar/foobar.txt" the method will make sure the directory
      * structure "/foo/bar" exists.
-     * 
+     *
      * @param path
      *            the path to check for subpath existance.
      */
@@ -97,7 +97,8 @@ public class AbstractFileSystemService {
                         + File.separator + suffix;
             }
         }
-
-        return root + prefix + suffix + id;
+        
+        String path = FilenameUtils.concat(root, prefix + suffix + id);
+        return path;
     }
 }
