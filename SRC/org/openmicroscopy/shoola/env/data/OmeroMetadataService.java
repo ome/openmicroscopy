@@ -71,6 +71,15 @@ import pojos.FileAnnotationData;
 public interface OmeroMetadataService
 {
 
+	/** Identifies that the file is of type protocol. */
+	public static final int		EDITOR_PROTOCOL = 0;
+	
+	/** Identifies that the file is of type experiment. */
+	public static final int		EDITOR_EXPERIMENT = 1;
+	
+	/** Identifies that the file is of type other. */
+	public static final int		OTHER = 2;
+	
 	/** Indicates to retrieve the tags. */
 	public static final int LEVEL_TAG = 0;
 	
@@ -544,13 +553,15 @@ public interface OmeroMetadataService
 	 * 
 	 * @param fileAnnotation 	The annotation hosting the previous info.
      * @param file				The file to save.
+     * @param index				One of the constants defined by this class.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object archivedFile(FileAnnotationData fileAnnotation, File file)
+	public Object archivedFile(FileAnnotationData fileAnnotation, File file, int
+			index)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

@@ -63,16 +63,17 @@ public class ArchivedFilesSaver
      * 
      * @param fileAnnotation 	The annotation hosting the previous info.
      * @param file				The file to save.
+     * @param index				Index used to determine the name space.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final FileAnnotationData fileAnnotation, 
-    								final File file)
+    								final File file, final int index)
     {
         return new BatchCall("Loading annotation") {
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
-                result = os.archivedFile(fileAnnotation, file);
+                result = os.archivedFile(fileAnnotation, file, index);
             }
         };
     }
@@ -94,10 +95,12 @@ public class ArchivedFilesSaver
      * 
      * @param fileAnnotation 	The annotation hosting the previous info.
      * @param file				The file to save.
+     * @param index				Index used to determine the name space.
      */
-    public ArchivedFilesSaver(FileAnnotationData fileAnnotation, File file)
+    public ArchivedFilesSaver(FileAnnotationData fileAnnotation, File file, 
+    		int  index)
     {
-    	loadCall = makeBatchCall(fileAnnotation, file);
+    	loadCall = makeBatchCall(fileAnnotation, file, index);
     }
 
 }

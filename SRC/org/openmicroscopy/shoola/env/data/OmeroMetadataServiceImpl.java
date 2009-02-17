@@ -1848,13 +1848,23 @@ class OmeroMetadataServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroMetadataService#archivedFile(FileAnnotationData, File)
+	 * @see OmeroMetadataService#archivedFile(FileAnnotationData, File, int)
 	 */
-	public Object archivedFile(FileAnnotationData fileAnnotation, File file) 
+	public Object archivedFile(FileAnnotationData fileAnnotation, File file, 
+			int index) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (file == null) 
 			throw new IllegalArgumentException("No file to save.");
+		String ns = null;
+		switch (index) {
+			case EDITOR_PROTOCOL:
+				ns = FileAnnotationData.EDITOR_PROTOCOL_NS;
+				break;
+			case EDITOR_EXPERIMENT:
+				ns = FileAnnotationData.EDITOR_EXPERIMENT_NS;
+				break;
+		}
 		//Upload the file back to the server
 		long id = fileAnnotation.getId();
 		long originalID = fileAnnotation.getFileID();
@@ -1866,6 +1876,8 @@ class OmeroMetadataServiceImpl
 		if (id < 0) {
 			fa = new FileAnnotationI();
 			fa.setFile(of);
+			if (ns != null)
+				fa.setNs(omero.rtypes.rstring(ns));
 			IObject object = gateway.createObject(fa, m);
 			id = object.getId().getValue();
 		} else {

@@ -2298,9 +2298,9 @@ class OMEROGateway
 		ids.add(pixelsID);
 		isSessionAlive();
 		try {
-			IContainerPrx service = getPojosService();
-			Map m = service.findAnnotations(Pixels.class.getName(), ids, null, 
-									(new PojoOptions().map()));
+			IMetadataPrx service = getMetadataService();
+			Map m = service.loadAnnotations(Pixels.class.getName(), ids, null, 
+									null, (new PojoOptions().map()));
 			Collection c = (Collection) m.get(pixelsID);
 			if (c == null || c.size() == 0) return false;
 			Iterator i = c.iterator();

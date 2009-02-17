@@ -32,9 +32,9 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
-import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -58,6 +58,17 @@ public interface MetadataHandlerView
 	extends DataServicesView
 {
 
+	/** Identifies that the file is of type protocol. */
+	public static final int		EDITOR_PROTOCOL = 
+			OmeroMetadataService.EDITOR_PROTOCOL;
+	
+	/** Identifies that the file is of type experiment. */
+	public static final int		EDITOR_EXPERIMENT = 
+		OmeroMetadataService.EDITOR_EXPERIMENT;
+	
+	/** Identifies that the file is of type other. */
+	public static final int		OTHER = OmeroMetadataService.OTHER;
+	
 	/**
 	 * Loads all the containers containing the specified object.
 	 * Retrieves the files if the userID is not <code>-1</code>.
@@ -287,10 +298,11 @@ public interface MetadataHandlerView
 	 * 
 	 * @param fileAnnotation	The file to save back to the server.
 	 * @param file				The id of the file if previously saved.
+	 * @param index				One of the constants defined by this class.
 	 * @param observer	Callback handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle saveFile(FileAnnotationData fileAnnotation, File file, 
-			AgentEventListener observer);
+			int index, AgentEventListener observer);
 	
 }

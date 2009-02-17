@@ -33,6 +33,8 @@ import java.io.File;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
+
 import pojos.FileAnnotationData;
 
 /** 
@@ -54,6 +56,16 @@ public class FileSaver
 	extends EditorLoader
 {
 
+	/** Identifies that the file is of type protocol. */
+	public static final int		PROTOCOL = MetadataHandlerView.EDITOR_PROTOCOL;
+	
+	/** Identifies that the file is of type experiment. */
+	public static final int		EXPERIMENT = 
+									MetadataHandlerView.EDITOR_EXPERIMENT;
+	
+	/** Identifies that the file is of type other. */
+	public static final int		OTHER = MetadataHandlerView.OTHER;
+	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  		handle;
     
@@ -62,6 +74,9 @@ public class FileSaver
     
     /** The fileAnnotation data. */
     private FileAnnotationData	fileAnnotationData;
+    
+    /** One of the constants defined by this class. */
+    private int 				index;
     
     /**
      * Creates a new instance.
@@ -78,13 +93,29 @@ public class FileSaver
 	/**
      * Creates a new instance.
      * 
-     * @param viewer	The Editor this data loader is for.
-     *                 	 Mustn't be <code>null</code>.
-     * @param file			The file to save back to the server.
-     * @param data	The id of thet file if previously saved, or
-     * 						<code>-1</code> if not previously saved.
+     * @param viewer The Editor this data loader is for.
+     * 				 Mustn't be <code>null</code>.
+     * @param file	 The file to save back to the server.
+     * @param data	 The id of thet file if previously saved, or
+     * 				 <code>-1</code> if not previously saved.
      */
 	public FileSaver(Editor viewer, File file, FileAnnotationData data)
+	{
+		this(viewer, file, data, OTHER);
+	}
+	
+	/**
+     * Creates a new instance.
+     * 
+     * @param viewer The Editor this data loader is for.
+     * 				 Mustn't be <code>null</code>.
+     * @param file	 The file to save back to the server.
+     * @param data	 The id of thet file if previously saved, or
+     * 				 <code>-1</code> if not previously saved.
+     * @param index  One of the constants defined by this class.
+     */
+	public FileSaver(Editor viewer, File file, FileAnnotationData data, 
+			int index)
 	{
 		super(viewer);
 		if (file == null)
@@ -93,8 +124,14 @@ public class FileSaver
 			data = new FileAnnotationData(file);
 		this.file = file;
 		this.fileAnnotationData = data;
-		
-		System.out.println("FileSaver() size: " + data.getFileSize());
+		switch (index) {
+			case EXPERIMENT:
+			case PROTOCOL:
+				this.index = index;
+			case OTHER:
+			default:
+				this.index = OTHER;
+		}
 	}
 	
 	/**
@@ -103,7 +140,7 @@ public class FileSaver
 	 */
 	public void load()
 	{
-		handle = mhView.saveFile(fileAnnotationData, file, this);
+		handle = mhView.saveFile(fileAnnotationData, file, index, this);
 	}
 
 	/**
