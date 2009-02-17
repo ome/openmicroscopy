@@ -213,7 +213,7 @@
             <td class="product">{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% get_webclient_root_url %}/userdata/project/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="{{ c.name }}" alt="project"/></a>{% endif %}</td> 
             <td>{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/">{{ c.shortName }}</a>{% else %}<a href="{% get_webclient_root_url %}/userdata/project/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% endif %} <img alt="dataset" title="dataset" src="{% get_webclient_static_url %}/images/folder_image16.png"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
             <td></td>
-            <td>{{ c.creationEventDate }}</td>
+            <td>{{ c.creationEventDate|date:" H:i d M Y" }}</td>
             <td>{{ c.details.group.name.val }}</td> 
         </tr> 
         {% endfor %}
@@ -222,7 +222,7 @@
             <td class="product">{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="{{ c.name }}" alt="project"/></a>{% endif %}</td> 
             <td>{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/">{{ c.shortName }}</a>{% else %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% endif %} <img src="{% get_webclient_static_url %}/images/image16.png" title="image" alt="image"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
             <td><a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a>{% if manager.project and c.isOwned %} <a href="{% get_webclient_root_url %}/action/remove/?parent=pr-{{ manager.project.id }}&source=ds-{{ c.id }}&url={{ url }}" onClick="return confirm('Unlink dataset?');"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}</td>
-            <td>{{ c.creationEventDate }}</td>
+            <td>{{ c.creationEventDate|date:" H:i d M Y" }}</td>
             <td>{{ c.details.group.name.val }}</td> 
         </tr> 
         {% endfor %}
@@ -274,7 +274,7 @@
                 <td class="product"><a href="{% get_webclient_root_url %}/groupdata/project/{{ c.id }}/?filter=group&group={{ c.details.group.id.val }}"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="{{ c.name }}" alt="project"/></a></td> 
                 <td><a href="{% get_webclient_root_url %}/groupdata/project/{{ c.id }}/?filter=group&group={{ c.details.group.id.val }}">{{ c.shortName }}</a> <img alt="dataset" title="dataset" src="{% get_webclient_static_url %}/images/folder_image16.png"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td>
                 <td></td> 
-                <td>{{ c.creationEventDate }} by {{ c.getOwner }}</td>
+                <td>{{ c.creationEventDate|date:" H:i d M Y" }} by {{ c.getOwner }}</td>
                 <td>{{ c.details.group.name.val }}</td> 
             </tr>
             {% endfor %}
@@ -283,7 +283,7 @@
                 <td class="product"><a href="{% get_webclient_root_url %}/groupdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=group&group={{ c.details.group.id.val }}"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="{{ c.name }}" alt="project"/></a></td> 
                 <td><a href="{% get_webclient_root_url %}/groupdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=group&group={{ c.details.group.id.val }}">{{ c.shortName }}</a> <img src="{% get_webclient_static_url %}/images/image16.png" title="image" alt="image"/>[{{ c.countChild }}]{% if not c.isOwned %}  <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
                 <td><a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a>{% if manager.project and c.isOwned %} <a href="{% get_webclient_root_url %}/action/remove/?parent=pr-{{ manager.project.id }}&source=ds-{{ c.id }}&url={{ url }}" onClick="return confirm('Unlink dataset?');"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}</td>
-                <td>{{ c.creationEventDate }} by {{ c.getOwner }}</td>
+                <td>{{ c.creationEventDate|date:" H:i d M Y" }} by {{ c.getOwner }}</td>
                 <td>{{ c.details.group.name.val }}</td> 
             </tr>
             {% endfor %}

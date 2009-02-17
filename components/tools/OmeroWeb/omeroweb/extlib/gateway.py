@@ -1336,10 +1336,9 @@ class BlitzGateway (threading.Thread):
                 ann = container.findAnnotations("Experimenter", [self.getEventContext().userId], None, None).get(self.getEventContext().userId, [])[0]
             else:
                 ann = container.findAnnotations("Experimenter", [long(oid)], None, None).get(long(oid), [])[0]
-            f = ann.getFile()
             store = self.createRawFileStore()
-            store.setFileId(f.id.val)
-            photo = store.read(0,100000)
+            store.setFileId(ann.file.id.val)
+            photo = store.read(0,long(ann.file.size.val))
         except:
             photo = self.getExperimenterDefaultPhoto()
         if photo == None:
@@ -2424,8 +2423,7 @@ class ImageWrapper (BlitzObjectWrapper):
 
     def getDate(self):
         try:
-            import time
-            return time.ctime(self._obj.acquisitionDate.val / 1000)
+            return datetime.fromtimestamp(self._obj.acquisitionDate.val / 1000)
         except:
             logger.debug(traceback.format_exc())
             return "unknown"
@@ -2712,11 +2710,11 @@ class ShareWrapper (BlitzObjectWrapper):
         return len(list(self._conn.getComments(self.id)))
         
     def getStartDate(self):
-        return datetime.fromtimestamp((self._obj.started.val)/1000).strftime("%Y-%m-%d")
+        return datetime.fromtimestamp(self._obj.started.val/1000)
         
     def getExpirationDate(self):
         try:
-            return datetime.fromtimestamp((self._obj.started.val+self._obj.timeToLive.val)/1000).strftime("%Y-%m-%d")
+            return datetime.fromtimestamp((self._obj.started.val+self._obj.timeToLive.val)/1000)
         except ValueError:
             return "Unknown"
         except:

@@ -109,7 +109,7 @@ class BaseShare(BaseController):
         self.mshSize = len(self.memberShares)
 
     def getComments(self, share_id):
-        self.comments = self.sortByAttr(list(self.conn.getComments(share_id)), 'details.creationEvent.time', True)
+        self.comments = self.sortByAttr(list(self.conn.getComments(share_id)), 'details.creationEvent.time')
         self.cmSize = len(self.comments)
 
     def getMembers(self, share_id):

@@ -13,7 +13,7 @@
     {% if tann.isOwned %}
         <div id="comment_wrapper">
         <div id="comment">
-            <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> posted comment on {{ tann.creationEventDate }} {% if tann.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ tann.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
+            <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> posted comment at {{ tann.creationEventDate|date:" H:i d M Y" }} {% if tann.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ tann.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
             <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -25,7 +25,7 @@
         <div id="comment_wrapper_rev">
         <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ tann.details.owner.id.val }}/" alt="{{ tann.getOwner }}" title="{{ tann.getOwner }}" width="40" height="40" /></div>
         <div id="comment_rev">
-            <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> posted comment on {{ tann.creationEventDate }}</div>
+            <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> posted comment at {{ tann.creationEventDate|date:" H:i d M Y" }}</div>
             <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -50,7 +50,7 @@
 <h1>Files:</h1>
 <ol>
     {% for fileann in manager.file_annotations %}
-    <li><a href="{% get_webclient_root_url %}/annotation/download/{{ fileann.id }}/" target="_blank">{{ fileann.getFileName }}</a> - {{ fileann.getFileSize|default_if_none:0|filesizeformat }} by {{ fileann.getOwner }} at {{ fileann.creationEventDate }}</li>
+    <li><a href="{% get_webclient_root_url %}/annotation/download/{{ fileann.id }}/" target="_blank">{{ fileann.getFileName }}</a> - {{ fileann.getFileSize|default_if_none:0|filesizeformat }} by {{ fileann.getOwner }} at {{ fileann.creationEventDate|date:" H:i d M Y" }}</li>
     {% endfor %}
 </ol>
 {% endif %}

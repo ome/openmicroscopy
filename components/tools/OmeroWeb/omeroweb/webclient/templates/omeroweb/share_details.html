@@ -64,13 +64,13 @@
     <div class="clear"> </div>
     
     <h2>Details: 
-        {% if share.share.active %}ACTIVE{% else %}NOT ACTIVE{% endif %}. Starts: {{ share.share.getStartDate }}, Expires: {{ share.share.getExpirationDate }}
+        {% if share.share.active %}ACTIVE{% else %}NOT ACTIVE{% endif %}. Starts: {{ share.share.getStartDate|date:" H:i d M Y" }}, Expires: {{ share.share.getExpirationDate|date:" H:i d M Y" }}
     </h2>
     
     {% if share.share.isOwned %}
         <div id="comment_wrapper">
         <div id="comment">
-            <div class="head"><a href="mailto:{{ share.share.owner.email.val }}">{{ share.share.getOwner }}</a> posted comment on {{ share.share.getStartDate }}</div>
+            <div class="head"><a href="mailto:{{ share.share.owner.email.val }}">{{ share.share.getOwner }}</a> posted comment at {{ share.share.getStartDate|date:" H:i d M Y" }}</div>
             <div class="body">{{ share.share.message|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -79,7 +79,7 @@
     {% else %}
         <div id="comment_wrapper_rev">
         <div id="comment_rev">
-            <div class="head"><a href="mailto:{{ share.share.owner.email.val }}">{{ share.share.getOwner }}</a> posted comment on {{ share.share.getStartDate }}</div>
+            <div class="head"><a href="mailto:{{ share.share.owner.email.val }}">{{ share.share.getOwner }}</a> posted comment at {{ share.share.getStartDate|date:" H:i d M Y" }}</div>
             <div class="body">{{ share.share.message|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -94,7 +94,7 @@
             {% if cm.isOwned %}
                 <div id="comment_wrapper">
                 <div id="comment">
-                    <div class="head"><a href="mailto:{{ cm.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment on {{ cm.creationEventDate }}</div>
+                    <div class="head"><a href="mailto:{{ cm.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment at {{ cm.creationEventDate|date:" H:i d M Y" }}</div>
                     <div class="body">{{ cm.textValue|wikify|safe|linebreaks }}</div>
                     <div class="footer"></div>
                 </div>
@@ -105,7 +105,7 @@
             {% else %}
                 <div id="comment_wrapper_rev">
                 <div id="comment_rev">
-                    <div class="head"><a href="mailto:{{ cm.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment on {{ cm.creationEventDate }}</div>
+                    <div class="head"><a href="mailto:{{ cm.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment at {{ cm.creationEventDate|date:" H:i d M Y" }}</div>
                     <div class="body">{{ cm.textValue|wikify|safe|linebreaks }}</div>
                     <div class="footer"></div>
                 </div>
