@@ -41,7 +41,8 @@ import ome.model.enums.PixelsType;
  *          2005/06/08 15:21:59 $) </small>
  * @since OME2.2
  */
-public interface IPixels extends ServiceInterface {
+public interface IPixels extends ServiceInterface 
+{
     /**
      * Retrieves the pixels metadata with the following objects pre-linked:
      * <ul>
@@ -77,6 +78,46 @@ public interface IPixels extends ServiceInterface {
      * @return Rendering definition.
      */
     public RenderingDef retrieveRndSettings(long pixelsId);
+    
+    /**
+     * Retrieves the rendering settings for a given pixels set and the passed
+     * user with the following objects pre-linked:
+     * <ul>
+     * <li>renderingDef.quantization</li>
+     * <li>renderingDef.model</li>
+     * <li>renderingDef.waveRendering</li>
+     * <li>renderingDef.waveRendering.color</li>
+     * <li>renderingDef.waveRendering.family</li>
+     * <li>renderingDef.spatialDomainEnhancement</li>
+     * </ul>
+     * 
+     * @param pixelsId
+     *            Pixels id.
+     * @param userID 
+     * 			  The id of the user.
+     * @return Rendering definition.
+     */
+    public RenderingDef retrieveRndSettingsFor(long pixelsId, long userID);
+    
+    /**
+     * Retrieves all the rendering settings for a given pixels set and the 
+     * passed user with the following objects pre-linked:
+     * <ul>
+     * <li>renderingDef.quantization</li>
+     * <li>renderingDef.model</li>
+     * <li>renderingDef.waveRendering</li>
+     * <li>renderingDef.waveRendering.color</li>
+     * <li>renderingDef.waveRendering.family</li>
+     * <li>renderingDef.spatialDomainEnhancement</li>
+     * </ul>
+     * 
+     * @param pixelsId
+     *            Pixels id.
+     * @param userID 
+     * 			  The id of the user.
+     * @return Rendering definition.
+     */
+    public List<IObject> retrieveAllRndSettings(long pixId, long userId);
     
     /**
      * Loads a specific set of rendering settings with the following objects 

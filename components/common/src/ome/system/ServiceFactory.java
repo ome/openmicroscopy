@@ -16,6 +16,7 @@ import ome.api.IConfig;
 import ome.api.IContainer;
 import ome.api.IDelete;
 import ome.api.ILdap;
+import ome.api.IMetadata;
 import ome.api.IPixels;
 import ome.api.IProjection;
 import ome.api.IQuery;
@@ -230,6 +231,10 @@ public class ServiceFactory {
         return getServiceByClass(IRepositoryInfo.class);
     }
 
+    public IMetadata getMetadataService() {
+        return getServiceByClass(IMetadata.class);
+    }
+    
     // ~ Stateful services
     // =========================================================================
 

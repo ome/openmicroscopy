@@ -98,7 +98,7 @@ public interface IContainer extends ServiceInterface {
 
     // ~ READ API
     // =========================================================================
-
+	
     /**
      * Retrieves hierarchy trees rooted by a given node.
      * <p>
@@ -117,7 +117,7 @@ public interface IContainer extends ServiceInterface {
      * 
      * @param rootNodeType
      *            The type of the root node. Can be {@link Project},
-     *            {@link Dataset}.
+     *            {@link Dataset} or {@link Screen}.
      *            Cannot be null.
      * @param rootNodeIds
      *            The ids of the root nodes. Can be null if an Experimenter is
@@ -136,6 +136,9 @@ public interface IContainer extends ServiceInterface {
      *            <code>rootNodeIds!=null</code>, the result will be filtered
      *            by the <code>experimenter|group</code> at the
      *            <code>Image</code> and intermediate levels <i>if available</i>.
+     *            Due to the amount of data potentially linked a Screen/Plate,
+     *            the <code>leaves</code> option is not taken into account.
+     *            when the root node is a {@link Screen}.
      * @DEV.TODO should it be applied at all levels?
      * @return a set of hierarchy trees. The requested node as root and all of
      *         its descendants. The type of the returned value will be

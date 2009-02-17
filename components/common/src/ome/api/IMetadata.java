@@ -25,6 +25,7 @@ package ome.api;
 
 //Java imports
 import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -107,6 +108,7 @@ public interface IMetadata
      * @param annotatorIds Ids of the users for whom annotations should be 
      *                     retrieved. 
      *                     If <code>null</code>, all annotations returned.
+     * @param options
      * @return A map whose key is rootNodeId and value the <code>Set</code> of
      *         all annotations for that node or <code>null</code>.
      */
@@ -115,7 +117,7 @@ public interface IMetadata
             @NotNull Class<T> nodeType, @NotNull @Validate(Long.class)
             Set<Long> rootNodeIds, @NotNull @Validate(String.class) 
             Set<String> annotationType,
-            @Validate(Long.class) Set<Long> annotatorIds);
+            @Validate(Long.class) Set<Long> annotatorIds, Map options);
     
     /**
      * Loads the annotations of a given type.
@@ -123,15 +125,69 @@ public interface IMetadata
      * @param type      The type of annotations to load.
      * @param nameSpace The name space, one of the constants defined by 
      *                  this class or <code>null</code>.
-     * @param annotatorIds Ids of the users for whom annotations should be 
-     *                     retrieved. 
-     * @param linkedObjects Pass <code>true</code> to load the 
-     * 						<code>IObject</code> related to the annotations.
+     * @param options	The pojo options.
      * @return A collection of found annotations.
      */
     public <A extends Annotation> Set<A> loadSpecifiedAnnotations(
-    		@NotNull Class<A> type, String nameSpace, 
-    		 @Validate(Long.class) Set<Long> annotatorIds, 
-    		 boolean linkedObjects);
+    		@NotNull Class type, String nameSpace, Map options);
+    
+    /**
+     * Loads the Tag Set if the id is specified otherwis loads all the Tag
+     * Set.
+     * 
+     * @param id			The id of the tag to load or <code>-1</code>.
+     * @param withObjects	Pass <code>true</code> to load the data objects
+     * 						related to the <code>Tags</code>. Note that a 
+     * 						<code>Tag Set</code> can only be linked to a
+     * 						<code>Tag</code>.
+     * @param options		The pojo options.
+     * @return Map whose key is a <code>Tag/Tag Set</code> and the value
+     * 		   either a Map or a list of related <code>DataObject</code>.
+     */
+    //public <T extends IObject, A extends Annotation> Map<A, Map<A, Set<T>>> 
+    //	loadTagSets(long id, boolean withObjects, Map options);
+    
+    /**
+     * Loads the Tag Set if the id is specified otherwis loads all the Tag
+     * Set.
+     * 
+     * @param id			The id of the tag to load or <code>-1</code>.
+     * @param withObjects	Pass <code>true</code> to load the data objects
+     * 						related to the <code>Tags</code>. Note that a 
+     * 						<code>Tag Set</code> can only be linked to a
+     * 						<code>Tag</code>.
+     * @param options		The pojo options.
+     * @return Map whose key is a <code>Tag/Tag Set</code> and the value
+     * 		   either a Map or a list of related <code>DataObject</code>.
+     */
+    //public <T extends IObject, A extends Annotation> Map<A, Set<T>> 
+    //	loadTags(long id, boolean withObjects, Map options);
+    
+    public Map<Long, Set<IObject>> loadTagContent(
+    		@NotNull @Validate(Long.class) Set<Long> tagIds, Map options);
+     
+    /**
+     * Loads all the tag Sets. Returns a collection of 
+     * <code>AnnotationAnnotatioLink</code> objects and, if the 
+     * <code>orphan</code> parameters is <code>true</code>, the 
+     * <code>TagAnnotation</code> object.
+     * Note that the difference between a Tag Set and a Tag is made
+     * using the name space {@link #NS_INSIGHT_TAG_SET}.
+     * 
+     * @param options The pojo options.
+     * @return See above.
+     */
+    public Set<IObject> loadTagSets(Map options);
+    
+    /**
+     * Returns a map whose key is a tag's id and the value the number of
+     * Projects, Datasets, and Images linked to that tag.
+     * 
+     * @param tagIds The collection of ids.
+     * @param options The pojo options.
+     * @return See above.
+     */
+    public Map<Long, Long> getTaggedObjectsCount(@NotNull @Validate(Long.class) 
+    		Set<Long> tagIds, Map options);
     
 }
