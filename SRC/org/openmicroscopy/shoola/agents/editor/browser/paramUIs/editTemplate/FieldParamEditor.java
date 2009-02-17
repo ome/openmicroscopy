@@ -209,7 +209,7 @@ public class FieldParamEditor
 			notesToolTip = notesToolTip + "</div></html>";
 			
 			Icon notes = IconManager.getInstance().getIcon
-											(IconManager.INFO_12_ICON);
+											(IconManager.INFO_ICON_12);
 			JButton notesButton = new CustomButton(notes);
 			notesButton.setToolTipText(notesToolTip);
 			nameContainer.add(notesButton);
@@ -219,7 +219,7 @@ public class FieldParamEditor
 		String stepType = field.getAttribute(Field.STEP_TYPE);
 		if (CPEimport.SPLIT_STEP.equals(stepType)) {
 			Icon split = IconManager.getInstance().getIcon
-												(IconManager.SPLIT_12_ICON);
+												(IconManager.SPLIT_ICON_12);
 			JButton splitButton = new CustomButton(split);
 			splitButton.setToolTipText("This step is a 'Split Step'");
 			nameContainer.add(splitButton);
@@ -232,7 +232,7 @@ public class FieldParamEditor
 			String investigName = field.getAttribute(CPEimport.INVESTIG_NAME);
 			if (expDate != null || investigName != null) {
 				Icon e = IconManager.getInstance().getIcon
-												(IconManager.EXP_9_11_ICON);
+												(IconManager.EXP_ICON_9_11);
 				String date = "no date";
 				
 				SimpleDateFormat f = new SimpleDateFormat("d MMM, yyyy");
@@ -340,7 +340,7 @@ public class FieldParamEditor
 	{
 		ParamEditor pe = new ParamEditor(param, this);
 		
-		pe.addPropertyChangeListener(ParamEditor.PARAM_TYPE, this);
+		pe.addPropertyChangeListener(this);
 		container.add(Box.createVerticalStrut(20));
 		//attributeFieldsPanel.add(new JSeparator());
 		//container.add(Box.createVerticalStrut(10));
@@ -406,15 +406,16 @@ public class FieldParamEditor
 		String propName = evt.getPropertyName();
 		
 		if (ParamEditor.PARAM_TYPE.equals(propName)) { 
-			if (evt.getSource() instanceof ParamEditor) {
-				
-				IParam oldParam = ((ParamEditor)evt.getSource()).getParameter();
+			if (evt.getSource() instanceof ITreeEditComp) {
+				// Source wil
+				IAttributes op = ((ITreeEditComp)evt.getSource()).getParameter();
+				IParam oldParam = (IParam)op;
 				IParam newParam = null;
 				String newType = evt.getNewValue().toString();
 				if (newType != null) 
 				newParam = FieldParamsFactory.getFieldParam(newType);
 				          
-				// if newParam is null, this will simply remove first parameter
+				// if newParam is null, this will simply remove the parameter
 				controller.changeParam(newParam, oldParam, field, 
 								tree, treeNode);
 			}

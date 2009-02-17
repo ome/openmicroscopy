@@ -25,15 +25,23 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 //Java imports
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 
 //Third-party libraries
 
@@ -41,12 +49,15 @@ import javax.swing.JPanel;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.FieldPanel;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamToolBar;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.DropDownMenu;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * This UI panel is for editing the template attributes of a Parameter. 
@@ -71,7 +82,7 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.DropDownMenu;
  * @since OME3.0
  */
 public class ParamEditor 
-	extends JPanel 
+	extends JPanel
 	implements PropertyChangeListener
 {
 	/**
@@ -117,6 +128,9 @@ public class ParamEditor
 	{
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBackground(null);
+		Border lineBorder = BorderFactory.createMatteBorder(1, 1, 1, 1,
+                UIUtilities.LIGHT_GREY);
+		setBorder(lineBorder);
 		
 		// add name field
 		AttributeEditLine nameEditor = new AttributeEditNoLabel
@@ -134,43 +148,26 @@ public class ParamEditor
 				}
 		}
 
-		// need somewhere for small icons to show 'required', 'info' etc. 
-		Box miniToolBar = Box.createHorizontalBox();
+		JPanel toolBars = new ParamToolBar(parameter);
+		toolBars.addPropertyChangeListener(parent);
 		
-		// indicate whether parameter is necessary (required)
-		if (parameter.isAttributeTrue(AbstractParam.PARAM_REQUIRED)) {
-			Icon red = IconManager.getInstance().getIcon
-										(IconManager.RED_ASTERISK_ICON_11);
-			JButton requiredButton = new CustomButton(red);
-			requiredButton.setToolTipText("This parameter is 'required'");
-			miniToolBar.add(requiredButton);
-		}
-		
-		// indicate whether parameter has description (show with toolTip)
-		String paramDesc = parameter.getAttribute(AbstractParam.PARAM_DESC);
-		if (paramDesc != null) {
-			Icon info = IconManager.getInstance().getIcon
-										(IconManager.INFO_12_ICON);
-			JButton infoButton = new CustomButton(info);
-			infoButton.setToolTipText("<html><div style='width:250px; " +
-					"padding:2px'>" + "Parameter Description:<br>" + 
-					paramDesc + "</div></html>");
-			miniToolBar.add(infoButton);
-		}
-		
+		Border eb = new EmptyBorder(1,4,4,4);
 		JPanel nameAndTypeContainer = new JPanel(new BorderLayout());
 		nameAndTypeContainer.setBackground(null);
+		nameAndTypeContainer.setBorder(eb);
 		nameAndTypeContainer.setOpaque(false);
 		nameAndTypeContainer.add(nameEditor, BorderLayout.CENTER);
 		nameAndTypeContainer.add(paramTypeChooser, BorderLayout.EAST);
-		nameAndTypeContainer.add(miniToolBar, BorderLayout.WEST);
 		
+		// add to this panel (box-layout)
+		add(toolBars);
 		add(nameAndTypeContainer);
 		
 		// add the parameter editing component
 		JComponent defaultEdit = ParamTemplateUIFactory.
 		getEditDefaultComponent(parameter);
 		if (defaultEdit != null) {
+			defaultEdit.setBorder(eb);
 			add(defaultEdit);
 			defaultEdit.addPropertyChangeListener( 
 				ITreeEditComp.VALUE_CHANGED_PROPERTY, 
@@ -224,5 +221,9 @@ public class ParamEditor
 	public IParam getParameter()
 	{
 		return parameter;
+	}
+
+	public String getEditDisplayName() {
+		return "Edit 'Required' status";
 	}
 }

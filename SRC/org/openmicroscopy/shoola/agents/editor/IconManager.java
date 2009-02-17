@@ -283,13 +283,13 @@ public class IconManager
     public  static final int			RED_ASTERISK_ICON_11 = 74;
     
     /** The <code>Info</code> icon, 12 pixels square. */
-    public  static final int			INFO_12_ICON = 75;
+    public  static final int			INFO_ICON_12 = 75;
     
     /** The <code>Split</code> icon, 12 pixels square. */
-    public  static final int			SPLIT_12_ICON = 76;
+    public  static final int			SPLIT_ICON_12 = 76;
     
     /** The <code>Exp</code> icon, 9x11 pixels square. */
-    public  static final int			EXP_9_11_ICON = 77;
+    public  static final int			EXP_ICON_9_11 = 77;
     
     /** The <code>Add-Text-Box</code> icon.*/
     public  static final int			ADD_TEXTBOX_ICON = 78;
@@ -306,11 +306,17 @@ public class IconManager
     /** The <code>OMERO.editor</code> icon, 48 x 48.*/
     public  static final int			OMERO_EDITOR_48 = 82;
     
+    /** The <code>Grey Asterisk</code> icon, 11 x 11.*/
+    public  static final int			GREY_ASTERISK_ICON_11 = 83;
+    
+    /** The <code>Delete 'X'</code> icon, 12 x 12.*/
+    public  static final int			DELETE_ICON_12 = 84;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 82;
+    private static final int          MAX_ID = 84;
    
     
     /** Paths of the icon files. */
@@ -399,14 +405,16 @@ public class IconManager
         relPaths[WWW_FOLDER_ICON_48] = "nuvola_folder_html48.png";
         relPaths[SAVE_SERVER_ICON] = "nuvola_save_server16.png";
         relPaths[RED_ASTERISK_ICON_11] = "red_asterisk_11.png";
-        relPaths[INFO_12_ICON] = "info_12.png";
-        relPaths[SPLIT_12_ICON] = "split_12.png";
-        relPaths[EXP_9_11_ICON] = "exp_9_11.png";
+        relPaths[INFO_ICON_12] = "info_12.png";
+        relPaths[SPLIT_ICON_12] = "split_12.png";
+        relPaths[EXP_ICON_9_11] = "exp_9_11.png";
         relPaths[ADD_TEXTBOX_ICON] = "add_textBox16.png";
         relPaths[NEW_FILE_ICON_32] = "nuvola_filenew32.png";
         relPaths[WWW_FOLDER_ICON_32] = "nuvola_folder_html32.png";
         relPaths[OPEN_FOLDER_ICON_32] = "nuvola_folder32.png";
         relPaths[OMERO_EDITOR_48] = "omeroEditor48.png";
+        relPaths[GREY_ASTERISK_ICON_11] = "asterisk_grey_11.png";
+        relPaths[DELETE_ICON_12] = "nuvola_edit_delete_12.png";
     }
     
     

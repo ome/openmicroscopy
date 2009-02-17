@@ -46,8 +46,7 @@ public class FieldParamsFactory {
 	public static final String NO_PARAMS = "noParams";
 	
 	private static final String[] PARAM_TYPES = 
-	{NO_PARAMS, 
-		TextParam.TEXT_LINE_PARAM,
+	{	TextParam.TEXT_LINE_PARAM,
 		EnumParam.ENUM_PARAM, 
 		BooleanParam.BOOLEAN_PARAM, 
 		NumberParam.NUMBER_PARAM, 
@@ -60,8 +59,7 @@ public class FieldParamsFactory {
 	//	 the names used for the UI - MUST be in SAME ORDER as INPUT_TYPES they correspond to 
 	// this means you can change the UI names without changing INPUT_TYPES.
 	private static final String[] UI_INPUT_TYPES = 	
-	{ "DELETE Parameter", 
-		"Text", 
+	{ "Text", 
 		"Drop-down Menu", 
 		"Check-Box", 
 		"Number", 
