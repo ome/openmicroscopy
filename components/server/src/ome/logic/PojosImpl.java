@@ -274,73 +274,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     }
 
-    /**
-     * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#findAnnotations(Class, Set, Set, Map)
-     */
-    @RolesAllowed("user")
-    @Transactional(readOnly = true)
-    public <T extends IObject, A extends IObject> Map<Long, Set<A>> findAnnotations(
-            Class<T> rootNodeType, Set<Long> rootNodeIds,
-            Set<Long> annotatorIds, Map options) {
-
-        Map<Long, Set<A>> map = new HashMap<Long, Set<A>>();
-
-        if (rootNodeIds.size() == 0) {
-            return map;
-        }
-
-        if (!IAnnotated.class.isAssignableFrom(rootNodeType)) {
-            throw new ApiUsageException(
-                    "Class parameter for findAnnotation() "
-                            + "must be a subclass of ome.model.IAnnotated");
-        }
-
-        PojoOptions po = new PojoOptions(options);
-
-        Query<List<IAnnotated>> q = getQueryFactory().lookup(
-                PojosFindAnnotationsQueryDefinition.class.getName(),
-                new Parameters().addIds(rootNodeIds).addClass(rootNodeType)
-                        .addSet("annotatorIds", annotatorIds).addOptions(
-                                po.map()));
-
-        List<IAnnotated> l = iQuery.execute(q);
-        // no count collection
-
-        //
-        // Destructive changes below this point.
-        //
-        for (IAnnotated annotated : l) {
-            iQuery.evict(annotated);
-            annotated.collectAnnotationLinks(new CBlock<ILink>() {
-
-                public ILink call(IObject object) {
-                    ILink link = (ILink) object;
-                    iQuery.evict(link);
-                    iQuery.evict(link.getChild());
-                    return null;
-                }
-
-            });
-        }
-
-        // SORT
-        Iterator<IAnnotated> i = new HashSet<IAnnotated>(l).iterator();
-        while (i.hasNext()) {
-            IAnnotated annotated = i.next();
-            Long id = annotated.getId();
-            Set<A> set = map.get(id);
-            if (set == null) {
-                set = new HashSet<A>();
-                map.put(id, set);
-            }
-            set.addAll((List<A>) annotated.linkedAnnotationList());
-        }
-
-        return map;
-
-    }
-
+   
     static final Map<Class, String> paginationQueries = new HashMap();
     static {
         paginationQueries.put(Dataset.class,

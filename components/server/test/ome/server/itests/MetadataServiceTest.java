@@ -31,9 +31,10 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.hibernate.validator.AssertTrue;
 
 //Third-party libraries
+import org.hibernate.validator.AssertTrue;
+import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import ome.api.IContainer;
@@ -68,9 +69,6 @@ public class MetadataServiceTest
 	/** Reference to the service test. */
 	protected IMetadata iMetadata;
 
-	/** Reference to the data. */
-    protected OMEData data;
-
     /** 
      * Sets the service.
      */
@@ -79,10 +77,6 @@ public class MetadataServiceTest
     	throws Exception
     {
         super.onSetUp();
-        DataSource dataSource = (DataSource) applicationContext
-                .getBean("dataSource");
-        data = new OMEData();
-        data.setDataSource(dataSource);
         iMetadata = factory.getMetadataService();
     }
     
