@@ -14,5 +14,6 @@
   <dependencies>
     <!-- Internal -->
     <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;server->server;client->client"/>
+    <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
   </dependencies>
 </ivy-module>
