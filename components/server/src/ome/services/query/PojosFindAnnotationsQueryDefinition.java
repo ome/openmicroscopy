@@ -45,7 +45,9 @@ public class PojosFindAnnotationsQueryDefinition extends Query {
         // obj.setFetchMode("details.group", FetchMode.JOIN);
         // obj.setFetchMode("details.creationEvent", FetchMode.JOIN);
         // obj.setFetchMode("details.updateEvent", FetchMode.JOIN);
-        obj.add(Restrictions.in("id", (Collection) value(IDS)));
+        Collection ids = (Collection) value(IDS);
+        if (ids != null && ids.size() > 0)
+        	obj.add(Restrictions.in("id", ids));
 
         // Here we do want the left join, so the consumer will see
         // that there's an empty set
