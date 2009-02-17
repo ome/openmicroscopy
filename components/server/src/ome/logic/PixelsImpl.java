@@ -29,6 +29,7 @@ import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.PixelsType;
+import ome.model.meta.Session;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
 
@@ -82,9 +83,25 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         return p;
     }
 
+    /**
+     * Returns the Id of the currently logged in user.
+     * Returns owner of the share while in share
+     * @return See above.
+     */
+    private Long getCurrentUserId() {
+        Long shareId = getSecuritySystem().getEventContext().getCurrentShareId();
+        if (shareId != null) {
+            Session s = iQuery.get(Session.class, shareId);
+            return s.getOwner().getId();
+        } 
+        return getSecuritySystem().getEventContext().getCurrentUserId();
+    }
+    
     @RolesAllowed("user")
     public RenderingDef retrieveRndSettings(long pixId) {
-        Long userId = getSecuritySystem().getEventContext().getCurrentUserId();
+        
+        Long userId = getCurrentUserId();
+        
         Parameters params = new Parameters();
         params.addLong("p_id", pixId);
         params.addLong("o_id", userId);

@@ -480,6 +480,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     
     /**
      * Returns the Id of the currently logged in user.
+     * Returns owner of the share while in share
      * @return See above.
      */
     private Long getCurrentUserId()
