@@ -106,12 +106,12 @@ public class PixelsI extends AbstractAmdServant implements _IPixelsOperations {
 
     public void retrieveRndSettingsFor_async(AMD_IPixels_retrieveRndSettingsFor __cb,
             long pixId, long userId, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, pixId);
+        callInvokerOnRawArgs(__cb, __current, pixId, userId);
     }
     
     public void retrieveAllRndSettings_async(AMD_IPixels_retrieveAllRndSettings __cb,
             long pixId, long userId, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, pixId);
+        callInvokerOnRawArgs(__cb, __current, pixId, userId);
     }
     
     public void saveRndSettings_async(AMD_IPixels_saveRndSettings __cb,
