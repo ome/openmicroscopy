@@ -1624,7 +1624,8 @@ class BlitzGateway (threading.Thread):
     ##  History methods                        ##
     
     def getLastImportedImages (self):
-        q = self.getQueryService()
+        tm = self.getTimelineService()
+        '''q = self.getQueryService()
         sql = "select i from Image i join fetch i.details.owner join fetch i.details.group where i.details.owner.id =:id and i.details.group.id =:gid order by i.details.creationEvent.time desc"
         p = omero.sys.Parameters()
         p.map = {}
@@ -1634,6 +1635,15 @@ class BlitzGateway (threading.Thread):
         f.limit = rint(6)
         p.theFilter = f
         for e in q.findAllByQuery(sql, p):
+            yield ImageWrapper(self, e)'''
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["id"] = rlong(self.getEventContext().userId)
+        p.map["gid"] = rlong(self.getEventContext().groupId)
+        f = omero.sys.Filter()
+        f.limit = rint(6)
+        p.theFilter = f
+        for e in tm.getMostRecentObjects(['Image'], p, False)["Image"]:
             yield ImageWrapper(self, e)
     
     def getMostRecentSharesComments (self):
@@ -1662,8 +1672,9 @@ class BlitzGateway (threading.Thread):
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["id"] = rlong(self.getEventContext().userId)
         f = omero.sys.Filter()
+        f.ownerId = rlong(self.getEventContext().userId)
+        f.groupId = rlong(self.getEventContext().groupId)
         f.limit = rint(20)
         p.theFilter = f
         for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p):

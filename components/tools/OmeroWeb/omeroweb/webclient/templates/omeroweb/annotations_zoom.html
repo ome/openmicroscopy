@@ -13,7 +13,7 @@
     {% if tann.isOwned %}
         <div id="comment_wrapper">
         <div id="comment">
-            <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> posted comment at {{ tann.creationEventDate|date:" H:i d M Y" }} {% if tann.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ tann.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
+            <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> posted comment at {{ tann.creationEventDate|date:" H:i d M Y" }}</div>
             <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>

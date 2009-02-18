@@ -9,12 +9,10 @@
             <li class="product">{% if im.isOwned %}
             <a href="{% get_webclient_root_url %}/mydata/image/{{ im.id }}/"><img id="{{ im.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ im.id }}/" alt="image" title="{{ im.name }}"/></a>{% else %}<a class="product" href="{% get_webclient_root_url %}/userdata/image/{{ im.id }}/"><img id="{{ im.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ im.id }}/" alt="image" title="{{ im.name }}"/></a>{% endif %}
             <div class="center">{% if im.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ im.countAnnotations }}]{% endif %}{% if not im.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg12.png" alt="l" title="locked"/>{% endif %}</div>
-            <div class="center">{{ im.tinyName }}</div>
-            <div class="center"><a href="#" onclick="popup('','_blank',{{ im.id }}); return false;"><img src="{% get_webclient_static_url %}/images/kview12.png" alt="v" title="view"/></a> <a href="{% get_webclient_root_url %}/image_zoom/{{ im.id }}/?keepThis=true&TB_iframe=true&height=500&width=860" alt="{{ im.name }}" class="thickbox" rel="gallery-omero" title="{{ im.shortName }} by {{ im.getOwner }} ({{ im.details.group.name.val }} {{ im.details.permissions }})"><img src="{% get_webclient_static_url %}/images/kpresenter12.png" alt="p" title="presentation"/></a></div></li>
+            <div class="center">{{ im.tinyName }}</div></li>
             
         {% endfor %}
     </ul>
 {% else %}
     <div class="error"><p>No data imported. Please change your active group (on the menu bar) or import some images or look into someone else's data.</p></div>
 {% endif %}
-
