@@ -287,7 +287,7 @@ module omero {
 	{
 	    idempotent LogicalChannelList loadChannelAcquisitionData(omero::sys::LongList ids) throws ServerError;
 	    idempotent AnnotationMap loadAnnotations(string rootType, omero::sys::LongList rootIds, omero::api::StringSet annotationTypes, omero::sys::LongList annotatorIds, omero::sys::ParamMap options) throws ServerError;
-		idempotent AnnotationList loadSpecifiedAnnotations(string annotationType, string nameSpace, omero::sys::ParamMap options) throws ServerError;
+		idempotent AnnotationList loadSpecifiedAnnotations(string annotationType, omero::api::StringSet include, omero::api::StringSet exclude, omero::sys::ParamMap options) throws ServerError;
 	    //idempotent omero::metadata::TagSetContainerList loadTagSets(long id, bool withObjects, omero::sys::ParamMap options) throws ServerError;
 	    //idempotent omero::metadata::TagContainerList loadTags(long id, bool withObjects, omero::sys::ParamMap options) throws ServerError;
 	     idempotent AnnotationMap loadTagContent(omero::sys::LongList ids, omero::sys::ParamMap options) throws ServerError;
