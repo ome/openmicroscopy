@@ -297,9 +297,16 @@ class BrowserUI
     {
     	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
     	TreeImageSet node = new TreeImageSet(exp);
-    	if (model.getBrowserType() == Browser.IMAGES_EXPLORER) {
-    		createTimeElements(node);
-    	} else buildEmptyNode(node);
+    	switch (model.getBrowserType()) {
+			case Browser.IMAGES_EXPLORER:
+				createTimeElements(node);
+				break;
+			case Browser.FILES_EXPLORER:
+				createFileElements(node);
+				break;
+			default:
+				buildEmptyNode(node);
+		}
     	TreeImageDisplay root = getTreeRoot();
     	root.addChildDisplay(node);
     	tm.insertNodeInto(node, root, root.getChildCount());
@@ -326,6 +333,26 @@ class BrowserUI
     	n.setNumberItems(-1);
     	createTimeNode(TreeImageTimeSet.OTHER, parent, true);
     	//parent.setChildrenLoaded(true);
+    }
+    
+    /**
+     * Creates folder hosting <code>FileAnnotation</code>s.
+     * 
+     * @param parent The parent of the elements.
+     */
+    private void createFileElements(TreeImageSet parent)
+    {
+    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+    	int[] values = {TreeFileSet.PROTOCOL, TreeFileSet.EXPERIMENT, 
+    			TreeFileSet.OTHER};
+    	TreeFileSet node;
+    	for (int i = 0; i < values.length; i++) {
+    		node = new TreeFileSet(values[i]);
+    		buildEmptyNode(node);
+    		node.setNumberItems(-1);
+    		parent.addChildDisplay(node);
+    		tm.insertNodeInto(node, parent, parent.getChildCount());
+		}
     }
     
     /**
@@ -1070,46 +1097,54 @@ class BrowserUI
 		expNode.setChildrenLoaded(Boolean.TRUE);
 		expNode.setExpanded(true);
 		int n = expNode.getChildCount();
-		TreeImageTimeSet node;
+		TreeImageSet node;
 		List l;
 		Iterator i, k;
 		TreeImageTimeSet child;
 		//Test
-		List<TreeImageTimeSet> toRemove = new ArrayList<TreeImageTimeSet>();
-		List<TreeImageTimeSet> toKeep = new ArrayList<TreeImageTimeSet>();
+		List<TreeImageSet> toRemove = new ArrayList<TreeImageSet>();
+		List<TreeImageSet> toKeep = new ArrayList<TreeImageSet>();
 		int number;
 		int total;
 		for (int j = 0; j < n; j++) {
-			node = (TreeImageTimeSet) expNode.getChildAt(j);
-			if (node.getType() == index) {
-				if (value instanceof Integer) 
-					node.setNumberItems((Integer) value);
-				else if (value instanceof List) {
-					l = (List) value;
-					total = 0;
-					i = node.getChildrenDisplay().iterator();
-					while (i.hasNext()) {
-						child = (TreeImageTimeSet) i.next();
-						number = child.countTime(l);
-						total += number;
-						if (number > 0) {
-							child.setNumberItems(number);
-							toKeep.add(child);
-						} else {
-							toRemove.add(child);
+			node = (TreeImageSet) expNode.getChildAt(j);
+			if (node instanceof TreeImageTimeSet) {
+				if (((TreeImageTimeSet) node).getType() == index) {
+					if (value instanceof Integer) 
+						node.setNumberItems((Integer) value);
+					else if (value instanceof List) {
+						l = (List) value;
+						total = 0;
+						i = node.getChildrenDisplay().iterator();
+						while (i.hasNext()) {
+							child = (TreeImageTimeSet) i.next();
+							number = child.countTime(l);
+							total += number;
+							if (number > 0) {
+								child.setNumberItems(number);
+								toKeep.add(child);
+							} else {
+								toRemove.add(child);
+							}
+						}
+						node.removeAllChildren();
+						node.removeChildrenDisplay(toRemove);
+						node.setNumberItems(total);
+						k = toKeep.iterator();
+						while (k.hasNext()) {
+							dtm.insertNodeInto((TreeImageTimeSet) k.next(), node, 
+													node.getChildCount());
 						}
 					}
-					node.removeAllChildren();
-					node.removeChildrenDisplay(toRemove);
-					node.setNumberItems(total);
-					k = toKeep.iterator();
-					while (k.hasNext()) {
-						dtm.insertNodeInto((TreeImageTimeSet) k.next(), node, 
-												node.getChildCount());
-					}
+					dtm.reload(node);
 				}
-				dtm.reload(node);
+			} else if (node instanceof TreeFileSet) {
+				if (((TreeFileSet) node).getType() == index) {
+					if (value instanceof Integer) 
+						node.setNumberItems((Integer) value);
+				}
 			}
+			
 		}
 	}
 		

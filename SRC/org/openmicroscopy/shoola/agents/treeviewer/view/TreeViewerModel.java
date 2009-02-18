@@ -249,7 +249,7 @@ class TreeViewerModel
 				component, experimenter, true);
 		browsers.put(Browser.IMAGES_EXPLORER, browser);
 		browser = BrowserFactory.createBrowser(Browser.FILES_EXPLORER,
-				component, experimenter, false);
+				component, experimenter, true);
 		browsers.put(Browser.FILES_EXPLORER, browser);
 	}
 

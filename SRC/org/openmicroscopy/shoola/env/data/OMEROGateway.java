@@ -2999,15 +2999,18 @@ class OMEROGateway
 	}
 
 	/**
+	 * Retrieves the annotations of the passed type.
 	 * 
-	 * @param type
-	 * @param nameSpace
-	 * @param options
-	 * @return
+	 * @param type The type of annotations to include.
+	 * @param toInclude The collection of name space to include.
+	 * @param toExclude The collection of name space to exclude.
+	 * @param options The options.
+	 * @return See above.
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	Set loadSpecifiedAnnotation(Class type, String nameSpace, Map options)
+	Set loadSpecificAnnotation(Class type, List<String> toInclude, 
+			List<String> toExclude, Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -3016,12 +3019,71 @@ class OMEROGateway
 			
 			return PojoMapper.asDataObjects(
 					service.loadSpecifiedAnnotations(
-							convertPojos(type).getName(), nameSpace, options));
+							convertPojos(type).getName(), toInclude, 
+							toExclude, options));
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot retrieve the annotations");
 		}
 		return null;
+	}
+	
+	/**
+	 * Counts the annotations of the passed type.
+	 * 
+	 * @param type The type of annotations to include.
+	 * @param toInclude The collection of name space to include.
+	 * @param toExclude The collection of name space to exclude.
+	 * @param options The options.
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	int countSpecificAnnotation(Class type, List<String> toInclude, 
+			List<String> toExclude, Map options)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			//IMetadataPrx service = getMetadataService();
+			IQueryPrx service = getQueryService();
+			StringBuffer sb = new StringBuffer();
+			sb.append("select ann from Annotation as ann ");
+	    	sb.append("left outer join fetch ann.details.creationEvent ");
+	    	sb.append("left outer join fetch ann.details.owner ");
+	    	sb.append("where ann member of "+convertAnnotation(type));
+	    	String s = "";
+	    	Iterator<String> i;
+	    	int size;
+	    	int index;
+	    	if (toInclude != null && toInclude.size() > 0) {
+	    		i = toInclude.iterator();
+	    		size = toInclude.size()-1;
+	    		index = 0;
+	    		while (i.hasNext()) {
+					s += i.next();
+					if (index != size) s +=", "; 
+					index++;
+				}
+	    		sb.append(" and ann.ns not null and ann.ns in ("+s+")");
+	    	}
+			
+	    	if (toExclude != null && toExclude.size() > 0) {
+	    		i = toExclude.iterator();
+	    		size = toExclude.size()-1;
+	    		index = 0;
+	    		while (i.hasNext()) {
+					s += i.next();
+					if (index != size) s +=", ";
+					index++;
+				}
+	    		sb.append(" and ann.ns not null and ann.ns not in ("+s+")");
+	    	}
+			List l = service.findAllByQuery(sb.toString(), new ParametersI());
+			return l.size();
+		} catch (Exception e) {
+			handleException(e, "Cannot retrieve the annotations");
+		}
+		return 1;
 	}
 	
 	/**
@@ -3334,129 +3396,6 @@ class OMEROGateway
 		return null;
 	}
 	
-	
-	//TMP solution. Need to move the call to server and optimize them
-	/**
-	 * Loads the tags linked to images, returns the images linked to the tag
-	 * if the passed value is <code>true</code>.
-	 * 
-	 * @param tagID 		The id of the tag.
-	 * @param withLeaves    Pass <code>true</code> to load the images
-	 * 						related to the object linked to the tag, 
-	 * 						<code>false</code> otherwise.
-     * @param userID		The id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	List loadTagAndDataObjects(long tagID, boolean withLeaves)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		try {
-			IQueryPrx service = getQueryService();
-			Parameters p = new ParametersI();
-			p.map = new HashMap<String, RType>();
-			p.map.put("tagID", omero.rtypes.rlong(tagID));
-			StringBuilder sb = new StringBuilder();
-			
-			sb.append("select ann from Annotation as ann ");
-			sb.append("left outer join fetch ann.details.creationEvent ");
-			sb.append("left outer join fetch ann.details.owner ");
-
-			sb.append("where ann.id = :tagID");
-			IObject object = service.findByQuery(sb.toString(), p);
-			TagAnnotationData tag = 
-						(TagAnnotationData) PojoMapper.asDataObject(object);
-			//Condition
-			List r = new ArrayList();
-			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
-				return r;
-			tag.setDataObjects(loadRelatedObjects(tagID, withLeaves));
-			r.add(tag);
-			return r;
-		} catch (Exception e) {
-			handleException(e, "Cannot retrieve the annotations");
-		}
-		return null;
-	}
-	
-	private Set<DataObject> loadRelatedObjects(long tagID, boolean withLeaves)
-		throws Exception
-	{
-		IQueryPrx service = getQueryService();
-		Parameters p = new ParametersI();
-		p.map = new HashMap<String, RType>();
-		p.map.put("tagID", omero.rtypes.rlong(tagID));
-
-		Set<DataObject> objects = new HashSet<DataObject>();
-		StringBuilder sb = new StringBuilder();
-		sb.append("select img from Image as img ");
-		sb.append("left outer join fetch "
-				+ "img.annotationLinksCountPerOwner img_a_c ");
-		sb.append("left outer join fetch img.annotationLinks ail ");
-		sb.append("left outer join fetch img.pixels as pix ");
-		sb.append("left outer join fetch pix.pixelsType as pt ");
-		sb.append("where ail.child.id = :tagID");
-		Set l = PojoMapper.asDataObjects(
-				service.findAllByQuery(sb.toString(), p));
-		if (l != null && l.size() > 0)
-			objects.addAll(l);
-		sb = new StringBuilder();
-		sb.append("select d from Dataset as d ");
-		sb.append("left outer join fetch "
-				+ "d.annotationLinksCountPerOwner d_a_c ");
-		sb.append("left outer join fetch d.annotationLinks ail ");
-		sb.append("where ail.child.id = :tagID");
-		List list = service.findAllByQuery(sb.toString(), p);
-		
-		if (list != null && list.size() > 0) {
-			if (withLeaves) {
-				List<Long> ids = new ArrayList<Long>();
-				Iterator k = list.iterator();
-				IObject o;
-				while (k.hasNext()) {
-					o = (IObject) k.next();
-					ids.add(o.getId().getValue());
-				}
-				PojoOptions po = new PojoOptions();
-				po.leaves();
-				l = loadContainerHierarchy(DatasetData.class, ids, po.map());
-				if (l != null && l.size() > 0)
-					objects.addAll(l);
-			} else {
-				objects.addAll(PojoMapper.asDataObjects(list));
-			}
-		}
-			
-		//Retrieve the projects.
-		sb = new StringBuilder();
-		sb.append("select p from Project as p ");
-		sb.append("left outer join fetch "
-				+ "p.annotationLinksCountPerOwner p_a_c ");
-		sb.append("left outer join fetch p.annotationLinks ail ");
-		sb.append("where ail.child.id = :tagID");
-		list = service.findAllByQuery(sb.toString(), p);
-		if (list != null && list.size() > 0) {
-			List<Long> ids = new ArrayList<Long>();
-			Iterator k = list.iterator();
-			IObject o;
-			while (k.hasNext()) {
-				o = (IObject) k.next();
-				ids.add(o.getId().getValue());
-			}
-			PojoOptions po = new PojoOptions();
-			po.noLeaves();
-			if (withLeaves) po.leaves();
-			l = loadContainerHierarchy(ProjectData.class, ids, po.map());
-			if (l != null && l.size() > 0)
-				objects.addAll(l);
-		}
-		return objects;
-	}
-	
 	/**
 	 * 
 	 * @param type
@@ -3498,77 +3437,6 @@ class OMEROGateway
 			handleException(e, "Cannot retrieve the annotated objects");
 		}
 		return null;
-	}
-	
-	/**
-	 * Loads the tags linked to images, returns the images linked to the tag
-	 * if the passed value is <code>true</code>.
-	 * 
-	 * @param id 		The id of the tag set.
-     * @param userID	The id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	Collection loadTagSetsAndDataObjects(long id)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		try {
-			String type = "ome.model.annotations.TagAnnotation";
-			IQueryPrx service = getQueryService();
-			ParametersI param = new ParametersI();
-			param.addLong("tagID", id);
-			StringBuilder sb = new StringBuilder();
-			
-			sb.append("select ann from Annotation as ann ");
-			sb.append("left outer join fetch ann.details.creationEvent ");
-			sb.append("left outer join fetch ann.details.owner ");
-
-			sb.append("where ann.id = :tagID");
-			//Tag to retrieve
-			IObject object = service.findByQuery(sb.toString(), param);
-			TagAnnotationData tag = 
-				(TagAnnotationData) PojoMapper.asDataObject(object);
-			sb = new StringBuilder();
-			sb.append("select link from AnnotationAnnotationLink as link ");
-			sb.append("left outer join link.child ann ");
-			sb.append(" where ann member of "+type);
-			sb.append(" and link.parent.id = :id");
-			param = new ParametersI();
-			param.addLong("id", tag.getId());
-
-			List r = service.findAllByQuery(sb.toString(), param);
-			if (r != null) {
-				Iterator j = r.iterator();
-				AnnotationAnnotationLink link;
-				Set<TagAnnotationData> 
-				    children = new HashSet<TagAnnotationData>();
-				TagAnnotationData child;
-				while (j.hasNext()) {
-					link = (AnnotationAnnotationLink) j.next();
-					child = (TagAnnotationData) 
-							PojoMapper.asDataObject(link.getChild());
-					children.add(child);
-					/*
-					if (dataObject) { //load images 
-			            child.setDataObjects(
-			            		loadRelatedObjects(child.getId(), false));
-					}
-					*/
-				}
-				tag.setTags(children);
-			}
-			Set result = new HashSet();
-			result.add(tag);
-			
-			return result;
-		} catch (Exception e) {
-			handleException(e, "Cannot retrieve the tags");
-		}
-		return new HashSet();
 	}
 	
 	/**
@@ -3649,68 +3517,6 @@ class OMEROGateway
 			handleException(t, "Cannot count the collection.");
 		}
 		return new HashMap();
-	}
-	
-	/**
-	 * 
-	 * @param userID
-	 * @return
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	Set loagTagSets(long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		try {
-			String type = "ome.model.annotations.TagAnnotation";
-			IQueryPrx service = getQueryService();
-			ParametersI param = new ParametersI();
-			param.addLong("uid", userID);
-			String sql =  "select ann from Annotation as ann "
-				+ "left outer join ann.annotationLinks link "
-                + "left outer join fetch ann.details.creationEvent "
-                + "left outer join fetch ann.details.owner ";
-			sql += " where link.parent member of "+type;
-			sql += " and link.child member of "+type;
-			sql += " and link.details.owner.id = :uid";
-			List l = service.findAllByQuery(sql, param);
-			Set results = new HashSet();
-			if (l != null) {
-				Iterator<IObject> i = l.iterator();
-				TagAnnotationData tag;
-				List<Long> ids = new ArrayList<Long>();
-				while (i.hasNext()) {
-					param = new ParametersI();
-					tag = (TagAnnotationData) PojoMapper.asDataObject(i.next());
-					if (!ids.contains(tag.getId())) {
-						param.addLong("id", tag.getId());
-						sql =  "select link from AnnotationAnnotationLink " +
-								"as link left outer join link.child ann ";
-						sql += " where ann member of "+type;
-						sql += " and link.parent.id = :id";
-						Set children = new HashSet();
-						List r = service.findAllByQuery(sql, param);
-						Iterator j = r.iterator();
-						AnnotationAnnotationLink link;
-						while (j.hasNext()) {
-							link = (AnnotationAnnotationLink) j.next();
-							children.add(
-									PojoMapper.asDataObject(link.getChild()));
-						}
-						tag.setTags(children);
-				 		results.add(tag);
-				 		ids.add(tag.getId());
-					}
-				}
-			}
-			
-			return results;
-		} catch (Exception e) {
-			e.printStackTrace();
-			handleException(e, "Cannot retrieve the annotations");
-		}
-		return null;
 	}
 	
 	/**
@@ -4038,62 +3844,6 @@ class OMEROGateway
 			return wells;
 		} catch (Exception e) {
 			handleException(e, "Cannot load plate");
-		}
-		return new HashSet();
-	}
-	
-	//Should be moved to server
-	Set loadScreenPlate(Class rootType, long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		try {
-			List<IObject> results;
-			IQueryPrx service = getQueryService();
-			StringBuilder sb = new StringBuilder();
-			ParametersI param = new ParametersI();
-			if (ScreenData.class.equals(rootType)) {
-				sb.append("select screen from Screen screen ");
-				sb.append("left outer join fetch "
-		                   + "screen.annotationLinksCountPerOwner s_a_c ");
-	            sb.append("left outer join fetch screen.plateLinks spl ");
-	            sb.append("left outer join fetch spl.child plate ");
-	            if (userID >= 0) {
-	            	sb.append("where screen.details.owner.id = :uid");
-	            	param.addLong("uid", userID);
-	            }
-				results = service.findAllByQuery(sb.toString(), param);
-				Set<Long> plates = new HashSet<Long>();
-				Screen s;
-				for (IObject o : results) {
-					s = (Screen) o;
-					for (ScreenPlateLink link : s.copyPlateLinks()) {
-						plates.add(link.getChild().getId().getValue());
-					}
-				}
-
-	            if (plates.size() > 0) {
-	            	String sql = "select p from Plate p "
-	                + "left outer join fetch p.annotationLinksCountPerOwner " +
-	                "where p.id in (:list)";
-	            	param.addLongs("list", plates);
-	            	service.findAllByQuery(sql, param);
-	            }
-	            return PojoMapper.asDataObjects(results);
-			} else if (PlateData.class.equals(rootType)) {
-				sb.append("select p from Plate p ");
-				sb.append("left outer join fetch "
-		                   + "p.annotationLinksCountPerOwner p_a_c ");
-				if (userID >= 0) {
-	            	sb.append("where p.details.owner.id = :uid");
-	            	param.addLong("uid", userID);
-	            }
-				results = service.findAllByQuery(sb.toString(), param);
-				return PojoMapper.asDataObjects(results);
-			}
-			
-		} catch (Exception e) {
-			handleException(e, "Cannot load screen");
 		}
 		return new HashSet();
 	}

@@ -179,11 +179,13 @@ class BrowserControl
         
         Object ho = display.getUserObject();
         model.setSelectedDisplay(display); 
-        if (model.getBrowserType() == Browser.IMAGES_EXPLORER &&
-        	!display.isChildrenLoaded() && ho instanceof ExperimenterData) {
+        int browserType = model.getBrowserType();
+        if ((browserType == Browser.IMAGES_EXPLORER || 
+        	browserType == Browser.FILES_EXPLORER) &&
+        		!display.isChildrenLoaded() && ho instanceof ExperimenterData) {
         	model.countExperimenterImages(display);
         	return;
-        }
+        } 
         if (display.isChildrenLoaded()) {
         	List l = display.getChildrenDisplay();
 			//if (display.getChildCount() != l.size()) {
@@ -199,10 +201,11 @@ class BrowserControl
         if (ho instanceof ProjectData) {
         	if (display.numberItems == 0) return;
         }
+        
         view.loadAction(display);
-        if (display instanceof TreeImageTimeSet) {
-        	TreeImageTimeSet node = (TreeImageTimeSet) display;
-        	model.loadExperimenterData(getDataOwner(display), node);
+        if ((display instanceof TreeImageTimeSet) ||  
+        	(display instanceof TreeFileSet)) {
+        	model.loadExperimenterData(getDataOwner(display), display);
         	return;
         }
         if ((ho instanceof DatasetData) || (ho instanceof TagAnnotationData) 

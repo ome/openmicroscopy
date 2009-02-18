@@ -1080,28 +1080,14 @@ class OmeroMetadataServiceImpl
 		PojoOptions po = new PojoOptions();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 		//else po.grp(i)
-		return gateway.loadSpecifiedAnnotation(annotationType, nameSpace, 
-				po.map());
+		List<String> toInclude = new ArrayList<String>();
+		List<String> toExclude = new ArrayList<String>();
+		if (nameSpace != null) 
+			toInclude.add(nameSpace);
+		return gateway.loadSpecificAnnotation(annotationType, toInclude, 
+				toExclude, po.map());
 	}
 	
-	private DataObject updateDataObject(DataObject object)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (object == null) 
-			throw new DSAccessException("No object to update.");
-		
-		IObject ho = null;
-		IObject oldObject = null;
-		oldObject = object.asIObject();
-		ho = gateway.findIObject(oldObject);
-
-		if (ho == null) return null;
-		ModelMapper.fillIObject(oldObject, ho);
-		ModelMapper.unloadCollections(ho);
-		IObject updated = gateway.updateObject(ho,
-				(new PojoOptions()).map());
-		return PojoMapper.asDataObject(updated);
-	}
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#saveData(Collection, List, List, long)
@@ -1938,6 +1924,63 @@ class OmeroMetadataServiceImpl
 		}
 		Collection l = gateway.loadTags(id, po.map());
 		return l;
+	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroMetadataService#countFileType(int)
+	 */
+	public int countFileType(int fileType) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		List<String> include = new ArrayList<String>();
+		List<String> exclude = new ArrayList<String>();
+		switch (fileType) {
+			case EDITOR_PROTOCOL:
+				include.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
+				break;
+			case EDITOR_EXPERIMENT:
+				include.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
+				break;
+			case OTHER:
+			default:
+				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
+			exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
+		}
+		PojoOptions po = new PojoOptions();
+		long userID = getUserDetails().getId();
+		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
+		System.err.println(include.size()+" "+exclude.size());
+		return gateway.countSpecificAnnotation(FileAnnotationData.class, 
+				include, exclude, po.map());
+	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroMetadataService#loadFiles(int, long)
+	 */
+	public Collection loadFiles(int fileType, long userID)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		List<String> include = new ArrayList<String>();
+		List<String> exclude = new ArrayList<String>();
+		switch (fileType) {
+			case EDITOR_PROTOCOL:
+				include.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
+				break;
+			case EDITOR_EXPERIMENT:
+				include.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
+				break;
+			case OTHER:
+			default:
+				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
+				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
+		}
+		System.err.println(include.size()+" "+exclude.size());
+		PojoOptions po = new PojoOptions();
+		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
+		return gateway.loadSpecificAnnotation(FileAnnotationData.class, 
+				include, exclude, po.map());
 	}
 	
 }

@@ -36,6 +36,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -68,24 +69,25 @@ public class ExperimenterImagesCounter
 	/** The nodes to handle. */
 	private Map<Integer, TimeRefObject> nodes;
 
-	/** Helper reference to the image service. */
+	/** Helper reference to the data service. */
 	private OmeroDataService 			os;
 
-	/**
-	 * Counts the number of items imported during a period of time.
+	/** Helper reference to the metadata service. */
+	private OmeroMetadataService 		ms;
+	
+	/** 
+	 * Counts the number of images imported during a given period of time.
 	 * 
-	 * @param index	The index identifying the period.
-	 * @param ref	The object containing period information.
+	 * @param index The index identifying the period. 
+	 * @param start The lower bound of the time interval.
+	 * @param end	The upper bound of the time interval.
 	 */
-	private void countItems(Integer index, TimeRefObject ref)
+	private void countTimeItems(Integer index, Timestamp start, Timestamp end)
 	{
 		try {
 			int number = -1;
 			Collection l;
 			result = new HashMap<Integer, Object>(1);
-			Timestamp start, end;
-			start = ref.getStartTime();
-			end = ref.getEndTime();
 			if (start == null || end == null) {
 				l = os.getImagesPeriod(start, end, userID, false);
 				if (l != null) number = l.size();
@@ -104,6 +106,43 @@ public class ExperimenterImagesCounter
 	}
 	
 	/**
+	 * Counts the number of a given types.
+	 * 
+	 * @param index The index identifying the period.
+	 * @param type  The type of files.
+	 */
+	private void countFileItems(Integer index, int type)
+	{
+		try {
+			result = new HashMap<Integer, Object>();
+			result.put(index, ms.countFileType(type));
+		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+			msg.print("Cannot count the number of items imported during the " +
+					"specified period");
+			msg.print(e);
+			context.getLogger().error(this, msg);
+		}
+	}
+	
+	/**
+	 * Counts the number of items imported during a period of time.
+	 * 
+	 * @param index	The index identifying the period.
+	 * @param ref	The object containing period information.
+	 */
+	private void countItems(Integer index, TimeRefObject ref)
+	{
+		switch (ref.getIndex()) {
+			case TimeRefObject.TIME:
+				countTimeItems(index, ref.getStartTime(), ref.getEndTime());
+				break;
+			case TimeRefObject.FILE:
+				countFileItems(index, ref.getFileType());
+		}
+	}
+	
+	/**
 	 * Adds a {@link BatchCall} to the tree for each container.
 	 * The batch call simply invokes {@link #loadThumbail(int)}.
 	 * @see BatchCallTree#buildTree()
@@ -114,6 +153,7 @@ public class ExperimenterImagesCounter
 		Iterator i = nodes.keySet().iterator();
 		while (i.hasNext()) {
 			final Integer index = (Integer) i.next();
+			System.err.println(index);
 			description = "Count items";
 			final TimeRefObject ref = nodes.get(index);
 			add(new BatchCall(description) {
@@ -153,6 +193,7 @@ public class ExperimenterImagesCounter
 		this.userID = userID;
 		nodes = m;
 		os = context.getDataService();
+		ms = context.getMetadataService();
 	}
  
 }

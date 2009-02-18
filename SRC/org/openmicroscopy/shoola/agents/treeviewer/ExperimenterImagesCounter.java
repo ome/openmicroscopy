@@ -34,11 +34,13 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import pojos.ExperimenterData;
 
@@ -106,16 +108,36 @@ public class ExperimenterImagesCounter
 	public void load()
 	{
 		Iterator i = nodes.iterator();
-		TreeImageTimeSet node;
 		TimeRefObject ref;
 		long userID = expNode.getUserObjectId();
 		Map<Integer, TimeRefObject> m;
 		m = new LinkedHashMap<Integer, TimeRefObject>(nodes.size());
+		TreeImageSet node;
+		TreeImageTimeSet time;
+		TreeFileSet file;
 		while (i.hasNext()) {
-			node = (TreeImageTimeSet) i.next();
-			ref = new TimeRefObject(userID, node.getStartTime(),
-					node.getEndTime());
-			m.put(node.getType(), ref);
+			node = (TreeImageSet) i.next();
+			if (node instanceof TreeImageTimeSet) {
+				time = (TreeImageTimeSet) node;
+				ref = new TimeRefObject(userID, TimeRefObject.TIME);
+				ref.setTimeInterval(time.getStartTime(), time.getEndTime());
+				m.put(time.getType(), ref);
+			} else if (node instanceof TreeFileSet) {
+				file = (TreeFileSet) node;
+				ref = new TimeRefObject(userID, TimeRefObject.FILE);
+				switch (file.getType()) {
+					case TreeFileSet.PROTOCOL:
+						ref.setFileType(MetadataHandlerView.EDITOR_PROTOCOL);
+						break;
+					case TreeFileSet.EXPERIMENT:
+						ref.setFileType(MetadataHandlerView.EDITOR_EXPERIMENT);
+						break;
+					case TreeFileSet.OTHER:
+					default:
+						ref.setFileType(MetadataHandlerView.OTHER);
+				}
+				m.put(file.getType(), ref);
+			}
 		}
 		handle = dmView.countExperimenterImages(userID, m, this);
 	}

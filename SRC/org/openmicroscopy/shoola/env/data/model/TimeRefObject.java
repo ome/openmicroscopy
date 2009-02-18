@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.env.data.model;
 //Java imports
 import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -49,8 +48,23 @@ import java.util.Set;
 public class TimeRefObject
 {
 	
+	/** 
+	 * Inidicates that the object correspond to a smart folder for time
+	 * interval.
+	 */
+	public static final int TIME = 0;
+	
+	/** 
+	 * Inidicates that the object correspond to a smart folder for certain
+	 * file type.
+	 */
+	public static final int FILE = 1;
+	
 	/** User's id. */
 	private long 		userID;
+	
+	/** One of the constants defined by this class. */
+	private int			index;
 	
 	/** Time of reference. */
 	private Timestamp 	endTime;
@@ -58,27 +72,47 @@ public class TimeRefObject
 	/** Time of reference. */
 	private Timestamp 	startTime;
 	
+	/** Constants identifying the supported type. */
+	private int			fileType;
+	
 	/** The result of the call. */
 	private Collection	results;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param userID	The user's id.
-	 * @param startTime	The time of reference. 
-	 * @param endTime	The time of reference.
-	 * @param constrain	Value indicating to retrieve the value before or
-	 * 					after the time of reference 
+	 * @param userID	he user's id.
+	 * @param index		One of the constants defined by this class. 
 	 */
-	public TimeRefObject(long userID, Timestamp startTime, Timestamp endTime)
+	public TimeRefObject(long userID, int index)
+	{
+		this.userID = userID;
+		this.index = index;
+		fileType = -1;
+		
+	}
+	
+	/**
+	 * Sets the time interval.
+	 * 
+	 * @param startTime The time of reference. 
+	 * @param endTime	The time of reference.
+	 */
+	public void setTimeInterval(Timestamp startTime, Timestamp endTime)
 	{
 		if (startTime == null && endTime == null)
 			throw new IllegalArgumentException("Time interval not valid.");
-		this.userID = userID;
 		this.endTime = endTime;
 		this.startTime = startTime;
 	}
 
+	/**
+	 * Returns the index.
+	 * 
+	 * @return See above.
+	 */
+	public int getIndex() { return index; }
+	
 	/**
 	 * Returns the time of reference.
 	 * 
@@ -113,5 +147,19 @@ public class TimeRefObject
 	 * @return See above.
 	 */
 	public Collection getResults() { return results; }
+	
+	/**
+	 * Sets the file type, only relevant if the index is {@link #FILE}.
+	 * 
+	 * @param fileType See above.
+	 */
+	public void setFileType(int fileType) { this.fileType = fileType; }
+	
+	/**
+	 * Returns the file type.
+	 * 
+	 * @return See above.
+	 */
+	public int getFileType() { return fileType; }
 	
 }

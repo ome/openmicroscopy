@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.FileDownloader 
+ * org.openmicroscopy.shoola.env.data.views.calls.FilesLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -24,18 +24,17 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.io.File;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.io.File;
-
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /** 
- * 
+ * Loads collection of files or a specified file.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,7 +46,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  * </small>
  * @since OME3.0
  */
-public class FileDownloader 
+public class FilesLoader 
 	extends BatchCallTree
 {
 
@@ -95,6 +94,25 @@ public class FileDownloader
     }
     
     /**
+     * Creates a {@link BatchCall} to loads the files identified by
+     * the passed type.
+     * 
+     * @param type 		The type of files to load.
+	 * @param userID    The id of the user.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeLoadFilesBatchCall(final int type, final long userID)
+    {
+        return new BatchCall("Downloading files.") {
+            public void doCall() throws Exception
+            {
+                OmeroMetadataService service = context.getMetadataService();
+                result = service.loadFiles(type, userID);
+            }
+        };
+    }
+    
+    /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
@@ -113,7 +131,7 @@ public class FileDownloader
 	 * @param fileID	The id of the file to download.
 	 * @param size		The size of the file.
      */
-    public FileDownloader(File file, long fileID, long size)
+    public FilesLoader(File file, long fileID, long size)
     {
     	loadCall = makeBatchCall(file, fileID, size);
     }
@@ -123,9 +141,20 @@ public class FileDownloader
      * 
 	 * @param fileAnnotationID	The id of the file annotation to download.
      */
-    public FileDownloader(long fileAnnotationID)
+    public FilesLoader(long fileAnnotationID)
     {
     	loadCall = makeBatchCall(fileAnnotationID);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+	 * @param type 		The type of files to load.
+	 * @param userID    The id of the user.
+     */
+    public FilesLoader(int type, long userID)
+    {
+    	loadCall = makeLoadFilesBatchCall(type, userID);
     }
     
 }

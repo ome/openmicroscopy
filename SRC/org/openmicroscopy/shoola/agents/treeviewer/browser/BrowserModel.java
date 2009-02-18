@@ -295,9 +295,10 @@ class BrowserModel
     void fireLeavesLoading(TreeImageDisplay expNode, TreeImageDisplay node)
     {
     	state = Browser.LOADING_LEAVES;
-    	if (node instanceof TreeImageTimeSet) {
+    	if ((node instanceof TreeImageTimeSet) || 
+    		(node instanceof TreeFileSet)) {
     		currentLoader = new ExperimenterImageLoader(component, 
-					(TreeImageSet) expNode, (TreeImageTimeSet) node);
+					(TreeImageSet) expNode, (TreeImageSet) node);
     		 currentLoader.load();
     	} else {
     		Object ho = node.getUserObject();
@@ -521,8 +522,9 @@ class BrowserModel
 				index = ExperimenterDataLoader.TAG_SET;
 				break;
 			case Browser.FILES_EXPLORER:
-				index = ExperimenterDataLoader.FILE;
+				//index = ExperimenterDataLoader.FILE;
 		}
+		if (index == -1) return;
 		currentLoader = new ExperimenterDataLoader(component, index, expNode);
         currentLoader.load();
         state = Browser.LOADING_DATA;
@@ -569,12 +571,25 @@ class BrowserModel
 	{
 		List<TreeImageTimeSet> n = expNode.getChildrenDisplay();
 		Iterator i = n.iterator();
-		Set indexes = new HashSet(n.size());
-		TreeImageTimeSet node;
-		while (i.hasNext()) {
-			node = (TreeImageTimeSet) i.next();
-			indexes.add(node.getType());
+		Set indexes = new HashSet();
+		switch (getBrowserType()) {
+			case Browser.IMAGES_EXPLORER:
+				TreeImageTimeSet node;
+				while (i.hasNext()) {
+					node = (TreeImageTimeSet) i.next();
+					indexes.add(node.getType());
+				}
+				break;
+			case Browser.FILES_EXPLORER:
+				TreeFileSet file;
+				while (i.hasNext()) {
+					file = (TreeFileSet) i.next();
+					indexes.add(file.getType());
+				}
+				break;
 		}
+
+		if (indexes.size() == 0) return;
 		if (containersManager == null)
             containersManager = new ContainersManager(indexes);
 		//state = Browser.COUNTING_ITEMS;

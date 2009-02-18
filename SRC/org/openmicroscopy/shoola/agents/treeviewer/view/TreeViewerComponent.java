@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
@@ -1378,11 +1379,15 @@ class TreeViewerComponent
 	 */
 	public void setLeaves(TreeImageSet parent, Set leaves)
 	{
+		if (parent instanceof TreeFileSet) {
+			view.removeAllFromWorkingPane();
+			return;
+		}
 		Object parentObject = parent.getUserObject();
 		TreeImageDisplay display = parent.getParentDisplay();
 		Object grandParentObject = null;
-		if (display != null) grandParentObject =  display.getUserObject();
-		DataBrowser db;
+		if (display != null) grandParentObject = display.getUserObject();
+		DataBrowser db = null;
 		if (parentObject instanceof TagAnnotationData) {
 			db = DataBrowserFactory.getTagsBrowser(
 					(TagAnnotationData) parentObject, leaves, false);
@@ -1391,7 +1396,7 @@ class TreeViewerComponent
 					parentObject, leaves);
 		db.addPropertyChangeListener(controller);
 		db.activate();
-		view.removeAllFromWorkingPane();
+		
 		view.addComponent(db.getUI());
 	}
 	
@@ -1717,7 +1722,8 @@ class TreeViewerComponent
     			TreeImageTimeSet time = (TreeImageTimeSet) n;
         		ExperimenterData exp = model.getUserDetails();
         		TimeRefObject ref = new TimeRefObject(exp.getId(), 
-        				time.getStartTime(), time.getEndTime());
+        				TimeRefObject.TIME);
+    			ref.setTimeInterval(time.getStartTime(), time.getEndTime());
         		data.add(ref);
     			type = TimeRefObject.class;
     			text += "images imported during the selected period.";

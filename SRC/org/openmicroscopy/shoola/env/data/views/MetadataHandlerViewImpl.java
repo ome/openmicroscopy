@@ -37,7 +37,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.DataFilter;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
-import org.openmicroscopy.shoola.env.data.views.calls.FileDownloader;
+import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationSaver;
@@ -180,7 +180,7 @@ class MetadataHandlerViewImpl
 	public CallHandle loadFile(File file, long fileID, long size, 
 				AgentEventListener observer)
 	{
-		BatchCallTree cmd = new FileDownloader(file, fileID, size); 
+		BatchCallTree cmd = new FilesLoader(file, fileID, size); 
 		return cmd.exec(observer);
 	}
 
@@ -191,7 +191,7 @@ class MetadataHandlerViewImpl
 	public CallHandle loadFile(long fileAnnotationID,
 				AgentEventListener observer)
 	{
-		BatchCallTree cmd = new FileDownloader(fileAnnotationID); 
+		BatchCallTree cmd = new FilesLoader(fileAnnotationID); 
 		return cmd.exec(observer);
 	}
 	

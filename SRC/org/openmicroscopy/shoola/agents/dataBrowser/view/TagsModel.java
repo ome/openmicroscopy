@@ -58,7 +58,8 @@ import pojos.ProjectData;
  * </small>
  * @since 3.0-Beta4
  */
-public class TagsModel 	extends DataBrowserModel
+public class TagsModel 	
+	extends DataBrowserModel
 {
 
 	/** The collection of objects this model is for. */

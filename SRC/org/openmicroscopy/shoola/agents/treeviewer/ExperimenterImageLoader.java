@@ -32,6 +32,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -59,8 +60,8 @@ public class ExperimenterImageLoader
     /** The node hosting the experimenter the data are for. */
     private TreeImageSet		expNode;
     
-    /** The node hosting the time information. */
-    private TreeImageTimeSet	timeNode;
+    /** The node hosting the information about the smart folder. */
+    private TreeImageSet		smartFolderNode;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  		handle;
@@ -68,23 +69,25 @@ public class ExperimenterImageLoader
     /**
      * Creates a new instance. 
      * 
-     * @param viewer    The viewer this data loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param expNode	The node hosting the experimenter the data are for.
-     * 					Mustn't be <code>null</code>.
-     * @param timeNode	The time node. Mustn't be <code>null</code>.
+     * @param viewer    		The viewer this data loader is for.
+     *                  		Mustn't be <code>null</code>.
+     * @param expNode			The node hosting the experimenter the data are 
+     * 							for.
+     * 							Mustn't be <code>null</code>.
+     * @param smartFolderNode	The node hosting the information about 
+     * 							the smart folder. Mustn't be <code>null</code>.
      */
     public ExperimenterImageLoader(Browser viewer, TreeImageSet expNode, 
-    							TreeImageTimeSet timeNode)
+    							TreeImageSet smartFolderNode)
     {
     	super(viewer);
         if (expNode == null ||
         		!(expNode.getUserObject() instanceof ExperimenterData))
         	throw new IllegalArgumentException("Experimenter node not valid.");
-        if (timeNode == null)
-        	throw new IllegalArgumentException("No time node specified node.");
+        if (smartFolderNode == null)
+        	throw new IllegalArgumentException("No smart folder specified.");
         this.expNode = expNode;
-        this.timeNode = timeNode;
+        this.smartFolderNode = smartFolderNode;
     } 
    
     /**
@@ -94,8 +97,14 @@ public class ExperimenterImageLoader
     public void load()
     {
     	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
-    	handle = dhView.loadImages(timeNode.getStartTime(),
-    					timeNode.getEndTime(), exp.getId(), this);	
+    	if (smartFolderNode instanceof TreeImageTimeSet) {
+    		TreeImageTimeSet time = (TreeImageTimeSet) smartFolderNode;
+    		handle = dhView.loadImages(time.getStartTime(),
+					time.getEndTime(), exp.getId(), this);	
+    	} else if (smartFolderNode instanceof TreeFileSet) {
+    		handle = dhView.loadFiles(((TreeFileSet) smartFolderNode).getType(),
+    				exp.getId(), this);	
+    	}
     }
 
     /**
@@ -111,7 +120,7 @@ public class ExperimenterImageLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        viewer.setLeaves((Set) result, timeNode, expNode); 
+        viewer.setLeaves((Set) result, smartFolderNode, expNode); 
     }
     
 }

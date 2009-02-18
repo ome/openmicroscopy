@@ -38,6 +38,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -145,7 +146,9 @@ public class TreeCellRenderer
         	} else icon = icons.getIcon(IconManager.FILE);
         } else if (node instanceof TreeImageTimeSet)
         	icon = icons.getIcon(IconManager.DATE);
-        else if (usrObject instanceof String)
+        else if (node instanceof TreeFileSet) {
+        	icon = icons.getIcon(IconManager.ROOT);
+        } else if (usrObject instanceof String)
         	icon = icons.getIcon(IconManager.ROOT);
         setIcon(icon);
     }
@@ -225,6 +228,8 @@ public class TreeCellRenderer
         w += getIconTextGap();
         if (node.getUserObject() instanceof ImageData)
         	w += fm.stringWidth(node.getNodeName());
+        else if (node instanceof TreeFileSet)
+        	w +=  fm.stringWidth(getText())+40; //TODO: figure why I  have to do that.
         else w += fm.stringWidth(getText());
         setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
         return this;

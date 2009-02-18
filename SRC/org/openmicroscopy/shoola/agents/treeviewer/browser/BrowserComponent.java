@@ -1137,8 +1137,10 @@ class BrowserComponent
 				throw new IllegalStateException(
 	                    "This method cannot be invoked in the DISCARDED or" +
 	                    "LOADING_LEAVES state.");
-		}   
-		if (model.getBrowserType() != IMAGES_EXPLORER) return;
+		}  
+		int browserType = model.getBrowserType();
+		if (browserType!= IMAGES_EXPLORER && browserType != FILES_EXPLORER) 
+			return;
         model.fireCountExperimenterImages((TreeImageSet) expNode);
         model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
         fireStateChange();
@@ -1153,7 +1155,9 @@ class BrowserComponent
 		if (expNode == null || 
 				!(expNode.getUserObject() instanceof ExperimenterData))
 				throw new IllegalArgumentException("Node not valid.");
-		if (model.getBrowserType() != IMAGES_EXPLORER) return;
+		int browserType = model.getBrowserType();
+		if (browserType != IMAGES_EXPLORER && browserType != FILES_EXPLORER) 
+			return;
 		/*
 		int state = model.getState();
 		switch (state) {

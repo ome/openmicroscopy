@@ -173,8 +173,8 @@ public class PasteRndSettingsCmd
 				} else {
 					time = (TreeImageTimeSet) node;
             		exp = model.getUserDetails();
-            		ref = new TimeRefObject(exp.getId(), 
-            				time.getStartTime(), time.getEndTime());
+            		ref = new TimeRefObject(exp.getId(), TimeRefObject.TIME);
+        			ref.setTimeInterval(time.getStartTime(), time.getEndTime());
 				}
 			} else {
 				ho = node.getUserObject();

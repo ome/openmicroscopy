@@ -578,8 +578,59 @@ public interface OmeroMetadataService
 	public Collection loadViewedBy(long imageID, long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException;
 
-	public Object loadTags(Long id, boolean dataObject, boolean topLevel,
+	/**
+	 * Loads the <code>Tag Set</code> object(s) or <code>Tag</code> object(s)
+	 * depending on the specified parameters. Returns a collection of 
+	 * <code>TagAnnotationData</code>s.
+	 * 
+	 * @param id The id if specified.
+	 * @param dataObject Pass <code>true</code> to load the 
+	 * 					<code>DataObject</code>s linked to the <code>Tag</code>,
+	 * 					<code>false</code> otherwise.
+	 * @param topLevel  Pass <code>true</code> to indicate to load the 
+	 * 					<code>Tag Set</code> objects, <code>false</code> to 
+	 * 					load the <code>Tag</code> objects.
+	 * @param userID	The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection loadTags(Long id, boolean dataObject, boolean topLevel,
 			long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Returns the number of files of a given type. The specified type is 
+	 * one of the following values: {@link #EDITOR_PROTOCOL}, 
+	 * {@link #EDITOR_EXPERIMENT} or {@link #OTHER}.
+	 * 
+	 * @param fileType One of the contants above.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public int countFileType(int fileType)
+		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Loads the files specified by the given type. Returns a collection
+	 * of <code>FileAnnotationData</code>s. The specified type is 
+	 * one of the following values: {@link #EDITOR_PROTOCOL}, 
+	 * {@link #EDITOR_EXPERIMENT} or {@link #OTHER}.
+	 * 
+	 * @param fileType One of the contants above. 
+	 * @param userID The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection loadFiles(int fileType, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

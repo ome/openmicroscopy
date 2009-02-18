@@ -454,7 +454,8 @@ public class TreeImageTimeSet
 	{
 		if (ref == null) {
 			long id = TreeViewerAgent.getUserDetails().getId();
-			ref = new TimeRefObject(id, startTime, endTime);
+			ref = new TimeRefObject(id, TimeRefObject.TIME);
+			ref.setTimeInterval(startTime, endTime);
 		}
 		return ref;
 	}

@@ -33,6 +33,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
@@ -160,6 +161,17 @@ public class DataHandlerViewImpl
 										AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ObjectFinder(context);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#loadFiles(int, long, AgentEventListener)
+	 */
+	public CallHandle loadFiles(int type, long userID,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new FilesLoader(type, userID);
 		return cmd.exec(observer);
 	}
 

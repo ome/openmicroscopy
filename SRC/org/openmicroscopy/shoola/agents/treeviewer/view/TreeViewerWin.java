@@ -152,6 +152,12 @@ class TreeViewerWin
                                             Browser.PROJECT_EXPLORER));
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+        browser = (Browser) browsers.get(
+        		Integer.valueOf(Browser.FILES_EXPLORER));
+        if (browser.isDisplayed())
+            tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+        
+        
         browser = (Browser) browsers.get(Integer.valueOf(Browser.SCREENS_EXPLORER));
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
