@@ -31,9 +31,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import ome.api.IMetadata;
-import ome.model.IObject;
 import ome.services.blitz.util.BlitzExecutor;
-import omero.RInt;
 import omero.RType;
 import omero.ServerError;
 import omero.api.AMD_IMetadata_getTaggedObjectsCount;
@@ -91,10 +89,10 @@ public class MetadataI
 	 }
 	    
 	 public void loadSpecifiedAnnotations_async(AMD_IMetadata_loadSpecifiedAnnotations __cb,
-			 String annotationType, String nameSpace,
+			 String annotationType, List<String> include, List<String> exclude,
 			Map<String, RType> options, Current __current) 
 	 throws ServerError {
-		 callInvokerOnRawArgs(__cb, __current, annotationType, nameSpace, 
+		 callInvokerOnRawArgs(__cb, __current, annotationType, include, exclude, 
 				 options);
 	 }
 	 
