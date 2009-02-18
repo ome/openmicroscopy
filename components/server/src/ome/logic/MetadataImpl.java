@@ -372,15 +372,15 @@ public class MetadataImpl
          }
          return map;
     }
-    
+
     /**
      * Implemented as speficied by the {@link IMetadata} I/F
-     * @see IMetadata#loadSpecifiedAnnotations(Class, String, Map)
+     * @see IMetadata#loadSpecifiedAnnotations(Class, Set, Set, Map)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public <A extends Annotation> Set<A> loadSpecifiedAnnotations(
-    		@NotNull Class type, String nameSpace,
+    		@NotNull Class type, Set<String> include, Set<String> exclude,
     		 Map options)
     {
     	StringBuilder sb = new StringBuilder();
@@ -408,8 +408,11 @@ public class MetadataImpl
     		else restriction += " and ann.details.owner.id = :id";
     		param.addId(id);
     	}
-    	if (nameSpace != null && nameSpace.length() > 0) {
-    		restriction += " and ann.ns is not null and ann.ns = "+nameSpace;
+    	if (include != null || include.size() > 0) {
+    		//restriction += " and ann.ns is not null and ann.ns = "+nameSpace;
+    	}
+    	if (exclude != null || exclude.size() > 0) {
+    		//restriction += " and ann.ns is not null and ann.ns = "+nameSpace;
     	}
     	sb.append(restriction);
     	List<A> list = iQuery.findAllByQuery(sb.toString(), param);
