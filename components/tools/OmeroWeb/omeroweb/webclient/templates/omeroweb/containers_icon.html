@@ -237,23 +237,7 @@
         {% endif %}
     </ul>
     
-    <div class="paging">
-    {% if manager.paging %} Page: 
-        {% if manager.paging.prev %}<a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}?view=icon&page={{manager.paging.prev}}">prev</a>{% endif %} 
-        {% for p in manager.paging.total %}
-            {% ifequal manager.paging.page p %}
-                {{ p }} 
-            {% else %}
-                {% ifequal p -1 %}
-                    ...
-                {% else %}
-                    <a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}?view=icon&page={{ p }}">{{ p }}</a>
-                {% endifequal %}
-            {% endifequal %}
-        {% endfor %}
-        {% if manager.paging.next %}<a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}?view=icon&page={{manager.paging.next}}">next</a>{% endif %}
-    {% endif %}
-    </div>
+    {% include "omeroweb/container_paging.html" %}
     
     {% endif %}
 

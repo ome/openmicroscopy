@@ -2,8 +2,9 @@
 
 {% if manager.paging %} 
 
+<div class="clear"> </div>
 <div class="paging"> 
-    {% if manager.paging.prev %}<a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}?view=table&page={{manager.paging.prev}}">prev</a>{% endif %} Page 
+    {% if manager.paging.prev %}<a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}?view={{nav.view}}&page={{manager.paging.prev}}">prev</a>{% endif %} Page 
     {% for p in manager.paging.total %}
         {% ifequal manager.paging.page p %}
             {{ p }} 
@@ -11,11 +12,11 @@
             {% ifequal p -1 %}
                 ...
             {% else %}
-                <a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}?view=table&page={{ p }}">{{ p }}</a>
+                <a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}?view={{nav.view}}&page={{ p }}">{{ p }}</a>
             {% endifequal %}
         {% endifequal %}
     {% endfor %}
-    {% if manager.paging.next %}<a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}?view=table&page={{manager.paging.next}}">next</a>{% endif %}
+    {% if manager.paging.next %}<a href="{% get_webclient_root_url %}/{% ifequal nav.whos "mydata" %}mydata{% else %}userdata{% endifequal %}/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}?view={{nav.view}}&page={{manager.paging.next}}">next</a>{% endif %}
 
 </div>
 {% endif %}

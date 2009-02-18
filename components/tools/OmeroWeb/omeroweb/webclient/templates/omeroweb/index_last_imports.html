@@ -2,13 +2,23 @@
 {% load custom_tags %}
 {% load wikitags %}
 
+<script>
+$(document).ready(function () {
+    $(function() { 
+        $("#products li.product").css('width', 160);
+        $("#products li.product").css('height', 150);
+    });
+})
+
+</script>
+
 {% if controller.lastImportedImages %}
     <ul id="products">
         {% for im in controller.lastImportedImages %}
             
             <li class="product">{% if im.isOwned %}
             <a href="{% get_webclient_root_url %}/mydata/image/{{ im.id }}/"><img id="{{ im.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ im.id }}/" alt="image" title="{{ im.name }}"/></a>{% else %}<a class="product" href="{% get_webclient_root_url %}/userdata/image/{{ im.id }}/"><img id="{{ im.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ im.id }}/" alt="image" title="{{ im.name }}"/></a>{% endif %}
-            <div class="center">{% if im.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ im.countAnnotations }}]{% endif %}{% if not im.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg12.png" alt="l" title="locked"/>{% endif %}</div>
+            <div class="center">{% if im.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ im.countAnnotations }}]{% endif %}{% if not im.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg12.png" alt="l" title="locked"/>{% endif %}</div>
             <div class="center">{{ im.tinyName }}</div></li>
             
         {% endfor %}
