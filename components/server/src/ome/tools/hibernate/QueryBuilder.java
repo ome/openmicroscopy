@@ -272,4 +272,17 @@ public class QueryBuilder {
         toString.append(listParams);
         return toString.toString();
     }
+
+    // State methods
+    // Used in case the standard workflow is not optimal
+
+    public void skipFrom() {
+        select = true;
+        from = true;
+    }
+
+    public void skipWhere() {
+        join = true;
+        where = true;
+    }
 }

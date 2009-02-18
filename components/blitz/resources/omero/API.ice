@@ -523,10 +523,13 @@ module omero {
 	 *
 	 * Parameters:
 	 * ----------
-	 * All methods with take omero::sys::Parameters object will apply the filter
+	 * All methods take a omero::sys::Parameters object and will apply the filter
 	 * object for paging through the data in order to prevent loading too
 	 * many objects. If the parameters argument is null or no paging is activated,
-	 * then the default will be: OFFSET=0, LIMIT=50
+	 * then the default will be: OFFSET=0, LIMIT=50. Filter.ownerId and
+	 * Filter.groupId will also be AND'ed to the query if either value is present.
+	 * If both are null, then the current user id will be used. To retrieve for
+	 * all users, use ownerId == rlong(-1) and groupId == null.
 	 *
 	 * Merging:
 	 * -------
@@ -560,7 +563,7 @@ module omero {
 	 */
 	["ami", "amd"] interface ITimeline extends ServiceInterface {
 
-            /*
+        /*
 	     * Return the last LIMIT annotation __Links__ whose parent (IAnnotated)
 	     * matches one of the parentTypes, whose child (Annotation) matches one
 	     * of the childTypes (limit of one for the moment), and who namespace
@@ -612,7 +615,7 @@ module omero {
 	     * for the given objects.
 	     */
 	    StringLongMap
-		countByPeriod(StringSet types, omero::RTime start, omero::RTime end)
+		countByPeriod(StringSet types, omero::RTime start, omero::RTime end, omero::sys::Parameters p)
 		throws ServerError;
 
 	    /*

@@ -110,7 +110,7 @@ public class TimelineITest extends TestCase {
         target.put("Image", 0L);
 
         assertCountByPeriodMatchesTarget(types, rtime_max(), rtime_max(),
-                target);
+                target, null);
 
     }
 
@@ -124,7 +124,7 @@ public class TimelineITest extends TestCase {
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         assertCountByPeriodMatchesTarget(types, rtime_min(), rtime_max(),
-                target);
+                target, null);
 
     }
 
@@ -134,7 +134,7 @@ public class TimelineITest extends TestCase {
         Map<String, Long> target = new HashMap<String, Long>();
         target.put("Image", 1L);
 
-        assertCountByPeriodMatchesTarget(null, rtime_max(), rtime_max(), target);
+        assertCountByPeriodMatchesTarget(null, rtime_min(), rtime_max(), target, null);
 
     }
 
@@ -305,7 +305,7 @@ public class TimelineITest extends TestCase {
     // =========================================================================
 
     private void assertCountByPeriodMatchesTarget(List<String> types,
-            RTime start, RTime end, Map<String, Long> target)
+            RTime start, RTime end, Map<String, Long> target, Parameters p)
             throws ServerError {
         final boolean[] status = new boolean[] { false, false };
         final Exception[] exc = new Exception[1];
@@ -321,7 +321,7 @@ public class TimelineITest extends TestCase {
                 status[1] = true;
                 rv.putAll(__ret);
             }
-        }, types, start, end, null);
+        }, types, start, end, p, null);
         assertFalse("exception thrown: " + exc[0], status[0]);
         assertTrue("didn't pass", status[1]);
         assertTrue(rv.keySet().containsAll(target.keySet()));

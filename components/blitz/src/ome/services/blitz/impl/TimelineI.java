@@ -8,9 +8,7 @@
 package ome.services.blitz.impl;
 
 import static omero.rtypes.rint;
-import static omero.rtypes.rstring;
 import static omero.rtypes.rlong;
-import static omero.rtypes.rtime;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -24,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.api.IShare;
+import ome.conditions.InternalException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
@@ -54,7 +53,6 @@ import omero.api.AMD_ITimeline_getMostRecentShareCommentLinks;
 import omero.api._ITimelineOperations;
 import omero.sys.Filter;
 import omero.sys.Parameters;
-import omero.util.IceMap;
 import omero.util.IceMapper;
 
 import org.hibernate.Query;
@@ -67,7 +65,6 @@ import Ice.Current;
  * implementation of the ITimeline service interface.
  * 
  * @since Beta4
- * @see ome.api.ITimeline
  */
 public class TimelineI extends AbstractAmdServant implements
         _ITimelineOperations, ServiceFactoryAware, BlitzOnly {
@@ -112,35 +109,38 @@ public class TimelineI extends AbstractAmdServant implements
             "Project", "Dataset", "Annotation");
     static final Map<String, String> ORDERBY = new HashMap<String, String>();
     static final Map<String, String> BYPERIOD = new HashMap<String, String>();
+    static final Map<String, String> OWNERSHIP = new HashMap<String, String>();
     static {
 
-        String WHERE_OBJ_DETAILS = "where obj.details.owner.id=:id and "
+        String WHERE_OBJ_DETAILS = "where"
                 + "    (obj.details.creationEvent.time >= :start "
                 + "  or obj.details.updateEvent.time  >= :start) "
                 + "and (obj.details.creationEvent.time <= :end"
-                + " or obj.details.updateEvent.time <= :end )";
+                + " or obj.details.updateEvent.time <= :end ) ";
 
         BYPERIOD.put("Project", "from Project obj "
                 + "join @FETCH@ obj.details.creationEvent "
                 + "join @FETCH@ obj.details.owner "
                 + "join @FETCH@ obj.details.group " + WHERE_OBJ_DETAILS);
+        OWNERSHIP.put("Project", "obj");
+
         BYPERIOD.put("Dataset", "from Dataset obj "
                 + "join @FETCH@ obj.details.creationEvent "
                 + "join @FETCH@ obj.details.owner "
                 + "join @FETCH@ obj.details.group "
                 + "left outer join @FETCH@ obj.projectLinks pdl "
                 + "left outer join @FETCH@ pdl.parent p " + WHERE_OBJ_DETAILS);
+        OWNERSHIP.put("Dataset", "obj");
+
         BYPERIOD.put("RenderingDef", "from RenderingDef obj join @FETCH@ "
                 + "obj.details.creationEvent join @FETCH@ obj.details.owner "
                 + "join @FETCH@ obj.details.group left outer join @FETCH@ "
                 + "obj.pixels p left outer join @FETCH@ p.image i "
-                + "where i.details.owner.id=:id and"
-                + "    (obj.details.creationEvent.time >= :start "
-                + "  or obj.details.updateEvent.time >= :start) "
-                + "and (obj.details.creationEvent.time <= :end "
-                + "  or obj.details.updateEvent.time <= :end) ");
+                + WHERE_OBJ_DETAILS);
+        OWNERSHIP.put("RenderingDef", "i");
         ORDERBY.put("RenderingDef",
                 "order by i.details.creationEvent.time desc");
+
         BYPERIOD.put("Image", "from Image obj "
                 + "join @FETCH@ obj.details.creationEvent "
                 + "join @FETCH@ obj.details.owner "
@@ -148,26 +148,28 @@ public class TimelineI extends AbstractAmdServant implements
                 + "left outer join @FETCH@ obj.datasetLinks dil "
                 + "left outer join @FETCH@ dil.parent d "
                 + "left outer join @FETCH@ d.projectLinks pdl "
-                + "left outer join @FETCH@ pdl.parent p "
-                + "where obj.details.owner.id=:id and "
+                + "left outer join @FETCH@ pdl.parent p " + "where "
                 + "      obj.acquisitionDate >= :start "
                 + "and   obj.acquisitionDate <= :end ");
+        OWNERSHIP.put("Image", "obj");
 
         BYPERIOD.put("EventLog", "from EventLog obj "
                 + "left outer join @FETCH@ obj.event ev where "
                 + "    obj.entityType in ("
                 + "        'ome.model.containers.Dataset', "
                 + "        'ome.model.containers.Project') "
-                + "    and obj.action in (" + "        'INSERT', "
-                + "        'UPDATE') " + "    and ev.id in (     "
-                + "        select id from Event where "
-                + "        experimenter.id=:id "
-                + "        and time >= :start and time <= :end)");
+                + "    and obj.action in ( 'INSERT', 'UPDATE') "
+                + "    and ev.id in (     "
+                + "        select e.id from Event e where "
+                + "        e.time >= :start and e.time <= :end ");
+        // NOTE This query requires special handling in do_periodQuery
+        // to properly handle the ownership via Event and closing the
+        // subquery.
     }
 
     public void countByPeriod_async(final AMD_ITimeline_countByPeriod __cb,
             final List<String> types, final RTime start, final RTime end,
-            final Current __current) throws ServerError {
+            final Parameters p, final Current __current) throws ServerError {
 
         final IceMapper mapper = new IceMapper(IceMapper.PRIMITIVE_MAP);
 
@@ -178,8 +180,9 @@ public class TimelineI extends AbstractAmdServant implements
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
 
-                return do_periodQuery(true, types, userId(), start, end, Long
-                        .valueOf(-1L), session, null);
+                Parameters pWithParameters = applyDefaults(p);
+                return do_periodQuery(true, types, start, end, Long
+                        .valueOf(-1L), session, pWithParameters);
 
             }
         }));
@@ -203,8 +206,7 @@ public class TimelineI extends AbstractAmdServant implements
 
                 Parameters pWithDefaults = applyDefaults(p);
                 Map<String, List<IObject>> returnValue = (Map<String, List<IObject>>) do_periodQuery(
-                        false, types, userId(), start, end, null, session,
-                        pWithDefaults);
+                        false, types, start, end, null, session, pWithDefaults);
 
                 if (merge) {
                     returnValue = mergeMap(returnValue, pWithDefaults);
@@ -232,22 +234,31 @@ public class TimelineI extends AbstractAmdServant implements
             public Object doWork(Session session, ServiceFactory sf) {
 
                 Parameters pWithDefaults = applyDefaults(p);
-                long userid = userId();
 
                 Map<String, List<EventLog>> events = (Map<String, List<EventLog>>) do_periodQuery(
-                        false, Arrays.asList("EventLog"), userid, start, end,
-                        null, session, pWithDefaults);
+                        false, Arrays.asList("EventLog"), start, end, null,
+                        session, pWithDefaults);
                 List<EventLog> logs = events.get("EventLog");
 
                 // WORKAROUND - currently there are no events for
                 // Image.acquisitionDate meaning we have to generate them
                 // here.
-                String query = "select i from Image i join fetch i.details.owner join fetch i.details.group "
-                        + "where i.details.owner.id=:id and i.acquisitionDate > :start and i.acquisitionDate < :end";
-                Query q = session.createQuery(query);
-                q.setParameter("id", userid);
-                q.setParameter("start", new Timestamp(start.getValue()));
-                q.setParameter("end", new Timestamp(end.getValue()));
+                QueryBuilder qb = new QueryBuilder(256);
+                qb.select("i");
+                qb.from("Image", "i");
+                qb.join("i.details.owner", "owner", true, true);
+                qb.join("i.details.group", "group", true, true);
+                qb.where();
+                qb.and("i.acquisitionDate > :start ");
+                qb.param("start", new Timestamp(start.getValue()));
+                qb.and("i.acquisitionDate < :end ");
+                qb.param("end", new Timestamp(end.getValue()));
+
+                // OWNER/GROUP
+                applyOwnerGroup(pWithDefaults, qb, "owner.id", "group.id");
+
+                Query q = qb.query(session);
+                applyParameters(pWithDefaults, q);
                 List<Image> images = (List<Image>) q.list();
                 for (Image image : images) {
                     EventLog el = new EventLog();
@@ -282,8 +293,7 @@ public class TimelineI extends AbstractAmdServant implements
 
                 Parameters pWithDefaults = applyDefaults(p);
                 Map<String, List<IObject>> returnValue = (Map<String, List<IObject>>) do_periodQuery(
-                        false, types, userId(), null, null, null, session,
-                        pWithDefaults);
+                        false, types, null, null, null, session, pWithDefaults);
 
                 if (merge) {
                     returnValue = mergeMap(returnValue, pWithDefaults);
@@ -345,7 +355,7 @@ public class TimelineI extends AbstractAmdServant implements
                         for (String _childType : childTypes) {
                             try {
                                 Class kls = mapper.omeroClass(_childType, true);
-                                qb.and("child.class = "+kls.getName());
+                                qb.and("child.class = " + kls.getName());
                             } catch (Exception e) {
                                 throw new ValidationException("Error mapping: "
                                         + _childType);
@@ -370,17 +380,8 @@ public class TimelineI extends AbstractAmdServant implements
                     }
 
                     // OWNER/GROUP
-                    if (p != null && p.theFilter != null) {
-                        Filter f = p.theFilter;
-                        if (f.ownerId != null) {
-                            qb.and(" link.details.owner.id = :owner_id ");
-                            qb.param("owner_id", f.ownerId.getValue());
-                        }
-                        if (f.groupId != null) {
-                            qb.and(" link.details.group.id = :group_id ");
-                            qb.param("group_id", f.groupId.getValue());
-                        }
-                    }
+                    applyOwnerGroup(p, qb, "link.details.owner.id",
+                            "link.details.group.id");
 
                     // ORDER
                     qb.order("link.details.updateEvent.id", false);
@@ -397,8 +398,8 @@ public class TimelineI extends AbstractAmdServant implements
     }
 
     public void getMostRecentShareCommentLinks_async(
-            AMD_ITimeline_getMostRecentShareCommentLinks __cb, Parameters p,
-            Current __current) throws ServerError {
+            AMD_ITimeline_getMostRecentShareCommentLinks __cb,
+            final Parameters p, Current __current) throws ServerError {
 
         final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
 
@@ -426,17 +427,23 @@ public class TimelineI extends AbstractAmdServant implements
                     ids.add(s.getId());
                 }
 
-                final ome.parameters.Parameters p = new ome.parameters.Parameters();
-                p.addId(userId);
-                p.addIds(ids);
-                p.setFilter(new ome.parameters.Filter().page(0, 10));
+                final Parameters pWithDefaults = applyDefaults(p);
+                final ome.parameters.Parameters ome_p;
+                try {
+                    ome_p = mapper.convert(pWithDefaults);
+                } catch (ApiUsageException e) {
+                    throw new InternalException("Failed to convert parameters"
+                            + e.getMessage());
+                }
+                ome_p.addId(userId);
+                ome_p.addIds(ids);
 
                 final List<SessionAnnotationLink> rv = new ArrayList<SessionAnnotationLink>();
                 ss.runAsAdmin(new AdminAction() {
                     public void runAsAdmin() {
                         List<SessionAnnotationLink> links = sf
                                 .getQueryService().findAllByQuery(
-                                        LOOKUP_SHARE_COMMENTS, p);
+                                        LOOKUP_SHARE_COMMENTS, ome_p);
                         rv.addAll(links);
                     }
                 });
@@ -456,8 +463,8 @@ public class TimelineI extends AbstractAmdServant implements
      * called on query
      */
     private Map<?, ?> do_periodQuery(final boolean count,
-            final List<String> types, final long userId, final RTime start,
-            final RTime end, final Object missingValue, final Session _s,
+            final List<String> types, final RTime start, final RTime end,
+            final Object missingValue, final Session _s,
             final Parameters parameters) {
 
         final long activeStart;
@@ -485,31 +492,59 @@ public class TimelineI extends AbstractAmdServant implements
             String qString = BYPERIOD.get(type);
             if (qString == null) {
                 returnValue.put(type, missingValue);
+                continue;
+            }
+
+            QueryBuilder qb = new QueryBuilder(256);
+            if (count) {
+                qb.select("count(obj)");
+                qb.skipFrom();
+                qb.append(qString.replaceAll("@FETCH@", ""));
             } else {
-                if (count) {
-                    qString = "select count(obj) " + qString;
-                    qString = qString.replaceAll("@FETCH@", "");
-                } else {
-                    qString = "select obj " + qString;
-                    qString = qString.replaceAll("@FETCH@", "fetch");
-                    String orderBy = ORDERBY.get(type);
-                    if (orderBy != null) {
-                        qString = qString + orderBy;
+                qb.select("obj");
+                qb.skipFrom();
+                qb.append(qString.replaceAll("@FETCH@", "fetch"));
+            }
+            qb.skipWhere();
+
+            String owningObject = OWNERSHIP.get(type);
+            if (owningObject == null) {
+                if ("EventLog".equals(type)) {
+                    // SPECIAL LOGIC WORKAROUND for the complicated EventLog
+                    // query
+                    if (parameters != null && parameters.theFilter != null
+                            && parameters.theFilter.ownerId != null) {
+                        qb.and("e.experimenter.id = :owner_id");
+                        qb.param("owner_id", parameters.theFilter.ownerId
+                                .getValue());
                     }
-                }
-
-                Query q = _s.createQuery(qString);
-                q.setParameter("start", new Timestamp(activeStart));
-                q.setParameter("end", new Timestamp(activeEnd));
-                q.setParameter("id", userId);
-
-                applyParameters(parameters, q);
-
-                if (count) {
-                    returnValue.put(type, q.uniqueResult());
+                    qb.append(")");
                 } else {
-                    returnValue.put(type, q.list());
+                    throw new InternalException("No ownership info for: "
+                            + type);
                 }
+            } else {
+                applyOwnerGroup(parameters, qb, owningObject
+                        + ".details.owner.id", owningObject
+                        + ".details.group.id");
+            }
+
+            if (!count) {
+                String orderBy = ORDERBY.get(type);
+                if (orderBy != null) {
+                    qb.append(orderBy);
+                }
+            }
+
+            qb.param("start", new Timestamp(activeStart));
+            qb.param("end", new Timestamp(activeEnd));
+            Query q = qb.query(_s);
+            applyParameters(parameters, q);
+
+            if (count) {
+                returnValue.put(type, q.uniqueResult());
+            } else {
+                returnValue.put(type, q.list());
             }
         }
         return returnValue;
@@ -528,7 +563,7 @@ public class TimelineI extends AbstractAmdServant implements
         }
     }
 
-    private long userId() {
+    private long defaultId() {
         String session = this.factory.sessionId().name;
         return sm.getEventContext(new Principal(session)).getCurrentUserId();
     }
@@ -628,8 +663,30 @@ public class TimelineI extends AbstractAmdServant implements
         if (p.theFilter.limit == null) {
             p.theFilter.limit = rint(50);
         }
+        if (p.theFilter.groupId == null) {
+            if (p.theFilter.ownerId == null) {
+                p.theFilter.ownerId = rlong(defaultId());
+            } else if (p.theFilter.ownerId.getValue() == -1L) {
+                p.theFilter.ownerId = null; // Clearing as wildcard.
+            }
+        }
 
         return p;
+    }
+
+    private void applyOwnerGroup(final Parameters p, QueryBuilder qb,
+            String ownerPath, String groupPath) {
+        if (p != null && p.theFilter != null) {
+            Filter f = p.theFilter;
+            if (f.ownerId != null) {
+                qb.and(ownerPath + " = :owner_id ");
+                qb.param("owner_id", f.ownerId.getValue());
+            }
+            if (f.groupId != null) {
+                qb.and(groupPath + " = :group_id ");
+                qb.param("group_id", f.groupId.getValue());
+            }
+        }
     }
 
 }
