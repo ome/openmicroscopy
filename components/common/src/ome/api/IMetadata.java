@@ -25,7 +25,6 @@ package ome.api;
 
 //Java imports
 import java.util.Map;
-import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -137,13 +136,17 @@ public interface IMetadata
      * Loads the annotations of a given type.
      * 
      * @param type      The type of annotations to load.
-     * @param nameSpace The name space, one of the constants defined by 
-     *                  this class or <code>null</code>.
+     * @param include   The collection of name space, one of the constants 
+     * 					defined by this class.
+     * @param exclude   The collection of name space, one of the constants 
+     * 					defined by this class.
      * @param options	The pojo options.
      * @return A collection of found annotations.
      */
     public <A extends Annotation> Set<A> loadSpecifiedAnnotations(
-    		@NotNull Class type, String nameSpace, Map options);
+    		@NotNull Class type, 
+    		@Validate(String.class) Set<String> include, 
+    		@Validate(String.class) Set<String> exclude, Map options);
     
     /**
      * Loads the Tag Set if the id is specified otherwis loads all the Tag
