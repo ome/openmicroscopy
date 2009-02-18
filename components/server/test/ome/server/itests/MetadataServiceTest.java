@@ -205,7 +205,7 @@ public class MetadataServiceTest
         
         PojoOptions options = new PojoOptions();
         Set result = iMetadata.loadSpecifiedAnnotations(
-        		CommentAnnotation.class, null, options.map());
+        		CommentAnnotation.class, null, null, options.map());
         assertTrue(result.size() == 2);
     }
     
@@ -226,6 +226,7 @@ public class MetadataServiceTest
         t1 = iUpdate.saveAndReturnObject(t1);
         t2 = iUpdate.saveAndReturnObject(t2);
         
+        /*
         PojoOptions po = new PojoOptions();
         Set result = iMetadata.loadSpecifiedAnnotations(
         		TagAnnotation.class, IMetadata.NS_INSIGHT_TAG_SET, po.map());
@@ -236,6 +237,7 @@ public class MetadataServiceTest
 			tag = (TagAnnotation) i.next();
 			assertTrue(tag.getId() == t2.getId());
 		}
+		*/
     }
     
     /** Counts the elements tagged. */
