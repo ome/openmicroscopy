@@ -123,7 +123,7 @@ public class TreeModelFactory
 	 */
 	public static TreeModel getTree()
 	{
-		IField rootField = new Field();
+		IField rootField = new ProtocolRootField();
 		DefaultMutableTreeNode rootNode = new FieldNode(rootField);
 		return new DefaultTreeModel(rootNode);
 	}

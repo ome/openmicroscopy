@@ -196,6 +196,8 @@ public class ExperimentInfoPanel
 	 */
 	private void buildUI() 
 	{
+		// only set to true if we have experimental info to display
+		setVisible(false);
 		
 		setLayout(new BorderLayout());
 		setBackground(new Color(254,244,156));

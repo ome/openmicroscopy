@@ -97,7 +97,7 @@ public class PROimport {
 		for (IXMLElement node : children) {
 			
 			if (node != null) {
-				 newField = createField(node);
+				 newField = createField(node, false);
 				 child = new FieldNode(newField);
 				 
 				 treeNode.add(child);
@@ -189,7 +189,7 @@ public class PROimport {
 	 * @return			A Field that represents the data in a single node
 	 * 					of the Beta-4 JTree.
 	 */
-	private static IField createField (IXMLElement element) {
+	private static IField createField (IXMLElement element, boolean root) {
 		 
 		 // First, make a Map of the element attributes. Easier to query
 		 Map<String, String> allAttributes = getAttributeMap(element);
@@ -234,7 +234,12 @@ public class PROimport {
 		 //String colour = allAttributes.get(DataFieldConstants.BACKGROUND_COLOUR);
 		 
 		 // Create a new field and set it's attributes.
-		 IField field = new Field();
+		 IField field;
+		 if (root) {
+			 field = new ProtocolRootField();
+		 } else {
+			 field = new Field();
+		 }
 		 
 		 if (description != null)
 			 field.addContent(new TextContent(description));
@@ -571,7 +576,7 @@ public class PROimport {
 	 */
 	public static TreeModel createTreeModel(IXMLElement root) {
 		
-		IField rootField = createField(root);
+		IField rootField = createField(root, true);
 		DefaultMutableTreeNode rootNode = new FieldNode(rootField);
 		
 		/*
