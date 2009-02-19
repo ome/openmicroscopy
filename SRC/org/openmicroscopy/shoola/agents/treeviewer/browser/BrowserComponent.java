@@ -1096,15 +1096,11 @@ class BrowserComponent
 			node = nodes.get(userId);
 			expNode = node.getExperimenterNode();
 			exp = (ExperimenterData) expNode.getUserObject();
-			if (browserType == IMAGES_EXPLORER) {
-				results = TreeViewerTranslator.refreshImageHierarchy(
-							(Map) node.getResults(), exp.getId(), 
-							-1);
-				view.refreshTimeFolder(expNode, results);
-			} else if (browserType == FILES_EXPLORER) {
-				convertedNodes = TreeViewerTranslator.transformHierarchy(
-						(Collection) node.getResults(), exp.getId(), -1);
-				view.setExperimenterData(convertedNodes, expNode);
+			if (browserType == IMAGES_EXPLORER || browserType == FILES_EXPLORER) 
+			{
+				results = TreeViewerTranslator.refreshFolderHierarchy(
+							(Map) node.getResults(), exp.getId(), -1);
+				view.refreshFolder(expNode, results);
 			} else {
 				convertedNodes = TreeViewerTranslator.refreshHierarchy(
 						(Map) node.getResults(), node.getExpandedTopNodes(), 

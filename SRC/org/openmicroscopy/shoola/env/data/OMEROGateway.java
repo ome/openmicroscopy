@@ -123,7 +123,6 @@ import omero.model.ProjectI;
 import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.ScreenI;
-import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TimestampAnnotation;
@@ -2015,25 +2014,28 @@ class OMEROGateway
 			IQueryPrx service = getQueryService();
 			String table = getTableForAnnotationLink(parentType);
 			if (table == null) return null;
-			String sql = "select link from "+table+" as link";
-			sql +=" left outer join link.child as child";
-			sql +=" left outer join link.parent as parent";
+			StringBuffer sb = new StringBuffer();
+			sb.append("select link from "+table+" as link");
+			sb.append(" left outer join link.details.owner as owner");
+			sb.append(" left outer join link.child as child");
+			sb.append(" left outer join link.parent as parent");
 			ParametersI p = new ParametersI();
 			if (parentID > 0) {
-				sql += " where link.parent.id = :parentID";
+				sb.append(" where link.parent.id = :parentID");
 				if (children != null && children.size() > 0) {
-					sql += " and link.child.id in (:childIDs)";
+					sb.append(" and link.child.id in (:childIDs)");
 					p.addLongs("childIDs", children);
 				}
 				p.map.put("parentID", omero.rtypes.rlong(parentID));
 			} else {
 				if (children != null && children.size() > 0) {
-					sql += " where link.child.id in (:childIDs)";
+					sb.append(" where link.child.id in (:childIDs)");
 					p.addLongs("childIDs", children);
 				}
 			}
-			return service.findAllByQuery(sql, p);
+			return service.findAllByQuery(sb.toString(), p);
 		} catch (Throwable t) {
+			t.printStackTrace();
 			handleException(t, "Cannot retrieve the annotation links for "+
 					"parent ID: "+parentID);
 		}

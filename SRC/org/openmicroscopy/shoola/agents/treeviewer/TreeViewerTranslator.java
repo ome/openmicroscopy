@@ -38,6 +38,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
@@ -734,21 +735,9 @@ public class TreeViewerTranslator
     	return false;
     	*/
     }
-
-    /**
-     * Transforms a set of {@link DataObject}s into their corresponding 
-     * visualization objects. The elements of the set can either be
-     * {@link DatasetData}, {@link CategoryData} or {@link ImageData}.
-     * 
-     * @param paths     Collection of {@link DataObject}s to transform.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data. 
-     * @return A set of visualization objects.
-     */
     
     /**
-     * Transforms a set of {@link ImageData} objects into their corresponding 
+     * Transforms a set of objects into their corresponding 
      * visualization objects.
      *  
      * @param nodes		The nodes to transform.
@@ -757,7 +746,7 @@ public class TreeViewerTranslator
      *                      retrieving the data. 
      * @return A set of visualization objects.
      */
-    public static Map<Integer, Set> refreshImageHierarchy(Map nodes, 
+    public static Map<Integer, Set> refreshFolderHierarchy(Map nodes, 
     								long userID, long groupID)
     {
     	if (nodes == null)
@@ -765,22 +754,37 @@ public class TreeViewerTranslator
     	Map<Integer, Set> r = new HashMap<Integer, Set>(nodes.size());
         
         Iterator i = nodes.keySet().iterator();
-        TreeImageTimeSet node;
-        Set images;
+        TreeImageDisplay node;
+        Set results;
         Iterator j;
-        ImageData ho;
+        DataObject ho;
         Set<TreeImageDisplay> converted;
+        TreeImageTimeSet time;
         while (i.hasNext()) {
-            node = (TreeImageTimeSet) i.next();
-            images = (Set) nodes.get(node);
-            converted = new HashSet<TreeImageDisplay>(images.size());
-            j = images.iterator();
-            while (j.hasNext()) {
-            	ho = (ImageData) j.next();
-            	if (EditorUtil.isReadable(ho, userID, groupID))
-            		converted.add(transformImage(ho));
-			}
-            r.put(node.getIndex(), converted);
+            node = (TreeImageDisplay) i.next();
+            if (node instanceof TreeImageTimeSet) {
+            	results = (Set) nodes.get(node);
+                converted = new HashSet<TreeImageDisplay>(results.size());
+                j = results.iterator();
+                while (j.hasNext()) {
+                	ho = (DataObject) j.next();
+                	if (EditorUtil.isReadable(ho, userID, groupID))
+                		converted.add(transformImage((ImageData) ho));
+    			}
+                r.put(((TreeImageTimeSet) node).getIndex(), converted);
+            } else if (node instanceof TreeFileSet) {
+            	results = (Set) nodes.get(node);
+                converted = new HashSet<TreeImageDisplay>(results.size());
+                j = results.iterator();
+                while (j.hasNext()) {
+                	ho = (DataObject) j.next();
+                	
+                	if (EditorUtil.isReadable(ho, userID, groupID))
+                		converted.add(transformFile((FileAnnotationData) ho, 
+                				userID, groupID));
+    			}
+                r.put(((TreeFileSet) node).getType(), converted);
+            }
         }
         return r;
 	}

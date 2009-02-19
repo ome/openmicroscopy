@@ -37,6 +37,8 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeFileSet;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -135,17 +137,17 @@ public class RefreshExperimenterDataLoader
      * @param expId		The user's id.
      * @param result	The result of the call for the passed user.
      */
-    private void formatImageResult(long expId, List result)
+    private void formatSmartFolderResult(long expId, List result)
     {
     	RefreshExperimenterDef node = expNodes.get(expId);
     	List nodes = node.getExpandedNodes();
     	int n = nodes.size();
-    	TreeImageTimeSet display;
+    	TreeImageSet display;
     	TimeRefObject ref;
     	Map m = new HashMap();
     	
     	for (int i = 0; i < n; i++) {
-			display = (TreeImageTimeSet) nodes.get(i);
+			display = (TreeImageSet) nodes.get(i);
 			ref = (TimeRefObject) result.get(i);
 			m.put(display, ref.getResults());
 		}
@@ -183,13 +185,16 @@ public class RefreshExperimenterDataLoader
     	Iterator i = expNodes.keySet().iterator();
     	RefreshExperimenterDef def;
     	long userID;
-    	TimeRefObject ref;
+    	TimeRefObject ref = null;
     	List nodes;
     	List<TimeRefObject> times;
     	Iterator j;
-    	TreeImageTimeSet node;
+    	TreeImageSet node;
     	Map<Long, List> m = new HashMap<Long, List>(expNodes.size());
-    	if (ImageData.class.equals(rootNodeType)) {
+    	if (ImageData.class.equals(rootNodeType) || 
+    			FileAnnotationData.class.equals(rootNodeType)) {
+    		TreeImageTimeSet time;
+    		TreeFileSet file;
     		while (i.hasNext()) {
         		userID = (Long) i.next();
         		def = expNodes.get(userID);
@@ -197,10 +202,19 @@ public class RefreshExperimenterDataLoader
         		j = nodes.iterator();
         		times = new ArrayList<TimeRefObject>(nodes.size());
         		while (j.hasNext()) {
-        			node = (TreeImageTimeSet) j.next();
-        			ref = new TimeRefObject(userID, TimeRefObject.TIME);
-        			ref.setTimeInterval(node.getStartTime(), node.getEndTime());
-					times.add(ref);
+        			node = (TreeImageSet) j.next();
+        			if (node instanceof TreeImageTimeSet) {
+        				time = (TreeImageTimeSet) node;
+        				ref = new TimeRefObject(userID, TimeRefObject.TIME);
+            			ref.setTimeInterval(time.getStartTime(), 
+            					time.getEndTime());
+    					
+        			} else if (node instanceof TreeFileSet) {
+        				file = (TreeFileSet) node;
+        				ref = new TimeRefObject(userID, TimeRefObject.FILE);
+            			ref.setFileType(file.getType());
+        			}
+        			if (ref != null) times.add(ref);
 				}
     			m.put(userID, times);
     		}
@@ -230,19 +244,24 @@ public class RefreshExperimenterDataLoader
         Map m = (Map) result;
         Iterator i = m.keySet().iterator();
         long expId;
-        if (ImageData.class.equals(rootNodeType)) {
+        if (ImageData.class.equals(rootNodeType) || 
+        		FileAnnotationData.class.equals(rootNodeType)) {
         	while (i.hasNext()) {
             	expId = (Long) i.next();
-            	formatImageResult(expId, (List) m.get(expId));
+            	formatSmartFolderResult(expId, (List) m.get(expId));
     		}
-        } else if (FileAnnotationData.class.equals(rootNodeType)) {
+        } 
+        /*
+        else if (FileAnnotationData.class.equals(rootNodeType)) {
         	RefreshExperimenterDef node;
         	while (i.hasNext()) {
             	expId = (Long) i.next();
             	node = expNodes.get(expId);
             	node.setResults(m.get(expId));
     		}
-        } else {
+        } 
+        */
+        else {
         	while (i.hasNext()) {
             	expId = (Long) i.next();
             	setExperimenterResult(expId, m.get(expId));

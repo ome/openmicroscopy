@@ -537,7 +537,7 @@ class ImViewerUI
 	 */
 	private JMenu createViewMenu(ViewerPreferences pref)
 	{
-		JMenu menu = new JMenu("View");
+		JMenu menu = new JMenu("Display");
 		menu.setMnemonic(KeyEvent.VK_V);
 		JCheckBoxMenuItem item = new JCheckBoxMenuItem();
 		item.setSelected(model.isUnitBar());

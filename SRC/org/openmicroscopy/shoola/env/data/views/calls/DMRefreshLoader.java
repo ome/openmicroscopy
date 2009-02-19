@@ -202,6 +202,25 @@ public class DMRefreshLoader
         return new BatchCall("Loading files: ") {
             public void doCall() throws Exception
             {
+            	OmeroMetadataService os = context.getMetadataService();
+                Iterator users = nodes.keySet().iterator();
+                long userID;
+                List containers;
+                Iterator j ;
+                TimeRefObject ref;
+                while (users.hasNext()) {
+                	userID = (Long) users.next();
+                	containers = nodes.get(userID);
+                	j = containers.iterator();
+                	while (j.hasNext()) {
+                		ref = (TimeRefObject) j.next();
+        				ref.setResults(os.loadFiles(ref.getFileType(), userID));
+					}
+                }
+                results = nodes;
+            	
+            	
+            	/*
                 OmeroMetadataService os = context.getMetadataService();
                 Iterator users = nodes.keySet().iterator();
                 results = new HashMap<Long, Object>(nodes.size());
@@ -213,6 +232,7 @@ public class DMRefreshLoader
                 			userID);
                 	results.put(userID, result);
                 }
+                */
             }
         };
     }

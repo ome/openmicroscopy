@@ -611,12 +611,12 @@ class BrowserUI
     }
     
     /**
-     * Refreshes the passed time node.
+     * Refreshes the passed folder node.
      * 
      * @param node		The node to refresh.
      * @param elements	The elements to add.
      */
-    private void refreshTimeNode(TreeImageSet node, Set elements)
+    private void refreshFolderNode(TreeImageSet node, Set elements)
 	{
 		node.removeAllChildren();
 		node.removeAllChildrenDisplay();
@@ -1149,12 +1149,55 @@ class BrowserUI
 	}
 		
 	/**
+	 * Refreshes the folder hosting the files and the times.
+	 * 
+	 * @param expNode The experimenter node to refresh.
+	 * @param r			The data to display.
+	 */
+	void refreshFolder(TreeImageDisplay expNode, Map<Integer, Set> r)
+	{
+		int browseType = model.getBrowserType();
+		if (browseType == Browser.IMAGES_EXPLORER)
+			refreshTimeFolder(expNode, r);
+		else if (browseType == Browser.FILES_EXPLORER)
+			refreshFileFolder(expNode, r);
+	}
+	
+	/**
+	 * Refreshes the folder hosting the file.
+	 * 
+	 * @param expNode	The experimenter node to refresh.
+	 * @param r			The data to display.
+	 */
+	private void refreshFileFolder(TreeImageDisplay expNode, Map<Integer, Set> r)
+	{
+		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+		expNode.setChildrenLoaded(Boolean.TRUE);
+		expNode.setExpanded(true);
+		if (r == null || r.size() == 0) return;
+		Iterator i = r.keySet().iterator();
+		int index;
+		int n = expNode.getChildCount();
+		TreeFileSet node;
+		dtm.reload();
+		while (i.hasNext()) {
+			index = (Integer) i.next();
+			for (int j = 0; j < n; j++) {
+				node = (TreeFileSet) expNode.getChildAt(j);
+				if (node.getType() == index) 
+					refreshFolderNode(node, r.get(index));
+			}
+		}
+		setExpandedParent(expNode, true);
+	}
+	
+	/**
 	 * Refreshes the folder hosting the time.
 	 * 
 	 * @param expNode	The experimenter node to refresh.
 	 * @param r			The data to display.
 	 */
-	void refreshTimeFolder(TreeImageDisplay expNode, Map<Integer, Set> r)
+	private void refreshTimeFolder(TreeImageDisplay expNode, Map<Integer, Set> r)
 	{
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
 		expNode.setChildrenLoaded(Boolean.TRUE);
@@ -1181,11 +1224,11 @@ class BrowserUI
 						while (s.hasNext()) {
 							child = (TreeImageTimeSet) s.next();
 							if (child.getIndex() == index) 
-								refreshTimeNode(child, r.get(index));
+								refreshFolderNode(child, r.get(index));
 						}
 					default:
 						if (node.getIndex() == index) 
-							refreshTimeNode(node, r.get(index));
+							refreshFolderNode(node, r.get(index));
 						break;
 				}
 			}
