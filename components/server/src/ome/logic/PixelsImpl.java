@@ -59,6 +59,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	/** Standard rendering definition HQL query prefix */
 	private static final String RENDERING_DEF_QUERY_PREFIX =
 		"select rdef from RenderingDef as rdef " + 
+		"left outer join fetch rdef.details.owner " + 
 		"left outer join fetch rdef.quantization " + 
 		"left outer join fetch rdef.model " +
 		"left outer join fetch rdef.waveRendering as cb " +
