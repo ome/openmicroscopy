@@ -39,6 +39,7 @@ import javax.swing.SwingConstants;
 
 import org.openmicroscopy.shoola.agents.editor.browser.actions.AbstractTreeEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.CopyFieldsAction;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.TreeEdit;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 
 /** 
@@ -96,15 +97,19 @@ public class ToolBar
 		bar.add(createButton(BrowserControl.REDO_ACTION));
 		
 		bar.add(new JSeparator(SwingConstants.VERTICAL));
+		bar.add(createButton(BrowserControl.ADD_EXP_INFO_ACTION));
+		add(bar);
+		
+		bar.add(new JSeparator(SwingConstants.VERTICAL));
 		bar.add(createButton(BrowserControl.COPY_FIELDS_ACTION));
 		bar.add(createButton(BrowserControl.PASTE_FIELDS_ACTION));
 		
-		add(bar);
 	}
 	
 	/**
 	 * Convenience method for creating buttons. 
-	 * If Actions are 
+	 * If Actions are {@link TreeEdit}s, call the setTree() method to 
+	 * pass a reference to the JTree in the UI. 
 	 * 
 	 * @param actionID		The ID of the action, retrieved from controller.
 	 * @return			A button displaying the specified action.
@@ -112,11 +117,8 @@ public class ToolBar
 	private JButton createButton(int actionID)
 	{
 		Action action = controller.getAction(actionID);
-		if (action instanceof AbstractTreeEditAction) {
-			((AbstractTreeEditAction)action).setTree(treeUI);
-		}
-		else if (action instanceof CopyFieldsAction) {
-			((CopyFieldsAction)action).setTree(treeUI);
+		if (action instanceof TreeEdit) {
+			((TreeEdit)action).setTree(treeUI);
 		}
 		JButton b = new CustomButton(action);
 		b.setText("");

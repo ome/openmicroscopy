@@ -130,5 +130,13 @@ public interface Browser
 	 * @return One of the state flags defined by this interface.
 	 */
 	public int getState();
+	
+	/**
+	 * Returns true if we are currently editing an Experiment, otherwise 
+	 * (editing a Protocol) returns false;
+	 * 
+	 * @return		see above.
+	 */
+	public boolean isModelExperiment();
 
 }

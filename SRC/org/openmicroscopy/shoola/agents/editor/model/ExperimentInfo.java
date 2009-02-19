@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.model.DataReference 
+ * org.openmicroscopy.shoola.agents.editor.model.ExperimentalInfo 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -24,19 +24,22 @@ package org.openmicroscopy.shoola.agents.editor.model;
 
 //Java imports
 
+import java.util.Date;
 import java.util.HashMap;
+
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * A data reference is attached to a 'Field'/Step in order to link that 
- * step to some data that it produces. 
- * This can be a reference to some data on the local file-system, a url or
- * some data on a server (eg OMERO). 
- * Property names correspond to elements within .cpe.xml files that store
- * properties of the data reference. 
+ * This object holds details of an experiment instance,
+ * E.g. investigator name, date, etc. 
+ * The presence of this object in root protocol node/title indicates that the
+ * protocol has been performed as an experiment. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -46,46 +49,78 @@ import java.util.HashMap;
  * </small>
  * @since 3.0-Beta4
  */
-public class DataReference 
+public class ExperimentInfo 
 	implements IAttributes {
 	
-	/** The name of the data reference */
-	public static final String 		NAME = "name";
-	
-	/** The location, path, lsid or url of the data reference */
-	public static final String 		REFERENCE = "reference";
-	
-	/** The description of the data reference */
-	public static final String 		DESCRIPTION = "description";
-	
-	/** The mime-type of the data reference */
-	public static final String 		MIME_TYPE = "mime-type";
-	
-	/** The size of the data reference */
-	public static final String 		SIZE = "size";
-	
-	/** The creation-time of the data reference, in UTC millisecs */
-	public static final String 		CREATION_TIME = "creation-time";
-	
-	/** The modification-time of the data reference, in UTC millisecs */
-	public static final String 		MODIFICATION_TIME = "modification-time";
-		
 	/**
-	 * A map of the attributes that define this data-reference
+	 * A map of the attributes that define this experimental info.
 	 * Can be used to store any name, value pair. 
 	 */
 	private HashMap<String, String> valueAttributesMap;
+	
+	/**  
+	 * The name of the element within 'exp-info' that has exp date,
+	 * stored as UTC millisecs 
+	 */
+	
+	public static final String 			EXP_DATE = "experiment-date";
+	/**  
+	 * The name of the element within 'exp-info' that has 
+	 * investigator's name 
+	 */
+	public static final String 			INVESTIG_NAME = "investigator-name";
 
 	/**
 	 * Creates an instance. 
 	 */
-	public DataReference() 
+	public ExperimentInfo(String name, String utcDate) 
 	{
+		if (name == null) {
+			name = System.getProperty("user.name");
+		}
+		if (utcDate == null) {
+			Date now = new Date();
+			utcDate = now.getTime() + "";
+		}
 		valueAttributesMap = new HashMap<String, String>();
+		
+		setAttribute(INVESTIG_NAME, name);
+		setAttribute(EXP_DATE, utcDate);
 	}
 	
 	/**
-	 * Gets an attribute of this data-reference.
+	 * Creates an instance without specifying name and date. These will
+	 * be filled by default values (username and "now"). 
+	 */
+	public ExperimentInfo() 
+	{
+		this (null, null);
+	}
+	
+	/**
+	 * Method for classes to determine whether a TreeModel of a protocol
+	 * contains an Experimental Info object at the root node, thereby 
+	 * defining it as an Experiment. 
+	 * 
+	 * @param model		The data model
+	 * @return			True if the root node has an Experiment Info object. 
+	 */
+	public static boolean isModelExperiment(TreeModel model)
+	{
+		TreeNode tn = (TreeNode)model.getRoot();
+		if (!(tn instanceof DefaultMutableTreeNode)) return false;
+		DefaultMutableTreeNode node = (DefaultMutableTreeNode)tn;
+		Object userOb = node.getUserObject();
+		if (!(userOb instanceof ProtocolRootField)) return false;
+		ProtocolRootField prf = (ProtocolRootField)userOb;
+		IAttributes expInfo = prf.getExpInfo();
+	
+		return (expInfo != null);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IAttributes} interface. 
+	 * Gets an attribute of this experimental info.
 	 * 
 	 * @param name		Name of the attribute. 
 	 * @return			The value of this attribute, or null if not set. 

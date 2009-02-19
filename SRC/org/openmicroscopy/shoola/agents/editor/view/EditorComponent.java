@@ -358,9 +358,9 @@ class EditorComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#registerBrowserListenert(PropertyChangeListener)
+	 * @see Editor#registerBrowserListener(PropertyChangeListener)
 	 */
-	public void registerBrowserListenert(PropertyChangeListener listener)
+	public void registerBrowserListener(PropertyChangeListener listener)
 	{
 		if (listener != null)
 			model.getBrowser().addPropertyChangeListener(listener);

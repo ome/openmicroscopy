@@ -332,10 +332,13 @@ class EditorModel
 	 */
 	void fireFileSaving(File file)
 	{
+		boolean fileIsExp = browser.isModelExperiment();
+		int fileType = (fileIsExp ? FileSaver.EXPERIMENT : FileSaver.PROTOCOL);
+		
 		saveFile(file);
 		FileAnnotationData data = null;
 		if (fileAnnotation != null) data = fileAnnotation;
-		currentLoader = new FileSaver(component, file, data);
+		currentLoader = new FileSaver(component, file, data, fileType);
 		currentLoader.load();
 		state = Editor.SAVING;
 	}

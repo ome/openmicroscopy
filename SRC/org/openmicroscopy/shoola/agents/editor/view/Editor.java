@@ -127,7 +127,7 @@ public interface Editor
 	 * 
 	 * @param listener The listener to register.
 	 */
-	public void registerBrowserListenert(PropertyChangeListener listener);
+	public void registerBrowserListener(PropertyChangeListener listener);
 	
 	/**
 	 * Opens a file that exists on the local machine.

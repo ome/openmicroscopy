@@ -131,6 +131,15 @@ public class BrowserComponent
 	
 	/**
      * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#isModelExperiment()
+     */
+	public boolean isModelExperiment()
+	{
+		return model.isModelExperiment();
+	}
+	
+	/**
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setId(long)
      */
 	public void setId(long id)

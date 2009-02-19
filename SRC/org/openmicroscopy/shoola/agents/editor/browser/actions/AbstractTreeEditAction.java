@@ -30,6 +30,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.undo.UndoableEditSupport;
 
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.TreeEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.UndoableTreeEdit;
 
 //Third-party libraries
@@ -65,7 +66,8 @@ import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.UndoableTreeE
  */
 public abstract class AbstractTreeEditAction 
 	extends BrowserAction 
-	implements TreeSelectionListener 
+	implements TreeSelectionListener,
+	TreeEdit
 {
 	
 	/**

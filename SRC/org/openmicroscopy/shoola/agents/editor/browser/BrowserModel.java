@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 import javax.swing.tree.TreeModel;
 
+import org.openmicroscopy.shoola.agents.editor.model.ExperimentInfo;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -116,6 +118,18 @@ class BrowserModel
     		state = Browser.TREE_EDITED;
     	else 
     		state = Browser.TREE_SAVED;
+    }
+    
+    /**
+     * Determines whether a TreeModel of a protocol
+	 * contains an Experimental Info object at the root node, thereby 
+	 * defining it as an Experiment. 
+	 * 
+     * @return	see above. 
+     */
+    boolean isModelExperiment() 
+    {
+    	return ExperimentInfo.isModelExperiment(treeModel);
     }
     
     /**

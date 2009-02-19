@@ -82,7 +82,7 @@ public class SaveFileAction
 		setName(NAME);
 		setDescription(DESCRIPTION);
 		setIcon(IconManager.SAVE_ICON);
-		model.registerBrowserListenert(this);
+		model.registerBrowserListener(this);
 	}
 
 	/**

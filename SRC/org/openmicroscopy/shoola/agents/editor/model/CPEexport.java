@@ -552,18 +552,20 @@ public class CPEexport {
 		String revision = protocolRoot.getAttribute(CPEimport.REVISION);
 		addChildContent(protocolInfo, CPEimport.REVISION, revision);
 		
-		// experiment-info. Not yet used by Editor. Preserve cpe.xml data only. 
-		String expDate = protocolRoot.getAttribute(CPEimport.EXP_DATE);
-		String investigName = protocolRoot.getAttribute(CPEimport.INVESTIG_NAME);
-		if (expDate != null || investigName != null) {
+		// experiment-info.
+		IAttributes eInfo = ((ProtocolRootField)protocolRoot).getExpInfo();
+
+		if (eInfo != null) {
+			String expDate = eInfo.getAttribute(ExperimentInfo.EXP_DATE);
+			String investigName = eInfo.getAttribute(ExperimentInfo.INVESTIG_NAME);
 			IXMLElement expInfo = new XMLElement(CPEimport.EXP_INFO);
 			// make sure neither are null
 			if (expDate == null)	expDate = now.getTime() + "";
 			if (investigName == null)	{
 				investigName = System.getProperty("user.name");
 			}
-			addChildContent(expInfo, CPEimport.EXP_DATE, expDate);
-			addChildContent(expInfo, CPEimport.INVESTIG_NAME, investigName);
+			addChildContent(expInfo, ExperimentInfo.EXP_DATE, expDate);
+			addChildContent(expInfo, ExperimentInfo.INVESTIG_NAME, investigName);
 			protocolInfo.addChild(expInfo);
 		}
 

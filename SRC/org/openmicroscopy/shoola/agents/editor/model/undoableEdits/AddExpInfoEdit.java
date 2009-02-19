@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddDataRefEdit 
+ * org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddExpInfoEdit 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -27,20 +27,19 @@ package org.openmicroscopy.shoola.agents.editor.model.undoableEdits;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
 import javax.swing.undo.AbstractUndoableEdit;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.model.DataReference;
+import org.openmicroscopy.shoola.agents.editor.model.ExperimentInfo;
+import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
-import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
+import org.openmicroscopy.shoola.agents.editor.model.ProtocolRootField;
 
 /** 
- * This undoable Edit adds a new {@link DataReference} to the field/step.
+ * This edit adds or removes experimental info from the protocol root node/step
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -50,39 +49,36 @@ import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
  * </small>
  * @since 3.0-Beta4
  */
-public class AddDataRefEdit 
+public class AddExpInfoEdit 
 	extends AbstractUndoableEdit
+	implements TreeEdit
 {
 	/**
-	 * A reference to the {@link IField} that the new {@link DataReference} is
-	 * being added to.
+	 * A reference to the root {@link IField} that the new {@link ExperimentInfo}
+	 * is being added to.
 	 */
-	private IField 				field;
+	private ProtocolRootField 			field;
 	
 	/**
-	 * A reference to the new {@link DataReference}, being added.
+	 * A reference to the new {@link ExperimentInfo}, being added.
 	 */
-	private DataReference 		dataRef;
+	private IAttributes 				expInfo;
 	
 	/**
-	 * The {@link JTree} which displays the field being edited. 
-	 * If this is not null,
-	 * it's {@link TreeModel} will be notified of changes to the node, and 
-	 * the JTree selection path will be set to the edited node. 
+	 * A reference to the old {@link ExperimentInfo}, being replaced.
 	 */
-	private JTree 				tree; 
+	private IAttributes 				oldExpInfo;
 	
 	/**
-	 * The node that contains the field being edited. 
-	 * This is used to notify the TreeModel that nodeChanged() and to 
-	 * set the selected node in the JTree after editing. 
+	 * The root node (that contains the field being edited).
+	 * This is used to notify the TreeModel that nodeChanged()
 	 */
-	private TreeNode 			node;
+	private DefaultMutableTreeNode 		node;
 	
 	/**
-	 * The index that the new DataReference was added. 
+	 * 
 	 */
-	private int 				indexOfParam;
+	DefaultTreeModel 					treeModel;
 	
 	/**
 	 * Creates an instance and performs the add.
@@ -91,25 +87,32 @@ public class AddDataRefEdit
 	 * @param tree		The tree that contains the field. Needed to notify edits
 	 * @param node		The node in the tree that contains the field to edit.
 	 */
-	public AddDataRefEdit(IField field, JTree tree, TreeNode node) {
+	public AddExpInfoEdit(JTree tree) {
+		setTree(tree);
+	}
+	
+	public void doEdit() {
+		if (treeModel == null)	return;
+		node = (DefaultMutableTreeNode)treeModel.getRoot();
 		
-		this.field = field;
-		this.tree = tree;
-		this.node = node;
+		Object ob = node.getUserObject();
+		if (! (ob instanceof ProtocolRootField))	return;
+		field = (ProtocolRootField)ob;
 		
-		dataRef = new DataReference();
+		oldExpInfo = field.getExpInfo();
+		expInfo = new ExperimentInfo();
 		
-		field.addDataRef(dataRef);
+		redo();
 	}
 	
 	public void undo() {
-		indexOfParam = field.removeDataRef(dataRef);
-		notifySelectStartEdit();
+		field.setExpInfo(oldExpInfo);
+		notifyNodeChanged();
 	}
 	
 	public void redo() {
-		field.addDataRef(indexOfParam, dataRef);
-		notifySelectStartEdit();
+		field.setExpInfo(expInfo);
+		notifyNodeChanged();
 	}
 	
 	public boolean canUndo() {
@@ -122,32 +125,12 @@ public class AddDataRefEdit
 	
 	/**
 	 * Overrides this method in {@link AbstractUndoableEdit} to return
-	 * "Data Reference"
+	 * "Experiment Info"
 	 */
 	 public String getPresentationName() 
 	 {
-		 return "Data Reference";
+		 return "Experiment Info";
 	 }
-	
-	/**
-	 * This should be called after undo or redo.
-	 * It notifies listeners to the treeModel that a change has been made,
-	 * then selects the edited node in the JTree specified in the constructor. 
-	 * Finally, startEditingAtPath(path) to the edited node is called on 
-	 * this JTree. This means that after an undo/redo, the edited node is 
-	 * "active", so that a user can edit directly, rather than needing a 
-	 * click before editing. 
-	 */
-	private void notifySelectStartEdit() 
-	{
-		notifyNodeChanged();
-		TreeModelMethods.selectNode(node, tree);
-		
-		DefaultMutableTreeNode dmtNode = (DefaultMutableTreeNode)node;
-		TreePath path = new TreePath(dmtNode.getPath());
-		if (tree != null)
-			tree.startEditingAtPath(path);
-	}
 	
 	/**
 	 * This notifies all listeners to the TreeModel of a change to the node
@@ -156,9 +139,19 @@ public class AddDataRefEdit
 	 */
 	private void notifyNodeChanged() 
 	{
-		if ((tree != null) && (node != null)) {
-			DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
+		if (treeModel != null) {
+			
 			treeModel.nodeChanged(node);
 		}
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeEdit} interface.
+	 * 
+	 * @see TreeEdit#setTree(JTree)
+	 */
+	public void setTree(JTree tree) {
+		if (tree != null)
+			treeModel = (DefaultTreeModel)tree.getModel();
 	}
 }

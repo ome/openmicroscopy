@@ -60,8 +60,10 @@ import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXDatePicker;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
-import org.openmicroscopy.shoola.agents.editor.model.CPEimport;
+import org.openmicroscopy.shoola.agents.editor.model.ExperimentInfo;
+import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.agents.editor.model.ProtocolRootField;
 import org.openmicroscopy.shoola.agents.editor.model.TreeIterator;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomFont;
@@ -105,8 +107,8 @@ public class ExperimentInfoPanel
 	/** The root node of the Tree Model, contains the field with exp info */
 	TreeNode 					root;
 	
-	/** The root field/step of the protocol. Holds exp info. */
-	IField 						field;
+	/** The Experiment Info object. Holds exp info. */
+	IAttributes					field;
 	
 	/** Label to display investigator */
 	private JLabel				investigatorLabel;
@@ -257,14 +259,15 @@ public class ExperimentInfoPanel
 		if (!(tn instanceof DefaultMutableTreeNode)) return;
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode)tn;
 		Object userOb = node.getUserObject();
-		if (!(userOb instanceof IField)) return;
-		field = (IField)userOb;
-	
-		// add details (name and date)
-		String expDate = field.getAttribute(CPEimport.EXP_DATE);
-		String investigName = field.getAttribute(CPEimport.INVESTIG_NAME);
-		if (expDate != null || investigName != null) {
+		if (!(userOb instanceof ProtocolRootField)) return;
+		ProtocolRootField prf = (ProtocolRootField)userOb;
+		field = prf.getExpInfo();
 		
+		// add details (name and date)
+		if (field != null) {
+			String expDate = field.getAttribute(ExperimentInfo.EXP_DATE);
+			String investigName = field.getAttribute
+												(ExperimentInfo.INVESTIG_NAME);
 			String date = "no date";
 			
 			SimpleDateFormat f = new SimpleDateFormat("yyyy, MMM d");
@@ -499,7 +502,7 @@ public class ExperimentInfoPanel
 		else if (e.getSource().equals(datePicker)) {
 			String date = datePicker.getDate().getTime() + "";
 			
-			editAttribute(CPEimport.EXP_DATE, date);
+			editAttribute(ExperimentInfo.EXP_DATE, date);
 		}
 	}
 

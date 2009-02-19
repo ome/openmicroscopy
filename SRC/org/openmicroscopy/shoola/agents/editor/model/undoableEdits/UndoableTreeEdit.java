@@ -50,6 +50,7 @@ import javax.swing.undo.AbstractUndoableEdit;
  */
 public abstract class UndoableTreeEdit 
 	extends AbstractUndoableEdit 
+	implements TreeEdit
 {
 	
 	/**

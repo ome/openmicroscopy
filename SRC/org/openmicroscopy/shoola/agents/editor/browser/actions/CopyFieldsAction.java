@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.TreeEdit;
 import org.openmicroscopy.shoola.agents.events.editor.CopyEvent;
 import org.openmicroscopy.shoola.env.config.Registry;
 
@@ -58,7 +59,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
  */
 public class CopyFieldsAction 
 	extends BrowserAction 
-	implements TreeSelectionListener
+	implements TreeSelectionListener,
+	TreeEdit
 {
 	/** This is used as a source of selection paths.  */
 	protected JTree 				treeUI;
