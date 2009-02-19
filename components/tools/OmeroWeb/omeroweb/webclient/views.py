@@ -64,6 +64,7 @@ from controller.impexp import BaseImpexp
 from controller.search import BaseSearch
 from controller.share import BaseShare
 
+from omeroweb.feedback.views import handlerInternalError
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
 from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
 
@@ -83,7 +84,6 @@ share_connectors = {}
 
 logger.info("INIT '%s'" % os.getpid())
 
-
 ################################################################################
 # Blitz Gateway Connection
 
@@ -95,6 +95,9 @@ def timeit (func):
         logger.debug("timed %s : %f" % (func.func_name, time()-now))
         return rv
     return wrapped
+
+
+    
 
 @timeit
 def getConnection (request):
@@ -349,6 +352,7 @@ def login(request):
         request.session['port'] = blitz.port
         request.session['username'] = request.REQUEST['username']
         request.session['password'] = request.REQUEST['password']
+        request.session['experimenter'] = None
         request.session['groupId'] = None
         request.session['clipboard'] = []
         request.session['imageInBasket'] = list()
@@ -425,6 +429,7 @@ def index(request, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     sessionHelper(request)
     
@@ -453,6 +458,7 @@ def index_context(request, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseIndex(conn)
     controller.loadData()
@@ -471,6 +477,7 @@ def index_last_imports(request, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseIndex(conn)
     controller.loadLastImports()
@@ -489,6 +496,7 @@ def index_most_recent_comment(request, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseIndex(conn)
     controller.loadMostRecent()
@@ -507,6 +515,7 @@ def index_tag_cloud(request, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseIndex(conn)
     controller.loadTagCloud()
@@ -523,6 +532,7 @@ def change_active_group(request, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     active_group = request.REQUEST['active_group']
     conn.changeActiveGroup(active_group)
@@ -536,6 +546,7 @@ def logout(request, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     try:
         session_key = "S:%s#%s" % (request.session.session_key,request.session['server'])
@@ -576,7 +587,7 @@ def logout(request, **kwargs):
     try:
         del request.session['experimenter']
     except KeyError:
-        #logger.error(traceback.format_exc())
+        logger.error(traceback.format_exc())
         pass
     try:
         del request.session['imageInBasket']
@@ -608,9 +619,15 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
     request.session['nav']['whos'] = 'mydata'
     
     conn = None
-    url = None
     try:
         conn = kwargs["conn"]
+        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    url = None
+    try:
         url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
@@ -658,9 +675,6 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
         elif o1_type == 'project':
             manager.listMyDatasetsInProject(o1_id, page)
         elif o1_type == 'dataset':
-            #if view == 'tree':
-                #manager.loadMyImages(o1_id)
-            #else:
             manager.listMyImagesInDataset(o1_id, page)
         elif o1_type == 'image':
             template = "omeroweb/image_details.html"
@@ -971,9 +985,15 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     request.session['nav']['whos'] = 'userdata'
     
     conn = None
-    url = None
     try:
         conn = kwargs["conn"]
+        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    url = None
+    try:
         url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
@@ -1325,10 +1345,6 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
             if filter_user_id is not None:
                 manager.listDatasetsInProjectAsUser(o1_id, filter_user_id, page)
         elif o1_type == 'dataset':
-            #if view == 'tree':
-                #if filter_user_id is not None:
-                    #manager.loadUserImages(o1_id, filter_user_id)
-            #else:
             if filter_user_id is not None:
                 manager.listImagesInDatasetAsUser(o1_id, filter_user_id, page)
         elif o1_type == 'image':
@@ -1378,9 +1394,15 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     request.session['nav']['whos'] = 'groupdata'
     
     conn = None
-    url = None
     try:
         conn = kwargs["conn"]
+        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    url = None
+    try:
         url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
@@ -1732,10 +1754,6 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
             if filter_group_id is not None:
                 manager.listDatasetsInProjectInGroup(o1_id, filter_group_id)
         elif o1_type == 'dataset':
-            #if view == 'tree':
-                #if filter_group_id is not None:
-                    #manager.loadGroupImages(o1_id, filter_group_id)
-            #else:
             if filter_group_id is not None:
                 manager.listImagesInDatasetInGroup(o1_id, filter_group_id)
         if o1_type == 'image':
@@ -1786,9 +1804,15 @@ def manage_data_by_tag(request, tid=None, **kwargs):
     template = "omeroweb/tag.html"
     
     conn = None
-    url = None
     try:
         conn = kwargs["conn"]
+        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    url = None
+    try:
         url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
@@ -1841,19 +1865,27 @@ def autocomplete_tags(request, **kwargs):
     conn = None
     try:
         conn = kwargs["conn"]
+        
     except:
         logger.error(traceback.format_exc())
-        
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
     json_data = simplejson.dumps(list(conn.getAllTags()))
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @isUserConnected
 def manage_annotations(request, o_type, o_id, **kwargs):
     conn = None
-    url = None
     try:
         conn = kwargs["conn"]
-        url = kwargs["url"]   
+        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    url = None
+    try:
+        url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
     
@@ -1873,7 +1905,7 @@ def manage_annotations(request, o_type, o_id, **kwargs):
     elif o_type == "image":
         template = "omeroweb/annotations.html"
     else:
-        raise AttributeError("This object could not be annotated.")
+        return handlerInternalError("Annotations cannot be displayed for - %s (id:%s)." % (o_type, o_id))
     
     manager.annotationList()
     
@@ -1887,15 +1919,17 @@ def manage_annotations(request, o_type, o_id, **kwargs):
 def manage_tree_details(request, c_type, c_id, **kwargs):
     template = "omeroweb/container_tree_details.html"
     
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        pass
-    
     conn = None
     try:
         conn = kwargs["conn"]
+        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    url = None
+    try:
+        url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
     
@@ -1915,8 +1949,10 @@ def manage_container_hierarchies(request, o_type=None, o_id=None, **kwargs):
     conn = None
     try:
         conn = kwargs["conn"]
+        
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     whos = request.session['nav']['whos']
     
@@ -1935,12 +1971,13 @@ def manage_container_hierarchies(request, o_type=None, o_id=None, **kwargs):
 
 @isUserConnected
 def manage_metadata(request, o_type, o_id, **kwargs):
-    
     conn = None
     try:
         conn = kwargs["conn"]
+        
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     matadataType = request.REQUEST['matadataType']
     metadataValue = request.REQUEST['metadataValue']
@@ -1954,14 +1991,16 @@ def manage_metadata(request, o_type, o_id, **kwargs):
 def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     template = None
     
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-
     conn = None
     try:
         conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    url = None
+    try:
+        url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
     
@@ -2149,14 +2188,16 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
 def manage_image_zoom (request, iid, **kwargs):
     template = "omeroweb/image_zoom.html"
     
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    
     conn = None
     try:
         conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    url = None
+    try:
+        url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
     
@@ -2189,25 +2230,38 @@ def manage_annotation(request, action, iid, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     annotation = BaseAnnotation(conn)
     
     if action == 'download':
-        annotation.getFileAnnotation(iid)
+        try:
+            annotation.getFileAnnotation(iid)
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Cannot download annotation (id:%s)." % (iid))
         rsp = HttpResponse(annotation.originalFile_data)
         if annotation.originalFile_data is None:
-            raise Http404
+            return handlerInternalError("Cannot download annotation (id:%s)." % (iid))
         if action == 'download':
             rsp['ContentType'] = 'application/octet-stream'
             rsp['Content-Disposition'] = 'attachment; filename=%s' % (annotation.annotation.file.name.val)
     else:
-        raise Http404
+        return handlerInternalError("%s is not available." % action.title())
     return rsp
 
 @isUserConnected
 def manage_shares(request, **kwargs):
     request.session['nav']['menu'] = 'share'
     request.session['nav']['whos'] = 'share'
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
     try:
         request.session['nav']['view'] = request.REQUEST['view'] # table, icon, tree 
     except:
@@ -2217,17 +2271,8 @@ def manage_shares(request, **kwargs):
 
     if view == 'icon':
         template = "omeroweb/shares_icon.html"
-    elif view == 'table':
+    else: # view == 'table':
         template = "omeroweb/shares_table.html"
-    else:
-        # TODO
-        template = "omeroweb/shares_icon.html"
-        
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     controller = BaseShare(conn=conn, menu=request.session['nav']['menu'])
     controller.getShares()
@@ -2244,9 +2289,14 @@ def manage_share(request, action, oid=None, **kwargs):
     request.session['nav']['whos'] = 'share'
     
     conn = None
-    url = None
     try:
         conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    url = None
+    try:
         url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
@@ -2334,12 +2384,18 @@ def load_share_content(request, share_id, **kwargs):
     template = "omeroweb/share_content.html"
     
     conn = None
-    conn_share = None
     try:
         conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    conn_share = None
+    try:
         conn_share = getShareConnection(request)
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     share = BaseShare(request.session['nav']['menu'], conn, conn_share, share_id)
     share.loadShareContent()
@@ -2363,6 +2419,7 @@ def basket_action (request, action=None, oid=None, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     if action == "todiscuss" or action == "toshare":
         template = "omeroweb/basket_share_action.html"
@@ -2450,26 +2507,27 @@ def update_basket(request, **kwargs):
     if request.method == 'POST':
         try:
             action = request.REQUEST['action']
-        except:
-            raise AttributeError()
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Attribute error: 'action' is missed.")
         else:
             prod = long(request.REQUEST['productId'])
             ptype = str(request.REQUEST['productType'])
             if action == 'add':
                 if ptype == 'image':
-                    for index, item in enumerate(request.session['imageInBasket']):
+                    for item in request.session['imageInBasket']:
                         if item == prod:
                             rv = "Error: This object is already in the basket"
                             return HttpResponse(rv)
                     request.session['imageInBasket'].append(prod)
                 elif ptype == 'dataset':
-                    for index, item in enumerate(request.session['datasetInBasket']):
+                    for item in request.session['datasetInBasket']:
                         if item == prod:
                             rv = "Error: This object is already in the basket"
                             return HttpResponse(rv)
                     request.session['datasetInBasket'].append(prod)
                 elif ptype == 'project':
-                    for index, item in enumerate(request.session['projectInBasket']):
+                    for item in request.session['projectInBasket']:
                         if item == prod:
                             rv = "Error: This object is already in the basket"
                             return HttpResponse(rv)
@@ -2499,9 +2557,11 @@ def update_basket(request, **kwargs):
                 elif request.REQUEST['productType'] == 'share':
                     rv = "Error: This action is not available"
                     return HttpResponse(rv)
-    total = len(request.session['imageInBasket'])+len(request.session['datasetInBasket'])+len(request.session['projectInBasket'])
-    request.session['nav']['basket'] = total
-    return HttpResponse(total)
+        total = len(request.session['imageInBasket'])+len(request.session['datasetInBasket'])+len(request.session['projectInBasket'])
+        request.session['nav']['basket'] = total
+        return HttpResponse(total)
+    else:
+        return handlerInternalError("Request method error in Basket.")
 
 ##################################################################
 # Clipboard
@@ -2513,8 +2573,9 @@ def update_clipboard(request, **kwargs):
     if request.method == 'POST':
         try:
             action = request.REQUEST['action']
-        except:
-            raise AttributeError("Request error: request['action'] is missed.")
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Attribute error: 'action' is missed.")
         else:
             if action == 'copy':
                 prod = long(request.REQUEST['productId'])
@@ -2561,13 +2622,22 @@ def update_clipboard(request, **kwargs):
 
                 request.session['clipboard'] = []
                 rv = "Cleapboard is empty"
-    
-    return HttpResponse(rv)
+        return HttpResponse(rv)
+    else:
+        return handlerInternalError("Request method error in Clipboard.")
 
 @isUserConnected
 def search(request, **kwargs):
     request.session['nav']['menu'] = 'search'
     
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    url = None
     try:
         url = kwargs["url"]
     except:
@@ -2585,12 +2655,6 @@ def search(request, **kwargs):
     else:
         request.session['nav']['view'] = "table"
         template = "omeroweb/search_icon.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     controller = BaseSearch(conn)
     
@@ -2654,6 +2718,7 @@ def impexp(request, menu, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseImpexp(conn)
 
@@ -2674,6 +2739,7 @@ def myaccount(request, action, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseExperimenter(conn)
     controller.getMyDetails()
@@ -2738,6 +2804,7 @@ def help(request, menu, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseHelp(conn)
     
@@ -2758,6 +2825,7 @@ def history(request, menu, year, month, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseCalendar(conn=conn, year=year, month=month)
     controller.create_calendar()
@@ -2774,6 +2842,14 @@ def history_details(request, menu, year, month, day, **kwargs):
     request.session['nav']['menu'] = 'history'
     request.session['nav']['whos'] = 'mydata'
     
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    url = None
     try:
         url = kwargs["url"]
     except:
@@ -2788,12 +2864,6 @@ def history_details(request, menu, year, month, day, **kwargs):
         cal_type = None
     
     template = "omeroweb/history_details.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     controller = BaseCalendar(conn=conn, year=year, month=month, day=day)
     controller.get_items(cal_type)
@@ -2820,6 +2890,8 @@ def load_photo(request, oid=None, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
     photo = conn.getExperimenterPhoto(oid)
     return HttpResponse(photo, mimetype='image/jpeg')
 
@@ -2830,6 +2902,8 @@ def myphoto(request, **kwargs):
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
     photo = conn.getExperimenterPhoto()
     return HttpResponse(photo, mimetype='image/jpeg')
 
@@ -2838,59 +2912,54 @@ def myphoto(request, **kwargs):
 
 @isUserConnected
 def render_thumbnail (request, iid, **kwargs):
-
     conn = None
     try:
-        conn = getConnection(request)
+        conn = kwargs["conn"]
     except:
-        logger.debug(traceback.format_exc())
-    if conn is None:
-        raise Http500("Connection not available")
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     img = conn.getImage(iid)
     if img is None:
         try:
             conn = getShareConnection(request)
-        except :
+        except Exception, x:
             logger.debug(traceback.format_exc())
+            raise x
         if conn is None:
-            raise Http500("Connection not available")
+            raise Http500("Share connection not available")
         img = conn.getImage(iid)
     
     if img is None:
         logger.debug("Image %s not found..." % (str(iid)))
-        raise Http404
+        return handlerInternalError("Image %s not found..." % (str(iid)))
     
     jpeg_data = img.getThumbnail()
-    if jpeg_data is None:
-        raise Http404
-    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
-    return rsp
+    return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 @isUserConnected
 def render_thumbnail_details (request, iid, **kwargs):
-
     conn = None
     try:
-        conn = getConnection(request)
+        conn = kwargs["conn"]
     except:
-        logger.debug(traceback.format_exc())
-    if conn is None:
-        raise Http500("Connection not available")
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     img = conn.getImage(iid)
     if img is None:
         try:
             conn = getShareConnection(request)
-        except :
+        except Exception, x:
             logger.debug(traceback.format_exc())
+            raise x
         if conn is None:
-            raise Http500("Connection not available")
+            raise Http500("Share connection not available")
         img = conn.getImage(iid)
     
     if img is None:
         logger.debug("Image %s not found..." % (str(iid)))
-        raise Http404
+        return handlerInternalError("Image %s not found..." % (str(iid)))
     
     side = 0
     if img.getWidth() > img.getHeight():
@@ -2904,66 +2973,58 @@ def render_thumbnail_details (request, iid, **kwargs):
         size = 400
     
     jpeg_data = img.getThumbnailByLongestSide(size=size)
-    if jpeg_data is None:
-        raise Http404
-    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
-    return rsp
+    return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 @isUserConnected
 def render_thumbnail_resize (request, size, iid, **kwargs):
-
     conn = None
     try:
-        conn = getConnection(request)
+        conn = kwargs["conn"]
     except:
-        logger.debug(traceback.format_exc())
-    if conn is None:
-        raise Http500("Connection not available")
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     img = conn.getImage(iid)
     if img is None:
         try:
             conn = getShareConnection(request)
-        except :
+        except Exception, x:
             logger.debug(traceback.format_exc())
+            raise x
         if conn is None:
-            raise Http500("Connection not available")
+            raise Http500("Share connection not available")
         img = conn.getImage(iid)
     
     if img is None:
         logger.debug("Image %s not found..." % (str(iid)))
-        raise Http404
+        return handlerInternalError("Image %s not found..." % (str(iid)))
         
     jpeg_data = img.getThumbnail((int(size),int(size)))
-    if jpeg_data is None:
-        raise Http404
-    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
-    return rsp
+    return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 @isUserConnected
 def render_big_thumbnail (request, iid, **kwargs):
-
     conn = None
     try:
-        conn = getConnection(request)
+        conn = kwargs["conn"]
     except:
-        logger.debug(traceback.format_exc())
-    if conn is None:
-        raise Http500("Connection not available")
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     img = conn.getImage(iid)
     if img is None:
         try:
             conn = getShareConnection(request)
-        except :
+        except Exception, x:
             logger.debug(traceback.format_exc())
+            raise x
         if conn is None:
-            raise Http500("Connection not available")
+            raise Http500("Share connection not available")
         img = conn.getImage(iid)
     
     if img is None:
         logger.debug("Image %s not found..." % (str(iid)))
-        raise Http404
+        return handlerInternalError("Image %s not found..." % (str(iid)))
     
     size = 0
     if img.getWidth() >= 200:
@@ -2977,11 +3038,8 @@ def render_big_thumbnail (request, iid, **kwargs):
         size = 750 
     
     jpeg_data = img.getThumbnailByLongestSide(size=size)
-    if jpeg_data is None:
-        raise Http404
-    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
-    return rsp
-
+    return HttpResponse(jpeg_data, mimetype='image/jpeg')
+    
 class UserAgent (object):
     def __init__ (self, request):
         self.ua = request.META['HTTP_USER_AGENT']
@@ -3000,31 +3058,31 @@ def _get_prepared_image (request, iid):
     
     conn = None
     try:
-        conn = getConnection(request)
+        conn = kwargs["conn"]
     except:
-        logger.debug(traceback.format_exc())
-    if conn is None:
-        raise Http500("Connection not available")
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     img = conn.getImage(iid)
     if img is None:
         try:
             conn = getShareConnection(request)
-        except :
+        except Exception, x:
             logger.debug(traceback.format_exc())
+            raise x
         if conn is None:
-            raise Http500("Connection not available")
+            raise Http500("Share connection not available")
         img = conn.getImage(iid)
     
     if img is None:
         logger.debug("Image %s not found..." % (str(iid)))
-        raise Http404
-
+        return handlerInternalError("Image %s not found..." % (str(iid)))
+    
     if r.has_key('c'):
         logger.debug("c="+r['c'])
         channels, windows, colors =  _split_channel_info(r['c'])
         if not img.setActiveChannels(channels, windows, colors):
-            logger.debug("Something bad happened while setting the active channels...")
+            logger.debug("Could not set the active channels")
     if r.get('m', None) == 'g':
         img.setGreyscaleRenderingModel()
     elif r.get('m', None) == 'c':
@@ -3041,12 +3099,8 @@ def render_image (request, iid, z, t):
     r = request.REQUEST
     
     pi = _get_prepared_image(request, iid)
-    if pi is None:
-        raise Http404
     img, compress_quality = pi
     jpeg_data = img.renderJpeg(z,t, compression=compress_quality)
-    if jpeg_data is None:
-        raise Http404
     return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 
@@ -3058,25 +3112,26 @@ def image_viewer (request, iid, dsid=None):
     
     conn = None
     try:
-        conn = getConnection(request)
+        conn = kwargs["conn"]
     except:
-        logger.debug(traceback.format_exc())
-    if conn is None:
-        raise Http500("Connection not available")
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     img = conn.getImage(iid)
     if img is None:
         try:
             conn = getShareConnection(request)
-        except :
+        except Exception, x:
             logger.debug(traceback.format_exc())
+            raise x
         if conn is None:
-            raise Http500("Connection not available")
+            raise Http500("Share connection not available")
         img = conn.getImage(iid)
     
     if img is None:
         logger.debug("Image %s not found..." % (str(iid)))
-        raise Http404
+        return handlerInternalError("Image %s not found..." % (str(iid)))
+    
     if dsid is not None:
         ds = conn.getDataset(dsid)
     else:
@@ -3152,37 +3207,37 @@ def imageData_json (request, iid):
     
     conn = None
     try:
-        conn = getConnection(request)
+        conn = kwargs["conn"]
     except:
-        logger.debug(traceback.format_exc())
-    if conn is None:
-        raise Http500("Connection not available")
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
 
-    image = conn.getImage(iid)
-    if image is None:
+    img = conn.getImage(iid)
+    if img is None:
         try:
             conn = getShareConnection(request)
-        except :
+        except Exception, x:
             logger.debug(traceback.format_exc())
+            raise x
         if conn is None:
-            raise Http500("Connection not available")
-        image = conn.getImage(iid)
+            raise Http500("Share connection not available")
+        img = conn.getImage(iid)
     
-    if image is None:
+    if img is None:
         logger.debug("Image %s not found..." % (str(iid)))
-        raise Http404
+        return handlerInternalError("Image %s not found..." % (str(iid)))
     
     rv = {
         'id': iid,
-        'size': {'width': image.getWidth(),
-                 'height': image.getHeight(),
-                 'z': image.z_count(),
-                 't': image.t_count(),
-                 'c': image.c_count(),},
-        'pixel_size': {'x': image.getPixelSizeX(),
-                       'y': image.getPixelSizeY(),
-                       'z': image.getPixelSizeZ(),},
-        'rdefs': {'model': image.isGreyscaleRenderingModel() and 'greyscale' or 'color',
+        'size': {'width': img.getWidth(),
+                 'height': img.getHeight(),
+                 'z': img.z_count(),
+                 't': img.t_count(),
+                 'c': img.c_count(),},
+        'pixel_size': {'x': img.getPixelSizeX(),
+                       'y': img.getPixelSizeY(),
+                       'z': img.getPixelSizeZ(),},
+        'rdefs': {'model': img.isGreyscaleRenderingModel() and 'greyscale' or 'color',
                   },
         'channels': map(lambda x: {'emissionWave': x.getEmissionWave(),
                                    'color': x.getColor().getHtml(),
@@ -3190,13 +3245,11 @@ def imageData_json (request, iid):
                                               'max': x.getWindowMax(),
                                               'start': x.getWindowStart(),
                                               'end': x.getWindowEnd(),},
-                                   'active': x.isActive()}, image.getChannels()),
-        'meta': {'name': image.name or '',
-                 'description': image.description or '',
-                 'author': ("%s %s" % (image.details.owner.firstName, image.details.owner.lastName)),
-                 #'publication': image.getPublication(),
-                 #'publication_id': image.getPublicationId(),
-                 'timestamp': image.getDate(),},
+                                   'active': x.isActive()}, img.getChannels()),
+        'meta': {'name': img.name or '',
+                 'description': img.description or '',
+                 'author': ("%s %s" % (img.details.owner.firstName, img.details.owner.lastName)),
+                 'timestamp': img.getDate(),},
         }
     json_data = simplejson.dumps(rv)
     return HttpResponse(json_data, mimetype='application/javascript')

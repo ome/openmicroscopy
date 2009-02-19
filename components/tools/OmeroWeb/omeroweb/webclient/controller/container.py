@@ -289,9 +289,8 @@ class BaseContainer(BaseController):
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
-        #im_list = list(self.conn.listImagesOutoffDatasetMine())
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}#, 'images': im_list}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
+        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}
+        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)
 
     def listMyDatasetsInProject(self, project_id, page):
         ds_list = self.sortByAttr(list(self.conn.listDatasetsInProjectMine(project_id, page)), 'name')
@@ -366,9 +365,8 @@ class BaseContainer(BaseController):
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
-        #im_list = list(self.conn.listImagesOutoffDatasetMine())
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}#, 'images': im_list}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
+        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}
+        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)
 
     def loadMyImages(self, dataset_id):
         im_list = self.sortByAttr(list(self.conn.listImagesInDatasetMine(long(dataset_id))), 'name')
@@ -406,7 +404,6 @@ class BaseContainer(BaseController):
         self.containers = dict()
         pr_list = self.sortByAttr(list(self.conn.listProjectsAsUser(exp_id)), 'name')
         ds_list = self.sortByAttr(list(self.conn.listDatasetsOutoffProjectAsUser(exp_id)), 'name')
-        #im_list = list(self.conn.listImagesOutoffDatasetAsUser(exp_id))
         
         pr_list_with_counters = list()
         ds_list_with_counters = list()
@@ -431,8 +428,8 @@ class BaseContainer(BaseController):
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}#, 'images': im_list}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
+        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}
+        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)
 
     def listDatasetsInProjectAsUser(self, project_id, exp_id, page):
         self.experimenter = self.conn.getExperimenter(exp_id)
@@ -511,9 +508,8 @@ class BaseContainer(BaseController):
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
-        #im_list = list(self.conn.listImagesOutoffDatasetAsUser(exp_id))
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}#, 'images': im_list}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
+        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}
+        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)
         
     def loadUserImages(self, dataset_id, exp_id):
         im_list = self.sortByAttr(list(self.conn.listImagesInDatasetAsUser(dataset_id, exp_id)), 'name')
@@ -551,7 +547,6 @@ class BaseContainer(BaseController):
         self.containersMyGroups = dict()
         pr_list = self.sortByAttr(list(self.conn.listProjectsInGroup(group_id)), 'name')
         ds_list = self.sortByAttr(list(self.conn.listDatasetsOutoffProjectInGroup(group_id)), 'name')
-        #im_mygroups = list(self.conn.listImagesOutoffDatasetInGroup(group_id))
         
         pr_list_with_counters = list()
         ds_list_with_counters = list()
@@ -581,22 +576,18 @@ class BaseContainer(BaseController):
             user_set.add(pr.details.owner.id.val)
         for ds in ds_list_with_counters:
             user_set.add(ds.details.owner.id.val)
-        #for im in im_mygroups:
-        #    user_set.add(im.details.owner.id.val)
         
         if len(user_set) > 0:
             experimenters = self.conn.getExperimenters(user_set)
             for e in experimenters:
-                self.containersMyGroups[e.id]={'name': e.getFullName(), 'projects': list(), 'datasets': list()}#, 'images': list()}
+                self.containersMyGroups[e.id]={'name': e.getFullName(), 'projects': list(), 'datasets': list()}
         
             for pr in pr_list_with_counters:
                 self.containersMyGroups[pr.details.owner.id.val]['projects'].append(pr)
             for ds in ds_list_with_counters:
                 self.containersMyGroups[ds.details.owner.id.val]['datasets'].append(ds)
-            #for im in im_mygroups:
-            #    self.containersMyGroups[im.details.owner.id.val]['images'].append(im)
             
-            self.c_mg_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_mygroups)
+            self.c_mg_size = len(pr_list_with_counters)+len(ds_list_with_counters)
 
     def listDatasetsInProjectInGroup(self, project_id, group_id):
         self.myGroup = self.conn.getGroup(group_id)
@@ -694,9 +685,8 @@ class BaseContainer(BaseController):
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
-        #im_list = list(self.conn.listImagesOutoffDatasetInGroup(group_id))
-        self.containersMyGroups={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}#, 'images': im_list}
-        self.c_mg_size = len(pr_list_with_counters)+len(ds_list_with_counters)#+len(im_list)
+        self.containersMyGroups={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}
+        self.c_mg_size = len(pr_list_with_counters)+len(ds_list_with_counters)
 
     def loadGroupImages(self, dataset_id, group_id):
         im_list = self.sortByAttr(list(self.conn.listImagesInDatasetInGroup(dataset_id, group_id)), 'name')
@@ -1079,7 +1069,6 @@ class BaseContainer(BaseController):
         self.conn.saveObject(container)
     
     def move(self, parent, source, destination):
-        #print parent, source, destination
         if source[0] == "pr":
             return 'Cannot move project.'
         elif source[0] == "ds":
@@ -1192,7 +1181,7 @@ class BaseContainer(BaseController):
                 if ial is not None:
                     self.conn.deleteObject(ial._obj)
         else:
-            raise AttributeError("Atribut not specified.")
+            raise AttributeError("Attribute not specified. Cannot be removed.")
     
     
     ##########################################################

@@ -258,3 +258,4 @@ class ContainedExperimentersForm(forms.Form):
 class UploadFileForm(forms.Form):
 
     photo  = forms.FileField()
+

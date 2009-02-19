@@ -1,16 +1,11 @@
 import os.path
 import datetime
 import logging
+import logging.handlers
 
 # Django settings for webadmin project.
-DEBUG = True # if True handler404 and handler500 works only when False
+DEBUG = False # if True handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
-
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
-
-MANAGERS = ADMINS
 
 # Database settings
 DATABASE_ENGINE = 'sqlite3'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
@@ -23,11 +18,25 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 # Test database name
 TEST_DATABASE_NAME = 'test-db.sqlite3'
 
-# Admin error notification
+ADMINS = (
+    # ('Your Name', 'your_email@domain.com'),
+)
+MANAGERS = ADMINS
+
+# Notification
 # when is turn below parameters should be set, this option require DEBUG = False
 EMAIL_NOTIFICATION = False
 EMAIL_SENDER_ADDRESS = 'sender@domain' # email address
 EMAIL_SMTP_SERVER = 'smtp.domain'
+
+# ADMIN notification
+# If you wish to help us catching errors, please set the Error notifier to True (please
+# be sure you turned on EMAIL_NOTIFICATION).
+# That mechanism sent you every errors handled by the application without user notice.
+# We are very appreciative if you can deliver them to:
+#              Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>
+ERROR2EMAIL_NOTIFICATION = False
+
 
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
@@ -84,6 +93,7 @@ ROOT_URLCONF = 'omeroweb.urls'
 # Always use forward slashes, even on Windows.
 # Don't forget to use absolute paths, not relative paths.
 TEMPLATE_DIRS = (
+    os.path.join(os.path.join(os.path.dirname(__file__), 'feedback'), 'templates').replace('\\','/'),
     os.path.join(os.path.join(os.path.dirname(__file__), 'webadmin'), 'templates').replace('\\','/'),
     os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'templates').replace('\\','/'),
 )
@@ -130,28 +140,33 @@ if not os.path.isdir(LOGDIR):
     try:
         os.mkdir(LOGDIR)
     except Exception, x:
-        raise IOError("Error: Cannot create LOGDIR = %s" % (LOGDIR))
+        exctype, value = sys.exc_info()[:2]
+        req.log_error("%s, %s" % (str(exctype), str(value)))
+        raise exctype, value
 
 if DEBUG:
-    DEBUGLOGFILE = ('debug-%s.log' % str(datetime.date.today()))
-    # define a Handler which writes INFO messages or higher to the sys.stderr
+    DEBUGLOGFILE = ('debug-%s.log' % str(datetime.datetime.today()))
     fileLog = logging.FileHandler(os.path.join(LOGDIR, DEBUGLOGFILE), 'w')
     fileLog.setLevel(logging.DEBUG)
-    # set a format which is simpler for console use
     formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(message)s')
-    # tell the handler to use this format
     fileLog.setFormatter(formatter)
-    # add the handler to the root logger
     logging.getLogger().addHandler(fileLog)
     logging.getLogger().setLevel(logging.DEBUG)
     
 else:
-    LOGFILE = ('info-%s.log' % str(datetime.datetime.now())) #datetime.date.today()
+    LOGFILE = ('OMEROweb.log')
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                         datefmt='%a, %d %b %Y %H:%M:%S',
                         filename=os.path.join(LOGDIR, LOGFILE),
                         filemode='w')
 
+    fileLog = logging.handlers.TimedRotatingFileHandler(os.path.join(LOGDIR, LOGFILE),'midnight',1)
+    fileLog.doRollover()
+    fileLog.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(message)s')
+    fileLog.setFormatter(formatter)
+    logging.getLogger().addHandler(fileLog)
+    
 logging.info("Application Started...")
 

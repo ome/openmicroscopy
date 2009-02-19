@@ -64,17 +64,11 @@ from models import Gateway, LoginForm, ForgottonPasswordForm, ExperimenterForm, 
 from extlib.gateway import BlitzGateway
 from extlib.properties import Properties
 
-logger = logging.getLogger('views')
+logger = logging.getLogger('views-admin')
 
 connectors = {}
 
 logger.info("INIT '%s'" % os.getpid())
-
-try:
-    if settings.EMAIL_NOTIFICATION:
-        import omeroweb.extlib.sendemail.handlesender as sender
-except:
-    logger.error(traceback.format_exc())
 
 ################################################################################
 # Blitz Gateway Connection
@@ -864,61 +858,3 @@ def piechart(request, **kwargs):
     im.save(imdata, format='PNG')
     return HttpResponse(imdata.getvalue(), mimetype='image/png')
 
-################################################################################
-# handlers
-
-def handler404(request):
-    logger.error('handler404: Page not found')
-    exc_info = sys.exc_info()
-    logger.error(traceback.format_exc())
-    if settings.EMAIL_NOTIFICATION:
-        try:
-            sender.handler().create_error_message("webadmin", request.session['username'], debug.technical_404_response(request, exc_info[1]))
-            logger.debug('handler404: Email to queue')
-        except:
-            logger.error('handler404: Email could not be sent')
-            logger.error(traceback.format_exc())
-            try:
-                fileObj = open(("%s/error404-%s.html" % (settings.LOGDIR, datetime.datetime.now())),"w")
-                fileObj.write(str(debug.technical_404_response(request, *exc_info)))
-                fileObj.close() 
-            except:
-                logger.error('handler404: Error could not be saved.')
-                logger.error(traceback.format_exc())
-    else:
-        try:
-            fileObj = open(("%s/error404-%s.html" % (settings.LOGDIR, datetime.datetime.now())),"w")
-            fileObj.write(str(debug.technical_404_response(request, *exc_info)))
-            fileObj.close() 
-        except:
-            logger.error('handler404: Error could not be saved.')
-            logger.error(traceback.format_exc()) 
-    return page_not_found(request, "404.html")
-
-def handler500(request):
-    logger.error('handler500: Server error')
-    exc_info = sys.exc_info()
-    logger.error(traceback.format_exc())
-    if settings.EMAIL_NOTIFICATION:
-        try:
-            sender.handler().create_error_message("webadmin", request.session['username'], debug.technical_500_response(request, *exc_info))
-            logger.debug('handler500: Email to queue')
-        except:
-            logger.error('handler500: Email could not be sent')
-            logger.error(traceback.format_exc())
-            try:
-                fileObj = open(("%s/error500-%s.html" % (settings.LOGDIR, datetime.datetime.now())),"w")
-                fileObj.write(str(debug.technical_500_response(request, *exc_info)))
-                fileObj.close() 
-            except:
-                logger.error('handler500: Error could not be saved.')
-                logger.error(traceback.format_exc())
-    else:
-        try:
-            fileObj = open(("%s/error500-%s.html" % (settings.LOGDIR, datetime.datetime.now())),"w")
-            fileObj.write(str(debug.technical_500_response(request, *exc_info)))
-            fileObj.close() 
-        except:
-            logger.error('handler500: Error could not be saved.')
-            logger.error(traceback.format_exc())
-    return server_error(request, "500.html")

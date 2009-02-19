@@ -35,13 +35,19 @@ admin.site.register(Advice)
 admin.site.register(CategoryAdvice)
 
 # error handler
-handler404 = "omeroweb.webadmin.views.handler404"
-handler500 = "omeroweb.webadmin.views.handler500"
+handler404 = "omeroweb.feedback.views.handler404"
+handler500 = "omeroweb.feedback.views.handler500"
 
 # url patterns
 urlpatterns = patterns('',
     (r'^admin/(.*)', admin.site.root),
+    
     (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),
     (r'(?i)^webclient/', include('omeroweb.webclient.urls')),
+    (r'(?i)^feedback/', include('omeroweb.feedback.urls')),
+    
+    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/images/ome.ico'}),
+    
+    
     #(r'^images/', include('omeroweb.weblitzviewer.urls')),
 )

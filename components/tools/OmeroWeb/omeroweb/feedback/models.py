@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+# 
+# 
+# 
+# Copyright (c) 2008 University of Dundee. 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# 
+# Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
+# 
+# Version: 1.0
+#
+
+from django import forms
+from django.forms.widgets import Textarea
+
+class ErrorForm(forms.Form):
+    
+    email = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':50}), required=False)
+    error = forms.CharField(widget=forms.Textarea(attrs={'rows': 20, 'cols': 120}))

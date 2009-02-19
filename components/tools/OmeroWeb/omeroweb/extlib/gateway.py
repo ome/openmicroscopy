@@ -35,7 +35,7 @@ logger = logging.getLogger('gateway')
 try:
     import Image,ImageDraw
 except:
-    logger.debug(traceback.format_exc())
+    logger.error(traceback.format_exc())
 
 import threading
 import time
@@ -708,18 +708,7 @@ class BlitzGateway (threading.Thread):
             if isinstance(e, DatasetI):
                 yield DatasetWrapper(self, e)
 
-    #TODO: remove this and replace on view_share_object.
-    def loadCustomHierarchy(self, node, nid):
-        q = self.getContainerService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        #p.map[omero.constants.POJOEXPERIMENTER] = rlong(self.getEventContext().userId)
-        #p.map[omero.constants.POJOGROUP] = rlong(self.getEventContext().groupId)
-        p.map[omero.constants.POJOLEAVES] = rbool(True)
-        for e in q.loadContainerHierarchy(node, nid,  p.map):
-            yield BlitzObjectWrapper(self, e)
-
-    def findContainerHierarchies(self, nid, gid=None):
+    def findContainerHierarchies(self, nid):
         q = self.getContainerService()
         return q.findContainerHierarchies("Project", [long(nid)], None)
     
@@ -1596,7 +1585,7 @@ class BlitzGateway (threading.Thread):
         sender = None
         try:
             if settings.EMAIL_NOTIFICATION:
-                import omeroweb.extlib.sendemail.handlesender as sender
+                import omeroweb.extlib.notification.handlesender as sender
         except:
             logger.error(traceback.format_exc())
         else:
@@ -1624,8 +1613,7 @@ class BlitzGateway (threading.Thread):
     ##  History methods                        ##
     
     def getLastImportedImages (self):
-        tm = self.getTimelineService()
-        '''q = self.getQueryService()
+        q = self.getQueryService()
         sql = "select i from Image i join fetch i.details.owner join fetch i.details.group where i.details.owner.id =:id and i.details.group.id =:gid order by i.details.creationEvent.time desc"
         p = omero.sys.Parameters()
         p.map = {}
@@ -1635,23 +1623,26 @@ class BlitzGateway (threading.Thread):
         f.limit = rint(6)
         p.theFilter = f
         for e in q.findAllByQuery(sql, p):
-            yield ImageWrapper(self, e)'''
+            yield ImageWrapper(self, e)
+        # getMostRecentObjects - missed order by
+        ''' tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["id"] = rlong(self.getEventContext().userId)
-        p.map["gid"] = rlong(self.getEventContext().groupId)
         f = omero.sys.Filter()
+        f.ownerId = rlong(self.getEventContext().userId)
+        f.groupId = rlong(self.getEventContext().groupId)
         f.limit = rint(6)
         p.theFilter = f
         for e in tm.getMostRecentObjects(['Image'], p, False)["Image"]:
-            yield ImageWrapper(self, e)
+            yield ImageWrapper(self, e)'''
+        
     
     def getMostRecentSharesComments (self):
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["id"] = rlong(self.getEventContext().userId)
         f = omero.sys.Filter()
+        f.ownerId = rlong(self.getEventContext().userId)
         f.limit = rint(20)
         p.theFilter = f
         for e in tm.getMostRecentShareCommentLinks(p):
@@ -1661,8 +1652,9 @@ class BlitzGateway (threading.Thread):
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["id"] = rlong(self.getEventContext().userId)
         f = omero.sys.Filter()
+        f.ownerId = rlong(self.getEventContext().userId)
+        f.groupId = rlong(self.getEventContext().groupId)
         f.limit = rint(10)
         p.theFilter = f
         for e in tm.getMostRecentAnnotationLinks(None, ['CommentAnnotation'], None, p):
@@ -1684,7 +1676,9 @@ class BlitzGateway (threading.Thread):
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["experimenter"] = rlong(self.getEventContext().userId)
+        f = omero.sys.Filter()
+        f.ownerId = rlong(self.getEventContext().userId)
+        f.groupId = rlong(self.getEventContext().groupId)
         im_list = list()
         ds_list = list()
         pr_list = list()
@@ -1727,19 +1721,29 @@ class BlitzGateway (threading.Thread):
     
     def countDataByPeriod (self, start, end, date_type=None):
         tm = self.getTimelineService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        f = omero.sys.Filter()
+        f.ownerId = rlong(self.getEventContext().userId)
+        f.groupId = rlong(self.getEventContext().groupId)
         if date_type == 'image':
-            return tm.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)))['Image']
+            return tm.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p)['Image']
         elif date_type == 'dataset':
-            return tm.countByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)))['Dataset']
+            return tm.countByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p)['Dataset']
         elif date_type == 'project':
-            return tm.countByPeriod(['Project'], rtime(long(start)), rtime(long(end)))['Project']
+            return tm.countByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p)['Project']
         else:
-            c = tm.countByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)))
+            c = tm.countByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p)
             return c['Image']+c['Dataset']+c['Project']
 
     def getEventsByPeriod (self, start, end):
         tm = self.getTimelineService()
-        for e in tm.getEventLogsByPeriod(rtime(start), rtime(end), None):
+        p = omero.sys.Parameters()
+        p.map = {}
+        f = omero.sys.Filter()
+        f.ownerId = rlong(self.getEventContext().userId)
+        f.groupId = rlong(self.getEventContext().groupId)
+        for e in tm.getEventLogsByPeriod(rtime(start), rtime(end), p):
             yield EventLogWrapper(self, e)
     
     ##############################################
@@ -1821,7 +1825,7 @@ def safeCallWrap (self, attr, f):
         except Ice.Exception, x:
             # Failed
             logger.info("Ice.Exception (1) on safe call %s(%s,%s)" % (attr, str(args), str(kwargs)))
-            logger.debug(traceback.format_exc())
+            logger.error(traceback.format_exc())
             # Recreate the proxy object
             try:
                 self._obj = self._create_func()
@@ -1830,7 +1834,7 @@ def safeCallWrap (self, attr, f):
             except Ice.Exception, x:
                 # Still Failed
                 logger.info("Ice.Exception (2) on safe call %s(%s,%s)" % (attr, str(args), str(kwargs)))
-                logger.debug(traceback.format_exc())
+                logger.error(traceback.format_exc())
                 try:
                     # Recreate connection
                     self._connect()
@@ -1838,7 +1842,7 @@ def safeCallWrap (self, attr, f):
                     func = getattr(self._obj, attr)
                     return func(*args, **kwargs)
                 except:
-                    logger.debug(traceback.format_exc())
+                    logger.error(traceback.format_exc())
                     raise
     return wrapped
 
@@ -2185,8 +2189,7 @@ class BlitzObjectWrapper (object):
             elif hasattr(rv, 'value'):
                 return isinstance(rv.value.val, StringType) and rv.value.val.decode('utf8') or rv.value.val
             return rv
-        logger.error("AttributeError: '%s' object has no attribute '%s'" % (self._obj.__class__.__name__, attr))
-        logger.error(traceback.format_stack())
+        #logger.error("AttributeError: '%s' object has no attribute '%s'" % (self._obj.__class__.__name__, attr))
         raise AttributeError("'%s' object has no attribute '%s'" % (self._obj.__class__.__name__, attr))
 
 class ExperimenterWrapper (BlitzObjectWrapper):
@@ -2500,11 +2503,12 @@ class ImageWrapper (BlitzObjectWrapper):
                 tb.resetDefaults()
                 tb.setPixelsId(pixels_id)
             t = tb.getThumbnail(rint(size[0]),rint(size[1]))
-        except Ice.Exception, x:
+        except Exception, x:
             try:
                 t = self.defaultThumbnail(size)
             except Exception, e:
                 logger.debug(traceback.format_exc())
+                raise e
         return t
 
     def getThumbnailByLongestSide (self, size=120):
@@ -2519,7 +2523,7 @@ class ImageWrapper (BlitzObjectWrapper):
                 tb.resetDefaults()
                 tb.setPixelsId(pixels_id)
             t = tb.getThumbnailByLongestSide(rint(size))
-        except Ice.Exception, x:
+        except Exception, x:
             try:
                 t = self.defaultThumbnail((size, size))
             except Exception, e:

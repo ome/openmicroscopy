@@ -22,16 +22,15 @@
 # Version: 1.0
 #
 
-from sendemail import SendEmail
+from django.conf.urls.defaults import *
 
-sender = None
+from omeroweb.feedback import views
 
-def handler():
-    
-    global sender
+# url patterns
+urlpatterns = patterns('',
 
-    if sender is None:
-        sender = SendEmail()
-    return sender
+    (r'^send/', views.send_feedback),
+    (r'^thanks/', views.thanks),
     
-    
+)
+

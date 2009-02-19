@@ -139,6 +139,7 @@ class MetadataModelChoiceField(ModelChoiceField):
         return value
 
 class AnnotationQuerySetIterator(object):
+    
     def __init__(self, queryset, empty_label, cache_choices):
         self.queryset = queryset
         self.empty_label = empty_label
@@ -166,7 +167,7 @@ class AnnotationQuerySetIterator(object):
                 oid = obj.id.val
             else:
                 oid = obj.id
-
+            
             yield (oid, smart_unicode(textValue))
         # Clear the QuerySet cache if required.
         #if not self.cache_choices:
@@ -224,14 +225,13 @@ class AnnotationModelMultipleChoiceField(AnnotationModelChoiceField):
         'invalid_choice': _(u'Select a valid choice. That choice is not one of the'
                             u' available choices.'),
     }
-
     def __init__(self, queryset, cache_choices=False, required=True,
                  widget=SelectMultiple, label=None, initial=None,
                  help_text=None, *args, **kwargs):
         super(AnnotationModelMultipleChoiceField, self).__init__(queryset, None,
             cache_choices, required, widget, label, initial, help_text,
             *args, **kwargs)
-
+    
     def clean(self, value):
         if self.required and not value:
             raise ValidationError(self.error_messages['required'])

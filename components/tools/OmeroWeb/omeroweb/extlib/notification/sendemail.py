@@ -35,7 +35,7 @@ from email.MIMEImage import MIMEImage
 from django.conf import settings
 
 logger = logging.getLogger('sendemail')
-SLEEPTIME = 60
+SLEEPTIME = 30
 
 class SendEmail(threading.Thread):
 
