@@ -42,8 +42,10 @@ import javax.swing.border.EmptyBorder;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomFont;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -73,14 +75,18 @@ public class NoFileOpenUI
 		
 		IconManager im = IconManager.getInstance();
 		
-		
-		// Labels for text 
-		JLabel welcomeLabel = new CustomLabel();
-		welcomeLabel.setFont(new Font("Sans Serif", Font.PLAIN, 14));
-		welcomeLabel.setText("Welcome to OMERO.editor");
-		welcomeLabel.setIconTextGap(10);
-		welcomeLabel.setIcon(im.getIcon(IconManager.OMERO_EDITOR_48));
-		welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		// only show welcome message if running as stand-alone. 
+		boolean server = EditorAgent.isServerAvailable();
+		JLabel welcomeLabel = null;
+		if (! server) {
+			// Labels for text 
+			welcomeLabel = new CustomLabel();
+			welcomeLabel.setFont(new Font("Sans Serif", Font.PLAIN, 14));
+			welcomeLabel.setText("Welcome to OMERO.editor");
+			welcomeLabel.setIconTextGap(10);
+			welcomeLabel.setIcon(im.getIcon(IconManager.OMERO_EDITOR_48));
+			welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		}
 		
 		JLabel infoLabel = new CustomLabel();
 		infoLabel.setForeground(new Color(100,100,100));
@@ -88,6 +94,9 @@ public class NoFileOpenUI
 		infoLabel.setText("Please choose an option to get you started:");
 		infoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		infoLabel.setBorder(new EmptyBorder(10,10,10,10));
+		if (server) {
+			infoLabel.setIcon(im.getIcon(IconManager.OMERO_EDITOR));
+		}
 		
 		
 		// A container for the buttons
@@ -124,7 +133,7 @@ public class NoFileOpenUI
 		add(topSpacer);
 		
 		// add the content of interest. 
-		add(welcomeLabel);
+		if (welcomeLabel != null) add(welcomeLabel);
 		add(infoLabel);
 		add(buttonContainer);
 		

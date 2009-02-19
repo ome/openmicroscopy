@@ -75,7 +75,7 @@ public class EditorAgent
     public static Registry getRegistry() { return registry; }
     
     /**
-	 * Helper method returningthe current user's details.
+	 * Helper method returning the current user's details.
 	 * 
 	 * @return See above.
 	 */

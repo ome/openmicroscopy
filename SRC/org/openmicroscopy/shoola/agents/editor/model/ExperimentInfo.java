@@ -31,6 +31,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+
+import pojos.ExperimenterData;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -76,7 +80,12 @@ public class ExperimentInfo
 	public ExperimentInfo(String name, String utcDate) 
 	{
 		if (name == null) {
-			name = System.getProperty("user.name");
+			if (EditorAgent.isServerAvailable()) {
+				ExperimenterData ed = EditorAgent.getUserDetails();
+				name = ed.getFirstName() + " " + ed.getLastName();
+			} else {
+				name = System.getProperty("user.name");
+			}
 		}
 		if (utcDate == null) {
 			Date now = new Date();
