@@ -51,7 +51,7 @@
              been null. -->
         <bean class="ome.services.sharing.ShareRestrictionTransactionAttributeSource">
           <constructor-arg ref="currentDetails"/>
-          <constructor-arg ref="sessionManager"/>
+          <constructor-arg ref="sessionCache"/>
         </bean>
         <bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
         <bean class="ome.tools.spring.ForceTransactionAttributeSource"/>

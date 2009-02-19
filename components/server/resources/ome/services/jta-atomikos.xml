@@ -52,13 +52,17 @@
       <property name="connectionPoolSize" value="3"/>
    </bean>-->
 
-  <bean id="nonXaDataSource" class="com.atomikos.jdbc.nonxa.NonXADataSourceBean">
+  <bean id="nonXaDataSource" class="com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean">
     <property name="uniqueResourceName" ref="uuid"/>
     <property name="driverClassName" value="org.postgresql.Driver"/>
     <property name="url" value="jdbc:postgresql://${omero.db.host}/${omero.db.name}"/>
     <property name="user" value="${omero.db.user}"/>
     <property name="password" value="${omero.db.pass}"/>
-    <property name="poolSize" value="${omero.db.poolsize}"/>
+    <property name="maxPoolSize" value="${omero.db.poolsize}"/>
+    <property name="reapTimeout" value="300"/>
+    <property name="loginTimeout" value="5"/>
+    <property name="borrowConnectionTimeout" value="5"/>
+    
   </bean>
 
   <bean id="dbSemaphore" class="java.util.concurrent.Semaphore">

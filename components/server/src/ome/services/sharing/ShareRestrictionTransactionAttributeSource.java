@@ -13,6 +13,7 @@ import java.util.NoSuchElementException;
 import ome.conditions.SessionException;
 import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.state.SessionCache;
 import ome.system.EventContext;
 import ome.system.Principal;
 
@@ -34,18 +35,19 @@ public class ShareRestrictionTransactionAttributeSource implements
 
     final private CurrentDetails current;
 
-    final private SessionManager manager;
+    final private SessionCache cache;
     
-    public ShareRestrictionTransactionAttributeSource(CurrentDetails details, SessionManager manager) {
+    public ShareRestrictionTransactionAttributeSource(CurrentDetails details, SessionCache cache) {
         this.current = details;
-        this.manager = manager;
+        this.cache = cache;
     }
 
     public TransactionAttribute getTransactionAttribute(Method method,
             Class targetClass) {
         try {
             Principal principal = current.getLast();
-            EventContext ec = manager.getEventContext(principal);
+            String uuid = principal.getName();
+            EventContext ec = cache.getSessionContext(uuid, false); // No block
             Long shareId = ec.getCurrentShareId();
             if (ec.getCurrentShareId() != null) {
                 log.debug("Returning readOnly tx for shared " + shareId);

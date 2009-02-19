@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -81,11 +82,11 @@ public class SessionCache implements ApplicationContextAware {
     private long forceUpdateInterval = 1800000;
 
     /**
-     * The amount of time in milliseconds that a thread is allowed to
-     * block for during {@link #waitForUpdate()}.
+     * The amount of time in milliseconds that a thread is allowed to block for
+     * during {@link #waitForUpdate()}.
      */
     private long allowedBlockTime = 10000L;
-    
+
     /**
      * Time of the last update. This will be updated by a background thread.
      */
@@ -151,7 +152,7 @@ public class SessionCache implements ApplicationContextAware {
     public void setUpdateInterval(long milliseconds) {
         this.forceUpdateInterval = milliseconds;
     }
-    
+
     /**
      * Inject time in milliseconds to allow blocking
      */
@@ -269,7 +270,7 @@ public class SessionCache implements ApplicationContextAware {
                     timeToIdle, (idle - timeToIdle));
             throw new SessionTimeoutException(reason);
         }
-        
+
         // Up'ing access time
         sessions.get(uuid);
         return ctx;
@@ -327,11 +328,11 @@ public class SessionCache implements ApplicationContextAware {
     }
 
     /**
-     * Since all methods which use {@link #getIds()} will subsequently check
-     * for the existing session, we do not block here. Blocking is primarily
-     * useful for post-admintype changes which can add or remove a user from
-     * a group. The existence of a session (which is what getIds specifies)
-     * is not significantly effected. 
+     * Since all methods which use {@link #getIds()} will subsequently check for
+     * the existing session, we do not block here. Blocking is primarily useful
+     * for post-admintype changes which can add or remove a user from a group.
+     * The existence of a session (which is what getIds specifies) is not
+     * significantly effected.
      */
     public List<String> getIds() {
         // waitForUpdate();
@@ -431,7 +432,18 @@ public class SessionCache implements ApplicationContextAware {
             boolean needsUpdate = false;
 
             // Gets the current status, possibly waiting on any running updates
-            runUpdate.readLock().lock();
+            try {
+                boolean locked = runUpdate.readLock().tryLock(500L,
+                        TimeUnit.MILLISECONDS);
+                if (!locked) {
+                    log.debug("Failed to acquire read lock in 500 ms");
+                    continue;
+                }
+            } catch (InterruptedException e1) {
+                log.debug("Interrupted while waiting on read lock");
+                continue;
+            }
+
             try {
                 needsUpdate = checkNeedsUpdateWithoutLock();
             } finally {
@@ -492,7 +504,18 @@ public class SessionCache implements ApplicationContextAware {
      */
     @SuppressWarnings("unchecked")
     public void doUpdate() {
-        runUpdate.writeLock().lock();
+
+        boolean locked = false;
+        try {
+            locked = runUpdate.writeLock().tryLock(3 * 60, TimeUnit.SECONDS);
+        } catch (InterruptedException e1) {
+            log.debug("Interrupted while waiting on update lock");
+        }
+
+        if (!locked) {
+            throw new InternalException("Cannot get access to update lock");
+        }
+
         try {
             // Check whether entry is required.
             if (checkNeedsUpdateWithoutLock()) {
