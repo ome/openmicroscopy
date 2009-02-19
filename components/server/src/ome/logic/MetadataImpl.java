@@ -373,15 +373,8 @@ public class MetadataImpl
          return map;
     }
 
-    /**
-     * Implemented as speficied by the {@link IMetadata} I/F
-     * @see IMetadata#loadSpecifiedAnnotations(Class, Set, Set, Map)
-     */
-    @RolesAllowed("user")
-    @Transactional(readOnly = true)
-    public <A extends Annotation> Set<A> loadSpecifiedAnnotations(
-    		@NotNull Class type, Set<String> include, Set<String> exclude,
-    		 Map options)
+    private <A extends Annotation> List<A> getAnnotation(@NotNull Class type, 
+    		Set<String> include, Set<String> exclude, Map options)
     {
     	StringBuilder sb = new StringBuilder();
     	sb.append("select ann from Annotation as ann ");
@@ -415,7 +408,29 @@ public class MetadataImpl
     		//restriction += " and ann.ns is not null and ann.ns = "+nameSpace;
     	}
     	sb.append(restriction);
-    	List<A> list = iQuery.findAllByQuery(sb.toString(), param);
+    	
+    	if (include != null && include.size() > 0) {
+    		sb.append(" and ann.ns is not null and ann.ns in (:include)");
+    		param.addSet("include", include);
+    	}
+    	if (exclude != null && exclude.size() > 0) {
+    		sb.append(" and (ann.ns is null or ann.ns not in (:exclude))");
+    		param.addSet("exclude", exclude);
+    	}
+    	return iQuery.findAllByQuery(sb.toString(), param);
+    }
+    
+    /**
+     * Implemented as speficied by the {@link IMetadata} I/F
+     * @see IMetadata#loadSpecifiedAnnotations(Class, Set, Set, Map)
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public <A extends Annotation> Set<A> loadSpecifiedAnnotations(
+    		@NotNull Class type, Set<String> include, Set<String> exclude,
+    		 Map options)
+    {
+    	List<A> list = getAnnotation(type, include, exclude, options);
     	if (FILE_TYPE.equals(type.getName()) && list != null) {
     		Iterator<A> i = list.iterator();
     		FileAnnotation fa;
@@ -431,7 +446,20 @@ public class MetadataImpl
     	return new HashSet<A>(list);
     }
     
-
+    /**
+     * Implemented as speficied by the {@link IMetadata} I/F
+     * @see IMetadata#countSpecifiedAnnotations(Class, Set, Set, Map)
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Long countSpecifiedAnnotations(
+    		@NotNull Class type, Set<String> include, Set<String> exclude,
+    		 Map options)
+    {
+    	List list = getAnnotation(type, include, exclude, options);
+    	if (list != null) return new Long(list.size());
+    	return -1L;
+    }
     
     /**
      * Implemented as speficied by the {@link IMetadata} I/F
