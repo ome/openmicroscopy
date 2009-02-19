@@ -17,7 +17,7 @@ import omero.model.Project;
 public class TestEngine
 {   
     // Directory to use for test files
-    private static final String TEST_FOLDER = "/Users/TheBrain/test_images_shortrun/";
+    private static final String TEST_FOLDER = "/Users/TheBrain/test_images_good/";
         //"/Volumes/lmf/mporter/InCell/Aurora_Inhibitors/2009.01.26.17.45.32/";
         //
     

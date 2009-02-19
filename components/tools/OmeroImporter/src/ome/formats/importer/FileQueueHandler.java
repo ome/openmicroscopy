@@ -34,7 +34,6 @@ import javax.swing.UIManager;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.Actions;
 import omero.model.Dataset;
-import omero.model.DatasetI;
 
 @SuppressWarnings("serial")
 public class FileQueueHandler 

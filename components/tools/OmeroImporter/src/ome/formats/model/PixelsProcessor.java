@@ -36,7 +36,6 @@ import ome.formats.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Image;
 import omero.model.Pixels;
-import omero.model.PixelsI;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

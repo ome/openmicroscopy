@@ -73,7 +73,8 @@ public class ChannelProcessor implements ModelProcessor
     	{
     		Pixels pixels = 
     			(Pixels) store.getSourceObject(new LSID(Pixels.class, i));
-    		for (int c = 0; c < pixels.getSizeC().getValue(); c++)
+    		int sizeC = pixels.getSizeC().getValue();
+    		for (int c = 0; c < sizeC; c++)
     		{
     			IObject sourceObject =
     				store.getSourceObject(new LSID(Channel.class, i, c));
@@ -87,7 +88,10 @@ public class ChannelProcessor implements ModelProcessor
     					store.getIObjectContainer(Channel.class, indexes);
     				sourceObject = container.sourceObject;
     			}
-   				populateColor((Channel) sourceObject, i, c);
+                if (sizeC == 3 || sizeC == 4)
+                {
+                    populateColor((Channel) sourceObject, c);
+                }
     			sourceObject =
     				store.getSourceObject(new LSID(LogicalChannel.class, i, c));
     			if (sourceObject == null)
@@ -100,7 +104,10 @@ public class ChannelProcessor implements ModelProcessor
                         store.getIObjectContainer(LogicalChannel.class, indexes);
                     sourceObject = container.sourceObject;
     			}
-    			populateName((LogicalChannel) sourceObject, i, c);
+    			if (sizeC == 3 || sizeC == 4)
+    			{
+    			    populateName((LogicalChannel) sourceObject, c);
+    			}
     		}
     	}
     }
@@ -109,56 +116,49 @@ public class ChannelProcessor implements ModelProcessor
      * Populates the default color for the channel if one does not already
      * exist and the image is RGB(A) or indexed color.
      * @param channel Channel object.
-     * @param imageIndex Image/series index.
      * @param channelIndex Channel index.
      */
-    private void populateColor(Channel channel, int imageIndex,
-    		                   int channelIndex)
+    private void populateColor(Channel channel, int channelIndex)
     {
     	IFormatReader reader = store.getReader();
     	if (reader.isRGB() || reader.isIndexed())
 		{
-			int channelCount = 
-				store.countCachedContainers(Channel.class, channelIndex); 
-			if (channelCount == 3 || channelCount == 4)
-			{
-				log.debug("Setting color channel to RGB.");
-				// red
-				if (channelIndex == 0)
-				{
-					channel.setRed(rint(255));
-					channel.setGreen(rint(0));
-					channel.setBlue(rint(0));
-					channel.setAlpha(rint(255));
-				}
-				
-				// green
-				if (channelIndex == 1)
-				{
-					channel.setRed(rint(0));
-					channel.setGreen(rint(255));
-					channel.setBlue(rint(0));
-					channel.setAlpha(rint(255));
-				}
-				
-				// blue
-				if (channelIndex == 2)
-				{
-					channel.setRed(rint(0));
-					channel.setGreen(rint(0));
-					channel.setBlue(rint(255));
-					channel.setAlpha(rint(255));
-				}
-				
-				// alpha
-				if (channelIndex == 3)
-				{
-					channel.setRed(rint(0));
-					channel.setGreen(rint(0));
-					channel.setBlue(rint(0));
-					channel.setAlpha(rint(0));  // Transparent
-				}
-			}
+    	    log.debug("Setting color channel to RGB.");
+    	    // red
+    	    if (channelIndex == 0)
+    	    {
+    	        channel.setRed(rint(255));
+    	        channel.setGreen(rint(0));
+    	        channel.setBlue(rint(0));
+    	        channel.setAlpha(rint(255));
+    	    }
+
+    	    // green
+    	    if (channelIndex == 1)
+    	    {
+    	        channel.setRed(rint(0));
+    	        channel.setGreen(rint(255));
+    	        channel.setBlue(rint(0));
+    	        channel.setAlpha(rint(255));
+    	    }
+
+    	    // blue
+    	    if (channelIndex == 2)
+    	    {
+    	        channel.setRed(rint(0));
+    	        channel.setGreen(rint(0));
+    	        channel.setBlue(rint(255));
+    	        channel.setAlpha(rint(255));
+    	    }
+
+    	    // alpha
+    	    if (channelIndex == 3)
+    	    {
+    	        channel.setRed(rint(0));
+    	        channel.setGreen(rint(0));
+    	        channel.setBlue(rint(0));
+    	        channel.setAlpha(rint(0));  // Transparent
+    	    }
 		}
     }
 
@@ -166,44 +166,37 @@ public class ChannelProcessor implements ModelProcessor
 	 * Populates the default channel name for the logical channel if one does 
 	 * not already exist and the image is RGB(A) or indexed-color.
 	 * @param channel Channel object.
-	 * @param imageIndex Image/series index.
 	 * @param channelIndex Channel index.
 	 */
-	private void populateName(LogicalChannel lc, int imageIndex,
-			                  int logicalChannelIndex)
+	private void populateName(LogicalChannel lc, int logicalChannelIndex)
 	{
 		IFormatReader reader = store.getReader();
 		if (reader.isRGB() || reader.isIndexed())
 		{
-			int channelCount = 
-				store.countCachedContainers(Channel.class, imageIndex); 
-			if (channelCount == 3 || channelCount == 4)
-			{
-				log.debug("Setting channels name to Red, Green, Blue or Alpha.");
-				// red
-				if (lc.getName() == null && logicalChannelIndex == 0)
-				{
-					lc.setName(rstring("Red"));
-				}
-	
-				// green
-				if (lc.getName() == null && logicalChannelIndex == 1)
-				{
-					lc.setName(rstring("Green"));
-				}
-	
-				// blue
-				if (lc.getName() == null && logicalChannelIndex == 2)
-				{
-					lc.setName(rstring("Blue"));
-				}
-				
-				// alpha
-				if (lc.getName() == null && logicalChannelIndex == 3)
-				{
-					lc.setName(rstring("Alpha"));
-				}
-			}
+		    log.debug("Setting channels name to Red, Green, Blue or Alpha.");
+		    // red
+		    if (lc.getName() == null && logicalChannelIndex == 0)
+		    {
+		        lc.setName(rstring("Red"));
+		    }
+
+		    // green
+		    if (lc.getName() == null && logicalChannelIndex == 1)
+		    {
+		        lc.setName(rstring("Green"));
+		    }
+
+		    // blue
+		    if (lc.getName() == null && logicalChannelIndex == 2)
+		    {
+		        lc.setName(rstring("Blue"));
+		    }
+
+		    // alpha
+		    if (lc.getName() == null && logicalChannelIndex == 3)
+		    {
+		        lc.setName(rstring("Alpha"));
+		    }
 		}
 	}
 }

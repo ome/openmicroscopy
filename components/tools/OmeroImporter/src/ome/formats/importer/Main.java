@@ -614,6 +614,7 @@ public class Main extends JFrame
         // Load up the main ini file
         ini = IniFileLoader.getIniFileLoader(args);
         USE_QUAQUA = ini.getUseQuaqua();
+        System.err.println(USE_QUAQUA);
         
         String laf = UIManager.getSystemLookAndFeelClassName() ;
 
