@@ -114,10 +114,13 @@ import ome.model.*;
     name="discriminator", discriminatorType=javax.persistence.DiscriminatorType.STRING
 )
 #end
-@javax.persistence.SequenceGenerator(
-    name="seq_${type.table}",
-    sequenceName="seq_${type.table}"
-)
+@org.hibernate.annotations.GenericGenerator(name = "seq_${type.table}",
+        strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+        parameters = {
+            @org.hibernate.annotations.Parameter(name = "sequence_name", value = "seq_${type.table}"),
+            @org.hibernate.annotations.Parameter(name = "optimizer", value = "pooled"),
+            @org.hibernate.annotations.Parameter(name = "increment_size", value = "50")
+        })
 #end############################################################
 @org.hibernate.search.annotations.Indexed(index="FullText")
 @org.hibernate.search.annotations.ClassBridge(
