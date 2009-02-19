@@ -46,7 +46,7 @@ urlpatterns = patterns('',
     (r'(?i)^webclient/', include('omeroweb.webclient.urls')),
     (r'(?i)^feedback/', include('omeroweb.feedback.urls')),
     
-    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/images/ome.ico'}),
+    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/webadmin/static/images/ome.ico'}),
     
     
     #(r'^images/', include('omeroweb.weblitzviewer.urls')),
