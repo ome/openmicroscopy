@@ -65,6 +65,7 @@ import ome.system.UpgradeCheck;
 import omero.AuthenticationException;
 import omero.ExpiredCredentialException;
 import omero.InternalException;
+import omero.RLong;
 import omero.RString;
 import omero.RType;
 import omero.SecurityViolation;
@@ -2931,27 +2932,6 @@ class OMEROGateway
 		Map map = new HashMap();
 		isSessionAlive();
 		try {
-			/*
-		}
-			Parameters param = new ParametersI();
-			param.map.put("pixid", omero.rtypes.rlong(pixelsID));
-			
-			String sql =  "select rdef from RenderingDef as rdef "
-                + "left outer join fetch rdef.quantization "
-                + "left outer join fetch rdef.model "
-                + "left outer join fetch rdef.waveRendering as cb "
-                + "left outer join fetch cb.family "
-                + "left outer join fetch rdef.spatialDomainEnhancement " 
-                + "left outer join fetch rdef.details.owner "
-                + "where rdef.pixels.id = :pixid";
-			if (userID >= 0) {
-				sql += " and rdef.details.owner.id = :userid";
-				param.map.put("userid", omero.rtypes.rlong(userID));
-			}
-			IQueryPrx service = getQueryService();
-			
-			List results = service.findAllByQuery(sql, param);
-			*/
 			IPixelsPrx service = getPixelsService();
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
 			
@@ -3016,7 +2996,6 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();
-			
 			return PojoMapper.asDataObjects(
 					service.loadSpecifiedAnnotations(
 							convertPojos(type).getName(), toInclude, 
@@ -3038,52 +3017,22 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	int countSpecificAnnotation(Class type, List<String> toInclude, 
+	long countSpecificAnnotation(Class type, List<String> toInclude, 
 			List<String> toExclude, Map options)
 	throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			//IMetadataPrx service = getMetadataService();
-			IQueryPrx service = getQueryService();
-			StringBuffer sb = new StringBuffer();
-			sb.append("select ann from Annotation as ann ");
-	    	sb.append("left outer join fetch ann.details.creationEvent ");
-	    	sb.append("left outer join fetch ann.details.owner ");
-	    	sb.append("where ann member of "+convertAnnotation(type));
-	    	String s = "";
-	    	Iterator<String> i;
-	    	int size;
-	    	int index;
-	    	if (toInclude != null && toInclude.size() > 0) {
-	    		i = toInclude.iterator();
-	    		size = toInclude.size()-1;
-	    		index = 0;
-	    		while (i.hasNext()) {
-					s += i.next();
-					if (index != size) s +=", "; 
-					index++;
-				}
-	    		sb.append(" and ann.ns not null and ann.ns in ("+s+")");
-	    	}
-			
-	    	if (toExclude != null && toExclude.size() > 0) {
-	    		i = toExclude.iterator();
-	    		size = toExclude.size()-1;
-	    		index = 0;
-	    		while (i.hasNext()) {
-					s += i.next();
-					if (index != size) s +=", ";
-					index++;
-				}
-	    		sb.append(" and ann.ns not null and ann.ns not in ("+s+")");
-	    	}
-			List l = service.findAllByQuery(sb.toString(), new ParametersI());
-			return l.size();
+			IMetadataPrx service = getMetadataService();
+			RLong value = service.countSpecifiedAnnotations(
+					convertPojos(type).getName(), toInclude, 
+					toExclude, options);
+			if (value == null) return -1;
+			return value.getValue();
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the annotations");
 		}
-		return 1;
+		return -1;
 	}
 	
 	/**

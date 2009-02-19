@@ -68,7 +68,7 @@ public class ExperimenterImagesCounter
     private TreeImageSet			expNode;
     
     /** The node hosting the time information. */
-    private List<TreeImageTimeSet>	nodes;
+    private List<TreeImageSet>		nodes;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  			handle;
@@ -83,7 +83,7 @@ public class ExperimenterImagesCounter
      * @param nodes		The time nodes. Mustn't be <code>null</code>.
      */
 	public ExperimenterImagesCounter(Browser viewer, TreeImageSet expNode, 
-									List<TreeImageTimeSet> nodes)
+									List<TreeImageSet> nodes)
 	{
 		super(viewer);
 		if (expNode == null ||

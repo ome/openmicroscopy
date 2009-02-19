@@ -569,7 +569,7 @@ class BrowserModel
      */
 	void fireCountExperimenterImages(TreeImageSet expNode)
 	{
-		List<TreeImageTimeSet> n = expNode.getChildrenDisplay();
+		List<TreeImageSet> n = expNode.getChildrenDisplay();
 		Iterator i = n.iterator();
 		Set indexes = new HashSet();
 		switch (getBrowserType()) {

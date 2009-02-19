@@ -613,7 +613,7 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public int countFileType(int fileType)
+	public long countFileType(int fileType)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

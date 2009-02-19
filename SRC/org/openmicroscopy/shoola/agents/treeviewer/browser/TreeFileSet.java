@@ -87,6 +87,7 @@ public class TreeFileSet
 			case PROTOCOL: 
 			case EXPERIMENT: 
 				this.type = type;
+				break;
 			case OTHER:
 			default:
 				this.type = OTHER;

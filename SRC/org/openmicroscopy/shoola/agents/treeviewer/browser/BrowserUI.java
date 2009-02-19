@@ -1140,8 +1140,8 @@ class BrowserUI
 				}
 			} else if (node instanceof TreeFileSet) {
 				if (((TreeFileSet) node).getType() == index) {
-					if (value instanceof Integer) 
-						node.setNumberItems((Integer) value);
+					if (value instanceof Long) 
+						node.setNumberItems((Long) value);
 				}
 			}
 			

@@ -1930,7 +1930,7 @@ class OmeroMetadataServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroMetadataService#countFileType(int)
 	 */
-	public int countFileType(int fileType) 
+	public long countFileType(int fileType) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<String> include = new ArrayList<String>();
@@ -1945,12 +1945,11 @@ class OmeroMetadataServiceImpl
 			case OTHER:
 			default:
 				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
-			exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
+				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 		}
 		PojoOptions po = new PojoOptions();
 		long userID = getUserDetails().getId();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
-		System.err.println(include.size()+" "+exclude.size());
 		return gateway.countSpecificAnnotation(FileAnnotationData.class, 
 				include, exclude, po.map());
 	}
@@ -1976,7 +1975,6 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
 				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 		}
-		System.err.println(include.size()+" "+exclude.size());
 		PojoOptions po = new PojoOptions();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 		return gateway.loadSpecificAnnotation(FileAnnotationData.class, 
