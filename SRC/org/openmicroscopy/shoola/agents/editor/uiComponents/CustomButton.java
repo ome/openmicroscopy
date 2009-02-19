@@ -85,7 +85,7 @@ public class CustomButton
 		super.updateUI();
 		
 		this.setBackground(null);
-		this.setFont(CustomLabel.CUSTOM_FONT);
+		this.setFont(new CustomFont());
 		int padding = UIUtilities.getInstance().
 			getDimension(UIUtilities.EMPTY_BORDER_THINKNESS);
 		this.setBorder(new EmptyBorder(padding,padding,padding,padding));

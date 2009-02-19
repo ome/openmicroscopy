@@ -312,11 +312,20 @@ public class IconManager
     /** The <code>Delete 'X'</code> icon, 12 x 12.*/
     public  static final int			DELETE_ICON_12 = 84;
     
+    /** The <code>Arrow Right '>'</code> icon, 12 x 12.*/
+    public  static final int			ARROW_RIGHT_ICON_12 = 85;
+    
+    /** The <code>Arrow Left '<'</code> icon, 12 x 12.*/
+    public  static final int			ARROW_LEFT_ICON_12 = 86;
+    
+    /** The <code>Go</code> icon, 12 x 20.*/
+    public  static final int			GO_ICON_12_20 = 87;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 84;
+    private static final int          MAX_ID = 87;
    
     
     /** Paths of the icon files. */
@@ -415,6 +424,9 @@ public class IconManager
         relPaths[OMERO_EDITOR_48] = "omeroEditor48.png";
         relPaths[GREY_ASTERISK_ICON_11] = "asterisk_grey_11.png";
         relPaths[DELETE_ICON_12] = "nuvola_edit_delete_12.png";
+        relPaths[ARROW_RIGHT_ICON_12] = "arrowRight12.png";
+        relPaths[ARROW_LEFT_ICON_12] = "arrowLeft12.png";
+        relPaths[GO_ICON_12_20] = "goGreen_12_20.png";
     }
     
     

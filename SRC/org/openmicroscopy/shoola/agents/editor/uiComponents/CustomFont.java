@@ -1,8 +1,8 @@
  /*
- * uiComponents.CustomLabel 
+ * org.openmicroscopy.shoola.agents.editor.uiComponents.CustomFont 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,22 +22,19 @@
  */
 package org.openmicroscopy.shoola.agents.editor.uiComponents;
 
-//Java imports
+import java.awt.Font;
 
-import javax.swing.Icon;
-import javax.swing.JLabel;
+//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-/** 
- * A Custom Label, which should be used by the UI instead of using 
- * JLabel. Sets the font to CUSTOM FONT.
- * 
- * This font is also used by many other Custom UI components in this
- * package, making it easy to change the font in many components in 
- * one place (here!). 
+/**
+ * A custom font used by {@link CustomLabel} and used by many other custom
+ * UI components. 
+ * Changing the size of this font may require you to change the size of
+ * other components that have their size set explicitly. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -45,53 +42,29 @@ import javax.swing.JLabel;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class CustomLabel 
-	extends JLabel {
-	
-	private int fontSize;
+public class CustomFont
+	extends Font {
 	
 	/**
-	 * Simply delegates to JLabel superclass.
+	 * Creates an instance of this font, Sans Serif, plain, size 11. 
 	 */
-	public CustomLabel() {
-		super();
-		setFont();
-	}
-	
-	/**
-	 * Simply delegates to JLabel superclass.
-	 */
-	public CustomLabel(Icon image) {
-		super(image);
-		setFont();
-	}
-	
-	/**
-	 * Simply delegates to JLabel superclass.
-	 */
-	public CustomLabel(String text) {
-		super(text);
-		setFont();
-	}
-	
-	/**
-	 * Simply delegates to JLabel superclass.
-	 */
-	public CustomLabel(String text, int fontSize) {
-		super(text);
-		this.fontSize = fontSize;
-		setFont();
-	}
-	
-	private void setFont()
+	public CustomFont() 
 	{
-		if (fontSize == 0)
-		setFont(new CustomFont());
-		
-		else {
-			setFont(CustomFont.getFontBySize(fontSize));
-		}
+		super("SansSerif", Font.PLAIN, 11);
 	}
+	
+	/**
+	 * Returns an instance of this Font with the specified size. 
+	 * 
+	 * @param size		Size of the font. 
+	 * @return
+	 */
+	public static Font getFontBySize( int size)
+	{
+		Font f = new CustomFont();
+		return f.deriveFont((float)size);
+	}
+
 }

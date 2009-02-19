@@ -29,11 +29,15 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.JViewport;
@@ -52,8 +56,11 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.IconManager;
+import org.openmicroscopy.shoola.agents.editor.model.CPEimport;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.TreeIterator;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 
 /** 
  * This is the UI panel that displays the tree model in a "Text Document" 
@@ -118,26 +125,27 @@ public class TextAreasView
 			if (! (r instanceof TreeNode)) 		return;
 			TreeNode root = (TreeNode)r;
 			
-			Iterator<TreeNode> iterator = new TreeIterator(root);
-			
 			TreeNode tn;
 			IField f;
 			FieldTextArea tc;
 			Object userOb;
 			DefaultMutableTreeNode node;
 			TreePath path;
+			
+			Iterator<TreeNode> iterator = new TreeIterator(root);
+			
 			while (iterator.hasNext()) {
 				tn = iterator.next();
-				if (tn instanceof DefaultMutableTreeNode) {
-					node = (DefaultMutableTreeNode)tn;
-					path = new TreePath(node.getPath());
-					userOb = node.getUserObject();
-					if (userOb instanceof IField) {
-						f = (IField)userOb;
-						tc = new FieldTextArea(f, navTree, node, controller);
-						textAreas.put(path, tc);
-						add(tc);
-					}
+				if (!(tn instanceof DefaultMutableTreeNode)) continue;
+				node = (DefaultMutableTreeNode)tn;
+				userOb = node.getUserObject();
+				if (!(userOb instanceof IField)) continue;
+				f = (IField)userOb;
+				path = new TreePath(node.getPath());
+				if (f != null) {
+					tc = new FieldTextArea(f, navTree, node, controller);
+					textAreas.put(path, tc);
+					add(tc);
 				}
 			}
 		}
@@ -148,6 +156,7 @@ public class TextAreasView
 		revalidate();
 		repaint();
 	}
+	
 
 	/**
 	 * Iterates through all the text components contained in this UI and 

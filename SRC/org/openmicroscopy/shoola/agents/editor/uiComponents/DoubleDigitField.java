@@ -147,7 +147,7 @@ public class DoubleDigitField
 		/*
 		 * Sets font, highlight and border.
 		 */
-		this.setFont(CustomLabel.CUSTOM_FONT);
+		this.setFont(new CustomFont());
 		this.setBorder(unSelectedBorder);
 		this.setSelectionColor(BLUE_HIGHLIGHT);
 		this.setSelectedTextColor(Color.black);

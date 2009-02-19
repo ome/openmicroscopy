@@ -172,11 +172,11 @@ public interface IField
 	public Note getNoteAt(int index);
 	
 	/**
-	 * Indicates whether all parameters have been filled out. 
+	 * Indicates how many parameters have not been filled out.  
 	 * 
-	 * @return		True if all the parameters have been filled. 
+	 * @return		see above. 
 	 */
-	public boolean isFieldFilled();
+	public int getUnfilledCount();
 	
 	/**
 	 * Returns a String containing the field description, plus the 

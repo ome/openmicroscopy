@@ -89,7 +89,7 @@ public class CustomComboBox
 	 * Initialises the UI. Called by all constructors. 
 	 */
 	private void initialise() {
-		this.setFont(CustomLabel.CUSTOM_FONT);
+		this.setFont(new CustomFont());
 		setUI(new OMEComboBoxUI());
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1,

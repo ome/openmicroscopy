@@ -36,7 +36,6 @@ import javax.swing.table.TableModel;
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EditorLinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
@@ -242,24 +241,24 @@ public class Field
 	
 	/**
 	 * Implemented as specified by the {@link IField} interface.
-	 * This method tests to see whether the field has been filled out. 
+	 * This method tests to see whether the field has any parameters 
+	 * that have not been filled. 
 	 * ie, Has the user entered a "valid" value into the Form. 
-	 * This will return false if any of the parameters for this field are
-	 * not filled. 
 	 * 
-	 * @return	True if the all the parameters have been filled out by user.  
+	 * @return	number of parameters have not been filled out by user.  
 	 */
-	public boolean isFieldFilled() {
+	public int getUnfilledCount() {
 		
+		int unfilledCount = 0;
 		for (IFieldContent content : fieldParams) {
 			if (content instanceof IParam) {
 				IParam param = (IParam)content;
 				if (! param.isParamFilled()) {
-					return false;
+					unfilledCount++;
 				}
 			}
 		}
-		return true;
+		return unfilledCount;
 	}
 
 	/**

@@ -39,7 +39,7 @@
     <structuredEntry name="/services/OMERODS" type="OMERODS">
       <port>4063</port>
     </structuredEntry>
-    <entry name="/services/SERVER/available" type="boolean">true</entry>
+    <entry name="/services/SERVER/available" type="boolean">false</entry>
     
     <!-- default fs directory -->
     <entry name="/services/FS/defaultDirectory">/home/donald/tmp/</entry>

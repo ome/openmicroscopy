@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEdi
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AttributeEditListeners;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomFont;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 
 
@@ -91,7 +92,7 @@ public class AttributeEditArea
 		
 		textBox = new JTextArea(text);
 		textBox.setLineWrap(true);
-		textBox.setFont(CustomLabel.CUSTOM_FONT);
+		textBox.setFont(new CustomFont());
 		textBox.setWrapStyleWord(true);
 		
 		Border bevelBorder = BorderFactory.createLoweredBevelBorder();

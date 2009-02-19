@@ -77,7 +77,7 @@ public class CustomTextField
 	 * Sets the font. 
 	 */
 	private void init() {
-		this.setFont(CustomLabel.CUSTOM_FONT);
+		this.setFont(new CustomFont());
 	}
 
 	/**

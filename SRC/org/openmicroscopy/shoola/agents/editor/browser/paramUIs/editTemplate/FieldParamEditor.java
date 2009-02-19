@@ -225,34 +225,6 @@ public class FieldParamEditor
 			nameContainer.add(splitButton);
 		}
 		
-		// if root node, and contains 'experiment-info' display via tool tip
-		// Can't edit this, but it is displayed to support cpe.xml 
-		if (treeNode.isRoot()) {
-			String expDate = field.getAttribute(CPEimport.EXP_DATE);
-			String investigName = field.getAttribute(CPEimport.INVESTIG_NAME);
-			if (expDate != null || investigName != null) {
-				Icon e = IconManager.getInstance().getIcon
-												(IconManager.EXP_ICON_9_11);
-				String date = "no date";
-				
-				SimpleDateFormat f = new SimpleDateFormat("d MMM, yyyy");
-				try {
-					long millis = new Long(expDate);
-					date = f.format(new Date(millis));
-				} catch (NumberFormatException ex) {}
-				
-				String expToolTip = "<html><div style='width:250px; " +
-				"padding:1px'>" + "Experiment Information: " +
-						"<div style='padding:4px'>"
-				 + date + "<br>Investigator: " + investigName + 
-				 "</div></div></html>";
-				
-				JButton expButton = new CustomButton(e);
-				expButton.setToolTipText(expToolTip);
-				nameContainer.add(expButton);
-			}
-		}
-		
 		nameContainer.add(nameEditor);
 		attributeFieldsPanel.add(nameContainer);
 		attributeFieldsPanel.add(Box.createVerticalStrut(10));

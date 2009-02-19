@@ -108,6 +108,12 @@ class BrowserUI
     /** The model. */
     private BrowserModel    		model;
     
+    /** A panel to display experimental info in the text tab-pane */
+    private ExperimentInfoPanel		expInfoText;
+    
+    /** A panel to display experimental info in the tree tab-pane */
+    private ExperimentInfoPanel		expInfoTree;
+    
     /**
      * An alternative way of viewing the treeModel, resembling a text document.
      * Contains text-components corresponding to each node of the tree, but
@@ -171,8 +177,21 @@ class BrowserUI
         // single setTreeModel() method, and only instantiates the views 
         // as needed. 
         tabbedPane = new JTabbedPane();
-        tabbedPane.addTab(TEXT_VIEW, new JScrollPane(textView));
-        tabbedPane.addTab(TREE_VIEW, new JScrollPane(treeDisplay));
+        
+        JPanel textTabPane = new JPanel(new BorderLayout());
+        textTabPane.setBackground(null);
+        textTabPane.add(new JScrollPane(textView), BorderLayout.CENTER);
+        expInfoText = new ExperimentInfoPanel(navTree, controller);
+        textTabPane.add(expInfoText, BorderLayout.NORTH);
+        
+        JPanel treeTabPane = new JPanel(new BorderLayout());
+        treeTabPane.setBackground(null);
+        treeTabPane.add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
+        expInfoTree = new ExperimentInfoPanel(navTree, controller);
+        treeTabPane.add(expInfoTree, BorderLayout.NORTH);
+        
+        tabbedPane.addTab(TEXT_VIEW, textTabPane);
+        tabbedPane.addTab(TREE_VIEW, treeTabPane);
         // listen for changes to tab-view, to update view-mode in controller
         tabbedPane.addChangeListener(this);
         // goes in the left part of the right splitPane
@@ -268,9 +287,12 @@ class BrowserUI
     	navTree.setModel(tm);
     	metadataUI.setTreeModel(tm);
     	
-    	//TODO  need to merge these componenets into a single UI class.
+    	// set the Tree Model on both main tab windows...
     	textView.setTreeModel(tm);
     	treeDisplay.setModel(tm);
+    	//... and on the Experimental info panels 
+    	expInfoText.setTreeModel(tm);
+    	expInfoTree.setTreeModel(tm);
     	
     	if (tm != null)
     	tm.addTreeModelListener(editorPanel);
