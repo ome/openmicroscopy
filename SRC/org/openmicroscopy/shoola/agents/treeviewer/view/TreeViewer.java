@@ -743,5 +743,11 @@ public interface TreeViewer
 	 * <code>Copy/Paste</code>. 
 	 */
 	public void onNodesMoved();
+
+	/** 
+	 * Opens the editor without file if no file selected.
+	 * or opens the currently selected file.
+	 */
+	public void openEditorFile();
 	
 }

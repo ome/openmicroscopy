@@ -57,10 +57,10 @@ public class ViewImageAction
 {
 
 	/** Name of the action. */
-    private static final String NAME = "View Image";
+    private static final String NAME = "View...";
 
     /** Description of the action. */
-    private static final String DESCRIPTION = "View the selected image";
+    private static final String DESCRIPTION = "View the selected image.";
     
     /**
      * Sets the action enabled depending on the browser's type and 

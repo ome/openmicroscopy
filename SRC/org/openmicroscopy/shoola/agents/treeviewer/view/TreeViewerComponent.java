@@ -49,6 +49,8 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
+import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
+import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
@@ -70,6 +72,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.NotDeletedObjectDialog;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -81,6 +84,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -1953,4 +1957,35 @@ class TreeViewerComponent
 			onNodesMoved();
 	}
 
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#openEditorFile()
+	 */
+	public void openEditorFile()
+	{
+		Browser browser = model.getSelectedBrowser();
+		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+		if (browser == null) {
+			bus.post(new ShowEditorEvent());
+	        return;
+		}
+		TreeImageDisplay d  = browser.getLastSelectedDisplay();
+		if (d == null) {
+			bus.post(new ShowEditorEvent());
+	        return;
+		}
+		Object object = d.getUserObject();
+		if (object == null) {
+			bus.post(new ShowEditorEvent());
+	        return;
+		}
+		if (object instanceof FileAnnotationData) {
+			FileAnnotationData data = (FileAnnotationData) d.getUserObject();
+			EditFileEvent evt = new EditFileEvent(data);
+			bus.post(evt);
+		} else {
+			bus.post(new ShowEditorEvent());
+		}
+	}
+	
 }

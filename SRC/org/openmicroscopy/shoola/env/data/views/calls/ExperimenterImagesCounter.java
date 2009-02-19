@@ -153,7 +153,6 @@ public class ExperimenterImagesCounter
 		Iterator i = nodes.keySet().iterator();
 		while (i.hasNext()) {
 			final Integer index = (Integer) i.next();
-			System.err.println(index);
 			description = "Count items";
 			final TimeRefObject ref = nodes.get(index);
 			add(new BatchCall(description) {

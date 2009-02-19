@@ -55,8 +55,8 @@ class PopupMenu
   	extends JPopupMenu
 {
 
-	/** Button to browse a container or bring up the Viewer for an image. */
-	private JMenuItem           view;
+	/** Button to browse a container. */
+	private JMenuItem           browse;
 
 	/** Button to add existing element to the specified container. */
 	private JMenuItem           existingElement;
@@ -121,6 +121,12 @@ class PopupMenu
 	/** Button to create a new Tag Set. */
 	private JMenuItem			createTagSet;
 	
+	/** Button to view an Image. */
+	private JMenuItem			view;
+	
+	/** Button to open the Editor. */
+	private JMenuItem			editFile;
+	
 	/** Reference to the Control. */
 	private TreeViewerControl   controller;
 
@@ -150,8 +156,15 @@ class PopupMenu
 		switch (index) {
 			case TreeViewer.FULL_POP_UP_MENU:
 				a = controller.getAction(TreeViewerControl.BROWSE);
+				browse = new JMenuItem(a);
+				initMenuItem(browse, a.getActionName());
+				a = controller.getAction(TreeViewerControl.VIEW);
 				view = new JMenuItem(a);
 				initMenuItem(view, a.getActionName());
+				a = controller.getAction(TreeViewerControl.EDITOR);
+				editFile = new JMenuItem(a);
+				initMenuItem(editFile, a.getActionName());
+				
 				a = controller.getAction(TreeViewerControl.CREATE_OBJECT);
 				newElement = new JMenuItem(a);
 				initMenuItem(newElement, a.getActionName());
@@ -253,7 +266,9 @@ class PopupMenu
 		setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		switch (index) {
 			case TreeViewer.FULL_POP_UP_MENU:
+				add(browse);
 				add(view);
+				add(editFile);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(newElement);
 				add(cutElement);
