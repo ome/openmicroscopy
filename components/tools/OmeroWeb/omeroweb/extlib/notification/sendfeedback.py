@@ -56,7 +56,7 @@ class SendFeedback(threading.Thread):
         logger.info("Starting sendfeedback thread...")
         while not (self.thread_timeout):
             try:
-                logger.info("%i feedbacks in the queue." % (len(self.to_send)))
+                logger.debug("%i feedbacks in the queue." % (len(self.to_send)))
                 if len(self.to_send) > 0:
                     try:
                         conn = httplib.HTTPConnection(self.feedback_url)

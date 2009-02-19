@@ -55,7 +55,7 @@ class SendEmail(threading.Thread):
         logger.info("Starting sendemail thread...")
         while not (self.thread_timeout):
             try:
-                logger.info("%i emails in the queue." % (len(self.to_send)))
+                logger.debug("%i emails in the queue." % (len(self.to_send)))
                 if len(self.to_send) > 0:
                     try:
                         email = self.to_send[0]
@@ -65,7 +65,7 @@ class SendEmail(threading.Thread):
                         smtp.sendmail(email['sender'], email['recipients'], email['message'])
                         smtp.quit()
                         self.to_send.remove(email)
-                        logger.info("Email was sent.")
+                        logger.debug("Email was sent.")
                     except:
                         logger.error("Email could not be sent.")
                         logger.error(traceback.format_exc())
