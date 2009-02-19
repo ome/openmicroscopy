@@ -161,25 +161,6 @@ public interface IMetadata
      * @return Map whose key is a <code>Tag/Tag Set</code> and the value
      * 		   either a Map or a list of related <code>DataObject</code>.
      */
-    //public <T extends IObject, A extends Annotation> Map<A, Map<A, Set<T>>> 
-    //	loadTagSets(long id, boolean withObjects, Map options);
-    
-    /**
-     * Loads the Tag Set if the id is specified otherwis loads all the Tag
-     * Set.
-     * 
-     * @param id			The id of the tag to load or <code>-1</code>.
-     * @param withObjects	Pass <code>true</code> to load the data objects
-     * 						related to the <code>Tags</code>. Note that a 
-     * 						<code>Tag Set</code> can only be linked to a
-     * 						<code>Tag</code>.
-     * @param options		The pojo options.
-     * @return Map whose key is a <code>Tag/Tag Set</code> and the value
-     * 		   either a Map or a list of related <code>DataObject</code>.
-     */
-    //public <T extends IObject, A extends Annotation> Map<A, Set<T>> 
-    //	loadTags(long id, boolean withObjects, Map options);
-    
     public Map<Long, Set<IObject>> loadTagContent(
     		@NotNull @Validate(Long.class) Set<Long> tagIds, Map options);
      
@@ -206,5 +187,20 @@ public interface IMetadata
      */
     public Map<Long, Long> getTaggedObjectsCount(@NotNull @Validate(Long.class) 
     		Set<Long> tagIds, Map options);
+    
+    /**
+     * Counts the number of annotation of a given type.
+     * 
+     *  @param type      The type of annotations to load.
+     * @param include   The collection of name space, one of the constants 
+     * 					defined by this class.
+     * @param exclude   The collection of name space, one of the constants 
+     * 					defined by this class.
+     * @param options	The pojo options.
+     * @return See above.
+     */
+    public Long countSpecifiedAnnotations(@NotNull Class type, 
+    		@Validate(String.class) Set<String> include, 
+    		@Validate(String.class) Set<String> exclude, Map options);
     
 }
