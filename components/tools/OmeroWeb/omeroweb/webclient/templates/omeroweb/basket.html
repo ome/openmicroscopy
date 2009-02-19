@@ -32,7 +32,7 @@
     <div class="error"><p>Your basket is empty. Please add some of your bio-data from <a href="{% get_webclient_root_url %}/mydata/">My data</a> or initiate a discussion.</p></div>
     <div>Available actions: 
         <input type="submit" name="action" value="Discuss" onClick="location.href='{% get_webclient_root_url %}/basket/todiscuss/'"/> 
-        <input type="submit" name="action" value="Blog" onClick="location.href='{% get_webclient_root_url %}/basket/toblog/'"/> 
+        <!--<input type="submit" name="action" value="Blog" onClick="location.href='{% get_webclient_root_url %}/basket/toblog/'"/>-->
     </div>
     
 {% else %}
@@ -104,8 +104,10 @@
     <div>
         <h1>Available actions:</h1>
         <input type="submit" name="action" value="Share" onClick="location.href='{% get_webclient_root_url %}/basket/toshare/'"/> 
+        <input type="submit" name="action" value="Discuss" onClick="location.href='{% get_webclient_root_url %}/basket/todiscuss/'"/> 
+        <!--<input type="submit" name="action" value="Blog" onClick="location.href='{% get_webclient_root_url %}/basket/toblog/'"/>
         <input type="submit" name="action" value="Annotate" onClick="location.href='{% get_webclient_root_url %}/basket/toannotate/'"/> 
-        <input type="submit" name="action" value="Tag" onClick="location.href='{% get_webclient_root_url %}/basket/totag/'"/>
+        <input type="submit" name="action" value="Tag" onClick="location.href='{% get_webclient_root_url %}/basket/totag/'"/>-->
         <input type="submit" name="action" value="Empty" onClick="location.href='{% get_webclient_root_url %}/empty/'"/>
         
     </div>

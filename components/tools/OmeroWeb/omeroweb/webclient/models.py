@@ -25,11 +25,11 @@ import re
 
 help_wiki = '<span id="markup" title="Markups - <small>If you\'d like to include an OMERO image or container in the above field, simply get the id of the item from the URL and type: <b>[image:157], </b><b>[dataset:64], </b><b>[project:76].</b><br/>In addition, for URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
 
-help_wiki_c = '<span id="markup_c" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="/%s/static/images/help16.png" /></span>'
+help_wiki_c = '<span id="markup_c" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
 
-help_enable = '<span id="enable" title="Enable/Disable - <small>This option allows the owner to keep the control on the access to the share.</small>"><img src="/%s/static/images/help16.png" /></span>'
+help_enable = '<span id="enable" title="Enable/Disable - <small>This option allows the owner to keep the control on the access to the share.</small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
 
-help_expire = '<span id="expire" title="Expire date - <small>This date define when share will stop being available.</small>"><img src="/%s/static/images/help16.png" /></span>'
+help_expire = '<span id="expire" title="Expire date - <small>This date define when share will stop being available.</small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
 
 ##################################################################
 # Model
