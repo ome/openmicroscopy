@@ -128,6 +128,7 @@ public class FileSaver
 			case EXPERIMENT:
 			case PROTOCOL:
 				this.index = index;
+				break;
 			case OTHER:
 			default:
 				this.index = OTHER;
