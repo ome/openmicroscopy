@@ -34,6 +34,7 @@ import ome.api.IMetadata;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.RType;
 import omero.ServerError;
+import omero.api.AMD_IMetadata_countSpecifiedAnnotations;
 import omero.api.AMD_IMetadata_getTaggedObjectsCount;
 import omero.api.AMD_IMetadata_loadAnnotations;
 import omero.api.AMD_IMetadata_loadChannelAcquisitionData;
@@ -89,6 +90,14 @@ public class MetadataI
 	 }
 	    
 	 public void loadSpecifiedAnnotations_async(AMD_IMetadata_loadSpecifiedAnnotations __cb,
+			 String annotationType, List<String> include, List<String> exclude,
+			Map<String, RType> options, Current __current) 
+	 throws ServerError {
+		 callInvokerOnRawArgs(__cb, __current, annotationType, include, exclude, 
+				 options);
+	 }
+	 
+	 public void countSpecifiedAnnotations_async(AMD_IMetadata_countSpecifiedAnnotations __cb,
 			 String annotationType, List<String> include, List<String> exclude,
 			Map<String, RType> options, Current __current) 
 	 throws ServerError {
