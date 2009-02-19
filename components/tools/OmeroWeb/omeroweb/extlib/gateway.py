@@ -782,15 +782,15 @@ class BlitzGateway (threading.Thread):
         if o_type == "image":
             sql = "select a from CommentAnnotation as a " \
                 "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns!='and ome.share.comment/'"
+                "and a.details.owner.id=:eid and a.ns!='ome.share.comment/'"
         elif o_type == "dataset":
             sql = "select a from CommentAnnotation as a " \
                 "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns!='and ome.share.comment/'"
+                "and a.details.owner.id=:eid and a.ns!='ome.share.comment/'"
         elif o_type == "project":
             sql = "select a from CommentAnnotation as a " \
                 "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns!='and ome.share.comment/'"
+                "and a.details.owner.id=:eid and a.ns!='ome.share.comment/'"
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
