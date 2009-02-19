@@ -65,10 +65,15 @@ def thanks(request):
 def send_feedback(request):
     form = ErrorForm(data=request.REQUEST.copy())
     if form.is_valid():
-        email = request.REQUEST['email']
         error = request.REQUEST['error']
+        comment = None
+        if request.REQUEST['comment'] is not None or request.REQUEST['comment'] != "":
+            comment = request.REQUEST['comment']
+        email = None
+        if request.REQUEST['email'] is not None or request.REQUEST['email'] != "":
+            email = request.REQUEST['email']
         try:
-            feedback.handlerf().create_error_message(error, email)
+            feedback.handlerf().create_error_message(error, comment, email)
         except:
             logger.error('handler500: Feedback could not be sent')
             logger.error(traceback.format_exc())
@@ -82,9 +87,10 @@ def send_feedback(request):
                 
         return HttpResponseRedirect("/feedback/thanks/")
     else:
-        template = "omeroweb/container_form.html"
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
-    
+        context = {'form':form}
+        t = template_loader.get_template('500.html') 
+        c = Context(request, context)
+        return HttpResponse(t.render(c))
     
 
 ################################################################################

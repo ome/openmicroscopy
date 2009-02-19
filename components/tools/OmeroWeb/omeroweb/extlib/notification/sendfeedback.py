@@ -63,10 +63,12 @@ class SendFeedback(threading.Thread):
                         try:
                             try:
                                 feedback = self.to_send[0]
+                                p = {'error': feedback['error'], "type":feedback['app']}
                                 if feedback['email'] is not None:
-                                    params = urllib.urlencode({'email':feedback['email'], 'error': feedback['error'], "type":feedback['app']})
-                                else:
-                                    params = urllib.urlencode({'error': feedback['error'], "type":feedback['app']})
+                                    p['email'] = feedback['email']
+                                if feedback['comment'] is not None:
+                                    p['comment'] = feedback['comment']
+                                params = urllib.urlencode(p)
                                 logger.debug("Sending...")
                                 headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
                                 conn.request("POST", "/~brain/omero/bugcollector.php", params, headers)
@@ -103,5 +105,5 @@ class SendFeedback(threading.Thread):
     def __del__ (self):
         logger.debug("Garbage Collector KICK IN")
 
-    def create_error_message(self, error, email=None):
-        self.to_send.append({"email": email, "error": error, "app":"web_bugs"})
+    def create_error_message(self, error, comment=None, email=None):
+        self.to_send.append({"email": email, "comment":comment, "error": error, "app":"web_bugs"})

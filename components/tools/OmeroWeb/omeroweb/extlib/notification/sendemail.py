@@ -92,7 +92,7 @@ class SendEmail(threading.Thread):
     def create_error_message(self, app, user, error):
         # Create the root message and fill in the from, to, and subject headers
         msgRoot = MIMEMultipart('related')
-        msgRoot['Subject'] = 'OMERO.%s - error message by %s' % (app, user)
+        msgRoot['Subject'] = '%s - error message by %s' % (app, user)
         msgRoot['From'] = settings.EMAIL_SENDER_ADDRESS
         msgRoot['To'] = settings.ADMINS[0][1]
         msgRoot.preamble = 'This is a multi-part message in MIME format.'
