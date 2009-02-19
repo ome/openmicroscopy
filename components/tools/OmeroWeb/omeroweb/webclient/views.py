@@ -3053,7 +3053,8 @@ class UserAgent (object):
     def isSafari (self):
         return 'Safari' in self.ua
 
-def _get_prepared_image (request, iid):
+@isUserConnected
+def _get_prepared_image (request, iid, **kwargs):
     r = request.REQUEST
     
     conn = None
@@ -3090,8 +3091,8 @@ def _get_prepared_image (request, iid):
     compress_quality = r.get('q', None)
     return (img, compress_quality)
 
-
-def render_image (request, iid, z, t):
+@isUserConnected
+def render_image (request, iid, z, t, **kwargs):
     """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
         Many options are available from the request dict.
     I am assuming a single Pixels object on image with id='iid'. May be wrong """
@@ -3103,8 +3104,8 @@ def render_image (request, iid, z, t):
     jpeg_data = img.renderJpeg(z,t, compression=compress_quality)
     return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
-
-def image_viewer (request, iid, dsid=None):
+@isUserConnected
+def image_viewer (request, iid, dsid=None, **kwargs):
     """ This view is responsible for showing pixel data as images """
     user_agent = UserAgent(request)
     rid = _get_img_details_from_req(request)
@@ -3201,7 +3202,8 @@ def _get_img_details_from_req (request, as_string=False):
         return "&".join(["%s=%s" % (x[0], x[1]) for x in rv.items()])
     return rv
 
-def imageData_json (request, iid):
+@isUserConnected
+def imageData_json (request, iid, **kwargs):
     """ Get a dict with image information """
     r = request.REQUEST
     
