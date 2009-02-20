@@ -77,11 +77,15 @@
         {% for c in share.ownShares %}
         <li class="product"><em>{{ c.shortMessage }}</em>
             <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">
-                {% if c.active %}
-                    <img src="{% get_webclient_static_url %}/images/folder_html64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                {% ifequal c.getShareType "Discussion" %}
+                    <img src="{% get_webclient_static_url %}/images/wp_protocol64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                 {% else %}
-                    <img src="{% get_webclient_static_url %}/images/folder_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
-                {% endif %}
+                    {% if c.active %}
+                        <img src="{% get_webclient_static_url %}/images/folder_html64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                    {% else %}
+                        <img src="{% get_webclient_static_url %}/images/folder_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                    {% endif %}
+                {% endifequal %}
             </a>
             <div class="center">{{ c.tinyMessage }}{% if c.getCommentsSize %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}</div>
         </li>
@@ -94,11 +98,15 @@
         {% for c in share.memberShares %}
         <li class="product"><em>{{ c.shortMessage }}</em>
             <a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;">
-                {% if c.active %}
-                    <img src="{% get_webclient_static_url %}/images/folder_html64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                {% ifequal c.getShareType "Discussion" %}
+                    <img src="{% get_webclient_static_url %}/images/wp_protocol64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                 {% else %}
-                    <img src="{% get_webclient_static_url %}/images/folder_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
-                {% endif %}
+                    {% if c.active %}
+                        <img src="{% get_webclient_static_url %}/images/folder_html64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                    {% else %}
+                        <img src="{% get_webclient_static_url %}/images/folder_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                    {% endif %}
+                {% endifequal %}
             </a>
             <div class="center">{{ c.tinyMessage }}{% if c.getCommentsSize %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}</div>
         </li>

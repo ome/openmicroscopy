@@ -96,7 +96,7 @@ class BaseShare(BaseController):
         self.conn.addComment(self.share.id, comment)
 
     def getAllShares(self):
-        self.shares = self.conn.getAllShares()
+        self.shares = self.sortByAttr(list(self.conn.getAllShares()), 'started')
 
     def getShares(self):
         self.ownShares = list(self.conn.getOwnShares())

@@ -136,30 +136,29 @@
 
 <div class="separate70"></div>
 
-{% if manager.c_size or manager.c_mg_size %}
-    {% if manager.c_size %}
-        {% if manager.experimenter %}
-            <h1>{{ manager.experimenter.getFullName }}'s ({{ manager.c_size }} items):</h1>
-        {% else %}
-            <h1>My data ({{ manager.c_size }} items):</h1>
-        {% endif %}
-    {% endif %}
-    {% if manager.c_mg_size %}
-        {% if manager.myGroup %}
-            <h1>{{ manager.myGroup.name }}'s data ({{ manager.c_mg_size }} items):</h1>
-        {% endif %}
-    {% endif %}
-{% else %}
-    {% ifequal nav.menu 'mydata' %}
-        <h1>My data (no item):</h1>
-    {% else %}
-        <h1>Data (no item):</h1>
-    {% endifequal %}
-{% endif %}
-
 <div id="view"> 
 
-    | View <a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="details" title="details"/></a> <a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> <a href="{% get_webclient_root_url %}/mydata/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.png" alt="tree" title="tree"/></a> |
+    {% if manager.c_size or manager.c_mg_size %}
+        {% if manager.c_size %}
+            {% if manager.experimenter %}
+                <h1>{{ manager.experimenter.getFullName }}'s ({{ manager.c_size }} items):</h1>
+            {% else %}
+                <h1>My data ({{ manager.c_size }} items):</h1>
+            {% endif %}
+        {% endif %}
+        {% if manager.c_mg_size %}
+            {% if manager.myGroup %}
+                <h1>{{ manager.myGroup.name }}'s data ({{ manager.c_mg_size }} items):</h1>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        {% ifequal nav.menu 'mydata' %}
+            <h1>My data (no item):</h1>
+        {% else %}
+            <h1>Data (no item):</h1>
+        {% endifequal %}
+    {% endif %}
+    <!--| View <a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="details" title="details"/></a> <a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> <a href="{% get_webclient_root_url %}/mydata/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.png" alt="tree" title="tree"/></a> |-->
 
 </div>
 

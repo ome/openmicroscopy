@@ -1777,7 +1777,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def manage_data_by_tag(request, tid=None, **kwargs):
+def manage_data_by_tag(request, tid=None, tid2=None, tid3=None, tid4=None, tid5=None, **kwargs):
     request.session['nav']['menu'] = 'mydata'
     request.session['nav']['whos'] = 'mydata'
     
@@ -1803,16 +1803,12 @@ def manage_data_by_tag(request, tid=None, **kwargs):
     
     form_filter = None
     tags = list()
-    
-    if tid is not None:
-        tag = str(conn.getTagAnnotation(long(tid)).textValue)
-        tags.append(tag)
-        form_filter = TagFilterForm(initial={'tag':tag})
+    tag_list = list()
     
     if request.method == 'POST':
         form_filter = TagFilterForm(data=request.REQUEST.copy())
         if form_filter.is_valid():
-            if request.REQUEST['tag'] != "" and tid is None:
+            if request.REQUEST['tag'] != "":
                 tags.append(str(request.REQUEST['tag']))
             if request.REQUEST['tag2'] != "":
                 tags.append(str(request.REQUEST['tag2']))
@@ -1822,13 +1818,46 @@ def manage_data_by_tag(request, tid=None, **kwargs):
                 tags.append(str(request.REQUEST['tag4']))
             if request.REQUEST['tag5'] != "":
                 tags.append(str(request.REQUEST['tag5']))
+    else:
+        tag_ids = list()
+        
+        if tid is not None:
+            tag_ids.append(long(tid))
+        if tid2 is not None:
+            tag_ids.append(long(tid2))
+        if tid3 is not None:
+            tag_ids.append(long(tid3))
+        if tid4 is not None:
+            tag_ids.append(long(tid4))
+        if tid5 is not None:
+            tag_ids.append(long(tid5))
+        
+        tag_list = list(conn.listSpecifiedTags(tag_ids))
+        initail = {}
+        for i in range(1,len(tag_list)+1):
+            
+            val = tag_list[i-1].textValue
+            if i == 1:
+                initail['tag'] = val
+            else:
+                initail['tag%i' % i] = val
+            tags.append(val)
+        form_filter = TagFilterForm(initial=initail)
     
-    manager = BaseContainer(conn, tags=tags)
-    manager.buildBreadcrumb(whos)
+    manager = BaseContainer(conn, tags=tag_list, rtags=tags)
     if len(tags) > 0:
         manager.loadDataByTag()
     else:
         pass
+    
+    if request.method == 'POST':
+        ext = ""
+        for t in manager.tags:
+            if t is not None:
+                ext = ext + "%i/" % (t.id)
+        return HttpResponseRedirect("/%s/tag/%s" % (settings.WEBCLIENT_ROOT_BASE, ext))
+    else:
+        manager.buildBreadcrumb(whos)
     
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['memberOfGroups']})
     

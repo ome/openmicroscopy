@@ -70,7 +70,7 @@ class BaseContainer(BaseController):
     
     orphaned = False
     
-    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, metadata=False, tags=None, **kw):
+    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, metadata=False, tags=None, rtags=None, **kw):
         BaseController.__init__(self, conn)
         if o1_type == "project":
             self.project = self.conn.getProject(o1_id)
@@ -94,7 +94,9 @@ class BaseContainer(BaseController):
             self.uri = self.conn.getUriAnnotation(o1_id)
         elif tags is not None:
             if len(tags) > 0:
-                self.tags = list(self.conn.lookupTagsAnnotation(tags))
+                self.tags = tags
+            elif len(rtags) > 0:
+                self.tags = list(self.conn.lookupTagsAnnotation(rtags))
         elif o1_type == "orphaned":
             self.orphaned = True
         
