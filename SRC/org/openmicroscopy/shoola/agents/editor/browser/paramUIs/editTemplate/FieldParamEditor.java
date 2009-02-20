@@ -342,11 +342,11 @@ public class FieldParamEditor
 		
 		JButton addParamsButton = new AddParamActions(field, tree, 
 				treeNode, controller).getButton();
-		// don't allow addition of parameters to root. 
+		// don't allow addition of parameters or notes to root. 
 		if(treeNode.isRoot()) {
 			addParamsButton.setEnabled(false);
-			addParamsButton.setToolTipText
-									("Can't add parameters to Protocol Title");
+			addStepNote.setEnabled(false);
+			paramToolBar.setVisible(false);
 		}
 		paramToolBar.add(addParamsButton);
 		

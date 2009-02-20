@@ -117,7 +117,7 @@ public class TreeModelFactory
 	
 	/**
 	 * Creates a new 'blank file' TreeModel, for users to start editing. 
-	 * Contains only a root field, with no attributes set, no parameters etc. 
+	 * Contains a root field and one step (no attributes set, no parameters etc) 
 	 * 
 	 * @return A new TreeModel 
 	 */
@@ -125,6 +125,12 @@ public class TreeModelFactory
 	{
 		IField rootField = new ProtocolRootField();
 		DefaultMutableTreeNode rootNode = new FieldNode(rootField);
+		
+		IField firstStep = new Field();
+		DefaultMutableTreeNode firstNode = new FieldNode(firstStep);
+		
+		rootNode.add(firstNode);
+		
 		return new DefaultTreeModel(rootNode);
 	}
 

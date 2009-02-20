@@ -78,6 +78,10 @@ public class AddExpInfoAction
 	{
 		int state = model.getState();
 		setEnabled(state != Browser.TREE_DISPLAY);
+		
+		// if we're already editing an experiment, disable. 
+		if (model.isModelExperiment())	
+			setEnabled(false);
 	}
 	
 	/**

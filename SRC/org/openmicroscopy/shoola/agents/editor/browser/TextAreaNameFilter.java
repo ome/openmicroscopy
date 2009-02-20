@@ -65,8 +65,7 @@ public class TextAreaNameFilter
 		
 		if (!str.contains("\n"))
 			super.insertString(fb, offs, str, a);
-		else
-			Toolkit.getDefaultToolkit().beep();
+		
 	}
 
 	/**
@@ -80,8 +79,7 @@ public class TextAreaNameFilter
 		
 		if (!str.contains("\n"))
 			super.replace(fb, offs, length, str, a);
-		else
-			Toolkit.getDefaultToolkit().beep();
+		
 	}
 	
 }
