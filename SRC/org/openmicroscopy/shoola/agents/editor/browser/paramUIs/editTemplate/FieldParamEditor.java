@@ -28,10 +28,10 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -42,6 +42,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.Scrollable;
 import javax.swing.border.Border;
@@ -94,7 +95,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class FieldParamEditor
 	extends JPanel 
 	implements PropertyChangeListener,
-	Scrollable
+	Scrollable,
+	ActionListener
 {
 	/**
 	 * A bound property of this panel. 
@@ -188,32 +190,7 @@ public class FieldParamEditor
 		
 		// holds the name-editor and any additional buttons
 		Box nameContainer = Box.createHorizontalBox();
-		
-		// indicate whether step has notes (show with toolTip)
-		// Can't currently edit these notes, 
-		// but at least Editor supports cmp.xml!
-		int noteCount = field.getNoteCount();
-		if (noteCount > 0) {
-			String notesToolTip = "<html><div style='width:250px; " +
-			"padding:1px'>" + "Step Notes:<br>";
-			
-			Note note;
-			String name, content;
-			for (int i = 0; i < noteCount; i++) {
-				note = field.getNoteAt(i);
-				name = note.getName();
-				content = note.getContent();
-				notesToolTip = notesToolTip + "<div style='padding:4px'><b>" +
-					name + ":</b><br>" + content + "</div>";
-			}
-			notesToolTip = notesToolTip + "</div></html>";
-			
-			Icon notes = IconManager.getInstance().getIcon
-											(IconManager.INFO_ICON_12);
-			JButton notesButton = new CustomButton(notes);
-			notesButton.setToolTipText(notesToolTip);
-			nameContainer.add(notesButton);
-		}
+	
 		
 		// show whether this step is a "SPLIT_STEP" (can't edit yet)
 		String stepType = field.getAttribute(Field.STEP_TYPE);
@@ -234,6 +211,8 @@ public class FieldParamEditor
 		
 		// add parameters
 		addParameters();
+		// add notes 
+		addStepNotes();
 		// add data refs
 		addDataRefs();
 		
@@ -268,6 +247,25 @@ public class FieldParamEditor
 				
 				addParam(param, paramsContainer);
 			}
+		}
+	}
+	
+	private void addStepNotes()
+	{
+		int noteCount = field.getNoteCount();
+		
+		Box  container = Box.createVerticalBox();
+		container.setBorder(new EmptyBorder(0,10,0,0)); // left indent
+		attributeFieldsPanel.add(container);
+		
+		Note note;
+		NoteEditor noteEditor;
+		for (int i=0; i<noteCount; i++) {
+			note = field.getNoteAt(i);
+			noteEditor = new NoteEditor(note, this);
+			
+			container.add(Box.createVerticalStrut(10));
+			container.add(noteEditor);
 		}
 	}
 	
@@ -328,17 +326,33 @@ public class FieldParamEditor
 	private JComponent createParamsHeader() {
 		JPanel addParamsHeader = new JPanel(new BorderLayout());
 		addParamsHeader.setBackground(null);
+		
+		JToolBar paramToolBar = new JToolBar();
+		paramToolBar.setFloatable(false);
+		paramToolBar.setBackground(null);
+		
+		Icon addNotes = IconManager.getInstance().getIcon
+											(IconManager.ADD_STEP_NOTE_ICON);
+		JButton addStepNote = new CustomButton(addNotes);
+		boolean exp = controller.isModelExperiment();
+		addStepNote.setVisible(exp);
+		addStepNote.setToolTipText("Add a note to this step");
+		addStepNote.addActionListener(this);
+		paramToolBar.add(addStepNote);
+		
 		JButton addParamsButton = new AddParamActions(field, tree, 
 				treeNode, controller).getButton();
-		
 		// don't allow addition of parameters to root. 
 		if(treeNode.isRoot()) {
 			addParamsButton.setEnabled(false);
+			addParamsButton.setToolTipText
+									("Can't add parameters to Protocol Title");
 		}
+		paramToolBar.add(addParamsButton);
 		
 		addParamsButton.addPropertyChangeListener(
 				AddParamActions.PARAM_ADDED_PROPERTY, this);
-		addParamsHeader.add(addParamsButton, BorderLayout.EAST);
+		addParamsHeader.add(paramToolBar, BorderLayout.EAST);
 		
 		addParamsHeader.add(
 				new CustomLabel("Parameters:", 12), BorderLayout.WEST);
@@ -443,8 +457,7 @@ public class FieldParamEditor
 								tree, treeNode);
 			}
 		}
-				
-		if (ITreeEditComp.VALUE_CHANGED_PROPERTY.equals(propName)) {
+		else if (ITreeEditComp.VALUE_CHANGED_PROPERTY.equals(propName)) {
 			
 			if (evt.getSource() instanceof ITreeEditComp) {
 				
@@ -477,6 +490,12 @@ public class FieldParamEditor
 			}
 		} else if (AddParamActions.PARAM_ADDED_PROPERTY.equals(propName)) {
 			updateEditingOfTreeNode();
+			rebuildEditorPanel();
+			
+		} else if (NoteEditor.NOTE_DELETED.equals(propName)) {
+			NoteEditor ne = (NoteEditor)evt.getSource();
+			Note note = ne.getNote();
+			controller.deleteStepNote(field, tree, treeNode, note);
 			rebuildEditorPanel();
 		}
 	}
@@ -531,5 +550,9 @@ public class FieldParamEditor
 	public int getScrollableUnitIncrement(Rectangle visibleRect,
 			int orientation, int direction) {
 		return 1;
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		controller.addStepNote(field, tree, treeNode);
 	}
 }

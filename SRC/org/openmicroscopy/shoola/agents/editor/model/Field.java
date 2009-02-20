@@ -350,6 +350,24 @@ public class Field
 	
 	/**
 	 * Implemented as specified by the {@link IField} interface.
+	 * @see {@link IField#addNote(Note, int)}
+	 */
+	public void addNote(Note note, int index) { stepNotes.add(index, note); }
+	
+	/**
+	 * Implemented as specified by the {@link IField} interface.
+	 * @see {@link IField#removeNoteAt(Note);
+	 */
+	public int removeNote(Note note) 
+	{
+		int index = stepNotes.indexOf(note);
+		
+		stepNotes.remove(note);
+		return index;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IField} interface.
 	 * @see {@link IField#getNoteCount()}
 	 */
 	public int getNoteCount() { return stepNotes.size(); }

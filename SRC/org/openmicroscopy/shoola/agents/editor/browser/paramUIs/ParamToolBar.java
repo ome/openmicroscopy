@@ -113,6 +113,8 @@ public class ParamToolBar
 					"padding:2px'>" + "Parameter Description:<br>" + 
 					paramDesc + "</div></html>");
 			infoButton.setEnabled(true);
+		} else {
+			infoButton.setToolTipText("No parameter description");
 		}
 		
 	

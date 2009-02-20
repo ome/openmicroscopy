@@ -61,10 +61,12 @@ import org.openmicroscopy.shoola.agents.editor.browser.undo.UndoRedoListener;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
+import org.openmicroscopy.shoola.agents.editor.model.Note;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddDataRefEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddFieldTableEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddParamEdit;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddStepNoteEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AttributeEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AttributesEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.ChangeParamEdit;
@@ -285,6 +287,16 @@ public class BrowserControl
     	view.onStateChanged();
     }
     
+    /**
+     * Allows UI components (that don't have access to the model) to determine
+     * whether we are currently editing a Protocol or Experiment.
+     * 
+     * @return	True if we are editing an experiment. 
+     */
+    public boolean isModelExperiment() 
+    { 
+    	return model.isModelExperiment();
+    }
     
     /**
 	 * This method adds an attributeEdit to the undo/redo queue and then
@@ -371,6 +383,35 @@ public class BrowserControl
 			JTree tree, TreeNode node) {
 		
 		UndoableEdit edit = new AddParamEdit(text, field, tree, node);
+		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Adds a Step note to the specified field(step), and adds edit to undo/redo
+	 * 
+	 * @param field		The field/step to add a note to 
+	 * @param tree		The JTree that the field is in
+	 * @param node		The node that holds the step .
+	 */
+	public void addStepNote(IField field, JTree tree, TreeNode node)
+	{
+		UndoableEdit edit = new AddStepNoteEdit(field, tree, node);
+		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Deletes a Step note from the specified field(step), 
+	 * and adds edit to undo/redo
+	 * 
+	 * @param field		The field/step to add a note to 
+	 * @param tree		The JTree that the field is in
+	 * @param node		The node that holds the step .
+	 * @param index		The index of the note to delete
+	 */
+	public void deleteStepNote(IField field, JTree tree, 
+													TreeNode node, Note note)
+	{
+		UndoableEdit edit = new AddStepNoteEdit(field, note, tree, node);
 		undoSupport.postEdit(edit);
 	}
 	

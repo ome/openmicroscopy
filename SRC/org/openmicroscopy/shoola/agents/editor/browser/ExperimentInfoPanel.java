@@ -149,6 +149,8 @@ public class ExperimentInfoPanel
 	/** Action command for the First-Step button */
 	public static final String	FIRST_STEP = "firstStep";
 	
+	/**  A nice yellow colour (like a post-it note).  */
+	public static final Color 	LIGHT_YELLOW = new Color(254,244,156);
 	
 	/**
 	 * Initialises the various UI components
@@ -200,7 +202,7 @@ public class ExperimentInfoPanel
 		setVisible(false);
 		
 		setLayout(new BorderLayout());
-		setBackground(new Color(254,244,156));
+		setBackground(LIGHT_YELLOW);
 		Border lineBorder = BorderFactory.createMatteBorder(1, 1, 0, 1,
 	             UIUtilities.LIGHT_GREY.darker());
 		setBorder(BorderFactory.createCompoundBorder(lineBorder, 

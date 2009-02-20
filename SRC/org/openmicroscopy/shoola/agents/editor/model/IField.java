@@ -118,11 +118,28 @@ public interface IField
 	public void addNote(Note note);
 	
 	/**
+	 * Adds a note to this Field/Step. Allows undo of delete note at index.
+	 * Notes are added to a 'protocol' to create an annotated 'experiment'
+	 * 
+	 * @param note		Note to add
+	 * @param index		Index to add note
+	 */
+	public void addNote(Note note, int index);
+	
+	/**
 	 * Gets the number of notes added to this Field/Step
 	 * 
 	 * @return		see above
 	 */
 	public int getNoteCount();
+
+	/**
+	 * Removes the specified note and returns it's index. 
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public int removeNote(Note note);
 	
 	/**
 	 * Gets the {@link DataReference} at the specified index in the list. 

@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.editor.model;
 
+import java.util.HashMap;
+
 //Java imports
 
 //Third-party libraries
@@ -41,22 +43,87 @@ package org.openmicroscopy.shoola.agents.editor.model;
  * @since 3.0-Beta4
  */
 public class Note 
-{
+implements IAttributes {
 	
-	private String 		name;
+	/** The name of the note */
+	public static final String 		NAME = "name";
 	
-	private String 		content;
+	/** The content of the note */
+	public static final String 		CONTENT = "content";
 	
-	public Note(String name, String content)
+	/**
+	 * A map of the attributes that define this note
+	 * Can be used to store any name, value pair. 
+	 */
+	private HashMap<String, String> valueAttributesMap;
+
+	/**
+	 * Creates an instance. 
+	 */
+	public Note() 
 	{
-		this.name = name;
-		this.content = content;
+		valueAttributesMap = new HashMap<String, String>();
 	}
 	
-	public String getName()			{return name; }
+	/**
+	 * Returns the name of the note. 
+	 * @return
+	 */
+	public String getName()
+	{
+		return getAttribute(NAME);
+	}
 	
-	public String getContent()		{return content; }
+	/**
+	 * Returns the content of the note. 
+	 * @return
+	 */
+	public String getContent()
+	{
+		return getAttribute(CONTENT);
+	}
 	
+	/**
+	 * Creates an instance.
+	 * 
+	 * @param name			name of note
+	 * @param content		content of note
+	 */
+	public Note(String name, String content) {
+		this();
+		setAttribute(NAME, name);
+		setAttribute(CONTENT, content);
+	}
+	
+	/**
+	 * Gets an attribute of this data-reference.
+	 * 
+	 * @param name		Name of the attribute. 
+	 * @return			The value of this attribute, or null if not set. 
+	 */
+	public String getAttribute(String name) 
+	{
+		return valueAttributesMap.get(name);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IAttributes} interface. 
+	 * 
+	 * @see IAttributes#setAttribute(String, String)
+	 */
+	public void setAttribute(String name, String value) 
+	{
+		valueAttributesMap.put(name, value);
+	}
+
+	/**
+	 * Implemented as specified by the {@link IAttributes} interface. 
+	 * 
+	 * @see IAttributes#isAttributeTrue(String)
+	 */
+	public boolean isAttributeTrue(String attributeName) {
+		return "true".equals(valueAttributesMap.get(attributeName));
+	}
 }
 
 	

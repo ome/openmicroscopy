@@ -85,7 +85,6 @@ import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 
 /** 
  * This Text Area is represents a Field/Step (or a node) of the data model tree,

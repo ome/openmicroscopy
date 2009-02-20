@@ -324,11 +324,14 @@ public class IconManager
     /** The <code>New Experiment</code> icon */
     public  static final int			EXP_NEW_ICON = 88;
     
+    /** The <code>Add Step Note</code> icon */
+    public  static final int			ADD_STEP_NOTE_ICON = 89;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 88;
+    private static final int          MAX_ID = 89;
    
     
     /** Paths of the icon files. */
@@ -431,6 +434,7 @@ public class IconManager
         relPaths[ARROW_LEFT_ICON_12] = "arrowLeft12.png";
         relPaths[GO_ICON_12_20] = "goGreen_12_20.png";
         relPaths[EXP_NEW_ICON] = "expNew.png";
+        relPaths[ADD_STEP_NOTE_ICON] = "addStepNote.png";
     }
     
     
