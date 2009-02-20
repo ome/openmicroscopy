@@ -191,24 +191,4 @@ public class ExperimenterImagesCounter
         registry.getLogger().info(this, info);
     }
     
-    /**
-     * Feeds the result back to the viewer.
-     * @see DataBrowserLoader#handleResult(Object)
-     */
-    public void handleResult(Object result)
-    {
-    	/*
-        if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        Map map = (Map) result;
-        if (map == null) return;
-        //if (map == null || map.size() != 1) return;
-        Iterator i = map.keySet().iterator();
-        Integer index;
-        while (i.hasNext()) {
-        	index = (Integer) i.next();
-        	viewer.setExperimenterCount(expNode, index, map.get(index));
-		}
-		*/
-    }
-    
 }

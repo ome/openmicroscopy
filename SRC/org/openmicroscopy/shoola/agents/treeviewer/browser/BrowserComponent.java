@@ -1182,6 +1182,7 @@ class BrowserComponent
 		}
 		if (b) view.getTreeDisplay().repaint();
 	    model.getParentModel().setStatus(false, "", true);
+	    fireStateChange();
 	}
 
 	/**

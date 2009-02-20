@@ -592,7 +592,7 @@ class BrowserModel
 		if (indexes.size() == 0) return;
 		if (containersManager == null)
             containersManager = new ContainersManager(indexes);
-		//state = Browser.COUNTING_ITEMS;
+		state = Browser.COUNTING_ITEMS;
         numberLoader = new ExperimenterImagesCounter(component, expNode, n);
         numberLoader.load();  
 	}
@@ -611,7 +611,8 @@ class BrowserModel
 		if (containersManager == null) return true;
 		containersManager.setItem(index);
 		if (containersManager.isDone()) {
-			//state = Browser.READY;
+			if (state == Browser.COUNTING_ITEMS)
+				state = Browser.READY;
 			containersManager = null;
 			numberLoader = null;
 			return true;
