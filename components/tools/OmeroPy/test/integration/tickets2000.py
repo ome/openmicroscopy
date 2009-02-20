@@ -554,5 +554,58 @@ class TestTicket2000(lib.ITest):
         
         client_share1.sf.closeOnDestroy()
     
+    def test1184(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        share = self.root.sf.getShareService()
+        query = self.root.sf.getQueryService()
+        update = self.root.sf.getUpdateService()
+        admin = self.root.sf.getAdminService()
+        cont = self.root.sf.getContainerService()
+        
+        ds = DatasetI()
+        ds.setName(rstring('test1184-ds-%s' % (uuid)))
+        ds.details.permissions.setUserRead(True)
+        ds.details.permissions.setUserWrite(True)
+        ds.details.permissions.setGroupRead(False)
+        ds.details.permissions.setGroupWrite(False)
+        ds.details.permissions.setWorldRead(False)
+        ds.details.permissions.setWorldWrite(False)
+        ds = update.saveAndReturnObject(ds)
+        ds.unload()
+        
+        for i in range(1,2001):
+            img = ImageI()
+            img.setName(rstring('img1184-%s' % (uuid)))
+            img.setAcquisitionDate(rtime(time.time()))
+            dil = DatasetImageLinkI()
+            dil.setParent(ds)
+            dil.setChild(img)
+            update.saveObject(dil)
+        
+        c = cont.getCollectionCount(ds.__class__.__name__, ("imageLinks"), [ds.id.val], None)
+        self.assert_(c[ds.id.val] == 2000)
+        
+        page = 1
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["eid"] = rlong(self.root.sf.getAdminService().getEventContext().userId)
+        p.map["oid"] = rlong(ds.id.val)
+        if page is not None:
+            f = omero.sys.Filter()
+            f.limit = rint(24)
+            f.offset = rint((int(page)-1)*24)
+            p.theFilter = f
+
+        sql = "select im from Image im join fetch im.details.owner join fetch im.details.group " \
+              "left outer join fetch im.datasetLinks dil left outer join fetch dil.parent d " \
+              "where d.id = :oid and im.details.owner.id=:eid order by im.id asc"
+        
+        start = time.time()
+        self.assert_(len(query.findAllByQuery(sql,p)) == 24)
+        end = time.time()
+        self.assert_(end-start < 10)
+        
+        self.root.sf.closeOnDestroy()
+        
 if __name__ == '__main__':
     unittest.main()
