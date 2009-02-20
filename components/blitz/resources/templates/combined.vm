@@ -263,8 +263,8 @@ since all collections are lists in ice.
 [$pyc]
 #end##byte[]
 #end##FOREACH
-[$jav]    }
-[$cpp]    }
+[$jav]      }
+[$cpp]      }
 ##               In case there are no collections
 [$pyc]           pass
 [$pyc]
@@ -526,6 +526,7 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$jav]       }
 [$jav]
 [$jav]       public omero.model.Details getDetails($JAV_CURRENT) {
+[$jav]           errorIfUnloaded();
 [$jav]           return this.details;
 [$jav]       }
 [$jav]
@@ -586,6 +587,7 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$pyc]           return ${PojoI}( _id.getValue(), False )
 [$pyc]
 [$pyc]       def getDetails(self, $PYC_CURRENT):
+[$pyc]           self.errorIfUnloaded()
 [$pyc]           return self._details
 [$pyc]
 [$pyc]       def unloadDetails(self, $PYC_CURRENT):
@@ -618,6 +620,7 @@ The "version" property is not a part of the model but is calculated from mutabil
 #end ! superclass
 
 [$jav]       public omero.RInt getVersion($JAV_CURRENT) {
+[$jav]           errorIfUnloaded();
 [$jav]           return this.version;
 [$jav]       }
 [$jav]
@@ -630,17 +633,21 @@ The "version" property is not a part of the model but is calculated from mutabil
 [$hdr]       virtual void setVersion( const omero::RIntPtr& version, $HDR_CURRENT );
 
 [$cpp]       omero::RIntPtr ${PojoI}::getVersion($CPP_CURRENT) {
+[$cpp]           errorIfUnloaded();
 [$cpp]           return version;
 [$cpp]       }
 [$cpp]
 [$cpp]       void ${PojoI}::setVersion(const omero::RIntPtr& _version, $CPP_CURRENT) {
+[$cpp]           errorIfUnloaded();
 [$cpp]           version = _version;
 [$cpp]       }
 
 [$pyc]       def getVersion(self, $PYC_CURRENT):
+[$pyc]           self.errorIfUnloaded()
 [$pyc]           return self._version
 [$pyc]
 [$pyc]       def setVersion(self, version, $PYC_CURRENT):
+[$pyc]           self.errorIfUnloaded()
 [$pyc]           self._version = version
 [$pyc]
 #end### ! immutable
