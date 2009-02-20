@@ -114,7 +114,7 @@ public class NoteEditor
                 UIUtilities.LIGHT_GREY);
 		rightToolBar.setBorder(bottomLeft);
 		
-		// Delete parameter button
+		// Delete note button
 		IconManager iM = IconManager.getInstance();
 		Icon delete = iM.getIcon(IconManager.DELETE_ICON_12);
 		JButton deleteButton = new CustomButton(delete);

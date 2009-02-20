@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -161,6 +162,9 @@ public class FieldTextArea
 	/** Icon for the add-parameter button */
 	private Icon 					addParamIcon;
 	
+	/** Button to indicate field has steps (no function yet). */
+	JButton 						notesButton;
+	
 	/** Icon for the add-parameter button, to "hide" button without changing
 	 * it's size */
 	private Icon 					blankIcon;
@@ -236,9 +240,19 @@ public class FieldTextArea
 		lb = BorderFactory.createLineBorder(Color.white);
 		unselectedBorder = BorderFactory.createCompoundBorder(lb, emptyBorder);
 		
-		addParamIcon = IconManager.getInstance().getIcon(IconManager.ADD_NUMBER);
-		blankIcon = IconManager.getInstance().getIcon(IconManager.SPACER);
+		IconManager iM = IconManager.getInstance();
+		addParamIcon = iM.getIcon(IconManager.ADD_NUMBER);
+		blankIcon = iM.getIcon(IconManager.SPACER);
 		
+		// button for adding paramters. 
+		addParamButton = new CustomButton(addParamIcon);
+		addParamButton.setToolTipText(addParamToolTip);
+		addParamButton.addActionListener(this);
+		
+		// merely indicates that this step has notes. No function yet. 
+		Icon notesIcon = iM.getIcon(IconManager.STEP_NOTE_ICON);
+		notesButton = new CustomButton(notesIcon);
+		notesButton.setVisible(false); 		// unless step has notes...
 	}
 	
 	/**
@@ -250,12 +264,15 @@ public class FieldTextArea
 		setLayout(new BorderLayout());
 		refreshText();
 		
-		add(contentEditor, BorderLayout.CENTER);
-		add(nameEditor, BorderLayout.NORTH);
+		Box titleToolBarBox = Box.createHorizontalBox();
+		titleToolBarBox.add(nameEditor);
+		titleToolBarBox.add(Box.createHorizontalGlue());
+		refreshNotesVisibility();
+		titleToolBarBox.add(notesButton);
 		
-		addParamButton = new CustomButton(addParamIcon);
-		addParamButton.setToolTipText(addParamToolTip);
-		addParamButton.addActionListener(this);
+		add(titleToolBarBox, BorderLayout.NORTH);
+		add(contentEditor, BorderLayout.CENTER);
+
 		
 		if (field instanceof TextBoxStep) {
 			IParam textBoxParam = ((TextBoxStep)field).getTextBoxParam();
@@ -430,6 +447,15 @@ public class FieldTextArea
 		
 		TreePath path = new TreePath(treeNode.getPath());
 		return navTree.isPathSelected(path);
+	}
+	
+	/**
+	 * Updates the visibility of the notes icon(button), showing only if
+	 * the field has >0 notes. 
+	 */
+	private void refreshNotesVisibility() 
+	{
+		notesButton.setVisible(field.getNoteCount() > 0);
 	}
 	
 	private String getNameHtml()
@@ -831,12 +857,14 @@ public class FieldTextArea
 	public void refreshSelection()
 	{
 		boolean selected = isFieldSelected();
-		
 		setSelected(selected);
 		
+		// if this step is not selected, close any paramEditDialog open
 		if ((! selected) && (paramEditDialog != null)) {
 			paramEditDialog.dispose();
 		}
+		// add or removal of experiment-info will trigger refresh selection
+		refreshNotesVisibility(); 
 	}
 	
 	/**

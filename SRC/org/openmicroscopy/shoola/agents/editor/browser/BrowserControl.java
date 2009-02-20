@@ -72,6 +72,7 @@ import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AttributesEdi
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.ChangeParamEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.FieldContentEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.FieldSplitEdit;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.RemoveExpInfo;
 
 /** 
  *	The Controller in the Browser MVC. 
@@ -412,6 +413,18 @@ public class BrowserControl
 													TreeNode node, Note note)
 	{
 		UndoableEdit edit = new AddStepNoteEdit(field, note, tree, node);
+		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Deletes the Experiment Info from the model held by JTree. 
+	 * This includes Step Notes. 
+	 * 
+	 * @param tree
+	 */
+	public void deleteExperimentInfo(JTree tree) 
+	{
+		UndoableEdit edit = new RemoveExpInfo(tree);
 		undoSupport.postEdit(edit);
 	}
 	

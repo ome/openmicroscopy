@@ -327,11 +327,14 @@ public class IconManager
     /** The <code>Add Step Note</code> icon */
     public  static final int			ADD_STEP_NOTE_ICON = 89;
     
+    /** The <code>Step Note</code> icon */
+    public  static final int			STEP_NOTE_ICON = 90;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 89;
+    private static final int          MAX_ID = 90;
    
     
     /** Paths of the icon files. */
@@ -435,6 +438,7 @@ public class IconManager
         relPaths[GO_ICON_12_20] = "goGreen_12_20.png";
         relPaths[EXP_NEW_ICON] = "expNew.png";
         relPaths[ADD_STEP_NOTE_ICON] = "addStepNote.png";
+        relPaths[STEP_NOTE_ICON] = "stepNote.png";
     }
     
     

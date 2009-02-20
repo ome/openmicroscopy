@@ -172,9 +172,11 @@ public class TextAreasView
 		for (int i=0; i<getComponentCount(); i++) {
 			comp = getComponent(i);
 			if (comp instanceof FieldTextArea) {
+				// refresh selection of all steps...
 				((FieldTextArea)comp).refreshSelection();
 			}
 			
+			// ... and if a step is selected, scroll to it! 
 			if (navTree.getSelectionCount() == 0)	return;
 			
 			TreePath path = navTree.getSelectionPath();
@@ -300,6 +302,11 @@ public class TextAreasView
 			path = new TreePath(root.getPath());
 			ta = textAreas.get(path);
 			ta.refreshText();
+			
+			// if the root has changed, this could be Add/Removal of 
+			// experimental info, which requires that all steps refresh their
+			// step icons, which can be achieved by refreshing selection.
+			refreshSelection();
 			return;
 		}
 		

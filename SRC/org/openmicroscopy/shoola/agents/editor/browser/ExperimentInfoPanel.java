@@ -42,6 +42,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -149,6 +150,9 @@ public class ExperimentInfoPanel
 	/** Action command for the First-Step button */
 	public static final String	FIRST_STEP = "firstStep";
 	
+	/** Action command for the Delete Experiment-Info button */
+	public static final String	DELETE_INFO = "deleteInfo";
+	
 	/**  A nice yellow colour (like a post-it note).  */
 	public static final Color 	LIGHT_YELLOW = new Color(254,244,156);
 	
@@ -205,17 +209,46 @@ public class ExperimentInfoPanel
 		setBackground(LIGHT_YELLOW);
 		Border lineBorder = BorderFactory.createMatteBorder(1, 1, 0, 1,
 	             UIUtilities.LIGHT_GREY.darker());
-		setBorder(BorderFactory.createCompoundBorder(lineBorder, 
-						new EmptyBorder(5,5,5,5)));
+		setBorder(lineBorder);
 		
-		// add header
+		Border eb = new EmptyBorder(5,5,5,5);
+		
+		// title header
 		JLabel experiment = new CustomLabel("Experiment Info:");
+		experiment.setBorder(eb);
 		experiment.setFont(CustomFont.getFontBySize(14));
-		add(experiment, BorderLayout.NORTH);
+		
+		//  tool bar, only holds the delete button 
+		JToolBar rightToolBar = new JToolBar();
+		rightToolBar.setBackground(null);
+		rightToolBar.setFloatable(false);
+		Border bottomLeft = BorderFactory.createMatteBorder(0, 1, 1, 0,
+                UIUtilities.LIGHT_GREY);
+		rightToolBar.setBorder(bottomLeft);
+		
+		// Delete note button
+		IconManager iM = IconManager.getInstance();
+		Icon delete = iM.getIcon(IconManager.DELETE_ICON_12);
+		JButton deleteButton = new CustomButton(delete);
+		deleteButton.setFocusable(false);
+		deleteButton.addActionListener(this);
+		deleteButton.setActionCommand(DELETE_INFO);
+		deleteButton.setToolTipText("Delete this note");
+		rightToolBar.add(deleteButton);
+		
+		Box titleToolBar = Box.createHorizontalBox();
+		experiment.setAlignmentY(Component.TOP_ALIGNMENT);
+		titleToolBar.add(experiment);
+		titleToolBar.add(Box.createHorizontalGlue());
+		rightToolBar.setAlignmentY(Component.TOP_ALIGNMENT);
+		titleToolBar.add(rightToolBar);
+		
+		add(titleToolBar, BorderLayout.NORTH);
 		
 		
 		// left Panel
 		JPanel leftPanel = new JPanel();
+		leftPanel.setBorder(eb);
 		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
 		leftPanel.setBackground(null);
 		
@@ -232,6 +265,7 @@ public class ExperimentInfoPanel
 		
 		// right Panel
 		JPanel rightPanel = new JPanel();
+		rightPanel.setBorder(eb);
 		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
 		rightPanel.setBackground(null);
 		
@@ -502,6 +536,9 @@ public class ExperimentInfoPanel
 				currentStepIndex = 0;
 				selectCurrentStep();
 			}
+		}
+		else if (DELETE_INFO.equals(cmd)) {
+			controller.deleteExperimentInfo(navTree);
 		}
 		else if (e.getSource().equals(datePicker)) {
 			String date = datePicker.getDate().getTime() + "";

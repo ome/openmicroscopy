@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddExpInfoEdit 
+ * org.openmicroscopy.shoola.agents.editor.model.undoableEdits.RemoveExpInfo 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -24,9 +24,13 @@ package org.openmicroscopy.shoola.agents.editor.model.undoableEdits;
 
 //Java imports
 
+import java.util.HashMap;
+import java.util.Iterator;
+
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.undo.AbstractUndoableEdit;
 
 //Third-party libraries
@@ -36,10 +40,14 @@ import javax.swing.undo.AbstractUndoableEdit;
 import org.openmicroscopy.shoola.agents.editor.model.ExperimentInfo;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.agents.editor.model.Note;
 import org.openmicroscopy.shoola.agents.editor.model.ProtocolRootField;
+import org.openmicroscopy.shoola.agents.editor.model.TreeIterator;
 
 /** 
- * This edit Adds experimental info to the protocol root node/step
+ * This Edit Removes the Experimental Info from an experiment to create a 
+ * protocol. It should also remove all the Step Notes, which are only 
+ * relevant to an experiment. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -49,25 +57,20 @@ import org.openmicroscopy.shoola.agents.editor.model.ProtocolRootField;
  * </small>
  * @since 3.0-Beta4
  */
-public class AddExpInfoEdit 
-	extends AbstractUndoableEdit
+public class RemoveExpInfo 
+	extends AbstractUndoableEdit 
 	implements TreeEdit
 {
 	/**
 	 * A reference to the root {@link IField} that the new {@link ExperimentInfo}
-	 * is being added to.
+	 * is being removed from
 	 */
 	private ProtocolRootField 			field;
 	
 	/**
-	 * A reference to the new {@link ExperimentInfo}, being added.
+	 * A reference to the new {@link ExperimentInfo}, being removed.
 	 */
 	private IAttributes 				expInfo;
-	
-	/**
-	 * A reference to the old {@link ExperimentInfo}, being replaced.
-	 */
-	private IAttributes 				oldExpInfo;
 	
 	/**
 	 * The root node (that contains the field being edited).
@@ -76,9 +79,51 @@ public class AddExpInfoEdit
 	private DefaultMutableTreeNode 		node;
 	
 	/**
-	 * 
+	 * The model we are editing the root node of. Used to notify changes. 
 	 */
 	DefaultTreeModel 					treeModel;
+	
+	/**
+	 * A map of all the step notes we are deleting. 
+	 * NB removing all notes and adding them back to steps may not preserve
+	 * the order of multiple notes attached to the same step. 
+	 */
+	private	HashMap<Note, IField> 		stepNotes;
+	
+	/**
+	 * Iterate through the tree model and add all the step notes to the
+	 * map. 
+	 */
+	private void getStepNotes() 
+	{
+		// make a map of all the step notes and the fields they come from
+		stepNotes  = new HashMap<Note, IField>();
+		
+		TreeNode tn;
+		IField f;
+		Object userOb;
+		DefaultMutableTreeNode node;
+		
+		Object r = treeModel.getRoot();
+		if (! (r instanceof TreeNode)) 		return;
+		TreeNode root = (TreeNode)r;
+		
+		Iterator<TreeNode> iterator = new TreeIterator(root);
+		
+		while (iterator.hasNext()) {
+			tn = iterator.next();
+			if (!(tn instanceof DefaultMutableTreeNode)) continue;
+			node = (DefaultMutableTreeNode)tn;
+			userOb = node.getUserObject();
+			if (!(userOb instanceof IField)) continue;
+			f = (IField)userOb;
+			
+			int noteCount = f.getNoteCount();
+			for (int i=0; i<noteCount; i++) {
+				stepNotes.put(f.getNoteAt(i), f);
+			}
+		}
+	}
 	
 	/**
 	 * Creates an instance and performs the add.
@@ -87,8 +132,9 @@ public class AddExpInfoEdit
 	 * @param tree		The tree that contains the field. Needed to notify edits
 	 * @param node		The node in the tree that contains the field to edit.
 	 */
-	public AddExpInfoEdit(JTree tree) {
+	public RemoveExpInfo(JTree tree) {
 		setTree(tree);
+		doEdit();
 	}
 	
 	public void doEdit() {
@@ -99,19 +145,40 @@ public class AddExpInfoEdit
 		if (! (ob instanceof ProtocolRootField))	return;
 		field = (ProtocolRootField)ob;
 		
-		oldExpInfo = field.getExpInfo();
-		expInfo = new ExperimentInfo();
+		expInfo = field.getExpInfo();
+		
+		getStepNotes();
 		
 		redo();
 	}
 	
 	public void undo() {
-		field.setExpInfo(oldExpInfo);
+		// add all notes to their fields. 
+		Iterator<Note> i = stepNotes.keySet().iterator();
+		Note n;
+		IField f;
+		while(i.hasNext()) {
+			n = i.next();
+			f = stepNotes.get(n);
+			f.addNote(n);
+		}
+		
+		field.setExpInfo(expInfo);
 		notifyNodeChanged();
 	}
 	
 	public void redo() {
-		field.setExpInfo(expInfo);
+		// remove all notes from their fields. 
+		Iterator<Note> i = stepNotes.keySet().iterator();
+		Note n;
+		IField f;
+		while(i.hasNext()) {
+			n = i.next();
+			f = stepNotes.get(n);
+			f.removeNote(n);
+		}
+			
+		field.setExpInfo(null);
 		notifyNodeChanged();
 	}
 	
@@ -125,11 +192,11 @@ public class AddExpInfoEdit
 	
 	/**
 	 * Overrides this method in {@link AbstractUndoableEdit} to return
-	 * "Add Experiment Info"
+	 * "Experiment Info"
 	 */
 	 public String getPresentationName() 
 	 {
-		 return "Add Experiment Info";
+		 return "Delete Experiment Info";
 	 }
 	
 	/**
@@ -140,7 +207,6 @@ public class AddExpInfoEdit
 	private void notifyNodeChanged() 
 	{
 		if (treeModel != null) {
-			
 			treeModel.nodeChanged(node);
 		}
 	}

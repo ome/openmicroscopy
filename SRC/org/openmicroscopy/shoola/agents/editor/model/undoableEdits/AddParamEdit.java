@@ -217,11 +217,6 @@ public class AddParamEdit
 	{
 		if ((tree != null) && (node != null)) {
 			
-			DefaultMutableTreeNode dmtNode = (DefaultMutableTreeNode)node;
-			// tree.startEditingAtPath(new TreePath(dmtNode.getPath()));
-			
-			//tree.clearSelection();
-			
 			DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
 			treeModel.nodeChanged(node);
 		}
