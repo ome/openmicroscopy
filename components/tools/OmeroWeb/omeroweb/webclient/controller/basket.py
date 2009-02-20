@@ -62,7 +62,7 @@ class BaseBasket(BaseController):
             self.imageInBasket = list(self.conn.getSpecifiedImages(imInBasket))
             self.imgSize = len(self.imageInBasket)
         if len(dsInBasket) > 0: 
-            self.datasetInBasket = list(self.conn.getSpecifiedDatasetsWithLeaves(dsInBasket))
+            self.datasetInBasket = list(self.conn.getSpecifiedDatasetsWithImages(dsInBasket))
             self.dsSize = len(self.datasetInBasket)
         if len(prInBasket) > 0: 
             self.projectInBasket = list(self.conn.getSpecifiedProjectsWithLeaves(prInBasket))

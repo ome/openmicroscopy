@@ -28,6 +28,7 @@ sys.path.append('icepy')
 sys.path.append('lib')
 
 import cStringIO
+import traceback
 import logging
 
 logger = logging.getLogger('gateway')
@@ -39,7 +40,6 @@ except:
 
 import threading
 import time
-import traceback
 from datetime import datetime
 from types import IntType, ListType, TupleType, UnicodeType, StringType
 
@@ -1201,7 +1201,7 @@ class BlitzGateway (threading.Thread):
         for e in query_serv.findAllByQuery(sql, p):
             yield DatasetWrapper(self, e)
     
-    def getSpecifiedDatasetsWithLeaves(self, oids):
+    def getSpecifiedDatasetsWithImages(self, oids):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {} 
@@ -1513,7 +1513,7 @@ class BlitzGateway (threading.Thread):
         u = self.getUpdateService()
         u.deleteObject(obj)
 
-    def createShare(self, host, blitz_id, imageInBasket, datasetInBasket, projectInBasket, message, expiration, members, enable):
+    def createShare(self, host, blitz_id, imageInBasket, message, expiration, members, enable):
         sh = self.getShareService()
         q = self.getQueryService()
         items = list()
@@ -1540,36 +1540,6 @@ class BlitzGateway (threading.Thread):
                   "left outer join fetch rdef.spatialDomainEnhancement " \
                   "where i.id in (:ids)"
             items.extend(q.findAllByQuery(sql, p))
-        #datasets
-        if len(datasetInBasket) > 0:
-            p.map["ids"] = rlist([rlong(long(a)) for a in datasetInBasket])
-            sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
-                  "left outer join fetch ds.imageLinks dil left outer join fetch dil.child i " \
-                  "left outer join fetch i.pixels as p " \
-                  "left outer join fetch p.pixelsType as pt " \
-                  "left outer join fetch p.channels as c " \
-                  "left outer join fetch c.logicalChannel as lc " \
-                  "left outer join fetch c.statsInfo " \
-                  "left outer join fetch lc.photometricInterpretation " \
-                  "left outer join fetch p.thumbnails as thumb join fetch thumb.details.updateEvent " \
-                  "left outer join fetch p.settings as rdef join fetch rdef.details.updateEvent join fetch rdef.details.owner " \
-                  "left outer join fetch rdef.quantization " \
-                  "left outer join fetch rdef.model " \
-                  "left outer join fetch rdef.waveRendering as cb " \
-                  "left outer join fetch cb.family " \
-                  "left outer join fetch rdef.spatialDomainEnhancement " \
-                  "where ds.id in (:ids)"
-            items.extend(q.findAllByQuery(sql, p))
-        
-        # TODO: Sharing project will be available when server will support loading leaves. 
-        # At this moment retriving project with leaves can be very slow.
-        # 
-        # projects
-        #if len(projectInBasket) > 0:
-        #    p.map["ids"] = rlist([rlong(long(a)) for a in projectInBasket])
-        #    sql = "select p from Project p " \
-        #          "where p.id in (:ids) order by p.name"
-        #    items.extend(q.findAllByQuery(sql, p))
         
         #members
         if members is not None:
@@ -2135,9 +2105,9 @@ class BlitzObjectWrapper (object):
             if desc == None or desc.val == "":
                 return None
             l = len(desc.val)
-            if l < 375:
+            if l < 550:
                 return desc.val
-            return desc.val[:375] + "..."
+            return desc.val[:550] + "..."
         except:
             logger.debug(traceback.format_exc())
             return self._obj.description.val
@@ -2730,6 +2700,12 @@ class ShareWrapper (BlitzObjectWrapper):
         except:
             logger.debug(traceback.format_exc())
             return self._obj.message.val
+    
+    def getShareType(self):
+        if self.itemCount == 0:
+            return "Discussion"
+        else:
+            return "Share"
     
     def getMembersCount(self):
         return "None"

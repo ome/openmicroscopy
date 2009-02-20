@@ -340,8 +340,8 @@ class BaseContainer(BaseController):
             if isinstance(o._obj, DatasetI):
                 ds_list.append(o)
         
-        self.sortByAttr(pr_list, 'name')
-        self.sortByAttr(ds_list, 'name')
+        pr_list = self.sortByAttr(pr_list, 'name')
+        ds_list = self.sortByAttr(ds_list, 'name')
         
         pr_list_with_counters = list()
         ds_list_with_counters = list()
@@ -1109,6 +1109,10 @@ class BaseContainer(BaseController):
                         self.conn.deleteObject(up_pdl._obj)
                 else:
                     return 'This dataset is linked in multiple places. Please unlink the dataset first.'
+            elif destination[0] == 'orphan':
+                return 'Cannot move dataset to orphaned images.'
+            else:
+                return 'Destination not supported.'
         elif source[0] == "img":
             if destination[0] == 'ds':
                 up_dsl = None
@@ -1152,6 +1156,8 @@ class BaseContainer(BaseController):
                             self.conn.deleteObject(up_dsl._obj)
                     else:
                         return 'This image is linked in multiple places. Please unlink the image first.'
+            else:
+                return 'Destination not supported.'
         else:
             return 'No data was choosen.'
         return 

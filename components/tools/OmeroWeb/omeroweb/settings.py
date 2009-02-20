@@ -145,7 +145,7 @@ if not os.path.isdir(LOGDIR):
         raise exctype, value
 
 if DEBUG:
-    DEBUGLOGFILE = ('debug-%s.log' % str(datetime.datetime.today()))
+    DEBUGLOGFILE = ('debug.log')
     fileLog = logging.FileHandler(os.path.join(LOGDIR, DEBUGLOGFILE), 'w')
     fileLog.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(message)s')

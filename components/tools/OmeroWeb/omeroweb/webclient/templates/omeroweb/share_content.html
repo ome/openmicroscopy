@@ -3,49 +3,6 @@
 {% load wikitags %}
 
 <div id="cart">
-{% if share.prSize or share.dsSize %}
-<h1>Containers</h1>
-{% if share.prSize %}
-{% for c in share.projectInShare %}
-<div class="clear"></div>
-<div id="project-{{ c.id }}" class="project">Project: <b>{{ c.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_info16.png"  title="info" alter="i" />
-    {% if c.copyDatasetLinks %}
-    {% for d in c.listChildren %}
-    <div class="datasetInProject">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_info16.png"  title="info" alter="i" />
-        {% if d.copyImageLinks %}
-        {% for e in d.listChildren %}
-        <div class="imageInDataset"><ul id="products">
-            <li class="product"><em>{{ e.name }}</em>
-                <a href="#" onclick="popup('','_blank',{{ e.id }}); return false;"><img id="{{ e.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ e.id }}/" alt="image" title="{{ c.name }}"/></a>
-            </li>
-        </ul></div>
-        {% endfor %}
-        {% endif %}
-    </div>
-    {% endfor %}
-    {% endif %}
-</div>
-{% endfor %}
-{% endif %}
-
-{% if share.dsSize %}
-<div class="clear"></div>{{share.datasetInShare}}
-{% for d in share.datasetInShare %}
-<div id="dataset-{{ d.id }}" class="dataset">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_info16.png"  title="info" alter="i" />
-    {% if d.copyImageLinks %}
-    {% for e in d.listChildren %}
-    <div class="imageInDataset"><ul id="products">
-        <li class="product"><em>{{ e.name }}</em>
-            <a href="#" onclick="popup('','_blank',{{ e.id }}); return false;"><img id="{{ e.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ e.id }}/" alt="image" title="{{ c.name }}"/></a>
-        </li>
-    </ul></div>
-    {% endfor %}
-    {% endif %}
-</div>
-{% endfor %}
-{% endif %}
-{% endif %}
-
 
 {% if share.imgSize %}
 <div class="clear"></div>

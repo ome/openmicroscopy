@@ -71,7 +71,7 @@
         <div id="comment_wrapper">
         <div id="comment">
             <div class="head"><a href="mailto:{{ share.share.owner.email.val }}">{{ share.share.getOwner }}</a> posted comment at {{ share.share.getStartDate|date:" H:i d M Y" }}</div>
-            <div class="body">{{ share.share.message|wikify|safe|linebreaks }}</div>
+            <div class="body">{{ share.share.message|sharewikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
         <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ share.share.owner.id.val }}/" alt="{{ share.share.getOwner }}" title="{{ share.share.getOwner }}" width="40" height="40" /></div>
@@ -80,7 +80,7 @@
         <div id="comment_wrapper_rev">
         <div id="comment_rev">
             <div class="head"><a href="mailto:{{ share.share.owner.email.val }}">{{ share.share.getOwner }}</a> posted comment at {{ share.share.getStartDate|date:" H:i d M Y" }}</div>
-            <div class="body">{{ share.share.message|wikify|safe|linebreaks }}</div>
+            <div class="body">{{ share.share.message|sharewikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
         <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ share.share.owner.id.val }}/" alt="{{ share.share.getOwner }}" title="{{ share.share.getOwner }}" width="40" height="40" /></div>
@@ -95,7 +95,7 @@
                 <div id="comment_wrapper">
                 <div id="comment">
                     <div class="head"><a href="mailto:{{ cm.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment at {{ cm.creationEventDate|date:" H:i d M Y" }}</div>
-                    <div class="body">{{ cm.textValue|wikify|safe|linebreaks }}</div>
+                    <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                     <div class="footer"></div>
                 </div>
                 <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwner }}" title="{{ cm.getOwner }}" width="40" height="40" /></div>
@@ -106,7 +106,7 @@
                 <div id="comment_wrapper_rev">
                 <div id="comment_rev">
                     <div class="head"><a href="mailto:{{ cm.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment at {{ cm.creationEventDate|date:" H:i d M Y" }}</div>
-                    <div class="body">{{ cm.textValue|wikify|safe|linebreaks }}</div>
+                    <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                     <div class="footer"></div>
                 </div>
                 <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwner }}" title="{{ cm.getOwner }}" width="40" height="40" /></div>

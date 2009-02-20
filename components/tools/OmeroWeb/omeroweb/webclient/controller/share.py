@@ -45,11 +45,7 @@ class BaseShare(BaseController):
     
     share = None
     imageInShare = None
-    datasetInShare = None
-    projectInShare = None
     imgSize = 0
-    dsSize = 0
-    prSize = 0
     membersInShare = None
 
     comments = None
@@ -70,7 +66,7 @@ class BaseShare(BaseController):
             self.share = self.conn.getShare(share_id)
             self.conn_share.activateShare(share_id)
 
-    def createShare(self, host, blitz_id, imageInBasket, datasetInBasket, projectInBasket, message, expiration, members, enable):
+    def createShare(self, host, blitz_id, imageInBasket, message, expiration, members, enable):
         # only for python 2.5
         # d1 = datetime.strptime(expiration+" 23:59:59", "%Y-%m-%d %H:%M:%S")
         d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
@@ -81,7 +77,7 @@ class BaseShare(BaseController):
             enable = True
         else:
             enable = False
-        self.conn.createShare(host, int(blitz_id), imageInBasket, datasetInBasket, projectInBasket, message, expiration_date, ms, enable)
+        self.conn.createShare(host, int(blitz_id), imageInBasket, message, expiration_date, ms, enable)
 
     def updateShare(self, message, expiration, members, enable):
         # only for python 2.5
@@ -128,22 +124,14 @@ class BaseShare(BaseController):
             raise AttributeError('Share was not activated.')
         
         self.imageInShare = list()
-        self.datasetInShare = list()
-        self.projectInShare = list()
 
         for ex in content:
             if isinstance(ex._obj, omero.model.ImageI):
                 self.imageInShare.append(ex)
-            elif isinstance(ex._obj, omero.model.DatasetI):
-                self.datasetInShare.append(ex)
-            elif isinstance(ex._obj, omero.model.ProjectI):
-                self.projectInShare.append(ex)
 
         self.imgSize = len(self.imageInShare)
-        self.dsSize = len(self.datasetInShare)
-        self.prSize = len(self.projectInShare)
         
-        self.sizeOfShare = self.imgSize+self.dsSize+self.prSize
+        self.sizeOfShare = self.imgSize
 
 # ### Test code below this line ###
 

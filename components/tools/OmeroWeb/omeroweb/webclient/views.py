@@ -323,16 +323,6 @@ def sessionHelper(request):
     except:
         request.session['imageInBasket'] = list()
     try:
-        if request.session['datasetInBasket']:
-            pass
-    except:
-        request.session['datasetInBasket'] = list()
-    try:
-        if request.session['projectInBasket']:
-            pass
-    except:
-        request.session['projectInBasket'] = list()
-    try:
         if request.session['nav']:
             pass
     except:
@@ -350,14 +340,12 @@ def login(request):
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
-        request.session['username'] = request.REQUEST['username']
-        request.session['password'] = request.REQUEST['password']
+        request.session['username'] = request.REQUEST['username'].encode('utf-8')
+        request.session['password'] = request.REQUEST['password'].encode('utf-8')
         request.session['experimenter'] = None
         request.session['groupId'] = None
         request.session['clipboard'] = []
         request.session['imageInBasket'] = list()
-        request.session['datasetInBasket'] = list()
-        request.session['projectInBasket'] = list()
         blitz_host = "%s:%s" % (blitz.host, blitz.port)
         request.session['nav']={"blitz": blitz_host, "menu": "start", "whos": "mydata", "view": "table", "basket": 0}
         
@@ -594,14 +582,6 @@ def logout(request, **kwargs):
     except KeyError:
         logger.error(traceback.format_exc())
     try:
-        del request.session['datasetInBasket']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
-        del request.session['projectInBasket']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
         del request.session['nav']
     except KeyError:
         logger.error(traceback.format_exc())
@@ -721,7 +701,7 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
         if action == "comment":
             form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
             if form_comment.is_valid():
-                content = request.REQUEST['content']
+                content = request.REQUEST['content'].encode('utf-8')
                 if o3_type and o3_id:
                     if o3_type == 'image':
                         manager.createImageCommentAnnotation(content)
@@ -749,7 +729,7 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
         elif action == "url":
             form_uri = UriAnnotationForm(data=request.REQUEST.copy())
             if form_uri.is_valid():
-                content = request.REQUEST['link']
+                content = request.REQUEST['link'].encode('utf-8')
                 if o3_type and o3_id:
                     if o3_type == 'image':
                         manager.createImageUriAnnotation(content)
@@ -777,8 +757,8 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
         elif action == "tag":
             form_tag = TagAnnotationForm(data=request.REQUEST.copy())
             if form_tag.is_valid():
-                tag = request.REQUEST['tag']
-                desc = request.REQUEST['description']
+                tag = request.REQUEST['tag'].encode('utf-8')
+                desc = request.REQUEST['description'].encode('utf-8')
                 if o3_type and o3_id:
                     if o3_type == 'image':
                         manager.createImageTagAnnotation(tag, desc)
@@ -1090,7 +1070,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
         if action == "comment":
             form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
             if form_comment.is_valid():
-                content = request.REQUEST['content']
+                content = request.REQUEST['content'].encode('utf-8')
                 if o3_type and o3_id:
                     if o3_type == 'image':
                         manager.createImageCommentAnnotation(content)
@@ -1118,7 +1098,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
         elif action == "url":
             form_uri = UriAnnotationForm(data=request.REQUEST.copy())
             if form_uri.is_valid():
-                content = request.REQUEST['link']
+                content = request.REQUEST['link'].encode('utf-8')
                 if o3_type and o3_id:
                     if o3_type == 'image':
                         manager.createImageUriAnnotation(content)
@@ -1146,8 +1126,8 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
         elif action == "tag":
             form_tag = TagAnnotationForm(data=request.REQUEST.copy())
             if form_tag.is_valid():
-                tag = request.REQUEST['tag']
-                desc = request.REQUEST['description']
+                tag = request.REQUEST['tag'].encode('utf-8')
+                desc = request.REQUEST['description'].encode('utf-8')
                 if o3_type and o3_id:
                     if o3_type == 'image':
                         manager.createImageTagAnnotation(tag, desc)
@@ -1499,7 +1479,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
         if action == "comment":
             form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
             if form_comment.is_valid():
-                content = request.REQUEST['content']
+                content = request.REQUEST['content'].encode('utf-8')
                 if o3_type and o3_id:
                     if o3_type == 'image':
                         manager.createImageCommentAnnotation(content)
@@ -1527,7 +1507,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
         elif action == "url":
             form_uri = UriAnnotationForm(data=request.REQUEST.copy())
             if form_uri.is_valid():
-                content = request.REQUEST['link']
+                content = request.REQUEST['link'].encode('utf-8')
                 if o3_type and o3_id:
                     if o3_type == 'image':
                         manager.createImageUriAnnotation(content)
@@ -1555,8 +1535,8 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
         elif action == "tag":
             form_tag = TagAnnotationForm(data=request.REQUEST.copy())
             if form_tag.is_valid():
-                tag = request.REQUEST['tag']
-                desc = request.REQUEST['description']
+                tag = request.REQUEST['tag'].encode('utf-8')
+                desc = request.REQUEST['description'].encode('utf-8')
                 if o3_type and o3_id:
                     if o3_type == 'image':
                         manager.createImageTagAnnotation(tag, desc)
@@ -2082,8 +2062,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         if o_type == "dataset":
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
-                name = request.REQUEST['name']
-                description = request.REQUEST['description']
+                name = request.REQUEST['name'].encode('utf-8')
+                description = request.REQUEST['description'].encode('utf-8')
                 permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
                 manager.updateDataset(name, description, permissions)
                 return HttpResponseRedirect(url)
@@ -2093,8 +2073,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         elif o_type == "project":
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
-                name = request.REQUEST['name']
-                description = request.REQUEST['description']
+                name = request.REQUEST['name'].encode('utf-8')
+                description = request.REQUEST['description'].encode('utf-8')
                 permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
                 manager.updateProject(name, description, permissions)
                 return HttpResponseRedirect(url)
@@ -2104,8 +2084,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         elif o_type == 'image':
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
-                name = request.REQUEST['name']
-                description = request.REQUEST['description']
+                name = request.REQUEST['name'].encode('utf-8')
+                description = request.REQUEST['description'].encode('utf-8')
                 permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
                 manager.updateImage(name, description, permissions)
                 return HttpResponseRedirect(url)
@@ -2115,7 +2095,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         elif o_type == 'comment':
             form = CommentAnnotationForm(data=request.REQUEST.copy())
             if form.is_valid():
-                content = request.REQUEST['content']
+                content = request.REQUEST['content'].encode('utf-8')
                 manager.saveCommentAnnotation(content)
                 return HttpResponseRedirect(url)
             else:
@@ -2124,7 +2104,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         elif o_type == 'url':
             form = UriAnnotationForm(data=request.REQUEST.copy())
             if form.is_valid():
-                content = request.REQUEST['link']
+                content = request.REQUEST['link'].encode('utf-8')
                 manager.saveUrlAnnotation(content)
                 return HttpResponseRedirect(url)
             else:
@@ -2133,8 +2113,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         elif o_type == 'tag':
             form = TagAnnotationForm(data=request.REQUEST.copy())
             if form.is_valid():
-                content = request.REQUEST['tag']
-                description = request.REQUEST['description']
+                content = request.REQUEST['tag'].encode('utf-8')
+                description = request.REQUEST['description'].encode('utf-8')
                 manager.saveTagAnnotation(content, description)
                 return HttpResponseRedirect(url)
             else:
@@ -2146,8 +2126,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         if o_type == "project" and o_id > 0:
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
-                name = request.REQUEST['name']
-                description = request.REQUEST['description']
+                name = request.REQUEST['name'].encode('utf-8')
+                description = request.REQUEST['description'].encode('utf-8')
                 permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
                 manager.createDataset(name, description, permissions)
                 return HttpResponseRedirect(url)
@@ -2158,8 +2138,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if request.REQUEST['folder_type'] == "dataset":
                 form = ContainerForm(data=request.REQUEST.copy())
                 if form.is_valid():
-                    name = request.REQUEST['name']
-                    description = request.REQUEST['description']
+                    name = request.REQUEST['name'].encode('utf-8')
+                    description = request.REQUEST['description'].encode('utf-8')
                     permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
                     manager.createDataset(name, description, permissions)
                     return HttpResponseRedirect(url)
@@ -2169,8 +2149,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             elif request.REQUEST['folder_type'] == "project":
                 form = ContainerForm(data=request.REQUEST.copy())
                 if form.is_valid():
-                    name = request.REQUEST['name']
-                    description = request.REQUEST['description']
+                    name = request.REQUEST['name'].encode('utf-8')
+                    description = request.REQUEST['description'].encode('utf-8')
                     permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
                     manager.createProject(name, description, permissions)
                     return HttpResponseRedirect(url)
@@ -2312,7 +2292,7 @@ def manage_share(request, action, oid=None, **kwargs):
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
             new_share = BaseShare(request.session['nav']['menu'], conn, None)
-            message = request.REQUEST['message']
+            message = request.REQUEST['message'].encode('utf-8')
             expiration = request.REQUEST['expiration']
             members = request.REQUEST.getlist('members')
             #guests = request.REQUEST['guests']
@@ -2322,7 +2302,7 @@ def manage_share(request, action, oid=None, **kwargs):
             except:
                 pass
             host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
-            new_share.createShare(host, request.session['server'], request.session['imageInBasket'], request.session['datasetInBasket'], request.session['projectInBasket'], message, expiration, members, enable)
+            new_share.createShare(host, request.session['server'], request.session['imageInBasket'], message, expiration, members, enable)
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
             
@@ -2343,7 +2323,7 @@ def manage_share(request, action, oid=None, **kwargs):
         experimenters = list(conn.getExperimenters())
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
-            message = request.REQUEST['message']
+            message = request.REQUEST['message'].encode('utf-8')
             expiration = request.REQUEST['expiration']
             members = request.REQUEST.getlist('members')
             #guests = request.REQUEST['guests']
@@ -2366,7 +2346,7 @@ def manage_share(request, action, oid=None, **kwargs):
     elif action == 'comment':
         f = ShareCommentForm(data=request.REQUEST.copy())
         if f.is_valid():
-            comment = request.REQUEST['comment']
+            comment = request.REQUEST['comment'].encode('utf-8')
             share.addComment(comment)
             return HttpResponseRedirect("/%s/share/view/%s/" % (settings.WEBCLIENT_ROOT_BASE, oid))
         else:
@@ -2486,18 +2466,8 @@ def empty_basket(request, **kwargs):
         del request.session['imageInBasket']
     except KeyError:
         logger.error(traceback.format_exc())
-    try:
-        del request.session['datasetInBasket']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
-        del request.session['projectInBasket']
-    except KeyError:
-        logger.error(traceback.format_exc())
         
     request.session['imageInBasket'] = list()
-    request.session['datasetInBasket'] = list()
-    request.session['projectInBasket'] = list()
     request.session['nav']['basket'] = 0
     return HttpResponseRedirect("/%s/basket/" % (settings.WEBCLIENT_ROOT_BASE))
 
@@ -2520,18 +2490,6 @@ def update_basket(request, **kwargs):
                             rv = "Error: This object is already in the basket"
                             return HttpResponse(rv)
                     request.session['imageInBasket'].append(prod)
-                elif ptype == 'dataset':
-                    for item in request.session['datasetInBasket']:
-                        if item == prod:
-                            rv = "Error: This object is already in the basket"
-                            return HttpResponse(rv)
-                    request.session['datasetInBasket'].append(prod)
-                elif ptype == 'project':
-                    for item in request.session['projectInBasket']:
-                        if item == prod:
-                            rv = "Error: This object is already in the basket"
-                            return HttpResponse(rv)
-                    request.session['projectInBasket'].append(prod)
                 elif request.REQUEST['productType'] == 'share':
                     rv = "Error: This action is not available"
                     return HttpResponse(rv)
@@ -2542,22 +2500,10 @@ def update_basket(request, **kwargs):
                     except:
                         rv = "Error: could not remove image from the basket."
                         return HttpResponse(rv)
-                elif ptype == 'dataset':
-                    try:
-                        request.session['datasetInBasket'].remove(prod)
-                    except:
-                        rv = "Error: could not remove dataset from the basket."
-                        return HttpResponse(rv)
-                elif ptype == 'project':
-                    try:
-                        request.session['projectInBasket'].remove(prod)
-                    except:
-                        rv = "Error: could not remove project from the basket."
-                        return HttpResponse(rv)
                 elif request.REQUEST['productType'] == 'share':
                     rv = "Error: This action is not available"
                     return HttpResponse(rv)
-        total = len(request.session['imageInBasket'])+len(request.session['datasetInBasket'])+len(request.session['projectInBasket'])
+        total = len(request.session['imageInBasket'])
         request.session['nav']['basket'] = total
         return HttpResponse(total)
     else:
@@ -2753,17 +2699,17 @@ def myaccount(request, action, **kwargs):
     if action == "save":
         form = MyAccountForm(data=request.REQUEST.copy(), initial={'groups':controller.otherGroups})
         if form.is_valid():
-            firstName = str(request.REQUEST['first_name'])
-            middleName = str(request.REQUEST['middle_name'])
-            lastName = str(request.REQUEST['last_name'])
-            email = str(request.REQUEST['email'])
-            institution = str(request.REQUEST['institution'])
-            defaultGroup = str(request.REQUEST['default_group'])
+            firstName = request.REQUEST['first_name'].encode('utf-8')
+            middleName = request.REQUEST['middle_name'].encode('utf-8')
+            lastName = request.REQUEST['last_name'].encode('utf-8')
+            email = request.REQUEST['email'].encode('utf-8')
+            institution = request.REQUEST['institution'].encode('utf-8')
+            defaultGroup = request.REQUEST['default_group']
             try:
-                if request.REQUEST['password'] is None or request.REQUEST['password'] == "":
+                if request.REQUEST['password'].encode('utf-8') is None or request.REQUEST['password'].encode('utf-8') == "":
                     password = None
                 else:
-                    password = str(request.REQUEST['password'])
+                    password = str(request.REQUEST['password'].encode('utf-8'))
             except:
                 password = None
             controller.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)

@@ -25,7 +25,7 @@ import re
 
 help_wiki = '<span id="markup" title="Markups - <small>If you\'d like to include an OMERO image or container in the above field, simply get the id of the item from the URL and type: <b>[image:157], </b><b>[dataset:64], </b><b>[project:76].</b><br/>In addition, for URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
 
-help_wiki_c = '<span id="markup_c" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
+help_wiki_c = '<span id="markup_c" title="Markups - <small><b>WARNING:</b>We do not recomend you to use OMERO markups while in a share. They will not link to the existing bio-data. If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
 
 help_enable = '<span id="enable" title="Enable/Disable - <small>This option allows the owner to keep the control on the access to the share.</small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
 

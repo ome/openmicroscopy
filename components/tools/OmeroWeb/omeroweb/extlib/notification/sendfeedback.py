@@ -23,7 +23,6 @@
 #
 
 import traceback
-import os.path
 import threading
 import smtplib
 import logging
@@ -106,4 +105,31 @@ class SendFeedback(threading.Thread):
         logger.debug("Garbage Collector KICK IN")
 
     def create_error_message(self, error, comment=None, email=None):
+        path = None
+        try:
+            import sys
+            path = sys.path
+        except:
+            pass
+        pl = None
+        try:
+            import platform
+            pl = platform.platform()
+        except:
+            pass
+        arch = None
+        try:
+            arch = platform.machine()
+        except:
+            pass
+        os_ver = None
+        try:
+            os_ver = platform.release()
+        except:
+            pass
+        python_ver = None
+        try:
+            python_ver = platform.python_version()
+        except:
+            pass
         self.to_send.append({"email": email, "comment":comment, "error": error, "app":"web_bugs"})

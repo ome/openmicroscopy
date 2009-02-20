@@ -65,7 +65,6 @@
 
 <div class="image">
     <h1>Image: {{ manager.image.fullNameWrapped }} {% if not manager.image.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
-    <p>{{ manager.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}</p>
 </div>
 
 <div class="toolbar">
@@ -81,6 +80,8 @@
 {% endif %}
 </div>
 
+<div class="clear"></div>
+<div><p>{{ manager.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}</p></div>
 <div class="separate70"></div>
 
 <div class="thumbnail">

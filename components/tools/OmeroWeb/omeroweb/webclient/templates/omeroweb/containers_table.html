@@ -109,12 +109,10 @@
 
 {% if manager.dataset %}
     <div class="dataset"><h1>Dataset: {{ manager.dataset.fullNameWrapped }} {% if not manager.dataset.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
-        {{ manager.dataset.description|default_if_none:"no description"|wikify|safe|linebreaks }}
     </div>
 {% else %}
     {% if manager.project %}
         <div class="project"><h1>Project: {{ manager.project.fullNameWrapped }} {% if not manager.project.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
-            {{ manager.project.description|default_if_none:"no description"|wikify|safe|linebreaks }}
         </div>
     {% else %}
         {% if manager.orphaned %}
@@ -128,20 +126,27 @@
 
 {% if manager.dataset %}
     <div class="toolbar">
-        {% if manager.dataset.isOwned %}| Select <a href="#" onclick="toBasket('dataset', '{{ manager.dataset.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a> {% endif %}
+        {% if manager.dataset.isOwned %}<!--| Select <a href="#" onclick="toBasket('dataset', '{{ manager.dataset.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a>--> {% endif %}
         | Copy <a href="#" onclick="copyToClipboard('dataset', '{{ manager.dataset.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
         | Paste <a href="#" onclick="pasteFromClipboard('dataset', '{{ manager.dataset.id }}', '{{ url }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_paste_edit16.png" alt="p" title="paste"/></a> 
         {% if manager.dataset.isEditable %} | Edit <a href="{% get_webclient_root_url %}/action/edit/dataset/{{ manager.dataset.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
     </div>
+    
+    <div class="clear"></div>
+    <div><p>{{ manager.dataset.description|default_if_none:"no description"|wikify|safe|linebreaks }}</p></div>
+    
     <div class="separate70"></div>
 {% else %}
     {% if manager.project %}
         <div class="toolbar">
-            {% if manager.project.isOwned %}| Select <a href="#" onclick="toBasket('project', '{{ manager.project.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a> {% endif %} 
             | Copy <a href="#" onclick="copyToClipboard('project', '{{ manager.project.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
             | Paste <a href="#" onclick="pasteFromClipboard('project', '{{ manager.project.id }}', '{{ url }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_paste_edit16.png" alt="p" title="paste"/></a>
             {% if manager.project.isEditable %} | Edit <a href="{% get_webclient_root_url %}/action/edit/project/{{ manager.project.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
         </div>
+        
+        <div class="clear"></div>
+        <div><p>{{ manager.project.description|default_if_none:"no description"|wikify|safe|linebreaks }}</p></div>
+        
         <div class="separate70"></div>
     {% endif %}
 {% endif %}

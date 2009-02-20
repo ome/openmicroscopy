@@ -111,3 +111,75 @@ def wikify(value):
 # kiss                 =* :-* :* 
 # confused             :-/ :-\ 
 # angry                X-( x-( X( x(
+
+
+@register.filter
+def sharewikify(value):
+    if value is not None:
+
+        WIKI_WORD = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        wikifier = re.compile(r'\b(%s)\b' % WIKI_WORD)
+        value = wikifier.sub(r'<a href="\1" target="_blank">\1</a>', value)
+
+        # happy :) :-) 
+        emot1 = re.compile(r'\:[\-]?\)', re.VERBOSE)
+        value = emot1.sub(r'<img src="/%s/static/images/emots/tinymce_smiley-smile18.gif" />' % (settings.WEBCLIENT_ROOT_BASE), value)
+
+        # wink ;) ;-) 
+        emot11 = re.compile(r'\;[\-]?\)', re.VERBOSE)
+        value = emot11.sub(r'<img src="/%s/static/images/emots/tinymce_smiley-wink18.gif" />' % (settings.WEBCLIENT_ROOT_BASE), value)
+
+        # very sad :-(( :(( 
+        emot22 = re.compile(r'\:[\-]?\(\(', re.VERBOSE)
+        value = emot22.sub(r'<img src="/%s/static/images/emots/tinymce_smiley-cry18.gif" />' % (settings.WEBCLIENT_ROOT_BASE), value)
+
+        # sad :( :-( 
+        emot2 = re.compile(r'\:[\-]?\(', re.VERBOSE)
+        value = emot2.sub(r'<img src="/%s/static/images/emots/tinymce_smiley-frown18.gif" />' % (settings.WEBCLIENT_ROOT_BASE), value)
+
+        # kiss =* :-* :* 
+        emot3 = re.compile(r'[=\:][\-]?\*', re.VERBOSE)
+        value = emot3.sub(r'<img src="/%s/static/images/emots/tinymce_smiley-kiss18.gif" />' % (settings.WEBCLIENT_ROOT_BASE), value)
+
+        # big smile :-D :D 
+        emot4 = re.compile(r'\:[\-]?[dD]', re.VERBOSE)
+        value = emot4.sub(r'<img src="/%s/static/images/emots/tinymce_smiley-laughing18.gif" />' % (settings.WEBCLIENT_ROOT_BASE), value)
+
+        # tongue sticking out :-P :P :-p :p 
+        emot5 = re.compile(r'\:[\-]?[pP]', re.VERBOSE)
+        value = emot5.sub(r'<img src="/%s/static/images/emots/tinymce_smiley-tongue-out18.gif" />' % (settings.WEBCLIENT_ROOT_BASE), value)
+
+        # surprised / o, no :-o :O 
+        emot6 = re.compile(r'\:[\-]?[oO]', re.VERBOSE)
+        value = emot6.sub(r'<img src="/%s/static/images/emots/tinymce_smiley-surprised18.gif" />' % (settings.WEBCLIENT_ROOT_BASE), value)
+
+        # embarrassed :"> 
+        emot7 = re.compile(r'\:\"\>', re.VERBOSE)
+        value = emot7.sub(r'<img src="/%s/static/images/emots/tinymce_smiley-embarassed18.gif" />' % (settings.WEBCLIENT_ROOT_BASE), value)
+
+        # wearing sunglasses B-) 
+        emot8 = re.compile(r'B\-\)', re.VERBOSE)
+        value = emot8.sub(r'<img src="/%s/static/images/emots/tinymce_smiley-cool18.gif" />' % (settings.WEBCLIENT_ROOT_BASE), value)
+
+        # confused :-/ :-\ 
+        emot9 = re.compile(r'\:\-[\\/]', re.VERBOSE)
+        value = emot9.sub(r'<img src="/%s/static/images/emots/tinymce_smiley-undecided18.gif" />' % (settings.WEBCLIENT_ROOT_BASE), value)
+
+        # angry X-( x-( X( x(
+        emot9 = re.compile(r'[xX][\-]?\(', re.VERBOSE)
+        value = emot9.sub(r'<img src="/%s/static/images/emots/tinymce_smiley-yell18.gif" />' % (settings.WEBCLIENT_ROOT_BASE), value)
+    
+    return value
+
+# happy                :) :-) 
+# wink                 ;) ;-) 
+# big smile            :-D :D 
+# tongue sticking out  :-P :P :-p :p 
+# surprised / o, no    :-o :O 
+# sad                  :( :-( 
+# very sad             :-(( :(( 
+# embarrassed          :"> 
+# wearing sunglasses   B-) 
+# kiss                 =* :-* :* 
+# confused             :-/ :-\ 
+# angry                X-( x-( X( x(

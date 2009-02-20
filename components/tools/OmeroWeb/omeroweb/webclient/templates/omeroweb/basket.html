@@ -7,10 +7,16 @@
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/images.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/slider.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/basket.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tooltip.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.tooltip.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.dimensions.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.bgiframe.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.delegate.js"></script>
     
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
@@ -22,6 +28,21 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/popup.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/basket.js"></script>
+    
+    <script type="text/javascript">
+        $(function() {
+            $("#discussion, #sharing, #empty").tooltip({ 
+                track: true, 
+                delay: 0, 
+                showURL: false, 
+                opacity: 1, 
+                fixPNG: true, 
+                showBody: " - ", 
+                top: -15, 
+                left: 5 
+            });
+        });
+    </script>
 {% endblock %}
 
 {% block center %}
@@ -30,14 +51,16 @@
 
     <h1>Your basket is empty.</h1>
     <div class="error"><p>Your basket is empty. Please add some of your bio-data from <a href="{% get_webclient_root_url %}/mydata/">My data</a> or initiate a discussion.</p></div>
-    <div>Available actions: 
-        <input type="submit" name="action" value="Discuss" onClick="location.href='{% get_webclient_root_url %}/basket/todiscuss/'"/> 
+    <div>
+        <h1>Available actions:</h1>
+        <input type="submit" name="action" value="Discusion" onClick="location.href='{% get_webclient_root_url %}/basket/todiscuss/'"/>
+        <span id="discussion" title="Create discussion - <small>If you\'d like to start the thread of the</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span> 
         <!--<input type="submit" name="action" value="Blog" onClick="location.href='{% get_webclient_root_url %}/basket/toblog/'"/>-->
     </div>
     
 {% else %}
 
-    <h1>Your basket containes {{ basket.sizeOfBasket }} items:</h1>
+    <h1>Your basket containes {{ basket.sizeOfBasket }} items.</h1>
     
     <div id="cart">
     {% if basket.prSize or basket.dsSize %}
@@ -86,7 +109,7 @@
     
     {% if basket.imgSize %}
     <div class="clear"></div>
-    <h1>Orphaned images</h1>
+    <h1>Images:</h1>
     <div class="image"><ul id="products">
         {% for e in basket.imageInBasket %}
             <li id="image-{{ e.id }}"class="product"><em>{{ e.name }}</em>
@@ -104,12 +127,14 @@
     <div>
         <h1>Available actions:</h1>
         <input type="submit" name="action" value="Share" onClick="location.href='{% get_webclient_root_url %}/basket/toshare/'"/> 
+        <span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span> 
         <input type="submit" name="action" value="Discuss" onClick="location.href='{% get_webclient_root_url %}/basket/todiscuss/'"/> 
+        <span id="discussion" title="Create discussion - <small>Starts the thread of the new discussion without images currently stored in the basket.</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span> 
         <!--<input type="submit" name="action" value="Blog" onClick="location.href='{% get_webclient_root_url %}/basket/toblog/'"/>
         <input type="submit" name="action" value="Annotate" onClick="location.href='{% get_webclient_root_url %}/basket/toannotate/'"/> 
         <input type="submit" name="action" value="Tag" onClick="location.href='{% get_webclient_root_url %}/basket/totag/'"/>-->
         <input type="submit" name="action" value="Empty" onClick="location.href='{% get_webclient_root_url %}/empty/'"/>
-        
+        <span id="empty" title="Empty basket - <small>Cleaning the basket.</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span>
     </div>
     
 {% endifequal %}
