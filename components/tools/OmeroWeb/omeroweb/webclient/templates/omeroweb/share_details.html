@@ -63,8 +63,8 @@
     <h1>Hi, 
         {% for m in share.allInShare %}
             {{ m.getFullName }},
-        {% endfor %} 
-        {{ share.share.getOwner }} would like to {{ share.share.getShareType|lower }} with you some of the data.
+        {% endfor %} <br/>
+        {{ share.share.getOwner }} would like to {{ share.share.getShareType|lower }} with you below data.
     </h1>
     
     {% ifequal share.share.getShareType "Share" %}<div id="share_content"></div>{% endifequal %}
