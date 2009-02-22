@@ -469,6 +469,66 @@ class TestIShare(lib.ITest):
         share.activate(sid)
         tb = self.root.sf.createThumbnailStore()
         tb.setPixelsId(rdefs[0].pixels.id.val)
+        
+    def test1201(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        share = self.client.sf.getShareService()
+        update = self.root.sf.getUpdateService()
+        admin = self.root.sf.getAdminService()
+        
+        ### create two users in one group
+        #group1
+        new_gr1 = ExperimenterGroupI()
+        new_gr1.name = rstring("group1_%s" % uuid)
+        gid = admin.createGroup(new_gr1)
+        
+        #new user1
+        new_exp = ExperimenterI()
+        new_exp.omeName = rstring("user1_%s" % uuid)
+        new_exp.firstName = rstring("New")
+        new_exp.lastName = rstring("Test")
+        new_exp.email = rstring("newtest@emaildomain.com")
+        
+        defaultGroup = admin.getGroup(gid)
+        listOfGroups = list()
+        listOfGroups.append(admin.lookupGroup("user"))
+        
+        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), defaultGroup, listOfGroups)
+        ## get user
+        user1 = admin.getExperimenter(eid)
+        ## login as user1 
+        client_share1 = omero.client()
+        client_share1.createSession(user1.omeName.val,"ome")
+        share1 = client_share1.sf.getShareService()
+        
+        test_user = self.new_user()
+        # create share
+        description = "my description"
+        timeout = None
+        objects = []
+        experimenters = [test_user]
+        guests = ["ident@emaildomain.com"]
+        enabled = True
+        sid = share1.createShare(description, timeout, objects,experimenters, guests, enabled)
+        client_share1.sf.closeOnDestroy()
+        
+        #re - login as user1 
+        client_share2 = omero.client()
+        client_share2.createSession(user1.omeName.val,"ome")
+        share2 = client_share2.sf.getShareService()
+        
+        new_description = "new description"
+        share2.setDescription(sid, new_description)
+        self.assertEquals(share2.getShare(sid).message.val, new_description)
+        
+        expiration = long(time.time()*1000)+86400
+        share2.setExpiration(sid, expiration)
+        self.assertEquals((share2.getShare(sid).started.val+share2.getShare(sid).timeToLive.val), expiration)
+        
+        share2.setActive(sid, False)
+        self.assert_(share2.getShare(sid).active.val == False)
+        
+        client_share2.sf.closeOnDestroy()
 
 if __name__ == '__main__':
     unittest.main()
