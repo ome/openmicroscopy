@@ -28,39 +28,69 @@ class TestITimeline(lib.ITest):
         update = sf.getUpdateService()
         timeline = sf.getTimelineService()
         
-        # create image
-        acquired = long(time.time()*1000)
-        img = omero.model.ImageI()
-        img.setName(rstring('test1154-img-%s' % (uuid)))
-        img.setAcquisitionDate(rtime(acquired))
+        im_ids = dict()
+        for i in range(0,10):
+            # create image
+            acquired = long(time.time()*1000)
+            img = omero.model.ImageI()
+            img.setName(rstring('test-img-%s' % (uuid)))
+            img.setAcquisitionDate(rtime(acquired))
+            
+            # permission 'rw----':
+            img.details.permissions.setUserRead(True)
+            img.details.permissions.setUserWrite(True)
+            img.details.permissions.setGroupRead(False)
+            img.details.permissions.setGroupWrite(False)
+            img.details.permissions.setWorldRead(False)
+            img.details.permissions.setWorldWrite(False)
+            img = update.saveAndReturnObject(img)
+            img.unload()
+            
+            im_ids[i] = [img.id.val, acquired]
         
-        # permission 'rw----':
-        img.details.permissions.setUserRead(True)
-        img.details.permissions.setUserWrite(True)
-        img.details.permissions.setGroupRead(False)
-        img.details.permissions.setGroupWrite(False)
-        img.details.permissions.setWorldRead(False)
-        img.details.permissions.setWorldWrite(False)
-        img = update.saveAndReturnObject(img)
-        img.unload()
+        
         
         # Here we assume that this test is not run within the last 1 second
         start = acquired - 86400
         end = acquired + 1
         
-        counter = timeline.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)))
-        self.assertEquals(counter['Image'], 1)
-        
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["experimenter"] = rlong(admin.getEventContext().userId)
-        p.map["start"] = rtime(long(start))
-        p.map["end"] = rtime(long(end))
+        f = omero.sys.Filter()
+        f.ownerId = rlong(admin.getEventContext().userId)
+        f.groupId = rlong(admin.getEventContext().groupId)
+        p.theFilter = f
+        
+        counter = timeline.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p)
+        self.assertEquals(counter['Image'], 10)
+        
+        p2 = omero.sys.Parameters()
+        p2.map = {}
+        f2 = omero.sys.Filter()
+        f2.ownerId = rlong(admin.getEventContext().userId)
+        f2.groupId = rlong(admin.getEventContext().groupId)
+        f2.limit = rint(5)
+        p2.theFilter = f2
+        
+        #p.map["start"] = rtime(long(start))
+        #p.map["end"] = rtime(long(end))
 
-        res = timeline.getMostRecentObjects(['Image'], p, False)["Image"]
-        self.assertEquals(1, len(res))
+        res = timeline.getMostRecentObjects(['Image'], p2, False)["Image"]
+        self.assertEquals(5, len(res))
+        
+        # 1st element should be the 9th from the im_ids
+        self.assertEquals(im_ids[9], res[0].id.val)
+        # 2nd element should be the 8th from the im_ids
+        self.assertEquals(im_ids[8], res[2].id.val)
+        # 3rd element should be the 7th from the im_ids
+        self.assertEquals(im_ids[7], res[3].id.val)
+        # 4th element should be the 6th from the im_ids
+        self.assertEquals(im_ids[6], res[4].id.val)
+        # 5th element should be the 5th from the im_ids
+        self.assertEquals(im_ids[5], res[5].id.val)
         
         self.root.sf.closeOnDestroy()
+        
     
     def test1173(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
@@ -79,9 +109,8 @@ class TestITimeline(lib.ITest):
         
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["id"] = rlong(self.new_user().id.val)
         f = omero.sys.Filter()
-        f.limit = rint(10)
+        f.ownerId = rlong(self.new_user().id.val)
         p.theFilter = f
         self.assert_(timeline.getEventLogsByPeriod(rtime(long(start)), rtime(long(end)), p) > 0)
         
@@ -110,9 +139,9 @@ class TestITimeline(lib.ITest):
         p = omero.sys.Parameters()
         p.map = {}
         f = omero.sys.Filter()
+        f.ownerId = rlong(0)
         f.limit = rint(10)
         p.theFilter = f
-        p.theFilter.ownerId = rlong( 0 )
         res = timeline.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p)
         self.assert_(len(res) > 0)
         
