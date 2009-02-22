@@ -79,6 +79,11 @@ public class HtmlContentEditor
 		setBackground(null);
 		
 		getDocument().addDocumentListener(this);
+		
+		HTMLDocument doc = (HTMLDocument)getDocument();
+		doc.putProperty("IgnoreCharsetDirective", Boolean.TRUE);
+		doc.setPreservesUnknownTags(false);
+
 	}
 
 	/**
