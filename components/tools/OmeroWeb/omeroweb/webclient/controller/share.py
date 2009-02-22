@@ -104,7 +104,7 @@ class BaseShare(BaseController):
         self.membersInShare = [m.id for m in self.conn.getAllMembers(share_id)]
     
     def getAllUsers(self, share_id):
-         self.allInShare = list(self.conn.getAllUsers(share_id))
+         self.allInShare = list(self.conn.getAllMembers(share_id))#list(self.conn.getAllUsers(share_id))
 
     def loadShareContent(self):
         try:
