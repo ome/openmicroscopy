@@ -29,8 +29,6 @@ from webclient.controller import BaseController
 class BaseBasket(BaseController):
 
     imageInBasket = None
-    datasetInBasket = None
-    projectInBasket = None
 
     imgSize = 0
     dsSize = 0
@@ -53,20 +51,10 @@ class BaseBasket(BaseController):
 
         for imgId in request.session['imageInBasket']:
             imInBasket.append(imgId)
-        for dsId in request.session['datasetInBasket']:
-            dsInBasket.append(dsId)
-        for prId in request.session['projectInBasket']:
-            prInBasket.append(prId)
 
         if len(imInBasket) > 0: 
             self.imageInBasket = list(self.conn.getSpecifiedImages(imInBasket))
             self.imgSize = len(self.imageInBasket)
-        if len(dsInBasket) > 0: 
-            self.datasetInBasket = list(self.conn.getSpecifiedDatasetsWithImages(dsInBasket))
-            self.dsSize = len(self.datasetInBasket)
-        if len(prInBasket) > 0: 
-            self.projectInBasket = list(self.conn.getSpecifiedProjectsWithLeaves(prInBasket))
-            self.prSize = len(self.projectInBasket)
-
-        self.sizeOfBasket = self.imgSize+self.dsSize+self.prSize
+        
+        self.sizeOfBasket = self.imgSize
     

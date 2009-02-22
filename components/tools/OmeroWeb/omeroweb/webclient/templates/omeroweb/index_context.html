@@ -3,7 +3,7 @@
 
 <table>
   <tbody>
-      <tr><th style="text-align:left;">Supervisor:</th><td><a href="mailto:{{ controller.supervisor.email }}">{{ controller.supervisor.getFullName }}</a></td></tr>
+      <tr><th style="text-align:left;">Supervisor:</th><td>{{ controller.supervisor.getFullName }}</td></tr>
       <tr><td colspan="2">&nbsp;</td></tr>
       <tr><th style="text-align:left;">Your colleagues:</th><td>{% if controller.colleagues %}{% for c in controller.colleagues %}<a href="{% get_webclient_root_url %}/userdata/?view={{ nav.view }}&filter=experimenter&experimenter={{ c.id }}">{{ c.omeName }}</a> {% endfor %}{% else %}No colleagues in your active group.{% endif %}</td></tr>
       <tr><td colspan="2">&nbsp;</td></tr>

@@ -33,7 +33,7 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script> 
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/slider.js"></script> 
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/popup.js"></script>
+    
     <script>
       $(document).ready(function(){
           $('ul#products li.product').quicksearch({
@@ -77,7 +77,7 @@
         {% for c in share.ownShares %}
         <li class="product"><em>{{ c.shortMessage }}</em>
             <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">
-                {% ifequal c.getShareType "Discussion" %}
+                {% ifequal c.getShareType "Discuss" %}
                     <img src="{% get_webclient_static_url %}/images/wp_protocol64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                 {% else %}
                     {% if c.active %}
@@ -87,7 +87,7 @@
                     {% endif %}
                 {% endifequal %}
             </a>
-            <div class="center">{{ c.tinyMessage }}{% if c.getCommentsSize %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}</div>
+            <div class="center">{{ c.tinyMessage }}{% if c.getCommentsSize %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ c.getCommentsSize }}]{% endif %}</div>
         </li>
         {% endfor %}
     <li class="clear"></li>
@@ -98,7 +98,7 @@
         {% for c in share.memberShares %}
         <li class="product"><em>{{ c.shortMessage }}</em>
             <a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;">
-                {% ifequal c.getShareType "Discussion" %}
+                {% ifequal c.getShareType "Discuss" %}
                     <img src="{% get_webclient_static_url %}/images/wp_protocol64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                 {% else %}
                     {% if c.active %}
@@ -108,7 +108,7 @@
                     {% endif %}
                 {% endifequal %}
             </a>
-            <div class="center">{{ c.tinyMessage }}{% if c.getCommentsSize %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>{% endif %}</div>
+            <div class="center">{{ c.tinyMessage }}{% if c.getCommentsSize %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ c.getCommentsSize }}]{% endif %}</div>
         </li>
         {% endfor %}
     <li class="clear"></li>

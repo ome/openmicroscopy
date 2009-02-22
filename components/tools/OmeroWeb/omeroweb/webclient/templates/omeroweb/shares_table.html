@@ -31,7 +31,6 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script> 
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/slider.js"></script> 
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/popup.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             {% if share.oshSize or share.mshSize %}
@@ -54,7 +53,7 @@
 
 {% block center %}
 
-<h1>Shares and discussions </h1>
+<h1>Shares and Discusss </h1>
 <p>In this section you will find share data.</p>
 
 {% if share.oshSize or share.mshSize %}
@@ -79,7 +78,7 @@
     {% for c in share.ownShares %}
     <tr> 
         <td>
-            {% ifequal c.getShareType "Discussion" %}
+            {% ifequal c.getShareType "Discuss" %}
                 <img src="{% get_webclient_static_url %}/images/wp_protocol32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
             {% else %}
                 {% if c.active %}
@@ -89,7 +88,7 @@
                 {% endif %}
             {% endifequal %} {{ c.getShareType }}
         </td> 
-        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a> {% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.getCommentsSize }}){% endif %}</td> 
+        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a> {% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.getCommentsSize }}]{% endif %}</td> 
         <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a> <a href="{% get_webclient_root_url %}/share/edit/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></td>
         <td>{{ c.getStartDate|date:"d M Y" }} - {{ c.getExpirationDate|date:"d M Y" }}</td>
     </tr> 
@@ -116,8 +115,8 @@
 <tbody> 
     {% for c in share.memberShares %}
     <tr> 
-        <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;">
-        {% ifequal c.getShareType "Discussion" %}
+        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">
+        {% ifequal c.getShareType "Discuss" %}
             <img src="{% get_webclient_static_url %}/images/wp_protocol32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
         {% else %}
             {% if c.active %}
@@ -127,8 +126,8 @@
             {% endif %}
         {% endifequal %} {{ c.getShareType }}
         </a></td> 
-        <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;">{{ c.shortMessage }}</a> {% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>({{ c.getCommentsSize }}){% endif %}</td> 
-        <td><a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a></td>
+        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a> {% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.getCommentsSize }}]{% endif %}</td> 
+        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a></td>
         <td>{{ c.getStartDate|date:"d M Y" }} - {{ c.getExpirationDate|date:"d M Y" }}</td>
     </tr>
     {% endfor %}

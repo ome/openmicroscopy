@@ -34,7 +34,10 @@ class BaseController(object):
         self.conn = conn
         self.eContext['context'] = self.conn.getEventContext()
         self.eContext['user'] = self.conn.getUserWrapped()
-        self.eContext['memberOfGroups'] = self.sortByAttr(list(self.conn.getGroupsMemberOf()), "name")
+        
+        grs = list(self.conn.getGroupsMemberOf())
+        grs.extend(list(self.conn.getGroupsLeaderOf()))
+        self.eContext['memberOfGroups'] = self.sortByAttr(grs, "name")
         self.eContext['advice'] = Advice.objects.get(pk=1)
     
     def sortByAttr(self, seq, attr, reverse=False):

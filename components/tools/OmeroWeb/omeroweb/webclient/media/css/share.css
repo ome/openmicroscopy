@@ -114,3 +114,17 @@ body.share {
     height:45px;
     margin-top:-30px;
 }
+
+/* Example CSS */
+
+.quote {
+    background-color:   #eee;
+    font-family:        monospace;
+    font-style:         italic;
+    border:             1px dotted #333;
+    font-size:          95%;
+    margin:             15px 20px 15px 20px;
+    padding:            6px;
+    width:              85%;
+    overflow:           auto;
+}

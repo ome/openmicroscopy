@@ -13,7 +13,7 @@
     {% if tann.isOwned %}
         <div id="comment_wrapper">
         <div id="comment">
-            <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> posted comment at {{ tann.creationEventDate|date:" H:i d M Y" }}</div>
+            <div class="head">{{ tann.getOwner }} posted comment at {{ tann.creationEventDate|date:" H:i d M Y" }}</div>
             <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -25,7 +25,7 @@
         <div id="comment_wrapper_rev">
         <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ tann.details.owner.id.val }}/" alt="{{ tann.getOwner }}" title="{{ tann.getOwner }}" width="40" height="40" /></div>
         <div id="comment_rev">
-            <div class="head"><a href="mailto:{{ tann.details.owner.email.val }}">{{ tann.getOwner }}</a> posted comment at {{ tann.creationEventDate|date:" H:i d M Y" }}</div>
+            <div class="head">{{ tann.getOwner }} posted comment at {{ tann.creationEventDate|date:" H:i d M Y" }}</div>
             <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>

@@ -27,8 +27,9 @@
 {% block script %}
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/popup.js"></script>
     
+    
+    {% ifequal share.share.getShareType "Share" %}
     <script type="text/javascript">
         $(document).ready(function(){
             
@@ -37,6 +38,7 @@
 
         });
     </script>
+    {% endifequal %}
     <script type="text/javascript">
         $(function() {
             $("#markup_c").tooltip({ 
@@ -54,23 +56,24 @@
 {% endblock %}
 
 {% block center %}
-    
-    <h1>Hi
-        {% for m in share.membersInShare %}
-            <a href="mailto:{{ m.email }}">{{ m.getFullName }}</a>,
-        {% endfor %} 
-        {{ share.share.getOwner }} would like to {% if share.projectInShare or share.datasetInShare or share.imageInShare %}share{% else %}discuss{% endif %} below content.</h1>
-    <div id="share_content"></div>
-    <div class="clear"> </div>
-    
-    <h2>Details: 
+    <h2>Status: 
         {% if share.share.active %}ACTIVE{% else %}NOT ACTIVE{% endif %}. Starts: {{ share.share.getStartDate|date:" H:i d M Y" }}, Expires: {{ share.share.getExpirationDate|date:" H:i d M Y" }}
     </h2>
+    
+    <h1>Hi, 
+        {% for m in share.membersInShare %}
+            {{ m.getFullName }},
+        {% endfor %} 
+        {{ share.share.getOwner }} would like to {{ share.share.getShareType|lower }} with you some of the data.
+    </h1>
+    
+    {% ifequal share.share.getShareType "Share" %}<div id="share_content"></div>{% endifequal %}
+    <div class="clear"> </div>
     
     {% if share.share.isOwned %}
         <div id="comment_wrapper">
         <div id="comment">
-            <div class="head"><a href="mailto:{{ share.share.owner.email.val }}">{{ share.share.getOwner }}</a> posted comment at {{ share.share.getStartDate|date:" H:i d M Y" }}</div>
+            <div class="head">{{ share.share.getOwner }} posted comment at {{ share.share.getStartDate|date:" H:i d M Y" }}</div>
             <div class="body">{{ share.share.message|sharewikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -79,7 +82,7 @@
     {% else %}
         <div id="comment_wrapper_rev">
         <div id="comment_rev">
-            <div class="head"><a href="mailto:{{ share.share.owner.email.val }}">{{ share.share.getOwner }}</a> posted comment at {{ share.share.getStartDate|date:" H:i d M Y" }}</div>
+            <div class="head">{{ share.share.getOwner }} posted comment at {{ share.share.getStartDate|date:" H:i d M Y" }}</div>
             <div class="body">{{ share.share.message|sharewikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -94,7 +97,7 @@
             {% if cm.isOwned %}
                 <div id="comment_wrapper">
                 <div id="comment">
-                    <div class="head"><a href="mailto:{{ cm.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment at {{ cm.creationEventDate|date:" H:i d M Y" }}</div>
+                    <div class="head">{{ cm.getOwner }} posted comment at {{ cm.creationEventDate|date:" H:i d M Y" }}</div>
                     <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                     <div class="footer"></div>
                 </div>
@@ -105,7 +108,7 @@
             {% else %}
                 <div id="comment_wrapper_rev">
                 <div id="comment_rev">
-                    <div class="head"><a href="mailto:{{ cm.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment at {{ cm.creationEventDate|date:" H:i d M Y" }}</div>
+                    <div class="head">{{ cm.getOwner }} posted comment at {{ cm.creationEventDate|date:" H:i d M Y" }}</div>
                     <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                     <div class="footer"></div>
                 </div>

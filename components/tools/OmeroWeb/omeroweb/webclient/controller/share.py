@@ -73,10 +73,6 @@ class BaseShare(BaseController):
         expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
         ms = [str(m) for m in members]
         #gs = str(guests).split(';')
-        if enable is not None:
-            enable = True
-        else:
-            enable = False
         self.conn.createShare(host, int(blitz_id), imageInBasket, message, expiration_date, ms, enable)
 
     def updateShare(self, message, expiration, members, enable):
@@ -86,10 +82,6 @@ class BaseShare(BaseController):
         expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
         ms = [str(m) for m in members]
         #gs = str(guests).split(';')
-        if enable is not None:
-            enable = True
-        else:
-            enable = False
         self.conn.updateShare(self.share.id, message, expiration_date, ms, enable)
         
     def addComment(self, comment):

@@ -1516,11 +1516,11 @@ class BlitzGateway (threading.Thread):
     def createShare(self, host, blitz_id, imageInBasket, message, expiration, members, enable):
         sh = self.getShareService()
         q = self.getQueryService()
+        
         items = list()
         ms = list()
         p = omero.sys.Parameters()
         p.map = {} 
-        
         #images
         if len(imageInBasket) > 0:
             p.map["ids"] = rlist([rlong(long(a)) for a in imageInBasket])
@@ -1573,6 +1573,7 @@ class BlitzGateway (threading.Thread):
         sh = self.getShareService()
         sh.setDescription(long(share_id), message)
         sh.setExpiration(long(share_id), expiration)
+        sh.setActive(long(share_id), enable)
     
     def setFile(self, buf):
         f = self.createRawFileStore()
@@ -2703,7 +2704,7 @@ class ShareWrapper (BlitzObjectWrapper):
     
     def getShareType(self):
         if self.itemCount == 0:
-            return "Discussion"
+            return "Discuss"
         else:
             return "Share"
     

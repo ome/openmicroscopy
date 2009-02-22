@@ -75,10 +75,6 @@ class GroupModelChoiceField(ModelChoiceField):
         Field.clean(self, value)
         if value in EMPTY_VALUES:
             return None
-        #try:
-            #value = self.queryset.get(pk=value)
-        #except self.queryset.model.DoesNotExist:
-            #raise ValidationError(self.error_messages['invalid_choice'])
         res = False
         for q in self.queryset:
             if hasattr(q.id, 'val'):
@@ -121,12 +117,6 @@ class GroupModelMultipleChoiceField(GroupModelChoiceField):
             except:
                 raise ValidationError(self.error_messages['invalid_choice'])
             else:
-            #try:
-                #obj = self.queryset.get(pk=val)
-            #except self.queryset.model.DoesNotExist:
-                #raise ValidationError(self.error_messages['invalid_choice'] % val)
-            #else:
-                #final_values.append(val)
                 res = False
                 for q in self.queryset:
                     if hasattr(q.id, 'val'):
@@ -152,29 +142,40 @@ class ExperimenterQuerySetIterator(object):
         if self.empty_label is not None:
             yield (u"", self.empty_label)
         for obj in self.queryset:
-            # only for python 2.5
-            # lastName = self._obj.details.owner.lastName.val if hasattr(self._obj.details.owner.lastName, 'val') else ""
-            # firstName = self._obj.details.owner.firstName.val if hasattr(self._obj.details.owner.firstName, 'val') else ""
-            # middleName = self._obj.details.owner.middleName.val if hasattr(self._obj.details.owner.middleName, 'val') else ""
-            lastName = ""
-            if hasattr(obj.lastName, 'val'):
-                lastName = obj.lastName.val
-            else:
-                if obj.lastName is not None:
-                    lastName = obj.lastName
-            firstName = ""
-            if hasattr(obj.firstName, 'val'):
-                firstName = obj.firstName.val
-            else:
-                if obj.firstName is not None:
-                    firstName = obj.firstName
-            middleName = ""
-            if hasattr(obj.middleName, 'val'):
-                middleName = obj.middleName.val
-            else:
-                if obj.middleName is not None:
-                    middleName = obj.middleName
-            name = "%s %s, %s" % (lastName, firstName, middleName)
+            try:
+                # lastName = obj.details.owner.lastName.val if hasattr(obj.details.owner.lastName, 'val') else ""
+                # firstName = obj.details.owner.firstName.val if hasattr(obj.details.owner.firstName, 'val') else ""
+                # middleName = obj.details.owner.middleName.val if hasattr(obj.details.owner.middleName, 'val') else ""
+                lastName = None
+                if hasattr(obj.lastName, 'val'):
+                    lastName = obj.lastName.val
+                else:
+                    if obj.lastName is not None:
+                        lastName = obj.lastName
+                firstName = None
+                if hasattr(obj.firstName, 'val'):
+                    firstName = obj.firstName.val
+                else:
+                    if obj.firstName is not None:
+                        firstName = obj.firstName
+                middleName = None
+                if hasattr(obj.middleName, 'val'):
+                    middleName = obj.middleName.val
+                else:
+                    if obj.middleName is not None:
+                        middleName = obj.middleName
+
+                if middleName != '' and middleName is not None:
+                    name = "%s %s. %s" % (firstName, middleName[:1], lastName)
+                else:
+                    name = "%s %s" % (firstName, lastName)
+
+                l = len(name)
+                if l > 40:
+                    name = name[:40] + "..."
+            except:
+                name = _("Unknown")
+            
             if hasattr(obj.id, 'val'):
                 oid = obj.id.val
             else:
@@ -213,10 +214,6 @@ class ExperimenterModelChoiceField(ModelChoiceField):
         Field.clean(self, value)
         if value in EMPTY_VALUES:
             return None
-        #try:
-            #value = self.queryset.get(pk=value)
-        #except self.queryset.model.DoesNotExist:
-            #raise ValidationError(self.error_messages['invalid_choice'])
         res = False
         for q in self.queryset:
             if hasattr(q.id, 'val'):
@@ -259,12 +256,6 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
             except:
                 raise ValidationError(self.error_messages['invalid_choice'])
             else:
-            #try:
-                #obj = self.queryset.get(pk=val)
-            #except self.queryset.model.DoesNotExist:
-                #raise ValidationError(self.error_messages['invalid_choice'] % val)
-            #else:
-                #final_values.append(val)
                 res = False
                 for q in self.queryset:
                     if hasattr(q.id, 'val'):

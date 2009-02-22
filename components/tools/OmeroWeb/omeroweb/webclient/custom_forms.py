@@ -15,6 +15,7 @@ from django.utils.encoding import smart_unicode
 import re
 
 class PermissionCheckboxSelectMultiple(SelectMultiple):
+    
     def render(self, name, value, attrs=None, choices=()):
         if value is None: value = []
         has_id = attrs and 'id' in attrs
@@ -122,10 +123,6 @@ class MetadataModelChoiceField(ModelChoiceField):
         Field.clean(self, value)
         if value in EMPTY_VALUES:
             return None
-        #try:
-            #value = self.queryset.get(pk=value)
-        #except self.queryset.model.DoesNotExist:
-            #raise ValidationError(self.error_messages['invalid_choice'])
         res = False
         for q in self.queryset:
             if hasattr(q.id, 'val'):
@@ -201,10 +198,6 @@ class AnnotationModelChoiceField(ModelChoiceField):
         Field.clean(self, value)
         if value in EMPTY_VALUES:
             return None
-        #try:
-            #value = self.queryset.get(pk=value)
-        #except self.queryset.model.DoesNotExist:
-            #raise ValidationError(self.error_messages['invalid_choice'])
         res = False
         for q in self.queryset:
             if hasattr(q.id, 'val'):
@@ -246,12 +239,6 @@ class AnnotationModelMultipleChoiceField(AnnotationModelChoiceField):
             except:
                 raise ValidationError(self.error_messages['invalid_choice'])
             else:
-            #try:
-                #obj = self.queryset.get(pk=val)
-            #except self.queryset.model.DoesNotExist:
-                #raise ValidationError(self.error_messages['invalid_choice'] % val)
-            #else:
-                #final_values.append(val)
                 res = False
                 for q in self.queryset:
                     if hasattr(q.id, 'val'):

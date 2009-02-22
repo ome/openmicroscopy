@@ -26,7 +26,6 @@
 {% block script %}
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/popup.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/basket.js"></script>
     
     <script type="text/javascript">
@@ -63,49 +62,6 @@
     <h1>Your basket containes {{ basket.sizeOfBasket }} items.</h1>
     
     <div id="cart">
-    {% if basket.prSize or basket.dsSize %}
-    <h1>Containers</h1>
-    {% if basket.prSize %}
-    {% for c in basket.projectInBasket %}
-    <div class="clear"></div>
-    <div id="project-{{ c.id }}" class="project">Project: <b>{{ c.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_info16.png" title="info" alter="i"/><a href="#" onclick="fromBasket('project', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/cancel16.png" alt="r" title="remove"/></a>
-        {% if c.copyDatasetLinks %}
-        {% for d in c.listChildren %}
-        <div class="datasetInProject">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_info16.png"/>
-            {% if d.copyImageLinks %}
-            {% for e in d.listChildren %}
-            <div class="imageInDataset"><ul id="products">
-                <li class="product"><em>{{ e.name }}</em>
-                    <a href="#" onclick="popup('','_blank',{{ e.id }}); return false;"><img id="{{ e.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ e.id }}/" alt="image" title="{{ c.name }}"/></a>
-                </li>
-            </ul></div>
-            {% endfor %}
-            {% endif %}
-        </div>
-        {% endfor %}
-        {% endif %}
-    </div>
-    {% endfor %}
-    {% endif %}
-    
-    {% if basket.dsSize %}
-    <div class="clear"></div>
-    {% for d in basket.datasetInBasket %}
-    <div id="dataset-{{ d.id }}" class="dataset">Dataset: <b>{{ d.name }}</b> <img src="{% get_webclient_static_url %}/images/messagebox_info16.png"/><a href="#" onclick="fromBasket('dataset', '{{ d.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/cancel16.png" alt="r" title="remove"/></a>
-        {% if d.copyImageLinks %}
-        {% for e in d.listChildren %}
-        <div class="imageInDataset"><ul id="products">
-            <li class="product"><em>{{ e.name }}</em>
-                <a href="#" onclick="popup('','_blank',{{ e.id }}); return false;"><img id="{{ e.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ e.id }}/" alt="image" title="{{ c.name }}"/></a>
-            </li>
-        </ul></div>
-        {% endfor %}
-        {% endif %}
-    </div>
-    {% endfor %}
-    {% endif %}
-    {% endif %}
-    
     
     {% if basket.imgSize %}
     <div class="clear"></div>

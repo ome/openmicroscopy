@@ -116,7 +116,7 @@ def wikify(value):
 @register.filter
 def sharewikify(value):
     if value is not None:
-
+        
         WIKI_WORD = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
         wikifier = re.compile(r'\b(%s)\b' % WIKI_WORD)
         value = wikifier.sub(r'<a href="\1" target="_blank">\1</a>', value)
@@ -168,7 +168,11 @@ def sharewikify(value):
         # angry X-( x-( X( x(
         emot9 = re.compile(r'[xX][\-]?\(', re.VERBOSE)
         value = emot9.sub(r'<img src="/%s/static/images/emots/tinymce_smiley-yell18.gif" />' % (settings.WEBCLIENT_ROOT_BASE), value)
-    
+        
+        # TODO: Beta 4.1
+        #quote = re.compile(r'\[quote\](.*)\[/quote\]', re.DOTALL)
+        #value = quote.sub(r'<p class="quote">\1</p>', value)
+        
     return value
 
 # happy                :) :-) 

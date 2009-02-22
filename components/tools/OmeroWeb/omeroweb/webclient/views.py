@@ -96,9 +96,6 @@ def timeit (func):
         return rv
     return wrapped
 
-
-    
-
 @timeit
 def getConnection (request):
 
@@ -2320,7 +2317,6 @@ def manage_share(request, action, oid=None, **kwargs):
         template = "omeroweb/basket_share_action.html"
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
-            new_share = BaseShare(request.session['nav']['menu'], conn, None)
             message = request.REQUEST['message'].encode('utf-8')
             expiration = request.REQUEST['expiration']
             members = request.REQUEST.getlist('members')
@@ -2331,10 +2327,9 @@ def manage_share(request, action, oid=None, **kwargs):
             except:
                 pass
             host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
-            new_share.createShare(host, request.session['server'], request.session['imageInBasket'], message, expiration, members, enable)
+            share.createShare(host, request.session['server'], request.session['imageInBasket'], message, expiration, members, enable)
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
-            
             basket = BaseBasket(conn)
             basket.load_basket(request)
             form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
@@ -2344,19 +2339,22 @@ def manage_share(request, action, oid=None, **kwargs):
         share.getMembers(oid)
         share.getComments(oid)
         
-        form = ShareForm(initial={'message': share.share.message, 'expiration': share.share.getExpirationDate, \
+        form = ShareForm(initial={'message': share.share.message, 'expiration': share.share.getExpirationDate().strftime("%Y-%m-%d"), \
                                     'shareMembers': share.membersInShare, 'enable': share.share.active, \
                                     'experimenters': experimenters}) #'guests': share.guestsInShare,
         context = {'url':url, 'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
     elif action == 'save':
-        experimenters = list(conn.getExperimenters())
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
             message = request.REQUEST['message'].encode('utf-8')
             expiration = request.REQUEST['expiration']
             members = request.REQUEST.getlist('members')
             #guests = request.REQUEST['guests']
-            enable = request.REQUEST['enable']
+            enable = False
+            try:
+                if request.REQUEST['enable']: enable = True
+            except:
+                pass
             share.updateShare(message, expiration, members, enable)
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
@@ -2723,7 +2721,11 @@ def myaccount(request, action, **kwargs):
     eContext['context'] = conn.getEventContext()
     eContext['user'] = conn.getUserWrapped()
     eContext['breadcrumb'] = ["My Account",  controller.experimenter.id]
-    eContext['memberOfGroups'] = controller.sortByAttr(list(conn.getGroupsMemberOf()), "name")
+    
+    grs = list(conn.getGroupsMemberOf())
+    grs.extend(list(conn.getGroupsLeaderOf()))
+    eContext['memberOfGroups']  = controller.sortByAttr(grs, "name")
+    #eContext['memberOfGroups'] = controller.sortByAttr(list(conn.getGroupsMemberOf()), "name")
     
     if action == "save":
         form = MyAccountForm(data=request.REQUEST.copy(), initial={'groups':controller.otherGroups})

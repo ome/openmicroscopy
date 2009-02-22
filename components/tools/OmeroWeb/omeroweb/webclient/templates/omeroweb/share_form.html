@@ -30,7 +30,14 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script> 
 
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/popup.js"></script>
+    <script>
+      $(document).ready(function(){
+          $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
+          
+      });
+    </script>
+    
+    {% ifequal share.share.getShareType "Share" %}
     <script>
       $(document).ready(function(){
           
@@ -40,6 +47,8 @@
           $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
       });
     </script>
+    {% endifequal %}
+    
     <script type="text/javascript">
         $(function() {
             $("#markup_c, #enable, #expire").tooltip({ 
@@ -59,12 +68,7 @@
 
 {% block center %}
 
-{% ifequal share.sizeOfShare 0 %}
-    <h1>Edit discussion about:</h1>
-    
-{% else %}
-    <h1>Edit share with {{ share.sizeOfShare }} items:</h1>
-{% endifequal %}
+<h1>Edit {{ share.share.getShareType|lower }}:</h1>
 
 <div id="share_content"></div>
 <div class="clear"> </div>
@@ -91,10 +95,10 @@
         {% if share.cmSize %}
             {% for cm in share.comments %}
                 {% if cm.isOwned %}
-                    <div id="comment_wrapper_rev">
-                    <div id="comment_rev">
-                        <div class="head"><a href="mailto:{{ cm.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment at {{ cm.creationEventDate|date:" H:i d M Y" }} {% if cm.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ cm.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
-                        <div class="body">{{ cm.textValue|wikify|safe|linebreaks }}</div>
+                    <div id="comment_wrapper">
+                    <div id="comment">
+                        <div class="head">{{ cm.getOwner }} posted comment at {{ cm.creationEventDate|date:" H:i d M Y" }} {% if cm.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ cm.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
+                        <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                         <div class="footer"></div>
                     </div>
                     <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwner }}" title="{{ cm.getOwner }}" width="40" height="40" /></div>
@@ -102,10 +106,10 @@
                     <div class="clear"></div>
                     <br/>
                 {% else %}
-                    <div id="comment_wrapper">
-                    <div id="comment">
-                        <div class="head"><a href="mailto:{{ cm.details.owner.email.val }}">{{ cm.getOwner }}</a> posted comment at {{ cm.creationEventDate|date:" H:i d M Y" }} {% if cm.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ cm.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
-                        <div class="body">{{ cm.textValue|wikify|safe|linebreaks }}</div>
+                    <div id="comment_wrapper_rev">
+                    <div id="comment_rev">
+                        <div class="head">{{ cm.getOwner }} posted comment at {{ cm.creationEventDate|date:" H:i d M Y" }} {% if cm.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ cm.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
+                        <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                         <div class="footer"></div>
                     </div>
                     <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwner }}" title="{{ cm.getOwner }}" width="40" height="40" /></div>
