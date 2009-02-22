@@ -102,12 +102,15 @@ public class TreeModelFactory
 				return CPEimport.createTreeModel(root);
 			}
 				
-			if ("ProtocolTitle".equals(rootName)) {
+			// if ("ProtocolTitle".equals(rootName)) {
+			else {
 				return PROimport.createTreeModel(root);
 			}
+			/*
 			errMsg = "File format not recognised: " +
 			" XML root element named '" + rootName + 
-			"' is not an OMERO.Editor File"; 
+			"' is not an OMERO.Editor File";
+			*/ 
 		}
 		file.delete();
 		// if you reach here, something is wrong. Throw exception.

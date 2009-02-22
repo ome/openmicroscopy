@@ -24,8 +24,10 @@ package org.openmicroscopy.shoola.agents.editor.model.undoableEdits;
 
 //Java imports
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -84,11 +86,9 @@ public class RemoveExpInfo
 	DefaultTreeModel 					treeModel;
 	
 	/**
-	 * A map of all the step notes we are deleting. 
-	 * NB removing all notes and adding them back to steps may not preserve
-	 * the order of multiple notes attached to the same step. 
+	 * A map of all the step notes we are deleting, according to their step 
 	 */
-	private	HashMap<Note, IField> 		stepNotes;
+	private	HashMap<IField, List<Note>> 	stepNotes;
 	
 	/**
 	 * Iterate through the tree model and add all the step notes to the
@@ -97,7 +97,7 @@ public class RemoveExpInfo
 	private void getStepNotes() 
 	{
 		// make a map of all the step notes and the fields they come from
-		stepNotes  = new HashMap<Note, IField>();
+		stepNotes  = new HashMap<IField, List<Note>>();
 		
 		TreeNode tn;
 		IField f;
@@ -110,6 +110,8 @@ public class RemoveExpInfo
 		
 		Iterator<TreeNode> iterator = new TreeIterator(root);
 		
+		List<Note> notes;
+		
 		while (iterator.hasNext()) {
 			tn = iterator.next();
 			if (!(tn instanceof DefaultMutableTreeNode)) continue;
@@ -119,9 +121,14 @@ public class RemoveExpInfo
 			f = (IField)userOb;
 			
 			int noteCount = f.getNoteCount();
+			if (noteCount == 0) continue;
+			
+			// a list of the notes from this field/step
+			notes = new ArrayList<Note>();
 			for (int i=0; i<noteCount; i++) {
-				stepNotes.put(f.getNoteAt(i), f);
+				notes.add(f.getNoteAt(i));
 			}
+			stepNotes.put(f, notes);
 		}
 	}
 	
@@ -154,13 +161,15 @@ public class RemoveExpInfo
 	
 	public void undo() {
 		// add all notes to their fields. 
-		Iterator<Note> i = stepNotes.keySet().iterator();
-		Note n;
+		Iterator<IField> i = stepNotes.keySet().iterator();
+		List<Note> notes;
 		IField f;
 		while(i.hasNext()) {
-			n = i.next();
-			f = stepNotes.get(n);
-			f.addNote(n);
+			f = i.next();
+			notes = stepNotes.get(f);
+			for (Note note : notes) {
+				f.addNote(note);
+			}
 		}
 		
 		field.setExpInfo(expInfo);
@@ -169,13 +178,15 @@ public class RemoveExpInfo
 	
 	public void redo() {
 		// remove all notes from their fields. 
-		Iterator<Note> i = stepNotes.keySet().iterator();
-		Note n;
+		Iterator<IField> i = stepNotes.keySet().iterator();
+		List<Note> notes;
 		IField f;
 		while(i.hasNext()) {
-			n = i.next();
-			f = stepNotes.get(n);
-			f.removeNote(n);
+			f = i.next();
+			notes = stepNotes.get(f);
+			for (Note note : notes) {
+				f.removeNote(note);
+			}
 		}
 			
 		field.setExpInfo(null);

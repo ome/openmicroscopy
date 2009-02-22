@@ -343,6 +343,8 @@ public class PROimport {
 			 if (param != null) {
 				 if(fieldRequired) param.setAttribute
 		 				(AbstractParam.PARAM_REQUIRED, "true");
+				 // parameter won't have a name. Best to use name of field?...
+				 param.setAttribute(AbstractParam.PARAM_NAME, fieldName);
 				 field.addContent(param);
 			 }
 		 }

@@ -233,7 +233,8 @@ public class ExperimentInfoPanel
 		deleteButton.setFocusable(false);
 		deleteButton.addActionListener(this);
 		deleteButton.setActionCommand(DELETE_INFO);
-		deleteButton.setToolTipText("Delete this note");
+		deleteButton.setToolTipText("<html>Remove Experiment Info:<br>This " +
+				"will also remove any experiment notes from each step.</html>");
 		rightToolBar.add(deleteButton);
 		
 		Box titleToolBar = Box.createHorizontalBox();

@@ -850,6 +850,8 @@ public class FieldTextArea
 			if (commentTextBox != null)
 				commentTextBox.setText(newText);
 		}
+		
+		refreshNotesVisibility(); 
 	}
 
 	/**
