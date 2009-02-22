@@ -61,7 +61,7 @@
     </h2>
     
     <h1>Hi, 
-        {% for m in share.membersInShare %}
+        {% for m in share.allInShare %}
             {{ m.getFullName }},
         {% endfor %} 
         {{ share.share.getOwner }} would like to {{ share.share.getShareType|lower }} with you some of the data.
