@@ -53,12 +53,22 @@
 {% endblock %}
 
 {% block center %}
+    <div class="project">
+        <p>Searching feature enables you to search within the images, datasets and projects stored on the server. It supports single and multiple character wildcard searches. </p>
+        <p>To perform a single character wildcard search use the <b>"?"</b> symbol. The single character wildcard search looks for terms that match that with the single character replaced. To perform a multiple character wildcard search use the <b>"*"</b> symbol. </p>
+        
+        <p>For example, to search for <i>"text"</i> or <i>"test"</i> you can use the search: <b>"te?t"
+</b>. Multiple character wildcard searches looks for 0 or more characters. For example, to search for <i>"test"</i>, <i>"tests"</i> or <i>"tester"</i>, you can use the search: <b>"test*"</b>. You can also use the wildcard searches in the middle or the beginning of a term.</p>
+        <p>Results are displayed as a table by default.</p>
+    </div>
+    <div class="clear"></div>
+    
     <p>
     <form action="{% get_webclient_root_url %}/search/" method="GET">
         <table>
-            <tr><th>Query *:</th><td><input class="search" type="text" name="query" value="{{ controller.criteria.query }}" size="52"/></td></tr>
+            <tr><th>Search for *:</th><td><input class="search" type="text" name="query" value="{{ controller.criteria.query }}" size="52"/></td></tr>
             <!--<tr><th>by date:</th><td><input type="text" id="dateinput" name="date" value="" size="15"/></td></tr>-->
-            <tr><th>Interval:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ controller.criteria.period }}" size="25"/></td></tr>
+            <tr><th>Time range:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ controller.criteria.period }}" size="25"/></td></tr>
             <tr><th>In *:</th><td>
                 <input  type="checkbox" name="image" {{ controller.criteria.image }} />image <input type="checkbox" name="dataset" {{ controller.criteria.dataset }} />dataset  <input type="checkbox" name="project" {{ controller.criteria.project }} />project
             </td></tr>
