@@ -121,9 +121,12 @@ class BrowserModel
     	else 
     		state = Browser.TREE_SAVED;
     	
-    	// notify listeners of changes to the model (eg Exp-Info last-saved date)
-    	DefaultTreeModel d = ((DefaultTreeModel)treeModel);
-    	d.nodeStructureChanged((TreeNode)d.getRoot());
+    	// notify listeners of changes to the model 
+    	// when file saved (eg Exp-Info last-saved date)
+    	if (!edited) {
+    		DefaultTreeModel d = ((DefaultTreeModel)treeModel);
+    		d.nodeStructureChanged((TreeNode)d.getRoot());
+    	}
     }
     
     /**
