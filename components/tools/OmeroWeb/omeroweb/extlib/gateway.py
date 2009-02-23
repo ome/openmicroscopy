@@ -1515,7 +1515,7 @@ class BlitzGateway (threading.Thread):
         members = self.getAllMembers(long(share_id))
         sh = self.getShare(long(share_id))
         if self.getEventContext().userId != sh.owner.id.val:
-            members.append(sh.owner)
+            members.append(sh.getOwnerAsExperimetner())
         
         #send email
         sender = None
@@ -2768,6 +2768,9 @@ class ShareWrapper (BlitzObjectWrapper):
             return True
         else:
             return False
+    
+    def getOwnerAsExperimetner(self):
+        return ExperimenterWrapper(self, self._obj.owner)
     
     def getOwner(self):
         try:
