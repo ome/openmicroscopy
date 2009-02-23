@@ -1042,33 +1042,6 @@ class BrowserComponent
 		}
 	    model.loadRefreshExperimenterData(m);
 		fireStateChange();
-	    /*
-	    if (!root.isChildrenLoaded()) return;
-	    if (!model.isSelected()) {
-	        //view.clearTree();
-	        //return;
-	    }
-	    if (model.getBrowserType() == IMAGES_EXPLORER) {
-	        root.removeAllChildrenDisplay();
-	        model.setSelectedDisplay(null); //root
-	        //Set nodes = model.getFilteredNodes();
-	        //if (nodes != null) loadFilteredImageData(nodes);
-	       // else loadFilteredImagesForHierarchy();
-	    } else {
-	    	//if (visit) {
-	    		RefreshVisitor visitor = new RefreshVisitor(this);
-		        accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
-		        root.removeAllChildrenDisplay();
-		        model.setSelectedDisplay(null); //root
-		        model.loadRefreshedData(visitor.getFoundNodes(), 
-		                visitor.getExpandedTopNodes());
-	    	//} else {
-	    	//	root.removeAllChildrenDisplay();
-		    //    model.setSelectedDisplay(null); //root
-		     //   model.loadRefreshedData(null, null);
-	    	//}
-	    }
-	    */
     }
 
     /**
@@ -1114,7 +1087,6 @@ class BrowserComponent
 		model.getParentModel().setStatus(false, "", true);
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
-		//firePropertyChange(DATA_REFRESHED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 		fireStateChange(); 
 	}
 

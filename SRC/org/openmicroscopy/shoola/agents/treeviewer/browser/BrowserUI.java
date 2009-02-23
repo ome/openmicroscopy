@@ -904,7 +904,8 @@ class BrowserUI
             //problem will come when we have images
             if (parent.isChildrenLoaded()) {
                 parent.addChildDisplay(newNode); 
-                list = sorter.sort(parent.getChildrenDisplay());
+                list = prepareSortedList(
+                		sorter.sort(parent.getChildrenDisplay()));
                 parent.removeAllChildren();
                 j = list.iterator();
                 while (j.hasNext()) {

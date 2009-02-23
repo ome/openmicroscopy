@@ -145,10 +145,8 @@ class OmeroDataServiceImpl
 		Iterator i = objects.iterator();
 		IObject obj;
 		long ownerID;
-		System.err.println("related to");
 		while (i.hasNext()) {
 			obj = (IObject) i.next();
-			System.err.println("owner: "+obj+" "+obj.getDetails());
 			ownerID = obj.getDetails().getOwner().getId().getValue();
 			if (ownerID != id)
 				others.add(obj);
