@@ -59,17 +59,6 @@ public class TextBoxParam
 		super(fieldType);
 	}
 	
-	/**
-	 * This field is filled if the value isn't null, and 
-	 * is not an empty string. 
-	 * 
-	 * @see AbstractParam#isParamFilled()
-	 */
-	public boolean isParamFilled() {
-		String textValue = getParamValue();
-		
-		return (textValue != null && textValue.length() > 0);
-	}
 	
 	/**
 	 * Returns the value of the parameter. 

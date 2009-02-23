@@ -121,6 +121,9 @@ public class ExperimentInfoPanel
 	/** Label to display number of unfilled parameters in the experiment */
 	private JLabel 				unfilledParamsLabel;
 	
+	/** A count of the number of unfilled parameters */
+	private int 				unfilledParams;
+	
 	/** Label to display number of unfilled steps in the experiment */
 	private JLabel 				unfilledStepsLabel;
 	
@@ -366,7 +369,7 @@ public class ExperimentInfoPanel
 			
 			searchUnfilledParams();
 			unfilledParamsLabel.setText("<html>Unfilled Parameters: <b>" + 
-					unfilledSteps.size() + "</b></html>");
+					unfilledParams + "</b></html>");
 			unfilledStepsLabel.setText("<html>in <b>" + unfilledSteps.size() + 
 					"</b> steps.</html>");
 			
@@ -393,6 +396,7 @@ public class ExperimentInfoPanel
 		} else {
 			unfilledSteps.clear();
 		}
+		unfilledParams = 0;
 		currentStepIndex = -1;
 		
 		TreeNode tn;
@@ -419,6 +423,7 @@ public class ExperimentInfoPanel
 			if (f != null) {
 				paramCount = f.getUnfilledCount();
 				if (paramCount > 0) {
+					unfilledParams += paramCount;
 					unfilledSteps.add(path);
 				}
 			}

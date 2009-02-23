@@ -191,6 +191,8 @@ public class EnumEditor
 	 */
 	public void actionPerformed(ActionEvent e) 
 	{	
+		Object ob = comboBox.getSelectedItem();
+		if (ob == null)		return;
 		String newValue = comboBox.getSelectedItem().toString();
 		if(comboBox.getSelectedIndex() == NULL_INDEX) {
 			newValue = null;

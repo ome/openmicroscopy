@@ -47,26 +47,24 @@ public class FieldParamsFactory {
 	
 	private static final String[] PARAM_TYPES = 
 	{	TextParam.TEXT_LINE_PARAM,
-		EnumParam.ENUM_PARAM, 
-		BooleanParam.BOOLEAN_PARAM, 
 		NumberParam.NUMBER_PARAM, 
+		BooleanParam.BOOLEAN_PARAM, 
+		EnumParam.ENUM_PARAM, 
 		DateTimeParam.DATE_TIME_PARAM,
 		EditorLinkParam.EDITOR_LINK_PARAM,
 		OntologyTermParam.ONTOLOGY_TERM_PARAM
-		// OBSERVATION_DEFINITION
 	};
 	
 	//	 the names used for the UI - MUST be in SAME ORDER as INPUT_TYPES they correspond to 
 	// this means you can change the UI names without changing INPUT_TYPES.
 	private static final String[] UI_INPUT_TYPES = 	
 	{ "Text", 
-		"Drop-down Menu", 
-		"Check-Box", 
 		"Number", 
+		"Check-Box", 
+		"Drop-down Menu", 
 		"Date & Time",
 		"Editor File Link",
 		"Ontology Term"
-		// "Phenote Observation"
 		};
 	
 	/**

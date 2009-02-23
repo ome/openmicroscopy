@@ -169,7 +169,7 @@ public abstract class AbstractParam
 	public boolean isParamFilled() {
 		String textValue = getParamValue();
 		
-		return (textValue != null && textValue.length() > 0);
+		return (textValue != null && textValue.trim().length() > 0);
 	}
 	
 	/**
