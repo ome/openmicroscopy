@@ -50,12 +50,6 @@
 
     <h1>Your basket is empty.</h1>
     <div class="error"><p>Your basket is empty. Please add some of your bio-data from <a href="{% get_webclient_root_url %}/mydata/">My data</a> or initiate a discussion.</p></div>
-    <div>
-        <h1>Available actions:</h1>
-        <input type="submit" name="action" value="Discusion" onClick="location.href='{% get_webclient_root_url %}/basket/todiscuss/'"/>
-        <span id="discussion" title="Create discussion - <small>If you\'d like to start the thread of the</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span> 
-        <!--<input type="submit" name="action" value="Blog" onClick="location.href='{% get_webclient_root_url %}/basket/toblog/'"/>-->
-    </div>
     
 {% else %}
 
@@ -88,7 +82,7 @@
         <input type="submit" name="action" value="Annotate" onClick="location.href='{% get_webclient_root_url %}/basket/toannotate/'"/> 
         <input type="submit" name="action" value="Tag" onClick="location.href='{% get_webclient_root_url %}/basket/totag/'"/>-->
         <input type="submit" name="action" value="Empty" onClick="location.href='{% get_webclient_root_url %}/empty/'"/>
-        <span id="empty" title="Empty basket - <small>Cleaning the basket.</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span>
+        <span id="empty" title="Empty basket - <small>Empty the basket.</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span>
     </div>
     
 {% endifequal %}

@@ -94,7 +94,7 @@ class BaseShare(BaseController):
         self.conn.updateShare(self.share.id, message, expiration_date, ms, enable)
         
     def addComment(self, host, blitz_id, comment):
-        self.conn.addComment(host, blitz_id, self.share.id, comment)
+        self.conn.addComment(host, int(blitz_id), self.share.id, comment)
 
     def getAllShares(self):
         self.shares = self.sortByAttr(list(self.conn.getAllShares()), 'started', True)

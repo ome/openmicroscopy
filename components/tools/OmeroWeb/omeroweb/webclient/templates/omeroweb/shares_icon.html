@@ -71,12 +71,12 @@
 {% block center %}
 
 <h1>Shares and Discussions.</h1>
-<p>Here you can create a "Share" to share and discuss your images with others, or "Discussion" (to discuss with no images). Existing Shares and Discussions are shown below.</p>
+<p>Here you can create a <b>Share</b> to share and discuss your images with others, or <b>Discussion</b> to discuss with no images. Existing Shares and Discussions are shown below.</p>
 
 {% if share.oshSize or share.mshSize %}
 
-<div id="view"> | View <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> | New <a href="{% get_webclient_root_url %}/basket/toshare/"><span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% get_webclient_static_url %}/images/folder_html16.png" alt="share" title="share"/></span></a> 
-<a href="{% get_webclient_root_url %}/basket/todiscuss/"><span id="discussion" title="Create discussion - <small>Starts the thread of the new discussion with no images currently stored in the basket.</small>"><img src="{% get_webclient_static_url %}/images/wp_protocol16.png" alt="discussion" title="discussion"/></span></a> |
+<div id="view"> | View <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> | New <a href="{% get_webclient_root_url %}/basket/toshare/"><span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% get_webclient_static_url %}/images/folder_html16.png" alt="share" /></span></a> 
+<a href="{% get_webclient_root_url %}/basket/todiscuss/"><span id="discussion" title="Create discussion - <small>Starts the thread of the new discussion with no images currently stored in the basket.</small>"><img src="{% get_webclient_static_url %}/images/wp_protocol16.png" alt="discussion" /></span></a> |
 </div>
 
 <div class="slider">
