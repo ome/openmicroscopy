@@ -3643,23 +3643,10 @@ class OMEROGateway
 			Set result = getContainerImages(ImageData.class, ids, options);
 			if (result != null && result.size() == 1) {
 				Iterator i = result.iterator();
-				while (i.hasNext()) {
-					return (ImageData) PojoMapper.asDataObject(
-							(IObject) i.next());
-				}
+				while (i.hasNext())
+					return (ImageData) i.next();
 			}
 			return null;
-			/*
-			StringBuilder sb = new StringBuilder();
-			sb.append("select img from Image as img ");
-			sb.append("left outer join fetch img.pixels as pix ");
-	        sb.append("left outer join fetch pix.pixelsType as pt ");
-	        sb.append("where img.id = :id");
-	        ParametersI param = new ParametersI();
-			param.addLong("id", imageID);
-	        return (ImageData) PojoMapper.asDataObject(
-	        		getQueryService().findByQuery(sb.toString(), param));
-	        		*/
 		} catch (Exception e) {
 			handleException(e, "Cannot project the image.");
 		}

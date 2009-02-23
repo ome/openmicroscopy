@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.util.proj;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -348,16 +347,6 @@ public class ProjSavingDialog
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(projectButton);
 		bar.add(Box.createHorizontalStrut(20));
-		/*
-		JPanel controls = new JPanel();
-    	controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-    	controls.add(Box.createRigidArea(new Dimension(20, 5)));
-    	controls.add(newFolderButton);
-    	JPanel p = UIUtilities.buildComponentPanelRight(bar);
-        p.setOpaque(true);
-        controls.add(p);
-         return controls;
-        */
 		return UIUtilities.buildComponentPanelRight(bar);
 	}
 	
@@ -382,21 +371,22 @@ public class ProjSavingDialog
 	 */
 	private void createDataset(String name)
 	{
-		JCheckBox box = new JCheckBox(name);
-		box.setSelected(true);
+		JCheckBox newBox = new JCheckBox(name);
+		newBox.setSelected(true);
 		DatasetData d = new DatasetData();
 		d.setName(name);
 		selectionPane.removeAll();
-		selectionPane.add(box);
+		selectionPane.add(newBox);
 		if (selection != null) {
         	Iterator i = selection.keySet().iterator();
+        	JCheckBox box;
         	while (i.hasNext()) {
         		box = (JCheckBox) i.next();
         		box.setSelected(false);
         		selectionPane.add(box);
         	}
         }
-		selection.put(box, d);
+		selection.put(newBox, d);
 		selectionPane.revalidate();
 		selectionPane.repaint();
 		newFolderButton.setEnabled(false);

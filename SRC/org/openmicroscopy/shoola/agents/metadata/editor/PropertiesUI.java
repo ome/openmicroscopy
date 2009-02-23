@@ -248,7 +248,7 @@ class PropertiesUI
     	
     	index++;
     	layout.insertRow(index, TableLayout.PREFERRED);
-    	label = UIUtilities.setTextFont("Dimensions", Font.BOLD, size);
+    	label = UIUtilities.setTextFont("Dimensions (XY)", Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SIZE_X);
     	v += " x ";

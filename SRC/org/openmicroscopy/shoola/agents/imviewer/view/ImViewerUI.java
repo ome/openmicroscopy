@@ -824,6 +824,13 @@ class ImViewerUI
 		projectionViewPanel.add(
 				controlPane.getTimeSliderPane(ImViewer.PROJECTION_INDEX), 
 						"1, 2");
+		if (model.getMaxZ() > 0) {
+			tabs.insertTab(browser.getProjectionViewTitle(), 
+					browser.getProjectionViewIcon(), 
+					projectionViewPanel, "", ImViewer.PROJECTION_INDEX);
+		}
+		
+		
 		mainComponent = tabs;
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
