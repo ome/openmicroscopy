@@ -43,9 +43,9 @@ import javax.swing.border.EmptyBorder;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 
@@ -124,8 +124,7 @@ class EditorUI
 	 */
 	private JMenuBar createMenuBar()
 	{
-		
-		TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
+		TaskBar tb = EditorAgent.getRegistry().getTaskBar();
         JMenu menu = createMenu();
         JMenuBar bar = tb.getTaskBarMenuBar();
         JMenu[] existingMenus = new JMenu[bar.getMenuCount()];
