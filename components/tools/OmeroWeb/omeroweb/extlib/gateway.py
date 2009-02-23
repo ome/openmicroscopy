@@ -1512,7 +1512,7 @@ class BlitzGateway (threading.Thread):
         sh = self.getShareService()
         new_cm = sh.addComment(long(share_id), str(comment))
         
-        members = self.getAllMembers(long(share_id))
+        members = list(self.getAllMembers(long(share_id)))
         sh = self.getShare(long(share_id))
         if self.getEventContext().userId != sh.owner.id.val:
             members.append(sh.getOwnerAsExperimetner())
