@@ -115,11 +115,11 @@ class SendEmail(threading.Thread):
         # Create the root message and fill in the from, to, and subject headers
         msgRoot = MIMEMultipart('related')
         try:
-            msgRoot['Subject'] = 'OMERO.%s - %s %s shares with you some data' % (app, user.firstName.val, user.lastName.val)
+            msgRoot['Subject'] = 'OMERO.%s - %s %s shares with you some of the data' % (app, user.firstName.val, user.lastName.val)
         except:
-            msgRoot['Subject'] = 'OMERO.%s - unknown person shares with you some data' % (app)
+            msgRoot['Subject'] = 'OMERO.%s - unknown person shares with you some of the data' % (app)
         try:
-            msgRoot['From'] = '%s <%s>' % (user.omeName.val, user.email.val)
+            msgRoot['From'] = '%s %s <%s>' % (user.firstName.val, user.lastName.val, user.email.val)
         except:
             msgRoot['From'] = 'Unknown'
         #msgRoot['To'] = self.recipients
@@ -130,10 +130,10 @@ class SendEmail(threading.Thread):
         email_txt = "%s/email_share.txt" % os.path.join(os.path.dirname(__file__), 'templatemail/').replace('\\','/')
         email_html = "%s/email_share.html" % os.path.join(os.path.dirname(__file__), 'templatemail/').replace('\\','/')
 
-        contentAlternative = open(email_txt, 'r').read() % (host, share_id, blitz_id, share_content, user.firstName.val, user.lastName.val)
+        contentAlternative = open(email_txt, 'r').read() % (host, share_id, blitz_id, user.firstName.val, user.lastName.val)
         msgText = MIMEText(contentAlternative)
         msgAlternative.attach(msgText)
-        content = open(email_html, 'r').read() % (host, share_id, blitz_id, host, share_id, blitz_id, share_content, user.firstName.val, user.lastName.val)
+        content = open(email_html, 'r').read() % (host, share_id, blitz_id, host, share_id, blitz_id, user.firstName.val, user.lastName.val)
         msgText = MIMEText(content, 'html')
         msgAlternative.attach(msgText)
 
