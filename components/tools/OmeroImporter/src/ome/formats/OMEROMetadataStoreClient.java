@@ -321,7 +321,7 @@ public class OMEROMetadataStoreClient
      */
     public RDouble toRType(Float value)
     {
-        return value == null? null : rdouble(value);
+        return value == null? null : rdouble(Double.parseDouble(value.toString()));
     }
     
     /**
