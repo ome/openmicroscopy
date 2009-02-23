@@ -474,8 +474,8 @@ def index_last_imports(request, **kwargs):
     return HttpResponse(rsp)
 
 @isUserConnected
-def index_most_recent_comment(request, **kwargs):
-    template = "omeroweb/index_most_recent_comment.html"
+def index_most_recent(request, **kwargs):
+    template = "omeroweb/index_most_recent.html"
     conn = None
     try:
         conn = kwargs["conn"]

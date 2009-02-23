@@ -1630,7 +1630,17 @@ class BlitzGateway (threading.Thread):
         p.theFilter = f
         for e in tm.getMostRecentObjects(['Image'], p, False)["Image"]:
             yield ImageWrapper(self, e)'''
-        
+    
+    def getMostRecentShares (self):
+        tm = self.getTimelineService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        f = omero.sys.Filter()
+        f.ownerId = rlong(self.getEventContext().userId)
+        f.limit = rint(10)
+        p.theFilter = f
+        for e in tm.getMostRecentShareCommentLinks(p):
+            yield SessionAnnotationLinkWrapper(self, e)
     
     def getMostRecentSharesComments (self):
         tm = self.getTimelineService()
@@ -1638,7 +1648,7 @@ class BlitzGateway (threading.Thread):
         p.map = {}
         f = omero.sys.Filter()
         f.ownerId = rlong(self.getEventContext().userId)
-        f.limit = rint(20)
+        f.limit = rint(10)
         p.theFilter = f
         for e in tm.getMostRecentShareCommentLinks(p):
             yield SessionAnnotationLinkWrapper(self, e)

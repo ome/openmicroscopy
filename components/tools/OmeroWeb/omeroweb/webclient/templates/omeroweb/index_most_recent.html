@@ -1,0 +1,43 @@
+{% load markup %}
+{% load custom_tags %}
+{% load wikitags %}
+
+<h1>Most recent share comments:</h1>
+{% if controller.mostRecentSharesComments %}
+    <table>
+        <tbody>
+        {% for cm in controller.mostRecentSharesComments %}
+            <tr><td>
+                <img src="{% get_webclient_static_url %}/images/knotes16.png" title="comment" alt="comment"/> {{ cm.getComment.getOwner }}</a> added comment to <a href="{% get_webclient_root_url %}/share/view/{{ cm.getShare.id }}/">share {{ cm.getShare.id }}</a> on {{ cm.getComment.creationEventDate|date:" H:i d M Y" }}
+            </td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div><p>No data commented.</p></div>
+{% endif %}
+
+<h1>Most recent shares:</h1>
+{% if controller.mostRecentShares %}
+    <table>
+        <tbody>
+        {% for c in controller.mostRecentShares %}
+            <tr><td>
+                
+                {% ifequal c.getShareType "Discuss" %}
+                    <img src="{% get_webclient_static_url %}/images/wp_protocol16.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>                     <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">discussion</a>
+                {% else %}
+                    {% if c.active %}
+                        <img src="{% get_webclient_static_url %}/images/folder_html16.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">share</a>
+                    {% else %}
+                        <img src="{% get_webclient_static_url %}/images/folder_locked16.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">share</a>
+                    {% endif %}
+                {% endifequal %}
+                about: "{{ c.shortMessage }}"
+            </td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div><p>No shared data.</p></div>
+{% endif %}

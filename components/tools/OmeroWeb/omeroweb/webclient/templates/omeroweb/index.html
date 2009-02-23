@@ -31,8 +31,8 @@
             $("div#tagcloud").html('<p>Loading tag cloud... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
             $("div#tagcloud").load("{% get_webclient_root_url %}/tag_cloud/");
             
-            $("div#comments").html('<p>Loading comments... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
-            $("div#comments").load("{% get_webclient_root_url %}/most_recent_comment/");
+            $("div#comments").html('<h1>Most recents:</h1><p>Loading data... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
+            $("div#comments").load("{% get_webclient_root_url %}/most_recent/");
                         
             $("a.loadData").click(function()
             {
@@ -64,7 +64,6 @@
     
     <div id="right_panel">
         
-        <h1>Most recent share comments:</h1>
         <div id="comments"></div>
         
         <h1>My context:</h1></h1>
