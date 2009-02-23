@@ -2344,6 +2344,7 @@ def manage_share(request, action, oid=None, **kwargs):
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
             message = request.REQUEST['message'].encode('utf-8')
+            expiration = None
             try:
                 if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
                     expiration = str(request.REQUEST['expiration'].encode('utf-8'))
@@ -2382,6 +2383,7 @@ def manage_share(request, action, oid=None, **kwargs):
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
             message = request.REQUEST['message'].encode('utf-8')
+            expiration = None
             try:
                 if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
                     expiration = str(request.REQUEST['expiration'].encode('utf-8'))
