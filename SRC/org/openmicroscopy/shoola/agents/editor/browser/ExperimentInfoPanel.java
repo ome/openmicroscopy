@@ -29,6 +29,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,6 +44,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.border.Border;
@@ -61,6 +64,8 @@ import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXDatePicker;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TextFieldEditor;
 import org.openmicroscopy.shoola.agents.editor.model.ExperimentInfo;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
@@ -87,7 +92,8 @@ public class ExperimentInfoPanel
 	extends JPanel
 	implements TreeModelListener,
 	ActionListener, 
-	TreeSelectionListener {
+	TreeSelectionListener,
+	PropertyChangeListener {
 	
 	/**
 	 * A reference to the tree UI used for selection of root.
@@ -111,14 +117,17 @@ public class ExperimentInfoPanel
 	/** The Experiment Info object. Holds exp info. */
 	IAttributes					field;
 	
-	/** Label to display investigator */
-	private JLabel				investigatorLabel;
-	
 	/** Label to display number of unfilled parameters in the experiment */
 	private JLabel 				unfilledParamsLabel;
 	
 	/** Label to display number of unfilled steps in the experiment */
 	private JLabel 				unfilledStepsLabel;
+	
+	/** The text field used for editing the investigator's name */
+	private JTextField 			nameField;
+	
+	/** Container for name label and nameEditor */
+	Box 						nameBox;
 	
 	/** A Date-picker to display and pick date of experiment. */
 	private JXDatePicker 		datePicker;
@@ -161,7 +170,6 @@ public class ExperimentInfoPanel
 	 */
 	private void initialise() 
 	{
-		investigatorLabel = new CustomLabel();
 		datePicker = UIUtilities.createDatePicker();
 		datePicker.setFont(new CustomFont());
 		datePicker.addActionListener(this);
@@ -254,8 +262,12 @@ public class ExperimentInfoPanel
 		leftPanel.setBackground(null);
 		
 		// add labels to left
-		investigatorLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		leftPanel.add(investigatorLabel);
+		nameBox = Box.createHorizontalBox();
+		nameBox.add(new CustomLabel("Investigator: "));
+		// nameBox will have the nameEditor added to it during refreshPanel()
+		// Can't add it now because we don't have the root field required. 
+		nameBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+		leftPanel.add(nameBox);
 		Box dateBox = Box.createHorizontalBox();
 		JLabel dateLabel = new CustomLabel("Date: ");
 		dateBox.add(dateLabel);
@@ -318,7 +330,15 @@ public class ExperimentInfoPanel
 				datePicker.setToolTipText(date);
 			} catch (NumberFormatException ex) {}
 			
-			investigatorLabel.setText("Investigator: " + investigName);
+			if (nameField == null) {
+				TextFieldEditor nameEditor = new 
+						TextFieldEditor(field, ExperimentInfo.INVESTIG_NAME);
+				nameEditor.addPropertyChangeListener
+								(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
+				nameField = nameEditor.getTextField();
+				nameBox.add(nameEditor);
+			}
+			nameField.setText(investigName);
 			
 			searchUnfilledParams();
 			unfilledParamsLabel.setText("<html>Unfilled Parameters: <b>" + 
@@ -548,10 +568,38 @@ public class ExperimentInfoPanel
 		}
 	}
 
+	/**
+	 * Implemented as specified by the {@link TreeSelectionListener} interface
+	 * Resets the {@link #currentStepIndex} index of unfilled steps 
+	 * and refreshes the buttons. 
+	 * 
+	 * @see TreeSelectionListener#valueChanged(TreeSelectionEvent)
+	 */
 	public void valueChanged(TreeSelectionEvent e) {
 		currentStepIndex = -1;
 		// sets enabled status of buttons. 
 		refreshButtons(); 
+	}
+
+	/**
+	 * Implemented as specified by the {@link PropertyChangeListener} interface
+	 * Listens for edits from E.g. name editor, and calls 
+	 * {@link #editAttribute(String, String)} to save the edit...
+	 * 
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt) {
+		String property = evt.getPropertyName();
+		if (ITreeEditComp.VALUE_CHANGED_PROPERTY.equals(property)) 
+		{
+			if (evt.getSource() instanceof ITreeEditComp) {
+				ITreeEditComp edit = (ITreeEditComp)evt.getSource();
+				String attributeName = edit.getAttributeName();
+				// don't handle new Objects (eg attribute map) yet.
+				String newValue = evt.getNewValue().toString();
+				editAttribute(attributeName, newValue);
+			}
+		}
 	}
 
 }

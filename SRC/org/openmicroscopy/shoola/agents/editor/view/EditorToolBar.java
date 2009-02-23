@@ -55,10 +55,11 @@ class EditorToolBar
 {
 	/** The Actions that are displayed in the File toolbar */
 	static Integer[] 				FILE_ACTIONS = {
+						EditorControl.NEW_BLANK_FILE,
 						EditorControl.OPEN_LOCAL_FILE, 
 						EditorControl.OPEN_WWW_FILE,
-						EditorControl.SAVE_FILE,
-						EditorControl.NEW_BLANK_FILE };
+						EditorControl.SAVE_FILE
+						};
 
 	/** Reference to the Control. */
 	private EditorControl controller;
