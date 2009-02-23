@@ -141,7 +141,11 @@ public class EditableTree
 			
 			/* make sure the node is visible (expand parent) */
 			expandPath(selPaths[0].getParentPath());
+			
+			removeTreeSelectionListener(this);
 			setSelectionPaths(selPaths);
+			addTreeSelectionListener(this);
+			
 			scrollPathToVisible(selPaths[0]);
 		} 
 		else if (source.equals(this)) {
