@@ -112,7 +112,7 @@
         </td> 
         <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a> {% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.getCommentsSize }}]{% endif %}</td> 
         <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a> <a href="{% get_webclient_root_url %}/share/edit/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></td>
-        <td>{{ c.getStartDate|date:"d M Y" }} - {{ c.getExpirationDate|date:"d M Y" }}</td>
+        <td>{{ c.getStartDate|date:"d M Y" }} - {% if c.getExpirationDate %}{{ c.getExpirationDate|date:" H:i d M Y" }}{% else %}never{% endif %}</td>
     </tr> 
     {% endfor %}
 </tbody> 
@@ -150,7 +150,7 @@
         </a></td> 
         <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a> {% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.getCommentsSize }}]{% endif %}</td> 
         <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a></td>
-        <td>{{ c.getStartDate|date:"d M Y" }} - {{ c.getExpirationDate|date:"d M Y" }}</td>
+        <td>{{ c.getStartDate|date:"d M Y" }} - {% if c.getExpirationDate %}{{ c.getExpirationDate|date:" H:i d M Y" }}{% else %}never{% endif %}</td>
     </tr>
     {% endfor %}
 </tbody> 

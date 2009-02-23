@@ -2318,7 +2318,12 @@ def manage_share(request, action, oid=None, **kwargs):
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
             message = request.REQUEST['message'].encode('utf-8')
-            expiration = request.REQUEST['expiration']
+            expiration = None
+            try:
+                if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
+                    expiration = str(request.REQUEST['expiration'].encode('utf-8'))
+            except:
+                pass
             members = request.REQUEST.getlist('members')
             #guests = request.REQUEST['guests']
             enable = False
@@ -2327,7 +2332,7 @@ def manage_share(request, action, oid=None, **kwargs):
             except:
                 pass
             host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
-            share.createShare(host, request.session['server'], request.session['imageInBasket'], message, expiration, members, enable)
+            share.createShare(host, request.session['server'], request.session['imageInBasket'], message, members, enable, expiration)
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
             basket = BaseBasket(conn)
@@ -2339,7 +2344,11 @@ def manage_share(request, action, oid=None, **kwargs):
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
             message = request.REQUEST['message'].encode('utf-8')
-            expiration = request.REQUEST['expiration']
+            try:
+                if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
+                    expiration = str(request.REQUEST['expiration'].encode('utf-8'))
+            except:
+                pass
             members = request.REQUEST.getlist('members')
             #guests = request.REQUEST['guests']
             enable = False
@@ -2348,7 +2357,7 @@ def manage_share(request, action, oid=None, **kwargs):
             except:
                 pass
             host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
-            share.createDiscussion(host, request.session['server'], message, expiration, members, enable)
+            share.createDiscussion(host, request.session['server'], message, members, enable, expiration)
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
             basket = BaseBasket(conn)
@@ -2360,7 +2369,12 @@ def manage_share(request, action, oid=None, **kwargs):
         share.getMembers(oid)
         share.getComments(oid)
         
-        form = ShareForm(initial={'message': share.share.message, 'expiration': share.share.getExpirationDate().strftime("%Y-%m-%d"), \
+        if share.share.getExpirationDate() is not None:
+            form = ShareForm(initial={'message': share.share.message, 'expiration': share.share.getExpirationDate().strftime("%Y-%m-%d"), \
+                                    'shareMembers': share.membersInShare, 'enable': share.share.active, \
+                                    'experimenters': experimenters}) #'guests': share.guestsInShare,
+        else:
+            form = ShareForm(initial={'message': share.share.message, 'expiration': "", \
                                     'shareMembers': share.membersInShare, 'enable': share.share.active, \
                                     'experimenters': experimenters}) #'guests': share.guestsInShare,
         context = {'url':url, 'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
@@ -2368,7 +2382,11 @@ def manage_share(request, action, oid=None, **kwargs):
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
             message = request.REQUEST['message'].encode('utf-8')
-            expiration = request.REQUEST['expiration']
+            try:
+                if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
+                    expiration = str(request.REQUEST['expiration'].encode('utf-8'))
+            except:
+                pass
             members = request.REQUEST.getlist('members')
             #guests = request.REQUEST['guests']
             enable = False
@@ -2376,7 +2394,7 @@ def manage_share(request, action, oid=None, **kwargs):
                 if request.REQUEST['enable']: enable = True
             except:
                 pass
-            share.updateShare(message, expiration, members, enable)
+            share.updateShare(message, members, enable, expiration)
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
             template = "omeroweb/share_form.html"

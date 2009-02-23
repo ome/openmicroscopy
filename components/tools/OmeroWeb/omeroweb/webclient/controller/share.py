@@ -66,32 +66,38 @@ class BaseShare(BaseController):
             self.share = self.conn.getShare(share_id)
             self.conn_share.activateShare(share_id)
 
-    def createShare(self, host, blitz_id, imageInBasket, message, expiration, members, enable):
+    def createShare(self, host, blitz_id, imageInBasket, message, members, enable, expiration=None):
         # only for python 2.5
         # d1 = datetime.strptime(expiration+" 23:59:59", "%Y-%m-%d %H:%M:%S")
-        d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
-        expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
+        expiration_date = None
+        if expiration is not None:
+            d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
+            expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
         ms = [str(m) for m in members]
         #gs = str(guests).split(';')
-        self.conn.createShare(host, int(blitz_id), imageInBasket, message, expiration_date, ms, enable)
+        self.conn.createShare(host, int(blitz_id), imageInBasket, message, ms, enable, expiration_date)
 
-    def createDiscussion(self, host, blitz_id, message, expiration, members, enable):
+    def createDiscussion(self, host, blitz_id, message, members, enable, expiration=None):
         # only for python 2.5
         # d1 = datetime.strptime(expiration+" 23:59:59", "%Y-%m-%d %H:%M:%S")
-        d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
-        expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
+        expiration_date = None
+        if expiration is not None:
+            d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
+            expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
         ms = [str(m) for m in members]
         #gs = str(guests).split(';')
-        self.conn.createShare(host, int(blitz_id), [], message, expiration_date, ms, enable)
+        self.conn.createShare(host, int(blitz_id), [], message, ms, enable, expiration_date)
     
-    def updateShare(self, message, expiration, members, enable):
+    def updateShare(self, message, members, enable, expiration=None):
         # only for python 2.5
         # d1 = datetime.strptime(expiration+" 23:59:59", "%Y-%m-%d %H:%M:%S")
-        d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
-        expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
+        expiration_date = None
+        if expiration is not None:
+            d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
+            expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
         ms = [str(m) for m in members]
         #gs = str(guests).split(';')
-        self.conn.updateShare(self.share.id, message, expiration_date, ms, enable)
+        self.conn.updateShare(self.share.id, message, ms, enable, expiration_date)
         
     def addComment(self, host, blitz_id, comment):
         self.conn.addComment(host, int(blitz_id), self.share.id, comment)

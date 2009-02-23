@@ -29,7 +29,7 @@ help_wiki_c = '<span id="markup_c" title="Markups - <small><b>WARNING:</b>We do 
 
 help_enable = '<span id="enable" title="Enable/Disable - <small>This option allows the owner to keep the access control of the share.</small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
 
-help_expire = '<span id="expire" title="Expire date - <small>This date defines when share will stop being available.</small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
+help_expire = '<span id="expire" title="Expire date - <small>This date defines when share will stop being available. Date format: YY-MM-DD.</small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
 
 ##################################################################
 # Model
@@ -78,9 +78,9 @@ class ShareForm(forms.Form):
         super(ShareForm, self).__init__(*args, **kwargs)
         try:
             if kwargs['initial']['shareMembers']: pass
-            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['shareMembers'], required=False, widget=forms.SelectMultiple(attrs={'size':7}))
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['shareMembers'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
         except:
-            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False, widget=forms.SelectMultiple(attrs={'size':7}))
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
         self.fields.keyOrder = ['message', 'expiration', 'enable', 'members']#, 'guests']
     
     message = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 70}), help_text=help_wiki_c) 
@@ -89,12 +89,17 @@ class ShareForm(forms.Form):
     #guests = MultiEmailField(required=False, widget=forms.TextInput(attrs={'size':75}))
 
     def clean_expiration(self):
-        d = self.cleaned_data['expiration'].rsplit("-")
-        # only for python 2.5
-        # date = datetime.datetime.strptime(("%s-%s-%s" % (d[0],d[1],d[2])), "%Y-%m-%d")
-        date = datetime.datetime(*(time.strptime(("%s-%s-%s" % (d[0],d[1],d[2])), "%Y-%m-%d")[0:6]))
-        if time.time() >= time.mktime(date.timetuple()):
-            raise forms.ValidationError('Expire date must be in the future.')
+        da = self.cleaned_data['expiration'].encode('utf-8')
+        if da is not None and da != "":
+            d = da.rsplit("-")
+            # only for python 2.5
+            # date = datetime.datetime.strptime(("%s-%s-%s" % (d[0],d[1],d[2])), "%Y-%m-%d")
+            try:
+                date = datetime.datetime(*(time.strptime(("%s-%s-%s" % (d[0],d[1],d[2])), "%Y-%m-%d")[0:6]))
+            except:
+                raise forms.ValidationError('Date is in the wrong format. YY-MM-DD')
+            if time.time() >= time.mktime(date.timetuple()):
+                raise forms.ValidationError('Expire date must be in the future.')
 
 class ShareCommentForm(forms.Form):
 

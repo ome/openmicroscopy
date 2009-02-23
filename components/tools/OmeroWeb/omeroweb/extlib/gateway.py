@@ -1534,7 +1534,7 @@ class BlitzGateway (threading.Thread):
                 except:
                     logger.error(traceback.format_exc())
     
-    def createShare(self, host, blitz_id, imageInBasket, message, expiration, members, enable):
+    def createShare(self, host, blitz_id, imageInBasket, message, members, enable, expiration=None):
         sh = self.getShareService()
         q = self.getQueryService()
         
@@ -1593,7 +1593,7 @@ class BlitzGateway (threading.Thread):
                 except:
                     logger.error(traceback.format_exc())
     
-    def updateShare (self, share_id, message, expiration, members, enable):
+    def updateShare (self, share_id, message, members, enable, expiration=None):
         sh = self.getShareService()
         sh.setDescription(long(share_id), message)
         sh.setExpiration(long(share_id), expiration)
@@ -2745,7 +2745,7 @@ class ShareWrapper (BlitzObjectWrapper):
         try:
             return datetime.fromtimestamp((self._obj.started.val+self._obj.timeToLive.val)/1000)
         except ValueError:
-            return "Unknown"
+            return None
         except:
             return None
     

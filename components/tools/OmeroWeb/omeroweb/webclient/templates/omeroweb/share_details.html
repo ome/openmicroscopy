@@ -57,7 +57,7 @@
 
 {% block center %}
     <h2>Status: 
-        {% if share.share.active %}ACTIVE{% else %}NOT ACTIVE{% endif %}. Starts: {{ share.share.getStartDate|date:" H:i d M Y" }}, Expires: {{ share.share.getExpirationDate|date:" H:i d M Y" }}
+        {% if share.share.active %}ACTIVE{% else %}NOT ACTIVE{% endif %}. Starts: {{ share.share.getStartDate|date:" H:i d M Y" }}, Expires: {% if share.share.getExpirationDate %}{{ share.share.getExpirationDate|date:" H:i d M Y" }}{% else %}never{% endif %}
     </h2>
     
     <h1>Hi, 

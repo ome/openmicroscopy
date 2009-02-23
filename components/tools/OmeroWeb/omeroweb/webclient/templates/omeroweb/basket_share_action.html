@@ -58,6 +58,7 @@
 
 {% block center %}
 
+{% if basket.sizeOfBasket %}
     <h1>Create new share with {{ basket.sizeOfBasket }} items:</h1>
     
     <div id="cart">
@@ -94,6 +95,9 @@
             googie_spell.decorateTextarea("id_message", null, "600px");
         </script>
     </div>
-
+{% else %}
+    <h1>Your basket is empty.</h1>
+    <div class="error"><p>Your basket is empty. Please add some of your bio-data from <a href="{% get_webclient_root_url %}/mydata/">My data</a>.</p></div>
+{% endif %}
 {% endblock %}
 
