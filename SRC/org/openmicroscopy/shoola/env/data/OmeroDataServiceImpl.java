@@ -148,7 +148,7 @@ class OmeroDataServiceImpl
 		System.err.println("related to");
 		while (i.hasNext()) {
 			obj = (IObject) i.next();
-			System.err.println("owner: "+obj.getDetails().getOwner());
+			System.err.println("owner: "+obj+" "+obj.getDetails());
 			ownerID = obj.getDetails().getOwner().getId().getValue();
 			if (ownerID != id)
 				others.add(obj);
@@ -633,46 +633,6 @@ class OmeroDataServiceImpl
 		}
 		Set parents = gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
 				po.map()); 
-		/*
-		if (rootNodeIDs == null && parents != null) {
-			Class klass = null;
-			if (rootNodeType.equals(ProjectData.class))
-				klass = DatasetData.class;
-
-			if (klass != null) {
-				po = new PojoOptions(); 
-				po.exp(omero.rtypes.rlong(userID));
-				po.noLeaves();
-				//Set r = gateway.loadContainerHierarchy(klass, null, po.map());
-				Set r = gateway.fetchContainers(klass, userID);
-				Iterator i = parents.iterator();
-				DataObject parent;
-				Set children = new HashSet();
-				while (i.hasNext()) {
-					parent = (DataObject) i.next();
-					if (klass.equals(DatasetData.class))
-						children.addAll(((ProjectData) parent).getDatasets());
-				}
-				Set<Long> childrenIds = new HashSet<Long>();
-
-				Iterator j = children.iterator();
-				DataObject child;
-				while (j.hasNext()) {
-					child = (DataObject) j.next();
-					childrenIds.add(new Long(child.getId()));
-				}
-				Set orphans = new HashSet();
-				if (r != null) orphans.addAll(r);
-				j = r.iterator();
-				while (j.hasNext()) {
-					child = (DataObject) j.next();
-					if (childrenIds.contains(new Long(child.getId())))
-						orphans.remove(child);
-				}
-				if (orphans.size() > 0) parents.addAll(orphans);
-			}
-		}
-		*/
 		return parents;                            
 	}
 

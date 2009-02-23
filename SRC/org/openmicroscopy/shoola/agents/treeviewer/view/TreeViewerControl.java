@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SetRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewImageAction;
@@ -239,6 +240,10 @@ class TreeViewerControl
 	
 	/** Identifies the <code>Create tag sets or tags</code> in the menu. */
 	static final Integer    NEW_TAG_OBJECT = Integer.valueOf(46);
+	
+	/** Identifies the <code>Add or remove tag</code> in the menu. */
+	static final Integer    TAGGING = Integer.valueOf(47);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -314,6 +319,7 @@ class TreeViewerControl
 						CreateTopContainerAction.TAG_SET));
 		actionsMap.put(NEW_TAG_OBJECT, new NewObjectAction(model, 
 				NewObjectAction.NEW_TAGS));
+		actionsMap.put(TAGGING, new TaggingAction(model));
 	}
 
 	/** 

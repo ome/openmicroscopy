@@ -276,4 +276,7 @@ public interface MetadataViewer
      */
 	public void setStatus(boolean busy);
 
+	/** Displays the tag wizard. */
+	public void showTagWizard();
+	
 }

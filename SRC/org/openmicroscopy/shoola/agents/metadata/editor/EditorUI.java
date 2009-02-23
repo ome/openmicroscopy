@@ -241,30 +241,19 @@ public class EditorUI
 			model.fireDataObjectSaving(exp);
 			return;
 		}
-		//if (!model.isMultiSelection()) propertiesUI.updateDataObject();
-		//
 		List<AnnotationData>[] array = generalPane.prepareDataToSave();
 		List<AnnotationData> toAdd = array[0];
 		List<AnnotationData> toRemove = array[1];
 		List<Object> metadata = null;
 		Object refObject = model.getRefObject();
-		if (refObject instanceof ImageData) {
+		if (refObject instanceof ImageData)
 			metadata = acquisitionPane.prepareDataToSave();
-		}
-		
+
 		model.fireAnnotationSaving(toAdd, toRemove, metadata);
 	}
 
 	/** Lays out the thumbnails. */
 	void setThumbnails() { generalPane.setThumbnails(); }
-
-	/** Sets the existing tags. */
-	void setExistingTags()
-	{
-		generalPane.setExistingTags();
-		revalidate();
-    	repaint();
-	}
 
 	/**
 	 * Returns the list of tags currently selected by the user.
@@ -285,13 +274,6 @@ public class EditorUI
 	{
 		return generalPane.getCurrentAttachmentsSelection();
 	}
-	
-	/**
-	 * Returns the value of the autocomplete flag.
-	 * 
-	 * @return See above.
-	 */
-	boolean isAutoComplete() { return generalPane.isAutoComplete(); }
 	
 	/** Shows the image's info. */
     void showChannelData()
@@ -401,6 +383,9 @@ public class EditorUI
 	{
 		if (objects == null) return;
 		generalPane.handleObjectsSelection(type, objects);
+		if (model.isMultiSelection()) {
+			saveData();
+		}	
 	}
 	
 	/** 

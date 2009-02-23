@@ -124,6 +124,8 @@ class EditorComponent
 		SelectionWizard wizard = new SelectionWizard(
 				reg.getTaskBar().getFrame(), available, selected, type,
 				addCreation);
+		if (model.isMultiSelection())
+			wizard.setAcceptButtonText("Save");
 		wizard.setTitle(title, text, icon);
 		wizard.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(wizard);
@@ -216,43 +218,40 @@ class EditorComponent
 	public void setExistingTags(Collection tags)
 	{
 		model.setExistingTags(tags);
-		if (view.isAutoComplete()) view.setExistingTags();
-		else {
-			Collection setTags = view.getCurrentTagsSelection();
-			Iterator<TagAnnotationData> k = setTags.iterator();
-			List<Long> ids = new ArrayList<Long>();
-			while (k.hasNext()) {
-				ids.add(k.next().getId());
-			}
-			List available = new ArrayList();
-			if (tags != null) {
-				Iterator i = tags.iterator();
-				TagAnnotationData data, tag;
-				String ns;
-				Set<TagAnnotationData> l;
-				Iterator<TagAnnotationData> j;
-				while (i.hasNext()) {
-					data = (TagAnnotationData) i.next();
-					ns = data.getNameSpace();
-					if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-						l = data.getTags();
-						if (l != null) {
-							j = l.iterator();
-							while (j.hasNext()) {
-								tag = j.next();
-								if (!ids.contains(tag.getId()))
-									available.add(tag);
-							}
+		Collection setTags = view.getCurrentTagsSelection();
+		Iterator<TagAnnotationData> k = setTags.iterator();
+		List<Long> ids = new ArrayList<Long>();
+		while (k.hasNext()) {
+			ids.add(k.next().getId());
+		}
+		List available = new ArrayList();
+		if (tags != null) {
+			Iterator i = tags.iterator();
+			TagAnnotationData data, tag;
+			String ns;
+			Set<TagAnnotationData> l;
+			Iterator<TagAnnotationData> j;
+			while (i.hasNext()) {
+				data = (TagAnnotationData) i.next();
+				ns = data.getNameSpace();
+				if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+					l = data.getTags();
+					if (l != null) {
+						j = l.iterator();
+						while (j.hasNext()) {
+							tag = j.next();
+							if (!ids.contains(tag.getId()))
+								available.add(tag);
 						}
-					} else {
-						if (!ids.contains(data.getId()))
-							available.add(data);
 					}
+				} else {
+					if (!ids.contains(data.getId()))
+						available.add(data);
 				}
 			}
-			showSelectionWizard(TagAnnotationData.class, available, setTags,
-								true);
 		}
+		showSelectionWizard(TagAnnotationData.class, available, setTags,
+							true);
 		setStatus(false);
 	}
 	

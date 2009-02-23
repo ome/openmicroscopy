@@ -717,6 +717,16 @@ public class SelectionWizard
 	}
 
 	/**
+	 * Sets the text of the {@link #acceptButton}.
+	 * 
+	 * @param text The value to set.
+	 */
+	public void setAcceptButtonText(String text)
+	{
+		if (acceptButton != null) acceptButton.setText(text);
+	}
+	
+	/**
 	 * Sets the enabled flag of the {@link #addNewButton}.
 	 * @see DocumentListener#insertUpdate(DocumentEvent)
 	 */

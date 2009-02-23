@@ -68,7 +68,6 @@ import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
-import omero.model.TextAnnotation;
 import omero.model.UriAnnotation;
 import omero.model.UriAnnotationI;
 import omero.model.Well;

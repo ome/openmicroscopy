@@ -215,10 +215,7 @@ class EditorControl
 	}
 	
 	/** Loads the existing Tags. */
-	void loadExistingTags()
-	{
-		model.loadExistingTags();
-	}
+	void loadExistingTags() { model.loadExistingTags(); }
 	
 	/**
 	 * Reacts to property change.
@@ -305,7 +302,6 @@ class EditorControl
 			case ADD_TAGS:
 				loadExistingTags();
 		}
-		
 	}
 	
 }

@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.TaggingAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,10 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
-
-
 
 
 //Java imports
@@ -36,37 +33,34 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
-import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.ProjectData;
-import pojos.TagAnnotationData;
 
 /** 
- * Action to delete the selected element and {@link DeleteCmd} is executed.
+ * Action to launch the available tags.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 2.2
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since 3.0-Beta4
  */
-public class DeleteAction
-    extends TreeViewerAction
+public class TaggingAction 
+	extends TreeViewerAction
 {
 
-    /** Name of the action. */
-    private static final String NAME = "Delete";
-
-    /** 
-     * Description of the action if the selected item is <code>null</code>. 
-     */
-    private static final String DESCRIPTION = "Delete the selected items.";
+	/** The default name of the action. */
+    private static final String NAME = "Tag...";
+    
+    /** The default name of the action. */
+    private static final String DESCRIPTION = "Add or remove tags.";
     
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
@@ -94,33 +88,20 @@ public class DeleteAction
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
         if (selectedDisplay == null) {
-            name = NAME;
-            description = DESCRIPTION;
-            putValue(Action.SHORT_DESCRIPTION, 
-                    UIUtilities.formatToolTipText(DESCRIPTION));
-            setEnabled(false);
+        	setEnabled(false);
             return;
         }
         Browser browser = model.getSelectedBrowser();
         if (browser == null) {
-            name = NAME;
-            putValue(Action.SHORT_DESCRIPTION, 
-                    UIUtilities.formatToolTipText(DESCRIPTION));
-            setEnabled(false);
-            description = DESCRIPTION;
+        	setEnabled(false);
             return;
         } 
         Object ho = selectedDisplay.getUserObject(); 
+
         if ((ho instanceof DatasetData) || (ho instanceof ProjectData) ||
-        	(ho instanceof ImageData) || (ho instanceof FileAnnotationData) ||
-        	(ho instanceof TagAnnotationData)) {
-        	TreeImageDisplay[] selected = browser.getSelectedDisplays();
-        	if (selected.length > 1) setEnabled(false);
-        	else {
-        		setEnabled(model.isObjectWritable(ho));
-        	}
+        	(ho instanceof ImageData)) {
+        	setEnabled(true);
         } else setEnabled(false);
-        description = (String) getValue(Action.SHORT_DESCRIPTION);
     }
     
     /**
@@ -128,25 +109,24 @@ public class DeleteAction
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-    public DeleteAction(TreeViewer model)
-    {
-        super(model);
-        name = NAME;
-        putValue(Action.NAME, name);
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.DELETE));
-    }
-
-    /**
-     * Creates a {@link DeleteCmd} command to execute the action. 
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-     */
+	public TaggingAction(TreeViewer model)
+	{
+		super(model);
+		name = NAME;  
+		putValue(Action.SHORT_DESCRIPTION, 
+				UIUtilities.formatToolTipText(DESCRIPTION));
+		description = (String) getValue(Action.SHORT_DESCRIPTION);
+		IconManager im = IconManager.getInstance();
+		putValue(Action.SMALL_ICON, im.getIcon(IconManager.TAG));
+	}
+	
+	/**
+	 * Brings up the tagging wizard.
+	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	 */
     public void actionPerformed(ActionEvent e)
     {
-        DeleteCmd cmd = new DeleteCmd(model);
-        cmd.execute();
+    	model.showTagWizard();
     }
     
 }

@@ -2016,7 +2016,7 @@ class OMEROGateway
 			if (table == null) return null;
 			StringBuffer sb = new StringBuffer();
 			sb.append("select link from "+table+" as link");
-			sb.append(" left outer join link.details.owner as owner");
+			sb.append(" join fetch link.details.owner as owner");
 			sb.append(" left outer join link.child as child");
 			sb.append(" left outer join link.parent as parent");
 			ParametersI p = new ParametersI();

@@ -749,5 +749,8 @@ public interface TreeViewer
 	 * or opens the currently selected file.
 	 */
 	public void openEditorFile();
+
+	/** Displays the tag wizard. */
+	public void showTagWizard();
 	
 }

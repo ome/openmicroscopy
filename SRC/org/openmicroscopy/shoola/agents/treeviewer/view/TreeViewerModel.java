@@ -818,5 +818,5 @@ class TreeViewerModel
 		Object ho = nodes[0].getUserObject();
 		return ho.getClass();
 	}
-	
+
 }

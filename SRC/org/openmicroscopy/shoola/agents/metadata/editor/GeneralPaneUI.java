@@ -301,14 +301,6 @@ class GeneralPaneUI
 	/** Lays out the thumbnails. */
 	void setThumbnails() { annotationUI.setThumbnails(); }
 	
-	/** Sets the existing tags. */
-	void setExistingTags()
-	{
-		annotationUI.setExistingTags();
-		revalidate();
-    	repaint();
-	}
-	
 	/**
 	 * Returns the list of tags currently selected by the user.
 	 * 
@@ -328,13 +320,6 @@ class GeneralPaneUI
 	{
 		return annotationUI.getCurrentAttachmentsSelection();
 	}
-	
-	/**
-	 * Returns the value of the autocomplete flag.
-	 * 
-	 * @return See above.
-	 */
-	boolean isAutoComplete() { return annotationUI.isAutoComplete(); }
 	
 	/** Shows the image's info. */
     void setChannelData()

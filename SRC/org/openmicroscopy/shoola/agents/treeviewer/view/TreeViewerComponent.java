@@ -1985,5 +1985,15 @@ class TreeViewerComponent
 			bus.post(new ShowEditorEvent());
 		}
 	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#showTagWizard()
+	 */
+	public void showTagWizard()
+	{
+		if (model.getState() == DISCARDED) return;
+		model.getMetadataViewer().showTagWizard();
+	}
 	
 }

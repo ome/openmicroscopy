@@ -28,10 +28,6 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -44,8 +40,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -54,24 +48,17 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
-import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
-import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
 import pojos.AnnotationData;
-import pojos.DataObject;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.RatingAnnotationData;
@@ -93,7 +80,7 @@ import pojos.TagAnnotationData;
  */
 class AnnotationDataUI
 	extends AnnotationUI
-	implements DocumentListener, FocusListener, PropertyChangeListener
+	implements PropertyChangeListener
 {
 
 	/** Component used to rate the object. */
@@ -114,8 +101,11 @@ class AnnotationDataUI
 	/** The initial value of the rating. */
 	private int 							initialValue;
 	
-	/** The index of the view by Row. */
+	/** The index of the view row. */
 	private int								viewedByRow;
+	
+	/** The index of the tag row. */
+	private int								tagRow;
 	
 	/** The UI component hosting the various annotations. */
 	private JPanel							content;
@@ -144,12 +134,6 @@ class AnnotationDataUI
 	/** The collection of existing tags. */
 	private Map<String, TagAnnotationData>	existingTags;
 	
-	/** Flag indicating that the tags are loaded for autocomplete. */
-	private boolean							autoComplete;
-	
-	/** The dialog displaying the possible tags. */
-	private HistoryDialog					autoCompleteDialog;
-
 	/** 
 	 * The selection menu to attach either local documents or already
 	 * upload files. 
@@ -222,25 +206,12 @@ class AnnotationDataUI
 		rating.setOpaque(false);
 		rating.setBackground(UIUtilities.BACKGROUND_COLOR);
 		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
-		/*
-		tagsPane = new JTextPane();
-		tagsPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		tagsPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-		tagsPane.setText(DEFAULT_TEXT);
-		tagsPane.addFocusListener(this);
-		tagsPane.getDocument().addDocumentListener(this);
-		*/
 		tagsPane = new JPanel();
 		tagsPane.setLayout(new BoxLayout(tagsPane, BoxLayout.Y_AXIS));
 		tagsPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		DocComponent doc = new DocComponent(null, model);
 		tagsDocList.add(doc);
 		tagsPane.add(doc);
-		/*
-		urlPane = new JPanel();
-		urlPane.setLayout(new BoxLayout(urlPane, BoxLayout.Y_AXIS));
-		urlPane.add(new URLComponent(null, model));
-		*/
 		docPane = new JPanel();
 		docPane.setLayout(new BoxLayout(docPane, BoxLayout.Y_AXIS));
 		docPane.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -251,73 +222,6 @@ class AnnotationDataUI
 		viewedByPane.setLayout(new BoxLayout(viewedByPane, BoxLayout.Y_AXIS));
 		viewedByPane.setOpaque(false);
 		viewedByPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		
-		/*
-		Action a = createEnterAction();
-		Object key = a.getValue(Action.NAME);
-		tagsPane.getInputMap().put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), key);
-		tagsPane.getActionMap().put(key, a);
-		a = createVKUpAction();
-		key = a.getValue(Action.NAME);
-		tagsPane.getInputMap().put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), key);
-		tagsPane.getActionMap().put(key, a);
-		a = createVKDownAction();
-		key = a.getValue(Action.NAME);
-		tagsPane.getInputMap().put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), key);
-		tagsPane.getActionMap().put(key, a);
-		*/
-	}
-	
-	/**
-	 * Creates the action associated to the <code>Enter</code> key.
-	 * 
-	 * @return See above.
-	 */
-	private Action createEnterAction()
-	{
-		return new AbstractAction("enterPressed") {
-		
-			public void actionPerformed(ActionEvent e) {
-				handleKeyEnterPressed();
-			}
-		};
-	}
-	
-	/**
-	 * Creates the action associated to the <code>VK_UP</code> key.
-	 * 
-	 * @return See above.
-	 */
-	private Action createVKUpAction()
-	{
-		return new AbstractAction("enterVKUp") {
-		
-			public void actionPerformed(ActionEvent e) {
-				if (autoCompleteDialog != null && 
-						autoCompleteDialog.isVisible())
-					autoCompleteDialog.setSelectedIndex(false);
-			}
-		};
-	}
-	
-	/**
-	 * Creates the action associated to the <code>VK_UP</code> key.
-	 * 
-	 * @return See above.
-	 */
-	private Action createVKDownAction()
-	{
-		return new AbstractAction("enterVKUp") {
-		
-			public void actionPerformed(ActionEvent e) {
-				if (autoCompleteDialog != null && 
-						autoCompleteDialog.isVisible())
-					autoCompleteDialog.setSelectedIndex(true);
-			}
-		};
 	}
 	
 	/**
@@ -364,6 +268,7 @@ class AnnotationDataUI
 		
 		content.add(p, "0, "+i+", l, t");
 		content.add(tagsPane, "2, "+i);
+		tagRow = i;
 		i++;
 		layout.insertRow(i, TableLayout.PREFERRED);
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -465,241 +370,7 @@ class AnnotationDataUI
 			
 		return true;
 	}
-	
-	/** 
-	 * Adds the selected tag when the <code>Enter</code> key is pressed.
-	 */
-	private void handleKeyEnterPressed()
-	{
-		/*
-		if (autoCompleteDialog == null || !autoCompleteDialog.isVisible())
-			return;
-		String name = tagsPane.getText();
-		if (name == null) return;
-		TagItem o = (TagItem) autoCompleteDialog.getSelectedTextValue();
-		if (o == null) return;
-		DataObject ho = o.getDataObject();
-		tagsPane.getDocument().removeDocumentListener(this);
-		if (ho instanceof TagAnnotationData) 
-			handleAutoCompleteTagEnter((TagAnnotationData) ho);
-			*/
-		
-	}
-	
-	/** Creates the dialog displaying the available tags. */
-	private void startAutoComplete()
-	{
-		if (autoCompleteDialog != null) return;
-		Rectangle r = tagsPane.getBounds();
-		Object[] data = null;
-		Collection l = model.getExistingTags();
-		if (l != null && l.size() > 0) {
-			data = new Object[l.size()];
-			Iterator j = l.iterator();
-			DataObject object;
-			Collection usedTags = model.getTags();
-			
-			TagItem item;
-			int i = 0;
-			while (j.hasNext()) {
-				object = (DataObject) j.next();
-				item = new TagItem(object);
-				if (usedTags != null && usedTags.contains(object)) 
-					item.setAvailable(false);
-				data[i] = item;
-				i++;
-			}
-			long id = MetadataViewerAgent.getUserDetails().getId();
-			autoCompleteDialog = new HistoryDialog(data, r.width);
-			autoCompleteDialog.setListCellRenderer(new TagCellRenderer(id));
-			autoCompleteDialog.addPropertyChangeListener(
-					HistoryDialog.SELECTION_PROPERTY, this);
-		}
-	}
-	
-	/**
-	 * Removes the latest text entry and adds the tag.
-	 * 
-	 * @param tag Teh tag to add.
-	 */
-	private void handleAutoCompleteTagEnter(TagAnnotationData tag)
-	{
-		/*
-		String ns = tag.getNameSpace();
-		if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-			Set<TagAnnotationData> tags = tag.getTags();
-			if (tags != null) {
-				Iterator<TagAnnotationData> k = tags.iterator();
-				while (k.hasNext())
-					handleAutoCompleteTagEnter(k.next());
-			}
-			return;
-		}
-    	String[] names = tagsPane.getText().split(SearchUtil.COMMA_SEPARATOR);
-    	String value = "";
-    	int n = names.length-1;
-    	for (int i = 0; i < n; i++) {
-    		value += names[i];
-    		if (i != n-1) value += SearchUtil.COMMA_SEPARATOR;
-		}
-    	tagsPane.getDocument().removeDocumentListener(this);
-    	tagsPane.setText(value);
-    	tagsPane.getDocument().addDocumentListener(this);
-    	handleTagEnter(tag);
-    	*/
-	}
-	
-	/**
-	 * Handles a tag addition.
-	 * 
-	 * @param tag The value to handle.
-	 */
-	private void handleTagEnter(TagAnnotationData tag)
-	{
-		/*
-		String ns = tag.getNameSpace();
-		if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-			Set<TagAnnotationData> tags = tag.getTags();
-			if (tags != null) {
-				Iterator<TagAnnotationData> k = tags.iterator();
-				while (k.hasNext())
-					handleTagEnter(k.next());
-			}
-			return;
-		}
-		String value = tagsPane.getText();
-		String[] names = value.split(SearchUtil.COMMA_SEPARATOR);
-		List<String> values = new ArrayList<String>();
-		String tagValue = tag.getContentAsString();
-		boolean exist = false;
-		for (int i = 0; i < names.length; i++) {
-			if (!names[i].equals(DEFAULT_TEXT)) {
-				values.add(names[i]);
-				if (tagValue.equals(names[i])) 
-					exist = true;
-			}
-		}
-		if (!exist) {
-			existingTags.put(tag.getTagValue(), tag);
-			tagFlag = true;
-			values.add(tagValue);
-			firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-					Boolean.TRUE);
-		}
-		layoutTags(values);
-		*/
-	}
-	
-	/** Handles the text removal. */
-	private void handleTextRemoval()
-	{
-		/*
-		String value = tagsPane.getText();
-		String[] names = value.split(SearchUtil.COMMA_SEPARATOR);
-		int existing = 0;
-		int newTag = 0;
-		String v;
-		for (int i = 0; i < names.length; i++) {
-			v = names[i];
-			v = v.trim();
-			if (v.length() > 0) {
-				if (!v.equals(DEFAULT_TEXT)) {
-					if (tagNames.contains(names[i])) existing++;
-					else newTag++;
-				}
-			}
-		}
-		if (existing != tagNames.size()) tagFlag = true;
-		else tagFlag = newTag > 0;
-		*/
-	}
-	
-	/** Handles tag insert, autocomplete if fast connection. */
-	private void handleTextInsert()
-	{
-		//Check if fast connection.
-		/*
-		Collection tags = model.getExistingTags();
-		if (tags == null) {
-			autoComplete = true;
-			controller.loadExistingTags();
-		}
-		startAutoComplete();
-		String name = tagsPane.getText();
-		setSelectedTextValue(name.split(SearchUtil.COMMA_SEPARATOR));
-		tagFlag = true;
-		*/
-	}
-	
-	/**
-	 * Sets the selected value in the history list.
-	 * 
-	 * @param names The names already set.
-	 */
-    private void setSelectedTextValue(String[] names)
-    {
-        if (autoCompleteDialog == null) return;
-        int l = names.length;
-        if (l > 0) {
-        	if (autoCompleteDialog.setSelectedTextValue(names[l-1].trim())) {
-        		setAutoCompleteVisible(true);
-        		tagsPane.requestFocus();
-        	} else setAutoCompleteVisible(false);
-        }	
-    }
-    
-    /**
-     * Shows or hides the autocomplete dialog. 
-     * 
-     * @param visible 	Pass <code>true</code> to show the window,
-     * 					<code>false</code> to hide it.
-     */
-    private void setAutoCompleteVisible(boolean visible)
-    {
-    	if (visible) {
-    		Rectangle r = tagsPane.getBounds();
-    		autoCompleteDialog.show(tagsPane, 0, r.height);
-    	} else {
-    		autoCompleteDialog.setVisible(false);
-    	}
-    }
-    
-	/**
-	 * Lays out the tags.
-	 * 
-	 * @param values The values to lay out.
-	 */
-    /*
-	private void layoutTags(List<String> values)
-	{
-		Iterator i = values.iterator();
-		StringBuffer buffer = new StringBuffer();
-		String tag;
-		String value = "";
-		String s;
-		while (i.hasNext()) {
-			tag = (String) i.next();
-			if (tag != null && tag.trim().length() > 0) {
-				s = value+tag;
-				if (s.length() > COLUMN_WIDTH) {
-					buffer.append(value);
-					buffer.append("\n");
-					value = "";
-				} else {
-					if (value.length() == 0) value += tag;
-					else value = value+", "+tag;
-				}
-			}
-		}
-		if (value.length() > 0) {
-			buffer.append(value);
-		}
-		tagsPane.getDocument().removeDocumentListener(this);
-		tagsPane.setText(buffer.toString());
-		tagsPane.getDocument().addDocumentListener(this);
-	}
-	*/
-    
+  
 	/** 
 	 * Lays out the attachments. 
 	 * 
@@ -727,36 +398,6 @@ class AnnotationDataUI
 		}
 		docPane.revalidate();
 		docPane.repaint();
-		
-		/*
-		Collection l = model.getAttachments();
-		Iterator i;
-		DocComponent doc;
-		docPane.removeAll();
-		filesDocList.clear();
-		if (l != null && l.size() > 0) {
-			i = l.iterator();
-			while (i.hasNext()) {
-				doc = new DocComponent(i.next(), model, false);
-				doc.addPropertyChangeListener(controller);
-				filesDocList.add(doc);
-				docPane.add(doc);
-			}
-		}
-		if (list != null && list.size() > 0) {
-			i = list.iterator();
-			while (i.hasNext()) {
-				docPane.add((DocComponent) i.next());
-			}
-		}
-		if (filesDocList.size() == 0) {
-			doc = new DocComponent(null, model, false);
-			filesDocList.add(doc);
-			docPane.add(doc);
-		}
-			
-		docPane.revalidate();
-		*/
 	}
 	
 	/**
@@ -838,16 +479,6 @@ class AnnotationDataUI
 	 */
 	protected void buildUI()
 	{
-		/*
-		Collection tags = model.getTags();
-		
-		if (tags != null) {
-			Iterator i = tags.iterator();
-			while (i.hasNext()) {
-				tagNames.add(((TagAnnotationData) i.next()).getTagValue());
-			}
-		}
-		*/
 		//rating
 		selectedValue = 0;
 		if (!model.isMultiSelection()) 
@@ -856,18 +487,7 @@ class AnnotationDataUI
 		rating.setValue(selectedValue);
 
 		//tags
-		layoutTags(model.getTags());
-		/*
-		Iterator i;
-		Collection l = model.getTags();
-		if (l != null && l.size() > 0) {
-			i = l.iterator();
-			List<String> values = new ArrayList<String>();
-			while (i.hasNext()) 
-				values.add(((AnnotationData) i.next()).getContentAsString());
-			//layoutTags(values);
-		}
-		*/
+
 		//Add attachments
 		layoutAttachments(model.getAttachments());
 		
@@ -875,40 +495,21 @@ class AnnotationDataUI
 		Object refObject = model.getRefObject();
 		TableLayout layout = (TableLayout) content.getLayout();
 		double h = 0;
+		double hTag = 0;
 		if (!model.isMultiSelection()) {
 			if (refObject instanceof ImageData) {
 				if (layoutViewedBy()) h = TableLayout.PREFERRED;
 			} 
+			layoutTags(model.getTags());
+			hTag = TableLayout.PREFERRED;
 		}
 		layout.setRow(viewedByRow, h);
+		layout.setRow(tagRow, hTag);
 		content.revalidate();
 		content.repaint();
 		revalidate();
 		repaint();
 	}
-	
-	/**
-	 * Returns the value of the autocomplete flag.
-	 * 
-	 * @return See above.
-	 */
-	boolean isAutoComplete() { return autoComplete; }
-	
-	/** 
-	 * Displays the existing in the <code>SelectionWizard</code>
-	 * or in the UI component used for code completion.
-	 */
-	void setExistingTags()
-	{
-		/*
-		if (autoComplete) {
-			startAutoComplete();
-			String name = tagsPane.getText();
-			setSelectedTextValue(name.split(SearchUtil.COMMA_SEPARATOR));
-		}
-		autoComplete = false;
-		*/
-	}	
 	
 	/**
 	 * Attaches the passed file.
@@ -953,15 +554,6 @@ class AnnotationDataUI
 	void removeAttachedFile(Object file)
 	{ 
 		if (file == null) return;
-			/*
-		if (file instanceof File) {
-			try {
-				FileAnnotationData data = new FileAnnotationData((File) file);
-				removeFile(data);
-			} catch (Exception e) {}
-		} else if (file instanceof FileAnnotationData)
-			removeFile((FileAnnotationData) file);
-		*/
 		FileAnnotationData fData = (FileAnnotationData) file;
 		List<FileAnnotationData> attachments = getCurrentAttachmentsSelection();
 		Iterator<FileAnnotationData> i = attachments.iterator();
@@ -1122,7 +714,7 @@ class AnnotationDataUI
 			RatingAnnotationData rating = model.getUserRatingAnnotation();
 			if (rating != null) l.add(rating);
 		}
-		if (tagFlag) {
+		if (tagFlag && !model.isMultiSelection()) {
 			List<Long> idsToKeep = new ArrayList<Long>();
 			DocComponent doc;
 			TagAnnotationData tag;
@@ -1149,46 +741,6 @@ class AnnotationDataUI
 				if (!idsToKeep.contains(id))
 					l.add(tag);
 			}
-			/*
-			 * 
-			String value = tagsPane.getText();
-			String[] names = value.split(SearchUtil.COMMA_SEPARATOR);
-			String v;
-			List<String> values = new ArrayList<String>();
-			Map<String, TagAnnotationData> 
-				tags = new HashMap<String, TagAnnotationData>();
-			Collection col = model.getTags();
-			if (col != null) {
-				Iterator j = col.iterator();
-				TagAnnotationData tag;
-				while (j.hasNext()) {
-					tag = (TagAnnotationData) j.next();
-					tags.put(tag.getTagValue(), tag);
-				}
-			}
-			
-			for (int i = 0; i < names.length; i++) {
-				v = names[i];
-				v = v.trim();
-				if (v.length() > 0) {
-					if (!v.equals(DEFAULT_TEXT)) {
-						if (tagNames.contains(names[i])) {
-							values.add(v);
-						}
-					}
-				}
-			}
-			if (values.size() != tags.size()) {
-				Iterator<String> k = values.iterator();
-				while (k.hasNext()) {
-					tags.remove(k.next());
-				}
-				k = tags.keySet().iterator();
-				while (k.hasNext()) {
-					l.add(tags.get(k.next()));
-				}
-			}
-			*/
 		}
 		return l; 
 	}
@@ -1290,11 +842,7 @@ class AnnotationDataUI
 				this);
 		rating.setValue(selectedValue);
 		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
-		/*
-		tagsPane.getDocument().removeDocumentListener(this);
-		tagsPane.setText(DEFAULT_TEXT);
-		tagsPane.getDocument().addDocumentListener(this);
-		*/
+		
 		tagsPane.removeAll();
 		tagsDocList.clear();
 		DocComponent doc = new DocComponent(null, model);
@@ -1306,6 +854,14 @@ class AnnotationDataUI
 		docPane.add(doc);
 		tagFlag = false;
 		docFlag = false;
+		double h = 0;
+		if (!model.isMultiSelection()) h = TableLayout.PREFERRED;
+		TableLayout layout = (TableLayout) content.getLayout();
+		layout.setRow(tagRow, h);
+		content.revalidate();
+		content.repaint();
+		revalidate();
+		repaint();
 	}
 	
 	/**
@@ -1334,72 +890,7 @@ class AnnotationDataUI
 				firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 									Boolean.TRUE);
 			}
-		} else if (HistoryDialog.SELECTION_PROPERTY.equals(name)) {
-			Object item = evt.getNewValue();
-			if (!(item instanceof TagItem)) return;
-			DataObject ho = ((TagItem) item).getDataObject();
-			if (ho instanceof TagAnnotationData) 
-				handleAutoCompleteTagEnter((TagAnnotationData) ho);
 		}
 	}
-	
-	/**
-	 * Synchronizes controls when new text values are entered in the
-	 * {@link #tagsPane}.
-	 * @see DocumentListener#insertUpdate(DocumentEvent)
-	 */
-	public void insertUpdate(DocumentEvent e)
-	{
-		handleTextInsert();
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-				Boolean.TRUE);
-	}
-
-	/**
-	 * Synchronizes controls when new text values are entered in the
-	 * {@link #tagsPane}.
-	 * @see DocumentListener#removeUpdate(DocumentEvent)
-	 */
-	public void removeUpdate(DocumentEvent e)
-	{
-		handleTextRemoval();
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-				Boolean.TRUE);
-	}
-	
-	/**
-	 * Resets the default text of the text fields if <code>null</code> or
-	 * length <code>0</code>.
-	 * @see FocusListener#focusLost(FocusEvent)
-	 */
-	public void focusLost(FocusEvent e)
-	{
-		/*
-		Object src = e.getSource();
-		String text;
-		if (src == tagsPane) {
-			text = tagsPane.getText();
-			if (text == null || text.length() == 0) {
-				tagsPane.getDocument().removeDocumentListener(this);
-				tagsPane.setText(DEFAULT_TEXT);
-				tagsPane.getDocument().addDocumentListener(this);
-			}
-		}
-		*/
-	}
-	
-	/**
-	 * Required by the {@link DocumentListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see DocumentListener#changedUpdate(DocumentEvent)
-	 */
-	public void changedUpdate(DocumentEvent e) {}
-
-	/**
-	 * Required by the {@link FocusListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see FocusListener#focusGained(FocusEvent)
-	 */
-	public void focusGained(FocusEvent e) {}
 
 }

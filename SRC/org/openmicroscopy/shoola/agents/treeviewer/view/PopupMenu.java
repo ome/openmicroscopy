@@ -127,6 +127,9 @@ class PopupMenu
 	/** Button to open the Editor. */
 	private JMenuItem			editFile;
 	
+	/** Button to open the Tag wizard. */
+	private JMenuItem			tagElement;
+	
 	/** Reference to the Control. */
 	private TreeViewerControl   controller;
 
@@ -164,6 +167,10 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.EDITOR);
 				editFile = new JMenuItem(a);
 				initMenuItem(editFile, a.getActionName());
+				
+				a = controller.getAction(TreeViewerControl.TAGGING);
+				tagElement = new JMenuItem(a);
+				initMenuItem(tagElement, a.getActionName());
 				
 				a = controller.getAction(TreeViewerControl.CREATE_OBJECT);
 				newElement = new JMenuItem(a);
@@ -275,7 +282,8 @@ class PopupMenu
 				add(copyElement);
 				add(pasteElement);
 				add(deleteElement);
-				//add(createManagementMenu());
+				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(tagElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(copyRndElement);
 				add(pasteRndElement);

@@ -159,7 +159,7 @@ public class SearchHelp
 		setResizable(false);
 		initComponents();
 		buildGUI();
-		setSize(520, 315);
+		setSize(520, 350);
 	}
 	
 }
