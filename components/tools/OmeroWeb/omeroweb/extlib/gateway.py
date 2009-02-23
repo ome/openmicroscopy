@@ -1513,7 +1513,7 @@ class BlitzGateway (threading.Thread):
         new_cm = sh.addComment(long(share_id), str(comment))
         
         members = self.getAllMembers(long(share_id))
-        members.append(self.getShare.owner)
+        members.append(self.getShare().owner)
         
         #send email
         sender = None
