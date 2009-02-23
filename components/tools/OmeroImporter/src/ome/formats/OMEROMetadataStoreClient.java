@@ -147,6 +147,7 @@ public class OMEROMetadataStoreClient
     
     private List<Pixels> pixelsList;
     
+    private client c;
     private ServiceFactoryPrx serviceFactory;
     private IUpdatePrx iUpdate;
     private IQueryPrx iQuery;
@@ -227,7 +228,7 @@ public class OMEROMetadataStoreClient
                            String server, int port)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
-        client c = new client(server, port);
+        c = new client(server, port);
         serviceFactory = c.createSession(username, password);
         initializeServices();
     }
@@ -241,7 +242,7 @@ public class OMEROMetadataStoreClient
     public void initialize(String server, int port, String sessionKey)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
-        client c = new client(server, port);
+        c = new client(server, port);
         serviceFactory = c.joinSession(sessionKey);
         initializeServices();
     }
@@ -334,9 +335,14 @@ public class OMEROMetadataStoreClient
         return value == null? null : rtime(value);
     }
     
+    /**
+     * Destroys the sessionFactor and closes the client
+     * @return <code>null</code>
+     */
     public void logout()
     {
         serviceFactory.destroy();
+        c.close();
     }
     
     /* (non-Javadoc)
@@ -2227,6 +2233,8 @@ public class OMEROMetadataStoreClient
     {
             if (currentPixId != pixId)
             {
+                //rawPixelStore.close();
+                //rawPixelStore = serviceFactory.createRawPixelsStore();
                 rawPixelStore.setPixelsId(pixId);
                 currentPixId = pixId;
             }
