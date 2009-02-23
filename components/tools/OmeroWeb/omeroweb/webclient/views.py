@@ -2776,13 +2776,7 @@ def myaccount(request, action, **kwargs):
             email = request.REQUEST['email'].encode('utf-8')
             institution = request.REQUEST['institution'].encode('utf-8')
             defaultGroup = request.REQUEST['default_group']
-            try:
-                if request.REQUEST['password'].encode('utf-8') is None or request.REQUEST['password'].encode('utf-8') == "":
-                    password = None
-                else:
-                    password = str(request.REQUEST['password'].encode('utf-8'))
-            except:
-                password = None
+            password = str(request.REQUEST['password'].encode('utf-8'))
             controller.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
             return HttpResponseRedirect("/%s/myaccount/details/" % (settings.WEBCLIENT_ROOT_BASE))
     elif action == "upload":

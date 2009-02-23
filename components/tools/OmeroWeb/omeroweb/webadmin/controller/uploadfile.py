@@ -35,7 +35,7 @@ class BaseUploadFile(BaseController):
     def __init__(self, conn):
         BaseController.__init__(self, conn)
 
-    def attache_photo(self, newFile):
+    def attach_photo(self, newFile):
         has = self.conn.hasExperimenterPhoto()
         if has is not None:
             if newFile.content_type.startswith("image"):

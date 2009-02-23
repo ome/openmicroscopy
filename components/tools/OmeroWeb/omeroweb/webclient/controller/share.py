@@ -97,11 +97,11 @@ class BaseShare(BaseController):
         self.conn.addComment(host, blitz_id, self.share.id, comment)
 
     def getAllShares(self):
-        self.shares = self.sortByAttr(list(self.conn.getAllShares()), 'started')
+        self.shares = self.sortByAttr(list(self.conn.getAllShares()), 'started', True)
 
     def getShares(self):
-        self.ownShares = list(self.conn.getOwnShares())
-        self.memberShares = list(self.conn.getMemberShares())
+        self.ownShares = self.sortByAttr(list(self.conn.getOwnShares()), 'started', True)
+        self.memberShares = self.sortByAttr(list(self.conn.getMemberShares()), 'started', True)
         self.oshSize = len(self.ownShares)
         self.mshSize = len(self.memberShares)
 

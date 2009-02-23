@@ -488,10 +488,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
                 pass
             defaultGroup = request.REQUEST['default_group']
             otherGroups = request.POST.getlist('other_groups')
-            if request.REQUEST['password'] is None or request.REQUEST['password'] == "":
-                password = "ome"
-            else:
-                password = request.REQUEST['password'].encode('utf-8')
+            password = request.REQUEST['password'].encode('utf-8')
             controller.createExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
             return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
         context = {'info':info, 'eventContext':eventContext, 'form':form}
@@ -536,13 +533,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
                 pass
             defaultGroup = request.REQUEST['default_group']
             otherGroups = request.POST.getlist('other_groups')
-            try:
-                if request.REQUEST['password'] is None or request.REQUEST['password'] == "":
-                    password = None
-                else:
-                    password = request.REQUEST['password'].encode('utf-8')
-            except:
-                password = None
+            password = request.REQUEST['password'].encode('utf-8')
             controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution, password)
             return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid}
@@ -750,13 +741,7 @@ def my_account(request, action=None, **kwargs):
             email = request.REQUEST['email'].encode('utf-8')
             institution = request.REQUEST['institution'].encode('utf-8')
             defaultGroup = request.REQUEST['default_group']
-            try:
-                if request.REQUEST['password'] is None or request.REQUEST['password'] == "":
-                    password = None
-                else:
-                    password = request.REQUEST['password'].encode('utf-8')
-            except:
-                password = None
+            password = request.REQUEST['password'].encode('utf-8')
             myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
             logout(request)
             return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
