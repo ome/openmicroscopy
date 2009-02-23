@@ -925,11 +925,6 @@ class BlitzGateway (threading.Thread):
     def getAllUsers(self, share_id):
         sh = self.getShareService()
         return sh.getAllUsers(long(share_id))
-
-    def addComment(self, share_id, comment):
-        sh = self.getShareService()
-        return sh.addComment(long(share_id), str(comment))
-    
     
     ##############################################
     ##  Specific Object Getters                 ##
@@ -1512,7 +1507,33 @@ class BlitzGateway (threading.Thread):
     def deleteObject(self, obj):
         u = self.getUpdateService()
         u.deleteObject(obj)
+    
+    def addComment(self, host, blitz_id, share_id, comment):
+        sh = self.getShareService()
+        new_cm = sh.addComment(long(share_id), str(comment))
+        
+        members = self.getAllMembers(long(share_id))
 
+        #send email
+        sender = None
+        try:
+            if settings.EMAIL_NOTIFICATION:
+                import omeroweb.extlib.notification.handlesender as sender
+        except:
+            logger.error(traceback.format_exc())
+        else:
+            recipients = list()
+            for m in members:
+                try:
+                    recipients.append(m.email)
+                except:
+                    logger.error(traceback.format_exc())
+            if sender is not None:
+                try:
+                    sender.handler().create_sharecomment_message(host, blitz_id, share_id, recipients)
+                except:
+                    logger.error(traceback.format_exc())
+    
     def createShare(self, host, blitz_id, imageInBasket, message, expiration, members, enable):
         sh = self.getShareService()
         q = self.getQueryService()
@@ -1567,7 +1588,10 @@ class BlitzGateway (threading.Thread):
                     except:
                         logger.error(traceback.format_exc())
             if sender is not None:
-                sender.handler().create_share_message(host, blitz_id, self.getUser(), sid, message, recipients)
+                try:
+                    sender.handler().create_share_message(host, blitz_id, self.getUser(), sid, message, recipients)
+                except:
+                    logger.error(traceback.format_exc())
     
     def updateShare (self, share_id, message, expiration, members, enable):
         sh = self.getShareService()

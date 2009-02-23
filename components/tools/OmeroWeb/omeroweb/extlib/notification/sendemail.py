@@ -144,3 +144,33 @@ class SendEmail(threading.Thread):
         msgImage.add_header('Content-ID', '<image1>')
         msgRoot.attach(msgImage)
         self.to_send.append({"message": msgRoot.as_string(), "sender": settings.EMAIL_SENDER_ADDRESS, "recipients": recipients})
+
+    def create_sharecomment_message(self, host, blitz_id, share_id, recipients):
+        app = settings.WEBCLIENT_ROOT_BASE
+        # Create the root message and fill in the from, to, and subject headers
+        msgRoot = MIMEMultipart('related')
+        msgRoot['Subject'] = 'OMERO.%s - new comment on the share available' % (app)
+        msgRoot['From'] = settings.EMAIL_SENDER_ADDRESS
+
+        msgRoot.preamble = 'This is a multi-part message in MIME format.'
+        msgAlternative = MIMEMultipart('alternative')
+        msgRoot.attach(msgAlternative)
+        
+        email_txt = "%s/email_comment.txt" % os.path.join(os.path.dirname(__file__), 'templatemail/').replace('\\','/')
+        email_html = "%s/email_comment.html" % os.path.join(os.path.dirname(__file__), 'templatemail/').replace('\\','/')
+
+        contentAlternative = open(email_txt, 'r').read() % (host, share_id, blitz_id)
+        msgText = MIMEText(contentAlternative)
+        msgAlternative.attach(msgText)
+        content = open(email_html, 'r').read() % (host, share_id, blitz_id, host, share_id, blitz_id)
+        msgText = MIMEText(content, 'html')
+        msgAlternative.attach(msgText)
+
+        fp = open(settings.STATIC_LOGO, 'rb')
+        msgImage = MIMEImage(fp.read())
+        fp.close()
+
+        msgImage.add_header('Content-ID', '<image1>')
+        msgRoot.attach(msgImage)
+        self.to_send.append({"message": msgRoot.as_string(), "sender": settings.EMAIL_SENDER_ADDRESS, "recipients": recipients})
+        

@@ -2374,7 +2374,8 @@ def manage_share(request, action, oid=None, **kwargs):
         f = ShareCommentForm(data=request.REQUEST.copy())
         if f.is_valid():
             comment = request.REQUEST['comment'].encode('utf-8')
-            share.addComment(comment)
+            host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
+            share.addComment(host, request.session['server'], comment)
             return HttpResponseRedirect("/%s/share/view/%s/" % (settings.WEBCLIENT_ROOT_BASE, oid))
         else:
             template = "omeroweb/share_details.html"

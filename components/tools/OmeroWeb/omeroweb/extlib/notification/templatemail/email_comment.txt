@@ -1,0 +1,1 @@
+Hi, new comment is available on share %s/share/view/%i/?server=%i.
