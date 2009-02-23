@@ -82,12 +82,6 @@ public abstract class AbstractTreeEditAction
 	 */
 	protected UndoableEditSupport 	undoSupport;
 	
-	/**
-	 * An instance of UndoableTreeEdit which is used to set the enabled 
-	 * status of this Action, using the canDo() method, based on the
-	 * currently selected paths of the JTree. 
-	 */
-	protected UndoableTreeEdit 		undoableTreeEdit;
 	
 	/**
 	 * Refreshes the enabled state of the Action, based on the current 
@@ -103,9 +97,16 @@ public abstract class AbstractTreeEditAction
 		if (state == Browser.TREE_DISPLAY) {
 			setEnabled(false);
 		}
-		else 
-			setEnabled(undoableTreeEdit.canDo());
+		else {
+			if (treeUI == null) {
+				setEnabled(false);
+			} else {
+				setEnabled(canDo());
+			}
+		}
 	}
+	
+	protected abstract boolean canDo();
 
 	/**
 	 * This method is called when the state of the {@link Browser} changes.
@@ -149,10 +150,6 @@ public abstract class AbstractTreeEditAction
 		// Set the tree, and add this as a selectionListener
 		treeUI = tree;
 		treeUI.addTreeSelectionListener(this);
-		
-		// Pass on the JTree to the UndoableEdit, so that it can
-		// be used for the canDo() method, based on selected paths...
-		undoableTreeEdit.setTree(treeUI);
 		
 		//...and refresh the enabled status of this action. 
 		refreshState();

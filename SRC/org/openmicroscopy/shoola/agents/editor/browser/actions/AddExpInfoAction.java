@@ -36,6 +36,7 @@ import javax.swing.undo.UndoableEditSupport;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddExpInfoEdit;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.DeleteFieldsEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.TreeEdit;
 
 /** 
@@ -72,19 +73,6 @@ public class AddExpInfoAction
 	}
 	
 	/**
-	 * Override this method since we don't have an instance of UndoableTreeEdit
-	 */
-	protected void refreshState() 
-	{
-		int state = model.getState();
-		setEnabled(state != Browser.TREE_DISPLAY);
-		
-		// if we're already editing an experiment, disable. 
-		if (model.isModelExperiment())	
-			setEnabled(false);
-	}
-	
-	/**
 	 * Override this method since we don't need to add this class as an 
 	 * TreeSelectionListener, and don't have an instance of UndoAbleTreeEdit
 	 * to call setTree() on. 
@@ -110,5 +98,15 @@ public class AddExpInfoAction
 		edit.doEdit();
 		
 		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link AbstractTreeEditAction} class
+	 * 
+	 * @see AbstractTreeEditAction#canDo()
+	 */
+	protected boolean canDo() {
+		// if we're already editing an experiment, disable. 
+		return (! model.isModelExperiment());
 	}
 }

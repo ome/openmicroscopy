@@ -34,6 +34,7 @@ import javax.swing.undo.UndoableEditSupport;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.DeleteFieldsEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.MoveDownEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.UndoableTreeEdit;
 
@@ -65,9 +66,6 @@ extends AbstractTreeEditAction
 	public MoveDownAction(UndoableEditSupport undoSupport, Browser model) {
 		super(undoSupport, model);
 		
-		// treeUI may be null at this point.
-		undoableTreeEdit = new MoveDownEdit(treeUI);
-		
 		setName("Move Steps Down");
 		setDescription("Move selected steps down the page");
 		setIcon(IconManager.DOWN_ICON);  
@@ -86,5 +84,15 @@ extends AbstractTreeEditAction
 		edit.doEdit();
 		
 		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link AbstractTreeEditAction} class
+	 * 
+	 * @see AbstractTreeEditAction#canDo()
+	 */
+	protected boolean canDo() {
+		if (treeUI == null) return false; 
+		return MoveDownEdit.canDo(treeUI.getSelectionPaths());
 	}
 }

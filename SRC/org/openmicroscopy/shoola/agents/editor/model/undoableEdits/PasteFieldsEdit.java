@@ -90,16 +90,10 @@ public class PasteFieldsEdit
 	}
 
 	/**
-	 * Implemented as specified by the {@link UndoableTreeEdit} abstract class. 
-	 * Can paste fields as long as the JTree is not null (doesn't depend
-	 * on selected fields)
 	 * 
-	 * @see UndoableTreeEdit#canDo()
 	 */
-	public boolean canDo() 
-	{	
-		if (tree == null) return false;
-		
+	public static boolean canDo() 
+	{
 		if (EditorFactory.getCopiedData() == null) return false;
 		
 		return true;

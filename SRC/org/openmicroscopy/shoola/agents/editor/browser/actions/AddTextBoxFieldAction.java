@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddFieldEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddTextBoxFieldEdit;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.DeleteFieldsEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.UndoableTreeEdit;
 
 /** 
@@ -70,9 +71,6 @@ public class AddTextBoxFieldAction
 	{
 		super(undoSupport, model);
 		
-		// treeUI is null at this point.
-		undoableTreeEdit = new AddTextBoxFieldEdit(treeUI);
-		
 		setName("Add Comment Step");
 		setDescription("Adds a step for recording a comment");
 		setIcon(IconManager.ADD_TEXTBOX_ICON); 
@@ -93,5 +91,15 @@ public class AddTextBoxFieldAction
 		edit.doEdit();
 		
 		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link AbstractTreeEditAction} class
+	 * 
+	 * @see AbstractTreeEditAction#canDo()
+	 */
+	protected boolean canDo() {
+		if (treeUI == null) return false; 
+		return AddTextBoxFieldEdit.canDo(treeUI.getSelectionPaths());
 	}
 }

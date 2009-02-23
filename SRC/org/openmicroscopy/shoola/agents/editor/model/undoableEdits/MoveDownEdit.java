@@ -74,17 +74,15 @@ public class MoveDownEdit
 	 * Can indent fields as long as the JTree is not null, there
 	 * are some fields selected and they have 
 	 */
-	@Override
-	public boolean canDo() 
+	public static boolean canDo(TreePath[] paths)
 	{	
-		if (tree == null) return false;
-		
-		int selectionCount = tree.getSelectionCount();
+		if (paths == null) return false;
+		int selectionCount = paths.length;
 		if (selectionCount == 0)
 			return false;
 		
 		// Need to check the last node has a next sibling
-		TreePath selectedPath = tree.getSelectionPaths()[selectionCount-1];
+		TreePath selectedPath = paths[selectionCount-1];
 		DefaultMutableTreeNode lastNode = (DefaultMutableTreeNode)
 										selectedPath.getLastPathComponent();
 	
@@ -101,9 +99,10 @@ public class MoveDownEdit
 	@Override
 	public void doEdit() 
 	{	
-		if (! canDo() ) return;
+		if (tree == null)	return;
 		
 		TreePath[] selectedPaths = tree.getSelectionPaths();
+		if (! canDo(selectedPaths) ) return;
 		
 		if (selectedPaths.length > 0) {
 			

@@ -35,6 +35,7 @@ import javax.swing.undo.UndoableEditSupport;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddFieldEdit;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.DeleteFieldsEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.UndoableTreeEdit;
 
 
@@ -75,9 +76,6 @@ public class AddFieldAction
 	{
 		super(undoSupport, model);
 		
-		// treeUI is null at this point.
-		undoableTreeEdit = new AddFieldEdit(treeUI);
-		
 		setName("Add Step");
 		setDescription("Add a new step below the currently highlighted step");
 		setIcon(IconManager.ADD_ICON); 
@@ -98,6 +96,16 @@ public class AddFieldAction
 		edit.doEdit();
 		
 		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link AbstractTreeEditAction} class
+	 * 
+	 * @see AbstractTreeEditAction#canDo()
+	 */
+	protected boolean canDo() {
+		if (treeUI == null) return false; 
+		return AddFieldEdit.canDo(treeUI.getSelectionPaths());
 	}
 
 }

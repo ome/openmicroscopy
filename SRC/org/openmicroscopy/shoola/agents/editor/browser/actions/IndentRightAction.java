@@ -34,6 +34,7 @@ import javax.swing.undo.UndoableEditSupport;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.DeleteFieldsEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.IndentRightEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.UndoableTreeEdit;
 
@@ -71,9 +72,6 @@ public class IndentRightAction
 	public IndentRightAction(UndoableEditSupport undoSupport, Browser model) {
 		super(undoSupport, model);
 		
-		// treeUI may be null at this point.
-		undoableTreeEdit = new IndentRightEdit(treeUI);
-		
 		setName("Indent Steps to Right");
 		setDescription("Indent currently selected steps to the right");
 		setIcon(IconManager.INDENT_RIGHT);  
@@ -92,6 +90,16 @@ public class IndentRightAction
 		edit.doEdit();
 		
 		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link AbstractTreeEditAction} class
+	 * 
+	 * @see AbstractTreeEditAction#canDo()
+	 */
+	protected boolean canDo() {
+		if (treeUI == null) return false; 
+		return IndentRightEdit.canDo(treeUI.getSelectionPaths());
 	}
 
 }

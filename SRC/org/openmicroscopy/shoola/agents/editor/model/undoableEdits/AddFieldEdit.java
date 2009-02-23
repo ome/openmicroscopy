@@ -97,16 +97,11 @@ public class AddFieldEdit
 	}
 
 	/**
-	 * Can add fields as long as the JTree is not null (doesn't depend
-	 * on selected fields)
+	 * Can always add fields (doesn't depend on selected fields)
 	 */
-	@Override
-	public boolean canDo() 
+	public static boolean canDo(TreePath[] paths)
 	{	
-		if (tree == null) return false;
-		
 		return true;
-		
 	}
 
 	/**
@@ -116,7 +111,9 @@ public class AddFieldEdit
 	@Override
 	public void doEdit() 
 	{	
-		if (! canDo() ) return;
+		if (tree == null)	return;
+		TreePath[] selectedPaths = tree.getSelectionPaths();
+		if (! canDo(selectedPaths) ) return;
 		
 		if (field == null) {
 			field = new Field();
@@ -125,7 +122,6 @@ public class AddFieldEdit
 		 // Place this in a new Node
 		newNode = new FieldNode(field);
 		
-		TreePath[] selectedPaths = tree.getSelectionPaths();
 		if ((selectedPaths != null) && (selectedPaths.length > 0)) {
 			// Get the last selected node...
 			DefaultMutableTreeNode lastField = (DefaultMutableTreeNode)

@@ -92,18 +92,17 @@ public class DeleteFieldsEdit
 	 * Can only delete fields if the number of selected fields is not zero
 	 * and the selected field is not the root. 
 	 */
-	@Override
-	public boolean canDo() {
+	public static boolean canDo(TreePath[] paths) {
 		
-		if (tree == null) return false;
-		
-		if (tree.getSelectionCount() == 0)
+		if (paths == null) return false;
+		if (paths.length == 0)
 			return false;
 		/*
 		 * Need to check the root node is not selected
 		 */
-		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)
-			tree.getLastSelectedPathComponent();
+		TreePath p = paths[0];
+		DefaultMutableTreeNode selectedNode = 
+						(DefaultMutableTreeNode)p.getLastPathComponent();
 		// if the root is selected, can't delete it. Return false
 		return(! selectedNode.isRoot());
 	}
@@ -115,10 +114,9 @@ public class DeleteFieldsEdit
 	@Override
 	public void doEdit() 
 	{
-		
-		if (! canDo() ) return;
-		
+		if (tree == null)	return;
 		TreePath[] selectedPaths = tree.getSelectionPaths();
+		if (! canDo(selectedPaths) ) return;
 		
 		if (selectedPaths.length > 0) {
 			DefaultMutableTreeNode firstField = (DefaultMutableTreeNode)

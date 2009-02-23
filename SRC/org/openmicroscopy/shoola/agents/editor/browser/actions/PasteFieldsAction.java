@@ -34,6 +34,7 @@ import javax.swing.undo.UndoableEditSupport;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.DeleteFieldsEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.PasteFieldsEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.UndoableTreeEdit;
 
@@ -68,9 +69,6 @@ public class PasteFieldsAction
 	{
 		super(undoSupport, model);
 		
-		// treeUI is null at this point.
-		undoableTreeEdit = new PasteFieldsEdit(treeUI);
-		
 		setName("Paste Steps");
 		setDescription("Paste steps from the clipboard");
 		setIcon(IconManager.PASTE_ICON); 
@@ -103,6 +101,16 @@ public class PasteFieldsAction
 		
 		edit.doEdit();
 		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link AbstractTreeEditAction} class
+	 * 
+	 * @see AbstractTreeEditAction#canDo()
+	 */
+	protected boolean canDo() {
+		if (treeUI == null) return false; 
+		return PasteFieldsEdit.canDo();
 	}
 
 }

@@ -91,19 +91,17 @@ public class IndentLeftEdit
 	}
 
 	/**
-	 * Can indent fields as long as the JTree is not null, there
-	 * are some fields selected and they have 
+	 * Can indent fields as long as there are some fields selected and they have 
+	 * a grandparent
 	 */
-	@Override
-	public boolean canDo() 
+	public static boolean canDo(TreePath[] paths)
 	{	
-		if (tree == null) return false;
-		
-		if (tree.getSelectionCount() == 0)
+		if (paths == null) return false;
+		if (paths.length == 0)
 			return false;
 		
 		// Need to check the first node has a grandparent
-		TreePath selectedPath = tree.getSelectionPath();
+		TreePath selectedPath = paths[0];
 		DefaultMutableTreeNode firstNode = (DefaultMutableTreeNode)
 										selectedPath.getLastPathComponent();
 	
@@ -124,9 +122,10 @@ public class IndentLeftEdit
 	@Override
 	public void doEdit() 
 	{	
-		if (! canDo() ) return;
-		
+		if (tree == null)	return;
 		TreePath[] selectedPaths = tree.getSelectionPaths();
+		
+		if (! canDo(selectedPaths) ) return;
 		
 		if (selectedPaths.length > 0) {
 			

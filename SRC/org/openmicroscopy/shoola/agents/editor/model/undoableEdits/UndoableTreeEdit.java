@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.editor.model.undoableEdits;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import javax.swing.undo.AbstractUndoableEdit;
 
 //Third-party libraries
@@ -97,15 +98,5 @@ public abstract class UndoableTreeEdit
 	 */
 	public abstract void doEdit();
 	
-	/**
-	 * Based on the currently selected nodes of the JTree,
-	 * can this class perform it's editing action on the Tree?
-	 * eg. If no nodes selected, DeleteFields will NOT be able to 
-	 * occur. Therefore, this method should return false.
-	 * Used to enable or disable Actions based on this tree edit. 
-	 * 
-	 * @return	True if the UndoableEdit can be performed on the currently
-	 * selected paths of the JTree
-	 */
-	public abstract boolean canDo();
+	
 }

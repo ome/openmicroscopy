@@ -74,9 +74,6 @@ public class DeleteFieldsAction
 	public DeleteFieldsAction(UndoableEditSupport undoSupport, Browser model) {
 		super(undoSupport, model);
 		
-		// treeUI is null at this point.
-		undoableTreeEdit = new DeleteFieldsEdit(treeUI);
-		
 		setName("Delete Steps");
 		setDescription("Delete the currently selected steps");
 		setIcon(IconManager.DELETE_ICON);  
@@ -94,6 +91,16 @@ public class DeleteFieldsAction
 		edit.doEdit();
 		
 		undoSupport.postEdit(edit);
+	}
+
+	/**
+	 * Implemented as specified by the {@link AbstractTreeEditAction} class
+	 * 
+	 * @see AbstractTreeEditAction#canDo()
+	 */
+	protected boolean canDo() {
+		if (treeUI == null) return false; 
+		return DeleteFieldsEdit.canDo(treeUI.getSelectionPaths());
 	}
 
 }

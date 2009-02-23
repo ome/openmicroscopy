@@ -84,16 +84,14 @@ public class IndentRightEdit
 	 * Can indent fields as long as the JTree is not null, there
 	 * are some fields selected and they have 
 	 */
-	@Override
-	public boolean canDo() 
+	public static boolean canDo(TreePath[] paths)
 	{	
-		if (tree == null) return false;
-		
-		if (tree.getSelectionCount() == 0)
+		if (paths == null) return false;
+		if (paths.length == 0)
 			return false;
 		
 		// Need to check the first node has a previous sibling
-		TreePath selectedPath = tree.getSelectionPath();
+		TreePath selectedPath = paths[0];
 		DefaultMutableTreeNode firstNode = (DefaultMutableTreeNode)
 										selectedPath.getLastPathComponent();
 	
@@ -110,9 +108,8 @@ public class IndentRightEdit
 	@Override
 	public void doEdit() 
 	{	
-		if (! canDo() ) return;
-		
 		TreePath[] selectedPaths = tree.getSelectionPaths();
+		if (! canDo(selectedPaths) ) return;
 		
 		if (selectedPaths.length > 0) {
 			

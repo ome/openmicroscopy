@@ -180,12 +180,10 @@ public class ChangeParamEdit
 	}
 
 	/**
-	 * Implemented as specified by the {@link UndoableTreeEdit} interface.
-	 * Can only do the Edit if {@link #field} is not null
+	 * Checks that field is not null. 
 	 * 
-	 * @see UndoableTreeEdit#canDo()
+	 * @return		false if field is null
 	 */
-	@Override
 	public boolean canDo() {
 		
 		if (field == null) return false;
