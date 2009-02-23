@@ -80,6 +80,7 @@ public class RenderingServiceImpl
 		renderingEngine.lookupPixels(pixelsId);
 		if(!renderingEngine.lookupRenderingDef(pixelsId))
 			renderingEngine.resetDefaults();
+		renderingEngine.lookupRenderingDef(pixelsId);
 		renderingEngine.load();
 	}
 	
