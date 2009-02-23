@@ -70,10 +70,12 @@
   <property name="dist.osx.stub.name" value="JavaApplicationStub"/> 
   <property name="dist.osx.installfile" 
             location="${base.launch.dir}/osx/INSTALL"/>
-	<property name="dist.util.name" value="omero-clients-util"/>
-	<property name="dist.util.dir" location="${dist.dir}/util"/>
-
-
+  <property name="dist.util.name" value="omero-clients-util"/>
+  <property name="dist.util.dir" location="${dist.dir}/util"/>
+  <property name="distEditor.osx.icon" 
+	            location="${base.launch.dir}/osx/editorIcon.icns"/>
+  <property name="distEditor.jar.file" value="omero.editor.jar"/>
+  <property name="distEditor.bundle.name" value="omero.editor"/> 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     * Verify the app is good for distribution and create ${dist.dir}.
     * First the whole app and test dirs are removed and then new ones are
@@ -195,6 +197,49 @@
     </zip> 
   </target> 
 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  * Creates the Mac OS X distribution bundle under ${dist.dir}.
+  * This is a zip file whose name is set to 
+  * ${dist.bundle.name}-${dist.bundle.version}-OSX.zip 
+  * and whose contents are:
+  *   + A config dir, containing all the app.config files.  The dir name is
+  *     set to the name of the ${app.config.dir}.
+  *   + The OMERO.insight application.  That is, the .app dir embedding the app
+  *     jar file, all the the app.libs files, and Mac OS X specific config.
+  *   + The install instructions, ${dist.osx.installfile}.
+  *   + The license file, ${base.licensefile}. 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->  
+  <target name="distEditor-osx"
+	        depends="jar"
+	        description="Build and package the app for OS X distribution.">
+  <jarbundler dir="${dist.dir}"
+	        name="OMERO.editor"
+	        mainclass="${app.mainclass}"
+	        version="${dist.bundle.version}"
+	        infostring="OMERO.editor Java Client, ${dist.bundle.version}"
+	        aboutmenuname="OMERO.editor"
+	        screenmenu="true" 
+	        icon="${distEditor.osx.icon}"
+	        stubfile="${dist.osx.stub}" 
+	        jvmversion="1.5+"
+	        vmoptions="-Xms256M -Xmx512M">
+	  <jarfileset refid="app.libs"/>
+	  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+  </jarbundler>  
+	  <zip destfile=
+	         "${dist.dir}/${distEditor.bundle.name}-${dist.bundle.version}-OSX.zip">
+	     <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
+	     <fileset dir="${dist.dir}" 
+	               includes="OMERO.editor.app/**"
+	               excludes="**/${dist.osx.stub.name}"/>
+	     <zipfileset file="${dist.osx.stub}" 
+	                  fullpath="OMERO.editor.app/Contents/MacOS/${dist.osx.stub.name}"
+	                  filemode="775"/> 
+	     <fileset file="${dist.osx.installfile}"/>
+	     <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
+	  </zip> 
+  </target> 
+	
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Creates the documentation bundle under ${dist.dir}.
    * This is a zip file whose name is set to 

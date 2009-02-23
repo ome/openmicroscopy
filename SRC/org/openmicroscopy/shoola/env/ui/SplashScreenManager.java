@@ -228,8 +228,12 @@ class SplashScreenManager
 		
 		String f = container.resolveConfigFile(null);
 		Icon splashScreen = createIcon(n, f);
-		if (splashScreen == null)
-			splashScreen = IconManager.getSplashScreen();
+		if (splashScreen == null) {
+			Boolean online = (Boolean) container.getRegistry().lookup(
+					LookupNames.SERVER_AVAILABLE);
+			if (!online) splashScreen = IconManager.getEditorSplashScreen();
+			else splashScreen = IconManager.getSplashScreen();
+		}
 		n = (String) reg.lookup(LookupNames.SPLASH_SCREEN_LOGIN);
 		
 		splashLogin = createIcon(n, f);

@@ -69,6 +69,10 @@ public class IconManager
 	private static final String		SPLASH_SCREEN = 
 									"graphx/client_splashscreen.png";
 
+	/** The pathname, relative to this class, of the editor splash screen. */
+	private static final String		SPLASH_SCREEN_EDITOR = 
+									"graphx/editor_splashscreen.png";
+	
 	/** The pathname, relative to this class, of the login splash screen. */
 	private static final String		LOGIN_BACKGROUND = 
 										"graphx/login_background.png";
@@ -253,6 +257,16 @@ public class IconManager
 	
 	/** The sole instance. */
 	private static IconManager	singleton;
+	
+	/**
+	 * Returns the splash screen.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getEditorSplashScreen()
+	{
+		return createIcon(SPLASH_SCREEN_EDITOR);
+	}
 	
 	/**
 	 * Returns the splash screen.
