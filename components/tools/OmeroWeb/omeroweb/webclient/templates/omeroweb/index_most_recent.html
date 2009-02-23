@@ -8,7 +8,7 @@
         <tbody>
         {% for cm in controller.mostRecentSharesComments %}
             <tr><td>
-                <img src="{% get_webclient_static_url %}/images/knotes16.png" title="comment" alt="comment"/> {{ cm.getComment.getOwner }}</a> added comment to <a href="{% get_webclient_root_url %}/share/view/{{ cm.getShare.id }}/">share {{ cm.getShare.id }}</a> on {{ cm.getComment.creationEventDate|date:" H:i d M Y" }}
+                <img src="{% get_webclient_static_url %}/images/knotes16.png" title="comment" alt="comment"/> {{ cm.getComment.getOwner }}</a> added comment to <a href="{% get_webclient_root_url %}/share/view/{{ cm.getShare.id }}/">share</a> on {{ cm.getComment.creationEventDate|date:" H:i d M Y" }}
             </td></tr>
         {% endfor %}
         </tbody>
