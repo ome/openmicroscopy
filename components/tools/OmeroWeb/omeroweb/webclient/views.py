@@ -3269,7 +3269,7 @@ def imageData_json (request, iid, **kwargs):
                                    'active': x.isActive()}, img.getChannels()),
         'meta': {'name': img.name or '',
                  'description': img.description or '',
-                 'author': ("%s %s" % (img.details.owner.firstName, img.details.owner.lastName)),
+                 'author': img.getOwner(),
                  'timestamp': img.getDate(),},
         }
     json_data = simplejson.dumps(rv)

@@ -6,14 +6,12 @@
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/datepicker.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/thickbox.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/slider.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tree.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tooltip.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
-    
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.quicksearch.js"></script>
     
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.datepicker.js"></script>
@@ -23,6 +21,13 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.slider.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.core.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.highlight.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.quicksearch.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.tooltip.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.dimensions.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.bgiframe.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.delegate.js"></script>
     
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
@@ -50,28 +55,38 @@
           });
         });
     </script>
+    <script type="text/javascript">
+        $(function() {
+            $("#searching, #daterange").tooltip({ 
+                track: true, 
+                delay: 0, 
+                showURL: false, 
+                opacity: 1, 
+                fixPNG: true, 
+                showBody: " - ", 
+                top: -15, 
+                left: 5 
+            });
+        });
+    </script>
 {% endblock %}
 
 {% block center %}
     <div class="project">
-        <p>Searching feature enables you to search within the images, datasets and projects stored on the server. It supports single and multiple character wildcard searches. </p>
-        <p>To perform a single character wildcard search use the <b>"?"</b> symbol. The single character wildcard search looks for terms that match that with the single character replaced. To perform a multiple character wildcard search use the <b>"*"</b> symbol. </p>
-        
-        <p>For example, to search for <i>"text"</i> or <i>"test"</i> you can use the search: <b>"te?t"
-</b>. Multiple character wildcard searches looks for 0 or more characters. For example, to search for <i>"test"</i>, <i>"tests"</i> or <i>"tester"</i>, you can use the search: <b>"test*"</b>. You can also use the wildcard searches in the middle or the beginning of a term.</p>
-        <p>Date range feature enables you to specify the start and end time of the created data. To select the range, clink on the field and pick start date and end date on the same calendar. If you want to change the date click on the field again the pick the range.</p>
-        <p>Results are displayed as a table by default.</p>
+        <p>Searching feature enables you to search within the images, datasets and projects stored on the server. It supports single and multiple character wildcard searches.</p>
     </div>
     <div class="clear"></div>
     
     <p>
     <form action="{% get_webclient_root_url %}/search/" method="GET">
         <table>
-            <tr><th>Search for *:</th><td><input class="search" type="text" name="query" value="{{ controller.criteria.query }}" size="52"/></td></tr>
+            <tr><th>Search for *:</th><td><input class="search" type="text" name="query" value="{{ controller.criteria.query }}" size="52"/>  <span id="searching" title="Searching - <small><p>To perform a single character wildcard search use the <b>'?'</b> symbol. The single character wildcard search looks for terms that match that with the single character replaced. To perform a multiple character wildcard search use the <b>'*'</b> symbol. </p>
+            <p>For example, to search for <i>'text'</i> or <i>'test'</i> you can use the search: <b>'te?t'
+    </b>. Multiple character wildcard searches looks for 0 or more characters. For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>. You can also use the wildcard searches in the middle or the beginning of a term.</p></small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span></td></tr>
             <!--<tr><th>by date:</th><td><input type="text" id="dateinput" name="date" value="" size="15"/></td></tr>-->
-            <tr><th>Date range:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ controller.criteria.period }}" size="25"/></td></tr>
+            <tr><th>Date range:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ controller.criteria.period }}" size="25"/> <span id="daterange" title="Date range - <small><p>Date range feature enables you to specify the start and end time of the created data. To select the range, clink on the field and pick start date and end date on the same calendar. If you want to change the date click on the field again the pick the range.</p></small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span></td></tr>
             <tr><th>In *:</th><td>
-                <input  type="checkbox" name="image" {{ controller.criteria.image }} />image <input type="checkbox" name="dataset" {{ controller.criteria.dataset }} />dataset  <input type="checkbox" name="project" {{ controller.criteria.project }} />project
+                <input  type="checkbox" name="image" {{ controller.criteria.image }} />Images <input type="checkbox" name="dataset" {{ controller.criteria.dataset }} />Datasets  <input type="checkbox" name="project" {{ controller.criteria.project }} />Projects
             </td></tr>
         </table>
         <input type="hidden" name="view" value="{{ nav.view }}" />
