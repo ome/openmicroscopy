@@ -746,9 +746,9 @@ class BaseContainer(BaseController):
             elif isinstance(ann._obj, TagAnnotationI):
                 self.tag_annotations.append(ann)
 
-        self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time", True)
+        self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time")
         self.url_annotations = self.sortByAttr(self.url_annotations, "textValue")
-        self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time", True)
+        self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time")
         self.tag_annotations = self.sortByAttr(self.tag_annotations, "textValue")
         
         self.txannSize = len(self.text_annotations)

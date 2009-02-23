@@ -188,7 +188,11 @@ class FileListForm(forms.Form):
         self.fields.keyOrder = ['files']
 
 class UploadFileForm(forms.Form):
-    annotation_file  = forms.FileField()
+    annotation_file  = forms.FileField(required=False)
+    
+    def clean_annotation_file(self):
+        if self.cleaned_data['annotation_file'] is None:
+            raise forms.ValidationError('This field is required.')
 
 class MyGroupsForm(forms.Form):
 

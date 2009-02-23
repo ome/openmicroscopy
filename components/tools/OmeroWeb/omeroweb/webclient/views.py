@@ -72,7 +72,7 @@ from models import ShareForm, ShareCommentForm, ContainerForm, CommentAnnotation
                     UriAnnotationForm, UploadFileForm, MyGroupsForm, MyUserForm, ActiveGroupForm, \
                     HistoryTypeForm, MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
                     TagListForm, UrlListForm, CommentListForm, FileListForm, TagFilterForm
-from omeroweb.webadmin.models import MyAccountForm, MyAccountLdapForm
+from omeroweb.webadmin.models import MyAccountForm, MyAccountLdapForm, UploadPhotoForm
 
 from omeroweb.webadmin.models import Gateway, LoginForm
 from extlib.gateway import BlitzGateway
@@ -2727,6 +2727,19 @@ def myaccount(request, action, **kwargs):
     eContext['memberOfGroups']  = controller.sortByAttr(grs, "name")
     #eContext['memberOfGroups'] = controller.sortByAttr(list(conn.getGroupsMemberOf()), "name")
     
+    if controller.ldapAuth == "" or controller.ldapAuth is None:
+        form = MyAccountForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
+                                'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
+                                'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
+                                'default_group':controller.defaultGroup, 'groups':controller.otherGroups})
+    else:
+        form = MyAccountLdapForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
+                                'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
+                                'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
+                                'default_group':controller.defaultGroup, 'groups':controller.otherGroups})
+    
+    form_file = UploadPhotoForm()
+    
     if action == "save":
         form = MyAccountForm(data=request.REQUEST.copy(), initial={'groups':controller.otherGroups})
         if form.is_valid():
@@ -2747,25 +2760,13 @@ def myaccount(request, action, **kwargs):
             return HttpResponseRedirect("/%s/myaccount/details/" % (settings.WEBCLIENT_ROOT_BASE))
     elif action == "upload":
         if request.method == 'POST':
-            form_file = UploadFileForm(request.POST, request.FILES)
+            form_file = UploadPhotoForm(request.POST, request.FILES)
             if form_file.is_valid():
                 controller = BaseUploadFile(conn)
-                controller.attache_photo(request.FILES['annotation_file'])
+                controller.attache_photo(request.FILES['photo'])
                 return HttpResponseRedirect("/%s/myaccount/details/" % (settings.WEBCLIENT_ROOT_BASE))
-    else:
-        if controller.ldapAuth == "" or controller.ldapAuth is None:
-            form = MyAccountForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
-                                    'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
-                                    'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                    'default_group':controller.defaultGroup, 'groups':controller.otherGroups})
-        else:
-            form = MyAccountLdapForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
-                                    'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
-                                    'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                    'default_group':controller.defaultGroup, 'groups':controller.otherGroups})
     
     form_active_group = ActiveGroupForm(initial={'activeGroup':eContext['context'].groupId, 'mygroups': eContext['memberOfGroups']})
-    form_file = UploadFileForm()
     context = {'nav':request.session['nav'], 'eContext': eContext, 'form':form, 'ldapAuth': controller.ldapAuth, 'form_active_group':form_active_group, 'form_file':form_file}
     t = template_loader.get_template(template)
     c = Context(request,context)

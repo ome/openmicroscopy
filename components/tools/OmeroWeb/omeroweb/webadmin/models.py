@@ -48,19 +48,6 @@ class Gateway(models.Model):
 ##################################################################
 # Fields
 
-class SingleEmailField(forms.Field):
-    def clean(self, value):
-        email = value
-        if not value:
-            raise forms.ValidationError('This field is required.')
-        if not self.is_valid_email(email):
-            raise forms.ValidationError('%s is not a valid e-mail address.' % email)
-        return email
-
-    def is_valid_email(self, email):
-        email_pattern = re.compile(r"(?:^|\s)[-a-z0-9_.]+@(?:[-a-z0-9]+\.)+[a-z]{2,6}(?:\s|$)",re.IGNORECASE)
-        return email_pattern.match(email) is not None
-
 class OmeNameField(forms.Field):
     def clean(self, value):
         omeName = value
@@ -87,7 +74,7 @@ class ForgottonPasswordForm(forms.Form):
     
     server = forms.ModelChoiceField(Gateway.objects.all(), empty_label=u"---------")
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':28}))
-    email = SingleEmailField(widget=forms.TextInput(attrs={'size':28}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'size':28}))
 
 class ExperimenterForm(forms.Form):
 
@@ -112,7 +99,7 @@ class ExperimenterForm(forms.Form):
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
     middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
     last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    email = SingleEmailField(widget=forms.TextInput(attrs={'size':30}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}))
     institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
     administrator = forms.CharField(widget=forms.CheckboxInput(), required=False)
     active = forms.CharField(widget=forms.CheckboxInput(), required=False)
@@ -159,7 +146,7 @@ class ExperimenterLdapForm(forms.Form):
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
     middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
     last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    email = SingleEmailField(widget=forms.TextInput(attrs={'size':30}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}))
     institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
     administrator = forms.CharField(widget=forms.CheckboxInput(), required=False)
     active = forms.CharField(widget=forms.CheckboxInput(), required=False)
@@ -213,7 +200,7 @@ class MyAccountForm(forms.Form):
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
     middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
     last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    email = SingleEmailField(widget=forms.TextInput(attrs={'size':30}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}))
     institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
 
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30}), required=False)
@@ -243,7 +230,7 @@ class MyAccountLdapForm(forms.Form):
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
     middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
     last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    email = SingleEmailField(widget=forms.TextInput(attrs={'size':30}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}))
     institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
 
 class ContainedExperimentersForm(forms.Form):
@@ -255,7 +242,12 @@ class ContainedExperimentersForm(forms.Form):
         self.fields.keyOrder = ['members', 'available']
 
 
-class UploadFileForm(forms.Form):
+class UploadPhotoForm(forms.Form):
+    photo  = forms.FileField(required=False)
 
-    photo  = forms.FileField()
+    def clean_photo(self):
+        if self.cleaned_data['photo'] is None:
+            raise forms.ValidationError('This field is required.')
+        if self.cleaned_data['photo'].size > 204800:
+            raise forms.ValidationError('Photo size file cannot be greater them 200KB.')
 

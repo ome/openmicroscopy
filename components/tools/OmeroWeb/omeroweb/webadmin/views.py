@@ -59,7 +59,7 @@ from controller.uploadfile import BaseUploadFile
 
 from models import Gateway, LoginForm, ForgottonPasswordForm, ExperimenterForm, \
                    ExperimenterLdapForm, GroupForm, ScriptForm, MyAccountForm, \
-                   MyAccountLdapForm, ContainedExperimentersForm, UploadFileForm
+                   MyAccountLdapForm, ContainedExperimentersForm, UploadPhotoForm
 
 from extlib.gateway import BlitzGateway
 from extlib.properties import Properties
@@ -728,6 +728,19 @@ def my_account(request, action=None, **kwargs):
     myaccount = BaseExperimenter(conn)
     myaccount.getMyDetails()
     
+    if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
+        form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+                                'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
+                                'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
+                                'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
+    else:
+        form = MyAccountLdapForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+                                'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
+                                'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
+                                'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
+    
+    form_file = UploadPhotoForm()
+    
     if action == "save":
         form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups})
         if form.is_valid():
@@ -749,24 +762,11 @@ def my_account(request, action=None, **kwargs):
             return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
     elif action == "upload":
         if request.method == 'POST':
-            form_file = UploadFileForm(request.POST, request.FILES)
+            form_file = UploadPhotoForm(request.POST, request.FILES)
             if form_file.is_valid():
                 controller = BaseUploadFile(conn)
                 controller.attache_photo(request.FILES['photo'])
                 return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
-    else:
-        if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
-            form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
-                                    'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
-                                    'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
-                                    'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
-        else:
-            form = MyAccountLdapForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
-                                    'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
-                                    'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
-                                    'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
-    
-    form_file = UploadFileForm()
     
     context = {'info':info, 'eventContext':eventContext, 'form':form, 'form_file':form_file, 'ldapAuth': myaccount.ldapAuth}
     t = template_loader.get_template(template)
