@@ -110,7 +110,7 @@ class SendEmail(threading.Thread):
         msgAlternative.attach(msgText)
         self.to_send.append({"message": msgRoot.as_string(), "sender": settings.EMAIL_SENDER_ADDRESS, "recipients": [settings.ADMINS[0][1]]})
     
-    def create_share_message(self, host, blitz_id, user, share_id, share_content, recipients):
+    def create_share_message(self, host, blitz_id, user, share_id, recipients):
         app = settings.WEBCLIENT_ROOT_BASE
         # Create the root message and fill in the from, to, and subject headers
         msgRoot = MIMEMultipart('related')

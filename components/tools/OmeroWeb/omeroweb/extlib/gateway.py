@@ -1589,7 +1589,7 @@ class BlitzGateway (threading.Thread):
                         logger.error(traceback.format_exc())
             if sender is not None:
                 try:
-                    sender.handler().create_share_message(host, blitz_id, self.getUser(), sid, message, recipients)
+                    sender.handler().create_share_message(host, blitz_id, self.getUser(), sid, recipients)
                 except:
                     logger.error(traceback.format_exc())
     
