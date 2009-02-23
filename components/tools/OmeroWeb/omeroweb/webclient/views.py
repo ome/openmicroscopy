@@ -337,8 +337,8 @@ def login(request):
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
-        request.session['username'] = request.REQUEST['username'].encode('utf-8')
-        request.session['password'] = request.REQUEST['password'].encode('utf-8')
+        request.session['username'] = request.REQUEST['username'].encode('utf-8').strip()
+        request.session['password'] = request.REQUEST['password'].encode('utf-8').strip()
         request.session['experimenter'] = None
         request.session['groupId'] = None
         request.session['clipboard'] = []
@@ -2334,6 +2334,27 @@ def manage_share(request, action, oid=None, **kwargs):
             basket.load_basket(request)
             form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
             context = {'nav':request.session['nav'], 'eContext': share.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
+    elif action == "createdisc":
+        template = "omeroweb/basket_discuss_action.html"
+        form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
+        if form.is_valid():
+            message = request.REQUEST['message'].encode('utf-8')
+            expiration = request.REQUEST['expiration']
+            members = request.REQUEST.getlist('members')
+            #guests = request.REQUEST['guests']
+            enable = False
+            try:
+                if request.REQUEST['enable']: enable = True
+            except:
+                pass
+            host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
+            share.createDiscussion(host, request.session['server'], message, expiration, members, enable)
+            return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
+        else:
+            basket = BaseBasket(conn)
+            basket.load_basket(request)
+            form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
+            context = {'nav':request.session['nav'], 'eContext': share.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == 'edit':
         template = "omeroweb/share_form.html"
         share.getMembers(oid)
@@ -2429,12 +2450,23 @@ def basket_action (request, action=None, oid=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    if action == "todiscuss" or action == "toshare":
+    if action == "toshare":
         template = "omeroweb/basket_share_action.html"
         
         basket = BaseBasket(conn)
         basket.buildBreadcrumb(action)
         basket.load_basket(request)
+        experimenters = conn.getExperimenters()
+        
+        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
+        
+        form = ShareForm(initial={'experimenters': experimenters})
+        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
+    elif action == "todiscuss":
+        template = "omeroweb/basket_discuss_action.html"
+        
+        basket = BaseBasket(conn)
+        basket.buildBreadcrumb(action)
         experimenters = conn.getExperimenters()
         
         form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
@@ -2467,12 +2499,6 @@ def basket_action (request, action=None, oid=None, **kwargs):
         
         form = ShareForm(initial={'experimenters': experimenters})
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
-    elif action == 'dataset':
-        template = "omeroweb/basket_subtree.html"
-        basket = BaseBasket(conn)
-        basket.buildBreadcrumb(action)
-        basket.loadBasketImages(oid)
-        context = {'basket':basket}
     else:
         template = "omeroweb/basket.html"
         
@@ -2764,7 +2790,7 @@ def myaccount(request, action, **kwargs):
             form_file = UploadPhotoForm(request.POST, request.FILES)
             if form_file.is_valid():
                 controller = BaseUploadFile(conn)
-                controller.attache_photo(request.FILES['photo'])
+                controller.attach_photo(request.FILES['photo'])
                 return HttpResponseRedirect("/%s/myaccount/details/" % (settings.WEBCLIENT_ROOT_BASE))
     
     form_active_group = ActiveGroupForm(initial={'activeGroup':eContext['context'].groupId, 'mygroups': eContext['memberOfGroups']})

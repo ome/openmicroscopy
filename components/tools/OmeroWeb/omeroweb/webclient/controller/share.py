@@ -75,6 +75,15 @@ class BaseShare(BaseController):
         #gs = str(guests).split(';')
         self.conn.createShare(host, int(blitz_id), imageInBasket, message, expiration_date, ms, enable)
 
+    def createDiscussion(self, host, blitz_id, message, expiration, members, enable):
+        # only for python 2.5
+        # d1 = datetime.strptime(expiration+" 23:59:59", "%Y-%m-%d %H:%M:%S")
+        d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
+        expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
+        ms = [str(m) for m in members]
+        #gs = str(guests).split(';')
+        self.conn.createShare(host, int(blitz_id), [], message, expiration_date, ms, enable)
+    
     def updateShare(self, message, expiration, members, enable):
         # only for python 2.5
         # d1 = datetime.strptime(expiration+" 23:59:59", "%Y-%m-%d %H:%M:%S")

@@ -58,28 +58,10 @@
 
 {% block center %}
 
-    <h1>Create new share with {{ basket.sizeOfBasket }} items:</h1>
-    
-    <div id="cart">
-    
-    {% if basket.imgSize %}
-    <div class="clear"></div>
-    <h1>Images</h1>
-    <div class="image"><ul id="products">
-        <li class="clear"> </li>
-        {% for e in basket.imageInBasket %}
-            <li id="image-{{ e.id }}"class="product"><em>{{ e.name }}</em>
-                <a href="#" onclick="popup('','_blank',{{ e.id }}); return false;"><img id="{{ e.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ e.id }}/" alt="image" title="{{ e.name }}"/></a>
-                <a href="#" onclick="fromBasket('image', '{{ e.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/cancel16.png" alt="r" title="remove"/></a>
-            </li>
-        {% endfor %}
-    </ul></div>
-    {% endif %}
-    
-    <div class="clear"></div>
+    <h1>Create new discussion about:</h1>
 
     <div>
-        <form action="{% get_webclient_root_url %}/share/create/" method="post">
+        <form action="{% get_webclient_root_url %}/share/createdisc/" method="post">
             <table>
             {% for field in form %}
                 <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>

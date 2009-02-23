@@ -765,7 +765,7 @@ def my_account(request, action=None, **kwargs):
             form_file = UploadPhotoForm(request.POST, request.FILES)
             if form_file.is_valid():
                 controller = BaseUploadFile(conn)
-                controller.attache_photo(request.FILES['photo'])
+                controller.attach_photo(request.FILES['photo'])
                 return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
     
     context = {'info':info, 'eventContext':eventContext, 'form':form, 'form_file':form_file, 'ldapAuth': myaccount.ldapAuth}

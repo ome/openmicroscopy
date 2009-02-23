@@ -196,7 +196,7 @@ class BaseExperimenter(BaseController):
         # rest of groups
         for g in self.groups:
             for og in otherGroups:
-                # remove defaultGroup from otherGroups if containes
+                # remove defaultGroup from otherGroups if contains
                 if long(og) == long(defaultGroup.id.val):
                     pass
                 elif long(og) == g.id:

@@ -32,7 +32,7 @@
                 if($(node).attr('id') == "orphan") {
                     $("div#view").html('| View <a href="{% get_webclient_root_url %}/{{ nav.whos }}/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="details" title="details"></a> <a href="{% get_webclient_root_url %}/{{ nav.whos }}/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"></a> <a href="{% get_webclient_root_url %}/{{ nav.whos }}/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.png" alt="tree" title="tree"></a> | New <a href="{% get_webclient_root_url %}/action/new/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/window_new16.jpg" alt="new" title="new"></a> |');
                     
-                    $("div#context").html('<div id="context"><h1>Orphaned images</h1><p>This is virtual container with orphaned images. These images are not linked anywere. Just drag them to the selected container.</p></div>');
+                    $("div#context").html('<div id="context"><h1>Orphaned images</h1><p>This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container.</p></div>');
                 } else {
                     var obj = $(node).attr('id').split("-");
                     var par = $(node).parents('li:first').attr('id')
