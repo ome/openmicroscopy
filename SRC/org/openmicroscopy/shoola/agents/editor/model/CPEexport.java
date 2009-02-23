@@ -518,10 +518,10 @@ public class CPEexport {
 		IXMLElement protocolArchive = new XMLElement("protocol-archive");
 		
 		// add archive info element
-		IXMLElement archiveInfo = new XMLElement("archive-info");
+		IXMLElement archiveInfo = new XMLElement(CPEimport.ARCHIVE_INFO);
 		addChildContent(archiveInfo, "archive-version", "1.0");
 		Date now = new Date();
-		addChildContent(archiveInfo, "archive-date", now.getTime() + "");
+		addChildContent(archiveInfo, CPEimport.ARCHIVE_DATE, now.getTime() + "");
 		addChildContent(archiveInfo, "archive-creator", "OMERO.editor");
 		addChildContent(archiveInfo, "archive-type", "PROTOCOL_ARCHIVE");
 		protocolArchive.addChild(archiveInfo);
@@ -535,6 +535,8 @@ public class CPEexport {
 		// get the root of the data
 		TreeNode root = (TreeNode)treeModel.getRoot();
 		IField protocolRoot = getFieldFromTreeNode(root);
+		// first, update the last-saved date to 'now'
+		protocolRoot.setAttribute(CPEimport.ARCHIVE_DATE, now.getTime() + "");
 		
 		// name
 		String protName = protocolRoot.getAttribute(Field.FIELD_NAME);

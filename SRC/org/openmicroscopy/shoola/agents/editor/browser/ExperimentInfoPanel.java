@@ -66,6 +66,7 @@ import org.jdesktop.swingx.JXDatePicker;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TextFieldEditor;
+import org.openmicroscopy.shoola.agents.editor.model.CPEimport;
 import org.openmicroscopy.shoola.agents.editor.model.ExperimentInfo;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
@@ -131,6 +132,9 @@ public class ExperimentInfoPanel
 	
 	/** A Date-picker to display and pick date of experiment. */
 	private JXDatePicker 		datePicker;
+	
+	/** Label to display the last modified timestamp of the file. */
+	private JLabel				lastModifiedLabel;
 	
 	/**
 	 *  A list of the unfilled steps in the experiment. Allows user to 
@@ -269,11 +273,16 @@ public class ExperimentInfoPanel
 		nameBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 		leftPanel.add(nameBox);
 		Box dateBox = Box.createHorizontalBox();
-		JLabel dateLabel = new CustomLabel("Date: ");
+		JLabel dateLabel = new CustomLabel("Experiment Date: ");
 		dateBox.add(dateLabel);
 		dateBox.add(datePicker);
 		dateBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 		leftPanel.add(dateBox);
+		
+		// label for last-modified timestamp
+		lastModifiedLabel = new CustomLabel();
+		lastModifiedLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		leftPanel.add(lastModifiedLabel);
 		
 		
 		// right Panel
@@ -319,17 +328,31 @@ public class ExperimentInfoPanel
 			String expDate = field.getAttribute(ExperimentInfo.EXP_DATE);
 			String investigName = field.getAttribute
 												(ExperimentInfo.INVESTIG_NAME);
+			String lastModDate = prf.getAttribute(CPEimport.ARCHIVE_DATE);
+			
 			String date = "no date";
 			
 			SimpleDateFormat f = new SimpleDateFormat("yyyy, MMM d");
+			SimpleDateFormat timeStamp = 
+							new SimpleDateFormat ("yyyy, MMM d 'at' HH:mm:ss");
 			try {
+				// experiment date
 				long millis = new Long(expDate);
 				Date d = new Date(millis);
 				datePicker.setDate(d);
 				date = f.format(d);
 				datePicker.setToolTipText(date);
-			} catch (NumberFormatException ex) {}
+				
+				// last-modified date
+				millis = new Long(lastModDate);
+				d.setTime(millis);
+				date = timeStamp.format(d);
+				lastModifiedLabel.setText("Last edited: " + date); 
+			} catch (NumberFormatException ex) {
+				lastModifiedLabel.setText("Last edited: " + date); 
+			}
 			
+			// nameEditor may not have been created yet. 
 			if (nameField == null) {
 				TextFieldEditor nameEditor = new 
 						TextFieldEditor(field, ExperimentInfo.INVESTIG_NAME);
@@ -339,6 +362,7 @@ public class ExperimentInfoPanel
 				nameBox.add(nameEditor);
 			}
 			nameField.setText(investigName);
+			
 			
 			searchUnfilledParams();
 			unfilledParamsLabel.setText("<html>Unfilled Parameters: <b>" + 

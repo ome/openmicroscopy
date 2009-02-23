@@ -77,6 +77,12 @@ public class CPEimport {
 	
 	/**  The name of the element within 'protocol' that has protocol info */
 	public static final String 			PROTOCOL_INFO = "protocol-information";
+
+	/**  The name of the element within doc root that has file info */
+	public static final String 			ARCHIVE_INFO = "archive-info";
+	
+	/**  The name of the element within 'archive-info' that has UTC date */
+	public static final String 			ARCHIVE_DATE = "archive-date";
 	
 	/**  The name of the element used to hold the protocol revision number */
 	public static final String 			REVISION = "revision";
@@ -657,6 +663,7 @@ public class CPEimport {
 		
 		// parse the top elements...
 		IXMLElement protocol = root.getFirstChildNamed(PROTOCOL);
+		IXMLElement archiveInfo = root.getFirstChildNamed(ARCHIVE_INFO);
 		IXMLElement protocolInfo = protocol.
 									getFirstChildNamed(PROTOCOL_INFO);
 		
@@ -667,6 +674,10 @@ public class CPEimport {
 		protName = getChildContent(protocolInfo, DESCRIPTION);
 		if (protName != null)
 			rootField.addContent(new TextContent(protName));
+		
+		// last saved timestamp
+		protName = getChildContent(archiveInfo, ARCHIVE_DATE);
+		rootField.setAttribute(ARCHIVE_DATE, protName);
 		
 		// revision. Optional 
 		protName = getChildContent(protocolInfo, REVISION);

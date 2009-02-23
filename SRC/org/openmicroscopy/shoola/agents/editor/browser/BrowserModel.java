@@ -24,7 +24,9 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
 
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
 
 import org.openmicroscopy.shoola.agents.editor.model.ExperimentInfo;
 
@@ -118,6 +120,10 @@ class BrowserModel
     		state = Browser.TREE_EDITED;
     	else 
     		state = Browser.TREE_SAVED;
+    	
+    	// notify listeners of changes to the model (eg Exp-Info last-saved date)
+    	DefaultTreeModel d = ((DefaultTreeModel)treeModel);
+    	d.nodeStructureChanged((TreeNode)d.getRoot());
     }
     
     /**
