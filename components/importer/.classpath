@@ -10,32 +10,24 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/asm-attrs.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/cglib.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/checkstyle.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/commons-beanutils.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-collections.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-logging.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/dom4j.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/dsl.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/emma_ant.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/emma.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/findbugs-ant.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/freemarker.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/groovy.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-annotations.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-commons-annotations.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-search.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-tools.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-validator.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/jamon.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/jmock.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/jtidy.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/junit.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/lucene-core.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/spring-test.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/testng.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/velocity.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/velocity-tools-generic.jar"/>
 	<classpathentry kind="lib" path="target/libs/common.jar"/>
@@ -44,5 +36,6 @@
 	<classpathentry kind="lib" path="target/libs/importer-common.jar"/>
 	<classpathentry kind="lib" path="target/libs/bio-formats.jar"/>
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

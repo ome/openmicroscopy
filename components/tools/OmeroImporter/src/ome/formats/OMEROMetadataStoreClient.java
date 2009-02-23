@@ -796,9 +796,7 @@ public class OMEROMetadataStoreClient
         indexes.put("instrumentIndex", instrumentIndex);
         indexes.put("detectorIndex", detectorIndex);
         IObjectContainer o = getIObjectContainer(Detector.class, indexes);
-        
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setDetectorManufacturer(String manufacturer,
@@ -1038,7 +1036,6 @@ public class OMEROMetadataStoreClient
         indexes.put("imageIndex", imageIndex);
         IObjectContainer o = getIObjectContainer(Image.class, indexes);
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setImageInstrumentRef(String instrumentRef, int imageIndex)
@@ -1092,7 +1089,6 @@ public class OMEROMetadataStoreClient
         indexes.put("instrumentIndex", instrumentIndex);
         IObjectContainer o = getIObjectContainer(Instrument.class, indexes);
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setLaserFrequencyMultiplication(
@@ -1154,7 +1150,6 @@ public class OMEROMetadataStoreClient
         indexes.put("lightSourceIndex", lightSourceIndex);  
         IObjectContainer o = getIObjectContainer(LightSource.class, indexes);
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setLightSourceManufacturer(String manufacturer,
@@ -1269,7 +1264,6 @@ public class OMEROMetadataStoreClient
         indexes.put("logicalChannelIndex", logicalChannelIndex);  
         IObjectContainer o = getIObjectContainer(LogicalChannel.class, indexes);
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setLogicalChannelIlluminationType(String illuminationType,
@@ -1336,9 +1330,7 @@ public class OMEROMetadataStoreClient
         indexes.put("instrumentIndex", instrumentIndex);
         indexes.put("otfIndex", otfIndex);  
         IObjectContainer o = getIObjectContainer(OTF.class, indexes);
-       
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setOTFOpticalAxisAveraged(Boolean opticalAxisAveraged,
@@ -1412,9 +1404,7 @@ public class OMEROMetadataStoreClient
         indexes.put("instrumentIndex", instrumentIndex);
         indexes.put("objectiveIndex", objectiveIndex);  
         IObjectContainer o = getIObjectContainer(Objective.class, indexes);
-        
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setObjectiveImmersion(String immersion, int instrumentIndex,
@@ -1484,9 +1474,7 @@ public class OMEROMetadataStoreClient
         indexes.put("imageIndex", imageIndex);
         indexes.put("pixelsIndex", pixelsIndex);  
         IObjectContainer o = getIObjectContainer(Pixels.class, indexes);
-       
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setPixelsPixelType(String pixelType, int imageIndex,
@@ -1596,9 +1584,7 @@ public class OMEROMetadataStoreClient
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("plateIndex", plateIndex); 
         IObjectContainer o = getIObjectContainer(Plate.class, indexes);
-       
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setPlateName(String name, int plateIndex)
@@ -1674,9 +1660,7 @@ public class OMEROMetadataStoreClient
         indexes.put("screenIndex", screenIndex);
         indexes.put("reagentIndex", reagentIndex);  
         IObjectContainer o = getIObjectContainer(Reagent.class, indexes);
-       
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setReagentName(String name, int screenIndex, int reagentIndex)
@@ -1732,7 +1716,6 @@ public class OMEROMetadataStoreClient
             new LSID(ScreenAcquisition.class, screenIndex, screenAcquisitionIndex);
         IObjectContainer o = containerCache.get(lsid);
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setScreenAcquisitionStartTime(String startTime,
@@ -1759,9 +1742,7 @@ public class OMEROMetadataStoreClient
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("screenIndex", screenIndex); 
         IObjectContainer o = getIObjectContainer(Screen.class, indexes);
-       
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setScreenName(String name, int screenIndex)
@@ -1929,9 +1910,7 @@ public class OMEROMetadataStoreClient
         indexes.put("plateIndex", plateIndex);
         indexes.put("wellIndex", wellIndex);  
         IObjectContainer o = getIObjectContainer(Well.class, indexes);
-       
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setWellRow(Integer row, int plateIndex, int wellIndex)
@@ -1948,9 +1927,7 @@ public class OMEROMetadataStoreClient
         indexes.put("wellIndex", wellIndex); 
         indexes.put("wellSampleIndex", wellSampleIndex);
         IObjectContainer o = getIObjectContainer(WellSample.class, indexes);
-       
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setWellSampleIndex(Integer index, int plateIndex,
@@ -2066,7 +2043,6 @@ public class OMEROMetadataStoreClient
             
             System.err.println("\ncontainerCache contains " + containerCache.size() + " entries.");
             System.err.println("referenceCache contains " + referenceCache.size() + " entries.");
-            
             
         	delegate.updateObjects(containerArray);
         	delegate.updateReferences(referenceStringCache);
@@ -2329,9 +2305,7 @@ public class OMEROMetadataStoreClient
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("experimentIndex", experimentIndex);
         IObjectContainer o = getIObjectContainer(Experiment.class, indexes);
-        
         o.LSID = id;
-        containerCache.put(new LSID(id), o);
     }
 
     public void setExperimentType(String type, int experimentIndex)

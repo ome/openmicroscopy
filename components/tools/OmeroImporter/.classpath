@@ -27,8 +27,8 @@
 	<classpathentry kind="lib" path="target/libs/grib.jar"/>
 	<classpathentry kind="lib" path="target/libs/slf4j-api.jar"/>
 	<classpathentry kind="lib" path="target/libs/slf4j-log4j12.jar"/>
-	<classpathentry kind="lib" path="/omero-importer/target/libs/asm.jar"/>
-	<classpathentry kind="lib" path="/omero-importer/target/libs/asm-attrs.jar"/>
-	<classpathentry kind="lib" path="/omero-importer/target/libs/cglib.jar"/>
+	<classpathentry kind="lib" path="target/libs/asm-attrs.jar"/>
+	<classpathentry kind="lib" path="target/libs/asm.jar"/>
+	<classpathentry kind="lib" path="target/libs/cglib.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

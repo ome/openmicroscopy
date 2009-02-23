@@ -684,6 +684,11 @@ public class OMEROMetadataStore
     }
     
     /**
+     * Empty constructor for testing purposes.
+     */
+    public OMEROMetadataStore() {}
+    
+    /**
      * Creates a new instance.
      * 
      * @param factory a non-null, active {@link ServiceFactory}

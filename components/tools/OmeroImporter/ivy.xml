@@ -15,6 +15,10 @@
     <dependency org="omero" name="importer" rev="${omero.version}" changing="true" conf="build->build;client->client"/>
     <dependency org="omero" name="importer-common" rev="${omero.version}" changing="true" conf="build->build;client->client"/>
     <dependency org="omero" name="omero_client" rev="${omero.version}" changing="true" conf="build->build;client->client"/>
+    <!-- Test engine -->
+	<dependency org="asm" name="asm" rev="${versions.asm}"/>
+	<dependency org="asm" name="asm-attrs" rev="${versions.asm}"/>
+	<dependency org="cglib" name="cglib" rev="${versions.cglib}"/>
     <!-- Gui -->
     <dependency org="gui" name="TableLayout" rev="unknown"/>
     <dependency org="gui" name="hsqldb" rev="1.8.0.9"/>

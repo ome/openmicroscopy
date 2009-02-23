@@ -7,7 +7,6 @@ import java.util.Map;
 import ome.formats.OMEROMetadataStore;
 import ome.model.acquisition.Instrument;
 import ome.model.core.Image;
-import ome.system.ServiceFactory;
 import junit.framework.TestCase;
 
 public class GenericReferenceTest extends TestCase
@@ -21,8 +20,7 @@ public class GenericReferenceTest extends TestCase
 	@Override
 	protected void setUp() throws Exception
 	{
-		ServiceFactory sf = new TestServiceFactory();
-        store = new OMEROMetadataStore(sf);
+        store = new OMEROMetadataStore();
         
         Image image = new Image();
         Map<String, Integer> imageIndexes = 

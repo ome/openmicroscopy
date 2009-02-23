@@ -14,7 +14,6 @@ import ome.model.acquisition.ObjectiveSettings;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
-import ome.system.ServiceFactory;
 import junit.framework.TestCase;
 
 public class DetectorSettingsDetectorTest extends TestCase
@@ -36,8 +35,7 @@ public class DetectorSettingsDetectorTest extends TestCase
 	@Override
 	protected void setUp() throws Exception
 	{
-		ServiceFactory sf = new TestServiceFactory();
-        store = new OMEROMetadataStore(sf);
+        store = new OMEROMetadataStore();
 
         String imageLSID = "Image:0";
         Image image = new Image();
