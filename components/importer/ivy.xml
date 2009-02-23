@@ -15,8 +15,5 @@
     <!-- Internal -->
     <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;client->client;server->server"/>
     <dependency name="importer-common" rev="${omero.version}" changing="true" conf="build->build;client->client"/>
-    <!-- Loci -->
-    <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/>
-    <dependency org="OME" name="loci-common" rev="${versions.bio-formats}"/>
   </dependencies>
 </ivy-module>
