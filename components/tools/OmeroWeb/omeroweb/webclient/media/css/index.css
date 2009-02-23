@@ -1,7 +1,7 @@
 #left_panel {
     margin-right: 10px; 
     width: 520px;
-    min-height: 500px;
+    min-height: 600px;
     float: left;
     border-right:1px solid #BBBBBB;
 }
@@ -9,7 +9,7 @@
 #right_panel {
     margin:0; 
     width: 460px;
-    min-height: 400px;
+    min-height: 600px;
     float: right;
 }
 .loadData {

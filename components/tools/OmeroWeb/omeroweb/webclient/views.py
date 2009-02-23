@@ -426,7 +426,7 @@ def index(request, **kwargs):
     
     controller = BaseIndex(conn)
     controller.loadData()
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['memberOfGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
     
     context = {'nav':request.session['nav'], 'controller':controller, 'eContext': controller.eContext, 'form_active_group':form_active_group}
 
@@ -626,7 +626,7 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
     manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id, metadata=True)
     manager.buildBreadcrumb(whos)
         
-    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['memberOfGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
     
     form_environment = None
     form_objective = None
@@ -1025,7 +1025,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
         except:
             form_users = MyUserForm(initial={'users': users})
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['memberOfGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
     
     form_environment = None
     form_objective = None
@@ -1434,7 +1434,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
         except:
             form_mygroups = MyGroupsForm(initial={'mygroups': my_groups})
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['memberOfGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
     
     form_environment = None
     form_objective = None
@@ -1856,7 +1856,7 @@ def manage_data_by_tag(request, tid=None, tid2=None, tid3=None, tid4=None, tid5=
     else:
         manager.buildBreadcrumb(whos)
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['memberOfGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
     
     if form_filter is None:
         form_filter = TagFilterForm()
@@ -2021,7 +2021,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         manager = BaseContainer(conn)
         manager.buildBreadcrumb(action)
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['memberOfGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
     
     form = None
     if action == 'new':
@@ -2282,7 +2282,7 @@ def manage_shares(request, **kwargs):
     
     controller = BaseShare(conn=conn, menu=request.session['nav']['menu'])
     controller.getShares()
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['memberOfGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
     
     context = {'nav':request.session['nav'], 'eContext':controller.eContext, 'share':controller, 'form_active_group':form_active_group}
     t = template_loader.get_template(template)
@@ -2308,7 +2308,7 @@ def manage_share(request, action, oid=None, **kwargs):
         logger.error(traceback.format_exc())
     
     share = BaseShare(request.session['nav']['menu'], conn, None, oid, action)
-    form_active_group = ActiveGroupForm(initial={'activeGroup':share.eContext['context'].groupId, 'mygroups': share.eContext['memberOfGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':share.eContext['context'].groupId, 'mygroups': share.eContext['allGroups']})
     
     experimenters = list(conn.getExperimenters())
     context = None
@@ -2337,7 +2337,7 @@ def manage_share(request, action, oid=None, **kwargs):
         else:
             basket = BaseBasket(conn)
             basket.load_basket(request)
-            form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
+            form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
             context = {'nav':request.session['nav'], 'eContext': share.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == "createdisc":
         template = "omeroweb/basket_discuss_action.html"
@@ -2362,7 +2362,7 @@ def manage_share(request, action, oid=None, **kwargs):
         else:
             basket = BaseBasket(conn)
             basket.load_basket(request)
-            form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
+            form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
             context = {'nav':request.session['nav'], 'eContext': share.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == 'edit':
         template = "omeroweb/share_form.html"
@@ -2476,7 +2476,7 @@ def basket_action (request, action=None, oid=None, **kwargs):
         basket.load_basket(request)
         experimenters = conn.getExperimenters()
         
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
+        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
         
         form = ShareForm(initial={'experimenters': experimenters})
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
@@ -2487,7 +2487,7 @@ def basket_action (request, action=None, oid=None, **kwargs):
         basket.buildBreadcrumb(action)
         experimenters = conn.getExperimenters()
         
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
+        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
         
         form = ShareForm(initial={'experimenters': experimenters})
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
@@ -2500,7 +2500,7 @@ def basket_action (request, action=None, oid=None, **kwargs):
         basket.load_basket(request)
         experimenters = conn.getExperimenters()
         
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
+        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
         
         form = ShareForm(initial={'experimenters': experimenters})
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
@@ -2513,7 +2513,7 @@ def basket_action (request, action=None, oid=None, **kwargs):
         basket.load_basket(request)
         experimenters = conn.getExperimenters()
         
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
+        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
         
         form = ShareForm(initial={'experimenters': experimenters})
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
@@ -2524,7 +2524,7 @@ def basket_action (request, action=None, oid=None, **kwargs):
         basket.buildBreadcrumb()
         basket.load_basket(request)
         
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['memberOfGroups']})
+        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
         
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form_active_group':form_active_group }
 
@@ -2719,7 +2719,7 @@ def search(request, **kwargs):
         
         controller.search(query_search, onlyTypes, period)
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['memberOfGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
     
     context = {'nav':request.session['nav'], 'url':url, 'eContext':controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
     t = template_loader.get_template(template)
@@ -2740,7 +2740,7 @@ def impexp(request, menu, **kwargs):
     
     controller = BaseImpexp(conn)
 
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['memberOfGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
     
     context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
     t = template_loader.get_template(template)
@@ -2825,7 +2825,7 @@ def help(request, menu, **kwargs):
     
     controller = BaseHelp(conn)
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['memberOfGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
     
     context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
     t = template_loader.get_template(template)
@@ -2847,7 +2847,7 @@ def history(request, menu, year, month, **kwargs):
     controller = BaseCalendar(conn=conn, year=year, month=month)
     controller.create_calendar()
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['memberOfGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
     
     context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
     t = template_loader.get_template(template)
@@ -2885,7 +2885,7 @@ def history_details(request, menu, year, month, day, **kwargs):
     controller = BaseCalendar(conn=conn, year=year, month=month, day=day)
     controller.get_items(cal_type)
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['memberOfGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
     
     if cal_type is None:
         form_history_type = HistoryTypeForm()
