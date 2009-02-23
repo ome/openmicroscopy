@@ -65,7 +65,7 @@
             <table>
             {% for field in form %}
                 <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
-                    <td>{{ field }}</td><td>{{ field.help_text|safe }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
             {% endfor %}
                 <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
