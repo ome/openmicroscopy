@@ -74,21 +74,8 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
     protected void createMocks() {
         mockSession = mock(Session.class);
         mockFactory = mock(SessionFactory.class);
-        impl.setHibernateTemplate(new HibernateTemplate() {
-            @Override
-            protected Session getSession() {
-                mockSession.setDefaultStub(new DefaultResultStub());
-                // mock.expects( once() ).method( "close" ).after( "test" );
-                return (Session) mockSession.proxy();
-            }
-
-            @Override
-            public SessionFactory getSessionFactory() {
-                mockFactory.setDefaultStub(new DefaultResultStub());
-                return (SessionFactory) mockFactory.proxy();
-            }
-
-        });
+        mockFactory.setDefaultStub(new DefaultResultStub());
+        impl.setSessionFactory((SessionFactory) mockFactory.proxy());
     }
 
     protected Mock criteriaUniqueResultCall(Object obj) {

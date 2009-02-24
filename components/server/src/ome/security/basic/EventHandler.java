@@ -6,7 +6,10 @@
  */
 package ome.security.basic;
 
+<<<<<<< HEAD:components/server/src/ome/security/basic/EventHandler.java
 import java.sql.Connection;
+=======
+>>>>>>> 6753f94... Performance : Removing `HibernateTemplate` usage to control overhead:components/server/src/ome/security/basic/EventHandler.java
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,19 +18,22 @@ import ome.conditions.InternalException;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.system.EventContext;
+import ome.tools.hibernate.SessionFactory;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.engine.transaction.IsolatedWork;
 import org.hibernate.engine.transaction.Isolater;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
+<<<<<<< HEAD:components/server/src/ome/security/basic/EventHandler.java
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+=======
+>>>>>>> 6753f94... Performance : Removing `HibernateTemplate` usage to control overhead:components/server/src/ome/security/basic/EventHandler.java
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAttribute;
@@ -59,7 +65,7 @@ public class EventHandler implements MethodInterceptor {
 
     protected final BasicSecuritySystem secSys;
 
-    protected final HibernateTemplate ht;
+    protected final SessionFactory factory;
 
     protected final SimpleJdbcOperations isolatedJdbc, simpleJdbc;
 
@@ -76,8 +82,7 @@ public class EventHandler implements MethodInterceptor {
             SimpleJdbcOperations simpleJdbc,
             BasicSecuritySystem securitySystem, SessionFactory factory,
             TransactionAttributeSource txSource) {
-        Assert.notNull(securitySystem);
-        Assert.notNull(txSource);
+        this.secSys = securitySystem;
         this.txSource = txSource;
         this.factory = factory;
         this.simpleJdbc = simpleJdbc;
@@ -106,8 +111,9 @@ public class EventHandler implements MethodInterceptor {
 
         boolean failure = false;
         Object retVal = null;
+        Session session = factory.getSession();
         try {
-            ht.execute(new EnableFilterAction(secSys));
+            secSys.enableReadFilter(session);
             retVal = arg0.proceed();
             saveLogs(readOnly, (SessionImplementor) session);
             return retVal;
@@ -131,15 +137,25 @@ public class EventHandler implements MethodInterceptor {
 
                 // read-only sessions should not have anything changed.
                 else if (readOnly) {
-                    ht.execute(new ClearIfDirtyAction(secSys));
+                    if (session.isDirty()) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Clearing dirty session.");
+                        }
+                        session.clear();
+                    }
                 }
 
                 // stateless services, don't keep their sesssions about.
                 else {
-                    ht.flush();
-                    ht.execute(new CheckDirtyAction(secSys));
-                    ht.execute(new DisableFilterAction(secSys));
-                    ht.clear();
+                    session.flush();
+                    if (session.isDirty()) {
+                        throw new InternalException(
+                                "Session is dirty. Cannot properly "
+                                        + "reset security system. Must rollback.\n Session="
+                                        + session);
+                    }
+                    secSys.disableReadFilter(session);
+                    session.clear();
                 }
 
             } finally {
@@ -224,90 +240,5 @@ public class EventHandler implements MethodInterceptor {
             throw new InternalException("More logs present after saveLogs()");
         }
 
-    }
-}
-
-// ~ Actions
-// =============================================================================
-
-/**
- * {@link HibernateCallback} which enables our read-security filter.
- */
-class EnableFilterAction implements HibernateCallback {
-    private final BasicSecuritySystem secSys;
-
-    public EnableFilterAction(BasicSecuritySystem sec) {
-        this.secSys = sec;
-    }
-
-    public Object doInHibernate(Session session) throws HibernateException,
-            SQLException {
-        secSys.enableReadFilter(session);
-        return null;
-    }
-}
-
-/**
- * {@link HibernateCallback} which disables our read-security filter.
- */
-class DisableFilterAction implements HibernateCallback {
-    private final BasicSecuritySystem secSys;
-
-    public DisableFilterAction(BasicSecuritySystem sec) {
-        this.secSys = sec;
-    }
-
-    public Object doInHibernate(Session session) throws HibernateException,
-            SQLException {
-        secSys.disableReadFilter(session);
-        return null;
-    }
-}
-
-/**
- * {@link HibernateCallback} which checks whether or not the session is dirty.
- * If so, an exception will be thrown.
- */
-class ClearIfDirtyAction implements HibernateCallback {
-    private static Log log = LogFactory.getLog(ClearIfDirtyAction.class);
-
-    private final BasicSecuritySystem secSys;
-
-    public ClearIfDirtyAction(BasicSecuritySystem sec) {
-        this.secSys = sec;
-    }
-
-    public Object doInHibernate(Session session) throws HibernateException,
-            SQLException {
-        if (session.isDirty()) {
-            if (log.isDebugEnabled()) {
-                log.debug("Clearing dirty session.");
-            }
-            session.clear();
-        }
-        return null;
-    }
-}
-
-/**
- * {@link HibernateCallback} which checks whether or not the session is dirty.
- * If so, an exception will be thrown.
- */
-class CheckDirtyAction implements HibernateCallback {
-    private final BasicSecuritySystem secSys;
-
-    public CheckDirtyAction(BasicSecuritySystem sec) {
-        this.secSys = sec;
-    }
-
-    public Object doInHibernate(Session session) throws HibernateException,
-            SQLException {
-        boolean dirty = session.isDirty();
-        if (dirty) {
-            throw new InternalException("Session is dirty. Cannot properly "
-                    + "reset security system. Must rollback.\n Session="
-                    + session);
-        }
-        return null;
     }
 }

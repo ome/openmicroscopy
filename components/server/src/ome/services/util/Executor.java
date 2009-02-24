@@ -195,13 +195,13 @@ public interface Executor extends ApplicationContextAware {
         final protected List<Advice> advices = new ArrayList<Advice>();
         final protected PrincipalHolder principalHolder;
         final protected String[] proxyNames;
-        final protected HibernateTemplate hibTemplate;
+        final protected SessionFactory factory;
         final protected SimpleJdbcOperations jdbcOps;
 
-        public Impl(PrincipalHolder principalHolder, HibernateTemplate ht,
+        public Impl(PrincipalHolder principalHolder, SessionFactory factory,
                 SimpleJdbcOperations jdbc, String[] proxyNames) {
-            this.hibTemplate = ht;
             this.jdbcOps = jdbc;
+            this.factory = factory;
             this.principalHolder = principalHolder;
             this.proxyNames = proxyNames;
         }
@@ -232,7 +232,7 @@ public interface Executor extends ApplicationContextAware {
          * @param work
          */
         public Object execute(final Principal p, final Work work) {
-            Interceptor i = new Interceptor(hibTemplate.getSessionFactory());
+            Interceptor i = new Interceptor(factory);
             ProxyFactory factory = new ProxyFactory();
             factory.setTarget(work);
             factory.setInterfaces(new Class[] { Work.class });

@@ -36,9 +36,8 @@ public class BlobShareStoreTest extends TestCase {
     @BeforeMethod
     public void setup() throws Exception {
         ctx = OmeroContext.getManagedServerContext();
-        ht = (HibernateTemplate) ctx.getBean("hibernateTemplate");
-        store = new BlobShareStore(ht);
-        store.init();
+        store = new BlobShareStore();
+        store.setApplicationContext(ctx);
     }
 
     @AfterMethod

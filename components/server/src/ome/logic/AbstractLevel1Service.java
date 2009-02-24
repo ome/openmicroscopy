@@ -1,5 +1,5 @@
 /*
- * ome.logic.AbstractLevel1Service
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -14,7 +14,6 @@
 
 package ome.logic;
 
-import ome.security.SecuritySystem;
 import ome.services.query.QueryFactory;
 import ome.services.util.BeanHelper;
 import ome.system.OmeroContext;
@@ -28,14 +27,15 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * service level 1
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date:
- *          2006-12-15 11:39:34 +0100 (Fri, 15 Dec 2006) $) </small>
+ * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date: 2006-12-15
+ *          11:39:34 +0100 (Fri, 15 Dec 2006) $) </small>
  * @since OMERO 3.0
  */
 public abstract class AbstractLevel1Service implements SelfConfigurableService {
 
     protected transient QueryFactory queryFactory;
 
+    protected transient SessionFactory sessionFactory;
     /**
      * Performs the necessary {@link OmeroContext} lookup and calls
      * {@link OmeroContext#applyBeanPropertyValues(Object, Class)} when
@@ -47,32 +47,25 @@ public abstract class AbstractLevel1Service implements SelfConfigurableService {
         getBeanHelper().throwIfAlreadySet(this.queryFactory, factory);
         this.queryFactory = factory;
     }
-    
+
     public QueryFactory getQueryFactory() {
         return this.queryFactory;
     }
-    
+
     /**
-     * This method was previously called by the EJB container,
-     * but is no longer needed. Instead, all configuration happens
-     * within Spring.
+     * This method was previously called by the EJB container, but is no longer
+     * needed. Instead, all configuration happens within Spring.
      */
     public void selfConfigure() {
         getBeanHelper().configure(this);
     }
-    
+
     protected BeanHelper getBeanHelper() {
         if (beanHelper == null) {
             beanHelper = new BeanHelper(this.getClass());
         }
         return beanHelper;
     }
-
-    // ~ HibernateDaoSupport methods
-    // =========================================================================
-
-    private HibernateDaoSupport support = new HibernateDaoSupport() { /* ez */
-    };
 
     /**
      * delegates to {@link HibernateDaoSupport}. Used during initialization to
@@ -81,7 +74,7 @@ public abstract class AbstractLevel1Service implements SelfConfigurableService {
      * @see HibernateDaoSupport#setSessionFactory(SessionFactory)
      */
     public final void setSessionFactory(SessionFactory sessionFactory) {
-        support.setSessionFactory(sessionFactory);
+        this.sessionFactory = sessionFactory;
     }
 
     /**
@@ -91,27 +84,7 @@ public abstract class AbstractLevel1Service implements SelfConfigurableService {
      * @see HibernateDaoSupport#getSessionFactory()
      */
     public final SessionFactory getSessionFactory() {
-        return support.getSessionFactory();
-    }
-
-    /**
-     * delegates to {@link HibernateDaoSupport}. Used during initialization to
-     * set the current {@link HibernateTemplate}
-     * 
-     * @see HibernateDaoSupport#setHibernateTemplate(HibernateTemplate)
-     */
-    public final void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
-        support.setHibernateTemplate(hibernateTemplate);
-    }
-
-    /**
-     * delegates to {@link HibernateDaoSupport} to get the current
-     * {@link HibernateTemplate}
-     * 
-     * @see HibernateDaoSupport#getHibernateTemplate()
-     */
-    public final HibernateTemplate getHibernateTemplate() {
-        return support.getHibernateTemplate();
+        return sessionFactory;
     }
 
 }

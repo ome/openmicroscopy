@@ -66,22 +66,22 @@ public class FreezeShareStore extends ShareStore {
     // =========================================================================
 
     @Override
-    public int totalShares() {
+    public Long totalShares() {
         ShareMap map = new ShareMap(conn, envMap, false);
         try {
             int mapsize = map.size();
-            return mapsize;
+            return Long.valueOf(mapsize);
         } finally {
             map.close();
         }
     }
 
     @Override
-    public int totalSharedItems() {
+    public Long totalSharedItems() {
         ShareItems items = new ShareItems(conn, envItems, false);
         try {
             int itemssize = items.size();
-            return itemssize;
+            return Long.valueOf(itemssize);
         } finally {
             items.close();
         }

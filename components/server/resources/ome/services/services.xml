@@ -140,7 +140,7 @@
 
   <bean id="level1" abstract="true">
     <property name="queryFactory"      ref="queryFactory"/>
-    <property name="hibernateTemplate" ref="hibernateTemplate"/>
+    <property name="sessionFactory"    ref="sessionFactory"/>
   </bean>
 
   <bean id="level2" abstract="true">
@@ -178,7 +178,7 @@
 
   <bean id="executor" class="ome.services.util.Executor$Impl">
     <constructor-arg ref="currentDetails"/>
-    <constructor-arg ref="hibernateTemplate"/>
+    <constructor-arg ref="sessionFactory"/>
     <constructor-arg ref="executorInterceptors"/>
     <constructor-arg ref="simpleJdbcTemplate"/>
   </bean>

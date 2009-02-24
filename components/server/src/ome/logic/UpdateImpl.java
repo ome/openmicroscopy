@@ -93,13 +93,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
     @RolesAllowed("user")
     public void flush() {
-        getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException, SQLException {
-                session.flush();
-                return null;
-            };
-        });
+        session().flush();
     }
 
     // ~ INTERFACE METHODS
@@ -129,7 +123,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     public void saveCollection(Collection graph) {
         doAction(graph, new UpdateAction<Collection>() {
             @Override
-            public Collection run(Collection value, UpdateFilter filter, Session s) {
+            public Collection run(Collection value, UpdateFilter filter,
+                    Session s) {
                 for (Object o : value) {
                     IObject obj = (IObject) o;
                     obj = internalMerge(obj, filter, s);
@@ -146,7 +141,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
             public IObject[] run(IObject[] value, UpdateFilter filter, Session s) {
                 IObject[] copy = new IObject[value.length];
                 for (int i = 0; i < value.length; i++) {
-                    if (i%1000 == 0) {
+                    if (i % 100 == 0) {
                         s.flush();
                         s.clear();
                     }
@@ -156,20 +151,20 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
             }
         });
     }
-    
+
     @RolesAllowed("user")
     public long[] saveAndReturnIds(IObject[] graph) {
-        
+
         if (graph == null || graph.length == 0) {
             return new long[0]; // EARLY EXIT!
         }
-        
+
         final long[] ids = new long[graph.length];
         doAction(graph, new UpdateAction<IObject[]>() {
             @Override
             public IObject[] run(IObject[] value, UpdateFilter filter, Session s) {
                 for (int i = 0; i < value.length; i++) {
-                    if (i%1000 == 0) {
+                    if (i % 100 == 0) {
                         s.flush();
                         s.clear();
                     }
@@ -207,7 +202,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
         doAction(row, new UpdateAction<IObject>() {
             @Override
             public IObject run(IObject value, UpdateFilter filter, Session s) {
-                internalDelete(value, filter);
+                internalDelete(value, filter, s);
                 return null;
             }
         });
@@ -267,49 +262,51 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
      * {@link ome.tools.hibernate.MergeEventListener} needs to be moved to
      * {@link UpdateFilter} or to another event listener.
      */
-    protected Long internalSave(IObject obj, UpdateFilter filter, Session session) {
+    protected Long internalSave(IObject obj, UpdateFilter filter,
+            Session session) {
         if (getBeanHelper().getLogger().isDebugEnabled()) {
             getBeanHelper().getLogger().debug(" Internal save. ");
         }
 
         IObject result = (IObject) filter.filter(null, obj);
-        Long id = (Long) getHibernateTemplate().save(result);
+        Long id = (Long) session.save(result);
         return id;
     }
-    
+
     /**
      * Note if we use anything other than merge here, functionality from
      * {@link ome.tools.hibernate.MergeEventListener} needs to be moved to
      * {@link UpdateFilter} or to another event listener.
      */
-    protected IObject internalMerge(IObject obj, UpdateFilter filter, Session session) {
+    protected IObject internalMerge(IObject obj, UpdateFilter filter,
+            Session session) {
         if (getBeanHelper().getLogger().isDebugEnabled()) {
             getBeanHelper().getLogger().debug(" Internal merge. ");
         }
 
         IObject result = (IObject) filter.filter(null, obj);
-        result = (IObject) getHibernateTemplate().merge(result);
+        result = (IObject) session.merge(result);
         return result;
     }
 
-    protected void internalDelete(IObject obj, UpdateFilter filter) {
+    protected void internalDelete(IObject obj, UpdateFilter filter,
+            Session session) {
         if (getBeanHelper().getLogger().isDebugEnabled()) {
             getBeanHelper().getLogger().debug(" Internal delete. ");
         }
 
-        getHibernateTemplate().delete(
-                getHibernateTemplate().load(Utils.trueClass(obj.getClass()),
-                        obj.getId()));
+        session.delete(session.load(Utils.trueClass(obj.getClass()), obj
+                .getId()));
     }
 
-    private void afterUpdate(UpdateFilter filter) {
+    private void afterUpdate(UpdateFilter filter, Session session) {
 
         if (getBeanHelper().getLogger().isDebugEnabled()) {
             getBeanHelper().getLogger().debug(" Post-save cleanup. ");
         }
 
         // Clean up
-        getHibernateTemplate().flush();
+        session.flush();
         filter.unloadReplacedObjects();
 
     }
@@ -317,23 +314,21 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     @SuppressWarnings("unchecked")
     private <T> T doAction(final T graph, final UpdateAction<T> action) {
         final UpdateFilter filter = new UpdateFilter();
-        return (T) getHibernateTemplate().execute(new HibernateCallback(){
-            public Object doInHibernate(Session session)
-                    throws HibernateException, SQLException {
-                
-                T retVal;
-                beforeUpdate(graph, filter);
-                retVal = action.run(graph, filter, session);
-                afterUpdate(filter);
-                return retVal;
-
-            }});
+        final Session session = session();
+        T retVal;
+        beforeUpdate(graph, filter);
+        retVal = action.run(graph, filter, session);
+        afterUpdate(filter, session);
+        return retVal;
     }
 
     private abstract class UpdateAction<T> {
         public abstract T run(T value, UpdateFilter filter, Session s);
     }
 
+    private Session session() {
+        return SessionFactoryUtils.getSession(getSessionFactory(), false);
+    }
 }
 
 /**

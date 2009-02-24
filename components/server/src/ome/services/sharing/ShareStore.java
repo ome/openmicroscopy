@@ -122,8 +122,8 @@ public abstract class ShareStore {
      */
     public final void init() {
         doInit();
-        int mapsize = totalShares();
-        int itemssize = totalSharedItems();
+        Long mapsize = totalShares();
+        Long itemssize = totalSharedItems();
         log.info("Loaded store " + this + " with " + mapsize + " shares and "
                 + itemssize + " objects");
     }
@@ -146,9 +146,9 @@ public abstract class ShareStore {
 
     public abstract void doInit();
 
-    public abstract int totalShares();
+    public abstract Long totalShares();
 
-    public abstract int totalSharedItems();
+    public abstract Long totalSharedItems();
 
     public abstract Set<Long> keys();
 

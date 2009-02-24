@@ -5,7 +5,6 @@
 
 package ome.services.sharing;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,14 +18,15 @@ import ome.model.IObject;
 import ome.model.meta.Share;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
+import ome.system.OmeroContext;
+import ome.tools.hibernate.SessionFactory;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.util.Assert;
+import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
 /**
  * 
@@ -35,24 +35,27 @@ import org.springframework.util.Assert;
  * @since 3.0-Beta4
  * @see IShare
  */
-public class BlobShareStore extends ShareStore {
+public class BlobShareStore extends ShareStore implements
+        ApplicationContextAware {
 
     /**
-     * HibernateTemplate used to query and update the store during normal
+     * Used to obtain sessions for querying and updating the store during normal
      * operation.
      */
-    final protected HibernateTemplate ht;
+    protected SessionFactory factory;
 
-    // Initialization/Destruction
-    // =========================================================================
+    protected OmeroContext ctx;
 
     /**
-     * 
+     * Because there is a cyclical dependency SF->ACLVoter->BlobStore->SF we
+     * have to lazy-load the session factory via the context.
      */
-    public BlobShareStore(HibernateTemplate ht) {
-        Assert.notNull(ht);
-        this.ht = ht;
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        this.ctx = (OmeroContext) ctx;
     }
+
+    // Initialization/Destruction
 
     @Override
     public void doInit() {
@@ -63,13 +66,15 @@ public class BlobShareStore extends ShareStore {
     // =========================================================================
 
     @Override
-    public int totalShares() {
-        return -1;
+    public Long totalShares() {
+        return (Long) session().createQuery("select count(id) from Share")
+                .uniqueResult();
     }
 
     @Override
-    public int totalSharedItems() {
-        return -1;
+    public Long totalSharedItems() {
+        return (Long) session().createQuery("select sum(items) from Share")
+                .uniqueResult();
     }
 
     @Override
@@ -77,28 +82,30 @@ public class BlobShareStore extends ShareStore {
 
         long oldOptLock = data.optlock;
         long newOptLock = oldOptLock + 1;
+        Session session = session();
 
-        try {
-            ht.find(
-                    "select s from Share s where s.id = " + data.id
-                            + " and s.version =" + data.optlock).get(0);
-        } catch (IndexOutOfBoundsException ioobe) {
+        List list = session.createQuery(
+                "select s from Share s where s.id = " + data.id
+                        + " and s.version =" + data.optlock).list();
+
+        if (list.size() == 0) {
             throw new OptimisticLockException("Share " + data.id
                     + " has been updated by someone else.");
         }
+
         data.optlock = newOptLock;
         share.setData(parse(data));
         share.setActive(data.enabled);
         share.setItemCount((long) items.size());
         share.setVersion((int) newOptLock);
-        byte[] bytes = parse(data);
-        ht.merge(share);
+        session.merge(share);
 
     }
 
     @Override
     public ShareData get(final long id) {
-        Share s = (Share) ht.get(Share.class, id);
+        Session session = session();
+        Share s = (Share) session.get(Share.class, id);
         if (s == null) {
             return null;
         }
@@ -157,7 +164,7 @@ public class BlobShareStore extends ShareStore {
     @Override
     public <T extends IObject> boolean doContains(long sessionId, Class<T> kls,
             long objId) {
-        
+
         ShareData data = get(sessionId);
         if (data == null) {
             return false;
@@ -178,13 +185,9 @@ public class BlobShareStore extends ShareStore {
     @Override
     @SuppressWarnings("unchecked")
     public Set<Long> keys() {
-        return new HashSet<Long>(ht.executeFind(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException, SQLException {
-                Query q = session.createQuery("select id from Share");
-                return q.list();
-            }
-        }));
+        Session session = session();
+        List list = session.createQuery("select id from Share").list();
+        return new HashSet<Long>(list);
     }
 
     // Helpers
@@ -197,17 +200,42 @@ public class BlobShareStore extends ShareStore {
      */
     @SuppressWarnings("unchecked")
     private Map<Long, byte[]> data() {
-        List<Object[]> data = ht.executeFind(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException, SQLException {
-                return session.createQuery("select id, data from Share").list();
-            }
-        });
+        Session session = session();
+        List<Object[]> data = session.createQuery("select id, data from Share")
+                .list();
         Map<Long, byte[]> rv = new HashMap<Long, byte[]>();
         for (Object[] objects : data) {
             rv.put((Long) objects[0], (byte[]) objects[1]);
         }
         return rv;
+    }
+
+    private Session session() {
+        initialize();
+        return factory.getSession();
+    }
+
+    /**
+     * Loads the {@link SessionFactory}
+     */
+    private void initialize() {
+
+        if (factory != null) {
+            return; // GOOD!
+        }
+
+        if (ctx == null) {
+            throw new IllegalStateException("Have no context to load factory");
+        }
+
+        factory = (SessionFactory) ctx.getBean("omeroSessionFactory");
+
+        if (factory == null) {
+            throw new IllegalStateException("Cannot find factory");
+        }
+
+        // Finally calling init here, since before it's not possible
+        init();
     }
 
 }

@@ -103,14 +103,10 @@
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
-  <bean id="hibernateTemplate" class="ome.tools.spring.ManualFlushHibernateTemplate">
-    <description>
-    Scope: private
-    </description>
-    <property name="sessionFactory" ref="sessionFactory"/>
-    <property name="allowCreate" value="false"/>
+  <bean id="omeroSessionFactory" class="ome.tools.hibernate.SessionFactory">
+    <constructor-arg ref="sessionFactory"/>
   </bean>
-  
+
   <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
     <description>
     Scope: private

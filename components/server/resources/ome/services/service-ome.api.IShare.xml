@@ -41,12 +41,12 @@
   </bean> 
   
   <!--
-    ============================================================================ 
+    ============================================================================
    -->
 
+    <!-- init() is called on first usage to handle a cyclical dependency on
+    session factory -->
     <bean id="shareStore" class="ome.services.sharing.BlobShareStore"
-        init-method="init" destroy-method="close">
-      <constructor-arg ref="hibernateTemplate"/>
-    </bean>
+        destroy-method="close"/>
 
 </beans>

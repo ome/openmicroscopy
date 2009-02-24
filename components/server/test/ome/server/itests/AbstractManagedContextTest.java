@@ -118,9 +118,6 @@ public class AbstractManagedContextTest extends
         // data = new OMEData();
         // data.setDataSource(dataSource);
 
-        hibernateTemplate = (HibernateTemplate) applicationContext
-                .getBean("hibernateTemplate");
-
         securitySystem = (SecuritySystem) applicationContext
                 .getBean("securitySystem");
         roles = securitySystem.getSecurityRoles();

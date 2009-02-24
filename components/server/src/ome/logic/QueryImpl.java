@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.IQuery;
 import ome.api.ServiceInterface;
@@ -37,6 +36,7 @@ import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.metadata.ClassMetadata;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +62,14 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         return IQuery.class;
     }
 
+    /**
+     * Temporary WORKAROUND during the removal of HibernateTemplate to
+     * let IQuery continue functioning.
+     */
+    private HibernateTemplate getHibernateTemplate() {
+        return new HibernateTemplate(getSessionFactory(), false);
+    }
+    
     // ~ LOCAL PUBLIC METHODS
     // =========================================================================
 

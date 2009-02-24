@@ -32,19 +32,19 @@ public class PaginationTest extends AbstractManagedContextTest {
         long[] ids = null;
         IObject[] objs = null;
         
-        for (int j = 0; j < 10; j++) {
-            Image[] images = new Image[5000];
+        for (int j = 0; j < 1; j++) {
+            Image[] images = new Image[50000];
             for (int i = 0; i < images.length; i++) {
                 images[i] = new Image();
                 images[i].setAcquisitionDate(new Timestamp(0));
                 images[i].setName("__bigtest__");
             }
-            //ids = iUpdate.saveAndReturnIds(images);
-            objs = iUpdate.saveAndReturnArray(images);
+            ids = iUpdate.saveAndReturnIds(images);
+            //objs = iUpdate.saveAndReturnArray(images);
         }
         System.out.println(new Report().toString());
         //System.out.println(Arrays.toString(ids));
-        System.out.println(Arrays.toString(objs));
+        //System.out.println(Arrays.toString(objs));
     }
 
     @Test(enabled = false)
