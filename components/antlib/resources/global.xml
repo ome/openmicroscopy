@@ -170,38 +170,6 @@
         </macrodef>
 
         <!--
-          Gather all compiled services together into a single
-          services.jar.  Also, make all application jars available to the
-          services.jar via the MANIFEST file *AND* add one additional
-          (possibly non-extant) extensions.jar which can be created by 3rd
-          parties and added to the lib dir (top-level) for runtime class
-          lookups.
-
-          services.jar is placed in the specified directory. Optionally, a
-          manifest string can be specified. It defaults to the empty
-          string, but a manifest can be generated via makeManifest if
-          omero.classpath has been defined.
-        -->
-        <macrodef name="useServices">
-            <attribute name="dir"/>
-            <attribute name="manifest" default=""/>
-            <sequential>
-                <jar destfile="@{dir}/services.jar">
-                    <include name="*"/>
-                    <manifest>
-                        <attribute name="Class-Path" value="@{manifest} extensions.jar"/>
-                    </manifest>
-                </jar>
-                <jar destfile="@{dir}/extensions.jar">
-                    <exclude name="*"/>
-                    <manifest>
-                        <attribute name="Class-Path" value=""/>
-                    </manifest>
-                </jar>
-            </sequential>
-        </macrodef>
-
-        <!--
           The hard-wiring macro is used to allowcertain method interceptors to
           be hard-wired around method exception *before* any of the "soft"
           spring-wired interceptors (see resources/ome/services/services.xml)
