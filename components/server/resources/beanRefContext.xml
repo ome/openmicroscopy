@@ -71,6 +71,8 @@
         <value>classpath:ome/services/service-ome.api.IUpdate.xml</value>
         <value>classpath:ome/services/service-ome.api.Search.xml</value>
         <value>classpath:ome/services/service-ome.io.nio.OriginalFilesService.xml</value>
+        <!-- Needed to refresh the session cache -->
+        <value>classpath:ome/services/service-ome.api.IShare.xml</value>
       </list>
     </constructor-arg>
     <constructor-arg index="1" ref="ome.model"/>
