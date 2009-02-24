@@ -70,54 +70,60 @@
             </sequential>
         </macrodef>
 
-        <target name="icegen" depends="prepare">
+	<target name="icegen-init">
+		<macrodef name="checkicegen">
+			<attribute name="dependfile"/>
+			<attribute name="template"/>
+			<sequential>
+			<uptodate property="icegen.@{template}.unneeded">
+				<srcfiles dir="${resrc.dir}" includes="${dsl.pat}"/>
+				<mapper type="merge" to="@{dependfile}"/>
+			</uptodate>
+			</sequential>
+		</macrodef>
+		<checkicegen template="combined" dependfile="${comb.dir}/ImageI.combined"/>
+		<condition property="icegen.unneeded">
+			<and>
+				<isset property="icegen.combined.unneeded"/>
+			</and>
+		</condition>
 		<property name="gen.dir" value="${basedir}/generated"/>
 		<property name="comb.dir" value="${basedir}/target/combined"/>
 		<mkdir dir="${comb.dir}/omero/api"/>
 		<mkdir dir="${comb.dir}/omero/model"/>
 		<mkdir dir="${gen.dir}/omero/api"/>
 		<mkdir dir="${gen.dir}/omero/model"/>
+	</target>
+
+
+        <target name="icegen" depends="prepare,icegen-init,icegen1,icegen2"/>
+
+        <target name="icegen1" unless="icegen.unneeded">
 		<taskdef classname="ome.dsl.DSLTask" classpathref="omero.classpath" name="dsl"/>
 
 		<!-- Not "combined" files-->
-		<selector id="ifNewerThanCombined">
-			<depend targetdir="${comb.dir}">
-				<mapper>
-					<mapper type="merge" to="ImageI.combined"/>
-				</mapper>
-			</depend>
-		</selector>
 		<dsl template="${resrc.dir}/templates/java_ice_map.vm" filepattern="${gen.dir}/omero/util/IceMap.java">
-			<fileset dir="${model.comp}/resources" includes="${dsl.pat}">
-				<selector refid="ifNewerThanCombined"/>
-			</fileset>
+			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
 		<dsl template="${resrc.dir}/templates/java_obj_reg.vm" filepattern="${gen.dir}/omero/util/ObjectFactoryRegistrar.java">
-			<fileset dir="${model.comp}/resources" includes="${dsl.pat}">
-				<selector refid="ifNewerThanCombined"/>
-			</fileset>
+			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
 		<dsl template="${resrc.dir}/templates/cpp_obj_reg.vm" filepattern="${gen.dir}/omero/ObjectFactoryRegistrar.cpp">
-			<fileset dir="${model.comp}/resources" includes="${dsl.pat}">
-				<selector refid="ifNewerThanCombined"/>
-			</fileset>
+			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
 
 		<!-- "combined" files which must be further parsed. be sure to generate ImageI.combined
                 last since that is our test for "newness"
                 -->
 		<dsl template="${resrc.dir}/templates/factorymap.vm" filepattern="${comb.dir}/FactoryMap.combined">
-			<fileset dir="${model.comp}/resources" includes="${dsl.pat}">
-				<selector refid="ifNewerThanCombined"/>
-			</fileset>
+			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
-
 		<dsl template="${resrc.dir}/templates/combined.vm" filepattern="${comb.dir}/{class-name}I.combined">
-			<fileset dir="${model.comp}/resources" includes="${dsl.pat}">
-				<selector refid="ifNewerThanCombined"/>
-			</fileset>
+			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
 		</dsl>
+        </target>
 
+        <target name="icegen2">
 		<!--
 		    This section takes the output of the combined.vm template and splits it into
 		    the various sections. All of these files represent the Ice model and our

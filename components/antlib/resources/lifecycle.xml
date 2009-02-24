@@ -146,7 +146,7 @@
 		<defineClasspath/>
 		<ivy:settings id="ivy.${ant.project.name}.test" file="${etc.dir}/ivysettings.xml"/>
 		<ivy:resolve settingsRef="ivy.${ant.project.name}.test" file="${basedir}/test.xml" type="jar" log="quiet"/>
-		<ivy:retrieve settingsRef="ivy.${ant.project.name}.test" pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
+		<ivy:retrieve settingsRef="ivy.${ant.project.name}.test" pattern="${deps.lib.dir}/test/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
 		<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="omero.test.classpath"/>
 		<taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
 	</target>
@@ -242,7 +242,7 @@
 			pathsep=" " dirsep="/">
 			<flattenmapper/>
 		</pathconvert>
-                <property name="mf.classpath.and.jars" value="${mf.classpath} services.jar extensions.jar"/>
+                <property name="mf.classpath.and.jars" value="../../etc ${mf.classpath} services.jar extensions.jar"/>
 		<jar destfile="${target.dir}/${ivy.module}.jar">
 			<manifest>
 				<attribute name="Class-Path" value="${mf.classpath.and.jars}"/>

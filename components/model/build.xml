@@ -19,34 +19,40 @@
 	<target name="generate" depends="prepare,dsl,lifecycle.generate" unless="generate.skip">
 	</target>
 
-	<macrodef name="dsl-with-filter">
-		<attribute name="template"/>
-		<attribute name="filepattern"/>
-		<attribute name="dependdir"/>
-		<attribute name="dependpat"/>
-		<sequential>
-		<dsl template="@{template}" filepattern="@{filepattern}">
-			<fileset dir="${resrc.dir}" includes="${dsl.pat}">
-				<depend targetdir="@{dependdir}">
-					<mapper type="merge" to="@{dependpat}"/>
-				</depend>
-			</fileset>
-		</dsl>
-		</sequential>
-	</macrodef>
+	<target name="dsl-init">
+		<macrodef name="checkdsl">
+			<attribute name="dependfile"/>
+			<attribute name="template"/>
+			<sequential>
+			<uptodate property="dsl.@{template}.unneeded">
+				<srcfiles dir="${resrc.dir}" includes="${dsl.pat}"/>
+				<mapper type="merge" to="@{dependfile}"/>
+			</uptodate>
+			</sequential>
+		</macrodef>
+		<checkdsl template="object" dependfile="${src.dest}/ome/model/core/Image.java"/>
+		<checkdsl template="cfg"    dependfile="${resrc.dest}/hibernate.cfg.xml"/>
+		<checkdsl template="data"   dependfile="${resrc.dest}/data.sql"/>
+		<checkdsl template="views"  dependfile="${resrc.dest}/views.sql"/>
+		<checkdsl template="enums"  dependfile="${blitz.comp}/target/generated/resources/enums.properties"/>
+		<condition property="dsl.needed">
+			<not><and>
+				<isset property="dsl.object.unneeded"/>
+				<isset property="dsl.cfg.unneeded"/>
+				<isset property="dsl.data.unneeded"/>
+				<isset property="dsl.views.unneeded"/>
+				<isset property="dsl.enums.unneeded"/>
+			</and></not>
+		</condition>
+	</target>
 
-	<target name="dsl">
+	<target name="dsl" depends="dsl-init" if="dsl.needed">
 		<taskdef classname="ome.dsl.DSLTask" classpathref="omero.classpath" name="dsl"/>
-		<dsl-with-filter template="ome/dsl/object.vm" filepattern="${src.dest}/{package-dir}/{class-name}.java"
-			dependdir="${src.dest}/ome/model/core/" dependpat="Image.java"/>
-		<dsl-with-filter template="ome/dsl/cfg.vm" filepattern="${resrc.dest}/hibernate.cfg.xml"
-			dependdir="${resrc.dest}" dependpat="hibernate.cfg.xml"/>
-		<dsl-with-filter template="ome/dsl/data.vm" filepattern="${resrc.dest}/data.sql"
-			dependdir="${resrc.dest}" dependpat="data.sql"/>
-		<dsl-with-filter template="ome/dsl/views.vm" filepattern="${resrc.dest}/views.sql"
-			dependdir="${resrc.dest}" dependpat="views.sql"/>
-		<dsl-with-filter template="ome/dsl/enums.vm" filepattern="${blitz.comp}/target/generated/resources/enums.properties"
-			dependdir="${blitz.comp}/target/generated/resources" dependpat="enums.properties"/>
+		<dsl template="ome/dsl/object.vm" filepattern="${src.dest}/{package-dir}/{class-name}.java"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
+		<dsl template="ome/dsl/cfg.vm" filepattern="${resrc.dest}/hibernate.cfg.xml"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
+		<dsl template="ome/dsl/data.vm" filepattern="${resrc.dest}/data.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
+		<dsl template="ome/dsl/views.vm" filepattern="${resrc.dest}/views.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
+		<dsl template="ome/dsl/enums.vm" filepattern="${blitz.comp}/target/generated/resources/enums.properties"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
 		<delete>
 			<fileset dir="${src.dest}" includes="**/*.java">
 				<present present="both" targetdir="${src.dir}"/>
