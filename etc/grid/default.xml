@@ -32,16 +32,6 @@
       <server-instance template="ProcessorTemplate" index="0"/>
       <server-instance template="ShellTemplate" id="Web"/>
       <server-instance template="StormTemplate"/>
-      <target name="postgres">
-        <server-instance template="ShellTemplate" id="postgres"/>
-      </target>
-      <target name="jboss">
-        <server-instance template="ShellTemplate" id="JBoss" exe="lib/jboss.py">
-          <properties>
-            <property name="jboss.home" value="jboss"/>
-          </properties>
-        </server-instance>
-      </target>
     </node>
 
     <node name="backup">

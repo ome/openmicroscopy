@@ -30,6 +30,11 @@ import org.testng.annotations.Test;
 
 public class AdminTest extends AbstractManagedContextTest {
 
+    @Test
+    public void testGetEventContext() throws Exception {
+        iAdmin.getEventContext();
+    }
+    
     // ~ IAdmin.createUser
     // =========================================================================
 

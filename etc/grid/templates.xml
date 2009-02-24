@@ -10,7 +10,7 @@
 
     <server-template id="BlitzTemplate">
       <parameter name="index"/>
-      <parameter name="config"/>
+      <parameter name="config" default="default"/>
       <server id="Blitz-${index}" exe="bin/omero" activation="always">
         <option>server</option>
         <option>blitz</option>

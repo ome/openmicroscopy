@@ -74,7 +74,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/repository/freemarker-3.2.0.beta11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/geronimo-spec-jta-1.0.1B-rc4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/grib-5.1.03.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-3.2.6.ga.jar" sourcepath="/Users/josh/lib/hibernate-3.2.6.ga"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-3.2.6.ga.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-annotations-3.3.1.GA.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-commons-annotations-3.0.0.ga.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-search-3.0.1.GA.jar"/>

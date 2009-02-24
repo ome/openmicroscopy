@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ome.api.ITypes;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
@@ -21,7 +22,6 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.CodomainMapContext;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
-import ome.model.enums.DimensionOrder;
 import ome.model.enums.Format;
 import ome.model.jobs.ImportJob;
 import ome.model.jobs.JobStatus;
@@ -402,6 +402,15 @@ public class UpdateTest extends AbstractUpdateTest {
         Image i = iUpdate.saveAndReturnObject(p.getImage());
         assertEquals(1, i.sizeOfPixels());
         assertNotNull(i.collectPixels(null).get(0));
+    }
+    
+    @Test(groups ="ticket:1183")
+    public void TestSaveAndReturnWithAnnotation() {
+        Project p = new Project("ticket:1183");
+        p.linkAnnotation(new CommentAnnotation());
+        p = iUpdate.saveAndReturnObject(p);
+        p.setDescription("something else");
+        iUpdate.saveAndReturnObject(p);
     }
 
     protected void assertLink(ProjectDatasetLink link) {

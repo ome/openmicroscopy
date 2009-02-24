@@ -56,6 +56,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -769,9 +770,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             public Object doWork(org.hibernate.Session s, ServiceFactory sf) {
                 Node node = sf.getQueryService().findByQuery(
                         "select n from Node n where uuid = :uuid",
-                        new Parameters().addString("uuid",
-                                internal_uuid).setFilter(
-                                new Filter().page(0, 1)));
+                        new Parameters().addString("uuid", internal_uuid)
+                                .setFilter(new Filter().page(0, 1)));
                 if (node == null) {
                     node = new Node(0L, false); // Using default node.
                 }
@@ -851,6 +851,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                                     .getId());
                             return grp;
                         } catch (Exception e) {
+                            log.warn("Exception while running "
+                                    + "executeDefaultGroup", e);
                             return null;
                         }
                     }
@@ -953,6 +955,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     private Session executeInternalSession() {
+        final Long sessionId = executeNextSessionId();
         return (Session) executor
                 .executeStateless(new Executor.SimpleStatelessWork(this,
                         "executeInternalSession") {
@@ -984,6 +987,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                         // select nextval('seq_session'),-35,
                         // 0,0,now(),now(),'rw----','PREVIOUSITEMS','1111',0,0;
                         Map<String, Object> params = new HashMap<String, Object>();
+                        params.put("sid", sessionId);
                         params.put("ttl", s.getTimeToLive());
                         params.put("tti", s.getTimeToIdle());
                         params.put("start", s.getStarted());

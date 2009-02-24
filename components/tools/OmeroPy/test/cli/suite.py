@@ -18,6 +18,9 @@ def additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
     suite.addTest(load("test.cli.admin"))
+    suite.addTest(load("test.cli.args"))
+    suite.addTest(load("test.cli.cli"))
     suite.addTest(load("test.cli.node"))
     suite.addTest(load("test.cli.base"))
+    suite.addTest(load("test.cli.rcode"))
     return suite

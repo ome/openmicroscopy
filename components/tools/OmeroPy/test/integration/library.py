@@ -33,6 +33,9 @@ class ITest(unittest.TestCase):
             self.root = None
             self.client = omero.client()
             self.client.createSession()
+        self.sf = self.client.createSession()
+        self.update = self.sf.getUpdateService()
+        self.query = self.sf.getQueryService()
 
     def tmpfile(self):
         tmpfile = tempfile.NamedTemporaryFile(mode='w+t')

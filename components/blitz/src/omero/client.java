@@ -474,19 +474,21 @@ public class client {
             while (retries < 3) {
                 String reason = null;
                 if (retries > 0) {
-                    __ic.getLogger().warning(reason + " - createSession retry: "+retries);
+                    __ic.getLogger().warning(
+                            reason + " - createSession retry: " + retries);
                 }
                 try {
                     prx = getRouter(__ic).createSession(username, password);
                     break;
                 } catch (omero.WrappedCreateSessionException wrapped) {
-                    if (! wrapped.concurrency) {
+                    if (!wrapped.concurrency) {
                         throw wrapped; // We only retry concurrency issues.
                     }
-                    reason = wrapped.type +":" + wrapped.reason;
+                    reason = wrapped.type + ":" + wrapped.reason;
                     retries++;
                 } catch (Ice.ConnectTimeoutException cte) {
-                    reason = "Ice.ConnectTimeoutException : " +cte.getMessage();
+                    reason = "Ice.ConnectTimeoutException:"
+                            + cte.getMessage();
                     retries++;
                 }
             }
