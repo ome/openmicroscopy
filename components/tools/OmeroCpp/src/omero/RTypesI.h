@@ -266,8 +266,8 @@ namespace omero {
 
 	std::map<std::string, ObjectFactoryPtr> objectFactories();
 
-    };
+    }
 
-};
+}
 
 #endif // OMERO_RTYPESI_H

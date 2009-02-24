@@ -16,6 +16,7 @@
 #include <omero/ObjectFactoryRegistrar.h>
 #include <omero/ServerErrors.h>
 #include <omero/System.h>
+#include <omero/model/OriginalFile.h>
 #include <Ice/Ice.h>
 #include <IceUtil/Handle.h>
 #include <IceUtil/RecMutex.h>
@@ -338,7 +339,7 @@ namespace omero {
     NoOpCallable() : Callable() {}
 	void operator()(){}
     };
-};
+}
 
 /*
  * operator<< for printing all IObject classes

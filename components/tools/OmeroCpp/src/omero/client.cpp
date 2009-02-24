@@ -12,6 +12,7 @@
 #include <omero/client.h>
 #include <omero/RTypesI.h>
 #include <omero/Constants.h>
+#include <omero/model/IObject.h>
 
 using namespace std;
 
