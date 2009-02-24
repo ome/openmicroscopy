@@ -147,7 +147,7 @@ public class IniFileLoader
 
     public boolean getUseQuaqua() 
     {
-        return staticPrefs.node("General").getBoolean("useQuaqua", true);
+        return userPrefs.node("General").getBoolean("useQuaqua", true);
     }
     
     
@@ -156,6 +156,13 @@ public class IniFileLoader
         return staticPrefs.node("General").get("appTitle", "OMERO.importer");
     }
 
+
+    public void setUseQuaqua(boolean b)
+    {
+        userPrefs.node("General").putBoolean("useQuaqua", b);
+        this.flushPreferences();
+    }
+    
     public String getVersionNumber()
     {
         //return Main.versionNumber;

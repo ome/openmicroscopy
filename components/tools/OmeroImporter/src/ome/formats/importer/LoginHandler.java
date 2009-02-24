@@ -390,7 +390,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             } else if (ScreenLogin.QUIT_PROPERTY.equals(prop)) {
                 if (displayTop)
                 {
-                    if (gui.quitConfirmed(viewer) == true)
+                    if (gui.quitConfirmed(viewer, "Do you really want to quit?")
+                            == true)
                     {
                         System.exit(0);
                     }    

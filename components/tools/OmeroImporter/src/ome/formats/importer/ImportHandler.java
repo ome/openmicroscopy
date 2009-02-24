@@ -25,7 +25,6 @@ import loci.formats.FormatException;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ResourceError;
 import omero.model.Dataset;
-import omero.model.DatasetI;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

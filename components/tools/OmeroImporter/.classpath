@@ -20,7 +20,6 @@
 	<classpathentry kind="lib" path="target/libs/bio-formats.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
-	<classpathentry kind="lib" path="target/libs/omero-client-utils.jar"/>
 	<classpathentry kind="lib" path="target/libs/poi-loci.jar"/>
 	<classpathentry kind="lib" path="target/libs/netcdf.jar"/>
 	<classpathentry kind="lib" path="target/libs/bufr.jar"/>
@@ -30,5 +29,6 @@
 	<classpathentry kind="lib" path="target/libs/asm-attrs.jar"/>
 	<classpathentry kind="lib" path="target/libs/asm.jar"/>
 	<classpathentry kind="lib" path="target/libs/cglib.jar"/>
+	<classpathentry kind="lib" path="target/libs/omero-clients-util.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

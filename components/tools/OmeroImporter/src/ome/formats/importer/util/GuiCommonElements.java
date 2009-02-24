@@ -27,6 +27,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -100,6 +101,16 @@ public class GuiCommonElements
         }
     }
 
+    public boolean getIsMac() 
+    {
+        String laf = UIManager.getLookAndFeel().getClass().getName();
+        if (laf.equals("apple.laf.AquaLookAndFeel") 
+                || laf.equals("ch.randelshofer.quaqua.QuaquaLookAndFeel")) 
+            return true;
+        else
+            return false;
+    }
+    
     // return main frame bound info
     public Rectangle getUIBounds()
     {
@@ -661,13 +672,17 @@ public class GuiCommonElements
         return null;
     }
 
-    public boolean quitConfirmed(Component frame) {
+    public boolean quitConfirmed(Component frame, String message) {
+        if (message == null)
+        {
+            message = "Do you really want to quit?\n" +
+            "Doing so will cancel any running imports.";
+        }
         String s1 = "Quit";
         String s2 = "Don't Quit";
         Object[] options = {s1, s2};
         int n = JOptionPane.showOptionDialog(frame,
-                "Do you really want to quit?\n" +
-                "Doing so will cancel any running imports.",
+                message,
                 "Quit Confirmation",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
@@ -675,11 +690,19 @@ public class GuiCommonElements
                 options,
                 s2);
         if (n == JOptionPane.YES_OPTION) {
-            System.err.println("quitConfirmed returned true");
+            //System.err.println("quitConfirmed returned true");
             return true;
         } else {
             return false;
         }
+    }
+    
+    public void restartNotice(Component frame, String message) {
+        if (message == null)
+        {
+            message = "You must restart before your changes will take effect.";
+        }
+        JOptionPane.showMessageDialog(frame, message);
     }
     
     public class WholeNumberField extends JTextField {
@@ -822,6 +845,54 @@ public class GuiCommonElements
 
     }
 
+    public JPanel addImagePanel(JPanel container, String imageString,
+            String placement, boolean debug)
+    {
+        ImageIcon icon = null;
+        java.net.URL imgURL = Main.class.getResource(imageString);
+        if (imgURL != null)
+        {
+            icon = new ImageIcon(imgURL);
+        }
+        JPanel panel = new ImagePanel(icon);
+        
+        if (debug == true)
+            panel.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Color.red),
+                    panel.getBorder()));
+        else 
+            panel.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Color.gray),
+                    panel.getBorder()));            
+        
+        container.add(panel, placement);
+        
+        return panel;
+
+    }
+    
+
+    public class ImagePanel extends JPanel
+    {
+        private static final long serialVersionUID = 1L;
+        ImageIcon image;
+    
+        public ImagePanel(ImageIcon icon)
+        {
+            super();
+            this.image = icon;
+        }
+        
+        public void paintComponent(Graphics g)
+        {
+            super.paintComponent(g);
+            if(image != null)
+            {
+                g.drawImage(image.getImage(), 0, 0, this);
+            }
+        }
+    }
+    
 }
 
 

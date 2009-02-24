@@ -98,7 +98,7 @@ public class Main extends JFrame
    
     // -- Constants --
     private final static boolean useSplashScreenAbout   = false;
-    private static boolean USE_QUAQUA = true;
+    static boolean USE_QUAQUA = true;
     
     
     //public final static String TITLE            = "OMERO.importer";
@@ -114,6 +114,7 @@ public class Main extends JFrame
     public static final String CHOOSER_ICON = "gfx/nuvola_chooser16.png";
     public static final String OUTPUT_ICON = "gfx/nuvola_output16.png";
     public static final String BUG_ICON = "gfx/nuvola_bug16.png";
+    public static final String CONFIG_ICON = "gfx/nuvola_configure16.png";
     
     public LoginHandler         loginHandler;
     public FileQueueHandler     fileQueueHandler;
@@ -128,6 +129,7 @@ public class Main extends JFrame
 
     private JMenuBar            menubar;
     private JMenu               fileMenu;
+    private JMenuItem           options;
     private JMenuItem           fileQuit;
     private JMenuItem           login;
     private JMenu               helpMenu;
@@ -206,6 +208,13 @@ public class Main extends JFrame
         login.setActionCommand("login");
         login.addActionListener(this);        
         fileMenu.add(login);
+        if (gui.getIsMac())
+        {
+            options = new JMenuItem("Options...", gui.getImageIcon(CONFIG_ICON));
+            options.setActionCommand("options");
+            options.addActionListener(this);        
+            fileMenu.add(options);
+        }
         fileQuit = new JMenuItem("Quit", gui.getImageIcon(QUIT_ICON));
         fileQuit.setActionCommand("quit");
         fileQuit.addActionListener(this);
@@ -501,10 +510,13 @@ public class Main extends JFrame
                 db = HistoryDB.getHistoryDB();
             }
         } else if ("quit".equals(cmd)) {
-            if (gui.quitConfirmed(this) == true)
+            if (gui.quitConfirmed(this, null) == true)
             {
                 System.exit(0);
             }
+        } else if ("options".equals(cmd)) {
+            OptionsDialog dialog = 
+                new OptionsDialog(this, "Import", true);
         }
         else if ("about".equals(cmd))
         {
@@ -592,7 +604,7 @@ public class Main extends JFrame
 
     public void windowClosing(WindowEvent e)  
     {
-        if (gui.quitConfirmed(this) == true)
+        if (gui.quitConfirmed(this, null) == true)
         {
             System.exit(0);
         }
@@ -614,7 +626,6 @@ public class Main extends JFrame
         // Load up the main ini file
         ini = IniFileLoader.getIniFileLoader(args);
         USE_QUAQUA = ini.getUseQuaqua();
-        System.err.println(USE_QUAQUA);
         
         String laf = UIManager.getSystemLookAndFeelClassName() ;
 
@@ -709,7 +720,7 @@ public class Main extends JFrame
             LoginCredentials lc = (LoginCredentials) evt.getNewValue();
             if (lc != null) login(lc);
         } else if (ScreenLogin.QUIT_PROPERTY.equals(name) || name.equals("quitpplication")) {
-            if (gui.quitConfirmed(this) == true)
+            if (gui.quitConfirmed(this, null) == true)
             {
                 System.exit(0);
             }
