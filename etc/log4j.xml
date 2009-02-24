@@ -65,7 +65,7 @@ system to be re-configured.
 
   <!-- DATABASE /////////////////////////////////////////////////////////////// -->
   <!-- WAY too verbose at INFO -->
-  <category name="atomikos"> <priority value="WARN"/> </category>
+  <category name="bitronix"> <priority value="WARN"/> </category>
   <category name="com.arjuna"> <priority value="WARN"/> </category>
   <!-- Limit memory warning -->
   <category name="org.hibernate.hql.ast.QueryTranslatorImpl"> <priority value="ERROR"/> </category>

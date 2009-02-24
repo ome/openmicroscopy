@@ -17,7 +17,7 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-<beans>	
+<beans default-lazy-init="true">
 
   <description>
     Configuration for Hibernate data access. The beans in this configuration file
@@ -118,16 +118,15 @@
            security.xml
     </description>
     <property name="dataSource" ref="dataSource"/>
-    <property name="useTransactionAwareDataSource" value="true"/>
     <property name="configLocation" value="classpath:hibernate.cfg.xml"/>
     <property name="hibernateProperties" ref="hibernateProperties"/>
     <property name="entityInterceptor" ref="omeroInterceptor"/>
     <property name="eventListeners" ref="eventListeners"/>
-	<property name="filterDefinitions">
-		<list>
-			<ref bean="securityFilter"/>
-		</list>
-	</property>
+    <property name="filterDefinitions">
+        <list>
+            <ref bean="securityFilter"/>
+        </list>
+    </property>
   </bean>
 
 </beans>

@@ -68,29 +68,74 @@
     <property name="transactionAttributeSource" ref="transactionAttributeSource"/>
   </bean>
 
+  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource"/>
+  </bean>
+
   <bean id="simpleJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
     <description>
-    Scope: private
-
-    Users of JDBC Templates may need to manage their own transactions if they
-    don't expect to be part of an existing JTA transaction.
+    Takes part in any currently running Hibernate transaction.
     </description>
     <constructor-arg ref="dataSource"/>
   </bean>
-
-  <bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"/>
-
-  <bean id="loggingDataSource" class="ome.services.util.LoggingDataSource" lazy-init="true">
+  
+  <bean id="isolatedJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
     <description>
-    Scope: private
-
-    Under extreme conditions, the data source can run out of connections at which time the
-    server can come to a stand still. To catch this situation, the logging
-    data source will now print to a special category which can be detected by
-    log4j appenders and handled appropriately (sending email, etc.)
+    Provides JDBC access WITHOUT taking part in Hibernate transactions
     </description>
-    <constructor-arg ref="dataSource"/>
+    <constructor-arg ref="selfCorrectingDataSource"/>
   </bean>
+
+  <!--
+  DATA SOURCE:
+  ====================================================================
+  The TableIdGenerator used by all model objects assumes the following
+  three data source wrapping one another
+  -->
+  <alias name="txAwareDataSource" alias="dataSource"/>
+
+  <bean id="txAwareDataSource" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+    <property name="targetDataSource" ref="lazyDataSource"/>
+  </bean>
+
+  <bean id="lazyDataSource" class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy">
+    <property name="targetDataSource" ref="selfCorrectingDataSource"/>
+  </bean>
+
+  <bean id="selfCorrectingDataSource" class="ome.services.db.SelfCorrectingDataSource">
+    <constructor-arg ref="nonXaDataSource"/>
+    <constructor-arg value="300000"/> <!--5 minutes of errors -->
+  </bean>
+
+  <bean id="nonXaDataSource" class="bitronix.tm.resource.jdbc.PoolingDataSource">
+    <property name="className" value="bitronix.tm.resource.jdbc.lrc.LrcXADataSource"/>
+    <property name="uniqueName" ref="uuid"/>
+    <property name="maxPoolSize" value="${omero.db.poolsize}"/>
+    <!-- NPE ?? property name="loginTimeout" value="5" -->
+    <property name="allowLocalTransactions" value="true"/>
+    <property name="driverProperties">
+      <props>
+        <prop key="driverClassName">org.postgresql.Driver</prop>
+        <prop key="url">jdbc:postgresql://${omero.db.host}/${omero.db.name}</prop>
+        <prop key="user">${omero.db.user}</prop>
+        <prop key="password">"${omero.db.pass}</prop>
+      </props>
+    </property>
+  </bean>
+
+  <!--
+  <bean id="nonXaDataSource" class="com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean">
+    <property name="uniqueResourceName" ref="uuid"/>
+    <property name="driverClassName" value="org.postgresql.Driver"/>
+    <property name="url" value="jdbc:postgresql://${omero.db.host}/${omero.db.name}"/>
+    <property name="user" value="${omero.db.user}"/>
+    <property name="password" value="${omero.db.pass}"/>
+    <property name="maxPoolSize" value="${omero.db.poolsize}"/>
+    <property name="reapTimeout" value="3000"/>
+    <property name="loginTimeout" value="5"/>
+    <property name="borrowConnectionTimeout" value="5"/>
+  </bean>
+  -->
 
 </beans>
 

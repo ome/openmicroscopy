@@ -6,7 +6,7 @@
  */
 package ome.security.basic;
 
-import java.sql.SQLException;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +22,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.engine.SessionImplementor;
+import org.hibernate.engine.transaction.IsolatedWork;
+import org.hibernate.engine.transaction.Isolater;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAttribute;
@@ -57,7 +61,7 @@ public class EventHandler implements MethodInterceptor {
 
     protected final HibernateTemplate ht;
 
-    protected final SimpleJdbcOperations jdbc;
+    protected final SimpleJdbcOperations isolatedJdbc, simpleJdbc;
 
     /**
      * only public constructor, used for dependency injection. Requires an
@@ -68,17 +72,16 @@ public class EventHandler implements MethodInterceptor {
      * @param template
      *            Not null.
      */
-    public EventHandler(BasicSecuritySystem securitySystem,
-            HibernateTemplate template, SimpleJdbcOperations jdbc,
-            TransactionAttributeSource txSource)
- {
+    public EventHandler(SimpleJdbcOperations isolatedJdbc,
+            SimpleJdbcOperations simpleJdbc,
+            BasicSecuritySystem securitySystem, SessionFactory factory,
+            TransactionAttributeSource txSource) {
         Assert.notNull(securitySystem);
-        Assert.notNull(template);
         Assert.notNull(txSource);
         this.txSource = txSource;
-        this.secSys = securitySystem;
-        this.jdbc = jdbc;
-        this.ht = template;
+        this.factory = factory;
+        this.simpleJdbc = simpleJdbc;
+        this.isolatedJdbc = isolatedJdbc;
     }
 
     /**
@@ -106,7 +109,7 @@ public class EventHandler implements MethodInterceptor {
         try {
             ht.execute(new EnableFilterAction(secSys));
             retVal = arg0.proceed();
-            saveLogs(readOnly);
+            saveLogs(readOnly, (SessionImplementor) session);
             return retVal;
         } catch (Throwable ex) {
             failure = true;
@@ -167,7 +170,7 @@ public class EventHandler implements MethodInterceptor {
      * and so this method may raise an event signalling such. This could
      * eventually be reworked to be fully within the security system.
      */
-    void saveLogs(boolean readOnly) {
+    void saveLogs(boolean readOnly, SessionImplementor session) {
 
         // Grabbing a copy to prevent ConcurrentModificationEx
         final List<EventLog> logs = new ArrayList<EventLog>(secSys.getLogs());
@@ -193,22 +196,28 @@ public class EventHandler implements MethodInterceptor {
             throw new InternalException(sb.toString());
         }
 
-        for (EventLog l : logs) {
-            Event e = l.getEvent();
-            if (e.getId() == null) {
-                throw new RuntimeException("Transient event");
+        try {
+            long lastValue = isolatedJdbc.queryForLong("select ome_nextval(?,?)",
+                    "seq_eventlog", logs.size());
+            long id = lastValue - logs.size() + 1;
+            List<Object[]> batchData = new ArrayList<Object[]>();
+            for (EventLog l : logs) {
+                Event e = l.getEvent();
+                if (e.getId() == null) {
+                    throw new RuntimeException("Transient event");
+                }
+                batchData
+                        .add(new Object[] { id++, -35L, l.getEntityId(),
+                                l.getEntityType(), l.getAction(),
+                                l.getEvent().getId() });
             }
 
-            try {
-                jdbc.update("INSERT INTO eventlog "
-                        + "(id, permissions, entityid, "
-                        + "entitytype, action, event) "
-                        + "values (nextval('seq_eventlog'),?,?,?,?,?)", -35L, l
-                        .getEntityId(), l.getEntityType(), l.getAction(), l
-                        .getEvent().getId());
-            } catch (Exception ex) {
-                log.error("Error saving event log: " + l, ex);
-            }
+            simpleJdbc.batchUpdate("INSERT INTO eventlog "
+                    + "(id, permissions, entityid,entitytype, action, event) "
+                    + "values (?,?,?,?,?,?)", batchData);
+
+        } catch (Exception ex) {
+            log.error("Error saving event logs: " + logs, ex);
         }
 
         if (secSys.getLogs().size() > 0) {
@@ -216,7 +225,6 @@ public class EventHandler implements MethodInterceptor {
         }
 
     }
-
 }
 
 // ~ Actions

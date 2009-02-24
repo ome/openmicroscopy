@@ -27,6 +27,7 @@ import ome.model.meta.Session;
 import ome.security.SecuritySystem;
 import ome.security.basic.PrincipalHolder;
 import ome.services.sessions.SessionManager;
+import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -95,6 +96,8 @@ public class AbstractManagedContextTest extends
     protected PrincipalHolder holder;
 
     protected SessionManager sessionManager;
+    
+    protected Executor executor;
 
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
@@ -124,6 +127,7 @@ public class AbstractManagedContextTest extends
                 .getBean("principalHolder");
         sessionManager = (SessionManager) applicationContext
                 .getBean("sessionManager");
+        executor = (Executor) this.applicationContext.getBean("executor");
 
         // Service setup
         loginAop = new LoginInterceptor(holder);

@@ -31,7 +31,7 @@ public class SelfCorrectingDatabaseUnitTest extends MockObjectTestCase {
     public void setup() {
         mock = mock(DataSource.class);
         ds = (javax.sql.DataSource) mock.proxy();
-        self = new SelfCorrectingDataSource(ds, null, 300000L, 0, 3000);
+        self = new SelfCorrectingDataSource(ds, 300000L, 0, 3000);
         mock.expects(atLeastOnce()).will(
                 throwException(new PSQLException("",
                         PSQLState.ACTIVE_SQL_TRANSACTION)));
@@ -54,7 +54,7 @@ public class SelfCorrectingDatabaseUnitTest extends MockObjectTestCase {
     }
     
     public void testLotsWithReductionNoRetries() throws Exception {
-        self = new SelfCorrectingDataSource(ds, null, 1L, 0, 3000); // Short time
+        self = new SelfCorrectingDataSource(ds, 1L, 0, 3000); // Short time
         long backOff1 = assertFailsAndReturnBackOff();
         Thread.sleep(2L);
         long backOff2 = assertFailsAndReturnBackOff();
@@ -69,7 +69,7 @@ public class SelfCorrectingDatabaseUnitTest extends MockObjectTestCase {
     }
 
     public void testRetries() throws Exception {
-        self = new SelfCorrectingDataSource(ds, null, 30000L, 5, 3000); // 5 retries
+        self = new SelfCorrectingDataSource(ds, 30000L, 5, 3000); // 5 retries
         long backOff1 = assertFailsAndReturnBackOff();
         long backOff2 = assertFailsAndReturnBackOff();
         assertEquals(2000, backOff1);

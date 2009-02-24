@@ -244,17 +244,21 @@ public interface Executor extends ApplicationContextAware {
 
             Work wrapper = (Work) factory.getProxy();
 
-            if (p != null) {
-                this.principalHolder.login(p);
+            if (p == null) {
+                throw new IllegalStateException("Must provide principal");
             }
+
+            if (principalHolder.size() > 0) {
+                throw new IllegalStateException("Already logged in.");
+            }
+
+            this.principalHolder.login(p);
             try {
                 // Arguments will be replaced after hibernate is in effect
                 return wrapper.doWork(null, new InternalServiceFactory(
                         this.context));
             } finally {
-                if (p != null) {
-                    this.principalHolder.logout();
-                }
+                this.principalHolder.logout();
             }
         }
 
@@ -266,6 +270,14 @@ public interface Executor extends ApplicationContextAware {
          * @return
          */
         public Object executeStateless(final StatelessWork work) {
+
+            if (principalHolder.size() > 0) {
+                throw new IllegalStateException(
+                        "Currently logged in. \n"
+                                + "JDBC will then take part in transaction directly. \n"
+                                + "Please have the proper JDBC or data source injected.");
+            }
+
             ProxyFactory factory = new ProxyFactory();
             factory.setTarget(work);
             factory.setInterfaces(new Class[] { StatelessWork.class });

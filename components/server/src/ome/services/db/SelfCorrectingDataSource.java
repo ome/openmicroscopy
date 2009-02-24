@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 
 import javax.sql.DataSource;
 
@@ -20,16 +19,16 @@ import ome.conditions.DatabaseBusyException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationListener;
 import org.springframework.jdbc.datasource.DelegatingDataSource;
 
 /**
+ * {@link DataSource} delegate which wraps the
  */
 public class SelfCorrectingDataSource extends DelegatingDataSource {
 
     private final static Log log = LogFactory
             .getLog(SelfCorrectingDataSource.class);
-
-    private final Semaphore semaphore;
 
     /**
      * Length of time that errors are used in the calculation of
@@ -43,16 +42,15 @@ public class SelfCorrectingDataSource extends DelegatingDataSource {
 
     private final List<Long> errorTimes = new ArrayList<Long>();
 
-    public SelfCorrectingDataSource(DataSource delegate, Semaphore semaphore,
+    public SelfCorrectingDataSource(DataSource delegate,
             long timeoutInMilliseconds) {
-        this(delegate, semaphore, timeoutInMilliseconds, 3, 10 * 1000L);
+        this(delegate, timeoutInMilliseconds, 3, 10 * 1000L);
     }
 
-    public SelfCorrectingDataSource(DataSource delegate, Semaphore semaphore,
+    public SelfCorrectingDataSource(DataSource delegate,
             long timeoutInMilliseconds, int maxRetries, long maxBackOff) {
         super(delegate);
         this.errorTimeout = timeoutInMilliseconds;
-        this.semaphore = semaphore;
         this.maxRetries = maxRetries;
         this.maxBackOff = maxBackOff;
     }
@@ -88,7 +86,7 @@ public class SelfCorrectingDataSource extends DelegatingDataSource {
                         // Ok. Outer while loop while catch us.
                     }
                 }
-                log.warn("Failed to acquire connection after retries="
+                log.error("Failed to acquire connection after retries="
                         + maxRetries, sql);
                 throw new DatabaseBusyException("Cannot acquire connection",
                         backOff);
