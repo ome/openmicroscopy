@@ -92,7 +92,22 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
         # Do a check to see if we've started before.
         self._regdata()
         self.check([])
-        self.ctx.pub(["node", self._node(), "start"])
+
+        args = Arguments(args)
+        first, other = args.firstOther()
+        if first != None and len(first) > 0:
+            # Relative to cwd
+            descrpt = path(first).abspath()
+
+        if descrpt == None or not descrpt.exists():
+            descrpt = self.dir / "etc" / "grid" / "default.xml"
+            self.ctx.err("No descriptor given. Using etc/grid/default.xml")
+
+            BUT WHAT DOES NOT DO
+        command = ["icegridnode",self._intcfg(),"-e","application add '%s' %s" % (descrpt, targets) ]
+        self.ctx.popen(command)
+
+        self.ctx.pub(["node", self._node(), "start","deploy="])
 
     def startandwait(self, args):
 
@@ -107,25 +122,7 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
                 break
 
     def deploy(self, args):
-        args = Arguments(args)
-        command = self._cmd()
-        first,other = args.firstOther()
-
-        descrpt = None
-        targets = " ".join(other)
-
-        if first != None and len(first) > 0:
-            # Relative to cwd
-            descrpt = path(first).abspath()
-
-        if descrpt == None or not descrpt.exists():
-            # If descript is not a file, then it must be a target
-            targets = " ".join([str(descrpt), targets])
-            descrpt = self.dir / "etc" / "grid" / "default.xml"
-            self.ctx.err("No descriptor given. Using etc/grid/default.xml")
-
-        command = command + ["-e","application add '%s' %s" % (descrpt, targets) ]
-        self.ctx.popen(command)
+        self.ctx.out("admin deploy has been deprected. admin start now calls deploy directly")
 
     def status(self, args):
         args = Arguments(args)

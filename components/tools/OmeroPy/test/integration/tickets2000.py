@@ -23,7 +23,7 @@ from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 from omero.rtypes import *
 
-class TestTicket2000(lib.ITest):
+class TestTickets2000(lib.ITest):
 
     def test1064(self):
         share = self.client.sf.getShareService()
@@ -607,5 +607,60 @@ class TestTicket2000(lib.ITest):
         
         self.root.sf.closeOnDestroy()
         
+
+    def test1183(self):
+        # Annotation added before
+        p = omero.model.ProjectI()
+        p.linkAnnotation( omero.model.CommentAnnotationI() )
+        p.name = rstring("ticket1183")
+        p = self.update.saveAndReturnObject(p)
+        p.description = rstring("desc")
+        p = self.update.saveAndReturnObject(p)
+        p = self.update.saveAndReturnObject(p)
+
+        # Annotation added after
+        p = omero.model.ProjectI()
+        p.name = rstring("ticket1183")
+        p = self.update.saveAndReturnObject(p)
+        p.description = rstring("desc")
+        p.linkAnnotation( omero.model.CommentAnnotationI() )
+        p = self.update.saveAndReturnObject(p)
+        p = self.update.saveAndReturnObject(p)
+
+        # Unloading annotation after save
+        p = omero.model.ProjectI()
+        p.name = rstring("ticket1183")
+        p.linkAnnotation( omero.model.CommentAnnotationI() )
+        p = self.update.saveAndReturnObject(p)
+        for l in p.copyAnnotationLinks():
+            l.child.unload()
+        p.description = rstring("desc")
+        p = self.update.saveAndReturnObject(p)
+        p = self.update.saveAndReturnObject(p)
+
+        # Unloaded annotation to save (before)
+        c = omero.model.CommentAnnotationI()
+        c = self.update.saveAndReturnObject( c )
+        c.unload()
+        p = omero.model.ProjectI()
+        p.name = rstring("ticket1183")
+        p.linkAnnotation( c )
+        p = self.update.saveAndReturnObject(p)
+        p.description = rstring("desc")
+        p = self.update.saveAndReturnObject(p)
+        p = self.update.saveAndReturnObject(p)
+
+        # Unloaded annotation to save (after)
+        c = omero.model.CommentAnnotationI()
+        c = self.update.saveAndReturnObject( c )
+        c.unload()
+        p = omero.model.ProjectI()
+        p.name = rstring("ticket1183")
+        p = self.update.saveAndReturnObject(p)
+        p.description = rstring("desc")
+        p.linkAnnotation( c )
+        p = self.update.saveAndReturnObject(p)
+        p = self.update.saveAndReturnObject(p)
+
 if __name__ == '__main__':
     unittest.main()

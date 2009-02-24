@@ -21,9 +21,10 @@ See LICENSE for details.
 """
 
 import cmd, string, re, os, sys, subprocess, socket, exceptions, traceback, glob, platform
-from omero_ext import pysys
 import shlex as pyshlex
 from exceptions import Exception as Exc
+from omero_version import omero_version
+from omero_ext import pysys
 from path import path
 import Ice
 
@@ -31,7 +32,7 @@ import Ice
 # Static setup
 #
 
-VERSION=1.0
+VERSION=omero_version
 DEBUG = False
 if os.environ.has_key("DEBUG"):
     print "Running omero with debugging on"
@@ -42,7 +43,7 @@ TEXT="""
 """ % str(VERSION)
 
 OMEROCLI = path(__file__).expand().dirname()
-OMERODIR = OMEROCLI.dirname().dirname()
+OMERODIR = OMEROCLI.dirname().dirname().dirname()
 
 COMMENT = re.compile("^\s*#")
 RELFILE = re.compile("^\w")
@@ -101,16 +102,29 @@ class Arguments:
     def __init__(self, args = []):
         if args == None:
             self.args = []
+            self.argmap = {}
         elif isinstance(args, Arguments):
             self.args = args.args
+            self.argmap = args.argmap
         elif isinstance(args, str):
             self.args = self.shlex(args)
+            self.make_argmap()
         elif isinstance(args, list):
             for l in args:
                 assert isinstance(l, str)
             self.args = args
+            self.make_argmap()
         else:
             raise exceptions.Exception("Unknown argument: %s" % args)
+
+    def make_argmap(self):
+        self.argmap = {}
+        for arg in self.args:
+            parts = arg.split("=", 1)
+            if len(parts) == 1:
+                self.argmap[parts[0]] = True
+            else:
+                self.argmap[parts[0]] = parts[1]
 
     def firstOther(self):
         if len(self.args) == 0:
@@ -149,6 +163,12 @@ class Arguments:
         return ", ".join(self.args)
     def join(self, text):
         return text.join(self.args)
+    def __getitem__(self, idx):
+        """
+        For every argument without an "=" we return True. Otherwise,
+        the value following the first "=" is returned.
+        """
+        return self.argmap[idx]
 
 #####################################################
 #
@@ -193,6 +213,20 @@ class Context:
                 path[i] = os.getcwd()
         pythonpath = ":".join(path)
         return pythonpath
+
+    def userdir(self):
+        """
+        Returns a user directory (as path.path) which can be used
+        for storing configuration. The directory is guaranteed to
+        exist and be private (700) after execution.
+        """
+        dir = path(os.path.expanduser("~")) / "omero" / "cli"
+        if not dir.exists():
+            dir.mkdir()
+        elif not dir.isdir():
+            raise Exc("%s is not a directory"%dir)
+        dir.chmod(0700)
+        return dir
 
     def pub(self, args):
         self.safePrint(str(args), pysys.stdout)
@@ -338,20 +372,6 @@ class BaseControl:
         a warning issued.
         """
         data, created = self._icedata("IceGrid.Registry.Data")
-        if created:
-            self.ctx.out("""
-  Warning:
-  %s,
-  the IceGrid.Registry.Data directory is not present.
-  This is the first time you've started OmeroGrid.
-
-  No servers have been deployed yet. To do so, you
-  will need to run "admin deploy" after the following
-  initialization. See the files under etc/grid/ for
-  example application descriptors.
-
-  This warning will not be shown again.
-            """ % data)
 
     def _pid(self):
         """
@@ -594,7 +614,7 @@ class CLI(cmd.Cmd, Context):
             elif len(line) == 1:
                 return (line[0],None,line[0])
             else:
-                return (line[0]," ".join(line[1:])," ".join(line))
+                return (line[0],line[1:],Arguments(line))
         else:
             return cmd.Cmd.parseline(self,line)
 
@@ -664,19 +684,22 @@ class CLI(cmd.Cmd, Context):
         """
         Uses "omero prefs" to create an Ice.InitializationData()
         """
-        import omero.java
-        output = omero.java.run(["prefs","get"])
+        from omero.plugins.prefs import getprefs
+        output = getprefs("get", str(OMERODIR / "lib"))
 
         import Ice
         data = Ice.InitializationData()
         data.properties = Ice.createProperties()
         for line in output.splitlines():
-           parts = line.split("=",1)
-           if len(parts) == 2:
-               data.properties.setProperty(parts[0],parts[1])
-           else:
-               if DEBUG:
-                   self.err("Bad property:"+str(parts))
+            if line.startswith("Listening for transport dt_socket at address"):
+                self.dbg("Ignoring stdout 'Listening for transport' from DEBUG=1")
+                continue
+            parts = line.split("=",1)
+            if len(parts) == 2:
+                data.properties.setProperty(parts[0],parts[1])
+                self.dbg("Set property: %s=%s",parts[0],parts[1])
+            else:
+                self.dbg("Bad property:"+str(parts))
         return data
 
 
@@ -691,7 +714,7 @@ class CLI(cmd.Cmd, Context):
 
         import omero
         try:
-            data = self.initData(properties, profile)
+            data = self.initData(properties)
             self._client = omero.client(pysys.argv, id = data)
             self._client.createSession()
             return self._client
@@ -727,6 +750,7 @@ class CLI(cmd.Cmd, Context):
                     if DEBUG:
                         traceback.print_exc()
                     self.ctx.err("Error:"+str(exc))
+                    self.ctx.die(10, str(exc))
             def complete_method(self, *args):
                 try:
                     self._setup()

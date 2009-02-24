@@ -26,7 +26,7 @@ Syntax: %(program_name)s prefs
 
     def __call__(self, *args):
         args = Arguments(*args)
-        self.ctx.out(omero.java.run(["prefs"]+shlex(args.args)))
+        self.ctx.out(omero.java.run(["prefs"]+list(args.args), chdir="lib"))
 
 try:
     register("config", PrefsControl)

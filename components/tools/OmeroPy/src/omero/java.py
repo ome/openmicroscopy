@@ -6,6 +6,7 @@
 #
 
 import os, shlex
+import subprocess
 
 DEFAULT_DEBUG = "-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=n"
 
@@ -19,6 +20,7 @@ def run(args,\
         use_exec = False,\
         java = "java",\
         xargs = None,\
+        chdir = None,\
         debug = None,\
         debug_string = DEFAULT_DEBUG):
     """
@@ -66,6 +68,8 @@ def run(args,\
 
     if use_exec:
         env = os.environ
+        if chdir:
+            os.chdir(chdir)
         os.execvpe(java[0], java, env)
     else:
         env = ['env']
@@ -74,6 +78,7 @@ def run(args,\
         LIBM = makeVar("LIBM")
         command  = env+PATH+LIBS+LIBM+java
 
-        import subprocess
-        output = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()[0]
+        if not chdir:
+            chdir = os.getcwd()
+        output = subprocess.Popen(command, stdout=subprocess.PIPE, cwd=chdir).communicate()[0]
         return output
