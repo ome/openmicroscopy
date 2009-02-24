@@ -196,6 +196,15 @@ public interface IField
 	public int getUnfilledCount();
 	
 	/**
+	 * This method tests to see whether the field has any parameters 
+	 * that have not been filled.
+	 * 
+	 * @param	if true, will only check 'required' parameters.
+	 * @return	number of parameters have not been filled out by user.  
+	 */
+	public int getUnfilledCount(boolean requiredOnly);
+	
+	/**
 	 * Returns a String containing the field description, plus the 
 	 * tool-tip-text from it's parameters. 
 	 * 

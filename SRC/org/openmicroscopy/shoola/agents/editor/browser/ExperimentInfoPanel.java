@@ -118,11 +118,14 @@ public class ExperimentInfoPanel
 	/** The Experiment Info object. Holds exp info. */
 	IAttributes					field;
 	
-	/** Label to display number of unfilled parameters in the experiment */
-	private JLabel 				unfilledParamsLabel;
-	
 	/** A count of the number of unfilled parameters */
 	private int 				unfilledParams;
+	
+	/** A count of the number of unfilled 'Required' parameters */
+	private int 				unfilledReqParams;
+	
+	/** Label to display number of unfilled parameters in the experiment */
+	private JLabel 				unfilledParamsLabel;
 	
 	/** Label to display number of unfilled steps in the experiment */
 	private JLabel 				unfilledStepsLabel;
@@ -300,9 +303,10 @@ public class ExperimentInfoPanel
 		stepButtonsBox.add(prevStep);
 		stepButtonsBox.add(goToFirstStep);
 		stepButtonsBox.add(nextStep);
-		stepButtonsBox.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		stepButtonsBox.add(Box.createHorizontalGlue());
+		stepButtonsBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 		
-		unfilledParamsLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		unfilledParamsLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		rightPanel.add(unfilledParamsLabel);
 		rightPanel.add(stepButtonsBox);
 		
@@ -368,8 +372,12 @@ public class ExperimentInfoPanel
 			
 			
 			searchUnfilledParams();
-			unfilledParamsLabel.setText("<html>Unfilled Parameters: <b>" + 
-					unfilledParams + "</b></html>");
+			String paramText = "<b>" + unfilledParams + "</b> unfilled Parameters";
+			if (unfilledReqParams > 0) {
+				paramText = paramText + " <b style='color:red'>" + 
+				unfilledReqParams + " *required</b>";
+			}
+			unfilledParamsLabel.setText("<html>" + paramText + "</html>");
 			unfilledStepsLabel.setText("<html>in <b>" + unfilledSteps.size() + 
 					"</b> steps.</html>");
 			
@@ -397,6 +405,7 @@ public class ExperimentInfoPanel
 			unfilledSteps.clear();
 		}
 		unfilledParams = 0;
+		unfilledReqParams = 0;
 		currentStepIndex = -1;
 		
 		TreeNode tn;
@@ -425,6 +434,10 @@ public class ExperimentInfoPanel
 				if (paramCount > 0) {
 					unfilledParams += paramCount;
 					unfilledSteps.add(path);
+					paramCount = f.getUnfilledCount(true);
+					if (paramCount > 0) {
+						unfilledReqParams += paramCount;
+					}
 				}
 			}
 		}

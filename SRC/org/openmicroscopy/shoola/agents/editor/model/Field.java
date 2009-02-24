@@ -36,6 +36,7 @@ import javax.swing.table.TableModel;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EditorLinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
@@ -248,11 +249,29 @@ public class Field
 	 * @return	number of parameters have not been filled out by user.  
 	 */
 	public int getUnfilledCount() {
+		return getUnfilledCount(false);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IField} interface.
+	 * This method tests to see whether the field has any parameters 
+	 * that have not been filled.
+	 * 
+	 * @param	if true, will only check 'required' parameters.
+	 * @return	number of parameters have not been filled out by user.  
+	 */
+	public int getUnfilledCount(boolean requiredOnly) {
 		
 		int unfilledCount = 0;
+		IParam param;
 		for (IFieldContent content : fieldParams) {
 			if (content instanceof IParam) {
-				IParam param = (IParam)content;
+				param = (IParam)content;
+				// if you only want 'required' parameters, but this one isn't..
+				if (requiredOnly && (! param.isAttributeTrue(
+											AbstractParam.PARAM_REQUIRED))) {
+					continue;
+				}
 				if (! param.isParamFilled()) {
 					unfilledCount++;
 				}
