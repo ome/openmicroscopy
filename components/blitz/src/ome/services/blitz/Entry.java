@@ -151,7 +151,20 @@ public class Entry {
         try {
             log.info("Creating " + name + ". Please wait...");
             ctx = OmeroContext.getInstance(name);
-            ic = (Ice.Communicator) ctx.getBean("Ice.Communicator");
+            if (ctx.containsBean("Ice.Communicator")) {
+                ic = (Ice.Communicator) ctx.getBean("Ice.Communicator");
+            } else {
+                Ice.InitializationData id = new Ice.InitializationData();
+                id.properties = Ice.Util.createProperties();
+                // TEMPORARY WORKAROUND
+                String ICE_CONFIG = System.getProperty("ICE_CONFIG");
+                if (ICE_CONFIG != null) {
+                    id.properties.load(ICE_CONFIG);
+                }
+                ic = Ice.Util.initialize(id);
+                Ice.ObjectAdapter oa = ic.createObjectAdapter("IndexerAdapter");
+                oa.activate();
+            }
             log.info(name + " now accepting connections.");
             ic.waitForShutdown();
             status = 0;

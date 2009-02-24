@@ -159,8 +159,6 @@ public class BlitzConfiguration {
             id.properties.load(ICE_CONFIG);
         }
         ic = Ice.Util.initialize(id);
-
-        ic = Ice.Util.initialize(id);
         return ic;
     }
 
