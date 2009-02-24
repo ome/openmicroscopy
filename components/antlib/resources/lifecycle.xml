@@ -238,21 +238,19 @@
 
 	<target name="package" depends="compile">
 		<pathconvert property="mf.classpath"
-			refid="omero.classpath"
+			refid="omero.compile.classpath"
 			pathsep=" " dirsep="/">
 			<flattenmapper/>
 		</pathconvert>
-                <property name="mf.classpath.and.jars" value="${mf.classpath} services.jar extensions.jar ../etc"/>
+                <property name="mf.classpath.and.jars" value="${mf.classpath} services.jar extensions.jar"/>
 		<jar destfile="${target.dir}/${ivy.module}.jar">
 			<manifest>
 				<attribute name="Class-Path" value="${mf.classpath.and.jars}"/>
 				<attribute name="Main-Class" value="${main.class}"/>
 			</manifest>
 			<fileset dir="${classes.dir}">
-				<exclude name="*.properties"/>
+				<exclude name="local.properties"/>
 				<exclude name="log4j.xml"/>
-				<exclude name="**/*.cpp"/>
-				<exclude name="**/*.h"/>
 			</fileset>
 		</jar>
 	</target>

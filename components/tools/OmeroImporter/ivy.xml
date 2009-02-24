@@ -15,9 +15,9 @@
     <dependency org="omero" name="importer-common" rev="${omero.version}" changing="true" conf="build->build;client->client"/>
     <dependency org="omero" name="omero_client" rev="${omero.version}" changing="true" conf="build->build;client->client"/>
     <!-- Test engine -->
-	<dependency org="asm" name="asm" rev="${versions.asm}"/>
-	<dependency org="asm" name="asm-attrs" rev="${versions.asm}"/>
-	<dependency org="cglib" name="cglib" rev="${versions.cglib}"/>
+    <dependency org="asm" name="asm" rev="${versions.asm}"/>
+    <dependency org="asm" name="asm-attrs" rev="${versions.asm}"/>
+    <dependency org="cglib" name="cglib" rev="${versions.cglib}"/>
     <!-- Gui -->
     <dependency org="gui" name="TableLayout" rev="unknown"/>
     <dependency org="gui" name="hsqldb" rev="1.8.0.9"/>
@@ -26,7 +26,6 @@
     <dependency org="gui" name="libquaqua" rev="unknown"/>
     <dependency org="gui" name="omero-client-utils" rev="unknown"/>
     <dependency org="gui" name="ini4j" rev="0.3.2"/>
-    <dependency org="gui" name="log4j" rev="1.2.14"/>
     <dependency org="gui" name="java-getopt" rev="1.0.13"/>
     <dependency org="gui" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
     <dependency org="gui" name="commons-codec" rev="${versions.commons-codec}"/>
@@ -40,6 +39,5 @@
     <dependency org="loci" name="grib" rev="5.1.03"/>
     <dependency org="loci" name="ij" rev="unknown"/>
     <dependency org="loci" name="netcdf" rev="4.0"/>
-    <dependency org="loci" name="slf4j-log4j12" rev="1.4.3"/>
   </dependencies>
 </ivy-module>

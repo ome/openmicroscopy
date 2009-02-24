@@ -68,7 +68,7 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
             this.invoker = new IceMethodInvoker(service, oc);
         }
         try {
-            setOmeroContext(oc);
+            onSetOmeroContext(oc);
         } catch (Exception e) {
             throw new FatalBeanException("Error on setOmeroContext", e);
         }
@@ -77,7 +77,7 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
     /**
      * To be overridden by subclasses.
      */
-    public void setOmeroContext(OmeroContext context) throws Exception {
+    public void onSetOmeroContext(OmeroContext context) throws Exception {
         //no-op
     }
 

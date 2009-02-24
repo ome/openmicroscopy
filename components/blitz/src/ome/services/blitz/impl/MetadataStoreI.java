@@ -57,7 +57,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
     }
 
     @Override
-    public void setOmeroContext(final OmeroContext ctx) throws Exception {
+    public void onSetOmeroContext(final OmeroContext ctx) throws Exception {
         ServiceFactory sf = new InternalServiceFactory(ctx);
         this.store = new OMEROMetadataStore(sf);
     }

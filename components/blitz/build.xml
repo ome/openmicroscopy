@@ -103,14 +103,16 @@
 			</fileset>
 		</dsl>
 
-		<!-- "combined" files which must be further parsed-->
-		<dsl template="${resrc.dir}/templates/combined.vm" filepattern="${comb.dir}/{class-name}I.combined">
+		<!-- "combined" files which must be further parsed. be sure to generate ImageI.combined
+                last since that is our test for "newness"
+                -->
+		<dsl template="${resrc.dir}/templates/factorymap.vm" filepattern="${comb.dir}/FactoryMap.combined">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}">
 				<selector refid="ifNewerThanCombined"/>
 			</fileset>
 		</dsl>
 
-		<dsl template="${resrc.dir}/templates/factorymap.vm" filepattern="${comb.dir}/FactoryMap.combined">
+		<dsl template="${resrc.dir}/templates/combined.vm" filepattern="${comb.dir}/{class-name}I.combined">
 			<fileset dir="${model.comp}/resources" includes="${dsl.pat}">
 				<selector refid="ifNewerThanCombined"/>
 			</fileset>
@@ -160,7 +162,7 @@
 			<regexpmapper from="(.*?)I[.]combined" to="omero/model/\1.ice"/>
 		</split-combined>
 		<!--
-		    This does the same fore the factorymap.vm template.
+		    This does the same for the factorymap.vm template.
 		-->
 		<split-combined todir="${gen.dir}" prefix="pyc">
 			<fileset dir="${comb.dir}" includes="FactoryMap.combined">

@@ -106,6 +106,9 @@ public class DSLTask extends Task {
         }
 
         types = handler.process();
+        if (types.size() == 0) {
+            return; // Skip when no files, otherwise we overwrite.
+        }
 
         if (singleType) {
             for (Iterator<SemanticType> it = types.iterator(); it.hasNext();) {

@@ -12,8 +12,6 @@
   <dependencies>
     <dependency name="blitz" rev="${omero.version}" changing="true" conf="server->server"/>
     <dependency name="OmeroImporter" rev="${omero.version}" changing="true" conf="client->client"/>
-    <dependency name="OmeroFS" rev="${omero.version}" changing="true" conf="server->server"/>
-    <dependency name="OmeroPy" rev="${omero.version}" changing="true" conf="client->client"/>
     <dependency name="blitz-test" rev="${omero.version}" changing="true" conf="test->test"/>
   </dependencies>
 </ivy-module>
