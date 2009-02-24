@@ -26,6 +26,15 @@ public class HelperUnitTest extends TestCase {
     }
 
     //
+    // TAILING SLASH TESTS
+    //
+    @Test
+    public void testMissingTrailingSlash() {
+        String path = new PixelsService("/OMERO").getPixelsPath(new Long(1));
+        assertEquals("/OMERO/Pixels/1", path);
+    }
+    
+    //
     // SINGLE DIRECTORY TESTS
     //
     @Test

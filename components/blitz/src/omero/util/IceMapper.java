@@ -176,20 +176,6 @@ public class IceMapper extends ome.util.ModelMapper implements
     };
 
     /**
-     * Specifies a return type which should not be parsed. This should only be
-     * used for objects unknown to the Mapper, and should <em>not</em> be used
-     * for any types which contain by transitivity any ome.model.* types!
-     */
-    public final static ReturnMapping UNMAPPED = new ReturnMapping() {
-
-        public Object mapReturnValue(IceMapper mapper, Object value)
-                throws Ice.UserException {
-            return value;
-        }
-    };
-
-
-    /**
      * Specifies a return type which should not be parsed. This should
      * only be used for objects unknown to the Mapper, and should <em>not</em>
      * be used for any types which contain by transitivity any ome.model.* types!

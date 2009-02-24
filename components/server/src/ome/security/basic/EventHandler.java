@@ -6,10 +6,6 @@
  */
 package ome.security.basic;
 
-<<<<<<< HEAD:components/server/src/ome/security/basic/EventHandler.java
-import java.sql.Connection;
-=======
->>>>>>> 6753f94... Performance : Removing `HibernateTemplate` usage to control overhead:components/server/src/ome/security/basic/EventHandler.java
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,19 +22,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.engine.SessionImplementor;
-import org.hibernate.engine.transaction.IsolatedWork;
-import org.hibernate.engine.transaction.Isolater;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-<<<<<<< HEAD:components/server/src/ome/security/basic/EventHandler.java
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-=======
->>>>>>> 6753f94... Performance : Removing `HibernateTemplate` usage to control overhead:components/server/src/ome/security/basic/EventHandler.java
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAttribute;
 import org.springframework.transaction.interceptor.TransactionAttributeSource;
-import org.springframework.util.Assert;
 
 /**
  * method interceptor responsible for login and creation of Events. Calls are

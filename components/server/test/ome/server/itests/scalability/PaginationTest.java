@@ -32,8 +32,8 @@ public class PaginationTest extends AbstractManagedContextTest {
         long[] ids = null;
         IObject[] objs = null;
         
-        for (int j = 0; j < 1; j++) {
-            Image[] images = new Image[50000];
+        for (int j = 0; j < 5; j++) {
+            Image[] images = new Image[10000];
             for (int i = 0; i < images.length; i++) {
                 images[i] = new Image();
                 images[i].setAcquisitionDate(new Timestamp(0));

@@ -24,30 +24,27 @@ package ome.server.itests;
 
 
 //Java imports
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.sql.DataSource;
-
-
-//Third-party libraries
-import org.hibernate.validator.AssertTrue;
-import org.testng.annotations.Test;
-
-//Application-internal dependencies
-import ome.api.IContainer;
 import ome.api.IMetadata;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.AnnotationAnnotationLink;
 import ome.model.annotations.CommentAnnotation;
+import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.model.core.OriginalFile;
+import ome.testing.FileUploader;
 import ome.util.builders.PojoOptions;
+
+import org.testng.annotations.Test;
 
 /** 
  * Collection of test for the {@link IMetadata} service.
@@ -185,11 +182,11 @@ public class MetadataServiceTest
     @Test
     public void testLoadSpecifiedAnnotations()
     {
-    	//create a project
-    	Project p = new Project();
-    	p.setName("project 1");
-    	//create a comment annotation and a tag annotation
-    	CommentAnnotation c1 = new CommentAnnotation();
+        //create a project
+        Project p = new Project();
+        p.setName("project 1");
+        //create a comment annotation and a tag annotation
+        CommentAnnotation c1 = new CommentAnnotation();
         c1.setTextValue("comment 1");
         c1.setNs("");
         p.linkAnnotation(c1);
@@ -205,7 +202,7 @@ public class MetadataServiceTest
         
         PojoOptions options = new PojoOptions();
         Set result = iMetadata.loadSpecifiedAnnotations(
-        		CommentAnnotation.class, null, null, options.map());
+                CommentAnnotation.class, null, null, options.map());
         assertTrue(result.size() == 2);
     }
     
@@ -395,6 +392,31 @@ public class MetadataServiceTest
 			} 
 		}
       	
+    }
+    
+    /**
+     * Test that the find annotations query still returns all types after
+     * the criteria join on file annotation
+     */
+    @Test(groups = "ticket:1162")
+    public void testFileAnnotationLoad() throws Exception
+    {
+        Project p = new Project();
+        p.setName("project 1");
+        FileUploader uploader = new FileUploader(this.factory, "test","test","test");
+        uploader.run();
+        FileAnnotation f1 = new FileAnnotation();
+        f1.setFile(new OriginalFile(uploader.getId(), false));
+        p.linkAnnotation(f1);
+        TagAnnotation t1 = new TagAnnotation();
+        p.linkAnnotation(t1);
+        p = iUpdate.saveAndReturnObject(p);
+
+        Map<Long, Set<Annotation>> results = iMetadata.loadAnnotations(Project.class,
+                Collections.singleton(p.getId()), Collections.<String>emptySet(),
+                Collections.<Long>emptySet(), null);
+        Set<Annotation> anns = results.get(p.getId());
+        assertEquals(2, anns.size());
     }
     
 }
