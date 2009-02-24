@@ -62,10 +62,10 @@
 .vslider *.slider-line { 
   cursor: pointer;
   font-size: 1px;
-  border: 1px solid;
+  border: 1px solid ;
   position: absolute;
   display: block;
-  top: 15px;
+  top: 14px;
   bottom: 15px;
   width: 100%;
   /** HACK ALERT: you need to add this to your stylesheet to make it work in IE!! **/
@@ -101,7 +101,7 @@
 .slider-handle { 
   position: absolute;
   display: block;
-  border: 1px solid;
+  border: 0;
   width: 100%;
   height: 100%;
   font-size: 1px;
@@ -109,4 +109,5 @@
 
 .slider-handle.disabled { 
   background: #CCC;
+  border: 0;
 }

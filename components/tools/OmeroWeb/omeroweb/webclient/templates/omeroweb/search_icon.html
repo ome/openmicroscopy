@@ -73,6 +73,7 @@
 
 {% block center %}
     <div class="project">
+        <h1>Searching</h1>
         <p>Searching feature enables you to search within the images, datasets and projects stored on the server. It supports single and multiple character wildcard searches.</p>
     </div>
     <div class="clear"></div>
@@ -80,9 +81,9 @@
     <p>
     <form action="{% get_webclient_root_url %}/search/" method="GET">
         <table>
-            <tr><th>Search for *:</th><td><input class="search" type="text" name="query" value="{{ controller.criteria.query }}" size="52"/>  <span id="searching" title="Searching - <small><p>To perform a single character wildcard search use the <b>'?'</b> symbol. The single character wildcard search looks for terms that match that with the single character replaced. To perform a multiple character wildcard search use the <b>'*'</b> symbol. </p>
-            <p>For example, to search for <i>'text'</i> or <i>'test'</i> you can use the search: <b>'te?t'
-    </b>. Multiple character wildcard searches looks for 0 or more characters. For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>. You can also use the wildcard searches in the middle or the beginning of a term.</p></small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span></td></tr>
+            <tr><th>Search for *:</th><td><input class="search" type="text" name="query" value="{{ controller.criteria.query }}" size="52"/>  <span id="searching" title="Searching - <small>To perform a single character wildcard search use the <b>'?'</b> symbol. The single character wildcard search looks for terms that match that with the single character replaced. To perform a multiple character wildcard search use the <b>'*'</b> symbol.<br/><br/>
+            For example, to search for <i>'text'</i> or <i>'test'</i> you can use the search: <b>'te?t'
+    </b>. Multiple character wildcard searches looks for 0 or more characters. For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>. You can also use the wildcard searches in the middle or the beginning of a term.</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span></td></tr>
             <!--<tr><th>by date:</th><td><input type="text" id="dateinput" name="date" value="" size="15"/></td></tr>-->
             <tr><th>Date range:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ controller.criteria.period }}" size="25"/> <span id="daterange" title="Date range - <small><p>Date range feature enables you to specify the start and end time of the created data. To select the range, clink on the field and pick start date and end date on the same calendar. If you want to change the date click on the field again the pick the range.</p></small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span></td></tr>
             <tr><th>In *:</th><td>
@@ -138,7 +139,7 @@
         {% endfor %}
     </ul>
     {% else %}
-        <div>No results. Fill the form.</div>
+        <h1>No results. Fill the form.</h1>
     {% endif %}
 
 {% endblock %}

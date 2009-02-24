@@ -309,28 +309,6 @@ TODO:
     /* Bind image changes */
     viewport.bind('imageChange', imageChange);
 
-    /* Prepare pop tools */
-    $(".popover > h1")
-      .prepend('<div class="drop-img drop-left"></div><div class="drop-img drop-right"></div>')
-      .click(function () {
-        var this_popped = $(this).parent().is('.popped');
-        $(".popped").removeClass('popped');
-        if (this_popped) {
-          $(this).parent().removeClass('popped');
-        } else {
-          $(this).parent().addClass('popped');
-        }
-        return false;
-      });
-
-    $(".popclose").click(function () {
-      $(".popped").removeClass('popped');
-    });
-
-    $("#weblitz-viewport").click(function () {
-      $(".popped").removeClass('popped');
-    });
-
     /* Prepare color picker buttons */
     $(".picker").colorbtn();
 
@@ -405,39 +383,23 @@ TODO:
       </table>
     </div>
 
-    <div id="metadata-postit" class="postit">
-      <h1> Metadata </h1>
-      <table>
-        <tr class="even-row">
-          <td style="text-align: right; white-space: nowrap; vertical-align: top;">Image name:</td>
-          <td id="wblitz-image-name"></td>
-        </tr>
-        <tr class="odd-row">
-          <td style="text-align: right; white-space: nowrap; vertical-align: top;">Author:</td>
-          <td id="wblitz-image-author"></td>
-        </tr>
-        <tr class="even-row">
-          <td style="text-align: right; white-space: nowrap; vertical-align: top;">Created on:</td>
-          <td id="wblitz-image-timestamp"></td>
-        </tr>
-      </table>
-    </div>
-
     <div id="legend-postit" class="postit">
-      <h1> Legend </h1>
-      <div id="wblitz-image-description"></div>
-      </div>
-    </div>
-
-    <div id="sizes-postit" class="postit">
-      <h1> Size matters </h1>
-      <h2>Image Size</h2>
+      <h1> Metadata </h1>
+      <ul>
+          <li>Image: <span id="wblitz-image-name"></span></li>
+          <li>Owner: <span id="wblitz-image-author"></span></li>
+          <li>Image date: <span id="wblitz-image-timestamp"></span></li>
+      </ul>
+      <h2>Dimensions [px]: </h2>
       <ul>
         <li>X: <span id="wblitz-image-width"></span>px</li>
         <li>Y: <span id="wblitz-image-height"></span>px</li>
-        <li>Z: <span id="wblitz-image-z-count"></span></li>
-        <li>T: <span id="wblitz-image-t-count"></span></li>
       </ul>
+      <h2>Z-sections/timepoints:</h2>
+      <ul>
+          <li>Z: <span id="wblitz-image-z-count"></span></li>
+          <li>T: <span id="wblitz-image-t-count"></span></li>
+        </ul>
       <h2>Pixel Size</h2>
       <ul>
         <li>X: <span id="wblitz-image-pixel-size-x"></span>&micro;m</li>
@@ -522,11 +484,7 @@ TODO:
               Z = <span id="wblitz-z-curr">?</span> of <span id="wblitz-z-count">?</span> |
               T = <span id="wblitz-t-curr">1</span> of <span id="wblitz-t-count">1</span>
             </div>
-            <a href="#" onclick="$('#legend-postit').toggle(); return false;">Show Legend</a>
-          </div>
-          <div class="detail">
-            <a href="#" onclick="$('#metadata-postit').toggle(); return false;">Show Metadata</a>
-            <a href="#" onclick="$('#sizes-postit').toggle(); return false;">Show Sizes</a>
+            <a href="#" onclick="$('#legend-postit').toggle(); return false;">Show Metadata</a>
           </div>
         </div>
 
@@ -537,7 +495,7 @@ TODO:
     </div>
     <div id="footer">
     {% block footer_content %}
-      &copy;2007/2008 Glencoe Software Inc. All rights reserved.
+      &copy;2009 University of Dundee & Open Microscopy Environment
     {% endblock %}
     </div>
 

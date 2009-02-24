@@ -2051,6 +2051,16 @@ class BlitzObjectWrapper (object):
             logger.debug(traceback.format_exc())
             return _("Unknown")
     
+    def accessControll(self):
+        if self._obj.details.permissions.isUserRead() and self._obj.details.permissions.isUserWrite():
+            return '0'
+        elif self._obj.details.permissions.isGroupRead() and self._obj.details.permissions.isGroupWrite():
+            return '1'
+        elif self._obj.details.permissions.isWorldRead() and self._obj.details.permissions.isWorldWrite():
+            return '2'
+        else:
+            return '-1'
+        
     def splitedName(self):
         try:
             name = self._obj.name.val
@@ -2456,12 +2466,22 @@ class ImageWrapper (BlitzObjectWrapper):
                 self._re.load()
         return True
 
-    def getDate(self):
+    def getDateAsTimestamp(self):
         try:
             return time.ctime(self._obj.acquisitionDate.val / 1000)
         except:
             logger.debug(traceback.format_exc())
             return "unknown"
+
+    def getDate(self):
+        try:
+            if self._obj.acquisitionDate.val is not None:
+                t = self._obj.acquisitionDate.val
+            else:
+                t = self._obj.details.creationEvent.time.val
+        except:
+            t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
+        return datetime.fromtimestamp(t/1000)
     
     def getImagingEnvironment(self):
         if self._obj.imagingEnvironment is None:

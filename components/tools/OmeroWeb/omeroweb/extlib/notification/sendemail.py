@@ -40,7 +40,6 @@ SLEEPTIME = 30
 class SendEmail(threading.Thread):
 
     smtp_server = None
-    message = None
 
     def __init__(self):
         super(SendEmail, self).__init__()

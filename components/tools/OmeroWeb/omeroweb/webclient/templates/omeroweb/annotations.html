@@ -15,7 +15,7 @@
     {% if tann.isOwned %}
         <div id="comment_wrapper">
         <div id="comment">
-            <div class="head">{{ tann.getOwner }} posted comment at {{ tann.creationEventDate|date:" H:i d M Y" }} {% if tann.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ tann.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
+            <div class="head">{{ tann.getOwner }} posted comment at {{ tann.creationEventDate|date:" H:i:s d M Y" }} {% if tann.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ tann.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
             <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -27,7 +27,7 @@
         <div id="comment_wrapper_rev">
         <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ tann.details.owner.id.val }}/" alt="{{ tann.getOwner }}" title="{{ tann.getOwner }}" width="40" height="40" /></div>
         <div id="comment_rev">
-            <div class="head">{{ tann.getOwner }} posted comment at {{ tann.creationEventDate|date:" H:i d M Y" }}</div>
+            <div class="head">{{ tann.getOwner }} posted comment at {{ tann.creationEventDate|date:" H:i:s d M Y" }}</div>
             <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -52,7 +52,7 @@
 <h1>Files:</h1>
 <ol>
     {% for fileann in manager.file_annotations %}
-    <li><a href="{% get_webclient_root_url %}/annotation/download/{{ fileann.id }}/" target="_blank">{{ fileann.getFileName }}</a> (id:{{ fileann.id }}) - {{ fileann.getFileSize|default_if_none:0|filesizeformat }} by {{ fileann.getOwner }} at {{ fileann.creationEventDate|date:" H:i d M Y" }} {% if fileann.isEditable %}<a href="{% get_webclient_root_url %}/action/remove/?parent={% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% endif %}{% if manager.image %}img-{{ manager.image.id}}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}" onClick="return confirm('Unlink file?');"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}</li>
+    <li><a href="{% get_webclient_root_url %}/annotation/download/{{ fileann.id }}/" target="_blank">{{ fileann.getFileName }}</a> (id:{{ fileann.id }}) - {{ fileann.getFileSize|default_if_none:0|filesizeformat }} by {{ fileann.getOwner }} at {{ fileann.creationEventDate|date:" H:i:s d M Y" }} {% if fileann.isEditable %}<a href="{% get_webclient_root_url %}/action/remove/?parent={% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% endif %}{% if manager.image %}img-{{ manager.image.id}}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}" onClick="return confirm('Unlink file?');"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}</li>
     {% endfor %}
 </ol>
 {% endif %}

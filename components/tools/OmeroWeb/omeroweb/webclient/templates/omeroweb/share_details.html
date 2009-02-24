@@ -57,7 +57,7 @@
 
 {% block center %}
     <h2>Status: 
-        {% if share.share.active %}ACTIVE{% else %}NOT ACTIVE{% endif %}. Starts: {{ share.share.getStartDate|date:" H:i d M Y" }}, Expires: {% if share.share.getExpirationDate %}{{ share.share.getExpirationDate|date:" H:i d M Y" }}{% else %}never{% endif %}
+        {% if share.share.active %}ACTIVE{% else %}NOT ACTIVE{% endif %}. Starts: {{ share.share.getStartDate|date:" H:i:s d M Y" }}, Expires: {% if share.share.getExpirationDate %}{{ share.share.getExpirationDate|date:" H:i:s d M Y" }}{% else %}never{% endif %}
     </h2>
     
     <h1>Hi, 
@@ -73,7 +73,7 @@
     {% if share.share.isOwned %}
         <div id="comment_wrapper">
         <div id="comment">
-            <div class="head">{{ share.share.getOwner }} posted comment at {{ share.share.getStartDate|date:" H:i d M Y" }}</div>
+            <div class="head">{{ share.share.getOwner }} posted comment at {{ share.share.getStartDate|date:" H:i:s d M Y" }}</div>
             <div class="body">{{ share.share.message|sharewikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -82,7 +82,7 @@
     {% else %}
         <div id="comment_wrapper_rev">
         <div id="comment_rev">
-            <div class="head">{{ share.share.getOwner }} posted comment at {{ share.share.getStartDate|date:" H:i d M Y" }}</div>
+            <div class="head">{{ share.share.getOwner }} posted comment at {{ share.share.getStartDate|date:" H:i:s d M Y" }}</div>
             <div class="body">{{ share.share.message|sharewikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -97,7 +97,7 @@
             {% if cm.isOwned %}
                 <div id="comment_wrapper">
                 <div id="comment">
-                    <div class="head">{{ cm.getOwner }} posted comment at {{ cm.creationEventDate|date:" H:i d M Y" }}</div>
+                    <div class="head">{{ cm.getOwner }} posted comment at {{ cm.creationEventDate|date:" H:i:s d M Y" }}</div>
                     <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                     <div class="footer"></div>
                 </div>
@@ -108,7 +108,7 @@
             {% else %}
                 <div id="comment_wrapper_rev">
                 <div id="comment_rev">
-                    <div class="head">{{ cm.getOwner }} posted comment at {{ cm.creationEventDate|date:" H:i d M Y" }}</div>
+                    <div class="head">{{ cm.getOwner }} posted comment at {{ cm.creationEventDate|date:" H:i:s d M Y" }}</div>
                     <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                     <div class="footer"></div>
                 </div>

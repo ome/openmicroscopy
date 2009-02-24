@@ -37,16 +37,16 @@
 .postit h2 { 
   font-size: 1.0em;
   font-style: italic;
-  text-align: center;
+  text-align: left;
   text-decoration: underline;
 }
 
 .postit td { 
-  font-family: Courier New, monospace;
+  font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
 }
 
 .postit ul { 
-  font-family: Courier New, monospace;
+  font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
   list-style-type: none;
   margin-left: 0px;
   padding: 0px 0.5em;
@@ -80,7 +80,7 @@
 
 .postit-resize-bar {
   height: 8px;
-  background-color: #EDEDED;
+  background-color: #ffffff;
 }
 
 .postit-resize-btn {

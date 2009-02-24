@@ -15,7 +15,7 @@
 </head>
 <body>
 <div id="main" class="error"><h1>
-    MENU: <a href="{% get_webadmin_root_url %}/">{% trans "Webadmin" %}</a> or 
+    {% trans "Go back to" %}: <a href="{% get_webadmin_root_url %}/">{% trans "Webadmin" %}</a> {% trans "or" %} 
     <a href="{% get_webclient_root_url %}/">{% trans "Webclient" %}</a>
 </h1>
 {% block content %}{% endblock %}

@@ -2026,29 +2026,21 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     form = None
     if action == 'new':
         template = "omeroweb/container_new.html"
-        form = ContainerForm(initial={'owner': ('r', 'w'), 'group': ('', ''), 'world': ('', '')})
+        form = ContainerForm(initial={'access_controll': '0'})
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
     elif action == 'edit':
         if o_type == "dataset":
             template = "omeroweb/container_form.html"
-            form = ContainerForm(initial={'name': manager.dataset.name, 'description':manager.dataset.description, \
-                        'owner': ((manager.dataset.details.permissions.isUserRead() and 'r' or ''), (manager.dataset.details.permissions.isUserWrite() and 'w' or '')), \
-                        'group': ((manager.dataset.details.permissions.isGroupRead() and 'r' or ''), (manager.dataset.details.permissions.isGroupWrite() and 'w' or '')), \
-                        'world': ((manager.dataset.details.permissions.isWorldRead() and 'r' or ''), (manager.dataset.details.permissions.isWorldWrite() and 'w' or ''))})
+            print manager.dataset.accessControll()
+            form = ContainerForm(initial={'name': manager.dataset.name, 'description':manager.dataset.description, 'access_controll': manager.dataset.accessControll()})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         elif o_type == "project":
             template = "omeroweb/container_form.html"
-            form = ContainerForm(initial={'name': manager.project.name, 'description':manager.project.description, \
-                        'owner': ((manager.project.details.permissions.isUserRead() and 'r' or ''), (manager.project.details.permissions.isUserWrite() and 'w' or '')), \
-                        'group': ((manager.project.details.permissions.isGroupRead() and 'r' or ''), (manager.project.details.permissions.isGroupWrite() and 'w' or '')), \
-                        'world': ((manager.project.details.permissions.isWorldRead() and 'r' or ''), (manager.project.details.permissions.isWorldWrite() and 'w' or ''))})
+            form = ContainerForm(initial={'name': manager.project.name, 'description':manager.project.description, 'access_controll': manager.dataset.accessControll()})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         elif o_type =="image" and o_id > 0:
             template = "omeroweb/container_form.html"
-            form = ContainerForm(initial={'name': manager.image.name, 'description':manager.image.description, 'permissions':manager.image.details.permissions, \
-                        'owner': ((manager.image.details.permissions.isUserRead() and 'r' or ''), (manager.image.details.permissions.isUserWrite() and 'w' or '')), \
-                        'group': ((manager.image.details.permissions.isGroupRead() and 'r' or ''), (manager.image.details.permissions.isGroupWrite() and 'w' or '')), \
-                        'world': ((manager.image.details.permissions.isWorldRead() and 'r' or ''), (manager.image.details.permissions.isWorldWrite() and 'w' or ''))})
+            form = ContainerForm(initial={'name': manager.image.name, 'description':manager.image.description, 'access_controll': manager.dataset.accessControll()})
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type =="comment" and o_id > 0:
             template = "omeroweb/annotation_form.html"
@@ -2090,7 +2082,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 name = request.REQUEST['name'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
-                permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
+                permissions = request.REQUEST.getlist('access_controll')
                 manager.updateDataset(name, description, permissions)
                 return HttpResponseRedirect(url)
             else:
@@ -2101,7 +2093,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 name = request.REQUEST['name'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
-                permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
+                permissions = request.REQUEST.getlist('access_controll')
                 manager.updateProject(name, description, permissions)
                 return HttpResponseRedirect(url)
             else:
@@ -2112,7 +2104,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 name = request.REQUEST['name'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
-                permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
+                permissions = request.REQUEST.getlist('access_controll')
                 manager.updateImage(name, description, permissions)
                 return HttpResponseRedirect(url)
             else:
@@ -2154,7 +2146,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 name = request.REQUEST['name'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
-                permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
+                permissions = request.REQUEST.getlist('access_controll')
                 manager.createDataset(name, description, permissions)
                 return HttpResponseRedirect(url)
             else:
@@ -2166,7 +2158,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 if form.is_valid():
                     name = request.REQUEST['name'].encode('utf-8')
                     description = request.REQUEST['description'].encode('utf-8')
-                    permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
+                    permissions = request.REQUEST.getlist('access_controll')
                     manager.createDataset(name, description, permissions)
                     return HttpResponseRedirect(url)
                 else:
@@ -2177,7 +2169,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 if form.is_valid():
                     name = request.REQUEST['name'].encode('utf-8')
                     description = request.REQUEST['description'].encode('utf-8')
-                    permissions = {'owner': "".join(request.REQUEST.getlist('owner')), 'group': "".join(request.REQUEST.getlist('group')), 'world': "".join(request.REQUEST.getlist('world'))}
+                    permissions = request.REQUEST.getlist('access_controll')
                     manager.createProject(name, description, permissions)
                     return HttpResponseRedirect(url)
                 else:
@@ -3269,8 +3261,8 @@ def imageData_json (request, iid, **kwargs):
                                    'active': x.isActive()}, img.getChannels()),
         'meta': {'name': img.name or '',
                  'description': img.description or '',
-                 'author': img.getOwner(),
-                 'timestamp': img.getDate(),},
+                 'author':img.getOwner(),
+                 'timestamp': img.getDateAsTimestamp(),},
         }
     json_data = simplejson.dumps(rv)
     return HttpResponse(json_data, mimetype='application/javascript')

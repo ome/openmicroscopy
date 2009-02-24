@@ -6,6 +6,8 @@
         <h1>{% trans "Server Error." %} <em>(500)</em></h1>
 
         <p>{% trans "There's been an error. Please give us feedback to help to improve the OMERO applications. Thanks for your patience." %}</p>
+        {% if error %}<ul class="errorList"><li>{{ error }}</li></ul>{% endif %}
+        
         <form action="/feedback/send/" method="post">
         <table>
             {% for field in form %}

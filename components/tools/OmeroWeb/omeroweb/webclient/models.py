@@ -65,7 +65,7 @@ class Advice(models.Model):
 
 #################################################################
 # Non-model Form
-from custom_forms import PermissionCheckboxSelectMultiple, MultiEmailField, UrlField, MetadataModelChoiceField, \
+from custom_forms import UrlField, MetadataModelChoiceField, \
                          AnnotationModelMultipleChoiceField
 from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
                         GroupModelChoiceField, ExperimenterModelMultipleChoiceField
@@ -108,15 +108,12 @@ class ShareCommentForm(forms.Form):
 class ContainerForm(forms.Form):
     
     PERMISSION_CHOICES = (
-        ('r', 'read'),
-        ('w', 'write'),
+        ('0', 'Private (rw----)'),
+        #('1', 'Public (rwr---)')
     )
-
     name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':61}))
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}), required=False, help_text=help_wiki)
-    owner = forms.MultipleChoiceField(PERMISSION_CHOICES, widget=PermissionCheckboxSelectMultiple, required=False)
-    group = forms.MultipleChoiceField(PERMISSION_CHOICES, widget=PermissionCheckboxSelectMultiple, required=False)
-    world = forms.MultipleChoiceField(PERMISSION_CHOICES, widget=PermissionCheckboxSelectMultiple, required=False)
+    access_controll = forms.ChoiceField(choices = PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True)
 
 class CommentAnnotationForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea(attrs={'rows': 9, 'cols': 65}))

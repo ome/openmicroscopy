@@ -16,7 +16,8 @@
 }
 
 body { 
-  font-family: verdana;
+  font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
+  color: #555;
   margin: 0;
   padding: 0;
   width: 100%;
@@ -133,7 +134,7 @@ div.menu .compound * {
 }
 
 a { 
-  color: #184A89;
+  color: #1b7bc7;
   text-decoration: none;
   font-weight: bold;
   font-size: 0.9em;
@@ -141,11 +142,11 @@ a {
 
 a:hover { 
   color: #BBB;
-  background-color: #184A89;
+  background-color: #1b7bc7;
 }
 
 #selection.filled { 
-  border: 2px solid #184A89;
+  border: 2px solid #1b7bc7;
 }
 
 #selection {
@@ -155,8 +156,8 @@ a:hover {
 #context h1 { 
   margin: 0px;
   color: white;
-  background-color: #184A89;
-  border-bottom: 2px solid #184A89;
+  background-color: #1b7bc7;
+  border-bottom: 2px solid #1b7bc7;
   text-align: center;
   position: relative;
 }

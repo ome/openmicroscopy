@@ -23,10 +23,7 @@
 #
 
 import traceback
-import threading
-import smtplib
 import logging
-import time
 import httplib, urllib
 
 from email.MIMEMultipart import MIMEMultipart
@@ -35,101 +32,86 @@ from email.MIMEImage import MIMEImage
 from django.conf import settings
 
 logger = logging.getLogger('sendfeedback')
-SLEEPTIME = 30
 
-class SendFeedback(threading.Thread):
+class SendFeedback(object):
 
-    feedback_url = None
-    message = None
+    feedback_url = "users.openmicroscopy.org.uk:80"
 
-    def __init__(self):
-        super(SendFeedback, self).__init__()
-        self.setDaemon(True)
-        self.feedback_url = "users.openmicroscopy.org.uk:80"
-        self.thread_timeout = False
-        self.to_send = list()
-        self.start()
-    
-    def run (self):
-        """ this thread lives forever, pinging whatever connection exists to keep it's services alive """
-        logger.info("Starting sendfeedback thread...")
-        while not (self.thread_timeout):
+    def send_feedback(self, feedback):
+        try:
+            conn = httplib.HTTPConnection(self.feedback_url)
             try:
-                logger.debug("%i feedbacks in the queue." % (len(self.to_send)))
-                if len(self.to_send) > 0:
-                    try:
-                        conn = httplib.HTTPConnection(self.feedback_url)
+                try:
+                    p = {'error': feedback['error'], "type":feedback['app']}
+                    if feedback['email'] is not None:
+                        p['email'] = feedback['email']
+                    if feedback['comment'] is not None:
+                        p['comment'] = feedback['comment']
+                    if feedback['env'] is not None:
                         try:
-                            try:
-                                feedback = self.to_send[0]
-                                p = {'error': feedback['error'], "type":feedback['app']}
-                                if feedback['email'] is not None:
-                                    p['email'] = feedback['email']
-                                if feedback['comment'] is not None:
-                                    p['comment'] = feedback['comment']
-                                params = urllib.urlencode(p)
-                                logger.debug("Sending...")
-                                headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
-                                conn.request("POST", "/~brain/omero/bugcollector.php", params, headers)
-                                response = conn.getresponse()
+                            p['java_class_path'] = feedback['env']['path']
+                        except:
+                            pass
+                        try:
+                            p['os_name'] = feedback['env']['platform']
+                        except:
+                            pass
+                        try:
+                            p['os_arch'] = feedback['env']['arch']
+                        except:
+                            pass
+                        try:
+                            p['os_version'] = feedback['env']['os_version']
+                        except:
+                            pass
+                        try:
+                            p['java_version'] = feedback['env']['python_version']
+                        except:
+                            pass
+                    params = urllib.urlencode(p)
+                    headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
+                    conn.request("POST", "/~brain/omero/bugcollector.php", params, headers)
+                    response = conn.getresponse()
 
-                                if response.status == 200:
-                                    logger.info(response.read())
-                                else:
-                                    logger.error("Feedback server error: %s" % response.reason)
-                            except:
-                                logger.error("Feedback could not be sent.")
-                                logger.error(traceback.format_exc())
-                        finally:
-                            conn.close()
-                            try:
-                                self.to_send.remove(feedback)
-                            except:
-                                logger.error("Could not remove feedback from the queue.")
-                    except Exception, x:
-                        logger.error(x)
-                logger.debug("sleep...")
-                time.sleep(SLEEPTIME)
-            except:
-                logger.error("!! something bad on the SENDER keepalive thread !!")
-                logger.error(traceback.format_exc())
-                self.seppuku()
-        logger.debug("Thread death")
+                    if response.status == 200:
+                        logger.info(response.read())
+                    else:
+                        logger.error("Feedback server error: %s" % response.reason)
+                        raise "Feedback server error: %s" % response.reason
+                except Exception, x:
+                    logger.error("Feedback could not be sent.")
+                    logger.error(traceback.format_exc())
+                    raise x
+            finally:
+                conn.close()
+        except Exception, x:
+            logger.error(x)
+            raise x
 
-    def seppuku (self):
-        logger.debug("Thread will be closed")
-        self.thread_timeout = True
-        logger.debug("Thread Deleted")
-
-    def __del__ (self):
-        logger.debug("Garbage Collector KICK IN")
-
-    def create_error_message(self, error, comment=None, email=None):
-        path = None
+    def give_feedback(self, error, comment=None, email=None):
+        env = dict()
         try:
             import sys
-            path = sys.path
+            env['path'] = sys.path
         except:
             pass
-        pl = None
         try:
             import platform
-            pl = platform.platform()
+            env['platform'] = platform.platform()
         except:
             pass
-        arch = None
         try:
-            arch = platform.machine()
+            env['arch'] = platform.machine()
         except:
             pass
-        os_ver = None
         try:
-            os_ver = platform.release()
+            env['os_version'] = platform.release()
         except:
             pass
-        python_ver = None
         try:
-            python_ver = platform.python_version()
+            env['python_version'] = platform.python_version()
         except:
             pass
-        self.to_send.append({"email": email, "comment":comment, "error": error, "app":"web_bugs"})
+        if len(env) == 0:
+            env = None
+        self.send_feedback({"email": email, "comment":comment, "error": error, "app":"web_bugs", "env":env})

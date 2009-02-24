@@ -53,8 +53,8 @@ hr {
 
 .box { 
   display: block;
-  background-color: #C4CFD5;
-  border: 2px solid;
+  background-color: #dddddd;
+  border: 1px solid;
   padding: 0px;
   text-align: center;
   max-width: 200px;
@@ -132,7 +132,7 @@ hr {
   display: block;
   margin: 0px;
   font-weight: bold;
-  background-color: #184a89;
+  background-color: #1b7bc7;
   color: #fff;
 }
 
@@ -240,7 +240,7 @@ hr {
   width: 100%;
   height: 15px;
   overflow: hidden;
-  background-color: #184A89;
+  background-color: #1b7bc7;
   font-size: x-small;
   color: white;
 }
@@ -259,12 +259,12 @@ button.pressed {
 }
 
 .postit { 
-  background-color: #C4CFD5;
-  font-size: 0.9em;
+  background-color: #ffffff;
+  font-size: 12px;
 }
 
 .postit h1 {
-  background-color: #184A89;
+  background-color: #1b7bc7;
   color: #FFF;
 /*  font-size: 0.9em; */
 }
@@ -272,10 +272,6 @@ button.pressed {
 .postit table { 
   font-size: 1.0em;
 
-}
-
-.postit .even-row {
-  background-color: #D1D3D5;   
 }
 
 .postit button {

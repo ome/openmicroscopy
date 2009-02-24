@@ -42,15 +42,10 @@ from django.views.defaults import page_not_found, server_error
 from django.views import debug
 
 from omeroweb.feedback.models import ErrorForm
+from omeroweb.extlib.notification.sendfeedback import SendFeedback
 
 logger = logging.getLogger('views-feedback')
 
-try:
-    import omeroweb.extlib.notification.handlesender as feedback
-    logger.info("Feedback imported")
-except:
-    logger.error(traceback.format_exc())
-    
 try:
     if settings.ERROR2EMAIL_NOTIFICATION and settings.EMAIL_NOTIFICATION:
         import omeroweb.extlib.notification.handlesender as sender
@@ -63,6 +58,7 @@ def thanks(request):
     return render_to_response("thanks.html",None)
 
 def send_feedback(request):
+    error = None
     form = ErrorForm(data=request.REQUEST.copy())
     if form.is_valid():
         error = request.REQUEST['error']
@@ -73,10 +69,12 @@ def send_feedback(request):
         if request.REQUEST['email'] is not None or request.REQUEST['email'] != "":
             email = request.REQUEST['email']
         try:
-            feedback.handlerf().create_error_message(error, comment, email)
+            sf = SendFeedback()
+            sf.give_feedback(error, comment, email)
         except:
             logger.error('handler500: Feedback could not be sent')
             logger.error(traceback.format_exc())
+            error = "Feedback could not been sent. Please contact administrator."
             try:
                 fileObj = open(("%s/error500-%s.html" % (settings.LOGDIR, datetime.datetime.now())),"w")
                 fileObj.write(request.REQUEST['error'])
@@ -86,15 +84,11 @@ def send_feedback(request):
                 logger.error(traceback.format_exc())
                 
         return HttpResponseRedirect("/feedback/thanks/")
-    else:
-        context = {'form':form}
-        t = template_loader.get_template('500.html') 
-        c = Context(request, context)
-        return HttpResponse(t.render(c))
-    
-
-################################################################################
-# handlers
+        
+    context = {'form':form, 'error':error}
+    t = template_loader.get_template('500.html') 
+    c = Context(request, context)
+    return HttpResponse(t.render(c))
 
 def custom_server_error(request, error500):
     """
@@ -108,6 +102,9 @@ def custom_server_error(request, error500):
     t = template_loader.get_template('500.html') 
     c = Context(request, context)
     return HttpResponse(t.render(c))
+
+################################################################################
+# handlers
 
 def handler500(request):
     logger.error('handler500: Server error')

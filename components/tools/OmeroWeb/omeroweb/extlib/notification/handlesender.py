@@ -23,10 +23,8 @@
 #
 
 from sendemail import SendEmail
-from sendfeedback import SendFeedback
 
 sender = None
-feedback = None
 
 def handler():
     
@@ -35,11 +33,3 @@ def handler():
     if sender is None:
         sender = SendEmail()
     return sender
-
-def handlerf():
-    
-    global feedback
-
-    if feedback is None:
-        feedback = SendFeedback()
-    return feedback

@@ -52,7 +52,6 @@
 
 {% if form %}
 <div>
-    <h1>Form</h1>
     {% if manager.project %}
         <form action="{% get_webclient_root_url %}/action/addnew/project/{{ manager.project.id }}/?url={{url}}" method="post">
     {% else %}

@@ -86,7 +86,7 @@
         <td class="product"><a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="{{ c.name }}" alt="project"/></a></td> 
         <td><a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/">{{ c.shortName }}</a> <img alt="dataset" title="dataset" src="{% get_webclient_static_url %}/images/folder_image16.png"/>[{{ c.countChild }}]{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
         <td></td>
-        <td>{{ c.creationEventDate|date:" H:i d M Y" }}</td>
+        <td>{{ c.creationEventDate|date:" H:i:s d M Y" }}</td>
     </tr>
     {% endfor %}
     {% for c in i.dataset %}
@@ -94,7 +94,7 @@
         <td class="product"><a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="{{ c.name }}" alt="project"/></a></td> 
         <td><a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/">{{ c.shortName }}</a> <img src="{% get_webclient_static_url %}/images/image16.png" title="image" alt="image"/>[{{ c.countChild }}]{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
         <td><!--<a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a> --><a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit12.png" alt="c" title="copy"/></a></td>
-        <td>{{ c.creationEventDate|date:" H:i d M Y" }}</td>
+        <td>{{ c.creationEventDate|date:" H:i:s d M Y" }}</td>
     </tr>
     {% endfor %}
     {% for c in i.image %}
@@ -102,22 +102,14 @@
         <td class="product"><a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="{{ c.name }}" alt="image"/></a></td> 
         <td><a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/">{{ c.shortName }}</a>{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %} </td> 
         <td><a href="#" onclick="popup('','_blank','{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" title="{{ c.name }}" alt="image"/></a> <a href="{% get_webclient_root_url %}/image_zoom/{{ c.id }}/?keepThis=true&TB_iframe=true&height=500&width=860" alt="{{ c.shortName }}" class="thickbox" rel="gallery-omero" title="{{ c.shortName }} by {{ c.getOwner }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% get_webclient_static_url %}/images/kpresenter16.png" alt="p" title="presentation"/></a> <a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a> <a href="#" onclick="copyToClipboard('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit12.png" alt="c" title="copy"/></a></td>
-        <td>{{ c.getDate }}</td>
+        <td>{{ c.getDate|date:" H:i:s d M Y" }}</td>
     </tr>
     {% endfor %}
-    <!--{% for c in i.rdef %}
-    <tr> 
-        <td class="product"><a href="#" onclick="popup('','_blank','{{ c.getImage.id }}'); return false;"><img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/rdef32.png" title="{{ c.getImage.name }}" alt="image"/></a></td> 
-        <td><a href="#" onclick="popup('','_blank','{{ c.getImage.id }}'); return false;">{{ c.getImage.shortName }}</a></td> 
-        <td>{{ c.id }}</td>
-        <td>{{ c.creationEventDate|date:" H:i d M Y" }} by {{ c.getOwner }}</td>
-    </tr>
-    {% endfor %}-->
     {% endfor %}
 </tbody> 
 </table>
 
-<div>Recognize items: <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="Project" alt="project"/> - Project; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="Dataset" alt="dataset"/> - Dataset; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="Image" alt="image"/> - Image;<!-- <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/rdef32.png" title="View" alt="view"/> - View;-->
+<div>Recognize items: <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="Project" alt="project"/> - Project; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="Dataset" alt="dataset"/> - Dataset; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="Image" alt="image"/> - Image;
 </div>
 
 {% else %}
