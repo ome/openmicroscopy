@@ -9,6 +9,7 @@ package ome.server.utests;
 import ome.api.local.LocalAdmin;
 import ome.services.sessions.SessionManager;
 import ome.services.sharing.ShareBean;
+import ome.services.util.Executor;
 import ome.system.EventContext;
 
 import org.jmock.Mock;
@@ -18,11 +19,12 @@ import org.testng.annotations.Test;
 
 public class ShareBeanTest extends MockObjectTestCase {
 
-    Mock mockAdmin, mockMgr, mockEc;
+    Mock mockAdmin, mockMgr, mockEc, mockEx;
     LocalAdmin admin;
     SessionManager mgr;
     EventContext ec;
     ShareBean bean;
+    Executor ex;
 
     @BeforeMethod
     public void setup() {
@@ -30,11 +32,13 @@ public class ShareBeanTest extends MockObjectTestCase {
         mockAdmin = mock(LocalAdmin.class);
         mockMgr = mock(SessionManager.class);
         mockEc = mock(EventContext.class);
+        mockEx = mock(Executor.class);
         
         admin = (LocalAdmin) mockAdmin.proxy();
         mgr = (SessionManager) mockMgr.proxy();
         ec = (EventContext) mockEc.proxy();
-        bean = new ShareBean(admin, mgr, null);
+        ex = (Executor) mockEx.proxy();
+        bean = new ShareBean(admin, mgr, null, ex);
     }
 
     @Test

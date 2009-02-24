@@ -276,7 +276,7 @@ public interface Executor extends ApplicationContextAware {
                 throw new IllegalStateException("Must provide principal");
             } else if (p != null && principalHolder.size() > 0) {
                 throw new IllegalStateException(
-                        "Already logged in. Use executeIsolated.");
+                        "Already logged in. Use Executor.submit() and .get().");
             }
 
             // Don't need to worry about the login stack below since
