@@ -61,9 +61,6 @@ public interface IUpdate extends ServiceInterface {
     /** @see ome.api.IUpdate */
     IObject[] saveAndReturnArray(IObject[] graph);
 
-    /** @see ome.api.IUpdate */
-    long[] saveAndReturnIds(IObject[] objects);
-    
     /**
      * Deletes a single entity. Unlike the other IUpdate methods, deleteObject
      * does not propagate to related entities (e.g. foreign key relationships)

@@ -141,7 +141,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
             public IObject[] run(IObject[] value, UpdateFilter filter, Session s) {
                 IObject[] copy = new IObject[value.length];
                 for (int i = 0; i < value.length; i++) {
-                    if (i % 100 == 0) {
+                    if (i%500 == 0) {
                         s.flush();
                         s.clear();
                     }
@@ -164,7 +164,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
             @Override
             public IObject[] run(IObject[] value, UpdateFilter filter, Session s) {
                 for (int i = 0; i < value.length; i++) {
-                    if (i % 100 == 0) {
+                    if (i%500 == 0) {
                         s.flush();
                         s.clear();
                     }

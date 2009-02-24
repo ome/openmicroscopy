@@ -7,6 +7,8 @@
 
 package ome.api.local;
 
+import ome.model.IObject;
+
 /**
  * Provides local (internal) extensions for updating
  * 
@@ -21,4 +23,7 @@ public interface LocalUpdate extends ome.api.IUpdate {
 
     void flush();
 
+    /** @see ome.api.IUpdate */
+    long[] saveAndReturnIds(IObject[] objects);
+    
 }
