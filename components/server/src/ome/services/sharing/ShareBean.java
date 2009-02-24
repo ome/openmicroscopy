@@ -255,13 +255,14 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
                 .getCurrentUserName();
         final Long user = this.admin.getEventContext().getCurrentUserId();
         final Share[] shares = new Share[1];
+        final RuntimeException[] ex = new RuntimeException[1];
         Thread t = new Thread() {
             public void run() {
                 try {
                     shares[0] = sessionManager.createShare(new Principal(
                             omename), enabled, time, "SHARE", description);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (RuntimeException e) {
+                    ex[0] = e;
                 }
             }
         };
@@ -273,6 +274,9 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
             } catch (InterruptedException e1) {
                 log.debug("Interrupted");
             }
+        }
+        if (ex[0] != null) {
+            throw ex[0];
         }
         Share share = shares[0];
 
