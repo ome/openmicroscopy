@@ -41,11 +41,12 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * implementation of the IUpdate service interface
- *
+ * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
@@ -53,8 +54,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = false)
 public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
-	private final Log log = LogFactory.getLog(UpdateImpl.class);
-	
+    private final Log log = LogFactory.getLog(UpdateImpl.class);
+
     protected transient LocalQuery localQuery;
 
     protected transient Executor executor;
@@ -108,8 +109,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     public void saveObject(IObject graph) {
         doAction(graph, new UpdateAction<IObject>() {
             @Override
-            public IObject run(IObject value, UpdateFilter filter) {
-                return internalSave(value, filter);
+            public IObject run(IObject value, UpdateFilter filter, Session s) {
+                return internalMerge(value, filter, s);
             }
         });
     }
@@ -118,8 +119,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     public IObject saveAndReturnObject(IObject graph) {
         return doAction(graph, new UpdateAction<IObject>() {
             @Override
-            public IObject run(IObject value, UpdateFilter filter) {
-                return internalSave(value, filter);
+            public IObject run(IObject value, UpdateFilter filter, Session s) {
+                return internalMerge(value, filter, s);
             }
         });
     }
@@ -128,10 +129,10 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     public void saveCollection(Collection graph) {
         doAction(graph, new UpdateAction<Collection>() {
             @Override
-            public Collection run(Collection value, UpdateFilter filter) {
+            public Collection run(Collection value, UpdateFilter filter, Session s) {
                 for (Object o : value) {
                     IObject obj = (IObject) o;
-                    obj = internalSave(obj, filter);
+                    obj = internalMerge(obj, filter, s);
                 }
                 return null;
             }
@@ -142,24 +143,52 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     public IObject[] saveAndReturnArray(IObject[] graph) {
         return doAction(graph, new UpdateAction<IObject[]>() {
             @Override
-            public IObject[] run(IObject[] value, UpdateFilter filter) {
+            public IObject[] run(IObject[] value, UpdateFilter filter, Session s) {
                 IObject[] copy = new IObject[value.length];
                 for (int i = 0; i < value.length; i++) {
-                    copy[i] = internalSave(value[i], filter);
+                    if (i%1000 == 0) {
+                        s.flush();
+                        s.clear();
+                    }
+                    copy[i] = internalMerge(value[i], filter, s);
                 }
                 return copy;
             }
         });
+    }
+    
+    @RolesAllowed("user")
+    public long[] saveAndReturnIds(IObject[] graph) {
+        
+        if (graph == null || graph.length == 0) {
+            return new long[0]; // EARLY EXIT!
+        }
+        
+        final long[] ids = new long[graph.length];
+        doAction(graph, new UpdateAction<IObject[]>() {
+            @Override
+            public IObject[] run(IObject[] value, UpdateFilter filter, Session s) {
+                for (int i = 0; i < value.length; i++) {
+                    if (i%1000 == 0) {
+                        s.flush();
+                        s.clear();
+                    }
+                    ids[i] = internalSave(value[i], filter, s);
+                }
+                return null;
+            }
+        });
+        return ids;
     }
 
     @RolesAllowed("user")
     public void saveArray(IObject[] graph) {
         doAction(graph, new UpdateAction<IObject[]>() {
             @Override
-            public IObject[] run(IObject[] value, UpdateFilter filter) {
+            public IObject[] run(IObject[] value, UpdateFilter filter, Session s) {
                 IObject[] copy = new IObject[value.length];
                 for (int i = 0; i < value.length; i++) {
-                    copy[i] = internalSave(value[i], filter);
+                    copy[i] = internalMerge(value[i], filter, s);
                 }
                 return copy;
             }
@@ -177,7 +206,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
         }
         doAction(row, new UpdateAction<IObject>() {
             @Override
-            public IObject run(IObject value, UpdateFilter filter) {
+            public IObject run(IObject value, UpdateFilter filter, Session s) {
                 internalDelete(value, filter);
                 return null;
             }
@@ -193,28 +222,28 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
         CreationLogLoader logs = new CreationLogLoader(localQuery, row);
         FullTextIndexer fti = new FullTextIndexer(logs);
-        
+
         final RuntimeException[] e = new RuntimeException[1];
-        final FullTextThread ftt = new FullTextThread(sessionManager, executor, fti,
-                this.fullTextBridge, true);
+        final FullTextThread ftt = new FullTextThread(sessionManager, executor,
+                fti, this.fullTextBridge, true);
         Thread t = new Thread() {
-        	@Override
-        	public void run() {
-        		try {
-        			ftt.run();
-        		} catch (RuntimeException ex) {
-        			e[0] = ex;
-        		}
-        	}
+            @Override
+            public void run() {
+                try {
+                    ftt.run();
+                } catch (RuntimeException ex) {
+                    e[0] = ex;
+                }
+            }
         };
         t.start();
         try {
-        	t.join();
+            t.join();
         } catch (Exception e2) {
-        	log.error("Exception during FullTextThread.join", e2);
+            log.error("Exception during FullTextThread.join", e2);
         }
         if (e[0] != null) {
-        	throw e[0];
+            throw e[0];
         }
     }
 
@@ -238,9 +267,24 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
      * {@link ome.tools.hibernate.MergeEventListener} needs to be moved to
      * {@link UpdateFilter} or to another event listener.
      */
-    protected IObject internalSave(IObject obj, UpdateFilter filter) {
+    protected Long internalSave(IObject obj, UpdateFilter filter, Session session) {
         if (getBeanHelper().getLogger().isDebugEnabled()) {
             getBeanHelper().getLogger().debug(" Internal save. ");
+        }
+
+        IObject result = (IObject) filter.filter(null, obj);
+        Long id = (Long) getHibernateTemplate().save(result);
+        return id;
+    }
+    
+    /**
+     * Note if we use anything other than merge here, functionality from
+     * {@link ome.tools.hibernate.MergeEventListener} needs to be moved to
+     * {@link UpdateFilter} or to another event listener.
+     */
+    protected IObject internalMerge(IObject obj, UpdateFilter filter, Session session) {
+        if (getBeanHelper().getLogger().isDebugEnabled()) {
+            getBeanHelper().getLogger().debug(" Internal merge. ");
         }
 
         IObject result = (IObject) filter.filter(null, obj);
@@ -270,21 +314,24 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
     }
 
-    private <T> T doAction(T graph, UpdateAction<T> action) {
-        T retVal;
-        UpdateFilter filter = new UpdateFilter();
-        try {
-            beforeUpdate(graph, filter);
-            retVal = action.run(graph, filter);
-            afterUpdate(filter);
-        } finally {
-            // currently nothing.
-        }
-        return retVal;
+    @SuppressWarnings("unchecked")
+    private <T> T doAction(final T graph, final UpdateAction<T> action) {
+        final UpdateFilter filter = new UpdateFilter();
+        return (T) getHibernateTemplate().execute(new HibernateCallback(){
+            public Object doInHibernate(Session session)
+                    throws HibernateException, SQLException {
+                
+                T retVal;
+                beforeUpdate(graph, filter);
+                retVal = action.run(graph, filter, session);
+                afterUpdate(filter);
+                return retVal;
+
+            }});
     }
 
     private abstract class UpdateAction<T> {
-        public abstract T run(T value, UpdateFilter filter);
+        public abstract T run(T value, UpdateFilter filter, Session s);
     }
 
 }

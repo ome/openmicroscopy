@@ -35,6 +35,7 @@ system to be re-configured.
   <!-- INTERNAL /////////////////////////////////////////////////////////////// -->
   <category name="ome"> <priority value="INFO"/> </category>
   <category name="ome.formats"> <priority value="INFO"/> </category>
+  <category name="ome.security.basic.CurrentDetails"> <priority value="WARN"/> </category>
   <category name="omero"> <priority value="INFO"/> </category>
   <category name="OMERO"> <priority value="INFO"/> </category>
   <!-- Inherit from Spring/etc and so are a bit verbose -->
@@ -53,7 +54,7 @@ system to be re-configured.
   <!-- Suppressing "Warning missing properties files" -->
   <category name="org.springframework.beans"> <priority value="ERROR"/> </category>
   <!-- Whether or not to print jamon timing info. ERROR or TRACE -->
-  <category name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"> <priority value="ERROR"/> </category>
+  <category name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"> <priority value="TRACE"/> </category>
   <!-- Quieting blitz startup -->
   <category name="net.sf.ehcache"> <priority value="ERROR"/> </category>
 

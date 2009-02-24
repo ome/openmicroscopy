@@ -19,6 +19,8 @@
 #set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.REFRESH,")
 #set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.SAVE_UPDATE,")
 #set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.EVICT")
+
+#set($errorIfUnloaded = "if (! _loaded ) errorIfUnloaded();" )
 ##
 ##
 ##
@@ -258,12 +260,12 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     // @javax.persistence.Version 
 //TODO mark off #118 if this succeeds, otherwise, completely remove versions and test updateEvent
     public Integer getVersion() {
-        preGetter( VERSION );
+        $errorIfUnloaded
         return this.version;
     }
 
     public void setVersion(Integer version) {
-        preSetter( VERSION, version );
+        $errorIfUnloaded
         this.version = version;
     }
 
@@ -350,7 +352,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     @javax.persistence.Embedded
     @org.hibernate.annotations.Target(Details.class)
     public ome.model.internal.Details getDetails() {
-        preGetter( DETAILS );
+        $errorIfUnloaded
         return this.details;
     }
 
@@ -359,7 +361,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     * methods to set the {@link Details} instance instead.
     */
     protected void setDetails(ome.model.internal.Details details) {
-        preSetter( DETAILS, details );
+        $errorIfUnloaded
         this.details = (Details) details;
     }
 
@@ -414,7 +416,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     })
 #end
     protected ${prop.fieldType} get${prop.nameCapped}() {
-        preGetter( ${prop.nameUpper} );
+        $errorIfUnloaded
         return this.${prop.name};
     }
 
@@ -422,7 +424,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * setter for ${prop.name} should be avoided. Does not fulfill normal semantics.
      */
     protected void set${prop.nameCapped}(${prop.fieldType} ${prop.name}) {
-        preSetter( ${prop.nameUpper}, ${prop.name} );
+        $errorIfUnloaded
         this.${prop.name} = ${prop.name};
     }
 ##
@@ -444,7 +446,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * returns the size of ${prop.name}. If less than zero, the Set was null.
      */
     public int sizeOf${prop.nameCapped}() {
-        preGetter( ${prop.nameUpper} );
+        $errorIfUnloaded
         return this.${prop.name} == null ? -1 : this.${prop.name}.size();
     }
 
@@ -455,7 +457,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * see of {@link #sizeOf${prop.nameCapped}()} is less than zero.
      */
     public java.util.Iterator<${prop.type}> iterate${prop.nameCapped}() {
-        preGetter( ${prop.nameUpper} );
+        $errorIfUnloaded
         if ( get${prop.nameCapped}() == null ) {
             return new ome.util.EmptyIterator<${prop.type}>();
         }
@@ -466,7 +468,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * Returns an unmodifiable collection-view 
      */
     public java.util.Collection<${prop.type}> unmodifiable${prop.nameCapped}() {
-        preGetter( ${prop.nameUpper} );
+        $errorIfUnloaded
         if ( get${prop.nameCapped}() == null ) {
             return java.util.Collections.emptyList();
         }
@@ -483,7 +485,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     @SuppressWarnings("unchecked")
     public <E> java.util.List<E> collect${prop.nameCapped}(ome.util.CBlock<E> block) {
 
-        preGetter( ${prop.nameUpper} );
+        $errorIfUnloaded
 
         java.util.List<E> result = new java.util.ArrayList<E>();
         java.util.Iterator<${prop.type}> it = iterate${prop.nameCapped}();
@@ -503,7 +505,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * call on ${prop.type} as well.
      */
     public void add${prop.shortType}(${prop.type} target) {
-        preSetter( ${prop.nameUpper}, target );
+        $errorIfUnloaded
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
         }
@@ -523,7 +525,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * use like add${prop.shortType}.
      */
     public void add${prop.shortType}Set(java.util.Collection<${prop.type}> targets) {
-        preSetter( ${prop.nameUpper}, targets );
+        $errorIfUnloaded
         if (get${prop.nameCapped}() == null) {
            throwNullCollectionException("${prop.nameCapped}");
         }
@@ -547,7 +549,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * removes a single element from this set and makes the inverse call on ${prop.type}
      */
     public void remove${prop.shortType}(${prop.type} target) {
-        preSetter( ${prop.nameUpper}, target );
+        $errorIfUnloaded
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
         }
@@ -565,7 +567,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * use like remove${prop.shortType}
      */
     public void remove${prop.shortType}Set(java.util.Collection<${prop.type}> targets ) {
-        preSetter( ${prop.nameUpper}, targets );
+        $errorIfUnloaded
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
         }
@@ -592,7 +594,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * clears the set.
      */
     public void clear${prop.nameCapped}() {
-        preSetter( ${prop.nameUpper}, null );
+        $errorIfUnloaded
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
         }
@@ -616,7 +618,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      */
     public ${prop.type} get${prop.shortType}(int index)
     throws IndexOutOfBoundsException {
-        preGetter( ${prop.nameUpper} );
+        $errorIfUnloaded
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
         }
@@ -630,7 +632,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      */
     public void set${prop.shortType}(int index, ${prop.type} element) 
     throws IndexOutOfBoundsException {
-        preSetter( ${prop.nameUpper}, index );
+        $errorIfUnloaded
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
         }
@@ -647,7 +649,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     @javax.persistence.Transient
     public ${prop.type} getPrimary${prop.shortType}()
     throws IndexOutOfBoundsException {
-        preGetter( ${prop.nameUpper} );
+        $errorIfUnloaded
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
         }
@@ -665,7 +667,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      */
     public ${prop.type} setPrimary${prop.shortType}(${prop.type} element)
     throws IndexOutOfBoundsException {
-        preGetter( ${prop.nameUpper} );
+        $errorIfUnloaded
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
         }
@@ -699,7 +701,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * creating a new ${LinkType} and calling link${Element} on the ${ElementType}.
      */
     public ${LinkType} link${Element} (${ElementType} addition) {
-        preSetter( ${prop.nameUpper}, addition );
+        $errorIfUnloaded
 
         // Setup link
         ${LinkType} link = new ${LinkType}();
@@ -715,7 +717,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * or not add${prop.shortType} will be called on the addition <b>if it is loaded</b>
      */
     public void add${Link} (${LinkType} link, boolean bothSides) {
-        preSetter( ${prop.nameUpper}, link );
+        $errorIfUnloaded
         if ( get${prop.nameCapped}() == null ) {
             throwNullCollectionException("${prop.nameCapped}");
         }
@@ -735,7 +737,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * Use {@link #linked${Element}List()} instead.
      */
      public java.util.Iterator<${ElementType}> linked${Element}Iterator() {
-        preGetter( ${prop.nameUpper} );
+        $errorIfUnloaded
         if ( get${prop.nameCapped}() == null ) {
             return new ome.util.EmptyIterator<${ElementType}>();
         }
@@ -766,7 +768,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * find all ${LinkType} which have the argument as their ${other}.
      */
     public java.util.Set<${LinkType}> find${Link}( ${ElementType} target ) {
-        preGetter( ${prop.nameUpper} );
+        $errorIfUnloaded
 
         final java.util.Iterator<${LinkType}> it = iterate${prop.nameCapped}();
         final java.util.Set<${LinkType}> result = new java.util.HashSet<${LinkType}>();
@@ -786,7 +788,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * {@link ConcurrentModificationExceptions}
      */
     public java.util.List<${ElementType}> linked${Element}List() {
-        preGetter( ${prop.nameUpper} );
+        $errorIfUnloaded
 
         java.util.Iterator<${ElementType}> it = linked${Element}Iterator();
         java.util.List<${ElementType}> list = new java.util.ArrayList<${ElementType}>();
@@ -804,7 +806,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      */
     @SuppressWarnings("unchecked")
     public <E> java.util.List<E> eachLinked${Element}(ome.util.CBlock<E> block) {
-        preGetter( ${prop.nameUpper} );
+        $errorIfUnloaded
 
         java.util.List<E> result = new java.util.ArrayList<E>();
         java.util.Iterator<${ElementType}> it = linked${Element}Iterator();
@@ -823,7 +825,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * unlinks all ${ElementType} instances from this instance.
      */
     public void unlink${Element} (${ElementType} removal) {
-        preSetter( ${prop.nameUpper}, removal );
+        $errorIfUnloaded
 
         java.util.Set<${LinkType}> toRemove = find${Link}( removal );
         java.util.Iterator<${LinkType}> it = toRemove.iterator();
@@ -837,7 +839,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * or not the removal will call unlink${type.shortname} again <b>if loaded</b>.
      */
     public void remove${Link} (${LinkType} link, boolean bothSides) {
-        preSetter( ${prop.nameUpper}, link );
+        $errorIfUnloaded
 
         if ( get${prop.nameCapped}() == null ) {
             throwNullCollectionException("${prop.nameCapped}");
@@ -856,7 +858,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * clears the set.
      */
     public void clear${Element}Links() {
-        preSetter( ${prop.nameUpper}, null );
+        $errorIfUnloaded
 
         java.util.List<${LinkType}> list = new java.util.ArrayList<${LinkType}>( get${prop.nameCapped}() );
         for (${LinkType} link : list) {
@@ -905,12 +907,12 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     @org.hibernate.annotations.Target(${prop.type}.class)
 #end
     public ${prop.fieldType} get${prop.nameCapped}() {
-        preGetter( ${prop.nameUpper} );
+        $errorIfUnloaded
         return this.${prop.name};
     }
 
     public void set${prop.nameCapped}(${prop.fieldType} ${prop.name}) {
-        preSetter( ${prop.nameUpper}, ${prop.name} );
+        $errorIfUnloaded
         this.${prop.name} = ${prop.name};
     }
 #else## REGULAR PROPERTY #################################################TYPE
@@ -941,12 +943,12 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
 #end
     @javax.persistence.Column(columnDefinition="${prop.def}", nullable=${prop.nullable}, unique=${prop.unique}, name="${columnName}", updatable=${prop.update})
     public ${prop.fieldType} get${prop.nameCapped}() {
-        preGetter( ${prop.nameUpper} );
+        $errorIfUnloaded
         return this.${prop.name};
     }
 
     public void set${prop.nameCapped}(${prop.fieldType} ${prop.name}) {
-        preSetter( ${prop.nameUpper}, ${prop.name});
+        $errorIfUnloaded
         this.${prop.name} = (${prop.type}) ${prop.name};
     }
 #end######################################################################TYPE
@@ -1140,9 +1142,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     }
 
     protected void errorIfUnloaded() {
-        if ( ! _loaded ) {
-            throw new IllegalStateException("Object unloaded:"+this);
-        }
+        throw new IllegalStateException("Object unloaded:"+this);
     }
 
 #end
@@ -1185,13 +1185,6 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
         s.defaultReadObject();
     }
 *#
-    protected void preGetter( String field ) {
-        errorIfUnloaded();
-    }
-
-    protected void preSetter( String field, Object value ) {
-        errorIfUnloaded();
-    }
 
     protected void throwNullCollectionException(String propertyName) {
         throw new ApiUsageException(

@@ -45,18 +45,20 @@ import org.springframework.aop.framework.ProxyFactory;
 public class InterceptingServiceFactory extends ServiceFactory {
 
     final ServiceFactory sf;
-    final MethodInterceptor i;
+    final MethodInterceptor[] interceptors;
 
-    public InterceptingServiceFactory(ServiceFactory sf, MethodInterceptor i) {
+    public InterceptingServiceFactory(ServiceFactory sf, MethodInterceptor... interceptors) {
         this.sf = sf;
-        this.i = i;
+        this.interceptors = interceptors;
     }
 
     @SuppressWarnings("unchecked")
     <T extends ServiceInterface> T wrap(T service) {
         ProxyFactory factory = new ProxyFactory();
         factory.setInterfaces(service.getClass().getInterfaces());
-        factory.addAdvice(i);
+        for (MethodInterceptor i : interceptors) {
+            factory.addAdvice(i);
+        }
         factory.setTarget(service);
         return (T) factory.getProxy();
     }

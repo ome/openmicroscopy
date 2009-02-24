@@ -1,9 +1,11 @@
 package ome.server.itests.scalability;
 
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
@@ -12,9 +14,12 @@ import ome.model.core.Image;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.testing.Report;
 import ome.util.builders.PojoOptions;
 
 import org.testng.annotations.Test;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 @Test(groups = { "integration" })
 public class PaginationTest extends AbstractManagedContextTest {
@@ -23,6 +28,26 @@ public class PaginationTest extends AbstractManagedContextTest {
     static int BIG_SIZE = 250;// 00;
 
     @Test
+    public void testLotsOfSaves() {
+        long[] ids = null;
+        IObject[] objs = null;
+        
+        for (int j = 0; j < 10; j++) {
+            Image[] images = new Image[5000];
+            for (int i = 0; i < images.length; i++) {
+                images[i] = new Image();
+                images[i].setAcquisitionDate(new Timestamp(0));
+                images[i].setName("__bigtest__");
+            }
+            //ids = iUpdate.saveAndReturnIds(images);
+            objs = iUpdate.saveAndReturnArray(images);
+        }
+        System.out.println(new Report().toString());
+        //System.out.println(Arrays.toString(ids));
+        System.out.println(Arrays.toString(objs));
+    }
+
+    @Test(enabled = false)
     public void testGetImagesFromDatasetPagination() {
         PojoOptions po = new PojoOptions().leaves();// .exp(exp);
         Dataset d = loadOrCreateDataset(BIG_BATCH, BIG_SIZE);
@@ -30,7 +55,7 @@ public class PaginationTest extends AbstractManagedContextTest {
         runGetImagesTest(Dataset.class, datasetIds, po, BIG_SIZE, 5);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testGetImagesFromProjectPagination() {
         PojoOptions po = new PojoOptions().leaves();// .exp(exp);
         Project p = loadOrCreateProject(BIG_BATCH, BIG_SIZE);
@@ -83,7 +108,8 @@ public class PaginationTest extends AbstractManagedContextTest {
         Dataset d = (Dataset) iQuery.findByQuery("select d from Dataset d "
                 + "join fetch d.imageLinks " + "where size(d.imageLinks) = "
                 + size, new Parameters(new Filter().page(0, 1)));
-        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System
+                .currentTimeMillis());
         if (d == null) {
             d = new Dataset("big dataset");
             d = iUpdate.saveAndReturnObject(d);
@@ -91,8 +117,8 @@ public class PaginationTest extends AbstractManagedContextTest {
                 DatasetImageLink[] links = new DatasetImageLink[batch];
                 for (int j = 0; j < batch; j++) {
                     links[j] = new DatasetImageLink();
-                    links[j].link(d.proxy(), new Image(testTimestamp, "image in big dataset "
-                            + i * i));
+                    links[j].link(d.proxy(), new Image(testTimestamp,
+                            "image in big dataset " + i * i));
                 }
                 iUpdate.saveArray(links);
             }
@@ -108,7 +134,8 @@ public class PaginationTest extends AbstractManagedContextTest {
                         + "where size(p.datasetLinks) = " + batch
                         + " and size(d.imageLinks) = " + size, new Parameters(
                         new Filter().page(0, 1)));
-        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System
+                .currentTimeMillis());
         if (p == null) {
             p = new Project("big project");
             p = iUpdate.saveAndReturnObject(p);
@@ -120,8 +147,8 @@ public class PaginationTest extends AbstractManagedContextTest {
                 DatasetImageLink[] links = new DatasetImageLink[batch];
                 for (int j = 0; j < batch; j++) {
                     links[j] = new DatasetImageLink();
-                    links[j].link(d.proxy(), new Image(testTimestamp, "image in big project "
-                            + i * i));
+                    links[j].link(d.proxy(), new Image(testTimestamp,
+                            "image in big project " + i * i));
                 }
                 iUpdate.saveArray(links);
             }

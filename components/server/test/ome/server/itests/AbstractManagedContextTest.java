@@ -35,6 +35,7 @@ import ome.system.ServiceFactory;
 import ome.testing.InterceptingServiceFactory;
 import ome.testing.OMEData;
 
+import org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.ldap.core.LdapTemplate;
@@ -130,9 +131,10 @@ public class AbstractManagedContextTest extends
         executor = (Executor) this.applicationContext.getBean("executor");
 
         // Service setup
+        JamonPerformanceMonitorInterceptor jamon = new JamonPerformanceMonitorInterceptor();
         loginAop = new LoginInterceptor(holder);
         factory = new ServiceFactory((OmeroContext) applicationContext);
-        factory = new InterceptingServiceFactory(factory, loginAop);
+        factory = new InterceptingServiceFactory(factory, loginAop, jamon);
         iQuery = (LocalQuery) factory.getQueryService();
         iUpdate = (LocalUpdate) factory.getUpdateService();
         iAdmin = (LocalAdmin) factory.getAdminService();
