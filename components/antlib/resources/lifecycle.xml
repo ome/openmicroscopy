@@ -242,7 +242,7 @@
 			pathsep=" " dirsep="/">
 			<flattenmapper/>
 		</pathconvert>
-                <property name="mf.classpath.and.jars" value="${mf.classpath} services.jar extensions.jar"/>
+                <property name="mf.classpath.and.jars" value="${mf.classpath} services.jar extensions.jar ../etc"/>
 		<jar destfile="${target.dir}/${ivy.module}.jar">
 			<manifest>
 				<attribute name="Class-Path" value="${mf.classpath.and.jars}"/>
@@ -278,7 +278,7 @@
 						<pathelement location="${src.dir}"/>
 						<pathelement location="${src.dest}"/>
 					</path>
-				</sourcePath> 
+				</sourcePath>
 			</find-bugs>
 			</sequential>
 		</macrodef>
@@ -330,39 +330,14 @@
 		<eclipse.refreshLocal resource="missing" depth="infinite"/>
 	</target>
 
-    <!-- MACROS -->
-
-    <macrodef name="standalone">
-        <attribute name="conf"/>
-        <attribute name="dir" default="${basedir}/target/standalone/"/>
-        <attribute name="pattern" default="[module].[ext]"/>
-        <attribute name="jar" default="@{dir}/${ivy.module}.jar"/>
-        <sequential>
-            <ivy:retrieve conf="@{conf}" pattern="@{dir}/@{pattern}" log="quiet"/>
-            <copy file="${target.dir}/${ivy.module}.jar" tofile="@{jar}"/>
-            <jar update="true" destfile="@{jar}">
-		<manifest>
-			<!-- This is a copy of the classpath used under package but includes ../etc/ to allow
-                        reading from dist/etc on startup -->
-			<attribute name="Class-Path" value="../etc/ ${mf.classpath.and.jars}"/>
-		</manifest>
-                <fileset dir="${resrc.dir}">
-                    <include name="**/config.*"/>
-                    <include name="**/*.config"/>
-                    <include name="**/*.xml"/>
-                </fileset>
-            </jar>
-        </sequential>
-  </macrodef>
-
-    <macrodef name="copyResource">
-        <attribute name="file"/>
-        <sequential>
-           <basename property="props.file.prop" file="@{file}"/>
-           <copy file="@{file}" todir="${resrc.dest}" failonerror="true" />
-           <copy file="@{file}" todir="${classes.dir}" failonerror="true" />
-        </sequential>
-    </macrodef>
+	<macrodef name="copyResource">
+		<attribute name="file"/>
+		<sequential>
+		<basename property="props.file.prop" file="@{file}"/>
+		<copy file="@{file}" todir="${resrc.dest}" failonerror="true" />
+		<copy file="@{file}" todir="${classes.dir}" failonerror="true" />
+		</sequential>
+	</macrodef>
 
 </project>
 

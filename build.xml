@@ -383,9 +383,6 @@ OmeroCpp (the C++ bindings for OMERO) use "build-all" or "build-cpp".
                 </fileset>
             </copy>
 
-            <mkdir dir="${dist.dir}/client"/>
-            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve conf="client" pattern="${dist.dir}/client/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
             <mkdir dir="${dist.dir}/lib/repository"/>
             <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
             <ivy:retrieve conf="server" pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>

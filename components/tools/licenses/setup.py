@@ -2,9 +2,10 @@
 from ez_setup import use_setuptools
 use_setuptools()
 from setuptools import setup, find_packages
+from omero_version import omero_version as ov
 
 setup(name="licenses",
-      version="0.1dev",
+      version=ov,
       description="Python bindings for OMERO licensing.",
       long_description="""\
 Python bindings for OMERO licensing.

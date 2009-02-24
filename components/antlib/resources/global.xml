@@ -174,7 +174,7 @@
           services.jar.  Also, make all application jars available to the
           services.jar via the MANIFEST file *AND* add one additional
           (possibly non-extant) extensions.jar which can be created by 3rd
-          parties and added to the EAR file (top-level) for runtime class
+          parties and added to the lib dir (top-level) for runtime class
           lookups.
 
           services.jar is placed in the specified directory. Optionally, a

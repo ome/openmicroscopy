@@ -16,23 +16,20 @@
 	</target>
 
 	<target name="buildlist" unless="deps.build.path">
-		<installIvy id="ivy.instance"/>
-		<ivy:buildlist reference="deps.build.path">
+		<installIvy/>
+		<ivy:buildlist settingsRef="ivy.${ant.project.name}" reference="deps.build.path">
 			<fileset dir="${tools.comp}" includes="*/build.xml"/>
 		</ivy:buildlist>
 	</target>
 
 	<target name="build" depends="buildlist" description="Calls 'tools-build' on all components to fill target">
-		<ivy:buildlist reference="deps.build.path">
-			<fileset dir="${tools.comp}" includes="*/build.xml"/>
-		</ivy:buildlist>
 		<mkdir dir="${tools.classes}"/>
 		<iterate target="tools-dist"/>
 	</target>
 
 	<target name="dist" description="Copies target onto an existing dist">
 		<copy todir="../../dist">
-			<fileset dir="target" includes="*.war,omeroweb/**,var/**/*,bin/**/*,etc/**/*,lib/**/*,client/**/*,include/**/*" followsymlinks="false">
+			<fileset dir="target" includes="*.war,var/**/*,bin/**/*,etc/**/*,lib/**/*,include/**/*" followsymlinks="false">
 				<depend targetdir="../../dist"/>
 			</fileset>
 		</copy>
@@ -43,7 +40,7 @@
 			side code for use with OMERO.
 		</echo>
 		<mkdir dir="${dist.dir}/bin/"/>
-		<jar update="true" destfile="${dist.dir}/lib/services.jar" basedir="${tools.classes}" includes="**/*"/>
+		<jar update="true" destfile="${dist.dir}/lib/repository/services.jar" basedir="${tools.classes}" includes="**/*"/>
                 <chmod perm="a+x">
                         <fileset dir="${dist.dir}/bin" includes="omero"/>
                 </chmod>

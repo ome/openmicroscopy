@@ -84,9 +84,6 @@
     <target name="tools-dist" depends="tools-build,python-install" description="Copied artifacts to tools/target">
         <mkdir dir="${tools.classes}"/>
         <unjar src="${target.dir}/${ivy.module}.jar" dest="${tools.classes}"/>
-        <ivy:publish artifactspattern="${target.dir}/[module].[ext]"
-            resolver="tools-resolver" pubrevision="${omero.version}"
-            publishivy="false" overwrite="true"/>
         <copy todir="../target/include">
             <fileset dir="${resrc.dir}" includes="**/*.ice,**/*.h"/>
             <fileset dir="generated" includes="**/*.h"/>

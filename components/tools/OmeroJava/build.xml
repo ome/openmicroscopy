@@ -90,12 +90,7 @@
 
     <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target"/>
 
-    <target name="tools-dist" depends="tools-build" description="Copied artifacts to tools/target">
-        <delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
-        <ivy:publish artifactspattern="${target.dir}/[module].[ext]"
-            resolver="tools-resolver" pubrevision="${omero.version}"
-            publishivy="false" overwrite="true"/>
-    </target>
+    <target name="tools-dist" depends="tools-build" description="Copy artifacts to tools/target"/>
 
     <target name="tools-clean" depends="clean">
 	<delete dir="${basedir}/target"/>

@@ -8,6 +8,8 @@
 
     <defineVariables/>
 
+    <echo file="${basedir}/omero_version.py">omero_version="${omero.version}"</echo>
+
     <target name="test-compile" description="Dummy target for python since no compile needed"/>
 
     <macrodef name="setup_py">
@@ -55,7 +57,7 @@
         <copy todir="../target">
             <fileset dir="${basedir}/build" includes="**/*" excludes="bdist*"/>
         </copy>
-        <copy todir="../target/client">
+        <copy todir="../target/lib">
             <fileset dir="${basedir}/dist" includes="**/*"/>
         </copy>
     </target>
@@ -67,6 +69,7 @@
         <delete dir="${basedir}/build"/>
         <delete dir="${basedir}/dist"/>
         <delete file="${basedir}/ez_setup.pyc"/>
+        <delete file="${basedir}/omero_version.py"/>
         <delete>
             <fileset dir="${basedir}" includes="setuptools*egg"/>
         </delete>

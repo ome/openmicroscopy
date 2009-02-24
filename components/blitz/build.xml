@@ -45,11 +45,6 @@
                 <delete file="${file.fake.sessionmanager}"/><!-- Just in case -->
 	</target>
 
-	<target name="install" depends="lifecycle.install">
-		<standalone conf="server"/>
-		<useServices dir="${target.dir}/standalone"/>
-	</target>
-
     <!-- = = = = = = = = = = = = = = = = =
           generate model
          = = = = = = = = = = = = = = = = = -->
@@ -213,9 +208,6 @@
 	    <fileset dir="${resrc.dest}" includes="**/*.h"/>
 	    <fileset dir="${resrc.dir}"  includes="**/*.ice"/>
 	    <fileset dir="${resrc.dest}" includes="**/*.ice,**/*.h"/>
-	  </copy>
-	  <copy todir="${dist.dir}/blitz">
-	    <fileset dir="${target.dir}/standalone" includes="**/*"/>
 	  </copy>
 	</target>
 

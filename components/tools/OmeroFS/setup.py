@@ -8,9 +8,10 @@
 from ez_setup import use_setuptools
 use_setuptools()
 from setuptools import setup
+from omero_version import omero_version as ov
 
 setup(name="OmeroFS",
-      version="3.0-Beta3",
+      version=ov,
       description="OMERO.fs server for watching directories",
       long_description="""\
 OMERO.fs server for watching directories"

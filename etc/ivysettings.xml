@@ -18,12 +18,12 @@
   <caches defaultCacheDir="${ivy.settings.dir}/../lib/cache"/>
   <resolvers>
 
-    <!-- Main resolver which has as its first resolver the dist/lib location
-    where all our jars will be stored.-->
+    <!-- Main resolver which has as its first resolver the location
+    where all our jars will be published -->
     <chain name="omero-resolver" returnFirst="true">
-      <filesystem name="dist">
-        <artifact pattern="${ivy.settings.dir}/../dist/lib/[module]-[revision].[type]" />
-        <ivy pattern="${ivy.settings.dir}/../dist/lib/[module]-[revision].ivy"/>
+      <filesystem name="main">
+        <artifact pattern="${ivy.settings.dir}/../target/repository/[module]-[revision].[type]" />
+        <ivy pattern="${ivy.settings.dir}/../target/repository/[module]-[revision].ivy"/>
       </filesystem>
       <filesystem name="nested_repo">
         <artifact pattern="${ivy.settings.dir}/../lib/repository/[organization]/[module]/[revision]/[artifact]-[revision].[type]" />
@@ -49,8 +49,8 @@
    <!-- Resolver for all the test jars which should not be shipped -->
     <chain name="test-resolver" returnFirst="true">
       <filesystem name="test">
-        <artifact pattern="${ivy.settings.dir}/../test/repository/omero-test/[module]-[revision].[type]" />
-        <ivy pattern="${ivy.settings.dir}/../test/repository/omero-test/[module]-[revision].ivy"/>
+        <artifact pattern="${ivy.settings.dir}/../test/repository/test/[module]-[revision].[type]" />
+        <ivy pattern="${ivy.settings.dir}/../test/repository/test/[module]-[revision].ivy"/>
       </filesystem>
       <resolver ref="omero-resolver"/>
     </chain>

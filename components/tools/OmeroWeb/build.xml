@@ -47,7 +47,7 @@
     <target name="tools-build" depends="tools-init"/>
 
     <target name="tools-dist" depends="tools-build" description="Copies files into tools/target">
-        <copy todir="${basedir}/../target/omeroweb">
+        <copy todir="${basedir}/../target/lib/omeroweb">
             <fileset dir="omeroweb" excludes="**/*.pyc,logs,db.sqlite3"/>
         </copy>
     </target>
