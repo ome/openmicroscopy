@@ -108,7 +108,6 @@ OmeroCpp (the C++ bindings for OMERO) use "build-all" or "build-cpp".
     <target name="build" description="Build all components except for C++" depends="init">
         <property name="env.NOMAKE" value="1"/>
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
-        <prepareDist/>
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroFs.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
@@ -116,23 +115,24 @@ OmeroCpp (the C++ bindings for OMERO) use "build-all" or "build-cpp".
         <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
         <iterate buildpathref="licenses.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
+        <prepareDist/>
     </target>
 
     <!-- includes C++ -->
     <target name="build-all" description="Build everything and copy to dist" depends="init">
         <iterate buildpathref="all.buildpath" target="dist"/>
-        <prepareDist/>
         <iterate buildpathref="tools.buildpath" target="build"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
+        <prepareDist/>
     </target>
 
     <target name="build-blitz" description="Build blitz and copy to dist/blitz" depends="init">
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
-        <prepareDist/>
         <!-- Must also build python since it provides our command lines -->
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroFs.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
+        <prepareDist/>
     </target>
 
     <target name="build-importer" description="Build importer and copy to dist/lib and dist/bin" depends="init">
@@ -220,11 +220,11 @@ OmeroCpp (the C++ bindings for OMERO) use "build-all" or "build-cpp".
     </target>
 
     <target name="prepare-eclipse" description="Symlink (or copy) all lib/repository jars needed by each component" depends="init">
-        <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
+        <ivy:resolve file="ivy.xml" type="jar" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
         <ivy:retrieve pattern="${omero.home}/target/libs/[artifact].[ext]" log="quiet" symlink="true" settingsRef="ivy.toplevel"/>
-        <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
+        <ivy:resolve file="ivy.xml" type="jar" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
         <ivy:retrieve pattern="${omero.home}/target/libs/[artifact].[ext]" log="quiet" symlink="true" settingsRef="ivy.toplevel"/>
-        <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="testing" settingsRef="ivy.toplevel" log="quiet"/>
+        <ivy:resolve file="ivy.xml" type="jar" conf="testing" settingsRef="ivy.toplevel" log="quiet"/>
         <ivy:retrieve pattern="${omero.home}/target/libs/[artifact].[ext]" log="quiet" symlink="true" settingsRef="ivy.toplevel"/>
         <iterate buildpathref="all.buildpath" target="prepare"/>
         <iterate buildpathref="OmeroJava.buildpath" target="prepare"/>
@@ -369,7 +369,6 @@ OmeroCpp (the C++ bindings for OMERO) use "build-all" or "build-cpp".
     -->
     <macrodef name="prepareDist">
         <sequential>
-            <mkdir dir="${dist.dir}/bin"/>
             <copy todir="${dist.dir}/etc" overwrite="true">
                 <fileset dir="${omero.home}/etc">
                     <exclude name="local.properties"/>
@@ -377,26 +376,17 @@ OmeroCpp (the C++ bindings for OMERO) use "build-all" or "build-cpp".
             </copy>
             <copy todir="${dist.dir}">
                 <fileset dir="${omero.home}">
-                    <include name="omero.class"/>
-                    <include name="components/antlib/**"/>
                     <include name="sql/**"/>
                 </fileset>
             </copy>
 
-            <mkdir dir="${dist.dir}/lib/repository"/>
-            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve conf="server" pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
-            <ivy:resolve organisation="apache" module="ant" revision="${versions.ant}" inline="true" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
-            <copy
-                file="${import.dir}/omero.xml"
-                tofile="${dist.dir}/build.xml"
-                overwrite="true" />
-            <copy
-                file="${import.dir}/omero.ivy"
-                tofile="${dist.dir}/omero.ivy"
-                overwrite="true" />
-        </sequential>
+            <mkdir dir="${dist.dir}/lib/client"/>
+            <mkdir dir="${dist.dir}/lib/serer"/>
+            <ivy:resolve file="ivy.xml" type="jar" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
+            <ivy:retrieve conf="runtime" pattern="${dist.dir}/lib/server/[module].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
+            <ivy:resolve file="ivy.xml" type="jar" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
+            <ivy:retrieve conf="runtime" pattern="${dist.dir}/lib/client/[module].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
+       </sequential>
     </macrodef>
 
 

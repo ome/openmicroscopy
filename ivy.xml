@@ -2,25 +2,17 @@
   <info organisation="omero" module="main" revision="${omero.version}" status="integration"/>
   <configurations>
     <conf name="build"/>
-    <conf name="runtime"/>
+    <conf name="client"/>
+    <conf name="server"/>
     <conf name="test"/>
   </configurations>
   <publications>
-    <artifact name="main" type="zip" conf="runtime"/>
+    <artifact name="main" type="zip"/>
   </publications>
   <dependencies>
-    <!-- Internal -->
-    <dependency name="common" rev="${omero.version}" changing="true"/>
-    <dependency name="importer" rev="${omero.version}" changing="true"/>
-    <dependency name="romio" rev="${omero.version}" changing="true"/>
-    <dependency name="rendering" rev="${omero.version}" changing="true"/>
-    <dependency name="blitz" rev="${omero.version}" changing="true" conf="*->server"/>
-    <dependency name="server" rev="${omero.version}" changing="true" conf="*->server"/>
-    <dependency name="omero_client" rev="${omero.version}" changing="true" conf="*->client"/>
-    <dependency name="OmeroImporter" rev="${omero.version}" changing="true" conf="*->client"/>
-    <!-- Ant dependencies for the antlib/resources/omero.ivy build -->
-    <dependency org="apache" name="ant-launcher" rev="1.6.5"/>
-    <dependency org="apache" name="ant-nodeps" rev="1.6.5"/>
-    <dependency org="apache" name="ant" rev="1.6.5"/>
+    <dependency name="blitz" rev="${omero.version}" changing="true" conf="server->server"/>
+    <dependency name="OmeroImporter" rev="${omero.version}" changing="true" conf="client->client"/>
+    <dependency name="OmeroFS" rev="${omero.version}" changing="true" conf="client->client"/>
+    <dependency name="OmeroPy" rev="${omero.version}" changing="true" conf="client->client"/>
   </dependencies>
 </ivy-module>

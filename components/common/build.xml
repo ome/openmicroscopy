@@ -10,7 +10,8 @@
     <property name="main.class" value="ome.util.tasks.Run"/>
 
     <target name="dist" depends="lifecycle.dist">
-        <copy todir="${dist.dir}">
+        <mkdir dir="${dist.dir}/lib"/>
+        <copy todir="${dist.dir}/lib">
             <fileset dir="${classes.dir}" includes="prefs.class"/>
         </copy>
     </target>

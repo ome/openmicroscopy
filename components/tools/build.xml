@@ -28,23 +28,22 @@
 	</target>
 
 	<target name="dist" description="Copies target onto an existing dist">
-		<copy todir="../../dist">
-			<fileset dir="target" includes="*.war,var/**/*,bin/**/*,etc/**/*,lib/**/*,include/**/*" followsymlinks="false">
-				<depend targetdir="../../dist"/>
-			</fileset>
-		</copy>
 		<mkdir dir="${tools.classes}/META-INF"/>
 		<echo file="${tools.classes}/META-INF/README.txt">
 			This jar was created by the tools/build.xml script's dist target
 			and contains non-core classes, including both server and client
 			side code for use with OMERO.
 		</echo>
+		<jar update="true" destfile="target/lib/server/services.jar" basedir="${tools.classes}" includes="**/*"/>
 		<mkdir dir="${dist.dir}/bin/"/>
-		<jar update="true" destfile="${dist.dir}/lib/repository/services.jar" basedir="${tools.classes}" includes="**/*"/>
+		<copy todir="../../dist">
+			<fileset dir="target" includes="*.war,var/**/*,bin/**/*,etc/**/*,lib/**/*,include/**/*" followsymlinks="false">
+				<depend targetdir="../../dist"/>
+			</fileset>
+		</copy>
                 <chmod perm="a+x">
                         <fileset dir="${dist.dir}/bin" includes="omero"/>
                 </chmod>
-
 	</target>
 
 	<target name="clean" depends="buildlist" description="Calls 'tools-clean' on all components.">
