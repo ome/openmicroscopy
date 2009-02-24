@@ -40,12 +40,15 @@ def build_hudson():
     java_omero("release-hudson")
 
 
-def java_omero(*args):
+def java_omero(args):
     command = [ find_java() ]
     command.extend( calculate_memory_args() )
     command.extend(["omero"])
     command.extend(choose_omero_version())
-    command.extend(*args)
+    if isinstance(args,str):
+    	command.append(args)
+    else:
+    	command.extend(args)
     execute(command)
     
 def find_java():
