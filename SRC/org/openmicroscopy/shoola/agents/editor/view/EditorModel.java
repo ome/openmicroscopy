@@ -30,6 +30,8 @@ import javax.swing.tree.TreeModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.FileAnnotation;
+
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.EditorLoader;
 import org.openmicroscopy.shoola.agents.editor.FileLoader;
@@ -79,6 +81,9 @@ class EditorModel
 	
 	/** The id of the file to edit. Will not be set if editing local file */
 	private long 				fileID;
+	
+	/**  A string that defines the type of file we're editing. eg protocol */
+	private String				nameSpace;
 	
 	/** The size of the file to edit. */
 	//private long 				fileSize;
@@ -221,6 +226,14 @@ class EditorModel
 	String getFileName() { return fileName; }
 	
 	/**
+	 * Returns the type of file we are editing.
+	 *  E.g. openmicroscopy.org/omero/editor/protocol or experiment. 
+	 *  
+	 * @return See above. 
+	 */
+	String getNameSpace() { return nameSpace; }
+	
+	/**
 	 * Starts the asynchronous loading of the file to edit. 
 	 * and sets the state to {@link Editor#LOADING}.
 	 */
@@ -300,7 +313,6 @@ class EditorModel
 			fileToEdit = null;
 			state = Editor.NEW;
 			fileName = EditorFactory.BLANK_MODEL;
-			// browser.setTreeModel(null);
 			return false;
 		}
 		
@@ -417,11 +429,28 @@ class EditorModel
 			this.fileAnnotation = null;
 			fileID = 0;
 			fileName = null;
+			this.nameSpace = null;
 			return;
 		} 
 		this.fileID = data.getFileID();
 		this.fileName = data.getFileName();
-		System.out.println("EditorModel setFileAnnotation() getFileID() = " + fileID + ", size = " + data.getFileSize());
+	}
+	
+	/**
+	 * This should be called when a file is first opened, so that it is known
+	 * whether the file is originally a "Protocol" or "Experiment" file. 
+	 * Sets the {@link #nameSpace} according to the presence of experiment info
+	 * as determined by {@link Browser#isModelExperiment()}.
+	 * Use this in preference to {@link FileAnnotationData#getNameSpace()}
+	 * since namespace is not updated on server, and won't work for local files.
+	 */
+	void updateNameSpace()
+	{
+		if (browser.isModelExperiment()) {
+			nameSpace = FileAnnotationData.EDITOR_EXPERIMENT_NS;
+		} else {
+			nameSpace = FileAnnotationData.EDITOR_PROTOCOL_NS;
+		}
 	}
 	
 	/**

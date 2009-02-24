@@ -29,15 +29,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.JViewport;
@@ -56,11 +52,8 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.IconManager;
-import org.openmicroscopy.shoola.agents.editor.model.CPEimport;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.TreeIterator;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 
 /** 
  * This is the UI panel that displays the tree model in a "Text Document" 

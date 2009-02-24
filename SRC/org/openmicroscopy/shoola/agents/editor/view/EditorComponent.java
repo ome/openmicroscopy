@@ -218,6 +218,7 @@ class EditorComponent
 					"invoked in the LOADING or NEW states.");
 					
 		if (model.setFileToEdit(file)) {
+			model.updateNameSpace(); // based on whether file has experiment info
 			view.setTitle(model.getFileName());
 			view.displayFile();
 			model.getBrowser().setId(model.getOriginalFileId());
@@ -285,6 +286,18 @@ class EditorComponent
 	 */
 	public boolean saveCurrentFile()
 	{
+		String savedNamespace = model.getNameSpace();
+		if (FileAnnotationData.EDITOR_PROTOCOL_NS.equals(savedNamespace)
+				&& model.getBrowser().isModelExperiment()) {
+			
+			MessageBox msg = new MessageBox(view, "Save Experiment?", 
+			"Overwrite 'Protocol' with 'Experiment'?\n \n"+
+			"(Answer 'No' to 'Save As' a new file)");
+			
+			int option = msg.centerMsgBox();
+			if (option != MessageBox.YES_OPTION) return false;
+		}
+		
 		long fileID = model.getFileID();
 		// If no fileID, file is not saved on server. 
 		if (fileID <= 0) {
