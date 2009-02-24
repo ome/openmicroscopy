@@ -16,7 +16,7 @@
     FROM ${prop.shortType} GROUP BY ${prop.inverse}, owner_id ORDER BY ${prop.inverse};
 
 #end
-#if( $prop.foreignKey && $prop.ordered)
+#if( $prop.foreignKey && $prop.ordered && ! $prop.one2Many )
 #set( $tbl_name = $prop.actualType.table )
 #set( $col_name = $prop.name )
   CREATE OR REPLACE FUNCTION ${tbl_name}_${col_name}_index_move() RETURNS "trigger" AS '
