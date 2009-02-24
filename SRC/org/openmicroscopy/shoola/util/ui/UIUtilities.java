@@ -101,6 +101,11 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
  */
 public class UIUtilities
 {
+
+	/** A light grey colour for line borders etc. */
+	public static final Color 				LIGHT_GREY = 
+												new Color(200, 200, 200);
+	
 	/** The default width of an icon. */
 	public static final int					DEFAULT_ICON_WIDTH = 16;
 	
@@ -1453,8 +1458,5 @@ public class UIUtilities
 		return getTotalMemory()-getFreeMemory();
 	}
 
-	/**
-	 * A light grey colour for line borders etc. 
-	 */
-	public static final Color LIGHT_GREY = new Color(200,200,200);
+	
 }

@@ -95,22 +95,22 @@ class MeasurementResults
 	public final static int		INDEX = MeasurementViewerUI.RESULTS_INDEX;
 
 	/** The default size of the column in a table. */
-	private static final int				COLUMNWIDTH = 64;
+	private static final int	COLUMNWIDTH = 64;
 
 	/** ROI ID Column no for the wizard. */
-	private static final int				ROIID_COLUMN = 0;
+	private static final int	ROIID_COLUMN = 0;
 
 	/** Time point Column no for the wizard. */
-	private static final int				TIME_COLUMN = 1;
+	private static final int	TIME_COLUMN = 1;
 	
 	/** Z-Section Column no for the wizard. */
-	private static final int				Z_COLUMN = 2;
+	private static final int	Z_COLUMN = 2;
 	
 	/** The name of the panel. */
-	private static final String				NAME = "Results";
+	private static final String	NAME = "Results";
 	
 	/** Collection of column names. */
-	private ArrayList<KeyDescription>		columnNames;
+	private List<KeyDescription>			columnNames;
 	
 	/** Collection of column names. */
 	private List<AnnotationField>			fields;
@@ -592,7 +592,7 @@ class MeasurementResults
 		 * @param columnNames2	The collection of column's names.
 		 * 						Mustn't be <code>null</code>.
 		 */
-		MeasurementTableModel(ArrayList<KeyDescription> colNames, MeasurementUnits units)
+		MeasurementTableModel(List<KeyDescription> colNames, MeasurementUnits units)
 		{
 			if (colNames == null)
 				throw new IllegalArgumentException("No column's names " +

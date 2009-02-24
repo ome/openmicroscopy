@@ -198,6 +198,7 @@ public class LookupNames
     /** Field to access the e-mail address used to collect comments. */
     public static final String DEBUG_EMAIL = "/services/DEBUGGER/email";
     
+    /** Field to access the file keeping track of the various ROIs files. */
     public static final String	ROI_MAIN_FILE = "/roi/mainFileName";
     
     /** Field to access the <code>Server Available</code> information. */

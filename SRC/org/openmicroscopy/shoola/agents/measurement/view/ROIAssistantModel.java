@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
 import javax.swing.table.AbstractTableModel;
 
@@ -67,7 +68,7 @@ class ROIAssistantModel
 	private TreeMap<Coord3D, String> 	shapeMap;
 	
 	/** The name of the columns. */
-	private ArrayList<String> 			columnNames;
+	private List<String> 				columnNames;
 	
 	/**
 	 * Populates the shape Map of the model with all the ROIShapes of the 

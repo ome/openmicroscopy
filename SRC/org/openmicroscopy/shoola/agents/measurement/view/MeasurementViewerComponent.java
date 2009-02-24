@@ -204,8 +204,6 @@ class MeasurementViewerComponent
         		model.getDrawingView().setSize(d);
         		model.fireROILoading(null);
         		fireStateChange();
-            	//model.fireChannelMetadataLoading();
-                //fireStateChange();
                 break;
             case DISCARDED:
                 throw new IllegalStateException(
@@ -230,14 +228,6 @@ class MeasurementViewerComponent
 	public void discard()
 	{
 		if (model.getState() != DISCARDED) {
-			/*
-			EventBus bus = MeasurementAgent.getRegistry().getEventBus();
-			List<Long> ids = new ArrayList<Long>();
-			ids.add(model.getPixelsID());
-			bus.post(new FreeCacheEvent(ids, 
-					FreeCacheEvent.RAW_DATA));
-			model.discard();
-			*/
 			model.discard();
 			fireStateChange();
 		}
