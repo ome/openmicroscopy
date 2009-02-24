@@ -88,6 +88,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
+        self._initDir()
         props = self._properties()
         # Do a check to see if we've started before.
         self._regdata()
@@ -98,16 +99,22 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         if first != None and len(first) > 0:
             # Relative to cwd
             descrpt = path(first).abspath()
+            if not descrpt.exists():
+                self.ctx.dbg("No such file: %s -- Using as target" % descrpt)
+                other.insert(0, first)
+                descrpt = None
+        else:
+            descrpt = None
 
-        if descrpt == None or not descrpt.exists():
+        if descrpt == None:
             descrpt = self.dir / "etc" / "grid" / "default.xml"
             self.ctx.err("No descriptor given. Using etc/grid/default.xml")
 
-            BUT WHAT DOES NOT DO
-        command = ["icegridnode",self._intcfg(),"-e","application add '%s' %s" % (descrpt, targets) ]
+        config = str(self._intcfg())
+        config += ","
+        config += str(self.dir / "etc" / (self._node()+".cfg"))
+        command = ["icegridnode",config,"--deploy",str(descrpt)] + other
         self.ctx.popen(command)
-
-        self.ctx.pub(["node", self._node(), "start","deploy="])
 
     def startandwait(self, args):
 

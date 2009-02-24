@@ -22,11 +22,13 @@ system to be re-configured.
 -->
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
 
-  <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+  <appender name="PRIMARY" class="org.apache.log4j.RollingFileAppender">
     <errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
     <param name="Threshold" value="INFO"/>
-    <param name="Target" value="System.out"/>
-    <param name="Follow" value="true"/>
+    <param name="File" value="${user.home}/omero/log/${omero.name}.log"/>
+    <param name="MaxFileSize" value="500000KB"/>
+    <param name="MaxBackupIndex" value="9"/>
+    <param name="Append" value="true"/>
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d{ISO8601} %-5p [%40.40c] (%10.10t) %m%n"/>
     </layout>
@@ -35,7 +37,6 @@ system to be re-configured.
   <!-- INTERNAL /////////////////////////////////////////////////////////////// -->
   <category name="ome"> <priority value="INFO"/> </category>
   <category name="ome.formats"> <priority value="INFO"/> </category>
-  <category name="ome.security.basic.CurrentDetails"> <priority value="WARN"/> </category>
   <category name="omero"> <priority value="INFO"/> </category>
   <category name="OMERO"> <priority value="INFO"/> </category>
   <!-- Inherit from Spring/etc and so are a bit verbose -->
@@ -54,7 +55,7 @@ system to be re-configured.
   <!-- Suppressing "Warning missing properties files" -->
   <category name="org.springframework.beans"> <priority value="ERROR"/> </category>
   <!-- Whether or not to print jamon timing info. ERROR or TRACE -->
-  <category name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"> <priority value="TRACE"/> </category>
+  <category name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"> <priority value="ERROR"/> </category>
   <!-- Quieting blitz startup -->
   <category name="net.sf.ehcache"> <priority value="ERROR"/> </category>
 
@@ -65,9 +66,7 @@ system to be re-configured.
   <category name="ome.util.utests.PojoOptionsTest"> <priority value="WARN"/> </category>
 
   <!-- DATABASE /////////////////////////////////////////////////////////////// -->
-  <!-- WAY too verbose at INFO -->
   <category name="bitronix"> <priority value="WARN"/> </category>
-  <category name="com.arjuna"> <priority value="WARN"/> </category>
   <!-- Limit memory warning -->
   <category name="org.hibernate.hql.ast.QueryTranslatorImpl"> <priority value="ERROR"/> </category>
   <!-- Limit fail-safe cleanup -->
@@ -87,7 +86,7 @@ system to be re-configured.
   <category name="org.hibernate.validator"> <priority value="ERROR"/> </category>
 
   <root>
-    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="PRIMARY"/>
   </root>
 
 </log4j:configuration>

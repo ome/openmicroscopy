@@ -136,15 +136,10 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
 
     def start(self, name = None, sync = False):
 
+        self._initDir()
+
         if name == None:
             name = self._node()
-
-        props = self._properties()
-        nodedata = self._nodedata()
-        logdata = self.dir / path(props["Ice.StdOut"]).dirname()
-        if not logdata.exists():
-            self.ctx.out("Initializing %s" % logdata)
-            logdata.makedirs()
 
         try:
             command = ["icegridnode", self._icecfg()]

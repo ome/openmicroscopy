@@ -20,11 +20,19 @@ class ServerControl(BaseControl):
     def _prop(self, data, key):
         return data.properties.getProperty("omero."+key)
 
-    def _checkIceConfig(self, first, other):
-        if not first or not first.startswith("--Ice.Config"):
+    def _checkIceConfig(self, args):
+        try:
+            args["--Ice.Config"]
+        except KeyError:
             self.ctx.die(201, "No --Ice.Config provided")
-        if len(other) > 0:
-            self.ctx.err("Non --Ice.Config arguments provided: "+str(other))
+        pre = []
+        post = []
+        for arg in args.args:
+            if arg.startswith("-D"):
+                pre.append(arg)
+            else:
+                post.append(arg)
+        return pre,post
 
     def _xargsAndDebug(self, component, xargs_default):
         component = str(component)
@@ -32,39 +40,37 @@ class ServerControl(BaseControl):
         xargs = self._prop(data, component+".xargs")
         if len(xargs) == 0:
             xargs = xargs_default
-
         debug = self._prop(data, "component.debug")
         if debug == "true":
             debug = True
         else:
             debug = False
+        return xargs, debug
 
     def help(self, args = None):
         self.ctx.out("Start the blitz server -- Reads properties via omero prefs")
 
     def blitz(self, args):
         args = Arguments(args)
-        first, other = args.firstOther()
-        self._checkIceConfig(first, other)
-        xargs, debug = self._xargsAndDebug("blitz", "-Xmx400M")
+        pre, post = self._checkIceConfig(args)
+        xargs, debug = self._xargsAndDebug("blitz", ["-Xmx400M"])
         blitz_jar = os.path.join("lib","server","blitz.jar")
-        omero.java.run(["-jar",blitz_jar,first], debug=debug, xargs=xargs, use_exec = True)
+        omero.java.run(pre+["-jar",blitz_jar]+post, debug=debug, xargs=xargs, use_exec = True)
 
     def indexer(self, args):
         args = Arguments(args)
-        first, other = args.firstOther()
-        self._checkIceConfig(first, other)
-        xargs, debug = self._xargsAndDebug("indexer", "-Xmx128M")
+        pre, post = self._checkIceConfig(args)
+        xargs, debug = self._xargsAndDebug("indexer", ["-Xmx128M"])
         server_jar = os.path.join("lib","server","server.jar")
-        omero.java.run(["-jar",server_jar,first], debug=debug, xargs=xargs, use_exec = True)
+        omero.java.run(pre+["-jar",server_jar,"standalone"]+post, debug=debug, xargs=xargs, use_exec = True)
 
     def web(self, args):
         args = Arguments(args)
         sys.stderr.write("Starting django... \n")
-        omero_web = os.path.join("lib","omeroweb")
-        subprocess.call(["python","manage.py","syncdb","--noinput"], cwd=omero_web, env = os.environ)
+        omero_web = self.ctx.dir / "lib" / "omeroweb"
+        subprocess.call(["python","manage.py","syncdb","--noinput"], cwd=str(omero_web), env = os.environ)
         # Now exec
-        os.chdir("omeroweb")
+        os.chdir(str(omero_web))
         django = ["python","manage.py","runserver","--noreload"]+list(args)
         os.execvpe("python", django, os.environ)
 try:

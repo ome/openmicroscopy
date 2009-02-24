@@ -106,8 +106,9 @@ public class Main {
                 usage();
             }
         } finally {
-            context.close();
-            System.exit(0);
+            if (context != null) {
+                context.close();
+            }
         }
     }
 
@@ -149,8 +150,8 @@ public class Main {
      */
     public static void standalone(String[] args) {
         Ice.Communicator ic = Ice.Util.initialize(args);
-        ic.createObjectAdapter("Indexer");
-        
+        Ice.ObjectAdapter oa = ic.createObjectAdapter("IndexerAdapter");
+        oa.activate();
         String cron = ic.getProperties().getProperty("omero.search.cron");
         if (cron == null || cron.length() == 0) {
             System.out.println("Using default cron value.");

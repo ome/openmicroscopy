@@ -364,6 +364,18 @@ class BaseControl:
             self.ctx.err(property + " is not configured")
             self.ctx.die(4, str(ke))
 
+    def _initDir(self):
+        """
+        Initialize the directory into which the current node will log.
+        """
+        props = self._properties()
+        nodedata = self._nodedata()
+        logdata = self.dir / path(props["Ice.StdOut"]).dirname()
+        if not logdata.exists():
+            self.ctx.out("Initializing %s" % logdata)
+            logdata.makedirs()
+
+
     def _nodedata(self):
         """
         Returns the data directory path for this node. This is determined
@@ -688,6 +700,7 @@ class CLI(cmd.Cmd, Context):
         """
         Calls the string in a subprocess and dies if the return value is not 0
         """
+        self.dbg("Executing: %s" % args)
         rv = subprocess.call(args, env = os.environ, cwd = OMERODIR)
         if strict and not rv == 0:
             raise NonZeroReturnCode(rv, "%s => %d" % (" ".join(args), rv))
