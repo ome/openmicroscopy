@@ -141,11 +141,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
             public IObject[] run(IObject[] value, UpdateFilter filter, Session s) {
                 IObject[] copy = new IObject[value.length];
                 for (int i = 0; i < value.length; i++) {
-                    if (i%500 == 0) {
-                        s.flush();
-                        s.clear();
-                    }
-                    copy[i] = internalMerge(value[i], filter, s);
+                   copy[i] = internalMerge(value[i], filter, s);
                 }
                 return copy;
             }
