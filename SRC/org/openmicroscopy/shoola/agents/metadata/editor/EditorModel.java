@@ -983,11 +983,13 @@ class EditorModel
 			data = wsd.getImage();
 			if (data == null || data.getId() < 0) data = null;
 		}
-		PixelsData pixs = data.getDefaultPixels();
-		ChannelDataLoader loader = new ChannelDataLoader(component, 
-									pixs.getId());
-		loader.load();
-		loaders.add(loader);
+		try {
+			PixelsData pixs = data.getDefaultPixels();
+			ChannelDataLoader loader = new ChannelDataLoader(component, 
+					pixs.getId());
+			loader.load();
+			loaders.add(loader);
+		} catch (Exception e) {}
 	}
 
 	/** Cancels any ongoing tags retrieval. */

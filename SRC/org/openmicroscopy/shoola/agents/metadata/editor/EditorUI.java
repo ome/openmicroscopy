@@ -383,9 +383,10 @@ public class EditorUI
 	{
 		if (objects == null) return;
 		generalPane.handleObjectsSelection(type, objects);
-		if (model.isMultiSelection()) {
+		//if (model.isMultiSelection()) {
+		if (TagAnnotationData.class.equals(type))
 			saveData();
-		}	
+		//}	
 	}
 	
 	/** 

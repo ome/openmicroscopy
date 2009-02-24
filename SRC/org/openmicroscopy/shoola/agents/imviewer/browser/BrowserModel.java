@@ -870,7 +870,10 @@ class BrowserModel
     	int n = parent.getMaxC();
     	int row = 0;
     	int col = 0;
-    	if (n <= 3) {
+    	if (n == 1) {
+    		row = 1;
+    		col = 2;
+    	} else if (n == 2 || n == 3) {
     		row = 2;
     		col = 2;
     	} else {
@@ -878,15 +881,6 @@ class BrowserModel
     		row = n/2;
     		if (n%2 != 0) row += 1; 
     	}
-    	/*
-    	 * int n = parent.getMaxC()+1; //add one for combined image.
-    	if (n <= 3) n = 4;
-    	int index = 0;
-    	if (n%2 != 0) index = 1;
-    	int col = (int) Math.floor(Math.sqrt(n))+index; 
-    	int row = n/col+index;
-    	*/
-
     	return new Dimension(col*w+(col-1)*GAP, row*h+(row-1)*GAP);
     }
     

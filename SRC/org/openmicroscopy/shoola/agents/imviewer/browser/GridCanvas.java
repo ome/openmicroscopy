@@ -78,15 +78,12 @@ class GridCanvas
         int row = model.getGridRow();
         int colum = model.getGridColumn();
     	int n = model.getMaxC();
-    	if (n <= 3) row = 2;
-    	if (n >= 4) {// && n%2 != 0) {
-    		//if (n%2 == 0) n = n+1;
+    	if (n == 1) row = 1;
+    	else if (n == 3 || n == 2) row = 2;
+    	else if (n >= 4) {
     		combined = (SplitImage) images.get(images.size()-1);
     		images.remove(images.size()-1);
     	}
-    	
-    	//n = (int) Math.floor(Math.sqrt(n));
-    	//if (b) n +=1;
         Iterator channels = images.iterator();
         BufferedImage image;
         int x = 0, y = 0;
@@ -196,7 +193,7 @@ class GridCanvas
 	BufferedImage getGridImage()
 	{
 		BufferedImage gridImage;
-		BufferedImage original = model.getCombinedImage();//model.getAnnotateImage();
+		BufferedImage original = model.getCombinedImage();
     	int w = original.getWidth();
     	int h = original.getHeight();
     	Dimension d = getSize();

@@ -241,11 +241,8 @@ class EditorControl
 				DocComponent doc = (DocComponent) object;
 				Object data = doc.getData();
 				if (data instanceof File) view.removeAttachedFile(data);
-				else if ((data instanceof FileAnnotationData))// &&
-						//doc.isAdded())
+				else if ((data instanceof FileAnnotationData))
 					view.removeAttachedFile(data);
-				//else if (object instanceof AnnotationData)
-				//	model.deleteAnnotation((AnnotationData) object);
 				else if (data instanceof TagAnnotationData)
 					view.removeTag((TagAnnotationData) data);
 			} 
