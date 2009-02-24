@@ -54,7 +54,22 @@ public class SharingTest extends AbstractManagedContextTest {
         long id = share.createShare("before", null, null, null, null, false);
         share.setDescription(id, "after");
     }
-    
+
+    @Test
+    public void testActive() {
+        share = factory.getShareService();
+        long id = share.createShare("before", null, null, null, null, false);
+        share.setActive(id, true);
+    }
+
+    @Test
+    public void testExpiration() {
+        share = factory.getShareService();
+        long id = share.createShare("before", null, null, null, null, false);
+        share.setExpiration(id, new Timestamp(
+                System.currentTimeMillis() + 100000));
+    }
+
     @Test
     public void testClose() {
         share = factory.getShareService();
@@ -97,7 +112,7 @@ public class SharingTest extends AbstractManagedContextTest {
         Experimenter member = loginNewUser();
         loginUser(e.getOmeName());
         share.addUser(id, member);
-        
+
         // Then as that user try to obtain the comments
         loginUser(member.getOmeName());
         annotations = share.getComments(id);
@@ -107,7 +122,7 @@ public class SharingTest extends AbstractManagedContextTest {
 
     @Test
     public void testPrivateCommentsNotVisibleForNonMembers() {
-     
+
         Experimenter e = loginNewUser();
 
         share = factory.getShareService();
@@ -123,16 +138,16 @@ public class SharingTest extends AbstractManagedContextTest {
         // NOT adding a new user
         Experimenter member = loginNewUser();
         // share.addUser(id, member);
-        
+
         // Then as that user try to obtain the comments
         loginUser(member.getOmeName());
         annotations = share.getComments(id);
         assertNotContained(annotation, annotations);
     }
-    
+
     @Test
     public void testPrivateCommentsVisibleForAdmin() {
-     
+
         Experimenter e = loginNewUser();
 
         share = factory.getShareService();
@@ -146,13 +161,13 @@ public class SharingTest extends AbstractManagedContextTest {
         assertContained(annotation, annotations);
 
         // NOT adding root either
-                
+
         // Then as that root try to obtain the comments
         loginRoot();
         annotations = share.getComments(id);
         assertContained(annotation, annotations);
     }
-    
+
     @Test
     public void testRetrieval() {
         loginRoot();
@@ -344,12 +359,12 @@ public class SharingTest extends AbstractManagedContextTest {
         assertEquals(1, share.getContents(id).size());
         assertEquals(1, share.getContentSubList(id, 0, 1).size());
         assertEquals(1, share.getContentMap(id).size());
-        
+
         Dataset d2 = new Dataset("elements transitively");
         Image i2 = new Image(new Timestamp(0), "transitive image");
         d2.linkImage(i2);
         d2 = iUpdate.saveAndReturnObject(d2);
-        
+
         share.addObject(id, d2);
         assertEquals(4, share.getContentSize(id));
     }
@@ -429,7 +444,7 @@ public class SharingTest extends AbstractManagedContextTest {
 
         loginUser(member.getOmeName());
         assertEquals(1, share.getContentSize(id));
-        
+
         try {
             iQuery.find(Image.class, i.getId());
             fail("Should throw");
@@ -438,7 +453,7 @@ public class SharingTest extends AbstractManagedContextTest {
         }
         share.activate(id);
         assertNotNull(iQuery.find(Image.class, i.getId()));
-        
+
         Parameters p = new Parameters();
         p.addIds(Arrays.asList(i.getId()));
         String sql = "select im from Image im where im.id in (:ids) order by im.name";

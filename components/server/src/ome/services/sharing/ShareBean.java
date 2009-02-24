@@ -48,7 +48,6 @@ import ome.system.EventContext;
 import ome.system.Principal;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
-import omero.constants.jobs.SUBMITTED;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
