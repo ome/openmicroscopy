@@ -1,0 +1,32 @@
+<ivy-module version="1.0">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2009 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+  <info
+      organisation="omero"
+      module="OmeroFS"
+      status="integration"/>
+  <configurations>
+    <conf name="server"/>
+  </configurations>
+  <publications>
+    <artifact name="OmeroFS" type="egg"/>
+  </publications>
+  <dependencies>
+    <!-- Internal -->
+    <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="server->server"/>
+  </dependencies>
+</ivy-module>
+

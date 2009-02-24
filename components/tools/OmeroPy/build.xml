@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="OmeroPy" default="install" basedir=".">
+<project name="OmeroPy" default="install" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -48,6 +48,8 @@
         <copy file="${basedir}/bin/omero" tofile="${basedir}/build/bin/omero"/>
         <chmod file="${basedir}/build/bin/omero" perm="ugo+x"/>
         <copy file="${basedir}/../../common/target/classes/prefs.class" todir="${basedir}/build/"/>
+        <!-- And copying once for top-level build -->
+        <copy file="${basedir}/bin/omero" tofile="../target/bin/omero"/>
     </target>
 
     <target name="tools-test" depends="tools-build,python-test" description="Runs test target of setup.py" unless="env.NOPYTHON"/>

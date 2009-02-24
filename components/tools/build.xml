@@ -34,6 +34,7 @@
 			and contains non-core classes, including both server and client
 			side code for use with OMERO.
 		</echo>
+		<mkdir dir="target/lib/server"/>
 		<jar update="true" destfile="target/lib/server/services.jar" basedir="${tools.classes}" includes="**/*"/>
 		<mkdir dir="${dist.dir}/bin/"/>
 		<copy todir="../../dist">

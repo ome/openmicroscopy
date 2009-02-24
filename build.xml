@@ -224,7 +224,7 @@ OmeroCpp (the C++ bindings for OMERO) use "build-all" or "build-cpp".
         <ivy:retrieve pattern="${omero.home}/target/libs/[artifact].[ext]" log="quiet" symlink="true" settingsRef="ivy.toplevel"/>
         <ivy:resolve file="ivy.xml" type="jar" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
         <ivy:retrieve pattern="${omero.home}/target/libs/[artifact].[ext]" log="quiet" symlink="true" settingsRef="ivy.toplevel"/>
-        <ivy:resolve file="ivy.xml" type="jar" conf="testing" settingsRef="ivy.toplevel" log="quiet"/>
+        <ivy:resolve file="ivy.xml" type="jar" conf="test" settingsRef="ivy.toplevel" log="quiet"/>
         <ivy:retrieve pattern="${omero.home}/target/libs/[artifact].[ext]" log="quiet" symlink="true" settingsRef="ivy.toplevel"/>
         <iterate buildpathref="all.buildpath" target="prepare"/>
         <iterate buildpathref="OmeroJava.buildpath" target="prepare"/>
@@ -383,9 +383,9 @@ OmeroCpp (the C++ bindings for OMERO) use "build-all" or "build-cpp".
             <mkdir dir="${dist.dir}/lib/client"/>
             <mkdir dir="${dist.dir}/lib/serer"/>
             <ivy:resolve file="ivy.xml" type="jar" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve conf="runtime" pattern="${dist.dir}/lib/server/[module].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
+            <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[module].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
             <ivy:resolve file="ivy.xml" type="jar" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve conf="runtime" pattern="${dist.dir}/lib/client/[module].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
+            <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[module].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
        </sequential>
     </macrodef>
 

@@ -12,15 +12,17 @@
   </publications>
   <dependencies defaultconfmapping="build->default">
     <!-- runtime dependencies for all modules, since dsl is the base of our DAG -->
-    <dependency org="log4j" name="log4j" rev="1.2.14" conf="runtime->default"/>
+    <dependency org="slf4j" name="slf4j-api" rev="${versions.slf4j}"/>
+    <dependency org="slf4j" name="slf4j-log4j12" rev="${versions.slf4j}"/>
+    <dependency org="log4j" name="log4j" rev="${versions.log4j}" conf="runtime->default"/>
     <dependency org="omero" name="postgresql" rev="${versions.postgresql}" conf="runtime->default"/>
     <dependency org="org/springframework" name="spring" rev="${versions.spring}" conf="build,runtime->default"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="build,runtime->default"/>
     <dependency org="commons-collections" name="commons-collections" rev="${versions.commons-collections}" conf="build,runtime->default"/>
     <!-- build requirements -->
     <dependency org="apache" name="ant" rev="${versions.ant}"/>
-    <dependency org="velocity-tools" name="velocity-tools-generic" rev="1.1"/>
-    <dependency org="velocity" name="velocity" rev="1.4"/>
+    <dependency org="velocity-tools" name="velocity-tools-generic" rev="${versions.velocity-tools}"/>
+    <dependency org="velocity" name="velocity" rev="${versions.velocity}"/>
     <dependency org="emma" name="emma" rev="${versions.emma}"/>
     <dependency org="emma" name="emma_ant" rev="${versions.emma}"/>
     <dependency org="checkstyle" name="checkstyle" rev="${versions.checkstyle}"/>

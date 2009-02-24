@@ -298,8 +298,7 @@
 	</target>
 
 	<target name="install" depends="package">
-		<delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
-		<ivy:publish settingsRef="ivy.${ant.project.name}" artifactspattern="${target.dir}/[module].[ext]" resolver="${omero.resolver}" pubrevision="${omero.version}" pubdate="${now}" status="integration" overwrite="true"/>
+		<publishArtifact/>
 	</target>
 
 	<!-- Previously dependend on integration, but that may need special controls.

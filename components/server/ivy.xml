@@ -24,25 +24,21 @@
     <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4"/>
     <dependency org="btm" name="btm" rev="${versions.btm}"/>
     <!-- Public -->
-    <dependency org="commons-lang" name="commons-lang" rev="2.1"/>
-    <dependency org="activemq" name="activemq-core" rev="3.2"/>
-    <dependency org="commons-beanutils" name="commons-beanutils" rev="1.7.0"/>
-    <dependency org="commons-codec" name="commons-codec" rev="1.3"/>
-    <dependency org="commons-dbcp" name="commons-dbcp" rev="1.2.1"/>
-    <dependency org="commons-pool" name="commons-pool" rev="1.2"/>
-    <dependency org="eclipse" name="jdtcore" rev="3.1.0"/>
+    <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}"/>
+    <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}"/>
+    <dependency org="commons-codec" name="commons-codec" rev="${versions.commons-codec}"/>
+    <dependency org="commons-pool" name="commons-pool" rev="${versions.commons-pool}"/>
     <dependency org="net/sf/ehcache" name="ehcache" rev="${versions.ehcache}"/>
-    <dependency org="net/sf/ehcache" name="jsr107cache" rev="1.0"/>
+    <dependency org="net/sf/ehcache" name="jsr107cache" rev="${versions.jsr107cache}"/>
     <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
     <dependency org="jamon" name="jamon" rev="${versions.jamon}"/>
-    <dependency org="org/acegisecurity" name="acegi-security" rev="1.0.0-RC1"/>
-    <dependency org="quartz" name="quartz" rev="1.5.2"/>
-    <dependency org="xerces" name="xerces" rev="2.0.2"/>
+    <dependency org="quartz" name="quartz" rev="${versions.quartz}"/>
+    <dependency org="xerces" name="xerces" rev="${versions.xerces}"/>
     <dependency org="xml-apis" name="xml-apis" rev="${versions.xml-apis}"/>
-    <dependency org="mail" name="mail" rev="1.4.1"/>
-    <dependency org="activation" name="activation" rev="1.1.1"/>
-    <dependency org="PDFBox" name="PDFBox" rev="0.7.3"/>
-    <dependency org="FontBox" name="FontBox" rev="0.1.0"/>
-    <dependency org="spring" name="spring-ldap" rev="1.2.1"/>
+    <dependency org="mail" name="mail" rev="${versions.mail}"/>
+    <dependency org="activation" name="activation" rev="${versions.activation}"/>
+    <dependency org="PDFBox" name="PDFBox" rev="${versions.PDFBox}"/>
+    <dependency org="FontBox" name="FontBox" rev="${versions.FontBox}"/>
+    <dependency org="spring" name="spring-ldap" rev="${versions.spring-ldap}"/>
   </dependencies>
 </ivy-module>

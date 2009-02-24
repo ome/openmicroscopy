@@ -101,6 +101,14 @@
             </sequential>
         </macrodef>
 
+	<macrodef name="publishArtifact">
+		<attribute name="pattern" default="${target.dir}/[module].[ext]"/>
+		<sequential>
+		<delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
+		<ivy:publish settingsRef="ivy.${ant.project.name}" artifactspattern="@{pattern}" resolver="${omero.resolver}" pubrevision="${omero.version}" pubdate="${now}" status="integration" overwrite="true"/>
+		</sequential>
+	</macrodef>
+
         <!--
            These classpaths are used by all components, and amount to only the deps.lib.dir
            directory within each component. That directory is configured using deps-retrieve,

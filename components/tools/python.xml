@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="python" default="install" basedir=".">
+<project name="python" default="install" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
     <echo>Entering ${basedir}...</echo>
 
@@ -30,9 +30,6 @@
         <setup_py>
             <arg value="build"/>
         </setup_py>
-        <delete>
-            <fileset dir="${basedir}" includes="dist/**/*"/>
-        </delete>
         <setup_py>
             <arg value="bdist_egg"/>
         </setup_py>
@@ -54,12 +51,9 @@
     </target>
 
     <target name="python-install" unless="env.NOPYTHON">
-        <copy todir="../target">
-            <fileset dir="${basedir}/build" includes="**/*" excludes="bdist*"/>
-        </copy>
-        <copy todir="../target/lib">
-            <fileset dir="${basedir}/dist" includes="**/*"/>
-        </copy>
+        <installIvy/>
+        <ivy:resolve settingsRef="ivy.${ant.project.name}" file="${basedir}/ivy.xml" type="jar" log="quiet"/>
+        <publishArtifact pattern="dist/*.egg"/>
     </target>
 
     <target name="python-clean" unless="env.NOPYTHON">
