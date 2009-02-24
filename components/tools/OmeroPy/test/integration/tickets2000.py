@@ -8,7 +8,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest
+import unittest, time
 import test.integration.library as lib
 import omero, uuid
 import omero_Constants_ice
@@ -570,21 +570,24 @@ class TestTickets2000(lib.ITest):
         ds.details.permissions.setGroupWrite(False)
         ds.details.permissions.setWorldRead(False)
         ds.details.permissions.setWorldWrite(False)
-        ds = update.saveAndReturnObject(ds)
-        ds.unload()
+        #ds = update.saveAndReturnObject(ds)
+        #ds.unload()
         
         for i in range(1,2001):
             img = ImageI()
             img.setName(rstring('img1184-%s' % (uuid)))
             img.setAcquisitionDate(rtime(time.time()))
-            dil = DatasetImageLinkI()
-            dil.setParent(ds)
-            dil.setChild(img)
-            update.saveObject(dil)
-        
+            # Saving in one go
+            #dil = DatasetImageLinkI()
+            #dil.setParent(ds)
+            #dil.setChild(img)
+            #update.saveObject(dil)
+            ds.linkImage(img)
+        ds = update.saveAndReturnObject(ds)
+
         c = cont.getCollectionCount(ds.__class__.__name__, ("imageLinks"), [ds.id.val], None)
         self.assert_(c[ds.id.val] == 2000)
-        
+
         page = 1
         p = omero.sys.Parameters()
         p.map = {}
@@ -599,14 +602,15 @@ class TestTickets2000(lib.ITest):
         sql = "select im from Image im join fetch im.details.owner join fetch im.details.group " \
               "left outer join fetch im.datasetLinks dil left outer join fetch dil.parent d " \
               "where d.id = :oid and im.details.owner.id=:eid order by im.id asc"
-        
+
         start = time.time()
-        self.assert_(len(query.findAllByQuery(sql,p)) == 24)
+        res = query.findAllByQuery(sql,p)
+        self.assertEquals(24, len(res))
         end = time.time()
-        self.assert_(end-start < 10)
-        
+        self.assert_(end-start < 3)
+
         self.root.sf.closeOnDestroy()
-        
+
 
     def test1183(self):
         # Annotation added before
