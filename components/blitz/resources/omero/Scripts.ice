@@ -11,7 +11,6 @@
 
 #include <omero/RTypes.ice>
 #include <omero/ServerErrors.ice>
-#include <omero/model/Job.ice>
 #include <Ice/BuiltinSequences.ice>
 
 /*

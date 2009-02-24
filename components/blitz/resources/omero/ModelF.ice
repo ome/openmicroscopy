@@ -31,6 +31,7 @@ module omero {
         class IObject;
         class Image;
         class Instrument;
+        class Job;
         class JobStatus;
         class Laser;
         class Permissions;

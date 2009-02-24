@@ -715,7 +715,7 @@ Properties used throughout the accessor generation
 ## Here we are taking the pojo name from the ST of the property, rather than the
 ## current ST in order to handle subclasses wrt. links. This may need to be done for
 ## every property right after the foreach.
-#set( $truePojo = "${property.getST().shortname}" )
+#set( $truePojo = "${property.st.shortname}" )
 #set( $seqName = "${truePojo}${PropertyName.substring(0,1).toUpperCase()}${PropertyName.substring(1,$PropertyName.length())}Seq" )## seqName copied from ice_defs.vm
 #set( $propLoaded = "${property.Name}Loaded" )
 

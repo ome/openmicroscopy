@@ -76,7 +76,7 @@
 			<attribute name="template"/>
 			<sequential>
 			<uptodate property="icegen.@{template}.unneeded">
-				<srcfiles dir="${resrc.dir}" includes="${dsl.pat}"/>
+				<srcfiles dir="${model.comp}/resources" includes="${dsl.pat}"/>
 				<mapper type="merge" to="@{dependfile}"/>
 			</uptodate>
 			</sequential>
