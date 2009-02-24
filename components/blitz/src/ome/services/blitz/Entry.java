@@ -73,6 +73,13 @@ public class Entry {
                     System.exit(1);
                 }
                 System.exit(0);
+            } else if ("-db".equals(args[0])) {
+                try {
+                    new DbCreate(args).run();
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                    System.exit(2);
+                }
             }
             // Now we find the first non-"--Ice.Config" argument and
             // pass that to Main(). The last --Ice.Config value will be

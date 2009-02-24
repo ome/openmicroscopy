@@ -205,7 +205,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         this.initializer = new AopContextInitializer(new ServiceFactory(
                 this.context), this.principal);
         // TODO Move this to injection.
-        this.topicManager = (TopicManager) context.getBean("topicManager");
+        // FIXME
+        this.topicManager = null; // (TopicManager) context.getBean("topicManager");
 
         // Setting up in memory store.
         Ehcache cache = manager.inMemoryCache(p.getName());
