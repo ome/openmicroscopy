@@ -14,6 +14,7 @@
       <server id="Blitz-${index}" exe="bin/omero" activation="always">
         <option>server</option>
         <option>blitz</option>
+        <option>-Domero.name=${server}</option>
         <env>PYTHONPATH=lib:$PYTHONPATH</env>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" register-process="true" endpoints="tcp"/>
         <properties>
@@ -34,6 +35,7 @@
       <server id="Indexer-${index}" exe="bin/omero" activation="always">
         <option>server</option>
         <option>indexer</option>
+        <option>-Domero.name=${server}</option>
         <env>PYTHONPATH=lib:$PYTHONPATH</env>
         <adapter name="IndexerAdapter" register-process="true" endpoints="tcp"/>
         <properties>

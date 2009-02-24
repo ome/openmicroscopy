@@ -83,6 +83,22 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
     # Commands
     #
 
+    def _descript(self, first, other):
+        if first != None and len(first) > 0:
+            # Relative to cwd
+            descript = path(first).abspath()
+            if not descript.exists():
+                self.ctx.dbg("No such file: %s -- Using as target" % descript)
+                other.insert(0, first)
+                descript = None
+        else:
+            descript = None
+
+        if descript == None:
+            descript = self.dir / "etc" / "grid" / "default.xml"
+            self.ctx.err("No descriptor given. Using etc/grid/default.xml")
+        return descript
+
     def start(self, args):
         """
         First checks for a valid installation, then checks the grid,
@@ -96,29 +112,16 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
 
         args = Arguments(args)
         first, other = args.firstOther()
-        if first != None and len(first) > 0:
-            # Relative to cwd
-            descrpt = path(first).abspath()
-            if not descrpt.exists():
-                self.ctx.dbg("No such file: %s -- Using as target" % descrpt)
-                other.insert(0, first)
-                descrpt = None
-        else:
-            descrpt = None
-
-        if descrpt == None:
-            descrpt = self.dir / "etc" / "grid" / "default.xml"
-            self.ctx.err("No descriptor given. Using etc/grid/default.xml")
+        descript = self._descript(first, other)
 
         config = str(self._intcfg())
         config += ","
         config += str(self.dir / "etc" / (self._node()+".cfg"))
         # TODO : This won't work for Windows. Must refactor.
-        command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",config,"--deploy",str(descrpt)] + other
+        command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",config,"--deploy",str(descript)] + other
         self.ctx.popen(command)
 
     def startandwait(self, args):
-
         self.start(args)
         self.ctx.out("Waiting on servers to start (Ctrl-C to cancel)")
         self.ctx.rv = 1
@@ -130,7 +133,13 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
                 break
 
     def deploy(self, args):
-        self.ctx.out("admin deploy has been deprected. admin start now calls deploy directly")
+        args = Arguments(args)
+        first, other = args.firstOther()
+        descript = self._descript(first, other)
+
+        # TODO : Doesn't properly handle whitespace
+        command = ["icegridadmin",self._intcfg(),"-e"," ".join(["application","update", str(descript)] + other)]
+        self.ctx.popen(command)
 
     def status(self, args):
         args = Arguments(args)
