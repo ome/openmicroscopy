@@ -1,0 +1,9 @@
+[main]
+hostname = localhost
+username = test-engine
+password = Eiffiabigs
+sessionKey = 
+port = 4063
+populate = true
+recurse = true
+target_directory= /home/test-engine/full-run

@@ -186,11 +186,7 @@ public class CommandLineImporter
                     name = g.getOptarg();
                     break;
                 }
-                case 'h':
-                {
-                    usage();
-                }
-                case '?':
+                default:
                 {
                     usage();
                 }
