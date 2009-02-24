@@ -34,7 +34,7 @@
      class="ome.services.util.DropBoxDirectoryCheck"
      init-method="run" lazy-init="false">
      <constructor-arg value="${omero.data.dir}"/>
-     <constructor-arg ref="executor"/>
+     <constructor-arg ref="isolatedJdbcTemplate"/>
   </bean>
 
   <bean id="serverVersionCheck"

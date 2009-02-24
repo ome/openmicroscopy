@@ -42,11 +42,11 @@ public class DropBoxDirectoryCheck implements ApplicationListener, Runnable {
 
     final String omeroDataDir;
 
-    final Executor executor;
+    final SimpleJdbcOperations isolatedJdbc;
 
-    public DropBoxDirectoryCheck(String omeroDataDir, Executor executor) {
+    public DropBoxDirectoryCheck(String omeroDataDir, SimpleJdbcOperations jdbc) {
         this.omeroDataDir = omeroDataDir;
-        this.executor = executor;
+        this.isolatedJdbc = jdbc;
     }
 
     public void onApplicationEvent(ApplicationEvent arg0) {
@@ -68,19 +68,14 @@ public class DropBoxDirectoryCheck implements ApplicationListener, Runnable {
 
     @SuppressWarnings("unchecked")
     public Set<String> getCurrentUserNames() {
-        List<String> names = ((List<String>) executor
-                .executeStateless(new SimpleStatelessWork(this, "current users") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(SimpleJdbcOperations jdbc) {
-                        return jdbc.query("select omename from experimenter",
-                                new ParameterizedRowMapper<String>() {
-                                    public String mapRow(ResultSet arg0,
-                                            int arg1) throws SQLException {
-                                        return arg0.getString(1); // Bleck
-                                    }
-                                });
+        List<String> names = isolatedJdbc.query(
+                "select omename from experimenter",
+                new ParameterizedRowMapper<String>() {
+                    public String mapRow(ResultSet arg0, int arg1)
+                            throws SQLException {
+                        return arg0.getString(1); // Bleck
                     }
-                }));
+                });
         return new HashSet<String>(names);
     }
 

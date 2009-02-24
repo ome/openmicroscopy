@@ -52,7 +52,7 @@ public class BlobShareStore extends ShareStore implements
      */
     public void setApplicationContext(ApplicationContext applicationContext)
             throws BeansException {
-        this.ctx = (OmeroContext) ctx;
+        this.ctx = (OmeroContext) applicationContext;
     }
 
     // Initialization/Destruction
@@ -73,7 +73,7 @@ public class BlobShareStore extends ShareStore implements
 
     @Override
     public Long totalSharedItems() {
-        return (Long) session().createQuery("select sum(items) from Share")
+        return (Long) session().createQuery("select sum(itemCount) from Share")
                 .uniqueResult();
     }
 
@@ -218,7 +218,7 @@ public class BlobShareStore extends ShareStore implements
     /**
      * Loads the {@link SessionFactory}
      */
-    private void initialize() {
+    private synchronized void initialize() {
 
         if (factory != null) {
             return; // GOOD!
