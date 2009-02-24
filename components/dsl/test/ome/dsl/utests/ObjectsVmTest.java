@@ -149,12 +149,47 @@ public class ObjectsVmTest extends TestCase {
         assertEquals(3, counts);
     }
 
-    private boolean isDetailsField(Property property) {
-        return property.getClass().getName().endsWith("DetailsField");
+    @Test
+    public void testTableNameInViews() {
+        sr.parse();
+        List<SemanticType> list = sr.process();
+        Map<String, SemanticType> map = toMap(list);
+        SemanticType image = map.get("ome.model.core.Image");
+        SemanticType pixels = map.get("ome.model.core.Pixels");
+        
+        // Image
+        boolean found = false;
+        for (Property p : image.getClassProperties()) {
+            if (p.getName().equals("pixels")) {
+                found = true;
+                assertEquals(p.getSt(), image);
+                assertEquals("image", image.getTable());
+                assertEquals("image", p.getSt().getTable());
+                assertEquals("pixels", p.getDbType());
+            }
+        }
+        assertTrue(found);
+        
+        // Now for pixels
+        found = false;
+        for (Property p : pixels.getClassProperties()) {
+            if (p.getName().equals("image")) {
+                found = true;
+                assertEquals(p.getSt(), pixels);
+                assertEquals("pixels", pixels.getTable());
+                assertTrue(p.getOrdered());
+                assertFalse(p.getOne2Many());
+            }
+        }
     }
 
     // ~ Helpers
     // =========================================================================
+
+    private boolean isDetailsField(Property property) {
+        return property.getClass().getName().endsWith("DetailsField");
+    }
+
     private Map<String, SemanticType> toMap(Collection<SemanticType> coll) {
         Map<String, SemanticType> map = new HashMap<String, SemanticType>();
         for (SemanticType type : coll) {

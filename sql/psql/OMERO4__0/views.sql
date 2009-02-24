@@ -19,74 +19,73 @@ BEGIN;
   CREATE OR REPLACE VIEW count_Plate_annotationLinks_by_owner (Plate_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM PlateAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
 
-  DROP TABLE count_Pixels_pixelsFileMaps_by_owner;
-
-  CREATE OR REPLACE VIEW count_Pixels_pixelsFileMaps_by_owner (Pixels_id, owner_id, count) AS select child, owner_id, count(*)
-    FROM PixelsOriginalFileMap GROUP BY child, owner_id ORDER BY child;
-
-  CREATE OR REPLACE FUNCTION channel_pixels_index_move() RETURNS "trigger" AS '
+  CREATE OR REPLACE FUNCTION pixels_image_index_move() RETURNS "trigger" AS '
     DECLARE
       duplicate INT8;
     BEGIN
 
       -- Avoids a query if the new and old values of x are the same.
-      IF new.pixels = old.pixels AND new.pixels_index = old.pixels_index THEN
+      IF new.image = old.image AND new.image_index = old.image_index THEN
           RETURN new;
       END IF;
 
       -- At most, there should be one duplicate
       SELECT id INTO duplicate
-        FROM channel
-       WHERE pixels = new.pixels AND pixels_index = new.pixels_index
+        FROM pixels
+       WHERE image = new.image AND image_index = new.image_index
       OFFSET 0
        LIMIT 1;
 
       IF duplicate IS NOT NULL THEN
-          RAISE NOTICE ''Remapping channel % via (-1 - oldvalue )'', duplicate;
-          UPDATE channel SET pixels_index = -1 - pixels_index WHERE id = duplicate;
+          RAISE NOTICE ''Remapping pixels % via (-1 - oldvalue )'', duplicate;
+          UPDATE pixels SET image_index = -1 - image_index WHERE id = duplicate;
       END IF;
 
       RETURN new;
     END;' LANGUAGE plpgsql;
 
-  CREATE TRIGGER channel_pixels_index_trigger
-        BEFORE UPDATE ON channel
-        FOR EACH ROW EXECUTE PROCEDURE channel_pixels_index_move ();
+  CREATE TRIGGER pixels_image_index_trigger
+        BEFORE UPDATE ON pixels
+        FOR EACH ROW EXECUTE PROCEDURE pixels_image_index_move ();
+
+  DROP TABLE count_Pixels_pixelsFileMaps_by_owner;
+
+  CREATE OR REPLACE VIEW count_Pixels_pixelsFileMaps_by_owner (Pixels_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM PixelsOriginalFileMap GROUP BY child, owner_id ORDER BY child;
+
+  CREATE OR REPLACE FUNCTION pixels_channels_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.channels = old.channels AND new.channels_index = old.channels_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM pixels
+       WHERE channels = new.channels AND channels_index = new.channels_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping pixels % via (-1 - oldvalue )'', duplicate;
+          UPDATE pixels SET channels_index = -1 - channels_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE TRIGGER pixels_channels_index_trigger
+        BEFORE UPDATE ON pixels
+        FOR EACH ROW EXECUTE PROCEDURE pixels_channels_index_move ();
 
   DROP TABLE count_Pixels_annotationLinks_by_owner;
 
   CREATE OR REPLACE VIEW count_Pixels_annotationLinks_by_owner (Pixels_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM PixelsAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_ExperimenterGroup_groupExperimenterMap_by_owner;
-
-  CREATE OR REPLACE VIEW count_ExperimenterGroup_groupExperimenterMap_by_owner (ExperimenterGroup_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM GroupExperimenterMap GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_ExperimenterGroup_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_ExperimenterGroup_annotationLinks_by_owner (ExperimenterGroup_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM ExperimenterGroupAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_Screen_plateLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Screen_plateLinks_by_owner (Screen_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM ScreenPlateLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_Screen_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Screen_annotationLinks_by_owner (Screen_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM ScreenAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_OriginalFile_pixelsFileMaps_by_owner;
-
-  CREATE OR REPLACE VIEW count_OriginalFile_pixelsFileMaps_by_owner (OriginalFile_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM PixelsOriginalFileMap GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_OriginalFile_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_OriginalFile_annotationLinks_by_owner (OriginalFile_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM OriginalFileAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
 
   CREATE OR REPLACE FUNCTION channelbinding_renderingDef_index_move() RETURNS "trigger" AS '
     DECLARE
@@ -117,94 +116,15 @@ BEGIN;
         BEFORE UPDATE ON channelbinding
         FOR EACH ROW EXECUTE PROCEDURE channelbinding_renderingDef_index_move ();
 
-  CREATE OR REPLACE FUNCTION codomainmapcontext_renderingDef_index_move() RETURNS "trigger" AS '
-    DECLARE
-      duplicate INT8;
-    BEGIN
+  DROP TABLE count_ExperimenterGroup_groupExperimenterMap_by_owner;
 
-      -- Avoids a query if the new and old values of x are the same.
-      IF new.renderingDef = old.renderingDef AND new.renderingDef_index = old.renderingDef_index THEN
-          RETURN new;
-      END IF;
+  CREATE OR REPLACE VIEW count_ExperimenterGroup_groupExperimenterMap_by_owner (ExperimenterGroup_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM GroupExperimenterMap GROUP BY parent, owner_id ORDER BY parent;
 
-      -- At most, there should be one duplicate
-      SELECT id INTO duplicate
-        FROM codomainmapcontext
-       WHERE renderingDef = new.renderingDef AND renderingDef_index = new.renderingDef_index
-      OFFSET 0
-       LIMIT 1;
+  DROP TABLE count_ExperimenterGroup_annotationLinks_by_owner;
 
-      IF duplicate IS NOT NULL THEN
-          RAISE NOTICE ''Remapping codomainmapcontext % via (-1 - oldvalue )'', duplicate;
-          UPDATE codomainmapcontext SET renderingDef_index = -1 - renderingDef_index WHERE id = duplicate;
-      END IF;
-
-      RETURN new;
-    END;' LANGUAGE plpgsql;
-
-  CREATE TRIGGER codomainmapcontext_renderingDef_index_trigger
-        BEFORE UPDATE ON codomainmapcontext
-        FOR EACH ROW EXECUTE PROCEDURE codomainmapcontext_renderingDef_index_move ();
-
-  DROP TABLE count_Annotation_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Annotation_annotationLinks_by_owner (Annotation_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM AnnotationAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_Project_datasetLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Project_datasetLinks_by_owner (Project_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM ProjectDatasetLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_Project_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Project_annotationLinks_by_owner (Project_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM ProjectAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_ScreenAcquisition_wellSampleLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_ScreenAcquisition_wellSampleLinks_by_owner (ScreenAcquisition_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM ScreenAcquisitionWellSampleLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_ScreenAcquisition_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_ScreenAcquisition_annotationLinks_by_owner (ScreenAcquisition_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM ScreenAcquisitionAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_WellSample_screenAcquisitionLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_WellSample_screenAcquisitionLinks_by_owner (WellSample_id, owner_id, count) AS select child, owner_id, count(*)
-    FROM ScreenAcquisitionWellSampleLink GROUP BY child, owner_id ORDER BY child;
-
-  DROP TABLE count_WellSample_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_WellSample_annotationLinks_by_owner (WellSample_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM WellSampleAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_Job_originalFileLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Job_originalFileLinks_by_owner (Job_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM JobOriginalFileLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_Well_reagentLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Well_reagentLinks_by_owner (Well_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM WellReagentLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_Well_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Well_annotationLinks_by_owner (Well_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM WellAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_Node_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Node_annotationLinks_by_owner (Node_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM NodeAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_Experimenter_groupExperimenterMap_by_owner;
-
-  CREATE OR REPLACE VIEW count_Experimenter_groupExperimenterMap_by_owner (Experimenter_id, owner_id, count) AS select child, owner_id, count(*)
-    FROM GroupExperimenterMap GROUP BY child, owner_id ORDER BY child;
+  CREATE OR REPLACE VIEW count_ExperimenterGroup_annotationLinks_by_owner (ExperimenterGroup_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM ExperimenterGroupAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
 
   CREATE OR REPLACE FUNCTION groupexperimentermap_child_index_move() RETURNS "trigger" AS '
     DECLARE
@@ -235,39 +155,293 @@ BEGIN;
         BEFORE UPDATE ON groupexperimentermap
         FOR EACH ROW EXECUTE PROCEDURE groupexperimentermap_child_index_move ();
 
-  DROP TABLE count_Experimenter_annotationLinks_by_owner;
+  DROP TABLE count_Screen_plateLinks_by_owner;
 
-  CREATE OR REPLACE VIEW count_Experimenter_annotationLinks_by_owner (Experimenter_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM ExperimenterAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
+  CREATE OR REPLACE VIEW count_Screen_plateLinks_by_owner (Screen_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM ScreenPlateLink GROUP BY parent, owner_id ORDER BY parent;
 
-  CREATE OR REPLACE FUNCTION pixels_image_index_move() RETURNS "trigger" AS '
+  DROP TABLE count_Screen_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Screen_annotationLinks_by_owner (Screen_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM ScreenAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_OriginalFile_pixelsFileMaps_by_owner;
+
+  CREATE OR REPLACE VIEW count_OriginalFile_pixelsFileMaps_by_owner (OriginalFile_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM PixelsOriginalFileMap GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_OriginalFile_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_OriginalFile_annotationLinks_by_owner (OriginalFile_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM OriginalFileAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
+
+  CREATE OR REPLACE FUNCTION renderingdef_waveRendering_index_move() RETURNS "trigger" AS '
     DECLARE
       duplicate INT8;
     BEGIN
 
       -- Avoids a query if the new and old values of x are the same.
-      IF new.image = old.image AND new.image_index = old.image_index THEN
+      IF new.waveRendering = old.waveRendering AND new.waveRendering_index = old.waveRendering_index THEN
           RETURN new;
       END IF;
 
       -- At most, there should be one duplicate
       SELECT id INTO duplicate
-        FROM pixels
-       WHERE image = new.image AND image_index = new.image_index
+        FROM renderingdef
+       WHERE waveRendering = new.waveRendering AND waveRendering_index = new.waveRendering_index
       OFFSET 0
        LIMIT 1;
 
       IF duplicate IS NOT NULL THEN
-          RAISE NOTICE ''Remapping pixels % via (-1 - oldvalue )'', duplicate;
-          UPDATE pixels SET image_index = -1 - image_index WHERE id = duplicate;
+          RAISE NOTICE ''Remapping renderingdef % via (-1 - oldvalue )'', duplicate;
+          UPDATE renderingdef SET waveRendering_index = -1 - waveRendering_index WHERE id = duplicate;
       END IF;
 
       RETURN new;
     END;' LANGUAGE plpgsql;
 
-  CREATE TRIGGER pixels_image_index_trigger
-        BEFORE UPDATE ON pixels
-        FOR EACH ROW EXECUTE PROCEDURE pixels_image_index_move ();
+  CREATE TRIGGER renderingdef_waveRendering_index_trigger
+        BEFORE UPDATE ON renderingdef
+        FOR EACH ROW EXECUTE PROCEDURE renderingdef_waveRendering_index_move ();
+
+  CREATE OR REPLACE FUNCTION renderingdef_spatialDomainEnhancement_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.spatialDomainEnhancement = old.spatialDomainEnhancement AND new.spatialDomainEnhancement_index = old.spatialDomainEnhancement_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM renderingdef
+       WHERE spatialDomainEnhancement = new.spatialDomainEnhancement AND spatialDomainEnhancement_index = new.spatialDomainEnhancement_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping renderingdef % via (-1 - oldvalue )'', duplicate;
+          UPDATE renderingdef SET spatialDomainEnhancement_index = -1 - spatialDomainEnhancement_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE TRIGGER renderingdef_spatialDomainEnhancement_index_trigger
+        BEFORE UPDATE ON renderingdef
+        FOR EACH ROW EXECUTE PROCEDURE renderingdef_spatialDomainEnhancement_index_move ();
+
+  DROP TABLE count_Annotation_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_annotationLinks_by_owner (Annotation_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM AnnotationAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_Project_datasetLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Project_datasetLinks_by_owner (Project_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM ProjectDatasetLink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_Project_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Project_annotationLinks_by_owner (Project_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM ProjectAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_ScreenAcquisition_wellSampleLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_ScreenAcquisition_wellSampleLinks_by_owner (ScreenAcquisition_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM ScreenAcquisitionWellSampleLink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_ScreenAcquisition_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_ScreenAcquisition_annotationLinks_by_owner (ScreenAcquisition_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM ScreenAcquisitionAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
+
+  CREATE OR REPLACE FUNCTION wellsample_well_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.well = old.well AND new.well_index = old.well_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM wellsample
+       WHERE well = new.well AND well_index = new.well_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping wellsample % via (-1 - oldvalue )'', duplicate;
+          UPDATE wellsample SET well_index = -1 - well_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE TRIGGER wellsample_well_index_trigger
+        BEFORE UPDATE ON wellsample
+        FOR EACH ROW EXECUTE PROCEDURE wellsample_well_index_move ();
+
+  DROP TABLE count_WellSample_screenAcquisitionLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_WellSample_screenAcquisitionLinks_by_owner (WellSample_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM ScreenAcquisitionWellSampleLink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_WellSample_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_WellSample_annotationLinks_by_owner (WellSample_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM WellSampleAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_Job_originalFileLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Job_originalFileLinks_by_owner (Job_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM JobOriginalFileLink GROUP BY parent, owner_id ORDER BY parent;
+
+  CREATE OR REPLACE FUNCTION codomainmapcontext_renderingDef_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.renderingDef = old.renderingDef AND new.renderingDef_index = old.renderingDef_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM codomainmapcontext
+       WHERE renderingDef = new.renderingDef AND renderingDef_index = new.renderingDef_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping codomainmapcontext % via (-1 - oldvalue )'', duplicate;
+          UPDATE codomainmapcontext SET renderingDef_index = -1 - renderingDef_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE TRIGGER codomainmapcontext_renderingDef_index_trigger
+        BEFORE UPDATE ON codomainmapcontext
+        FOR EACH ROW EXECUTE PROCEDURE codomainmapcontext_renderingDef_index_move ();
+
+  DROP TABLE count_Well_reagentLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Well_reagentLinks_by_owner (Well_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM WellReagentLink GROUP BY parent, owner_id ORDER BY parent;
+
+  CREATE OR REPLACE FUNCTION well_wellSamples_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.wellSamples = old.wellSamples AND new.wellSamples_index = old.wellSamples_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM well
+       WHERE wellSamples = new.wellSamples AND wellSamples_index = new.wellSamples_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping well % via (-1 - oldvalue )'', duplicate;
+          UPDATE well SET wellSamples_index = -1 - wellSamples_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE TRIGGER well_wellSamples_index_trigger
+        BEFORE UPDATE ON well
+        FOR EACH ROW EXECUTE PROCEDURE well_wellSamples_index_move ();
+
+  DROP TABLE count_Well_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Well_annotationLinks_by_owner (Well_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM WellAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_Node_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Node_annotationLinks_by_owner (Node_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM NodeAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_Experimenter_groupExperimenterMap_by_owner;
+
+  CREATE OR REPLACE VIEW count_Experimenter_groupExperimenterMap_by_owner (Experimenter_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM GroupExperimenterMap GROUP BY child, owner_id ORDER BY child;
+
+  CREATE OR REPLACE FUNCTION experimenter_groupExperimenterMap_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.groupExperimenterMap = old.groupExperimenterMap AND new.groupExperimenterMap_index = old.groupExperimenterMap_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM experimenter
+       WHERE groupExperimenterMap = new.groupExperimenterMap AND groupExperimenterMap_index = new.groupExperimenterMap_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping experimenter % via (-1 - oldvalue )'', duplicate;
+          UPDATE experimenter SET groupExperimenterMap_index = -1 - groupExperimenterMap_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE TRIGGER experimenter_groupExperimenterMap_index_trigger
+        BEFORE UPDATE ON experimenter
+        FOR EACH ROW EXECUTE PROCEDURE experimenter_groupExperimenterMap_index_move ();
+
+  DROP TABLE count_Experimenter_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Experimenter_annotationLinks_by_owner (Experimenter_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM ExperimenterAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
+
+  CREATE OR REPLACE FUNCTION image_pixels_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.pixels = old.pixels AND new.pixels_index = old.pixels_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM image
+       WHERE pixels = new.pixels AND pixels_index = new.pixels_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping image % via (-1 - oldvalue )'', duplicate;
+          UPDATE image SET pixels_index = -1 - pixels_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE TRIGGER image_pixels_index_trigger
+        BEFORE UPDATE ON image
+        FOR EACH ROW EXECUTE PROCEDURE image_pixels_index_move ();
 
   DROP TABLE count_Image_datasetLinks_by_owner;
 
@@ -278,6 +452,35 @@ BEGIN;
 
   CREATE OR REPLACE VIEW count_Image_annotationLinks_by_owner (Image_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM ImageAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
+
+  CREATE OR REPLACE FUNCTION channel_pixels_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.pixels = old.pixels AND new.pixels_index = old.pixels_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM channel
+       WHERE pixels = new.pixels AND pixels_index = new.pixels_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping channel % via (-1 - oldvalue )'', duplicate;
+          UPDATE channel SET pixels_index = -1 - pixels_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE TRIGGER channel_pixels_index_trigger
+        BEFORE UPDATE ON channel
+        FOR EACH ROW EXECUTE PROCEDURE channel_pixels_index_move ();
 
   DROP TABLE count_Channel_annotationLinks_by_owner;
 

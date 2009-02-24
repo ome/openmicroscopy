@@ -570,12 +570,25 @@
 		<entry name="text/xml"/>
 		<entry name="text/html"/>
 		<entry name="text/rtf"/>
+		<entry name="text/richtext"/>
 		<entry name="text/x-python"/>
 		<entry name="application/pdf"/>
 		<entry name="application/vnd.ms-excel"/>
 		<entry name="application/vnd.ms-powerpoint"/>
 		<entry name="application/msword"/>
 		<entry name="application/octet-stream"/>
+		<entry name="video/jpeg2000"/>
+		<entry name="video/mpeg"/>
+		<entry name="video/mp4"/>
+		<entry name="video/quicktime"/>
+		<entry name="image/bmp"/>
+		<entry name="image/gif"/>
+		<entry name="image/jpeg"/>
+		<entry name="image/tiff"/>
+		<entry name="image/png"/>
+		<entry name="audio/basic"/>
+		<entry name="audio/mpeg"/>
+		<entry name="audio/wav"/>
 		<!-- Note: Other and Unknown are not needed use text/plain or application/octet-stream -->
 	</enum>
 <!-- Pixels Entity -->

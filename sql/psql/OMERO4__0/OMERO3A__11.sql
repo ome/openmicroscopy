@@ -11,6 +11,7 @@
 BEGIN;
 
 -- Check that we are only applying this against OMERO3A__11
+
 CREATE OR REPLACE FUNCTION omero_assert_omero3a_11() RETURNS void AS '
 DECLARE
     rec RECORD;
@@ -35,6 +36,138 @@ INSERT into dbpatch (currentVersion, currentPatch,   previousVersion,     previo
              values ('OMERO4',       0,              'OMERO3A',           11);
 
 --
+-- Removing all sequences #1191
+--
+DROP SEQUENCE seq_aberrationcorrection;
+DROP SEQUENCE seq_acquisitionmode;
+DROP SEQUENCE seq_annotation;
+DROP SEQUENCE seq_annotationannotationlink;
+DROP SEQUENCE seq_arctype;
+DROP SEQUENCE seq_binning;
+DROP SEQUENCE seq_category;
+DROP SEQUENCE seq_categorygroup;
+DROP SEQUENCE seq_categorygroupcategorylink;
+DROP SEQUENCE seq_categoryimagelink;
+DROP SEQUENCE seq_cellarea;
+DROP SEQUENCE seq_celleccentricity;
+DROP SEQUENCE seq_cellextent;
+DROP SEQUENCE seq_cellmajoraxislength;
+DROP SEQUENCE seq_cellminoraxislength;
+DROP SEQUENCE seq_cellperimeter;
+DROP SEQUENCE seq_cellposition;
+DROP SEQUENCE seq_cellsolidity;
+DROP SEQUENCE seq_channel;
+DROP SEQUENCE seq_channelannotationlink;
+DROP SEQUENCE seq_channelbinding;
+DROP SEQUENCE seq_coating;
+DROP SEQUENCE seq_codomainmapcontext;
+DROP SEQUENCE seq_color;
+DROP SEQUENCE seq_contrastmethod;
+DROP SEQUENCE seq_customizedfilterset;
+DROP SEQUENCE seq_dataset;
+DROP SEQUENCE seq_datasetannotationlink;
+DROP SEQUENCE seq_datasetimagelink;
+DROP SEQUENCE seq_dbpatch;
+DROP SEQUENCE seq_detector;
+DROP SEQUENCE seq_detectorsettings;
+DROP SEQUENCE seq_detectortype;
+DROP SEQUENCE seq_dichroic;
+DROP SEQUENCE seq_dimensionorder;
+DROP SEQUENCE seq_emissionfilter;
+DROP SEQUENCE seq_event;
+DROP SEQUENCE seq_eventlog;
+DROP SEQUENCE seq_eventtype;
+DROP SEQUENCE seq_excitationfilter;
+DROP SEQUENCE seq_experiment;
+DROP SEQUENCE seq_experimenter;
+DROP SEQUENCE seq_experimenterannotationlink;
+DROP SEQUENCE seq_experimentergroup;
+DROP SEQUENCE seq_experimentergroupannotationlink;
+DROP SEQUENCE seq_experimenttype;
+DROP SEQUENCE seq_externalinfo;
+DROP SEQUENCE seq_family;
+DROP SEQUENCE seq_filamenttype;
+DROP SEQUENCE seq_filter;
+DROP SEQUENCE seq_filterset;
+DROP SEQUENCE seq_filtertype;
+DROP SEQUENCE seq_format;
+DROP SEQUENCE seq_frequencymultiplication;
+DROP SEQUENCE seq_groupexperimentermap;
+DROP SEQUENCE seq_illumination;
+DROP SEQUENCE seq_image;
+DROP SEQUENCE seq_imageannotationlink;
+DROP SEQUENCE seq_imagecellcount;
+DROP SEQUENCE seq_imagenucleascount;
+DROP SEQUENCE seq_imagingenvironment;
+DROP SEQUENCE seq_immersion;
+DROP SEQUENCE seq_instrument;
+DROP SEQUENCE seq_irisdiaphragm;
+DROP SEQUENCE seq_job;
+DROP SEQUENCE seq_joboriginalfilelink;
+DROP SEQUENCE seq_jobstatus;
+DROP SEQUENCE seq_lasermedium;
+DROP SEQUENCE seq_lasertype;
+DROP SEQUENCE seq_lightsettings;
+DROP SEQUENCE seq_lightsource;
+DROP SEQUENCE seq_link;
+DROP SEQUENCE seq_logicalchannel;
+DROP SEQUENCE seq_medium;
+DROP SEQUENCE seq_microscope;
+DROP SEQUENCE seq_microscopetype;
+DROP SEQUENCE seq_nucleusarea;
+DROP SEQUENCE seq_nucleuseccentricity;
+DROP SEQUENCE seq_nucleusextent;
+DROP SEQUENCE seq_nucleusmajoraxislength;
+DROP SEQUENCE seq_nucleusminoraxislength;
+DROP SEQUENCE seq_nucleusperimeter;
+DROP SEQUENCE seq_nucleusposition;
+DROP SEQUENCE seq_nucleussolidity;
+DROP SEQUENCE seq_objective;
+DROP SEQUENCE seq_objectivesettings;
+DROP SEQUENCE seq_originalfile;
+DROP SEQUENCE seq_originalfileannotationlink;
+DROP SEQUENCE seq_otf;
+DROP SEQUENCE seq_photometricinterpretation;
+DROP SEQUENCE seq_pixels;
+DROP SEQUENCE seq_pixelsannotationlink;
+DROP SEQUENCE seq_pixelsdimensions;
+DROP SEQUENCE seq_pixelsoriginalfilemap;
+DROP SEQUENCE seq_pixelstype;
+DROP SEQUENCE seq_planeinfo;
+DROP SEQUENCE seq_planeinfoannotationlink;
+DROP SEQUENCE seq_plate;
+DROP SEQUENCE seq_plateannotationlink;
+DROP SEQUENCE seq_project;
+DROP SEQUENCE seq_projectannotationlink;
+DROP SEQUENCE seq_projectdatasetlink;
+DROP SEQUENCE seq_pulse;
+DROP SEQUENCE seq_quantumdef;
+DROP SEQUENCE seq_reagent;
+DROP SEQUENCE seq_reagentannotationlink;
+DROP SEQUENCE seq_renderingdef;
+DROP SEQUENCE seq_renderingmodel;
+DROP SEQUENCE seq_roi;
+DROP SEQUENCE seq_roilink;
+DROP SEQUENCE seq_roilinkannotationlink;
+DROP SEQUENCE seq_screen;
+DROP SEQUENCE seq_screenacquisition;
+DROP SEQUENCE seq_screenacquisitionannotationlink;
+DROP SEQUENCE seq_screenacquisitionwellsamplelink;
+DROP SEQUENCE seq_screenannotationlink;
+DROP SEQUENCE seq_screenplatelink;
+DROP SEQUENCE seq_session;
+DROP SEQUENCE seq_sessionannotationlink;
+DROP SEQUENCE seq_stagelabel;
+DROP SEQUENCE seq_statsinfo;
+DROP SEQUENCE seq_thumbnail;
+DROP SEQUENCE seq_transmittancerange;
+DROP SEQUENCE seq_well;
+DROP SEQUENCE seq_wellannotationlink;
+DROP SEQUENCE seq_wellreagentlink;
+DROP SEQUENCE seq_wellsample;
+DROP SEQUENCE seq_wellsampleannotationlink;
+
+--
 -- In order to simplify conversion, we assert that various tables are empty.
 -- If they are not, your site will need specialized scripts for upgrading.
 -- Please contact the mailing list.
@@ -51,6 +184,7 @@ BEGIN
     END LOOP;
 
 END;' LANGUAGE plpgsql;
+
 -- For conversion
 SELECT omero_assert_empty('dichroic');
 SELECT omero_assert_empty('filter');
@@ -88,52 +222,8 @@ SELECT omero_assert_empty('roi');
 DROP FUNCTION omero_assert_empty(VARCHAR);
 
 --
--- Sequences can be trivial dropped since we won't be creating more rows
+-- New Tables
 --
-DROP SEQUENCE seq_aberrationcorrection;
-DROP SEQUENCE seq_category;
-DROP SEQUENCE seq_categorygroup;
-DROP SEQUENCE seq_categorygroupcategorylink;
-DROP SEQUENCE seq_categoryimagelink;
-DROP SEQUENCE seq_cellarea;
-DROP SEQUENCE seq_celleccentricity;
-DROP SEQUENCE seq_cellextent;
-DROP SEQUENCE seq_cellmajoraxislength;
-DROP SEQUENCE seq_cellminoraxislength;
-DROP SEQUENCE seq_cellperimeter;
-DROP SEQUENCE seq_cellposition;
-DROP SEQUENCE seq_cellsolidity;
-DROP SEQUENCE seq_coating;
-DROP SEQUENCE seq_color;
-DROP SEQUENCE seq_customizedfilterset;
-DROP SEQUENCE seq_emissionfilter;
-DROP SEQUENCE seq_excitationfilter;
-DROP SEQUENCE seq_frequencymultiplication;
-DROP SEQUENCE seq_imagecellcount;
-DROP SEQUENCE seq_imagenucleascount;
-DROP SEQUENCE seq_irisdiaphragm;
-DROP SEQUENCE seq_nucleusarea;
-DROP SEQUENCE seq_nucleuseccentricity;
-DROP SEQUENCE seq_nucleusextent;
-DROP SEQUENCE seq_nucleusmajoraxislength;
-DROP SEQUENCE seq_nucleusminoraxislength;
-DROP SEQUENCE seq_nucleusperimeter;
-DROP SEQUENCE seq_nucleusposition;
-DROP SEQUENCE seq_nucleussolidity;
-DROP SEQUENCE seq_pixelsdimensions;
-DROP SEQUENCE seq_roi;
-DROP SEQUENCE seq_roilink;
-DROP SEQUENCE seq_roilinkannotationlink;
-
---
--- New sequences
---
-CREATE SEQUENCE seq_correction INCREMENT BY 1 NO MAXVALUE NO MINVALUE CACHE 1; 
-CREATE SEQUENCE seq_microbeammanipulation START WITH 1 INCREMENT BY 1 NO MAXVALUE NO MINVALUE CACHE 1;
-CREATE SEQUENCE seq_microbeammanipulationtype INCREMENT BY 1 NO MAXVALUE NO MINVALUE CACHE 1; 
-CREATE SEQUENCE seq_node START WITH 1 INCREMENT BY 1 NO MAXVALUE NO MINVALUE CACHE 1;
-CREATE SEQUENCE seq_nodeannotationlink START WITH 1 INCREMENT BY 1 NO MAXVALUE NO MINVALUE CACHE 1;
-
 
 CREATE TABLE correction (
 	id bigint NOT NULL,
@@ -198,153 +288,179 @@ CREATE TABLE node (
 	external_id bigint
 );
 
--- Correcting sequences pre-new generator switch (#1176)
-SELECT setval('seq_acquisitionmode', id) FROM acquisitionmode ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_annotation', id) FROM annotation ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_annotationannotationlink', id) FROM annotationannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_arctype', id) FROM arctype ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_binning', id) FROM binning ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_channel', id) FROM channel ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_channelannotationlink', id) FROM channelannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_channelbinding', id) FROM channelbinding ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_codomainmapcontext', id) FROM codomainmapcontext ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_contrastmethod', id) FROM contrastmethod ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_correction', id) FROM correction ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_dataset', id) FROM dataset ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_datasetannotationlink', id) FROM datasetannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_datasetimagelink', id) FROM datasetimagelink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_dbpatch', id) FROM dbpatch ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_detector', id) FROM detector ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_detectorsettings', id) FROM detectorsettings ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_detectortype', id) FROM detectortype ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_dichroic', id) FROM dichroic ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_dimensionorder', id) FROM dimensionorder ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_event', id) FROM event ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_eventlog', id) FROM eventlog ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_eventtype', id) FROM eventtype ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_experiment', id) FROM experiment ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_experimenter', id) FROM experimenter ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_experimenterannotationlink', id) FROM experimenterannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_experimentergroup', id) FROM experimentergroup ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_experimentergroupannotationlink', id) FROM experimentergroupannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_experimenttype', id) FROM experimenttype ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_externalinfo', id) FROM externalinfo ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_family', id) FROM family ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_filamenttype', id) FROM filamenttype ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_filter', id) FROM filter ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_filterset', id) FROM filterset ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_filtertype', id) FROM filtertype ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_format', id) FROM format ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_groupexperimentermap', id) FROM groupexperimentermap ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_illumination', id) FROM illumination ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_image', id) FROM image ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_imageannotationlink', id) FROM imageannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_imagingenvironment', id) FROM imagingenvironment ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_immersion', id) FROM immersion ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_instrument', id) FROM instrument ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_job', id) FROM job ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_joboriginalfilelink', id) FROM joboriginalfilelink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_jobstatus', id) FROM jobstatus ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_lasermedium', id) FROM lasermedium ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_lasertype', id) FROM lasertype ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_lightsettings', id) FROM lightsettings ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_lightsource', id) FROM lightsource ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_link', id) FROM link ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_logicalchannel', id) FROM logicalchannel ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_medium', id) FROM medium ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_microbeammanipulation', id) FROM microbeammanipulation ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_microbeammanipulationtype', id) FROM microbeammanipulationtype ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_microscope', id) FROM microscope ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_microscopetype', id) FROM microscopetype ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_node', id) FROM node ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_nodeannotationlink', id) FROM nodeannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_objective', id) FROM objective ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_objectivesettings', id) FROM objectivesettings ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_originalfile', id) FROM originalfile ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_originalfileannotationlink', id) FROM originalfileannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_otf', id) FROM otf ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_photometricinterpretation', id) FROM photometricinterpretation ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_pixels', id) FROM pixels ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_pixelsannotationlink', id) FROM pixelsannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_pixelsoriginalfilemap', id) FROM pixelsoriginalfilemap ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_pixelstype', id) FROM pixelstype ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_planeinfo', id) FROM planeinfo ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_planeinfoannotationlink', id) FROM planeinfoannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_plate', id) FROM plate ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_plateannotationlink', id) FROM plateannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_project', id) FROM project ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_projectannotationlink', id) FROM projectannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_projectdatasetlink', id) FROM projectdatasetlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_pulse', id) FROM pulse ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_quantumdef', id) FROM quantumdef ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_reagent', id) FROM reagent ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_reagentannotationlink', id) FROM reagentannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_renderingdef', id) FROM renderingdef ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_renderingmodel', id) FROM renderingmodel ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_screen', id) FROM screen ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_screenacquisition', id) FROM screenacquisition ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_screenacquisitionannotationlink', id) FROM screenacquisitionannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_screenacquisitionwellsamplelink', id) FROM screenacquisitionwellsamplelink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_screenannotationlink', id) FROM screenannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_screenplatelink', id) FROM screenplatelink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_session', id) FROM session ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_sessionannotationlink', id) FROM sessionannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_stagelabel', id) FROM stagelabel ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_statsinfo', id) FROM statsinfo ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_thumbnail', id) FROM thumbnail ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_transmittancerange', id) FROM transmittancerange ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_well', id) FROM well ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_wellannotationlink', id) FROM wellannotationlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_wellreagentlink', id) FROM wellreagentlink ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_wellsample', id) FROM wellsample ORDER BY id DESC LIMIT 1;
-SELECT setval('seq_wellsampleannotationlink', id) FROM wellsampleannotationlink ORDER BY id DESC LIMIT 1;
+--
+-- New functions and table for dealing with generator switch (#1176)
+--
+
+CREATE OR REPLACE FUNCTION ome_nextval(seq VARCHAR) RETURNS INT8 AS '
+BEGIN
+      RETURN ome_nextval(seq, 1);
+END;' LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION ome_nextval(seq VARCHAR, increment int4) RETURNS INT8 AS '
+DECLARE
+      nv   int8;
+      sql  varchar;
+BEGIN
+      SELECT next_val INTO nv FROM seq_table WHERE sequence_name = seq FOR UPDATE OF seq_table;
+      IF nv IS NULL THEN
+          INSERT INTO seq_table (sequence_name, next_val) VALUES (seq, increment + 1);
+          nv = increment;
+      ELSE
+          UPDATE seq_table SET next_val = (nv + increment) WHERE sequence_name = seq;
+	  nv = nv + increment - 1;
+      END IF;
+
+      RETURN nv;
+END;' LANGUAGE plpgsql;
+
+CREATE TABLE seq_table (sequence_name VARCHAR(255) PRIMARY KEY, next_val int8);
+INSERT INTO seq_table SELECT 'seq_acquisitionmode', id + 1 FROM acquisitionmode ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_annotation', id + 1 FROM annotation ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_annotationannotationlink', id + 1 FROM annotationannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_arctype', id + 1 FROM arctype ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_binning', id + 1 FROM binning ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_channel', id + 1 FROM channel ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_channelannotationlink', id + 1 FROM channelannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_channelbinding', id + 1 FROM channelbinding ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_codomainmapcontext', id + 1 FROM codomainmapcontext ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_contrastmethod', id + 1 FROM contrastmethod ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_correction', id + 1 FROM correction ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_dataset', id + 1 FROM dataset ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_datasetannotationlink', id + 1 FROM datasetannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_datasetimagelink', id + 1 FROM datasetimagelink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_dbpatch', id + 1 FROM dbpatch ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_detector', id + 1 FROM detector ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_detectorsettings', id + 1 FROM detectorsettings ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_detectortype', id + 1 FROM detectortype ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_dichroic', id + 1 FROM dichroic ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_dimensionorder', id + 1 FROM dimensionorder ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_event', id + 1 FROM event ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_eventlog', id + 1 FROM eventlog ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_eventtype', id + 1 FROM eventtype ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_experiment', id + 1 FROM experiment ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_experimenter', id + 1 FROM experimenter ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_experimenterannotationlink', id + 1 FROM experimenterannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_experimentergroup', id + 1 FROM experimentergroup ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_experimentergroupannotationlink', id + 1 FROM experimentergroupannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_experimenttype', id + 1 FROM experimenttype ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_externalinfo', id + 1 FROM externalinfo ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_family', id + 1 FROM family ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_filamenttype', id + 1 FROM filamenttype ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_filter', id + 1 FROM filter ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_filterset', id + 1 FROM filterset ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_filtertype', id + 1 FROM filtertype ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_format', id + 1 FROM format ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_groupexperimentermap', id + 1 FROM groupexperimentermap ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_illumination', id + 1 FROM illumination ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_image', id + 1 FROM image ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_imageannotationlink', id + 1 FROM imageannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_imagingenvironment', id + 1 FROM imagingenvironment ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_immersion', id + 1 FROM immersion ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_instrument', id + 1 FROM instrument ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_job', id + 1 FROM job ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_joboriginalfilelink', id + 1 FROM joboriginalfilelink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_jobstatus', id + 1 FROM jobstatus ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_lasermedium', id + 1 FROM lasermedium ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_lasertype', id + 1 FROM lasertype ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_lightsettings', id + 1 FROM lightsettings ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_lightsource', id + 1 FROM lightsource ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_link', id + 1 FROM link ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_logicalchannel', id + 1 FROM logicalchannel ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_medium', id + 1 FROM medium ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_microbeammanipulation', id + 1 FROM microbeammanipulation ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_microbeammanipulationtype', id + 1 FROM microbeammanipulationtype ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_microscope', id + 1 FROM microscope ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_microscopetype', id + 1 FROM microscopetype ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_node', id + 1 FROM node ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_nodeannotationlink', id + 1 FROM nodeannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_objective', id + 1 FROM objective ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_objectivesettings', id + 1 FROM objectivesettings ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_originalfile', id + 1 FROM originalfile ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_originalfileannotationlink', id + 1 FROM originalfileannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_otf', id + 1 FROM otf ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_photometricinterpretation', id + 1 FROM photometricinterpretation ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_pixels', id + 1 FROM pixels ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_pixelsannotationlink', id + 1 FROM pixelsannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_pixelsoriginalfilemap', id + 1 FROM pixelsoriginalfilemap ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_pixelstype', id + 1 FROM pixelstype ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_planeinfo', id + 1 FROM planeinfo ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_planeinfoannotationlink', id + 1 FROM planeinfoannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_plate', id + 1 FROM plate ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_plateannotationlink', id + 1 FROM plateannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_project', id + 1 FROM project ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_projectannotationlink', id + 1 FROM projectannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_projectdatasetlink', id + 1 FROM projectdatasetlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_pulse', id + 1 FROM pulse ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_quantumdef', id + 1 FROM quantumdef ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_reagent', id + 1 FROM reagent ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_reagentannotationlink', id + 1 FROM reagentannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_renderingdef', id + 1 FROM renderingdef ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_renderingmodel', id + 1 FROM renderingmodel ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_screen', id + 1 FROM screen ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_screenacquisition', id + 1 FROM screenacquisition ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_screenacquisitionannotationlink', id + 1 FROM screenacquisitionannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_screenacquisitionwellsamplelink', id + 1 FROM screenacquisitionwellsamplelink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_screenannotationlink', id + 1 FROM screenannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_screenplatelink', id + 1 FROM screenplatelink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_session', id + 1 FROM session ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_sessionannotationlink', id + 1 FROM sessionannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_stagelabel', id + 1 FROM stagelabel ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_statsinfo', id + 1 FROM statsinfo ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_thumbnail', id + 1 FROM thumbnail ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_transmittancerange', id + 1 FROM transmittancerange ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_well', id + 1 FROM well ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_wellannotationlink', id + 1 FROM wellannotationlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_wellreagentlink', id + 1 FROM wellreagentlink ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_wellsample', id + 1 FROM wellsample ORDER BY id DESC LIMIT 1;
+INSERT INTO seq_table SELECT 'seq_wellsampleannotationlink', id + 1 FROM wellsampleannotationlink ORDER BY id DESC LIMIT 1;
 
 --
 -- Fixing enumerations for later use by the table modifications
 --
 -- AcquisitionMode : ==================
-INSERT INTO acquisitionmode (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_acquisitionmode'),-35,0,0,0,'Other';
-INSERT INTO acquisitionmode (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_acquisitionmode'),-35,0,0,0,'Unknown';
+INSERT INTO acquisitionmode (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_acquisitionmode'),-35,0,0,0,'Other';
+INSERT INTO acquisitionmode (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_acquisitionmode'),-35,0,0,0,'Unknown';
 UPDATE acquisitionmode SET value = 'WideField' WHERE value = 'Wide-field';
 
 -- ArcType : ==================
-INSERT INTO arctype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_arctype'),-35,0,0,0,'Unknown';
+INSERT INTO arctype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_arctype'),-35,0,0,0,'Unknown';
 UPDATE arctype SET value = 'HgXe' where VALUE = 'Hg-Xe';
 
 -- ContractMethod : ==================
-INSERT INTO contrastmethod (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_contrastmethod'),-35,0,0,0,'Unknown';
-INSERT INTO contrastmethod (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_contrastmethod'),-35,0,0,0,'Other';
+INSERT INTO contrastmethod (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_contrastmethod'),-35,0,0,0,'Unknown';
+INSERT INTO contrastmethod (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_contrastmethod'),-35,0,0,0,'Other';
 
 -- Correction : ================== (ADDED)
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Achro';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Achromat';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Apo';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Fl';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Fluar';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Fluor';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Fluotar';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Neofluar';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Other';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'PlanApo';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'PlanFluor';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'SuperFluor';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'UV';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'Unknown';
-INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_correction'),-35,0,0,0,'VioletCorrected';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'Achro';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'Achromat';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'Apo';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'Fl';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'Fluar';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'Fluor';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'Fluotar';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'Neofluar';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'Other';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'PlanApo';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'PlanFluor';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'SuperFluor';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'UV';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'Unknown';
+INSERT INTO correction (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_correction'),-35,0,0,0,'VioletCorrected';
 
 -- DetectorType : ==================
 UPDATE detectortype SET value = 'AnalogVideo' WHERE value = 'Analog-Video';
 UPDATE detectortype SET value = 'CorrelationSpectroscopy' WHERE value = 'Correlation-Spectroscopy';
 UPDATE detectortype SET value = 'IntensifiedCCD' WHERE value = 'Intensified-CCD';
 UPDATE detectortype SET value = 'LifetimeImaging' WHERE value = 'Life-time-Imaging';
-INSERT INTO detectortype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_detectortype'),-35,0,0,0,'APD';
-INSERT INTO detectortype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_detectortype'),-35,0,0,0,'CMOS';
-INSERT INTO detectortype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_detectortype'),-35,0,0,0,'EM-CCD';
-INSERT INTO detectortype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_detectortype'),-35,0,0,0,'Other';
-INSERT INTO detectortype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_detectortype'),-35,0,0,0,'Unknown';
+INSERT INTO detectortype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_detectortype'),-35,0,0,0,'APD';
+INSERT INTO detectortype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_detectortype'),-35,0,0,0,'CMOS';
+INSERT INTO detectortype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_detectortype'),-35,0,0,0,'EM-CCD';
+INSERT INTO detectortype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_detectortype'),-35,0,0,0,'Other';
+INSERT INTO detectortype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_detectortype'),-35,0,0,0,'Unknown';
 
 -- ExperimentType : ================== 
-INSERT INTO experimenttype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_experimenttype'),-35,0,0,0,'Photobleaching';
+INSERT INTO experimenttype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_experimenttype'),-35,0,0,0,'Photobleaching';
 UPDATE experiment SET type  = (SELECT id FROM experimenttype WHERE value = 'Photobleaching')
     WHERE type in (select id FROM experimenttype WHERE value in ('Uncaging', 'FRAP', 'Optical-Trapping', 'Photoablation', 'Photoactivation'));
 DELETE FROM experimenttype WHERE value in ('Uncaging', 'FRAP', 'Optical-Trapping', 'Photoablation', 'Photoactivation');
@@ -358,77 +474,89 @@ UPDATE experimenttype SET value = 'Electrophysiology' WHERE value = 'Electropyhs
 UPDATE experimenttype SET value = 'PGIDocumentation' WHERE value = 'PGI/Documentation';
 UPDATE experimenttype SET value = 'SpectralImaging' WHERE value = 'Spectral-Imaging';
 UPDATE experimenttype SET value = 'TimeLapse' WHERE value = 'Time-lapse';
-INSERT INTO experimenttype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_experimenttype'),-35,0,0,0,'Unknown';
+INSERT INTO experimenttype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_experimenttype'),-35,0,0,0,'Unknown';
 
 -- FilamentType : ================== 
-INSERT INTO filamenttype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_filamenttype'),-35,0,0,0,'Other';
-INSERT INTO filamenttype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_filamenttype'),-35,0,0,0,'Unknown';
+INSERT INTO filamenttype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_filamenttype'),-35,0,0,0,'Other';
+INSERT INTO filamenttype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_filamenttype'),-35,0,0,0,'Unknown';
 
 -- FilterType : ================== 
-INSERT INTO filtertype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_filtertype'),-35,0,0,0,'Other';
-INSERT INTO filtertype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_filtertype'),-35,0,0,0,'Unknown';
+INSERT INTO filtertype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_filtertype'),-35,0,0,0,'Other';
+INSERT INTO filtertype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_filtertype'),-35,0,0,0,'Unknown';
 
 -- Format : ================== 
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_format'),-35,0,0,0,'application/octet-stream';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'application/octet-stream';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'text/richtext';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'video/jpeg2000';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'video/mpeg';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'video/mp4';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'video/quicktime';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'image/bmp';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'image/gif';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'image/jpeg';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'image/tiff';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'image/png';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'audio/basic';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'audio/mpeg';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'audio/wav';
 UPDATE format SET value = 'application/msword' WHERE value = 'application/ms-word';
 UPDATE format SET value = 'application/vnd.ms-excel' WHERE value = 'application/ms-excel';
 UPDATE format SET value = 'application/vnd.ms-powerpoint' WHERE value = 'application/ms-powerpoint';
 
 -- Illumination : ================== 
-INSERT INTO illumination (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_illumination'),-35,0,0,0,'NonLinear';
-INSERT INTO illumination (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_illumination'),-35,0,0,0,'Other';
-INSERT INTO illumination (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_illumination'),-35,0,0,0,'Unknown';
+INSERT INTO illumination (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_illumination'),-35,0,0,0,'NonLinear';
+INSERT INTO illumination (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_illumination'),-35,0,0,0,'Other';
+INSERT INTO illumination (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_illumination'),-35,0,0,0,'Unknown';
 
 -- Immersion : ================== 
-INSERT INTO immersion (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_immersion'),-35,0,0,0,'Unknown';
+INSERT INTO immersion (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_immersion'),-35,0,0,0,'Unknown';
 
 -- LaserMedium : ================== 
 UPDATE lasermedium SET value = 'CoumarinC30' WHERE VALUE = 'Coumaring-C30';
 UPDATE lasermedium SET value = 'EMinus' WHERE VALUE = 'e-';
 UPDATE lasermedium SET value = 'Rhodamine6G' WHERE VALUE = 'Rhodamine-5G';
-INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasermedium'),-35,0,0,0,'Alexandrite';
-INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasermedium'),-35,0,0,0,'ErGlass';
-INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasermedium'),-35,0,0,0,'ErYAG';
-INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasermedium'),-35,0,0,0,'HoYAG';
-INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasermedium'),-35,0,0,0,'HoYLF';
-INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasermedium'),-35,0,0,0,'NdGlass';
-INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasermedium'),-35,0,0,0,'NdYAG';
-INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasermedium'),-35,0,0,0,'Ruby';
-INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasermedium'),-35,0,0,0,'TiSapphire';
-INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasermedium'),-35,0,0,0,'Other';
-INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasermedium'),-35,0,0,0,'Unknown';
+INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_lasermedium'),-35,0,0,0,'Alexandrite';
+INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_lasermedium'),-35,0,0,0,'ErGlass';
+INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_lasermedium'),-35,0,0,0,'ErYAG';
+INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_lasermedium'),-35,0,0,0,'HoYAG';
+INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_lasermedium'),-35,0,0,0,'HoYLF';
+INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_lasermedium'),-35,0,0,0,'NdGlass';
+INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_lasermedium'),-35,0,0,0,'NdYAG';
+INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_lasermedium'),-35,0,0,0,'Ruby';
+INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_lasermedium'),-35,0,0,0,'TiSapphire';
+INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_lasermedium'),-35,0,0,0,'Other';
+INSERT INTO lasermedium (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_lasermedium'),-35,0,0,0,'Unknown';
 
 -- LaserType : ================== 
-INSERT INTO lasertype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasertype'),-35,0,0,0,'Other';
-INSERT INTO lasertype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_lasertype'),-35,0,0,0,'Unknown';
+INSERT INTO lasertype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_lasertype'),-35,0,0,0,'Other';
+INSERT INTO lasertype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_lasertype'),-35,0,0,0,'Unknown';
 
 -- Medium : ================== 
-INSERT INTO medium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_medium'),-35,0,0,0,'Other';
-INSERT INTO medium (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_medium'),-35,0,0,0,'Unknown';
+INSERT INTO medium (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_medium'),-35,0,0,0,'Other';
+INSERT INTO medium (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_medium'),-35,0,0,0,'Unknown';
     
 -- MicrobeamManipulationType : ================== 
-INSERT INTO microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_microbeammanipulationtype'),-35,0,0,0,'FRAP';
-INSERT INTO microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_microbeammanipulationtype'),-35,0,0,0,'OpticalTrapping';
-INSERT INTO microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_microbeammanipulationtype'),-35,0,0,0,'Other';
-INSERT INTO microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_microbeammanipulationtype'),-35,0,0,0,'Photoablation';
-INSERT INTO microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_microbeammanipulationtype'),-35,0,0,0,'Photoactivation';
-INSERT INTO microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_microbeammanipulationtype'),-35,0,0,0,'Uncaging';
-INSERT INTO microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_microbeammanipulationtype'),-35,0,0,0,'Unknown';
+INSERT INTO microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_microbeammanipulationtype'),-35,0,0,0,'FRAP';
+INSERT INTO microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_microbeammanipulationtype'),-35,0,0,0,'OpticalTrapping';
+INSERT INTO microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Other';
+INSERT INTO microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Photoablation';
+INSERT INTO microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Photoactivation';
+INSERT INTO microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Uncaging';
+INSERT INTO microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Unknown';
 
 -- MicroscopeType : ================== 
-INSERT INTO microscopetype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_microscopetype'),-35,0,0,0,'Other';
-INSERT INTO microscopetype (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_microscopetype'),-35,0,0,0,'Unknown';
+INSERT INTO microscopetype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_microscopetype'),-35,0,0,0,'Other';
+INSERT INTO microscopetype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_microscopetype'),-35,0,0,0,'Unknown';
 
 -- Pulse : ================== 
 UPDATE pulse SET value = 'ModeLocked' WHERE VALUE = 'Mode-Locked';
 UPDATE pulse SET value = 'QSwitched' WHERE VALUE = 'Q-Switched';
-INSERT INTO pulse (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_pulse'),-35,0,0,0,'Other';
-INSERT INTO pulse (id,permissions,owner_id,group_id,creation_id,value) SELECT NEXTVAL('seq_pulse'),-35,0,0,0,'Unknown';
+INSERT INTO pulse (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_pulse'),-35,0,0,0,'Other';
+INSERT INTO pulse (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_pulse'),-35,0,0,0,'Unknown';
 
 -- RenderingModel : ================== 
 UPDATE renderingdef SET model = (SELECT id FROM renderingmodel WHERE value = 'rgb') WHERE model = (SELECT id FROM renderingmodel WHERE value = 'hsb');
 DELETE FROM renderingmodel WHERE VALUE = 'hsb';
-    
 
 --
 -- Table modifications
@@ -730,8 +858,32 @@ ALTER TABLE roi ADD CONSTRAINT fkroi_microbeammanipulation_microbeammanipulation
 ALTER TABLE session ADD CONSTRAINT fksession_node_node FOREIGN KEY (node) REFERENCES node(id);
 ALTER TABLE session ADD CONSTRAINT fksession_owner_experimenter FOREIGN KEY ("owner") REFERENCES experimenter(id);
 
+--
+-- #1191 Annotation changes
+--
+INSERT INTO imageannotationlink (id, permissions, version, child, creation_id, external_id, group_id, owner_id, update_id, parent)
+     SELECT ome_nextval('seq_imageannotationlink'), pal.permissions, pal.version, pal.child, pal.creation_id, pal.external_id,
+            pal.group_id, pal.owner_id, pal.update_id, i.id
+       FROM annotation a, pixelsannotationlink pal, pixels p, image i
+      WHERE a.ns = 'openmicroscopy.org/omero/importer/archived'
+	AND a.id = pal.child
+        AND pal.parent = p.id
+        AND p.image = i.id;
 
+DELETE FROM pixelsannotationlink
+      WHERE child in
+	  (
+      SELECT id FROM annotation where ns = 'openmicroscopy.org/omero/importer/archived'
+	  );
 
+      UPDATE annotation
+         SET ns = 'openmicroscopy.org/omero/insight/tagset'
+        FROM annotationannotationlink aal, annotation tag
+       WHERE annotation.discriminator = '/basic/text/tag/'
+         AND annotation.ns IS NULL
+         AND tag.discriminator = '/basic/text/tag/'
+         AND annotation.id = aal.parent
+         AND tag.id = aal.child;
 
 --
 -- Finally, dropping tables
@@ -808,3 +960,4 @@ UPDATE dbpatch set message = 'Database updated.', finished = now()
           previousPatch   = 11;
 
 COMMIT;
+

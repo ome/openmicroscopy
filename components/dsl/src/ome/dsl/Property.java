@@ -160,7 +160,7 @@ public abstract class Property { // TODO need to define equality so that two
     private Boolean update;
 
     // Mappings
-    private Boolean one2Many;
+    private Boolean one2Many = Boolean.FALSE;
 
     private Boolean bidirectional;
 
@@ -206,11 +206,11 @@ public abstract class Property { // TODO need to define equality so that two
     // Getters and Setters
     //
 
-    public void setST(SemanticType st) {
+    public void setSt(SemanticType st) {
         this.st = st;
     }
 
-    public SemanticType getST() {
+    public SemanticType getSt() {
         return st;
     }
 
@@ -263,7 +263,7 @@ public abstract class Property { // TODO need to define equality so that two
     public String getDbType() {
         String t = DBTYPES.get(type);
         if (t == null) {
-            return type;
+            return SemanticType.typeToColumn(type);
         }
         return t;
     }
@@ -454,7 +454,7 @@ public abstract class Property { // TODO need to define equality so that two
      * VALUES. Subclassees may override these values
      */
     public Property(SemanticType st, Properties attrs) {
-        setST(st);
+        setSt(st);
         setName(attrs.getProperty("name", null));
         setType(attrs.getProperty("type", null));
         setDefaultValue(attrs.getProperty("default", null));// TODO currently no

@@ -9,6 +9,7 @@ package ome.server.itests.search;
 import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -59,9 +60,7 @@ public class FullTextTest extends AbstractTest {
 
         long start = System.currentTimeMillis();
         while ((System.currentTimeMillis() - start) < (30 * 1000)) {
-            i = new Image();
-            i.setName(UUID.randomUUID().toString());
-            i = iUpdate.saveAndReturnObject(i);
+            i = newImageUuid();
             try {
                 Thread.sleep(1000L);
             } catch (InterruptedException e) {
@@ -165,9 +164,7 @@ public class FullTextTest extends AbstractTest {
         description.setTextValue(uuid);
         TagAnnotation tag = new TagAnnotation();
         tag.linkAnnotation(description);
-        i = new Image();
-        i.setName("tag+described");
-        i.linkAnnotation(tag);
+        i = newImageString("tag+described", tag);
         i = iUpdate.saveAndReturnObject(i);
         Image i2 = iQuery.findByQuery("select i from Image i "
                 + "left outer join fetch i.annotationLinks l1 "
@@ -189,9 +186,7 @@ public class FullTextTest extends AbstractTest {
     }
 
     public void testUniqueImage() throws Exception {
-        i = new Image();
-        i.setName(UUID.randomUUID().toString());
-        i = iUpdate.saveAndReturnObject(i);
+        i = newImageUuid();
         iUpdate.indexObject(i);
 
         this.loginRoot();
@@ -216,9 +211,7 @@ public class FullTextTest extends AbstractTest {
         Experimenter e = this.loginNewUser();
 
         // Create an image with the same name
-        Image i2 = new Image();
-        i2.setName(i.getName());
-        i2 = iUpdate.saveAndReturnObject(i2);
+        Image i2 = newImageString(i.getName());
 
         iUpdate.indexObject(i2);
         loginUser(e.getOmeName()); // After indexing, must relogin
@@ -264,7 +257,7 @@ public class FullTextTest extends AbstractTest {
         Dataset d = new Dataset("middle");
         java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System
                 .currentTimeMillis());
-        Image i = new Image(testTimestamp, before);
+        Image i = newImageString(before);
 
         // Save the project and the image should be found
         p.setName("bridged");
@@ -346,7 +339,7 @@ public class FullTextTest extends AbstractTest {
 
         java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System
                 .currentTimeMillis());
-        Image i = new Image(testTimestamp, str);
+        Image i = newImageString(str);
         FileAnnotation fa = new FileAnnotation();
         fa.setFile(new OriginalFile(upload.getId(), false));
         i.linkAnnotation(fa);
@@ -390,7 +383,7 @@ public class FullTextTest extends AbstractTest {
 
         java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System
                 .currentTimeMillis());
-        Image i = new Image(testTimestamp, name + "_links.txt");
+        Image i = newImageString(name + "_links.txt");
         FileAnnotation fa = new FileAnnotation();
         fa.setFile(new OriginalFile(upload.getId(), false));
         i.linkAnnotation(fa);
@@ -447,5 +440,21 @@ public class FullTextTest extends AbstractTest {
                 }
             });
         }
+    }
+    
+
+    private Image newImageUuid() {
+        return newImageString(UUID.randomUUID().toString());
+    }
+    
+    private Image newImageString(String str, Annotation...anns) {
+        Image _i = new Image();
+        _i.setName(str);
+        _i.setAcquisitionDate(new Timestamp(0));
+        for (Annotation annotation : anns) {
+            _i.linkAnnotation(annotation);
+        }
+        _i = iUpdate.saveAndReturnObject(_i);
+        return _i;
     }
 }

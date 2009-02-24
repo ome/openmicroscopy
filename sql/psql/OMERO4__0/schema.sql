@@ -88,7 +88,7 @@
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
-        logicalChannel int8,
+        logicalChannel int8 not null,
         pixels int8 not null,
         statsInfo int8,
         pixels_index int4 not null,
@@ -1793,7 +1793,9 @@
         update_id int8 not null,
         image int8 not null,
         well int8 not null,
-        primary key (id)
+        well_index int4 not null,
+        primary key (id),
+        unique (well, well_index)
     );;
 
     create table wellsampleannotationlink (
@@ -4921,200 +4923,7 @@
         foreign key (external_id) 
         references externalinfo;;
 
-    create sequence seq_acquisitionmode;;
-
-    create sequence seq_annotation;;
-
-    create sequence seq_annotationannotationlink;;
-
-    create sequence seq_arctype;;
-
-    create sequence seq_binning;;
-
-    create sequence seq_channel;;
-
-    create sequence seq_channelannotationlink;;
-
-    create sequence seq_channelbinding;;
-
-    create sequence seq_codomainmapcontext;;
-
-    create sequence seq_contrastmethod;;
-
-    create sequence seq_correction;;
-
-    create sequence seq_dataset;;
-
-    create sequence seq_datasetannotationlink;;
-
-    create sequence seq_datasetimagelink;;
-
-    create sequence seq_dbpatch;;
-
-    create sequence seq_detector;;
-
-    create sequence seq_detectorsettings;;
-
-    create sequence seq_detectortype;;
-
-    create sequence seq_dichroic;;
-
-    create sequence seq_dimensionorder;;
-
-    create sequence seq_event;;
-
-    create sequence seq_eventlog;;
-
-    create sequence seq_eventtype;;
-
-    create sequence seq_experiment;;
-
-    create sequence seq_experimenter;;
-
-    create sequence seq_experimenterannotationlink;;
-
-    create sequence seq_experimentergroup;;
-
-    create sequence seq_experimentergroupannotationlink;;
-
-    create sequence seq_experimenttype;;
-
-    create sequence seq_externalinfo;;
-
-    create sequence seq_family;;
-
-    create sequence seq_filamenttype;;
-
-    create sequence seq_filter;;
-
-    create sequence seq_filterset;;
-
-    create sequence seq_filtertype;;
-
-    create sequence seq_format;;
-
-    create sequence seq_groupexperimentermap;;
-
-    create sequence seq_illumination;;
-
-    create sequence seq_image;;
-
-    create sequence seq_imageannotationlink;;
-
-    create sequence seq_imagingenvironment;;
-
-    create sequence seq_immersion;;
-
-    create sequence seq_instrument;;
-
-    create sequence seq_job;;
-
-    create sequence seq_joboriginalfilelink;;
-
-    create sequence seq_jobstatus;;
-
-    create sequence seq_lasermedium;;
-
-    create sequence seq_lasertype;;
-
-    create sequence seq_lightsettings;;
-
-    create sequence seq_lightsource;;
-
-    create sequence seq_link;;
-
-    create sequence seq_logicalchannel;;
-
-    create sequence seq_medium;;
-
-    create sequence seq_microbeammanipulation;;
-
-    create sequence seq_microbeammanipulationtype;;
-
-    create sequence seq_microscope;;
-
-    create sequence seq_microscopetype;;
-
-    create sequence seq_node;;
-
-    create sequence seq_nodeannotationlink;;
-
-    create sequence seq_objective;;
-
-    create sequence seq_objectivesettings;;
-
-    create sequence seq_originalfile;;
-
-    create sequence seq_originalfileannotationlink;;
-
-    create sequence seq_otf;;
-
-    create sequence seq_photometricinterpretation;;
-
-    create sequence seq_pixels;;
-
-    create sequence seq_pixelsannotationlink;;
-
-    create sequence seq_pixelsoriginalfilemap;;
-
-    create sequence seq_pixelstype;;
-
-    create sequence seq_planeinfo;;
-
-    create sequence seq_planeinfoannotationlink;;
-
-    create sequence seq_plate;;
-
-    create sequence seq_plateannotationlink;;
-
-    create sequence seq_project;;
-
-    create sequence seq_projectannotationlink;;
-
-    create sequence seq_projectdatasetlink;;
-
-    create sequence seq_pulse;;
-
-    create sequence seq_quantumdef;;
-
-    create sequence seq_reagent;;
-
-    create sequence seq_reagentannotationlink;;
-
-    create sequence seq_renderingdef;;
-
-    create sequence seq_renderingmodel;;
-
-    create sequence seq_screen;;
-
-    create sequence seq_screenacquisition;;
-
-    create sequence seq_screenacquisitionannotationlink;;
-
-    create sequence seq_screenacquisitionwellsamplelink;;
-
-    create sequence seq_screenannotationlink;;
-
-    create sequence seq_screenplatelink;;
-
-    create sequence seq_session;;
-
-    create sequence seq_sessionannotationlink;;
-
-    create sequence seq_stagelabel;;
-
-    create sequence seq_statsinfo;;
-
-    create sequence seq_thumbnail;;
-
-    create sequence seq_transmittancerange;;
-
-    create sequence seq_well;;
-
-    create sequence seq_wellannotationlink;;
-
-    create sequence seq_wellreagentlink;;
-
-    create sequence seq_wellsample;;
-
-    create sequence seq_wellsampleannotationlink;;
+    create table seq_table (
+         sequence_name varchar(255),
+         next_val int8 
+    ) ;;

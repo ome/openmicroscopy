@@ -86,6 +86,12 @@ public class DSLTask extends Task {
                     .getDirectoryScanner(getProject());
             scanner.scan();
             String[] files = scanner.getIncludedFiles();
+
+            if (files.length == 0) {
+                continue;
+            }
+
+            log("Parsing " + files.length + " file(s).");
             for (int i = 0; i < files.length; i++) {
                 String filename = fileset.getDir(getProject()) + File.separator
                         + files[i];
@@ -112,7 +118,7 @@ public class DSLTask extends Task {
                     packageName = packageName.substring(0, packageName
                             .lastIndexOf("."));
                     // What silliness!
-                    String sep = File.separator.replaceAll("\\\\","\\\\\\\\");
+                    String sep = File.separator.replaceAll("\\\\", "\\\\\\\\");
                     packageName = packageName.replaceAll("[.]", sep);
 
                     String target = _filepattern;

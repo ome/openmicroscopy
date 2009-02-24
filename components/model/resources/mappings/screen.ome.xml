@@ -50,7 +50,7 @@
 			<optional name="externalDescription" type="string"/>
 			<optional name="externalIdentifier" type="string"/>
 			<optional name="type" type="string"/>
-			<zeromany name="wellSamples" type="ome.model.screen.WellSample" inverse="well"/>
+			<zeromany name="wellSamples" type="ome.model.screen.WellSample" inverse="well" ordered="true"/>
 			<manyone name="plate" type="ome.model.screen.Plate" inverse="well"/>
 		</properties>
 	</type>
@@ -60,7 +60,7 @@
 			<optional name="posX" type="double"/>
 			<optional name="posY" type="double"/>
 			<optional name="timepoint" type="int"/>
-			<manyone name="well" type="ome.model.screen.Well" inverse="wellSamples"/>
+			<manyone name="well" type="ome.model.screen.Well" inverse="wellSamples" ordered="true"/>
 			<manyone name="image" type="ome.model.core.Image" inverse="wellSamples"/>
 			<parent name="screenAcquisitionLinks" type="ome.model.screen.ScreenAcquisitionWellSampleLink" target="ome.model.screen.ScreenAcquisition"/>
 		</properties>
