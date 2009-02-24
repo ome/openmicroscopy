@@ -125,7 +125,7 @@ public class SessionStatsTest extends MockObjectTestCase {
 
     private ObjectsReadCounter read(int incr) {
         ObjectsReadCounter read = new ObjectsReadCounter(incr);
-        read.setApplicationContext(ctx);
+        read.setApplicationEventPublisher(ctx);
         return read;
     }
 }
