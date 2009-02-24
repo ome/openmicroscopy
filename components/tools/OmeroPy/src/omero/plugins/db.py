@@ -66,9 +66,9 @@ class DatabaseControl(BaseControl):
         password_hash = run(["-cp",str(server_jar),"ome.security.PasswordUtil",root_pass]).strip()
         sql_directory = self.ctx.dir / "sql" / "psql" / ("%s__%s" % (db_vers, db_patch))
         if not sql_directory.exists():
-            self.ctx.die(2, "Invalid Database version/patch: %s does not exist" % sql_directory)
+            self.ctx.die(2, "Invalid Database version/patch: %s does not exist" % sql__directory)
 
-        script = "%s_%s.sql" % (db_vers, db_patch)
+        script = "%s__%s.sql" % (db_vers, db_patch)
         if not location:
             location = self.ctx.dir / script
 
