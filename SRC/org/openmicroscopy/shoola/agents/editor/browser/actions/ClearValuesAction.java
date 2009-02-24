@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.browser.actions.AddExpInfoAction 
+ * org.openmicroscopy.shoola.agents.editor.browser.actions.ClearValuesAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -35,12 +35,11 @@ import javax.swing.undo.UndoableEditSupport;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
-import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddExpInfoEdit;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.ClearValuesEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.TreeEdit;
 
 /** 
- * This Action adds (or removes?) the experimental details to a protocol to 
- * create an Experiment. 
+ * This Action clears the values of parameters. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -50,10 +49,10 @@ import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.TreeEdit;
  * </small>
  * @since 3.0-Beta4
  */
-public class AddExpInfoAction 
-	extends AbstractTreeEditAction 
-	implements TreeEdit
-	{
+public class ClearValuesAction 
+extends AbstractTreeEditAction 
+implements TreeEdit
+{
 	
 	/**
 	 * Creates an instance of this class.
@@ -63,12 +62,12 @@ public class AddExpInfoAction
 	 * 
 	 * @param model		Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	public AddExpInfoAction(UndoableEditSupport undoSupport, Browser model) {
+	public ClearValuesAction(UndoableEditSupport undoSupport, Browser model) {
 		super(undoSupport, model);
 		
-		setName("Create Experiment");
-		setDescription("Define an Experiment from this Protocol");
-		setIcon(IconManager.EXP_NEW_ICON);  
+		setName("Clear Experiment Values");
+		setDescription("Delete all experimental values.");
+		setIcon(IconManager.CLEAR_VALUES_ICON);  
 	}
 	
 	/**
@@ -82,7 +81,7 @@ public class AddExpInfoAction
 	}
 	
 	/**
-	 * Creates a new instance of {@link AddExpInfoEdit} and posts it to
+	 * Creates a new instance of {@link ClearValuesEdit} and posts it to
 	 * undoSupport. 
 	 * 
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
@@ -92,8 +91,7 @@ public class AddExpInfoAction
 		
 		if (treeUI == null) return;
 		
-		AddExpInfoEdit edit = new AddExpInfoEdit(treeUI);
-		edit.doEdit();
+		ClearValuesEdit edit = new ClearValuesEdit(treeUI);
 		
 		undoSupport.postEdit(edit);
 	}
@@ -104,7 +102,6 @@ public class AddExpInfoAction
 	 * @see AbstractTreeEditAction#canDo()
 	 */
 	protected boolean canDo() {
-		// if we're already editing an experiment, disable. 
-		return (! model.isModelExperiment());
+		return true;
 	}
 }

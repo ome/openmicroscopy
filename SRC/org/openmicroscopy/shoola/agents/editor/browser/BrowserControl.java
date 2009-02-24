@@ -46,6 +46,7 @@ import javax.swing.undo.UndoableEditSupport;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.AddExpInfoAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.AddFieldAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.AddTextBoxFieldAction;
+import org.openmicroscopy.shoola.agents.editor.browser.actions.ClearValuesAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.CopyFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.DeleteFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.EditAction;
@@ -141,6 +142,9 @@ public class BrowserControl
 	/** Identifies the <code>Add Exp-Info</code> action. */
 	static final Integer    ADD_EXP_INFO_ACTION = Integer.valueOf(12);
 	
+	/** Identifies the <code>Clear Values</code> action. */
+	static final Integer    CLEAR_VALUES_ACTION = Integer.valueOf(13);
+	
 	/** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -197,6 +201,8 @@ public class BrowserControl
 														(undoSupport, model));
        
        actionsMap.put(ADD_EXP_INFO_ACTION, new AddExpInfoAction
+														(undoSupport, model));
+       actionsMap.put(CLEAR_VALUES_ACTION, new ClearValuesAction
 														(undoSupport, model));
     }
     

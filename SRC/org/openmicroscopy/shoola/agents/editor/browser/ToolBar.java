@@ -98,6 +98,7 @@ public class ToolBar
 		
 		bar.add(new JSeparator(SwingConstants.VERTICAL));
 		bar.add(createButton(BrowserControl.ADD_EXP_INFO_ACTION));
+		bar.add(createButton(BrowserControl.CLEAR_VALUES_ACTION));
 		add(bar);
 		
 		bar.add(new JSeparator(SwingConstants.VERTICAL));
