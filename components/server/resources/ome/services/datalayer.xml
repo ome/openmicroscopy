@@ -118,7 +118,7 @@
         <prop key="driverClassName">org.postgresql.Driver</prop>
         <prop key="url">jdbc:postgresql://${omero.db.host}/${omero.db.name}</prop>
         <prop key="user">${omero.db.user}</prop>
-        <prop key="password">"${omero.db.pass}</prop>
+        <prop key="password">${omero.db.pass}</prop>
       </props>
     </property>
   </bean>
