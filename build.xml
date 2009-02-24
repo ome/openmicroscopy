@@ -21,7 +21,6 @@ build-* targets.
 -->
 
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
-    <import file="${basedir}/deprecated.xml"/>
     <import file="${import.dir}/global.xml"/>
 
     <target name="init" depends="check-ivy,check-scons,check-ice"/>
@@ -103,7 +102,8 @@ build-* targets.
         <untar compression="gzip" src="${lib.dir}/repository/ice-includes-3.3.0.tar.gz" dest="target/Ice"/>
     </target>
 
-    <target name="build-default" description="Build all components except for C++ (testing disabled)" depends="init">
+    <target name="build-default" description="Default build calls build" depends="build"/>
+    <target name="build" description="Build all components except for C++ (testing disabled)" depends="init">
         <property name="env.NOMAKE" value="1"/>
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>

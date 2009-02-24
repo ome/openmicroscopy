@@ -2,3 +2,4 @@ html
 dist
 *egg-info*
 build
+setuptools*egg

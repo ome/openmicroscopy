@@ -18,6 +18,11 @@ Analysis                      |
                               |                       
 HERE ARE WE -->               |                       
                               |                       
+                              |                       
+DBUPDATE           2009/02    +-------+ r3000         
+Major upgrade and reworking.  |         OMERO4
+                              |                       
+                              |                       
 DBUPDATE           2007/05    +-------+ r1547    <-+   
 Added dbpatch table.          |         OMERO3:4   |   
                               |                    |   

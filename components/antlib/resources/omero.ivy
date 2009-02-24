@@ -16,7 +16,6 @@
     <!-- Internal -->
     <dependency name="server" rev="${omero.version}" changing="true" conf="server->server"/>
     <dependency name="blitz" rev="${omero.version}" changing="true" conf="server->server;client->client;testing->*"/>
-    <dependency name="common-test" rev="${omero.version}" changing="true" conf="testing->test"/>
     <!-- For java omero.class -->
     <dependency org="ant" name="ant-launcher" rev="${versions.ant}" conf="server->default"/>
     <dependency org="ant" name="ant-nodeps" rev="${versions.ant}" conf="server->default"/>

@@ -49,12 +49,6 @@
         <property name="classpath.file" value="classpath.xml"/>
         <property name="omero.resolver" value="omero-resolver"/>
 
-        <!-- Imports -->
-        <import file="${import.dir}/patterns.xml"/>
-
-        <!-- Message bundles, so all properties are defined -->
-        <property file="${import.dir}/messages.properties" />
-
         <!-- Post-import properties -->
         <property name="sql.dir"  value="${omero.home}/sql/${omero.db.profile}/${omero.db.version}__${omero.db.patch}"/>
         <condition property="ice.home" value="${env.ICE_HOME}">
@@ -158,31 +152,6 @@
                     <arg value="${omero.home}/target/scons/scons.py"/>
                     <args/>
                 </exec>
-            </sequential>
-        </macrodef>
-
-        <macrodef name="is-done" description="Checks if a build step is needed">
-            <attribute name="name"/>
-            <attribute name="srcdir"/>
-            <attribute name="includes"/>
-            <sequential>
-                <uptodate property="@{name}.up.to.date">
-                    <mergemapper to="${done.dir}/@{name}.done"/>
-                    <srcfiles dir="@{srcdir}" includes="@{includes}"/>
-                </uptodate>
-                <condition property="@{name}.not.required">
-                    <and>
-                        <available file="${done.dir}/@{name}.done"/>
-                        <isset property="@{name}.up.to.date"/>
-                    </and>
-                </condition>
-            </sequential>
-        </macrodef>
-
-        <macrodef name="done">
-            <attribute name="name"/>
-            <sequential>
-                <touch file="${done.dir}/@{name}.done"/>
             </sequential>
         </macrodef>
 

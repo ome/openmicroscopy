@@ -21,6 +21,12 @@
 
 -->
 
+	<!-- Patterns -->
+        <property name="dsl.pat" value="**/*.ome.xml"/>
+        <property name="hbm.pat" value="**/*.hbm.xml"/>
+        <property name="api.pat" value="**/*.java"/>
+        <property name="ice.pat" value="**/*.ice"/>
+
 	<!-- Setup: needed calculations for other paths -->
 	<!-- import.dir is set in global.xml -->
 	<dirname property="antlib.dir"     file="${import.dir}"/>

@@ -20,35 +20,34 @@
 	<target name="generate" depends="prepare,dsl,lifecycle.generate" unless="generate.skip">
 	</target>
 
-	<!-- TODO generate.skip not working -->
+	<macrodef name="dsl-with-filter">
+		<attribute name="template"/>
+		<attribute name="filepattern"/>
+		<attribute name="dependdir"/>
+		<attribute name="dependpat"/>
+		<sequential>
+		<dsl template="@{template}" filepattern="@{filepattern}">
+			<fileset dir="${resrc.dir}" includes="${dsl.pat}">
+				<depend targetdir="@{dependdir}">
+					<mapper type="merge" to="@{dependpat}"/>
+				</depend>
+			</fileset>
+		</dsl>
+		</sequential>
+	</macrodef>
 
-    <!-- = = = = = = = = = = = = = = = = =
-          home grown code-gen
-         = = = = = = = = = = = = = = = = = -->
-
-	<target name="dsl-init">
+	<target name="dsl">
 		<taskdef classname="ome.dsl.DSLTask" classpathref="omero.classpath" name="dsl"/>
-		<is-done name="dsl" srcdir="${resrc.dir}" includes="${dsl.pat}"/>
-		<!-- TODO: use dependset -->
-	</target>
-
-	<target name="dsl" depends="dsl-init" unless="dsl.not.required">
-		<dsl template="ome/dsl/object.vm" filepattern="${src.dest}/{package-dir}/{class-name}.java">
-			<fileset dir="${resrc.dir}" includes="${dsl.pat}"/>
-		</dsl>
-		<dsl template="ome/dsl/cfg.vm" filepattern="${resrc.dest}/hibernate.cfg.xml">
-			<fileset dir="${resrc.dir}" includes="${dsl.pat}"/>
-		</dsl>
-		<dsl template="ome/dsl/data.vm" filepattern="${resrc.dest}/data.sql">
-			<fileset dir="${resrc.dir}" includes="${dsl.pat}"/>
-		</dsl>
-		<dsl template="ome/dsl/views.vm" filepattern="${resrc.dest}/views.sql">
-			<fileset dir="${resrc.dir}" includes="${dsl.pat}"/>
-		</dsl>
-		<dsl template="ome/dsl/enums.vm" filepattern="${basedir}/../app/target/generated/resources/enums.properties">
-			<fileset dir="${resrc.dir}" includes="${dsl.pat}"/>
-		</dsl>
-		<done name="dsl"/>
+		<dsl-with-filter template="ome/dsl/object.vm" filepattern="${src.dest}/{package-dir}/{class-name}.java"
+			dependdir="${src.dest}/ome/model/core/" dependpat="Image.java"/>
+		<dsl-with-filter template="ome/dsl/cfg.vm" filepattern="${resrc.dest}/hibernate.cfg.xml"
+			dependdir="${resrc.dest}" dependpat="hibernate.cfg.xml"/>
+		<dsl-with-filter template="ome/dsl/data.vm" filepattern="${resrc.dest}/data.sql"
+			dependdir="${resrc.dest}" dependpat="data.sql"/>
+		<dsl-with-filter template="ome/dsl/views.vm" filepattern="${resrc.dest}/views.sql"
+			dependdir="${resrc.dest}" dependpat="views.sql"/>
+		<dsl-with-filter template="ome/dsl/enums.vm" filepattern="${blitz.comp}/target/generated/resources/enums.properties"
+			dependdir="${blitz.comp}/target/generated/resources" dependpat="enums.properties"/>
 		<delete>
 			<fileset dir="${src.dest}" includes="**/*.java">
 				<present present="both" targetdir="${src.dir}"/>
@@ -87,7 +86,7 @@
 	</target>
 
     <!-- = = = = = = = = = = = = = = = = =
-          misc          
+          misc
          = = = = = = = = = = = = = = = = = -->
 
     <target name="schemaupdate" depends="prepare,load-hibernate">

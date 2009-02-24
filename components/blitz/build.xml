@@ -58,10 +58,11 @@
         <macrodef name="split-combined">
             <attribute name="all" default="all"/>
             <attribute name="prefix"/>
-            <element name="mappers" implicit="true"/>
+            <attribute name="todir"/>
+            <element name="filesetAndMapper" implicit="true"/>
             <sequential>
-            <copy todir="${basedir}/generated">
-                <fileset dir="${basedir}/generated" includes="**/*.combined"/>
+            <copy todir="@{todir}">
+                <filesetAndMapper/>
                 <filterchain>
                     <linecontainsregexp>
                         <regexp pattern="^\[@{all}\]|^\[@{prefix}\]"/>
@@ -71,15 +72,11 @@
                         <replaceregex pattern="^\[@{prefix}\]\s?" replace=""/>
                     </tokenfilter>
                 </filterchain>
-                <mappers/>
             </copy>
             </sequential>
         </macrodef>
 
 	<target name="icegen">
-            <property name="gen.dir" value="${basedir}/generated"/>
-            <mkdir dir="${gen.dir}/omero/api"/>
-            <mkdir dir="${gen.dir}/omero/model"/>
             <antcall target="_icegen" inheritAll="true" inheritRefs="true"/>
             <!-- Now it's time to run scons to do the actual slice2* calls -->
             <scons_py>
@@ -88,21 +85,50 @@
         </target>
 
         <target name="_icegen" depends="prepare">
+
+		<property name="gen.dir" value="${basedir}/generated"/>
+		<property name="comb.dir" value="${basedir}/target/combined"/>
+		<mkdir dir="${comb.dir}/omero/api"/>
+		<mkdir dir="${comb.dir}/omero/model"/>
+		<mkdir dir="${gen.dir}/omero/api"/>
+		<mkdir dir="${gen.dir}/omero/model"/>
 		<taskdef classname="ome.dsl.DSLTask" classpathref="omero.classpath" name="dsl"/>
-		<dsl template="${resrc.dir}/templates/combined.vm" filepattern="${gen.dir}/{class-name}I.combined">
-			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
-		</dsl>
+
+		<!-- Not "combined" files-->
+		<selector id="ifNewerThanCombined">
+			<depend targetdir="${comb.dir}">
+				<mapper>
+					<mapper type="merge" to="ImageI.combined"/>
+				</mapper>
+			</depend>
+		</selector>
 		<dsl template="${resrc.dir}/templates/java_ice_map.vm" filepattern="${gen.dir}/omero/util/IceMap.java">
-			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
+			<fileset dir="${model.comp}/resources" includes="${dsl.pat}">
+				<selector refid="ifNewerThanCombined"/>
+			</fileset>
 		</dsl>
 		<dsl template="${resrc.dir}/templates/java_obj_reg.vm" filepattern="${gen.dir}/omero/util/ObjectFactoryRegistrar.java">
-			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
+			<fileset dir="${model.comp}/resources" includes="${dsl.pat}">
+				<selector refid="ifNewerThanCombined"/>
+			</fileset>
 		</dsl>
 		<dsl template="${resrc.dir}/templates/cpp_obj_reg.vm" filepattern="${gen.dir}/omero/ObjectFactoryRegistrar.cpp">
-			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
+			<fileset dir="${model.comp}/resources" includes="${dsl.pat}">
+				<selector refid="ifNewerThanCombined"/>
+			</fileset>
 		</dsl>
-		<dsl template="${resrc.dir}/templates/factorymap.vm" filepattern="${gen.dir}/omero/util/FactoryMap.combined">
-			<fileset dir="${model.comp}/resources" includes="${dsl.pat}"/>
+
+		<!-- "combined" files which must be further parsed-->
+		<dsl template="${resrc.dir}/templates/combined.vm" filepattern="${comb.dir}/{class-name}I.combined">
+			<fileset dir="${model.comp}/resources" includes="${dsl.pat}">
+				<selector refid="ifNewerThanCombined"/>
+			</fileset>
+		</dsl>
+
+		<dsl template="${resrc.dir}/templates/factorymap.vm" filepattern="${comb.dir}/FactoryMap.combined">
+			<fileset dir="${model.comp}/resources" includes="${dsl.pat}">
+				<selector refid="ifNewerThanCombined"/>
+			</fileset>
 		</dsl>
 
 		<!--
@@ -110,27 +136,52 @@
 		    the various sections. All of these files represent the Ice model and our
 		    specializations of it
 		-->
-		<split-combined prefix="hdr">
-			<!-- resources/*I.combined => ../../src/cpp/generated/*I.h -->
+		<selector id="ifNewerThanOutput">
+			<depend targetdir="${gen.dir}/omero/model/">
+				<mapper>
+					<flattenmapper/>
+					<mapper type="glob" from="*" to="*"/>
+				</mapper>
+			</depend>
+		</selector>
+		<split-combined todir="${gen.dir}" prefix="hdr">
+			<fileset dir="${comb.dir}" includes="**/*.combined">
+				<selector refid="ifNewerThanOutput"/>
+			</fileset>
 			<regexpmapper from="(.*?)I[.]combined" to="omero/model/\1I.h"/>
 		</split-combined>
-		<split-combined prefix="cpp">
+		<split-combined todir="${gen.dir}" prefix="cpp">
+			<fileset dir="${comb.dir}" includes="**/*.combined">
+				<selector refid="ifNewerThanOutput"/>
+			</fileset>
 			<regexpmapper from="(.*?)I[.]combined" to="omero/model/\1I.cpp"/>
 		</split-combined>
-		<split-combined prefix="jav">
+		<split-combined todir="${gen.dir}" prefix="jav">
+			<fileset dir="${comb.dir}" includes="**/*.combined">
+				<selector refid="ifNewerThanOutput"/>
+			</fileset>
 			<regexpmapper from="(.*?)I[.]combined" to="omero/model/\1I.java"/>
 		</split-combined>
-		<split-combined prefix="pyc">
+		<split-combined todir="${gen.dir}" prefix="pyc">
+			<fileset dir="${comb.dir}" includes="**/*.combined">
+				<selector refid="ifNewerThanOutput"/>
+			</fileset>
 			<regexpmapper from="(.*?)I[.]combined" to="omero_model_\1I.py"/>
 		</split-combined>
-		<split-combined prefix="ice">
+		<split-combined todir="${gen.dir}" prefix="ice">
+			<fileset dir="${comb.dir}" includes="**/*.combined">
+				<selector refid="ifNewerThanOutput"/>
+			</fileset>
 			<regexpmapper from="(.*?)I[.]combined" to="omero/model/\1.ice"/>
 		</split-combined>
 		<!--
 		    This does the same fore the factorymap.vm template.
 		-->
-		<split-combined prefix="pyc">
-			<regexpmapper from="omero/util/FactoryMap.combined" to="omero/util/FactoryMap.py"/>
+		<split-combined todir="${gen.dir}" prefix="pyc">
+			<fileset dir="${comb.dir}" includes="FactoryMap.combined">
+				<selector refid="ifNewerThanOutput"/>
+			</fileset>
+			<regexpmapper from="FactoryMap.combined" to="omero/util/FactoryMap.py"/>
 		</split-combined>
 
 		<!--
@@ -153,9 +204,6 @@
 			<fileset dir="${gen.dir}" includes="**/*.cpp">
 				<present present="both" targetdir="${src.dir}/cpp"/>
 			</fileset>
-
-                        <!-- Deleting all *.combined files to cleanup -->
-			<fileset dir="${gen.dir}" includes="**/*.combined"/>
 		</delete>
 	</target>
 
@@ -179,4 +227,3 @@
 	</target>
 
 </project>
-
