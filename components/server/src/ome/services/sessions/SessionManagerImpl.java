@@ -712,22 +712,34 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             throw new ApiUsageException("Source may not be null.");
         }
 
+        Session target;
         if (source instanceof Share) {
-            throw new UnsupportedOperationException("NYI");
+            target = new Share();
+        } else {
+            target = new Session();
         }
 
-        final Session target = new Session();
         target.setId(source.getId());
         target.setClosed(source.getClosed());
         target.setDefaultEventType(source.getDefaultEventType());
         target.setDefaultPermissions(source.getDefaultPermissions());
         target.getDetails().shallowCopy(source.getDetails());
         target.setMessage(source.getMessage());
+        target.setNode(source.getNode());
         target.setStarted(source.getStarted());
         target.setTimeToIdle(source.getTimeToIdle());
         target.setTimeToLive(source.getTimeToLive());
         target.setUserAgent(source.getUserAgent());
         target.setUuid(source.getUuid());
+
+        if (target instanceof Share) {
+            Share to = (Share) target;
+            Share from = (Share) source;
+            to.setItemCount(from.getItemCount());
+            to.setActive(from.getActive());
+            to.setData(from.getData());
+        }
+        
         return target;
     }
 

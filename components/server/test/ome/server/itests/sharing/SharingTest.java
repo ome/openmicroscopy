@@ -49,6 +49,13 @@ public class SharingTest extends AbstractManagedContextTest {
     }
 
     @Test
+    public void testDescription() {
+        share = factory.getShareService();
+        long id = share.createShare("before", null, null, null, null, false);
+        share.setDescription(id, "after");
+    }
+
+    @Test
     public void testComments() {
         share = factory.getShareService();
         long id = share.createShare("disabled", null, null, null, null, false);

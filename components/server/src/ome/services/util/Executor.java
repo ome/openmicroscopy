@@ -9,7 +9,12 @@ package ome.services.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
+import ome.conditions.InternalException;
 import ome.security.SecuritySystem;
 import ome.security.basic.PrincipalHolder;
 import ome.system.OmeroContext;
@@ -25,14 +30,12 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
-import org.springframework.aop.ProxyMethodInvocation;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,6 +80,20 @@ public interface Executor extends ApplicationContextAware {
      *            Not null.
      */
     public Object execute(final Principal p, final Work work);
+
+    /**
+     * Simple submission method which can be used in conjunction with a call to
+     * {@link #execute(Principal, Work)} to overcome the no-multiple-login rule.
+     */
+    public <T> Future<T> submit(final Callable<T> callable);
+
+    /**
+     * Helper method to perform {@link Future#get()} and properly unwrap the
+     * exceptions. Any {@link RuntimeException} which was thrown during
+     * execution will be rethrown. All other exceptions will be wrapped in an
+     * {@link InternalException}.
+     */
+    public <T> T get(final Future<T> future);
 
     /**
      * Executes a {@link StatelessWork} wrapped with a transaction. Since
@@ -197,13 +214,22 @@ public interface Executor extends ApplicationContextAware {
         final protected String[] proxyNames;
         final protected SessionFactory factory;
         final protected SimpleJdbcOperations jdbcOps;
+        final protected ExecutorService service;
 
         public Impl(PrincipalHolder principalHolder, SessionFactory factory,
                 SimpleJdbcOperations jdbc, String[] proxyNames) {
+            this(principalHolder, factory, jdbc, proxyNames,
+                    java.util.concurrent.Executors.newCachedThreadPool());
+        }
+
+        public Impl(PrincipalHolder principalHolder, SessionFactory factory,
+                SimpleJdbcOperations jdbc, String[] proxyNames,
+                ExecutorService service) {
             this.jdbcOps = jdbc;
             this.factory = factory;
             this.principalHolder = principalHolder;
             this.proxyNames = proxyNames;
+            this.service = service;
         }
 
         public void setApplicationContext(ApplicationContext applicationContext)
@@ -244,21 +270,50 @@ public interface Executor extends ApplicationContextAware {
 
             Work wrapper = (Work) factory.getProxy();
 
-            if (p == null) {
+            // First we guarantee that this will cause one and only
+            // login to take place.
+            if (p == null && principalHolder.size() == 0) {
                 throw new IllegalStateException("Must provide principal");
+            } else if (p != null && principalHolder.size() > 0) {
+                throw new IllegalStateException(
+                        "Already logged in. Use executeIsolated.");
             }
 
-            if (principalHolder.size() > 0) {
-                throw new IllegalStateException("Already logged in.");
+            // Don't need to worry about the login stack below since
+            // already checked.
+            if (p != null) {
+                this.principalHolder.login(p);
             }
 
-            this.principalHolder.login(p);
             try {
                 // Arguments will be replaced after hibernate is in effect
                 return wrapper.doWork(null, new InternalServiceFactory(
                         this.context));
             } finally {
-                this.principalHolder.logout();
+                if (p != null) {
+                    this.principalHolder.logout();
+                }
+            }
+        }
+
+        public <T> Future<T> submit(final Callable<T> callable) {
+            return service.submit(callable);
+        }
+
+        public <T> T get(final Future<T> future) {
+            try {
+                return future.get();
+            } catch (InterruptedException e1) {
+                throw new InternalException("Future.get interrupted:"
+                        + e1.getMessage());
+            } catch (ExecutionException e1) {
+                if (e1.getCause() instanceof RuntimeException) {
+                    throw (RuntimeException) e1.getCause();
+                } else {
+                    throw new InternalException(
+                            "Caught exception thrown by Future.get:"
+                                    + e1.getMessage());
+                }
             }
         }
 

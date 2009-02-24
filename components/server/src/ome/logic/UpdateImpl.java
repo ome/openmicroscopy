@@ -16,6 +16,9 @@ package ome.logic;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import ome.annotations.RolesAllowed;
 import ome.api.IUpdate;
@@ -23,6 +26,7 @@ import ome.api.ServiceInterface;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.meta.EventLog;
@@ -217,25 +221,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
         final RuntimeException[] e = new RuntimeException[1];
         final FullTextThread ftt = new FullTextThread(sessionManager, executor,
                 fti, this.fullTextBridge, true);
-        Thread t = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    ftt.run();
-                } catch (RuntimeException ex) {
-                    e[0] = ex;
-                }
-            }
-        };
-        t.start();
-        try {
-            t.join();
-        } catch (Exception e2) {
-            log.error("Exception during FullTextThread.join", e2);
-        }
-        if (e[0] != null) {
-            throw e[0];
-        }
+        Future<Object> future = executor.submit(Executors.callable(ftt));
+        executor.get(future);
     }
 
     // ~ Internals
