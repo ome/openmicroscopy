@@ -92,9 +92,6 @@
     <property name="concurrent" value="true" />
   </bean>
 
-  <bean id="fullTextIndexerTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-    <property name="jobDetail" ref="fullTextThreadRun" />
-    <property name="cronExpression" value="${omero.search.cron}" />
-  </bean>
+  <!-- FullText trigger moved to indexer.xml for running as separate process -->
 
 </beans>

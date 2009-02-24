@@ -47,6 +47,8 @@
           lazy-init="true">
     <constructor-arg index="0">
       <list>
+        <!-- Primary reason for this context -->
+        <value>classpath:ome/services/indexer.xml</value>
         <!--
         Similar to ome.server, but includes as few components as
         possible to keep the memory overhead and startup time to
