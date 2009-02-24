@@ -49,18 +49,11 @@ import javax.swing.filechooser.FileSystemView;
 //Third-party libraries
 
 //Application-internal dependencies
-import monitors.EventType;
-import monitors.MonitorClientPrx;
-import monitors.MonitorServerPrx;
-import monitors.PathMode;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-import Ice.Communicator;
-import Ice.ObjectAdapter;
-import Ice.ObjectPrx;
-import ome.formats.OMEROMetadataStore;
+//import Ice.Communicator;
 import ome.system.UpgradeCheck;
 import omero.AuthenticationException;
 import omero.ExpiredCredentialException;
@@ -302,14 +295,8 @@ class OMEROGateway
 	/** The sole system view instance. */
 	private FileSystemView							systemView;
 	
-	//tmp
-	private static MonitorServerPrx					monitorPrx;
-	
 	/** Collection of monitors to end if any.*/
 	private List<String>							monitorIDs;
-	
-	private OMEROMetadataStore						metadataStore;
-	//
 	
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
@@ -848,16 +835,6 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Returns the ice communicator.
-	 * 
-	 * @return See above.
-	 */
-	private Communicator getIceCommunicator()
-	{
-		return entry.ice_getCommunicator();
-	}
-	
-	/**
 	 * Checks if some default rendering settings have to be created
 	 * for the specified set of pixels.
 	 * 
@@ -1246,6 +1223,7 @@ class OMEROGateway
 	
 	void startFS(Properties fsConfig)
 	{
+		/*
 		monitorIDs = new ArrayList<String>();
 		ObjectPrx base = getIceCommunicator().stringToProxy(
 				fsConfig.getProperty("omerofs.MonitorServer"));
@@ -1259,6 +1237,7 @@ class OMEROGateway
 				blitzClient.getProperties().setProperty(key, 
 						fsConfig.getProperty(key));
 		}
+		*/
 	}
 	
 	/** 
@@ -1279,7 +1258,6 @@ class OMEROGateway
 			if (port > 0) blitzClient = new client(hostName, port);
 			else blitzClient = new client(hostName);
 			entry = blitzClient.createSession(userName, password);
-			metadataStore = new OMEROMetadataStore(entry);
 			connected = true;
 		} catch (Throwable e) {
 			connected = false;
@@ -1294,6 +1272,7 @@ class OMEROGateway
 	{
 		connected = false;
 		try {
+			/*
 			Iterator<String> i = monitorIDs.iterator();
 			String id;
 			while (i.hasNext()) {
@@ -1302,6 +1281,7 @@ class OMEROGateway
 				monitorPrx.destroyMonitor(id);
 			}
 			monitorIDs.clear();
+			*/
 			if (thumbnailService != null) thumbnailService.close();
 			if (fileStore != null) fileStore.close();
 			thumbnailService = null;
@@ -1310,7 +1290,8 @@ class OMEROGateway
 			blitzClient.closeSession();
 			entry = null;
 			blitzClient = null;
-			metadataStore = null;
+			//metadataStore = null;
+			metadataService = null;
 			pojosService = null;
 			projService = null;
 			searchService = null;
@@ -3918,10 +3899,8 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			//IPixelsPrx service = getPixelsService();
 			IQueryPrx service = getQueryService();
 			return service.findByString(klass.getName(), "value", value);
-			//return service.getEnumeration(klass.getName(), value);
 		} catch (Exception e) {
 			handleException(e, "Cannot find the enumeration's value.");
 		}
@@ -3963,6 +3942,15 @@ class OMEROGateway
 		return new ArrayList<EnumerationObject>();
 	}
 	
+	/**
+	 * Loads the tags.
+	 * 
+	 * @param id
+	 * @param options
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	Collection loadTags(Long id, Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -3982,6 +3970,13 @@ class OMEROGateway
 		return new ArrayList();
 	}
 	
+	/**
+	 * 
+	 * @param options
+	 * @return
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	Collection loadTagSets(Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -4175,9 +4170,12 @@ class OMEROGateway
 	 */
 	FileSystemView getFSFileSystemView(String defaultPath)
 	{
+		/*
 		if (systemView != null) return systemView;
 		systemView = new FSFileSystemView(defaultPath, monitorPrx);
 		return systemView;
+		*/
+		return null;
 	}
 	
 	/**
@@ -4189,6 +4187,7 @@ class OMEROGateway
 	 */
 	Object monitor(String directory, String[] whiteList, DataObject container)
 	{
+		/*
 		String[] blackList = new String[1];
 		blackList[0] = "";
 		MonitorClientImpl mClient = new MonitorClientImpl(metadataStore, 
@@ -4212,7 +4211,7 @@ class OMEROGateway
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+		*/
 		return null;
 	}
 	
@@ -4227,6 +4226,6 @@ class OMEROGateway
 	}
 	
 	//tmp
-	static MonitorServerPrx getMonitorServer() { return monitorPrx; }
+	//static MonitorServerPrx getMonitorServer() { return monitorPrx; }
 	
 }
