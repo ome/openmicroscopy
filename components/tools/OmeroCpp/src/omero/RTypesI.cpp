@@ -14,7 +14,7 @@ namespace omero {
 
     namespace rtypes {
 
-	// Omitting rtype() for the moment since it seems of last
+	// Omitting rtype() for the moment since it seems of less
 	// value in C++
 
 	// Static factory methods (primitives)

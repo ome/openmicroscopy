@@ -1128,9 +1128,9 @@ rlong0 = RLongI(0)
 
 rint0 = RIntI(0)
 
-remptystr = RStringI(None)
+remptystr = RStringI("")
 
-remptyclass = RClassI(None)
+remptyclass = RClassI("")
 
 rnullinternal = RInternalI(None)
 
