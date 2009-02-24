@@ -125,7 +125,7 @@ class BrowserModel
     	// when file saved (eg Exp-Info last-saved date)
     	if (!edited) {
     		DefaultTreeModel d = ((DefaultTreeModel)treeModel);
-    		d.nodeStructureChanged((TreeNode)d.getRoot());
+    		d.nodeChanged((TreeNode)d.getRoot());
     	}
     }
     
