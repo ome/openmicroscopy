@@ -55,9 +55,9 @@ public class StringQuery extends Query {
         org.hibernate.Query query;
         try {
             query = session.createQuery((String) value(STRING));
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
             // Caused by a query parser error in Hibernate.
-            throw new ApiUsageException("Illegal query:" + value(STRING) + "\n"
+            throw new QueryException("Illegal query:" + value(STRING) + "\n"
                     + e.getMessage());
         }
         String[] nParams = query.getNamedParameters();
