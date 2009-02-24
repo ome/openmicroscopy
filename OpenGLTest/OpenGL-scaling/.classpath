@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="lib/jogl.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/donald/Desktop/jogl-1.1.1-macosx-universal/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/blitz-4.0.0-DEV.jar"/>
+	<classpathentry kind="lib" path="lib/ice-3.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/model-psql-4.0.0-DEV.jar"/>
+	<classpathentry kind="lib" path="lib/omero_client-4.0.0-DEV.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
