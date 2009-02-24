@@ -199,7 +199,12 @@ java component.
         </sequential>
     </macrodef>
 
-    <target name="test-compile" description="Compile all tests" depends="init">
+    <target name="test-compile" description="Compile all non-native tests" depends="init">
+        <property name="env.NOMAKE" value="1"/>
+        <launchSuite suite="test-compile"/>
+    </target>
+
+    <target name="test-compile-all" description="Compile all tests (including C++)" depends="init">
         <launchSuite suite="test-compile"/>
     </target>
 
