@@ -98,8 +98,8 @@ public class TableIdGenerator extends TableGenerator {
                 public Object doInTransaction(TransactionStatus status) {
                     hiValue = jdbc.queryForLong("select ome_nextval(?,?)",
                             getSegmentValue(), getIncrementSize());
-                    if (log.isWarnEnabled()) {
-                        log.warn("Loaded new hiValue " + hiValue + " for "
+                    if (log.isDebugEnabled()) {
+                        log.debug("Loaded new hiValue " + hiValue + " for "
                                 + getSegmentValue());
                     }
                     return null;
