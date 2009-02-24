@@ -9,7 +9,6 @@ package ome.services.sessions.stats;
 import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionManager;
 
-
 /**
  * Wrapper which delegates to a {@link SessionStats} instance acquired during
  * construction. This is mostly useful for stateful services which are created
@@ -18,18 +17,18 @@ import ome.services.sessions.SessionManager;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4
  */
-public class CurrentSessionStats extends DelegatingSessionStats {
+public class CurrentSessionStats extends DelegatingStats {
 
-    private final SessionStats stats;
-    
+    private final SessionStats[] stats;
+
     public CurrentSessionStats(CurrentDetails cd, SessionManager sm) {
-        stats = sm.getSessionStats(cd.getCurrentEventContext().getCurrentSessionUuid());
+        stats = new SessionStats[] { sm.getSessionStats(cd
+                .getCurrentEventContext().getCurrentSessionUuid()) };
     }
-    
+
     @Override
-    protected SessionStats stats() {
+    protected SessionStats[] stats() {
         return stats;
     }
-
 
 }

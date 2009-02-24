@@ -26,5 +26,9 @@ public class ObjectsReadStatsMessage extends
         super(source);
         this.objectsRead = objectsRead;
     }
+    
+    public long getObjectsRead() {
+        return this.objectsRead;
+    }
 
 }

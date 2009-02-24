@@ -28,6 +28,8 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.services.messages.RegisterServiceCleanupMessage;
+import ome.services.sessions.stats.CounterFactory;
+import ome.services.sessions.stats.SessionStats;
 import ome.services.util.ServiceHandler;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -56,8 +58,21 @@ public class CurrentDetails implements PrincipalHolder {
 
     private static Log log = LogFactory.getLog(CurrentDetails.class);
 
+    private final CounterFactory factory;
+
     private final ThreadLocal<LinkedList<BasicEventContext>> contexts = new ThreadLocal<LinkedList<BasicEventContext>>();
 
+    public CurrentDetails() {
+        // Has very high limits set, and will not be able
+        // to publish an event with out the publisher.
+        // Message logged at error level.
+        this.factory = new CounterFactory();
+    }
+    
+    public CurrentDetails(CounterFactory factory) {
+        this.factory = factory;
+    }
+    
     private LinkedList<BasicEventContext> list() {
         LinkedList<BasicEventContext> list = contexts.get();
         if (list == null) {
@@ -79,7 +94,8 @@ public class CurrentDetails implements PrincipalHolder {
     }
 
     public void login(Principal principal) {
-        BasicEventContext c = new BasicEventContext(principal);
+        BasicEventContext c = new BasicEventContext(principal, factory
+                .createStats());
         login(c);
     }
 
@@ -234,6 +250,10 @@ public class CurrentDetails implements PrincipalHolder {
         d.setPermissions(new Permissions());
         l.getDetails().copy(d);
         list.add(l);
+    }
+
+    public SessionStats getStats() {
+        return current().getStats();
     }
 
     public List<EventLog> getLogs() { // TODO defensive copy

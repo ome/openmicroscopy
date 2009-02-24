@@ -19,6 +19,7 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.messages.RegisterServiceCleanupMessage;
+import ome.services.sessions.stats.SessionStats;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.SimpleEventContext;
@@ -39,6 +40,8 @@ class BasicEventContext extends SimpleEventContext {
      * {@link PrincipalHolder#login(Principal)}.
      */
     private final Principal p;
+    
+    private final SessionStats stats;
 
     private Set<String> disabledSubsystems;
 
@@ -54,11 +57,12 @@ class BasicEventContext extends SimpleEventContext {
 
     private ExperimenterGroup group;
 
-    public BasicEventContext(Principal p) {
-        if (p == null) {
-            throw new RuntimeException("Principal canot be null.");
+    public BasicEventContext(Principal p, SessionStats stats) {
+        if (p == null || stats == null) {
+            throw new RuntimeException("Principal and stats canot be null.");
         }
         this.p = p;
+        this.stats = stats;
     }
 
     void invalidate() {
@@ -109,6 +113,10 @@ class BasicEventContext extends SimpleEventContext {
 
     public Principal getPrincipal() {
         return p;
+    }
+    
+    public SessionStats getStats() {
+        return stats;
     }
 
     public Event getEvent() {

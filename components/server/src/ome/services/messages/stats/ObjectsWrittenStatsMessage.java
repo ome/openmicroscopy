@@ -23,4 +23,7 @@ public class ObjectsWrittenStatsMessage extends
         this.objectsWritten = objectsWritten;
     }
 
+    public long getObjectsWritten() {
+        return objectsWritten;
+    }
 }

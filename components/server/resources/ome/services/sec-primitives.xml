@@ -24,7 +24,10 @@
   layer, such as via the EventListener.
   </description>
 
-  <bean id="currentDetails" class="ome.security.basic.CurrentDetails"/>
+  <bean id="currentDetails" class="ome.security.basic.CurrentDetails">
+    <constructor-arg ref="threadCounterFactory"/>
+  </bean>
+  
   <alias name="currentDetails" alias="principalHolder"/>
 
   <bean id="internalServiceFactory" class="ome.tools.spring.InternalServiceFactory"/>
@@ -80,6 +83,7 @@
     <property name="executor"        ref="executor"/>
     <property name="defaultTimeToIdle" value="${omero.sessions.timeout}"/>
     <property name="defaultTimeToLive" value="${omero.sessions.maximum}"/>
+    <property name="counterFactory" ref="sessionCounterFactory"/>
   </bean>
 
   <bean id="methodSecurity" class="ome.security.basic.BasicMethodSecurity">
@@ -94,26 +98,39 @@
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="tokenHolder"/>
     <constructor-arg ref="extendedMetadata"/>
-    <constructor-arg ref="threadLocalSessionStats"/>
+    <constructor-arg ref="delegatingStats"/>
   </bean>
   
   <!-- Throttling primitives -->
-  <bean id="objectsReadCounter" class="ome.services.sessions.stats.ObjectsReadCounter" singleton="false">
-    <constructor-arg value="1000"/>
+
+  <bean id="threadCounterFactory" class="ome.services.sessions.stats.CounterFactory">
+    <property name="objectsReadHardLimit" value="64000"/>
+    <property name="objectsWrittenHardLimit" value="64000"/>
   </bean>
 
-  <bean id="objectsWrittenCounter" class="ome.services.sessions.stats.ObjectsWrittenCounter" singleton="false">
-    <constructor-arg value="1000"/>
-  </bean>
-  
-  <bean id="sessionStats" class="ome.services.sessions.stats.SimpleSessionStats" singleton="false">
-    <constructor-arg ref="objectsReadCounter"/>
-    <constructor-arg ref="objectsWrittenCounter"/>
-  </bean>
-  
-  <bean id="threadLocalSessionStats" class="ome.services.sessions.stats.ThreadLocalSessionStats">
+  <!-- Uses Integer.MAX_VALUE -->
+  <bean id="sessionCounterFactory" class="ome.services.sessions.stats.CounterFactory"/>
+
+  <!--
+  The following stats types 
+  -->
+
+  <bean id="perSessionStats" class="ome.services.sessions.stats.PerSessionStats">
     <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="currentDetails"/>
+  </bean>
+
+  <bean id="perThreadStats" class="ome.services.sessions.stats.PerThreadStats">
+    <constructor-arg ref="currentDetails"/>
+  </bean>
+
+  <bean id="delegatingStats" class="ome.services.sessions.stats.DelegatingStats">
+    <constructor-arg>
+      <list>
+        <ref bean="perThreadStats"/>
+        <ref bean="perSessionStats"/>
+      </list>
+    </constructor-arg>
   </bean>
 
 </beans>

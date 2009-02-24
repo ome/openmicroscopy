@@ -7,6 +7,8 @@
 
 package ome.services.throttling;
 
+import ome.conditions.OverUsageException;
+import ome.services.messages.stats.AbstractStatsMessage;
 import ome.services.messages.stats.ObjectsReadStatsMessage;
 import ome.services.messages.stats.ObjectsWrittenStatsMessage;
 
@@ -25,21 +27,26 @@ public abstract class AbstractThrottlingStrategy implements ThrottlingStrategy {
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof ObjectsReadStatsMessage) {
             ObjectsReadStatsMessage read = (ObjectsReadStatsMessage) event;
-            block(event);
+            handle(read, read.getObjectsRead() + " objects read.");
         } else if (event instanceof ObjectsWrittenStatsMessage) {
             ObjectsWrittenStatsMessage written = (ObjectsWrittenStatsMessage) event;
-            block(event);
+            handle(written, written.getObjectsWritten() + " objects written.");
         }
     }
 
-    private void block(ApplicationEvent event) {
-        log.info("Blocking for 5 seconds");
-        // Allow one second to pass before continuing
-        while (System.currentTimeMillis() < event.getTimestamp() + 5000L) {
-            try {
-                Thread.sleep(5000L);
-            } catch (InterruptedException e) {
-                // ok
+    private void handle(AbstractStatsMessage event, String msg) {
+        if (event.isHard()) {
+            throw new OverUsageException(String.format(
+                    "Aborting execution: Reason = \"%s\"", msg));
+        } else {
+            log.info("Blocking for 5 seconds: " + msg);
+            // Allow one second to pass before continuing
+            while (System.currentTimeMillis() < event.getTimestamp() + 5000L) {
+                try {
+                    Thread.sleep(5000L);
+                } catch (InterruptedException e) {
+                    // ok
+                }
             }
         }
     }

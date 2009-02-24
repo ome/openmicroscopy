@@ -14,7 +14,7 @@ import ome.services.sessions.stats.CurrentSessionStats;
 import ome.services.sessions.stats.ObjectsReadCounter;
 import ome.services.sessions.stats.SessionStats;
 import ome.services.sessions.stats.SimpleSessionStats;
-import ome.services.sessions.stats.ThreadLocalSessionStats;
+import ome.services.sessions.stats.PerSessionStats;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -96,7 +96,7 @@ public class SessionStatsTest extends MockObjectTestCase {
         Mock mock = new Mock(SessionManager.class);
         mock.expects(once()).method("getSessionStats").will(returnValue(internal));
         sm = (SessionManager) mock.proxy();
-        ThreadLocalSessionStats stats = new ThreadLocalSessionStats(cd, sm);
+        PerSessionStats stats = new PerSessionStats(cd, sm);
         
         stats.loadedObjects(1);
         assertTrue(called[0]);

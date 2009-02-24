@@ -11,6 +11,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 
 import ome.system.OmeroContext;
 import ome.util.messages.InternalMessage;
@@ -23,11 +25,11 @@ import ome.util.messages.InternalMessage;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4
  */
-public abstract class LongCounter implements ApplicationContextAware{
+public abstract class LongCounter implements ApplicationEventPublisherAware {
 
     private final Log log = LogFactory.getLog(getClass());
     
-    private OmeroContext ctx;
+    private ApplicationEventPublisher publisher;
     
     private int interval = 0;
     
@@ -41,9 +43,9 @@ public abstract class LongCounter implements ApplicationContextAware{
         this.interval = interval;
     }
 
-    public void setApplicationContext(ApplicationContext arg0)
-            throws BeansException {
-        this.ctx = (OmeroContext) arg0;
+    public void setApplicationEventPublisher(
+            ApplicationEventPublisher applicationEventPublisher) {
+        this.publisher = applicationEventPublisher;
     }
 
     public void increment(int incr) {
@@ -54,7 +56,7 @@ public abstract class LongCounter implements ApplicationContextAware{
                 InternalMessage message = message();
                 try {
                     log.info("Publishing "+ message);
-                    ctx.publishMessage(message);
+                    publisher.publishEvent(message);
                 } catch (Throwable t) {
                     log.error(message + " produced an error: "+t);
                 }

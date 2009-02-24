@@ -32,15 +32,16 @@ import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
 import ome.parameters.Filter;
+import ome.parameters.Parameters;
 import ome.security.basic.PrincipalHolder;
 import ome.services.messages.CreateSessionMessage;
 import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.state.SessionCache.StaleCacheListener;
+import ome.services.sessions.stats.CounterFactory;
 import ome.services.sessions.stats.SessionStats;
 import ome.services.util.Executor;
-import ome.parameters.Parameters;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -91,6 +92,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     protected long defaultTimeToLive;
     protected long maxUserTimeToLive;
     protected PrincipalHolder principalHolder;
+    protected CounterFactory factory;
 
     // Local state
 
@@ -150,6 +152,10 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     public void setPrincipalHolder(PrincipalHolder principal) {
         this.principalHolder = principal;
+    }
+    
+    public void setCounterFactory(CounterFactory factory) {
+        this.factory = factory;
     }
 
     /**
@@ -377,7 +383,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
         SessionContext sessionContext = new SessionContextImpl(session,
                 leaderOfGroupsIds, memberOfGroupsIds, userRoles,
-                (SessionStats) context.getBean("sessionStats"));
+                factory.createStats());
         return sessionContext;
     }
 
@@ -856,22 +862,21 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      * a removed user session, then a {@link RemovedSessionException} is thrown.
      */
     private long executeLookupUser(final Principal p) {
-        return (Long) executor.execute(asroot, new Executor.SimpleWork(this,
-                "executeLookupUser") {
-            @Transactional(readOnly = true)
-            public Object doWork(org.hibernate.Session session,
-                    ServiceFactory sf) {
-                LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-
-                try {
-                    Experimenter exp = admin.userProxy(p.getName());
-                    return exp.getId();
-                } catch (Exception e) {
-                    throw new RemovedSessionException(
-                            "Cannot find a user with name " + p.getName());
-                }
-            }
-        });
+        return (Long) executor
+                .executeStateless(new Executor.SimpleStatelessWork(this,
+                        "executeLookupUser") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(SimpleJdbcOperations jdbc) {
+                        try {
+                            return jdbc.queryForLong("SELECT id FROM experimenter "
+                                    + "WHERE omename = ?", p.getName());
+                        } catch (EmptyResultDataAccessException erdae) {
+                            throw new RemovedSessionException(
+                                    "Cannot find a user with name "
+                                            + p.getName());
+                        }
+                    }
+                });
     }
 
     /**
@@ -992,8 +997,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                                         "insert into session "
                                                 + "(id,permissions,timetoidle,timetolive,started,closed,"
                                                 + "defaultpermissions,defaulteventtype,uuid,owner,node)"
-                                                + "select nextval('seq_session'),-35,:ttl,:tti,:start,null,"
-                                                + ":perms,:type,:uuid,:owner,:node",
+                                                + "values (:sid,-35,:ttl,:tti,:start,null,"
+                                                + ":perms,:type,:uuid,:owner,:node)",
                                         params);
                         if (count == 0) {
                             throw new InternalException(
@@ -1008,4 +1013,20 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                     }
                 });
     }
+
+    /**
+     * Added as an attempt to cure ticket:1176
+     * @return
+     */
+    private Long executeNextSessionId() {
+        return (Long) executor
+                .executeStateless(new Executor.SimpleStatelessWork(this,
+                        "executeNextSessionId") {
+                    @Transactional(readOnly = false)
+                    public Object doWork(SimpleJdbcOperations jdbcOps) {
+                        return jdbcOps.queryForLong("select ome_nextval('seq_session')");
+                    }
+                });
+    }
+
 }

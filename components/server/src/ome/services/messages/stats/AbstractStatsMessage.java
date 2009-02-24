@@ -20,8 +20,23 @@ import ome.util.messages.InternalMessage;
  */
 public abstract class AbstractStatsMessage extends InternalMessage {
 
+    /**
+     * By default, a message raised is "hard" in that the limit will cause
+     * an exception to be thrown.
+     */
+    private final boolean hard;
+    
     public AbstractStatsMessage(Object source) {
+        this(source, true);
+    }
+    
+    public AbstractStatsMessage(Object source, boolean hard) {
         super(source);
+        this.hard = hard;
+    }
+    
+    public boolean isHard() {
+        return hard;
     }
 
 }

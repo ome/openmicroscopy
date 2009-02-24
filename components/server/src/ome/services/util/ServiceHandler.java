@@ -23,6 +23,7 @@ import ome.conditions.RootException;
 import ome.conditions.ValidationException;
 import ome.security.basic.CurrentDetails;
 import ome.services.messages.RegisterServiceCleanupMessage;
+import ome.services.sessions.stats.PerThreadStats;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
