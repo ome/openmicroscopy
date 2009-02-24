@@ -52,23 +52,6 @@
 		<property name="test.with.fail" value="true"/>
 	</target>
 
-	<target name="setup-db" depends="prepare" description="Creates and installs the OMERO db in a fresh database">
-		<java classname="ome.security.PasswordUtil" outputproperty="ROOTPASS" classpathref="omero.classpath">
-			<arg value="${omero.rootpass}"/>
-		</java>
-		<copy file="${sql.dir}/schema.sql" tofile="${target.dir}/ddl.sql"  overwrite="true"/>
-                <copy file="${sql.dir}/data.sql"   tofile="${target.dir}/data.sql"  overwrite="true"/>
-                <copy file="${sql.dir}/views.sql"   tofile="${target.dir}/views.sql"  overwrite="true"/>
-                <replace file="${target.dir}/data.sql" token="@ROOTPASS@" value="${ROOTPASS}"/>
-                <replace file="${target.dir}/data.sql" token="@DBPATCH@" value="${omero.db.patch}"/>
-                <replace file="${target.dir}/data.sql" token="@DBVERSION@" value="${omero.db.version}"/>
-                <sql_run>
-                        <transaction src="${target.dir}/ddl.sql"/>
-                        <transaction src="${target.dir}/data.sql"/>
-                        <transaction src="${target.dir}/views.sql"/>
-               </sql_run>
-	</target>
-
 	<target name="retrieve" unless="retrieve.done">
 		<property name="retrieve.done" value="true"/>
 		<installIvy/>

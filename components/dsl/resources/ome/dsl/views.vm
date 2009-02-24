@@ -7,8 +7,6 @@
 -- and can be used to overwrite the generated Map<Long, Long> tables
 -- with functional views.
 
-BEGIN;
-
 #foreach($type in $types)
 #foreach($prop in $type.classProperties)
 #if($prop.one2Many && $prop.isLink)
@@ -84,5 +82,3 @@ BEGIN
 
     RETURN ln || ur || uw || gr || gw || wr || ww;
 END;' LANGUAGE plpgsql;
-
-COMMIT;

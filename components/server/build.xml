@@ -13,16 +13,4 @@
       </sql_run>
     </target>
 
-    <target name="reload-db" depends="prepare,setup-db"/>
-
-    <target name="initdb" depends="compile">
-        <taskdef classname="ome.tools.DbUpdateTask" classpathref="omero.classpath" name="dbUpdate"/>
-        <dbUpdate sqldir="${sql.dir}" classpathref="omero.classpath"
-            driver="${hibernate.connection.driver_class}"
-            url="${hibernate.connection.url}"
-            userid="${hibernate.connection.username}"
-            password="${hibernate.connection.password}"
-         />
-    </target>
-
 </project>

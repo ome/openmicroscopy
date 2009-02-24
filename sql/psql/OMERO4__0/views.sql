@@ -7,8 +7,6 @@
 -- and can be used to overwrite the generated Map<Long, Long> tables
 -- with functional views.
 
-BEGIN;
-
   DROP TABLE count_Plate_screenLinks_by_owner;
 
   CREATE OR REPLACE VIEW count_Plate_screenLinks_by_owner (Plate_id, owner_id, count) AS select child, owner_id, count(*)
@@ -553,5 +551,3 @@ BEGIN
 
     RETURN ln || ur || uw || gr || gw || wr || ww;
 END;' LANGUAGE plpgsql;
-
-COMMIT;

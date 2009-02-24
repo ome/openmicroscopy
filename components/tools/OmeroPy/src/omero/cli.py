@@ -186,6 +186,7 @@ class Context:
 
     def __init__(self, controls = {}):
         self.controls = controls
+        self.dir = OMERODIR
 
     def safePrint(self, text, stream):
         """
@@ -230,6 +231,18 @@ class Context:
 
     def pub(self, args):
         self.safePrint(str(args), pysys.stdout)
+
+    def input(self, prompt, hidden = False):
+        """
+        Reads from standard in. If hidden == True, then
+        uses getpass
+        """
+        if hidden:
+            import getpass
+            defuser = getpass.getuser()
+            return getpass.getpass(prompt)
+        else:
+            return raw_input(prompt)
 
     def out(self, text):
         """
@@ -680,16 +693,20 @@ class CLI(cmd.Cmd, Context):
             raise NonZeroReturnCode(rv, "%s => %d" % (" ".join(args), rv))
         return rv
 
-    def initData(self, properties={}):
-        """
-        Uses "omero prefs" to create an Ice.InitializationData()
-        """
-        from omero.plugins.prefs import getprefs
-        output = getprefs("get", str(OMERODIR / "lib"))
+    def readDefaults(self):
+        try:
+            f = path(OMERODIR) / "etc" / "omero.properties"
+            f = f.open()
+            output = "".join(f.readlines())
+            f.close()
+        except:
+            if DEBUG:
+                raise
+            print "No omero.properties found"
+            output = ""
+        return output
 
-        import Ice
-        data = Ice.InitializationData()
-        data.properties = Ice.createProperties()
+    def parsePropertyFile(self, data, output):
         for line in output.splitlines():
             if line.startswith("Listening for transport dt_socket at address"):
                 self.dbg("Ignoring stdout 'Listening for transport' from DEBUG=1")
@@ -697,9 +714,22 @@ class CLI(cmd.Cmd, Context):
             parts = line.split("=",1)
             if len(parts) == 2:
                 data.properties.setProperty(parts[0],parts[1])
-                self.dbg("Set property: %s=%s",parts[0],parts[1])
+                self.dbg("Set property: %s=%s" % (parts[0],parts[1]) )
             else:
                 self.dbg("Bad property:"+str(parts))
+        return data
+
+    def initData(self, properties={}):
+        """
+        Uses "omero prefs" to create an Ice.InitializationData().
+        """
+        from omero.plugins.prefs import getprefs
+        output = getprefs(["get"], str(OMERODIR / "lib"))
+
+        import Ice
+        data = Ice.InitializationData()
+        data.properties = Ice.createProperties()
+        self.parsePropertyFile(data, output)
         return data
 
 

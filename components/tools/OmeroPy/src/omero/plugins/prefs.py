@@ -12,11 +12,15 @@
 
 """
 
+from exceptions import Exception
 from omero.cli import BaseControl
 from omero_ext.strings import shlex
 import omero.java
 
 def getprefs(args, dir):
+    if not isinstance(args,list):
+        raise Exception("Not a list")
+    cmd = ["prefs"]+list(args)
     return omero.java.run(["prefs"]+list(args), chdir=dir)
 
 class PrefsControl(BaseControl):
