@@ -555,7 +555,10 @@ public class CPEexport {
 		addChildContent(protocolInfo, CPEimport.REVISION, revision);
 		
 		// experiment-info.
-		IAttributes eInfo = ((ProtocolRootField)protocolRoot).getExpInfo();
+		IAttributes eInfo = null;
+		if (protocolRoot instanceof ProtocolRootField) {
+			eInfo = ((ProtocolRootField)protocolRoot).getExpInfo();
+		}
 
 		if (eInfo != null) {
 			String expDate = eInfo.getAttribute(ExperimentInfo.EXP_DATE);

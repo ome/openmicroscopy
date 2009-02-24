@@ -116,6 +116,7 @@ public class ExperimentInfo
 	 */
 	public static boolean isModelExperiment(TreeModel model)
 	{
+		if (model == null) return false;
 		TreeNode tn = (TreeNode)model.getRoot();
 		if (!(tn instanceof DefaultMutableTreeNode)) return false;
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode)tn;

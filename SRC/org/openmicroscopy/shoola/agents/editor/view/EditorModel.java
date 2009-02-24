@@ -254,22 +254,46 @@ class EditorModel
 			fileToEdit = null;
 			state = Editor.NEW;
 			fileName = EditorFactory.BLANK_MODEL;
-			// browser.setTreeModel(null);
 			return false;
 		}
 		TreeModel treeModel = null;
+		
+		// try opening file as recognised OMERO.editor file (pro.xml or cpe.xml)
 		try {
 			treeModel = TreeModelFactory.getTree(file);
+			fileToEdit = file;
 		} catch (ParsingException e) {
-			Registry reg = EditorAgent.getRegistry();
-			LogMessage message = new LogMessage();
-			message.print(e);
-			reg.getLogger().error(this, message);
 			
-			// ...and notify the user. Use the exception message. 
+			// may get a parsing exception simply because the file was not 
+			// recognised as Editor File..
+			
+			Registry reg = EditorAgent.getRegistry();
 			UserNotifier un = reg.getUserNotifier();
-			String errMsg = e.getMessage();
-		    un.notifyInfo("File Failed to Open", errMsg);
+			
+			// ... try opening as ANY xml file
+			try {
+				treeModel = TreeModelFactory.getTreeXml(file);
+				// if this worked, we have an XML file converted to cpe.xml
+				// .. tell user..
+				un.notifyInfo("File not recognised", 
+						"File was converted from an unrecognised format into\n"+
+						"OMERO.editor's cpe.xml format.\nOverwriting the " +
+						"original file will erase the original XML format.");
+				// must avoid overwriting the original file...
+				// 'Save' won't work. 
+				fileToEdit = null;
+				setFileAnnotationData(null);
+				
+			} catch (ParsingException ex) {
+				
+				LogMessage message = new LogMessage();
+				message.print(ex);
+				reg.getLogger().error(this, message);
+				
+				// ...and notify the user. Use the exception message. 
+				String errMsg = ex.getMessage();
+			    un.notifyInfo("File Failed to Open", errMsg);
+			}
 		}
 		
 		if (treeModel == null) {
@@ -279,7 +303,7 @@ class EditorModel
 			// browser.setTreeModel(null);
 			return false;
 		}
-		fileToEdit = file;
+		
 		fileName = file.getName();
 		browser.setTreeModel(treeModel);
 		state = Editor.READY;

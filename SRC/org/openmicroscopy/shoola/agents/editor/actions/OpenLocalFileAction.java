@@ -68,6 +68,9 @@ public class OpenLocalFileAction
     
     /** Collection of supported file formats. */
 	private List<FileFilter>		filters;
+	
+	/** The file chooser.  */
+	private FileChooser		 		chooser;
     
     /** Creates a new instance.
      * 
@@ -92,7 +95,7 @@ public class OpenLocalFileAction
     */
    public void actionPerformed(ActionEvent e) 
    {
-	   FileChooser chooser = new FileChooser(null, FileChooser.LOAD, 
+	   chooser = new FileChooser(null, FileChooser.LOAD, 
 				"Open File", "Choose a file to open in the Editor", 
 				filters);
 		chooser.addPropertyChangeListener(
@@ -112,18 +115,13 @@ public class OpenLocalFileAction
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			File f = (File) evt.getNewValue();
 			
-			boolean accept = false;
-			for (FileFilter filter : filters) {
-				if (filter.accept(f)) {
-					accept = true;
-					continue;
-				}
-			}
+			FileFilter filter = chooser.getSelectedFilter();
 			
 			// only allow accepted files to be opened.
-			// (opening an unrecognised file will cause a crash)!
-			if (accept)
+			// User must actually choose XML filter to open non-Editor file. 
+			if (filter.accept(f))
 				model.openLocalFile(f);
+			// TODO show (or don't hide) the file-chooser if file not accepted.
 		}
    }
 }

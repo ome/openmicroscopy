@@ -102,17 +102,58 @@ public class TreeModelFactory
 				return CPEimport.createTreeModel(root);
 			}
 				
-			// if ("ProtocolTitle".equals(rootName)) {
-			else {
+			else if ("ProtocolTitle".equals(rootName)) {
 				return PROimport.createTreeModel(root);
 			}
-			/*
 			errMsg = "File format not recognised: " +
 			" XML root element named '" + rootName + 
 			"' is not an OMERO.Editor File";
-			*/ 
 		}
-		file.delete();
+		// if you reach here, something is wrong. Throw exception.
+		throw new ParsingException(errMsg);
+	}
+	
+	
+	/**
+	 * Creates a tree model. This method will handle ANY XML file, converting
+	 * it to the .cpe.xml format! 
+	 * If the file was not already a .cpe.xml file, DON'T overwrite, or you
+	 * will lose the original file! 
+	 * 
+	 * @param file The file to handle.
+	 * @return See above.
+	 * @throws ParsingException If an error occured while parsing the file.
+	 */
+	public static TreeModel getTreeXml(File file) 
+		throws ParsingException
+	{
+		// TODO return an Object (TreeModel if file was read OK, or String if not)
+		IXMLElement root = null;
+		
+		String errMsg = null;
+		String absPath = file.getAbsolutePath();
+		
+		try {
+			IXMLParser parser = XMLParserFactory.createDefaultXMLParser();
+
+			FileInputStream input = new FileInputStream(file);
+			IXMLReader reader = new StdXMLReader(input);
+
+			parser.setReader(reader);
+			
+			root = (IXMLElement) parser.parse();
+			
+			input.close();
+		} catch (Throwable ex) {
+			errMsg = "Error reading XML file at " + absPath 
+					+ "  File " + (file.exists() ? 
+							"may be corrupted or incomplete." : "not found.");
+		} 
+		
+		if (root != null) {
+		
+			return PROimport.createTreeModel(root);
+		}
 		// if you reach here, something is wrong. Throw exception.
 		throw new ParsingException(errMsg);
 	}
