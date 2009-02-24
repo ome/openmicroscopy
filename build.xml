@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="main" default="build-default" basedir="."  xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="toplevel" default="build-default" basedir="."  xmlns:ivy="antlib:org.apache.ivy.ant">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -19,6 +19,12 @@ individual components. Use "ant -p" to see the individual
 build-* targets.
 
 -->
+    <description>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Top-level OMERO build. "ant" will suffice for most builds. If you need
+OmeroCpp (the C++ bindings for OMERO) use "build-all" or "build-cpp".
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    </description>
 
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
@@ -26,18 +32,14 @@ build-* targets.
     <target name="init" depends="check-ivy,check-scons,check-ice"/>
 
     <target name="check-ivy" unless="ivy.done">
-
         <!-- Prevent future invocations and PermGen errors-->
         <property name="ivy.done" value="done"/>
-
-        <property name="deps.buildlist.dir" value="${omero.home}/components"/>
         <installIvy/>
-        <ivy:settings id="ivy.toplevel"  file="${etc.dir}/ivysettings.xml"/>
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
         </ivy:buildlist>
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
         </ivy:buildlist>
         <!-- Single file paths defined in antlib/resources/directories.xml -->
     </target>
@@ -103,10 +105,10 @@ build-* targets.
     </target>
 
     <target name="build-default" description="Default build calls build" depends="build"/>
-    <target name="build" description="Build all components except for C++ (testing disabled)" depends="init">
+    <target name="build" description="Build all components except for C++" depends="init">
         <property name="env.NOMAKE" value="1"/>
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
-        <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
+        <prepareDist/>
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroFs.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
@@ -119,21 +121,21 @@ build-* targets.
     <!-- includes C++ -->
     <target name="build-all" description="Build everything and copy to dist" depends="init">
         <iterate buildpathref="all.buildpath" target="dist"/>
-        <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
+        <prepareDist/>
         <iterate buildpathref="tools.buildpath" target="build"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
     <target name="build-blitz" description="Build blitz and copy to dist/blitz" depends="init">
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
-        <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
+        <prepareDist/>
         <!-- Must also build python since it provides our command lines -->
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroFs.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-importer" description="Build importer and copy to dist/client" depends="init">
+    <target name="build-importer" description="Build importer and copy to dist/lib and dist/bin" depends="init">
         <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
@@ -152,7 +154,7 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-java" description="Build OmeroJava bindings and copy to dist/client" depends="init">
+    <target name="build-java" description="Build OmeroJava bindings and copy to dist/lib" depends="init">
         <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
@@ -179,7 +181,7 @@ build-* targets.
         <sequential>
         <ivy:settings id="ivy.@{suite}"  file="${etc.dir}/ivysettings.xml"/>
         <ivy:buildlist reference="@{suite}.buildpath" settingsRef="ivy.@{suite}" ivyfilepath="test.xml">
-            <fileset dir="${deps.buildlist.dir}" includes="**/build.xml" excludes="**/tools/build.xml"/>
+            <fileset dir="${omero.home}/components" includes="**/build.xml" excludes="**/tools/build.xml"/>
         </ivy:buildlist>
         <iterate buildpathref="@{suite}.buildpath" target="@{suite}"/>
         </sequential>
@@ -189,18 +191,15 @@ build-* targets.
         <launchSuite suite="test-compile"/>
     </target>
 
-    <target name="test" description="Run all unit tests" depends="init">
+    <target name="test-unit" description="Run all unit tests" depends="init">
         <launchSuite suite="test"/>
     </target>
 
-    <target name="integration" description="Run all integration tests" depends="init">
+    <target name="test-integration" description="Run all integration tests" depends="init">
         <launchSuite suite="integration"/>
     </target>
 
-    <!--
-    Packaging
-    -->
-    <target name="zip" description="Zip the dist directory into ${product.name}-${omero.version}.zip">
+    <target name="release-zip" description="Zip the dist directory into ${product.name}-${omero.version}.zip">
         <zip destfile="${product.name}-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
                 excludes="bin/omero"/>
@@ -210,7 +209,7 @@ build-* targets.
         </zip>
     </target>
 
-    <target name="tar" description="Tar the dist directory into ${product-name}-${omero.version}.tar.bz2">
+    <target name="release-tar" description="Tar the dist directory into ${product-name}-${omero.version}.tar.bz2">
         <tar destfile="${product.name}-${omero.version}.tar.bz2" compress="bzip2">
             <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
                 excludes="bin/omero"/>
@@ -218,41 +217,6 @@ build-* targets.
                 includes="bin/omero"
                 filemode="755"/>
         </tar>
-    </target>
-
-    <!-- Internal target -->
-    <target name="prepare-dist" depends="init">
-            <mkdir dir="${dist.dir}/bin"/>
-            <copy todir="${dist.dir}/etc" overwrite="true">
-                <fileset dir="${omero.home}/etc">
-                    <exclude name="local.properties"/>
-                </fileset>
-            </copy>
-            <copy todir="${dist.dir}">
-                <fileset dir="${omero.home}">
-                    <include name="omero.class"/>
-                    <include name="components/antlib/**"/>
-                    <include name="sql/**"/>
-                </fileset>
-            </copy>
-
-            <mkdir dir="${dist.dir}/client"/>
-            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve conf="client" pattern="${dist.dir}/client/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
-            <mkdir dir="${dist.dir}/lib/repository"/>
-            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve conf="server" pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
-            <ivy:resolve organisation="apache" module="ant" revision="${versions.ant}" inline="true" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
-            <copy
-                file="${import.dir}/omero.xml"
-                tofile="${dist.dir}/build.xml"
-                overwrite="true" />
-            <copy
-                file="${import.dir}/omero.ivy"
-                tofile="${dist.dir}/omero.ivy"
-                overwrite="true" />
-
     </target>
 
     <target name="prepare-eclipse" description="Symlink (or copy) all lib/repository jars needed by each component" depends="init">
@@ -268,12 +232,12 @@ build-* targets.
         <iterate buildpathref="licenses.buildpath" target="prepare"/>
     </target>
 
-    <target name="findbugs" description="Generates findbugs.xml and checkstyle.xml for all components" depends="init">
+    <target name="release-findbugs" description="Generates findbugs.xml and checkstyle.xml for all components" depends="init">
        <iterate buildpathref="all.buildpath"   target="findbugs"/>
        <iterate buildpathref="tools.buildpath" target="findbugs"/>
     </target>
 
-    <target name="coverage" depends="prepare-eclipse"
+    <target name="release-coverage" depends="prepare-eclipse"
         description="Merge code coverage reports into single top-level report">
         <path id="omero.classpath">
                 <fileset dir="${omero.home}/target/libs" />
@@ -291,7 +255,7 @@ build-* targets.
         </emma>
     </target>
 
-    <target name="javadoc" description="Generate Javadocs for all components under dist/docs/api">
+    <target name="release-javadoc" description="Generate Javadocs for all components under dist/docs/api">
         <mkdir dir="${dist.dir}/docs/api"/>
         <patternset id="all.java.files">
             <!-- Includes prefixed with "**" in order to pick up
@@ -380,7 +344,7 @@ build-* targets.
 
     </target>
 
-    <target name="ivy-hudson" depends="check-ivy">
+    <target name="release-hudson" depends="check-ivy" description="Saves to the hudson repository for dependent builds">
         <ivy:resolve settingsRef="ivy.toplevel"
             file="${omero.home}/ivy.xml" type="zip" log="quiet"/>
         <ivy:publish settingsRef="ivy.toplevel"
@@ -398,5 +362,45 @@ build-* targets.
             from="omero-resolver" to="hudson-repository"
             transitive="true" overwrite="true"/>
     </target>
+
+    <!--
+    Top-level helpers (shared helpers are in components/antlib/resources)
+    =====================================================================
+    -->
+    <macrodef name="prepareDist">
+        <sequential>
+            <mkdir dir="${dist.dir}/bin"/>
+            <copy todir="${dist.dir}/etc" overwrite="true">
+                <fileset dir="${omero.home}/etc">
+                    <exclude name="local.properties"/>
+                </fileset>
+            </copy>
+            <copy todir="${dist.dir}">
+                <fileset dir="${omero.home}">
+                    <include name="omero.class"/>
+                    <include name="components/antlib/**"/>
+                    <include name="sql/**"/>
+                </fileset>
+            </copy>
+
+            <mkdir dir="${dist.dir}/client"/>
+            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
+            <ivy:retrieve conf="client" pattern="${dist.dir}/client/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
+            <mkdir dir="${dist.dir}/lib/repository"/>
+            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
+            <ivy:retrieve conf="server" pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
+            <ivy:resolve organisation="apache" module="ant" revision="${versions.ant}" inline="true" settingsRef="ivy.toplevel" log="quiet"/>
+            <ivy:retrieve pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
+            <copy
+                file="${import.dir}/omero.xml"
+                tofile="${dist.dir}/build.xml"
+                overwrite="true" />
+            <copy
+                file="${import.dir}/omero.ivy"
+                tofile="${dist.dir}/omero.ivy"
+                overwrite="true" />
+        </sequential>
+    </macrodef>
+
 
 </project>

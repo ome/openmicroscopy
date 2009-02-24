@@ -18,8 +18,8 @@
   <caches defaultCacheDir="${ivy.settings.dir}/../lib/cache"/>
   <resolvers>
 
-    <!-- Main resolver -->
-
+    <!-- Main resolver which has as its first resolver the dist/lib location
+    where all our jars will be stored.-->
     <chain name="omero-resolver" returnFirst="true">
       <filesystem name="dist">
         <artifact pattern="${ivy.settings.dir}/../dist/lib/[module]-[revision].[type]" />
@@ -39,22 +39,18 @@
       </filesystem>
    </chain>
 
+   <!-- Optional resolver which can be modified for using non-SCM jars -->
    <chain name="loci-resolver">
       <filesystem name="private">
         <artifact pattern="${user.home}/target/libs/[organization]/[module]/[revision]/[artifact]-[revision].[type]" />
       </filesystem>
     </chain>
 
-    <chain name="tools-resolver">
-      <filesystem name="tools-client">
-        <artifact pattern="${ivy.settings.dir}/../components/tools/target/client/[artifact]-[revision].[type]" />
-      </filesystem>
-    </chain>
-
+   <!-- Resolver for all the test jars which should not be shipped -->
     <chain name="test-resolver" returnFirst="true">
       <filesystem name="test">
-        <artifact pattern="${ivy.settings.dir}/../lib/repository/omero-test/[module]-[revision].[type]" />
-        <ivy pattern="${ivy.settings.dir}/../lib/repository/omero-test/[module]-[revision].ivy"/>
+        <artifact pattern="${ivy.settings.dir}/../test/repository/omero-test/[module]-[revision].[type]" />
+        <ivy pattern="${ivy.settings.dir}/../test/repository/omero-test/[module]-[revision].ivy"/>
       </filesystem>
       <resolver ref="omero-resolver"/>
     </chain>

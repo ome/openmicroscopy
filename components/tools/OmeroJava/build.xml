@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="omerojava" default="install" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="OmeroJava" default="install" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -24,7 +24,6 @@
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
 
     <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/dependencies.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
     <defineVariables/>
@@ -33,7 +32,7 @@
         <echo>no-op</echo>
     </target>
 
-    <target name="compile" depends="generate">
+    <target name="pre-compile" depends="generate">
         <!-- These first tasks are "pseudo-compiles" copying in
         resources from other builds and jars to be packaged into
         the super jar -->
@@ -72,10 +71,9 @@
                 <include name="ome/conditions/**/*.class"/>
             </fileset>
         </copy>
-        <!-- REAL compile -->
-        <antcall target="lifecycle.compile" inheritAll="true" inheritRefs="true"/>
     </target>
 
+    <target name="compile" depends="pre-compile,lifecycle.compile"/>
 
     <target name="package" depends="compile"> <!-- depending on compile like lifecycle.package does -->
         <copy file="${target.dir}/libs/ice.jar" tofile="${target.dir}/${ivy.module}.jar"/>
@@ -92,8 +90,8 @@
 
     <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target"/>
 
-    <target name="tools-dist" depends="deps-resolve,tools-build" description="Copied artifacts to tools/target">
-        <mkdir dir="${target.dir}/lib/omerojava"/>
+    <target name="tools-dist" depends="tools-build" description="Copied artifacts to tools/target">
+        <delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
         <ivy:publish artifactspattern="${target.dir}/[module].[ext]"
             resolver="tools-resolver" pubrevision="${omero.version}"
             publishivy="false" overwrite="true"/>

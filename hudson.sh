@@ -26,19 +26,19 @@ java_omero clean
 
 # Build & Test
 java_omero build-all
-java_omero integration
+java_omero test-integration
 
 #
 # Documentation and build reports
 #
-java_omero javadoc
-java_omero findbugs
+java_omero release-javadoc
+java_omero release-findbugs
 
 #
 # Prepare a distribution
 #
 rm -f OMERO.server-build*.zip
-java_omero zip
+java_omero release-zip
 
 # Install into the hudson repository
 java_omero ivy-hudson

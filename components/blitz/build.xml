@@ -3,7 +3,6 @@
 
     <property name="import.dir" value="${basedir}/../antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/dependencies.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
     <!-- Class that will be called via "java -jar" on this artifact -->
@@ -76,16 +75,7 @@
             </sequential>
         </macrodef>
 
-	<target name="icegen">
-            <antcall target="_icegen" inheritAll="true" inheritRefs="true"/>
-            <!-- Now it's time to run scons to do the actual slice2* calls -->
-            <scons_py>
-                <arg value="-Q"/>
-            </scons_py>
-        </target>
-
-        <target name="_icegen" depends="prepare">
-
+        <target name="icegen" depends="prepare">
 		<property name="gen.dir" value="${basedir}/generated"/>
 		<property name="comb.dir" value="${basedir}/target/combined"/>
 		<mkdir dir="${comb.dir}/omero/api"/>
@@ -205,6 +195,9 @@
 				<present present="both" targetdir="${src.dir}/cpp"/>
 			</fileset>
 		</delete>
+		<scons_py>
+			<arg value="-Q"/>
+		</scons_py>
 	</target>
 
 	<target name="dist" depends="package,install" unless="skip.compile"><!-- install for standalone -->

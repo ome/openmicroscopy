@@ -27,7 +27,6 @@
     <dirname property="up-one" file="${up-two}"/>
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/dependencies.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
     <import file="../common.xml"/>
@@ -47,8 +46,7 @@
 
     <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target"/>
 
-    <target name="tools-dist" depends="deps-resolve,tools-build" description="Copied artifacts to tools/target" unless="skip.compile">
-        <ivy:retrieve conf="client" pattern="${tools.dest}/client/[module]-[revision].[ext]" log="quiet"/>
+    <target name="tools-dist" depends="tools-build" description="Copied artifacts to tools/target" unless="skip.compile">
         <ivy:publish artifactspattern="${target.dir}/[module].[ext]"
             resolver="tools-resolver" pubrevision="${omero.version}"
             publishivy="false" overwrite="true"/>
@@ -56,7 +54,8 @@
 
     <target name="tools-clean" depends="clean"/>
 
-    <target name="retrieve-client-libs" depends="deps-configure" description="Utility target for getting client libs">
+    <target name="retrieve-client-libs" description="Utility target for getting client libs">
+        <installIvy id="ivy.retrieve-client-libs"/>
         <ivy:resolve file="${basedir}/ivy.xml" type="jar" conf="client" settingsRef="ivy.instance" log="quiet"/>
         <ivy:retrieve conf="client" pattern="${target.dir}/client-libs/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.instance"/>
     </target>

@@ -33,13 +33,9 @@
 
     <target name="tools-init" unless="env.NOPYTHON"/>
 
-    <target name="tools-build" depends="tools-init" description="Creates all artifacts for tools/target" unless="env.NOPYTHON">
-        <antcall target="python-build" inheritAll="true" inheritRefs="true"/>
-    </target>
+    <target name="tools-build" depends="tools-init,python-build" description="Creates all artifacts for tools/target" unless="env.NOPYTHON"/>
 
-    <target name="tools-dist" depends="tools-build" description="Copied artifacts to tools/target" unless="env.NOPYTHON">
-        <antcall target="python-install" inheritAll="true" inheritRefs="true"/>
-    </target>
+    <target name="tools-dist" depends="tools-build,python-install" description="Copied artifacts to tools/target" unless="env.NOPYTHON"/>
 
     <target name="tools-clean" depends="python-clean"/>
 

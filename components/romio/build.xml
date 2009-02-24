@@ -3,17 +3,16 @@
 
     <property name="import.dir" value="${basedir}/../antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/dependencies.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="${import.dir}/hibernate.xml"/>
 
-    <target name="test" depends="compile,testng-init" description="Unzips test dependencies and then calls lifecycle.test">
+    <target name="test-compile" depends="lifecycle.test-compile" description="Unzips test dependencies and then calls lifecycle.test">
         <unjar src="${target.dir}/libs/common-test.jar" dest="${classes.dir}">
             <patternset>
                 <include name="tiny*dv"/>
             </patternset>
         </unjar>
-        <antcall target="lifecycle.test" inheritAll="true" inheritRefs="true"/>
     </target>
+
 
 </project>

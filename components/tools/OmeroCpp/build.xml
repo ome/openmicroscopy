@@ -7,7 +7,6 @@
     <dirname property="up-one"        file="${up-two}"/>
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
     <property name="copy.dir"         value="target/"/>
-    <property name="env.J"            value="1"/>
 
     <import file="${import.dir}/global.xml"/>
     <import file="../common.xml"/>
@@ -22,16 +21,12 @@
 
     <target name="build" unless="env.NOMAKE">
         <scons_py>
-            <arg value="-j"/>
-            <arg value="${env.J}"/>
             <arg value="src"/>
         </scons_py>
     </target>
 
     <target name="test-compile" unless="env.NOMAKE">
         <scons_py>
-            <arg value="-j"/>
-            <arg value="${env.J}"/>
             <arg value="test"/>
         </scons_py>
     </target>
@@ -62,6 +57,9 @@
     </target>
 
    <target name="tools-clean">
+        <scons_py>
+            <arg value="-c"/>
+        </scons_py>
         <delete dir="${copy.dir}"/>
     </target>
 

@@ -69,7 +69,15 @@
                 </sql_run>
 	</target>
 
-	<target name="prepare" depends="deps-retrieve">
+	<target name="retrieve" unless="retrieve.done">
+		<property name="retrieve.done" value="true"/>
+		<installIvy/>
+		<mkdir dir="${deps.lib.dir}"/>
+		<ivy:retrieve settingsRef="ivy.${ant.project.name}" pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
+	</target>
+
+	<target name="prepare" depends="retrieve">
+		<defineClasspath/>
                 <defineVariables/>
 		<makeDirectories/>
 		<copyResource file="${root.dir}/etc/local.properties"/>
@@ -132,12 +140,13 @@
 		</myjavac>
 	</target>
 
-	<target name="testng-init" unless="test.skip">
+	<target name="testng-init" unless="testng.init.done">
+		<property name="testng.init.done" value="true"/>
 		<installIvy/>
 		<defineClasspath/>
-		<ivy:settings id="ivy.test"  file="${etc.dir}/ivysettings.xml"/>
-		<ivy:resolve settingsRef="ivy.test" file="${basedir}/test.xml" type="jar" log="quiet"/>
-		<ivy:retrieve settingsRef="ivy.test" pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
+		<ivy:settings id="ivy.${ant.project.name}.test" file="${etc.dir}/ivysettings.xml"/>
+		<ivy:resolve settingsRef="ivy.${ant.project.name}.test" file="${basedir}/test.xml" type="jar" log="quiet"/>
+		<ivy:retrieve settingsRef="ivy.${ant.project.name}.test" pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
 		<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="omero.test.classpath"/>
 		<taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
 	</target>
@@ -179,7 +188,7 @@
 			<fileset dir="${testclasses.dir}" includes="**/*.class,**/*.xml,**/*.properties,**/*.dv"/>
 		</jar>
 		<delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
-		<ivy:publish artifactspattern="${target.dir}/[module].[ext]" resolver="test-resolver"
+		<ivy:publish artifactspattern="${target.dir}/[module].[ext]" resolver="test-resolver" settingsRef="ivy.${ant.project.name}"
 		   pubrevision="${omero.version}" pubdate="${now}" status="integration" overwrite="true"/>
 		<path id="emma.classpath">
 			<pathelement location="${classes.dir}"/>
@@ -288,7 +297,10 @@
 		<do-checkstyle/>
 	</target>
 
-	<target name="install" depends="package,deps-publish-local"/>
+	<target name="install" depends="package">
+		<delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
+		<ivy:publish settingsRef="ivy.${ant.project.name}" artifactspattern="${target.dir}/[module].[ext]" resolver="${omero.resolver}" pubrevision="${omero.version}" pubdate="${now}" status="integration" overwrite="true"/>
+	</target>
 
 	<!-- Previously dependend on integration, but that may need special controls.
 	For the time being, depenending solely on "install" -->

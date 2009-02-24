@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="tools" default="help" basedir=".">
+<project name="tools" default="help" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
    <dirname property="up-one" file="${basedir}"/>
    <property name="import.dir" value="${up-one}/antlib/resources"/>
    <import file="${import.dir}/global.xml"/>
-   <property name="deps.buildlist.dir" value="${omero.home}/components/tools/"/>
-   <import file="${import.dir}/dependencies.xml"/>
    <import file="${import.dir}/lifecycle.xml"/>
 
 	<target name="help" description="This help message">
@@ -17,9 +15,17 @@
 		</echo>
 	</target>
 
-	<target name="build"
-		description="Calls 'tools-build' on all components to fill target"
-		depends="deps-buildlist">
+	<target name="buildlist" unless="deps.build.path">
+		<installIvy id="ivy.instance"/>
+		<ivy:buildlist reference="deps.build.path">
+			<fileset dir="${tools.comp}" includes="*/build.xml"/>
+		</ivy:buildlist>
+	</target>
+
+	<target name="build" depends="buildlist" description="Calls 'tools-build' on all components to fill target">
+		<ivy:buildlist reference="deps.build.path">
+			<fileset dir="${tools.comp}" includes="*/build.xml"/>
+		</ivy:buildlist>
 		<mkdir dir="${tools.classes}"/>
 		<iterate target="tools-dist"/>
 	</target>
@@ -36,34 +42,20 @@
 			and contains non-core classes, including both server and client
 			side code for use with OMERO.
 		</echo>
-		<mkdir dir="${dist.dir}/blitz/"/>
 		<mkdir dir="${dist.dir}/bin/"/>
-		<jar update="true" destfile="${dist.dir}/blitz/services.jar" basedir="${tools.classes}" includes="**/*"/>
-		<!-- This must be reworked upstream -->
-		<jar update="true" destfile="${dist.dir}/${product.final.name}" basedir="${dist.dir}/blitz" includes="services.jar"/>
+		<jar update="true" destfile="${dist.dir}/lib/services.jar" basedir="${tools.classes}" includes="**/*"/>
                 <chmod perm="a+x">
                         <fileset dir="${dist.dir}/bin" includes="omero"/>
                 </chmod>
 
 	</target>
 
-	<target name="integration">
-                <echo>
-
-                Not yet implemented.
-
-                </echo>
-	</target>
-
-	<target name="clean"
-		depends="deps-buildlist"
-		description="Calls 'tools-clean' on all components.">
+	<target name="clean" depends="buildlist" description="Calls 'tools-clean' on all components.">
 		<iterate target="tools-clean"/>
 		<delete dir="${tools.dest}"/>
 	</target>
 
-	<target name="findbugs"
-		depends="deps-buildlist">
+	<target name="findbugs" depends="buildlist">
 		<iterate target="findbugs"/>
 	</target>
 

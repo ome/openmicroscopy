@@ -26,7 +26,6 @@
 	<dirname property="up-one" file="${up-two}"/>
 	<property name="import.dir"       value="${up-one}/antlib/resources"/>
 	<import file="${import.dir}/global.xml"/>
-	<import file="${import.dir}/dependencies.xml"/>
 	<import file="${import.dir}/lifecycle.xml"/>
 
     <import file="../common.xml"/>
@@ -71,8 +70,7 @@
         </scons_py>
     </target>
 
-    <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target">
-        <antcall target="python-build" inheritAll="true" inheritRefs="true"/>
+    <target name="tools-build" depends="tools-init,install,python-build" description="Creates all artifacts for tools/target">
         <scons_py>
             <arg value="lib"/>
         </scons_py>
@@ -83,7 +81,7 @@
     directory so that they can be bundled together for the final products.
     This is necessary since otherwise the jar listed here would have to
     be manually added to app/resources/application.xml -->
-    <target name="tools-dist" depends="deps-resolve,tools-build,python-install" description="Copied artifacts to tools/target">
+    <target name="tools-dist" depends="tools-build,python-install" description="Copied artifacts to tools/target">
         <mkdir dir="${tools.classes}"/>
         <unjar src="${target.dir}/${ivy.module}.jar" dest="${tools.classes}"/>
         <ivy:publish artifactspattern="${target.dir}/[module].[ext]"
