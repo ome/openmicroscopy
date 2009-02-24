@@ -27,38 +27,6 @@
 <beans>
 
 <!--
-  HOOKS : These beans are used to provide startup and shutdown logic.
--->
-
-  <bean id="dbPatchCheck"
-     class="ome.services.util.DBPatchCheck"
-     init-method="start" lazy-init="false">
-     <constructor-arg ref="internal-ome.api.IConfig"/>
-     <constructor-arg ref="executor"/>
-  </bean>
-  
-  <bean id="dropBoxDirectoryCheck"
-     class="ome.services.util.DropBoxDirectoryCheck"
-     init-method="run" lazy-init="false">
-     <constructor-arg value="${omero.data.dir}"/>
-     <constructor-arg ref="executor"/>
-  </bean>
-
-  <bean id="serverVersionCheck"
-     class="ome.services.util.ServerVersionCheck"
-     init-method="start" destroy-method="stop" lazy-init="false">
-     <constructor-arg value="${omero.version}"/>
-  </bean>
-
-  <bean id="upgradeCheck"
-     class="ome.system.UpgradeCheck"
-     init-method="run" lazy-init="false">
-     <constructor-arg index="0" value="${omero.upgrades.url}"/>
-     <constructor-arg index="1" value="${omero.version}"/>
-     <constructor-arg index="2" value="server"/>
-  </bean>
-
-<!--
   Aspects/Interceptors which catch "managed-" calls to our service methods
   =======================================================================
   Possibilities are: tracing, logging, security, transactions, etc.
@@ -196,24 +164,11 @@
     depends-on="sessionManager">
     <!-- In order to slow down the scheduler background tasks, we are now
     starting it active but waiting on session-manager to accept logins,
-    then it can start processing  -->
-    <property name="autoStartup" value="true"/>
+    then it can start processing. Further, the scheduler will not be started
+    until it receives a ContextRefreshedEvent, and will then load all the
+    triggers it can find.  -->
+    <property name="autoStartup" value="false"/>
     <property name="schedulerName" value="OMERO.scheduler"/>
-    <property name="triggers">
-      <list>
-        <ref bean="fullTextIndexerTrigger"/>
-        <ref bean="updateCacheTrigger"/>
-        <ref bean="removeUnusedFilesTrigger"/>
-      </list>
-
-    <!--Disabling trigger, since context is not properly initialized
-     property name="triggers">
-      <list>
-        <ref bean="process-jobs-every-30-seconds" />
-      </list>
-    </property-->
-
-    </property>
   </bean>
 
 </beans>

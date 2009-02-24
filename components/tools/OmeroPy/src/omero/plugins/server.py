@@ -61,8 +61,8 @@ class ServerControl(BaseControl):
         args = Arguments(args)
         pre, post = self._checkIceConfig(args)
         xargs, debug = self._xargsAndDebug("indexer", ["-Xmx128M"])
-        server_jar = os.path.join("lib","server","server.jar")
-        omero.java.run(pre+["-jar",server_jar,"standalone"]+post, debug=debug, xargs=xargs, use_exec = True)
+        blitz_jar = os.path.join("lib","server","blitz.jar")
+        omero.java.run(pre+["-jar",blitz_jar,"ome.fulltext"]+post, debug=debug, xargs=xargs, use_exec = True)
 
     def web(self, args):
         args = Arguments(args)

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2009 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<beans>
+
+  <description>
+  HOOKS : These beans are used to provide startup and shutdown logic.
+  </description>
+
+  <bean id="dbPatchCheck"
+     class="ome.services.util.DBPatchCheck"
+     init-method="start" lazy-init="false">
+     <constructor-arg ref="internal-ome.api.IConfig"/>
+     <constructor-arg ref="executor"/>
+  </bean>
+
+  <bean id="dropBoxDirectoryCheck"
+     class="ome.services.util.DropBoxDirectoryCheck"
+     init-method="run" lazy-init="false">
+     <constructor-arg value="${omero.data.dir}"/>
+     <constructor-arg ref="executor"/>
+  </bean>
+
+  <bean id="serverVersionCheck"
+     class="ome.services.util.ServerVersionCheck"
+     init-method="start" destroy-method="stop" lazy-init="false">
+     <constructor-arg value="${omero.version}"/>
+  </bean>
+
+  <bean id="upgradeCheck"
+     class="ome.system.UpgradeCheck"
+     init-method="run" lazy-init="false">
+     <constructor-arg index="0" value="${omero.upgrades.url}"/>
+     <constructor-arg index="1" value="${omero.version}"/>
+     <constructor-arg index="2" value="server"/>
+  </bean>
+
+</beans>

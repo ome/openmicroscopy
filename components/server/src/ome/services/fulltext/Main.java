@@ -160,7 +160,6 @@ public class Main {
         }
         try {
             init(); // Starts cron
-            System.out.println("Cron="+context.getProperty("omero.search.cron"));
         } finally {
             ic.waitForShutdown();
         }

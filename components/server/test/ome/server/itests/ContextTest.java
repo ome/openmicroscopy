@@ -51,6 +51,11 @@ public class ContextTest extends TestCase {
     }
 
     @Test
+    public void testFullTextContext() throws Exception {
+        OmeroContext.getInstance("ome.fulltext");
+    }
+    
+    @Test
     public void testListBeans() throws Exception {
 
         assertTrue(0 < Arrays.asList(

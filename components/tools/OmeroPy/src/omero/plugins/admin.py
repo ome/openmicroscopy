@@ -113,7 +113,8 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         config = str(self._intcfg())
         config += ","
         config += str(self.dir / "etc" / (self._node()+".cfg"))
-        command = ["icegridnode",config,"--deploy",str(descrpt)] + other
+        # TODO : This won't work for Windows. Must refactor.
+        command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",config,"--deploy",str(descrpt)] + other
         self.ctx.popen(command)
 
     def startandwait(self, args):

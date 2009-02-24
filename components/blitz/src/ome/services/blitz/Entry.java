@@ -82,8 +82,9 @@ public class Entry {
                 }
             }
             // Now we find the first non-"--Ice.Config" argument and
-            // pass that to Main(). The last --Ice.Config value will be
-            // seen by the Ice.Communicator.
+            // pass that to main(). The last --Ice.Config value will be
+            // seen by the Ice.Communicator. The last non-Ice.Config argument
+            // will be used as a beanRefContext lookup.
             for (String string : args) {
                 if (string.startsWith("--Ice.Config")) {
                     System.setProperty("ICE_CONFIG", string.substring(13));
