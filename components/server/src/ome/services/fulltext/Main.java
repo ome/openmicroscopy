@@ -7,6 +7,7 @@
 
 package ome.services.fulltext;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,7 +16,10 @@ import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 
+import org.apache.log4j.xml.DOMConfigurator;
 import org.hibernate.SessionFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.util.ResourceUtils;
 
 /**
  * Commandline entry-point for various full text actions. Commands include:
@@ -36,6 +40,8 @@ public class Main {
     static IQuery rawQuery;
     static SessionManager manager;
 
+    // Setup
+
     public static void init() {
         context = OmeroContext.getManagedServerContext();
         executor = (Executor) context.getBean("executor");
@@ -44,34 +50,65 @@ public class Main {
         manager = (SessionManager) context.getBean("sessionManager");
     }
 
+    protected static FullTextThread createFullTextThread(EventLogLoader loader) {
+        final FullTextBridge ftb = new FullTextBridge();
+        ftb.setApplicationEventPublisher(context);
+        final FullTextIndexer fti = new FullTextIndexer(loader);
+        final FullTextThread ftt = new FullTextThread(manager, executor, fti,
+                ftb);
+        return ftt;
+    }
+
+    // Public usage
+
     public static void usage() {
         StringBuilder sb = new StringBuilder();
-        sb.append("usage: ome.service.fulltext.Main [help|events|full|reindex class1 class2 class3 ...]\n");
+        sb
+                .append("usage: ome.service.fulltext.Main [help|standalone|events|full|reindex class1 class2 class3 ...]\n");
         System.out.println(sb.toString());
         System.exit(-2);
     }
 
     public static void main(String[] args) {
-        if (args == null || args.length == 0) {
-            usage();
-        } else if ("events".equals(args[0])) {
-            indexAllEvents();
-        } else if ("full".equals(args[0])) {
-            indexFullDb();
-        } else if ("reindex".equals(args[0])) {
-            if (args.length < 2) {
-                usage(); // EARLY EXIT
+
+        // Copied from blitz Entry
+        try {
+            String log4j_xml = System.getProperty("log4j.configuration", "");
+            if (log4j_xml.length() == 0) {
+                File file = ResourceUtils.getFile("classpath:log4j.xml");
+                log4j_xml = file.getAbsolutePath();
             }
-            Set<String> set = new HashSet<String>();
-            for (int i = 1; i < args.length; i++) {
-                set.add(args[i]);
-            }
-            indexByClass(set);
-        } else {
-            usage();
+            DOMConfigurator.configureAndWatch(log4j_xml);
+        } catch (Exception e) {
+            String msg = "CANNOT INITIALIZE LOGGING. Set -Dlog4j.configuration=...";
+            throw new RuntimeException(msg, e);
         }
-        context.close();
-        System.exit(0);
+
+        try {
+            if (args == null || args.length == 0) {
+                usage();
+            } else if ("standalone".equals(args[0])) {
+                standalone(args);
+            } else if ("events".equals(args[0])) {
+                indexAllEvents();
+            } else if ("full".equals(args[0])) {
+                indexFullDb();
+            } else if ("reindex".equals(args[0])) {
+                if (args.length < 2) {
+                    usage(); // EARLY EXIT
+                }
+                Set<String> set = new HashSet<String>();
+                for (int i = 1; i < args.length; i++) {
+                    set.add(args[i]);
+                }
+                indexByClass(set);
+            } else {
+                usage();
+            }
+        } finally {
+            context.close();
+            System.exit(0);
+        }
     }
 
     public static void indexFullDb() {
@@ -107,11 +144,25 @@ public class Main {
         }
     }
 
-    protected static FullTextThread createFullTextThread(EventLogLoader loader) {
-        final FullTextBridge ftb = new FullTextBridge();
-        final FullTextIndexer fti = new FullTextIndexer(loader);
-        final FullTextThread ftt = new FullTextThread(manager, executor, fti,
-                ftb);
-        return ftt;
+    /**
+     * Starts up and simply waits until told by the grid to disconnect.
+     */
+    public static void standalone(String[] args) {
+        Ice.Communicator ic = Ice.Util.initialize(args);
+        ic.createObjectAdapter("Indexer");
+        
+        String cron = ic.getProperties().getProperty("omero.search.cron");
+        if (cron == null || cron.length() == 0) {
+            System.out.println("Using default cron value.");
+        } else {
+            System.setProperty("omero.search.cron",cron);
+        }
+        try {
+            init(); // Starts cron
+            System.out.println("Cron="+context.getProperty("omero.search.cron"));
+        } finally {
+            ic.waitForShutdown();
+        }
     }
+
 }

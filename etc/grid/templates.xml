@@ -15,7 +15,6 @@
         <option>server</option>
         <option>blitz</option>
         <env>PYTHONPATH=lib:$PYTHONPATH</env>
-        <env>OMERO_CONFIG=${config}</env>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" register-process="true" endpoints="tcp"/>
         <properties>
           <property name="Ice.ThreadPool.Client.Size" value="2"/>
@@ -23,6 +22,27 @@
           <property name="Ice.ThreadPool.Server.Size" value="10"/>
           <property name="Ice.ThreadPool.Server.SizeMax" value="100"/>
           <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
+          <property name="Ice.Default.CollocationOptimized" value="0"/>
+          <property name="Ice.Override.ConnectTimeout" value="5000"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <server-template id="IndexerTemplate">
+      <parameter name="index"/>
+      <parameter name="config" default="default"/>
+      <server id="Indexer-${index}" exe="bin/omero" activation="always">
+        <option>server</option>
+        <option>indexer</option>
+        <env>PYTHONPATH=lib:$PYTHONPATH</env>
+        <adapter name="IndexerAdapter" register-process="true" endpoints="tcp"/>
+        <properties>
+          <property name="omero.search.cron" value="0,30 * * * "/>
+          <property name="Ice.ThreadPool.Client.Size" value="1"/>
+          <property name="Ice.ThreadPool.Client.SizeMax" value="1"/>
+          <property name="Ice.ThreadPool.Server.Size" value="1"/>
+          <property name="Ice.ThreadPool.Server.SizeMax" value="1"/>
+          <property name="Ice.MessageSizeMax" value="128"/> <!-- 128KB -->
           <property name="Ice.Default.CollocationOptimized" value="0"/>
           <property name="Ice.Override.ConnectTimeout" value="5000"/>
         </properties>

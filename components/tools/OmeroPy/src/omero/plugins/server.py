@@ -20,32 +20,43 @@ class ServerControl(BaseControl):
     def _prop(self, data, key):
         return data.properties.getProperty("omero."+key)
 
-    def help(self, args = None):
-        self.ctx.out("Start the blitz server -- Reads properties via omero prefs")
-
-    def blitz(self, args):
-
-        args = Arguments(args)
-        first, other = args.firstOther()
-
+    def _checkIceConfig(self, first, other):
         if not first or not first.startswith("--Ice.Config"):
             self.ctx.die(201, "No --Ice.Config provided")
         if len(other) > 0:
             self.ctx.err("Non --Ice.Config arguments provided: "+str(other))
 
+    def _xargsAndDebug(self, component, xargs_default):
+        component = str(component)
         data = self.ctx.initData({})
-        xargs = self._prop(data, "blitz.xargs")
+        xargs = self._prop(data, component+".xargs")
         if len(xargs) == 0:
-            xargs = "-Xmx400M"
+            xargs = xargs_default
 
-        debug = self._prop(data, "blitz.debug")
+        debug = self._prop(data, "component.debug")
         if debug == "true":
             debug = True
         else:
             debug = False
 
-        # Run java -jar blitz/blitz.jar replacing the current process
-        omero.java.run(["-jar","blitz/blitz.jar",first], debug=debug, xargs=xargs, use_exec = True)
+    def help(self, args = None):
+        self.ctx.out("Start the blitz server -- Reads properties via omero prefs")
+
+    def blitz(self, args):
+        args = Arguments(args)
+        first, other = args.firstOther()
+        self._checkIceConfig(first, other)
+        xargs, debug = self._xargsAndDebug("blitz", "-Xmx400M")
+        blitz_jar = os.path.join("lib","server","blitz.jar")
+        omero.java.run(["-jar",blitz_jar,first], debug=debug, xargs=xargs, use_exec = True)
+
+    def indexer(self, args):
+        args = Arguments(args)
+        first, other = args.firstOther()
+        self._checkIceConfig(first, other)
+        xargs, debug = self._xargsAndDebug("indexer", "-Xmx128M")
+        server_jar = os.path.join("lib","server","server.jar")
+        omero.java.run(["-jar",server_jar,first], debug=debug, xargs=xargs, use_exec = True)
 
     def web(self, args):
         args = Arguments(args)
