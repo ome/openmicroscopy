@@ -24,15 +24,15 @@ class AdminControl(BaseControl):
 
     def help(self, args = None):
         self.ctx.out( """
-Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
+Syntax: %(program_name)s admin  [ start | update | stop | status ]
 
                                           : No argument opens a command shell
 
-           deploy filename [ targets ]    : Deploy the given deployment descriptor. See etc/grid/*.xml
+           start [hostname]               : Start server daemon and return immediately.
+
+           update filename [ targets ]    : Deploy the given deployment descriptor. See etc/grid/*.xml
                                           : If the first argument is not a file path, etc/grid/default.xml
                                           : will be deployed by default.
-
-           start                          : Start server daemon and return immediately.
 
            stop                           : Send server stop command and return immediately.
 

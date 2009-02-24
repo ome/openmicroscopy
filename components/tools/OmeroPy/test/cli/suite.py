@@ -23,4 +23,5 @@ def additional_tests():
     suite.addTest(load("test.cli.node"))
     suite.addTest(load("test.cli.base"))
     suite.addTest(load("test.cli.rcode"))
+    suite.addTest(load("test.cli.sess"))
     return suite

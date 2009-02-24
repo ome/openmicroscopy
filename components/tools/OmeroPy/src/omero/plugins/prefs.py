@@ -16,6 +16,9 @@ from omero.cli import BaseControl
 from omero_ext.strings import shlex
 import omero.java
 
+def getprefs(args, dir):
+    return omero.java.run(["prefs"]+list(args), chdir=dir)
+
 class PrefsControl(BaseControl):
 
     def help(self, args = None):
@@ -26,7 +29,8 @@ Syntax: %(program_name)s prefs
 
     def __call__(self, *args):
         args = Arguments(*args)
-        self.ctx.out(omero.java.run(["prefs"]+list(args.args), chdir="lib"))
+        dir = self.ctx.dir / "lib"
+        self.ctx.out(getprefs(args.args, str(dir)))
 
 try:
     register("config", PrefsControl)
