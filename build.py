@@ -10,9 +10,6 @@
 import sys
 import subprocess
 
-print "load bin/omero for relpath"
-print "load lib/omero/java for find_java_version"
-
 def build_hudson():
     """
     Top-level build called by hudson for testing the 
@@ -40,7 +37,7 @@ def build_hudson():
     java_omero("release-zip")
 
     # Install into the hudson repository
-    java_omero("ivy-hudson")
+    java_omero("release-hudson")
 
 
 def java_omero(*args):
@@ -67,7 +64,6 @@ def choose_omero_version():
     return [] # Use default
 
 def execute(args):
-    print args
     subprocess.call(args)
 
 
