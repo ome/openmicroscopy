@@ -40,3 +40,4 @@ temp-testng-customsuite.xml
 .sconsign.dblite
 *.dylib
 *.os
+omero_version.py
