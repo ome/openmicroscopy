@@ -63,6 +63,7 @@ import omero.model.Arc;
 import omero.model.ArcType;
 import omero.model.Binning;
 import omero.model.BooleanAnnotation;
+import omero.model.BooleanAnnotationI;
 import omero.model.ContrastMethod;
 import omero.model.Correction;
 import omero.model.Dataset;
@@ -144,6 +145,10 @@ public class OMEROMetadataStoreClient
     
     /** Bio-Formats reader that's populating us. */
     private IFormatReader reader;
+    
+    /** Namespace for our archival annotation. */
+    private static final String ARCHIVE_ANN_NS = 
+    	"openmicroscopy.org/omero/importer/archived";
     
     private List<Pixels> pixelsList;
     
@@ -733,6 +738,32 @@ public class OMEROMetadataStoreClient
             }
         }
         return count;
+    }
+    
+    /**
+     * Populates archive flags on all images currently processed. This method
+     * should only be called <b>after</b> a full Bio-Formats metadata parsing
+     * cycle. 
+     * @param archive Whether or not the user requested the original files to
+     * be archived.
+     */
+    public void setArchive(boolean archive)
+    {
+    	// First create our annotation for linkage
+    	LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+    	indexes.put("annotationIndex", 0);
+    	BooleanAnnotation annotation = 
+    		getSourceObject(BooleanAnnotation.class, indexes);
+        annotation.setBoolValue(rbool(archive));
+        annotation.setNs(rstring(ARCHIVE_ANN_NS));
+        
+        // Now link this annotation to all images we have in cache
+        int imageCount = countCachedContainers(Image.class);
+        for (int i = 0; i < imageCount; i++)
+        {
+        	LSID key = new LSID(Image.class, i);
+        	referenceCache.put(key, new LSID(BooleanAnnotation.class, 0));
+        }
     }
 
     /* (non-Javadoc)
@@ -2096,23 +2127,6 @@ public class OMEROMetadataStoreClient
         try
         {
             return (Dataset) iQuery.get("Dataset", datasetId);
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void addBooleanAnnotationToPixels(BooleanAnnotation annotation,
-            Pixels pixels)
-    {
-        try
-        {
-            Pixels unloadedPixels = new PixelsI(pixels.getId(), false);
-            PixelsAnnotationLink l = new PixelsAnnotationLinkI();
-            l.setChild(annotation);
-            l.setParent(unloadedPixels);
-            iUpdate.saveObject(l);
         }
         catch (ServerError e)
         {

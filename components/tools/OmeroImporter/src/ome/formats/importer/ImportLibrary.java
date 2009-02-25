@@ -214,20 +214,23 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * uses the {@link OMEROMetadataStoreClient} to save the current {@link Pixels} to
-     * the database.
-     * 
+     * Uses the {@link OMEROMetadataStoreClient} to save the current all
+     * image metadata provided.
+     * @param imageName A user specified image name.
+     * @param archive Whether or not the user requested the original files to
+     * be archived.
      * @return the newly created {@link Pixels} id.
 	 * @throws FormatException if there is an error parsing metadata.
 	 * @throws IOException if there is an error reading the file.
      */
     @SuppressWarnings("unchecked")
-	public List<Pixels> importMetadata(String imageName)
+	public List<Pixels> importMetadata(String imageName, boolean archive)
     	throws FormatException, IOException
     {
     	// 1st we post-process the metadata that we've been given.
     	log.debug("Post-processing metadata.");
 
+    	store.setArchive(true);
     	store.setUserSpecifiedImageName(imageName);
     	store.postProcess();
         
@@ -321,7 +324,7 @@ public class ImportLibrary implements IObservable
         
         reader.getUsedFiles();
         
-        List<Pixels> pixList = importMetadata(imageName);
+        List<Pixels> pixList = importMetadata(imageName, archive);
 
         int seriesCount = reader.getSeriesCount();
         
@@ -336,14 +339,7 @@ public class ImportLibrary implements IObservable
             args[7] = series;
             
             notifyObservers(Actions.DATASET_STORED, args);
-            
-            BooleanAnnotationI annotation = new BooleanAnnotationI();
-            annotation.setBoolValue(rbool(archive));
-            annotation.setNs(rstring("openmicroscopy.org/omero/importer/archived")); // openmicroscopy.org/omero/importer/archived
-            
-            store.addBooleanAnnotationToPixels(annotation, pixList.get(series));
-            
-            
+
             importData(pixId, fileName, series, new ImportLibrary.Step()
             {
                 @Override
