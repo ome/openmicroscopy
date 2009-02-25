@@ -76,7 +76,7 @@ class BaseUploadFile(BaseController):
 
             fa = FileAnnotationI()
             fa.setFile(of._obj)
-            fa.setNs(rstirng("openmicroscopy.org/omero/experimenter/photo"))
+            fa.setNs(rstring("openmicroscopy.org/omero/experimenter/photo"))
             self.objectPermissions(fa, {'owner':'rw', 'group':'r', 'world':'r'})
             l_ea = ExperimenterAnnotationLinkI()
             l_ea.setParent(self.conn.getUser())
