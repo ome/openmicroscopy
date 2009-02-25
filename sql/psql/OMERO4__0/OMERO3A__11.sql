@@ -340,7 +340,7 @@ DROP SEQUENCE seq_filamenttype;
 DROP SEQUENCE seq_filter;
 DROP SEQUENCE seq_filterset;
 DROP SEQUENCE seq_filtertype;
--- DROP SEQUENCE seq_format;
+-- DROP SEQUENCE seq_format; Going to let this hang around since might be missing (?)
 DROP SEQUENCE seq_frequencymultiplication;
 DROP SEQUENCE seq_groupexperimentermap;
 DROP SEQUENCE seq_illumination;
@@ -690,7 +690,8 @@ ALTER TABLE channel
 	ADD COLUMN alpha integer,
 	ADD COLUMN blue integer,
 	ADD COLUMN green integer,
-	ADD COLUMN red integer;
+	ADD COLUMN red integer,
+	ALTER COLUMN logicalchannel SET NOT NULL;
 UPDATE channel SET alpha = (SELECT alpha FROM color WHERE id = channel.colorcomponent);
 UPDATE channel SET blue = (SELECT blue FROM color WHERE id = channel.colorcomponent);
 UPDATE channel SET green = (SELECT green FROM color WHERE id = channel.colorcomponent);
@@ -759,7 +760,8 @@ ALTER TABLE image
 	ADD COLUMN experiment bigint,
 	ADD COLUMN imagingenvironment bigint,
 	ADD COLUMN instrument bigint,
-	ADD COLUMN stagelabel bigint;
+	ADD COLUMN stagelabel bigint,
+	ADD COLUMN archived bool;
 UPDATE image SET imagingenvironment = condition,
     experiment = context,
     stageLabel = position,
@@ -793,6 +795,47 @@ ALTER TABLE transmittancerange
 	ALTER COLUMN cutin DROP NOT NULL,
 	ALTER COLUMN cutout DROP NOT NULL,
 	ALTER COLUMN transmittance DROP NOT NULL;
+
+ALTER TABLE wellsample
+        ADD COLUMN well_index integer NOT NULL;
+
+ALTER TABLE seq_table
+        DROP CONSTRAINT seq_table_pkey;
+
+ALTER TABLE wellsample
+        ADD CONSTRAINT wellsample_well_key UNIQUE (well, well_index);
+
+CREATE OR REPLACE FUNCTION wellsample_well_index_move() RETURNS "trigger"
+    AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.well = old.well AND new.well_index = old.well_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM wellsample
+       WHERE well = new.well AND well_index = new.well_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping wellsample % via (-1 - oldvalue )'', duplicate;
+          UPDATE wellsample SET well_index = -1 - well_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER wellsample_well_index_trigger
+        BEFORE UPDATE ON wellsample
+        FOR EACH ROW
+        EXECUTE PROCEDURE wellsample_well_index_move();
 
 --
 -- Add constraints

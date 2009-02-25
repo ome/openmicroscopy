@@ -36,6 +36,10 @@ BEGIN
       RETURN nv;
 END;' LANGUAGE plpgsql;
 
+alter table seq_table
+    alter column sequence_name set not null,
+    add primary key (sequence_name);
+
 --
 -- First, we install a unique constraint so that it is only possible
 -- to go from versionA/patchA to versionB/patchB once.
