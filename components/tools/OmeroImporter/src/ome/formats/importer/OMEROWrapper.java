@@ -131,15 +131,6 @@ public class OMEROWrapper extends MinMaxCalculator
              super.updateMinMax(b, ndx);
    }
      
-     public void populateSHA1(Long id, MessageDigest md)
-     {
-         if (md != null)
-         {
-             OMEROMetadataStoreClient store = (OMEROMetadataStoreClient) reader.getMetadataStore();
-             store.populateSHA1(md, id);  
-         }
-     }
-     
      public void close() throws IOException
      {
          minMaxSet = null;
