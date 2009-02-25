@@ -17,6 +17,7 @@ import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.model.enums.Format;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
@@ -594,9 +595,10 @@ public class AdminTest extends AbstractManagedContextTest {
     // Non private creation (#1204)
     // =========================================================================
     
+    @Test(groups = "ticket:1204")
     public void testUserCreate() {
         
-        loginNewUser();
+        Experimenter e = loginNewUser();
         // This creates all the types of interest: user, group, link
         
         loginRoot();
@@ -611,14 +613,7 @@ public class AdminTest extends AbstractManagedContextTest {
         List<GroupExperimenterMap> maps = iQuery.findAll(GroupExperimenterMap.class, null);
         assertWorldReadable(maps);
         maps = null;
-    }
-    
-    <T extends IObject> void assertWorldReadable(List<T> list) {
-        for (T t : list) {
-            Permissions p = t.getDetails().getPermissions();
-            assertTrue(p.isGranted(Role.GROUP, Right.READ));
-            assertTrue(p.isGranted(Role.WORLD, Right.READ));
-        }
+        
     }
     
     // ~ Bugs

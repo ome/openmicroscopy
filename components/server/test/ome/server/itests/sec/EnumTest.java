@@ -6,16 +6,20 @@
  */
 package ome.server.itests.sec;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
+import ome.api.ITypes;
 import ome.model.core.Pixels;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.EventType;
+import ome.model.enums.Format;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.GroupExperimenterMap;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.testing.ObjectFactory;
 
@@ -73,6 +77,20 @@ public class EnumTest extends AbstractManagedContextTest {
 
         EventType type = new EventType(uuid());
         factory.getTypesService().createEnumeration(type);
+    }
+    
+    @Test(groups = "ticket:1204")
+    public void testFormatsAreReadable() {
+        
+        ITypes types = factory.getTypesService();
+        Experimenter e = loginNewUser();
+        
+        String uuid = uuid();
+        assertWorldReadable(types.createEnumeration(new Format(uuid)));
+        
+        Format f = types.getEnumeration(Format.class, "image/png");
+        assertNotNull(f);
+        
     }
 
 }

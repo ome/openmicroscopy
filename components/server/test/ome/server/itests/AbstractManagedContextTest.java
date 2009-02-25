@@ -7,6 +7,7 @@
 package ome.server.itests;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -19,8 +20,12 @@ import ome.api.local.LocalAdmin;
 import ome.api.local.LocalLdap;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
+import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
+import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
@@ -261,6 +266,18 @@ public class AbstractManagedContextTest extends
             throw new RuntimeException(e);
         }
 */
+    }
+    
+    protected <T extends IObject> void assertWorldReadable(T t) {
+        Permissions p = t.getDetails().getPermissions();
+        assertTrue(p.isGranted(Role.GROUP, Right.READ));
+        assertTrue(p.isGranted(Role.WORLD, Right.READ));
+    }
+    
+    protected <T extends IObject> void assertWorldReadable(List<T> list) {
+        for (T t : list) {
+            assertWorldReadable(t);
+        }
     }
 
 }

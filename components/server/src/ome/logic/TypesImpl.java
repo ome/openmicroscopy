@@ -42,6 +42,8 @@ import ome.model.IEnum;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.security.SecureAction;
 
 import org.hibernate.SessionFactory;
@@ -82,6 +84,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
         // TODO should this belong to root?
         Details d = getSecuritySystem().newTransientDetails(newEnum);
         newEnum.getDetails().copy(d);
+        worldReadable(newEnum);
         return getSecuritySystem().doAction(new SecureAction() {
             public IObject updateObject(IObject... iObjects) {
                 return up.saveAndReturnObject(iObjects[0]);
@@ -350,6 +353,19 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
         // TODO Auto-generated method stub
         return null;
 
+    }
+    
+    /**
+     * @see ticket:1204
+     */
+    private void worldReadable(IObject obj) {
+        Permissions p = obj.getDetails().getPermissions();
+        if (p == null) {
+            p = new Permissions(Permissions.DEFAULT);
+            obj.getDetails().setPermissions(p);
+        }
+        p.grant(Role.GROUP, Right.READ);
+        p.grant(Role.WORLD, Right.READ);
     }
 
 }
