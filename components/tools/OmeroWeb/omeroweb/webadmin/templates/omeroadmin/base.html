@@ -33,9 +33,9 @@
             <ul>
             <li><a href="{% get_webadmin_root_url %}/drivespace/"{% if info.drivespace %} class="menu" {% endif %}>{% trans "Drive Space" %}</a></li>
             {% if eventContext.isAdmin %}
-            <li><a href="{% get_webadmin_root_url %}/ldap/"{% if info.ldap %} class="menu" {% endif %}>{% trans "Ldap" %}</a></li>
+            <!--<li><a href="{% get_webadmin_root_url %}/ldap/"{% if info.ldap %} class="menu" {% endif %}>{% trans "Ldap" %}</a></li>
             <li><a href="{% get_webadmin_root_url %}/imports/"{% if info.imports %} class="menu" {% endif %}>{% trans "Import" %}</a></li>
-            <li><a href="{% get_webadmin_root_url %}/scripts/"{% if info.scripts %} class="menu" {% endif %}>{% trans "Scripts" %}</a></li>
+            <li><a href="{% get_webadmin_root_url %}/scripts/"{% if info.scripts %} class="menu" {% endif %}>{% trans "Scripts" %}</a></li>-->
             <li><a href="{% get_webadmin_root_url %}/experimenters/"{% if info.experimenters %} class="menu" {% endif %}>{% trans "Scientists" %}</a></li>
             <li><a href="{% get_webadmin_root_url %}/groups/"{% if info.groups %} class="menu" {% endif %}>{% trans "Groups" %}</a></li>
             {% endif %}
@@ -50,7 +50,7 @@
     {% block content %}{% endblock %}
 </div>
 
-<div id="footer"><p>{% trans "&copy;2009 University of Dundee & Open Microscopy Environment" %}</p></div>
+<div id="footer"><p>&copy;2009 University of Dundee & Open Microscopy Environment</p></div>
 
 </div>
 </body>
