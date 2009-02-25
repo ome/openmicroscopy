@@ -786,19 +786,6 @@ public class OMEROMetadataStore
    		return pixelsList;
     }
     
-    /* (non-Javadoc)
-     * @see loci.formats.meta.IMinMaxStore#setChannelGlobalMinMax(int, double, double, int)
-     */
-    public void setChannelGlobalMinMax(int channel, double minimum,
-            double maximum, int imageIndex)
-    {
-        // We've been called after an IUpdate save we can use the Pixels list.
-        StatsInfo statsInfo = new StatsInfo();
-        statsInfo.setGlobalMin(minimum);
-        statsInfo.setGlobalMax(maximum);
-        pixelsList.get(imageIndex).getChannel(channel).setStatsInfo(statsInfo);
-    }
-    
     /**
      * Synchronize the minimum and maximum intensity values with those
      * specified by the client and save them in the DB.
@@ -812,13 +799,17 @@ public class OMEROMetadataStore
     	double[] globalMinMax;
     	Channel channel;
     	StatsInfo statsInfo;
+	Long pixelsId;
     	for (int i = 0; i < imageChannelGlobalMinMax.length; i++)
     	{
     		channelGlobalMinMax = imageChannelGlobalMinMax[i];
+		pixelsId = pixelsList.get(i).getId();
+    		toSave[i] = iQuery.findByQuery(
+			"select p from Pixels as p left join fetch p.channels " + 
+			"where p.id = :id", new Parameters().addId(pixelsId));
     		for (int c = 0; c < channelGlobalMinMax.length; c++)
     		{
     			globalMinMax = channelGlobalMinMax[c];
-    			toSave[i] = getPixels(i, 0);
     			channel = toSave[i].getChannel(c);
     			statsInfo = new StatsInfo();
     			statsInfo.setGlobalMin(globalMinMax[0]);
