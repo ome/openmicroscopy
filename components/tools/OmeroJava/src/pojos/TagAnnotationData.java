@@ -249,7 +249,6 @@ public class TagAnnotationData extends AnnotationData {
             return;
         }
         asAnnotation().setDescription(rstring(value));
-        //description = new TextualAnnotationData(value);
     }
 
     /**

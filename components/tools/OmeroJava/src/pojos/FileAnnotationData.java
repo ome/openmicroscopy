@@ -22,8 +22,11 @@
  */
 package pojos;
 
+import static omero.rtypes.rstring;
+
 import java.io.File;
 
+import omero.RString;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.OriginalFile;
@@ -218,6 +221,29 @@ public class FileAnnotationData extends AnnotationData {
         format = null;
     }
 
+    /**
+     * Sets the description of the annotation.
+     * 
+     * @param description The value to set.
+     */
+    public void setDescription(String description)
+    {
+    	 if (description == null || description.trim().length() == 0) return;
+         asAnnotation().setDescription(rstring(description));
+    }
+    
+    /**
+     * Returns the description of the annotation.
+     * 
+     * @return See above.
+     */
+    public String getDescription()
+    {
+    	RString value = asAnnotation().getDescription();
+    	if (value == null) return "";
+        return value.getValue();
+    }
+    
     /**
      * Returns the file format as defined by the specification, corresponding to
      * the file extension.
