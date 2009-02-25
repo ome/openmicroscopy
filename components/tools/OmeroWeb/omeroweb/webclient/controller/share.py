@@ -55,7 +55,12 @@ class BaseShare(BaseController):
         BaseController.__init__(self, conn)
         if conn_share is None:
             if share_id: 
-                self.share = self.conn.getShare(share_id)
+                try:
+                    self.share = self.conn.getShare(share_id)
+                except omero.ValidationException, x:
+                    raise AttributeError(x.message)
+                if self.share._obj is None:
+                    raise AttributeError("Share does not exist.")
                 self.eContext['breadcrumb'] = [ menu.title(), "Share", action ]
             elif action:
                 self.eContext['breadcrumb'] = ["Basket", action ]
@@ -63,7 +68,12 @@ class BaseShare(BaseController):
                 self.eContext['breadcrumb'] = [ menu.title() ]
         else:
             self.conn_share = conn_share
-            self.share = self.conn.getShare(share_id)
+            try:
+                self.share = self.conn.getShare(share_id)
+            except omero.ValidationException, x:
+                raise AttributeError(x.message)
+            if self.share._obj is None:
+                raise AttributeError("Share does not exist.")
             self.conn_share.activateShare(share_id)
 
     def createShare(self, host, blitz_id, imageInBasket, message, members, enable, expiration=None):

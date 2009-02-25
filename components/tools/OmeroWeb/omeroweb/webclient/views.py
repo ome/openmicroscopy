@@ -39,6 +39,7 @@ import locale
 import logging
 import traceback
 
+import omero
 from time import time
 from thread import start_new_thread
 
@@ -47,7 +48,7 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
 from django.core import template_loader
 from django.core.cache import cache
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext as Context
 from django.utils import simplejson
@@ -623,7 +624,10 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
     menu = request.session['nav']['menu']
     whos = request.session['nav']['whos']
     
-    manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id, metadata=True)
+    try:
+        manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id, metadata=True)
+    except AttributeError, x:
+        return handlerInternalError(x)
     manager.buildBreadcrumb(whos)
         
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
@@ -989,7 +993,10 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     menu = request.session['nav']['menu']
     whos = request.session['nav']['whos']
     
-    manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id, metadata=True)
+    try:
+        manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id, metadata=True)
+    except AttributeError, x:
+        return handlerInternalError(x)
     manager.buildBreadcrumb(whos)
         
     grs = list()
@@ -1398,7 +1405,10 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     menu = request.session['nav']['menu']
     whos = request.session['nav']['whos']
     
-    manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id, metadata=True)
+    try:
+        manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id, metadata=True)
+    except AttributeError, x:
+        return handlerInternalError(x)
     manager.buildBreadcrumb(whos)
     
     form_users = None
@@ -1841,7 +1851,10 @@ def manage_data_by_tag(request, tid=None, tid2=None, tid3=None, tid4=None, tid5=
             tags.append(val)
         form_filter = TagFilterForm(initial=initail)
     
-    manager = BaseContainer(conn, tags=tag_list, rtags=tags)
+    try:
+        manager = BaseContainer(conn, tags=tag_list, rtags=tags)
+    except AttributeError, x:
+        return handlerInternalError(x)
     if len(tags) > 0:
         manager.loadDataByTag()
     else:
@@ -1941,7 +1954,10 @@ def manage_tree_details(request, c_type, c_id, **kwargs):
     
     whos = request.session['nav']['whos']
     
-    manager = BaseContainer(conn, c_type, c_id)
+    try:
+        manager = BaseContainer(conn, c_type, c_id)
+    except AttributeError, x:
+        return handlerInternalError(x)
     
     context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager}
 
@@ -1962,7 +1978,10 @@ def manage_container_hierarchies(request, o_type=None, o_id=None, **kwargs):
     
     whos = request.session['nav']['whos']
     
-    manager = BaseContainer(conn, o_type, o_id)
+    try:
+        manager = BaseContainer(conn, o_type, o_id)
+    except AttributeError, x:
+        return handlerInternalError(x)
     manager.loadHierarchies()
     
     context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager}
@@ -1988,7 +2007,10 @@ def manage_metadata(request, o_type, o_id, **kwargs):
     matadataType = request.REQUEST['matadataType']
     metadataValue = request.REQUEST['metadataValue']
     
-    manager = BaseContainer(conn, o_type, o_id, metadata=True)
+    try:
+        manager = BaseContainer(conn, o_type, o_id, metadata=True)
+    except AttributeError, x:
+        return handlerInternalError(x)
     manager.saveMetadata(matadataType, metadataValue)
     
     return HttpResponse()
@@ -2012,7 +2034,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     
     manager = None
     if o_type == "dataset" or o_type == "project" or o_type == "image":
-        manager = BaseContainer(conn, o_type, o_id)
+        try:
+            manager = BaseContainer(conn, o_type, o_id)
+        except AttributeError, x:
+            return handlerInternalError(x)
         manager.buildBreadcrumb(action)
     elif o_type == "comment" or o_type == "url" or o_type == "tag":
         manager = BaseAnnotation(conn, o_type, o_id)
@@ -2198,8 +2223,11 @@ def manage_image_zoom (request, iid, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    image = BaseContainer(conn, 'image', iid)
-
+    try:
+        image = BaseContainer(conn, 'image', iid)
+    except AttributeError, x:
+        return handlerInternalError(x)
+    
     if request.session['nav']['whos'] != 'mydata' and request.session['nav']['whos'] != 'userdata' and request.session['nav']['whos'] != 'groupdata':
         if image.image.details.owner.id.val == image.eContext['context'].userId:
             request.session['nav']['whos'] = 'mydata'
@@ -2298,7 +2326,10 @@ def manage_share(request, action, oid=None, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    share = BaseShare(request.session['nav']['menu'], conn, None, oid, action)
+    try:
+        share = BaseShare(request.session['nav']['menu'], conn, None, oid, action)
+    except AttributeError, x:
+        return handlerInternalError(x)
     form_active_group = ActiveGroupForm(initial={'activeGroup':share.eContext['context'].groupId, 'mygroups': share.eContext['allGroups']})
     
     experimenters = list(conn.getExperimenters())
@@ -2437,7 +2468,10 @@ def load_share_content(request, share_id, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    share = BaseShare(request.session['nav']['menu'], conn, conn_share, share_id)
+    try:
+        share = BaseShare(request.session['nav']['menu'], conn, conn_share, share_id)
+    except AttributeError, x:
+        return handlerInternalError(x)
     share.loadShareContent()
     
     context = {'share':share, 'eContext':share.eContext}
