@@ -436,7 +436,7 @@ public class ImportLibrary implements IObservable
         }
         if (reader.isMinMaxSet() == false)
         {
-            store.populateMinMax(pixId, series);
+            store.populateMinMax();
         }
     }
     

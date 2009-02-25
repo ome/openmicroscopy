@@ -97,47 +97,6 @@ public class OMEROWrapper extends MinMaxCalculator
             return false;
     } 
     
-	/**
-	 * Retrieves the global min and max for each channel and sets those values
-	 * in the MetadataStore.
-	 * @param id The path to the file.
-	 * @throws FormatException if there is an error parsing metadata.
-	 * @throws IOException if there is an error reading the file.
-	 */
-    public void setChannelGlobalMinMax(String id)
-        throws FormatException, IOException
-    {
-        for(int c = 0; c < getSizeC(); c++)
-        {
-            double gMin = Double.MIN_VALUE;
-            double gMax = Double.MAX_VALUE;
-
-            double cMin = getChannelGlobalMinimum(c);
-            double cMax = getChannelGlobalMaximum(c);
-
-            gMin = cMin;
-            gMax = cMax;
-
-            //getMetadataStore().setChannelGlobalMinMax(c, gMin, gMax, new Integer(getSeries()));
-        }    
-    }
-
-	/**
-	 * Makes sure that the reader's <code>MetadataStore</code> has all the
-	 * relevant metadata that the OMERO server requires.
-	 * @param id The path to the file.
-	 * @throws FormatException if there is an error parsing metadata.
-	 * @throws IOException if there is an error reading the file.
-	 */
-	public void finalizeMetadataStore(String id)
-		throws FormatException, IOException
-	{
-		// Make sure we have StatsInfo objects.
-		if (getChannelGlobalMinimum(getSizeC() -1) == null
-			|| getChannelGlobalMaximum(getSizeC() -1) == null)
-			setChannelGlobalMinMax(id);
-	}
-
     @SuppressWarnings("unchecked")
 	public boolean isMinMaxSet() throws FormatException, IOException
     {
@@ -178,16 +137,6 @@ public class OMEROWrapper extends MinMaxCalculator
          {
              OMEROMetadataStoreClient store = (OMEROMetadataStoreClient) reader.getMetadataStore();
              store.populateSHA1(md, id);  
-         }
-     }
-     
-     public void populateMinMax(Long id, Integer i) throws FormatException, IOException
-     {
-         if (isMinMaxSet() == false)
-         {
-             OMEROMetadataStoreClient store = 
-                 (OMEROMetadataStoreClient) reader.getMetadataStore();
-             store.populateMinMax(id, i);
          }
      }
      

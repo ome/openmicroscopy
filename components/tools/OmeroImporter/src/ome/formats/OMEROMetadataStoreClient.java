@@ -168,9 +168,14 @@ public class OMEROMetadataStoreClient
     /** Our OMERO model object provider. */
     private InstanceProvider instanceProvider;
 
+    /** Current pixels ID we're writing planes for. */
     private Long currentPixId;
     
+    /** Image name that the user specified for use by model processors. */
     private String userSpecifiedImageName;
+    
+    /** Image channel minimums and maximums. */
+    private double[][][] imageChannelGlobalMinMax;
 
     private void initializeServices()
     	throws ServerError
@@ -2231,17 +2236,33 @@ public class OMEROMetadataStoreClient
             rawPixelStore.setPlane(arrayBuf, z, c, t);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.IMinMaxStore#setChannelGlobalMinMax(int, double, double, int)
+     */
     public void setChannelGlobalMinMax(int channel, double minimum,
             double maximum, int series)
     {
-        try
-        {
-            delegate.setChannelGlobalMinMax(channel, minimum, maximum, series);
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+    	Pixels pixels = 
+    		(Pixels) getSourceObject(new LSID(Pixels.class, series, 0));
+    	if (imageChannelGlobalMinMax == null)
+    	{
+    		int imageCount = countCachedContainers(Image.class);
+    		imageChannelGlobalMinMax = new double[imageCount][][];
+    	}
+    	double[][] channelGlobalMinMax = imageChannelGlobalMinMax[series];
+    	if (channelGlobalMinMax == null)
+    	{
+    		imageChannelGlobalMinMax[series] = channelGlobalMinMax =
+    			new double[pixels.getSizeC().getValue()][];
+    	}
+    	double[] globalMinMax = channelGlobalMinMax[channel];
+    	if (globalMinMax == null)
+    	{
+    		imageChannelGlobalMinMax[series][channel] = globalMinMax =
+    			new double[2];
+    	}
+    	globalMinMax[0] = minimum;
+    	globalMinMax[1] = maximum;
     }
 
     public void populateSHA1(MessageDigest md, Long id)
@@ -2288,12 +2309,15 @@ public class OMEROMetadataStoreClient
         return rslt;
     }
 
-    public void populateMinMax(Long id, Integer i)
+    /**
+     * Sends all the minimums and maximums for all images processed so far to
+     * the server.
+     */
+    public void populateMinMax()
     {
         try
         {
-            //FIXME: might be called twice
-            delegate.populateMinMax(toRType(id), toRType(i));
+            delegate.populateMinMax(imageChannelGlobalMinMax);
         }
         catch (ServerError e)
         {

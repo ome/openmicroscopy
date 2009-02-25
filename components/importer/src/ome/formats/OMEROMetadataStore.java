@@ -800,22 +800,32 @@ public class OMEROMetadataStore
     }
     
     /**
-     * Check the MinMax values stored in the DB and sync them with the new values
-     * we generate in the channelMinMax reader, then save them to the DB. 
-     * @param id The <code>Pixels</code> id.
+     * Synchronize the minimum and maximum intensity values with those
+     * specified by the client and save them in the DB.
+     * @param imageChannelGlobalMinMax Minimums and maximums to update.
      */
     @SuppressWarnings("unchecked")
-    public void populateMinMax(Long id, Integer i)
+    public void populateMinMax(double[][][] imageChannelGlobalMinMax)
     {
-        Pixels p = iQuery.findByQuery(
-                "select p from Pixels as p left join fetch p.channels " +
-                "where p.id = :id", new Parameters().addId(id));
-        for (int j=0; j < p.getSizeC(); j++)
-        {
-            Channel channel = p.getChannel(j);
-            Channel readerChannel = pixelsList.get(i).getChannel(j);
-            channel.setStatsInfo(readerChannel.getStatsInfo());
-        }
-        iUpdate.saveObject(p);
+    	Pixels[] toSave = new Pixels[imageChannelGlobalMinMax.length];
+    	double[][] channelGlobalMinMax;
+    	double[] globalMinMax;
+    	Channel channel;
+    	StatsInfo statsInfo;
+    	for (int i = 0; i < imageChannelGlobalMinMax.length; i++)
+    	{
+    		channelGlobalMinMax = imageChannelGlobalMinMax[i];
+    		for (int c = 0; c < channelGlobalMinMax.length; c++)
+    		{
+    			globalMinMax = channelGlobalMinMax[c];
+    			toSave[i] = getPixels(i, 0);
+    			channel = toSave[i].getChannel(c);
+    			statsInfo = new StatsInfo();
+    			statsInfo.setGlobalMin(globalMinMax[0]);
+    			statsInfo.setGlobalMax(globalMinMax[1]);
+    			channel.setStatsInfo(statsInfo);
+    		}
+    	}
+    	iUpdate.saveArray(toSave);
     }
 }

@@ -40,9 +40,8 @@ module omero {
 		void createRoot() throws ServerError;
 		void updateObjects(omero::metadatastore::IObjectContainerArray objects) throws ServerError;
 		void updateReferences(omero::api::StringStringMap references) throws ServerError;
-		void setChannelGlobalMinMax(int channelIdx, double globalMin, double globalMax, int pixelsIndex) throws ServerError;
 		PixelsList saveToDB() throws ServerError;
-		void populateMinMax(RLong id, RInt i) throws ServerError;
+		void populateMinMax(DoubleArrayArrayArray imageChannelGlobalMinMax) throws ServerError;
 	    };
     };
 

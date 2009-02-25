@@ -90,8 +90,9 @@ public class MetadataStoreI extends AbstractAmdServant implements
     }
 
     public void populateMinMax_async(
-            final AMD_MetadataStore_populateMinMax __cb, final RLong id,
-            final RInt i, final Current __current) throws ServerError {
+            final AMD_MetadataStore_populateMinMax __cb,
+			final double[][][] imageChannelGlobalMinMax,
+			final Current __current) throws ServerError {
 
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
@@ -100,7 +101,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     @Transactional(readOnly = false)
                     public Object doWork(Session session, ServiceFactory sf) {
 
-                        store.populateMinMax(toJavaType(id), toJavaType(i));
+                        store.populateMinMax(imageChannelGlobalMinMax);
                         return null;
                     }
                 }));
@@ -117,26 +118,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(Session session, ServiceFactory sf) {
 
                         return store.saveToDB();
-                    }
-                }));
-    }
-
-    public void setChannelGlobalMinMax_async(
-            final AMD_MetadataStore_setChannelGlobalMinMax __cb,
-            final int channelIdx, final double globalMin,
-            final double globalMax, final int pixelsIndex,
-            final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.SimpleWork(
-                        this, "setChannelGlobalMinMax") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-
-                        store.setChannelGlobalMinMax(channelIdx, globalMin,
-                                globalMax, pixelsIndex);
-                        return null;
                     }
                 }));
     }
