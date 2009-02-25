@@ -2116,7 +2116,7 @@ public class OMEROMetadataStoreClient
                 DatasetImageLink l = new DatasetImageLinkI();
                 l.setChild(unloadedImage);
                 l.setParent(unloadedDataset);
-        		links.set(i, l);
+        		links.add(l);
         	}
         	iUpdate.saveArray(links);
         }
