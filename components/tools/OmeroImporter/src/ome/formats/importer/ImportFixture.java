@@ -139,7 +139,7 @@ public class ImportFixture
             library.setDataset(fads.get(file));
             library.open(fileName);
             List<Pixels> pixelsList =
-            	library.importMetadata(file.getAbsolutePath());
+            	library.importMetadata(file.getAbsolutePath(), false);
             Pixels pixels = pixelsList.get(0);
             library.calculateImageCount(fileName, pixels);
             library.importData(pixels.getId().getValue(), fileName, 0, step);
