@@ -24,6 +24,7 @@ import ome.model.annotations.TagAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.security.SecuritySystem;
+import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.impl.TimelineI;
 import ome.services.blitz.util.BlitzExecutor;
@@ -49,7 +50,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 @Test(groups = "integration")
-public class TimelineITest extends TestCase {
+public class TimelineITest extends AbstractServantTest {
 
     ManagedContextFixture user, root;
     ServiceFactoryI user_sf, root_sf;
@@ -63,27 +64,12 @@ public class TimelineITest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        // Shared
-        OmeroContext inner = OmeroContext.getManagedServerContext();
-        OmeroContext outer = new OmeroContext(
-                new String[] { "classpath:omero/test2.xml" }, false);
-        outer.setParent(inner);
-        outer.afterPropertiesSet();
-
-        BlitzExecutor be = new InThreadThrottlingStrategy();
-        sm = (SessionManager) outer.getBean("sessionManager");
-        ss = (SecuritySystem) outer.getBean("securitySystem");
-
-        user = new ManagedContextFixture(outer);
-        String name = user.loginNewUserNewGroup();
-        user_sf = user.createServiceFactoryI();
-
         user_t = new TimelineI(be);
         user_t.setServiceFactory(user_sf);
         user_t.setSessionManager(sm);
         user_t.setSecuritySystem(ss);
 
-        root = new ManagedContextFixture(outer);
+        root = new ManagedContextFixture(ctx);
         // root.setCurrentUserAndGroup("root", "system"); TODO AFTERMERGE
         root_sf = root.createServiceFactoryI();
 
@@ -91,12 +77,6 @@ public class TimelineITest extends TestCase {
         root_t.setServiceFactory(root_sf);
         root_t.setSessionManager(sm);
         root_t.setSecuritySystem(ss);
-    }
-
-    @Override
-    @AfterClass
-    protected void tearDown() throws Exception {
-        super.tearDown();
     }
 
     //

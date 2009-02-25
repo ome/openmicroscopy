@@ -16,6 +16,7 @@ import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.services.blitz.fire.AopContextInitializer;
+import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.QueryI;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.impl.UpdateI;
@@ -40,60 +41,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 @Test(groups = "integration")
-public class UpdateITest extends TestCase {
-
-    ManagedContextFixture user, root;
-    ServiceFactoryI user_sf, root_sf;
-    UpdateI user_update, root_update;
-    QueryI user_query;
-    SessionManager sm;
-    SecuritySystem ss;
-
-    @Override
-    @BeforeClass
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        // Shared
-        OmeroContext inner = OmeroContext.getManagedServerContext();
-        OmeroContext outer = new OmeroContext(
-                new String[] { "classpath:omero/test2.xml" }, false);
-        outer.setParent(inner);
-        outer.afterPropertiesSet();
-
-        BlitzExecutor be = new InThreadThrottlingStrategy();
-        sm = (SessionManager) outer.getBean("sessionManager");
-        ss = (SecuritySystem) outer.getBean("securitySystem");
-
-        user = new ManagedContextFixture(outer);
-        user_sf = user.createServiceFactoryI();
-
-        // ^^^^^^^^^^^^^^
-        // Above all cut-n-pasted from timeline. refactor TODO
-
-        List<HardWiredInterceptor> cptors = HardWiredInterceptor
-                .parse(new String[] { "ome.security.basic.BasicSecurityWiring" });
-        HardWiredInterceptor.configure(cptors, outer);
-
-        AopContextInitializer initializer = new AopContextInitializer(
-                new ServiceFactory(outer), user.login.p);
-
-        ServiceFactory sf = new ServiceFactory(outer);
-        user_update = new UpdateI(sf.getUpdateService(), be);
-        user_update.setApplicationContext(outer);
-        user_update.applyHardWiredInterceptors(cptors, initializer);
-
-        user_query = new QueryI(sf.getQueryService(), be);
-        user_query.setApplicationContext(outer);
-        user_query.applyHardWiredInterceptors(cptors, initializer);
-
-    }
-
-    @Override
-    @AfterClass
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
+public class UpdateITest extends AbstractServantTest {
 
     @Test(groups = "ticket:1183")
     public void testProjectWithAnnotationCausesError() throws Exception {
@@ -146,64 +94,6 @@ public class UpdateITest extends TestCase {
         omero.sys.Parameters p = new ParametersI().page(0, 2);
         List<IObject> objects = assertFindByQuery(q, p);
         assertNotNull(objects.get(0).getDetails());
-    }
-
-    // Helpers
-    // =========================================================================
-
-    @SuppressWarnings("unchecked")
-    private List<IObject> assertFindByQuery(String q, omero.sys.Parameters p)
-            throws Exception {
-        final Exception[] ex = new Exception[1];
-        final boolean[] status = new boolean[1];
-        final List[] rv = new List[1];
-        user_query.findAllByQuery_async(new AMD_IQuery_findAllByQuery() {
-
-            public void ice_exception(Exception exc) {
-                ex[0] = exc;
-            }
-
-            public void ice_response(List<IObject> __ret) {
-                rv[0] = __ret;
-                status[0] = true;
-            }
-        }, q, p, current("findAllByQuery"));
-        if (ex[0] != null) {
-            throw ex[0];
-        } else {
-            assertTrue(status[0]);
-        }
-        return rv[0];
-    }
-
-    private IObject assertSaveAndReturn(Project p) throws Exception {
-        final Exception[] ex = new Exception[1];
-        final boolean[] status = new boolean[1];
-        final IObject[] rv = new IObject[1];
-        user_update.saveAndReturnObject_async(
-                new AMD_IUpdate_saveAndReturnObject() {
-
-                    public void ice_exception(Exception exc) {
-                        ex[0] = exc;
-                    }
-
-                    public void ice_response(IObject __ret) {
-                        rv[0] = __ret;
-                        status[0] = true;
-                    }
-                }, p, current("saveAndReturnObject"));
-        if (ex[0] != null) {
-            throw ex[0];
-        } else {
-            assertTrue(status[0]);
-        }
-        return rv[0];
-    }
-
-    private Ice.Current current(String method) {
-        Ice.Current curr = new Ice.Current();
-        curr.operation = method;
-        return curr;
     }
 
 }

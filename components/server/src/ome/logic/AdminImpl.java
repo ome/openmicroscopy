@@ -34,6 +34,8 @@ import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -57,6 +59,7 @@ import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.system.SimpleEventContext;
 import ome.tools.hibernate.HibernateUtils;
+import ome.tools.hibernate.QueryBuilder;
 import ome.util.Utils;
 
 import org.hibernate.Criteria;
@@ -546,6 +549,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         GroupExperimenterMap link = e.linkExperimenterGroup(group);
         link.getDetails().copy(getSecuritySystem().newTransientDetails(link));
+        worldReadable(link);
+        
         getSecuritySystem().doAction(new SecureUpdate(iUpdate),
                 userProxy(e.getId()), link);
         iUpdate.flush();
@@ -1126,11 +1131,29 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         copy.setInstitution(e.getInstitution());
         if (e.getDetails() != null && e.getDetails().getPermissions() != null) {
             copy.getDetails().setPermissions(e.getDetails().getPermissions());
+        } else {
+            // ticket:1204 - If no permissions are set, we will need to make
+            // sure that this instance is visible, otherwise non-admin users
+            // will have significant problems.
+            worldReadable(copy);
         }
         // TODO make ShallowCopy-like which ignores collections and details.
         // if possible, values should be validated. i.e. iTypes should say what
         // is non-null
         return copy;
+    }
+
+    /**
+     * @see ticket:1204
+     */
+    private void worldReadable(IObject obj) {
+        Permissions p = obj.getDetails().getPermissions();
+        if (p == null) {
+            p = new Permissions(Permissions.DEFAULT);
+            obj.getDetails().setPermissions(p);
+        }
+        p.grant(Role.GROUP, Right.READ);
+        p.grant(Role.WORLD, Right.READ);
     }
 
     protected ExperimenterGroup copyGroup(ExperimenterGroup g) {
@@ -1141,6 +1164,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         copy.setDescription(g.getDescription());
         copy.setName(g.getName());
         copy.getDetails().copy(getSecuritySystem().newTransientDetails(g));
+        worldReadable(copy);
         // TODO see shallow copy comment on copy user
         return copy;
     }
@@ -1209,24 +1233,32 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         @Override
         protected void buildQuery(Session session) throws HibernateException,
                 SQLException {
-            Criteria c = session.createCriteria(ExperimenterGroup.class);
-            Criteria m = c.createCriteria("groupExperimenterMap",
-                    Query.LEFT_JOIN);
-            Criteria e = m.createCriteria("child", Query.LEFT_JOIN);
-
-            if (value("name") != null) {
-                c.add(Restrictions.eq("name", value("name")));
+            
+            QueryBuilder qb = new QueryBuilder();
+            qb.select("g");
+            qb.from("ExperimenterGroup", "g");
+            qb.join("g.groupExperimenterMap","m",true, true);
+            qb.join("m.child","user", true,true);
+            qb.where();
+            
+            Object name = value("name");
+            Object id = value("id");
+            
+            if (name != null) {
+                qb.and("g.name = :name");
+                qb.param("name", name);
             }
-
-            else if (value("id") != null) {
-                c.add(Restrictions.eq("id", value("id")));
+            
+            else if (id != null) {
+                qb.and("g.id = :id");
+                qb.param("id",id);
             }
-
+            
             else {
                 throw new InternalException(
                         "Name and id are both null for group query.");
             }
-            setCriteria(c);
+            setQuery(qb.query(session));
 
         }
     }

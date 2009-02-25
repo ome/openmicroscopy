@@ -19,8 +19,11 @@ import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.GroupExperimenterMap;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.system.Roles;
 import ome.util.IdBlock;
@@ -588,6 +591,36 @@ public class AdminTest extends AbstractManagedContextTest {
         iAdmin.deleteExperimenter(new Experimenter(uid, false));
     }
 
+    // Non private creation (#1204)
+    // =========================================================================
+    
+    public void testUserCreate() {
+        
+        loginNewUser();
+        // This creates all the types of interest: user, group, link
+        
+        loginRoot();
+        List<Experimenter> users = iQuery.findAll(Experimenter.class, null);
+        assertWorldReadable(users);
+        users = null;
+        
+        List<ExperimenterGroup> groups = iQuery.findAll(ExperimenterGroup.class, null);
+        assertWorldReadable(groups);
+        groups = null;
+        
+        List<GroupExperimenterMap> maps = iQuery.findAll(GroupExperimenterMap.class, null);
+        assertWorldReadable(maps);
+        maps = null;
+    }
+    
+    <T extends IObject> void assertWorldReadable(List<T> list) {
+        for (T t : list) {
+            Permissions p = t.getDetails().getPermissions();
+            assertTrue(p.isGranted(Role.GROUP, Right.READ));
+            assertTrue(p.isGranted(Role.WORLD, Right.READ));
+        }
+    }
+    
     // ~ Bugs
     // =========================================================================
 

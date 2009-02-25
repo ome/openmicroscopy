@@ -31,6 +31,8 @@ import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.ExternalInfo;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
@@ -339,10 +341,11 @@ public class OmeroInterceptor implements Interceptor {
      * of an element the very last action.
      * 
      * This method is called during
-     * {@link OmeroInterceptor#onSave(Object, java.io.Serializable, Object[], String[], org.hibernate.type.Type[]) save}
-     * and
-     * {@link OmeroInterceptor#onFlushDirty(Object, java.io.Serializable, Object[], Object[], String[], org.hibernate.type.Type[]) update}
-     * since this is the only time that new entity references can be created.
+     * {@link OmeroInterceptor#onSave(Object, java.io.Serializable, Object[], String[], org.hibernate.type.Type[])
+     * save} and
+     * {@link OmeroInterceptor#onFlushDirty(Object, java.io.Serializable, Object[], Object[], String[], org.hibernate.type.Type[])
+     * update} since this is the only time that new entity references can be
+     * created.
      * 
      * @param iObject
      *            new or updated entity which may reference other entities which
@@ -359,10 +362,23 @@ public class OmeroInterceptor implements Interceptor {
         for (IObject object : candidates) {
             // omitting system types since they don't have permissions
             // which can be locked.
-            if (sysTypes.isSystemType(object.getClass())) {
-                // do nothing.
-            } else {
-                s.add(object);
+
+            if (!sysTypes.isSystemType(object.getClass())) {
+                Permissions p = object.getDetails().getPermissions();
+                if (p.isGranted(Role.GROUP, Right.READ)
+                        || p.isGranted(WORLD, READ)) {
+
+                    // Only adding object for lockage if it has group or world
+                    // read permissions. This change came in 4.0 where all
+                    // permissions were reduced to rw---- and current linkages
+                    // removed. It's possible that a root user will be able
+                    // to link an object that's not readable, which would
+                    // typically cause the object to be locked. However, lockage
+                    // is intended to prevent users from loosing visibility on
+                    // an item. Admins can view regardless.
+
+                    s.add(object);
+                }
             }
             // TODO NEED TO CHECK FOR OWNERSHIP etc. etc.
         }
