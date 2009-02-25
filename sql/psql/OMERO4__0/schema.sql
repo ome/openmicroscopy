@@ -1631,7 +1631,7 @@
         defaultEventType varchar(255) not null,
         defaultPermissions varchar(255) not null,
         permissions int8 not null,
-        message varchar(255),
+        message text,
         started timestamp not null,
         timeToIdle int8 not null,
         timeToLive int8 not null,

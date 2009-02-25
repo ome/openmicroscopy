@@ -36,138 +36,6 @@ INSERT into dbpatch (currentVersion, currentPatch,   previousVersion,     previo
              values ('OMERO4',       0,              'OMERO3A',           11);
 
 --
--- Removing all sequences #1191
---
-DROP SEQUENCE seq_aberrationcorrection;
-DROP SEQUENCE seq_acquisitionmode;
-DROP SEQUENCE seq_annotation;
-DROP SEQUENCE seq_annotationannotationlink;
-DROP SEQUENCE seq_arctype;
-DROP SEQUENCE seq_binning;
-DROP SEQUENCE seq_category;
-DROP SEQUENCE seq_categorygroup;
-DROP SEQUENCE seq_categorygroupcategorylink;
-DROP SEQUENCE seq_categoryimagelink;
-DROP SEQUENCE seq_cellarea;
-DROP SEQUENCE seq_celleccentricity;
-DROP SEQUENCE seq_cellextent;
-DROP SEQUENCE seq_cellmajoraxislength;
-DROP SEQUENCE seq_cellminoraxislength;
-DROP SEQUENCE seq_cellperimeter;
-DROP SEQUENCE seq_cellposition;
-DROP SEQUENCE seq_cellsolidity;
-DROP SEQUENCE seq_channel;
-DROP SEQUENCE seq_channelannotationlink;
-DROP SEQUENCE seq_channelbinding;
-DROP SEQUENCE seq_coating;
-DROP SEQUENCE seq_codomainmapcontext;
-DROP SEQUENCE seq_color;
-DROP SEQUENCE seq_contrastmethod;
-DROP SEQUENCE seq_customizedfilterset;
-DROP SEQUENCE seq_dataset;
-DROP SEQUENCE seq_datasetannotationlink;
-DROP SEQUENCE seq_datasetimagelink;
-DROP SEQUENCE seq_dbpatch;
-DROP SEQUENCE seq_detector;
-DROP SEQUENCE seq_detectorsettings;
-DROP SEQUENCE seq_detectortype;
-DROP SEQUENCE seq_dichroic;
-DROP SEQUENCE seq_dimensionorder;
-DROP SEQUENCE seq_emissionfilter;
-DROP SEQUENCE seq_event;
-DROP SEQUENCE seq_eventlog;
-DROP SEQUENCE seq_eventtype;
-DROP SEQUENCE seq_excitationfilter;
-DROP SEQUENCE seq_experiment;
-DROP SEQUENCE seq_experimenter;
-DROP SEQUENCE seq_experimenterannotationlink;
-DROP SEQUENCE seq_experimentergroup;
-DROP SEQUENCE seq_experimentergroupannotationlink;
-DROP SEQUENCE seq_experimenttype;
-DROP SEQUENCE seq_externalinfo;
-DROP SEQUENCE seq_family;
-DROP SEQUENCE seq_filamenttype;
-DROP SEQUENCE seq_filter;
-DROP SEQUENCE seq_filterset;
-DROP SEQUENCE seq_filtertype;
-DROP SEQUENCE seq_format;
-DROP SEQUENCE seq_frequencymultiplication;
-DROP SEQUENCE seq_groupexperimentermap;
-DROP SEQUENCE seq_illumination;
-DROP SEQUENCE seq_image;
-DROP SEQUENCE seq_imageannotationlink;
-DROP SEQUENCE seq_imagecellcount;
-DROP SEQUENCE seq_imagenucleascount;
-DROP SEQUENCE seq_imagingenvironment;
-DROP SEQUENCE seq_immersion;
-DROP SEQUENCE seq_instrument;
-DROP SEQUENCE seq_irisdiaphragm;
-DROP SEQUENCE seq_job;
-DROP SEQUENCE seq_joboriginalfilelink;
-DROP SEQUENCE seq_jobstatus;
-DROP SEQUENCE seq_lasermedium;
-DROP SEQUENCE seq_lasertype;
-DROP SEQUENCE seq_lightsettings;
-DROP SEQUENCE seq_lightsource;
-DROP SEQUENCE seq_link;
-DROP SEQUENCE seq_logicalchannel;
-DROP SEQUENCE seq_medium;
-DROP SEQUENCE seq_microscope;
-DROP SEQUENCE seq_microscopetype;
-DROP SEQUENCE seq_nucleusarea;
-DROP SEQUENCE seq_nucleuseccentricity;
-DROP SEQUENCE seq_nucleusextent;
-DROP SEQUENCE seq_nucleusmajoraxislength;
-DROP SEQUENCE seq_nucleusminoraxislength;
-DROP SEQUENCE seq_nucleusperimeter;
-DROP SEQUENCE seq_nucleusposition;
-DROP SEQUENCE seq_nucleussolidity;
-DROP SEQUENCE seq_objective;
-DROP SEQUENCE seq_objectivesettings;
-DROP SEQUENCE seq_originalfile;
-DROP SEQUENCE seq_originalfileannotationlink;
-DROP SEQUENCE seq_otf;
-DROP SEQUENCE seq_photometricinterpretation;
-DROP SEQUENCE seq_pixels;
-DROP SEQUENCE seq_pixelsannotationlink;
-DROP SEQUENCE seq_pixelsdimensions;
-DROP SEQUENCE seq_pixelsoriginalfilemap;
-DROP SEQUENCE seq_pixelstype;
-DROP SEQUENCE seq_planeinfo;
-DROP SEQUENCE seq_planeinfoannotationlink;
-DROP SEQUENCE seq_plate;
-DROP SEQUENCE seq_plateannotationlink;
-DROP SEQUENCE seq_project;
-DROP SEQUENCE seq_projectannotationlink;
-DROP SEQUENCE seq_projectdatasetlink;
-DROP SEQUENCE seq_pulse;
-DROP SEQUENCE seq_quantumdef;
-DROP SEQUENCE seq_reagent;
-DROP SEQUENCE seq_reagentannotationlink;
-DROP SEQUENCE seq_renderingdef;
-DROP SEQUENCE seq_renderingmodel;
-DROP SEQUENCE seq_roi;
-DROP SEQUENCE seq_roilink;
-DROP SEQUENCE seq_roilinkannotationlink;
-DROP SEQUENCE seq_screen;
-DROP SEQUENCE seq_screenacquisition;
-DROP SEQUENCE seq_screenacquisitionannotationlink;
-DROP SEQUENCE seq_screenacquisitionwellsamplelink;
-DROP SEQUENCE seq_screenannotationlink;
-DROP SEQUENCE seq_screenplatelink;
-DROP SEQUENCE seq_session;
-DROP SEQUENCE seq_sessionannotationlink;
-DROP SEQUENCE seq_stagelabel;
-DROP SEQUENCE seq_statsinfo;
-DROP SEQUENCE seq_thumbnail;
-DROP SEQUENCE seq_transmittancerange;
-DROP SEQUENCE seq_well;
-DROP SEQUENCE seq_wellannotationlink;
-DROP SEQUENCE seq_wellreagentlink;
-DROP SEQUENCE seq_wellsample;
-DROP SEQUENCE seq_wellsampleannotationlink;
-
---
 -- In order to simplify conversion, we assert that various tables are empty.
 -- If they are not, your site will need specialized scripts for upgrading.
 -- Please contact the mailing list.
@@ -414,6 +282,141 @@ INSERT INTO seq_table SELECT 'seq_wellannotationlink', id + 1 FROM wellannotatio
 INSERT INTO seq_table SELECT 'seq_wellreagentlink', id + 1 FROM wellreagentlink ORDER BY id DESC LIMIT 1;
 INSERT INTO seq_table SELECT 'seq_wellsample', id + 1 FROM wellsample ORDER BY id DESC LIMIT 1;
 INSERT INTO seq_table SELECT 'seq_wellsampleannotationlink', id + 1 FROM wellsampleannotationlink ORDER BY id DESC LIMIT 1;
+
+--
+-- Removing all sequences now that ome_nextval is in place
+--
+ALTER TABLE dbpatch ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE dbpatch ALTER COLUMN id SET DEFAULT ome_nextval('seq_dbpatch');
+DROP SEQUENCE seq_aberrationcorrection;
+DROP SEQUENCE seq_acquisitionmode;
+DROP SEQUENCE seq_annotation;
+DROP SEQUENCE seq_annotationannotationlink;
+DROP SEQUENCE seq_arctype;
+DROP SEQUENCE seq_binning;
+DROP SEQUENCE seq_category;
+DROP SEQUENCE seq_categorygroup;
+DROP SEQUENCE seq_categorygroupcategorylink;
+DROP SEQUENCE seq_categoryimagelink;
+DROP SEQUENCE seq_cellarea;
+DROP SEQUENCE seq_celleccentricity;
+DROP SEQUENCE seq_cellextent;
+DROP SEQUENCE seq_cellmajoraxislength;
+DROP SEQUENCE seq_cellminoraxislength;
+DROP SEQUENCE seq_cellperimeter;
+DROP SEQUENCE seq_cellposition;
+DROP SEQUENCE seq_cellsolidity;
+DROP SEQUENCE seq_channel;
+DROP SEQUENCE seq_channelannotationlink;
+DROP SEQUENCE seq_channelbinding;
+DROP SEQUENCE seq_coating;
+DROP SEQUENCE seq_codomainmapcontext;
+DROP SEQUENCE seq_color;
+DROP SEQUENCE seq_contrastmethod;
+DROP SEQUENCE seq_customizedfilterset;
+DROP SEQUENCE seq_dataset;
+DROP SEQUENCE seq_datasetannotationlink;
+DROP SEQUENCE seq_datasetimagelink;
+DROP SEQUENCE seq_dbpatch;
+DROP SEQUENCE seq_detector;
+DROP SEQUENCE seq_detectorsettings;
+DROP SEQUENCE seq_detectortype;
+DROP SEQUENCE seq_dichroic;
+DROP SEQUENCE seq_dimensionorder;
+DROP SEQUENCE seq_emissionfilter;
+DROP SEQUENCE seq_event;
+DROP SEQUENCE seq_eventlog;
+DROP SEQUENCE seq_eventtype;
+DROP SEQUENCE seq_excitationfilter;
+DROP SEQUENCE seq_experiment;
+DROP SEQUENCE seq_experimenter;
+DROP SEQUENCE seq_experimenterannotationlink;
+DROP SEQUENCE seq_experimentergroup;
+DROP SEQUENCE seq_experimentergroupannotationlink;
+DROP SEQUENCE seq_experimenttype;
+DROP SEQUENCE seq_externalinfo;
+DROP SEQUENCE seq_family;
+DROP SEQUENCE seq_filamenttype;
+DROP SEQUENCE seq_filter;
+DROP SEQUENCE seq_filterset;
+DROP SEQUENCE seq_filtertype;
+-- DROP SEQUENCE seq_format;
+DROP SEQUENCE seq_frequencymultiplication;
+DROP SEQUENCE seq_groupexperimentermap;
+DROP SEQUENCE seq_illumination;
+DROP SEQUENCE seq_image;
+DROP SEQUENCE seq_imageannotationlink;
+DROP SEQUENCE seq_imagecellcount;
+DROP SEQUENCE seq_imagenucleascount;
+DROP SEQUENCE seq_imagingenvironment;
+DROP SEQUENCE seq_immersion;
+DROP SEQUENCE seq_instrument;
+DROP SEQUENCE seq_irisdiaphragm;
+DROP SEQUENCE seq_job;
+DROP SEQUENCE seq_joboriginalfilelink;
+DROP SEQUENCE seq_jobstatus;
+DROP SEQUENCE seq_lasermedium;
+DROP SEQUENCE seq_lasertype;
+DROP SEQUENCE seq_lightsettings;
+DROP SEQUENCE seq_lightsource;
+DROP SEQUENCE seq_link;
+DROP SEQUENCE seq_logicalchannel;
+DROP SEQUENCE seq_medium;
+DROP SEQUENCE seq_microscope;
+DROP SEQUENCE seq_microscopetype;
+DROP SEQUENCE seq_nucleusarea;
+DROP SEQUENCE seq_nucleuseccentricity;
+DROP SEQUENCE seq_nucleusextent;
+DROP SEQUENCE seq_nucleusmajoraxislength;
+DROP SEQUENCE seq_nucleusminoraxislength;
+DROP SEQUENCE seq_nucleusperimeter;
+DROP SEQUENCE seq_nucleusposition;
+DROP SEQUENCE seq_nucleussolidity;
+DROP SEQUENCE seq_objective;
+DROP SEQUENCE seq_objectivesettings;
+DROP SEQUENCE seq_originalfile;
+DROP SEQUENCE seq_originalfileannotationlink;
+DROP SEQUENCE seq_otf;
+DROP SEQUENCE seq_photometricinterpretation;
+DROP SEQUENCE seq_pixels;
+DROP SEQUENCE seq_pixelsannotationlink;
+DROP SEQUENCE seq_pixelsdimensions;
+DROP SEQUENCE seq_pixelsoriginalfilemap;
+DROP SEQUENCE seq_pixelstype;
+DROP SEQUENCE seq_planeinfo;
+DROP SEQUENCE seq_planeinfoannotationlink;
+DROP SEQUENCE seq_plate;
+DROP SEQUENCE seq_plateannotationlink;
+DROP SEQUENCE seq_project;
+DROP SEQUENCE seq_projectannotationlink;
+DROP SEQUENCE seq_projectdatasetlink;
+DROP SEQUENCE seq_pulse;
+DROP SEQUENCE seq_quantumdef;
+DROP SEQUENCE seq_reagent;
+DROP SEQUENCE seq_reagentannotationlink;
+DROP SEQUENCE seq_renderingdef;
+DROP SEQUENCE seq_renderingmodel;
+DROP SEQUENCE seq_roi;
+DROP SEQUENCE seq_roilink;
+DROP SEQUENCE seq_roilinkannotationlink;
+DROP SEQUENCE seq_screen;
+DROP SEQUENCE seq_screenacquisition;
+DROP SEQUENCE seq_screenacquisitionannotationlink;
+DROP SEQUENCE seq_screenacquisitionwellsamplelink;
+DROP SEQUENCE seq_screenannotationlink;
+DROP SEQUENCE seq_screenplatelink;
+DROP SEQUENCE seq_session;
+DROP SEQUENCE seq_sessionannotationlink;
+DROP SEQUENCE seq_stagelabel;
+DROP SEQUENCE seq_statsinfo;
+DROP SEQUENCE seq_thumbnail;
+DROP SEQUENCE seq_transmittancerange;
+DROP SEQUENCE seq_well;
+DROP SEQUENCE seq_wellannotationlink;
+DROP SEQUENCE seq_wellreagentlink;
+DROP SEQUENCE seq_wellsample;
+DROP SEQUENCE seq_wellsampleannotationlink;
+
 
 --
 -- Fixing enumerations for later use by the table modifications
@@ -772,6 +775,7 @@ ALTER TABLE image
 
 -- Same insert as is done in data.sql
 INSERT INTO node (id,permissions,uuid,conn,up,down) SELECT 0,-35,'000000000000000000000000000000000000','unknown',now(),now();
+ALTER TABLE session ALTER COLUMN message TYPE text;
 ALTER TABLE session
 	ADD COLUMN node bigint,
 	ADD COLUMN owner bigint;
@@ -925,6 +929,598 @@ DROP TABLE nucleusperimeter;
 DROP TABLE nucleusposition;
 DROP TABLE nucleussolidity;
 DROP TABLE pixelsdimensions;
+
+--
+-- and lowering permissions (#1191)
+--
+UPDATE acquisitionmode
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE annotation
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE annotationannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE arctype
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE binning
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE channel
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE channelannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE channelbinding
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE contrastmethod
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE correction
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE dataset
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE datasetannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE datasetimagelink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE dbpatch
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE detector
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE detectorsettings
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE detectortype
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE dichroic
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE dimensionorder
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE event
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE eventlog
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE eventtype
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE experiment
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE experimenter
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111111011101' )) as int8);
+UPDATE experimenterannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE experimentergroup
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111111011101' )) as int8);
+UPDATE experimentergroupannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE experimenttype
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE externalinfo
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE family
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE filamenttype
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE filter
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE filterset
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE filtertype
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE format
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE groupexperimentermap
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111111011101' )) as int8);
+UPDATE illumination
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE image
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE imageannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE imagingenvironment
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE immersion
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE instrument
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE job
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE joboriginalfilelink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE jobstatus
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE lasermedium
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE lasertype
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE lightsettings
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE lightsource
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE link
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE logicalchannel
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE medium
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE microbeammanipulation
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE microbeammanipulationtype
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE microscope
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE microscopetype
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE node
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE nodeannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE objective
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE objectivesettings
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE originalfile
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE originalfileannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE otf
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE photometricinterpretation
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE pixels
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE pixelsannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE pixelsoriginalfilemap
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE pixelstype
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE planeinfo
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE planeinfoannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE plate
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE plateannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE project
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE projectannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE projectdatasetlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE pulse
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE quantumdef
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE reagent
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE reagentannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE renderingdef
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE renderingmodel
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE screen
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE screenacquisition
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE screenacquisitionannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE screenacquisitionwellsamplelink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE screenannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE screenplatelink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE session
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE sessionannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE stagelabel
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE statsinfo
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE thumbnail
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE transmittancerange
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE well
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE wellannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE wellreagentlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE wellsample
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
+UPDATE wellsampleannotationlink
+   SET permissions =
+       cast((
+         (permissions::bit(64) << 53) |
+         (b'0000000000011111111111111111111111111111111111111111111111111111' &
+          b'1111111111111111111111111111111111111111111111111111111110011001' )) as int8);
 
 CREATE OR REPLACE FUNCTION ome_perms(p INT8) RETURNS VARCHAR AS '
 DECLARE
