@@ -79,11 +79,11 @@
 <div class="clear"></div>
 <div class="separate70"></div>
 
-{% if share.oshSize or share.mshSize %}
-
 <div id="view"> | {% trans "View" %} <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> | {% trans "New" %} <a href="{% get_webclient_root_url %}/basket/toshare/"><span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% get_webclient_static_url %}/images/folder_html16.png" alt="share" /></span></a> 
 <a href="{% get_webclient_root_url %}/basket/todiscuss/"><span id="discussion" title="Create discussion - <small>Starts the thread of the new discussion with no images currently stored in the basket.</small>"><img src="{% get_webclient_static_url %}/images/wp_protocol16.png" alt="discussion" /></span></a> |
 </div>
+
+{% if share.oshSize or share.mshSize %}
 
 <div class="slider">
     <div class="slider_products"> 

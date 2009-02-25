@@ -109,7 +109,7 @@ TODO:
           viewport.refresh(true);
 
           /* Center the tool boxes on the top */
-          var rightmost;
+          var rightmost = 0;
           var firstbox = $('.box:first', $('#wblitz-workarea'));
           var baseline = firstbox.offset().top;
           $('.box', $('#wblitz-workarea')).each(
@@ -333,21 +333,7 @@ TODO:
               layout_pos.top += 20;
             }
           });
-          var legend_open = function () {
-            var d = $(this);
-            d.unbind('opening', legend_open);
-            /* Calculate the size for legend post-it */
-            var h = $('#weblitz-viewport-vp').height();
-            var w = ($('#weblitz-viewport-vp').width() - h) /2;
-            d.css('width', Math.max(w, 100));
-            if (d.height() > h) {
-              d.css('height', h);
-            }
-            d.trigger('jqResize');
-            //alert('opening');
-          };
-          $("#legend-postit").bind('opening', legend_open);
-
+          
           /* Load the selected image into the viewport */
           var dsid = '{{ dataset.id }}';
           if (dsid == '') {
@@ -480,7 +466,7 @@ TODO:
           <a href="#" onclick="$('#rdef-postit').toggle(); return false;">Show Rendering Details</a>
         </div>
         <!-- Details -->
-        <div id="wblitz-details" class="box popover">
+        <div class="box">
           <h1>Image Details</h1>
           <div class="overview">
             <div class="h2-lookalike">
