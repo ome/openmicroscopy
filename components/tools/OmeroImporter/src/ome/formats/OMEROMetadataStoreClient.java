@@ -2096,18 +2096,29 @@ public class OMEROMetadataStoreClient
         }
     }
 
-    public void addImageToDataset(Image image, Dataset dataset)
+    /**
+     * Links the Image objects of Pixels returned after a {@link saveToDb()}
+     * action to a particular dataset.
+     * @param pixelsList List of Pixels objects whose Images we are to link.
+     * @param dataset Dataset to link to.
+     */
+    public void addImagesToDataset(List<Pixels> pixelsList, Dataset dataset)
     {   
         try
         {
-
-            
-            Image unloadedImage = new ImageI(image.getId(), false);
-            Dataset unloadedDataset = new DatasetI(dataset.getId(), false);
-            DatasetImageLink l = new DatasetImageLinkI();
-            l.setChild(unloadedImage);
-            l.setParent(unloadedDataset);
-            iUpdate.saveObject(l);
+        	List<IObject> links = 
+        		new ArrayList<IObject>(pixelsList.size());
+        	Dataset unloadedDataset = new DatasetI(dataset.getId(), false);
+        	for (int i = 0; i < pixelsList.size(); i++)
+        	{
+        		RLong imageId = pixelsList.get(i).getImage().getId();
+        		Image unloadedImage = new ImageI(imageId, false);
+                DatasetImageLink l = new DatasetImageLinkI();
+                l.setChild(unloadedImage);
+                l.setParent(unloadedDataset);
+        		links.set(i, l);
+        	}
+        	iUpdate.saveArray(links);
         }
         catch (ServerError e)
         {

@@ -236,14 +236,7 @@ public class ImportLibrary implements IObservable
         
         log.debug("Saving pixels to DB.");
         List<Pixels> pixelsList = store.saveToDB();
-        if (dataset != null)
-        {
-            for (Pixels pixels : pixelsList)
-            {
-                Image image = pixels.getImage();
-                store.addImageToDataset(image, dataset);
-            }
-        }
+        store.addImagesToDataset(pixelsList, dataset);
         return pixelsList;
     }
 
