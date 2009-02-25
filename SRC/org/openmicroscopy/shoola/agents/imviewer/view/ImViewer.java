@@ -574,7 +574,7 @@ public interface ImViewer
 	 * 
 	 * @param e The exception to handle.
 	 */
-	public void reload(Throwable e);
+	public void handleException(Throwable e);
 
 	/**
 	 * Returns the number of pixels along the X-axis.

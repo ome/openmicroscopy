@@ -30,7 +30,6 @@ import java.awt.image.BufferedImage;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -170,10 +169,7 @@ public class ProjectionSaver
         registry.getLogger().error(this, msg);
         switch (index) {
 			case PREVIEW:
-				if (exc instanceof DSOutOfServiceException) {
-					viewer.reload(exc);
-					load();
-				} else viewer.setProjectionPreview(null);
+				viewer.setProjectionPreview(null);
 				break;
 			case PROJECTION:
 				viewer.setProjectedImage(null, null, false);

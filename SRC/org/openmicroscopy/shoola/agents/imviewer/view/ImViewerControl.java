@@ -692,7 +692,6 @@ class ImViewerControl
 			}
 			return;
 		}
-
 		int state = model.getState();
 		switch (state) {
 			case ImViewer.DISCARDED:

@@ -24,16 +24,14 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.table.AbstractTableModel;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -89,23 +87,15 @@ public class ChannelSummaryModel
 	
 	/**
 	 * Overridden to return the number of columns.
-	 * 
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
-	public int getColumnCount()
-	{
-		return numColumns;
-	}
+	public int getColumnCount() { return numColumns; }
 	
 	/**
 	 * Overridden to return the number of rows.
-	 * 
 	 * @see javax.swing.table.TableModel#getRowCount()
 	 */
-	public int getRowCount()
-	{
-		return numRows;
-	}
+	public int getRowCount() { return numRows; }
 	
 	/**
 	 * Overridden to set the value of the model to the object.
@@ -119,30 +109,24 @@ public class ChannelSummaryModel
 	
 	/**
 	 * Overridden to return the name of the specified column.
-	 * 
 	 * @see AbstractTableModel#getColumnName(int)
 	 */
 	public String getColumnName(int col)
 	{
-		if(col==0)
-			return "";
-		else
-			return columnNames.get(col-1);
+		if (col == 0) return "";
+		return columnNames.get(col-1);
 	}
 	
 	/**
 	 * Overridden to return the value of the model to the object.
-	 * 
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int row, int col)
 	{
-		if (col>=numColumns || row>=numRows) 
-			return null;
-		if(col==0)
-			return(rowNames.get(row));
+		if (col >= numColumns || row >= numRows)  return null;
+		if (col == 0) return(rowNames.get(row));
 		else
-			if(data[col-1][row]!=null)
+			if (data[col-1][row] != null)
 				return UIUtilities.formatToDecimal(data[col-1][row]);
 			else
 				return null;
@@ -153,22 +137,14 @@ public class ChannelSummaryModel
 	 * 
 	 * @param col The value to set.
 	 */
-	public void setColumnCount(int col)
-	{
-		numColumns=col;
-	}
-	
-	
-	
+	public void setColumnCount(int col) { numColumns = col; }
+
 	/**
 	 * Sets the number of rows in the table to col.
 	 * 
 	 * @param row  The value to set.
 	 */
-	public void setRowCount(int row)
-	{
-		numRows=row;
-	}
+	public void setRowCount(int row) { numRows = row; }
 
 }
 

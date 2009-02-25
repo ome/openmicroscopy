@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 

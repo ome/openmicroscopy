@@ -640,7 +640,7 @@ class ImViewerComponent
 			view.setColorModel(key);
 			if (model.getTabbedIndex() != GRID_INDEX) renderXYPlane();
 		} catch (Exception ex) {
-			reload(ex);
+			handleException(ex);
 		}
 		
 	}
@@ -676,7 +676,7 @@ class ImViewerComponent
 			model.setSelectedXYPlane(z, t);
 			renderXYPlane();
 		} catch (Exception ex) {
-			reload(ex);
+			handleException(ex);
 		}
 	}
 
@@ -746,7 +746,7 @@ class ImViewerComponent
 			}
 			fireStateChange();
 		} catch (Exception ex) {
-			reload(ex);
+			handleException(ex);
 		} 
 	}
 
@@ -862,7 +862,7 @@ class ImViewerComponent
 			renderXYPlane();
 			postActiveChannelSelection(ChannelSelection.CHANNEL_SELECTION);
 		} catch (Exception ex) {
-			reload(ex);
+			handleException(ex);
 		}
 	}
 
@@ -955,7 +955,7 @@ class ImViewerComponent
 				firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
 						Integer.valueOf(index-1), Integer.valueOf(index));
 		} catch (Exception ex) {
-			reload(ex);
+			handleException(ex);
 		}
 	}
 
@@ -1172,7 +1172,7 @@ class ImViewerComponent
 			model.setChannelActive(index, true);
 			}
 		} catch (Exception ex) {
-			reload(ex);
+			handleException(ex);
 		}
 		return images;
 	}
@@ -1290,7 +1290,7 @@ class ImViewerComponent
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			reload(ex);
+			handleException(ex);
 		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		return images;
@@ -1337,7 +1337,7 @@ class ImViewerComponent
 				model.setChannelActive(index, true);
 			}
 		} catch (Exception e) {
-			reload(e);
+			handleException(e);
 		}
 		return image;
 	}
@@ -1669,9 +1669,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#reload(Throwable)
+	 * @see ImViewer#handleException(Throwable)
 	 */
-	public void reload(Throwable e)
+	public void handleException(Throwable e)
 	{
 		Logger logger = ImViewerAgent.getRegistry().getLogger();
 		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
@@ -1692,23 +1692,30 @@ class ImViewerComponent
 					fireStateChange();
 				} else {
 					logger.debug(this, e.getMessage());
-					discard();
+					model.discard();
+					fireStateChange();
 				}
 			} else {
 				if (e.getCause() instanceof OutOfMemoryError) {
 					un.notifyInfo("Image", "Due to an out of Memory error, " +
 							"\nit is not possible to render the image.");
-					model.setState(READY);
-					fireStateChange();
+					//model.setState(READY);
+					//fireStateChange();
 				} else {
 					un.notifyError(ImViewerAgent.ERROR, logMsg.toString(), 
 							e.getCause());
 				}
+				model.discard();
+				fireStateChange();
 			}
 			newPlane = false;
 		} else if (e instanceof DSOutOfServiceException) {
 			logger.debug(this, "Reload rendering Engine.");
-			model.fireRenderingControlReloading();
+			//model.fireRenderingControlReloading();
+			//fireStateChange();
+			un.notifyError(ImViewerAgent.ERROR, "Out of service.", 
+					e.getCause());
+			model.discard();
 			fireStateChange();
 		}
 		return;
@@ -1894,7 +1901,7 @@ class ImViewerComponent
 			}
 			//view.setLensPlaneImage(model.getOriginalImage());
 		} catch (Exception ex) {
-			reload(ex);
+			handleException(ex);
 		}
 		return images;
 	}
@@ -2136,7 +2143,7 @@ class ImViewerComponent
     		model.getRenderer().resetRndSettings();
 			renderXYPlane();
 		} catch (Exception ex) {
-			reload(ex);
+			handleException(ex);
 		}
     }
     
@@ -2154,7 +2161,7 @@ class ImViewerComponent
     		l.add(model.getImageID());
     		bus.post(new RndSettingsCopied(l, getPixelsID()));
 		} catch (Exception ex) {
-			reload(ex);
+			handleException(ex);
 		}
     }
     
@@ -2330,7 +2337,7 @@ class ImViewerComponent
     		model.getRenderer().resetRndSettings();
 			renderXYPlane();
 		} catch (Exception ex) {
-			reload(ex);
+			handleException(ex);
 		}
 	}
 

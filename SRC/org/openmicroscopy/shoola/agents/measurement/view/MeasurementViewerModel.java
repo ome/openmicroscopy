@@ -880,7 +880,7 @@ class MeasurementViewerModel
 	 */
 	void setDataDiscarded()
 	{
-		if (event == null) return;
+		//if (event == null) return;
 		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
 		event = new SaveRelatedData(getPixelsID(), 
 					new SaveData(getPixelsID(), SaveData.MEASUREMENT_TYPE), 

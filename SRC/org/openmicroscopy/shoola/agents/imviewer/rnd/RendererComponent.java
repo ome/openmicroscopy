@@ -150,7 +150,7 @@ class RendererComponent
             firePropertyChange(INPUT_INTERVAL_PROPERTY, Boolean.FALSE, 
                                 Boolean.TRUE);
 		} catch (Exception ex) {
-			model.getParentModel().reload(ex);
+			model.getParentModel().handleException(ex);
 		}
     }
 
@@ -167,7 +167,7 @@ class RendererComponent
         	firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
         			Boolean.TRUE);
 		} catch (Exception ex) {
-			model.getParentModel().reload(ex);
+			model.getParentModel().handleException(ex);
 		}
     }
 
@@ -184,7 +184,7 @@ class RendererComponent
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
 		} catch (Exception ex) {
-			model.getParentModel().reload(ex);
+			model.getParentModel().handleException(ex);
 		}
     }
 
@@ -290,7 +290,7 @@ class RendererComponent
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
 		} catch (Exception ex) {
-			model.getParentModel().reload(ex);
+			model.getParentModel().handleException(ex);
 		}
     }
 
@@ -307,7 +307,7 @@ class RendererComponent
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
 		} catch (Exception ex) {
-			model.getParentModel().reload(ex);
+			model.getParentModel().handleException(ex);
 		}
     }
 
@@ -324,7 +324,7 @@ class RendererComponent
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
 		} catch (Exception ex) {
-			model.getParentModel().reload(ex);
+			model.getParentModel().handleException(ex);
 		}
     }
 

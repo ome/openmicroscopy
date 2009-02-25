@@ -65,8 +65,22 @@ import org.openmicroscopy.shoola.util.roi.io.IOConstants;
  */
 public class FileMap
 {	
-
-
+	
+	/** The sole instance. */
+    private static final FileMap  singleton = new FileMap();
+    
+    /** Reference to the file chooser. */
+    private JFileChooser chooser;
+    
+    /** Creates a new instance. */
+    private FileMap()
+    {
+    	Registry reg = MeasurementAgent.getRegistry();
+		Environment env = (Environment) reg.lookup(LookupNames.ENV);
+		chooser = new JFileChooser();
+		chooser.setCurrentDirectory(new File(env.getOmeroHome()));
+    }
+    
 	/**
 	 * Finds the node in the object which has the server userObject.
 	 * 
@@ -306,10 +320,8 @@ public class FileMap
 		Registry reg = MeasurementAgent.getRegistry();
 		Environment env = (Environment) reg.lookup(LookupNames.ENV);
 		String fileName = (String) reg.lookup(LookupNames.ROI_MAIN_FILE);
-		JFileChooser chooser = new JFileChooser();
 		String directory = env.getOmeroHome();
-		chooser.setCurrentDirectory(new File(directory));
-		File[] list = chooser.getCurrentDirectory().listFiles();
+		File[] list = singleton.chooser.getCurrentDirectory().listFiles();
 		String path = directory+File.separator+fileName;
 		if (list == null) return false;
 		File f;

@@ -652,7 +652,7 @@ class ImViewerModel
 			//component.setImage(os.renderImage(pixelsID, pDef));
 			component.setImage(currentRndControl.renderPlane(pDef));
 		} catch (Exception e) {
-			component.reload(e);
+			component.handleException(e);
 		}
 	}
 
@@ -672,7 +672,7 @@ class ImViewerModel
 		try {
 			return currentRndControl.renderPlane(pDef);
 		} catch (Exception e) {
-			component.reload(e);
+			component.handleException(e);
 		}
 		return null;
 	}
@@ -1083,18 +1083,10 @@ class ImViewerModel
 	{
 		if (currentRndControl != null) {
 			RndProxyDef def = currentRndControl.saveCurrentSettings();
-			/*
-			if (reset) originalDef = def;
-			if (def != null) {
-				if (renderingSettings != null) 
-					renderingSettings.put(ImViewerAgent.getUserDetails(), def);
-			}
-			*/
 			if (reset) {
 				originalDef = def;
-				if (def != null) {
-					if (renderingSettings != null) 
-						renderingSettings.put(ImViewerAgent.getUserDetails(), def);
+				if (def != null && renderingSettings != null) {
+					renderingSettings.put(ImViewerAgent.getUserDetails(), def);
 				}
 			}
 			

@@ -56,7 +56,7 @@ public class SaveRelatedData
     private String			message;
     
     /** The event to post. */
-    private SaveData	saveEvent;
+    private SaveData		saveEvent;
     
     /** 
      * Flag set to <code>true</code> to save the data the event,
@@ -114,7 +114,7 @@ public class SaveRelatedData
 	public SaveData getSaveEvent() { return saveEvent; }
     
 	/**
-	 * Overridden to return the message associated to this event
+	 * Overridden to return the message associated to this event.
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() { return message; }
