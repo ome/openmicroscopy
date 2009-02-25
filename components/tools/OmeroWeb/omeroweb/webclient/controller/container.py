@@ -606,10 +606,10 @@ class BaseContainer(BaseController):
             
             self.c_mg_size = len(pr_list_with_counters)+len(ds_list_with_counters)
 
-    def listDatasetsInProjectInGroup(self, project_id, group_id):
+    def listDatasetsInProjectInGroup(self, project_id, group_id, page):
         self.myGroup = self.conn.getGroup(group_id)
         self.containersMyGroups = dict()                
-        ds_list = self.sortByAttr(list(self.conn.listDatasetsInProjectInGroup(project_id, group_id)), 'name')
+        ds_list = self.sortByAttr(list(self.conn.listDatasetsInProjectInGroup(project_id, group_id, page)), 'name')
         
         ds_list_with_counters = list()
         
@@ -635,9 +635,12 @@ class BaseContainer(BaseController):
             for ds in ds_list_with_counters:
                 self.containersMyGroups[ds.details.owner.id.val]['datasets'].append(ds)
 
-            self.c_mg_size = len(ds_list_with_counters)
 
-    def listImagesInDatasetInGroup(self, dataset_id, group_id):
+        self.c_mg_size = self.conn.getCollectionCount("Project", "datasetLinks", [long(project_id)])[long(project_id)]
+        
+        self.paging = self.doPaging(page, len(ds_list_with_counters), self.c_mg_size)
+
+    def listImagesInDatasetInGroup(self, dataset_id, group_id, page):
         self.myGroup = self.conn.getGroup(group_id)
         self.containersMyGroups = dict()
         
@@ -665,8 +668,9 @@ class BaseContainer(BaseController):
 
             self.c_mg_size = len(im_list_with_counters)
         
-        #TODO paging!!!
-
+        self.c_mg_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(dataset_id)])[long(dataset_id)]
+        self.paging = self.doPaging(page, len(im_list_with_counters), self.c_mg_size)
+        
     def loadGroupContainerHierarchy(self, group_id):
         self.myGroup = self.conn.getGroup(group_id)
         obj_list = self.sortByAttr(list(self.conn.loadGroupContainerHierarchy(group_id)), 'name')
@@ -1235,7 +1239,6 @@ class BaseContainer(BaseController):
         total = list()
         t = total_size/24
         if total_size > 240:
-            print t, page
             if page > 10 :
                 total.append(-1)
             for i in range((1, page-9)[ page-9 >= 1 ], (t+1, page+10)[ page+9 < t ]):

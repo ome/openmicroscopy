@@ -1729,7 +1729,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     elif o2_type and o2_id:
         if o2_type == 'dataset':
             if filter_group_id is not None:
-                manager.listImagesInDatasetInGroup(o2_id, filter_group_id)
+                manager.listImagesInDatasetInGroup(o2_id, filter_group_id, page)
         if o2_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type and o1_id:
@@ -1739,10 +1739,10 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
                 manager.loadGroupImages(o1_id, filter_group_id)
         elif o1_type == 'project':
             if filter_group_id is not None:
-                manager.listDatasetsInProjectInGroup(o1_id, filter_group_id)
+                manager.listDatasetsInProjectInGroup(o1_id, filter_group_id, page)
         elif o1_type == 'dataset':
             if filter_group_id is not None:
-                manager.listImagesInDatasetInGroup(o1_id, filter_group_id)
+                manager.listImagesInDatasetInGroup(o1_id, filter_group_id, page)
         if o1_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type == 'orphaned':
