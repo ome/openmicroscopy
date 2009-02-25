@@ -865,14 +865,13 @@ ALTER TABLE session ADD CONSTRAINT fksession_owner_experimenter FOREIGN KEY ("ow
 --
 -- #1191 Annotation changes
 --
-INSERT INTO imageannotationlink (id, permissions, version, child, creation_id, external_id, group_id, owner_id, update_id, parent)
-     SELECT ome_nextval('seq_imageannotationlink'), pal.permissions, pal.version, pal.child, pal.creation_id, pal.external_id,
-            pal.group_id, pal.owner_id, pal.update_id, i.id
-       FROM annotation a, pixelsannotationlink pal, pixels p, image i
-      WHERE a.ns = 'openmicroscopy.org/omero/importer/archived'
-	AND a.id = pal.child
-        AND pal.parent = p.id
-        AND p.image = i.id;
+UPDATE image
+   SET archived = true
+  FROM pixels p, pixelsannotationlink pal, annotation a
+ WHERE image.id = p.image
+   AND p.id = pal.parent
+   AND pal.child = a.id
+   AND a.ns = 'openmicroscopy.org/omero/importer/archived';
 
 DELETE FROM pixelsannotationlink
       WHERE child in

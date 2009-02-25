@@ -800,6 +800,7 @@
     create table image (
         id int8 not null,
         acquisitionDate timestamp not null,
+        archived bool,
         description text,
         permissions int8 not null,
         name varchar(255) not null,
