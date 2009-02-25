@@ -351,7 +351,7 @@ java component.
         <ivy:publish settingsRef="ivy.toplevel"
             artifactspattern="${omero.home}/OMERO.server-${omero.version}.zip"
             srcivypattern="${omero.home}/ivy.xml"
-            resolver="omero-resolver"
+            resolver="test-resolver"
             pubrevision="${omero.version}"
             pubdate="${now}"
             status="integration"
