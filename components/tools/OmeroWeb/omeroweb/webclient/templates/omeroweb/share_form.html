@@ -1,4 +1,5 @@
 {% extends "omeroweb/base_share.html" %}
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
@@ -68,7 +69,7 @@
 
 {% block center %}
 
-<h1>Edit {{ share.share.getShareType|lower }}:</h1>
+<h1>{% trans "Edit" %} {{ share.share.getShareType|lower }}:</h1>
 
 <div id="share_content"></div>
 <div class="clear"> </div>
@@ -81,7 +82,7 @@
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
             {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
+                <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
             </table>
         </form>
         <script type="text/javascript">
@@ -91,13 +92,13 @@
     </div>
 
     <div>
-        <h1>Manage comments:</h1>
+        <h1>{% trans "Manage comments" %}:</h1>
         {% if share.cmSize %}
             {% for cm in share.comments %}
                 {% if cm.isOwned %}
                     <div id="comment_wrapper">
                     <div id="comment">
-                        <div class="head">{{ cm.getOwner }} posted comment at {{ cm.creationEventDate|date:" H:i:s d M Y" }} {% if cm.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ cm.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
+                        <div class="head">{{ cm.getOwner }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:" H:i:s d M Y" }} {% if cm.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ cm.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
                         <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                         <div class="footer"></div>
                     </div>
@@ -108,7 +109,7 @@
                 {% else %}
                     <div id="comment_wrapper_rev">
                     <div id="comment_rev">
-                        <div class="head">{{ cm.getOwner }} posted comment at {{ cm.creationEventDate|date:" H:i:s d M Y" }} {% if cm.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ cm.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
+                        <div class="head">{{ cm.getOwner }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:" H:i:s d M Y" }} {% if cm.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ cm.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
                         <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                         <div class="footer"></div>
                     </div>

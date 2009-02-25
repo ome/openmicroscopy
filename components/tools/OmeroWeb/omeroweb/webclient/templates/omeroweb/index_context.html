@@ -1,20 +1,21 @@
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 
 <table>
   <tbody>
-      <tr><th style="text-align:left;">Supervisor:</th><td>{{ controller.supervisor.getFullName }}</td></tr>
+      <tr><th style="text-align:left;">{% trans "Supervisor" %}:</th><td>{{ controller.supervisor.getFullName }}</td></tr>
       <tr><td colspan="2">&nbsp;</td></tr>
-      <tr><th style="text-align:left;">Your colleagues:</th><td>{% if controller.colleagues %}{% for c in controller.colleagues %}<a href="{% get_webclient_root_url %}/userdata/?view={{ nav.view }}&filter=experimenter&experimenter={{ c.id }}">{{ c.omeName }}</a>, {% endfor %}{% else %}No colleagues in your active group.{% endif %}</td></tr>
+      <tr><th style="text-align:left;">{% trans "Your colleagues" %}:</th><td>{% if controller.colleagues %}{% for c in controller.colleagues %}<a href="{% get_webclient_root_url %}/userdata/?view={{ nav.view }}&filter=experimenter&experimenter={{ c.id }}">{{ c.omeName }}</a>, {% endfor %}{% else %}{% trans "No colleagues in your active group." %}{% endif %}</td></tr>
       <tr><td colspan="2">&nbsp;</td></tr>
     {% if controller.eContext.memberOfGroups %}
-        <tr><th style="text-align:left;">Member of groups:</th><td>{% for g in controller.eContext.memberOfGroups %} <a href="{% get_webclient_root_url %}/groupdata/?view={{ nav.view }}&filter=group&group={{ g.id }}">{{ g.name }}</a>, {% endfor %}</td></tr>
+        <tr><th style="text-align:left;">{% trans "Member of groups" %}:</th><td>{% for g in controller.eContext.memberOfGroups %} <a href="{% get_webclient_root_url %}/groupdata/?view={{ nav.view }}&filter=group&group={{ g.id }}">{{ g.name }}</a>, {% endfor %}</td></tr>
         <tr><td colspan="2">&nbsp;</td></tr>
     {% endif %}
 
     {% if controller.leaderOfGroups %}
-        <tr><th style="text-align:left;">Leader of:</th><td>{% for g in controller.leaderOfGroups %} <a href="{% get_webclient_root_url %}/groupdata/?view={{ nav.view }}&filter=group&group={{ g.id }}">{{ g.name }}</a>, {% endfor %}</td></tr>
-        <tr><th style="text-align:left;">Your staff:</th><td>{% if controller.staffs %}{% for c in controller.staffs %}<a href="{% get_webclient_root_url %}/userdata/?view={{ nav.view }}&filter=experimenter&experimenter={{ c.id }}">{{ c.omeName }}</a>, {% endfor %}{% else %}No staff in your leading groups{% endif %}</td></tr>
+        <tr><th style="text-align:left;">{% trans "Leader of" %}:</th><td>{% for g in controller.leaderOfGroups %} <a href="{% get_webclient_root_url %}/groupdata/?view={{ nav.view }}&filter=group&group={{ g.id }}">{{ g.name }}</a>, {% endfor %}</td></tr>
+        <tr><th style="text-align:left;">{% trans "Your staff" %}:</th><td>{% if controller.staffs %}{% for c in controller.staffs %}<a href="{% get_webclient_root_url %}/userdata/?view={{ nav.view }}&filter=experimenter&experimenter={{ c.id }}">{{ c.omeName }}</a>, {% endfor %}{% else %}{% trans "No staff in your leading groups" %}{% endif %}</td></tr>
     {% endif %}
   </tbody>
 </table>

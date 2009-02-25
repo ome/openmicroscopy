@@ -256,6 +256,7 @@ class BlitzGateway (threading.Thread):
             self._last_error = None
             self._proxies = {}
             self._proxies['admin'] = self.c.sf.getAdminService()
+            self._proxies['config'] = self.c.sf.getConfigService()
             self._eventContext = None #self._proxies['admin'].getEventContext()
             self._sessionUuid = None #self._eventContext.sessionUuid
             self._connected = True
@@ -266,6 +267,14 @@ class BlitzGateway (threading.Thread):
         else:
             logger.info("Guest is connected to %s" % (self.c.getRouter(self.c.ic)))
             return True
+    
+    def isForgottenPasswordSet(self):
+        conf = self.getConfigService()
+        try:
+            return bool(conf.getConfigValue("omero.resetpassword.config").title())
+        except:
+            logger.error(traceback.format_exc())
+            return False
     
     def getLastError (self):
         return self._last_error
@@ -300,6 +309,9 @@ class BlitzGateway (threading.Thread):
     
     def getAdminService (self):
         return self._proxies['admin']
+    
+    def getConfigService (self):
+        return self._proxies['config']
     
     def getQueryService (self):
         return self._proxies['query']

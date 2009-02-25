@@ -1,19 +1,20 @@
+{% load i18n %}
 {% load custom_tags %}
 {% load wikitags %}
 
-<h1>Tags:
+<h1>{% trans "Tags" %}:
 {% for tag in manager.tag_annotations %}
     <a href="{% get_webclient_root_url %}/tag/{{ tag.id }}/" target="_blank"> {{ tag.textValue }}</a>, 
 {% endfor %}
 </h1>
 
 {% if manager.txannSize %}
-<h1>Comments:</h1>
+<h1>{% trans "Comments" %}:</h1>
     {% for tann in manager.text_annotations %}
     {% if tann.isOwned %}
         <div id="comment_wrapper">
         <div id="comment">
-            <div class="head">{{ tann.getOwner }} posted comment at {{ tann.creationEventDate|date:" H:i:s d M Y" }}</div>
+            <div class="head">{{ tann.getOwner }} {% trans "posted comment at" %} {{ tann.creationEventDate|date:" H:i:s d M Y" }}</div>
             <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -25,7 +26,7 @@
         <div id="comment_wrapper_rev">
         <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ tann.details.owner.id.val }}/" alt="{{ tann.getOwner }}" title="{{ tann.getOwner }}" width="40" height="40" /></div>
         <div id="comment_rev">
-            <div class="head">{{ tann.getOwner }} posted comment at {{ tann.creationEventDate|date:" H:i:s d M Y" }}</div>
+            <div class="head">{{ tann.getOwner }} {% trans "posted comment at" %} {{ tann.creationEventDate|date:" H:i:s d M Y" }}</div>
             <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -37,20 +38,20 @@
     {% endfor %}
 {% endif %}
 
-{% if manager.urlannSize %}
-<h1>URLs:</h1>
+<!--{% if manager.urlannSize %}
+<h1>{% trans "URLs" %}:</h1>
     <div class="body_url">
     <p>| {% for urlann in manager.url_annotations %}
         {{ urlann.textValue|wikify|safe }} | 
     {% endfor %}</p>
     </div>
-{% endif %}
+{% endif %}-->
 
 {% if manager.fileannSize %}
-<h1>Files:</h1>
+<h1>{% trans "Files" %}:</h1>
 <ol>
     {% for fileann in manager.file_annotations %}
-    <li><a href="{% get_webclient_root_url %}/annotation/download/{{ fileann.id }}/" target="_blank">{{ fileann.getFileName }}</a> - {{ fileann.getFileSize|default_if_none:0|filesizeformat }} by {{ fileann.getOwner }} at {{ fileann.creationEventDate|date:" H:i:s d M Y" }}</li>
+    <li><a href="{% get_webclient_root_url %}/annotation/download/{{ fileann.id }}/" target="_blank">{{ fileann.getFileName }}</a> - {{ fileann.getFileSize|default_if_none:0|filesizeformat }} {% trans "by" %} {{ fileann.getOwner }} {% trans "at" %} {{ fileann.creationEventDate|date:" H:i:s d M Y" }}</li>
     {% endfor %}
 </ol>
 {% endif %}

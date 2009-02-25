@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 <?xml version="1.0" encoding="iso-8859-1"?>
@@ -15,7 +16,7 @@
 
     <link rel="shortcut icon" href="{% get_webclient_static_url %}/images/ome.ico" type="image/x-icon" />
 
-    <title>WebClient {% block title %}{% endblock %}</title>
+    <title>{% trans "Webclient" %} {% block title %}{% endblock %}</title>
 
     {% block jscript %}{% endblock %}
 

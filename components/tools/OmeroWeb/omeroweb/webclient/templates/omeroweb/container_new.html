@@ -1,4 +1,5 @@
 {% extends "omeroweb/base.html" %}
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 
@@ -44,9 +45,9 @@
 {% block center %}
 
 {% if manager.project %}
-    <h1>Create new dataset</h1>
+    <h1>{% trans "Create new dataset" %}</h1>
 {% else %}
-    <h1>Create new project or dataset</h1>
+    <h1>{% trans "Create new project or dataset" %}</h1>
 {% endif %}
 
 
@@ -59,16 +60,16 @@
     {% endif %}
     <table>
         {% if not manager.project %}
-            <tr><th><label for="id_folder_type">Folder type</label>*</th>
+            <tr><th><label for="id_folder_type">{% trans "Folder type" %}</label>*</th>
                 <td><select name="folder_type" id="id_folder_type">
-                    <option value="project">Project</option>
-                    <option value="dataset">Dataset</option>
+                    <option value="project">{% trans "Project" %}</option>
+                    <option value="dataset">{% trans "Dataset" %}</option>
                 </select></td><td><br/></td>
             </tr>
         {% else %}
-            <tr><th><label for="id_folder_type">Folder type</label>*</th>
+            <tr><th><label for="id_folder_type">{% trans "Folder type" %}</label>*</th>
                 <td><select name="folder_type" id="id_folder_type">
-                    <option value="dataset">Dataset</option>
+                    <option value="dataset">{% trans "Dataset" %}</option>
                 </select></td><td><br/></td>
             </tr>
         {% endif %}
@@ -77,7 +78,7 @@
                 <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
             </tr>
         {% endfor %}
-            <tr><td colspan="2"><input type="submit" value="Save" /></td></tr>
+            <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
         </table>
     </form>
     <script type="text/javascript">

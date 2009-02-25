@@ -15,11 +15,10 @@
 </head>
 <body>
 <div id="main" class="error"><h1>
-    {% trans "Go back to" %}: <a href="{% get_webadmin_root_url %}/">{% trans "Webadmin" %}</a> {% trans "or" %} 
-    <a href="{% get_webclient_root_url %}/">{% trans "Webclient" %}</a>
+    {% trans "Go back to" %}: <a href="{% get_webadmin_root_url %}/">{% trans "Webadmin" %}</a>, <a href="{% get_webclient_root_url %}/">{% trans "Webclient" %}</a> {% trans "or" %}  <a href="{% get_webclient_root_url %}/logout/">{% trans "Logout" %}</a>
 </h1>
 {% block content %}{% endblock %}
 </div>
-<div id="footer"><p>{% trans "&copy;2009 University of Dundee & Open Microscopy Environment" %}</p></div>
+<div id="footer"><p>&copy;2009 University of Dundee & Open Microscopy Environment</p></div>
 
 </div>

@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
@@ -26,5 +27,5 @@ $(document).ready(function () {
         {% endfor %}
     </ul>
 {% else %}
-    <div class="error"><p>No data imported. Please change your active group (on the menu bar) or import some images or look into someone else's data.</p></div>
+    <div class="error"><p>{% trans "No data imported. Please change your active group (on the menu bar) or import some images or look into someone else's data." %}</p></div>
 {% endif %}

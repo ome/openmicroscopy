@@ -1,4 +1,5 @@
 {% extends "omeroweb/base.html" %}
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
@@ -48,18 +49,18 @@
 
 {% ifequal basket.sizeOfBasket 0 %}
 
-    <h1>Your basket is empty.</h1>
-    <div class="error"><p>Your basket is empty. Please add some of your bio-data from <a href="{% get_webclient_root_url %}/mydata/">My data</a> or initiate a discussion.</p></div>
+    <h1>{% trans "Your basket is empty." %}</h1>
+    <div class="error"><p>{% trans "Your basket is empty. Please add some of your bio-data from" %} <a href="{% get_webclient_root_url %}/mydata/">{% trans "My data" %}</a> {% trans "or initiate a discussion." %}</p></div>
     
 {% else %}
 
-    <h1>Your basket contains {{ basket.sizeOfBasket }} items.</h1>
+    <h1>{% trans "Your basket contains" %} {{ basket.sizeOfBasket }} {% trans "items." %}</h1>
     
     <div id="cart">
     
     {% if basket.imgSize %}
     <div class="clear"></div>
-    <h1>Images:</h1>
+    <h1>{% trans "Images" %}:</h1>
     <div class="image"><ul id="products">
         {% for e in basket.imageInBasket %}
             <li id="image-{{ e.id }}"class="product"><em>{{ e.name }}</em>
@@ -75,14 +76,14 @@
     <div class="clear"></div>
     <br/>
     <div>
-        <h1>Available actions:</h1>
+        <h1>{% trans "Available actions" %}:</h1>
         <input type="submit" name="action" value="Share" onClick="location.href='{% get_webclient_root_url %}/basket/toshare/'"/> 
-        <span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span> 
+        <span id="sharing" title="{% trans 'Create share' %} - <small>{% trans 'Creates share for images stored currently in the basket.' %}</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span> 
         <!--<input type="submit" name="action" value="Blog" onClick="location.href='{% get_webclient_root_url %}/basket/toblog/'"/>
         <input type="submit" name="action" value="Annotate" onClick="location.href='{% get_webclient_root_url %}/basket/toannotate/'"/> 
         <input type="submit" name="action" value="Tag" onClick="location.href='{% get_webclient_root_url %}/basket/totag/'"/>-->
         <input type="submit" name="action" value="Empty" onClick="location.href='{% get_webclient_root_url %}/empty/'"/>
-        <span id="empty" title="Empty basket - <small>Empty the basket.</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span>
+        <span id="empty" title="{% trans 'Empty basket' %} - <small>{% trans 'Empty the basket.' %}</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span>
     </div>
     
 {% endifequal %}

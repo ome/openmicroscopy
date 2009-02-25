@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
@@ -13,5 +14,5 @@
         </tbody>
     </table>
 {% else %}
-    <div><p>No data commented.</p></div>
+    <div><p>{% trans "No data commented." %}</p></div>
 {% endif %}

@@ -62,7 +62,6 @@ from models import Gateway, LoginForm, ForgottonPasswordForm, ExperimenterForm, 
                    MyAccountLdapForm, ContainedExperimentersForm, UploadPhotoForm
 
 from extlib.gateway import BlitzGateway
-from extlib.properties import Properties
 
 logger = logging.getLogger('views-admin')
 
@@ -255,65 +254,46 @@ def isUserConnected (f):
     
     return wrapped
 
-def isOmeroEmailConfigured (f):
-    def wrapped (request, *args, **kwargs):
-        try:
-            p = Properties()
-            p.load(open(settings.OMEROPROPERTIES))
-            if p['omero.resetpassword.config'] == 'true':
-                kwargs['email_conf'] = True
-            else:
-                kwargs['email_conf'] = False
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            kwargs['email_conf'] = False
-        
-        return f(request, *args, **kwargs)
-    
-    return wrapped
-
 ################################################################################
 # views controll
 
-@isOmeroEmailConfigured
 def forgotten_password(request, **kwargs):
     template = "omeroadmin/forgotten_password.html"
     
     conn = None
     error = None
     
-    if kwargs['email_conf']:
-        if request.method == 'POST' and request.REQUEST['server'] and request.REQUEST['username'] and request.REQUEST['email']:
-            blitz = Gateway.objects.get(pk=request.REQUEST['server'])
-            try:
-                conn = getGuestConnection(blitz.host, blitz.port)
-            except Exception, x:
-                logger.error(traceback.format_exc())
-                error = x.__class__.__name__
+    if request.method == 'POST' and request.REQUEST['server'] and request.REQUEST['username'] and request.REQUEST['email']:
+        blitz = Gateway.objects.get(pk=request.REQUEST['server'])
+        try:
+            conn = getGuestConnection(blitz.host, blitz.port)
+            if not conn.isForgottenPasswordSet():
+                error = "This server cannot reset password. Please contact your administrator."
+                conn = None
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            error = x.__class__.__name__
 
-        if conn is not None:
-            controller = None
-            try:
-                controller = conn.reportForgottenPassword(request.REQUEST['username'].encode('utf-8'), request.REQUEST['email'].encode('utf-8'))
-            except Exception, x:
-                logger.error(traceback.format_exc())
-                error = x.__class__.__name__
-            form = ForgottonPasswordForm(data=request.REQUEST.copy())
-            context = {'error':error, 'controller':controller, 'form':form}
-        else:
-            if request.method == 'POST':
-                form = ForgottonPasswordForm(data=request.REQUEST.copy())
-            else:
-                try:
-                    blitz = Gateway.objects.filter(id=request.REQUEST['server'])
-                    data = {'server': unicode(blitz[0].id), 'username':unicode(request.REQUEST['username']), 'password':unicode(request.REQUEST['password']) }
-                    form = ForgottonPasswordForm(data=data)
-                except:
-                    form = ForgottonPasswordForm()
-            context = {'error':error, 'form':form}
+    if conn is not None:
+        controller = None
+        try:
+            controller = conn.reportForgottenPassword(request.REQUEST['username'].encode('utf-8'), request.REQUEST['email'].encode('utf-8'))
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            error = x.__class__.__name__
+        form = ForgottonPasswordForm(data=request.REQUEST.copy())
+        context = {'error':error, 'controller':controller, 'form':form}
     else:
-        error = "OMERO.email error. Please contact your administrator to change the password"
-        context = {'error':error}
+        if request.method == 'POST':
+            form = ForgottonPasswordForm(data=request.REQUEST.copy())
+        else:
+            try:
+                blitz = Gateway.objects.filter(id=request.REQUEST['server'])
+                data = {'server': unicode(blitz[0].id), 'username':unicode(request.REQUEST['username']), 'password':unicode(request.REQUEST['password']) }
+                form = ForgottonPasswordForm(data=data)
+            except:
+                form = ForgottonPasswordForm()
+        context = {'error':error, 'form':form}
     
     t = template_loader.get_template(template)
     c = Context(request, context)

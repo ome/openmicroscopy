@@ -1,4 +1,5 @@
 {% extends "omeroweb/base.html" %}
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
@@ -31,7 +32,7 @@
         $(document).ready(function(){
             $("a.loadData").click(function()
             {
-                $("div#hierarchy").html('<p>Loading hierarchy... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
+                $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
                 $("div#hierarchy").load("{% get_webclient_root_url %}/hierarchy/image/{{ manager.image.id }}/", 
                     function() {  
                         $("a.loadData").remove();                        
@@ -40,7 +41,7 @@
             });
             $("a.loadAnnotation").click(function()
             {
-                $("div#annotation").html('<p>Loading annotations... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
+                $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
                 $("div#annotation").load("{% get_webclient_root_url %}/annotations/image/{{ manager.image.id }}/?url={{ url }}", function() {  
                         $("a.loadAnnotation").remove();                        
                     });
@@ -64,19 +65,19 @@
 {% block center %}
 
 <div class="image">
-    <h1>Image: {{ manager.image.fullNameWrapped }} {% if not manager.image.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
+    <h1>{% trans "Image" %}: {{ manager.image.fullNameWrapped }} {% if not manager.image.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
 </div>
 
 <div class="toolbar">
 {% if manager.image.isOwned %}
-    | View <a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> 
-    {% if manager.image.isOwned %}| Select <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a> {% endif %}
-    | Copy <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
-    {% if manager.image.isEditable %}| Edit <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
+    | {% trans "View" %} <a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> 
+    {% if manager.image.isOwned %}| {% trans "Select" %} <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a> {% endif %}
+    | {% trans "Copy" %} <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
+    {% if manager.image.isEditable %}| {% trans "Edit" %} <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
 {% else %}
-    | View <a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> 
-    | Copy <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
-    {% if manager.image.isEditable %}| Edit <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
+    | {% trans "View" %} <a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> 
+    | {% trans "Copy" %} <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
+    {% if manager.image.isEditable %}| {% trans "Edit" %} <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
 {% endif %}
 </div>
 
@@ -94,21 +95,21 @@
     
 </div>
 
-<div class="metadata"><h1>Metadata: </h1>
+<div class="metadata"><h1>{% trans "Metadata" %}: </h1>
 
 <ul id="metadata" class="ui-accordion-metadata" >
-    <li><a href='#'>General:</a>
+    <li><a href='#'>{% trans "General" %}:</a>
         <div>
             <table class="forms">
-                <tr><td><label>Image date </label></td><td>{{ manager.image.getDate|date:" H:i:s d M Y" }}</td></tr>
-                <tr><td><label>Dimensions (XY) [px] </label></td><td>{{ manager.image.getWidth }} x {{ manager.image.getHeight }}</td></tr>
-                <tr><td><label>Pixel size (XYZ) [&micro;m] </label></td><td>{{ manager.image.getPixelSizeX|default_if_none:"-"|floatformat:4 }} x {{ manager.image.getPixelSizeY|default_if_none:"-"|floatformat:4 }} x {{ manager.image.getPixelSizeZ|default_if_none:"-"|floatformat:4 }}</td></tr>
-                <tr><td><label>Z-sections/timepoints </label></td><td>{{ manager.image.z_count }} x {{ manager.image.t_count }}</td></tr>
-                <tr><td><label>Emissions wavelengths </label></td><td>{{ manager.image.getChannels.getEmissionWave }}</td></tr>
+                <tr><td><label>{% trans "Image date" %} </label></td><td>{{ manager.image.getDate|date:" H:i:s d M Y" }}</td></tr>
+                <tr><td><label>{% trans "Dimensions" %} (XY) [px] </label></td><td>{{ manager.image.getWidth }} x {{ manager.image.getHeight }}</td></tr>
+                <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m] </label></td><td>{{ manager.image.getPixelSizeX|default_if_none:"-"|floatformat:4 }} x {{ manager.image.getPixelSizeY|default_if_none:"-"|floatformat:4 }} x {{ manager.image.getPixelSizeZ|default_if_none:"-"|floatformat:4 }}</td></tr>
+                <tr><td><label>{% trans "Z-sections/timepoints" %} </label></td><td>{{ manager.image.z_count }} x {{ manager.image.t_count }}</td></tr>
+                <tr><td><label>{% trans "Emissions wavelengths" %} </label></td><td>{{ manager.image.getChannels.getEmissionWave }}</td></tr>
             </table>
         </div>
     </li>
-    <li><a href='#'>Objective:</a>
+    <li><a href='#'>{% trans "Objective" %}:</a>
         <div>
             {% if form_objective %}
             <table class="forms">
@@ -121,7 +122,7 @@
             {% endif %}
         </div>
     </li>
-    <li><a href='#'>Environment:</a>
+    <li><a href='#'>{% trans "Environment" %}:</a>
         <div>
             {% if form_environment %}
             <table class="forms">
@@ -134,7 +135,7 @@
             {% endif %}
         </div>
     </li>
-    <li><a href='#'>Stage label:</a>
+    <li><a href='#'>{% trans "Stage label" %}:</a>
         <div>
             {% if form_stageLabel %}
             <table class="forms">
@@ -148,19 +149,19 @@
         </div>
     </li>
 </ul>
-<br/><p>*N/A - this value is not available.</p>
+<br/><p>*{% trans "N/A - this value is not available." %}</p>
 </div>
 <div class="clear"></div>
 
 <div id="annotation">
-<h1>Annotations:</h1>
-{% if manager.image.countAnnotations %}<a href="#" class="loadAnnotation">Show annotations associated with... [{{ manager.image.countAnnotations }}]</a>{% endif %}
+<h1>{% trans "Annotations" %}:</h1>
+{% if manager.image.countAnnotations %}<a href="#" class="loadAnnotation">{% trans "Show annotations associated with" %}... [{{ manager.image.countAnnotations }}]</a>{% endif %}
 </div>
 
 {% include "omeroweb/annotations_form.html" %}
 <div class="clear"> </div>
 
-<h1>Where this image is linked?</h1>
-<div id="hierarchy"><a href="#" class="loadData">Show the hierarchy structure...</a></div>
+<h1>{% trans "Where this image is linked?" %}</h1>
+<div id="hierarchy"><a href="#" class="loadData">{% trans "Show the hierarchy structure" %}...</a></div>
 
 {% endblock %}

@@ -1,4 +1,5 @@
 {% extends "omeroweb/base_image_zoom.html" %}
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
@@ -22,7 +23,7 @@
         $(document).ready(function(){
             $("a.loadAnnotation").click(function()
             {
-                $("div#annotation").html('<p>Loading annotations... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
+                $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
                 $("div#annotation").load("{% get_webclient_root_url %}/annotations/image/{{ image.image.id }}/?t=zoom&url={{ url }}", function() {  
                         $("a.loadAnnotation").remove();                        
                     });
@@ -36,12 +37,12 @@
 
 <div><center>
     <a href="#" onclick="popup('','_blank','{{ image.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/big/{{ image.image.id }}/" alt="image" title="{{ image.image.name }}"/></a></center>
-    <div><h1>Description: </h1>
+    <div><h1>{% trans "Description" %}: </h1>
         {{ image.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}
     </div>
 </div>
 
-{% if image.image.countAnnotations %}<div id="annotation"><h1>Annotations</h1><a href="#" class="loadAnnotation">Show annotations associated with... [{{ image.image.countAnnotations }}]</a></div>{% endif %}
+{% if image.image.countAnnotations %}<div id="annotation"><h1>{% trans "Annotations" %}</h1><a href="#" class="loadAnnotation">{% trans "Show annotations associated with" %}... [{{ image.image.countAnnotations }}]</a></div>{% endif %}
 <div id="annotation"></div>
 
 {% endblock %}

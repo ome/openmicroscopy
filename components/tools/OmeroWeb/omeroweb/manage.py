@@ -38,11 +38,5 @@ if not settings.EMAIL_NOTIFICATION:
     import sys
     sys.stderr.write("Settings.py has not been configured. EmailServerError: The application will not send any emails. Sharing notification is not available.\n" )
 
-try:
-    open(settings.OMEROPROPERTIES)
-except:
-    import sys
-    sys.stderr.write("Settings.py has not been configured. EmailServerError: OMERO.server will not send any emails. Forgotten password is not available.\n" )
-
 if __name__ == "__main__":
     execute_manager(settings)

@@ -1,23 +1,24 @@
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
 
-<h1>Most recent share comments:</h1>
+<h1>{% trans "Most recent share comments" %}:</h1>
 {% if controller.mostRecentSharesComments %}
     <table>
         <tbody>
         {% for cm in controller.mostRecentSharesComments %}
             <tr><td>
-                <img src="{% get_webclient_static_url %}/images/knotes16.png" title="comment" alt="comment"/> {{ cm.getComment.getOwner }}</a> commented the <a href="{% get_webclient_root_url %}/share/view/{{ cm.getShare.id }}/">share</a> on {{ cm.getComment.creationEventDate|date:" H:i:s d M Y" }}
+                <img src="{% get_webclient_static_url %}/images/knotes16.png" title="comment" alt="comment"/> {{ cm.getComment.getOwner }}</a> {% trans "commented the" %} <a href="{% get_webclient_root_url %}/share/view/{{ cm.getShare.id }}/">{% trans "share" %}</a> on {{ cm.getComment.creationEventDate|date:" H:i:s d M Y" }}
             </td></tr>
         {% endfor %}
         </tbody>
     </table>
 {% else %}
-    <div><p>No data commented.</p></div>
+    <div><p>{% trans "No data commented." %}</p></div>
 {% endif %}
 
-<h1>Most recent shares and discussions:</h1>
+<h1>{% trans "Most recent shares and discussions" %}:</h1>
 {% if controller.mostRecentShares %}
     <table>
         <tbody>
@@ -25,19 +26,19 @@
             <tr><td>
                 
                 {% ifequal c.getShareType "Discuss" %}
-                    <img src="{% get_webclient_static_url %}/images/wp_protocol16.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>                     <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">discussion</a>
+                    <img src="{% get_webclient_static_url %}/images/wp_protocol16.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>                     <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{% trans "discussion" %}</a>
                 {% else %}
                     {% if c.active %}
-                        <img src="{% get_webclient_static_url %}/images/folder_html16.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">share</a>
+                        <img src="{% get_webclient_static_url %}/images/folder_html16.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{% trans "share" %}</a>
                     {% else %}
-                        <img src="{% get_webclient_static_url %}/images/folder_locked16.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">share</a>
+                        <img src="{% get_webclient_static_url %}/images/folder_locked16.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{% trans "share" %}</a>
                     {% endif %}
                 {% endifequal %}
-                about: "{{ c.shortMessage }}"
+                {% trans "about" %}: "{{ c.shortMessage }}"
             </td></tr>
         {% endfor %}
         </tbody>
     </table>
 {% else %}
-    <div><p>No shared and discussed data.</p></div>
+    <div><p>{% trans "No shared and discussed data." %}</p></div>
 {% endif %}

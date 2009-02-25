@@ -37,7 +37,6 @@ EMAIL_SMTP_SERVER = 'smtp.domain'
 #              Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>
 ERROR2EMAIL_NOTIFICATION = False
 
-
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
 # although not all variations may be possible on all operating systems.
@@ -126,12 +125,6 @@ WEBCLIENT_ROOT_BASE = 'webclient'
 STATIC_LOGO = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'logo.png').replace('\\','/')
 DEFAULT_IMG = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'image128.png').replace('\\','/')
 DEFAULT_USER = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'personal32.png').replace('\\','/')
-
-# PROPERTIES
-# Put strings here, like "/omero/dist/etc/" or "C:/omero/dist/etc/".
-# Always use forward slashes, even on Windows.
-# Don't forget to use absolute paths, not relative paths.
-OMEROPROPERTIES = 'omero.properties'
 
 # LOGS
 # to change the log place, please specify new path

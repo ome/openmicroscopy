@@ -1,4 +1,5 @@
 {% extends "omeroweb/base.html" %}
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 
@@ -16,7 +17,7 @@
 {% endblock %}
 
 {% block center %}
-<h1>Calendar</h1>
+<h1>{% trans "Calendar" %}</h1>
 
 <div class="calendar">
 	<div class="cal_nav">
@@ -56,7 +57,7 @@
 		{% endfor %}</tbody>
 	</table>
 </div>
-<div>Recognize items: <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="Project" alt="project"/> - Project; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="Dataset" alt="dataset"/> - Dataset; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="Image" alt="image"/> - Image;<!-- <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/rdef32.png" title="View" alt="view"/> - View;-->
+<div>{% trans "Recognize items" %}: <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="Project" alt="project"/> - {% trans "Project" %}; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="Image" alt="image"/> - {% trans "Image" %};
 </div>
 
 {% endblock %}

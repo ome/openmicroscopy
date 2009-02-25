@@ -1,4 +1,5 @@
 {% extends "omeroweb/base.html" %}
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 
@@ -49,7 +50,7 @@
               attached: "div.slider",
               position: "before",
               stripeRowClass: null,
-              labelText: 'Filter:',
+              labelText: '{% trans "Filter" %}:',
               inputText: 'search',
               loaderImg: '/webclient/static/images/tree/spinner.gif',
           });
@@ -73,21 +74,21 @@
 
 {% block center %}
     <div class="project">
-        <h1>Searching</h1>
-        <p>Searching feature enables you to search within the images, datasets and projects stored on the server. It supports single and multiple character wildcard searches.</p>
+        <h1>{% trans "Searching" %}</h1>
+        <p>{% trans "Searching feature enables you to search within the images, datasets and projects stored on the server. It supports single and multiple character wildcard searches." %}</p>
     </div>
     <div class="clear"></div>
     
     <p>
     <form action="{% get_webclient_root_url %}/search/" method="GET">
         <table>
-            <tr><th>Search for *:</th><td><input class="search" type="text" name="query" value="{{ controller.criteria.query }}" size="52"/>  <span id="searching" title="Searching - <small>To perform a single character wildcard search use the <b>'?'</b> symbol. The single character wildcard search looks for terms that match that with the single character replaced. To perform a multiple character wildcard search use the <b>'*'</b> symbol.<br/><br/>
+            <tr><th>{% trans "Search for" %} *:</th><td><input class="search" type="text" name="query" value="{{ controller.criteria.query }}" size="52"/>  <span id="searching" title="Searching - <small>To perform a single character wildcard search use the <b>'?'</b> symbol. The single character wildcard search looks for terms that match that with the single character replaced. To perform a multiple character wildcard search use the <b>'*'</b> symbol.<br/><br/>
             For example, to search for <i>'text'</i> or <i>'test'</i> you can use the search: <b>'te?t'
     </b>. Multiple character wildcard searches looks for 0 or more characters. For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>. You can also use the wildcard searches in the middle or the beginning of a term.</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span></td></tr>
             <!--<tr><th>by date:</th><td><input type="text" id="dateinput" name="date" value="" size="15"/></td></tr>-->
-            <tr><th>Date range:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ controller.criteria.period }}" size="25"/> <span id="daterange" title="Date range - <small><p>Date range feature enables you to specify the start and end time of the created data. To select the range, clink on the field and pick start date and end date on the same calendar. If you want to change the date click on the field again the pick the range.</p></small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span></td></tr>
-            <tr><th>In *:</th><td>
-                <input  type="checkbox" name="image" {{ controller.criteria.image }} />Images <input type="checkbox" name="dataset" {{ controller.criteria.dataset }} />Datasets  <input type="checkbox" name="project" {{ controller.criteria.project }} />Projects
+            <tr><th>{% trans "Date range" %}:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ controller.criteria.period }}" size="25"/> <span id="daterange" title="Date range - <small><p>Date range feature enables you to specify the start and end time of the created data. To select the range, clink on the field and pick start date and end date on the same calendar. If you want to change the date click on the field again the pick the range.</p></small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span></td></tr>
+            <tr><th>{% trans "In" %} *:</th><td>
+                <input  type="checkbox" name="image" {{ controller.criteria.image }} />{% trans "Images" %} <input type="checkbox" name="dataset" {{ controller.criteria.dataset }} />{% trans "Datasets" %}  <input type="checkbox" name="project" {{ controller.criteria.project }} />{% trans "Projects" %}
             </td></tr>
         </table>
         <input type="hidden" name="view" value="{{ nav.view }}" />
@@ -99,12 +100,12 @@
     {% if controller.resultsSize %}
     <div><h1>Results ({{ controller.resultsSize }} items):</h1></div>
     
-    <div id="view"> | View <a href="{% get_webclient_root_url %}/search/?view=table{{ controller.url }}"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="details" title="details"/></a> <a href="{% get_webclient_root_url %}/search/?view=icon{{ controller.url }}"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> | </div>
+    <div id="view"> | {% trans "View" %} <a href="{% get_webclient_root_url %}/search/?view=table{{ controller.url }}"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="details" title="details"/></a> <a href="{% get_webclient_root_url %}/search/?view=icon{{ controller.url }}"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> | </div>
 
     
     <div class="slider">
         <div class="slider_products"> 
-            <div class="slider_text">Zoom:</div>
+            <div class="slider_text">{% trans "Zoom" %}:</div>
             <div class='small_label'></div> 
             <div class='slider_bar'> 
                 <div id="slider_callout"></div> 
@@ -139,7 +140,7 @@
         {% endfor %}
     </ul>
     {% else %}
-        <h1>No results. Fill the form.</h1>
+        <h1>{% trans "No results. Fill the form." %}</h1>
     {% endif %}
 
 {% endblock %}

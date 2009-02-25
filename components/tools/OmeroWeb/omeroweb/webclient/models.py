@@ -107,13 +107,14 @@ class ShareCommentForm(forms.Form):
     
 class ContainerForm(forms.Form):
     
-    PERMISSION_CHOICES = (
-        ('0', 'Private (rw----)'),
-        #('1', 'Public (rwr---)')
-    )
+    #PERMISSION_CHOICES = (
+    #    ('0', 'Private (rw----)'),
+    #    ('1', 'Public (rwr---)')
+    #)
+    
     name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':61}))
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}), required=False, help_text=help_wiki)
-    access_controll = forms.ChoiceField(choices = PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True)
+    #access_controll = forms.ChoiceField(choices = PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True)
 
 class CommentAnnotationForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea(attrs={'rows': 9, 'cols': 65}))

@@ -794,9 +794,8 @@ class BaseContainer(BaseController):
     ####################################################################
     # Creation
     
-    def createDataset(self, name, description, permissions):
+    def createDataset(self, name, description):
         ds = DatasetI()
-        self.objectPermissions(ds, permissions)
         ds.name = rstring(str(name))
         if description != "" :
             ds.description = rstring(str(description))
@@ -804,13 +803,11 @@ class BaseContainer(BaseController):
             l_ds = ProjectDatasetLinkI()
             l_ds.setParent(self.project._obj)
             l_ds.setChild(ds)
-            self.objectPermissions(l_ds,permissions)
             ds.addProjectDatasetLink(l_ds)
         self.conn.saveObject(ds)
         
-    def createProject(self, name, description, permissions):
+    def createProject(self, name, description):
         pr = ProjectI()
-        self.objectPermissions(pr, permissions)
         pr.name = rstring(str(name))
         if description != "" :
             pr.description = rstring(str(description))
@@ -1038,36 +1035,31 @@ class BaseContainer(BaseController):
     ################################################################
     # Update
     
-    def updateImage(self, name, description, permissions):
+    def updateImage(self, name, description):
         img = self.image._obj
         img.name = rstring(str(name))
         if description != "" :
             img.description = rstring(str(description))
         else:
             img.description = None
-        self.objectPermissions(img, permissions)
         self.conn.saveObject(img)
     
-    def updateDataset(self, name, description, permissions):
+    def updateDataset(self, name, description):
         container = self.dataset._obj
         container.name = rstring(str(name))
         if description != "" :
             container.description = rstring(str(description))
         else:
             container.description = None
-        self.objectPermissions(container, permissions)
-        for l_ds in container.copyProjectLinks():
-            self.objectPermissions(l_ds,permissions)
         self.conn.saveObject(container)
     
-    def updateProject(self, name, description, permissions):
+    def updateProject(self, name, description):
         container = self.project._obj
         container.name = rstring(str(name))
         if description != "" :
             container.description = rstring(str(description))
         else:
             container.description = None
-        self.objectPermissions(container, permissions)
         self.conn.saveObject(container)
     
     def move(self, parent, source, destination):

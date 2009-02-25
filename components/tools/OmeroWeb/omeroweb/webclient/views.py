@@ -2031,16 +2031,15 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     elif action == 'edit':
         if o_type == "dataset":
             template = "omeroweb/container_form.html"
-            print manager.dataset.accessControll()
-            form = ContainerForm(initial={'name': manager.dataset.name, 'description':manager.dataset.description, 'access_controll': manager.dataset.accessControll()})
+            form = ContainerForm(initial={'name': manager.dataset.name, 'description':manager.dataset.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         elif o_type == "project":
             template = "omeroweb/container_form.html"
-            form = ContainerForm(initial={'name': manager.project.name, 'description':manager.project.description, 'access_controll': manager.dataset.accessControll()})
+            form = ContainerForm(initial={'name': manager.project.name, 'description':manager.project.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         elif o_type =="image" and o_id > 0:
             template = "omeroweb/container_form.html"
-            form = ContainerForm(initial={'name': manager.image.name, 'description':manager.image.description, 'access_controll': manager.dataset.accessControll()})
+            form = ContainerForm(initial={'name': manager.image.name, 'description':manager.image.description})
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type =="comment" and o_id > 0:
             template = "omeroweb/annotation_form.html"
@@ -2082,8 +2081,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 name = request.REQUEST['name'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
-                permissions = request.REQUEST.getlist('access_controll')
-                manager.updateDataset(name, description, permissions)
+                #permissions = request.REQUEST.getlist('access_controll')
+                manager.updateDataset(name, description)
                 return HttpResponseRedirect(url)
             else:
                 template = "omeroweb/container_form.html"
@@ -2093,8 +2092,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 name = request.REQUEST['name'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
-                permissions = request.REQUEST.getlist('access_controll')
-                manager.updateProject(name, description, permissions)
+                #permissions = request.REQUEST.getlist('access_controll')
+                manager.updateProject(name, description)
                 return HttpResponseRedirect(url)
             else:
                 template = "omeroweb/container_form.html"
@@ -2104,8 +2103,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 name = request.REQUEST['name'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
-                permissions = request.REQUEST.getlist('access_controll')
-                manager.updateImage(name, description, permissions)
+                #permissions = request.REQUEST.getlist('access_controll')
+                manager.updateImage(name, description)
                 return HttpResponseRedirect(url)
             else:
                 template = "omeroweb/container_form.html"
@@ -2146,8 +2145,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 name = request.REQUEST['name'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
-                permissions = request.REQUEST.getlist('access_controll')
-                manager.createDataset(name, description, permissions)
+                #permissions = request.REQUEST.getlist('access_controll')
+                manager.createDataset(name, description)
                 return HttpResponseRedirect(url)
             else:
                 template = "omeroweb/container_new.html"
@@ -2158,8 +2157,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 if form.is_valid():
                     name = request.REQUEST['name'].encode('utf-8')
                     description = request.REQUEST['description'].encode('utf-8')
-                    permissions = request.REQUEST.getlist('access_controll')
-                    manager.createDataset(name, description, permissions)
+                    #permissions = request.REQUEST.getlist('access_controll')
+                    manager.createDataset(name, description)
                     return HttpResponseRedirect(url)
                 else:
                     template = "omeroweb/container_new.html"
@@ -2169,8 +2168,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 if form.is_valid():
                     name = request.REQUEST['name'].encode('utf-8')
                     description = request.REQUEST['description'].encode('utf-8')
-                    permissions = request.REQUEST.getlist('access_controll')
-                    manager.createProject(name, description, permissions)
+                    #permissions = request.REQUEST.getlist('access_controll')
+                    manager.createProject(name, description)
                     return HttpResponseRedirect(url)
                 else:
                     template = "omeroweb/container_new.html"

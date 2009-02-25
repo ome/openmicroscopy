@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
@@ -132,7 +133,7 @@
     </li>
     </ul>
     {% else %}
-        <p>No hierarchy</a>
+        <p>{% trans "Hierarchy structure not available." %}</a>
     {% endif %}
 {% endif %}
 </div>

@@ -1,4 +1,5 @@
 {% extends "omeroweb/base.html" %}
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 
@@ -46,7 +47,7 @@
                 attached: "div.slider",
                 position: "before",
                 stripeRowClass: null,
-                labelText: 'Filter:',
+                labelText: '{% trans "Filter" %}:',
                 inputText: '...',
                 loaderImg: '/webclient/static/images/tree/spinner.gif',
             });
@@ -71,22 +72,22 @@
 {% block center %}
 
 <div class="project">
-    <h1>Shares and Discussions.</h1>
+    <h1>{% trans "Shares and Discussions." %}</h1>
 
-    <p>Here you can create a <b>Share</b> to share and discuss your images with others, or <b>Discussion</b> to discuss with no images. Existing Shares and Discussions are shown below.</p>
+    <p>{% trans "Here you can create a" %} <b>{% trans "Share" %}</b> {% trans "to share and discuss your images with others, or" %} <b>{% trans "Discussion" %}</b> {% trans "to discuss with no images. Existing Shares and Discussions are shown below." %}</p>
 </div>
 <div class="clear"></div>
 <div class="separate70"></div>
 
 {% if share.oshSize or share.mshSize %}
 
-<div id="view"> | View <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> | New <a href="{% get_webclient_root_url %}/basket/toshare/"><span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% get_webclient_static_url %}/images/folder_html16.png" alt="share" /></span></a> 
+<div id="view"> | {% trans "View" %} <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> | {% trans "New" %} <a href="{% get_webclient_root_url %}/basket/toshare/"><span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% get_webclient_static_url %}/images/folder_html16.png" alt="share" /></span></a> 
 <a href="{% get_webclient_root_url %}/basket/todiscuss/"><span id="discussion" title="Create discussion - <small>Starts the thread of the new discussion with no images currently stored in the basket.</small>"><img src="{% get_webclient_static_url %}/images/wp_protocol16.png" alt="discussion" /></span></a> |
 </div>
 
 <div class="slider">
     <div class="slider_products"> 
-        <div class="slider_text">Zoom:</div>
+        <div class="slider_text">{% trans "Zoom" %}:</div>
         <div class='small_label'></div> 
         <div class='slider_bar'> 
             <div id="slider_callout"></div> 
@@ -99,7 +100,7 @@
 
 <ul id="products">
     {% if share.oshSize %}
-    <li class="header_name"><h1>Owned by me ({{ share.oshSize }} items):</h1></li>
+    <li class="header_name"><h1>{% trans "Owned by me" %} ({{ share.oshSize }} {% trans "items" %}):</h1></li>
     <li class="clear"></li>
         {% for c in share.ownShares %}
         <li class="product"><em>{{ c.shortMessage }}</em>
@@ -120,7 +121,7 @@
     <li class="clear"></li>
     {% endif %}    
     {% if share.mshSize %}
-    <li class="header_name"><h1>Shared with me ({{ share.mshSize }} items):</h1></li>
+    <li class="header_name"><h1>{% trans "Shared with me" %} ({{ share.mshSize }} {% trans "items" %}):</h1></li>
     <li class="clear"></li>
         {% for c in share.memberShares %}
         <li class="product"><em>{{ c.shortMessage }}</em>
@@ -142,7 +143,7 @@
     {% endif %}
 </ul>
 {% else %}
-    No shares yet.
+    {% trans "No shares yet." %}
 {% endif %}
 <div class="clear"> </div>
 

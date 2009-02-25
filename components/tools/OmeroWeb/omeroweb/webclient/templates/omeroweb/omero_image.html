@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
 {% comment %}
@@ -23,346 +24,348 @@ TODO:
 {% endcomment %}
 
 <html>
-  <head>
-    <META HTTP-EQUIV="imagetoolbar" CONTENT="no">
+    <head>
+        <META HTTP-EQUIV="imagetoolbar" CONTENT="no">
 
-    <title>{% block title %}{% endblock %}</title>
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-1.2.1.js"></script>
+        <title>{% block title %}{% endblock %}</title>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-1.2.1.js"></script>
 
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/aop.js"></script>
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery.dimensions.js"></script>
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-plugin-viewportImage.js"></script>
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-plugin-slider.js"></script>
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/weblitz-viewport.js"></script>
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-plugin-thumbslider.js"></script>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/aop.js"></script>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery.dimensions.js"></script>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-plugin-viewportImage.js"></script>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-plugin-slider.js"></script>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/weblitz-viewport.js"></script>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-plugin-thumbslider.js"></script>
 
-    <!--script type="text/javascript" src="/webclient/static/javascript/blitzcon/weblitz.js"></script-->
+        <!--script type="text/javascript" src="/webclient/static/javascript/blitzcon/weblitz.js"></script-->
 
 
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/JQuerySpinBtn.js"></script>
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-plugin-colorbtn.js"></script>
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-plugin-smartdialog.js"></script>
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-plugin-postit.js"></script>
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jqDnR.js"></script>
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery.selectboxes.js"></script>
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-plugin-rangewidget.js"></script>
-    <script type="text/javascript" src="/webclient/static/javascript/blitzcon/farbtastic.js"></script>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/JQuerySpinBtn.js"></script>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-plugin-colorbtn.js"></script>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-plugin-smartdialog.js"></script>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-plugin-postit.js"></script>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jqDnR.js"></script>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery.selectboxes.js"></script>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/jquery-plugin-rangewidget.js"></script>
+        <script type="text/javascript" src="/webclient/static/javascript/blitzcon/farbtastic.js"></script>
 
-    {% for src in extra_js %}
-    <script type="text/javascript" src="{{ src }}"></script>
-    {% endfor %}
-    {% block extra_js %}{% endblock %}
-    <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/base.css" media="all">
-    <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/snippet_header_logo.css" media="all">
-    <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/JQuerySpinBtn.css">
-    <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/jquery-plugin-postit.css">
-    <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/jquery-plugin-rangewidget.css">
-    <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/farbtastic.css" media="all">
-    <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/jquery-plugin-colorbtn.css">
-    <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/omero_image.css" title="omero_image" media="all">
+        {% for src in extra_js %}
+        <script type="text/javascript" src="{{ src }}"></script>
+        {% endfor %}
+        {% block extra_js %}{% endblock %}
+        <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/base.css" media="all">
+        <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/snippet_header_logo.css" media="all">
+        <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/JQuerySpinBtn.css">
+        <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/jquery-plugin-postit.css">
+        <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/jquery-plugin-rangewidget.css">
+        <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/farbtastic.css" media="all">
+        <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/jquery-plugin-colorbtn.css">
+        <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/omero_image.css" title="omero_image" media="all">
 
-    <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/jquery-plugin-slider.css" media="all">
-    <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/weblitz-viewport.css" media="all">
-    <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/jquery-plugin-thumbslider.css" media="all">
+        <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/jquery-plugin-slider.css" media="all">
+        <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/weblitz-viewport.css" media="all">
+        <link rel="stylesheet" type="text/css" href="/webclient/static/css/blitzcon/jquery-plugin-thumbslider.css" media="all">
 
-    {% for href in extra_css %}
-    <link rel="stylesheet" type="text/css" href="{{ href }}">
-    {% endfor %}
-    {% block extra_css %}{% endblock %}
+        {% for href in extra_css %}
+        <link rel="stylesheet" type="text/css" href="{{ href }}">
+        {% endfor %}
+        {% block extra_css %}{% endblock %}
 
-  </head>
+      </head>
 
   <body>
+      <script type="text/javascript">
+        /**
+         * The viewport object holds the image browsing viewport that has all the logic for connecting to
+         * the supporting ajax server.
+         */
+        var viewport;
 
-<script type="text/javascript">
-  /**
-   * The viewport object holds the image browsing viewport that has all the logic for connecting to
-   * the supporting ajax server.
-   */
-  var viewport;
-
-  /**
-   * Zoom input box change event handler.
-   */
-  function zoomCheck (i) {
-    var percent = parseFloat($(i).attr('value').replace(/%/, ''));
-    if (isNaN(percent)) {
-      percent = 100;
-    }
-    /* Zoom window */
-    viewport.setZoom(percent);
-  }
-
-
-  /**
-   * Bound to the window resize, calculates the viewport size and top tool box positions.
-   */
-  var calcResize = function () {
-    var dim = { height: $(window).height(),
-                width: $(window).width()};
-
-    /* Resize the viewport */
-    viewport.self
-      .offset({scroll: false}, dim)
-      .height(dim.height - dim.top - 33)
-      .width(dim.width - dim.left - 20);
-    viewport.refresh(true);
-
-    /* Center the tool boxes on the top */
-    var rightmost;
-    var firstbox = $('.box:first', $('#wblitz-workarea'));
-    var baseline = firstbox.offset().top;
-    $('.box', $('#wblitz-workarea')).each(
-      function (e) {
-        var self = $(this);
-        if (self.offset().top == baseline) {
-          rightmost = self.offset().left + self.width();
+        /**
+         * Zoom input box change event handler.
+         */
+        function zoomCheck (i) {
+          var percent = parseFloat($(i).attr('value').replace(/%/, ''));
+          if (isNaN(percent)) {
+            percent = 100;
+          }
+          /* Zoom window */
+          viewport.setZoom(percent);
         }
-      }
-    );
-    var offset = parseInt(($(window).width() - rightmost + firstbox.offset().left)/2);
-    $('.box', $('#wblitz-workarea')).css('left', offset);
-  };
 
 
-  /**
-   * Gets called when an image is initially loaded.
-   * This is the place to sync everything; rendering model, quality, channel buttons, etc.
-   */
-  var _refresh_cb = function (ev, viewport) {
-    /* Sync viewport object with query */
-    viewport.setQuery(location.search);
+        /**
+         * Bound to the window resize, calculates the viewport size and top tool box positions.
+         */
+        var calcResize = function () {
+          var dim = { height: $(window).height(),
+                      width: $(window).width()};
 
-    /* Sync inputs with initial values */
-    $('#wblitz-rmodel').selectOptions(viewport.getModel());
-    var q = viewport.getQuality();
-    if (q) {
-      $('#wblitz-quality').selectOptions(q.toFixed(1));
-    }
+          /* Resize the viewport */
+          viewport.self
+            .offset({scroll: false}, dim)
+            .height(dim.height - dim.top - 33)
+            .width(dim.width - dim.left - 20);
+          viewport.refresh(true);
 
-    /* Prepare the channels box and the rendering definition for the channels */
-    var box = $('#wblitz-channels-box');
-    var channels = viewport.getChannels();
-    box.empty();
-    for (i in channels) {
-      box.append('<button id="wblitz-ch'+i+'"\
-                 class="squared' + (channels[i].active?' pressed':'') + '"\
-                 style="background-color: '+channels[i].color+'"\
-                 onclick="viewport.toggleChannel('+i+')">'+channels[i].emissionWave+'</button>')
-      $('#wblitz-ch'+i+'-cw').rangewidget({
-	min: channels[i].window.min,
-	max: channels[i].window.max});
-    }
-    modelChange();
-
-    /* Image details */
-    $('#wblitz-t-count').html(viewport.getTCount());
-    $('#wblitz-z-count').html(viewport.getZCount());
-    var tmp = viewport.getMetadata();
-    $('#wblitz-image-name').html(tmp.name);
-    $('#wblitz-image-description').html(tmp.description.replace(/\n/g, '<br />'));
-    $('#wblitz-image-author').html(tmp.author);
-    $('#wblitz-image-timestamp').html(tmp.timestamp);
-    tmp = viewport.getSizes();
-    $('#wblitz-image-width').html(tmp.width);
-    $('#wblitz-image-height').html(tmp.height);
-    $('#wblitz-image-z-count').html(tmp.z);
-    $('#wblitz-image-t-count').html(tmp.t);
-    tmp = viewport.getPixelSizes();
-    if(tmp.x != null) $('#wblitz-image-pixel-size-x').html(tmp.x.toFixed(4));
-    if(tmp.y != null) $('#wblitz-image-pixel-size-y').html(tmp.y.toFixed(4));
-    if(tmp.z != null) $('#wblitz-image-pixel-size-z').html(tmp.z.toFixed(4));
-
-    syncRDCW();
-  };
-
-  /**
-   * Checks the currently selected rendering model and applies interface customizations as needed.
-   * Bound to the viewport modelChange event.
-   */
-  var modelChange = function (ev, obj) {
-    var btns = $('button[@id^=wblitz-ch]');
-    if (viewport.isGreyModel()) {
-      btns.addClass('forcegrey');
-    } else {
-      btns.removeClass('forcegrey');
-    }
-    syncRDCW();
-  };
-
-  /**
-   *
-   */
-  var channelChange = function (ev, obj, idx, ch) {
-    if (ch.active) {
-      $('button#wblitz-ch'+idx).addClass('pressed');
-    } else {
-      $('button#wblitz-ch'+idx).removeClass('pressed');
-    }
-    $('#wblitz-ch'+idx).css('background-color', ch.color);
-  };
-
-  /**
-   *
-   */
-  var imageChange = function (ev, obj) {
-    $('#wblitz-t-curr').html(viewport.getTPos());
-    $('#wblitz-z-curr').html(viewport.getZPos());
-  };
-
-  function resetRDCW() {
-    viewport.reset_channels();
-    syncRDCW();
-  }
-
-  function syncRDCW() {
-    var cb;
-    var channels = viewport.getChannels();
-    for (i in channels) {
-      $('#wblitz-ch'+i+'-color').css('background-color', $('#wblitz-ch'+i).css('background-color'));
-      cb = function (i) {
-        return function () {
-          show_change($('#wblitz-ch'+i+'-cw-start').get(0), channels[i].window.start, 'changed');
+          /* Center the tool boxes on the top */
+          var rightmost;
+          var firstbox = $('.box:first', $('#wblitz-workarea'));
+          var baseline = firstbox.offset().top;
+          $('.box', $('#wblitz-workarea')).each(
+            function (e) {
+              var self = $(this);
+              if (self.offset().top == baseline) {
+                rightmost = self.offset().left + self.width();
+              }
+            }
+          );
+          var offset = parseInt(($(window).width() - rightmost + firstbox.offset().left)/2);
+          $('.box', $('#wblitz-workarea')).css('left', offset);
         };
-      }
-      $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', cb(i)).change();
-      cb = function (i) {
-        return function () {
-          show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
+
+
+        /**
+         * Gets called when an image is initially loaded.
+         * This is the place to sync everything; rendering model, quality, channel buttons, etc.
+         */
+        var _refresh_cb = function (ev, viewport) {
+          /* Sync viewport object with query */
+          viewport.setQuery(location.search);
+
+          /* Sync inputs with initial values */
+          $('#wblitz-rmodel').selectOptions(viewport.getModel());
+          var q = viewport.getQuality();
+          if (q) {
+            $('#wblitz-quality').selectOptions(q.toFixed(1));
+          }
+
+          /* Prepare the channels box and the rendering definition for the channels */
+          var box = $('#wblitz-channels-box');
+          var channels = viewport.getChannels();
+          box.empty();
+          for (i in channels) {
+            box.append('<button id="wblitz-ch'+i+'"\
+                       class="squared' + (channels[i].active?' pressed':'') + '"\
+                       style="background-color: '+channels[i].color+'"\
+                       onclick="viewport.toggleChannel('+i+')">'+channels[i].emissionWave+'</button>')
+            $('#wblitz-ch'+i+'-cw').rangewidget({
+      	min: channels[i].window.min,
+      	max: channels[i].window.max});
+          }
+          modelChange();
+
+          /* Image details */
+          $('#wblitz-t-count').html(viewport.getTCount());
+          $('#wblitz-z-count').html(viewport.getZCount());
+          var tmp = viewport.getMetadata();
+          $('#wblitz-image-name').html(tmp.name);
+          $('#wblitz-image-description').html(tmp.description.replace(/\n/g, '<br />'));
+          $('#wblitz-image-author').html(tmp.author);
+          $('#wblitz-image-pub').html(tmp.publication);
+          $('#wblitz-image-pubid').html(tmp.publication_id);
+          $('#wblitz-image-timestamp').html(tmp.timestamp);
+          tmp = viewport.getSizes();
+          $('#wblitz-image-width').html(tmp.width);
+          $('#wblitz-image-height').html(tmp.height);
+          $('#wblitz-image-z-count').html(tmp.z);
+          $('#wblitz-image-t-count').html(tmp.t);
+          tmp = viewport.getPixelSizes();
+          $('#wblitz-image-pixel-size-x').html(tmp.x.toFixed(4));
+          $('#wblitz-image-pixel-size-y').html(tmp.y.toFixed(4));
+          $('#wblitz-image-pixel-size-z').html(tmp.z.toFixed(4));
+
+          syncRDCW();
         };
-      }
-      $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', cb(i)).change();
-    }
-    $('.picker').get(0).hide_picker();
-    $('#rdef-undo-btn').attr('disabled',viewport.has_channels_undo()?'':'true');
-    $('#rdef-redo-btn').attr('disabled',viewport.has_channels_redo()?'':'true');
-    //$('#rdef-default-btn').attr('disabled',viewport.has_channels_undo()?'':'true');
-  }
 
-  function undoRDCW () {
-    viewport.undo_channels();
-    syncRDCW();
-  }
+        /**
+         * Checks the currently selected rendering model and applies interface customizations as needed.
+         * Bound to the viewport modelChange event.
+         */
+        var modelChange = function (ev, obj) {
+          var btns = $('button[@id^=wblitz-ch]');
+          if (viewport.isGreyModel()) {
+            btns.addClass('forcegrey');
+          } else {
+            btns.removeClass('forcegrey');
+          }
+          syncRDCW();
+        };
 
-  function redoRDCW () {
-    viewport.redo_channels();
-    syncRDCW();
-  }
+        /**
+         *
+         */
+        var channelChange = function (ev, obj, idx, ch) {
+          if (ch.active) {
+            $('button#wblitz-ch'+idx).addClass('pressed');
+          } else {
+            $('button#wblitz-ch'+idx).removeClass('pressed');
+          }
+          $('#wblitz-ch'+idx).css('background-color', ch.color);
+        };
 
-  function applyRDCW() {
-    viewport.save_channels();
-    for (var i=0; i<viewport.getCCount(); i++) {
-      viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').css('background-color'), true);
-      viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value);
-    }
-    syncRDCW();
-  }
+        /**
+         *
+         */
+        var imageChange = function (ev, obj) {
+          $('#wblitz-t-curr').html(viewport.getTPos());
+          $('#wblitz-z-curr').html(viewport.getZPos());
+        };
 
-  function show_tooltip(self, ttid) {
-    var pos = $(self).parents('div').offset();
-    pos.top += $(self).parents('div').height();
-    pos.left -= 10;
-    var tooltip = $('#' + ttid);
-    tooltip.css(pos)
-    .toggleClass('popped');
-    if (tooltip.is('.popped')) {
-      var ww = $(window).width() -5;
-      if ((pos.left + tooltip.width()) > ww) {
-        pos.left -= (pos.left + tooltip.width()) - ww;
-        tooltip.css(pos);
-      }
-      var auto = $('#' + ttid).find('.autoselect').get(0);
-      if (auto) {
-        auto.focus();
-        auto.select();
-      }
-    }
-  }
+        function resetRDCW() {
+          viewport.reset_channels();
+          syncRDCW();
+        }
 
-  function show_change(obj, val, klass) {
-    if (obj.value != val) {
-      $(obj).addClass(klass);
-    } else {
-      $(obj).removeClass(klass);
-    }
-  }
+        function syncRDCW() {
+          var cb;
+          var channels = viewport.getChannels();
+          for (i in channels) {
+            $('#wblitz-ch'+i+'-color').css('background-color', $('#wblitz-ch'+i).css('background-color'));
+            cb = function (i) {
+              return function () {
+                show_change($('#wblitz-ch'+i+'-cw-start').get(0), channels[i].window.start, 'changed');
+              };
+            }
+            $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', cb(i)).change();
+            cb = function (i) {
+              return function () {
+                show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
+              };
+            }
+            $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', cb(i)).change();
+          }
+          $('.picker').get(0).hide_picker();
+          $('#rdef-undo-btn').attr('disabled',viewport.has_channels_undo()?'':'true');
+          $('#rdef-redo-btn').attr('disabled',viewport.has_channels_redo()?'':'true');
+          //$('#rdef-default-btn').attr('disabled',viewport.has_channels_undo()?'':'true');
+        }
 
-  $(document).ready(function () {
-    /* Prepare the viewport */
-    var base = location.href.match(/.*webclient/);
-    viewport = $.WeblitzViewport($('#weblitz-viewport'), base); //, _refresh_cb);
-    viewport.bind('imageLoad', _refresh_cb);
+        function undoRDCW () {
+          viewport.undo_channels();
+          syncRDCW();
+        }
 
-    /* Prepare the Zoom spin button */
-    $("INPUT.spin-button").SpinButton({min:0});
+        function redoRDCW () {
+          viewport.redo_channels();
+          syncRDCW();
+        }
 
-    /* Bind zoom changes to the zoom button */
-    viewport.bind('zoom', function(e, percent) {
-      $("#wblitz-zoom").attr('value', ''+percent /*+'%'*/);
-      $(".popped").removeClass('popped');
-    });
+        function applyRDCW() {
+          viewport.save_channels();
+          for (var i=0; i<viewport.getCCount(); i++) {
+            viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').css('background-color'), true);
+            viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value);
+          }
+          syncRDCW();
+        }
 
-    /* Bind model changes */
-    viewport.bind('modelChange', modelChange);
-    /* Bind channel changes */
-    viewport.bind('channelChange', channelChange);
-    /* Bind image changes */
-    viewport.bind('imageChange', imageChange);
+        function show_tooltip(self, ttid) {
+          var pos = $(self).parents('div').offset();
+          pos.top += $(self).parents('div').height();
+          pos.left -= 10;
+          var tooltip = $('#' + ttid);
+          tooltip.css(pos)
+          .toggleClass('popped');
+          if (tooltip.is('.popped')) {
+            var ww = $(window).width() -5;
+            if ((pos.left + tooltip.width()) > ww) {
+              pos.left -= (pos.left + tooltip.width()) - ww;
+              tooltip.css(pos);
+            }
+            var auto = $('#' + ttid).find('.autoselect').get(0);
+            if (auto) {
+              auto.focus();
+              auto.select();
+            }
+          }
+        }
 
-    /* Prepare color picker buttons */
-    $(".picker").colorbtn();
+        function show_change(obj, val, klass) {
+          if (obj.value != val) {
+            $(obj).addClass(klass);
+          } else {
+            $(obj).removeClass(klass);
+          }
+        }
 
-    /* Make (kind of) sure that closing the rendering defs window closes an eventually opened color picker */
-    $("#rdef-postit").bind('closed', function() {$(".picker").get(0).hide_picker()});
-    ////function test () {
-    ////  alert(this.get(0).id);
-    ////  };
-    ////jQuery.aop.before( { target: jQuery, method: 'show'}, test);
-    //jQuery.aop.after( { target: jQuery, method: 'hide'}, function () { alert("hide");});
-    /* Prepare the post-its */
-    var layout_pos = $("#weblitz-viewport").offset();
-    $(".postit").each(function () {
-      if (this.id == 'legend-postit') {
-        $(this).postit({noResize: false}).css($("#weblitz-viewport-vp").offset());
-      } else {
-        layout_pos.left += 20;
-        $(this).postit({noResize: true})
-          .css(layout_pos);
-        layout_pos.top += 20;
-      }
-    });
-    var legend_open = function () {
-      var d = $(this);
-      d.unbind('opening', legend_open);
-      /* Calculate the size for legend post-it */
-      var h = $('#weblitz-viewport-vp').height();
-      var w = ($('#weblitz-viewport-vp').width() - h) /2;
-      d.css('width', Math.max(w, 100));
-      if (d.height() > h) {
-        d.css('height', h);
-      }
-      d.trigger('jqResize');
-      //alert('opening');
-    };
-    $("#legend-postit").bind('opening', legend_open);
-      
-    /* Load the selected image into the viewport */
-    var dsid = '{{ dataset.id }}';
-    if (dsid == '') {
-      dsid = null;
-    }
-    viewport.load({{ image.id }}, dsid, location.search);
+        $(document).ready(function () {
+          /* Prepare the viewport */
+          var base = location.href.match(/.*webclient/);
+          viewport = $.WeblitzViewport($('#weblitz-viewport'), base); //, _refresh_cb);
+          viewport.bind('imageLoad', _refresh_cb);
 
-    /* Bind actions needed on window resize */
-    $(window).resize(calcResize);
+          /* Prepare the Zoom spin button */
+          $("INPUT.spin-button").SpinButton({min:0});
 
-    /* Set Window Initial Size */
-    window.resizeTo(1000,742);
-    calcResize();
+          /* Bind zoom changes to the zoom button */
+          viewport.bind('zoom', function(e, percent) {
+            $("#wblitz-zoom").attr('value', ''+percent /*+'%'*/);
+            $(".popped").removeClass('popped');
+          });
 
-    /* And we're done! */
-  });
-</script>
+          /* Bind model changes */
+          viewport.bind('modelChange', modelChange);
+          /* Bind channel changes */
+          viewport.bind('channelChange', channelChange);
+          /* Bind image changes */
+          viewport.bind('imageChange', imageChange);
+
+          /* Prepare color picker buttons */
+          $(".picker").colorbtn();
+
+          /* Make (kind of) sure that closing the rendering defs window closes an eventually opened color picker */
+          $("#rdef-postit").bind('closed', function() {$(".picker").get(0).hide_picker()});
+          ////function test () {
+          ////  alert(this.get(0).id);
+          ////  };
+          ////jQuery.aop.before( { target: jQuery, method: 'show'}, test);
+          //jQuery.aop.after( { target: jQuery, method: 'hide'}, function () { alert("hide");});
+          /* Prepare the post-its */
+          var layout_pos = $("#weblitz-viewport").offset();
+          $(".postit").each(function () {
+            if (this.id == 'legend-postit') {
+              $(this).postit({noResize: false}).css($("#weblitz-viewport-vp").offset());
+            } else {
+              layout_pos.left += 20;
+              $(this).postit({noResize: true})
+                .css(layout_pos);
+              layout_pos.top += 20;
+            }
+          });
+          var legend_open = function () {
+            var d = $(this);
+            d.unbind('opening', legend_open);
+            /* Calculate the size for legend post-it */
+            var h = $('#weblitz-viewport-vp').height();
+            var w = ($('#weblitz-viewport-vp').width() - h) /2;
+            d.css('width', Math.max(w, 100));
+            if (d.height() > h) {
+              d.css('height', h);
+            }
+            d.trigger('jqResize');
+            //alert('opening');
+          };
+          $("#legend-postit").bind('opening', legend_open);
+
+          /* Load the selected image into the viewport */
+          var dsid = '{{ dataset.id }}';
+          if (dsid == '') {
+            dsid = null;
+          }
+          viewport.load({{ image.id }}, dsid, location.search);
+
+          /* Bind actions needed on window resize */
+          $(window).resize(calcResize);
+
+          /* Set Window Initial Size */
+          window.resizeTo(1000,742);
+          calcResize();
+
+          /* And we're done! */
+        });
+      </script>
+
 
     {% block body_content %}
     

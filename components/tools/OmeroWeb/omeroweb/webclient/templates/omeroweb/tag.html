@@ -1,4 +1,5 @@
 {% extends "omeroweb/base.html" %}
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
@@ -40,13 +41,13 @@
                     attached: "div#view",
                     position: "before",
                     stripeRowClass: null,
-                    labelText: 'Filter:',
+                    labelText: '{% trans "Filter" %}:',
                     inputText: '...',
                     loaderImg: '{% get_webclient_static_url %}/images/tree/spinner.gif',
                 });
                 
                 $("div#tag").hide();
-                $("div#tagloader").html('<p>Loading filters... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
+                $("div#tagloader").html('<p>{% trans "Loading filters... please wait" %} <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
                 
                 $.ajax({  
                     type: "GET",  
@@ -61,7 +62,7 @@
                         $("div#tag").show();
                     },  
                     error: function(xhr, msg){  
-                        alert("Could not load tag component. Please contact Administrator.");  
+                        alert("{% trans 'Could not load tag component. Please contact Administrator.' %}");  
                     }
                 });
                 
@@ -98,13 +99,13 @@
 {% block center %}
 
 <div class="tag">
-    <h1>Tags:</h1>
-    <p>That page allows you to display the data by tags. Please start typing tag and choose correct tag from auto-complete list. You can choose from 1 to 5 tags. Filter will show you ever data associated with those tags.</p>
+    <h1>{% trans "Tags" %}:</h1>
+    <p>{% trans "That page allows you to display the data by tags. Please start typing tag and choose correct tag from auto-complete list. You can choose from 1 to 5 tags. Filter will show you ever data associated with those tags." %}</p>
 </div>
 
 <div>
     {% if manager.tags %}
-    <h1>Selected tags:</h1>
+    <h1>{% trans "Selected tags" %}:</h1>
     {% endif %}
     <div id="tagloader"></div>
     <div id="tag">
@@ -116,7 +117,7 @@
                 <td>{% if t %}
                     ({{ t.id }}) {{ t.textValue }} {% if not t.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %} {% if t.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/tag/{{ t.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}
                 {% else %}
-                    <ul class="errorlist"><li>This tag does not exist.</li></ul>
+                    <ul class="errorlist"><li>{% trans "This tag does not exist." %}</li></ul>
                 {% endif %}</td><td> </td>
                 {% endfor %}
                 <td> </td>
@@ -138,25 +139,10 @@
 
 <div id="view"> 
 
-    {% if manager.c_size or manager.c_mg_size %}
-        {% if manager.c_size %}
-            {% if manager.experimenter %}
-                <h1>{{ manager.experimenter.getFullName }}'s ({{ manager.c_size }} items):</h1>
-            {% else %}
-                <h1>My data ({{ manager.c_size }} items):</h1>
-            {% endif %}
-        {% endif %}
-        {% if manager.c_mg_size %}
-            {% if manager.myGroup %}
-                <h1>{{ manager.myGroup.name }}'s data ({{ manager.c_mg_size }} items):</h1>
-            {% endif %}
-        {% endif %}
+    {% if manager.c_size %}
+        <h1>{% trans "Data" %}({{ manager.c_size }} {% trans "items" %}):</h1>
     {% else %}
-        {% ifequal nav.menu 'mydata' %}
-            <h1>My data (no item):</h1>
-        {% else %}
-            <h1>Data (no item):</h1>
-        {% endifequal %}
+        <h1>{% trans "Data (no item)" %}:</h1>
     {% endif %}
     <!--| View <a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="details" title="details"/></a> <a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> <a href="{% get_webclient_root_url %}/mydata/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.png" alt="tree" title="tree"/></a> |-->
 
@@ -165,7 +151,7 @@
 <div class="clear"> </div>
 
 {% if not manager.c_size %}
-    <h1>No data.</h1>
+    <h1>{% trans "No data." %}</h1>
 {% else %}
     
     {% if manager.c_size %}
@@ -173,9 +159,9 @@
     <table id="dataTable" class="tablesorter"> 
     <thead> 
     <tr> 
-        <th>Type</th> 
-        <th>Name</th> 
-        <th>Action</th> 
+        <th>{% trans "Type" %}</th> 
+        <th>{% trans "Name" %}</th> 
+        <th>{% trans "Action" %}</th> 
         {% for t in manager.tags %}
             {% if t %}<th>{{ t.id }}</th>{% endif %}
         {% endfor %}

@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 <?xml version="1.0" encoding="iso-8859-1"?>
@@ -14,7 +15,7 @@
 
     <link rel="shortcut icon" href="{% get_webclient_static_url %}/images/ome.ico" type="image/x-icon" />
 
-    <title>WebClient {% block title %}{% endblock %}</title>
+    <title>{% trans "Webclient" %} {% block title %}{% endblock %}</title>
 
     {% block jscript %}{% endblock %}
 
@@ -25,16 +26,16 @@
     <div id="header">
         <div id="logo"> </div>
         <div id="menu"><ul id="navigation">
-            <li class="contact"><a href="mailto:" title="Contact">Contact</a></li>
-            <li class="help"><a href="{% get_webclient_root_url %}/help/index/" title="Help">Help</a></li>
-            <li class="person"><a href="{% get_webclient_root_url %}/myaccount/details/" title="Person">Person</a></li>
-            <li class="import"><a href="{% get_webclient_root_url %}/impexp/image/" title="Import">Import</a></li>
-            <li class="search"><a href="{% get_webclient_root_url %}/search/?view=table" title="Search">Search</a></li>
-            <li class="history"><a href="{% get_webclient_root_url %}/history/calendar/{% get_calendar_url %}" title="History">History</a></li>
-            <li class="share"><a href="{% get_webclient_root_url %}/share/?view=table" title="Share">Share</a></li>
-            <li class="collaboration"><a href="{% get_webclient_root_url %}/userdata/?view=table" title="Collaboration">Collaboration</a></li>
-            <li class="mydata"><a href="{% get_webclient_root_url %}/mydata/?view=table" title="My Data">My Data</a></li>
-            <li class="home"><a href="{% get_webclient_root_url %}/" title="Home">Home</a></li>
+            <li class="contact"><a href="mailto:" title="Contact">{% trans "Contact" %}</a></li>
+            <li class="help"><a href="{% get_webclient_root_url %}/help/index/" title="Help">{% trans "Help" %}</a></li>
+            <li class="person"><a href="{% get_webclient_root_url %}/myaccount/details/" title="Person">{% trans "Person" %}</a></li>
+            <li class="import"><a href="{% get_webclient_root_url %}/impexp/image/" title="Import">{% trans "Import" %}</a></li>
+            <li class="search"><a href="{% get_webclient_root_url %}/search/?view=table" title="Search">{% trans "Search" %}</a></li>
+            <li class="history"><a href="{% get_webclient_root_url %}/history/calendar/{% get_calendar_url %}" title="History">{% trans "History" %}</a></li>
+            <li class="share"><a href="{% get_webclient_root_url %}/share/?view=table" title="Share">{% trans "Share" %}</a></li>
+            <li class="collaboration"><a href="{% get_webclient_root_url %}/userdata/?view=table" title="Collaboration">{% trans "Collaboration" %}</a></li>
+            <li class="mydata"><a href="{% get_webclient_root_url %}/mydata/?view=table" title="My Data">{% trans "My Data" %}</a></li>
+            <li class="home"><a href="{% get_webclient_root_url %}/" title="Home">{% trans "Home" %}</a></li>
         </ul></div>
     </div>
     

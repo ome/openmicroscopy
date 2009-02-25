@@ -1,4 +1,5 @@
 {% extends "omeroweb/base.html" %}
+{% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 
@@ -43,7 +44,7 @@
                 attached: "table.tablesorter",
                 position: "before",
                 stripeRowClass: null,
-                labelText: 'Filter:',
+                labelText: '{% trans "Filter" %}:',
                 inputText: 'search',
                 loaderImg: '{% get_webclient_static_url %}/images/tree/spinner.gif',
             });
@@ -54,7 +55,7 @@
 
 {% block center %}
 
-<h1><a href="{% get_webclient_root_url %}/history/calendar/{{ controller.year }}/{{ controller.month }}/{{ controller.day }}/">{{ eContext.breadcrumb.2 }} {{ eContext.breadcrumb.1 }}</a> ({{ controller.day_items_size }}/{{ controller.total_items_size }} items)</h1>
+<h1><a href="{% get_webclient_root_url %}/history/calendar/{{ controller.year }}/{{ controller.month }}/{{ controller.day }}/">{{ eContext.breadcrumb.2 }} {{ eContext.breadcrumb.1 }}</a> ({{ controller.day_items_size }}/{{ controller.total_items_size }} {% trans "items" %})</h1>
 
 {% if form_history_type %}
 <div id="view"><form action="{% get_webclient_root_url %}/groupdata/?view=icon" method="POST">
@@ -73,10 +74,10 @@
 <table id="historyTable" class="tablesorter"> 
 <thead> 
 <tr> 
-    <th>Type</th> 
-    <th>Name</th> 
-    <th>Action</th>
-    <th>Created</th>
+    <th>{% trans "Type" %}</th> 
+    <th>{% trans "Name" %}</th> 
+    <th>{% trans "Action" %}</th>
+    <th>{% trans "Created" %}</th>
 </tr>
 </thead> 
 <tbody> 
@@ -109,12 +110,12 @@
 </tbody> 
 </table>
 
-<div>Recognize items: <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="Project" alt="project"/> - Project; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="Dataset" alt="dataset"/> - Dataset; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="Image" alt="image"/> - Image;
+<div>{% trans "Recognize items" %}: <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="Project" alt="project"/> - {% trans "Project" %}; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="Image" alt="image"/> - {% trans "Image" %};
 </div>
 
 {% else %}
 <div class="clear"></div>
-<div>No data.</div>
+<div>{% trans "No data." %}</div>
 {% endif %}
 
 
