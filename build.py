@@ -67,7 +67,9 @@ def choose_omero_version():
     return [] # Use default
 
 def execute(args):
-    subprocess.call(args)
+    rc = subprocess.call(args)
+    if rc != 0:
+	sys.exit(rc)
 
 
 if __name__ == "__main__":
