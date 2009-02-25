@@ -9,6 +9,7 @@ package ome.server.itests;
 import java.util.UUID;
 
 import ome.api.IConfig;
+import ome.conditions.SecurityViolation;
 
 import org.testng.annotations.*;
 
@@ -78,6 +79,26 @@ public class ConfigTest extends AbstractManagedContextTest {
          */
         String value = iConfig.getConfigValue(UUID.randomUUID().toString());
         assertNull(value);
+
+    }
+    
+    @Test
+    public void testDefaultPreferencesConfiguration() throws Exception {
+        
+        loginNewUser();
+        assertEquals("false", iConfig
+                .getConfigValue("omero.resetpassword.config"));
+        
+        try {
+            iConfig.getConfigValue("omero.resetpassword.password");
+            fail("secvio!");
+        } catch (SecurityViolation sv) {
+            // regular user should not be able to acquire sensitive info
+        }
+        
+        // But this should be ok
+        loginRoot();
+        iConfig.getConfigValue("omero.resetpassword.password");
 
     }
 

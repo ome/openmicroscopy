@@ -110,6 +110,10 @@
         <property name="aliases" value="hibernate.dialect"/>
         <property name="visibility" value="hidden"/>
     </bean>
+    <bean class="ome.system.Preference" id="omero.resetpassword.config">
+        <property name="visibility" value="all"/>
+    </bean>
+
     <!-- End preference list -->
             </list>
         </property>
