@@ -95,7 +95,8 @@ class client(object):
         if host:
             id.properties.setProperty("omero.host", str(host))
         if not port:
-            port = omero.constants.GLACIER2PORT
+            port = id.properties.getPropertyWithDefault("omero.port",\
+                str(omero.constants.GLACIER2PORT))
         id.properties.setProperty("omero.port", str(port))
         if pmap:
             for k,v in pmap.items():

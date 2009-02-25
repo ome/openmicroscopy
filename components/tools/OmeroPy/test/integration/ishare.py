@@ -105,6 +105,7 @@ class TestIShare(lib.ITest):
         client_share = omero.client()
         client_share.createSession(s.uuid,s.uuid)
         share1 = client_share.sf.getShareService()
+        self.fail("NOT ALLOWED")
         self.assert_(len(share1.getAllShares(True)) > 0)
         # THIS IS NOT ALLOWED: FINISH
         
@@ -513,6 +514,7 @@ class TestIShare(lib.ITest):
         client_share1.sf.closeOnDestroy()
         
         #re - login as user1 
+
         client_share2 = omero.client()
         client_share2.createSession(user1.omeName.val,"ome")
         share2 = client_share2.sf.getShareService()
