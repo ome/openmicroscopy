@@ -990,7 +990,11 @@ class BlitzGateway (threading.Thread):
                 yield ExperimenterGroupWrapper(self, e)
 
     def getCurrentSupervisor(self):
-        default = self.getAdminService().getGroup(self.getEventContext().groupId)
+        #default = self.getAdminService().getGroup(self.getEventContext().groupId)
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["id"] = rlong(self.getEventContext().groupId)
+        default = self.getQueryService().findByQuery("select e from ExperimenterGroup as e join fetch e.details.owner where e.id = :id", p)
         return ExperimenterWrapper(self, default.details.owner)
     
     def getColleagues(self):
