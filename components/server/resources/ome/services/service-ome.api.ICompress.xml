@@ -19,6 +19,6 @@
 
 <beans>
 	<alias name="internal-ome.api.ICompress" alias="internal-ome.api.LocalCompress"/>
-	<bean id="internal-ome.api.ICompress" class="ome.logic.CompressImpl"/>
+	<bean id="internal-ome.api.ICompress" class="ome.logic.CompressImpl" singleton="false"/>
 </beans>
 
