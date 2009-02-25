@@ -177,6 +177,18 @@ public class ImageData extends DataObject {
     }
 
     /**
+     * Returns <code>true</code> if the image has been archived,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isArchived() {
+    	omero.RBool value = asImage().getArchived();
+    	if (value == null) return false;
+    	return value.getValue();
+    }
+    
+    /**
      * Returns the number of annotations linked to the object, key: id of the
      * user, value: number of annotation. The map may be <code>null</code> if
      * no annotation.
