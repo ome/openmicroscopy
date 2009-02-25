@@ -107,11 +107,24 @@ Syntax: %%(program_name)s file1 file2 file3
             for line in file:
                 self.pub.ctx(line)
 
+class ShellControl(BaseControl):
+
+    def help(self, args = None):
+        self.ctx.out("Starts an IPython interpreter session")
+
+    def __call__(self, *args):
+        """
+        Copied from IPython embed-short example
+        """
+        from IPython.Shell import IPShellEmbed
+        ipshell = IPShellEmbed()
+        ipshell()
 
 try:
     register("help", HelpControl)
     register("load", LoadControl)
     register("quit", QuitControl)
+    register("shell", ShellControl)
     register("version", VersionControl)
 except NameError:
     VersionControl()._main()

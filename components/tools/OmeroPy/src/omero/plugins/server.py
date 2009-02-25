@@ -40,7 +40,7 @@ class ServerControl(BaseControl):
         xargs = self._prop(data, component+".xargs")
         if len(xargs) == 0:
             xargs = xargs_default
-        debug = self._prop(data, "component.debug")
+        debug = self._prop(data, component+".debug")
         if debug == "true":
             debug = True
         else:
