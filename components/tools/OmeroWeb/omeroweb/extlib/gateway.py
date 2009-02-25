@@ -603,7 +603,7 @@ class BlitzGateway (threading.Thread):
         p.map = {}
         p.map["gid"] = rlong(long(gid))
         sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group " \
-              "where pr.details.permissions > '-1103' and pr.details.group.id=:gid order by pr.name"
+              "where pr.details.permissions > '-103' and pr.details.group.id=:gid order by pr.name"
         for e in q.findAllByQuery(sql, p):
             yield ProjectWrapper(self, e)
 
@@ -613,7 +613,7 @@ class BlitzGateway (threading.Thread):
         p.map = {}
         p.map["gid"] = rlong(long(gid))
         sql = "select ds from Dataset as ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
-                "where ds.details.permissions > '-1103' and ds.details.group.id=:gid and " \
+                "where ds.details.permissions > '-103' and ds.details.group.id=:gid and " \
                 "not exists ( select pld from ProjectDatasetLink as pld where pld.child=ds.id)) order by ds.name"
         for e in q.findAllByQuery(sql, p):
             yield DatasetWrapper(self, e)
@@ -629,7 +629,7 @@ class BlitzGateway (threading.Thread):
             f.offset = rint((int(page)-1)*24)
             p.theFilter = f
         sql = "select im from Image as im join fetch im.details.owner join fetch im.details.group " \
-                "where im.details.permissions > '-1103' and im.details.group.id=:gid and " \
+                "where im.details.permissions > '-103' and im.details.group.id=:gid and " \
                 "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id ) order by im.id asc"
         for e in q.findAllByQuery(sql, p):
             yield ImageWrapper(self, e)
