@@ -2276,21 +2276,28 @@ public class OMEROMetadataStoreClient
     	globalMinMax[1] = maximum;
     }
 
-    public void populateSHA1(MessageDigest md, Long id)
+    /**
+     * Updates a list of Pixels.
+     * @param pixelsList List of Pixels to update.
+     */
+    public void updatePixels(List<Pixels> pixelsList)
     {
-        Pixels p;
         try
         {
-            p = (Pixels) iQuery.get("Pixels", id);
-            p.setSha1(toRType(byteArrayToHexString(md.digest())));
-            iUpdate.saveObject(p);
-        } catch (ServerError e)
+        	List<IObject> objectList = new ArrayList<IObject>(pixelsList.size());
+        	for (Pixels pixels : pixelsList)
+        	{
+        		objectList.add(pixels);
+        	}
+        	iUpdate.saveArray(objectList);
+        }
+        catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
     }
 
-    static String byteArrayToHexString(byte in[]) {
+    public static String byteArrayToHexString(byte in[]) {
 
         byte ch = 0x00;
         int i = 0;
@@ -2305,7 +2312,6 @@ public class OMEROMetadataStoreClient
         StringBuffer out = new StringBuffer(in.length * 2);
 
         while (i < in.length) {
-
             ch = (byte) (in[i] & 0xF0);
             ch = (byte) (ch >>> 4);
             ch = (byte) (ch & 0x0F);
@@ -2313,7 +2319,6 @@ public class OMEROMetadataStoreClient
             ch = (byte) (in[i] & 0x0F);
             out.append(pseudo[ch]);
             i++;
-
         }
 
         String rslt = new String(out);

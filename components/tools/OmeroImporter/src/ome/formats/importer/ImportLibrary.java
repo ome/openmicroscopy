@@ -40,6 +40,7 @@ import ome.formats.importer.util.Actions;
 import omero.ServerError;
 import omero.model.BooleanAnnotationI;
 import omero.model.Dataset;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
 
@@ -321,10 +322,12 @@ public class ImportLibrary implements IObservable
 
         int seriesCount = reader.getSeriesCount();
         
+        boolean saveSha1 = false;
         for (int series = 0; series < seriesCount; series++)
         {
             int count = calculateImageCount(fileName, pixList.get(series));
-            long pixId = pixList.get(series).getId().getValue(); 
+            Pixels pixels = pixList.get(series); 
+            long pixId = pixels.getId().getValue(); 
             
             args[4] = getDataset();
             args[5] = pixId;
@@ -333,7 +336,7 @@ public class ImportLibrary implements IObservable
             
             notifyObservers(Actions.DATASET_STORED, args);
 
-            importData(pixId, fileName, series, new ImportLibrary.Step()
+            MessageDigest md = importData(pixId, fileName, series, new ImportLibrary.Step()
             {
                 @Override
                 public void step(int series, int step)
@@ -342,6 +345,12 @@ public class ImportLibrary implements IObservable
                     notifyObservers(Actions.IMPORT_STEP, args2);
                 }
             });
+            if (md != null)
+            {
+            	String s = OMEROMetadataStoreClient.byteArrayToHexString(md.digest());
+            	pixels.setSha1(store.toRType(s));
+            	saveSha1 = true;
+            }
             
             notifyObservers(Actions.DATA_STORED, args);  
            
@@ -354,6 +363,10 @@ public class ImportLibrary implements IObservable
                     store.writeFilesToFileStore(files, pixId);   
                 }
             }
+        }
+        if (saveSha1)
+        {
+        	store.updatePixels(pixList);
         }
         
         if (reader.isMinMaxSet() == false)
@@ -372,8 +385,9 @@ public class ImportLibrary implements IObservable
      * {@link Step#step(int)} is called with the number of the iteration just
      * completed.
      * @param series 
+     * @return The SHA1 message digest for the Pixels saved.
      */
-    public void importData(Long pixId, String fileName, int series, Step step)
+    public MessageDigest importData(Long pixId, String fileName, int series, Step step)
     throws FormatException, IOException, ServerError
     {
         int i = 1;
@@ -428,10 +442,7 @@ public class ImportLibrary implements IObservable
         
         if (dumpPixels)
             wChannel.close();
-        if (md != null)
-        {
-            store.populateSHA1(md, pixId);  
-        }
+        return md;
     }
     
     // ~ Helpers
