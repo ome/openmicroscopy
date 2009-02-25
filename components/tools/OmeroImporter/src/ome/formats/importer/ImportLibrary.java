@@ -356,6 +356,11 @@ public class ImportLibrary implements IObservable
             }
         }
         
+        if (reader.isMinMaxSet() == false)
+        {
+            store.populateMinMax();
+        }
+        
         notifyObservers(Actions.IMPORT_DONE, args);
         
         return pixList;
@@ -426,10 +431,6 @@ public class ImportLibrary implements IObservable
         if (md != null)
         {
             store.populateSHA1(md, pixId);  
-        }
-        if (reader.isMinMaxSet() == false)
-        {
-            store.populateMinMax();
         }
     }
     

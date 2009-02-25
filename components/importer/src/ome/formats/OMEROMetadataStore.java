@@ -799,11 +799,11 @@ public class OMEROMetadataStore
     	double[] globalMinMax;
     	Channel channel;
     	StatsInfo statsInfo;
-	Long pixelsId;
+    	Long pixelsId;
     	for (int i = 0; i < imageChannelGlobalMinMax.length; i++)
     	{
     		channelGlobalMinMax = imageChannelGlobalMinMax[i];
-		pixelsId = pixelsList.get(i).getId();
+    		pixelsId = pixelsList.get(i).getId();
     		toSave[i] = iQuery.findByQuery(
 			"select p from Pixels as p left join fetch p.channels " + 
 			"where p.id = :id", new Parameters().addId(pixelsId));
