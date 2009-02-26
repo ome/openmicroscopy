@@ -104,7 +104,7 @@ public class DateTimeParam
 		} 
 		
 		if (text == null) {
-			return super.toString();
+			return "no date";
 		}
 		return text;
 	}
