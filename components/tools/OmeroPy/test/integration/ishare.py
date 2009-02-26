@@ -531,6 +531,73 @@ class TestIShare(lib.ITest):
         self.assert_(share2.getShare(sid).active.val == False)
         
         client_share2.sf.closeOnDestroy()
-
+    
+    def test1207(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        share = self.client.sf.getShareService()
+        update = self.root.sf.getUpdateService()
+        admin = self.root.sf.getAdminService()
+        
+        ### create two users in one group
+        #group1
+        new_gr1 = ExperimenterGroupI()
+        new_gr1.name = rstring("group1_%s" % uuid)
+        gid = admin.createGroup(new_gr1)
+        
+        #new user1
+        new_exp = ExperimenterI()
+        new_exp.omeName = rstring("user1_%s" % uuid)
+        new_exp.firstName = rstring("New")
+        new_exp.lastName = rstring("Test")
+        new_exp.email = rstring("newtest@emaildomain.com")
+        
+        defaultGroup = admin.getGroup(gid)
+        listOfGroups = list()
+        listOfGroups.append(admin.lookupGroup("user"))
+        
+        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), defaultGroup, listOfGroups)
+        #new user3
+        new_exp3 = ExperimenterI()
+        new_exp3.omeName = rstring("user3_%s" % uuid)
+        new_exp3.firstName = rstring("New3")
+        new_exp3.lastName = rstring("Test3")
+        new_exp3.email = rstring("newtest3@emaildomain.com")
+        
+        eid3 = admin.createExperimenterWithPassword(new_exp3, rstring("ome"), defaultGroup, listOfGroups)
+        
+        ## get users
+        user1 = admin.getExperimenter(eid)
+        user3 = admin.getExperimenter(eid3)
+        
+        ## login as user1 
+        client_share1 = omero.client()
+        client_share1.createSession(user1.omeName.val,"ome")
+        share1 = client_share1.sf.getShareService()
+        
+        test_user = self.new_user()
+        # create share
+        description = "my description"
+        timeout = None
+        objects = []
+        experimenters = [test_user]
+        guests = ["ident@emaildomain.com"]
+        enabled = True
+        sid = share1.createShare(description, timeout, objects,experimenters, guests, enabled)
+        client_share1.sf.closeOnDestroy()
+        
+        #re - login as user3 
+        client_share3 = omero.client()
+        client_share3.createSession(user3.omeName.val,"ome")
+        share3 = client_share3.sf.getShareService()
+        
+        try:
+            share3.getShare(sid)
+        except:
+            pass
+        else:
+            raise
+        
+        client_share3.sf.closeOnDestroy()
+    
 if __name__ == '__main__':
     unittest.main()
