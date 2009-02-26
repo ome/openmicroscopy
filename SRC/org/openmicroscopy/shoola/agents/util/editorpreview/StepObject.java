@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.util.editorpreview;
 
 //Java imports
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +42,8 @@ import java.util.List;
  * </small>
  * @since 3.0-Beta4
  */
-public class StepObject {
+class StepObject 
+{
 
 	/** The name of the step */
 	private String 						name;
@@ -81,20 +81,23 @@ public class StepObject {
 	}
 	
 	/**
-	 * Returns the name of the Step
-	 * @return
+	 * Returns the name of the Step.
+	 * 
+	 * @return See above.
 	 */
 	String getName() {	return name; }
 	
 	/**
-	 * Returns the level in the hierarchy of the Step
-	 * @return
+	 * Returns the level in the hierarchy of the Step.
+	 * 
+	 * @return See above.
 	 */
 	int getLevel()	{ return level; }
 	 
 	/**
-	 * Returns the list of parameters in this step
-	 * @return
+	 * Returns the list of parameters in this step.
+	 * 
+	 * @return See above.
 	 */
 	List<Param>getParams() { return params; }
 	
@@ -104,18 +107,37 @@ public class StepObject {
 	 */
 	class Param {
 		
+		/** The name to store. */
 		private String name;
 		
+		/** The associated value. */
 		private String value;
 		
+		/**
+		 * Creates a new instance.
+		 * 
+		 * @param name  The name.
+		 * @param value The associated value.
+		 */
 		Param(String name, String value)
 		{
 			this.name = name;
 			this.value = value;
 		}
 		
+		/**
+		 * Returns the name.
+		 * 
+		 * @return See above.
+		 */
 		String getName() { 	return name; }
 		
+		/**
+		 * Returns the value.
+		 * 
+		 * @return See above.
+		 */
 		String getValue() {	  return value; }
 	}
+	
 }

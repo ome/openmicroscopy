@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 
 //Third-party libraries
@@ -51,7 +52,6 @@ import omero.model.Plate;
 import omero.model.Project;
 import omero.model.Screen;
 import omero.model.TagAnnotation;
-import omero.model.TextAnnotation;
 import omero.model.TimestampAnnotation;
 import omero.model.UriAnnotation;
 import omero.model.Well;
@@ -256,15 +256,18 @@ public class PojoMapper
     {
         if (objects == null) 
             throw new IllegalArgumentException("The map cannot be null.");
-        HashMap<Object, Object> 
+        Map<Object, Object> 
         	map = new HashMap<Object, Object>(objects.size());
-        Iterator i = objects.keySet().iterator();
+        Set set = objects.entrySet();
+        Entry entry;
+        Iterator i = set.iterator();
         Object key, value;
         Object convertedKey = null;
         Object convertedValue = null;
         while (i.hasNext()) {
-            key = i.next();
-            value = objects.get(key);
+        	entry = (Entry) i.next();
+            key = entry.getKey();
+            value = entry.getValue();
             convertedKey = convert(key);
             convertedValue = convert(value);
             map.put(convertedKey == null ? key : convertedKey, 

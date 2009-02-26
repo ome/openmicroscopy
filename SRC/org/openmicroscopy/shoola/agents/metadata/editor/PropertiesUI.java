@@ -57,6 +57,7 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.ChannelData;
@@ -415,6 +416,18 @@ class PropertiesUI
         	img = ((WellSampleData) refObject).getImage();
         	if (img != null && img.getId() > 0)
         		data = img.getDefaultPixels();
+        } else if (refObject instanceof FileAnnotationData) {
+        	FileAnnotationData fa = (FileAnnotationData) refObject;
+        	String ns = fa.getNameSpace();
+        	if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
+        			FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns)) {
+        		String description = fa.getDescription();
+        		if (description != null && description.length() > 0) {
+        			PreviewPanel panel = new PreviewPanel(description);
+        			add(Box.createVerticalStrut(5));
+        	    	add(panel);
+        		}
+        	}
         }
         if (data == null) return;
         add(Box.createVerticalStrut(5));
@@ -482,7 +495,15 @@ class PropertiesUI
         else if (refObject instanceof ProjectData) text = "Project ";
         else if (refObject instanceof ScreenData) text = "Screen ";
         else if (refObject instanceof PlateData) text = "Plate ";
-        else if (refObject instanceof FileAnnotationData) text = "File ";
+        else if (refObject instanceof FileAnnotationData) {
+        	FileAnnotationData fa = (FileAnnotationData) refObject;
+        	String ns = fa.getNameSpace();
+        	if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns))
+        		text = "Experiment ";
+        	else if (FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns))
+        		text = "Protocol ";
+        	else text = "File ";
+        }
         else if (refObject instanceof WellSampleData) text = "Field ";
         else if (refObject instanceof TagAnnotationData) {
         	TagAnnotationData tag = (TagAnnotationData) refObject;
@@ -503,12 +524,6 @@ class PropertiesUI
         	namePane.getDocument().addDocumentListener(this);
         	descriptionPane.getDocument().addDocumentListener(this);
         }
-        /*
-        if (model.getRefObject() instanceof TagAnnotationData) {
-        	namePane.getDocument().removeDocumentListener(this);
-        	namePane.setEnabled(false);
-        }
-        */
         buildGUI();
 	}
 	

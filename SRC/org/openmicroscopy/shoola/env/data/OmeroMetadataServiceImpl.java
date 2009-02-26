@@ -59,7 +59,6 @@ import omero.model.ObjectiveI;
 import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.OriginalFile;
-import omero.model.Project;
 import omero.model.ProjectAnnotationLink;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
@@ -1091,21 +1090,7 @@ class OmeroMetadataServiceImpl
 		OmeroDataService service = context.getDataService();
 		
 		DataObject object;
-		PojoOptions op = new PojoOptions();
-		Project io;
 		List<AnnotationData> annotations = prepareAnnotationToAdd(toAdd);
-		/*
-		 * Iterator<DataObject> i = data.iterator();
-		while (i.hasNext()) {
-			object = i.next();
-			io = object.asProject();
-			ModelMapper.unloadCollections(io);
-			//io.linkAnnotation(a);
-			io = (Project) gateway.saveAndReturnObject(io, op.map());
-			
-			//service.updateDataObject(object);
-		}
-		*/
 		Iterator i;
 		Iterator<DataObject> j = data.iterator();
 		//First create the new annotations 
@@ -1848,9 +1833,11 @@ class OmeroMetadataServiceImpl
 		//Need to relink and delete the previous one.
 		FileAnnotation fa;
 		Map m = (new PojoOptionsI()).map();
+		String desc = fileAnnotation.getDescription();
 		if (id < 0) {
 			fa = new FileAnnotationI();
 			fa.setFile(of);
+			if (desc != null) fa.setDescription(omero.rtypes.rstring(desc));
 			if (ns != null)
 				fa.setNs(omero.rtypes.rstring(ns));
 			IObject object = gateway.createObject(fa, m);
@@ -1859,6 +1846,7 @@ class OmeroMetadataServiceImpl
 			fa = (FileAnnotation) 
 				gateway.findIObject(FileAnnotation.class.getName(), id);
 			fa.setFile(of);
+			if (desc != null) fa.setDescription(omero.rtypes.rstring(desc));
 			gateway.updateObject(fa, m);
 		}
 		fa = (FileAnnotation) 

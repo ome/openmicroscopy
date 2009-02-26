@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.util.editorpreview;
 
 //Java imports
-
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -44,7 +43,6 @@ import javax.swing.border.EmptyBorder;
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.util.editorpreview.MetadataComponent;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -73,6 +71,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class PreviewPanel 
 	extends JPanel
 {
+	
 	/** max number of characters to display in field value */
 	public static final int 			MAX_CHARS = 25;
 	
@@ -85,7 +84,6 @@ public class PreviewPanel
 	 */
 	private PreviewModel 				model;
 	
-	
 	/** Initiliases the components. */
 	private void initComponents()
 	{
@@ -94,12 +92,13 @@ public class PreviewPanel
 		
 		String description = model.getDescription();
 		if (description != null) {
+			//TODO: externalize that
 			description = "<html><span style='font-family:sans-serif;font-size:11pt'>"
 							+ description + "</span></html>";
 			// display description in EditorPane, because text wraps nicely!
 			JEditorPane ep = new JEditorPane("text/html", description);
 			ep.setEditable(false);
-			ep.setBorder(new EmptyBorder(3,5,5,3));
+			ep.setBorder(new EmptyBorder(3, 5, 5, 3));
 			add(ep);
 		}
 		
@@ -108,20 +107,21 @@ public class PreviewPanel
 		String stepName;
 		JPanel nodePanel;
 		Border border;
+		int indent;
+		List<MetadataComponent> paramComponents;
 		for (StepObject stepObject : protocolSteps) {
 
 			// each child node has a list of parameters 
-			List<MetadataComponent> paramComponents = 
-					transformFieldParams(stepObject);
+			paramComponents = transformFieldParams(stepObject);
 			
 			// don't add a field unless it has some parameters to display
 			if (paramComponents.isEmpty()) continue;
 			
 			stepName = stepObject.getName();
 			
-			int indent = (stepObject.getLevel()) * 10;
+			indent = (stepObject.getLevel()) * 10;
 			nodePanel = new JPanel();
-			border = new EmptyBorder(0,indent,0,0);
+			border = new EmptyBorder(0, indent, 0, 0);
 			border = BorderFactory.createCompoundBorder(border, 
 								BorderFactory.createTitledBorder(stepName));
 			nodePanel.setBorder(border);
@@ -134,14 +134,11 @@ public class PreviewPanel
 		}
 	}
 	
-	/**
-	 * Called when the model changes.
-	 */
+	/** Called when the model changes. */
 	private void rebuildUI() 
 	{	
 		removeAll();
 		initComponents();
-		
 		revalidate();
 		repaint();
 	}
@@ -183,8 +180,6 @@ public class PreviewPanel
 	    }
 	    ++c.gridy;
 	    c.gridx = 0;
-	    //c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-	    //c.fill = GridBagConstraints.NONE;      //reset to default
 	    c.weightx = 0.0;  
 	    if (button != null) pane.add(button, c);
 	}
@@ -192,7 +187,8 @@ public class PreviewPanel
 	/**
 	 * Transforms the Step into the corresponding UI objects.
 	 * 
-	 * @param params The step to transform.
+	 * @param setp The step to transform.
+	 * @return See above.
 	 */
 	private List<MetadataComponent> transformFieldParams(StepObject step)
 	{
@@ -218,7 +214,7 @@ public class PreviewPanel
 					null);
 			if (value == null || value.equals(""))
 				value = DEFAULT_TEXT;
-			((OMETextArea) area).setText((String) value);
+			((OMETextArea) area).setText(value);
 			((OMETextArea) area).setEditedColor(
 					UIUtilities.EDITED_COLOR);
 			
@@ -227,7 +223,6 @@ public class PreviewPanel
 			
 			comp = new MetadataComponent(label, area);
 			comp.setSetField(value != null);
-			// fieldsObjective.put(key, comp);
 			cmps.add(comp);
 		}
 		
@@ -248,8 +243,7 @@ public class PreviewPanel
 	 * Creates an instance without setting the content. 
 	 * Use {@link #setDescriptionXml(String)} to set the content with XML
 	 */
-	public PreviewPanel()
-	{	}
+	public PreviewPanel() {}
 	
 	/**
 	 * Sets the XML description (XML that summarises an OMERO.editor file),

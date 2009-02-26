@@ -51,7 +51,8 @@ import net.n3.nanoxml.XMLParserFactory;
  * </small>
  * @since 3.0-Beta4
  */
-public class PreviewModel {
+class PreviewModel 
+{
 	
 	/** The title of the protocol */
 	private String 				protocolName;
@@ -63,9 +64,9 @@ public class PreviewModel {
 	private List<StepObject> 	protocolSteps;
 
 	/**
-	 * Method to parse the XML string and retrieve the summary data. 
+	 * Parses the XML string and retrieve the summary data. 
 	 * 
-	 * @param description
+	 * @param xmlDescription The string to parse.
 	 */
 	private void parseXmlDescription(String xmlDescription)
 	{
@@ -118,9 +119,9 @@ public class PreviewModel {
 	/**
 	 * A handy method for getting the content of a child XML element. 
 	 * 		
-	 * @param parent			The parent element
-	 * @param childName		The name of the child you want the text content of. 
-	 * @return
+	 * @param parent	The parent element
+	 * @param childName	The name of the child you want the text content of. 
+	 * @return See above.
 	 */
 	private static String getChildContent(IXMLElement parent, String childName) 
 	{
@@ -138,25 +139,29 @@ public class PreviewModel {
 	PreviewModel(String summary)
 	{
 		protocolSteps = new ArrayList<StepObject>();
-		parseXmlDescription(summary);
+		if (summary != null)
+			parseXmlDescription(summary);
 	}
 
 	/**
 	 * Returns the protocol Title. 
-	 * @return
+	 * 
+	 * @return See above.
 	 */
-	String getTitle() 	{ 	return protocolName; }
+	String getTitle() { return protocolName; }
 	
 	/**
 	 * Returns the description or Abstract of the protocol. 
-	 * @return
+	 * 
+	 * @return See above.
 	 */
-	String getDescription()		{ return protocolDescription; }
+	String getDescription()	{ return protocolDescription; }
 	
 	/**
 	 * Returns the list of steps that define the protocol. 
-	 * @return
+	 * 
+	 * @return See above.
 	 */
-	List<StepObject> getSteps()		{ 
-		return protocolSteps; }
+	List<StepObject> getSteps()	{ return protocolSteps; }
+	
 }
