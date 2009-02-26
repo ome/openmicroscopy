@@ -19,7 +19,16 @@ package ome.api;
 public interface RawPixelsStore extends StatefulServiceInterface {
 
     // State management.
-    public void setPixelsId(long pixelsId);
+    /**
+     * Initializes the stateful service for a given Pixels set.
+     * @param pixelsId Pixels set identifier.
+     * @param bypassOriginalFile Whether or not to bypass checking for an
+     * original file to back the pixel buffer used by this service. If requests
+     * are predominantly <code>write-only</code> or involve the population of
+     * a brand new pixel buffer using <code>true</code> here is a safe
+     * optimization otherwise <code>false</code> is expected.
+     */
+    public void setPixelsId(long pixelsId, boolean bypassOriginalFile);
 
     /**
      * delegates to {@link ome.io.nio.PixelBuffer}

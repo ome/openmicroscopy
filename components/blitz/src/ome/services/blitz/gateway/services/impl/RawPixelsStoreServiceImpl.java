@@ -55,9 +55,9 @@ public class RawPixelsStoreServiceImpl
 		this.rawPixelsStore = rawPixelsStore;
 	}
 
-	private void setPixelsId(long pixelsId) throws omero.ServerError
+	private void setPixelsId(long pixelsId, boolean bypassOriginalFile) throws omero.ServerError
 	{
-		rawPixelsStore.setPixelsId(pixelsId);
+		rawPixelsStore.setPixelsId(pixelsId, bypassOriginalFile);
 	}
 	
 	/* (non-Javadoc)
@@ -66,7 +66,7 @@ public class RawPixelsStoreServiceImpl
 	public synchronized int getByteWidth(long pixelsId) throws 
 			omero.ServerError
 	{
-		setPixelsId(pixelsId);
+		setPixelsId(pixelsId, false);
 		return rawPixelsStore.getByteWidth();
 	}
 
@@ -76,7 +76,7 @@ public class RawPixelsStoreServiceImpl
 	public synchronized byte[] getPlane(long pixelsId, int z, int c, int t)
 			throws omero.ServerError
 	{
-		setPixelsId(pixelsId);
+		setPixelsId(pixelsId, false);
 		return rawPixelsStore.getPlane(z, c, t);
 	}
 
@@ -86,7 +86,7 @@ public class RawPixelsStoreServiceImpl
 	public synchronized int getPlaneSize(long pixelsId) throws 
 			omero.ServerError
 	{
-		setPixelsId(pixelsId);
+		setPixelsId(pixelsId, false);
 		return rawPixelsStore.getPlaneSize();
 	}
 
@@ -96,7 +96,7 @@ public class RawPixelsStoreServiceImpl
 	public synchronized int getRowSize(long pixelsId) throws 
 			omero.ServerError
 	{
-		setPixelsId(pixelsId);
+		setPixelsId(pixelsId, false);
 		return rawPixelsStore.getRowSize();
 	}
 
@@ -106,7 +106,7 @@ public class RawPixelsStoreServiceImpl
 	public synchronized int getStackSize(long pixelsId) throws 
 			omero.ServerError
 	{
-		setPixelsId(pixelsId);
+		setPixelsId(pixelsId, false);
 		return rawPixelsStore.getStackSize();
 	}
 
@@ -116,7 +116,7 @@ public class RawPixelsStoreServiceImpl
 	public synchronized int getTimepointSize(long pixelsId) throws 
 			omero.ServerError
 	{
-		setPixelsId(pixelsId);
+		setPixelsId(pixelsId, false);
 		return rawPixelsStore.getTimepointSize();
 	}
 
@@ -126,7 +126,7 @@ public class RawPixelsStoreServiceImpl
 	public synchronized int getTotalSize(long pixelsId) throws 
 			omero.ServerError
 	{
-		setPixelsId(pixelsId);
+		setPixelsId(pixelsId, false);
 		return rawPixelsStore.getTotalSize();
 	}
 
@@ -136,7 +136,7 @@ public class RawPixelsStoreServiceImpl
 	public synchronized boolean isFloat(long pixelsId) throws 
 			omero.ServerError
 	{
-		setPixelsId(pixelsId);
+		setPixelsId(pixelsId, false);
 		return rawPixelsStore.isFloat();
 	}
 
@@ -146,7 +146,7 @@ public class RawPixelsStoreServiceImpl
 	public synchronized boolean isSigned(long pixelsId) throws 
 			omero.ServerError
 	{
-		setPixelsId(pixelsId);
+		setPixelsId(pixelsId, false);
 		return rawPixelsStore.isSigned();
 	}
 
@@ -156,7 +156,7 @@ public class RawPixelsStoreServiceImpl
 	public synchronized void setPlane(long pixelsId, byte[] buf, int z, int c, int t)
 			throws omero.ServerError
 	{
-		setPixelsId(pixelsId);
+		setPixelsId(pixelsId, false);
 		rawPixelsStore.setPlane(buf, z, c, t);		
 	}
 

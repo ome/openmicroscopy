@@ -179,8 +179,8 @@ public class RawPixelsStoreI extends AbstractAmdServant implements
     }
 
     public void setPixelsId_async(AMD_RawPixelsStore_setPixelsId __cb,
-            long pixelsId, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, pixelsId);
+            long pixelsId, boolean bypassOriginalFile, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, pixelsId, bypassOriginalFile);
 
     }
 

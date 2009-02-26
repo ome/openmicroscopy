@@ -44,7 +44,7 @@ public class OutOfBoundsUnitTest extends TestCase {
         pixels.setPixelsType(type); // FIXME
 
         PixelsService service = new PixelsService(ROOT);
-        pixelBuffer = service.getPixelBuffer(pixels, provider);
+        pixelBuffer = service.getPixelBuffer(pixels, provider, true);
     }
 
     @Test

@@ -669,7 +669,7 @@ module omero {
 	 */
 	["ami", "amd"] interface RawPixelsStore extends StatefulServiceInterface
 	{
-	    void setPixelsId(long pixelsId) throws ServerError;
+	    void setPixelsId(long pixelsId, bool bypassOriginalFile) throws ServerError;
 	    idempotent int getPlaneSize() throws ServerError;
 	    idempotent int getRowSize() throws ServerError;
 	    idempotent int getStackSize() throws ServerError;

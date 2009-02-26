@@ -121,7 +121,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             OriginalFileMetadataProvider metadataProvider =
             	new OmeroOriginalFileMetadataProvider(iQuery);
             PixelBuffer buffer = 
-            	pixelsData.getPixelBuffer(pixels, metadataProvider);
+            	pixelsData.getPixelBuffer(pixels, metadataProvider, false);
             resetDefaults(settings, pixels, quantumFactory,
                     renderingModels, buffer, computeStats);
             buffer.close();

@@ -340,7 +340,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	OriginalFileMetadataProvider metadataProvider =
     		new OmeroOriginalFileMetadataProvider(iQuery);
     	PixelBuffer buffer = 
-    		pixelDataService.getPixelBuffer(pixels, metadataProvider);
+    		pixelDataService.getPixelBuffer(pixels, metadataProvider, false);
     	List<Family> families = getFamilies();
     	List<RenderingModel> renderingModels = getRenderingModels();
     	QuantumFactory quantumFactory = new QuantumFactory(families);

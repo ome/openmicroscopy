@@ -97,7 +97,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         OriginalFileMetadataProvider metadataProvider =
         	new OmeroOriginalFileMetadataProvider(iQuery);
         PixelBuffer pixelBuffer = 
-        	pixelsService.getPixelBuffer(ctx.pixels, metadataProvider);
+        	pixelsService.getPixelBuffer(ctx.pixels, metadataProvider, false);
         if (pixelsType == null)
         {
             pixelsType = ctx.pixels.getPixelsType();
@@ -207,9 +207,9 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         OriginalFileMetadataProvider metadataProvider =
         	new OmeroOriginalFileMetadataProvider(iQuery);
         PixelBuffer sourceBuffer = 
-        	pixelsService.getPixelBuffer(ctx.pixels, metadataProvider);
+        	pixelsService.getPixelBuffer(ctx.pixels, metadataProvider, false);
         PixelBuffer destinationBuffer = 
-            pixelsService.getPixelBuffer(newPixels, metadataProvider);
+            pixelsService.getPixelBuffer(newPixels, metadataProvider, true);
         ctx.planeSizeInPixels = ctx.pixels.getSizeX() * ctx.pixels.getSizeY();
         int planeSize = 
             ctx.planeSizeInPixels * (iPixels.getBitDepth(pixelsType) / 8);

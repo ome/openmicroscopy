@@ -395,7 +395,7 @@ public class RenderingBean extends AbstractLevel2Service implements
             OriginalFileMetadataProvider metadataProvider = 
             	new OmeroOriginalFileMetadataProvider(iQuery);
             PixelBuffer buffer = pixDataSrv.getPixelBuffer(
-            		pixelsObj, metadataProvider);
+            		pixelsObj, metadataProvider, false);
             closeRenderer();
             List<Family> families = pixMetaSrv.getAllEnumerations(Family.class);
             List<RenderingModel> renderingModels = pixMetaSrv

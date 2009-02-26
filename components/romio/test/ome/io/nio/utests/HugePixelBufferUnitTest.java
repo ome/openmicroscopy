@@ -48,7 +48,7 @@ public class HugePixelBufferUnitTest extends TestCase {
         pixels.setPixelsType(type);
 
         PixelsService service = new PixelsService(ROOT);
-        pixelBuffer = service.getPixelBuffer(pixels, provider);
+        pixelBuffer = service.getPixelBuffer(pixels, provider, true);
     }
 
     @Test

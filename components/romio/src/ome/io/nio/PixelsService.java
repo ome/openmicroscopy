@@ -78,14 +78,17 @@ public class PixelsService extends AbstractFileSystemService {
 	 * ROMIO pixel buffer or a file format specific file buffer if available.
 	 * 
 	 * @param pixels Pixels set to retrieve a pixel buffer for.
-	 * @param provider Original file metadata provider. 
+	 * @param provider Original file metadata provider.
+	 * @param bypassOriginalFile Do not check for the existence of an original
+	 * file to back this pixel buffer. 
 	 * @return See above.
 	 */
 	public PixelBuffer getPixelBuffer(Pixels pixels,
-			                          OriginalFileMetadataProvider provider)
+			                          OriginalFileMetadataProvider provider,
+			                          boolean bypassOriginalFile)
 	{
 		String pixelsFilePath = getPixelsPath(pixels.getId());
-		if (!(new File(pixelsFilePath).exists()))
+		if (!(new File(pixelsFilePath).exists()) && !bypassOriginalFile)
 		{
 			OriginalFile originalFile =
 				provider.getOriginalFileWhereFormatStartsWith(pixels, DV_FORMAT);

@@ -366,6 +366,7 @@ public class OMEROMetadataStoreClient
                 new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
             referenceCache = new HashMap<LSID, LSID>();
             referenceStringCache = null;
+            imageChannelGlobalMinMax = null;
             delegate.createRoot();
         }
         catch (ServerError e)
@@ -2240,7 +2241,7 @@ public class OMEROMetadataStoreClient
             {
                 //rawPixelStore.close();
                 //rawPixelStore = serviceFactory.createRawPixelsStore();
-                rawPixelStore.setPixelsId(pixId);
+                rawPixelStore.setPixelsId(pixId, true);
                 currentPixId = pixId;
             }
             rawPixelStore.setPlane(arrayBuf, z, c, t);

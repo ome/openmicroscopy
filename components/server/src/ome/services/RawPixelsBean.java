@@ -24,6 +24,7 @@ import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
+import ome.parameters.Parameters;
 import omeis.providers.re.RenderingEngine;
 
 import org.apache.commons.logging.Log;
@@ -159,7 +160,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    public void setPixelsId(long pixelsId) {
+    public void setPixelsId(long pixelsId, boolean bypassOriginalFile) {
         if (id == null || id.longValue() != pixelsId) {
             id = new Long(pixelsId);
             pixelsInstance = null;
@@ -167,11 +168,14 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             buffer = null;
             reset = null;
 
-            pixelsInstance = metadataService.retrievePixDescription(id);
+            pixelsInstance = iQuery.findByQuery(
+            		"select p from Pixels as p " +
+    				"join fetch p.pixelsType where p.id = :id",
+    				new Parameters().addId(id));
             OriginalFileMetadataProvider metadataProvider =
             	new OmeroOriginalFileMetadataProvider(iQuery);
             buffer = dataService.getPixelBuffer(
-            		pixelsInstance, metadataProvider);
+            		pixelsInstance, metadataProvider, bypassOriginalFile);
         }
     }
 
@@ -179,7 +183,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         // If we're not loaded because of passivation, then load.
         if (reset != null) {
             id = null;
-            setPixelsId(reset.longValue());
+            setPixelsId(reset.longValue(), false);
             reset = null;
         }
         if (buffer == null) {
