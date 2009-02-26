@@ -191,7 +191,7 @@ public interface IMetadata
     /**
      * Counts the number of annotation of a given type.
      * 
-     *  @param type      The type of annotations to load.
+     * @param type      The type of annotations to load.
      * @param include   The collection of name space, one of the constants 
      * 					defined by this class.
      * @param exclude   The collection of name space, one of the constants 
@@ -202,5 +202,14 @@ public interface IMetadata
     public Long countSpecifiedAnnotations(@NotNull Class type, 
     		@Validate(String.class) Set<String> include, 
     		@Validate(String.class) Set<String> exclude, Map options);
+    
+    /**
+     * Loads the specified annotations.
+     * 
+     * @param annotationIds The collection of annotation's ids.
+     * @return See above.
+     */
+    public <A extends Annotation> Set<A> loadAnnotation(
+    		@NotNull @Validate(Long.class) Set<Long> annotationIds);
     
 }
