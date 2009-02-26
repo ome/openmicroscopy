@@ -530,6 +530,9 @@ class TestIShare(lib.ITest):
         share2.setActive(sid, False)
         self.assert_(share2.getShare(sid).active.val == False)
         
+        owned = share2.getOwnShares(False)
+        self.assertEquals(owned, 1)
+        
         client_share2.sf.closeOnDestroy()
     
     def test1207(self):
