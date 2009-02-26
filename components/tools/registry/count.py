@@ -54,6 +54,7 @@ def os_info(title, query):
 
 # This list should always be in sync with the csv method
 applications = ["editor","imagej", "importer","insight","server"]
+total_format = "TOTAL        \t%8s"+ "\t%8s"*len(applications)
 
 def csv(title, col1, data, keys):
 	print ""
@@ -74,9 +75,7 @@ def csv(title, col1, data, keys):
 		values.insert( 0, idx)
                 print ("%8s\t%8s" + "\t%8s"*len(applications)) % tuple(values)
 	totals.append(sum(totals))
-	totals.insert(0, len(keys))
-	format = "TOTAL of %-6s\t%8s"+ "\t%8s"*len(applications)
-	print format % tuple(totals)
+	print total_format % tuple(totals)
 	
 accessdb = db.accessdb()
 try:
@@ -144,12 +143,16 @@ try:
 		      AND agent like 'OMERO.%s'
 		 GROUP BY ip order by count(ip) desc"""
 	ipcounts = {}
+	ips_per_app = {}
 	ips = set()
-	for app in applications: ipcounts[app] = {}
+	for app in applications:
+		ipcounts[app] = {}
+		ips_per_app[app] = set()
 	def perip(app):
 		c.execute(allip % app)	
 		for ip in c:
 			ips.add(ip[0])
+			ips_per_app[app].add(ip[0])
 			ipcounts[app][ip[0]] = int(ip[1])
 	for app in applications: perip(app)
 	ips = list(ips)
@@ -163,6 +166,10 @@ try:
 		return 0
 	ips.sort(mysort)
 	csv("STARTS PER IP ADDRESS", "IP", ipcounts, ips)
+	format = total_format.replace("TOTAL     ","UNIQUE IPs")	
+	count_per_app = [len(ips_per_app[app]) for app in applications]
+	count_per_app.append(len(ips))
+	print format % tuple(count_per_app)
 	
 	#
 	# Print os_info
