@@ -1,7 +1,6 @@
 package ome.formats;
 
 import java.io.File;
-import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.text.ParseException;

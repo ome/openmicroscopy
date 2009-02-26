@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import ome.formats.importer.util.IniFileLoader;
@@ -51,7 +52,7 @@ public abstract class About
 
     private static String msg;
 
-    public static void show(Component c, boolean useSplashScreen)
+    public static void show(JFrame c, boolean useSplashScreen)
     {
 
         ini = IniFileLoader.getIniFileLoader();
@@ -71,7 +72,7 @@ public abstract class About
                     if (is == null)
                     {
                         title = "About";
-                        msg = "Error: version information not found";
+                        msg = "OMERO.importer developer's edition.";
                     } else
                     {
                         BufferedReader in = new BufferedReader(
@@ -92,13 +93,14 @@ public abstract class About
                 } catch (IOException exc)
                 {
                     if (title == null) title = "About";
-                    msg = "Error: could not read version information";
+                    msg = "OMERO.importer developer's edition.";
                 }
             }
             if (ini.getAppTitle() != null)
                 title = "About " + ini.getAppTitle();
             JOptionPane.showMessageDialog(c, msg, title,
-                    JOptionPane.INFORMATION_MESSAGE);    
+                    JOptionPane.INFORMATION_MESSAGE); 
+            c.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         }
     }
 

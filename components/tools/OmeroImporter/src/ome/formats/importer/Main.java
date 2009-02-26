@@ -522,7 +522,7 @@ public class Main extends JFrame
         {
             // HACK - JOptionPane prevents shutdown on dispose
             setDefaultCloseOperation(EXIT_ON_CLOSE);
-            About.show(this.getContentPane(), useSplashScreenAbout);
+            About.show(this, useSplashScreenAbout);
         }
         else if ("comment".equals(cmd))
         {
@@ -731,7 +731,7 @@ public class Main extends JFrame
         {
             // HACK - JOptionPane prevents shutdown on dispose
             setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-            About.show(this.getContentPane(), useSplashScreenAbout);
+            About.show(this, useSplashScreenAbout);
         }
         
         
