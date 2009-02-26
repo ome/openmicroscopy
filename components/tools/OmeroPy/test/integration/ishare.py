@@ -469,7 +469,10 @@ class TestIShare(lib.ITest):
         sid = share.createShare("", None, [], [], [], True)
         share.activate(sid)
         tb = self.root.sf.createThumbnailStore()
-        tb.setPixelsId(rdefs[0].pixels.id.val)
+        try:
+            tb.setPixelsId(rdefs[0].pixels.id.val)
+        except omero.SecurityViolation:
+            self.fail("Pixels was not in share")
         
     def test1201(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
@@ -595,12 +598,10 @@ class TestIShare(lib.ITest):
         
         res = None
         try:
-            res = share3.getShare(sid)
-        except:
+            share = share3.getShare(sid)
+            self.fail("Share returned to non-member")
+        except omero.ValidationException, ve:
             pass
-        else:
-            if res is not None:
-                raise
         
         client_share3.sf.closeOnDestroy()
     
