@@ -1441,6 +1441,31 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Loads the specified annotations.
+	 * 
+	 * @param annotationIds The annotation to load.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service.s
+	 */
+	Set<DataObject> loadAnnotation(List<Long> annotationIds)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		if (annotationIds == null || annotationIds.size() == 0)
+			return new HashSet<DataObject>();
+		try {
+			IMetadataPrx service = getMetadataService();
+			return PojoMapper.asDataObjects(
+					service.loadAnnotation(annotationIds));
+		} catch (Throwable t) {
+			handleException(t, "Cannot find the annotations.");
+		}
+		return new HashSet<DataObject>();
+	}
+	
+	/**
 	 * Finds the links if any between the specified parent and child.
 	 * 
 	 * @param type    The type of parent to handle.

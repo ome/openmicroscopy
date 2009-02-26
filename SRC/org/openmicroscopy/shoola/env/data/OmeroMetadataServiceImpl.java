@@ -1978,18 +1978,13 @@ class OmeroMetadataServiceImpl
 			throws DSOutOfServiceException, DSAccessException
 	{
 		//Tmp code
-		List<String> include = new ArrayList<String>();
-		List<String> exclude = new ArrayList<String>();
-		PojoOptions po = new PojoOptions();
-		Collection c = gateway.loadSpecificAnnotation(FileAnnotationData.class, 
-				include, exclude, po.map());
-		if (c != null) {
-			Iterator i = c.iterator();
-			FileAnnotationData fa;
-			while (i.hasNext()) {
-				fa = (FileAnnotationData) i.next();
-				if (fa.getId() == annotationID) return fa;
-			}
+		List<Long> ids = new ArrayList<Long>(1);
+		ids.add(annotationID);
+		Set<DataObject> set = gateway.loadAnnotation(ids);
+		if (set.size() != 1) return null;
+		Iterator<DataObject> i = set.iterator();
+		while (i.hasNext()) {
+			return i.next();	
 		}
 		return null;
 	}
