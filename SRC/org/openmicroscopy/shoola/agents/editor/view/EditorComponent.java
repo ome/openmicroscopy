@@ -222,8 +222,9 @@ class EditorComponent
 			view.setTitle(model.getFileName());
 			view.displayFile();
 			model.getBrowser().setId(model.getOriginalFileId());
-			if (!view.isVisible())
+			if (!view.isVisible()) {
 				view.setVisible(true);
+			}
 		}
 		fireStateChange();
 	}

@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.editor.FileLoader;
 import org.openmicroscopy.shoola.agents.editor.FileSaver;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.editor.model.CPEsummaryExport;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
 import org.openmicroscopy.shoola.agents.editor.model.CPEexport;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -375,6 +376,10 @@ class EditorModel
 		FileAnnotationData data = null;
 		if (fileAnnotation != null) data = fileAnnotation;
 		currentLoader = new FileSaver(component, file, data, fileType);
+		
+		String description = CPEsummaryExport.export(browser.getTreeModel());
+		((FileSaver)currentLoader).setDescription(description);
+		
 		currentLoader.load();
 		state = Editor.SAVING;
 	}

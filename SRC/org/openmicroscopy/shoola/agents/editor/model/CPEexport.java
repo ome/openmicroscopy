@@ -466,7 +466,7 @@ public class CPEexport {
 	 * @param childName			The name of the new Child element
 	 * @param childContent		The text content of the new child element
 	 */
-	private static void addChildContent(IXMLElement parent, 
+	static void addChildContent(IXMLElement parent, 
 									String childName, String childContent) 
 	{
 		// check not null
@@ -489,7 +489,7 @@ public class CPEexport {
 	 * @param treeNode		The node that contains the field.
 	 * @return				see above 
 	 */
-	private static IField getFieldFromTreeNode(TreeNode treeNode) 
+	static IField getFieldFromTreeNode(TreeNode treeNode) 
 	{
 		// if treeNode isn't a DefaultMutableTreeNode, return null
 		if (treeNode == null) return null;

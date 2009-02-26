@@ -34,6 +34,7 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.EditorLinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
@@ -97,6 +98,10 @@ public class ParamTemplateUIFactory {
 		if (inputType.equals(TextBoxParam.TEXT_BOX_PARAM)) {
 			return new AttributeEditArea(paramObject,
 					TextParam.DEFAULT_VALUE, "Text-box Default");
+		}
+		
+		if (inputType.equals(EditorLinkParam.EDITOR_LINK_PARAM)) {
+			return new EditorLinkPreview(paramObject);
 		}
 		
 		// Some Parameters don't have any "Template" attributes to edit,

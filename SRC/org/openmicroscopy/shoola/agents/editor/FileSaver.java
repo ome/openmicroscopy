@@ -136,6 +136,17 @@ public class FileSaver
 	}
 	
 	/**
+	 * Sets a description for the file annotation. 
+	 * 
+	 * @param description
+	 */
+	public void setDescription(String description)
+	{
+		if (description != null)
+			fileAnnotationData.setDescription(description);
+	}
+	
+	/**
 	 * Saves the file.
 	 * @see EditorLoader#load()
 	 */

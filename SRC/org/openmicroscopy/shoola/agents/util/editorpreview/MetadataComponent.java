@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.editor.browser;
+package org.openmicroscopy.shoola.agents.util.editorpreview;
 
 
 //Java imports
@@ -44,7 +44,7 @@ import javax.swing.JLabel;
  * </small>
  * @since 3.0-Beta4
  */
-class MetadataComponent
+public class MetadataComponent
 {
 
 	/** Component displaying the name of the field. */
@@ -62,7 +62,7 @@ class MetadataComponent
 	 * @param label	Component displaying the name of the field.
 	 * @param area	Component displaying the value of the field.
 	 */
-	MetadataComponent(JLabel label, JComponent area)
+	public MetadataComponent(JLabel label, JComponent area)
 	{
 		this.label = label;
 		this.area = area;
@@ -76,7 +76,7 @@ class MetadataComponent
 	 * 
 	 * @param setField The value to set.
 	 */
-	void setSetField(boolean setField) { this.setField = setField; }
+	public void setSetField(boolean setField) { this.setField = setField; }
 	
 	/**
 	 * Returns <code>true</code> if the field has been set, 
@@ -84,20 +84,20 @@ class MetadataComponent
 	 * 
 	 * @return See above.
 	 */
-	boolean isSetField() { return setField; }
+	public boolean isSetField() { return setField; }
 	
 	/**
 	 * Returns the component displaying the name of the field.
 	 * 
 	 * @return See above.
 	 */
-	JLabel getLabel() { return label; }
+	public JLabel getLabel() { return label; }
 	
 	/**
 	 * Returns the component displaying the value of the field.
 	 * 
 	 * @return See above.
 	 */
-	JComponent getArea() { return area; }
+	public JComponent getArea() { return area; }
 	
 }

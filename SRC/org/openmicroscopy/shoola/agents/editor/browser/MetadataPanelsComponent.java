@@ -25,12 +25,16 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
 import java.awt.Font;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -41,7 +45,6 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
@@ -55,6 +58,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.editorpreview.MetadataComponent;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
@@ -80,7 +84,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-class MetadataPanelsComponent 
+public class MetadataPanelsComponent 
 	extends JPanel
 	implements TreeModelListener
 {
@@ -91,7 +95,9 @@ class MetadataPanelsComponent
 	private TreeModel							model;
 	
 	/** Reference to the parent of this component. */
-	private MetadataUI					parent;
+	private MetadataUI							parent;
+	
+	private String 								protTitle;	
 	
 	
 	/** Initiliases the components. */
@@ -102,6 +108,7 @@ class MetadataPanelsComponent
 		
 		// root's children
 		DefaultMutableTreeNode root =  (DefaultMutableTreeNode)model.getRoot();
+		protTitle = root.getUserObject().toString();
 		
 		IField field;
 		DefaultMutableTreeNode node;
@@ -142,7 +149,7 @@ class MetadataPanelsComponent
 			nodePanel.setBackground(UIUtilities.BACKGROUND_COLOR);
 			nodePanel.setLayout(new GridBagLayout());
 			
-			parent.layoutFields(nodePanel, null, paramComponents, true);
+			layoutFields(nodePanel, null, paramComponents, true);
 			
 			add(nodePanel);
 		}
@@ -238,17 +245,12 @@ class MetadataPanelsComponent
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param parent	Reference to the Parent. Mustn't be <code>null</code>.
-	 * @param model		Reference to the Model. Mustn't be <code>null</code>.
+	 * @param parent	Reference to the Parent.
 	 */
-	MetadataPanelsComponent(MetadataUI parent, TreeModel model)
+	public MetadataPanelsComponent(MetadataUI parent)
 	{
-		//if (model == null)
-		//	throw new IllegalArgumentException("No model.");
-		if (parent == null)
-			throw new IllegalArgumentException("No parent.");
+		// if parent is null, title will not be refreshed when model changed, OK
 		this.parent = parent;
-		this.model = model;
 	}
 	
 	/**
@@ -257,7 +259,7 @@ class MetadataPanelsComponent
 	 * 
 	 * @param treeModel			new model
 	 */
-	void setTreeModel(TreeModel treeModel)
+	public void setTreeModel(TreeModel treeModel)
 	{
 		if (model != null) {
 			model.removeTreeModelListener(this);
@@ -274,7 +276,8 @@ class MetadataPanelsComponent
 	 */
 	private void rebuildUI() 
 	{
-		parent.refreshTitle();
+		if (parent != null)
+			parent.refreshTitle();
 		
 		removeAll();
 		initComponents();
@@ -322,5 +325,50 @@ class MetadataPanelsComponent
 	public void treeStructureChanged(TreeModelEvent e) {
 		rebuildUI();
 	}
+
+	/** 
+	 * Lays out the passed component.
+	 * 
+	 * @param pane 		The main component.
+	 * @param button	The button to show or hide the unset fields.
+	 * @param fields	The fields to lay out.
+	 * @param shown		Pass <code>true</code> to show the unset fields,
+	 * 					<code>false</code> to hide them.
+	 */
+	static void layoutFields(JPanel pane, JButton button, 
+			List<MetadataComponent> fields, boolean shown)
+	{
+		pane.removeAll();
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+	    
+		for (MetadataComponent comp : fields) {
+	        c.gridx = 0;
+	        if (comp.isSetField() || shown) {
+	        	 ++c.gridy;
+	        	 c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+	             c.fill = GridBagConstraints.NONE;      //reset to default
+	             c.weightx = 0.0;  
+	             pane.add(comp.getLabel(), c);
+	             c.gridx++;
+	             pane.add(Box.createHorizontalStrut(5), c); 
+	             c.gridx++;
+	             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+	             c.fill = GridBagConstraints.HORIZONTAL;
+	             c.weightx = 1.0;
+	             pane.add(comp.getArea(), c);  
+	        } 
+	    }
+	    ++c.gridy;
+	    c.gridx = 0;
+	    //c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+	    //c.fill = GridBagConstraints.NONE;      //reset to default
+	    c.weightx = 0.0;  
+	    if (button != null) pane.add(button, c);
+	}
+	
+	public String getProtocolTitle() { 	return protTitle;	}
 	
 }

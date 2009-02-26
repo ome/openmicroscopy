@@ -37,6 +37,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.ActivationAction;
+import org.openmicroscopy.shoola.agents.editor.preview.EditorPreview;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -94,6 +95,26 @@ public class EditorFactory
 	{
 		EditorModel model = new EditorModel(fileID);
 		return singleton.getEditor(model);
+	}
+	
+	/**
+	 * Creates an {@link EditorPreview} with the fileID
+	 * 
+	 * @param fileID
+	 */
+	public static EditorPreview createEditorPreview(long fileID)
+	{
+		return new EditorPreview(fileID);
+	}
+	
+	/**
+	 * Creates an {@link EditorPreview} with the file path
+	 * 
+	 * @param filePath
+	 */
+	public static EditorPreview createEditorPreview(String filePath)
+	{
+		return new EditorPreview(filePath);
 	}
 	
 	/**

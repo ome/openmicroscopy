@@ -402,9 +402,16 @@ public class TreeModelMethods {
 		return null;
 	}
 	
+	/**
+	 * Returns a display name for the node, based on it's path.
+	 * Root node will return "Protocol Title"
+	 * Others will return E.g. "Step 1.1.2"
+	 * 
+	 * @param node
+	 * @return
+	 */
 	public static String getNodeName(DefaultMutableTreeNode node)
 	{
-	
 		if (node.isRoot()) {
 			return "Protocol Title";
 		}
