@@ -25,6 +25,43 @@ from omero.rtypes import *
 
 class TestTickets2000(lib.ITest):
 
+    def test1018CreationDestructionClosing(self):
+        c1 = omero.client()
+        print "open 1"
+        s1 = c1.createSession()
+        s1.detachOnDestroy()
+        uuid = s1.ice_getIdentity().name
+
+        # Intermediate "disrupter"
+        c2 = omero.client()
+        print "open 2"
+        s2 = c2.createSession(uuid, uuid)
+        s2.closeOnDestroy()
+        s2.getAdminService().getEventContext()
+        print "close 2"
+        c2.closeSession()
+
+        # 1 should still be able to continue
+        s1.getAdminService().getEventContext()
+
+        # Now if s1 exists another session should be able to connect
+        print "close 1"
+        c1.closeSession()
+        c3 = omero.client()
+        print "open 3"
+        s3 = c3.createSession(uuid, uuid)
+        s3.closeOnDestroy()
+        s3.getAdminService().getEventContext()
+        print "close 3"
+        c3.closeSession()
+
+        # Now a connection should not be possible
+        c4 = omero.client()
+        print "open 4"
+        s4 = c4.createSession(uuid, uuid);
+        print "close 4"
+        c4.closeSession()
+
     def test1064(self):
         share = self.client.sf.getShareService()
         search = self.client.sf.createSearchService()

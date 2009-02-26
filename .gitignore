@@ -4,6 +4,7 @@
 .sconf_temp
 /etc/local.properties
 /dist
+/var
 /components/*/target
 /lib/cache
 /lib/repository/omero/*
@@ -35,6 +36,8 @@ config.log
 *generated*
 test-output
 temp-testng-customsuite.xml
+.settings
+.springBeans
 
 # Scons output files
 .sconsign.dblite

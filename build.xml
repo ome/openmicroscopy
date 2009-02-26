@@ -39,6 +39,8 @@ java component.
     <target name="check-ivy" unless="ivy.done">
         <!-- Prevent future invocations and PermGen errors-->
         <property name="ivy.done" value="done"/>
+        <!-- Touch the local configuration file which is no longer mandatory -->
+        <touch file="${basedir}/etc/local.properties"/>
         <installIvy/>
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>

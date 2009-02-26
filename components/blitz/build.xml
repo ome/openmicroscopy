@@ -204,9 +204,6 @@
 	</target>
 
 	<target name="dist" depends="package,install" unless="skip.compile"><!-- install for standalone -->
-	  <copy todir="${dist.dir}/bin">
-            <fileset dir="${basedir}/bin" includes="**/*"/>
-          </copy>
 	  <copy todir="${dist.dir}/etc">
             <fileset dir="${basedir}/etc" includes="**/*"/>
 	    <fileset dir="${resrc.dir}" includes="*.config"/>

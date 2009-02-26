@@ -34,6 +34,14 @@ class TestTicket1000(lib.ITest):
             pass
 
     def test880(self):
+        success = "select i from Image i join i.annotationLinks links join links.child ann where size(i.datasetLinks) > 0 and ann.id = :id"
+        failing = "select i from Image i join i.annotationLinks links join links.child ann where ann.id = :id and size(i.datasetLinks) > 0"
+        prms = omero.sys.Parameters()
+        prms.map = {} # ParamMap
+        self.client.sf.getQueryService().findAllByQuery(failing, None)
+        self.client.sf.getQueryService().findAllByQuery("""select i from Image i where i.name ilike '%h%' """, prms);
+
+    def test880(self):
         i = self.client.sf.getQueryService().findAll("Image", params.theFilter)[0]
         self.assert_(i != None)
         self.assert_(i.id != None)
