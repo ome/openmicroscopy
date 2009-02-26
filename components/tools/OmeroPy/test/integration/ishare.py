@@ -593,12 +593,14 @@ class TestIShare(lib.ITest):
         client_share3.createSession(user3.omeName.val,"ome")
         share3 = client_share3.sf.getShareService()
         
+        res = None
         try:
-            share3.getShare(sid)
+            res = share3.getShare(sid)
         except:
             pass
         else:
-            raise
+            if res is not None:
+                raise
         
         client_share3.sf.closeOnDestroy()
     
