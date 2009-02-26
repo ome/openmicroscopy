@@ -24,14 +24,19 @@
 <colors>
 <!-- This entry is turned into an instance of java.awt.Color. --> 
 <structuredEntry name="/resources/colors/TitleBarHighlight" type="color">
-<red>0</red>
-<green>0</green>
-<blue>255</blue>
+<red>58</red>
+<green>116</green>
+<blue>215</blue>
 </structuredEntry>
 <structuredEntry name="/resources/colors/TitleBar" type="color">
 <red>189</red>
 <green>210</green>
 <blue>230</blue>
+</structuredEntry>
+<structuredEntry name="/resources/colors/TitleBarUnmodified" type="color">
+<red>215</red>
+<green>116</green>
+<blue>58</blue>
 </structuredEntry>
 </colors>
 <entry name="/views/MAX_ENTRIES" type="integer">100</entry>
