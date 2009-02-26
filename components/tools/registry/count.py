@@ -6,14 +6,6 @@
 
 import db
 
-def lastNDays(title, query):
-	print "\n"
-	c.execute(query)
-	print title,"="*34
-
-	for ip in c:
-		print "%10s  Count: %5s" % (ip[0], ip[1])
-
 def allIps(title, query):
 	print "\n"
 	c.execute(query)
@@ -57,32 +49,57 @@ def allIps(title, query):
 	for jdk_key in jdk_map.iterkeys():
 		print "%34s = %9s ( %5.2f%% )" % (jdk_key, jdk_map[jdk_key], 100.0*jdk_map[jdk_key]/total)
 
-
 accessdb = db.accessdb()
-try:	
+try:
 	c = accessdb.conn.cursor()
 
+	#
+	# LAST 30 DAYS
+	#
 	ndays = """SELECT date(time), count(date(time))
 	            FROM hit
                     WHERE ip not like '10.%%' and ip != '127.0.0.1'
-		     AND agent like '%s' group by date(time) order by date(time) desc limit 30"""
-	lastNDays("Last 30 days:          ", ndays % "%")
-	lastNDays("Last 30 days (server): ", ndays % "OMERO.server")
-	lastNDays("Last 30 days (insight):", ndays % "OMERO.insight")
-	lastNDays("Last 30 days (editor): ", ndays % "OMERO.editor")
-	lastNDays("Last 30 days (importer): ", ndays % "OMERO.importer")
+		     AND agent = 'OMERO.%s'
+                GROUP BY date(time)
+		ORDER BY date(time) desc limit 30"""
+	def doDay(app):
+		m = {}
+		c.execute(ndays % app)
+		for day in c:
+			m[day[0]] = day[1]
+		return m
+	server = doDay("server")
+	insight = doDay("insight")
+	importer = doDay("importer")
+	editor = doDay("editor")
 
-	allip = """SELECT ip, count(ip), osname, osarch, osversion, vmvendor, vmruntime
-	             FROM hit
-                    WHERE ip not like '10.%%' and ip != '127.0.0.1'
-		      AND agent like '%s'
-		 GROUP BY ip order by count(ip) desc"""
-	allIps("All IPs:          ", allip % "%")
-	allIps("All IPs (server): ", allip % "OMERO.server")
-	allIps("All IPs (insight):", allip % "OMERO.insight")
-	allIps("All Ips (editor): ", allip % "OMERO.editor")
-	allIps("All Ips (importer): ", allip % "OMERO.importer")
-
+	print ""
+	print "DAILY STARTS PER APPLICATION FOR LAST 30 DAYS"
+	print "="*100
+        print "DAY       \tEDITOR  \tIMPORTER\tINSIGHT \tSERVER  \tTOTAL"
+	# Making a set of all keys for when not all apps start on each day
+	keys = list(set(editor.keys()+importer.keys()+insight.keys()+server.keys()))
+	keys.sort()
+	keys.reverse()
+	totals = [0,0,0,0]
+        for idx in keys:
+		values = []
+		for m in (editor, importer, insight, server):
+			try:
+				values.append(int(m[idx]))
+			except KeyError:
+				values.append(0)
+		for jdx in range(0,4):
+			totals[jdx] = totals[jdx] + values[jdx]
+		values.append( sum(values) )
+		values.insert( 0, idx)
+                print "%8s\t%8s\t%8s\t%8s\t%8s\t%8s" % tuple(values)
+	totals.append(sum(totals))
+	print    "TOTAL   \t%8s\t%8s\t%8s\t%8s\t%8s" % tuple(totals)
+	
+	#
+	# PERWEEK
+	#
         weeks = [ {"editor":0,"importer":0,"insight":0,"server":0} for i in range(0,52) ]
         perweek = """ 
 	           SELECT strftime('%%W', date(time)), count(ip)
@@ -111,11 +128,29 @@ try:
 	print ""
 	print "WEEKLY STARTS PER APPLICATION"
 	print "="*100
-        print "WEEK    \tEDITOR  \tIMPORTER\tINSIGHT \tSERVER  "
+        print "WEEK    \tEDITOR  \tIMPORTER\tINSIGHT \tSERVER  \tTOTAL"
         for idx in range(0,52):
-                print "%8s\t%8s\t%8s\t%8s\t%8s" % (idx, weeks[idx]["editor"], weeks[idx]["importer"], weeks[idx]["insight"], weeks[idx]["server"])
-	print    "TOTAL   \t%8s\t%8s\t%8s\t%8s" % (total("editor"), total("importer"), total("insight"), total("server"))
+		values = [weeks[idx]["editor"], weeks[idx]["importer"], weeks[idx]["insight"], weeks[idx]["server"]]
+		values.append( sum(values) )
+		values.insert( 0, idx)
+                print "%8s\t%8s\t%8s\t%8s\t%8s\t%8s" % tuple(values)
+	totals = [total("editor"), total("importer"), total("insight"), total("server")]
+	totals.append(sum(totals))
+	print    "TOTAL   \t%8s\t%8s\t%8s\t%8s\t%8s" % tuple(totals)
+
+	#
+	# OTHER
+	#
+	allip = """SELECT ip, count(ip), osname, osarch, osversion, vmvendor, vmruntime
+	             FROM hit
+                    WHERE ip not like '10.%%' and ip != '127.0.0.1'
+		      AND agent like '%s'
+		 GROUP BY ip order by count(ip) desc"""
+	allIps("All IPs:          ", allip % "%")
+	allIps("All IPs (server): ", allip % "OMERO.server")
+	allIps("All IPs (insight):", allip % "OMERO.insight")
+	allIps("All Ips (editor): ", allip % "OMERO.editor")
+	allIps("All Ips (importer): ", allip % "OMERO.importer")
 
 finally:
 	accessdb.close()
-
