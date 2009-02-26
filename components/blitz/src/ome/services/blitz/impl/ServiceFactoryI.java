@@ -760,7 +760,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
         // First take measures to keep the session alive
         sessionManager.getEventContext(this.principal);
-
+        if (log.isInfoEnabled()) {
+            log.info("Keep alive: "+__current.id.name);
+        }
+        
         if (proxies == null || proxies.length == 0) {
             return -1; // All set to 1
         }
@@ -783,7 +786,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
         // First take measures to keep the session alive
         sessionManager.getEventContext(this.principal);
-
+        if (log.isInfoEnabled()) {
+            log.info("Keep alive: "+__current.id.name);
+        }
+        
         if (proxy == null) {
             return false;
         }

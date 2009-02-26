@@ -42,6 +42,8 @@ system to be re-configured.
   <!-- Inherit from Spring/etc and so are a bit verbose -->
   <category name="ome.system.OmeroContext"> <priority value="WARN"/> </category>
   <category name="ome.system.PreferenceContext"> <priority value="WARN"/> </category>
+  <category name="ome.security.basic.CurrentDetails"> <priority value="INFO"/> </category>
+  <category name="ome.services.blitz.impl.ServiceFactoryI"> <priority value="INFO"/> </category>
   <category name="ome.services.blitz.util.ShutdownSafeEhcacheManagerFactoryBean"> <priority value="WARN"/> </category>
   <!-- Adapters are also too so is a bit verbose -->
   <category name="ome.adapters"> <priority value="ERROR"/> </category>
