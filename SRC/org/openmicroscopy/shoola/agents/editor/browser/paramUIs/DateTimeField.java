@@ -103,6 +103,7 @@ public class DateTimeField
 		long UTCMillisecs;
 		// display a date-picker 
 		datePicker = UIUtilities.createDatePicker();
+		datePicker.getEditor().setEditable(false);
 		
 		int hrs = 0;
 		int mins = 0;
