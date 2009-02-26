@@ -53,28 +53,30 @@ def os_info(title, query):
 
 
 # This list should always be in sync with the csv method
-applications = ["editor","importer","insight","server"]
+applications = ["editor","imagej", "importer","insight","server"]
 
 def csv(title, col1, data, keys):
 	print ""
 	print title
 	print "="*120
-        print "%8s\t  EDITOR\tIMPORTER\t INSIGHT\t  SERVER\tTOTAL"% col1
-	totals = [0,0,0,0]
+        print "%-15s\t  EDITOR\t   IMAGEJ\tIMPORTER\t INSIGHT\t  SERVER\t   TOTAL"% col1
+	totals = [0 for app in applications]
         for idx in keys:
 		values = []
-		for m in [data["editor"], data["importer"], data["insight"], data["server"]]:
+		for m in [data[app] for app in applications]:
 			try:
 				values.append(int(m[idx]))
 			except KeyError:
 				values.append(0)
-		for jdx in range(0,4):
+		for jdx in range(0,len(applications)):
 			totals[jdx] = totals[jdx] + values[jdx]
 		values.append( sum(values) )
 		values.insert( 0, idx)
-                print "%8s\t%8s\t%8s\t%8s\t%8s\t%8s" % tuple(values)
+                print ("%8s\t%8s" + "\t%8s"*len(applications)) % tuple(values)
 	totals.append(sum(totals))
-	print    "TOTAL   \t%8s\t%8s\t%8s\t%8s\t%8s" % tuple(totals)
+	totals.insert(0, len(keys))
+	format = "TOTAL of %-6s\t%8s"+ "\t%8s"*len(applications)
+	print format % tuple(totals)
 	
 accessdb = db.accessdb()
 try:
@@ -106,6 +108,7 @@ try:
 	keys = list(s)
 	keys.sort()
 	keys.reverse()
+	keys = keys[0:30] # Here we chop off some duplicates.
 	csv(title, col1, m, keys)
 	
 	#
