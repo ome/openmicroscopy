@@ -22,23 +22,29 @@ def allIps(title, query):
 	c.execute(query)
 	print title,"="*34
 
-	jdk_map = {}
 	os_map = {}
+	osd_map = {}
+	jdk_map = {}
 	total = 0
 	for ip in c:
 		if filter(ip, "10."): continue
 		if filter(ip, "127.0.0.1"): continue
 		if filter(ip, "192.168."): continue
 		print "IP: %16s  Starts: %6s" % (ip[0], ip[1])
+
 		os_key = ip[2]
+		osd_key = "%s %s %s" %(ip[2],ip[3],ip[4])
 		jdk_key = ip[6]
 
 		if not os_map.has_key(os_key):
 			os_map[os_key]=0
+		if not osd_map.has_key(osd_key):
+			osd_map[osd_key]=0
 		if not jdk_map.has_key(jdk_key):
 			jdk_map[jdk_key]=0
 
 		os_map[os_key] = 1 + os_map[os_key]
+		osd_map[osd_key] = 1 + osd_map[osd_key]
 		jdk_map[jdk_key] = 1 + jdk_map[jdk_key]
 		total+=1
 	print "=" * 40
@@ -47,11 +53,15 @@ def allIps(title, query):
 
 	print "\nOperating System"
 	for os_key in os_map.iterkeys():
-		print "%24s = %9s ( %5.2f%% )" % (os_key, os_map[os_key], 100.0*os_map[os_key]/total)
+		print "%34s = %9s ( %5.2f%% )" % (os_key, os_map[os_key], 100.0*os_map[os_key]/total)
+	
+	print "\nOperating System (Detailed)"
+	for osd_key in osd_map.iterkeys():
+		print "%34s = %9s ( %5.2f%% )" % (osd_key, osd_map[osd_key], 100.0*osd_map[osd_key]/total)
 	
 	print "\nJava version"
 	for jdk_key in jdk_map.iterkeys():
-		print "%24s = %9s ( %5.2f%% )" % (jdk_key, jdk_map[jdk_key], 100.0*jdk_map[jdk_key]/total)
+		print "%34s = %9s ( %5.2f%% )" % (jdk_key, jdk_map[jdk_key], 100.0*jdk_map[jdk_key]/total)
 
 
 accessdb = db.accessdb()
@@ -71,6 +81,33 @@ try:
 	allIps("All IPs (insight):", allip % "OMERO.insight")
 	allIps("All Ips (editor): ", allip % "OMERO.editor")
 	allIps("All Ips (importer): ", allip % "OMERO.importer")
+
+        weeks = [ {"editor":0,"importer":0,"insight":0,"server":0} for i in range(0,52) ]
+        perweek = \
+                """
+                        SELECT strftime('%%W', date(time)), count(ip)
+                          FROM hit
+                         WHERE ip not like '10.%%' and ip != '127.0.0.1'
+                           AND agent like 'OMERO.%s'
+                      GROUP BY agent, strftime('%%W', date(time))
+                """
+        def perweekFor(app):
+                c.execute(perweek % app)
+                for week in c:
+                        idx = int(week[0])
+                        val = int(week[1])
+                        weeks[idx][app] = val
+        perweekFor("editor")
+        perweekFor("importer")
+        perweekFor("insight")
+        perweekFor("server")
+
+	print ""
+	print "WEEKLY STARTS PER APPLICATION"
+	print "="*100
+        print "WEEK    \tEDITOR  \tIMPORTER\tINSIGHT \tSERVER  "
+        for idx in range(0,52):
+                print "%8s\t%8s\t%8s\t%8s\t%8s" % (idx, weeks[idx]["editor"], weeks[idx]["importer"], weeks[idx]["insight"], weeks[idx]["server"])
 
 finally:
 	accessdb.close()
