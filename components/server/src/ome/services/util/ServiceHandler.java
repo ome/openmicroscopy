@@ -8,22 +8,24 @@
 package ome.services.util;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import ome.annotations.AnnotationUtils;
 import ome.annotations.ApiConstraintChecker;
 import ome.annotations.Hidden;
 import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
 import ome.conditions.DatabaseBusyException;
+import ome.conditions.InternalException;
 import ome.conditions.OptimisticLockException;
 import ome.conditions.RootException;
 import ome.conditions.ValidationException;
 import ome.security.basic.CurrentDetails;
 import ome.services.messages.RegisterServiceCleanupMessage;
-import ome.services.sessions.stats.PerThreadStats;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -78,24 +80,27 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
             // Method and arguments
             if (Executor.Work.class.isAssignableFrom(arg0.getThis().getClass())) {
                 Executor.Work work = (Executor.Work) arg0.getThis();
-                log.info(" Executor.doWork -- "+work.description());
+                log.info(" Executor.doWork -- " + work.description());
             } else {
-                log.info(" Meth:\t" + arg0.getMethod().getDeclaringClass() + "."
-                    + arg0.getMethod().getName());
+                log.info(" Meth:\t" + arg0.getMethod().getDeclaringClass()
+                        + "." + arg0.getMethod().getName());
             }
             log.info(" Args:\t" + getArgumentsString(arg0));
         }
 
         // Results and/or Exceptions
         Object o;
-        String finalOutput = "";
+        StringBuilder finalOutput = new StringBuilder();
+        ;
 
         try {
             o = arg0.proceed();
-            finalOutput = " Rslt:\t" + o;
+            finalOutput.append(" Rslt:\t");
+            finalOutput.append(getResultsString(o));
             return o;
         } catch (Throwable t) {
-            finalOutput = " Excp:\t" + t;
+            finalOutput.append(" Excp:\t");
+            finalOutput.append(t.toString());
             throw getAndLogException(t);
         } finally {
             if (log.isInfoEnabled()) {
@@ -161,9 +166,11 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
                 printException("DataIntegrityViolationException thrown.", t);
                 return ve;
             }
-            
-            else if (CannotCreateTransactionException.class.isAssignableFrom(t.getClass())) {
-                DatabaseBusyException dbe = new DatabaseBusyException("cannot create transaction", 5000L);
+
+            else if (CannotCreateTransactionException.class.isAssignableFrom(t
+                    .getClass())) {
+                DatabaseBusyException dbe = new DatabaseBusyException(
+                        "cannot create transaction", 5000L);
                 dbe.setStackTrace(t.getStackTrace());
                 printException("CannotCreateTransactionException thrown.", t);
                 return dbe;
@@ -225,7 +232,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
 
         String[] prnt = new String[args.length];
         for (int i = 0; i < prnt.length; i++) {
-            prnt[i] = args[i] == null ? "null" : args[i].toString();
+            prnt[i] = args[i] == null ? "null" : getResultsString(args[i]);
         }
 
         Object[] allAnnotations = AnnotationUtils.findParameterAnnotations(mi
@@ -250,6 +257,84 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
 
         arguments = Arrays.asList(prnt).toString();
         return arguments;
+    }
+
+    /**
+     * public for testing purposes.
+     */
+    public String getResultsString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        
+        else if (o instanceof Collection) {
+            int count = 0;
+            StringBuilder sb = new StringBuilder(128);
+            sb.append("(");
+            Collection c = (Collection) o;
+            for (Object obj : (c)) {
+                if (count > 0) {
+                    sb.append(", ");
+                }
+                if (count > 2) {
+                    sb.append("... ");
+                    sb.append(c.size() - 3);
+                    sb.append(" more");
+                    break;
+                }
+                sb.append(obj);
+                count++;
+            }
+            sb.append(")");
+            return sb.toString();
+        } else if (o instanceof Map) {
+            Map map = (Map) o;
+            int count = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.append("{");
+            for (Object k : map.keySet()) {
+                if (count > 0) {
+                    sb.append(", ");
+                }
+                if (count > 2) {
+                    sb.append("... ");
+                    sb.append(map.size() - 3);
+                    sb.append(" more");
+                    break;
+                }
+                sb.append(k);
+                sb.append("=");
+                sb.append(map.get(k));
+                count++;
+            }
+            sb.append("}");
+            return sb.toString();
+        } else if (o.getClass().isArray()) {
+            int length = Array.getLength(o);
+            if (length == 0) {
+                return "[]";
+            }
+            StringBuilder sb = new StringBuilder(128);
+            sb.append("[");
+            for (int i = 0; i < length; i++) {
+
+                if (i != 0) {
+                    sb.append(", ");
+                }
+
+                if (i > 2) {
+                    sb.append("... ");
+                    sb.append(i - 2);
+                    sb.append(" more");
+                    break;
+                }
+                sb.append(Array.get(o, i));
+            }
+            sb.append("]");
+            return sb.toString();
+        } else {
+            return o.toString();
+        }
     }
 
     private void printException(String msg, Throwable ex) {
