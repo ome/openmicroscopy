@@ -36,6 +36,7 @@ import omero.RType;
 import omero.ServerError;
 import omero.api.AMD_IMetadata_countSpecifiedAnnotations;
 import omero.api.AMD_IMetadata_getTaggedObjectsCount;
+import omero.api.AMD_IMetadata_loadAnnotation;
 import omero.api.AMD_IMetadata_loadAnnotations;
 import omero.api.AMD_IMetadata_loadChannelAcquisitionData;
 import omero.api.AMD_IMetadata_loadSpecifiedAnnotations;
@@ -124,6 +125,13 @@ public class MetadataI
 	 throws ServerError 
 	 {
 		 callInvokerOnRawArgs(__cb, __current, ids, options);
+	 }
+	 
+	 public void loadAnnotation_async(AMD_IMetadata_loadAnnotation __cb, 
+			 List<Long> ids, Current __current) 
+	 throws ServerError 
+	 {
+		 callInvokerOnRawArgs(__cb, __current, ids);
 	 }
 	 
 	 /*
