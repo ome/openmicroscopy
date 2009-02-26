@@ -70,9 +70,17 @@
         </scons_py>
     </target>
 
-    <target name="tools-build" depends="tools-init,install,python-build" description="Creates all artifacts for tools/target">
+    <target name="tools-build" depends="tools-init,install,python-build,cpp-build" description="Creates all artifacts for tools/target"/>
+
+    <target name="cpp-build" unless="env.NOMAKE">
         <scons_py>
             <arg value="lib"/>
+        </scons_py>
+    </target>
+
+    <target name="cpp-install" unless="env.NOMAKE">
+        <scons_py>
+            <arg value="install"/>
         </scons_py>
     </target>
 
@@ -81,7 +89,7 @@
     directory so that they can be bundled together for the final products.
     This is necessary since otherwise the jar listed here would have to
     be manually added to app/resources/application.xml -->
-    <target name="tools-dist" depends="tools-build,python-install" description="Copied artifacts to tools/target">
+    <target name="tools-dist" depends="tools-build,python-install,cpp-install" description="Copied artifacts to tools/target">
         <mkdir dir="${tools.classes}"/>
         <unjar src="${target.dir}/${ivy.module}.jar" dest="${tools.classes}"/>
         <copy todir="../target/include">
@@ -89,9 +97,6 @@
             <fileset dir="generated" includes="**/*.h"/>
             <fileset dir="src" includes="**/*.h"/>
         </copy>
-        <scons_py>
-            <arg value="install"/>
-        </scons_py>
         <!-- Using ant to copy since scons tends to flatten the Globs() for copy -->
         <copy todir="../target/include">
             <fileset dir="src"       includes="**/*.h"/>
