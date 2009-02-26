@@ -150,7 +150,15 @@ try:
 			ipcounts[app][ip[0]] = int(ip[1])
 	for app in applications: perip(app)
 	ips = list(ips)
-	ips.sort()
+	def mysort(a,b):
+		a = [int(i) for i in a.split(".")]
+		b = [int(i) for i in b.split(".")]
+		for i in range(0,4):
+			t = cmp(a[i],b[i])
+			if t != 0:
+				return t
+		return 0
+	ips.sort(mysort)
 	csv("STARTS PER IP ADDRESS", "IP", ipcounts, ips)
 	
 	#
