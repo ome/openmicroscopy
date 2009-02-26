@@ -524,7 +524,7 @@ class TestIShare(lib.ITest):
         self.assertEquals(share2.getShare(sid).message.val, new_description)
         
         expiration = long(time.time()*1000)+86400
-        share2.setExpiration(sid, expiration)
+        share2.setExpiration(sid, rtime(expiration))
         self.assertEquals((share2.getShare(sid).started.val+share2.getShare(sid).timeToLive.val), expiration)
         
         share2.setActive(sid, False)

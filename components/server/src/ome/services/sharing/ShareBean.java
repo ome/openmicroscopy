@@ -242,7 +242,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         //
         // Input validation
         //
-        final long time = expirationAsLong(expiration);
+        final long time = expirationAsLong(System.currentTimeMillis(), expiration);
 
         if (exps == null) {
             exps = Collections.emptyList();
@@ -305,7 +305,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public void setExpiration(long shareId, @NotNull Timestamp expiration) {
         String uuid = idToUuid(shareId);
         Session session = sessionManager.find(uuid);
-        session.setTimeToLive(expirationAsLong(expiration));
+        session.setTimeToLive(expirationAsLong(session.getStarted().getTime(), expiration));
         update(session);
     }
 
@@ -634,12 +634,11 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
      * 
      * @return the time in milliseconds that this session can exist.
      */
-    protected long expirationAsLong(Timestamp expiration) {
-        long now = System.currentTimeMillis();
+    public static long expirationAsLong(long started, Timestamp expiration) {
         long time;
         if (expiration != null) {
             time = expiration.getTime();
-            if (time < now) {
+            if (time < System.currentTimeMillis()) {
                 throw new ApiUsageException(
                         "Expiration time must be in the future.");
             }
@@ -647,7 +646,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
             time = Long.MAX_VALUE;
         }
 
-        return time - now;
+        return time - started;
     }
 
     protected Set<Session> sharesToSessions(List<ShareData> datas) {
@@ -769,7 +768,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     private void update(final Session session) {
         Future<Object> future = executor.submit(new Callable<Object>() {
             public Object call() throws Exception {
-                sessionManager.update(session);
+                sessionManager.update(session, true);
                 return null;
             }
         });

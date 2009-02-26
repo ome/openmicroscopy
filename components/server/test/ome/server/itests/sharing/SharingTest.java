@@ -25,9 +25,11 @@ import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
+import ome.model.meta.Share;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.services.sharing.ShareBean;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -64,10 +66,20 @@ public class SharingTest extends AbstractManagedContextTest {
 
     @Test
     public void testExpiration() {
+
+        long time;
+
+        time = ShareBean.expirationAsLong(0, null);
+        assertTrue(time > System.currentTimeMillis());
+
         share = factory.getShareService();
         long id = share.createShare("before", null, null, null, null, false);
-        share.setExpiration(id, new Timestamp(
-                System.currentTimeMillis() + 100000));
+        long newExpiration = System.currentTimeMillis() + 100000;
+        share.setExpiration(id, new Timestamp(newExpiration));
+
+        Share s = (Share) share.getShare(id);
+        assertEquals((newExpiration - s.getStarted().getTime()), s
+                .getTimeToLive().longValue());
     }
 
     @Test
