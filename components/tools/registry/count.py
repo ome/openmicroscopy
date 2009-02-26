@@ -55,6 +55,7 @@ def os_info(title, query):
 # This list should always be in sync with the csv method
 applications = ["editor","imagej", "importer","insight","server"]
 total_format = "TOTAL        \t%8s"+ "\t%8s"*len(applications)
+where_filter = """WHERE ip not like '10.%%' and ip != '127.0.0.1' and ip not like '134.36.%%' """
 
 def csv(title, col1, data, keys):
 	print ""
@@ -85,8 +86,7 @@ try:
 	# LAST 30 DAYS
 	#
 	ndays = """SELECT date(time), count(date(time))
-	            FROM hit
-                    WHERE ip not like '10.%%' and ip != '127.0.0.1'
+	            FROM hit """ + where_filter + """
 		     AND agent = 'OMERO.%s'
                 GROUP BY date(time)
 		ORDER BY date(time) desc limit 30"""
@@ -115,11 +115,10 @@ try:
 	#
         weeks = {}
 	for app in applications:
-		weeks[app] = [ 0 for idx in range(0,52) ]
+		weeks[app] = [ 0 for idx in range(0,53) ]
         perweek = """ 
 	           SELECT strftime('%%W', date(time)), count(ip)
-                          FROM hit
-                         WHERE ip not like '10.%%' and ip != '127.0.0.1'
+                          FROM hit """ + where_filter + """
                            AND agent like 'OMERO.%s'
                       GROUP BY agent, strftime('%%W', date(time)) """
         def perweekFor(app):
@@ -132,14 +131,13 @@ try:
 	for app in applications: perweekFor(app)
 	title = "WEEKLY STARTS PER APPLICATION"
 	col1 = "WEEK"
-	csv(title, col1, weeks, range(0,52))
+	csv(title, col1, weeks, range(1,53))
 
 	#
 	# IPS
 	#
 	allip = """SELECT ip, count(ip), osname, osarch, osversion, vmvendor, vmruntime
-	             FROM hit
-                    WHERE ip not like '10.%%' and ip != '127.0.0.1'
+	             FROM hit """ + where_filter + """
 		      AND agent like 'OMERO.%s'
 		 GROUP BY ip order by count(ip) desc"""
 	ipcounts = {}
