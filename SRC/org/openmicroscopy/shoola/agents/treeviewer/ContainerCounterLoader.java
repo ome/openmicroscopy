@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -128,14 +129,17 @@ public class ContainerCounterLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        Map<Long, Long> map = (Map) result;
+        Map map = (Map) result;
         if (map == null) return;
-        Iterator<Long> i = map.keySet().iterator();
+        Set set = map.entrySet();
+        Entry entry;
+        Iterator i = set.iterator();
         Long containerID;
         Long value;
         while (i.hasNext()) {
-            containerID = i.next();
-            value = map.get(containerID);
+        	entry = (Entry) i.next();
+            containerID = (Long) entry.getKey();
+            value = (Long) entry.getValue();
             viewer.setContainerCountValue(containerID.longValue(),
                     						value.longValue(), nodes);
         }

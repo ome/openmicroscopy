@@ -158,7 +158,7 @@ class TreeViewerComponent
 	 */
 	private void showDataBrowser(Object object, TreeImageDisplay display)
 	{
-		DataBrowser db;
+		DataBrowser db = null;
 		TreeImageDisplay parent = null;
 		Browser browser = model.getSelectedBrowser();
 		if (display != null) parent = display.getParentDisplay();
@@ -270,6 +270,7 @@ class TreeViewerComponent
         		}// else view.removeAllFromWorkingPane();
         	}
         }
+		model.setDataViewer(db);
 	}
 	
 	/**
@@ -1311,6 +1312,8 @@ class TreeViewerComponent
 			if (n > 1) text += "s.";
 			else text += ".";
 			un.notifyInfo("Paste Image's settings", text);
+			
+			
 		} else {
 			String s = "";
 			Iterator i = failure.iterator();
@@ -1328,6 +1331,11 @@ class TreeViewerComponent
 			un.notifyInfo("Paste Image's settings", "The settings of "+name+
 					"\ncould not be applied to the following images with ID:" +
 					"\n"+s);
+			//Indicates the wrong images.
+			//TODO: update the color of nodes in tree.
+			DataBrowser db = model.getDataViewer();
+			if (db != null) 
+				db.markUnmodifiedNodes(ImageData.class, failure);
 		}
 		model.setState(READY);
 		fireStateChange();
@@ -1400,6 +1408,7 @@ class TreeViewerComponent
 		db.activate();
 		
 		view.addComponent(db.getUI());
+		model.setDataViewer(db);
 	}
 	
 	/**
@@ -1517,13 +1526,14 @@ class TreeViewerComponent
 				fireStateChange();
 				db = DataBrowserFactory.getTagsBrowser(tag, set, true);
 			}
-			if (db != null) {
-				db.addPropertyChangeListener(controller);
-				db.activate();
-				view.removeAllFromWorkingPane();
-				view.addComponent(db.getUI());
-			}
 		}
+		if (db != null) {
+			db.addPropertyChangeListener(controller);
+			db.activate();
+			view.removeAllFromWorkingPane();
+			view.addComponent(db.getUI());
+		}
+		model.setDataViewer(db);
 	}
 
 	/**
@@ -1573,29 +1583,6 @@ class TreeViewerComponent
 				mv.setSelectionMode(true);
 			} else mv.setRootObject(null);
 		}
-
-		/*
-		mv.setRootObject(selected);
-		l = browser.getSelectedDataObjects();
-		if (l != null && l.size() > 0) {
-			int size = l.size()-1;
-			mv.setRootObject(l.get(size));
-			l.remove(l.get(size));
-			List<DataObject> siblings = new ArrayList<DataObject>();
-			Iterator i = l.iterator();
-			Object o;
-			while (i.hasNext()) {
-				o = i.next();
-				if ((o instanceof DataObject) && !o.equals(selected))
-					siblings.add((DataObject) o);
-			}
-			if (siblings.size() > 1)
-				mv.setSiblings(siblings);
-		} else {
-			mv.setRootObject(null);
-			mv.setSiblings(null);
-		}
-		*/
 	}
 
 	/**
@@ -1663,10 +1650,11 @@ class TreeViewerComponent
 				break;
 			case SEARCH_MODE:
 				model.getMetadataViewer().setRootObject(null);
-				if (db != null) 
+				if (db != null) {
 					view.addComponent(db.getUI());
+					model.setDataViewer(db);
+				}
 		}
-
 		firePropertyChange(DISPLAY_MODE_PROPERTY, oldMode, newMode);
 	}
 	
@@ -1690,6 +1678,7 @@ class TreeViewerComponent
 			db.activate();
 			view.removeAllFromWorkingPane();
 			view.addComponent(db.getUI());
+			model.setDataViewer(db);
 		}
 	}
 
@@ -1783,12 +1772,13 @@ class TreeViewerComponent
 		TreeImageDisplay display = parent.getParentDisplay();
 		Object grandParentObject = null;
 		if (display != null) grandParentObject =  display.getUserObject();
-		DataBrowser dataBrowser = DataBrowserFactory.getDataBrowser(
-					grandParentObject, parentObject, leaves);
-		dataBrowser.addPropertyChangeListener(controller);
-		dataBrowser.activate();
+		DataBrowser db = DataBrowserFactory.getDataBrowser(grandParentObject,
+				parentObject, leaves);
+		db.addPropertyChangeListener(controller);
+		db.activate();
 		view.removeAllFromWorkingPane();
-		view.addComponent(dataBrowser.getUI());
+		view.addComponent(db.getUI());
+		model.setDataViewer(db);
 		model.setState(READY);
 		fireStateChange();
 	}
@@ -1803,12 +1793,13 @@ class TreeViewerComponent
 		TreeImageDisplay display = parent.getParentDisplay();
 		Object grandParentObject = null;
 		if (display != null) grandParentObject =  display.getUserObject();
-		DataBrowser dataBrowser = DataBrowserFactory.getWellsDataBrowser(
+		DataBrowser db = DataBrowserFactory.getWellsDataBrowser(
 					grandParentObject, parentObject, wells);
-		dataBrowser.addPropertyChangeListener(controller);
-		dataBrowser.activate();
+		db.addPropertyChangeListener(controller);
+		db.activate();
 		view.removeAllFromWorkingPane();
-		view.addComponent(dataBrowser.getUI());
+		view.addComponent(db.getUI());
+		model.setDataViewer(db);
 		model.setState(READY);
 		fireStateChange();
 	}

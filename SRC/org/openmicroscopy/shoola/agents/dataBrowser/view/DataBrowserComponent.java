@@ -250,14 +250,21 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#markUnmodifiedNodes(Class, List)
+	 */
+	public void markUnmodifiedNodes(Class type, Collection<Long> ids)
+	{
+		ImageTableView tbView = model.getTableView();
+		if (tbView != null && ids != null) 
+			tbView.markUnmodifiedNodes(type, ids);
+		model.getBrowser().markUnmodifiedNodes(type, ids);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#getUI()
 	 */
-	public JComponent getUI()
-	{
-		// TODO Auto-generated method stub
-		return view;
-	}
-
+	public JComponent getUI() { return view; }
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.

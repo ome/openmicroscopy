@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -197,10 +198,11 @@ class ImageTable
 		if (ho instanceof DataObject) {
 			Iterator<DataObject> i = objects.iterator();
 			DataObject object = (DataObject) ho;
+			long objectId = object.getId();
 			DataObject data;
 			while (i.hasNext()) {
 				data = i.next();
-				if (data.getId() == object.getId()) {
+				if (data.getId() == objectId) {
 					nodes.add(node);
 					break;
 				}
@@ -214,6 +216,42 @@ class ImageTable
         }
     }
 
+	/**
+	 * Visits the tree.
+	 * 
+	 * @param node	The node to visit.
+	 * @param type	The type of node to handle.
+	 * @param ids	The collection of <code>DataObject</code>'s ids.
+	 */
+	private void visitAllNodes(ImageTableNode node, Class type, 
+			Collection<Long> ids)
+	{
+        // node is visited exactly once
+        //process(node);
+		Object ho = node.getHierarchyObject();
+		if (ho == null) return;
+		if (ho.getClass().equals(type) && ho instanceof DataObject) {
+			Iterator<Long> i = ids.iterator();
+			DataObject object = (DataObject) ho;
+			long objectId = object.getId();
+			DataObject data;
+			Long id;
+			while (i.hasNext()) {
+				id = i.next();
+				if (id == objectId) {
+					nodes.add(node);
+					break;
+				}
+			}
+		}
+    
+        if (node.getChildCount() >= 0) {
+            for (Enumeration e = node.children(); e.hasMoreElements();) {
+                visitAllNodes((ImageTableNode) e.nextElement(), type, ids);
+            }
+        }
+    }
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -268,6 +306,40 @@ class ImageTable
         addTreeSelectionListener(selectionListener);
 	}
 
+	/**
+	 * Marks the nodes on which a given operation could not be performed
+	 * e.g. paste rendering settings.
+	 * 
+	 * @param type The type of data objects.
+	 * @param ids  Collection of object's ids.
+	 */
+	void markUnmodifiedNodes(Class type, Collection<Long> ids)
+	{
+		removeTreeSelectionListener(selectionListener);
+		visitAllNodes(tableRoot, type, ids);
+		Iterator<ImageTableNode> i = nodes.iterator();
+		ImageTableNode node;
+		Object ho;
+		int row = 0;
+		long id;
+		selectionModel.clearSelection();
+		while (i.hasNext()) {
+			node = i.next();
+			ho = node.getHierarchyObject();
+			if (ho.getClass().equals(type) && ho instanceof DataObject) {
+				id = ((DataObject) ho).getId();
+				if (ids.contains(id)) {
+					row = getRowForPath(node.getPath());
+					selectionModel.addSelectionInterval(row, row);
+				}
+			}
+		}
+		nodes.clear();
+		repaint();
+        addTreeSelectionListener(selectionListener);
+		
+	}
+	
 	/**
 	 * Overridden to pop up a menu when the user righ-clicks on a selected item.
 	 * @see OMETreeTable#onMousePressed(MouseEvent)

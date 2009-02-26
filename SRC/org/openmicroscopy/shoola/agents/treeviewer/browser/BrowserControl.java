@@ -325,7 +325,7 @@ class BrowserControl
     {
     	int state = model.getState();
     	switch (state) {
-			case Browser.BROWING_DATA:
+			case Browser.BROWSING_DATA:
 				
 				break;
 	

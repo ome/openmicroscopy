@@ -36,6 +36,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -397,7 +399,9 @@ public class AdvancedFinder
 		//Format UI component
 		Set nodes = new HashSet();
 		if (map != null) {
-			Iterator i = map.keySet().iterator();
+			Set set = map.entrySet();
+			Entry entry;
+			Iterator i = set.iterator();
 			Set<Long> ids = new HashSet<Long>();
 			Collection r;
 			Integer key;
@@ -408,10 +412,11 @@ public class AdvancedFinder
 			Object value;
 			int v;
 			while (i.hasNext()) {
-				key = (Integer) i.next();
+				entry = (Entry) i.next();
+				key = (Integer) entry.getKey();
 				term = getScope(key);
 				if (term != null) {
-					value = map.get(key);
+					value = entry.getValue();
 					if (value instanceof Integer) {
 						v = (Integer) value;
 						if (v < 0)

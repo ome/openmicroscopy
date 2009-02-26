@@ -56,9 +56,6 @@ public class TagsLoader
     /** Handle to the async call so that we can cancel it. */
     private CallHandle	handle;
     
-    /** One of the constants defined by this class. */
-    private int			level;
-    
 	 /**	
      * Creates a new instance.
      * 
@@ -94,7 +91,6 @@ public class TagsLoader
     public void handleResult(Object result) 
     {
     	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	//viewer.setMetadata(refNode, result);
     	viewer.setExistingTags((Collection) result);
     } 
 	

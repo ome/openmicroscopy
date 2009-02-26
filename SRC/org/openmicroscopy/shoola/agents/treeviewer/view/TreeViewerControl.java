@@ -36,6 +36,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
@@ -594,12 +596,15 @@ class TreeViewerControl
 			Map map = (Map) pce.getNewValue();
 			if (map != null && map.size() == 1) {
 				DataObject data = null;
-				Iterator i = map.keySet().iterator();
+				Set set = map.entrySet();
+				Entry entry;
+				Iterator i = set.iterator();
 				Object o;
 				DataObject parent = null;
 				while (i.hasNext()) {
-					data = (DataObject) i.next();
-					o = map.get(data);
+					entry = (Entry) i.next();
+					data = (DataObject) entry.getKey();
+					o = entry.getValue();map.get(data);
 					if (o != null)
 						parent = (DataObject) o;
 					break;
@@ -652,9 +657,6 @@ class TreeViewerControl
 		} else if (DataBrowser.REMOVE_ITEMS_PROPERTY.equals(name)) {
 			DeleteCmd cmd = new DeleteCmd(model);
 	        cmd.execute();
-		//} else if (DataBrowser.VISIBLE_NODES_PROPERTY.equals(name)) {
-		//	Collection nodes = (Collection) pce.getNewValue();
-		//	view.setVisibleNodes(nodes);
 		} else if (Finder.RESULTS_FOUND_PROPERTY.equals(name)) {
 			model.setSearchResult(pce.getNewValue());
 		} else if (GenericDialog.SAVE_GENERIC_PROPERTY.equals(name)) {
@@ -667,10 +669,13 @@ class TreeViewerControl
 			model.onSelectedDisplay();
 		} else if (MetadataViewer.EXPERIMENTER_UPDATED_PROPERTY.equals(name)) {
 			Map browsers = model.getBrowsers();
-			Iterator i = browsers.keySet().iterator();
+			Set set = browsers.entrySet();
+			Entry entry;
+			Iterator i = set.iterator();
 			Browser browser;
 			while (i.hasNext()) {
-				browser = (Browser) browsers.get(i.next());
+				entry = (Entry) i.next();
+				browser = (Browser) entry.getValue();
 				browser.refreshExperimenter();
 			}
 		}
@@ -684,7 +689,7 @@ class TreeViewerControl
 	public void stateChanged(ChangeEvent ce)
 	{
 		switch (model.getSelectedBrowser().getState()) {
-			case Browser.BROWING_DATA:
+			case Browser.BROWSING_DATA:
 				loadingWindow.setStatus(TreeViewer.LOADING_TITLE);
 				UIUtilities.centerAndShow(loadingWindow);
 				return;

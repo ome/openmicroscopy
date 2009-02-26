@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.imviewer;
 //Java imports
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -124,16 +126,18 @@ public class RenderingSettingsLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        Map<ExperimenterData, RndProxyDef> map = 
-        	(Map<ExperimenterData, RndProxyDef>) result;
+        Map map = (Map) result;
         if (single) { 
-        	Iterator i = map.keySet().iterator();
+        	Set set = map.entrySet();
+        	Entry entry;
+        	Iterator i = set.iterator();
         	long userID = ImViewerAgent.getUserDetails().getId();
         	ExperimenterData exp;
         	while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
+        		entry = (Entry) i.next();
+				exp = (ExperimenterData) entry.getKey();
 				if (userID == exp.getId())
-					viewer.setSettingsToPaste(map.get(exp));
+					viewer.setSettingsToPaste((RndProxyDef) entry.getValue());
 			}
         } else {
         	viewer.setRenderingSettings(map);

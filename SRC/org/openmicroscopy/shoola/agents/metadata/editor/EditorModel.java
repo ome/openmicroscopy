@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -1396,12 +1397,15 @@ class EditorModel
 	void setChannelEnumerations(Map enumerations)
 	{
 		channelEnumerations = new HashMap<String, List<EnumerationObject>>();
-		Iterator i = enumerations.keySet().iterator();
+		Set set = enumerations.entrySet();
+		Entry entry;
+		Iterator i = set.iterator();
 		String key;
 		List<EnumerationObject> values;
 		while (i.hasNext()) {
-			key = (String) i.next();
-			values = (List<EnumerationObject>) enumerations.get(key);
+			entry = (Entry) i.next();
+			key = (String) entry.getKey();
+			values = (List<EnumerationObject>) entry.getValue();
 			sortEnumerations(values);
 			channelEnumerations.put(key, values);
 		}
@@ -1415,12 +1419,15 @@ class EditorModel
 	void setImageEnumerations(Map enumerations)
 	{
 		imageEnumerations = new HashMap<String, List<EnumerationObject>>();
-		Iterator i = enumerations.keySet().iterator();
+		Set set = enumerations.entrySet();
+		Entry entry;
+		Iterator i = set.iterator();
 		String key;
 		List<EnumerationObject> values;
 		while (i.hasNext()) {
-			key = (String) i.next();
-			values = (List<EnumerationObject>) enumerations.get(key);
+			entry = (Entry) i.next();
+			key = (String) entry.getKey();
+			values = (List<EnumerationObject>) entry.getValue();
 			sortEnumerations(values);
 			imageEnumerations.put(key, values);
 		}

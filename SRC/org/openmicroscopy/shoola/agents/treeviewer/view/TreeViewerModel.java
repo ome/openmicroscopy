@@ -34,6 +34,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectCreator;
@@ -140,6 +141,9 @@ class TreeViewerModel
 
 	/** The viewer displaying the metadata. */
 	private MetadataViewer 			metadataViewer;
+	
+	/** The viewer displaying the thumbnails. */
+	private DataBrowser 			dataViewer;
 	
 	/** Reference to the advanced finder. */
 	private AdvancedFinder			advancedFinder;
@@ -819,4 +823,21 @@ class TreeViewerModel
 		return ho.getClass();
 	}
 
+	/**
+	 * Sets the {@link DataBrowser}.
+	 * 
+	 * @param dataViewer The data viewer.
+	 */
+	void setDataViewer(DataBrowser dataViewer)
+	{
+		this.dataViewer = dataViewer;
+	}
+	
+	/**
+	 * Returns the {@link DataBrowser}.
+	 * 
+	 * @return See above.
+	 */
+	DataBrowser getDataViewer() { return dataViewer; }
+	
 }

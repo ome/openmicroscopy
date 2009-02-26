@@ -59,6 +59,9 @@ public class Colors
     /** Identifies the color of the title bar. */
     public static final int     TITLE_BAR = 1;
     
+    /** Identifies the color used to highlight an unmodified title bar. */
+    public static final int     TITLE_BAR_UNMODIFIED = 2;
+    
     /** The sole instance. */
     private static Colors   	singleton;
     
@@ -89,6 +92,8 @@ public class Colors
         colorsMap.put(TITLE_BAR_HIGHLIGHT, c);
         c = (Color) registry.lookup("/resources/colors/TitleBar");
         colorsMap.put(TITLE_BAR, c);
+        c = (Color) registry.lookup("/resources/colors/TitleBarUnmodified");
+        colorsMap.put(TITLE_BAR_UNMODIFIED, c);
     }
     
     /**
@@ -131,7 +136,8 @@ public class Colors
         if (node.getParentDisplay() == null) return getColor(TITLE_BAR);
         Color c = node.getHighlight();
         if (c == null) return null;
-        if (c.equals(getColor(TITLE_BAR_HIGHLIGHT))) c = null;	
+        if (c.equals(getColor(TITLE_BAR_HIGHLIGHT)) ||
+        	c.equals(getColor(TITLE_BAR_UNMODIFIED))) c = null;	
         return c;
     }
     
@@ -146,8 +152,22 @@ public class Colors
     	if (node == null) return getColor(TITLE_BAR); 
         if (node.getParentDisplay() == null) return getColor(TITLE_BAR);
         Color c = node.getHighlight();
-        if (c == null) c = getColor(TITLE_BAR_HIGHLIGHT);
+        if (c == null || c.equals(getColor(TITLE_BAR_UNMODIFIED))) 
+        	c = getColor(TITLE_BAR_HIGHLIGHT);
         return c;
     }
 
+    /**
+     * Returns the color corresponding to the node selection.
+     * 
+     * @param node The selected node.
+     * @return See above.
+     */
+    public Color getUnmodifiedHighLight(ImageDisplay node)
+    {
+    	if (node == null) return getColor(TITLE_BAR); 
+        if (node.getParentDisplay() == null) return getColor(TITLE_BAR);
+        return getColor(TITLE_BAR_UNMODIFIED);
+    }
+    
 }

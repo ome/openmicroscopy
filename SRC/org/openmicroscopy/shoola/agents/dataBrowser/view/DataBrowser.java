@@ -518,4 +518,13 @@ public interface DataBrowser
 	 */
 	public Class hasDataToCopy();
 	
+	/**
+	 * Marks the nodes on which a given operation could not be performed
+	 * e.g. paste rendering settings.
+	 * 
+	 * @param type The type of data objects.
+	 * @param ids  Collection of object's ids.
+	 */
+	public void markUnmodifiedNodes(Class type, Collection<Long> ids);
+	
 }

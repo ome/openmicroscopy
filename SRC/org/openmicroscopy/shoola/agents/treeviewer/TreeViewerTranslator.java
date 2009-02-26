@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -530,20 +531,23 @@ public class TreeViewerTranslator
             throw new IllegalArgumentException("No objects.");
         Set<TreeImageDisplay> results = 
         						new HashSet<TreeImageDisplay>(nodes.size());
-        Iterator i = nodes.keySet().iterator();
+        Set set = nodes.entrySet();
+        Entry entry;
+        Iterator i = set.iterator();
         DataObject ho;
         TreeImageDisplay display;
         List expanded = null;
         //TreeImageSet orphan = null;
         while (i.hasNext()) {
-            ho = (DataObject) i.next();
+        	entry = (Entry) i.next();
+            ho = (DataObject) entry.getKey();
             if (EditorUtil.isReadable(ho, userID, groupID)) {
                 if (ho instanceof ProjectData) {
                 	if (expandedTopNodes != null)
                 		expanded = (List) expandedTopNodes.get(
                 						ProjectData.class);
                     display = transformProject((ProjectData) ho, 
-                                                (Set) nodes.get(ho), 
+                                                (Set) entry.getValue(), 
                                                 userID, groupID);
                     if (expanded != null)
 	                    display.setExpanded(expanded.contains(ho.getId()));
@@ -552,7 +556,7 @@ public class TreeViewerTranslator
                 	if (expandedTopNodes != null)
                 		expanded = 
                 			(List) expandedTopNodes.get(DatasetData.class);
-                	Set r = (Set) nodes.get(ho); //should only have one element
+                	Set r = (Set) entry.getValue(); //should only have one element
                 	Iterator k = r.iterator();
                 	DatasetData element;
                 	while (k.hasNext()) {
@@ -569,7 +573,7 @@ public class TreeViewerTranslator
                 	if (expandedTopNodes != null)
                 		expanded = 
                 		(List) expandedTopNodes.get(TagAnnotationData.class);
-                	Set r = (Set) nodes.get(ho); //should only have one element
+                	Set r = (Set) entry.getValue(); //should only have one element
                 	Iterator k = r.iterator();
                 	TagAnnotationData element;
                 	while (k.hasNext()) {
@@ -753,7 +757,9 @@ public class TreeViewerTranslator
             throw new IllegalArgumentException("No objects.");
     	Map<Integer, Set> r = new HashMap<Integer, Set>(nodes.size());
         
-        Iterator i = nodes.keySet().iterator();
+    	Set set = nodes.entrySet();
+    	Entry entry;
+        Iterator i = set.iterator();
         TreeImageDisplay node;
         Set results;
         Iterator j;
@@ -761,9 +767,10 @@ public class TreeViewerTranslator
         Set<TreeImageDisplay> converted;
         TreeImageTimeSet time;
         while (i.hasNext()) {
-            node = (TreeImageDisplay) i.next();
+        	entry = (Entry) i.next();
+            node = (TreeImageDisplay) entry.getKey();
             if (node instanceof TreeImageTimeSet) {
-            	results = (Set) nodes.get(node);
+            	results = (Set) entry.getValue();
                 converted = new HashSet<TreeImageDisplay>(results.size());
                 j = results.iterator();
                 while (j.hasNext()) {
@@ -773,7 +780,7 @@ public class TreeViewerTranslator
     			}
                 r.put(((TreeImageTimeSet) node).getIndex(), converted);
             } else if (node instanceof TreeFileSet) {
-            	results = (Set) nodes.get(node);
+            	results = (Set) entry.getValue();
                 converted = new HashSet<TreeImageDisplay>(results.size());
                 j = results.iterator();
                 while (j.hasNext()) {

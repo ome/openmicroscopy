@@ -38,6 +38,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -180,14 +183,17 @@ public class ProjSavingDialog
 			
 		Map<String, String> map = EditorUtil.PIXELS_TYPE_DESCRIPTION;
 		String[] data = new String[map.size()];
-		Iterator<String> i = map.keySet().iterator();
+		Set set = map.entrySet();
+		Entry entry;
+		Iterator i = set.iterator();
 		int index = 0;
 		//String originalType = type;
 		String key;
 		int selectedIndex = 0;
 		while (i.hasNext()) {
-			key = i.next();
-			data[index] = map.get(key);
+			entry = (Entry) i.next();
+			key = (String) entry.getKey();
+			data[index] = (String) entry.getValue();
 			if (key.equals(type)) selectedIndex = index;
 			index++;
 		}

@@ -192,7 +192,6 @@ class BrowserModel
 	void setSelectedDisplay(ImageDisplay node, boolean multiSelection, boolean
 							fireProperty)
 	{
-		//if (node == null) return;
 		if (node instanceof CellDisplay) return;
 	    thumbSelected = false;
 	    popupPoint = null;
@@ -649,11 +648,6 @@ class BrowserModel
 		if (node == null) return;
 		Colors colors = Colors.getInstance();
 		node.setHighlight(colors.getDeselectedHighLight(node));
-		/*
-		List<ImageDisplay> nodes = new ArrayList<ImageDisplay>(1);
-		nodes.add(node);
-		setNodesColor(getSelectedDisplays(), nodes);
-		*/
 		selectedDisplays.remove(node);
 		firePropertyChange(UNSELECTED_DISPLAY_PROPERTY, null, node);
 	}
@@ -696,6 +690,29 @@ class BrowserModel
 		Iterator<ImageDisplay> i = nodes.iterator();
 		while (i.hasNext()) 
 			rootDisplay.addChildDisplay(i.next());
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#markUnmodifiedNodes(Class, Collection)
+	 */
+	public void markUnmodifiedNodes(Class type, Collection<Long> ids)
+	{
+		Iterator i = selectedDisplays.iterator();
+		ImageDisplay node;
+		Object ho;
+		long id;
+		Colors colors = Colors.getInstance();
+		while (i.hasNext()) {
+			node = (ImageDisplay) i.next();
+			ho = node.getHierarchyObject();
+			if (ho.getClass().equals(type) && ho instanceof DataObject) {
+				id = ((DataObject) ho).getId();
+				if (ids.contains(id)) {
+					node.setHighlight(colors.getUnmodifiedHighLight(node));
+				}
+			}
+		}
 	}
 	
 }

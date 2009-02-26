@@ -1037,6 +1037,7 @@ class RenderingControlProxy
     		servant.saveCurrentSettings();
     		return rndDef;
 		} catch (Throwable e) {
+			e.printStackTrace();
 			handleException(e, ERROR+"save current settings.");
 		}
 		return null;

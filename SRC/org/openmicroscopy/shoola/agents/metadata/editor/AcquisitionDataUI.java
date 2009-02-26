@@ -37,6 +37,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -265,13 +268,15 @@ class AcquisitionDataUI
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
         AcquisitionComponent comp;
-        String key;
-		Iterator i = fields.keySet().iterator();
+        Set set = fields.entrySet();
+        Entry entry;
+        
+		Iterator i = set.iterator();
 		c.gridy = 0;
         while (i.hasNext()) {
             c.gridx = 0;
-            key = (String) i.next();
-            comp = fields.get(key);
+            entry = (Entry) i.next();
+            comp = (AcquisitionComponent) entry.getValue();
             if (comp.isSetField() || shown) {
             	 ++c.gridy;
             	 c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last

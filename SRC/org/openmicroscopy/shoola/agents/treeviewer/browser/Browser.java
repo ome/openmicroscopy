@@ -94,7 +94,7 @@ public interface Browser
     public static final int     	COUNTING_ITEMS = 13;
     
     /** Flag to denote the <i>Browsing</i> state. */
-    public static final int     	BROWING_DATA = 14;
+    public static final int     	BROWSING_DATA = 14;
     
     /** Flag to denote the <i>Ready</i> state. */
     public static final int     	READY = 15;

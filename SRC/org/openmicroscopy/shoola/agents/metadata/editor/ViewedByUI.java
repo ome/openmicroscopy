@@ -37,6 +37,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -152,22 +155,9 @@ class ViewedByUI
 		p.add(new ThumbnailCanvas(model, img, def));
 		
 		String name = model.formatOwner(def.getExperimenter());
-		/*
-		Collection ratings = def.getRatings();
-		int value = 0;
-		if (ratings != null && ratings.size() != 0) {
-			Iterator i = ratings.iterator();
-			while (i.hasNext()) 
-				value = ((RatingAnnotationData) i.next()).getRating();
-		}
-		RatingComponent rate = new RatingComponent(value, 
-								RatingComponent.MEDIUM_SIZE, false);
-		*/
 		JPanel content = new JPanel();
 		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		content.add(new JLabel(name));
-		//content.add(rate);
-		
 		p.add(content);
 		return UIUtilities.buildComponentPanel(p, 0, 0);
 	}
@@ -228,15 +218,16 @@ class ViewedByUI
 	 */
 	private JPanel layoutList()
 	{
-		//if (listPane != null) return UIUtilities.buildComponentPanel(listPane);
 		listPane = new JPanel();
 		listPane.setLayout(new BoxLayout(listPane, BoxLayout.Y_AXIS));
 		Map<Long, BufferedImage> thumbnails = model.getThumbnails();
-		Iterator i = thumbnails.keySet().iterator();
-		Long id;
+		Set set = thumbnails.entrySet();
+		Entry entry;
+		Iterator i = set.iterator();
 		while (i.hasNext()) {
-			id = (Long) i.next();
-			listPane.add(buildListItem(thumbnails.get(id), id));
+			entry = (Entry) i.next();
+			listPane.add(buildListItem((BufferedImage) entry.getValue(), 
+					(Long) entry.getKey()));
 		}
 		return UIUtilities.buildComponentPanel(listPane);
 	}
@@ -253,16 +244,16 @@ class ViewedByUI
 		GridBagConstraints c = new GridBagConstraints();
 		Map<Long, BufferedImage> thumbnails = model.getThumbnails();
 		List<JPanel> thumbs = new ArrayList<JPanel>(thumbnails.size());
-		Iterator thumb = thumbnails.keySet().iterator();
-		Long id;
-		while (thumb.hasNext()) {
-			id = (Long) thumb.next();
-			thumbs.add(buildGridItem(thumbnails.get(id), id));
+		Set set = thumbnails.entrySet();
+		Entry entry;
+		Iterator it = set.iterator();
+		while (it.hasNext()) {
+			entry = (Entry) it.next();
+			thumbs.add(buildGridItem((BufferedImage) entry.getValue(), 
+					(Long) entry.getKey()));
 		}
-		//int n = thumbs.size();
-	    //n = (int) Math.floor(Math.sqrt(n))+1;
 		int n = (thumbs.size()/3)+1;
-	    thumb = thumbs.iterator();
+	    it = thumbs.iterator();
 	    c.gridx = 0;
 	    c.gridy = 0;
 	    c.anchor = GridBagConstraints.FIRST_LINE_START;
@@ -271,9 +262,9 @@ class ViewedByUI
 	    for (int i = 0; i < 3; ++i) {
 	    	c.gridx = 0;
             for (int j = 0; j < n; ++j) {
-                if (!thumb.hasNext()) //Done, less than n^2 children.
+                if (!it.hasNext()) //Done, less than n^2 children.
                     break;  //Go to finally
-                comp = (JPanel) thumb.next();
+                comp = (JPanel) it.next();
                 c.gridx += j;
                 c.gridy += i;
                 gridPane.add(comp, c);

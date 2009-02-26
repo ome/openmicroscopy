@@ -31,6 +31,9 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.Action;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
@@ -248,15 +251,18 @@ class RendererControl
             //int v = ((Integer) evt.getNewValue()).intValue();
             //model.setSelectedChannel(v, false);
         } else if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(name)) {
-            Map<Integer, Boolean> map = 
-            	(Map<Integer, Boolean>) evt.getNewValue();
+            Map map = (Map) evt.getNewValue();
 			if (map == null) return;
 			if (map.size() != 1) return;
-			Iterator i = map.keySet().iterator();
+			Set set = map.entrySet();
+			Entry entry;
+			Iterator i = set.iterator();
 			Integer index;
 			while (i.hasNext()) {
-				index = (Integer) i.next();
-				model.setChannelSelection(index.intValue(), map.get(index));
+				entry = (Entry) i.next();
+				index = (Integer) entry.getKey();
+				model.setChannelSelection(index.intValue(), 
+						(Boolean) entry.getValue());
 			}
         } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(name)) {
         	view.showColorPicker(((Integer) evt.getNewValue()).intValue());

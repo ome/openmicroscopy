@@ -40,6 +40,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -462,14 +465,15 @@ class AnnotationDataUI
 	{
 		Map<Long, BufferedImage> thumbnails = model.getThumbnails();
 		if (thumbnails == null) return;
-		Iterator<Long> i = thumbnails.keySet().iterator();
+		Set set = thumbnails.entrySet();
+		Iterator i = set.iterator();
+		Entry entry;
 		ViewedByComponent comp;
-		Long id;
 		while (i.hasNext()) {
-			id = i.next();
-			comp = viewedBy.get(id);
+			entry = (Entry) i.next();
+			comp = viewedBy.get(entry.getKey());
 			if (comp != null)
-				comp.setThumbnail(thumbnails.get(id));
+				comp.setThumbnail((BufferedImage) entry.getValue());
 		}
 	}
 	

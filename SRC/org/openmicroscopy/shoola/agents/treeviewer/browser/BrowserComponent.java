@@ -325,11 +325,8 @@ class BrowserComponent
     { 
         int state = model.getState();
         if ((state == LOADING_DATA) || (state == LOADING_LEAVES)) {
-        	//(state == COUNTING_ITEMS)) {
-
             model.cancel();
-            //if (state != COUNTING_ITEMS) 
-                view.cancel(model.getLastSelectedDisplay()); 
+            view.cancel(model.getLastSelectedDisplay()); 
             fireStateChange();
         }
     }
@@ -397,7 +394,7 @@ class BrowserComponent
      */
     public void setWells(Set wells, TreeImageSet parent)
     {
-        if (model.getState() != BROWING_DATA) return;
+        if (model.getState() != BROWSING_DATA) return;
         //No node added to the tree.
         model.setState(READY);
         model.getParentModel().setWells(parent, wells);
@@ -1051,11 +1048,14 @@ class BrowserComponent
 	public void setRefreshExperimenterData(
 					Map<Long, RefreshExperimenterDef> nodes)
 	{
+		/*
 		if (model.getState() != LOADING_DATA)
 			throw new IllegalStateException("This method cannot be invoked "+
 			"in the LOADING_DATA state.");
 		if (nodes == null || nodes.size() == 0)
 			throw new IllegalArgumentException("Experimenter cannot be null.");
+			*/
+		if (nodes == null || nodes.size() == 0) return;
 		Iterator i = nodes.keySet().iterator();
 		RefreshExperimenterDef node;
 		TreeImageSet expNode;

@@ -784,17 +784,6 @@ class OmeroMetadataServiceImpl
 		/*
 		if ((object instanceof ImageData) && viewed) {
 			ImageData img = (ImageData) object;
-			try {
-				results.setArchived(gateway.hasArchivedFiles(
-						img.getDefaultPixels().getId()));
-			} catch (Exception e) {
-				String s = "Data Retrieval Failure: ";
-				LogMessage msg = new LogMessage();
-		        msg.print(s);
-		        msg.print(e);
-		        context.getLogger().error(this, msg);
-		        results.setArchived(false);
-			}
 			long pixelsID = -1;
 			try {
 				pixelsID = img.getDefaultPixels().getId();

@@ -31,6 +31,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -133,13 +135,16 @@ public class ReportLoader
     	Map m = (Map) result;
     	Map<ImageNode, StructuredDataResults> 
     		r = new LinkedHashMap<ImageNode, StructuredDataResults>();
-    	Iterator i = m.keySet().iterator();
+    	Set set = m.entrySet();
+    	Entry entry;
+    	Iterator i = set.iterator();
     	Long id;
     	ImageNode n;
     	while (i.hasNext()) {
-			id = (Long) i.next();
+    		entry = (Entry) i.next();
+			id = (Long) entry.getKey();
 			n = imageMap.get(id);
-			r.put(n, (StructuredDataResults) m.get(id));
+			r.put(n, (StructuredDataResults) entry.getValue());
 		}
     	viewer.setReportData(r, types, path);
     }

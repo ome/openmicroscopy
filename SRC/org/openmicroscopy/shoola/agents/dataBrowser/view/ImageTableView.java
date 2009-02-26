@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Point;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -159,6 +160,18 @@ class ImageTableView
 	{
 		firePropertyChange(TABLE_SELECTION_VIEW_PROPERTY, Boolean.FALSE, 
 				Boolean.TRUE);
+	}
+
+	/**
+	 * Marks the nodes on which a given operation could not be performed
+	 * e.g. paste rendering settings.
+	 * 
+	 * @param type The type of data objects.
+	 * @param ids  Collection of object's ids.
+	 */
+	void markUnmodifiedNodes(Class type, Collection<Long> ids)
+	{
+		table.markUnmodifiedNodes(type, ids);
 	}
 	
 }

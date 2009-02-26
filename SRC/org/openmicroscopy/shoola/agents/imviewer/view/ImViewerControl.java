@@ -41,6 +41,9 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.JMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
@@ -748,36 +751,36 @@ class ImViewerControl
 		} else if (ImViewer.T_SELECTED_PROPERTY.equals(pName)) {
 			view.setTimepoint(((Integer) pce.getNewValue()).intValue());
 		} else if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(pName)) {
-			Map<Integer, Boolean> map = (Map) pce.getNewValue();
+			Map map = (Map) pce.getNewValue();
 			if (map == null) return;
 			if (map.size() != 1) return;
-			Iterator i = map.keySet().iterator();
+			Set set = map.entrySet();
+			Entry entry;
+			Iterator i = set.iterator();
 			Integer index;
 			while (i.hasNext()) {
-				index = (Integer) i.next();
-				model.setChannelSelection(index.intValue(), map.get(index));
+				entry = (Entry) i.next();
+				index = (Integer) entry.getKey();
+				model.setChannelSelection(index.intValue(), 
+						(Boolean) entry.getValue());
 			}
 		} else if (LoadingWindow.CLOSED_PROPERTY.equals(pName)) {
 			model.discard();
 		} else if (Renderer.RENDER_PLANE_PROPERTY.equals(pName)) {
 			model.renderXYPlane();
 		} else if (Renderer.SELECTED_CHANNEL_PROPERTY.equals(pName)) {
-			/*
-			if (model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
-				int c = ((Integer) pce.getNewValue()).intValue();
-				for (int i = 0; i < model.getMaxC(); i++)
-					model.setChannelActive(i, i == c);
-				model.displayChannelMovie();
-			}
-			*/
-			Map<Integer, Boolean> map = (Map) pce.getNewValue();
+			Map map = (Map) pce.getNewValue();
 			if (map == null) return;
 			if (map.size() != 1) return;
-			Iterator<Integer> i = map.keySet().iterator();
+			Set set = map.entrySet();
+			Entry entry;
+			Iterator i = set.iterator();
 			Integer index;
 			while (i.hasNext()) {
-				index = i.next();
-				model.setChannelSelection(index.intValue(), map.get(index));
+				entry = (Entry) i.next();
+				index = (Integer) entry.getKey();
+				model.setChannelSelection(index.intValue(), 
+						(Boolean) entry.getValue());
 			}
 		} else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(pName) ||
 				ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
@@ -802,16 +805,6 @@ class ImViewerControl
 		{
 			//when movie player stop
 			boolean b = ((Boolean) pce.getNewValue()).booleanValue();
-			/*
-			if (!b && !getMoviePlayer().isVisible()) {
-				PlayMovieAction action = 
-					(PlayMovieAction) getAction(PLAY_MOVIE_T);
-				action.setActionIcon(true);
-				action = (PlayMovieAction) getAction(PLAY_MOVIE_Z);
-				action.setActionIcon(true);
-				model.playMovie(false, false, -1);
-			}
-			*/
 			if (!b) {
 				if (!getMoviePlayer().isVisible()) {
 					PlayMovieAction action = 
@@ -820,16 +813,6 @@ class ImViewerControl
 					action = (PlayMovieAction) getAction(PLAY_MOVIE_Z);
 					action.setActionIcon(true);
 					model.playMovie(false, false, -1);
-				} else {
-					/*
-					switch (view.getTabbedIndex()) {
-					case ImViewer.VIEW_INDEX:
-						view.createHistoryItem(null);
-						break;
-					case ImViewer.PROJECTION_INDEX:
-						view.createHistoryItem(view.getLastProjRef());
-					}
-					*/
 				}
 			}
 		} else if (PreferencesDialog.VIEWER_PREF_PROPERTY.equals(pName)) {

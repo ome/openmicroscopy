@@ -29,6 +29,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -149,13 +151,15 @@ public class ExperimenterImagesCounter
     public void update(DSCallFeedbackEvent fe) 
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        Map<Integer, Object> map = (Map) fe.getPartialResult();
+        Map map = (Map) fe.getPartialResult();
         if (map == null || map.size() != 1) return;
-        Iterator<Integer> i = map.keySet().iterator();
-        Integer index;
+        Set set = map.entrySet();
+        Entry entry;
+        Iterator i = set.iterator();
         while (i.hasNext()) {
-        	index = i.next();
-        	viewer.setExperimenterCount(expNode, index, map.get(index));
+        	entry = (Entry) i.next();
+        	viewer.setExperimenterCount(expNode, (Integer) entry.getKey(), 
+        			entry.getValue());
 		}
     }
     

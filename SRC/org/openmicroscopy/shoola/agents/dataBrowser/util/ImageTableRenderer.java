@@ -77,8 +77,12 @@ public class ImageTableRenderer
 			Object value, boolean selected, boolean expanded, 
 			boolean leaf, int row, boolean hasFocus)
 	{
-		if (selected) setBackground(getBackgroundSelectionColor());
-		else setBackground(getBackgroundNonSelectionColor());
+		if (selected) {
+			if (value instanceof ImageTableNode) {
+				setBackground(((ImageTableNode) value).getHighLight());
+			} else setBackground(getBackgroundSelectionColor());
+			System.err.println(getBackgroundSelectionColor());
+		} else setBackground(getBackgroundNonSelectionColor());
 		if (!(value instanceof ImageTableNode)) return this;
 		ImageTableNode node = (ImageTableNode) value;
 		Object v = node.getHierarchyObject();

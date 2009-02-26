@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
+import java.awt.Color;
 import java.sql.Timestamp;
 
 //Third-party libraries
@@ -80,6 +81,16 @@ public class ImageTableNode
 	public Object getHierarchyObject()
 	{
 		return ((ImageDisplay) getUserObject()).getHierarchyObject();
+	}
+	
+	/**
+	 * Returns the highLight color.
+	 * 
+	 * @return See above.
+	 */
+	public Color getHighLight()
+	{
+		return ((ImageDisplay) getUserObject()).getHighlight();
 	}
 	
 	/**

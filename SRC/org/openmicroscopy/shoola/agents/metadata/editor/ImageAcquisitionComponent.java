@@ -32,6 +32,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
@@ -248,13 +251,16 @@ class ImageAcquisitionComponent
 			unsetObjective.addPropertyChangeListener(this);
 		}
 
+		Set entrySet = details.entrySet();
+		Entry entry;
 		boolean set;
 		boolean b;
-		Iterator i = details.keySet().iterator();
+		Iterator i = entrySet.iterator();
 		while (i.hasNext()) {
-			key = (String) i.next();
+			entry = (Entry) i.next();
+			key = (String) entry.getKey();
 			set = !notSet.contains(key);
-			value = details.get(key);
+			value = entry.getValue();
 			label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
 			label.setBackground(UIUtilities.BACKGROUND_COLOR);
 			if (key.equals(EditorUtil.IMMERSION)) {
@@ -355,12 +361,15 @@ class ImageAcquisitionComponent
 			unsetStage.addPropertyChangeListener(this);
 		}
 
+		Set entrySet = details.entrySet();
+		Entry entry;
 		boolean set;
-		Iterator i = details.keySet().iterator();
+		Iterator i = entrySet.iterator();
 		while (i.hasNext()) {
-            key = (String) i.next();
+			entry = (Entry) i.next();
+            key = (String) entry.getKey();
 			set = !notSet.contains(key);
-            value = details.get(key);
+            value = entry.getValue();
             label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
             if (value instanceof String) {
@@ -414,12 +423,15 @@ class ImageAcquisitionComponent
 			unsetEnv.addPropertyChangeListener(this);
 		}
 
+		Set entrySet = details.entrySet();
+		Entry entry;
 		boolean set;
-		Iterator i = details.keySet().iterator();
+		Iterator i = entrySet.iterator();
 		while (i.hasNext()) {
-			key = (String) i.next();
+			entry = (Entry) i.next();
+			key = (String) entry.getKey();
 			set = !notSet.contains(key);
-			value = details.get(key);
+			value = entry.getValue();
 			label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
 			label.setBackground(UIUtilities.BACKGROUND_COLOR);
 

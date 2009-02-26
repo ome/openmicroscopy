@@ -35,6 +35,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
@@ -267,11 +270,15 @@ class EditorControl
 		} else if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
 			Map m = (Map) evt.getNewValue();
 			if (m == null || m.size() != 1) return;
-			Iterator i = m.keySet().iterator();
+			Set set = m.entrySet();
+			Entry entry;
+			Iterator i = set.iterator();
 			Class type;
 			while (i.hasNext()) {
-				type = (Class) i.next();
-				view.handleObjectsSelection(type, (Collection) m.get(type));
+				entry = (Entry) i.next();
+				type = (Class) entry.getKey();
+				view.handleObjectsSelection(type, 
+						(Collection) entry.getValue());
 			}
 		}
 	}
