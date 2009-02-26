@@ -648,7 +648,8 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         Set<Session> sessions = new HashSet<Session>();
         if (ids.size() > 0) {
             List<Session> list = iQuery.findAllByQuery(
-                    "select sh from Session sh where sh.id in (:ids) ",
+                    "select sh from Session sh " +
+                    "join fetch sh.owner where sh.id in (:ids) ",
                     new Parameters().addIds(ids));
             sessions = new HashSet<Session>(list);
         }

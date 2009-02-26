@@ -73,6 +73,22 @@ public class SharingTest extends AbstractManagedContextTest {
         assertEquals(1, share.getOwnShares(true).size());
     }
 
+    
+    @Test(groups = "ticket:1208")
+    public void testMembersAreLoaded() {
+        
+        Experimenter e1 = loginNewUser();
+        Experimenter e2 = loginNewUser();
+        
+        share = factory.getShareService();
+        long id = share.createShare("before", null, null, Arrays.asList(e1), Arrays.asList("guest"), false);
+        
+        loginUser(e1.getOmeName());
+        Set<Session> sessions = share.getMemberShares(false);
+        assertEquals(1, sessions.size());
+        assertTrue(sessions.iterator().next().getOwner().isLoaded());
+    }
+
     public void testSetOthers() {
         
         loginNewUser();
