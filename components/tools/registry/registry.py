@@ -9,10 +9,10 @@
 
 config = {
     'port':9998,
-    'version':'3.0-Beta2.3',
+    'version':'3.0-Beta3',
     'agentprefix':'OMERO',
     'redirect':'http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck',
-    'upgrade':'Please upgrade to 3.0-Beta2.3 See http://trac.openmicroscopy.org.uk/omero for the latest version'
+    'upgrade':'Please upgrade to 3.0-Beta3 See http://trac.openmicroscopy.org.uk/omero for the latest version'
     }
 
 from twisted.application import internet, service
