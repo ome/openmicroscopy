@@ -55,6 +55,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 
+ * Note: {@link SessionManager} should not be used to obtain the {@link Share}
+ * data since it may not be completely in sync. i.e. Don't use SM.find() 
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
  * @see IShare
@@ -76,32 +79,6 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     final protected Executor executor;
 
-    abstract class SecureShare implements SecureAction {
-
-        public final <T extends IObject> T updateObject(T... objs) {
-            doUpdate((Share) objs[0]);
-            return null;
-        }
-
-        abstract void doUpdate(Share share);
-
-    }
-
-    class SecureStore extends SecureShare {
-
-        ShareData data;
-
-        SecureStore(ShareData data) {
-            this.data = data;
-        }
-
-        @Override
-        void doUpdate(Share share) {
-            store.update(share, data);
-        }
-
-    }
-
     public final Class<? extends ServiceInterface> getServiceInterface() {
         return IShare.class;
     }
@@ -121,7 +98,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public void activate(long shareId) {
 
         // Check status of the store
-        ShareData data = getShareIfAccessibble(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         if (data == null) {
             throw new ValidationException("No accessible share:" + shareId);
         }
@@ -188,15 +165,18 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     public Session getShare(long sessionId) {
-        ShareData data = store.get(sessionId);
+        ShareData data = getShareIfAccessible(sessionId);
         throwOnNullData(sessionId, data);
         Session session = shareToSession(data);
+        if (session == null) {
+            throw new ValidationException("No share found: " + sessionId);
+        }
         return session;
     }
 
     @RolesAllowed("user")
     public <T extends IObject> List<T> getContents(long shareId) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         return list(data.objectList);
     }
@@ -204,7 +184,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @RolesAllowed("user")
     public <T extends IObject> List<T> getContentSubList(long shareId,
             int start, int finish) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         try {
             return list(data.objectList.subList(start, finish));
@@ -217,14 +197,14 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @RolesAllowed("user")
     public <T extends IObject> Map<Class<T>, List<Long>> getContentMap(
             long shareId) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         return map(data.objectMap);
     }
 
     @RolesAllowed("user")
     public int getContentSize(long shareId) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         return data.objectList.size();
     }
@@ -242,7 +222,8 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         //
         // Input validation
         //
-        final long time = expirationAsLong(System.currentTimeMillis(), expiration);
+        final long time = expirationAsLong(System.currentTimeMillis(),
+                expiration);
 
         if (exps == null) {
             exps = Collections.emptyList();
@@ -260,10 +241,10 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         final String omename = this.admin.getEventContext()
                 .getCurrentUserName();
         final Long user = this.admin.getEventContext().getCurrentUserId();
-        final Future<Long> future = executor.submit(new Callable<Long>() {
-            public Long call() throws Exception {
+        final Future<Share> future = executor.submit(new Callable<Share>() {
+            public Share call() throws Exception {
                 return sessionManager.createShare(new Principal(omename),
-                        enabled, time, "SHARE", description).getId();
+                        enabled, time, "SHARE", description);
             }
         });
 
@@ -279,8 +260,8 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         // necessary, but may reflect some other issue.
         iQuery.clear();
 
-        final Long shareId = executor.get(future);
-        final Share share = iQuery.get(Share.class, shareId);
+        final long shareId = executor.get(future).getId();
+        final Share share = iQuery.find(Share.class, shareId); // Reload!
         this.sec.doAction(new SecureShare() {
             @Override
             void doUpdate(Share share) {
@@ -294,39 +275,41 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void setDescription(long shareId, @NotNull String description) {
-        String uuid = idToUuid(shareId);
-        Session session = sessionManager.find(uuid);
-        session.setMessage(description);
-        update(session);
+        Share share = (Share) iQuery.find(Share.class, shareId);
+        ShareData data = store.get(shareId);
+        share.setMessage(description);
+        storeShareData(shareId, data);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void setExpiration(long shareId, @NotNull Timestamp expiration) {
-        String uuid = idToUuid(shareId);
-        Session session = sessionManager.find(uuid);
-        session.setTimeToLive(expirationAsLong(session.getStarted().getTime(), expiration));
-        update(session);
+        Share share = (Share) iQuery.find(Share.class, shareId);
+        ShareData data = store.get(shareId);
+        share.setTimeToLive(expirationAsLong(share.getStarted().getTime(),
+                expiration));
+        storeShareData(shareId, data);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void setActive(long shareId, boolean active) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         data.enabled = active;
-        _store(shareId, data);
+        storeShareData(shareId, data);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void closeShare(long shareId) {
         final String uuid = idToUuid(shareId);
-        Future<Object> future = executor.submit(new Callable<Object>(){
+        Future<Object> future = executor.submit(new Callable<Object>() {
             public Object call() throws Exception {
                 sessionManager.close(uuid);
                 return null;
-            }});
+            }
+        });
         executor.get(future);
     }
 
@@ -337,32 +320,32 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @Transactional(readOnly = false)
     public <T extends IObject> void addObjects(long shareId,
             @NotNull T... objects) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         Graph graph = new Graph();
         for (T object : objects) {
             graph.filter("top", object);
         }
         _addGraph(data, graph);
-        _store(shareId, data);
+        storeShareData(shareId, data);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public <T extends IObject> void addObject(long shareId, @NotNull T object) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         Graph graph = new Graph();
         graph.filter("top", object);
         _addGraph(data, graph);
-        _store(shareId, data);
+        storeShareData(shareId, data);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public <T extends IObject> void removeObjects(long shareId,
             @NotNull T... objects) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         for (T object : objects) {
             List<Long> ids = data.objectMap.get(object.getClass().getName());
@@ -381,13 +364,13 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
             }
         }
         data.objectList.removeAll(toRemove);
-        _store(shareId, data);
+        storeShareData(shareId, data);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public <T extends IObject> void removeObject(long shareId, @NotNull T object) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         List<Long> ids = data.objectMap.get(object.getClass().getName());
         if (ids != null) {
             ids.remove(object.getId());
@@ -401,7 +384,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
             }
         }
         data.objectList.removeAll(toRemove);
-        _store(shareId, data);
+        storeShareData(shareId, data);
     }
 
     // ~ Getting comments
@@ -411,7 +394,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public List<Annotation> getComments(final long shareId) {
 
         final List<Annotation> rv = new ArrayList<Annotation>();
-        if (getShareIfAccessibble(shareId) == null) {
+        if (getShareIfAccessible(shareId) == null) {
             return rv; // EARLY EXIT.
         }
 
@@ -477,7 +460,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     public Set<Experimenter> getAllMembers(long shareId) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         List<Experimenter> e = loadMembers(data);
         return new HashSet<Experimenter>(e);
@@ -485,14 +468,14 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     public Set<String> getAllGuests(long shareId) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         return new HashSet<String>(data.guests);
     }
 
     @RolesAllowed("user")
     public Set<String> getAllUsers(long shareId) throws ValidationException {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         List<Experimenter> members = loadMembers(data);
         Set<String> names = new HashSet<String>();
         for (Experimenter e : members) {
@@ -513,78 +496,78 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @Transactional(readOnly = false)
     public void addUsers(long shareId, Experimenter... exps) {
         List<Experimenter> es = Arrays.asList(exps);
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         for (Experimenter experimenter : es) {
             data.members.remove(experimenter.getId());
         }
-        _store(shareId, data);
+        storeShareData(shareId, data);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void addGuests(long shareId, String... emailAddresses) {
         List<String> addresses = Arrays.asList(emailAddresses);
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         data.guests.addAll(addresses);
-        _store(shareId, data);
+        storeShareData(shareId, data);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void removeUsers(long shareId, List<Experimenter> exps) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         for (Experimenter experimenter : exps) {
             data.members.remove(experimenter.getId());
         }
-        _store(shareId, data);
+        storeShareData(shareId, data);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void removeGuests(long shareId, String... emailAddresses) {
         List<String> addresses = Arrays.asList(emailAddresses);
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         data.guests.removeAll(addresses);
-        _store(shareId, data);
+        storeShareData(shareId, data);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void addUser(long shareId, Experimenter exp) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         data.members.add(exp.getId());
-        _store(shareId, data);
+        storeShareData(shareId, data);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void addGuest(long shareId, String emailAddress) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         data.guests.add(emailAddress);
-        _store(shareId, data);
+        storeShareData(shareId, data);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void removeUser(long shareId, Experimenter exp) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         data.members.remove(exp.getId());
-        _store(shareId, data);
+        storeShareData(shareId, data);
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void removeGuest(long shareId, String emailAddress) {
-        ShareData data = store.get(shareId);
+        ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         data.guests.remove(emailAddress);
-        _store(shareId, data);
+        storeShareData(shareId, data);
     }
 
     // Events
@@ -726,7 +709,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         }
     }
 
-    protected ShareData getShareIfAccessibble(long shareId) {
+    protected ShareData getShareIfAccessible(long shareId) {
 
         ShareData data = store.get(shareId);
         if (data == null) {
@@ -759,22 +742,6 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         }
     }
 
-    protected void _store(long shareId, ShareData data) {
-        Share share = iQuery.get(Share.class, shareId);
-        this.sec.doAction(new SecureStore(data), share);
-        adminFlush();
-    }
-
-    private void update(final Session session) {
-        Future<Object> future = executor.submit(new Callable<Object>() {
-            public Object call() throws Exception {
-                sessionManager.update(session, true);
-                return null;
-            }
-        });
-        executor.get(future);
-    }
-
     // Graph : used for
     // =========================================================================
 
@@ -799,4 +766,57 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         }
 
     }
+
+    // All update access should be performed with these methods to keep
+    // everything in sync. The other methods which mutate are create & close
+    // =========================================================================
+
+
+    abstract class SecureShare implements SecureAction {
+
+        public final <T extends IObject> T updateObject(T... objs) {
+            doUpdate((Share) objs[0]);
+            return null;
+        }
+
+        abstract void doUpdate(Share share);
+
+    }
+
+    class SecureStore extends SecureShare {
+
+        ShareData data;
+
+        SecureStore(ShareData data) {
+            this.data = data;
+        }
+
+        @Override
+        void doUpdate(Share share) {
+            store.update(share, data);
+        }
+
+    }
+
+    
+    protected void storeShareData(long shareId, ShareData data) {
+        // This should reload the object already in the first-cache
+        Share share = iQuery.get(Share.class, shareId);
+        
+        this.sec.doAction(new SecureStore(data), share);
+        adminFlush();
+    }
+
+    /*
+    private void updateShare(final Share share) {
+        Future<Object> future = executor.submit(new Callable<Object>() {
+            public Object call() throws Exception {
+                sessionManager.update(share, true);
+                return null;
+            }
+        });
+        executor.get(future);
+    }
+    */
+
 }

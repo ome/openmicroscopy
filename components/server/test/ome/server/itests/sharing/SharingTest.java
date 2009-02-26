@@ -57,11 +57,39 @@ public class SharingTest extends AbstractManagedContextTest {
         share.setDescription(id, "after");
     }
 
-    @Test
+    @Test(groups = "ticket:1201")
     public void testActive() {
+        
+        loginNewUser();
+        
         share = factory.getShareService();
-        long id = share.createShare("before", null, null, null, null, false);
+        long id = share.createShare("before", null, null, null, Arrays.asList("guest"), false);
         share.setActive(id, true);
+        share.setDescription(id, "desc");
+        
+        Share s = (Share) share.getShare(id);
+        assertEquals(1, share.getAllGuests(id).size());
+        
+        assertEquals(1, share.getOwnShares(true).size());
+    }
+
+    public void testSetOthers() {
+        
+        loginNewUser();
+        
+        share = factory.getShareService();
+        long id = share.createShare("others", null, null, null, null, false);
+        
+        loginNewUser();
+        try {
+            share.setActive(id, true);
+            fail("must throw");
+        } catch (ValidationException ve) {
+            // good.
+        }
+        
+        
+        
     }
 
     @Test
@@ -81,7 +109,7 @@ public class SharingTest extends AbstractManagedContextTest {
         assertEquals((newExpiration - s.getStarted().getTime()), s
                 .getTimeToLive().longValue());
     }
-
+    
     @Test
     public void testClose() {
         share = factory.getShareService();

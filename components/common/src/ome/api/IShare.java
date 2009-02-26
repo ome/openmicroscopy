@@ -127,6 +127,7 @@ public interface IShare extends ServiceInterface {
      *         Details has all member users linked. {@link Annotation} instances
      *         of the share are linked to the {@link Session}. Missing is a list
      *         of share guests.
+     * @throws ValidationException if no share is found.
      */
     Session getShare(long sessionId);
 

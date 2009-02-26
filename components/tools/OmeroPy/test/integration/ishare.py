@@ -192,7 +192,7 @@ class TestIShare(lib.ITest):
         experimenters = [user2]
         guests = []
         enabled = True
-        sid = share.createShare(description, timeout, objects,experimenters, guests, enabled)
+        sid = share1.createShare(description, timeout, objects,experimenters, guests, enabled)
         
         self.assert_(len(share1.getContents(sid)) == 1)
         
@@ -289,7 +289,7 @@ class TestIShare(lib.ITest):
         experimenters = [user2]
         guests = []
         enabled = True
-        sid = share.createShare(description, timeout, objects,experimenters, guests, enabled)
+        sid = share1.createShare(description, timeout, objects,experimenters, guests, enabled)
         self.assert_(len(share1.getContents(sid)) == 1)
         # add comment by the owner
         share.addComment(sid, 'test comment by the owner %s' % (uuid))
@@ -523,21 +523,41 @@ class TestIShare(lib.ITest):
         share2 = client_share2.sf.getShareService()
         
         new_description = "new description"
-        share2.setDescription(sid, new_description)
-        self.assertEquals(share2.getShare(sid).message.val, new_description)
-        
+        share1.setDescription(sid, new_description)
+        try:
+            self.assertEquals(share2.getShare(sid).message.val, new_description)
+        except omero.ValidationException, ve:
+            pass # This user can't see the share
+
+        self.assertEquals(share1.getShare(sid).message.val, new_description)
+
         expiration = long(time.time()*1000)+86400
-        share2.setExpiration(sid, rtime(expiration))
-        self.assertEquals((share2.getShare(sid).started.val+share2.getShare(sid).timeToLive.val), expiration)
-        
-        share2.setActive(sid, False)
-        self.assert_(share2.getShare(sid).active.val == False)
-        
-        owned = share2.getOwnShares(False)
-        self.assertEquals(owned, 1)
-        
-        client_share2.sf.closeOnDestroy()
-    
+        share1.setExpiration(sid, rtime(expiration))
+        self.assertEquals((share1.getShare(sid).started.val+share1.getShare(sid).timeToLive.val), expiration)
+
+        share1.setActive(sid, False)
+        self.assert_(share1.getShare(sid).active.val == False)
+
+        owned = share1.getOwnShares(False)
+        self.assertEquals(1, len(owned))
+
+    def test1201b(self):
+        share = self.client.sf.getShareService()
+        # create share
+        description = "my description"
+        timeout = None
+        objects = []
+        experimenters = []
+        guests = ["ident@emaildomain.com"]
+        enabled = True
+        sid = share.createShare(description, timeout, objects,experimenters, guests, enabled)
+
+        self.assert_(share.getShare(sid).active.val == True)
+        share.setActive(sid, False)
+        self.assert_(share.getShare(sid).active.val == False)
+        owned = share.getOwnShares(False)
+        self.assertEquals(1, len(owned))
+
     def test1207(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         share = self.client.sf.getShareService()

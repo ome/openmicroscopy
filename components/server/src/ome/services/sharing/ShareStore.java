@@ -44,7 +44,7 @@ public abstract class ShareStore {
     // User Methods
     // =========================================================================
 
-    public <T extends IObject> void set(Share share, long owner,
+    public <T extends IObject> ShareData set(Share share, long owner,
             List<T> objects, List<Long> members, List<String> guests,
             boolean enabled) {
         ShareData data = new ShareData();
@@ -60,6 +60,7 @@ public abstract class ShareStore {
                 guests);
 
         doSet(share, data, shareItems);
+        return data;
 
     }
 
