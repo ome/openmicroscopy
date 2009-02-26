@@ -2627,7 +2627,7 @@ class OMEROGateway
 		isSessionAlive();
 		RawPixelsStorePrx service = getPixelsStore();
 		try {
-			service.setPixelsId(pixelsID);
+			service.setPixelsId(pixelsID, false);
 			return service.getPlane(z, c, t);
 		} catch (Throwable e) {
 			handleException(e, "Cannot retrieve the plane " +
