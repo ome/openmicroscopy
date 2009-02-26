@@ -57,6 +57,9 @@ public class StructuredAnnotationLoader
 	/** Indicates to load structured data */
 	public static final int ALL = 1;
 	
+	/** Indicates to load the annotation identified by an Id. */
+	public static final int SINGLE = 2;
+	
     /** The result of the call. */
     private Object		result;
     
@@ -153,6 +156,23 @@ public class StructuredAnnotationLoader
     }
 
     /**
+     * Creates a {@link BatchCall} to load the specified annotation.
+     * 
+     * @param annotationID	The id of the annotation to load.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadAnnotation(final long annotationID)
+    {
+        return new BatchCall("Loading Ratings") {
+            public void doCall() throws Exception
+            {
+            	OmeroMetadataService os = context.getMetadataService();
+                result = os.loadAnnotation(annotationID);
+            }
+        };
+    }
+    
+    /**
      * Creates a {@link BatchCall} to load the ratings related to the object
      * identified by the class and the id.
      * 
@@ -227,8 +247,6 @@ public class StructuredAnnotationLoader
     	switch (index) {
 			case ALL:
 				loadCall = loadStructuredData(data, userID, viewed);
-				break;
-			
 		}
     }
     
@@ -276,6 +294,18 @@ public class StructuredAnnotationLoader
     public StructuredAnnotationLoader(Class annotationType, long userID)
     {
     	loadCall = loadAnnotations(annotationType, userID);
+    }
+    
+    /**
+     * Creates a new instance. Builds the call corresponding to the passed
+     * index, throws an {@link IllegalArgumentException} if the index is not
+     * supported.
+     * 
+     * @param annotationID The Id of the annotation to load.
+     */
+    public StructuredAnnotationLoader(long annotationID)
+    {
+    	loadCall = loadAnnotation(annotationID);
     }
     
 }

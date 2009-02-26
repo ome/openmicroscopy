@@ -1969,5 +1969,29 @@ class OmeroMetadataServiceImpl
 		return gateway.loadSpecificAnnotation(FileAnnotationData.class, 
 				include, exclude, po.map());
 	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroMetadataService#loadAnnotation(long)
+	 */
+	public DataObject loadAnnotation(long annotationID)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		//Tmp code
+		List<String> include = new ArrayList<String>();
+		List<String> exclude = new ArrayList<String>();
+		PojoOptions po = new PojoOptions();
+		Collection c = gateway.loadSpecificAnnotation(FileAnnotationData.class, 
+				include, exclude, po.map());
+		if (c != null) {
+			Iterator i = c.iterator();
+			FileAnnotationData fa;
+			while (i.hasNext()) {
+				fa = (FileAnnotationData) i.next();
+				if (fa.getId() == annotationID) return fa;
+			}
+		}
+		return null;
+	}
 	
 }

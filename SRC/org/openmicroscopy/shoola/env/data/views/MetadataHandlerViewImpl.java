@@ -41,7 +41,6 @@ import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationSaver;
-import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
@@ -282,6 +281,17 @@ class MetadataHandlerViewImpl
 			int index, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ArchivedFilesSaver(fileAnnotation, file, index);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadAnnotation(long, AgentEventListener)
+	 */
+	public CallHandle loadAnnotation(long annotationID,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new StructuredAnnotationLoader(annotationID);
 		return cmd.exec(observer);
 	}
 	

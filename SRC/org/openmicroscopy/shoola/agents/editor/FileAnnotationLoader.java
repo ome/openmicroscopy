@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.editor.FileLoader 
+ * org.openmicroscopy.shoola.agents.editor.FileAnnotationLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,22 +22,19 @@
  */
 package org.openmicroscopy.shoola.agents.editor;
 
-
 //Java imports
-import java.io.File;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import pojos.FileAnnotationData;
 
 /** 
- * Loads the file to edit. 
- * This class calls one of the <code>loadFile</code> method in the
+ * Loads the file annotation corresponding to the passed id. 
+ * This class calls one of the <code>loadAnnotation</code> method in the
  * <code>MetadataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -48,79 +45,47 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since 3.0-Beta3
+ * @since 3.0-Beta4
  */
-public class FileLoader 
+public class FileAnnotationLoader 
 	extends EditorLoader
 {
 
 	/** Handle to the async call so that we can cancel it. */
-    private CallHandle  		handle;
+    private CallHandle	handle;
     
-    /** The id of the file to load. */
-    private long 				fileID;
-    
-    /** The size of the file to load. */
-    private long 				fileSize;
-    
-    /** Utility file where the raw data are loaded. */
-    private File				file;
+    /** The id of the file annotation to load. */
+    private long		fileAnnotationID;
     
     /**
      * Creates a new instance.
      * 
      * @param viewer	The Editor this data loader is for.
      *                  Mustn't be <code>null</code>.
-     * @param fileName	The name of the file to edit.
-     * @param fileID	The id of the file to load.
-     * @param fileSize	The size of the file to load.
+     * @param fileAnnotationID The Id of the file annotation to load.
      */
-	public FileLoader(Editor viewer, String fileName, long fileID, 
-				long fileSize)
+	public FileAnnotationLoader(Editor viewer, long fileAnnotationID)
 	{
 		super(viewer);
-		if (fileID < 0)
+		if (fileAnnotationID < 0)
 			throw new IllegalArgumentException("ID not valid.");
-		this.fileID = fileID;
-		this.fileSize = fileSize;
-		if (fileName != null) file = new File(fileName);
+		this.fileAnnotationID = fileAnnotationID;
 	}
 	
 	/**
-	 * Loads the file.
+	 * Loads the file annotation.
 	 * @see EditorLoader#load()
 	 */
 	public void load()
 	{
-		if (fileSize <= 0)
-			handle = mhView.loadFile(fileID, this);
-		else
-			handle = mhView.loadFile(file, fileID, fileSize, this);
+		handle = mhView.loadAnnotation(fileAnnotationID, this);
 	}
-
+	
 	/**
 	 * Cancels the data loading.
 	 * @see EditorLoader#cancel()
 	 */
 	public void cancel() { handle.cancel(); }
-
-	 /**
-     * Overridden to indicate that no file with the specified id 
-     * existed on the server.
-     * @see DSCallAdapter#handleException(Throwable)
-     */
-    public void handleException(Throwable exc) 
-    {
-    	String s = "Data Retrieval Failure: ";
-        LogMessage msg = new LogMessage();
-        msg.print(s);
-        msg.print(exc);
-        registry.getLogger().error(this, msg);
-        registry.getUserNotifier().notifyInfo("Loading File.", "" +
-        		"The specified file has not previously\n" +
-        		"been saved or the passed ID is not valid.");
-        viewer.discard();
-    }
     
 	/**
 	 * Feeds the result back to the viewer.
@@ -129,14 +94,8 @@ public class FileLoader
 	public void handleResult(Object result)
 	{
 		if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-		File file = (File) result;
-		if (file.exists()) {
-			viewer.setFileToEdit(file);
-			// don't need to keep a copy. Delete the local copy after 
-			// opening in viewer. 
-			String message = "Cannot delete the file.";
-			if (file.delete()) message = "File deleted.";
-			registry.getLogger().info(this, message);
+		if (result instanceof FileAnnotationData) {
+			//TODO: add method.
 		}
 	}
 	

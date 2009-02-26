@@ -52,7 +52,9 @@ import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -1818,6 +1820,26 @@ class TreeViewerComponent
 			TagAnnotationData tag = (TagAnnotationData) uo;
 			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
 				model.browseTag(node);
+		} else if (uo instanceof ImageData) {
+			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+			ViewImage evt = new ViewImage((ImageData) uo, view.getBounds());
+			TreeImageDisplay p = node.getParentDisplay();
+			TreeImageDisplay gp = null;
+			DataObject po = null;
+			DataObject gpo = null;
+			if (p != null) {
+				uo = p.getUserObject();
+				gp = p.getParentDisplay();
+				if (uo instanceof DataObject) 
+					po = (DataObject) uo;
+				if (gp != null) {
+					uo = gp.getParentDisplay();
+					if (uo instanceof DataObject) 
+						gpo = (DataObject) uo;
+				}
+			}
+			evt.setContext(po, gpo);
+			bus.post(evt);
 		} else if (node instanceof TreeImageTimeSet) {
 			model.browseTimeInterval((TreeImageTimeSet) node);
 		} else if (uo instanceof PlateData) {

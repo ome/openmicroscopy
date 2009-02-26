@@ -225,6 +225,16 @@ public interface MetadataHandlerView
 							AgentEventListener observer);
 	
 	/**
+	 * Loads the annotation corresponding to the passed id.
+	 * 
+	 * @param annotationID	The id of the annotation file.
+	 * @param observer	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadAnnotation(long annotationID, 
+							AgentEventListener observer);
+	
+	/**
 	 * Loads the original files related to a given pixels set.
 	 * 
 	 * @param pixelsID The id of the pixels set.

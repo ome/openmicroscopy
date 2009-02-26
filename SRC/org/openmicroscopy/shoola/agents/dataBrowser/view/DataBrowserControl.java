@@ -314,15 +314,6 @@ class DataBrowserControl
            }
         } else if (SlideShowView.CLOSE_SLIDE_VIEW_PROPERTY.equals(name)) {
         	view.slideShowView(false);
-        	/*
-        } else if (ObjectEditor.CREATE_DATAOBJECT_PROPERTY.equals(name)) {
-        	List l = (List) evt.getNewValue();
-        	if (l != null && l.size() == 2) {
-        		boolean visible = (Boolean) l.get(0);
-            	DataObject object = (DataObject) l.get(1);
-            	model.createDataObject(object, visible);
-        	}
-        	*/
         } else if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name) ||
         		EditorDialog.CREATE_PROPERTY.equals(name)) {
         	DataObject object = (DataObject) evt.getNewValue();
@@ -341,7 +332,5 @@ class DataBrowserControl
 			if (b) view.viewSelectedNode();
 		}
 	}
-
-
 
 }
