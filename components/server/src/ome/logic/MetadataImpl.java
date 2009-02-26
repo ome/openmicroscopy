@@ -463,6 +463,42 @@ public class MetadataImpl
     
     /**
      * Implemented as speficied by the {@link IMetadata} I/F
+     * @see IMetadata#loadAnnotation(Set)
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public <A extends Annotation> Set<A> loadAnnotation(
+    		@NotNull @Validate(Long.class) Set<Long> annotationIds)
+    {
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select ann from Annotation as ann ");
+    	sb.append("left outer join fetch ann.details.creationEvent ");
+    	sb.append("left outer join fetch ann.details.owner ");
+    	sb.append("where ann.id in (:ids)");
+    	
+    	String restriction = "";
+    	Parameters param = new Parameters();
+    	param.addIds(annotationIds);
+    	List<A> list = iQuery.findAllByQuery(sb.toString(), param);
+    	if (list == null) return new HashSet<A>();
+    	Iterator<A> i = list.iterator();
+    	A object;
+    	FileAnnotation fa;
+    	Object of;
+    	while (i.hasNext()) {
+			object =  i.next();
+			if (object instanceof FileAnnotation) {
+				fa = (FileAnnotation) object;
+				of = iQuery.findByQuery(LOAD_ORIGINAL_FILE, 
+						new Parameters().addId(fa.getFile().getId()));
+				fa.setFile((OriginalFile) of);
+			}
+		}
+    	return new HashSet<A>(list);
+    }
+    
+    /**
+     * Implemented as speficied by the {@link IMetadata} I/F
      * @see IMetadata#loadTagContent(Set, Map)
      */
     @RolesAllowed("user")
