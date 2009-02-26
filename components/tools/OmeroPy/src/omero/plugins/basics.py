@@ -20,52 +20,27 @@
 import subprocess, optparse, os, sys
 from omero.cli import Arguments, BaseControl, VERSION
 
-class HelpControl(BaseControl):
-
-    def _complete(self, text, line, begidx, endidx):
-        """
-        This is something of a hack. This should either be a part
-        of the context interface, or we should put it somewhere
-        in a utility. FIXME.
-        """
-        return self.ctx.completenames(text, line, begidx, endidx)
-
+class DebugControl(BaseControl):
     def help(self, args = None):
-        self.out("Print help")
+        self.ctx.out("Run command with debug")
+    def __call__(self, *args):
+        args = Arguments(*args)
+        self.ctx.setdebug()
+        self.ctx.pub(args)
+
+class ProfileControl(BaseControl):
+    def help(self, args = None):
+        self.ctx.out("Run command with profiling")
 
     def __call__(self, *args):
-
         args = Arguments(*args)
-        first, other = args.firstOther()
-
-        controls = self.ctx.controls.keys()
-        controls.sort()
-
-        if not first:
-            print """OmeroCli client, version %(version)s
-
-Usage: %(program_name)s <command> [options] args
-See 'help <command>' for more information on syntax
-Type 'quit' to exit
-
-Available commands:
-""" % {"program_name":pysys.argv[0],"version":VERSION}
-
-            for name in controls:
-                print """ %s""" % name
-            print """
-For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/OmeroCli"""
-
-        else:
-            try:
-                # Throws ValueError if not present
-                controls.index(first)
-
-                event = [first, "help"]
-                event.extend(other)
-                self.ctx.pub(event)
-            except ValueError, ve:
-                self.ctx.err("Unknown command:" + first)
+        import hotshot
+        from hotshot import stats
+        prof = hotshot.Profile("hotshot_edi_stats")
+        rv = prof.runcall( lambda: self.ctx.pub(args) )
+        prof.close()
+        s = stats.load("hotshot_edi_stats")
+        s.sort_stats("time").print_stats()
 
 class QuitControl(BaseControl):
 
@@ -121,10 +96,11 @@ class ShellControl(BaseControl):
         ipshell()
 
 try:
-    register("help", HelpControl)
     register("load", LoadControl)
     register("quit", QuitControl)
     register("shell", ShellControl)
     register("version", VersionControl)
+    register("debug", DebugControl)
+    register("profile", ProfileControl)
 except NameError:
     VersionControl()._main()

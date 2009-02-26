@@ -20,9 +20,10 @@ See LICENSE for details.
 
 """
 
-import cmd, string, re, os, sys, subprocess, socket, exceptions, traceback, glob, platform
+import cmd, string, re, os, sys, subprocess, socket, exceptions, traceback, glob, platform, time
 import shlex as pyshlex
 from exceptions import Exception as Exc
+from threading import Thread, Lock
 from omero_version import omero_version
 from omero_ext import pysys
 from path import path
@@ -35,6 +36,7 @@ import Ice
 VERSION=omero_version
 DEBUG = False
 if os.environ.has_key("DEBUG"):
+    print "Deprecated warning: use the 'bin/omero debug [args]' to debug"
     print "Running omero with debugging on"
     DEBUG = True
 TEXT="""
@@ -187,6 +189,10 @@ class Context:
     def __init__(self, controls = {}):
         self.controls = controls
         self.dir = OMERODIR
+        self.isdebug = DEBUG # This usage will go away and default will be False
+
+    def setdebug(self):
+        self.isdebug = True
 
     def safePrint(self, text, stream):
         """
@@ -197,7 +203,7 @@ class Context:
         except:
             print >>pysys.stderr, "Error printing text"
             print >>pysys.stdout, text
-            if DEBUG:
+            if self.isdebug:
                 traceback.print_exc()
 
     def pythonpath(self):
@@ -258,9 +264,9 @@ class Context:
 
     def dbg(self, text):
         """
-        Passes text to err() if DEBUG is set
+        Passes text to err() if self.isdebug is set
         """
-        if DEBUG:
+        if self.isdebug:
             self.err(text)
 
     def die(self, rc, args):
@@ -518,7 +524,7 @@ class BaseControl:
             self._noargs()
         else:
             if not self._likes(args):
-                if DEBUG:
+                if self.ctx.isdebug:
                     # Throwing an exception
                     # so we can see how we got here.
                     raise Exc("Bad arguments: " + str(args))
@@ -549,6 +555,55 @@ class BaseControl:
             else:
                 self.__call__(pysys.argv[1:])
 
+class HelpControl(BaseControl):
+    """
+    Defined here since the background loading might be too
+    slow to have all help available
+    """
+
+    def _complete(self, text, line, begidx, endidx):
+        """
+        This is something of a hack. This should either be a part
+        of the context interface, or we should put it somewhere
+        in a utility. FIXME.
+        """
+        return self.ctx.completenames(text, line, begidx, endidx)
+
+    def help(self, args = None):
+        self.out("Print help")
+
+    def __call__(self, *args):
+
+        args = Arguments(*args)
+        first, other = args.firstOther()
+
+        self.ctx.waitForPlugins()
+        controls = self.ctx.controls.keys()
+        controls.sort()
+
+        if not first:
+            print """OmeroCli client, version %(version)s
+
+Usage: %(program_name)s <command> [options] args
+See 'help <command>' for more information on syntax
+Type 'quit' to exit
+
+Available commands:
+""" % {"program_name":pysys.argv[0],"version":VERSION}
+
+            for name in controls:
+                print """ %s""" % name
+            print """
+For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/OmeroCli"""
+
+        else:
+            try:
+                self.ctx.controls[first].help_method()
+                ##event = [first, "help"]
+                ##event.extend(other)
+                ##self.ctx.pub(event)
+            except KeyError, ke:
+                self.ctx.err("Unknown command:" + first)
 
 class CLI(cmd.Cmd, Context):
     """
@@ -556,6 +611,27 @@ class CLI(cmd.Cmd, Context):
     registered plugins. Each plugin is given the chance to update this class
     by adding methods of the form "do_<plugin name>".
     """
+
+    class PluginsLoaded(object):
+        """
+        Thread-safe class for storing whether or not all the plugins
+        have been loaded
+        """
+        def __init__(self):
+            self.lock = Lock()
+            self.done = False
+        def get(self):
+            self.lock.acquire()
+            try:
+                return self.done
+            finally:
+                self.lock.release()
+        def set(self):
+            self.lock.acquire()
+            try:
+                self.done = True
+            finally:
+                self.lock.release()
 
     def __init__(self):
         """
@@ -567,6 +643,7 @@ class CLI(cmd.Cmd, Context):
         self.prompt = 'omero> '
         self.interrupt_loop = False
         self._client = None
+        self._pluginsLoaded = CLI.PluginsLoaded()
         self.rv = 0 # Return value to be returned
 
     def invoke(self, line):
@@ -604,15 +681,16 @@ class CLI(cmd.Cmd, Context):
         return input
 
     def onecmd(self, line):
+        args = Arguments(line)
         try:
             # Starting a new command. Reset the return value to 0
             # If err or die are called, set rv non-0 value
             self.rv = 0
-            return cmd.Cmd.onecmd(self, line)
+            return cmd.Cmd.onecmd(self, args.join(" "))
         except AttributeError, ae:
             self.err("Possible error in plugin:")
             self.err(str(ae))
-            if DEBUG:
+            if self.isdebug:
                 traceback.print_exc()
         except NonZeroReturnCode, nzrc:
             self.rv = nzrc.rv
@@ -640,14 +718,31 @@ class CLI(cmd.Cmd, Context):
                 return (line[0],None,line[0])
             else:
                 return (line[0],line[1:],Arguments(line))
+        elif isinstance(line, Arguments):
+            first,other = line.firstOther()
+            return (first, other, line)
         else:
             return cmd.Cmd.parseline(self,line)
 
     def default(self,arg):
-        if arg.startswith("EOF"):
+        arg = Arguments(arg)
+        try:
+            arg["EOF"]
             self.exit("")
-        else:
-            self.err("Unknown command: " + arg)
+        except KeyError:
+            first, other = arg.firstOther()
+            file = OMEROCLI / "plugins" / (first + ".py")
+            loc = {"register": self.register}
+            try:
+                execfile( str(file), loc )
+            except Exc, ex:
+                self.dbg("Could not load %s: %s" % (first, ex))
+                self.waitForPlugins()
+
+            if self.controls.has_key(first):
+                return self.invoke(arg.args)
+            else:
+                self.err("Unknown command: " + arg.join(" "))
 
     def completenames(self, text, line, begidx, endidx):
         names = self.controls.keys()
@@ -713,7 +808,7 @@ class CLI(cmd.Cmd, Context):
             output = "".join(f.readlines())
             f.close()
         except:
-            if DEBUG:
+            if self.isdebug:
                 raise
             print "No omero.properties found"
             output = ""
@@ -790,9 +885,9 @@ class CLI(cmd.Cmd, Context):
                 except NonZeroReturnCode, nzrc:
                     raise
                 except Exc, exc:
-                    if DEBUG:
+                    if self.ctx.isdebug:
                         traceback.print_exc()
-                    self.ctx.err("Error:"+str(exc))
+                    ## Prevent duplication - self.ctx.err("Error:"+str(exc))
                     self.ctx.die(10, str(exc))
             def complete_method(self, *args):
                 try:
@@ -800,6 +895,12 @@ class CLI(cmd.Cmd, Context):
                     return self.control._complete(*args)
                 except Exc, exc:
                     self.ctx.err("Completion error:"+str(exc))
+            def help_method(self, *args):
+                try:
+                    self._setup()
+                    return self.control.help(*args)
+                except Exc, exc:
+                    self.ctx.err("Help error:"+str(exc))
             def __call__(self, *args):
                 """
                 If the wrapper gets treated like the control
@@ -809,9 +910,16 @@ class CLI(cmd.Cmd, Context):
                 return self.do_method(*args)
 
         wrapper = Wrapper(self, Control)
-        self.controls[name] = wrapper
         setattr(self, "do_" + name, wrapper.do_method)
         setattr(self, "complete_" + name, wrapper.complete_method)
+        setattr(self, "help_" + name, wrapper.help_method)
+        self.controls[name] = wrapper
+
+    def waitForPlugins(self):
+        self.dbg("Starting waitForPlugins")
+        while not self._pluginsLoaded.get():
+            self.dbg("Waiting for plugins...")
+            time.sleep(0.1)
 
     def loadplugins(self):
         """ Finds all plugins and gives them a chance to register
@@ -821,14 +929,15 @@ class CLI(cmd.Cmd, Context):
 
         plugins = OMEROCLI / "plugins"
         for plugin in plugins.walkfiles("*.py"):
-            if DEBUG:
+            if self.isdebug:
                 print "Loading " + plugin
-            if -1 == plugin.find("#"):
+            if -1 == plugin.find("#"): # Omit emacs files
                 try:
                     execfile( plugin, loc )
                 except:
                     self.err("Error loading:"+plugin)
                     traceback.print_exc()
+        self._pluginsLoaded.set()
 
     ## End Cli
     ###########################################################
@@ -861,7 +970,11 @@ def argv(args=pysys.argv):
             args = parts
 
         cli = CLI()
-        cli.loadplugins()
+        cli.register("help", HelpControl)
+        class PluginLoader(Thread):
+            def run(self):
+                cli.loadplugins()
+        PluginLoader().start()
 
         if len(args) > 1:
             cli.invoke(args[1:])
