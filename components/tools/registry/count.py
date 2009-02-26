@@ -6,9 +6,6 @@
 
 import db
 
-def filter(ip, value):
-	return ip[0].startswith(value)
-
 def lastNDays(title, query):
 	print "\n"
 	c.execute(query)
@@ -27,9 +24,6 @@ def allIps(title, query):
 	jdk_map = {}
 	total = 0
 	for ip in c:
-		if filter(ip, "10."): continue
-		if filter(ip, "127.0.0.1"): continue
-		if filter(ip, "192.168."): continue
 		print "IP: %16s  Starts: %6s" % (ip[0], ip[1])
 
 		os_key = ip[2]
@@ -68,14 +62,21 @@ accessdb = db.accessdb()
 try:	
 	c = accessdb.conn.cursor()
 
-	ndays = "select date(time), count(date(time)) from hit where agent like '%s' group by date(time) order by date(time) desc limit 30"
+	ndays = """SELECT date(time), count(date(time))
+	            FROM hit
+                    WHERE ip not like '10.%%' and ip != '127.0.0.1'
+		     AND agent like '%s' group by date(time) order by date(time) desc limit 30"""
 	lastNDays("Last 30 days:          ", ndays % "%")
 	lastNDays("Last 30 days (server): ", ndays % "OMERO.server")
 	lastNDays("Last 30 days (insight):", ndays % "OMERO.insight")
 	lastNDays("Last 30 days (editor): ", ndays % "OMERO.editor")
 	lastNDays("Last 30 days (importer): ", ndays % "OMERO.importer")
 
-	allip = "SELECT ip, count(ip), osname, osarch, osversion, vmvendor, vmruntime from hit where agent like '%s' group by ip order by count(ip) desc"
+	allip = """SELECT ip, count(ip), osname, osarch, osversion, vmvendor, vmruntime
+	             FROM hit
+                    WHERE ip not like '10.%%' and ip != '127.0.0.1'
+		      AND agent like '%s'
+		 GROUP BY ip order by count(ip) desc"""
 	allIps("All IPs:          ", allip % "%")
 	allIps("All IPs (server): ", allip % "OMERO.server")
 	allIps("All IPs (insight):", allip % "OMERO.insight")
@@ -83,20 +84,25 @@ try:
 	allIps("All Ips (importer): ", allip % "OMERO.importer")
 
         weeks = [ {"editor":0,"importer":0,"insight":0,"server":0} for i in range(0,52) ]
-        perweek = \
-                """
-                        SELECT strftime('%%W', date(time)), count(ip)
+        perweek = """ 
+	           SELECT strftime('%%W', date(time)), count(ip)
                           FROM hit
                          WHERE ip not like '10.%%' and ip != '127.0.0.1'
                            AND agent like 'OMERO.%s'
-                      GROUP BY agent, strftime('%%W', date(time))
-                """
+                      GROUP BY agent, strftime('%%W', date(time)) """
         def perweekFor(app):
                 c.execute(perweek % app)
                 for week in c:
                         idx = int(week[0])
                         val = int(week[1])
                         weeks[idx][app] = val
+
+	def total(app):
+		total = 0
+		for idx in range(0,52):
+			total = total + weeks[idx][app]
+		return total
+
         perweekFor("editor")
         perweekFor("importer")
         perweekFor("insight")
@@ -108,6 +114,7 @@ try:
         print "WEEK    \tEDITOR  \tIMPORTER\tINSIGHT \tSERVER  "
         for idx in range(0,52):
                 print "%8s\t%8s\t%8s\t%8s\t%8s" % (idx, weeks[idx]["editor"], weeks[idx]["importer"], weeks[idx]["insight"], weeks[idx]["server"])
+	print    "TOTAL   \t%8s\t%8s\t%8s\t%8s" % (total("editor"), total("importer"), total("insight"), total("server"))
 
 finally:
 	accessdb.close()
