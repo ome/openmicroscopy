@@ -6,17 +6,21 @@
 
 import db
 
-def allIps(title, query):
+def os_info(title, query):
 	print "\n"
 	c.execute(query)
-	print title,"="*34
+
+	print "="*40
+	print title
+	print "="*40
 
 	os_map = {}
 	osd_map = {}
 	jdk_map = {}
 	total = 0
 	for ip in c:
-		print "IP: %16s  Starts: %6s" % (ip[0], ip[1])
+		# No longer printing ips here, but rather later from csv
+		# print "IP: %16s  Starts: %6s" % (ip[0], ip[1])
 
 		os_key = ip[2]
 		osd_key = "%s %s %s" %(ip[2],ip[3],ip[4])
@@ -32,10 +36,7 @@ def allIps(title, query):
 		os_map[os_key] = 1 + os_map[os_key]
 		osd_map[osd_key] = 1 + osd_map[osd_key]
 		jdk_map[jdk_key] = 1 + jdk_map[jdk_key]
-		total+=1
-	print "=" * 40
-	print "Total:",total
-	print "=" * 40
+		total = total + 1
 
 	print "\nOperating System"
 	for os_key in os_map.iterkeys():
@@ -49,6 +50,32 @@ def allIps(title, query):
 	for jdk_key in jdk_map.iterkeys():
 		print "%34s = %9s ( %5.2f%% )" % (jdk_key, jdk_map[jdk_key], 100.0*jdk_map[jdk_key]/total)
 
+
+
+# This list should always be in sync with the csv method
+applications = ["editor","importer","insight","server"]
+
+def csv(title, col1, data, keys):
+	print ""
+	print title
+	print "="*120
+        print "%8s\t  EDITOR\tIMPORTER\t INSIGHT\t  SERVER\tTOTAL"% col1
+	totals = [0,0,0,0]
+        for idx in keys:
+		values = []
+		for m in [data["editor"], data["importer"], data["insight"], data["server"]]:
+			try:
+				values.append(int(m[idx]))
+			except KeyError:
+				values.append(0)
+		for jdx in range(0,4):
+			totals[jdx] = totals[jdx] + values[jdx]
+		values.append( sum(values) )
+		values.insert( 0, idx)
+                print "%8s\t%8s\t%8s\t%8s\t%8s\t%8s" % tuple(values)
+	totals.append(sum(totals))
+	print    "TOTAL   \t%8s\t%8s\t%8s\t%8s\t%8s" % tuple(totals)
+	
 accessdb = db.accessdb()
 try:
 	c = accessdb.conn.cursor()
@@ -62,45 +89,31 @@ try:
 		     AND agent = 'OMERO.%s'
                 GROUP BY date(time)
 		ORDER BY date(time) desc limit 30"""
+	m = {}
 	def doDay(app):
-		m = {}
 		c.execute(ndays % app)
+		m[app] = {}
 		for day in c:
-			m[day[0]] = day[1]
+			m[app][day[0]] = day[1]
 		return m
-	server = doDay("server")
-	insight = doDay("insight")
-	importer = doDay("importer")
-	editor = doDay("editor")
 
-	print ""
-	print "DAILY STARTS PER APPLICATION FOR LAST 30 DAYS"
-	print "="*100
-        print "DAY       \tEDITOR  \tIMPORTER\tINSIGHT \tSERVER  \tTOTAL"
+	for app in applications: doDay(app)
+	title = "DAILY STARTS PER APPLICATION FOR LAST 30 DAYS"
+	col1 = "DAY"
 	# Making a set of all keys for when not all apps start on each day
-	keys = list(set(editor.keys()+importer.keys()+insight.keys()+server.keys()))
+	s = set()
+	for app in applications: s.update( set(m[app].keys()) )
+	keys = list(s)
 	keys.sort()
 	keys.reverse()
-	totals = [0,0,0,0]
-        for idx in keys:
-		values = []
-		for m in (editor, importer, insight, server):
-			try:
-				values.append(int(m[idx]))
-			except KeyError:
-				values.append(0)
-		for jdx in range(0,4):
-			totals[jdx] = totals[jdx] + values[jdx]
-		values.append( sum(values) )
-		values.insert( 0, idx)
-                print "%8s\t%8s\t%8s\t%8s\t%8s\t%8s" % tuple(values)
-	totals.append(sum(totals))
-	print    "TOTAL   \t%8s\t%8s\t%8s\t%8s\t%8s" % tuple(totals)
+	csv(title, col1, m, keys)
 	
 	#
 	# PERWEEK
 	#
-        weeks = [ {"editor":0,"importer":0,"insight":0,"server":0} for i in range(0,52) ]
+        weeks = {}
+	for app in applications:
+		weeks[app] = [ 0 for idx in range(0,52) ]
         perweek = """ 
 	           SELECT strftime('%%W', date(time)), count(ip)
                           FROM hit
@@ -112,45 +125,40 @@ try:
                 for week in c:
                         idx = int(week[0])
                         val = int(week[1])
-                        weeks[idx][app] = val
+                        weeks[app][idx] = val
 
-	def total(app):
-		total = 0
-		for idx in range(0,52):
-			total = total + weeks[idx][app]
-		return total
-
-        perweekFor("editor")
-        perweekFor("importer")
-        perweekFor("insight")
-        perweekFor("server")
-
-	print ""
-	print "WEEKLY STARTS PER APPLICATION"
-	print "="*100
-        print "WEEK    \tEDITOR  \tIMPORTER\tINSIGHT \tSERVER  \tTOTAL"
-        for idx in range(0,52):
-		values = [weeks[idx]["editor"], weeks[idx]["importer"], weeks[idx]["insight"], weeks[idx]["server"]]
-		values.append( sum(values) )
-		values.insert( 0, idx)
-                print "%8s\t%8s\t%8s\t%8s\t%8s\t%8s" % tuple(values)
-	totals = [total("editor"), total("importer"), total("insight"), total("server")]
-	totals.append(sum(totals))
-	print    "TOTAL   \t%8s\t%8s\t%8s\t%8s\t%8s" % tuple(totals)
+	for app in applications: perweekFor(app)
+	title = "WEEKLY STARTS PER APPLICATION"
+	col1 = "WEEK"
+	csv(title, col1, weeks, range(0,52))
 
 	#
-	# OTHER
+	# IPS
 	#
 	allip = """SELECT ip, count(ip), osname, osarch, osversion, vmvendor, vmruntime
 	             FROM hit
                     WHERE ip not like '10.%%' and ip != '127.0.0.1'
-		      AND agent like '%s'
+		      AND agent like 'OMERO.%s'
 		 GROUP BY ip order by count(ip) desc"""
-	allIps("All IPs:          ", allip % "%")
-	allIps("All IPs (server): ", allip % "OMERO.server")
-	allIps("All IPs (insight):", allip % "OMERO.insight")
-	allIps("All Ips (editor): ", allip % "OMERO.editor")
-	allIps("All Ips (importer): ", allip % "OMERO.importer")
+	ipcounts = {}
+	ips = set()
+	for app in applications: ipcounts[app] = {}
+	def perip(app):
+		c.execute(allip % app)	
+		for ip in c:
+			ips.add(ip[0])
+			ipcounts[app][ip[0]] = int(ip[1])
+	for app in applications: perip(app)
+	ips = list(ips)
+	ips.sort()
+	csv("STARTS PER IP ADDRESS", "IP", ipcounts, ips)
+	
+	#
+	# Print os_info
+	#
+	os_info("OS Info (combined): ", allip % "%")
+	for app in applications:
+		os_info("OS INFO (%s)"%app, allip % app)
 
 finally:
 	accessdb.close()
