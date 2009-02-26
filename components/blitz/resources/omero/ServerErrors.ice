@@ -52,11 +52,13 @@
  *   |
  *   |_ Ice::UserException (super class of all application exceptions)
  *   |  |
- *   |  \_ Glacier2::CannotCreateSessionException (only exception throwable by createSession)
- *   |      |_ omero::AuthenticationException (bad login)
- *   |      |_ omero::ExpiredCredentialException (old password)
- *   |      |_ omero::WrappedCreateSessionException (any other server error during createSession)
- *   |      \_ omero::licenses::NoAvailableLicensesException (see tools/licenses)
+ *   |  |_ Glacier2::CannotCreateSessionException (1 of 2 exceptions throwable by createSession)
+ *   |  |   |_ omero::AuthenticationException (bad login)
+ *   |  |   |_ omero::ExpiredCredentialException (old password)
+ *   |  |   |_ omero::WrappedCreateSessionException (any other server error during createSession)
+ *   |  |   \_ omero::licenses::NoAvailableLicensesException (see tools/licenses/resources/omero/LicensesAPI.ice)
+ *   |  |
+ *   |  \_ Glacier2::PermissionDeniedException (other of 2 exceptions throwable by createSession)
  *   |
  *   \_ Ice::LocalException (should generally be considered fatal. See exceptions below)
  *       |
@@ -122,6 +124,14 @@ module omero
 
 
   // SESSION EXCEPTIONS (Glacier2) ---------------------
+
+  /**
+   * createSession() is a two-phase process. First, a PermissionsVerifier is
+   * called which must return true; then a SessionManager is called to create
+   * the session (ServiceFactory). If the PermissionsVerifier returns false,
+   * then PermissionDeniedException will be thrown. This, however, cannot be
+   * subclassed and so string parsing must be used.
+   */
 
   /**
    * Thrown when the information provided omero.createSession() or more
