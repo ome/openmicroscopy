@@ -2285,9 +2285,13 @@ public class OMEROMetadataStoreClient
         try
         {
         	List<IObject> objectList = new ArrayList<IObject>(pixelsList.size());
+        	Image unloadedImage;
         	for (Pixels pixels : pixelsList)
         	{
         		pixels.unloadCollections();
+        		pixels.unloadDetails();
+        		unloadedImage = new ImageI(pixels.getImage().getId(), false);
+        		pixels.setImage(unloadedImage);
         		objectList.add(pixels);
         	}
         	iUpdate.saveArray(objectList);

@@ -377,7 +377,6 @@ public class ImportLibrary implements IObservable
         notifyObservers(Actions.IMPORT_DONE, args);
         
         return pixList;
-        
     }
     
     /**
