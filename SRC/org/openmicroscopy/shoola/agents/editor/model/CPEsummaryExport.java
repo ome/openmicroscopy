@@ -44,7 +44,9 @@ import net.n3.nanoxml.XMLWriter;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
@@ -146,6 +148,10 @@ public class CPEsummaryExport {
 		// Add name,
 		String name = param.getAttribute(AbstractParam.PARAM_NAME);
 		if (name == null) 	name = AbstractParam.DEFAULT_PARAM_NAME;
+		if (param instanceof NumberParam || param instanceof EnumParam) {
+			String units = param.getAttribute(NumberParam.PARAM_UNITS);
+			if (units != null) 		name = name + " (" + units + ")";
+		}
 		CPEexport.addChildContent(parameter, "n", name);
 		// Add value
 		String value = param.getParamValue();
