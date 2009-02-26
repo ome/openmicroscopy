@@ -2287,6 +2287,7 @@ public class OMEROMetadataStoreClient
         	List<IObject> objectList = new ArrayList<IObject>(pixelsList.size());
         	for (Pixels pixels : pixelsList)
         	{
+        		pixels.unloadCollections();
         		objectList.add(pixels);
         	}
         	iUpdate.saveArray(objectList);
