@@ -1,6 +1,4 @@
-log.reg
-log.map
-pid.reg
-pid.map
-sqlite.db
-GeoLiteCity.dat
+*.html
+experimental
+backups
+*.7z

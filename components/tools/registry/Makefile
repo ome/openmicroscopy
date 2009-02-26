@@ -1,7 +1,7 @@
 
-export PYTHONPATH ?= "$(HOME)/root/lib/python2.4/site-packages"
-export LD_LIBRARY_PATH ?= "$(HOME)/root/lib/:$(HOME)/root/lib64/"
-export DYLD_LIBRARY_PATH ?= "$(HOME)/root/lib/"
+
+#export PYTHONPATH      ?= $(HOME)/.hudson/root/lib/python2.4/site-packages:$(HOME)/.hudson/root/lib64/python2.4/site-packages:/usr/lib64/portage/pym
+#export LD_LIBRARY_PATH ?= $(HOME)/.hudson/root/lib:$(HOME)/.hudson/root/lib64
 
 restart: regrestart webrestart
 
@@ -11,13 +11,17 @@ stop: regstop webstop
 
 regrestart: regstop regstart
 
+regstartold:
+	export LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) ; export PYTHONPATH=$(PYTHONPATH) ; \
+	twistd -l log.reg --pidfile=pid.reg -y registry.py
+
 regstart:
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) twistd -l log.reg --pidfile=pid.reg -y registry.py
+	twistd -l log.reg --pidfile=pid.reg -y registry.py
 
 regstop:
 	ls pid.reg && cat pid.reg | xargs kill || echo "No pid.reg"
 
-webrestart: stop start
+webrestart: webstop webstart
 
 webstart:
 	twistd -l log.map --pidfile=pid.map -y generate.py

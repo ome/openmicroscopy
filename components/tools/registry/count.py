@@ -113,25 +113,28 @@ try:
 	#
 	# PERWEEK
 	#
-        weeks = {}
-	for app in applications:
-		weeks[app] = [ 0 for idx in range(0,53) ]
         perweek = """ 
-	           SELECT strftime('%%W', date(time)), count(ip)
+	           SELECT strftime('%%Y-%%W', date(time)), count(ip)
                           FROM hit """ + where_filter + """
                            AND agent like 'OMERO.%s'
-                      GROUP BY agent, strftime('%%W', date(time)) """
+                      GROUP BY agent, strftime('%%Y-%%W', date(time)) """
+        weeks = {}
+	keys = set()
         def perweekFor(app):
+		weeks[app] = {}
                 c.execute(perweek % app)
                 for week in c:
-                        idx = int(week[0])
+                        idx = week[0]
                         val = int(week[1])
+			keys.add(idx)
                         weeks[app][idx] = val
 
 	for app in applications: perweekFor(app)
 	title = "WEEKLY STARTS PER APPLICATION"
 	col1 = "WEEK"
-	csv(title, col1, weeks, range(1,53))
+	keys = list(keys)
+	keys.sort()
+	csv(title, col1, weeks, keys)
 
 	#
 	# IPS
@@ -149,9 +152,10 @@ try:
 	def perip(app):
 		c.execute(allip % app)	
 		for ip in c:
-			ips.add(ip[0])
-			ips_per_app[app].add(ip[0])
-			ipcounts[app][ip[0]] = int(ip[1])
+		        stripped = ip[0].split(",")[-1].strip() ### TODO THIS SHOULD NOT BE HAPPENING
+			ips.add(stripped)
+			ips_per_app[app].add(stripped)
+			ipcounts[app][stripped] = int(ip[1])
 	for app in applications: perip(app)
 	ips = list(ips)
 	def mysort(a,b):

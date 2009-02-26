@@ -74,10 +74,19 @@ class ReportResource(Resource):
             if isinstance(value, types.ListType):
                 args[key] = value[0]
 
-        args["ip"] = request.getClientIP()
         headers = request.getAllHeaders()
         if headers.has_key("x-forwarded-for"):
-            args["ip"] = headers["x-forwarded-for"]
+            __ip = headers["x-forwarded-for"]
+	else:
+            __ip = request.getClientIP()
+	if not __ip:
+            __ip = "unknown"
+	# Here we deal with IP addresses which are comma separated
+	# Take the last one in the list and strip white-space
+	if __ip.find(",") >= 0:
+	    print "WARN: CSV IP %s " % __ip
+	    __ip = __ip.split(",")[-1].strip()
+	args["ip"] = __ip
 
         if not args.has_key('poll'):
             args['poll'] = 'unknown'
