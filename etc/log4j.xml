@@ -25,7 +25,7 @@ system to be re-configured.
   <appender name="PRIMARY" class="org.apache.log4j.RollingFileAppender">
     <errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
     <param name="Threshold" value="INFO"/>
-    <param name="File" value="${user.home}/omero/log/${omero.name}.log"/>
+    <param name="File" value="var/log/${omero.name}.log"/>
     <param name="MaxFileSize" value="500000KB"/>
     <param name="MaxBackupIndex" value="9"/>
     <param name="Append" value="true"/>
