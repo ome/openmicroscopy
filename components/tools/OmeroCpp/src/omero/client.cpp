@@ -130,8 +130,8 @@ namespace omero {
 	ctx->put(omero::constants::CLIENTUUID, __uuid);
 
 	// Register the default client callback.
-	CallbackIPtr cb = new CallbackI(this);
 	__oa = __ic->createObjectAdapter("omero.ClientCallback");
+	CallbackIPtr cb = new CallbackI(__ic, __oa);
 	__oa->add(cb, __ic->stringToIdentity("ClientCallback/" + __uuid)) ;
 	__oa->activate();
 
@@ -402,6 +402,9 @@ namespace omero {
 	} catch (const Ice::ConnectionLostException& cle) {
 	    // ok. Exception will always be thrown.
 	    oldIc->destroy();
+	} catch (const Ice::ConnectionRefusedException& cre) {
+	    // ok. Server probably went down
+	    oldIc->destroy();
         } catch (const omero::ClientError& ce) {
             // This is called by getRouter() if a router is not configured.
             // If there isn't one, then we can't be connected. That's alright.
@@ -500,8 +503,9 @@ namespace omero {
 	_getCb()->onShutdown = callable;
     }
 
-    CallbackI::CallbackI(omero::client* theClient) {
-	client = theClient;
+    CallbackI::CallbackI(const Ice::CommunicatorPtr& _ic, const Ice::ObjectAdapterPtr& _oa) {
+	ic = _ic;
+	oa = _oa;
 	onHeartbeat = NoOpCallable();
 	onSessionClosed = NoOpCallable();
 	onShutdown = NoOpCallable();
@@ -520,13 +524,12 @@ namespace omero {
     }
 
     void CallbackI::execute(Callable callable, const string& action) {
-	Ice::CommunicatorPtr __ic = client->getCommunicator();
 	try {
 	    callable();
-	    __ic->getLogger()->trace("ClientCallback", action + " run");
+	    ic->getLogger()->trace("ClientCallback", action + " run");
 	} catch (const std::exception& ex) {
 	    try {
-		__ic->getLogger()->error("Error performing " + action+": "+ex.what());
+		ic->getLogger()->error("Error performing " + action+": "+ex.what());
 	    } catch (const std::exception& ex2) {
 		std::cerr << "Error performing " << action << ": " << ex.what() << std::endl;
 		std::cerr << "(Stderr due to: " << ex2.what() << std::endl;

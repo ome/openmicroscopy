@@ -289,7 +289,7 @@ namespace omero {
      * that the server may call on it.
      */
     class CallbackI : virtual public omero::api::ClientCallback {
-	
+
 	/*
 	 * omero::client needs access to the Callable fields on the callback.
 	 */
@@ -301,13 +301,14 @@ namespace omero {
 	CallbackI(CallbackI&);
 	void execute(Callable callable, const std::string& action);
 	// State
-	omero::client* client;
+	Ice::CommunicatorPtr ic;
+	Ice::ObjectAdapterPtr oa;
 	Callable onHeartbeat;
 	Callable onSessionClosed;
 	Callable onShutdown;
-	
+
     public:
-	CallbackI(omero::client* theClient);
+	CallbackI(const Ice::CommunicatorPtr& ic, const Ice::ObjectAdapterPtr& oa);
 	virtual void requestHeartbeat(const Ice::Current& current = Ice::Current());
 	virtual void sessionClosed(const Ice::Current& current = Ice::Current());
 	virtual void shutdownIn(Ice::Long milliSeconds, const Ice::Current& current = Ice::Current());
@@ -315,21 +316,6 @@ namespace omero {
 
     // Callable implementations
     // ==================================================================
-
-    /*
-     * Callable implementation which calls client.closeSession()
-     */
-    class CloseSessionCallable : public Callable {
-    private:
-	omero::client* client;
-    public:
-    CloseSessionCallable(omero::client* theClient) : Callable() {
-	    client = theClient;
-	}
-	inline void operator()(){
-	    client->closeSession();
-	}
-    };
 
     /*
      * Callable implementation which does nothing.

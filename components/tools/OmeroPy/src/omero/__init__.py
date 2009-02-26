@@ -209,8 +209,8 @@ class client(object):
             ctx.put(omero.constants.CLIENTUUID, self.__uuid)
 
             # Register the default client callback
-            cb = client.CallbackI(self)
             self.__oa = self.__ic.createObjectAdapter("omero.ClientCallback")
+            cb = client.CallbackI(self.__ic, self.__oa)
             self.__oa.add(cb, self.__ic.stringToIdentity("ClientCallback/%s" % self.__uuid))
             self.__oa.activate()
         finally:
@@ -529,6 +529,9 @@ class client(object):
                 except Ice.ConnectionLostException:
                     # ok. Exception will always be thrown
                     pass
+                except Ice.ConnectionRefusedException:
+                    # ok. Server probably went down
+                    pass
             finally:
                 oldIc.destroy()
 
@@ -633,7 +636,9 @@ class client(object):
     class CallbackI(omero.api.ClientCallback):
         """
         Implemention of ClientCallback which will be added to
-        any Session which this instance creates
+        any Session which this instance creates. Note: this client
+        should avoid all interaction with the {@link client#lock} since it
+        can lead to deadlocks during shutdown. See: ticket:1210
         """
 
         #
@@ -644,18 +649,21 @@ class client(object):
         def _keepAlive(self):
             self.client.sf.getAdminService().getEventContext()
         def _closeSession(self):
-            self.client.closeSession()
+            try:
+                self.oa.deactivate();
+            except exceptions.Exception, e:
+                pysys.err.write("On session closed: " + str(e))
 
-        def __init__(self, client):
-            self.client = client
+        def __init__(self, ic, oa):
+            self.ic = ic
+            self.oa = oa
             self.onHeartbeat = self._noop
             self.onShutdownIn = self._noop
             self.onSessionClosed = self._noop
         def execute(self, myCallable, action):
-            ic = self.client.ic
             try:
                 myCallable()
-                ic.getLogger().trace("ClientCallback", action + " run")
+                self.ic.getLogger().trace("ClientCallback", action + " run")
             except:
                 try:
                     ic.getLogger().error("Error performing %s" % action)

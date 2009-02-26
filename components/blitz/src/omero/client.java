@@ -307,8 +307,8 @@ public class client {
             ctx.put(omero.constants.CLIENTUUID.value, __uuid);
 
             // Register the default client callback.
-            CallbackI cb = new CallbackI(this);
             __oa = __ic.createObjectAdapter("omero.ClientCallback");
+            CallbackI cb = new CallbackI(this.__ic, this.__oa);
             __oa.add(cb, Ice.Util.stringToIdentity("ClientCallback/" + __uuid));
             __oa.activate();
 
@@ -583,6 +583,8 @@ public class client {
                 // ok. We don't want it to exist
             } catch (Ice.ConnectionLostException cle) {
                 // ok. Exception will always be thrown
+            } catch (Ice.ConnectionRefusedException cle) {
+                // ok. Server probably went down
             } finally {
                 oldIc.destroy();
             }
@@ -731,11 +733,15 @@ public class client {
 
     /**
      * Implementation of {@link ClientCallback} which will be added to any
-     * {@link Session} which this instance creates.
+     * {@link Session} which this instance creates. Note: this client
+     * should avoid all interaction with the {@link client#lock} since it
+     * can lead to deadlocks during shutdown. See: ticket:1210
      */
     private static class CallbackI extends _ClientCallbackDisp {
 
-        private final omero.client client;
+        private final Ice.Communicator ic;
+        
+        private final Ice.ObjectAdapter oa;
 
         private Runnable _noop = new Runnable() {
             public void run() {
@@ -747,8 +753,7 @@ public class client {
 
             public void run() {
                 try {
-                    client.__oa.deactivate();
-                    client.__sf = null;
+                    oa.deactivate();
                 } catch (Exception e) {
                     System.err.println("On session closed: " + e.getMessage());
                 }
@@ -760,8 +765,9 @@ public class client {
         private Runnable onSessionClosed = _noop;
         private Runnable onShutdown = _noop;
 
-        public CallbackI(omero.client client) {
-            this.client = client;
+        public CallbackI(Ice.Communicator ic, Ice.ObjectAdapter oa) {
+            this.ic = ic;
+            this.oa = oa;
         }
 
         public void requestHeartbeat(Current __current) {
@@ -777,7 +783,6 @@ public class client {
         }
 
         protected void execute(Runnable runnable, String action) {
-            Ice.Communicator ic = client.getCommunicator();
             try {
                 runnable.run();
                 ic.getLogger().trace("ClientCallback", action + " run");
