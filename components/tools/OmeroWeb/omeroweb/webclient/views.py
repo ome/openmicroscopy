@@ -1000,7 +1000,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
         
     grs = list()
     grs.extend(list(conn.getEventContext().memberOfGroups))
-    grs.extend(list(conn.getEventContext().leaderOfGroups))
+    #grs.extend(list(conn.getEventContext().leaderOfGroups))
     my_groups = set(list(conn.getExperimenterGroups(set(grs))))
     request.session['groupId'] = None
     form_mygroups = MyGroupsForm(initial={'mygroups': my_groups})
@@ -1419,7 +1419,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     form_mygroups = None
     grs = list()
     grs.extend(list(conn.getEventContext().memberOfGroups))
-    grs.extend(list(conn.getEventContext().leaderOfGroups))
+    #grs.extend(list(conn.getEventContext().leaderOfGroups))
     my_groups = set(list(conn.getExperimenterGroups(set(grs))))
     try:
         if request.REQUEST['group'] != "": 

@@ -248,6 +248,8 @@ class UploadPhotoForm(forms.Form):
     def clean_photo(self):
         if self.cleaned_data['photo'] is None:
             raise forms.ValidationError('This field is required.')
+        if not self.cleaned_data['photo'].content_type.startswith("image"):
+            raise forms.ValidationError('Only images (JPEG, GIF, PNG) acepted.')
         if self.cleaned_data['photo'].size > 204800:
             raise forms.ValidationError('Photo size file cannot be greater them 200KB.')
 

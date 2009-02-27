@@ -472,14 +472,10 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(self.getEventContext().userId)
-        if page is not None:
-            f = omero.sys.Filter()
-            f.limit = rint(24)
-            f.offset = rint((int(page)-1)*24)
-            p.theFilter = f
         sql = "select im from Image as im join fetch im.details.owner join fetch im.details.group " \
                 "where im.details.owner.id=:eid and "\
-                "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id) order by im.id asc"
+                "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id and dsl.details.owner.id=:eid ) " \
+                "order by im.id asc"
         for e in q.findAllByQuery(sql,p):
             yield ImageWrapper(self, e)
 
@@ -548,14 +544,10 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(long(eid))
-        if page is not None:
-            f = omero.sys.Filter()
-            f.limit = rint(24)
-            f.offset = rint((int(page)-1)*24)
-            p.theFilter = f
         sql = "select im from Image as im join fetch im.details.owner join fetch im.details.group " \
                 "where im.details.owner.id=:eid and "\
-                "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id) order by im.id asc"
+                "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id and dsl.details.owner.id=:eid ) " \
+                "order by im.id asc"
         for e in q.findAllByQuery(sql,p):
             yield ImageWrapper(self, e)
 
@@ -621,14 +613,10 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["gid"] = rlong(long(gid))
-        if page is not None:
-            f = omero.sys.Filter()
-            f.limit = rint(24)
-            f.offset = rint((int(page)-1)*24)
-            p.theFilter = f
         sql = "select im from Image as im join fetch im.details.owner join fetch im.details.group " \
                 "where im.details.permissions > '-103' and im.details.group.id=:gid and " \
-                "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id ) order by im.id asc"
+                "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id and dsl.details.owner.id=:gid) " \
+                "order by im.id asc"
         for e in q.findAllByQuery(sql, p):
             yield ImageWrapper(self, e)
 
@@ -2333,12 +2321,10 @@ class AnnotationLinkWrapper (BlitzObjectWrapper):
         return AnnotationWrapper(self, self.child)
 
 class AnnotationWrapper (BlitzObjectWrapper):
-    
+            
     def getFileSize(self):
         if isinstance(self._obj, FileAnnotationI):
             return self._obj.file.size.val
-        else:
-            return None
     
     def getFileName(self):
         if isinstance(self._obj, FileAnnotationI):
@@ -2351,8 +2337,6 @@ class AnnotationWrapper (BlitzObjectWrapper):
             except:
                 logger.info(traceback.format_exc())
                 return self._obj.file.name.val
-        else:
-            return None
     
     def shortTag(self):
         if isinstance(self._obj, TagAnnotationI):
@@ -2365,8 +2349,6 @@ class AnnotationWrapper (BlitzObjectWrapper):
             except:
                 logger.info(traceback.format_exc())
                 return self._obj.textValue.val
-        else:
-            return None
     
 class OriginalFileWrapper (BlitzObjectWrapper):
     pass

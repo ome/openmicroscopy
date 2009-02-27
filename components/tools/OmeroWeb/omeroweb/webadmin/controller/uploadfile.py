@@ -43,18 +43,16 @@ class BaseUploadFile(BaseController):
                 format = self.conn.getFileFormt(f[1].upper())
             else:
                 format = self.conn.getFileFormt(newFile.content_type)
-            oFile = OriginalFileI()
+            
+            oFile = has._obj.file
             oFile.setName(rstring(str(newFile.name)));
             oFile.setPath(rstring(str(newFile.name)));
             oFile.setSize(rlong(long(newFile.size)));
             oFile.setSha1(rstring("pending"));
             oFile.setFormat(format);
             self.objectPermissions(oFile, {'owner':'rw', 'group':'r', 'world':'r'})
-
-            of = self.conn.saveAndReturnObject(oFile);
-            self.conn.saveFile(newFile, of.id)
-            
-            has._obj.setFile(of._obj)
+            self.conn.saveFile(newFile, oFile.id.val)
+            has._obj.setFile(oFile)
             self.conn.saveObject(has._obj)
             
         else:

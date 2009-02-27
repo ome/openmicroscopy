@@ -65,7 +65,7 @@
                     <img src="{% get_webadmin_static_url %}/images/del.png" alt="delete" title="delete"> 
                     <a href="{% get_webadmin_root_url %}/group/edit/{{ dict.group.id }}/"><img src="{% get_webadmin_static_url %}/images/edit.png" alt="edit" title="edit"></a>
                 {% endif %}
-                <a href="{% get_webadmin_root_url %}/group/members/{{ dict.group.id }}/"><img src="{% get_webadmin_static_url %}/images/editing.png" alt="editin" title="editin"></a>
+                <a href="{% get_webadmin_root_url %}/group/members/{{ dict.group.id }}/"><img src="{% get_webadmin_static_url %}/images/editing.png" alt="manage" title="manage members"></a>
             </td>
             <td class="link">{{ dict.group.name }}</td>
             <td class="link">{{ dict.group.getOwner }}</td>
