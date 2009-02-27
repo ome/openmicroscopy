@@ -757,7 +757,6 @@ public class OMEROMetadataStore
      * specified by the client and save them in the DB.
      * @param imageChannelGlobalMinMax Minimums and maximums to update.
      */
-    @SuppressWarnings("unchecked")
     public void populateMinMax(double[][][] imageChannelGlobalMinMax)
     {
     	List<Channel> channelList = new ArrayList<Channel>();
@@ -780,6 +779,7 @@ public class OMEROMetadataStore
     			statsInfo.setGlobalMax(globalMinMax[1]);
     			channel.setStatsInfo(statsInfo);
     			channel.setPixels(unloadedPixels);
+    			channelList.add(channel);
     		}
     	}
     	Channel[] toSave = channelList.toArray(new Channel[channelList.size()]);

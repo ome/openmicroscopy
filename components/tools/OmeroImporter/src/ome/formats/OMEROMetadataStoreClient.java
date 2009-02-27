@@ -61,8 +61,6 @@ import omero.model.AcquisitionMode;
 import omero.model.Arc;
 import omero.model.ArcType;
 import omero.model.Binning;
-import omero.model.BooleanAnnotation;
-import omero.model.BooleanAnnotationI;
 import omero.model.ContrastMethod;
 import omero.model.Correction;
 import omero.model.Dataset;
@@ -96,9 +94,6 @@ import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.PhotometricInterpretation;
 import omero.model.Pixels;
-import omero.model.PixelsAnnotationLink;
-import omero.model.PixelsAnnotationLinkI;
-import omero.model.PixelsI;
 import omero.model.PixelsType;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
@@ -144,10 +139,6 @@ public class OMEROMetadataStoreClient
     
     /** Bio-Formats reader that's populating us. */
     private IFormatReader reader;
-    
-    /** Namespace for our archival annotation. */
-    private static final String ARCHIVE_ANN_NS = 
-    	"openmicroscopy.org/omero/importer/archived";
     
     private List<Pixels> pixelsList;
     
@@ -258,6 +249,7 @@ public class OMEROMetadataStoreClient
 
     /**
      * Pings all registered OMERO Blitz proxies. 
+     * 
      */
     public void ping()
     {
@@ -2247,10 +2239,14 @@ public class OMEROMetadataStoreClient
     	{
     		//rawPixelStore.close();
     		//rawPixelStore = serviceFactory.createRawPixelsStore();
+    		long t0 = System.currentTimeMillis();
     		rawPixelStore.setPixelsId(pixId, true);
+    		System.err.println("setPixelsId time: " + (System.currentTimeMillis() - t0));
     		currentPixId = pixId;
     	}
+    	long t0 = System.currentTimeMillis();
     	rawPixelStore.setPlane(arrayBuf, z, c, t);
+    	System.err.println("setPlane time: " + (System.currentTimeMillis() - t0));
     }
 
     /* (non-Javadoc)

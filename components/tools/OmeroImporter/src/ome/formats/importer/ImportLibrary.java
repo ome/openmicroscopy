@@ -425,17 +425,26 @@ public class ImportLibrary implements IObservable
                 {
                     int planeNumber = reader.getIndex(z, c, t);
                     //int planeNumber = getTotalOffset(z, c, t);
+                    long t0 = System.currentTimeMillis();
                     ByteBuffer buf =
                         reader.openPlane2D(fileName, planeNumber, arrayBuf).getData();
+                    System.err.println("open plane time: " + (System.currentTimeMillis() - t0));
+                    t0 = System.currentTimeMillis();
                     arrayBuf = swapIfRequired(buf, fileName);
+                    System.err.println("swap time: " + (System.currentTimeMillis() - t0));
+                    t0 = System.currentTimeMillis();
                     try {
                         md.update(arrayBuf);
                     } catch (Exception e) {
                         // This better not happen. :)
                         throw new RuntimeException(e);
                     }
+                    System.err.println("SHA1 update time: " + (System.currentTimeMillis() - t0));
+                    t0 = System.currentTimeMillis();
                     step.step(series, i);
                     store.setPlane(pixId, arrayBuf, z, c, t);
+                    System.err.println("setPlaneTotal time: " + (System.currentTimeMillis() - t0));
+                    t0 = System.currentTimeMillis();
                     if (dumpPixels)
                         wChannel.write(buf);
                     i++;
