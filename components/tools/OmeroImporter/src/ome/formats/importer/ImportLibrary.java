@@ -14,7 +14,6 @@
 
 package ome.formats.importer;
 
-import static omero.rtypes.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,9 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import ome.formats.importer.util.Actions;
 
 import omero.ServerError;
-import omero.model.BooleanAnnotationI;
 import omero.model.Dataset;
-import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
 
@@ -224,7 +221,6 @@ public class ImportLibrary implements IObservable
 	 * @throws FormatException if there is an error parsing metadata.
 	 * @throws IOException if there is an error reading the file.
      */
-    @SuppressWarnings("unchecked")
 	public List<Pixels> importMetadata(String imageName, boolean archive)
     	throws FormatException, IOException
     {
@@ -275,9 +271,8 @@ public class ImportLibrary implements IObservable
      * @throws IOException if there is an error reading the file.
      */
     // TODO: Add observer messaging for any agnostic viewer class to use
-    @SuppressWarnings("unused")
     public List<Pixels> importImage(File file, int index, int numDone, int total, String imageName, boolean archive)
-    throws FormatException, IOException, ServerError
+    	throws FormatException, IOException, ServerError
     {        
         String fileName = file.getAbsolutePath();
         String shortName = file.getName();
@@ -321,10 +316,16 @@ public class ImportLibrary implements IObservable
         
         reader.getUsedFiles();
         
+        // Save metadata and prepare the RawPixelsStore for our arrival.
         List<Pixels> pixList = importMetadata(imageName, archive);
+        List<Long> pixelsIds = new ArrayList<Long>(pixList.size());
+        for (Pixels pixels : pixList)
+        {
+        	pixelsIds.add(pixels.getId().getValue());
+        }
+        store.preparePixelsStore(pixelsIds);
 
         int seriesCount = reader.getSeriesCount();
-        
         boolean saveSha1 = false;
         for (int series = 0; series < seriesCount; series++)
         {

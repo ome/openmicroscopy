@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IRenderingSettings;

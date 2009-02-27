@@ -10,8 +10,11 @@ package ome.services;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IRepositoryInfo;
@@ -25,14 +28,13 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.parameters.Parameters;
-import omeis.providers.re.RenderingEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * implementation of the IUpdate service interface
+ * Implementation of the RawPixelsStore stateful service.
  *
  * @author <br>
  *         Josh Moore&nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -69,6 +71,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
     /** A copy buffer for the pixel retrieval. */
     private transient byte[] readBuffer;
+    
+    /** Pixels set cache. */
+    private transient Map<Long, Pixels> pixelsCache;
     
     /**
      * default constructor
@@ -139,6 +144,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         closePixelBuffer();
         buffer = null;
         readBuffer = null;
+        pixelsCache = null;
     }
 
     /**
@@ -168,15 +174,35 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             buffer = null;
             reset = null;
 
-            pixelsInstance = iQuery.findByQuery(
-            		"select p from Pixels as p " +
-    				"join fetch p.pixelsType where p.id = :id",
-    				new Parameters().addId(id));
+            if (pixelsCache != null && pixelsCache.containsKey(pixelsId))
+            {
+            	pixelsInstance = pixelsCache.get(pixelsId);
+            }
+            else
+            {
+            	pixelsInstance = iQuery.findByQuery(
+            			"select p from Pixels as p " +
+            			"join fetch p.pixelsType where p.id = :id",
+            			new Parameters().addId(id));
+            }
             OriginalFileMetadataProvider metadataProvider =
             	new OmeroOriginalFileMetadataProvider(iQuery);
             buffer = dataService.getPixelBuffer(
             		pixelsInstance, metadataProvider, bypassOriginalFile);
         }
+    }
+    
+    @RolesAllowed("user")
+    public void prepare(Set<Long> pixelsIds)
+    {
+    	pixelsCache = new HashMap<Long, Pixels>(pixelsIds.size());
+    	List<Pixels> pixelsList = iQuery.findAllByQuery(
+        		"select p from Pixels as p join fetch p.pixelsType" +
+				"where p.id in (:ids)", new Parameters().addIds(pixelsIds));
+    	for (Pixels pixels : pixelsList)
+    	{
+    		pixelsCache.put(pixels.getId(), pixels);
+    	}
     }
 
     private synchronized void errorIfNotLoaded() {

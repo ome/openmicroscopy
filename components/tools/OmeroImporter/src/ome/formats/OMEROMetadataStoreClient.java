@@ -2232,7 +2232,22 @@ public class OMEROMetadataStoreClient
     {
         // TODO Implement
         //
-
+    }
+    
+    /**
+     * Prepares the server side RawPixelsStore.
+     * @param pixelsIds List of Pixels IDs we'll be populating.
+     */
+    public void preparePixelsStore(List<Long> pixelsIds)
+    {
+    	try
+    	{
+			rawPixelStore.prepare(pixelsIds);
+		}
+    	catch (ServerError e)
+    	{
+    		throw new RuntimeException(e);
+		}
     }
 
     public void setPlane(Long pixId, byte[] arrayBuf, int z, int c, int t) throws ServerError

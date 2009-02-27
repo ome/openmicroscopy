@@ -7,6 +7,8 @@
 
 package ome.services.blitz.impl;
 
+import java.util.List;
+
 import ome.api.RawPixelsStore;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
@@ -31,6 +33,7 @@ import omero.api.AMD_RawPixelsStore_getTotalSize;
 import omero.api.AMD_RawPixelsStore_isFloat;
 import omero.api.AMD_RawPixelsStore_isSigned;
 import omero.api.AMD_RawPixelsStore_setPixelsId;
+import omero.api.AMD_RawPixelsStore_prepare;
 import omero.api.AMD_RawPixelsStore_setPlane;
 import omero.api.AMD_RawPixelsStore_setRegion;
 import omero.api.AMD_RawPixelsStore_setRow;
@@ -181,6 +184,12 @@ public class RawPixelsStoreI extends AbstractAmdServant implements
     public void setPixelsId_async(AMD_RawPixelsStore_setPixelsId __cb,
             long pixelsId, boolean bypassOriginalFile, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, pixelsId, bypassOriginalFile);
+
+    }
+    
+	public void prepare_async(AMD_RawPixelsStore_prepare __cb,
+            List<Long> pixelsIds, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, pixelsIds);
 
     }
 

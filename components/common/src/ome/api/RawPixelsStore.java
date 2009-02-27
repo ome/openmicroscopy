@@ -7,6 +7,8 @@
 
 package ome.api;
 
+import java.util.Set;
+
 /**
  * Binary data provider. Initialized with the id of a
  * {@link ome.model.core.Pixels} instance, this interface can provide various
@@ -29,6 +31,16 @@ public interface RawPixelsStore extends StatefulServiceInterface {
      * optimization otherwise <code>false</code> is expected.
      */
     public void setPixelsId(long pixelsId, boolean bypassOriginalFile);
+    
+    /**
+     * Prepares the stateful service with a cache of loaded Pixels objects.
+     * This method is designed to combat query overhead, where many sets of
+     * Pixels are to be read from or written to, by loading all the Pixels
+     * sets at once. Multiple calls will result in the existing cache being
+     * overwritten. 
+     * @param pixelsIds Pixels IDs to cache.
+     */
+    public void prepare(Set<Long> pixelsIds);
 
     /**
      * delegates to {@link ome.io.nio.PixelBuffer}

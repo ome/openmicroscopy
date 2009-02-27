@@ -20,9 +20,8 @@ import java.util.Map;
 
 import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
-import omero.model.DatasetI;
+import omero.model.Dataset;
 import omero.model.Pixels;
-import omero.model.PixelsI;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,7 +51,7 @@ public class ImportFixture
 
     private ImportLibrary      library;
 
-    private Map<File,DatasetI>  fads = new HashMap<File,DatasetI>();
+    private Map<File,Dataset>  fads = new HashMap<File, Dataset>();
     
     public ImportFixture(OMEROMetadataStoreClient store)
     {
@@ -65,7 +64,7 @@ public class ImportFixture
         this.reader = reader;
     }
 
-    public ImportFixture put(File file, DatasetI ds)
+    public ImportFixture put(File file, Dataset ds)
     {
     	if ( file == null || ds == null )
     	    // FIXME: Blitz transition, ApiUsageException no longer client side.
@@ -75,7 +74,7 @@ public class ImportFixture
     	return this;
     }
     
-    public ImportFixture putAll(Map<File,DatasetI> map)
+    public ImportFixture putAll(Map<File, Dataset> map)
     {
     	for (File f : map.keySet()) {
 			put(f,map.get(f));
@@ -163,19 +162,4 @@ public class ImportFixture
             {}
         });
     }
-
-    // ~ Helpers
-	// =========================================================================
-    
-    private ImportContainer[] fadMap(Map<File,DatasetI> map)
-    {
-    	int size = map.keySet().size();
-    	ImportContainer[] fads = new ImportContainer[size];
-    	File[] files = map.keySet().toArray( new File[size] );
-    	for (int i = 0; i < fads.length; i++) {
-			fads[i] = new ImportContainer(files[i],null,map.get(files[i]).getId().getValue(),files[i].toString(), false);
-		}
-    	return fads;
-    }
-    
 }
