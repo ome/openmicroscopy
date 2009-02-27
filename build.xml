@@ -386,10 +386,11 @@ java component.
 
             <mkdir dir="${dist.dir}/lib/client"/>
             <mkdir dir="${dist.dir}/lib/server"/>
+            <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
             <ivy:resolve file="ivy.xml" type="jar,egg" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[module].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
+            <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[module].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
             <ivy:resolve file="ivy.xml" type="jar,egg" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[module].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
+            <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[module].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
        </sequential>
     </macrodef>
 
