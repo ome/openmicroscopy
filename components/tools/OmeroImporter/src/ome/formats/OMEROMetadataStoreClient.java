@@ -2239,14 +2239,10 @@ public class OMEROMetadataStoreClient
     	{
     		//rawPixelStore.close();
     		//rawPixelStore = serviceFactory.createRawPixelsStore();
-    		long t0 = System.currentTimeMillis();
     		rawPixelStore.setPixelsId(pixId, true);
-    		System.err.println("setPixelsId time: " + (System.currentTimeMillis() - t0));
     		currentPixId = pixId;
     	}
-    	long t0 = System.currentTimeMillis();
     	rawPixelStore.setPlane(arrayBuf, z, c, t);
-    	System.err.println("setPlane time: " + (System.currentTimeMillis() - t0));
     }
 
     /* (non-Javadoc)
