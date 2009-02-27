@@ -99,7 +99,8 @@ public class AddDataRefEdit
 		
 		dataRef = new DataReference();
 		
-		field.addDataRef(dataRef);
+		redo();
+		//field.addDataRef(dataRef);
 	}
 	
 	public void undo() {

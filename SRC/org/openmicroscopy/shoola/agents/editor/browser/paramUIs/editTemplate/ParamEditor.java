@@ -39,6 +39,7 @@ import javax.swing.border.EmptyBorder;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
 import org.openmicroscopy.shoola.agents.editor.browser.FieldPanel;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
@@ -75,6 +76,7 @@ public class ParamEditor
 	extends AbstractParamEditor
 	implements PropertyChangeListener
 {
+	
 	/**
 	 * A reference to a parent class that creates this UI and handles the 
 	 * parameter edits. It is added as a listener to the parameter-specific
@@ -155,7 +157,7 @@ public class ParamEditor
 		
 		// add the parameter editing component
 		JComponent defaultEdit = ParamTemplateUIFactory.
-		getEditDefaultComponent(parameter);
+		getEditDefaultComponent(parameter, controller);
 		if (defaultEdit != null) {
 			defaultEdit.setBorder(eb);
 			add(defaultEdit);
@@ -173,10 +175,12 @@ public class ParamEditor
 	 * @param param		The parameter this UI edits.
 	 * @param parent	The parent that listens for edit changes. 
 	 */
-	ParamEditor(IParam param, PropertyChangeListener parent) {
+	ParamEditor(IParam param, PropertyChangeListener parent, 
+			BrowserControl controller) {
 		
 		super(param);
 		
+		this.controller = controller;
 		this.parameter = param;
 		this.parent = parent;
 		

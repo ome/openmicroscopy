@@ -35,5 +35,9 @@
 	<!-- A comma-delimited list of common units -->
 	<entry name="/model/units">ml, M, ng, pH,µg, µg/ml, µl, µM, ºC, days, hours, minutes, seconds</entry>
 
+	<!-- The maximum width or height of thumbnails (Data-Reference image links) -->
+	<entry name="/ui/thumbnail">175</entry>
+	
+
 </resources>
 </agent>

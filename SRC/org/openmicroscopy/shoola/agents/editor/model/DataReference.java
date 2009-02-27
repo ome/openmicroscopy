@@ -24,7 +24,14 @@ package org.openmicroscopy.shoola.agents.editor.model;
 
 //Java imports
 
+import java.io.File;
 import java.util.HashMap;
+
+import javax.swing.filechooser.FileFilter;
+
+import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
+import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
+import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 
 //Third-party libraries
 
@@ -112,5 +119,27 @@ public class DataReference
 	 */
 	public boolean isAttributeTrue(String attributeName) {
 		return "true".equals(valueAttributesMap.get(attributeName));
+	}
+	
+	/**
+	 * Static method for testing whether a file path links to an image that
+	 * we can display. E.g jpg or png.
+	 * 
+	 * @param imagePath
+	 * @return
+	 */
+	public static boolean showImage(String imagePath) 
+	{
+		if (imagePath == null)		return false;
+		File file = new File(imagePath);
+		
+		FileFilter f = new JPEGFilter();
+		if (f.accept(file))
+			return true;
+		f = new PNGFilter();
+		if (f.accept(file))
+			return true;
+		
+		return false;
 	}
 }

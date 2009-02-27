@@ -32,6 +32,8 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor;
 import org.openmicroscopy.shoola.agents.editor.model.params.EditorLinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.preview.EditorPreview;
@@ -50,10 +52,14 @@ import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;
  * @since 3.0-Beta4
  */
 public class EditorLinkPreview 
-	extends JPanel {
+	extends AbstractParamEditor {
 	
-	public EditorLinkPreview(IParam param) 
+	public EditorLinkPreview(IParam param, BrowserControl controller) 
 	{
+		super(param);
+		
+		setController(controller);
+		
 		setLayout(new BorderLayout());
 		setBackground(null);
 		
@@ -68,14 +74,18 @@ public class EditorLinkPreview
 		boolean idValid =  EditorLinkParam.isLinkValidId(link);
 		if (idValid) {
 			long fileID = new Long(link);
-			preview = EditorFactory.createEditorPreview(fileID);
+			preview = new EditorPreview(fileID, controller);
 		} else {
 			// otherwise assume that link is a file path
-			preview = EditorFactory.createEditorPreview(link);
+			preview = new EditorPreview(link, controller);
 		}
 		
 		// add the preview UI. 
 		add(preview.getUI(), BorderLayout.CENTER);
+	}
+
+	public String getEditDisplayName() {
+		return "Editor Link";
 	}
 
 }

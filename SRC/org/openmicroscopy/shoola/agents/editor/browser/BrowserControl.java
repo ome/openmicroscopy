@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.actions.MoveUpAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.PasteFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.RedoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.UndoEditAction;
+import org.openmicroscopy.shoola.agents.editor.browser.browserloaders.FileAnnotationLoader;
 import org.openmicroscopy.shoola.agents.editor.browser.undo.ObservableUndoManager;
 import org.openmicroscopy.shoola.agents.editor.browser.undo.UndoRedoListener;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
@@ -74,6 +75,7 @@ import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.ChangeParamEd
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.FieldContentEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.FieldSplitEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.RemoveExpInfo;
+import org.openmicroscopy.shoola.agents.editor.preview.AnnotationHandler;
 
 /** 
  *	The Controller in the Browser MVC. 
@@ -563,6 +565,19 @@ public class BrowserControl
 	{
 		UndoableEdit edit = new AddFieldTableEdit(field, tree, node, null);
 		undoSupport.postEdit(edit);
+	}
+
+	/**
+	 * Creates a {@link FileAnnotationLoader} and calls load. 
+	 * 
+	 * @param fileID		The fileID you want the annotation for. 
+	 * @param handler		The handler used when the annotation is returned
+	 */
+	public void getFileAnnotation(long fileID, AnnotationHandler handler)
+	{
+		FileAnnotationLoader fal= new FileAnnotationLoader(model, fileID);
+		fal.setAnnotationHandler(handler);
+		fal.load();
 	}
 
 	/**

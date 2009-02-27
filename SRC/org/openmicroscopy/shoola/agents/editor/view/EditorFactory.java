@@ -98,26 +98,6 @@ public class EditorFactory
 	}
 	
 	/**
-	 * Creates an {@link EditorPreview} with the fileID
-	 * 
-	 * @param fileID
-	 */
-	public static EditorPreview createEditorPreview(long fileID)
-	{
-		return new EditorPreview(fileID);
-	}
-	
-	/**
-	 * Creates an {@link EditorPreview} with the file path
-	 * 
-	 * @param filePath
-	 */
-	public static EditorPreview createEditorPreview(String filePath)
-	{
-		return new EditorPreview(filePath);
-	}
-	
-	/**
 	 * Returns the {@link Editor} created to display a particular file. 
 	 * 
 	 * 

@@ -34,6 +34,8 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+import org.openmicroscopy.shoola.agents.editor.FileAnnotationLoader;
+import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
 import org.openmicroscopy.shoola.agents.editor.browser.MetadataPanelsComponent;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 
@@ -58,7 +60,11 @@ import pojos.FileAnnotationData;
  * </small>
  * @since 3.0-Beta4
  */
-public class EditorPreview {
+public class EditorPreview 
+	implements AnnotationHandler {
+	
+	/** A reference to the Browser Control, for getting file annotations etc */
+	private BrowserControl 				controller;
 	
 	/** The ID of the file on the server. Will be null if file is local */
 	private long 						fileID;
@@ -93,14 +99,28 @@ public class EditorPreview {
 	private EditorPreviewModel 			model;
 	
 	/**
+	 * Creates the Preview UI, which is an expandable pane that contains the
+	 * appropriate preview panel. 
+	 * 
+	 * @param preview	The panel to display
+	 * @param title		The initial title to display (will change when data loads)
+	 */
+	private void initialise(JPanel preview, String title)
+	{
+		view = new EditorPreviewUI(this, preview);
+		view.setTitle(title);
+	}
+
+	/**
 	 * Creates an instance of this preview for displaying a local file.
 	 * Builds the un-populated UI.
 	 * 
 	 * @param filePath		The absolute file path of file to display. 
 	 */
-	public EditorPreview(String filePath)
+	public EditorPreview(String filePath, BrowserControl controller)
 	{
 		this.filePath = filePath;
+		this.controller = controller;
 		
 		String title = "File not found";
 		if (filePath != null) {
@@ -120,24 +140,12 @@ public class EditorPreview {
 	 * 
 	 * @param fileID
 	 */
-	public EditorPreview(long fileID) 
+	public EditorPreview(long fileID, BrowserControl controller) 
 	{
 		this.fileID = fileID;
+		this.controller = controller;
 		previewPanel = new PreviewPanel();
 		initialise(previewPanel, "File ID: " + fileID);
-	}
-	
-	/**
-	 * Creates the Preview UI, which is an expandable pane that contains the
-	 * appropriate preview panel. 
-	 * 
-	 * @param preview	The panel to display
-	 * @param title		The initial title to display (will change when data loads)
-	 */
-	private void initialise(JPanel preview, String title)
-	{
-		view = new EditorPreviewUI(this, preview);
-		view.setTitle(title);
 	}
 	
 	/**
@@ -157,16 +165,9 @@ public class EditorPreview {
 					"</protocol>";
 			}
 			else if (annotationDesc == null) {
-				// TODO get annotation description from ID, 
-				// This is simply test code! 
-				annotationDesc = "<protocol><n>Fluorophore Conjugation of Antibodies (Lamond Lab)</n>" +
-	   " <d>This Fluorophore Conjugation of Antibodies (Lamond Lab) protocol has been adapted Fluorophore" +
-	   " Conjugation of Antibodies (Lamond Lab) Fluorophore Conjugation of Antibodies (Lamond Lab)...</d> <ss> <s l='1' n='Materials:'>" +
-	           " <p> <n>Antibody name</n>  </p>  <p> <n>Fluorophore</n>  <v>Alexa Fluor 488</v></p>" +
-	        "</s> </ss> </protocol>";
+				// need to retrieve file annotation from server
+				controller.getFileAnnotation(fileID, this);
 			}
-			previewPanel.setDescriptionXml(annotationDesc);
-			view.setTitle(previewPanel.getTitle());
 		}
 		else if (filePath != null && model == null){
 			
@@ -187,5 +188,12 @@ public class EditorPreview {
 	 * @return	The UI. 
 	 */
 	public JComponent getUI()	{ return view; }
+
+	public void handleAnnotation(FileAnnotationData fileAnnotation) {
+		
+		annotationDesc = fileAnnotation.getDescription();
+		previewPanel.setDescriptionXml(annotationDesc);
+		view.setTitle(previewPanel.getTitle());
+	}
 
 }

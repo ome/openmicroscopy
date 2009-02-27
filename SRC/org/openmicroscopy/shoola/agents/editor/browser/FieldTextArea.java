@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.IllegalComponentStateException;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -79,6 +80,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamEditorDialog;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TextBoxEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.FieldContentEditor;
+import org.openmicroscopy.shoola.agents.editor.model.DataReference;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
@@ -91,6 +93,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.ImagePreview;
 
 /** 
  * This Text Area is represents a Field/Step (or a node) of the data model tree,
@@ -181,6 +184,11 @@ public class FieldTextArea
 	private JTextArea				commentTextBox;
 	
 	/**
+	 * A panel to display thumbnails for any data-refs that are links to images. 
+	 */
+	private JPanel 					imagePanel;
+	
+	/**
 	 * The HTML tag id to use for displaying the Field Name.
 	 * This needs to be all lower case, since the styleSheet text in the
 	 * HTML header automatically is converted to lower case, but the 
@@ -267,7 +275,6 @@ public class FieldTextArea
 	{
 		setBackground(null);
 		setLayout(new BorderLayout());
-		refreshText();
 		
 		Box titleToolBarBox = Box.createHorizontalBox();
 		titleToolBarBox.add(nameEditor);
@@ -280,11 +287,18 @@ public class FieldTextArea
 
 		
 		if (field instanceof TextBoxStep) {
+			addParamButton.setVisible(false);
 			IParam textBoxParam = ((TextBoxStep)field).getTextBoxParam();
 			TextBoxEditor tbe = new TextBoxEditor(textBoxParam);
 			commentTextBox = tbe.getTextBox();
 			tbe.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 			add(tbe, BorderLayout.SOUTH);
+		} else {
+			// panel to display any data-ref images.
+			// ** NB: Shouldn't need to display dataRefs in TextBoxStep **
+			imagePanel = new JPanel(new FlowLayout());
+			imagePanel.setBackground(null);
+			add(imagePanel, BorderLayout.SOUTH);
 		}
 
 		JPanel buttonContainer = new JPanel(new BorderLayout());
@@ -292,6 +306,7 @@ public class FieldTextArea
 		buttonContainer.add(addParamButton, BorderLayout.NORTH);
 		add(buttonContainer, BorderLayout.EAST);
 		
+		refreshText();
 		setSelected(false);
 	}
 
@@ -461,6 +476,24 @@ public class FieldTextArea
 	private void refreshNotesVisibility() 
 	{
 		notesButton.setVisible(field.getNoteCount() > 0);
+	}
+	
+	/**
+	 * Refreshes the data-refs, displaying a thumbnail for any that are images.
+	 */
+	private void refreshDataRefs() 
+	{
+		if (imagePanel == null)		return;		// won't exist for textBoxStep
+		imagePanel.removeAll();
+		
+		int drCount = field.getDataRefCount();
+		String r;
+		for (int i=0; i< drCount; i++) {
+			r = field.getDataRefAt(i).getAttribute(DataReference.REFERENCE);
+			if (DataReference.showImage(r)) {
+				imagePanel.add(new ImagePreview(r));
+			}
+		}
 	}
 	
 	private String getNameHtml()
@@ -852,6 +885,7 @@ public class FieldTextArea
 		}
 		
 		refreshNotesVisibility(); 
+		refreshDataRefs();
 	}
 
 	/**

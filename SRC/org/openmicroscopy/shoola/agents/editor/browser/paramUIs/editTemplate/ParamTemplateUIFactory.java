@@ -31,6 +31,8 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
@@ -62,7 +64,8 @@ public class ParamTemplateUIFactory {
 	 * @param paramObject		The Parameter you want to edit
 	 * @return					A UI component for editing the template.
 	 */
-	public static JComponent getEditDefaultComponent(IParam paramObject) 
+	public static JComponent getEditDefaultComponent(
+							IParam paramObject, BrowserControl controller) 
 	{
 		
 		if (paramObject == null) {
@@ -70,45 +73,43 @@ public class ParamTemplateUIFactory {
 		}
 		String inputType = paramObject.getAttribute(AbstractParam.PARAM_TYPE);
 
-		if (inputType == null) {
-			throw new NullPointerException("No input type.");
-		}
+		AbstractParamEditor pe = null;
 		
 		if (inputType.equals(TextParam.TEXT_LINE_PARAM)) {
-			return new AttributeEditLine(paramObject, 
+			pe = new AttributeEditLine(paramObject, 
 					TextParam.DEFAULT_VALUE, "Default Text");
 		} 
 		
-		if (inputType.equals(EnumParam.ENUM_PARAM)) {
-			return new EnumTemplate(paramObject);
+		else if (inputType.equals(EnumParam.ENUM_PARAM)) {
+			pe = new EnumTemplate(paramObject);
 		}
 		
-		if (inputType.equals(BooleanParam.BOOLEAN_PARAM)) {
-			return new BooleanTemplate(paramObject);
+		else if (inputType.equals(BooleanParam.BOOLEAN_PARAM)) {
+			pe = new BooleanTemplate(paramObject);
 		}
 		
-		if (inputType.equals(DateTimeParam.DATE_TIME_PARAM)) {
-			return new DateTimeTemplate(paramObject);
+		else if (inputType.equals(DateTimeParam.DATE_TIME_PARAM)) {
+			pe = new DateTimeTemplate(paramObject);
 		}
 		
-		if (inputType.equals(NumberParam.NUMBER_PARAM)) {
-			return new NumberTemplate(paramObject);
+		else if (inputType.equals(NumberParam.NUMBER_PARAM)) {
+			pe = new NumberTemplate(paramObject);
 		}
 		
-		if (inputType.equals(TextBoxParam.TEXT_BOX_PARAM)) {
-			return new AttributeEditArea(paramObject,
+		else if (inputType.equals(TextBoxParam.TEXT_BOX_PARAM)) {
+			pe = new AttributeEditArea(paramObject,
 					TextParam.DEFAULT_VALUE, "Text-box Default");
 		}
 		
-		if (inputType.equals(EditorLinkParam.EDITOR_LINK_PARAM)) {
-			return new EditorLinkPreview(paramObject);
+		else if (inputType.equals(EditorLinkParam.EDITOR_LINK_PARAM)) {
+			pe =  new EditorLinkPreview(paramObject, controller);
 		}
 		
 		// Some Parameters don't have any "Template" attributes to edit,
 		// so, no template UI component...
+		if (pe == null) return null;
 		
-		// System.err.println("ParamTemplateUIFactory No UI created for '" +
-		//		inputType + "'. Return null!");
-		return null;
+		pe.setController(controller);
+		return pe;
 	}
 }

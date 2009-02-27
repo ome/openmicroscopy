@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 
+//Java imports
+
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,28 +39,26 @@ import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+//Third-party libraries
+
+//Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.AttributeEditLine;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.AttributeEditNoLabel;
 import org.openmicroscopy.shoola.agents.editor.model.DataReference;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.ImagePreview;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.PopupMenuButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * UI component for displaying and editing a {@link DataReference}
@@ -99,6 +99,9 @@ public class DataRefEditor
 	 */
 	private Icon 				linkLocalIcon;
 	
+	/** Panel for displaying an image if the link is to a local image file */
+	private	JPanel 				imagePreview;
+	
 	/**
 	 * Initialises the UI components
 	 */
@@ -121,6 +124,7 @@ public class DataRefEditor
 		String creat = dataRef.getAttribute(DataReference.CREATION_TIME);
 		
 		String toolTip = "<html>" + 
+			ref + "<br>" +
 			"Description: " + (desc == null ? "" : desc) + "<br>" +
 			"Size: " + (size == null ? "" : size) + "<br>" +
 			"Last Modified: " + (lastM == null ? "" : formatUTC(lastM)) + "<br>"
@@ -134,6 +138,10 @@ public class DataRefEditor
 				new GetLinkPathAction()};
 		getLinkButton = new PopupMenuButton("Choose a link to a URL or local file", 
 				chooseLinkIcon, getLinkActions);
+		
+		if (DataReference.showImage(ref)) {
+			imagePreview = new ImagePreview(ref);
+		}
 	}
 	
 	/**
@@ -171,6 +179,10 @@ public class DataRefEditor
 		add(linkLabel, BorderLayout.CENTER);
 		
 		add(getLinkButton, BorderLayout.WEST);
+		
+		if (imagePreview != null) {
+			add(imagePreview, BorderLayout.SOUTH);
+		}
 	}
 	
 	/**

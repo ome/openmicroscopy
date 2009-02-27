@@ -437,6 +437,8 @@ class EditorModel
 			this.nameSpace = null;
 			return;
 		} 
+		
+		System.out.println("EditorModel setFileAnnotation size = " + data.getFileSize());
 		this.fileID = data.getFileID();
 		this.fileName = data.getFileName();
 	}

@@ -308,7 +308,7 @@ public class FieldParamEditor
 	 */
 	private void addParam(IParam param, JComponent container) 
 	{
-		ParamEditor pe = new ParamEditor(param, this);
+		ParamEditor pe = new ParamEditor(param, this, controller);
 		
 		pe.addPropertyChangeListener(this);
 		container.add(Box.createVerticalStrut(20));

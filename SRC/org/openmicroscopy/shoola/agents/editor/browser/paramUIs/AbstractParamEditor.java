@@ -35,6 +35,7 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 
@@ -71,7 +72,12 @@ public abstract class AbstractParamEditor
 	 * Or, if multiple attributes are edited, this is updated to the 
 	 * name of the most-recently edited attribute.
 	 */
-	private String 					lastEditedAttribute;				
+	private String 					lastEditedAttribute;
+	
+	/**
+	 * The controller for managing undo/redo. Eg manages attribute editing...
+	 */
+	protected BrowserControl 		controller;
 
 	/**
 	 * Creates an instance.
@@ -92,6 +98,11 @@ public abstract class AbstractParamEditor
 		if (paramName != null && paramName.length() > 0) {
 			setToolTipText(paramName);
 		}
+	}
+	
+	public void setController(BrowserControl controller) 
+	{
+		this.controller = controller;
 	}
 	
 	/**
