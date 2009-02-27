@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.actions.UndoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.browserloaders.FileAnnotationLoader;
 import org.openmicroscopy.shoola.agents.editor.browser.undo.ObservableUndoManager;
 import org.openmicroscopy.shoola.agents.editor.browser.undo.UndoRedoListener;
+import org.openmicroscopy.shoola.agents.editor.model.DataReference;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
@@ -377,6 +378,20 @@ public class BrowserControl
 	 */
 	public void addDataRefToField(IField field, JTree tree, TreeNode node) {
 		UndoableEdit edit = new AddDataRefEdit(field, tree, node);
+		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Edits a field by DELETING the specified data reference
+	 * 
+	 * @param field			The field to add a new parameter to.
+	 * @param dataRef		The data reference to delete
+	 * @param tree			The JTree to refresh with undo/redo
+	 * @param node			The node to highlight / refresh with undo/redo. 
+	 */
+	public void addDataRefToField(IField field, DataReference dataRef,
+												JTree tree, TreeNode node) {
+		UndoableEdit edit = new AddDataRefEdit(field, dataRef, tree, node);
 		undoSupport.postEdit(edit);
 	}
 	

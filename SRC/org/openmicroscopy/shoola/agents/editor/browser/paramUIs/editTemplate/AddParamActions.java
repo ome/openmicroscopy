@@ -342,7 +342,7 @@ public class AddParamActions
 		 */
 		public AddDataRefAction() 
 		{
-			putValue(Action.NAME, "Add Data Link");
+			putValue(Action.NAME, "Add Data Reference");
 			putValue(Action.SHORT_DESCRIPTION,
 					"Add a link to data");
 			putValue(Action.SMALL_ICON, iM.getIcon(IconManager.LINK_LOCAL_ICON)); 

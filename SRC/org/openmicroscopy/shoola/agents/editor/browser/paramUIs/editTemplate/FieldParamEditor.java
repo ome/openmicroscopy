@@ -283,7 +283,7 @@ public class FieldParamEditor
 		
 		JPanel dataRefHeader = new JPanel(new BorderLayout());
 		dataRefHeader.setBackground(null);
-		dataRefHeader.add(new CustomLabel("Data Links:", 12), BorderLayout.WEST);
+		dataRefHeader.add(new CustomLabel("Data References:", 12), BorderLayout.WEST);
 		attributeFieldsPanel.add(Box.createVerticalStrut(10));
 		attributeFieldsPanel.add(dataRefHeader);
 			
@@ -292,8 +292,7 @@ public class FieldParamEditor
 		for (int i=0; i<dataRefCount; i++) {
 			dataRef = field.getDataRefAt(i);
 			drEditor = new DataRefEditor(dataRef, this);
-			drEditor.addPropertyChangeListener(
-					ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
+			drEditor.addPropertyChangeListener(this);
 			attributeFieldsPanel.add(Box.createVerticalStrut(10));
 			attributeFieldsPanel.add(drEditor);
 		}
@@ -497,6 +496,11 @@ public class FieldParamEditor
 			Note note = ne.getNote();
 			controller.deleteStepNote(field, tree, treeNode, note);
 			rebuildEditorPanel();
+			
+		} else if (DataRefEditor.DATA_REF_DELETED.equals(propName)) {
+			ITreeEditComp dre = (ITreeEditComp)evt.getSource();
+			DataReference dataRef = (DataReference)dre.getParameter();
+			controller.addDataRefToField(field, dataRef, tree, treeNode);
 		}
 	}
 

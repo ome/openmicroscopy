@@ -112,12 +112,11 @@ public class AddStepNoteEdit
 	
 	/**
 	 * Creates an instance and performs the edit, 
-	 * DELETING the Note at the specified index. 
+	 * DELETING the specified Note at the specified index. 
 	 * 
 	 * @param field		The field to add a new parameter to.
-	 * @param paramType		A string defining the type of parameter to add.
-	 * @param index			The index to delete an existing note
-	 * @param tree			The JTree to refresh with undo/redo
+	 * @param note		The note to delete. 
+	 * @param tree		The JTree to refresh with undo/redo
 	 * @param node		The node to highlight / refresh with undo/redo. 
 	 */
 	public AddStepNoteEdit(IField field, Note note, 

@@ -37,6 +37,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 import org.openmicroscopy.shoola.agents.editor.model.DataReference;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.agents.editor.model.Note;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 
 /** 
@@ -62,7 +63,12 @@ public class AddDataRefEdit
 	/**
 	 * A reference to the new {@link DataReference}, being added.
 	 */
-	private DataReference 		dataRef;
+	private DataReference 		newDataRef;
+	
+	/**
+	 * A reference to the new {@link DataReference}, being replaced (if any)
+	 */
+	private DataReference 		oldDataRef;
 	
 	/**
 	 * The {@link JTree} which displays the field being edited. 
@@ -82,7 +88,7 @@ public class AddDataRefEdit
 	/**
 	 * The index that the new DataReference was added. 
 	 */
-	private int 				indexOfParam;
+	private int 				indexOfRef;
 	
 	/**
 	 * Creates an instance and performs the add.
@@ -97,19 +103,53 @@ public class AddDataRefEdit
 		this.tree = tree;
 		this.node = node;
 		
-		dataRef = new DataReference();
+		indexOfRef = field.getDataRefCount();
+		
+		newDataRef = new DataReference();
 		
 		redo();
-		//field.addDataRef(dataRef);
+	}
+	
+	/**
+	 * Creates an instance and performs the edit, 
+	 * DELETING the specified Data Reference 
+	 * 
+	 * @param field		The field to add a new parameter to.
+	 * @param dataRef	The data reference to delete
+	 * @param tree		The JTree to refresh with undo/redo
+	 * @param node		The node to highlight / refresh with undo/redo. 
+	 */
+	public AddDataRefEdit(IField field, DataReference dataRef, 
+			JTree tree, TreeNode node) {
+		
+		this.field = field;
+		this.newDataRef = null;
+		this.oldDataRef = dataRef;
+		this.tree = tree;
+		this.node = node;
+		
+		redo();
 	}
 	
 	public void undo() {
-		indexOfParam = field.removeDataRef(dataRef);
+		// undo of add
+		if (newDataRef != null) {
+			field.removeDataRef(newDataRef);
+		} else {
+			// undo of delete
+			field.addDataRef(indexOfRef, oldDataRef);
+		}
 		notifySelectStartEdit();
 	}
 	
 	public void redo() {
-		field.addDataRef(indexOfParam, dataRef);
+		// redo of add
+		if (newDataRef != null) {
+			field.addDataRef(indexOfRef, newDataRef);
+		} else {
+			// redo delete
+			indexOfRef = field.removeDataRef(oldDataRef);
+		}
 		notifySelectStartEdit();
 	}
 	

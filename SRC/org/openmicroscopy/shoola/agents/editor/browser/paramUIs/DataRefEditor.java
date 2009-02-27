@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 //Java imports
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -39,11 +40,16 @@ import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 
 //Third-party libraries
 
@@ -54,6 +60,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.Att
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.AttributeEditNoLabel;
 import org.openmicroscopy.shoola.agents.editor.model.DataReference;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.ImagePreview;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.PopupMenuButton;
@@ -73,8 +80,14 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
  */
 public class DataRefEditor 
 	extends AbstractParamEditor
-	implements PropertyChangeListener
+	implements PropertyChangeListener,
+	ActionListener
 {
+	/**
+	 * A bound property, to indicate that this data-reference should be deleted
+	 */
+	public static final String 		DATA_REF_DELETED = "dataRefDeleted";
+	
 	/**
 	 * The parent UI that handles editing of name etc. 
 	 * Add this class as a propertyChangeListener to the name editor etc. 
@@ -168,19 +181,50 @@ public class DataRefEditor
 	private void buildUI() 
 	{	
 		setLayout(new BorderLayout());
+		Border lineBorder = BorderFactory.createMatteBorder(1, 1, 1, 1,
+                UIUtilities.LIGHT_GREY);
+		setBorder(lineBorder);
+		
+		Border eb = new EmptyBorder(3,4,3,4);
+		
 		// add name field
 		AttributeEditLine nameEditor = new AttributeEditNoLabel
 			(getParameter(), DataReference.NAME, "Data Link Name");
 		nameEditor.addPropertyChangeListener
 			(ITreeEditComp.VALUE_CHANGED_PROPERTY, parent);
+		nameEditor.setBorder(eb);
 		
-		add(nameEditor, BorderLayout.NORTH);
+	//  tool bar (same as ParamToolBar), only holds the delete button 
+		JToolBar rightToolBar = new JToolBar();
+		rightToolBar.setBackground(null);
+		rightToolBar.setFloatable(false);
+		Border bottomLeft = BorderFactory.createMatteBorder(0, 1, 1, 0,
+                UIUtilities.LIGHT_GREY);
+		rightToolBar.setBorder(bottomLeft);
+		
+		// Delete note button
+		IconManager iM = IconManager.getInstance();
+		Icon delete = iM.getIcon(IconManager.DELETE_ICON_12);
+		JButton deleteButton = new CustomButton(delete);
+		deleteButton.addActionListener(this);
+		deleteButton.setToolTipText("Delete this data reference");
+		rightToolBar.add(deleteButton);
+		
+		Box titleToolBar = Box.createHorizontalBox();
+		nameEditor.setAlignmentY(Component.TOP_ALIGNMENT);
+		titleToolBar.add(nameEditor);
+		rightToolBar.setAlignmentY(Component.TOP_ALIGNMENT);
+		titleToolBar.add(rightToolBar);
+		
+		add(titleToolBar, BorderLayout.NORTH);
 		
 		add(linkLabel, BorderLayout.CENTER);
 		
+		getLinkButton.setBorder(eb);
 		add(getLinkButton, BorderLayout.WEST);
 		
 		if (imagePreview != null) {
+			imagePreview.setBorder(eb);
 			add(imagePreview, BorderLayout.SOUTH);
 		}
 	}
@@ -321,5 +365,14 @@ public class DataRefEditor
 	 * @see ITreeEditComp#getEditDisplayName()
 	 */
 	public String getEditDisplayName() { return "Edit Link"; }
+
+	/**
+	 * Implemented as specified by the {@link ActionListener} interface.
+	 * Handles the delete-button.
+	 */
+	public void actionPerformed(ActionEvent e) {
+		// this will be handled by the FieldParamEditor. 
+		firePropertyChange(DATA_REF_DELETED, false, true);
+	}
 	
 }
