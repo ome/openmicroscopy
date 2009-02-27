@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
@@ -28,10 +27,10 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
+import ome.io.nio.InMemoryPlanarPixelBuffer;
 import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
-import ome.io.nio.InMemoryPlanarPixelBuffer;
 import ome.logic.AbstractLevel2Service;
 import ome.model.IObject;
 import ome.model.core.Channel;
@@ -41,7 +40,10 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
+import ome.security.SecuritySystem;
+import ome.services.util.Executor;
 import ome.system.EventContext;
+import ome.system.ServiceFactory;
 import ome.system.SimpleEventContext;
 import ome.util.ImageUtil;
 import ome.util.ShallowCopy;
@@ -55,6 +57,7 @@ import omeis.providers.re.quantum.QuantumFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -85,8 +88,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
 @Transactional(readOnly = true)
-public class RenderingBean extends AbstractLevel2Service implements
-        RenderingEngine, Serializable {
+public class RenderingBean implements RenderingEngine, Serializable {
 
     private static final long serialVersionUID = -4383698215540637039L;
 
@@ -122,65 +124,39 @@ public class RenderingBean extends AbstractLevel2Service implements
     /** Reference to the service used to retrieve the pixels data. */
     private transient PixelsService pixDataSrv;
 
-    /** Reference to the service used to retrieve the pixels metadata. */
-    private transient IPixels pixMetaSrv;
-
-    /** Reference to the service used to compress pixel data. */
-    private transient LocalCompress compressionSrv;
-
-    /** Reference to the service used to manage rendering settings. */
-    private transient IRenderingSettings settingsSrv;
-
-    /** Reference to the service used for projecting pixel data. */
-    private transient IProjection projectionService;
-
     /**
      * read-write lock to prevent READ-calls during WRITE operations.
      *
-     * It is safe for the lock to be serialized. On deserialization, it will
-     * be in the unlocked state.
+     * It is safe for the lock to be serialized. On deserialization, it will be
+     * in the unlocked state.
      */
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
+    private final Executor ex;
+
+    private final SecuritySystem secSys;
+    
+    private final LocalCompress compressionSrv;
+    
+    private final OriginalFileMetadataProvider metadataProvider;
 
     /** Notification that the bean has just returned from passivation. */
     private transient boolean wasPassivated = false;
 
     /**
      * Compression service Bean injector.
-     *
+     * 
      * @param compressionService
      *            an <code>ICompress</code>.
      */
-    public void setCompressionService(LocalCompress compressionSrv) {
-        getBeanHelper().throwIfAlreadySet(this.compressionSrv, compressionSrv);
-        this.compressionSrv = compressionSrv;
-    }
 
-    /** set injector. For use during configuration. Can only be called once. */
-    public void setPixelsMetadata(IPixels metaService) {
-        getBeanHelper().throwIfAlreadySet(this.pixMetaSrv, metaService);
-        pixMetaSrv = metaService;
-    }
-
-    /** set injector. For use during configuration. Can only be called once. */
-    public void setPixelsData(PixelsService dataService) {
-        getBeanHelper().throwIfAlreadySet(this.pixDataSrv, dataService);
-        pixDataSrv = dataService;
-    }
-    
-    /** set injector. For use during configuration. Can only be called once. */
-    public void setSettingsService(IRenderingSettings settingsService)
-    {
-        getBeanHelper().throwIfAlreadySet(this.settingsSrv, settingsService);
-        settingsSrv = settingsService;
-    }
-    
-    /** set injector. For use during configuration. Can only be called once. */
-    public void setProjectionService(IProjection projectionService)
-    {
-        getBeanHelper().throwIfAlreadySet(this.projectionService,
-                                          projectionService);
-        this.projectionService = projectionService;
+    public RenderingBean(PixelsService dataService, LocalCompress compress,
+            OriginalFileMetadataProvider provider, Executor ex, SecuritySystem secSys) {
+        this.ex = ex;
+        this.secSys = secSys;
+        this.pixDataSrv = dataService;
+        this.compressionSrv = compress;
+        this.metadataProvider = provider;
     }
 
     // ~ Lifecycle methods
@@ -190,29 +166,29 @@ public class RenderingBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public void passivate() {
-	log.debug("***** Passivating... ******");
+        log.debug("***** Passivating... ******");
 
         rwl.writeLock().lock();
-	try {
-	    closeRenderer();
-	    renderer = null;
-	} finally {
-	    rwl.writeLock().unlock();
-	}
+        try {
+            closeRenderer();
+            renderer = null;
+        } finally {
+            rwl.writeLock().unlock();
+        }
     }
 
     // See documentation on JobBean#activate
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public void activate() {
-    	log.debug("***** Returning from passivation... ******");
+        log.debug("***** Returning from passivation... ******");
 
-	rwl.writeLock().lock();
-	try {
-	    wasPassivated = true;
-	} finally {
-	    rwl.writeLock().unlock();
-	}
+        rwl.writeLock().lock();
+        try {
+            wasPassivated = true;
+        } finally {
+            rwl.writeLock().unlock();
+        }
     }
 
     @RolesAllowed("user")
@@ -243,25 +219,25 @@ public class RenderingBean extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public void lookupPixels(long pixelsId) {
-    	rwl.writeLock().lock();
+        rwl.writeLock().lock();
 
-    	try {
-    		pixelsObj = pixMetaSrv.retrievePixDescription(pixelsId);
-    		closeRenderer();
-    		renderer = null;
+        try {
+            pixelsObj = retrievePixels(pixelsId);
+            closeRenderer();
+            renderer = null;
 
-    		if (pixelsObj == null) {
-    			throw new ValidationException("Pixels object with id "
-    					+ pixelsId + " not found.");
-    		}
-    	} finally {
-    		rwl.writeLock().unlock();
-    	}
+            if (pixelsObj == null) {
+                throw new ValidationException("Pixels object with id "
+                        + pixelsId + " not found.");
+            }
+        } finally {
+            rwl.writeLock().unlock();
+        }
 
-    	if (log.isDebugEnabled()) {
-    		log.debug("lookupPixels for id " + pixelsId + " succeeded: "
-    				+ this.pixelsObj);
-    	}
+        if (log.isDebugEnabled()) {
+            log.debug("lookupPixels for id " + pixelsId + " succeeded: "
+                    + this.pixelsObj);
+        }
     }
 
     /**
@@ -270,80 +246,68 @@ public class RenderingBean extends AbstractLevel2Service implements
      * @see RenderingEngine#lookupRenderingDef(long)
      */
     @RolesAllowed("user")
-    public boolean lookupRenderingDef(long pixelsId)
-    {
-    	rwl.writeLock().lock();
+    public boolean lookupRenderingDef(long pixelsId) {
+        rwl.writeLock().lock();
 
-    	try
-    	{
-    		rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);
-    		closeRenderer();
-    		renderer = null;
+        try {
+            rendDefObj = retrieveRndSettings(pixelsId);
+            closeRenderer();
+            renderer = null;
 
-    		if (rendDefObj == null)
-    		{
-    			// We've been initialized on a pixels set that has no rendering
-    			// definition for the given user. In order to maintain the
-    			// proper state and ensure that we avoid transactional problems
-    			// we're going to notify the caller instead of performing *any*
-    			// magic that would require a database update.
-    			// *** Ticket #564 -- Chris Allan <callan@blackcat.ca> ***
-    			return false;
-    		}
-    		
-    		// Ensure that the pixels object is unloaded to avoid transactional
-    		// headaches later due to Hibernate object caching techniques. If
-    		// this is not performed, rendDefObj.pixels will be the same
-    		// instance as pixelsObj; which if passed to IUpdate will be
-    		// set unloaded by the service. We *really* don't want this.
-    		// *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
-    		Pixels unloadedPixels = new Pixels(pixelsId, false);
-    		rendDefObj.setPixels(unloadedPixels);
-    		
-    		// Ensure that we do not have "dirty" pixels or rendering settings
-    		// left around in the Hibernate session cache.
-    		iQuery.clear();
-    	}
-    	finally
-    	{
-    		rwl.writeLock().unlock();
-    	}
+            if (rendDefObj == null) {
+                // We've been initialized on a pixels set that has no rendering
+                // definition for the given user. In order to maintain the
+                // proper state and ensure that we avoid transactional problems
+                // we're going to notify the caller instead of performing *any*
+                // magic that would require a database update.
+                // *** Ticket #564 -- Chris Allan <callan@blackcat.ca> ***
+                return false;
+            }
 
-    	if (log.isDebugEnabled())
-    	{
-    		log.debug("lookupRenderingDef for Pixels=" + pixelsId
-    				+ " succeeded: " + this.rendDefObj);
-    	}
-    	return true;
+            // Ensure that the pixels object is unloaded to avoid transactional
+            // headaches later due to Hibernate object caching techniques. If
+            // this is not performed, rendDefObj.pixels will be the same
+            // instance as pixelsObj; which if passed to IUpdate will be
+            // set unloaded by the service. We *really* don't want this.
+            // *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
+            Pixels unloadedPixels = new Pixels(pixelsId, false);
+            rendDefObj.setPixels(unloadedPixels);
+
+            // Ensure that we do not have "dirty" pixels or rendering settings
+            // left around in the Hibernate session cache.
+            // Josh: iQuery.clear();
+        } finally {
+            rwl.writeLock().unlock();
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("lookupRenderingDef for Pixels=" + pixelsId
+                    + " succeeded: " + this.rendDefObj);
+        }
+        return true;
     }
-    
+
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#loadRenderingDef(long)
      */
     @RolesAllowed("user")
-    public void loadRenderingDef(long renderingDefId)
-    {
+    public void loadRenderingDef(long renderingDefId) {
         rwl.writeLock().lock();
 
-        try
-        {
-            rendDefObj = pixMetaSrv.loadRndSettings(renderingDefId);
-            if (rendDefObj == null)
-            {
+        try {
+            rendDefObj = loadRndSettings(renderingDefId);
+            if (rendDefObj == null) {
                 throw new ValidationException(
-                        "No rendering definition exists with ID: " + 
-                        renderingDefId);
+                        "No rendering definition exists with ID: "
+                                + renderingDefId);
             }
-            if (!settingsSrv.sanityCheckPixels(
-                    pixelsObj, rendDefObj.getPixels()))
-            {
+            if (!sanityCheckPixels(pixelsObj, rendDefObj.getPixels())) {
                 rendDefObj = null;
-                throw new ValidationException(
-                        "The rendering definition " + renderingDefId + 
-                        " is incompatible with pixels set " + 
-                        pixelsObj.getId());
+                throw new ValidationException("The rendering definition "
+                        + renderingDefId + " is incompatible with pixels set "
+                        + pixelsObj.getId());
             }
             closeRenderer();
             renderer = null;
@@ -357,21 +321,18 @@ public class RenderingBean extends AbstractLevel2Service implements
             // as rendDefObj can be owned by anyone we really don't want to be
             // saddled with this object being attached.
             // *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
-            Pixels unloadedPixels = 
-                new Pixels(rendDefObj.getPixels().getId(), false);
+            Pixels unloadedPixels = new Pixels(rendDefObj.getPixels().getId(),
+                    false);
             rendDefObj.setPixels(unloadedPixels);
 
             // Ensure that we do not have "dirty" pixels or rendering settings
             // left around in the Hibernate session cache.
-            iQuery.clear();
-        }
-        finally
-        {
+            // Josh: iQuery.clear();
+        } finally {
             rwl.writeLock().unlock();
         }
-        
-        if (log.isDebugEnabled())
-        {
+
+        if (log.isDebugEnabled()) {
             log.debug("loadRenderingDef for RenderingDef=" + renderingDefId
                     + " succeeded: " + this.rendDefObj);
         }
@@ -385,21 +346,18 @@ public class RenderingBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     public void load() {
         rwl.writeLock().lock();
-        
+
         try {
             errorIfNullPixels();
             /*
              * TODO we could also allow for setting of the buffer! perhaps
              * better caching, etc.
              */
-            OriginalFileMetadataProvider metadataProvider = 
-            	new OmeroOriginalFileMetadataProvider(iQuery);
             PixelBuffer buffer = pixDataSrv.getPixelBuffer(
             		pixelsObj, metadataProvider, false);
             closeRenderer();
-            List<Family> families = pixMetaSrv.getAllEnumerations(Family.class);
-            List<RenderingModel> renderingModels = pixMetaSrv
-                    .getAllEnumerations(RenderingModel.class);
+            List<Family> families = getAllEnumerations(Family.class);
+            List<RenderingModel> renderingModels = getAllEnumerations(RenderingModel.class);
             QuantumFactory quantumFactory = new QuantumFactory(families);
             renderer = new Renderer(quantumFactory, renderingModels, pixelsObj,
                     rendDefObj, buffer);
@@ -415,7 +373,7 @@ public class RenderingBean extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public EventContext getCurrentEventContext() {
-        return new SimpleEventContext(getSecuritySystem().getEventContext());
+        return new SimpleEventContext(secSys.getEventContext());
     }
 
     /*
@@ -433,7 +391,6 @@ public class RenderingBean extends AbstractLevel2Service implements
      * @Write || @Read on each. for example see
      * http://www.onjava.com/pub/a/onjava/2004/08/25/aoa.html?page=3 for asynch.
      * annotations (also @TxSynchronized)
-     * 
      */
 
     /**
@@ -466,20 +423,20 @@ public class RenderingBean extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public int[] renderAsPackedInt(PlaneDef pd) {
-    	rwl.writeLock().lock();
+        rwl.writeLock().lock();
 
-    	try {
-    		errorIfInvalidState();
-    		return renderer.renderAsPackedInt(pd, null);
-    	} catch (IOException e) {
-    	    log.error("IO error while rendering.", e);
-    	    throw new ResourceError(e.getMessage());
-    	} catch (QuantizationException e) {
-    	    log.error("Quantization exception while rendering.", e);
-    	    throw new InternalException(e.getMessage());
-    	} finally {
-    		rwl.writeLock().unlock();
-    	}
+        try {
+            errorIfInvalidState();
+            return renderer.renderAsPackedInt(pd, null);
+        } catch (IOException e) {
+            log.error("IO error while rendering.", e);
+            throw new ResourceError(e.getMessage());
+        } catch (QuantizationException e) {
+            log.error("Quantization exception while rendering.", e);
+            throw new InternalException(e.getMessage());
+        } finally {
+            rwl.writeLock().unlock();
+        }
     }
 
 	/**
@@ -514,13 +471,14 @@ public class RenderingBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     public byte[] renderCompressed(PlaneDef pd) {
         rwl.writeLock().lock();
-        
+
         ByteArrayOutputStream byteStream = null;
         try {
             int[] buf = renderAsPackedInt(pd);
             int sizeX = pixelsObj.getSizeX();
             int sizeY = pixelsObj.getSizeY();
-            BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX, sizeY);
+            BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX,
+                    sizeY);
             byteStream = new ByteArrayOutputStream();
             compressionSrv.compressToStream(image, byteStream);
             return byteStream.toByteArray();
@@ -539,7 +497,7 @@ public class RenderingBean extends AbstractLevel2Service implements
             }
         }
     }
-    
+
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
@@ -547,7 +505,7 @@ public class RenderingBean extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public int[] renderProjectedAsPackedInt(int algorithm, int timepoint,
-                                            int stepping, int start, int end) {
+            int stepping, int start, int end) {
         rwl.writeLock().lock();
 
         try {
@@ -556,14 +514,10 @@ public class RenderingBean extends AbstractLevel2Service implements
             byte[][][][] planes = new byte[1][pixelsObj.getSizeC()][1][];
             long pixelsId = pixelsObj.getId();
             int projectedSizeC = 0;
-            for (int i = 0; i < channelBindings.length; i++)
-            {
-                if (channelBindings[i].getActive())
-                {
-                    planes[0][i][0] =
-                        projectionService.projectStack(pixelsId, null, algorithm,
-                                                       timepoint, i, stepping,
-                                                       start, end);
+            for (int i = 0; i < channelBindings.length; i++) {
+                if (channelBindings[i].getActive()) {
+                    planes[0][i][0] = projectStack(algorithm, timepoint, stepping, start, end,
+                            pixelsId, i);
                     projectedSizeC += 1;
                 }
             }
@@ -574,8 +528,8 @@ public class RenderingBean extends AbstractLevel2Service implements
             projectedPixels.setSizeT(1);
             projectedPixels.setSizeC(projectedSizeC);
             projectedPixels.setPixelsType(pixelsObj.getPixelsType());
-            PixelBuffer projectedPlanes =
-                new InMemoryPlanarPixelBuffer(projectedPixels, planes);
+            PixelBuffer projectedPlanes = new InMemoryPlanarPixelBuffer(
+                    projectedPixels, planes);
             PlaneDef pd = new PlaneDef(PlaneDef.XY, 0);
             pd.setZ(0);
             return renderer.renderAsPackedInt(pd, projectedPlanes);
@@ -589,7 +543,7 @@ public class RenderingBean extends AbstractLevel2Service implements
             rwl.writeLock().unlock();
         }
     }
-    
+
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
@@ -597,16 +551,17 @@ public class RenderingBean extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public byte[] renderProjectedCompressed(int algorithm, int timepoint,
-                                            int stepping, int start, int end) {
+            int stepping, int start, int end) {
         rwl.writeLock().lock();
-        
+
         ByteArrayOutputStream byteStream = null;
         try {
             int[] buf = renderProjectedAsPackedInt(algorithm, timepoint,
-                                                   stepping, start, end);
+                    stepping, start, end);
             int sizeX = pixelsObj.getSizeX();
             int sizeY = pixelsObj.getSizeY();
-            BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX, sizeY);
+            BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX,
+                    sizeY);
             byteStream = new ByteArrayOutputStream();
             compressionSrv.compressToStream(image, byteStream);
             return byteStream.toByteArray();
@@ -635,46 +590,40 @@ public class RenderingBean extends AbstractLevel2Service implements
      * @see RenderingEngine#resetDefaults()
      */
     @RolesAllowed("user")
-    @Transactional(readOnly = false)
     public void resetDefaults() {
         rwl.writeLock().lock();
 
-        try
-        {
+        try {
             errorIfNullPixels();
-            long pixelsId = pixelsObj.getId();
+            final long pixelsId = pixelsObj.getId();
 
             // Ensure that we haven't just been called before
             // lookupRenderingDef().
-            if (rendDefObj == null)
-            {
-				RenderingDef def = pixMetaSrv.retrieveRndSettings(pixelsId); 
-				if (def != null)
-				{
-				    // We've been called before lookupRenderingDef() or
-				    // loadRenderingDef(), report an error.
-					errorIfInvalidState();
-				}
-				def = settingsSrv.createNewRenderingDef(pixelsObj);
-				settingsSrv.resetDefaults(def, pixelsObj);
-            }
-            else
-            {
-            	errorIfInvalidState();
-            	settingsSrv.resetDefaults(rendDefObj, pixelsObj);
+            if (rendDefObj == null) {
+                rendDefObj = retrieveRndSettings(pixelsId);
+                if (rendDefObj != null) {
+                    // We've been called before lookupRenderingDef() or
+                    // loadRenderingDef(), report an error.
+                    errorIfInvalidState();
+                }
+                
+                rendDefObj = createNewRenderingDef(pixelsObj);
+                _resetDefaults(rendDefObj, pixelsObj);
+            } else {
+                errorIfInvalidState();
+                _resetDefaults(rendDefObj, pixelsObj);
 
-                rendDefObj = reload(rendDefObj);
-            	
-            	// The above save step sets the rendDefObj instance (for which 
-            	// the renderer holds a reference) unloaded, which *will* cause 
-            	// IllegalStateExceptions if we're not careful. To compensate
-            	// we will now reload the renderer.
-            	// *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
+                rendDefObj = retrieveRndSettings(pixelsObj.getId());
+
+                // The above save step sets the rendDefObj instance (for which
+                // the renderer holds a reference) unloaded, which *will* cause
+                // IllegalStateExceptions if we're not careful. To compensate
+                // we will now reload the renderer.
+                // *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
                 load();
             }
-        }
-        finally
-        {
+            
+        } finally {
             rwl.writeLock().unlock();
         }
     }
@@ -689,7 +638,13 @@ public class RenderingBean extends AbstractLevel2Service implements
         rwl.writeLock().lock();
         try {
             errorIfInvalidState();
-            settingsSrv.resetDefaultsNoSave(rendDefObj, pixelsObj);
+            ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(this, "resetDefaultsNoSave"){
+                @Transactional(readOnly = true)
+                public Object doWork(Session session, ServiceFactory sf) {
+                    IRenderingSettings settingsSrv = sf.getRenderingSettingsService();
+                    settingsSrv.resetDefaultsNoSave(rendDefObj, pixelsObj);
+                    return null;
+                }});
         } finally {
             rwl.writeLock().unlock();
         }
@@ -700,22 +655,20 @@ public class RenderingBean extends AbstractLevel2Service implements
      * 
      * @see RenderingEngine#setCompressionLevel()
      */
-	@RolesAllowed("user")
-	public void setCompressionLevel(float percentage)
-	{
-		compressionSrv.setCompressionLevel(percentage);
-	}
+    @RolesAllowed("user")
+    public void setCompressionLevel(float percentage) {
+        compressionSrv.setCompressionLevel(percentage);
+    }
 
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#getCompressionLevel()
      */
-	@RolesAllowed("user")
-	public float getCompressionLevel()
-	{
-		return compressionSrv.getCompressionLevel();
-	}
+    @RolesAllowed("user")
+    public float getCompressionLevel() {
+        return compressionSrv.getCompressionLevel();
+    }
 
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
@@ -729,33 +682,40 @@ public class RenderingBean extends AbstractLevel2Service implements
 
         try {
             errorIfNullRenderingDef();
-            
+
             // Increment the version of the rendering settings so that we can
             // have some notification that either the RenderingDef object
             // itself or one of its children in the object graph has been
             // updated. FIXME: This should be implemented using IUpdate.touch()
             // or similar once that functionality exists.
             rendDefObj.setVersion(rendDefObj.getVersion() + 1);
-            
-    	    // Unload the model object to avoid transactional headaches
-    	    RenderingModel unloadedModel = 
-    	    	new RenderingModel(rendDefObj.getModel().getId(), false);
-    	    rendDefObj.setModel(unloadedModel);
-            
-    	    // Unload the family of each channel binding to avoid transactional 
-    	    // headaches.
-    	    for (ChannelBinding binding : rendDefObj.unmodifiableWaveRendering())
-    	    {
-    	    	Family unloadedFamily = new Family(binding.getFamily().getId(), false);
-    	    	binding.setFamily(unloadedFamily);
-    	    }
-            
+
+            // Unload the model object to avoid transactional headaches
+            RenderingModel unloadedModel = new RenderingModel(rendDefObj
+                    .getModel().getId(), false);
+            rendDefObj.setModel(unloadedModel);
+
+            // Unload the family of each channel binding to avoid transactional
+            // headaches.
+            for (ChannelBinding binding : rendDefObj
+                    .unmodifiableWaveRendering()) {
+                Family unloadedFamily = new Family(binding.getFamily().getId(),
+                        false);
+                binding.setFamily(unloadedFamily);
+            }
+
             // Actually save and reload the rendering settings
-            pixMetaSrv.saveRndSettings(rendDefObj);
-            rendDefObj = reload(rendDefObj);
-            
+            rendDefObj = (RenderingDef) ex.execute(/*ex*/null/*principal*/,
+                    new Executor.SimpleWork(this,"saveCurrentSettings"){
+                        @Transactional(readOnly = false)
+                        public Object doWork(Session session, ServiceFactory sf) {
+                            IPixels pixMetaSrv = sf.getPixelsService();
+                            pixMetaSrv.saveRndSettings(rendDefObj);
+                            return pixMetaSrv.retrieveRndSettings(pixelsObj.getId());
+                        }});
+ 
             // The above save and reload step sets the rendDefObj instance
-            // (for which the renderer hold a reference) unloaded, which *will* 
+            // (for which the renderer hold a reference) unloaded, which *will*
             // cause IllegalStateExceptions if we're not careful. To compensate
             // we will now reload the renderer.
             // *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
@@ -1027,8 +987,7 @@ public class RenderingBean extends AbstractLevel2Service implements
         rwl.readLock().lock();
 
         try {
-            List<RenderingModel> models = pixMetaSrv
-                    .getAllEnumerations(RenderingModel.class);
+            List<RenderingModel> models = getAllEnumerations(RenderingModel.class);
             List<RenderingModel> result = new ArrayList<RenderingModel>();
             for (RenderingModel model : models) {
                 result.add(copyRenderingModel(model));
@@ -1049,7 +1008,7 @@ public class RenderingBean extends AbstractLevel2Service implements
         rwl.readLock().lock();
 
         try {
-            List<Family> families = pixMetaSrv.getAllEnumerations(Family.class);
+            List<Family> families = getAllEnumerations(Family.class);
             List<Family> result = new ArrayList<Family>();
             for (Family family : families) {
                 result.add(copyFamily(family));
@@ -1337,37 +1296,22 @@ public class RenderingBean extends AbstractLevel2Service implements
     }
 
     protected void errorIfNullRenderingDef() {
-    	if (rendDefObj == null) {
-    		throw new ApiUsageException(
-    				"RenderingEngine not ready: RenderingDef object not set.");
-    	}
+        if (rendDefObj == null) {
+            throw new ApiUsageException(
+                    "RenderingEngine not ready: RenderingDef object not set.");
+        }
     }
 
-    protected void errorIfNullRenderer()
-    {
-    	if (renderer == null && wasPassivated)
-    	{
-    		load();
-    	}
-    	else if (renderer == null)
-    	{
-    		throw new ApiUsageException(NULL_RENDERER);
-    	}
+    protected void errorIfNullRenderer() {
+        if (renderer == null && wasPassivated) {
+            load();
+        } else if (renderer == null) {
+            throw new ApiUsageException(NULL_RENDERER);
+        }
     }
 
-    // ~ Lookups & copies
+    // ~ Copies
     // =========================================================================
-
-    private <T extends IObject> T lookup(T argument) {
-        if (argument == null) {
-            return null;
-        }
-        if (argument.getId() == null) {
-            return argument;
-        }
-        return (T) iQuery
-                .get(argument.getClass(), argument.getId().longValue());
-    }
 
     @SuppressWarnings("unchecked")
     private Pixels copyPixels(Pixels pixels) {
@@ -1421,32 +1365,109 @@ public class RenderingBean extends AbstractLevel2Service implements
                         .shallowCopy());
         return newFamily;
     }
-
-    /**
-     * Reloads an {@link Pixels} or {@link RenderingDef} object following a
-     * <pre>clear()</pre> being called on the Hibernate session.
-     * @param t The object to reload.
-     * @return A reloaded object of the same type as that passed in.
-     */
+    
+    // ~ All state access happens here
+    // =========================================================================
+    
     @SuppressWarnings("unchecked")
-    private <T extends IObject> T reload(T t)
-    {
-    	if (t != null)
-    	{
-    		if (t instanceof RenderingDef)
-    		{
-    			return (T) pixMetaSrv.retrieveRndSettings(pixelsObj.getId());
-    		}
-    		else if (t instanceof Pixels)
-    		{
-    			return (T) pixMetaSrv.retrievePixDescription(t.getId());
-    		}
-    		else
-    		{
-    			throw new RuntimeException(
-    					"Unknown reload class: " + t.getClass());
-    		}
-    	}
-    	return t;
+    private <T extends IObject> T lookup(final T argument) {
+        if (argument == null) {
+            return null;
+        }
+        if (argument.getId() == null) {
+            return argument;
+        }
+        return (T) ex.execute(null, new Executor.SimpleWork(this,"lookup"){
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return (T) sf.getQueryService()
+                .get(argument.getClass(), argument.getId().longValue());
+            }});
     }
+
+    private Pixels retrievePixels(final long pixelsId) {
+        return (Pixels) ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(
+                this, "retrievePixels") {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return sf.getPixelsService().retrievePixDescription(pixelsId);
+
+            }
+        });
+    }
+
+    private RenderingDef retrieveRndSettings(final long pixelsId) {
+        return (RenderingDef) ex.execute(/*ex*/null/*principal*/,
+                new Executor.SimpleWork(this, "retrieveRndDef") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getPixelsService().retrieveRndSettings(
+                                pixelsId);
+                    }
+                });
+    }
+
+    private RenderingDef loadRndSettings(final long rdefId) {
+        return (RenderingDef) ex.execute(/*ex*/null/*principal*/,
+                new Executor.SimpleWork(this, "loadRndDef") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getPixelsService().loadRndSettings(rdefId);
+                    }
+                });
+    }
+
+    private List getAllEnumerations(final Class k) {
+        return (List) ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(this,
+                "getAllEnumerations") {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return sf.getPixelsService().getAllEnumerations(k);
+            }
+        });
+    }
+
+    private boolean sanityCheckPixels(final Pixels pix1, final Pixels pix2) {
+        return (Boolean) ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(
+                this, "sanityCheck") {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return sf.getRenderingSettingsService().sanityCheckPixels(pix1,
+                        pix2);
+            }
+        });
+    }
+    
+
+    private byte[] projectStack(final int algorithm, final int timepoint, 
+            final int stepping, final int start, final int end, final long pixelsId,
+            final int i){
+        return (byte[]) ex.execute(/* ex */null/* principal */, new Executor.SimpleWork(this,"projectStack"){
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return sf.getProjectionService()
+                .projectStack(pixelsId, null, algorithm, timepoint,
+                        i, stepping, start, end);
+            }});
+    }
+    
+    private RenderingDef createNewRenderingDef(final Pixels pixels) {
+        return (RenderingDef) ex.execute(null, new Executor.SimpleWork(this, "createNewRenderingDef"){
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return sf.getRenderingSettingsService().createNewRenderingDef(pixels);
+            }
+            
+        });
+    }
+    
+    private void _resetDefaults(final RenderingDef def, final Pixels pixels) {
+        ex.execute(null, new Executor.SimpleWork(this,"_resetDefualts"){
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                sf.getRenderingSettingsService().resetDefaults(def, pixels);
+                return null;
+            }});
+    }
+
 }

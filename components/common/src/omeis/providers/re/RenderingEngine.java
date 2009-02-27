@@ -60,8 +60,7 @@ import omeis.providers.re.data.PlaneDef;
  *          2005/06/12 23:28:59 $) </small>
  * @since OME2.2
  */
-public interface RenderingEngine extends SelfConfigurableService,
-        StatefulServiceInterface {
+public interface RenderingEngine extends StatefulServiceInterface {
 
     /**
      * Renders the data selected by <code>pd</code> according to the current

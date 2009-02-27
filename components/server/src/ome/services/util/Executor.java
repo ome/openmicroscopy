@@ -16,7 +16,8 @@ import java.util.concurrent.Future;
 
 import ome.conditions.InternalException;
 import ome.security.SecuritySystem;
-import ome.security.basic.PrincipalHolder;
+import ome.security.basic.CurrentDetails;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -60,6 +61,12 @@ public interface Executor extends ApplicationContextAware {
      * events, etc.
      */
     public OmeroContext getContext();
+
+    /**
+     * Returns a {@link Principal} representing your current session or null,
+     * if none is active.
+     */
+    public Principal principal();
 
     /**
      * Executes a {@link Work} instance wrapped in two layers of AOP. The first
@@ -210,19 +217,19 @@ public interface Executor extends ApplicationContextAware {
 
         protected OmeroContext context;
         final protected List<Advice> advices = new ArrayList<Advice>();
-        final protected PrincipalHolder principalHolder;
+        final protected CurrentDetails principalHolder;
         final protected String[] proxyNames;
         final protected SessionFactory factory;
         final protected SimpleJdbcOperations jdbcOps;
         final protected ExecutorService service;
 
-        public Impl(PrincipalHolder principalHolder, SessionFactory factory,
+        public Impl(CurrentDetails principalHolder, SessionFactory factory,
                 SimpleJdbcOperations jdbc, String[] proxyNames) {
             this(principalHolder, factory, jdbc, proxyNames,
                     java.util.concurrent.Executors.newCachedThreadPool());
         }
 
-        public Impl(PrincipalHolder principalHolder, SessionFactory factory,
+        public Impl(CurrentDetails principalHolder, SessionFactory factory,
                 SimpleJdbcOperations jdbc, String[] proxyNames,
                 ExecutorService service) {
             this.jdbcOps = jdbc;
@@ -244,6 +251,16 @@ public interface Executor extends ApplicationContextAware {
             return this.context;
         }
 
+        public Principal principal() {
+            if (principalHolder.size() == 0) {
+                return null;
+            } else {
+                EventContext ec = principalHolder.getCurrentEventContext();
+                String session = ec.getCurrentSessionUuid();
+                return new Principal(session);
+            }
+        }
+        
         /**
          * Executes a {@link Work} instance wrapped in two layers of AOP. The
          * first is intended to acquire the proper arguments for
