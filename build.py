@@ -38,7 +38,9 @@ def build_hudson():
     java_omero("release-zip")
 
     # Install into the hudson repository
-    java_omero("release-hudson")
+    ## Disabling until 4.1 with more work
+    ## on integration
+    ##java_omero("release-hudson")
 
 
 def java_omero(args):
