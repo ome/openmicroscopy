@@ -88,3 +88,4 @@ if __name__ == "__main__":
             java_omero(args)
     except KeyboardInterrupt:
         sys.stderr.write("\nCancelled by user\n")
+        sys.exit(2)
