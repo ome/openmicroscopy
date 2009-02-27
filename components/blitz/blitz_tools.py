@@ -131,8 +131,10 @@ class OmeroEnvironment(SConsEnvironment):
             self.Append(CPPFLAGS=self.Split(os.environ["CXXFLAGS"]))
         else:
             self.Append(CPPFLAGS=self.Split("-O0 -g -Wall"))
-            self.Append(CPPFLAGS=self.Split("-pedantic -ansi"))
-            self.Append(CPPFLAGS=self.Split("-Wno-long-long -Wctor-dtor-privacy -Wnon-virtual-dtor"))
+            self.Append(CPPFLAGS=self.Split("-ansi"))
+            # self.Append(CPPFLAGS=self.Split("-pedantic -ansi")) Ice fails pedantic due to extra ";"
+            self.Append(CPPFLAGS=self.Split("-Wno-long-long -Wnon-virtual-dtor"))
+            # self.Append(CPPFLAGS=self.Split("-Wno-long-long -Wctor-dtor-privacy -Wnon-virtual-dtor")) Ice fails the ctor check.
             self.Append(CPPFLAGS=self.Split("-Wno-unused-parameter -Wno-unused-function -Wunused-variable -Wunused-value -Werror"))
         # CPPPATH
         self.AppendUnique(CPPPATH=blitz_generated)
