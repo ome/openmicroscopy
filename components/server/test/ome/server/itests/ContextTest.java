@@ -11,7 +11,9 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 import ome.api.IPixels;
 import ome.api.IQuery;
+import ome.api.local.LocalCompress;
 import ome.services.RenderingBean;
+import ome.services.ThumbnailBean;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 import omeis.providers.re.RenderingEngine;
@@ -24,30 +26,25 @@ import org.testng.annotations.Test;
 @Test(groups = "integration")
 public class ContextTest extends TestCase {
 
-    protected RE re;
+    protected TB rb;
 
-    static class RE extends RenderingBean {
+    static class TB extends ThumbnailBean {
         /**
          * 
          */
         private static final long serialVersionUID = -6011918575014582969L;
-        public boolean pdCalled = false, pmCalled = false;
+        public boolean csCalled = false;
 
         @Override
-        public void setPixelsData(ome.io.nio.PixelsService arg0) {
-            pdCalled = true;
-        };
-
-        @Override
-        public void setPixelsMetadata(IPixels arg0) {
-            pmCalled = true;
+        public void setCompressionService(LocalCompress compressionService) {
+            csCalled = true;
         }
     }
 
     @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
-        re = new RE();
+        rb = new TB();
     }
 
     @Test
@@ -81,16 +78,14 @@ public class ContextTest extends TestCase {
     public void testConfigureBean() throws Exception {
 
         OmeroContext ctx = OmeroContext.getManagedServerContext();
-        ctx.applyBeanPropertyValues(re, RenderingEngine.class);
-        assertTrue(re.pdCalled);
-        assertTrue(re.pmCalled);
+        ctx.applyBeanPropertyValues(rb, RenderingEngine.class);
+        assertTrue(rb.csCalled);
     }
 
     @Test
     public void testSelfConfigureBean() throws Exception {
-        re.selfConfigure();
-        assertTrue(re.pdCalled);
-        assertTrue(re.pmCalled);
+        rb.selfConfigure();
+        assertTrue(rb.csCalled);
     }
 
 }
