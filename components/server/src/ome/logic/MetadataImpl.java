@@ -95,6 +95,57 @@ public class MetadataImpl
 	
 	/** Reference to the {@link IContainer} service. */
 	private IContainer iContainer;
+
+	/**
+	 * Retrieves the annotation of the given type.
+	 * 
+	 * @param <A>	  The annotation returned.
+	 * @param type    The type of annotation to retrieve.
+	 * @param include The collection of name spaces to include.
+	 * @param exclude The collection of name spaces to exclude.
+	 * @param options The options if any.
+	 * @return See above.
+	 */
+	private <A extends Annotation> List<A> getAnnotation(@NotNull Class type, 
+    		Set<String> include, Set<String> exclude, Map options)
+    {
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select ann from Annotation as ann ");
+    	sb.append("left outer join fetch ann.details.creationEvent ");
+    	sb.append("left outer join fetch ann.details.owner ");
+    	sb.append("where ann member of "+type.getName());
+    	
+    	String restriction = "";
+    	Parameters param = new Parameters();
+    	PojoOptions po = new PojoOptions(options);
+    	long id = -1;
+    	boolean group = false;
+    	if (po.getExperimenter() != null) id = po.getExperimenter();
+    	if (po.getGroup() != null) {
+    		group = true;
+    		id = po.getGroup();
+    	}
+    	if (id < 0) {
+    		group = false;
+    		id = sec.getEventContext().getCurrentUserId();
+    	}
+    	if (id >= 0) {
+    		if (group) restriction += " and ann.details.group.id = :id";
+    		else restriction += " and ann.details.owner.id = :id";
+    		param.addId(id);
+    	}
+    	sb.append(restriction);
+    	
+    	if (include != null && include.size() > 0) {
+    		sb.append(" and ann.ns is not null and ann.ns in (:include)");
+    		param.addSet("include", include);
+    	}
+    	if (exclude != null && exclude.size() > 0) {
+    		sb.append(" and (ann.ns is null or ann.ns not in (:exclude))");
+    		param.addSet("exclude", exclude);
+    	}
+    	return iQuery.findAllByQuery(sb.toString(), param);
+    }
 	
 	/**
 	 * Returns the Interface implemented by this class.
@@ -373,52 +424,7 @@ public class MetadataImpl
          return map;
     }
 
-    private <A extends Annotation> List<A> getAnnotation(@NotNull Class type, 
-    		Set<String> include, Set<String> exclude, Map options)
-    {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("select ann from Annotation as ann ");
-    	sb.append("left outer join fetch ann.details.creationEvent ");
-    	sb.append("left outer join fetch ann.details.owner ");
-    	sb.append("where ann member of "+type.getName());
-    	
-    	String restriction = "";
-    	Parameters param = new Parameters();
-    	PojoOptions po = new PojoOptions(options);
-    	long id = -1;
-    	boolean group = false;
-    	if (po.getExperimenter() != null) id = po.getExperimenter();
-    	if (po.getGroup() != null) {
-    		group = true;
-    		id = po.getGroup();
-    	}
-    	if (id < 0) {
-    		group = false;
-    		id = sec.getEventContext().getCurrentUserId();
-    	}
-    	if (id >= 0) {
-    		if (group) restriction += " and ann.details.group.id = :id";
-    		else restriction += " and ann.details.owner.id = :id";
-    		param.addId(id);
-    	}
-    	if (include != null || include.size() > 0) {
-    		//restriction += " and ann.ns is not null and ann.ns = "+nameSpace;
-    	}
-    	if (exclude != null || exclude.size() > 0) {
-    		//restriction += " and ann.ns is not null and ann.ns = "+nameSpace;
-    	}
-    	sb.append(restriction);
-    	
-    	if (include != null && include.size() > 0) {
-    		sb.append(" and ann.ns is not null and ann.ns in (:include)");
-    		param.addSet("include", include);
-    	}
-    	if (exclude != null && exclude.size() > 0) {
-    		sb.append(" and (ann.ns is null or ann.ns not in (:exclude))");
-    		param.addSet("exclude", exclude);
-    	}
-    	return iQuery.findAllByQuery(sb.toString(), param);
-    }
+    
     
     /**
      * Implemented as speficied by the {@link IMetadata} I/F
@@ -475,11 +481,9 @@ public class MetadataImpl
     	sb.append("left outer join fetch ann.details.creationEvent ");
     	sb.append("left outer join fetch ann.details.owner ");
     	sb.append("where ann.id in (:ids)");
-    	
-    	String restriction = "";
-    	Parameters param = new Parameters();
-    	param.addIds(annotationIds);
-    	List<A> list = iQuery.findAllByQuery(sb.toString(), param);
+   
+    	List<A> list = iQuery.findAllByQuery(sb.toString(), 
+    			new Parameters().addIds(annotationIds));
     	if (list == null) return new HashSet<A>();
     	Iterator<A> i = list.iterator();
     	A object;
