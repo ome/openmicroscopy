@@ -974,7 +974,9 @@ def argv(args=pysys.argv):
         class PluginLoader(Thread):
             def run(self):
                 cli.loadplugins()
-        PluginLoader().start()
+	# Disabling background loading
+	# until 2.4 hangs are fixed
+        PluginLoader().run() # start()
 
         if len(args) > 1:
             cli.invoke(args[1:])
