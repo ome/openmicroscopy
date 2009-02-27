@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -76,22 +78,17 @@ class ServerTable
 	/** Reference to the parent. */
 	private ServerEditor 	parent;
 
-	/**
-	 * Handles the mouse pressed event.
-	 * 
-	 * @param clickCount The number of click.
-	 */
-	private void handleClickCount(int clickCount)
+	/** Handles the mouse pressed event. */
+	private void handleClickCount()
 	{
 		TableCellEditor editor = getCellEditor();
+		boolean editing = parent.isEditing();
 		if (editor != null) editor.stopCellEditing();
-		/*
-		if (clickCount == 2) {
-			parent.requesFocusOnEditedCell(getSelectedRow(), 
-					getSelectedColumn());
-			parent.setEditing(true);
-		} 
-		*/
+		if (editing) {
+			if (getSelectedColumn() == 2)
+				parent.requestFocusOnEditedCell(getSelectedRow(), 
+						getSelectedColumn());
+		}
 	}
 	
 	/**
@@ -110,18 +107,19 @@ class ServerTable
 			objects[0][0] = icon;
 			objects[0][1] = "";
 			objects[0][2] = parent.getDefaultPort();
-			//editCellAt(0, 1);
 			focus = Boolean.FALSE;
 		} else {
 			objects = new Object[servers.size()][3];
-			Iterator<String> i = servers.keySet().iterator();
+			Iterator i = servers.entrySet().iterator();
 			int j = 0;
 			String s;
+			Entry entry;
 			while (i.hasNext()) {
-				s = i.next();
+				entry = (Entry) i.next();
+				s = (String) entry.getKey();
 				objects[j][0] = icon;
 				objects[j][1] = s;
-				objects[j][2] = servers.get(s);
+				objects[j][2] = entry.getValue();
 				j++;
 			}
 		}
@@ -158,13 +156,11 @@ class ServerTable
 			 * 
 			 * @param e The mouse event to digest.
 			 */
-			public void mousePressed(MouseEvent e)
-			{
-				handleClickCount(e.getClickCount());
-			}
+			public void mousePressed(MouseEvent e) { handleClickCount(); }
 		});
-		int width = rnd.getFontMetrics(rnd.getFont()).stringWidth("64000");
-		width+=width/2;
+		int width = rnd.getFontMetrics(rnd.getFont()).stringWidth(
+				""+ServerEditor.MAX_PORT);
+		width += width/2;
 		column = tcm.getColumn(2);
 		column.setMaxWidth(width);
 		column.setMinWidth(width);

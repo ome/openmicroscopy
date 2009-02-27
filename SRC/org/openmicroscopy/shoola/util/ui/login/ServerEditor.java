@@ -37,6 +37,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -444,6 +446,7 @@ public class ServerEditor
 			if (editor != null) editor.stopCellEditing();
 			table.editCellAt(row, col);
 			table.changeSelection(row, col, false, false);
+			editing = true;
 		}
 	}
 	
@@ -638,28 +641,30 @@ public class ServerEditor
 		}
 		Map<String, String> 
 		servers = new LinkedHashMap<String, String>(l.size());
-		Iterator<String> i = l.keySet().iterator();
+		Set set = l.entrySet();
+		Entry entry;
+		Iterator i = set.iterator();
 		String name;
 		while (i.hasNext()) {
-			name = i.next();
+			entry = (Entry) i.next();
+			name = (String) entry.getKey();
 			if (!name.equals(serverName))
-				servers.put(name, l.get(name));
-			//if (name != null && name.trim().length() != 0)
-			
+				servers.put(name, (String) entry.getValue());
 		}
 		if (serverName != null && serverName.length() != 0)
 			servers.put(serverName, port);
-		i = servers.keySet().iterator();
+		i = servers.entrySet().iterator();
 		int n = servers.size()-1;
 		int index = 0;
 		String list = "";
 		String value;
 		while (i.hasNext()) {
-			value = i.next();
+			entry = (Entry) i.next();
+			value = (String) entry.getKey();
 			list += value;
 			list += SERVER_PORT_SEPARATOR;
-			if (servers.get(value) != null)
-				list += servers.get(value);
+			if (entry.getValue() != null)
+				list += (String) entry.getValue();
 			else list += defaultPort;
 			
 			if (index != n)  list += SERVER_NAME_SEPARATOR;

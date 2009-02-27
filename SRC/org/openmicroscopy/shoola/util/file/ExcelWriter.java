@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.table.TableModel;
 
@@ -728,12 +729,14 @@ public class ExcelWriter
 			throw new IllegalArgumentException("Index not valid.");
 		if (map == null)
 			throw new IllegalArgumentException("No map to write.");
-		Iterator it = map.keySet().iterator();
+		Iterator it = map.entrySet().iterator();
 		Object key, value;
+		Entry entry;
 		while (it.hasNext())
 		{
-			key = it.next();
-			value = map.get(key);
+			entry = (Entry) it.next();
+			key = entry.getKey();
+			value = entry.getValue();
 			writeElement(rowIndex, columnIndex, key);
 			writeElement(rowIndex, columnIndex+1, value);
 			rowIndex++;

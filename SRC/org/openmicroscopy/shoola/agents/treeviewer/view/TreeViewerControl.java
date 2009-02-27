@@ -560,12 +560,14 @@ class TreeViewerControl
 			model.addExistingObjects((Set) pce.getNewValue());
 		} else if (UserManagerDialog.USER_SWITCH_PROPERTY.equals(name)) {
 			Map m = (Map) pce.getNewValue();
-			Iterator i = m.keySet().iterator();
+			Iterator i = m.entrySet().iterator();
 			Long groupID;
 			ExperimenterData d;
+			Entry entry;
 			while (i.hasNext()) {
-				groupID = (Long) i.next();
-				d = (ExperimenterData) m.get(groupID);
+				entry = (Entry) i.next();
+				groupID = (Long) entry.getKey();
+				d = (ExperimenterData) entry.getValue();
 				model.setHierarchyRoot(groupID, d);
 				break;
 			}
