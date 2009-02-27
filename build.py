@@ -7,6 +7,7 @@
 #
 # General build scripts.
 
+import os
 import sys
 import subprocess
 
@@ -62,9 +63,14 @@ def choose_omero_version():
     Returns an array specifying the build parameter for
     ant. Returned as an array so that an empty value can
     be extended into the build command.
+
+    If BUILD_NUMBER is set, then "-Domero.version=buildBUILD_NUMBER",
+    otherwise nothing.
     """
-    # Otherwise -Domero.version=buildBUILD_NUMBER
-    return [] # Use default
+    if os.environ.has_key("BUILD_NUMBER"):
+        return [ "-Domero.version=build%s" % os.environ["BUILD_NUMBER"] ]
+    else:
+        return [] # Use default
 
 def execute(args):
     rc = subprocess.call(args)
