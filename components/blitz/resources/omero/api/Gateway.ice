@@ -264,6 +264,18 @@ module omero {
             idempotent IntegerArray getRenderedImage(long pixelsId, int z, int t)
 				throws omero::ServerError;
 
+		   	/*
+             * Render the pixels for the zSection z and timePoint t.
+		     * @param pixelsId pixels id of the plane to render
+		     * @param z z section to render
+		     * @param t timepoint to render
+		     * @return The image as a buffered image.
+		     * @throws omero::ServerError
+		     */
+		     idempotent IntegerArray renderAsPackedIntAsRGBA(long pixelsId, int z, int t)
+						throws omero::ServerError;
+
+
             /*
              * Render the pixels for the zSection z and timePoint t.
              * @param pixelsId pixels id of the plane to render

@@ -96,6 +96,25 @@ public interface RenderingEngine extends SelfConfigurableService,
      */
     public int[] renderAsPackedInt(PlaneDef pd);
     
+	/**
+ 	* Renders the data selected by <code>pd</code> according to the current
+ 	* rendering settings. The passed argument selects a plane orthogonal to one
+ 	* of the <i>X</i>, <i>Y</i>, or <i>Z</i> axes. How many wavelengths are
+ 	* rendered and what color model is used depends on the current rendering
+ 	* settings.
+ 	* 
+ 	* @param pd
+ 	*            Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
+ 	*            or <i>Z</i> axes.
+ 	* @return An <i>RGB</i> image ready to be displayed on screen, using packed int
+ 	*            in the format RGBA, note that java uses colour format of ARGB.
+ 	* @throws ValidationException
+ 	*             If <code>pd</code> is <code>null</code>.
+ 	* @see render()
+ 	*/
+	public int[] renderAsPackedIntAsRGBA(PlaneDef pd);
+
+
     /**
      * Renders the data selected by <code>pd</code> according to the current
      * rendering settings and compresses the resulting RGBA composite image.

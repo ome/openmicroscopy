@@ -208,6 +208,67 @@ class GreyScaleStrategy extends RenderingStrategy {
 	}
 
 	/**
+	 * Implemented as specified by the superclass.
+	 * 
+	 * @see RenderingStrategy#renderAsPackedIntAsRGBA(Renderer ctx, PlaneDef planeDef)
+	 */
+	@Override
+	RGBAIntBuffer renderAsPackedIntAsRGBA(Renderer ctx, PlaneDef planeDef)
+	        throws IOException, QuantizationException {
+        // Set the context and retrieve objects we're gonna use.
+        renderer = ctx;
+        findFirstActiveChannelBinding();
+        PixelBuffer pixels = renderer.getPixels();
+        Pixels metadata = renderer.getMetadata();
+        RenderingStats performanceStats = renderer.getStats();
+        QuantumStrategy qs = 
+        	renderer.getQuantumManager().getStrategyFor(channel);
+        CodomainChain cc = renderer.getCodomainChain();
+        
+        // Retrieve the planar data to render
+        performanceStats.startIO(channel);
+        Plane2D plane =
+        	PlaneFactory.createPlane(planeDef, channel, metadata, pixels);
+        performanceStats.endIO(channel);
+	
+	    // Initialize sizeX1 and sizeX2 according to the plane definition and
+	    // create the RGB buffer.
+	    initAxesSize(planeDef, metadata);
+	    RGBAIntBuffer dataBuf = getRGBAIntBuffer();
+	    
+        int alpha = channelBinding.getAlpha();
+        int[] buf = ((RGBAIntBuffer) dataBuf).getDataBuffer();
+        int x1, x2, discreteValue, pixelIndex;
+        if (plane.isXYPlanar())
+        {
+        	int planeSize = sizeX1 * sizeX2;
+        	for (int i = 0; i < planeSize; i++)
+        	{
+                discreteValue = qs.quantize(plane.getPixelValue(i));
+                // Right now we have no transforms being used so it's safe to
+                // comment this out for the time being.
+                //discreteValue = cc.transform(discreteValue);
+                buf[i] = alpha | discreteValue << 24
+                        | discreteValue << 16 | discreteValue << 8;            		
+        	}
+        }
+        else
+        {
+        	for (x2 = 0; x2 < sizeX2; ++x2) {
+        		pixelIndex = sizeX1 * x2;
+        		for (x1 = 0; x1 < sizeX1; ++x1) {
+        			discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
+        			discreteValue = cc.transform(discreteValue);
+        			buf[pixelIndex + x1] = alpha | discreteValue << 24
+        			| discreteValue << 16 | discreteValue << 8;
+        		}
+        	}
+        }
+	    return dataBuf;
+	}
+
+
+	/**
 	 * Initializes the first active channel binding for the current rendering
 	 * context.
 	 */

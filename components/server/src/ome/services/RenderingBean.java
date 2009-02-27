@@ -482,6 +482,30 @@ public class RenderingBean extends AbstractLevel2Service implements
     	}
     }
 
+	/**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#render(PlaneDef)
+     */
+    @RolesAllowed("user")
+    public int[] renderAsPackedIntAsRGBA(PlaneDef pd) {
+    	rwl.writeLock().lock();
+
+    	try {
+    		errorIfInvalidState();
+    		return renderer.renderAsPackedIntAsRGBA(pd, null);
+    	} catch (IOException e) {
+    	    log.error("IO error while rendering.", e);
+    	    throw new ResourceError(e.getMessage());
+    	} catch (QuantizationException e) {
+    	    log.error("Quantization exception while rendering.", e);
+    	    throw new InternalException(e.getMessage());
+    	} finally {
+    		rwl.writeLock().unlock();
+    	}
+    }
+
+
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 

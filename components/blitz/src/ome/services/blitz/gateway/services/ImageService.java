@@ -163,7 +163,17 @@ public interface ImageService
 	 * @throws DSAccessException
 	 */
 	public int[] getRenderedImage(long pixelsId, int z, int t)	throws ServerError;
-
+	/**
+	 * Render image as Buffered image. 
+	 * @param pixelsId pixels id of the plane to render
+	 * @param z z section to render
+	 * @param t timepoint to render
+	 * @return packed int
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public int[] renderAsPackedIntAsRGBA(long pixelsId, int z, int t)	throws ServerError;
+	
 	/**
 	 * Render image as 3d matrix. 
 	 * @param pixelsId pixels id of the plane to render

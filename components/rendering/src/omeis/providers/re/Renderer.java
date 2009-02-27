@@ -459,6 +459,60 @@ public class Renderer {
     }
     
     /**
+     * Renders the data selected by <code>pd</code> according to the current
+     * rendering settings. The passed argument selects a plane orthogonal to one
+     * of the <i>X</i>, <i>Y</i>, or <i>Z</i> axes. How many wavelengths are
+     * rendered and what color model is used depends on the current rendering
+     * settings.
+     * 
+     * @param pd
+     *            Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
+     *            or <i>Z</i> axes.
+     * @param newBuffer
+     *             The pixel buffer to use in place of the one currently
+     *             defined in the renderer. This will not change the state
+     *             of the Renderer. If <code>null</code> is passed the existing
+     *             pixel buffer will be used.
+     * @return An <i>RGB</i> image ready to be displayed on screen, using the colour
+     *             format of RGBA.
+     * @throws IOException
+     *             If an error occurred while trying to pull out data from the
+     *             pixels data repository.
+     * @throws QuantizationException
+     *             If an error occurred while quantizing the pixels raw data.
+     * @throws NullPointerException
+     *             If <code>pd</code> is <code>null</code>.
+     */
+    public int[] renderAsPackedIntAsRGBA(PlaneDef pd, PixelBuffer newBuffer)
+        throws IOException, QuantizationException
+    {
+        if (pd == null) {
+            throw new NullPointerException("No plane definition.");
+        }
+        stats = new RenderingStats(this, pd);
+        log.info("Using: '" + renderingStrategy.getClass().getName()
+                + "' rendering strategy.");
+        PixelBuffer oldBuffer = buffer;
+        try
+        {
+            if (newBuffer != null)
+            {
+                buffer = newBuffer;
+            }
+            RGBAIntBuffer img = renderingStrategy.renderAsPackedIntAsRGBA(this, pd);
+            stats.stop();
+            // TODO: Commenting this out for now. -- callan
+            //log.info(stats.getStats());
+            return img.getDataBuffer();
+        }
+        finally
+        {
+            buffer = oldBuffer;
+        }
+    }
+
+
+    /**
      * Returns the size, in bytes, of the {@link RGBBuffer} that would be
      * rendered from the plane selected by <code>pd</code>. Note that the
      * returned value also depends on the current rendering strategy which is

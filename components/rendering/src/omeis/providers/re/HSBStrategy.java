@@ -275,6 +275,27 @@ class HSBStrategy extends RenderingStrategy {
         return buf;
     }
 
+ /**
+     * Implemented as specified by the superclass.
+     * 
+     * @see RenderingStrategy#renderAsPackedIntRGBA(Renderer ctx, PlaneDef planeDef)
+     */
+    @Override
+    RGBAIntBuffer renderAsPackedIntAsRGBA(Renderer ctx, PlaneDef planeDef)
+            throws IOException, QuantizationException {
+        // Set the context and retrieve objects we're gonna use.
+        renderer = ctx;
+        Pixels metadata = renderer.getMetadata();
+
+        // Initialize sizeX1 and sizeX2 according to the plane definition and
+        // create the RGB buffer.
+        initAxesSize(planeDef, metadata);
+        RGBAIntBuffer buf = getRGBAIntBuffer();
+
+        render(buf, planeDef);
+        return buf;
+    }
+
     /**
      * Implemented as specified by the superclass.
      * 

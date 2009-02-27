@@ -706,6 +706,7 @@ module omero {
 	{
 	    omero::romio::RGBBuffer render(omero::romio::PlaneDef def) throws ServerError;
 	    Ice::IntSeq renderAsPackedInt(omero::romio::PlaneDef def) throws ServerError;
+	    Ice::IntSeq renderAsPackedIntAsRGBA(omero::romio::PlaneDef def) throws ServerError;
 	    Ice::IntSeq renderProjectedAsPackedInt(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
 	    Ice::ByteSeq renderCompressed(omero::romio::PlaneDef def) throws ServerError;
 	    Ice::ByteSeq renderProjectedCompressed(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;

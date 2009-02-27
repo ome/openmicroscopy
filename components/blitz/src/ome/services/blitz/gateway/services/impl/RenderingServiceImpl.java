@@ -167,7 +167,6 @@ public class RenderingServiceImpl
 		return renderingEngine.renderAsPackedInt(def);
 	}
 
-
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RenderingService#setActive(java.lang.Long, int, boolean)
 	 */
@@ -246,6 +245,20 @@ public class RenderingServiceImpl
 			}
 		return data;
 	}
+
+	public synchronized int[] renderAsPackedIntAsRGBA(long pixelsId, int z, int t)
+			throws ServerError 
+	{
+		PlaneDef def = new PlaneDef();
+		def.t = t;
+		def.z = z;
+		def.x = 0;
+		def.y = 0;
+		def.slice = 0;
+		setPixelsId(pixelsId);
+		return renderingEngine.renderAsPackedIntAsRGBA(def);
+	}
+
 	
 }
 

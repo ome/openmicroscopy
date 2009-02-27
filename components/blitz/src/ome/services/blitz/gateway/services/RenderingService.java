@@ -52,6 +52,18 @@ public interface RenderingService
 	public int[] getRenderedImage(long pixelsId, int z, int t)	throws omero.ServerError;
 
 	/**
+	 * Render image as Buffered image. 
+	 * @param pixelsId pixels id of the plane to render
+	 * @param z z section to render
+	 * @param t timepoint to render
+	 * @return packed int
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public int[] renderAsPackedIntAsRGBA(long pixelsId, int z, int t)	throws omero.ServerError;
+
+	
+	/**
 	 * Render image as 3d matrix. 
 	 * @param pixelsId pixels id of the plane to render
 	 * @param z z section to render
@@ -73,6 +85,8 @@ public interface RenderingService
 	 * @throws DSAccessException
 	 */
 	public int[] renderAsPackedInt(Long pixelsId, int z, int t) throws omero.ServerError;
+	
+	
 	
 	/**
 	 * Set the active channels in the pixels.

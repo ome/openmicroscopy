@@ -116,9 +116,11 @@ class RenderHSBRegionTask implements RenderingTask {
     public Object call() throws QuantizationException {
         if (dataBuffer instanceof RGBIntBuffer) {
             renderPackedInt();
+        } else if (dataBuffer instanceof RGBAIntBuffer){
+            renderPackedIntAsRGBA();
         } else {
-            renderBanded();
-        }
+	      renderPackedInt();
+    	}
         return null;
     }
 
@@ -288,6 +290,112 @@ class RenderHSBRegionTask implements RenderingTask {
             i++;
         }
     }
+
+ /**
+     * Renders into a packed integer array.
+     * 
+     * @throws QuantizationException
+     *             if there is an error during pixel value quantization.
+     */
+    private void renderPackedIntAsRGBA() throws QuantizationException {
+        int discreteValue, pix;
+        double redRatio, greenRatio, blueRatio;
+        int rValue, gValue, bValue;
+        int newRValue, newGValue, newBValue;
+        int colorOffset = 32;  // Only used when we're doing primary color.
+
+        int width = x1End - x1Start;
+        int i = 0;
+        int[] buf = ((RGBAIntBuffer) dataBuffer).getDataBuffer();
+        boolean isPrimaryColor = optimizations.isPrimaryColorEnabled();
+        boolean isAlphaless = optimizations.isAlphalessRendering();
+        for (Plane2D plane : wData) {
+            int[] color = colors.get(i);
+            QuantumStrategy qs = strategies.get(i);
+            redRatio = color[ColorsFactory.RED_INDEX] > 0? color[ColorsFactory.RED_INDEX] / 255.0 : 0.0;
+            greenRatio = color[ColorsFactory.GREEN_INDEX] > 0? color[ColorsFactory.GREEN_INDEX] / 255.0 : 0.0;
+            blueRatio = color[ColorsFactory.BLUE_INDEX] > 0? color[ColorsFactory.BLUE_INDEX] / 255.0 : 0.0;
+            boolean isXYPlanar = plane.isXYPlanar();
+            PixelData data = plane.getData();
+            int bytesPerPixel = data.bytesPerPixel();
+
+            // Get our color offset if we've got the primary color optimization
+            // enabled.
+            if (isPrimaryColor)
+            	colorOffset = getColorOffsetAsRGBA(color);
+
+            float alpha = new Integer(color[ColorsFactory.ALPHA_INDEX]).floatValue() / 255;
+            for (int x2 = x2Start; x2 < x2End; ++x2) {
+                for (int x1 = x1Start; x1 < x1End; ++x1) {
+                    pix = width * x2 + x1;
+                    if (isXYPlanar)
+                    	discreteValue = 
+                    		qs.quantize(
+                    			data.getPixelValueDirect(pix * bytesPerPixel));
+                    else
+                    	discreteValue = 
+                    		qs.quantize(plane.getPixelValue(x1, x2));
+                    // Right now we have no transforms being used so it's safe to
+                    // comment this out for the time being.
+                    //discreteValue = cc.transform(discreteValue);
+
+                    // Primary colour optimization is in effect, we don't need
+                    // to do any of the sillyness below just shift the value
+                    // into the correct colour component slot and move on to
+                    // the next pixel value.
+                    if (colorOffset != 32)
+                    {
+                    	buf[pix] |= 0x000000FF;  // Alpha.
+                    	buf[pix] |= discreteValue << colorOffset;
+                    	continue;
+                    }
+
+                    newRValue = (int) (redRatio * discreteValue);
+                    newGValue = (int) (greenRatio * discreteValue);
+                    newBValue = (int) (blueRatio * discreteValue);
+
+                    // Pre-multiply the alpha for each colour component if the
+                    // image has a non-1.0 alpha component.
+                    if (!isAlphaless)
+                    {
+                    	newRValue *= alpha;
+                    	newGValue *= alpha;
+                    	newBValue *= alpha;
+                    }
+
+                    // Add the existing colour component values to the new
+                    // colour component values.
+                    rValue = ((buf[pix] & 0xFF000000) >> 24) + newRValue;
+                    gValue = ((buf[pix] & 0x00FF0000) >> 16) + newGValue;
+                    bValue = ((buf[pix] & 0x0000FF00) >>8) + newBValue;
+
+                    // Ensure that each colour component value is between 0 and
+                    // 255 (byte). We must make *certain* that values do not
+                    // wrap over 255 otherwise there will be corruption
+                    // introduced into the rendered image. The value may be over
+                    // 255 if we have mapped two high intensity channels to
+                    // the same color.
+                    if (rValue > 255) {
+                        rValue = 255;
+                    }
+                    if (gValue > 255) {
+                        gValue = 255;
+                    }
+                    if (bValue > 255) {
+                        bValue = 255;
+                    }
+
+                    // Packed each colour component along with a 1.0 alpha into
+                    // the buffer so that buffered images that use this buffer
+                    // can be type 1 (3 bands, pre-multiplied alpha) or type 2
+                    // (4 bands, alpha component included).
+                    buf[pix] = 0x000000FF | rValue << 24 | gValue << 16 | bValue<<8;
+                }
+            }
+
+            i++;
+        }
+    }
     
     /**
      * Returns a color offset based on which color component is 0xFF.
@@ -302,6 +410,24 @@ class RenderHSBRegionTask implements RenderingTask {
     		return 8;
     	if (color[ColorsFactory.BLUE_INDEX] == 255)
     		return 0;
+    	throw new IllegalArgumentException(
+    			"Unable to find color component offset in color.");
+    }
+
+    /**
+     * Returns a color offset based on which color component is 0xFF.
+     * @param color the color to check. This is for colour components
+	 * of RGBA, rather than java colour components which are ARGB.
+     * @return an integer color offset in bits.
+     */
+    private int getColorOffsetAsRGBA(int[] color)
+    {
+    	if (color[ColorsFactory.RED_INDEX] == 255)
+    		return 24;
+    	if (color[ColorsFactory.GREEN_INDEX] == 255)
+    		return 16;
+    	if (color[ColorsFactory.BLUE_INDEX] == 255)
+    		return 8;
     	throw new IllegalArgumentException(
     			"Unable to find color component offset in color.");
     }

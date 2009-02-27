@@ -37,6 +37,7 @@ import omero.api.AMD_RenderingEngine_lookupRenderingDef;
 import omero.api.AMD_RenderingEngine_removeCodomainMap;
 import omero.api.AMD_RenderingEngine_render;
 import omero.api.AMD_RenderingEngine_renderAsPackedInt;
+import omero.api.AMD_RenderingEngine_renderAsPackedIntAsRGBA;
 import omero.api.AMD_RenderingEngine_renderCompressed;
 import omero.api.AMD_RenderingEngine_renderProjectedAsPackedInt;
 import omero.api.AMD_RenderingEngine_renderProjectedCompressed;
@@ -249,6 +250,13 @@ public class RenderingEngineI extends AbstractAmdServant implements
 
     public void renderAsPackedInt_async(
             AMD_RenderingEngine_renderAsPackedInt __cb, PlaneDef def,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, def);
+
+    }
+
+    public void renderAsPackedIntAsRGBA_async(
+            AMD_RenderingEngine_renderAsPackedIntAsRGBA __cb, PlaneDef def,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, def);
 

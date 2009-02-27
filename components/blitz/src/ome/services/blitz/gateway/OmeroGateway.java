@@ -297,7 +297,16 @@ public class OmeroGateway
 	{
 		return imageService.getRenderedImage(pixelsId, z, t);
 	}
-
+	
+	/* (non-Javadoc)
+	 * @see omero.api._GatewayOperations#getRenderedImage(long, int, int, Ice.Current)
+	 */
+	public int[] renderAsPackedIntAsRGBA(long pixelsId, int z, int t,
+			Current __current) throws ServerError
+	{
+		return imageService.renderAsPackedIntAsRGBA(pixelsId, z, t);
+	}
+		
 	/* (non-Javadoc)
 	 * @see omero.api._GatewayOperations#getRenderedImageMatrix(long, int, int, Ice.Current)
 	 */

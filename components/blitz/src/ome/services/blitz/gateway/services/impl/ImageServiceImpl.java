@@ -163,6 +163,16 @@ public class ImageServiceImpl
 	{
 		RenderingService renderingService = gatewayFactory.getRenderingService();
 		return renderingService.getRenderedImage(pixelsId, z, t);
+	}		
+	
+	/* (non-Javadoc)
+	 * @see ome.services.blitz.omerogateway.services.ImageService#getRenderedImage(long, int, int)
+	 */
+	public int[] renderAsPackedIntAsRGBA(long pixelsId, int z, int t)
+			throws ServerError
+	{
+		RenderingService renderingService = gatewayFactory.getRenderingService();
+		return renderingService.renderAsPackedIntAsRGBA(pixelsId, z, t);
 	}	
 	
 	/* (non-Javadoc)
