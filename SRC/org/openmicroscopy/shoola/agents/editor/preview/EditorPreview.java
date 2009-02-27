@@ -190,7 +190,6 @@ public class EditorPreview
 	public JComponent getUI()	{ return view; }
 
 	public void handleAnnotation(FileAnnotationData fileAnnotation) {
-		
 		annotationDesc = fileAnnotation.getDescription();
 		previewPanel.setDescriptionXml(annotationDesc);
 		view.setTitle(previewPanel.getTitle());
