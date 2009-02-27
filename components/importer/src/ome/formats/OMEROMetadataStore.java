@@ -192,10 +192,6 @@ public class OMEROMetadataStore
     	{
     	    handle(lsid, (WellSample) sourceObject, indexes);
     	}
-    	else if (sourceObject instanceof BooleanAnnotation)
-    	{
-    		handle(lsid, (BooleanAnnotation) sourceObject, indexes);
-    	}
     	else
     	{
     		throw new ApiUsageException(
@@ -230,12 +226,6 @@ public class OMEROMetadataStore
     			{
     				handleReference((Image) targetObject,
     						        (Instrument) referenceObject);
-    				continue;
-    			}
-    			if (referenceObject instanceof BooleanAnnotation)
-    			{
-    				handleReference((Image) targetObject,
-    						        (BooleanAnnotation) referenceObject);
     				continue;
     			}
     		}
@@ -512,19 +502,6 @@ public class OMEROMetadataStore
      * @param indexes Any indexes that should be used to reference the model
      * object.
      */
-    private void handle(String LSID, BooleanAnnotation sourceObject,
-                        Map<String, Integer> indexes)
-    {
-        // No-op.
-    }
-    
-    /**
-     * Handles inserting a specific type of model object into our object graph.
-     * @param LSID LSID of the model object.
-     * @param sourceObject Model object itself.
-     * @param indexes Any indexes that should be used to reference the model
-     * object.
-     */
     private void handle(String LSID, WellSample sourceObject,
                         Map<String, Integer> indexes)
     {
@@ -554,17 +531,6 @@ public class OMEROMetadataStore
     private void handleReference(Image target, Instrument reference)
     {
     	target.setInstrument(reference);
-    }
-    
-    /**
-     * Handles linking a specific reference object to a target object in our
-     * object graph.
-     * @param target Target model object.
-     * @param reference Reference model object.
-     */
-    private void handleReference(Image target, BooleanAnnotation reference)
-    {
-    	target.linkAnnotation(reference);
     }
     
     /**

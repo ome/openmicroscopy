@@ -754,21 +754,11 @@ public class OMEROMetadataStoreClient
      */
     public void setArchive(boolean archive)
     {
-    	// First create our annotation for linkage
-    	LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-    	indexes.put("annotationIndex", 0);
-    	BooleanAnnotation annotation = 
-    		getSourceObject(BooleanAnnotation.class, indexes);
-        annotation.setBoolValue(rbool(archive));
-        annotation.setNs(rstring(ARCHIVE_ANN_NS));
-        
-        // Now link this annotation to all images we have in cache
-        int imageCount = countCachedContainers(Image.class);
-        for (int i = 0; i < imageCount; i++)
-        {
-        	LSID key = new LSID(Image.class, i);
-        	referenceCache.put(key, new LSID(BooleanAnnotation.class, 0));
-        }
+    	List<Image> images = getSourceObjects(Image.class);
+    	for (Image image : images)
+    	{
+    		image.setArchived(toRType(archive));
+    	}
     }
 
     /* (non-Javadoc)
