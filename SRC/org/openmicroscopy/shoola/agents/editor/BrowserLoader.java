@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.editor.browser.browserloaders;
+package org.openmicroscopy.shoola.agents.editor;
 
 
 //Java imports
@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.agents.editor.browser.browserloaders;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;

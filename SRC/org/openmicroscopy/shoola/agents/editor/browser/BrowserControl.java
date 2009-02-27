@@ -43,6 +43,7 @@ import javax.swing.undo.UndoableEditSupport;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.FileAnnotationLoader;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.AddExpInfoAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.AddFieldAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.AddTextBoxFieldAction;
@@ -57,7 +58,6 @@ import org.openmicroscopy.shoola.agents.editor.browser.actions.MoveUpAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.PasteFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.RedoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.UndoEditAction;
-import org.openmicroscopy.shoola.agents.editor.browser.browserloaders.FileAnnotationLoader;
 import org.openmicroscopy.shoola.agents.editor.browser.undo.ObservableUndoManager;
 import org.openmicroscopy.shoola.agents.editor.browser.undo.UndoRedoListener;
 import org.openmicroscopy.shoola.agents.editor.model.DataReference;

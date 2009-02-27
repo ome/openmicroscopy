@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.editor.FileAnnotationLoader 
+ * org.openmicroscopy.shoola.agents.editor.browser.browserloaders.FileAnnotationLoader
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -27,9 +27,8 @@ package org.openmicroscopy.shoola.agents.editor;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.preview.AnnotationHandler;
-import org.openmicroscopy.shoola.agents.editor.view.Editor;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.FileAnnotationData;
 
@@ -49,7 +48,7 @@ import pojos.FileAnnotationData;
  * @since 3.0-Beta4
  */
 public class FileAnnotationLoader 
-	extends EditorLoader
+	extends BrowserLoader
 {
 
 	/** Handle to the async call so that we can cancel it. */
@@ -71,7 +70,7 @@ public class FileAnnotationLoader
      *                  Mustn't be <code>null</code>.
      * @param fileAnnotationID The Id of the file annotation to load.
      */
-	public FileAnnotationLoader(Editor viewer, long fileAnnotationID)
+	public FileAnnotationLoader(Browser viewer, long fileAnnotationID)
 	{
 		super(viewer);
 		if (fileAnnotationID < 0)
@@ -109,7 +108,6 @@ public class FileAnnotationLoader
 	 */
 	public void handleResult(Object result)
 	{
-		if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
 		if (result instanceof FileAnnotationData) {
 			if (annotationHandler != null) {
 				annotationHandler.handleAnnotation((FileAnnotationData)result);
