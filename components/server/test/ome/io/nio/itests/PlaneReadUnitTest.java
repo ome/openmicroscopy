@@ -108,7 +108,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
         PixelsService service = new PixelsService(ROOT);
         OriginalFileMetadataProvider metadataProvider =
         	new TestingOriginalFileMetadataProvider();
-        PixelBuffer pixbuf = service.getPixelBuffer(pixels, metadataProvider);
+        PixelBuffer pixbuf = service.getPixelBuffer(pixels, metadataProvider, true);
         PixelData plane = pixbuf.getPlane(0, 0, 0);
 
         byte[] messageDigest = Helper.calculateMessageDigest(plane.getData());
@@ -123,7 +123,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
         PixelsService service = new PixelsService(ROOT);
         OriginalFileMetadataProvider metadataProvider =
         	new TestingOriginalFileMetadataProvider();
-        PixelBuffer pixbuf = service.getPixelBuffer(pixels, metadataProvider);
+        PixelBuffer pixbuf = service.getPixelBuffer(pixels, metadataProvider, true);
         PixelData plane = pixbuf.getPlane(pixels.getSizeZ() - 1, pixels
                 .getSizeC() - 1, pixels.getSizeT() - 1);
         int digestOffset = getDigestOffset(pixels.getSizeZ() - 1, pixels
@@ -141,7 +141,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
         PixelsService service = new PixelsService(ROOT);
         OriginalFileMetadataProvider metadataProvider =
         	new TestingOriginalFileMetadataProvider();
-        PixelBuffer pixbuf = service.getPixelBuffer(pixels, metadataProvider);
+        PixelBuffer pixbuf = service.getPixelBuffer(pixels, metadataProvider, true);
 
         String newMessageDigest;
         String oldMessageDigest;

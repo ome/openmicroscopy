@@ -149,7 +149,7 @@ public class PixelsServiceTest extends AbstractManagedContextTest {
         pix.setSizeC(1);
         pix = iUpdate.saveAndReturnObject(pix);
         RawPixelsStore raw = this.factory.createRawPixelsStore();
-        raw.setPixelsId(pix.getId());
+        raw.setPixelsId(pix.getId(), false);
         raw.calculateMessageDigest();
 
         int size = raw.getPlaneSize();

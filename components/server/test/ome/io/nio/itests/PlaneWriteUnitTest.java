@@ -67,7 +67,7 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
 
         OriginalFileMetadataProvider metadataProvider =
         	new TestingOriginalFileMetadataProvider();
-        pixbuf = service.getPixelBuffer(pixels, metadataProvider);
+        pixbuf = service.getPixelBuffer(pixels, metadataProvider, true);
         PixelData plane = pixbuf.getPlane(0, 0, 0);
         assertNotNull(plane);
         byte[] newMD = Helper.calculateMessageDigest(plane.getData());
@@ -87,7 +87,7 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
 
         OriginalFileMetadataProvider metadataProvider =
         	new TestingOriginalFileMetadataProvider();
-        pixbuf = service.getPixelBuffer(pixels, metadataProvider);
+        pixbuf = service.getPixelBuffer(pixels, metadataProvider, true);
         PixelData plane = pixbuf.getPlane(z, c, t);
         assertNotNull(plane);
         byte[] newMD = Helper.calculateMessageDigest(plane.getData());
