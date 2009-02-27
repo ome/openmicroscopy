@@ -23,7 +23,10 @@
  */
 
 //Java imports
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.color.ColorSpace;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -35,6 +38,8 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
+import java.nio.Buffer;
+import java.nio.IntBuffer;
 
 import javax.media.opengl.DebugGL;
 import javax.media.opengl.GL;
@@ -51,6 +56,7 @@ import javax.swing.event.ChangeListener;
 
 import com.sun.opengl.util.texture.Texture;
 import com.sun.opengl.util.texture.TextureCoords;
+import com.sun.opengl.util.texture.TextureData;
 import com.sun.opengl.util.texture.TextureIO;
 
 import omero.ServerError;
@@ -131,21 +137,46 @@ public class ImageViewerGL
 		tSlider.setMaximum(pixels.getSizeT().getValue()-1);
 	}
 	
-	public BufferedImage getPlane(int z, int t) throws ServerError
+	public TextureData getPlane(int z, int t) throws ServerError
 	{
-		int[] data = gateway.getRenderedImage(pixels.getId().getValue(), 
+		long a  = System.currentTimeMillis();
+		int[] data = gateway.renderAsPackedIntAsRGBA(pixels.getId().getValue(), 
+		
 													zSlider.getValue(), 
 													tSlider.getValue());
-		DataBuffer j2DBuf = new DataBufferInt(data, 
+		int[] dataARGB = gateway.getRenderedImage(pixels.getId().getValue(), 
+				zSlider.getValue(), 
+				tSlider.getValue());
+		System.err.println("retrieval time (ms) : "+(System.currentTimeMillis()-a));
+		int[] newData = new int[512*512];
+		for(int x = 0 ; x < 512*512; x++)
+			{
+			Color c = new Color(data[x]);
+			int r = (int)(data[x]>>24)&0xff;
+			int g = (int)(data[x]>>16)&0xff;
+			int b = (int)(data[x]>>8)&0xff;
+			//System.err.println(r);
+			//System.err.println(g);
+			//System.err.println(b);
+			Color newC = new Color( r, g,b );
+			newData[x] = newC.getRGB();
+			}
+/*		int diff = 0;
+		for( int x =0 ; x < 512*512; x++)
+			diff= diff + (dataARGB[x]-newData[x]);
+		System.err.println(diff);*/
+		
+		/*DataBuffer j2DBuf = new DataBufferInt(data, 
 										(int)(pixels.getSizeX().getValue() 
 												* pixels.getSizeY().getValue()), 0);
 		SinglePixelPackedSampleModel sampleModel = new SinglePixelPackedSampleModel(
 					                DataBuffer.TYPE_INT, pixels.getSizeX().getValue()
 					                , pixels.getSizeY().getValue(), pixels.getSizeX().getValue(), 
 					                new int[] {
-					                        0x00ff0000, // Red
-					                        0x0000ff00, // Green
-					                        0x000000ff, // Blue
+					                        0xff000000, // Red
+					                        0x00ff0000, // Green
+					                        0x0000ff00, // Blue
+					                        0x000000ff, // Alpha
 					                });
 		
 		WritableRaster raster = new IntegerInterleavedRaster(sampleModel,
@@ -154,16 +185,30 @@ public class ImageViewerGL
 		
 		if(img==null)
 			{
-			ColorModel colorModel = new DirectColorModel(24, 0x00ff0000, // Red
-			 	                0x0000ff00, // Green
-				  	                0x000000ff // Blue
+			ColorModel colorModel = new DirectColorModel(ColorSpace.getInstance(ColorSpace.TYPE_RGB), 32, 0xff000000, // Red
+			 	                0x00ff0000, // Green
+				  	                0x0000ff00, 0x000000ff, true, DataBuffer.TYPE_INT // Alpha
 				  	          );
 			img = new BufferedImage(colorModel, raster, false, null);
 			}
 		else
-			img.setData(raster);
-		
-		return img;
+			img.setData(raster);*/
+	//	System.err.println(data.length);
+		System.err.println(pixels.getSizeX().getValue());
+		System.err.println(pixels.getSizeY().getValue());
+		IntBuffer b = IntBuffer.wrap(data);
+		IntBuffer b2 = IntBuffer.wrap(dataARGB);
+	
+		a = System.currentTimeMillis();
+		TextureData textureData = new TextureData(GL.GL_RGBA, pixels.getSizeX().getValue(), 
+			pixels.getSizeY().getValue(), 0, GL.GL_RGBA, GL.GL_UNSIGNED_INT_8_8_8_8, false,
+				false, false, b, null );
+		System.err.println("Texture time (ms) : "+(System.currentTimeMillis()-a));
+				
+//		TextureData textureData = new TextureData(
+		//Texture texture = TextureIO.newTexture(textureData);
+//		return textureData;
+		return textureData;
 				  	
 	}
      
@@ -183,6 +228,9 @@ public class ImageViewerGL
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.add(zSlider);
 		panel.add(imagePanel);
+		imagePanel.setPreferredSize(new Dimension(512,512));
+		imagePanel.setMinimumSize(new Dimension(512,512));
+		imagePanel.setMaximumSize(new Dimension(512,512));
 		add(panel);
 		add(tSlider);
 		loadNewPlane = false;
@@ -192,7 +240,7 @@ public class ImageViewerGL
 	public void zoom(int r)
 	{
 		long a  = System.currentTimeMillis();
-		imagePanel.zoom(-Math.signum(r)*0.1f);
+		imagePanel.zoom(-Math.signum(r)*0.01f);
 		imagePanel.repaint();
 		System.err.println("scaling time (ms) : "+(System.currentTimeMillis()-a));
 	}
@@ -202,10 +250,8 @@ public class ImageViewerGL
 	{
 		System.err.println("getUsedMemory : " + getUsedMemory());
 		try {
-			long a  = System.currentTimeMillis();
 			imagePanel.setTexture(getPlane(zSlider.getValue(), tSlider.getValue()));
 			imagePanel.repaint();
-			System.err.println("retrieval time (ms) : "+(System.currentTimeMillis()-a));
 		} catch (ServerError e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

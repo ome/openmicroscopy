@@ -113,7 +113,7 @@ public class TestTexture
 		frame.setSize(800, 600);
 		frame.show();
 		try {
-			imagePanel.setImage(55);
+			imagePanel.setImage(101);
 			//imagePanel.getPlane(0,0);
 		} catch (ServerError e) {
 			// TODO Auto-generated catch block

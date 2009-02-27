@@ -10,6 +10,7 @@ import javax.media.opengl.glu.GLU;
 
 import com.sun.opengl.util.texture.Texture;
 import com.sun.opengl.util.texture.TextureCoords;
+import com.sun.opengl.util.texture.TextureData;
 import com.sun.opengl.util.texture.TextureIO;
 
 import omero.ServerError;
@@ -61,8 +62,9 @@ public class ImagePanel
 	private boolean loadNewPlane;
 	private Texture texture=null;
 	private GLU glu = new GLU();
-	private static GLCapabilities caps;
 	private BufferedImage planeImage;
+	private static GLCapabilities caps;
+	private TextureData textureData;
 	
 	private float zoom; 
 	
@@ -87,6 +89,7 @@ public class ImagePanel
 		gl.glClearColor(0, 0, 0, 0);
 		gl.glEnable(GL.GL_DEPTH_TEST);
 	}
+	
 
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
 			int height) 
@@ -101,12 +104,13 @@ public class ImagePanel
 	
 	private void loadTexture()
 	{
-		texture = TextureIO.newTexture(planeImage, true);
+		texture = TextureIO.newTexture(textureData);
 	}
 
-	public void setTexture(BufferedImage img)
+	public void setTexture(TextureData newTextureData)
 	{
-		planeImage = img;
+		//textureData = newTextureData;
+		textureData = newTextureData;
 		loadNewPlane = true;
 		
 	}
@@ -116,7 +120,7 @@ public class ImagePanel
 	{
 		zoom = zoom + z;
 		if(zoom<0) zoom = 0;
-		if(zoom>0.4) zoom = 0.4f;
+		if(zoom>0.499) zoom = 0.499f;
 	}
 
 	
@@ -128,10 +132,7 @@ public class ImagePanel
 		if(loadNewPlane)
 		{
 			if(texture != null)
-			{
 				texture.dispose();
-				planeImage.flush();
-			}
 			loadTexture();
 			loadNewPlane = false;
 		}
