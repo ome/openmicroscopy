@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -352,8 +353,6 @@ class PropertiesUI
     	bar.setFloatable(false);
     	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
     	bar.add(button);
-		//p.add(bar);
-		//p.add(c);
     	p.add(bar, "0, 0, l, t");
     	p.add(c, "1, 0, 1, 1");
     	
@@ -425,6 +424,11 @@ class PropertiesUI
         		if (description != null && description.length() > 0) {
         			PreviewPanel panel = new PreviewPanel(description);
         			add(Box.createVerticalStrut(5));
+        			JLabel l = UIUtilities.setTextFont(panel.getTitle());
+        			JPanel p = UIUtilities.buildComponentPanel(l);
+        			p.setBackground(UIUtilities.BACKGROUND);
+        			l.setBackground(UIUtilities.BACKGROUND);
+        			add(p);
         	    	add(panel);
         		}
         	}

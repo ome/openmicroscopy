@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.util.editorpreview;
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -44,6 +45,7 @@ import javax.swing.border.EmptyBorder;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.editorpreview.MetadataComponent;
+import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -88,7 +90,8 @@ public class PreviewPanel
 	private void initComponents()
 	{
 		setBackground(UIUtilities.BACKGROUND_COLOR);
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		
 		String description = model.getDescription();
 		if (description != null) {
@@ -96,10 +99,12 @@ public class PreviewPanel
 			description = "<html><span style='font-family:sans-serif;font-size:11pt'>"
 							+ description + "</span></html>";
 			// display description in EditorPane, because text wraps nicely!
+			//MultilineLabel label = new MultilineLabel();
+			//label.setText(model.getDescription());
 			JEditorPane ep = new JEditorPane("text/html", description);
 			ep.setEditable(false);
 			ep.setBorder(new EmptyBorder(3, 5, 5, 3));
-			add(ep);
+			p.add(ep);
 		}
 		
 		List<StepObject> protocolSteps = model.getSteps();
@@ -130,8 +135,10 @@ public class PreviewPanel
 			
 			layoutFields(nodePanel, null, paramComponents, true);
 			
-			add(nodePanel);
+			p.add(nodePanel);
 		}
+		setLayout(new BorderLayout());
+		add(p, BorderLayout.CENTER);
 	}
 	
 	/** Called when the model changes. */
@@ -157,7 +164,7 @@ public class PreviewPanel
 	{
 		pane.removeAll();
 		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
+		//c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
 	    
@@ -172,8 +179,8 @@ public class PreviewPanel
 	             c.gridx++;
 	             pane.add(Box.createHorizontalStrut(5), c); 
 	             c.gridx++;
-	             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-	             c.fill = GridBagConstraints.HORIZONTAL;
+	             //c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+	             //c.fill = GridBagConstraints.HORIZONTAL;
 	             c.weightx = 1.0;
 	             pane.add(comp.getArea(), c);  
 	        } 

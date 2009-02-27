@@ -344,11 +344,17 @@ public class IconManager
     /** A 48x48 version of the <code>Screen</code> icon. */
     public static final int           SCREEN_48 = 96;
     
+    /** A version of the <code>Editor experiment</code> icon. */
+    public static final int           EDITOR_EXPERIMENT = 97;
+    
+    /** A version of the <code>Editor protocol</code> icon. */
+    public static final int           EDITOR_PROTOCOL = 98;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 96;
+    private static final int          MAX_ID = 98;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -454,6 +460,8 @@ public class IconManager
         relPaths[PROJECT_48] = "nuvola_folder_blue_open48.png";
         relPaths[DATASET_48] = "nuvola_folder_image48.png";
         relPaths[SCREEN_48] = "nuvola_knotes48.png";
+        relPaths[EDITOR_PROTOCOL] = "nuvola_folder_cyan_open16.png";
+        relPaths[EDITOR_EXPERIMENT] = "nuvola_folder_cyan_open16.png";
     }
     
     /** The sole instance. */

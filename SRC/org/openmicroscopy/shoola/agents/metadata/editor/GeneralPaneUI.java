@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.io.File;
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -104,6 +106,12 @@ class GeneralPaneUI
 	/** The layout index of the {@link browserTaskPane}. */
 	private int							browserIndex;
 	
+	/** The layout index of the protocols. */
+	private int							protocolsIndex;
+	
+	/** The component hosting the various protocols. */
+	private JPanel						protocolComponent;
+	
 	/**
 	 * Loads or cancels any on-going loading of containers hosting
 	 * the edited object.
@@ -128,6 +136,8 @@ class GeneralPaneUI
 			browserTaskPane.addPropertyChangeListener(controller);
 		}
 		
+		protocolComponent = new JPanel();
+		protocolComponent.setBackground(UIUtilities.BACKGROUND);
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
 		annotationUI = new AnnotationDataUI(model, controller);
@@ -150,7 +160,7 @@ class GeneralPaneUI
 		content.setBackground(UIUtilities.BACKGROUND);
 		double[][]	size = {{TableLayout.FILL}, 
 				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
-				TableLayout.PREFERRED, 0}};
+				TableLayout.PREFERRED, 0, 0}};
 		int i = 0;
 		content.setLayout(new TableLayout(size));
 
@@ -164,11 +174,67 @@ class GeneralPaneUI
 		textualAnnotationsLayoutIndex = i;
 		content.add(textualAnnotationsUI, "0, "+i);
 		i++;
+		protocolsIndex = i;
+		content.add(protocolComponent, "0, "+i);
+		i++;
 		browserIndex = i;
 		content.add(browserTaskPane, "0, "+i);
 		getViewport().add(content);
 	}
     
+	/**
+	 * Returns <code>true</code> if the passed value corresponds to
+	 * a name space for <code>Editor</code>.
+	 * 
+	 * @param nameSpace The value to handle.
+	 * @return See above.
+	 */
+	private boolean isEditorFile(String nameSpace)
+	{
+		return (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(nameSpace) ||
+				FileAnnotationData.EDITOR_PROTOCOL_NS.equals(nameSpace));
+	}
+	
+	/** 
+	 * Lays out the protocols files. Returns the number of protocol files.
+	 * 
+	 * @return See above.
+	 */
+	private int buildProtocolTaskPanes()
+	{
+		Collection list = model.getAttachments();
+		protocolComponent.removeAll();
+		TableLayout layout = new TableLayout();
+		double[] size = {TableLayout.FILL};
+		layout.setColumn(size);
+		protocolComponent.setLayout(layout);
+		if (list.size() == 0) return 0;
+		Iterator i = list.iterator();
+		FileAnnotationData fa;
+		JXTaskPane pane;
+		PreviewPanel preview;
+		String description;
+		String ns;
+		int index = 0;
+		while (i.hasNext()) {
+			fa = (FileAnnotationData) i.next();
+			ns = fa.getNameSpace();
+			if (fa.getId() > 0 && isEditorFile(ns)) {
+				description = fa.getDescription();
+				if (description != null) {
+					preview = new PreviewPanel(description);
+					pane = EditorUtil.createTaskPane(preview.getTitle());
+					pane.add(preview);
+					layout.insertRow(index, TableLayout.PREFERRED);
+					protocolComponent.add(pane, "0, "+index);
+					index++;
+				}
+			}
+		}
+		
+		return index;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -236,6 +302,10 @@ class GeneralPaneUI
 			browserTaskPane.setCollapsed(true);
 		browserTaskPane.setTitle(s);
 		layout.setRow(browserIndex, h);
+		int n = buildProtocolTaskPanes();
+		double hp = 0;
+		if (n > 0) hp = TableLayout.PREFERRED;
+		layout.setRow(protocolsIndex, hp);
 		if (h != 0 && !browserTaskPane.isCollapsed()) {
 			loadParents(true);
 		}

@@ -178,23 +178,8 @@ class BrowserUI
      */
     private void addMenuToNode(TreeBrowserDisplay parent)
     {
-    	//DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
     	if (parent instanceof TreeBrowserSet) 
 			buildEmptyNode(parent);
-    	/*
-    	List<TreeBrowserDisplay> nodes = controller.createMenuNodes(
-    										parent.getUserObject());
-    	Iterator<TreeBrowserDisplay> i = nodes.iterator();
-    	TreeBrowserDisplay node;
-    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
-    	while (i.hasNext()) {
-    		node = i.next();
-			if (node instanceof TreeBrowserSet) 
-				buildEmptyNode(node);
-			parent.addChildDisplay(node);
-			tm.insertNodeInto(node, parent, parent.getChildCount());
-		}
-		*/
     }
 
     /** Creates  the tree. */
@@ -268,7 +253,6 @@ class BrowserUI
     	double[][] size = {{TableLayout.FILL}, {100}};
     	setLayout(new TableLayout(size));
     	add(new JScrollPane(treeDisplay), "0, 0");
-    	//add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
     }
     
     /** Creates a new instance. */

@@ -164,7 +164,6 @@ class OmeroImageServiceImpl
 			ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
 			RenderingEnginePrx re = gateway.createRenderingEngine(pixelsID);
-			
 			Pixels pixels = gateway.getPixels(pixelsID);
 			RenderingDef def = gateway.getRenderingDef(pixelsID, exp.getId());
 			Collection l = pixels.copyChannels();

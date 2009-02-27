@@ -147,7 +147,18 @@ public class TreeCellRenderer
         } else if (node instanceof TreeImageTimeSet)
         	icon = icons.getIcon(IconManager.DATE);
         else if (node instanceof TreeFileSet) {
-        	icon = icons.getIcon(IconManager.ROOT);
+        	TreeFileSet n = (TreeFileSet) node;
+        	switch (n.getType()) {
+				case TreeFileSet.EXPERIMENT:
+					icon = icons.getIcon(IconManager.EDITOR_PROTOCOL);
+					break;
+				case TreeFileSet.PROTOCOL:
+					icon = icons.getIcon(IconManager.EDITOR_EXPERIMENT);
+					break;
+				default:
+					icon = icons.getIcon(IconManager.ROOT);
+			}
+        	
         } else if (usrObject instanceof String)
         	icon = icons.getIcon(IconManager.ROOT);
         setIcon(icon);
