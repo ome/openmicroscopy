@@ -68,7 +68,7 @@ def make_slice(command):
         args = command+[str(source[0].get_abspath())]
         rv = subprocess.call(args)
         if rv != 0:
-            raise exceptions.Exception("%s returned %s" % (" ".join(args), rv))
+            raise exceptions.Exception("%s returned %s" % (str(args), str(rv)) )
     return slice
 
 def slice_cpp(env, where, dir):
@@ -146,20 +146,32 @@ class OmeroEnvironment(SConsEnvironment):
                 self.Append(CPPFLAGS=self.Split("-Wno-long-long -Wnon-virtual-dtor"))
                 # self.Append(CPPFLAGS=self.Split("-Wno-long-long -Wctor-dtor-privacy -Wnon-virtual-dtor")) Ice fails the ctor check.
                 self.Append(CPPFLAGS=self.Split("-Wno-unused-parameter -Wno-unused-function -Wunused-variable -Wunused-value -Werror"))
+	    else:
+                if self["CC"] == "cl":
+                    self.Append(CPPFLAGS=self.Split("/MD"))
+        #
         # CPPPATH
+        #
         self.AppendUnique(CPPPATH=blitz_generated)
         if ice_home:
             self.Append(CPPPATH=os.path.join(ice_home, "include"))
         if os.environ.has_key("CPPPATH"):
             self.AppendUnique(CPPPATH=os.environ["CPPPATH"].split(os.path.pathsep))
         if win32:
-            ice_win = "C:\\Ice-3.3.0\\include"
-            if os.path.exists(ice_win):
-                self.AppendUnique(ice_win)
+            if os.path.exists(r"C:\Ice-3.3.0\include"):
+                self.AppendUnique(CPPPATH=["C:\Ice-3.3.0\include"])
+            if os.path.exists(r"C:\Program Files\Microsoft Platform SDK\Include"):
+                self.AppendUnique(CPPPATH=["C:\Program Files\Microsoft Platform SDK\Include"])
+            if os.environ.has_key("INCLUDE"):
+                include = os.environ["INCLUDE"].split(os.path.pathsep)
+                self.AppendUnique(CPPPATH=include)
         else:
             if os.path.exists("/opt/local/include"):
                 self.AppendUnique(CPPPATH=["/opt/local/include"])
+
+        #
         # LIBPATH
+        #
         self.AppendUnique(LIBPATH=omerocpp_dir)
         if ice_home:
             self.Append(LIBPATH=[os.path.join(ice_home, "lib")])
@@ -167,4 +179,5 @@ class OmeroEnvironment(SConsEnvironment):
             self.AppendUnique(LIBPATH=os.environ["LIBPATH"].split(os.path.pathsep))
         if os.path.exists("/opt/local/lib"):
             self.AppendUnique(LIBPATH=["/opt/local/lib"])
-
+        if os.path.exists(r"C:\Ice-3.3.0\lib"):
+            self.AppendUnique(LIBPATH=[r"C:\Ice-3.3.0\lib"])

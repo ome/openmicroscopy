@@ -34,7 +34,7 @@ env["DEPMAP"] = {
 orig_common = common
 def common(dir = generated):
     orig = orig_common(dir)
-    return "-I%s -I%s" % (blitz_resources, blitz_generated)  + orig
+    return ["-I%s" % blitz_resources, "-I%s" % blitz_generated] + orig
 import blitz_tools
 blitz_tools.common = common
 
