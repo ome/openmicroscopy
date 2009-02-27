@@ -19,7 +19,7 @@
             <copy todir="${basedir}">
                <fileset dir="${omero.home}/lib/repository" includes="setuptools*"/>
             </copy>
-            <exec executable="python" failonerror="true">
+            <exec executable="python" failonerror="@{failonerror}">
 	        <arg value="${basedir}/setup.py"/>
                 <args/>
             </exec>
