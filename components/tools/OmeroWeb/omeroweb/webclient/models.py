@@ -166,28 +166,28 @@ class TagListForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         super(TagListForm, self).__init__(*args, **kwargs)
-        self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], widget=forms.SelectMultiple(attrs={'size':10, 'class':'existing'}), required=False)
+        self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], widget=forms.SelectMultiple(attrs={'size':10, 'class':'existing'}))
         self.fields.keyOrder = ['tags']
 
 class CommentListForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         super(CommentListForm, self).__init__(*args, **kwargs)
-        self.fields['comments'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['comments'], widget=forms.SelectMultiple(attrs={'size':10, 'class':'existing'}), required=False)
+        self.fields['comments'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['comments'], widget=forms.SelectMultiple(attrs={'size':10, 'class':'existing'}))
         self.fields.keyOrder = ['comments']
 
 class UrlListForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         super(UrlListForm, self).__init__(*args, **kwargs)
-        self.fields['urls'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['urls'], widget=forms.SelectMultiple(attrs={'size':10, 'class':'existing'}), required=False)
+        self.fields['urls'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['urls'], widget=forms.SelectMultiple(attrs={'size':10, 'class':'existing'}))
         self.fields.keyOrder = ['urls']
 
 class FileListForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         super(FileListForm, self).__init__(*args, **kwargs)
-        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':10, 'class':'existing'}), required=False)
+        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':10, 'class':'existing'}))
         self.fields.keyOrder = ['files']
 
 class UploadFileForm(forms.Form):

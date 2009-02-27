@@ -209,6 +209,10 @@ ul.errorlist {
     padding: 10px 0 0;
     text-align: center;
 }
+ul.errorlist li {
+    border-style:none;
+    border-width:0;
+}
 
 .clear {
     clear: both;

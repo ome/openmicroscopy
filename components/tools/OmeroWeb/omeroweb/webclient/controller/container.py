@@ -74,33 +74,47 @@ class BaseContainer(BaseController):
         BaseController.__init__(self, conn)
         if o1_type == "project":
             self.project = self.conn.getProject(o1_id)
+            if self.project is None:
+                raise AttributeError("Project does not exist.")
             if self.project._obj is None:
                 raise AttributeError("Project does not exist.")
             if o2_type == "dataset":
                 self.dataset = self.conn.getDataset(o2_id)
+                if self.dataset is None:
+                    raise AttributeError("Dataset does not exist.")
                 if self.dataset._obj is None:
                     raise AttributeError("Dataset does not exist.")
                 if o3_type == "image":
                     self.image = self.conn.getImageWithMetadata(o3_id)
+                    if self.image is None:
+                        raise AttributeError("Image does not exist.")
                     if self.image._obj is None:
                         raise AttributeError("Image does not exist.")
         elif o1_type == "dataset":
             self.dataset = self.conn.getDataset(o1_id)
+            if self.dataset is None:
+                raise AttributeError("Dataset does not exist.")
             if self.dataset._obj is None:
                 raise AttributeError("Dataset does not exist.")
             if o2_type == "image":
                 self.image = self.conn.getImageWithMetadata(o2_id)
+                if self.image is None:
+                    raise AttributeError("Image does not exist.")
                 if self.image._obj is None:
                     raise AttributeError("Image does not exist.")
         elif o1_type == "image":
             if metadata:
                 self.image = self.conn.getImageWithMetadata(o1_id)
+                if self.image is None:
+                    raise AttributeError("Image does not exist.")
                 if self.image._obj is None:
                     raise AttributeError("Image does not exist.")
                 else:
                     self.image._loadPixels()
             else:
                 self.image = self.conn.getImage(o1_id)
+                if self.image is None:
+                    raise AttributeError("Image does not exist.")
                 if self.image._obj is None:
                     raise AttributeError("Image does not exist.")
         elif o1_type == "tag":
@@ -753,10 +767,10 @@ class BaseContainer(BaseController):
             aList = self.project.listAnnotations()
         
         for ann in aList:
-            if isinstance(ann._obj, CommentAnnotationI) or isinstance(ann._obj, UriAnnotationI):
+            if isinstance(ann._obj, CommentAnnotationI):
                 self.text_annotations.append(ann)
-            #elif ann._obj.__class__.__name__ == 'UriAnnotationI':
-            #    self.url_annotations.append(ann)
+            elif isinstance(ann._obj, UriAnnotationI):
+                self.url_annotations.append(ann)
             elif isinstance(ann._obj, LongAnnotationI):
                 self.long_annotations['votes'] += 1
                 self.long_annotations['rate'] += int(ann.longValue)

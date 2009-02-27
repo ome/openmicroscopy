@@ -6,7 +6,7 @@
         <ul>
             <li><a href="#comments_tab"><span>{% trans "Add comment" %}</span></a></li>
             <li><a href="#tags_tab"><span>{% trans "Tag" %}</span></a></li>
-            <!--<li><a href="#urls_tab"><span>URL</span></a></li>-->
+            <li><a href="#urls_tab"><span>URL</span></a></li>
             <li><a href="#files_tab"><span>{% trans "Attach file" %}</span></a></li>
         </ul>
         <div class="clear"></div>
@@ -22,7 +22,10 @@
                 <table>
                     {% for field in form_comment %}
                         <tr>
-                            <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                            <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                         </tr>
                     {% endfor %}
                         <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
@@ -41,7 +44,10 @@
                 <table>
                 {% for field in form_comments %}
                     <tr>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                        <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                     </tr>
                 {% endfor %}
                 <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
@@ -59,7 +65,10 @@
                 <table>
                 {% for field in form_tags %}
                     <tr>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                        <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                     </tr>
                 {% endfor %}
                 <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
@@ -74,7 +83,10 @@
                 <table>
                     {% for field in form_tag %}
                         <tr>
-                            <td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                            <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                         </tr>
                     {% endfor %}
                         <tr><td> </td><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
@@ -85,27 +97,19 @@
             
         </div>
         
-        <!--<div id="urls_tab">
-            <p>{% trans "To add existing url please select one or more of the listed urls." %}</p>
-            <form action="" method="post"><input type="hidden" name="action" value="useurl" />
-            <table>
-            {% for field in form_urls %}
-                <tr>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-            {% endfor %}
-            <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-            </table>
-            </form>
+        <div id="urls_tab">
             
             {% if form_uri %}
-            <div class="url">
+            <div class="urls">
                 <h1>{% trans "Add new url" %}:</h1>
                 <form action="" method="post"><input type="hidden" name="action" value="url" />
                 <table>
                     {% for field in form_uri %}
                         <tr>
-                            <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                            <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                         </tr>
                     {% endfor %}
                         <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
@@ -114,7 +118,25 @@
             </div>
             {% endif %}
             
-        </div>-->
+            <div class="exurls">
+                <h1>{% trans "Use existing URL" %}:</h1>
+                <p>{% trans "To add existing url please select one or more of the listed urls." %}</p>
+                <form action="" method="post"><input type="hidden" name="action" value="useurl" />
+                <table>
+                {% for field in form_urls %}
+                    <tr>
+                        <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
+                    </tr>
+                {% endfor %}
+                <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+                </table>
+                </form>
+            </div>
+        </div>
+        
         <div id="files_tab">
             <p>{% trans "Attache one or more of the listed files or upload a new one." %}</p>
             
@@ -124,7 +146,10 @@
                 <table>
                 {% for field in form_files %}
                     <tr>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                        <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                     </tr>
                 {% endfor %}
                 <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
@@ -139,7 +164,10 @@
                 <table>
                 {% for field in form_file %}
                     <tr>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                        <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                     </tr>
                 {% endfor %}
                 </table>

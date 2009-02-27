@@ -52,7 +52,7 @@
             {% endif %}
             
             $("#shareTable").tablesorter( {sortList: [[3,1]]} ); 
-            $("#sharedTable").tablesorter( {sortList: [[3,1]]} ); 
+            $("#sharedTable").tablesorter( {sortList: [[4,1]]} ); 
 
         });
     </script>
@@ -105,9 +105,13 @@
 <tbody> 
     {% for c in share.ownShares %}
     <tr> 
-        <td>
+        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">
             {% ifequal c.getShareType "Discuss" %}
-                <img src="{% get_webclient_static_url %}/images/wp_protocol32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                {% if c.active %}
+                    <img src="{% get_webclient_static_url %}/images/wp_protocol32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                {% else %}
+                    <img src="{% get_webclient_static_url %}/images/wp_protocol_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                {% endif %}
             {% else %}
                 {% if c.active %}
                     <img src="{% get_webclient_static_url %}/images/folder_html32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
@@ -115,7 +119,7 @@
                     <img src="{% get_webclient_static_url %}/images/folder_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                 {% endif %}
             {% endifequal %} {{ c.getShareType }}
-        </td> 
+        </a></td> 
         <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a> {% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.getCommentsSize }}]{% endif %}</td> 
         <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a> <a href="{% get_webclient_root_url %}/share/edit/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a></td>
         <td>{{ c.getStartDate|date:"H:i:s d M Y" }} - {% if c.getExpirationDate %}{{ c.getExpirationDate|date:"H:i:s d M Y" }}{% else %}never{% endif %}</td>
@@ -144,20 +148,24 @@
 <tbody> 
     {% for c in share.memberShares %}
     <tr> 
-        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">
+        <td>
         {% ifequal c.getShareType "Discuss" %}
-            <img src="{% get_webclient_static_url %}/images/wp_protocol32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+            {% if c.active %}
+                <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/wp_protocol32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/></a>
+            {% else %}
+                <img src="{% get_webclient_static_url %}/images/wp_protocol_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+            {% endif %}
         {% else %}
             {% if c.active %}
-                <img src="{% get_webclient_static_url %}/images/folder_html32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/folder_html32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/></a>
             {% else %}
                 <img src="{% get_webclient_static_url %}/images/folder_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
             {% endif %}
         {% endifequal %} {{ c.getShareType }}
-        </a></td> 
-        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a> {% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.getCommentsSize }}]{% endif %}</td> 
-        <td>{{ c.getOwner }}</td> 
-        <td><a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a></td>
+        </td> 
+        <td>{% if c.active %}<a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a>{% else %}{{ c.shortMessage }}{% endif %} {% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.getCommentsSize }}]{% endif %}</td> 
+        <td>{{ c.getShareOwner }}</td> 
+        <td>{% if c.active %}<a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a>{% endif %}</td>
         <td>{{ c.getStartDate|date:"H:i:s d M Y" }} - {% if c.getExpirationDate %}{{ c.getExpirationDate|date:"H:i:s d M Y" }}{% else %}never{% endif %}</td>
     </tr>
     {% endfor %}

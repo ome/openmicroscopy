@@ -43,7 +43,11 @@
       $(document).ready(function(){
           
           $("div#share_content").html('<p>Loading content... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
-          $("div#share_content").load("{% get_webclient_root_url %}/share_content/{{ share.share.id }}/");
+          {% if share.share.isOwned %}
+              $("div#share_content").load("{% get_webclient_root_url %}/share_owner_content/{{ share.share.id }}/");
+          {% else %}
+              $("div#share_content").load("{% get_webclient_root_url %}/share_content/{{ share.share.id }}/");
+          {% endif %}
           
           $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
       });

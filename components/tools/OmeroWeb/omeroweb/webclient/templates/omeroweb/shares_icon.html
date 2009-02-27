@@ -106,7 +106,11 @@
         <li class="product"><em>{{ c.shortMessage }}</em>
             <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">
                 {% ifequal c.getShareType "Discuss" %}
-                    <img src="{% get_webclient_static_url %}/images/wp_protocol64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                    {% if c.active %}
+                        <img src="{% get_webclient_static_url %}/images/wp_protocol64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                    {% else %}
+                        <img src="{% get_webclient_static_url %}/images/wp_protocol_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                    {% endif %}
                 {% else %}
                     {% if c.active %}
                         <img src="{% get_webclient_static_url %}/images/folder_html64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
@@ -125,17 +129,19 @@
     <li class="clear"></li>
         {% for c in share.memberShares %}
         <li class="product"><em>{{ c.shortMessage }}</em>
-            <a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;">
-                {% ifequal c.getShareType "Discuss" %}
-                    <img src="{% get_webclient_static_url %}/images/wp_protocol64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+            {% ifequal c.getShareType "Discuss" %}
+                {% if c.active %}
+                    <a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;"><img src="{% get_webclient_static_url %}/images/wp_protocol64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/></a>
                 {% else %}
-                    {% if c.active %}
-                        <img src="{% get_webclient_static_url %}/images/folder_html64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
-                    {% else %}
-                        <img src="{% get_webclient_static_url %}/images/folder_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
-                    {% endif %}
-                {% endifequal %}
-            </a>
+                    <img src="{% get_webclient_static_url %}/images/wp_protocol_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                {% endif %}
+            {% else %}
+                {% if c.active %}
+                    <a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;"><img src="{% get_webclient_static_url %}/images/folder_html64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/></a>
+                {% else %}
+                    <img src="{% get_webclient_static_url %}/images/folder_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                {% endif %}
+            {% endifequal %}
             <div class="center">{{ c.tinyMessage }}{% if c.getCommentsSize %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ c.getCommentsSize }}]{% endif %}</div>
         </li>
         {% endfor %}

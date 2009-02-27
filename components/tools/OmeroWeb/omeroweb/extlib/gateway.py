@@ -43,6 +43,9 @@ import time
 from datetime import datetime
 from types import IntType, ListType, TupleType, UnicodeType, StringType
 
+from django.utils.translation import ugettext as _
+from django.conf import settings
+
 import Ice
 import Glacier2
 import omero
@@ -54,10 +57,6 @@ from omero_model_TagAnnotationI import TagAnnotationI
 from omero_model_DatasetI import DatasetI
 from omero_model_ProjectI import ProjectI
 from omero_model_ImageI import ImageI
-
-from django.utils.translation import ugettext as _
-from django.conf import settings
-
 
 TIMEOUT = 580 #sec
 SLEEPTIME = 30
@@ -99,12 +98,11 @@ class BlitzGateway (threading.Thread):
             try:
                 time.sleep(SLEEPTIME)
                 if self._connected:
-                    logger.debug("Ping...")
-                    #self.c._sf.keepAllAlive([x.obj for x in self._proxies.items()])
+                    logger.info("Ping...")
                     for k,v in self._proxies.items():
-                        logger.debug("Sending keepalive to '%s'" % k)
+                        logger.info("Sending keepalive to '%s'" % k)
                         if not v._ping():
-                            logger.debug("... some error sending keepalive to '%s'" % k)
+                            logger.info("... some error sending keepalive to '%s'" % k)
                             # connection should have been recreated and proxies are different now, so start all over
                             break
             except:
@@ -112,31 +110,31 @@ class BlitzGateway (threading.Thread):
                 logger.error(traceback.format_exc())
         if self._connected:
             self.seppuku()
-        logger.debug("Thred death")
+        logger.info("Thred death")
     
     def seppuku (self):
         try:
-            logger.debug("Connection will be closed [%s]" % (self.c.getRouter(self.c.ic)))
+            logger.info("Connection will be closed [%s]" % (self.c.getRouter(self.c.ic)))
         except:
-            logger.debug("Connection will be closed.")
-            logger.debug(traceback.format_exc())
+            logger.info("Connection will be closed.")
+            logger.info(traceback.format_exc())
         self._connected = False
         self._timeout = 0
         if self.c:
             try:
                 self.c.sf.closeOnDestroy()
             except:
-                logger.debug(traceback.format_exc())
+                logger.info(traceback.format_exc())
             self.c = None
         self._proxies = None
         self._eventContext = None
         logger.info("Connection deleted")
     
     def __del__ (self):
-        logger.debug("Garbage collector KICK IN")
+        logger.info("Garbage collector KICK IN")
     
     def connect (self):
-        logger.debug("Connecting...")
+        logger.info("Connecting...")
         if not self.c:
             self._connected = False
             return False
@@ -188,7 +186,7 @@ class BlitzGateway (threading.Thread):
             return True
     
     def connectAsShare (self):
-        logger.debug("Connecting...")
+        logger.info("Connecting...")
         if not self.c:
             self._connected = False
             return False
@@ -233,7 +231,7 @@ class BlitzGateway (threading.Thread):
             return True
     
     def connectAsGuest (self):
-        logger.debug("Connecting as Guest...")
+        logger.info("Connecting as Guest...")
         if not self.c:
             self._connected = False
             return False
@@ -809,15 +807,15 @@ class BlitzGateway (threading.Thread):
         if o_type == "image":
             sql = "select a from CommentAnnotation as a " \
                 "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns!='ome.share.comment/'"
+                "and a.details.owner.id=:eid and a.ns is null"
         elif o_type == "dataset":
             sql = "select a from CommentAnnotation as a " \
                 "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns!='ome.share.comment/'"
+                "and a.details.owner.id=:eid and a.ns is null"
         elif o_type == "project":
             sql = "select a from CommentAnnotation as a " \
                 "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns!='ome.share.comment/'"
+                "and a.details.owner.id=:eid and a.ns is null"
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -830,15 +828,15 @@ class BlitzGateway (threading.Thread):
         if o_type == "image":
             sql = "select a from UriAnnotation as a " \
                 "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.ns is null "
         elif o_type == "dataset":
             sql = "select a from UriAnnotation as a " \
                 "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.ns is null "
         elif o_type == "project":
             sql = "select a from UriAnnotation as a " \
                 "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.ns is null "
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -851,15 +849,15 @@ class BlitzGateway (threading.Thread):
         if o_type == "image":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.ns is null "
         elif o_type == "dataset":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.ns is null"
         elif o_type == "project":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.ns is null"
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -904,7 +902,7 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["eid"] = rlong(self.getEventContext().userId)
-        sql = "select tg from TagAnnotation tg where tg.details.owner.id = :eid "
+        sql = "select tg from TagAnnotation tg where tg.details.owner.id = :eid and tg.ns is null"
         tags = list()
         for e in q.findAllByQuery(sql,p):
             t = AnnotationWrapper(self, e)
@@ -1064,8 +1062,12 @@ class BlitzGateway (threading.Thread):
     
     def getShare (self, oid):
         sh_serv = self.getShareService()
+        sh = None
         sh = sh_serv.getShare(long(oid))
-        return ShareWrapper(self, sh)
+        if sh is not None:
+            return ShareWrapper(self, sh)
+        else:
+            return None
     
     def activateShare (self, oid):
         sh_serv = self.getShareService()
@@ -1084,7 +1086,8 @@ class BlitzGateway (threading.Thread):
         if pr is not None:
             return ProjectWrapper(self, pr)
         else:
-            return None
+            logger.error("Project not exist: %i" % long(oid))
+            raise AttributeError("Project does not exist.")
 
     def getDataset (self, oid):
         query_serv = self.getQueryService()
@@ -1098,7 +1101,8 @@ class BlitzGateway (threading.Thread):
         if ds is not None:
             return DatasetWrapper(self, ds)
         else:
-            return None
+            logger.error("Dataset not exist: %i" % long(oid))
+            raise AttributeError("Dataset does not exist.")
 
     def getImage (self, oid):
         query_serv = self.getQueryService()
@@ -1113,7 +1117,8 @@ class BlitzGateway (threading.Thread):
         if img is not None:
             return ImageWrapper(self, img)
         else:
-            return None
+            logger.error("Image not exist: %i" % long(oid))
+            raise AttributeError("Image does not exist.")
     
     def getImageWithMetadata (self, oid):
         query_serv = self.getQueryService()
@@ -1132,7 +1137,11 @@ class BlitzGateway (threading.Thread):
               "left outer join fetch objective.correction as co " \
               "where im.id=:oid "
         img = query_serv.findByQuery(sql,p)
-        return ImageWrapper(self, img)
+        if img is not None:
+            return ImageWrapper(self, img)
+        else:
+            logger.error("Image not exist: %i" % long(oid))
+            raise AttributeError("Image does not exist.")
 
     def getDatasetImageLink (self, parent, oid):
         query_serv = self.getQueryService()
@@ -1309,7 +1318,7 @@ class BlitzGateway (threading.Thread):
             f.limit = rint(1)
             p.theFilter = f
             sql = "select tg from TagAnnotation tg " \
-                  "where tg.textValue=:text and tg.details.owner.id=:eid order by tg.textValue"
+                  "where tg.textValue=:text and tg.details.owner.id=:eid and tg.ns is null order by tg.textValue"
             res.append(query_serv.findByQuery(sql, p))
         for e in res:
             if e is None:
@@ -1548,25 +1557,26 @@ class BlitzGateway (threading.Thread):
         if self.getEventContext().userId != sh.owner.id.val:
             members.append(sh.getOwnerAsExperimetner())
         
-        #send email
-        sender = None
-        try:
-            if settings.EMAIL_NOTIFICATION:
-                import omeroweb.extlib.notification.handlesender as sender
-        except:
-            logger.error(traceback.format_exc())
-        else:
-            recipients = list()
-            for m in members:
-                try:
-                    recipients.append(m.email)
-                except:
-                    logger.error(traceback.format_exc())
-            if sender is not None:
-                try:
-                    sender.handler().create_sharecomment_message(host, blitz_id, share_id, recipients)
-                except:
-                    logger.error(traceback.format_exc())
+        if sh.active:
+            #send email
+            sender = None
+            try:
+                if settings.EMAIL_NOTIFICATION:
+                    import omeroweb.extlib.notification.handlesender as sender
+            except:
+                logger.error(traceback.format_exc())
+            else:
+                recipients = list()
+                for m in members:
+                    try:
+                        recipients.append(m.email)
+                    except:
+                        logger.error(traceback.format_exc())
+                if sender is not None:
+                    try:
+                        sender.handler().create_sharecomment_message(host, blitz_id, share_id, recipients)
+                    except:
+                        logger.error(traceback.format_exc())
     
     def createShare(self, host, blitz_id, imageInBasket, message, members, enable, expiration=None):
         sh = self.getShareService()
@@ -1606,28 +1616,29 @@ class BlitzGateway (threading.Thread):
         for ob in items:
             sh.addObject(sid, ob)
         
-        #send email
-        sender = None
-        try:
-            if settings.EMAIL_NOTIFICATION:
-                import omeroweb.extlib.notification.handlesender as sender
-        except:
-            logger.error(traceback.format_exc())
-        else:
-            recipients = list()
-            if ms is not None:
-                for m in ms:
+        #send email if avtive
+        if enable:
+            sender = None
+            try:
+                if settings.EMAIL_NOTIFICATION:
+                    import omeroweb.extlib.notification.handlesender as sender
+            except:
+                logger.error(traceback.format_exc())
+            else:
+                recipients = list()
+                if ms is not None:
+                    for m in ms:
+                        try:
+                            recipients.append(m.email.val)
+                        except:
+                            logger.error(traceback.format_exc())
+                if sender is not None:
                     try:
-                        recipients.append(m.email.val)
+                        sender.handler().create_share_message(host, blitz_id, self.getUser(), sid, recipients)
                     except:
                         logger.error(traceback.format_exc())
-            if sender is not None:
-                try:
-                    sender.handler().create_share_message(host, blitz_id, self.getUser(), sid, recipients)
-                except:
-                    logger.error(traceback.format_exc())
     
-    def updateShare (self, share_id, message, members, enable, expiration=None):
+    def updateShareOrDiscussion (self, share_id, message, members, enable, expiration=None):
         sh = self.getShareService()
         sh.setDescription(long(share_id), message)
         sh.setExpiration(long(share_id), expiration)
@@ -1675,6 +1686,7 @@ class BlitzGateway (threading.Thread):
         p.theFilter = f
         for e in tm.getMostRecentShareCommentLinks(p):
             yield SessionAnnotationLinkWrapper(self, e)
+        
     
     def getMostRecentSharesComments (self):
         tm = self.getTimelineService()
@@ -1861,6 +1873,12 @@ def safeCallWrap (self, attr, f):
     def wrapped (*args, **kwargs):
         try:
             return f(*args, **kwargs)
+        except omero.ValidationException, x:
+            logger.error(x.message)
+            raise AttributeError(x.message)
+        except omero.ResourceError, x:
+            logger.error(x.message)
+            raise AttributeError(x.message)
         except Ice.Exception, x:
             # Failed
             logger.info("Ice.Exception (1) on safe call %s(%s,%s)" % (attr, str(args), str(kwargs)))
@@ -1895,16 +1913,16 @@ class ProxyObjectWrapper (object):
         self._obj = self._create_func()
     
     def _connect (self):
-        logger.debug("proxy_connect: connect");
+        logger.info("proxy_connect: connect");
         if not self._conn.connect():
             return False
-        logger.debug("proxy_connect: sf");
+        logger.info("proxy_connect: sf");
         self._sf = self._conn.c.sf
-        logger.debug("proxy_connect: create_func");
+        logger.info("proxy_connect: create_func");
         self._create_func = getattr(self._sf, self._func_str)
-        logger.debug("proxy_connect: _obj");
+        logger.info("proxy_connect: _obj");
         self._obj = self._create_func()
-        logger.debug("proxy_connect: true");
+        logger.info("proxy_connect: true");
         return True
     
     def _getObj (self):
@@ -1915,29 +1933,29 @@ class ProxyObjectWrapper (object):
         """ For some reason, it seems that keepAlive doesn't, so every so often I need to recreate the objects """
         try:
             if not self._sf.keepAlive(self._obj):
-                logger.debug("... died, recreating")
+                logger.info("... died, recreating")
                 self._obj = self._create_func()
         except Ice.ObjectNotExistException:
             # The connection is there, but it has been reset, because the proxy no longer exists...
-            logger.debug("Ice.ObjectNotExistException... reset, reconnecting")
-            logger.debug(traceback.format_stack())
+            logger.info("Ice.ObjectNotExistException... reset, reconnecting")
+            logger.info(traceback.format_stack())
             self._connect()
             return False
         except Ice.ConnectionLostException:
             # The connection was lost. This shouldn't happen, as we keep pinging it, but does so...
-            logger.debug("Ice.ConnectionLostException... lost, reconnecting")
-            logger.debug(traceback.format_stack())
+            logger.info("Ice.ConnectionLostException... lost, reconnecting")
+            logger.info(traceback.format_stack())
             self._connect()
             return False
         except Ice.ConnectionRefusedException:
             # The connection was refused. We lost contact with glacier2router...
-            logger.debug("Ice.ConnectionRefusedException... refused, reconnecting")
-            logger.debug(traceback.format_stack())
+            logger.info("Ice.ConnectionRefusedException... refused, reconnecting")
+            logger.info(traceback.format_stack())
             self._connect()
             return False
         except:
-            logger.debug("UnknownException")
-            logger.debug(traceback.format_stack())
+            logger.info("UnknownException")
+            logger.info(traceback.format_stack())
             return False
         return True
     
@@ -2079,7 +2097,7 @@ class BlitzObjectWrapper (object):
                 return name
             return name[:40] + "..."
         except:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             return _("Unknown")
     
     def accessControll(self):
@@ -2104,7 +2122,7 @@ class BlitzObjectWrapper (object):
                     splited.append(name[v:v+45]+"\n")
                 return "".join(splited)
         except:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             return self._obj.name.val
     
     def fullNameWrapped(self):
@@ -2119,7 +2137,7 @@ class BlitzObjectWrapper (object):
                     splited.append(name[v:v+65]+"\n")
                 return "".join(splited)
         except:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             return self._obj.name.val
     
     def shortName(self):
@@ -2130,7 +2148,7 @@ class BlitzObjectWrapper (object):
                 return name
             return "..." + name[l - 55:]
         except:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             return self._obj.name.val
     
     def tinyName(self):
@@ -2151,7 +2169,7 @@ class BlitzObjectWrapper (object):
                     splited.append(nname[v:v+20]+"\n")
                 return "".join(splited)
         except:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             return self._obj.name.val
     
     def breadcrumbName(self):
@@ -2188,7 +2206,7 @@ class BlitzObjectWrapper (object):
                 return desc.val
             return desc.val[:550] + "..."
         except:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             return self._obj.description.val
     
     def tinyDescription(self):
@@ -2201,7 +2219,7 @@ class BlitzObjectWrapper (object):
                 return desc.val
             return desc.val[:28] + "..."
         except:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             return self._obj.description.val
     
     def creationEventDate(self):
@@ -2221,7 +2239,6 @@ class BlitzObjectWrapper (object):
             else:
                 t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val).time.val
         except:
-            print 'exc'
             t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val).time.val
         return datetime.fromtimestamp(t/1000)
     
@@ -2332,7 +2349,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
                     return name
                 return name[:30] + "..." + name[l - 30:] 
             except:
-                logger.debug(traceback.format_exc())
+                logger.info(traceback.format_exc())
                 return self._obj.file.name.val
         else:
             return None
@@ -2346,7 +2363,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
                     return name
                 return name[:5] + ".." + name[l - 5:] 
             except:
-                logger.debug(traceback.format_exc())
+                logger.info(traceback.format_exc())
                 return self._obj.textValue.val
         else:
             return None
@@ -2438,7 +2455,7 @@ def assert_pixels (func):
     def wrapped (self, *args, **kwargs):
         self._loadPixels()
         if self._obj.sizeOfPixels() < 1:
-            print "No pixels!"
+            logger.info("No pixels!")
             return None
         return func(self, *args, **kwargs)
     return wrapped
@@ -2483,7 +2500,7 @@ class ImageWrapper (BlitzObjectWrapper):
         self._loadPixels()
         if self._re is None:
             if self._obj.sizeOfPixels() < 1:
-                print "No pixels!"
+                logger.info("No pixels!")
                 return False
             pixels_id = self._obj.copyPixels()[0].id.val
             if self._pd is None:
@@ -2501,7 +2518,7 @@ class ImageWrapper (BlitzObjectWrapper):
         try:
             return time.ctime(self._obj.acquisitionDate.val / 1000)
         except:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             return "unknown"
 
     def getDate(self):
@@ -2554,7 +2571,7 @@ class ImageWrapper (BlitzObjectWrapper):
         try:
             self._loadPixels()
             if self._obj.sizeOfPixels() < 1:
-                print "No pixels!"
+                logger.info("No pixels!")
                 return None
             pixels_id = self._obj.copyPixels()[0].id.val
             tb = self._conn.createThumbnailStore()
@@ -2566,7 +2583,7 @@ class ImageWrapper (BlitzObjectWrapper):
             try:
                 t = self.defaultThumbnail(size)
             except Exception, e:
-                logger.debug(traceback.format_exc())
+                logger.info(traceback.format_exc())
                 raise e
         return t
 
@@ -2574,7 +2591,7 @@ class ImageWrapper (BlitzObjectWrapper):
         try:
             self._loadPixels()
             if self._obj.sizeOfPixels() < 1:
-                print "No pixels!"
+                logger.info("No pixels!")
                 return None
             pixels_id = self._obj.copyPixels()[0].id.val
             tb = self._conn.createThumbnailStore()
@@ -2586,7 +2603,7 @@ class ImageWrapper (BlitzObjectWrapper):
             try:
                 t = self.defaultThumbnail((size, size))
             except Exception, e:
-                logger.debug(traceback.format_exc())
+                logger.info(traceback.format_exc())
         return t
 
     def defaultThumbnail(self, size=(120,120)):
@@ -2610,7 +2627,7 @@ class ImageWrapper (BlitzObjectWrapper):
                     self._re.setChannelWindow(c, *windows[c])
                 if colors[c]:
                     rgba = splitHTMLColor(colors[c])
-                    logger.debug('rgba[%i]=%s' %(c, str(rgba)))
+                    logger.info('rgba[%i]=%s' %(c, str(rgba)))
                     if rgba:
                         self._re.setRGBA(c, *rgba)
             #print "Channel %i active: %s" % (c, str(self._re.isActive(c)))
@@ -2664,7 +2681,7 @@ class ImageWrapper (BlitzObjectWrapper):
             rv = self._re.renderCompressed(self._pd)
             return rv
         except omero.InternalException:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             return None
 
     @assert_re
@@ -2743,7 +2760,7 @@ class DatasetWrapper (BlitzObjectWrapper):
             prj = query.findByQuery(q,None)
             return  prj
         except:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             self._pub = "Muliple"
             self._pubId = "Multiple"
             return "Multiple"
@@ -2775,7 +2792,7 @@ class ShareWrapper (BlitzObjectWrapper):
                 return msg.val
             return msg.val[:50] + "..."
         except:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             return self._obj.message.val
     
     def tinyMessage(self):
@@ -2787,7 +2804,7 @@ class ShareWrapper (BlitzObjectWrapper):
             elif l >= 20:
                 return "%s..." % (msg[:20])
         except:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             return self._obj.message.val
     
     def getShareType(self):
@@ -2823,7 +2840,7 @@ class ShareWrapper (BlitzObjectWrapper):
     def getOwnerAsExperimetner(self):
         return ExperimenterWrapper(self, self._obj.owner)
     
-    def getOwner(self):
+    def getShareOwner(self):
         try:
             # lastName = self._obj.details.owner.lastName.val if hasattr(self._obj.details.owner.lastName, 'val') else ""
             # firstName = self._obj.details.owner.firstName.val if hasattr(self._obj.details.owner.firstName, 'val') else ""
@@ -2857,7 +2874,7 @@ class ShareWrapper (BlitzObjectWrapper):
                 return name
             return name[:40] + "..."
         except:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             return _("Unknown")
     
 class ShareContentWrapper (BlitzObjectWrapper):

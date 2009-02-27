@@ -55,10 +55,11 @@ class BaseShare(BaseController):
         BaseController.__init__(self, conn)
         if conn_share is None:
             if share_id: 
-                try:
-                    self.share = self.conn.getShare(share_id)
-                except omero.ValidationException, x:
-                    raise AttributeError(x.message)
+                self.share = self.conn.getShare(share_id)
+                if not self.share.active and self.share.owner.id.val != self.conn.getUser().id.val:
+                    raise AttributeError("%s is not active." % self.share.getShareType())
+                if self.share is None:
+                    raise AttributeError("Share does not exist.")
                 if self.share._obj is None:
                     raise AttributeError("Share does not exist.")
                 self.eContext['breadcrumb'] = [ menu.title(), "Share", action ]
@@ -68,10 +69,11 @@ class BaseShare(BaseController):
                 self.eContext['breadcrumb'] = [ menu.title() ]
         else:
             self.conn_share = conn_share
-            try:
-                self.share = self.conn.getShare(share_id)
-            except omero.ValidationException, x:
-                raise AttributeError(x.message)
+            self.share = self.conn.getShare(share_id)
+            if not self.share.active:
+                raise AttributeError("%s is not active." % self.share.getShareType())
+            if self.share is None:
+                raise AttributeError("Share does not exist.")
             if self.share._obj is None:
                 raise AttributeError("Share does not exist.")
             self.conn_share.activateShare(share_id)
@@ -98,7 +100,7 @@ class BaseShare(BaseController):
         #gs = str(guests).split(';')
         self.conn.createShare(host, int(blitz_id), [], message, ms, enable, expiration_date)
     
-    def updateShare(self, message, members, enable, expiration=None):
+    def updateShareOrDiscussion(self, message, members, enable, expiration=None):
         # only for python 2.5
         # d1 = datetime.strptime(expiration+" 23:59:59", "%Y-%m-%d %H:%M:%S")
         expiration_date = None
@@ -107,8 +109,8 @@ class BaseShare(BaseController):
             expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
         ms = [str(m) for m in members]
         #gs = str(guests).split(';')
-        self.conn.updateShare(self.share.id, message, ms, enable, expiration_date)
-        
+        self.conn.updateShareOrDiscussion(self.share.id, message, ms, enable, expiration_date)
+    
     def addComment(self, host, blitz_id, comment):
         self.conn.addComment(host, int(blitz_id), self.share.id, comment)
 
@@ -149,7 +151,20 @@ class BaseShare(BaseController):
         self.imgSize = len(self.imageInShare)
         
         self.sizeOfShare = self.imgSize
+    
+    def loadShareOwnerContent(self, share_id):
+        content = self.conn.getContents(long(share_id))
+        
+        self.imageInShare = list()
 
+        for ex in content:
+            if isinstance(ex._obj, omero.model.ImageI):
+                self.imageInShare.append(ex)
+
+        self.imgSize = len(self.imageInShare)
+        
+        self.sizeOfShare = self.imgSize
+    
 # ### Test code below this line ###
 
 if __name__ == '__main__':

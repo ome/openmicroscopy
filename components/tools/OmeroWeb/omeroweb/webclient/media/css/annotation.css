@@ -27,6 +27,12 @@ div.excomment {
     float: right;
     margin-top: 25px;
 }
+div.urls {
+    float: left;
+}
+div.exurls {
+    float: right;
+}
 div.tags {
     float: right;
 }

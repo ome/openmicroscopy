@@ -1,7 +1,9 @@
 import os.path
+import sys
 import datetime
 import logging
 import logging.handlers
+from path import path
 
 # Django settings for webadmin project.
 DEBUG = False # if True handler404 and handler500 works only when False
@@ -108,7 +110,7 @@ INSTALLED_APPS = (
     'omeroweb.webclient',
 )
 
-# cookies config
+# Cookies config
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
 SESSION_COOKIE_AGE = 604800 # 1 day in sec (86400)
 
@@ -127,39 +129,31 @@ DEFAULT_IMG = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 
 DEFAULT_USER = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'personal32.png').replace('\\','/')
 
 # LOGS
-# to change the log place, please specify new path
-LOGDIR = os.path.join(os.path.dirname(__file__), 'logs')
+# to change the log place, please specify new path for LOGDIR.
+#LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), 'var'), 'log')
+LOGDIR = os.path.join(os.path.dirname(__file__), 'log')
+
 if not os.path.isdir(LOGDIR):
     try:
         os.mkdir(LOGDIR)
     except Exception, x:
         exctype, value = sys.exc_info()[:2]
-        req.log_error("%s, %s" % (str(exctype), str(value)))
         raise exctype, value
 
-if DEBUG:
-    DEBUGLOGFILE = ('debug.log')
-    fileLog = logging.FileHandler(os.path.join(LOGDIR, DEBUGLOGFILE), 'w')
-    fileLog.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(message)s')
-    fileLog.setFormatter(formatter)
-    logging.getLogger().addHandler(fileLog)
-    logging.getLogger().setLevel(logging.DEBUG)
-    
-else:
-    LOGFILE = ('OMEROweb.log')
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                        datefmt='%a, %d %b %Y %H:%M:%S',
-                        filename=os.path.join(LOGDIR, LOGFILE),
-                        filemode='w')
+LOGFILE = ('OMEROweb.log')
+logging.basicConfig(level=logging.INFO,
+                format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                datefmt='%a, %d %b %Y %H:%M:%S',
+                filename=os.path.join(LOGDIR, LOGFILE),
+                filemode='w')
 
-    fileLog = logging.handlers.TimedRotatingFileHandler(os.path.join(LOGDIR, LOGFILE),'midnight',1)
-    fileLog.doRollover()
-    fileLog.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(message)s')
-    fileLog.setFormatter(formatter)
-    logging.getLogger().addHandler(fileLog)
-    
+fileLog = logging.handlers.TimedRotatingFileHandler(os.path.join(LOGDIR, LOGFILE),'midnight',1)
+fileLog.doRollover()
+fileLog.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(message)s')
+fileLog.setFormatter(formatter)
+logging.getLogger().addHandler(fileLog)
+
+# Starting...
 logging.info("Application Started...")
 

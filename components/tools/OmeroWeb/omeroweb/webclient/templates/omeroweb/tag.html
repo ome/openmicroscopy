@@ -38,7 +38,7 @@
                 $("#dataTable").tablesorter( {sortList: [[1,1]]} ); 
             
                 $('table#dataTable tbody tr').quicksearch({
-                    attached: "div#view",
+                    attached: "table#dataTable",
                     position: "before",
                     stripeRowClass: null,
                     labelText: '{% trans "Filter" %}:',

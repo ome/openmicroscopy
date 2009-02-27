@@ -74,10 +74,10 @@ logger.info("INIT '%s'" % os.getpid())
 
 def timeit (func):
     def wrapped (*args, **kwargs):
-        logger.debug("timing %s" % (func.func_name))
+        logger.info("timing %s" % (func.func_name))
         now = time()
         rv = func(*args, **kwargs)
-        logger.debug("timed %s : %f" % (func.func_name, time()-now))
+        logger.info("timed %s : %f" % (func.func_name, time()-now))
         return rv
     return wrapped
 
@@ -101,8 +101,7 @@ def getConnection (request):
             try:
                 v.seppuku()
             except:
-                logger.debug("Connection was already killed.")
-                logger.debug(traceback.format_exc())
+                logger.info("Connection was already killed.")
             del connectors[k]
     
     if len(connectors) > 75:
@@ -151,7 +150,7 @@ def getConnection (request):
                 else:
                     # stores connection on connectors
                     connectors[conn_key] = conn
-                    logger.debug("Have connection, stored in connectors:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
+                    logger.info("Have connection, stored in connectors:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
                     logger.info("Total connectors: %i." % (len(connectors)))
         else:
             # retrieves connection from sessionUuid, join to existing session
@@ -166,7 +165,7 @@ def getConnection (request):
             else:
                 # stores connection on connectors
                 connectors[conn_key] = conn
-                logger.debug("Retreived connection, will travel: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
+                logger.info("Retreived connection, will travel: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
                 logger.info("Total connectors: %i." % (len(connectors)))
     else:
         # gets connection
@@ -175,7 +174,7 @@ def getConnection (request):
         except:
             # connection is no longer available, retrieves connection login parameters
             connectors[conn_key] = None
-            logger.debug("Connection '%s' is no longer available" % (conn_key))
+            logger.info("Connection '%s' is no longer available" % (conn_key))
             try:
                 if request.session['host']: pass
                 if request.session['port']: pass
@@ -196,10 +195,10 @@ def getConnection (request):
                 else:
                     # stores connection on connectors
                     connectors[conn_key] = conn
-                    logger.debug("Retreived connection for:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
+                    logger.info("Retreived connection for:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
                     logger.info("Total connectors: %i." % (len(connectors)))
         else:
-            logger.debug("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
+            logger.info("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
     return conn
 
 def getGuestConnection(host, port):
@@ -213,7 +212,7 @@ def getGuestConnection(host, port):
         raise sys.exc_info()[1]
     else:
         # do not store connection on connectors
-        logger.debug("Have connection as Guest")
+        logger.info("Have connection as Guest")
     return conn
 
 ################################################################################

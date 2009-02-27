@@ -54,17 +54,17 @@ class SendEmail(threading.Thread):
         logger.info("Starting sendemail thread...")
         while not (self.thread_timeout):
             try:
-                logger.debug("%i emails in the queue." % (len(self.to_send)))
+                logger.info("%i emails in the queue." % (len(self.to_send)))
                 if len(self.to_send) > 0:
                     try:
                         email = self.to_send[0]
-                        logger.debug("Sending...")
+                        logger.info("Sending...")
                         smtp = smtplib.SMTP()
                         smtp.connect(self.smtp_server)
                         smtp.sendmail(email['sender'], email['recipients'], email['message'])
                         smtp.quit()
                         self.to_send.remove(email)
-                        logger.debug("Email was sent.")
+                        logger.info("Email was sent.")
                     except:
                         logger.error("Email could not be sent.")
                         logger.error(traceback.format_exc())
@@ -72,21 +72,21 @@ class SendEmail(threading.Thread):
                             logger.error(email['message'])
                         except:
                             logger.error("Couldn't save the message")
-                logger.debug("sleep...")
+                logger.info("sleep...")
                 time.sleep(SLEEPTIME)
             except:
                 logger.error("!! something bad on the SENDER keepalive thread !!")
                 logger.error(traceback.format_exc())
         self.seppuku()
-        logger.debug("Thread death")
+        logger.info("Thread death")
 
     def seppuku (self):
-        logger.debug("Thread will be closed")
+        logger.info("Thread will be closed")
         self._timeout = 0
-        logger.debug("Thread Deleted")
+        logger.info("Thread Deleted")
 
     def __del__ (self):
-        logger.debug("Garbage Collector KICK IN")
+        logger.info("Garbage Collector KICK IN")
 
     def create_error_message(self, app, user, error):
         # Create the root message and fill in the from, to, and subject headers

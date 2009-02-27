@@ -116,7 +116,7 @@ def handler500(request):
     if settings.ERROR2EMAIL_NOTIFICATION and settings.EMAIL_NOTIFICATION:
         try:
             sender.handler().create_error_message("OMERO.web", request.session['username'], error500)
-            logger.debug('handler500: Email to queue')
+            logger.info('handler500: Email to queue')
         except:
             logger.error('handler500: Email could not be sent')
             logger.error(traceback.format_exc())
@@ -131,7 +131,7 @@ def handler404(request):
     if settings.ERROR2EMAIL_NOTIFICATION and settings.EMAIL_NOTIFICATION:
         try:
             sender.handler().create_error_message("OMERO.web", request.session['username'], debug.technical_404_response(request, exc_info[1]))
-            logger.debug('handler404: Email to queue')
+            logger.info('handler404: Email to queue')
         except:
             logger.error('handler404: Email could not be sent')
             logger.error(traceback.format_exc())

@@ -90,10 +90,10 @@ logger.info("INIT '%s'" % os.getpid())
 
 def timeit (func):
     def wrapped (*args, **kwargs):
-        logger.debug("timing %s" % (func.func_name))
+        logger.info("timing %s" % (func.func_name))
         now = time()
         rv = func(*args, **kwargs)
-        logger.debug("timed %s : %f" % (func.func_name, time()-now))
+        logger.info("timed %s : %f" % (func.func_name, time()-now))
         return rv
     return wrapped
 
@@ -118,8 +118,7 @@ def getConnection (request):
             try:
                 v.seppuku()
             except:
-                logger.debug("Connection was already killed.")
-                logger.debug(traceback.format_exc())
+                logger.info("Connection was already killed.")
             del connectors[k]
 
     if len(connectors) > 75:
@@ -167,7 +166,7 @@ def getConnection (request):
                 else:
                     # stores connection on connectors
                     connectors[conn_key] = conn
-                    logger.debug("Have connection, stored in connectors:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
+                    logger.info("Have connection, stored in connectors:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
                     logger.info("Total connectors: %i." % (len(connectors)))
         else:
             # retrieves connection from sessionUuid, join to existing session
@@ -182,7 +181,7 @@ def getConnection (request):
             else:
                 # stores connection on connectors
                 connectors[conn_key] = conn
-                logger.debug("Retreived connection, will travel: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
+                logger.info("Retreived connection, will travel: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
                 logger.info("Total connectors: %i." % (len(connectors)))
     else:
         # gets connection
@@ -191,10 +190,10 @@ def getConnection (request):
         except:
             # connection is no longer available, try again
             connectors[conn_key] = None
-            logger.debug("Connection '%s' is no longer available" % (conn_key))
+            logger.info("Connection '%s' is no longer available" % (conn_key))
             return getConnection(request)
         else:
-            logger.debug("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
+            logger.info("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
     return conn
 
 @timeit
@@ -218,8 +217,8 @@ def getShareConnection (request):
             try:
                 v.seppuku()
             except:
-                logger.debug("Connection was already killed.")
-                logger.debug(traceback.format_exc())
+                logger.info("Connection was already killed.")
+                logger.info(traceback.format_exc())
             del connectors[k]
 
     if len(share_connectors) > 75:
@@ -259,17 +258,17 @@ def getShareConnection (request):
             else:
                 # stores connection on connectors
                 share_connectors[conn_key] = conn
-                logger.debug("Have connection uuid: '%s'" % (str(conn._sessionUuid)))
+                logger.info("Have connection uuid: '%s'" % (str(conn._sessionUuid)))
     else:
         try:
             conn.getEventContext().sessionUuid
         except:
             # connection is no longer available, retrieves connection login parameters
             connectors[conn_key] = None
-            logger.debug("Connection '%s' is no longer available" % (conn_key))
+            logger.info("Connection '%s' is no longer available" % (conn_key))
             return getShareConnection(request)
         else:
-            logger.debug("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(conn._sessionUuid)))
+            logger.info("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(conn._sessionUuid)))
     
     return conn
 
@@ -1839,7 +1838,9 @@ def manage_data_by_tag(request, tid=None, tid2=None, tid3=None, tid4=None, tid5=
         if tid5 is not None:
             tag_ids.append(long(tid5))
         
-        tag_list = list(conn.listSpecifiedTags(tag_ids))
+        tag_list = list()
+        if len(tag_ids) > 0:
+            tag_list = list(conn.listSpecifiedTags(tag_ids))
         initail = {}
         for i in range(1,len(tag_list)+1):
             
@@ -2418,7 +2419,7 @@ def manage_share(request, action, oid=None, **kwargs):
                 if request.REQUEST['enable']: enable = True
             except:
                 pass
-            share.updateShare(message, members, enable, expiration)
+            share.updateShareOrDiscussion(message, members, enable, expiration)
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
             template = "omeroweb/share_form.html"
@@ -2479,6 +2480,27 @@ def load_share_content(request, share_id, **kwargs):
     c = Context(request,context)
     return HttpResponse(t.render(c))
 
+@isUserConnected
+def load_share_owner_content(request, share_id, **kwargs):
+    template = "omeroweb/share_content.html"
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    try:
+        share = BaseShare(request.session['nav']['menu'], conn, None, share_id)
+    except AttributeError, x:
+        return handlerInternalError(x)
+    share.loadShareOwnerContent(share_id)
+    
+    context = {'share':share, 'eContext':share.eContext}
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    return HttpResponse(t.render(c))
 
 ##################################################################
 # Basket
@@ -2968,14 +2990,14 @@ def render_thumbnail (request, iid, **kwargs):
         try:
             conn = getShareConnection(request)
         except Exception, x:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             raise x
         if conn is None:
             raise Http500("Share connection not available")
         img = conn.getImage(iid)
     
     if img is None:
-        logger.debug("Image %s not found..." % (str(iid)))
+        logger.info("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
     
     jpeg_data = img.getThumbnail()
@@ -2995,14 +3017,14 @@ def render_thumbnail_details (request, iid, **kwargs):
         try:
             conn = getShareConnection(request)
         except Exception, x:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             raise x
         if conn is None:
             raise Http500("Share connection not available")
         img = conn.getImage(iid)
     
     if img is None:
-        logger.debug("Image %s not found..." % (str(iid)))
+        logger.info("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
     
     side = 0
@@ -3033,14 +3055,14 @@ def render_thumbnail_resize (request, size, iid, **kwargs):
         try:
             conn = getShareConnection(request)
         except Exception, x:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             raise x
         if conn is None:
             raise Http500("Share connection not available")
         img = conn.getImage(iid)
     
     if img is None:
-        logger.debug("Image %s not found..." % (str(iid)))
+        logger.info("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
         
     jpeg_data = img.getThumbnail((int(size),int(size)))
@@ -3060,14 +3082,14 @@ def render_big_thumbnail (request, iid, **kwargs):
         try:
             conn = getShareConnection(request)
         except Exception, x:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             raise x
         if conn is None:
             raise Http500("Share connection not available")
         img = conn.getImage(iid)
     
     if img is None:
-        logger.debug("Image %s not found..." % (str(iid)))
+        logger.info("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
     
     size = 0
@@ -3113,21 +3135,21 @@ def _get_prepared_image (request, iid, **kwargs):
         try:
             conn = getShareConnection(request)
         except Exception, x:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             raise x
         if conn is None:
             raise Http500("Share connection not available")
         img = conn.getImage(iid)
     
     if img is None:
-        logger.debug("Image %s not found..." % (str(iid)))
+        logger.info("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
     
     if r.has_key('c'):
-        logger.debug("c="+r['c'])
+        logger.info("c="+r['c'])
         channels, windows, colors =  _split_channel_info(r['c'])
         if not img.setActiveChannels(channels, windows, colors):
-            logger.debug("Could not set the active channels")
+            logger.info("Could not set the active channels")
     if r.get('m', None) == 'g':
         img.setGreyscaleRenderingModel()
     elif r.get('m', None) == 'c':
@@ -3167,14 +3189,14 @@ def image_viewer (request, iid, dsid=None, **kwargs):
         try:
             conn = getShareConnection(request)
         except Exception, x:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             raise x
         if conn is None:
             raise Http500("Share connection not available")
         img = conn.getImage(iid)
     
     if img is None:
-        logger.debug("Image %s not found..." % (str(iid)))
+        logger.info("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
     
     if dsid is not None:
@@ -3214,7 +3236,7 @@ def _split_channel_info (rchannels):
             colors.append(color)
         except ValueError:
             pass
-    logger.debug(str(channels)+","+str(windows)+","+str(colors))
+    logger.info(str(channels)+","+str(windows)+","+str(colors))
     return channels, windows, colors
 
 def _get_img_details_from_req (request, as_string=False):
@@ -3238,7 +3260,7 @@ def _get_img_details_from_req (request, as_string=False):
     if r.has_key('c'):
         rv['c'] = []
         ci = _split_channel_info(r['c'])
-        logger.debug(ci)
+        logger.info(ci)
         for i in range(len(ci[0])):
             # a = abs channel, i = channel, s = window start, e = window end, c = color
           rv['c'].append({'a':abs(ci[0][i]), 'i':ci[0][i], 's':ci[1][i][0], 'e':ci[1][i][1], 'c':ci[2][i]})
@@ -3263,14 +3285,14 @@ def imageData_json (request, iid, **kwargs):
         try:
             conn = getShareConnection(request)
         except Exception, x:
-            logger.debug(traceback.format_exc())
+            logger.info(traceback.format_exc())
             raise x
         if conn is None:
             raise Http500("Share connection not available")
         img = conn.getImage(iid)
     
     if img is None:
-        logger.debug("Image %s not found..." % (str(iid)))
+        logger.info("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
     
     rv = {

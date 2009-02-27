@@ -44,10 +44,16 @@ class BaseAnnotation(BaseController):
         if oid is not None:
             if o_type == "comment":
                 self.comment = self.conn.getCommentAnnotation(long(oid))
+                if self.comment is None:
+                    raise AttributeError("Comment does not exist.")
             elif o_type == "url":
                 self.url = self.conn.getUriAnnotation(long(oid))
+                if self.url is None:
+                    raise AttributeError("Url does not exist.")
             elif o_type == "tag":
                 self.tag = self.conn.getTagAnnotation(long(oid))
+                if self.tag is None:
+                    raise AttributeError("Tag does not exist.")
     
     def buildBreadcrumb(self, action):
         if self.comment is not None:

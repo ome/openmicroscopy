@@ -44,7 +44,7 @@
     </script>
     {% endif %}
     
-    <!--{% if manager.url %}
+    {% if manager.url %}
     <h1>{% trans "Edit url" %}</h1>
     <form action="{% get_webclient_root_url %}/action/save/url/{{ manager.url.id }}/?url={{url}}" method="post">
     <table>
@@ -56,7 +56,7 @@
             <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
         </table>
     </form>
-    {% endif %}-->
+    {% endif %}
     
     {% if manager.tag %}
     <h1>{% trans "Edit tag" %}</h1>
