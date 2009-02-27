@@ -34,7 +34,7 @@ boost_libs = []
 env = OmeroEnvironment(CPPPATH=["src","target"])
 if not env.GetOption('clean'):
     conf = Configure(env, custom_tests = {'CheckBoost':CheckBoost})
-    if not conf.CheckCXXHeader("Ice/Ice.h"):
+    if not conf.CheckCXXHeader(os.path.join("Ice","Ice.h")):
         print 'Ice/Ice.h not found'
         env.Exit(1)
     has_boost = conf.CheckBoost()
