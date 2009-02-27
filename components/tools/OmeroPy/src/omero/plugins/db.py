@@ -45,6 +45,21 @@ class DatabaseControl(BaseControl):
         if not map[key] or map[key] == "":
                 self.ctx.die(1, "No value entered")
 
+    def _get_password_hash(self):
+        root_pass = None
+        while not root_pass:
+            root_pass = self.ctx.input("Please enter password for new OMERO root user: ", hidden = True)
+            if root_pass == "":
+                self.ctx.err("Password cannot be empty")
+                continue
+            confirm = self.ctx.input("Please re-enter password for new OMERO root user: ", hidden = True)
+            if root_pass != confirm:
+                self.ctx.err("Passwords don't match")
+                continue
+            break
+        server_jar = self.ctx.dir / "lib" / "server" / "server.jar"
+        return run(["-cp",str(server_jar),"ome.security.PasswordUtil",root_pass]).strip()
+
     def _copy(self, input_path, output, func):
             input = open(str(input_path))
             try:
@@ -61,9 +76,7 @@ class DatabaseControl(BaseControl):
                 return str_out
         return replace_method
 
-    def _create(self, db_vers, db_patch, root_pass, location = None):
-        server_jar = self.ctx.dir / "lib" / "server" / "server.jar"
-        password_hash = run(["-cp",str(server_jar),"ome.security.PasswordUtil",root_pass]).strip()
+    def _create(self, db_vers, db_patch, password_hash, location = None):
         sql_directory = self.ctx.dir / "sql" / "psql" / ("%s__%s" % (db_vers, db_patch))
         if not sql_directory.exists():
             self.ctx.die(2, "Invalid Database version/patch: %s does not exist" % sql__directory)
@@ -101,8 +114,13 @@ BEGIN;
             output.flush()
             output.close()
 
-    def script(self, args):
-        args = Arguments(args)
+    def password(self, *args):
+        args = Arguments(*args)
+        password_hash = self._get_password_hash()
+        self.ctx.out("""UPDATE password SET hash = '%s' WHERE experimenter_id = 0;""" % password_hash)
+
+    def script(self, *args):
+        args = Arguments(*args)
 
         data = self.ctx.initData({})
         try:
@@ -115,16 +133,7 @@ BEGIN;
         map = {}
         self._lookup(data, data2, "version", map)
         self._lookup(data, data2, "patch", map)
-        while True:
-            map["pass"] = self.ctx.input("Please enter password for new OMERO root user: ", hidden = True)
-            if map["pass"] == "":
-                self.ctx.err("Password cannot be empty")
-                continue
-            confirm = self.ctx.input("Please re-enter password for new OMERO root user: ", hidden = True)
-            if map["pass"] != confirm:
-                self.ctx.err("Passwords don't match")
-                continue
-            break
+        map["pass"] = self._get_password_hash()
         self._create(map["version"],map["patch"],map["pass"])
 
 try:
