@@ -2250,16 +2250,17 @@ public class OMEROMetadataStoreClient
 		}
     }
 
-    public void setPlane(Long pixId, byte[] arrayBuf, int z, int c, int t) throws ServerError
+    public void setPlane(Long pixId, byte[] arrayBuf, int z, int c, int t)
+    	throws ServerError
     {
-            if (currentPixId != pixId)
-            {
-                //rawPixelStore.close();
-                //rawPixelStore = serviceFactory.createRawPixelsStore();
-                rawPixelStore.setPixelsId(pixId, true);
-                currentPixId = pixId;
-            }
-            rawPixelStore.setPlane(arrayBuf, z, c, t);
+    	if (currentPixId != pixId)
+    	{
+    		//rawPixelStore.close();
+    		//rawPixelStore = serviceFactory.createRawPixelsStore();
+    		rawPixelStore.setPixelsId(pixId, true);
+    		currentPixId = pixId;
+    	}
+    	rawPixelStore.setPlane(arrayBuf, z, c, t);
     }
 
     /* (non-Javadoc)

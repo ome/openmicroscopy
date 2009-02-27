@@ -9,6 +9,8 @@ package ome.api;
 
 import java.util.Set;
 
+import ome.annotations.Validate;
+
 /**
  * Binary data provider. Initialized with the id of a
  * {@link ome.model.core.Pixels} instance, this interface can provide various
@@ -40,7 +42,7 @@ public interface RawPixelsStore extends StatefulServiceInterface {
      * overwritten. 
      * @param pixelsIds Pixels IDs to cache.
      */
-    public void prepare(Set<Long> pixelsIds);
+    public void prepare(@Validate(Long.class) Set<Long> pixelsIds);
 
     /**
      * delegates to {@link ome.io.nio.PixelBuffer}

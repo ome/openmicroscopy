@@ -794,29 +794,29 @@ public class OMEROMetadataStore
     @SuppressWarnings("unchecked")
     public void populateMinMax(double[][][] imageChannelGlobalMinMax)
     {
-    	Pixels[] toSave = new Pixels[imageChannelGlobalMinMax.length];
+    	List<Channel> channelList = new ArrayList<Channel>();
     	double[][] channelGlobalMinMax;
     	double[] globalMinMax;
     	Channel channel;
     	StatsInfo statsInfo;
-    	Long pixelsId;
+    	Pixels pixels, unloadedPixels;
     	for (int i = 0; i < imageChannelGlobalMinMax.length; i++)
     	{
     		channelGlobalMinMax = imageChannelGlobalMinMax[i];
-    		pixelsId = pixelsList.get(i).getId();
-    		toSave[i] = iQuery.findByQuery(
-			"select p from Pixels as p left join fetch p.channels " + 
-			"where p.id = :id", new Parameters().addId(pixelsId));
+    		pixels = pixelsList.get(i);
+    		unloadedPixels = new Pixels(pixels.getId(), false);
     		for (int c = 0; c < channelGlobalMinMax.length; c++)
     		{
     			globalMinMax = channelGlobalMinMax[c];
-    			channel = toSave[i].getChannel(c);
+    			channel = pixels.getChannel(c);
     			statsInfo = new StatsInfo();
     			statsInfo.setGlobalMin(globalMinMax[0]);
     			statsInfo.setGlobalMax(globalMinMax[1]);
     			channel.setStatsInfo(statsInfo);
+    			channel.setPixels(unloadedPixels);
     		}
     	}
+    	Channel[] toSave = channelList.toArray(new Channel[channelList.size()]);
     	iUpdate.saveArray(toSave);
     }
 }
