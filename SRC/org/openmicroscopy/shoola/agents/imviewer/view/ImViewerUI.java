@@ -599,7 +599,7 @@ class ImViewerUI
 		historyItem.setAction(action);
 		historyItem.setText(action.getName());
 		if (pref != null) historyItem.setSelected(pref.isHistory());
-		menu.add(historyItem);
+		//menu.add(historyItem);
 		
 		action = controller.getAction(ImViewerControl.MOVIE);
 		JMenuItem item = new JMenuItem(action);
@@ -2123,6 +2123,7 @@ class ImViewerUI
 	 */
 	void createHistoryItem(ProjectionParam ref)
 	{
+		/* 28/02 Back for Beta 4.1
 		if (model.isPlayingChannelMovie()) return;
 		String title = null;
 		if (model.getHistory() == null) 
@@ -2162,6 +2163,7 @@ class ImViewerUI
 		}
 		node.addMouseListenerToComponents(nodeListener);
 		addHistoryItem(node);
+		*/
 	}
 	
 	/** 

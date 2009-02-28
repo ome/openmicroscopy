@@ -145,7 +145,7 @@ class ToolBar
         historyButton = new JToggleButton();
         historyButton.setSelected(view.isHistoryShown());
         historyButton.setAction(controller.getAction(ImViewerControl.HISTORY));
-        bar.add(historyButton);
+        //bar.add(historyButton);
         bar.add(Box.createRigidArea(H_SPACE));
         bar.add(new JSeparator(JSeparator.VERTICAL));
         bar.add(Box.createRigidArea(H_SPACE));

@@ -488,7 +488,6 @@ class BrowserModel
     void setRenderedImage(BufferedImage image)
     {
         renderedImage = image;
-        //Create the annotate image.
         if (renderedImage != null) {
         	if (init) {
         		int imageWidth = image.getWidth();

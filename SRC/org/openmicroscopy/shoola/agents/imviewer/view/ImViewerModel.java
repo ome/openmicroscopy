@@ -314,6 +314,7 @@ class ImViewerModel
 	 */
 	private double initZoomFactor()
 	{
+		/* 28/02 
 		if (initMagnificationFactor) return -1;
 		int maxX = getMaxX();
 		int maxY = getMaxY();
@@ -324,6 +325,8 @@ class ImViewerModel
 			if (ratioX < ratioY) return ratioX;
 			return ratioY;
 		}
+		return -1;
+		*/
 		return -1;
 	}
 	
@@ -758,11 +761,26 @@ class ImViewerModel
 		state = ImViewer.READY; 
 		browser.setRenderedImage(image);
 		//update image icon
-		computeSizes();
-		imageIcon = Factory.magnifyImage(factor, image);
+		//28/02 added to speed up process, turn back on for 4.1
+		/*
+		if (imageIcon == null) {
+			computeSizes();
+			imageIcon = Factory.magnifyImage(factor, image);
+		}
+		*/
 		return initZoomFactor();
 	}
 
+	/** Creates the image icon. */
+	void createImageIcon()
+	{
+		BufferedImage img = browser.getRenderedImage();
+		if (img != null) {
+			computeSizes();
+			imageIcon = Factory.magnifyImage(factor, img);
+		}
+	}
+	
 	/**
 	 * Returns <code>true</code> if the magnification factor was set 
 	 * when the image was first loaded, <code>false</code> otherwise.
