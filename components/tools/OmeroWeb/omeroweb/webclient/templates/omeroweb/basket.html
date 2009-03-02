@@ -64,7 +64,7 @@
     <div class="image"><ul id="products">
         {% for e in basket.imageInBasket %}
             <li id="image-{{ e.id }}"class="product"><em>{{ e.name }}</em>
-                <a href="#" onclick="popup('','_blank',{{ e.id }}); return false;"><img id="{{ e.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ e.id }}/" alt="image" title="{{ e.name }}"/></a>
+                <a href="#" onclick="popup(null,'_blank',{{ e.id }}); return false;"><img id="{{ e.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ e.id }}/" alt="image" title="{{ e.name }}"/></a>
                 <a href="#" onclick="fromBasket('image', '{{ e.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/cancel16.png" alt="r" title="remove"/></a>
             </li>
         {% endfor %}

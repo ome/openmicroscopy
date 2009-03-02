@@ -3148,7 +3148,7 @@ def render_image (request, iid, z, t, share_id=None, **kwargs):
     return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 @isUserConnected
-def image_viewer (request, iid, dsid=None, **kwargs):
+def image_viewer (request, iid, share_id=None, **kwargs):
     """ This view is responsible for showing pixel data as images """
     user_agent = UserAgent(request)
     rid = _get_img_details_from_req(request)
@@ -3161,9 +3161,9 @@ def image_viewer (request, iid, dsid=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
 
-    if dsid is not None:
+    if share_id is not None:
         try:
-            conn = getShareConnection(request, dsid)
+            conn = getShareConnection(request, share_id)
         except Exception, x:
             logger.error(traceback.format_exc())
             raise x
@@ -3177,12 +3177,7 @@ def image_viewer (request, iid, dsid=None, **kwargs):
         logger.error("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
     
-    # dsid is share id
-    #if dsid is not None:
-    #    ds = conn.getDataset(dsid)
-    #else:
-    ds = conn._shareId
-    context = {'conn': conn, 'image': img, 'dataset': ds, 'opts': rid, 'user_agent': user_agent, 'object': 'image:%i' % long(iid)}
+    context = {'conn': conn, 'image': img, 'share_id': conn._shareId, 'opts': rid, 'user_agent': user_agent, 'object': 'image:%i' % long(iid)}
     template = "omeroweb/omero_image.html"
     t = template_loader.get_template(template)
     c = Context(request,context)

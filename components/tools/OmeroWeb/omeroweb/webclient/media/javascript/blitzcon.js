@@ -60,8 +60,13 @@
    if (iid == null) {
      iid = $.WeblitzViewport($('#iv'+did), '/webclient', _refresh_cb).loadedImg.id;
    }
-   var w = window.open('/webclient/img_detail/' + iid + '/' + did + '/', wname,
+   if (did != null) {
+       var w = window.open('/webclient/img_detail/' + iid + '/' + did + '/', wname,
                "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800");
+   } else {
+       var w = window.open('/webclient/img_detail/' + iid + '/', wname,
+                  "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800");
+   }
  }
 
 /**

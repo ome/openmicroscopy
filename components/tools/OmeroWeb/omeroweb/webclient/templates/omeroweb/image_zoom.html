@@ -36,7 +36,7 @@
 {% block center %}
 
 <div><center>
-    <a href="#" onclick="popup('','_blank','{{ image.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/big/{{ image.image.id }}/" alt="image" title="{{ image.image.name }}"/></a></center>
+    <a href="#" onclick="popup(null,'_blank','{{ image.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/big/{{ image.image.id }}/" alt="image" title="{{ image.image.name }}"/></a></center>
     <div><h1>{% trans "Description" %}: </h1>
         {{ image.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}
     </div>

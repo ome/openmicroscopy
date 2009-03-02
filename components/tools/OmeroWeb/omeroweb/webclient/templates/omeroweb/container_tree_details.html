@@ -11,7 +11,7 @@
         {{ manager.image.shortDescription|default_if_none:"no description"|wikify|safe|linebreaks }}
     </div>
     <div>
-        <p><a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/200/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></p>
+        <p><a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/200/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></p>
         <p>by {{ manager.image.getOwner }} ({{ manager.image.details.group.name.val }} {{ manager.image.details.permissions }})</p>
         <p><a href="{% get_webclient_root_url %}/{{ nav.whos }}/image/{{ manager.image.id }}/" target="_blank">{% trans "More details in new tab" %}...</a></p>
     </div>

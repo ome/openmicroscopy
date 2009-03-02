@@ -70,12 +70,12 @@
 
 <div class="toolbar">
 {% if manager.image.isOwned %}
-    | {% trans "View" %} <a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> 
+    | {% trans "View" %} <a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> 
     {% if manager.image.isOwned %}| {% trans "Select" %} <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a> {% endif %}
     | {% trans "Copy" %} <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
     {% if manager.image.isEditable %}| {% trans "Edit" %} <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
 {% else %}
-    | {% trans "View" %} <a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> 
+    | {% trans "View" %} <a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> 
     | {% trans "Copy" %} <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
     {% if manager.image.isEditable %}| {% trans "Edit" %} <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
 {% endif %}
@@ -87,7 +87,7 @@
 
 <div class="thumbnail">
     <center>
-        <p><a href="#" onclick="popup('','_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/details/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></p>
+        <p><a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/details/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></p>
     
         <p>by {{ manager.image.getOwner }} ({{ manager.image.details.group.name.val }} {{ manager.image.details.permissions }})</p>
         <!---<p><a href="">Send this image to someone else.</a></p>-->
@@ -103,7 +103,7 @@
             <table class="forms">
                 <tr><td><label>{% trans "Image date" %} </label></td><td>{{ manager.image.getDate|date:" H:i:s d M Y" }}</td></tr>
                 <tr><td><label>{% trans "Dimensions" %} (XY) [px] </label></td><td>{{ manager.image.getWidth }} x {{ manager.image.getHeight }}</td></tr>
-                <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m] </label></td><td>{{ manager.image.getPixelSizeX|default_if_none:"-"|floatformat:4 }} x {{ manager.image.getPixelSizeY|default_if_none:"-"|floatformat:4 }} x {{ manager.image.getPixelSizeZ|default_if_none:"-"|floatformat:4 }}</td></tr>
+                <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m] </label></td><td>{{ manager.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
                 <tr><td><label>{% trans "Z-sections/timepoints" %} </label></td><td>{{ manager.image.z_count }} x {{ manager.image.t_count }}</td></tr>
                 <tr><td><label>{% trans "Emissions wavelengths" %} </label></td><td>{{ manager.image.getChannels.getEmissionWave }}</td></tr>
             </table>

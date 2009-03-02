@@ -195,13 +195,13 @@ jQuery._WeblitzViewport = function (container, server) {
    * @param {Integer} iid The image id on the database.
    * @param {Integer} dsid The Dataset id this image belongs to, optional.
    */
-  this.load = function(iid, dsid, query) {
+  this.load = function(iid, share_id, query) {
     _this.viewportmsg.show();
-    _this.loadedImg.current.dataset_id = dsid;
+    _this.loadedImg.current.share_id = share_id;
     _this.loadedImg.current.query = query;
     //viewportimg.hide();
-    if (dsid != null) {
-        jQuery.getJSON(server+'/imgData/'+iid +'/'+dsid, _reset);
+    if (_this.loadedImg.current.share_id) {
+        jQuery.getJSON(server+'/imgData/'+iid +'/'+share_id, _reset);
     } else {
         jQuery.getJSON(server+'/imgData/'+iid, _reset);
     }
@@ -558,13 +558,17 @@ jQuery._WeblitzViewport = function (container, server) {
   }
 
   this.getRelUrl = function () {
-    return this.loadedImg.id + '/' + this.loadedImg.current.z + '/' + this.loadedImg.current.t + '/' + this.loadedImg.current.dataset_id + '/?' + this.getQuery();
+    var rv = this.loadedImg.id + '/' + this.loadedImg.current.z + '/' + this.loadedImg.current.t;
+    if (this.loadedImg.current.share_id) {
+        rv += '/' + this.loadedImg.current.share_id;
+    }
+    return rv + '/?' + this.getQuery();
   }
 
   this.getUrl = function (base) {
     var rv = server + '/' + base + '/' + this.loadedImg.id;
-    if (this.loadedImg.current.dataset_id) {
-      rv += '/' + this.loadedImg.current.dataset_id;
+    if (this.loadedImg.current.share_id) {
+      rv += '/' + this.loadedImg.current.share_id;
     }
     return rv + '/?' + this.getQuery(true);
   }

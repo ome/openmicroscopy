@@ -76,7 +76,6 @@ class BaseShare(BaseController):
                 raise AttributeError("Share does not exist.")
             if self.share._obj is None:
                 raise AttributeError("Share does not exist.")
-            #self.conn_share.activateShare(share_id)
 
     def createShare(self, host, blitz_id, imageInBasket, message, members, enable, expiration=None):
         # only for python 2.5

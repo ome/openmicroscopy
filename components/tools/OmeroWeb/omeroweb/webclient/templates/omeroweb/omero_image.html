@@ -171,10 +171,21 @@ TODO:
           $('#wblitz-image-z-count').html(tmp.z);
           $('#wblitz-image-t-count').html(tmp.t);
           tmp = viewport.getPixelSizes();
-          $('#wblitz-image-pixel-size-x').html(tmp.x.toFixed(4));
-          $('#wblitz-image-pixel-size-y').html(tmp.y.toFixed(4));
-          $('#wblitz-image-pixel-size-z').html(tmp.z.toFixed(4));
-
+          if (tmp.x != null) {
+              $('#wblitz-image-pixel-size-x').html(tmp.x);
+          } else {
+              $('#wblitz-image-pixel-size-x').html("-")
+          }
+          if (tmp.y != null) {
+              $('#wblitz-image-pixel-size-y').html(tmp.y);
+          } else {
+              $('#wblitz-image-pixel-size-y').html("-")
+          }
+          if (tmp.z != null) {
+              $('#wblitz-image-pixel-size-z').html(tmp.z);
+          } else {
+              $('#wblitz-image-pixel-size-z').html("-")
+          }
           syncRDCW();
         };
 
@@ -335,11 +346,12 @@ TODO:
           });
           
           /* Load the selected image into the viewport */
-          var dsid = '{{ dataset }}';
-          if (dsid == '') {
-            dsid = null;
-          }
-          viewport.load({{ image.id }}, dsid, location.search);
+          {% if share_id %}
+            var share_id = '{{ share_id }}';
+          {% else %}
+            var share_id = null;
+          {% endif %}
+          viewport.load({{ image.id }}, share_id, location.search);
 
           /* Bind actions needed on window resize */
           $(window).resize(calcResize);
