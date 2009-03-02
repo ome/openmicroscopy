@@ -8,11 +8,13 @@ package ome.services.blitz.test.mock;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import net.sf.ehcache.Cache;
+import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
 import ome.services.blitz.fire.Ring;
@@ -124,6 +126,12 @@ public class MockFixture {
         id.properties.setProperty("ClusterProxy",
                 "Cluster:udp -h 224.0.0.5 -p 10000");
 
+        /*
+        Node node = new Node();
+        this.mock("executorMock").expects(test.once()).method("execute").will(test.returnValue(node));
+        this.mock("executorMock").expects(test.once()).method("execute").will(test.returnValue(true));
+        this.mock("executorMock").expects(test.once()).method("execute").will(test.returnValue(Collections.EMPTY_LIST));
+        */
         blitz = new BlitzConfiguration(id, ring, mgr, ss, ex);
         this.sm = (SessionManagerI) blitz.getBlitzManager();
         this.sm.setApplicationContext(ctx);

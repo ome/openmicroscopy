@@ -7,20 +7,19 @@
 	<classpathentry excluding="**/.svn" kind="src" path="target/generated/resources"/>
 	<classpathentry excluding="**/.svn" kind="src" output="target/test-classes" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="target/libs/acegi-security.jar"/>
-	<classpathentry kind="lib" path="target/libs/activemq-core.jar"/>
+	<classpathentry kind="lib" path="target/libs/activation.jar"/>
 	<classpathentry kind="lib" path="target/libs/ant.jar"/>
 	<classpathentry kind="lib" path="target/libs/antlr.jar"/>
-	<classpathentry kind="lib" path="target/libs/asm.jar"/>
 	<classpathentry kind="lib" path="target/libs/asm-attrs.jar"/>
-	<classpathentry kind="lib" path="target/libs/bio-formats.jar"/>
+	<classpathentry kind="lib" path="target/libs/asm.jar"/>
+	<classpathentry kind="lib" path="target/libs/backport-util-concurrent.jar"/>
+	<classpathentry kind="lib" path="target/libs/btm.jar"/>
 	<classpathentry kind="lib" path="target/libs/cglib.jar"/>
 	<classpathentry kind="lib" path="target/libs/checkstyle.jar"/>
 	<classpathentry kind="lib" path="target/libs/common.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-beanutils.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-codec.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-collections.jar"/>
-	<classpathentry kind="lib" path="target/libs/commons-dbcp.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-io.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-lang.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-logging.jar"/>
@@ -30,41 +29,109 @@
 	<classpathentry kind="lib" path="target/libs/ehcache.jar"/>
 	<classpathentry kind="lib" path="target/libs/emma_ant.jar"/>
 	<classpathentry kind="lib" path="target/libs/emma.jar"/>
-	<classpathentry kind="lib" path="target/libs/findbugs-ant.jar"/>
+	<classpathentry kind="lib" path="target/libs/FontBox.jar"/>
 	<classpathentry kind="lib" path="target/libs/freemarker.jar"/>
-	<classpathentry kind="lib" path="target/libs/groovy.jar"/>
-	<classpathentry kind="lib" path="target/libs/hibernate.jar"/>
+	<classpathentry kind="lib" path="target/libs/geronimo-spec-jta.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-annotations.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-commons-annotations.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-search.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-tools.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-validator.jar"/>
-	<classpathentry kind="lib" path="target/libs/ice.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate.jar"/>
 	<classpathentry kind="lib" path="target/libs/ice-db.jar"/>
+	<classpathentry kind="lib" path="target/libs/ice.jar"/>
+	<classpathentry kind="lib" path="target/libs/importer-common.jar"/>
 	<classpathentry kind="lib" path="target/libs/importer.jar"/>
 	<classpathentry kind="lib" path="target/libs/jamon.jar"/>
-	<classpathentry kind="lib" path="target/libs/jdtcore.jar"/>
-	<classpathentry kind="lib" path="target/libs/jmock.jar"/>
+	<classpathentry kind="lib" path="target/libs/jsr107cache.jar"/>
 	<classpathentry kind="lib" path="target/libs/jtidy.jar"/>
-	<classpathentry kind="lib" path="target/libs/junit.jar"/>
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/lucene-core.jar"/>
+	<classpathentry kind="lib" path="target/libs/lucene-highlighter.jar"/>
+	<classpathentry kind="lib" path="target/libs/lucene-spellchecker.jar"/>
+	<classpathentry kind="lib" path="target/libs/mail.jar"/>
 	<classpathentry kind="lib" path="target/libs/model-psql.jar"/>
-	<classpathentry kind="lib" path="target/libs/ome-java.jar"/>
+	<classpathentry kind="lib" path="target/libs/PDFBox.jar"/>
 	<classpathentry kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry kind="lib" path="target/libs/quartz.jar"/>
 	<classpathentry kind="lib" path="target/libs/rendering.jar"/>
 	<classpathentry kind="lib" path="target/libs/romio.jar"/>
 	<classpathentry kind="lib" path="target/libs/server.jar"/>
-	<classpathentry kind="lib" path="target/libs/spring.jar"/>
+	<classpathentry kind="lib" path="target/libs/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="target/libs/slf4j-log4j12.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-ldap.jar"/>
-	<classpathentry kind="lib" path="target/libs/spring-test.jar"/>
-	<classpathentry kind="lib" path="target/libs/testing.jar"/>
-	<classpathentry kind="lib" path="target/libs/testng.jar"/>
-	<classpathentry kind="lib" path="target/libs/velocity.jar"/>
+	<classpathentry kind="lib" path="target/libs/spring.jar"/>
 	<classpathentry kind="lib" path="target/libs/velocity-tools-generic.jar"/>
+	<classpathentry kind="lib" path="target/libs/velocity.jar"/>
 	<classpathentry kind="lib" path="target/libs/xerces.jar"/>
 	<classpathentry kind="lib" path="target/libs/xml-apis.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/activation.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/ant.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/antlr.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/asm-attrs.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/asm.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/backport-util-concurrent.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/btm.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/cglib.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/checkstyle.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/common-test.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/common.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/commons-beanutils.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/commons-codec.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/commons-collections.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/commons-io.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/commons-lang.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/commons-logging.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/commons-pool.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/dom4j.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/dsl-test.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/dsl.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/ehcache.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/emma_ant.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/emma.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/findbugs-ant.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/FontBox.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/freemarker.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/geronimo-spec-jta.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/hibernate-annotations.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/hibernate-commons-annotations.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/hibernate-search.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/hibernate-tools.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/hibernate-validator.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/hibernate.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/ice-db.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/ice.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/importer-common.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/importer.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/jakarta-oro.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/jamon.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/jmock.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/jsr107cache.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/jtidy.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/junit.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/log4j.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/lucene-core.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/lucene-highlighter.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/lucene-spellchecker.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/mail.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/model-psql.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/PDFBox.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/persistence-api.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/postgresql.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/quartz.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/rendering.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/romio.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/server.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/slf4j-log4j12.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/spring-ldap.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/spring-test.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/spring.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/testng.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/velocity-tools-generic.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/velocity.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/xerces.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/xml-apis.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

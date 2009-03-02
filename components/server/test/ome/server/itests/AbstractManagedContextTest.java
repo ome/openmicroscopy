@@ -20,6 +20,7 @@ import ome.api.local.LocalAdmin;
 import ome.api.local.LocalLdap;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
+import ome.formats.MockedOMEROImportFixture;
 import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
@@ -46,6 +47,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
@@ -69,6 +71,10 @@ public class AbstractManagedContextTest extends
 
     protected LoginInterceptor loginAop;
 
+    /**
+     * Factory which provides "wrapped" managed services which handles login as
+     * would take place via ISession
+     */
     protected ServiceFactory factory;
 
     protected LocalQuery iQuery;
@@ -102,7 +108,7 @@ public class AbstractManagedContextTest extends
     protected PrincipalHolder holder;
 
     protected SessionManager sessionManager;
-    
+
     protected Executor executor;
 
     /**
@@ -231,49 +237,31 @@ public class AbstractManagedContextTest extends
         i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         return i;
     }
-    
+
     protected Pixels makePixels() {
-	throw new RuntimeException("Not yet implemented.");
-/*
         try {
-            final File file = ResourceUtils
-                    .getFile("classpath:tinyTest.d3d.dv");
+            MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(
+                    this.factory, "");
 
-            Dataset d = new Dataset("rendering-session-test");
-            d = iUpdate.saveAndReturnObject(d);
+            List<omero.model.Pixels> pix = fixture.fullImport(ResourceUtils
+                    .getFile("classpath:tinyTest.d3d.dv"), "tinyTest");
 
-            final OMEROMetadataStore store = new OMEROMetadataStore(
-                    this.factory);
-            final ImportLibrary library = new ImportLibrary(store,
-                    new OMEROWrapper());
-
-            library.setDataset(d);
-
-            String fileName = file.getAbsolutePath();
-            library.open(fileName);
-            library.calculateImageCount(fileName, 0);
-
-            final List<Pixels> pixels = library.importMetadata(fileName);
-            library.importData(pixels.get(0).getId(), fileName, 0,
-                    new ImportLibrary.Step() {
-
-                        @Override
-                        public void step(int series, int step) {
-                        }
-                    });
-            return pixels.get(0);
+            return new Pixels(pix.get(0).getId().getValue(), false);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            } else {
+                throw new RuntimeException(e);
+            }
         }
-*/
     }
-    
+
     protected <T extends IObject> void assertWorldReadable(T t) {
         Permissions p = t.getDetails().getPermissions();
         assertTrue(p.isGranted(Role.GROUP, Right.READ));
         assertTrue(p.isGranted(Role.WORLD, Right.READ));
     }
-    
+
     protected <T extends IObject> void assertWorldReadable(List<T> list) {
         for (T t : list) {
             assertWorldReadable(t);
