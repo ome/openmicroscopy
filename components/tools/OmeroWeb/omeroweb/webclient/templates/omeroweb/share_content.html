@@ -7,7 +7,7 @@
 
 {% if share.imgSize %}
 <div class="clear"></div>
-<h1>{% trans "Images" %}</h1>
+<h1>{% trans "Images" %} ({{ share.imgSize }} items)</h1>
 <div class="image"><ul id="products">
     <li class="clear"> </li>
     {% for e in share.imageInShare %}

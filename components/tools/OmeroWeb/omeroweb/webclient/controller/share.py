@@ -149,8 +149,6 @@ class BaseShare(BaseController):
                 self.imageInShare.append(ex)
 
         self.imgSize = len(self.imageInShare)
-        
-        self.sizeOfShare = self.imgSize
     
     def loadShareOwnerContent(self, share_id):
         content = self.conn.getContents(long(share_id))
@@ -162,8 +160,6 @@ class BaseShare(BaseController):
                 self.imageInShare.append(ex)
 
         self.imgSize = len(self.imageInShare)
-        
-        self.sizeOfShare = self.imgSize
     
 # ### Test code below this line ###
 

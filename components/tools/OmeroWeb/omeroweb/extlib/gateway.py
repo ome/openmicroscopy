@@ -1074,8 +1074,7 @@ class BlitzGateway (threading.Thread):
         if pr is not None:
             return ProjectWrapper(self, pr)
         else:
-            logger.error("Project not exist: %i" % long(oid))
-            raise AttributeError("Project does not exist.")
+            return None
 
     def getDataset (self, oid):
         query_serv = self.getQueryService()
@@ -1089,8 +1088,7 @@ class BlitzGateway (threading.Thread):
         if ds is not None:
             return DatasetWrapper(self, ds)
         else:
-            logger.error("Dataset not exist: %i" % long(oid))
-            raise AttributeError("Dataset does not exist.")
+            return None
 
     def getImage (self, oid):
         query_serv = self.getQueryService()
@@ -1102,11 +1100,11 @@ class BlitzGateway (threading.Thread):
               "join fetch im.details.owner join fetch im.details.group " \
               "where im.id=:oid "
         img = query_serv.findByQuery(sql,p)
+        
         if img is not None:
             return ImageWrapper(self, img)
         else:
-            logger.error("Image not exist: %i" % long(oid))
-            raise AttributeError("Image does not exist.")
+            return None
     
     def getImageWithMetadata (self, oid):
         query_serv = self.getQueryService()
@@ -1128,8 +1126,7 @@ class BlitzGateway (threading.Thread):
         if img is not None:
             return ImageWrapper(self, img)
         else:
-            logger.error("Image not exist: %i" % long(oid))
-            raise AttributeError("Image does not exist.")
+            return None
 
     def getDatasetImageLink (self, parent, oid):
         query_serv = self.getQueryService()
@@ -1557,7 +1554,8 @@ class BlitzGateway (threading.Thread):
                 recipients = list()
                 for m in members:
                     try:
-                        recipients.append(m.email)
+                        if m.id != self.getEventContext().userId:
+                            recipients.append(m.email)
                     except:
                         logger.error(traceback.format_exc())
                 if sender is not None:

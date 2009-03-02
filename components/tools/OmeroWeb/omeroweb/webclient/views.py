@@ -998,12 +998,13 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
         return handlerInternalError(x)
     manager.buildBreadcrumb(whos)
         
-    grs = list()
+    '''grs = list()
     grs.extend(list(conn.getEventContext().memberOfGroups))
     #grs.extend(list(conn.getEventContext().leaderOfGroups))
     my_groups = set(list(conn.getExperimenterGroups(set(grs))))
     request.session['groupId'] = None
-    form_mygroups = MyGroupsForm(initial={'mygroups': my_groups})
+    form_mygroups = MyGroupsForm(initial={'mygroups': my_groups})'''
+    form_mygroups = None
     
     filter_user_id = None
     form_users = None
@@ -3049,7 +3050,7 @@ def render_thumbnail_resize (request, size, iid, **kwargs):
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
-
+    
     img = conn.getImage(iid)
     if img is None:
         try:
@@ -3060,7 +3061,6 @@ def render_thumbnail_resize (request, size, iid, **kwargs):
         if conn is None:
             raise Http500("Share connection not available")
         img = conn.getImage(iid)
-    
     if img is None:
         logger.info("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))

@@ -3,9 +3,8 @@ import sys
 import datetime
 import logging
 import logging.handlers
-from path import path
 
-# Django settings for webadmin project.
+# Django settings for OMERO.web project.
 DEBUG = False # if True handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
 
@@ -23,21 +22,26 @@ TEST_DATABASE_NAME = 'test-db.sqlite3'
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
-MANAGERS = ADMINS
 
-# Notification
-# when is turn below parameters should be set, this option require DEBUG = False
-EMAIL_NOTIFICATION = False
-EMAIL_SENDER_ADDRESS = 'sender@domain' # email address
-EMAIL_SMTP_SERVER = 'smtp.domain'
+MANAGERS = ADMINS
 
 # ADMIN notification
 # If you wish to help us catching errors, please set the Error notifier to True (please
-# be sure you turned on EMAIL_NOTIFICATION).
-# That mechanism sent you every errors handled by the application without user notice.
+# be sure you turned on EMAIL_NOTIFICATION and set ADMIN details).
+# That mechanism sent to the administrator every errors.
 # We are very appreciative if you can deliver them to:
-#              Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>
+#   Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>
 ERROR2EMAIL_NOTIFICATION = False
+
+# Notification
+# Application allows to notify user about new shares
+EMAIL_NOTIFICATION = False
+EMAIL_SENDER_ADDRESS = 'sender@domain' # email address
+EMAIL_SMTP_SERVER = 'smtp.domain'
+#EMAIL_SMTP_PORT = 25
+#EMAIL_SMTP_USER = 'login'
+#EMAIL_SMTP_PASSWORD = 'password'
+#EMAIL_SMTP_TLS = True
 
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
