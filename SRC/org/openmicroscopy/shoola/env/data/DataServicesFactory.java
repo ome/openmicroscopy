@@ -46,6 +46,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -229,36 +231,10 @@ public class DataServicesFactory
 	 */
 	void sessionExpiredExit()
 	{
-		/*
-		MessageBox msg = new MessageBox(registry.getTaskBar().getFrame(), 
-							"Time out", "Your session has expired.\n" +
-    						"The changes you might have made have not been " +
-    						"saved. \n" +
-    						"To do so, you will need to reactivate " +
-    						"the session.");
-        msg.setYesText("Reconnect");
-        msg.setNoText("Exit");
-        try {
-        	if (msg.centerMsgBox() == MessageBox.NO_OPTION) {
-        		exitApplication();
-            } else {
-            	try {
-            		UserCredentials uc = (UserCredentials) 
-        				container.getRegistry().lookup(
-        						LookupNames.USER_CREDENTIALS);
-            		initTimer();
-        			((OmeroImageServiceImpl) is).shutDown();
-        			omeroGateway.reconnect(uc.getUserName(), uc.getPassword());
-        			timer.cancel();
-    			} catch (Exception e) {
-    				UserNotifier un = registry.getUserNotifier();
-    				un.notifyInfo("Reconnect", "An error while trying to " +
-    						"reconnect.\n The application will now exit. ");
-    				exitApplication();
-    			}
-            }
-		} catch (Exception e) {}
-		*/
+		UserNotifier un = registry.getUserNotifier();
+		un.notifyInfo("Connection Refused", "The server is no longer " +
+				"running. \nPlease contact your system administrator.");
+		exitApplication();
 	}
 	
 	/**
