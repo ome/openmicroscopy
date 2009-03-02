@@ -312,7 +312,7 @@ class TextualAnnotationsUI
 				text = text.trim();
 				if (text.length() == 0) {
 					TextualAnnotationData data = model.getLastUserAnnotation();
-					l.add(data);
+					if (data != null) l.add(data);
 				}
 			}
 		}

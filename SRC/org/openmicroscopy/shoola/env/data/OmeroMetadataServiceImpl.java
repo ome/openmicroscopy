@@ -114,6 +114,46 @@ class OmeroMetadataServiceImpl
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
 
+
+	/**
+	 * Removes the specified annotation from the object.
+	 * Returns the updated object.
+	 * @param annotation	The annotation to create. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param object		The object to handle. Mustn't be <code>null</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	private DataObject removeAnnotation(AnnotationData annotation, 
+										DataObject object) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		if (annotation == null)
+			throw new IllegalArgumentException("No annotation to remove.");
+		if (object == null)
+			throw new IllegalArgumentException("No object to handle.");
+		IObject ho = gateway.findIObject(annotation.asIObject());
+		IObject link = gateway.findAnnotationLink(object.getClass(), 
+				                         object.getId(), ho.getId().getValue());
+		if (ho != null && link != null) {
+			gateway.deleteObject(link);
+			//Check that the annotation is not shared.
+			/*
+			List<Long> ids = new ArrayList<Long>();
+			ids.add(ho.getId().getValue());
+			List l = gateway.findAnnotationLinks(object.getClass().getName(), 
+					-1, ids);
+			if (l == null || l.size() == 0)
+				gateway.deleteObject(ho);//oly work if the annotation is not shared
+				*/
+		}
+		return PojoMapper.asDataObject(gateway.findIObject(object.asIObject()));
+	}
+
+	
 	/**
 	 * Saves the logical channel.
 	 * 
@@ -1003,38 +1043,6 @@ class OmeroMetadataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#removeAnnotation(AnnotationData, DataObject)
-	 */
-	public DataObject removeAnnotation(AnnotationData annotation, 
-										DataObject object) 
-		throws DSOutOfServiceException, DSAccessException 
-	{
-		if (annotation == null)
-			throw new IllegalArgumentException("No annotation to remove.");
-		if (object == null)
-			throw new IllegalArgumentException("No objec to handle.");
-		IObject ho = gateway.findIObject(annotation.asIObject());
-		IObject link = gateway.findAnnotationLink(object.getClass(), 
-				                         object.getId(), ho.getId().getValue());
-		if (ho != null && link != null) {
-			gateway.deleteObject(link);
-			//Check that the annotation is not shared.
-			/*
-			List<Long> ids = new ArrayList<Long>();
-			ids.add(ho.getId().getValue());
-			List l = gateway.findAnnotationLinks(object.getClass().getName(), 
-					-1, ids);
-			if (l == null || l.size() == 0)
-				gateway.deleteObject(ho);//oly work if the annotation is not shared
-				*/
-		}
-		return PojoMapper.asDataObject(gateway.findIObject(object.asIObject()));
-	}
-
-	
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#loadStructuredAnnotations(Class, long, long)
 	 */
 	public Collection loadStructuredAnnotations(Class type, long id, 
@@ -1094,6 +1102,7 @@ class OmeroMetadataServiceImpl
 		Iterator i;
 		Iterator<DataObject> j = data.iterator();
 		//First create the new annotations 
+		AnnotationData ann;
 		while (j.hasNext()) {
 			object = j.next();
 			if (object instanceof AnnotationData) {
@@ -1103,13 +1112,17 @@ class OmeroMetadataServiceImpl
 			}
 			if (annotations.size() > 0) {
 				i = annotations.iterator();
-				while (i.hasNext()) 
-					linkAnnotation(object, (AnnotationData) i.next());
+				while (i.hasNext()) {
+					ann = (AnnotationData) i.next();
+					if (ann != null) linkAnnotation(object, ann);
+				}
 			}
 			if (toRemove != null) {
 				i = toRemove.iterator();
-				while (i.hasNext())
-					removeAnnotation((AnnotationData) i.next(), object);
+				while (i.hasNext()) {
+					ann = (AnnotationData) i.next();
+					if (ann != null) removeAnnotation(ann, object);
+				}
 			}
 		}
 		return data;
@@ -1722,34 +1735,6 @@ class OmeroMetadataServiceImpl
 				c.add(tag);
 		}
 		return c;
-		*/
-		return null;
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#loadTagsContainer(Long, boolean, long)
-	 */
-	public Collection loadTagsContainer(Long id, boolean dataObject, 
-										long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		/*
-		if (dataObject) return gateway.loadTagAndDataObjects(id, false);
-		Collection l = loadAnnotations(TagAnnotationData.class, null, id, 
-				userID);
-		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
-		if (l == null) return annotations;
-		Iterator i = l.iterator();
-		TagAnnotationData tag;
-		String ns;
-		while (i.hasNext()) {
-			tag = (TagAnnotationData) i.next();
-			ns = tag.getNameSpace();
-			if (ns == null || !TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
-				annotations.add(tag);
-		}
-		return annotations;
 		*/
 		return null;
 	}

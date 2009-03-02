@@ -3553,25 +3553,6 @@ class OMEROGateway
 		entry.keepAllAlive(entries);
 	}
 	
-	//tmp
-	List getFileAnnotations(Set<Long> originalFiles) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		try {
-			IQueryPrx service = getQueryService();
-			ParametersI param = new ParametersI();
-			param.addLongs("ids", originalFiles);
-			String sql =  "select link from Annotation as link ";
-			sql += "where link.file.id in (:ids)";
-			return service.findAllByQuery(sql, param);
-			
-		} catch (Exception e) {
-			handleException(e, "Cannot remove the tag description.");
-		}
-		return new ArrayList();
-	}
-	
 	/**
 	 * Projects the specified set of pixels according to the projection's 
 	 * parameters. Adds the created image to the passed dataset.
@@ -3623,7 +3604,6 @@ class OMEROGateway
 			
 			return getImage(imageID, new PojoOptionsI().map());
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot project the image.");
 		}
 		return null;
@@ -3851,60 +3831,6 @@ class OMEROGateway
 			handleException(e, "Cannot load channel acquisition data.");
 		}
 		return null;
-		/*
-		IQueryPrx service = getQueryService();
-		StringBuilder sb;
-		ParametersI param;
-		sb = new StringBuilder();
-		param = new ParametersI();
-		sb.append("select channel from LogicalChannel as channel ");
-		sb.append("left outer join fetch channel.detectorSettings as ds ");
-        sb.append("left outer join fetch channel.lightSourceSettings as lss ");
-        sb.append("left outer join fetch ds.detector as detector ");
-        sb.append("left outer join fetch detector.type as dt ");
-        sb.append("left outer join fetch ds.binning as binning ");
-        sb.append("left outer join fetch lss.lightSource as light ");
-        sb.append("left outer join fetch light.type as lt ");
-        sb.append("where channel.id = :id");
-        param.addLong("id", channelID);
-		try {
-			IObject r = service.findByQuery(sb.toString(), param);
-			ChannelAcquisitionData data = new ChannelAcquisitionData(
-					(LogicalChannel) r);
-			String kind = data.getLightSourceKind();
-			sb = new StringBuilder();
-			param = new ParametersI();
-			if (ChannelAcquisitionData.LASER.equals(kind)) {
-				sb.append("select laser from Laser as laser ");
-				sb.append("left outer join fetch laser.type as type ");
-				sb.append("left outer join fetch laser.laserMedium as medium ");
-				sb.append("left outer join fetch laser.pulse as pulse ");
-		        sb.append("where laser.id = :id");
-		        param.addLong("id", data.getLightSourceId());
-		        r = service.findByQuery(sb.toString(), param);
-		        data.setLightSource((LightSource) r);
-			} else if (ChannelAcquisitionData.ARC.equals(kind)) {
-				sb.append("select arc from Arc as arc ");
-				sb.append("left outer join fetch arc.type as type ");
-		        sb.append("where arc.id = :id");
-		        param.addLong("id", data.getLightSourceId());
-		        r = service.findByQuery(sb.toString(), param);
-		        data.setLightSource((LightSource) r);
-			} else if (ChannelAcquisitionData.FILAMENT.equals(kind)) {
-				sb.append("select filament from Filament as filament ");
-				sb.append("left outer join fetch filament.type as type ");
-		        sb.append("where filament.id = :id");
-		        param.addLong("id", data.getLightSourceId());
-		        r = service.findByQuery(sb.toString(), param);
-		        data.setLightSource((LightSource) r);
-			} 
-            return data;
-		} catch (Exception e) {
-			handleException(e, "Cannot load channel acquisition data.");
-		}
-		return null;
-		*/
-		
 	}
 	
 	/**
@@ -4043,6 +3969,7 @@ class OMEROGateway
 			}
 			return result;
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot find the Tags.");
 		}
 		return new ArrayList();

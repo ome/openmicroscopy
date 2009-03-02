@@ -256,23 +256,7 @@ public interface OmeroMetadataService
 	public List<DataObject> annotate(Set<DataObject> toAnnotate, 
 									AnnotationData annotation)
 		throws DSOutOfServiceException, DSAccessException;
-	
-	/**
-	 * Removes the specified annotation from the object.
-	 * Returns the updated object.
-	 * @param annotation	The annotation to create. 
-	 * 						Mustn't be <code>null</code>.
-	 * @param object		The object to handle. Mustn't be <code>null</code>.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public DataObject removeAnnotation(AnnotationData annotation, 
-									DataObject object)
-		throws DSOutOfServiceException, DSAccessException;
-	
+
 	/**
 	 * Removes all annotations of a given type from the specified object.
 	 * 
