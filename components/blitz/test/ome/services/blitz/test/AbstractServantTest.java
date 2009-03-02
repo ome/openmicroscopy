@@ -22,16 +22,11 @@ import ome.services.sessions.SessionManager;
 import ome.services.throttling.InThreadThrottlingStrategy;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
-import ome.testing.InterceptingServiceFactory;
 import omero.api.AMD_IQuery_findAllByQuery;
 import omero.api.AMD_IUpdate_saveAndReturnObject;
 import omero.model.IObject;
-import omero.model.Pixels;
-import omero.model.Project;
 
-import org.springframework.util.ResourceUtils;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 @Test(groups = "integration")
@@ -62,9 +57,7 @@ public abstract class AbstractServantTest extends TestCase {
     }
     
     @Override
-    @BeforeClass
     protected void setUp() throws Exception {
-        super.setUp();
 
         // Shared
         OmeroContext inner = OmeroContext.getManagedServerContext();
@@ -134,28 +127,22 @@ public abstract class AbstractServantTest extends TestCase {
         return rv[0];
     }
 
-    protected IObject assertSaveAndReturn(Project p) throws Exception {
-        final Exception[] ex = new Exception[1];
+    protected <T extends IObject> T assertSaveAndReturn(T t) throws Exception {
         final boolean[] status = new boolean[1];
-        final IObject[] rv = new IObject[1];
+        final RV rv = new RV();
         user_update.saveAndReturnObject_async(
                 new AMD_IUpdate_saveAndReturnObject() {
 
                     public void ice_exception(Exception exc) {
-                        ex[0] = exc;
+                        rv.ex = exc;
                     }
 
                     public void ice_response(IObject __ret) {
-                        rv[0] = __ret;
-                        status[0] = true;
+                        rv.rv = __ret;
                     }
-                }, p, current("saveAndReturnObject"));
-        if (ex[0] != null) {
-            throw ex[0];
-        } else {
-            assertTrue(status[0]);
-        }
-        return rv[0];
+                }, t, current("saveAndReturnObject"));
+        rv.assertPassed();
+        return (T) rv.rv;
     }
 
     protected Ice.Current current(String method) {

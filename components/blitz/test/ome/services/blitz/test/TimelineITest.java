@@ -6,6 +6,8 @@
 package ome.services.blitz.test;
 
 import static omero.rtypes.rlong;
+import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
 import static omero.rtypes.rtime_max;
 import static omero.rtypes.rtime_min;
 
@@ -16,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
 import ome.api.local.LocalQuery;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.LongAnnotation;
@@ -24,13 +25,9 @@ import ome.model.annotations.TagAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.security.SecuritySystem;
-import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.impl.TimelineI;
-import ome.services.blitz.util.BlitzExecutor;
 import ome.services.sessions.SessionManager;
-import ome.services.throttling.InThreadThrottlingStrategy;
-import ome.system.OmeroContext;
 import omero.RTime;
 import omero.ServerError;
 import omero.api.AMD_ITimeline_countByPeriod;
@@ -41,23 +38,19 @@ import omero.api.AMD_ITimeline_getMostRecentObjects;
 import omero.api.AMD_ITimeline_getMostRecentShareCommentLinks;
 import omero.model.EventLog;
 import omero.model.IObject;
+import omero.model.Project;
+import omero.model.ProjectI;
 import omero.sys.Filter;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 @Test(groups = "integration")
 public class TimelineITest extends AbstractServantTest {
 
-    ManagedContextFixture user, root;
-    ServiceFactoryI user_sf, root_sf;
     TimelineI user_t, root_t;
-    SessionManager sm;
-    SecuritySystem ss;
-    LocalQuery query;
 
     @Override
     @BeforeClass
@@ -68,6 +61,7 @@ public class TimelineITest extends AbstractServantTest {
         user_t.setServiceFactory(user_sf);
         user_t.setSessionManager(sm);
         user_t.setSecuritySystem(ss);
+        user_t.setServiceFactory(user_sf);
 
         root = new ManagedContextFixture(ctx);
         // root.setCurrentUserAndGroup("root", "system"); TODO AFTERMERGE
@@ -77,6 +71,7 @@ public class TimelineITest extends AbstractServantTest {
         root_t.setServiceFactory(root_sf);
         root_t.setSessionManager(sm);
         root_t.setSecuritySystem(ss);
+        root_t.setServiceFactory(root_sf);
     }
 
     //
@@ -182,8 +177,9 @@ public class TimelineITest extends AbstractServantTest {
                 new ParametersI().page(0, 1), true);
 
         assertTrue(rv.containsKey("Dataset"));
-        assertFalse(rv.containsKey("Image"));
-        assertEquals(1, rv.get("Dataset").size());
+        assertTrue(rv.containsKey("Image"));
+        assertEquals(0, rv.get("Dataset").size());
+        assertEquals(1, rv.get("Image").size());
     }
 
     @Test
@@ -281,6 +277,37 @@ public class TimelineITest extends AbstractServantTest {
         assertEquals(baseLine.size() + 1, oneMore.size());
     }
 
+    @Test
+    public void testOrderMostRecentObjects() throws Exception {
+        
+        omero.model.Image i1 = new omero.model.ImageI();
+        i1.setName(rstring("first"));
+        i1.setAcquisitionDate(rtime(System.currentTimeMillis()-1));
+        omero.model.Image i2 = new omero.model.ImageI();
+        i2.setName(rstring("second"));
+        i2.setAcquisitionDate(rtime(System.currentTimeMillis()+11));
+        
+        Project p1 = new ProjectI();
+        p1.setName(rstring("between1"));
+        
+        Project p2 = new ProjectI();
+        p2.setName(rstring("between2"));
+        
+        i1 = assertSaveAndReturn(i1);
+        p1 = assertSaveAndReturn(p1);
+        p2 = assertSaveAndReturn(p2);
+        i2 = assertSaveAndReturn(i2);
+        
+        ParametersI p = new ParametersI();
+        p.page(0, 2);
+        
+        Map<String, List<IObject>> rv = assertMostRecent(Arrays.asList("Image"), p, false);
+        List<IObject> res = rv.get("Image");
+        assertEquals(i2.getId().getValue(), res.get(0).getId().getValue());
+        assertEquals(i1.getId().getValue(), res.get(1).getId().getValue());
+        
+    }
+    
     // Helpers
     // =========================================================================
 

@@ -123,6 +123,7 @@ public class TimelineI extends AbstractAmdServant implements
                 + "join @FETCH@ obj.details.owner "
                 + "join @FETCH@ obj.details.group " + WHERE_OBJ_DETAILS);
         OWNERSHIP.put("Project", "obj");
+        ORDERBY.put("Project", "order by obj.details.updateEvent.id desc");
 
         BYPERIOD.put("Dataset", "from Dataset obj "
                 + "join @FETCH@ obj.details.creationEvent "
@@ -131,6 +132,7 @@ public class TimelineI extends AbstractAmdServant implements
                 + "left outer join @FETCH@ obj.projectLinks pdl "
                 + "left outer join @FETCH@ pdl.parent p " + WHERE_OBJ_DETAILS);
         OWNERSHIP.put("Dataset", "obj");
+        ORDERBY.put("Dataset", "order by obj.details.updateEvent.id desc");
 
         BYPERIOD.put("RenderingDef", "from RenderingDef obj join @FETCH@ "
                 + "obj.details.creationEvent join @FETCH@ obj.details.owner "
@@ -152,6 +154,7 @@ public class TimelineI extends AbstractAmdServant implements
                 + "      obj.acquisitionDate >= :start "
                 + "and   obj.acquisitionDate <= :end ");
         OWNERSHIP.put("Image", "obj");
+        ORDERBY.put("Image", "order by obj.acquisitionDate desc");
 
         BYPERIOD.put("EventLog", "from EventLog obj "
                 + "left outer join @FETCH@ obj.event ev where "
@@ -209,7 +212,7 @@ public class TimelineI extends AbstractAmdServant implements
                         false, types, start, end, null, session, pWithDefaults);
 
                 if (merge) {
-                    returnValue = mergeMap(returnValue, pWithDefaults);
+                    returnValue = mergeMap(returnValue, pWithDefaults, false);
                 }
 
                 return returnValue;
@@ -296,7 +299,7 @@ public class TimelineI extends AbstractAmdServant implements
                         false, types, null, null, null, session, pWithDefaults);
 
                 if (merge) {
-                    returnValue = mergeMap(returnValue, pWithDefaults);
+                    returnValue = mergeMap(returnValue, pWithDefaults, false);
                 }
 
                 return returnValue;
@@ -391,7 +394,7 @@ public class TimelineI extends AbstractAmdServant implements
                     rv.put(_parentType, q.list());
                 }
 
-                return mergeList(rv, pWithDefaults);
+                return mergeList(rv, pWithDefaults, false);
             }
 
         }));
@@ -581,8 +584,10 @@ public class TimelineI extends AbstractAmdServant implements
     }
 
     private List<Entry> mergeEntries(Map<String, List<IObject>> toMerge,
-            Parameters p) {
+            Parameters p, boolean ascending) {
 
+        final int swap = ascending ? 1 : -1;
+        
         List<Entry> list = new ArrayList<Entry>();
         for (String key : toMerge.keySet()) {
             for (IObject obj : toMerge.get(key)) {
@@ -595,9 +600,9 @@ public class TimelineI extends AbstractAmdServant implements
                 long u1 = o1.update.getTime();
                 long u2 = o2.update.getTime();
                 if (u1 < u2) {
-                    return 1;
+                    return 1 * swap;
                 } else if (u2 < u1) {
-                    return -1;
+                    return -1 * swap;
                 } else {
                     return 0;
                 }
@@ -612,9 +617,9 @@ public class TimelineI extends AbstractAmdServant implements
      * {@link #applyDefaults(Parameters)}
      */
     private List<IObject> mergeList(Map<String, List<IObject>> toMerge,
-            Parameters p) {
+            Parameters p, boolean ascending) {
 
-        List<Entry> list = mergeEntries(toMerge, p);
+        List<Entry> list = mergeEntries(toMerge, p, ascending);
         List<IObject> rv = new ArrayList<IObject>();
         int limit = p.theFilter.limit.getValue();
 
@@ -631,23 +636,26 @@ public class TimelineI extends AbstractAmdServant implements
      * {@link #applyDefaults(Parameters)}
      */
     private Map<String, List<IObject>> mergeMap(
-            Map<String, List<IObject>> toMerge, Parameters p) {
+            Map<String, List<IObject>> toMerge, Parameters p,
+            boolean ascending) {
 
-        List<Entry> list = mergeEntries(toMerge, p);
-        toMerge.clear();
+        // Prepare return value so there are no null arrays.
+        Map<String, List<IObject>> rv = new HashMap<String, List<IObject>>();
+        for (String key : toMerge.keySet()) {
+            rv.put(key, new ArrayList<IObject>());
+        }
+        
+        List<Entry> list = mergeEntries(toMerge, p, ascending);
+        toMerge = null;
 
         int limit = p.theFilter.limit.getValue();
         for (int i = 0; i < Math.min(limit, list.size()); i++) {
             Entry entry = list.get(i);
-            List<IObject> objs = toMerge.get(entry.key);
-            if (objs == null) {
-                objs = new ArrayList<IObject>();
-                toMerge.put(entry.key, objs);
-            }
+            List<IObject> objs = rv.get(entry.key);
             objs.add(entry.obj);
         }
 
-        return toMerge;
+        return rv;
     }
 
     private Parameters applyDefaults(Parameters p) {
