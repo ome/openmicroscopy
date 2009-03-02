@@ -44,6 +44,7 @@ import javax.swing.border.EmptyBorder;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.model.CPEsummaryExport;
 import org.openmicroscopy.shoola.agents.util.editorpreview.MetadataComponent;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
@@ -85,6 +86,27 @@ public class PreviewPanel
 	 * description/abstract of the protocol can be retrieved. 
 	 */
 	private PreviewModel 				model;
+
+	/** The element that holds the value of a parameter */
+	public static final String 		VALUE = "v";
+
+	/** The element that defines a parameter within a step */
+	public static final String 		PARAMETER = "p";
+
+	/** The attribute holding the 'level' of a single step in the hierarchy */
+	public static final String 		LEVEL = "l";
+
+	/** The element defining a single step */
+	public static final String 		STEP = "s";
+
+	/** The element holding the list of steps for the protocol */
+	public static final String 		STEPS = "ss";
+
+	/** The element holding the description/abstract of the protocol */
+	public static final String 		DESCRIPTION = "d";
+
+	/** The element/attribute holding the name of a parameter or protocol */
+	public static final String 		NAME = "n";
 	
 	/** Initiliases the components. */
 	private void initComponents()

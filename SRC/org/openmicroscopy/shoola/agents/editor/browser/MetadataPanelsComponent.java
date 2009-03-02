@@ -36,6 +36,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
@@ -49,6 +50,8 @@ import javax.swing.tree.TreeNode;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.model.CPEsummaryExport;
+import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.TreeIterator;
@@ -108,9 +111,32 @@ public class MetadataPanelsComponent
 		
 		// root's children
 		DefaultMutableTreeNode root =  (DefaultMutableTreeNode)model.getRoot();
-		protTitle = root.getUserObject().toString();
+		
 		
 		IField field;
+		Object userOb;
+		
+		userOb = root.getUserObject();
+		field = (IField)userOb;
+		
+		protTitle = field.getAttribute(Field.FIELD_NAME);
+		if (field.getContentCount() > 0) {
+			String description = field.getContentAt(0).toString();
+			if (description.length() > CPEsummaryExport.MAX_DESC) {
+				description = description.
+							substring(0, CPEsummaryExport.MAX_DESC-1) + "...";
+			}
+			description = "<html><span style='font-family:sans-serif;font-size:11pt'>"
+				+ description + "</span></html>";
+			// display description in EditorPane, because text wraps nicely!
+			//MultilineLabel label = new MultilineLabel();
+			//label.setText(model.getDescription());
+			JEditorPane ep = new JEditorPane("text/html", description);
+			ep.setEditable(false);
+			ep.setBorder(new EmptyBorder(3, 5, 5, 3));
+			add(ep);
+		}
+		
 		DefaultMutableTreeNode node;
 		JPanel nodePanel;
 		String fieldName;
@@ -118,7 +144,7 @@ public class MetadataPanelsComponent
 		Iterator<TreeNode> iterator = new TreeIterator(root);
 		
 		TreeNode tn;
-		Object userOb;
+		
 		Border border;
 		while (iterator.hasNext()) {
 			tn = iterator.next();

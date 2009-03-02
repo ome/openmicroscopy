@@ -62,7 +62,7 @@ class PreviewModel
 	
 	/** A list of the steps in the protocol */
 	private List<StepObject> 	protocolSteps;
-
+	
 	/**
 	 * Parses the XML string and retrieve the summary data. 
 	 * 
@@ -88,28 +88,29 @@ class PreviewModel
 		} 
 		
 		// name and abstract
-		protocolName =  getChildContent(root, "n");
-		protocolDescription =  getChildContent(root, "d");
+		protocolName =  getChildContent(root, PreviewPanel.NAME);
+		protocolDescription =  getChildContent(root, PreviewPanel.DESCRIPTION);
 		
 		// list of steps
-		IXMLElement ss = root.getFirstChildNamed("ss");
+		IXMLElement ss = root.getFirstChildNamed(PreviewPanel.STEPS);
 		if (ss == null)		return;		// no steps. 
-		List<IXMLElement> steps = ss.getChildrenNamed("s");
+		List<IXMLElement> steps = ss.getChildrenNamed(PreviewPanel.STEP);
 		
 		String name;
 		int level;
 		StepObject so;
 		for (IXMLElement step : steps) {
-			name = step.getAttribute("n", "Step");
-			level = step.getAttribute("l", 1);
-			so = new StepObject(name, level);
+			// get the name of the step, default is "Step"
+			name = step.getAttribute(PreviewPanel.NAME, "Step"); 
+			level = step.getAttribute(PreviewPanel.LEVEL, 0);
+			so = new StepObject(name, level); // make a step object
 			
 			// parameters within each step 
-			List<IXMLElement> params = step.getChildrenNamed("p");
+			List<IXMLElement> params = step.getChildrenNamed(PreviewPanel.PARAMETER);
 			String key, value;
 			for (IXMLElement element : params) {
-				key = getChildContent(element, "n");
-				value = getChildContent(element, "v");
+				key = getChildContent(element, PreviewPanel.NAME);
+				value = getChildContent(element, PreviewPanel.VALUE);
 				so.addParam(key, value);
 			}
 			protocolSteps.add(so);

@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
+import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
@@ -73,8 +74,11 @@ public class CPEsummaryExport {
 	private static final int 		MAX_LINES = 15;
 	
 	/**
-	 * A counter to keep track of the number of lines 
+	 * The maximum number of characters allowed for the description/abstract.
 	 */
+	public static final int 		MAX_DESC = 500;
+	
+	/** A counter to keep track of the number of lines */
 	private static int				lines;
 	
 	/**
@@ -92,13 +96,13 @@ public class CPEsummaryExport {
 		IField field = CPEexport.getFieldFromTreeNode(node);
 		
 		// step element
-		IXMLElement step = new XMLElement("s");
-		step.setAttribute("l", level+"");
+		IXMLElement step = new XMLElement(PreviewPanel.STEP);
+		step.setAttribute(PreviewPanel.LEVEL, level+"");
 		// step name
 		String name = field.getAttribute(Field.FIELD_NAME);
 		if (name == null)
 			name = TreeModelMethods.getNodeName((DefaultMutableTreeNode)node);
-		step.setAttribute("n", name);
+		step.setAttribute(PreviewPanel.NAME, name);
 		
 		// params
 		int contentCount = field.getContentCount();
@@ -143,7 +147,7 @@ public class CPEsummaryExport {
 	 */
 	private static IXMLElement createParamElement(IParam param) 
 	{
-		IXMLElement parameter = new XMLElement("p");
+		IXMLElement parameter = new XMLElement(PreviewPanel.PARAMETER);
 		
 		// Add name,
 		String name = param.getAttribute(AbstractParam.PARAM_NAME);
@@ -152,13 +156,13 @@ public class CPEsummaryExport {
 			String units = param.getAttribute(NumberParam.PARAM_UNITS);
 			if (units != null) 		name = name + " (" + units + ")";
 		}
-		CPEexport.addChildContent(parameter, "n", name);
+		CPEexport.addChildContent(parameter, PreviewPanel.NAME, name);
 		// Add value
 		String value = param.getParamValue();
 		if (param instanceof DateTimeParam) {
 			value = param.toString();	// formats the Date-Time.
 		}
-		CPEexport.addChildContent(parameter, "v", value);
+		CPEexport.addChildContent(parameter, PreviewPanel.VALUE, value);
 		
 		return parameter;
 	}
@@ -181,21 +185,20 @@ public class CPEsummaryExport {
 		String protName = protocolRoot.getAttribute(Field.FIELD_NAME);
 		if (protName == null) 
 			protName = TreeModelMethods.getNodeName((DefaultMutableTreeNode)root);
-		CPEexport.addChildContent(protocol, "n", protName);
+		CPEexport.addChildContent(protocol, PreviewPanel.NAME, protName);
 		
 		
 		// description (truncate if longer than 250 characters)
-		int MAX_DESC = 250;
 		if (protocolRoot.getContentCount() >0) {
 			String desc = protocolRoot.getContentAt(0).toString();
 			if (desc != null && desc.length() > MAX_DESC) {
 				desc = desc.substring(0, MAX_DESC-1) + "...";
 			}
-			CPEexport.addChildContent(protocol, "d", desc);
+			CPEexport.addChildContent(protocol, PreviewPanel.DESCRIPTION, desc);
 		}
 
 		// steps element holds top level of step elements
-		XMLElement steps = new XMLElement("ss");
+		XMLElement steps = new XMLElement(PreviewPanel.STEPS);
 		protocol.addChild(steps);
 		
 		TreeNode childNode;
