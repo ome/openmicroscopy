@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -182,7 +183,8 @@ public class RefreshExperimenterDataLoader
      */
     public void load()
     {
-    	Iterator i = expNodes.keySet().iterator();
+    	Entry entry;
+    	Iterator i = expNodes.entrySet().iterator();
     	RefreshExperimenterDef def;
     	long userID;
     	TimeRefObject ref = null;
@@ -196,8 +198,9 @@ public class RefreshExperimenterDataLoader
     		TreeImageTimeSet time;
     		TreeFileSet file;
     		while (i.hasNext()) {
-        		userID = (Long) i.next();
-        		def = expNodes.get(userID);
+    			entry = (Entry) i.next();
+        		userID = (Long) entry.getKey();
+        		def = (RefreshExperimenterDef) entry.getValue();
         		nodes = def.getExpandedNodes();
         		j = nodes.iterator();
         		times = new ArrayList<TimeRefObject>(nodes.size());
@@ -220,8 +223,9 @@ public class RefreshExperimenterDataLoader
     		}
     	} else {
         	while (i.hasNext()) {
-        		userID = (Long) i.next();
-        		def = expNodes.get(userID);
+        		entry = (Entry) i.next();
+        		userID = (Long) entry.getKey();
+        		def = (RefreshExperimenterDef) entry.getValue();
     			m.put(userID, def.getExpandedNodes());
     		}
     	}

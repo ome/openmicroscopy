@@ -35,6 +35,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
@@ -137,15 +138,6 @@ public class RefreshVisitor
                 }
                 l.add(id);
     		}
-        	/*
-        	long id = ((DataObject) userObject).getId();
-            List l = expandedTopNodes.get(TagAnnotationData.class);
-            if (l == null) {
-            	l = new ArrayList<Long>();
-            	expandedTopNodes.put(TagAnnotationData.class, l);
-            }
-             l.add(id);
-            */
         } else if ((userObject instanceof ProjectData) 
         		&& node.isExpanded()) {
         	long id = ((DataObject) userObject).getId();
@@ -176,7 +168,10 @@ public class RefreshVisitor
                 l.add(id);
     		}
         } else if (node instanceof TreeImageTimeSet && node.isChildrenLoaded() 
-        		&& node.isExpanded() && node.containsImages())
+        		&& node.isExpanded() && node.containsImages()) {
+        	foundNodes.add(node);
+    	} else if (node instanceof TreeFileSet && node.isChildrenLoaded() 
+        		&& node.isExpanded())
         	foundNodes.add(node);
     }
     

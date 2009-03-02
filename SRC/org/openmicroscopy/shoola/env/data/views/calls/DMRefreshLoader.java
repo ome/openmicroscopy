@@ -218,21 +218,6 @@ public class DMRefreshLoader
 					}
                 }
                 results = nodes;
-            	
-            	
-            	/*
-                OmeroMetadataService os = context.getMetadataService();
-                Iterator users = nodes.keySet().iterator();
-                results = new HashMap<Long, Object>(nodes.size());
-                long userID;
-                Object result;
-                while (users.hasNext()) {
-                	userID = (Long) users.next();
-                	result = os.loadAnnotations(FileAnnotationData.class, null, 
-                			userID);
-                	results.put(userID, result);
-                }
-                */
             }
         };
     }

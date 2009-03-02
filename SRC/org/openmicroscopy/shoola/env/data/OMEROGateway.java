@@ -3896,11 +3896,13 @@ class OMEROGateway
 	/**
 	 * Loads the tags.
 	 * 
-	 * @param id
+	 * @param id  The id of the tags.
 	 * @param options
 	 * @return See above.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	Collection loadTags(Long id, Map options)
 		throws DSOutOfServiceException, DSAccessException
@@ -3922,11 +3924,14 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Loads the tag Sets and the orphaned tags, if requested.
 	 * 
 	 * @param options
-	 * @return
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	Collection loadTagSets(Map options)
 		throws DSOutOfServiceException, DSAccessException
@@ -3969,7 +3974,6 @@ class OMEROGateway
 			}
 			return result;
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot find the Tags.");
 		}
 		return new ArrayList();
