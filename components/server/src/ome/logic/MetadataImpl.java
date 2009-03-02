@@ -540,22 +540,26 @@ public class MetadataImpl
 		sb.append(" and parent member of "+TAG_TYPE);
 
     	List l = iQuery.findAllByQuery(sb.toString(), param);
+    	List<Long> tagSetIds = new ArrayList<Long>();
     	List<Long> ids = new ArrayList<Long>();
     	List<Long> children = new ArrayList<Long>();
     	Annotation ann;
 		Long id;
 		Iterator i;
 		AnnotationAnnotationLink link;
+		//check the tag set-tag link.
     	if (l != null) {
     		i = l.iterator();
     		while (i.hasNext()) {
 				link = (AnnotationAnnotationLink) i.next();
 				id = link.getId();
 				ann = link.parent();
+				
 				if (NS_INSIGHT_TAG_SET.equals(ann.getNs())) {
 					if (!ids.contains(id)) {
 						ids.add(id);
 						result.add(link);
+						tagSetIds.add(ann.getId());
 					}
 				}
 				id = link.getChild().getId();
@@ -564,20 +568,50 @@ public class MetadataImpl
 			}
     	}
     	
-		if (po.isOrphan() && children.size() > 0) {
+    	//Retrieve the tagSets not linked to a tag
+    	sb = new StringBuilder();
+    	Set<String> include = new HashSet<String>();
+    	include.add(NS_INSIGHT_TAG_SET);
+		
+    	sb.append("select ann from Annotation as ann");
+		sb.append(" where ann member of "+TAG_TYPE);
+		sb.append(" and ann.ns is not null and ann.ns in (:include)");
+		
+		param = new Parameters();
+		param.addSet("include", include);
+		if (tagSetIds.size() > 0) {
+			sb.append(" and ann.id not in (:ids)");
+			param.addIds(tagSetIds);
+		}
+		l = iQuery.findAllByQuery(sb.toString(), param);
+	    if (l != null) {
+	    	i = l.iterator();
+    		while (i.hasNext()) {
+				result.add((Annotation) i.next());
+    		}
+	    }
+	    
+    	//retrieve the orphan tags.
+		if (po.isOrphan()) {
 			sb = new StringBuilder();
+			Set<String> exclude = new HashSet<String>();
+			exclude.add(NS_INSIGHT_TAG_SET);
 			sb.append("select ann from Annotation as ann");
 			sb.append(" where ann member of "+TAG_TYPE);
-			sb.append(" and ann.id not in (:ids)");
+			sb.append(" and (ann.ns is null or ann.ns not in (:exclude))");
+    		
 			param = new Parameters();
-	    	param.addIds(ids);
+			param.addSet("exclude", exclude);
+			if (children.size() > 0) {
+				sb.append(" and ann.id not in (:ids)");
+				param.addIds(children);
+			}
+	    	
 			l = iQuery.findAllByQuery(sb.toString(), param);
 		    if (l != null) {
 		    	i = l.iterator();
 	    		while (i.hasNext()) {
-					ann = (Annotation) i.next();
-					if (!NS_INSIGHT_TAG_SET.equals(ann.getNs()))
-						result.add(ann);
+					result.add((Annotation) i.next());
 	    		}
 		    }
 		}
