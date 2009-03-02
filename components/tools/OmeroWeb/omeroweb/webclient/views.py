@@ -158,7 +158,7 @@ def getConnection (request):
                 try:
                     conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'])
                     conn.connect()
-                    request.session['sessionUuid'] = conn.getEventContext().sessionUuid
+                    request.session['sessionUuid'] = conn._sessionUuid
                     request.session['groupId'] = conn.getEventContext().groupId
                 except:
                     logger.error(traceback.format_exc())
@@ -166,7 +166,7 @@ def getConnection (request):
                 else:
                     # stores connection on connectors
                     connectors[conn_key] = conn
-                    logger.info("Have connection, stored in connectors:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
+                    logger.info("Have connection: %s uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
                     logger.info("Total connectors: %i." % (len(connectors)))
         else:
             # retrieves connection from sessionUuid, join to existing session
@@ -239,37 +239,59 @@ def getShareConnection (request, share_id=None):
     conn = share_connectors.get(conn_key)
     
     if conn is None:
+        # could not get connection for key
+        # try retrives the connection from existing session
         try:
-            if request.session['host']: pass
-            if request.session['port']: pass
-            if request.session['username']: pass
-            if request.session['password']: pass
-        except:
-            logger.error(traceback.format_exc())
-            raise sys.exc_info()[1]
-        else:
-            # login parameters found, create the connection
+            if request.session['shares'][share_id]: pass
+        except KeyError:
+            # create the connection from login parameters
             try:
-                conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'])
+                if request.session['host']: pass
+                if request.session['port']: pass
+                if request.session['username']: pass
+                if request.session['password']: pass
+            except:
+                logger.error(traceback.format_exc())
+                raise sys.exc_info()[1]
+            else:
+                # login parameters found, create the connection
+                try:
+                    conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'])
+                    conn.connectAsShare(share_id)
+                    request.session['shares'][str(share_id)] = conn._sessionUuid
+                except:
+                    logger.error(traceback.format_exc())
+                    raise sys.exc_info()[1]
+                else:
+                    # stores connection on share_connectors
+                    share_connectors[conn_key] = conn
+                    logger.info("Have connection: %s uuid: '%s'" % (str(conn_key), str(request.session['shares'][str(share_id)] )))
+        else:
+            # retrieves connection from sessionUuid, join to existing session
+            try:
+                conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'], request.session['shares'][str(share_id)])
                 conn.connectAsShare(share_id)
+                #request.session['sessionUuid'] = conn.getEventContext().sessionUuid
+                #request.session['groupId'] = conn.getEventContext().groupId
             except:
                 logger.error(traceback.format_exc())
                 raise sys.exc_info()[1]
             else:
                 # stores connection on connectors
                 share_connectors[conn_key] = conn
-                logger.info("Have connection uuid: '%s'" % (str(conn._sessionUuid)))
+                logger.info("Retreived connection will travel: '%s', uuid: '%s'" % (str(conn_key), str(request.session['shares'][str(share_id)])))
+                logger.info("Total share connectors: %i." % (len(share_connectors)))
     else:
         try:
-            conn.getEventContext().sessionUuid
+            request.session['shares'][str(share_id)] = conn.getEventContext().sessionUuid
         except:
             # connection is no longer available, retrieves connection login parameters
             connectors[conn_key] = None
-            logger.info("Connection '%s' is no longer available" % (conn_key))
-            return getShareConnection(request)
+            logger.info("Share connection '%s' is no longer available" % conn_key)
+            return getShareConnection(request, share_id)
         else:
-            logger.info("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(conn._sessionUuid)))
-    
+            logger.info("Share connection '%s' exists, uuid: '%s'" % (str(conn_key), str(conn._sessionUuid)))
+            logger.info("Total share connectors: %i." % (len(share_connectors)))
     return conn
 
 ################################################################################
@@ -342,6 +364,7 @@ def login(request):
         request.session['experimenter'] = None
         request.session['groupId'] = None
         request.session['clipboard'] = []
+        request.session['shares'] = dict()
         request.session['imageInBasket'] = list()
         blitz_host = "%s:%s" % (blitz.host, blitz.port)
         request.session['nav']={"blitz": blitz_host, "menu": "start", "whos": "mydata", "view": "table", "basket": 0}

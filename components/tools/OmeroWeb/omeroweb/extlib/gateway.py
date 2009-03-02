@@ -212,15 +212,14 @@ class BlitzGateway (threading.Thread):
             self._proxies['admin'] = ProxyObjectWrapper(self, 'getAdminService')
             self._proxies['query'] = ProxyObjectWrapper(self, 'getQueryService')
             self._proxies['container'] = ProxyObjectWrapper(self, 'getContainerService')
-            self._proxies['metadata'] = ProxyObjectWrapper(self, 'getMetadataService')
             self._proxies['rawfile'] = ProxyObjectWrapper(self, 'createRawFileStore')
             self._proxies['rendering'] = ProxyObjectWrapper(self, 'createRenderingEngine')
             self._proxies['share'] = ProxyObjectWrapper(self, 'getShareService')
             self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
-            self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
             
             sh = self._proxies['share'].getShare(long(share_id))
-            self._proxies['share'].activate(sh.id.val)
+            if self._sessionUuid is None:
+                self._proxies['share'].activate(sh.id.val)
             self._shareId = sh.id.val
             
             self._eventContext = self._proxies['admin'].getEventContext()
@@ -1864,6 +1863,13 @@ def safeCallWrap (self, attr, f):
         except omero.ResourceError, x:
             logger.error(x.message)
             raise AttributeError(x.message)
+        except omero.SecurityViolation, x:
+            logger.error(x.message)
+            if self._conn._shareId is not None:
+                self._conn._sessionUuid = None
+                self._connect(self._conn._shareId)
+                func = getattr(self._obj, attr)
+                return func(*args, **kwargs)
         except Ice.Exception, x:
             # Failed
             logger.info("Ice.Exception (1) on safe call %s(%s,%s)" % (attr, str(args), str(kwargs)))
@@ -1897,10 +1903,14 @@ class ProxyObjectWrapper (object):
         self._create_func = getattr(self._sf, self._func_str)
         self._obj = self._create_func()
     
-    def _connect (self):
+    def _connect (self, share_id=None):
         logger.info("proxy_connect: connect");
-        if not self._conn.connect():
-            return False
+        if share_id is not None:
+            if not self._conn.connectAsShare(share_id):
+                return False
+        else:
+            if not self._conn.connect():
+                return False
         logger.info("proxy_connect: sf");
         self._sf = self._conn.c.sf
         logger.info("proxy_connect: create_func");
