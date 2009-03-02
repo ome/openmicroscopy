@@ -158,10 +158,19 @@ public class CPEsummaryExport {
 		}
 		CPEexport.addChildContent(parameter, PreviewPanel.NAME, name);
 		// Add value
-		String value = param.getParamValue();
-		if (param instanceof DateTimeParam) {
-			value = param.toString();	// formats the Date-Time.
+		String value = "";
+		String v;
+		int valueCount = param.getValueCount();
+		for (int i=0; i<valueCount; i++) {
+			v = param.getValueAt(i).toString();
+			if (i > 0) value = value + ", ";
+			if (v == null) continue;
+			if (param instanceof DateTimeParam) {
+				v = DateTimeParam.formatDate(v);
+			}
+			value = value + v;
 		}
+		
 		CPEexport.addChildContent(parameter, PreviewPanel.VALUE, value);
 		
 		return parameter;
@@ -188,7 +197,7 @@ public class CPEsummaryExport {
 		CPEexport.addChildContent(protocol, PreviewPanel.NAME, protName);
 		
 		
-		// description (truncate if longer than 250 characters)
+		// description (truncate if longer than max characters)
 		if (protocolRoot.getContentCount() >0) {
 			String desc = protocolRoot.getContentAt(0).toString();
 			if (desc != null && desc.length() > MAX_DESC) {

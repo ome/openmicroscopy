@@ -90,23 +90,31 @@ public class DateTimeParam
 	 */
 	public String toString() 
 	{	
-		String text = "";
-		
 		String dateMillis = getParamValue();
-		if (dateMillis != null) 
-		{
+		
+		return formatDate(dateMillis);
+	}
+	
+	/**
+	 * Formats the date in millisecs to "yyyy, MMM d ' at ' HH:mm"
+	 * @param dateMillis
+	 * @return
+	 */
+	public static String formatDate(String dateMillis)
+	{
+		if (dateMillis == null) 	return "no date";
+		
+		try {
 			long millis = new Long(dateMillis);
 			Date date = new Date();
 			date.setTime(millis);
 			SimpleDateFormat dateF = new SimpleDateFormat(
-					"yyyy, MMM d ' at ' HH:mm");
-			text = text + dateF.format(date);
-		} 
-		
-		if (text == null) {
-			return "no date";
+				"yyyy, MMM d ' at ' HH:mm");
+			return dateF.format(date);
+		} catch (NumberFormatException ex) {
+			return dateMillis;
 		}
-		return text;
+		
 	}
 
 }

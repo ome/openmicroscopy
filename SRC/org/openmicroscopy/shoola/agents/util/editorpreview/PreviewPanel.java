@@ -76,7 +76,7 @@ public class PreviewPanel
 {
 	
 	/** max number of characters to display in field value */
-	public static final int 			MAX_CHARS = 25;
+	public static final int 			MAX_CHARS = 50;
 	
 	/** Default text if no data entered. */
 	static final String 				DEFAULT_TEXT = "None";
