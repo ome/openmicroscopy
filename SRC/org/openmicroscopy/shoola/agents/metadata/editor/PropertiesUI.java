@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -51,6 +50,7 @@ import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 
 //Third-party libraries
 import layout.TableLayout;
@@ -145,6 +145,9 @@ class PropertiesUI
     /** The area displaying the channels information. */
 	private JLabel				channelsArea;
 
+	/** The new full name. */
+	private String				modifiedName;
+	
 	/** The default border of the name and decription components. */
 	private Border				defaultBorder;
 	
@@ -182,7 +185,7 @@ class PropertiesUI
 		});
     	namePane.setEditable(false);
     	namePane.addFocusListener(this);
-    	descriptionPane = createTextPane();//new OMEWikiComponent(false);
+    	descriptionPane = createTextPane();
     	descriptionPane.setLineWrap(true);
     	descriptionPane.setColumns(20);
     	descriptionPane.addMouseListener(new MouseAdapter() {
@@ -343,7 +346,6 @@ class PropertiesUI
     private JPanel layoutEditablefield(Component button, JComponent c)
     {
     	JPanel p = new JPanel();
-    	//p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
     	double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL}, 
     			{TableLayout.PREFERRED, TableLayout.FILL}};
     	p.setLayout(new TableLayout(size));
@@ -456,6 +458,30 @@ class PropertiesUI
 		} else {
 			panel.setBorder(defaultBorder);
 		}
+		if (field == namePane) {
+			namePane.getDocument().removeDocumentListener(this);
+			String text = namePane.getText();
+			if (text != null) text = text.trim();
+			if (editable) {
+				namePane.setText(modifiedName);
+			} else {
+				namePane.setText(EditorUtil.getPartialName(text));
+			}
+			namePane.getDocument().addDocumentListener(this);
+		}
+	}
+	
+	/**
+	 * Sets the new name of the edited object.
+	 * 
+	 * @param document The document to handle.
+	 */
+	private void handleNameChanged(Document document)
+	{
+		Document d = namePane.getDocument();
+		if (d == document) {
+			modifiedName = namePane.getText();
+		}
 	}
 	
     /**
@@ -488,7 +514,7 @@ class PropertiesUI
 		namePane.getDocument().removeDocumentListener(this);
 		descriptionPane.getDocument().removeDocumentListener(this);
 		originalName = model.getRefObjectName();
-		namePane.setText(originalName);
+		modifiedName = model.getRefObjectName();
 		originalDisplayedName = EditorUtil.getPartialName(originalName);
 		namePane.setText(originalDisplayedName);
 		namePane.setToolTipText(originalName);
@@ -692,6 +718,7 @@ class PropertiesUI
 	 */
 	public void insertUpdate(DocumentEvent e)
 	{
+		handleNameChanged(e.getDocument());
 		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 						Boolean.TRUE);
 	}
@@ -702,6 +729,7 @@ class PropertiesUI
 	 */
 	public void removeUpdate(DocumentEvent e)
 	{
+		handleNameChanged(e.getDocument());
 		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 							Boolean.TRUE);
 	}
@@ -742,7 +770,7 @@ class PropertiesUI
 			String text = namePane.getText();
 			if (text == null || text.trim().length() == 0) {
 				namePane.getDocument().removeDocumentListener(this);
-				namePane.setText(originalName);
+				namePane.setText(modifiedName);
 				namePane.getDocument().addDocumentListener(this);
 			}
 		} else if (src == descriptionPane) {

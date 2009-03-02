@@ -1456,7 +1456,6 @@ class EditorModel
 		}
 		*/
 		return tag.getTagDescription();
-		//return "";
 	}
 	
 }
