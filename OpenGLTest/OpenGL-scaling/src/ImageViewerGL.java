@@ -92,6 +92,9 @@ public class ImageViewerGL
 	private boolean loadNewPlane;
 	private ImagePanel imagePanel;
 	private BufferedImage img;
+	
+	private long	meanRT = 0;
+	private long 	numRT = 0;
 	/**
 	 * Get the free memory available in the system.
 	 * @return see above.
@@ -137,18 +140,23 @@ public class ImageViewerGL
 		tSlider.setMaximum(pixels.getSizeT().getValue()-1);
 	}
 	
-	public TextureData getPlane(int z, int t) throws ServerError
+	public BufferedImage getPlaneAsBufferedImage(int z, int t) throws ServerError
 	{
 		long a  = System.currentTimeMillis();
-		int[] data = gateway.renderAsPackedIntAsRGBA(pixels.getId().getValue(), 
+	/*	int[] data = gateway.renderAsPackedIntAsRGBA(pixels.getId().getValue(), 
 		
 													zSlider.getValue(), 
-													tSlider.getValue());
+													tSlider.getValue());*/
 		int[] dataARGB = gateway.getRenderedImage(pixels.getId().getValue(), 
 				zSlider.getValue(), 
 				tSlider.getValue());
-		System.err.println("retrieval time (ms) : "+(System.currentTimeMillis()-a));
-		int[] newData = new int[512*512];
+		long rt = (System.currentTimeMillis()-a);
+			meanRT = meanRT + rt;
+		numRT = numRT+1;
+		
+		System.err.println("retrieval time (ms) : "+ rt);
+		System.err.println("MEAN retrieval time (ms) : "+ (double)meanRT/(double)numRT);
+		/*int[] newData = new int[512*512];
 		for(int x = 0 ; x < 512*512; x++)
 			{
 			Color c = new Color(data[x]);
@@ -160,23 +168,23 @@ public class ImageViewerGL
 			//System.err.println(b);
 			Color newC = new Color( r, g,b );
 			newData[x] = newC.getRGB();
-			}
+			}*/
 /*		int diff = 0;
 		for( int x =0 ; x < 512*512; x++)
 			diff= diff + (dataARGB[x]-newData[x]);
 		System.err.println(diff);*/
 		
-		/*DataBuffer j2DBuf = new DataBufferInt(data, 
+		a  = System.currentTimeMillis();
+		DataBuffer j2DBuf = new DataBufferInt(dataARGB, 
 										(int)(pixels.getSizeX().getValue() 
 												* pixels.getSizeY().getValue()), 0);
 		SinglePixelPackedSampleModel sampleModel = new SinglePixelPackedSampleModel(
 					                DataBuffer.TYPE_INT, pixels.getSizeX().getValue()
 					                , pixels.getSizeY().getValue(), pixels.getSizeX().getValue(), 
 					                new int[] {
-					                        0xff000000, // Red
-					                        0x00ff0000, // Green
-					                        0x0000ff00, // Blue
-					                        0x000000ff, // Alpha
+					                        0x00ff0000, // Red
+					                        0x0000ff00, // Green
+					                        0x000000ff, // Blue
 					                });
 		
 		WritableRaster raster = new IntegerInterleavedRaster(sampleModel,
@@ -185,10 +193,86 @@ public class ImageViewerGL
 		
 		if(img==null)
 			{
-			ColorModel colorModel = new DirectColorModel(ColorSpace.getInstance(ColorSpace.TYPE_RGB), 32, 0xff000000, // Red
-			 	                0x00ff0000, // Green
-				  	                0x0000ff00, 0x000000ff, true, DataBuffer.TYPE_INT // Alpha
-				  	          );
+			ColorModel colorModel = new DirectColorModel(24, 0x00ff0000, // Red
+			 	                0x00ff00, // Green
+				  	                0x0000ff);
+			img = new BufferedImage(colorModel, raster, false, null);
+			}
+		else
+			img.setData(raster);
+	//	System.err.println(data.length);
+		System.err.println(pixels.getSizeX().getValue());
+		System.err.println(pixels.getSizeY().getValue());
+	//	IntBuffer b = IntBuffer.wrap(data);
+	//	IntBuffer b2 = IntBuffer.wrap(dataARGB);
+	
+/*		TextureData textureData = new TextureData(GL.GL_RGBA, pixels.getSizeX().getValue(), 
+			pixels.getSizeY().getValue(), 0, GL.GL_RGBA, GL.GL_UNSIGNED_INT_8_8_8_8, false,
+				false, false, b, null );*/
+		System.err.println("Texture time (ms) : "+(System.currentTimeMillis()-a));
+				
+//		TextureData textureData = new TextureData(
+		//Texture texture = TextureIO.newTexture(textureData);
+//		return textureData;
+		return img;
+				  	
+	}
+
+	public TextureData getPlane(int z, int t) throws ServerError
+	{
+		long a  = System.currentTimeMillis();
+		/*int[] data = gateway.renderAsPackedIntAsRGBA(pixels.getId().getValue(), 
+		
+													zSlider.getValue(), 
+													tSlider.getValue());*/
+		int[] dataARGB = gateway.getRenderedImage(pixels.getId().getValue(), 
+				zSlider.getValue(), 
+				tSlider.getValue());
+		long rt = (System.currentTimeMillis()-a);
+		meanRT = meanRT + rt;
+		numRT = numRT+1;
+		
+		System.err.println("retrieval time (ms) : "+ rt);
+		System.err.println("MEAN retrieval time (ms) : "+ (double)meanRT/(double)numRT);
+		/*int[] newData = new int[512*512];
+		for(int x = 0 ; x < 512*512; x++)
+			{
+			Color c = new Color(data[x]);
+			int r = (int)(data[x]>>24)&0xff;
+			int g = (int)(data[x]>>16)&0xff;
+			int b = (int)(data[x]>>8)&0xff;
+			//System.err.println(r);
+			//System.err.println(g);
+			//System.err.println(b);
+			Color newC = new Color( r, g,b );
+			newData[x] = newC.getRGB();
+			}*/
+/*		int diff = 0;
+		for( int x =0 ; x < 512*512; x++)
+			diff= diff + (dataARGB[x]-newData[x]);
+		System.err.println(diff);*/
+		
+		/*DataBuffer j2DBuf = new DataBufferInt(dataARGB, 
+										(int)(pixels.getSizeX().getValue() 
+												* pixels.getSizeY().getValue()), 0);
+		SinglePixelPackedSampleModel sampleModel = new SinglePixelPackedSampleModel(
+					                DataBuffer.TYPE_INT, pixels.getSizeX().getValue()
+					                , pixels.getSizeY().getValue(), pixels.getSizeX().getValue(), 
+					                new int[] {
+					                        0x00ff0000, // Red
+					                        0x0000ff00, // Green
+					                        0x000000ff, // Blue
+					                });
+		
+		WritableRaster raster = new IntegerInterleavedRaster(sampleModel,
+					                j2DBuf, new Point(0, 0));
+	
+		
+		if(img==null)
+			{
+			ColorModel colorModel = new DirectColorModel(24, 0x00ff0000, // Red
+			 	                0x00ff00, // Green
+				  	                0x0000ff);
 			img = new BufferedImage(colorModel, raster, false, null);
 			}
 		else
@@ -196,13 +280,13 @@ public class ImageViewerGL
 	//	System.err.println(data.length);
 		System.err.println(pixels.getSizeX().getValue());
 		System.err.println(pixels.getSizeY().getValue());
-		IntBuffer b = IntBuffer.wrap(data);
+		//IntBuffer b = IntBuffer.wrap(data);
 		IntBuffer b2 = IntBuffer.wrap(dataARGB);
 	
 		a = System.currentTimeMillis();
 		TextureData textureData = new TextureData(GL.GL_RGBA, pixels.getSizeX().getValue(), 
-			pixels.getSizeY().getValue(), 0, GL.GL_RGBA, GL.GL_UNSIGNED_INT_8_8_8_8, false,
-				false, false, b, null );
+			pixels.getSizeY().getValue(), 0, GL.GL_BGRA, GL.GL_UNSIGNED_INT_8_8_8_8_REV, false,
+				false, false, b2, null );
 		System.err.println("Texture time (ms) : "+(System.currentTimeMillis()-a));
 				
 //		TextureData textureData = new TextureData(
@@ -211,7 +295,8 @@ public class ImageViewerGL
 		return textureData;
 				  	
 	}
-     
+
+	
 	public void buildUI()
 	{
 		zSlider = new JSlider(JSlider.VERTICAL);
@@ -237,10 +322,10 @@ public class ImageViewerGL
 		texture = null;
 	}
 
-	public void zoom(int r)
+	public void zoom(double r)
 	{
 		long a  = System.currentTimeMillis();
-		imagePanel.zoom(-Math.signum(r)*0.01f);
+		imagePanel.zoom(r);
 		imagePanel.repaint();
 		System.err.println("scaling time (ms) : "+(System.currentTimeMillis()-a));
 	}
@@ -250,6 +335,9 @@ public class ImageViewerGL
 	{
 		System.err.println("getUsedMemory : " + getUsedMemory());
 		try {
+			//getPlaneAsBufferedImage(zSlider.getValue(), tSlider.getValue());
+			//getPlane(zSlider.getValue(), tSlider.getValue());
+			//imagePanel.setTextureAsBufferedImage(getPlaneAsBufferedImage(zSlider.getValue(), tSlider.getValue()));
 			imagePanel.setTexture(getPlane(zSlider.getValue(), tSlider.getValue()));
 			imagePanel.repaint();
 		} catch (ServerError e) {
@@ -260,7 +348,10 @@ public class ImageViewerGL
 
 	public void mouseWheelMoved(MouseWheelEvent arg0) {
 		System.err.println("getUsedMemory : " + getUsedMemory());
-		zoom(arg0.getWheelRotation());
+		System.err.println("arg0 : " + arg0);
+		double v = Math.exp((double)arg0.getWheelRotation());
+		System.err.println("val : " + v);
+		zoom(v);
 	}
 	
 	

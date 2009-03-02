@@ -66,7 +66,7 @@ public class ImagePanel
 	private static GLCapabilities caps;
 	private TextureData textureData;
 	
-	private float zoom; 
+	private double zoom; 
 	
 	static {
 	    caps = new GLCapabilities();
@@ -78,7 +78,7 @@ public class ImagePanel
 		super(caps, null, null);
 		addGLEventListener(this);
 		setOpaque(true);
-		zoom = 1;
+		zoom = 0;
 	}
 	
 	public void init(GLAutoDrawable drawable) 
@@ -107,16 +107,25 @@ public class ImagePanel
 		texture = TextureIO.newTexture(textureData);
 	}
 
-	public void setTexture(TextureData newTextureData)
+	public void setTextureAsBufferedImage(BufferedImage img)
 	{
 		//textureData = newTextureData;
-		textureData = newTextureData;
+	//	textureData = newTextureData;
+		textureData = TextureIO.newTextureData(img, false);
 		loadNewPlane = true;
 		
 	}
 	
+	public void setTexture(TextureData newTextureData)
+	{
+		//textureData = newTextureData;
+		textureData = newTextureData;
+	//	textureData = TextureIO.newTextureData(img, false);
+		loadNewPlane = true;
+		
+	}
 	
-	public void zoom(float z)
+	public void zoom(double z)
 	{
 		zoom = zoom + z;
 		if(zoom<0) zoom = 0;
@@ -146,7 +155,7 @@ public class ImagePanel
 			gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE,
 					GL.GL_REPLACE);
 			TextureCoords coords = texture.getImageTexCoords();
-			coords = new TextureCoords(zoom, zoom, 1-zoom, 1-zoom);
+			coords = new TextureCoords((float)zoom, (float)zoom, 1-(float)zoom, 1-(float)zoom);
 			gl.glBegin(GL.GL_QUADS);
 			gl.glTexCoord2f(coords.left(), coords.bottom());
 			gl.glVertex3f(0, 0, 0);

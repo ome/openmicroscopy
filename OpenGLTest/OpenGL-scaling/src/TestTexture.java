@@ -113,7 +113,7 @@ public class TestTexture
 		frame.setSize(800, 600);
 		frame.show();
 		try {
-			imagePanel.setImage(101);
+			imagePanel.setImage(11136);
 			//imagePanel.getPlane(0,0);
 		} catch (ServerError e) {
 			// TODO Auto-generated catch block
@@ -126,7 +126,7 @@ public class TestTexture
 										PermissionDeniedException, 
 										ServerError
 	{
-		client = new client("localhost");
+		client = new client("warlock.openmicroscopy.org.uk");
 		session = client.createSession("root", "ome");
 		gateway = session.createGateway();
 	}
