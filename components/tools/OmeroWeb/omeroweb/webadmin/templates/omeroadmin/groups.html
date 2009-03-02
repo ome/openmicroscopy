@@ -59,9 +59,7 @@
     {% for dict in controller.groups %}
         <tr>
             <td class="action">
-                {% if dict.locked %}
-                    <img src="{% get_webadmin_static_url %}/images/block.png" alt="locked" title="locked">
-                {% else %}
+                {% if not dict.locked %}
                     <img src="{% get_webadmin_static_url %}/images/del.png" alt="delete" title="delete"> 
                     <a href="{% get_webadmin_root_url %}/group/edit/{{ dict.group.id }}/"><img src="{% get_webadmin_static_url %}/images/edit.png" alt="edit" title="edit"></a>
                 {% endif %}

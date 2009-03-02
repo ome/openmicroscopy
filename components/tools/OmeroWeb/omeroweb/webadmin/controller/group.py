@@ -66,9 +66,9 @@ class BaseGroup(BaseController):
         self.members = list(self.conn.containedExperimenters(self.group.id))
         self.defaultMembers = list()
         for i, m in enumerate(self.members):
-            #if m.copyGroupExperimenterMap()[0].parent.id.val == self.group.id: #1109
-            if self.conn.getDefaultGroup(m.id).id == self.group.id: # TODO: when ticket done remove it
-                self.members[i].firstName = "*%s" % (m.firstName)
+            if m.copyGroupExperimenterMap()[0].parent.id.val == self.group.id: #1109
+            #if self.conn.getDefaultGroup(m.id).id == self.group.id: # TODO: when ticket done remove it
+                self.members[i].setFirstName("*%s" % (m.firstName))
         
         self.available = list()
         for e in self.experimenters:
