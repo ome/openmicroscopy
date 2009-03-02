@@ -197,8 +197,8 @@ def getConnection (request):
     return conn
 
 @timeit
-def getShareConnection (request):
-    
+def getShareConnection (request, share_id=None):
+
     session_key = None
     server = None
 
@@ -218,18 +218,18 @@ def getShareConnection (request):
                 v.seppuku()
             except:
                 logger.info("Connection was already killed.")
-                logger.info(traceback.format_exc())
+                logger.error(traceback.format_exc())
             del connectors[k]
 
-    if len(share_connectors) > 75:
-        for k,v in share_connectors.items()[50:]:
+    if len(share_connectors) > 150:
+        for k,v in share_connectors.items()[150:]:
             v.seppuku()
             del share_connectors[k]
 
     # builds connection key for current session
     conn_key = None
     if (server and session_key) is not None:
-        conn_key = 'S:' + str(request.session.session_key) + '#' + str(server)
+        conn_key = 'S:%s#%s#%s' % (str(request.session.session_key),str(server), str(share_id))
     else:
         return None
 
@@ -252,6 +252,7 @@ def getShareConnection (request):
             try:
                 conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'])
                 conn.connectAsShare()
+                conn.activateShare(share_id)
             except:
                 logger.error(traceback.format_exc())
                 raise sys.exc_info()[1]
@@ -2465,7 +2466,7 @@ def load_share_content(request, share_id, **kwargs):
     
     conn_share = None
     try:
-        conn_share = getShareConnection(request)
+        conn_share = getShareConnection(request, share_id)
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
@@ -2987,18 +2988,9 @@ def render_thumbnail (request, iid, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     img = conn.getImage(iid)
-    if img is None:
-        try:
-            conn = getShareConnection(request)
-        except Exception, x:
-            logger.info(traceback.format_exc())
-            raise x
-        if conn is None:
-            raise Http500("Share connection not available")
-        img = conn.getImage(iid)
     
     if img is None:
-        logger.info("Image %s not found..." % (str(iid)))
+        logger.error("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
     
     jpeg_data = img.getThumbnail()
@@ -3014,18 +3006,9 @@ def render_thumbnail_details (request, iid, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     img = conn.getImage(iid)
-    if img is None:
-        try:
-            conn = getShareConnection(request)
-        except Exception, x:
-            logger.info(traceback.format_exc())
-            raise x
-        if conn is None:
-            raise Http500("Share connection not available")
-        img = conn.getImage(iid)
     
     if img is None:
-        logger.info("Image %s not found..." % (str(iid)))
+        logger.error("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
     
     side = 0
@@ -3043,7 +3026,7 @@ def render_thumbnail_details (request, iid, **kwargs):
     return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 @isUserConnected
-def render_thumbnail_resize (request, size, iid, **kwargs):
+def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
     conn = None
     try:
         conn = kwargs["conn"]
@@ -3051,18 +3034,20 @@ def render_thumbnail_resize (request, size, iid, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    img = conn.getImage(iid)
-    if img is None:
+    if share_id is not None:
         try:
-            conn = getShareConnection(request)
+            conn = getShareConnection(request, share_id)
         except Exception, x:
-            logger.info(traceback.format_exc())
+            logger.error(traceback.format_exc())
             raise x
         if conn is None:
-            raise Http500("Share connection not available")
+            raise Exception("Share connection not available")
         img = conn.getImage(iid)
+    else:
+        img = conn.getImage(iid)
+    
     if img is None:
-        logger.info("Image %s not found..." % (str(iid)))
+        logger.error("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
         
     jpeg_data = img.getThumbnail((int(size),int(size)))
@@ -3078,18 +3063,9 @@ def render_big_thumbnail (request, iid, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     img = conn.getImage(iid)
-    if img is None:
-        try:
-            conn = getShareConnection(request)
-        except Exception, x:
-            logger.info(traceback.format_exc())
-            raise x
-        if conn is None:
-            raise Http500("Share connection not available")
-        img = conn.getImage(iid)
     
     if img is None:
-        logger.info("Image %s not found..." % (str(iid)))
+        logger.error("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
     
     size = 0
@@ -3120,30 +3096,31 @@ class UserAgent (object):
         return 'Safari' in self.ua
 
 @isUserConnected
-def _get_prepared_image (request, iid, **kwargs):
+def _get_prepared_image (request, iid, share_id=None, **kwargs):
     r = request.REQUEST
     
     conn = None
     try:
         conn = kwargs["conn"]
-    except:
+    except Exception, x:
         logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
+        raise x
 
-    img = conn.getImage(iid)
-    if img is None:
+    if share_id is not None:
         try:
-            conn = getShareConnection(request)
+            conn = getShareConnection(request, share_id)
         except Exception, x:
-            logger.info(traceback.format_exc())
+            logger.error(traceback.format_exc())
             raise x
         if conn is None:
-            raise Http500("Share connection not available")
+            raise Exception("Share connection not available")
         img = conn.getImage(iid)
-    
+    else:
+        img = conn.getImage(iid)
+        
     if img is None:
-        logger.info("Image %s not found..." % (str(iid)))
-        return handlerInternalError("Image %s not found..." % (str(iid)))
+        logger.error("Image %s not found..." % (str(iid)))
+        raise AttributeError("Image %s not found..." % (str(iid)))
     
     if r.has_key('c'):
         logger.info("c="+r['c'])
@@ -3158,14 +3135,14 @@ def _get_prepared_image (request, iid, **kwargs):
     return (img, compress_quality)
 
 @isUserConnected
-def render_image (request, iid, z, t, **kwargs):
+def render_image (request, iid, z, t, share_id=None, **kwargs):
     """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
         Many options are available from the request dict.
     I am assuming a single Pixels object on image with id='iid'. May be wrong """
-
-    r = request.REQUEST
     
-    pi = _get_prepared_image(request, iid)
+    r = request.REQUEST
+
+    pi = _get_prepared_image(request, iid, share_id)
     img, compress_quality = pi
     jpeg_data = img.renderJpeg(z,t, compression=compress_quality)
     return HttpResponse(jpeg_data, mimetype='image/jpeg')
@@ -3184,25 +3161,27 @@ def image_viewer (request, iid, dsid=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
 
-    img = conn.getImage(iid)
-    if img is None:
+    if dsid is not None:
         try:
-            conn = getShareConnection(request)
+            conn = getShareConnection(request, dsid)
         except Exception, x:
-            logger.info(traceback.format_exc())
+            logger.error(traceback.format_exc())
             raise x
         if conn is None:
-            raise Http500("Share connection not available")
+            raise Exception("Share connection not available")
+        img = conn.getImage(iid)
+    else:
         img = conn.getImage(iid)
     
     if img is None:
-        logger.info("Image %s not found..." % (str(iid)))
+        logger.error("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
     
-    if dsid is not None:
-        ds = conn.getDataset(dsid)
-    else:
-        ds = None
+    # dsid is share id
+    #if dsid is not None:
+    #    ds = conn.getDataset(dsid)
+    #else:
+    ds = conn._shareId
     context = {'conn': conn, 'image': img, 'dataset': ds, 'opts': rid, 'user_agent': user_agent, 'object': 'image:%i' % long(iid)}
     template = "omeroweb/omero_image.html"
     t = template_loader.get_template(template)
@@ -3269,7 +3248,7 @@ def _get_img_details_from_req (request, as_string=False):
     return rv
 
 @isUserConnected
-def imageData_json (request, iid, **kwargs):
+def imageData_json (request, iid, share_id=None, **kwargs):
     """ Get a dict with image information """
     r = request.REQUEST
     
@@ -3279,20 +3258,21 @@ def imageData_json (request, iid, **kwargs):
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    img = conn.getImage(iid)
-    if img is None:
+    
+    if share_id is not None:
         try:
-            conn = getShareConnection(request)
+            conn = getShareConnection(request, share_id)
         except Exception, x:
-            logger.info(traceback.format_exc())
+            logger.error(traceback.format_exc())
             raise x
         if conn is None:
-            raise Http500("Share connection not available")
+            raise Exception("Share connection not available")
+        img = conn.getImage(iid)
+    else:
         img = conn.getImage(iid)
     
     if img is None:
-        logger.info("Image %s not found..." % (str(iid)))
+        logger.error("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
     
     rv = {

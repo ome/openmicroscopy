@@ -121,6 +121,7 @@ class BlitzGateway (threading.Thread):
         self._connected = False
         self._timeout = 0
         if self.c:
+            # TODO deactivate shares
             try:
                 self.c.sf.closeOnDestroy()
             except:
@@ -1060,7 +1061,7 @@ class BlitzGateway (threading.Thread):
     def activateShare (self, oid):
         sh_serv = self.getShareService()
         sh = sh_serv.getShare(long(oid))
-        sh_serv.activate(long(oid))
+        sh_serv.activate(sh.id.val)
         self._shareId = sh.id.val
         self._eventContext = self._proxies['admin'].getEventContext()
     

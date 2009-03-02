@@ -2,11 +2,13 @@
 {% load custom_tags %}
 {% load wikitags %}
 
+{% if manager.tgannSize %}
 <h1>{% trans "Tags" %}:
 {% for tag in manager.tag_annotations %}
     <a href="{% get_webclient_root_url %}/tag/{{ tag.id }}/" target="_blank"> {{ tag.textValue }}</a>, 
 {% endfor %}
 </h1>
+{% endif %}
 
 {% if manager.txannSize %}
 <h1>{% trans "Comments" %}:</h1>
@@ -38,14 +40,14 @@
     {% endfor %}
 {% endif %}
 
-<!--{% if manager.urlannSize %}
+{% if manager.urlannSize %}
 <h1>{% trans "URLs" %}:</h1>
     <div class="body_url">
-    <p>| {% for urlann in manager.url_annotations %}
-        {{ urlann.textValue|wikify|safe }} | 
+    <p>{% for urlann in manager.url_annotations %}
+        {{ urlann.textValue|wikify|safe }} ; 
     {% endfor %}</p>
     </div>
-{% endif %}-->
+{% endif %}
 
 {% if manager.fileannSize %}
 <h1>{% trans "Files" %}:</h1>

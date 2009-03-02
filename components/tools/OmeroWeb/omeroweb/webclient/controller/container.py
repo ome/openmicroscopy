@@ -288,10 +288,11 @@ class BaseContainer(BaseController):
     def loadHierarchies(self):
         if self.image is not None:
             self.hierarchy = self.conn.findContainerHierarchies(self.image.id)
-        elif self.dataset is not None:
-            self.hierarchy = self.conn.findContainerHierarchies(self.dataset.id)
-        elif self.project is not None:
-            self.hierarchy = self.conn.findContainerHierarchies(self.project.id)
+        # TODO #1015
+        #elif self.dataset is not None:
+        #    self.hierarchy = self.conn.findContainerHierarchies(self.dataset.id)
+        #elif self.project is not None:
+        #    self.hierarchy = self.conn.findContainerHierarchies(self.project.id)
     
     def listMyRoots(self):
         pr_list = self.sortByAttr(list(self.conn.listProjectsMine()), 'name')

@@ -127,6 +127,16 @@ jQuery._WeblitzViewport = function (container, server) {
     if (callback) {
       callback();
     }
+    _this.self.trigger('imageLoadSuccess', [_this]);
+  }
+  
+  var after_img_fail_cb = function (callback) {
+    _this.viewportmsg.hide();
+    _this.viewportimg.hide();
+    if (callback) {
+      callback();
+    }
+    _this.self.trigger('imageLoadFailure', [_this]);
   }
   
   /**
@@ -162,9 +172,20 @@ jQuery._WeblitzViewport = function (container, server) {
   var _load = function (callback) {
     if (_this.loadedImg._loaded) {
       var href = server + '/render_image/' + _this.getRelUrl();
-      var rcb = function () { after_img_load_cb(callback); _this.viewportimg.unbind('load', rcb); };
+      var rcb = function () { 
+        after_img_load_cb(callback);
+        _this.viewportimg.unbind('load', rcb);
+        _this.viewportimg.unbind('error', fcb);
+      };
+      var fcb = function () {
+          alert("Image cannot be visible. If you are in share please reload the share.")
+        after_img_fail_cb(callback);
+        _this.viewportimg.unbind('load', rcb);
+        _this.viewportimg.unbind('error', fcb);
+      };
       _this.viewportmsg.show();
       _this.viewportimg.load(rcb);
+      _this.viewportimg.bind('error', fcb);
       _this.viewportimg.attr('src', href);
       _this.self.trigger('imageChange', [_this]);
     }
@@ -179,7 +200,11 @@ jQuery._WeblitzViewport = function (container, server) {
     _this.loadedImg.current.dataset_id = dsid;
     _this.loadedImg.current.query = query;
     //viewportimg.hide();
-    jQuery.getJSON(server+'/imgData/'+iid, _reset);
+    if (dsid != null) {
+        jQuery.getJSON(server+'/imgData/'+iid +'/'+dsid, _reset);
+    } else {
+        jQuery.getJSON(server+'/imgData/'+iid, _reset);
+    }
   };
 
 
@@ -533,7 +558,7 @@ jQuery._WeblitzViewport = function (container, server) {
   }
 
   this.getRelUrl = function () {
-    return this.loadedImg.id + '/' + this.loadedImg.current.z + '/' + this.loadedImg.current.t + '/?' + this.getQuery();
+    return this.loadedImg.id + '/' + this.loadedImg.current.z + '/' + this.loadedImg.current.t + '/' + this.loadedImg.current.dataset_id + '/?' + this.getQuery();
   }
 
   this.getUrl = function (base) {
@@ -548,7 +573,7 @@ jQuery._WeblitzViewport = function (container, server) {
    * Some events are handled by us, some are proxied to the viewport plugin.
    */
   this.bind = function (event, callback) {
-    if (event == 'modelChange' || event == 'channelChange' || event == 'imageChange' || event == 'imageLoad') {
+    if (event == 'modelChange' || event == 'channelChange' || event == 'imageChange' || event == 'imageLoad' || event == 'imageLoadSuccess' || event == 'imageLoadFailure') {
       _this.self.bind(event, callback);
     } else {
       _this.viewportimg.bind(event, callback);

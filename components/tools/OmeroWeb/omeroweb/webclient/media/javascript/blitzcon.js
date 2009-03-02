@@ -60,7 +60,7 @@
    if (iid == null) {
      iid = $.WeblitzViewport($('#iv'+did), '/webclient', _refresh_cb).loadedImg.id;
    }
-   var w = window.open('/webclient/img_detail/' + iid + '/' + did, wname,
+   var w = window.open('/webclient/img_detail/' + iid + '/' + did + '/', wname,
                "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800");
  }
 
