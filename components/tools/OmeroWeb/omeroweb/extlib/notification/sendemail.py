@@ -45,10 +45,22 @@ class SendEmail(threading.Thread):
         super(SendEmail, self).__init__()
         self.setDaemon(True)
         self.smtp_server = settings.EMAIL_SMTP_SERVER
-        self.smtp_port = settings.EMAIL_SMTP_PORT
-        self.smtp_user = settings.EMAIL_SMTP_USER
-        self.smtp_password = settings.EMAIL_SMTP_PASSWORD
-        self.smtp_tls = settings.EMAIL_SMTP_TLS
+        try:
+            self.smtp_port = settings.EMAIL_SMTP_PORT
+        except:
+            pass
+        try:
+            self.smtp_user = settings.EMAIL_SMTP_USER
+        except:
+            pass
+        try:
+            self.smtp_password = settings.EMAIL_SMTP_PASSWORD
+        except:
+            pass
+        try:
+            self.smtp_tls = settings.EMAIL_SMTP_TLS
+        except:
+            pass
         self.thread_timeout = False
         self.to_send = list()
         self.start()
@@ -63,16 +75,29 @@ class SendEmail(threading.Thread):
                     try:
                         email = self.to_send[0]
                         logger.info("Sending...")
-                        smtp = smtplib.SMTP(self.smtp_server, self.smtp_port)
-                        if self.smtp_tls:
-                            smtp.starttls()
-                        smtp.login(self.smtp_user, self.smtp_password)
+                        try:
+                            smtp = smtplib.SMTP(self.smtp_server, self.smtp_port)
+                        except:
+                            logger.info("settings.EMAIL_SMTP_PORT was not set, connecting on default port...")
+                            smtp = smtplib.SMTP(self.smtp_server)
+                        try:
+                            if self.smtp_tls:
+                                smtp.starttls()
+                                logger.info("settings.EMAIL_SMTP_TLS set")
+                            else:
+                                logger.info("settings.EMAIL_SMTP_TLS was not set, connecting...")
+                        except:
+                            logger.info("settings.EMAIL_SMTP_TLS was not set, connecting...")
+                        try:
+                            smtp.login(self.smtp_user, self.smtp_password)
+                        except:
+                            logger.info("settings.EMAIL_SMTP_USER and settings.EMAIL_SMTP_PASSWORD was not set, connecting without login details...")
                         smtp.sendmail(email['sender'], email['recipients'], email['message'])
                         smtp.quit()
                         self.to_send.remove(email)
                         logger.info("Email was sent.")
                     except:
-                        logger.error("Email could not be sent.")
+                        logger.error("Email could not be sent. Please check settings.")
                         logger.error(traceback.format_exc())
                         try:
                             logger.error(email['message'])
