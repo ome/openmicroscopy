@@ -35,7 +35,8 @@ from email.MIMEImage import MIMEImage
 from django.conf import settings
 
 logger = logging.getLogger('sendemail')
-SLEEPTIME = 30
+TIMEOUT = 600 #sec
+SLEEPTIME = 60
 
 class SendEmail(threading.Thread):
 
@@ -61,17 +62,27 @@ class SendEmail(threading.Thread):
             self.smtp_tls = settings.EMAIL_SMTP_TLS
         except:
             pass
-        self.thread_timeout = False
+        self.allow_thread_timeout = False
+        self.updateTimeout()
         self.to_send = list()
         self.start()
+    
+    def updateTimeout (self):
+        self._timeout = time.time() + TIMEOUT
+    
+    def isTimedout (self):
+        if self._timeout < time.time():
+            return True
+        return False
     
     def run (self):
         """ this thread lives forever, pinging whatever connection exists to keep it's services alive """
         logger.info("Starting sendemail thread...")
-        while not (self.thread_timeout):
+        while not (self.allow_thread_timeout and self.isTimedout()):
             try:
                 logger.info("%i emails in the queue." % (len(self.to_send)))
                 if len(self.to_send) > 0:
+                    self.updateTimeout()
                     try:
                         email = self.to_send[0]
                         logger.info("Sending...")
@@ -106,7 +117,7 @@ class SendEmail(threading.Thread):
                 logger.info("sleep...")
                 time.sleep(SLEEPTIME)
             except:
-                logger.error("!! something bad on the SENDER keepalive thread !!")
+                logger.error("!! something bad on the SENDER thread !!")
                 logger.error(traceback.format_exc())
         self.seppuku()
         logger.info("Thread death")
