@@ -2469,7 +2469,6 @@ def load_share_content(request, share_id, **kwargs):
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
-    print conn, conn_share
     try:
         share = BaseShare(request.session['nav']['menu'], conn, conn_share, share_id)
     except AttributeError, x:
