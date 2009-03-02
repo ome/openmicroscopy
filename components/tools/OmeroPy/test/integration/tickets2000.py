@@ -522,11 +522,17 @@ class TestTickets2000(lib.ITest):
                 # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyGroupExperimenterMap()[0].parent), m.copyGroupExperimenterMap()[0].parent.id.val
 
         gr2 = admin.getGroup(gid)
-        ing1 = admin.containedExperimenters(gr2.id.val)
+        members2 = admin.containedExperimenters(gr2.id.val)
         # print "members of group %s %i" % (gr2.name.val, gr2.id.val)
-        for m in ing1:
+        for m in members2:
             if m.id.val == exp.id.val:
-                self.assert_(m.copyGroupExperimenterMap()[0].parent.id.val == admin.getDefaultGroup(exp.id.val).id.val)
+                copied_id = m.copyGroupExperimenterMap()[0].parent.id.val
+                got_id = admin.getDefaultGroup(exp.id.val).id.val
+                contained = admin.containedGroups(m.id.val)
+                self.assertEquals(copied_id, got_id,\
+                """
+                %s != %s. Groups for experimenter %s = %s (graph) or %s (contained)
+                """ % ( copied_id, got_id, exp.id.val, [ x.parent.id.val for x in m.copyGroupExperimenterMap() ], [ y.id.val for y in contained ] ))
                 # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyGroupExperimenterMap()[0].parent), m.copyGroupExperimenterMap()[0].parent.id.val
     
     def test1163(self):

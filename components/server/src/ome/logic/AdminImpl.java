@@ -393,9 +393,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     public Experimenter[] containedExperimenters(long groupId) {
         List<Experimenter> experimenters = iQuery.findAllByQuery(
-                "select e from Experimenter as e left outer "
-                        + "join e.groupExperimenterMap as map left outer join "
-                        + "map.parent as g where g.id = :id", new Parameters()
+                "select e from Experimenter as e "
+                + "join fetch e.groupExperimenterMap as map "
+                + "join fetch map.parent g "
+                + "where e.id in "
+                + "  (select m.child from GroupExperimenterMap m "
+                + "  where m.parent.id = :id )", new Parameters()
                         .addId(groupId));
         return experimenters.toArray(new Experimenter[experimenters.size()]);
     }
@@ -404,9 +407,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public ExperimenterGroup[] containedGroups(long experimenterId) {
         List<ExperimenterGroup> groups = iQuery
                 .findAllByQuery(
-                        "select g from ExperimenterGroup as g left "
-                                + "outer join g.groupExperimenterMap as map left outer "
-                                + "join map.child as e where e.id = :id",
+                        "select g from ExperimenterGroup as g "
+                        + "join fetch g.groupExperimenterMap as map "
+                        + "join fetch map.parent e "
+                        + "where g.id in "
+                        + "  (select m.parent from GroupExperimenterMap m "
+                        + "  where m.child.id = :id )",
                         new Parameters().addId(experimenterId));
         return groups.toArray(new ExperimenterGroup[groups.size()]);
     }

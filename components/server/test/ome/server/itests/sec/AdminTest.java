@@ -6,8 +6,10 @@
  */
 package ome.server.itests.sec;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import ome.conditions.ApiUsageException;
@@ -17,11 +19,8 @@ import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
-import ome.model.enums.Format;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -193,6 +192,7 @@ public class AdminTest extends AbstractManagedContextTest {
 
         Image i = new Image();
         i.setName("test");
+        i.setAcquisitionDate(new Timestamp(0));
         i = iUpdate.saveAndReturnObject(i);
 
         // this user should not be able to change things
@@ -248,6 +248,7 @@ public class AdminTest extends AbstractManagedContextTest {
 
         Image i = new Image();
         i.setName("test");
+        i.setAcquisitionDate(new Timestamp(0));
         i = iUpdate.saveAndReturnObject(i);
 
         try {
@@ -305,6 +306,7 @@ public class AdminTest extends AbstractManagedContextTest {
         // create a new image
         Image i = new Image();
         i.setName(UUID.randomUUID().toString());
+        i.setAcquisitionDate(new Timestamp(0));
         i = factory.getUpdateService().saveAndReturnObject(i);
 
         // it should be in some other group
@@ -358,6 +360,46 @@ public class AdminTest extends AbstractManagedContextTest {
         def = iAdmin.getDefaultGroup(e.getId());
         assertEquals(def.getId(), g2.getId());
 
+    }
+    
+    @Test(groups = "ticket:1109")
+    public void testSetDefaultGroup2() throws Exception {
+
+        Experimenter e = loginNewUser();
+        
+        e = assertGetDefaultGroupAndContainedExperimenters(e);
+        
+        // new test group
+        String gid2 = uuid();
+        ExperimenterGroup g2 = new ExperimenterGroup();
+        g2.setName(gid2);
+        g2 = iAdmin.getGroup(iAdmin.createGroup(g2));
+
+        // now change
+        iAdmin.addGroups(e, g2);
+        iAdmin.setDefaultGroup(e, g2);
+        assertEquals(g2.getId(), iAdmin.getDefaultGroup(e.getId()).getId());
+
+        e = assertGetDefaultGroupAndContainedExperimenters(e);
+
+    }
+
+    private Experimenter assertGetDefaultGroupAndContainedExperimenters(
+            Experimenter e) {
+        
+        ExperimenterGroup g1 = iAdmin.getDefaultGroup(e.getId());
+        Experimenter[] members = iAdmin.containedExperimenters(g1.getId());
+        boolean found = false;
+        for (int i = 0; i < members.length; i++) {
+            if (members[i].getId().longValue() == e.getId().longValue()) {
+                e = members[i];
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
+        assertEquals(g1.getId(), e.getGroupExperimenterMap(0).parent().getId());
+        return e;
     }
 
     // ~ IAdmin.addGroups & .removeGroups
