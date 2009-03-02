@@ -25,17 +25,14 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import javax.swing.BorderFactory;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
-import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 
 /** 
  * Pop-up menu for nodes in the browser display.
@@ -116,31 +113,16 @@ class PopupMenu
 		}
 	}
 	
-	/**
-	 * Creates the sub-menu to manage the data.
-	 * 
-	 * @return See above
-	 */
-	private JMenu createManagementMenu()
-	{
-		JMenu managementMenu = new JMenu();
-		managementMenu.setText("Manage");
-		managementMenu.setBorder(null);
-		IconManager im = IconManager.getInstance();
-		managementMenu.setIcon(im.getIcon(IconManager.TRANSPARENT));
-		managementMenu.add(cutElement);
-		managementMenu.add(copyElement);
-		managementMenu.add(pasteElement);
-		managementMenu.add(removeElement);
-		return managementMenu;
-	}
-	
 	/** Builds and lays out the GUI. */
 	private void buildGUI() 
 	{
 		setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		add(view);
-		add(createManagementMenu());
+		add(new JSeparator(JSeparator.HORIZONTAL));
+		add(cutElement);
+		add(copyElement);
+		add(pasteElement);
+		add(removeElement);
 		add(new JSeparator(JSeparator.HORIZONTAL));
 		add(copyRndSettings);
 		add(pasteRndSettings);

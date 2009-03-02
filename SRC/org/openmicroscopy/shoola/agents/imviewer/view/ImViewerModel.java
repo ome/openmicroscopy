@@ -1107,7 +1107,6 @@ class ImViewerModel
 					renderingSettings.put(ImViewerAgent.getUserDetails(), def);
 				}
 			}
-			
 		}
 	}
 
@@ -1722,10 +1721,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isOriginalSettings()
-	{
-		return isSameSettings(originalDef);
-	}
+	boolean isOriginalSettings() { return isSameSettings(originalDef); }
 
 	/**
 	 * Returns <code>true</code> if the passed rendering settings are the same

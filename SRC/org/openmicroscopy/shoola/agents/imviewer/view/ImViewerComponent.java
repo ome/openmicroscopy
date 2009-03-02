@@ -642,7 +642,6 @@ class ImViewerComponent
 		} catch (Exception ex) {
 			handleException(ex);
 		}
-		
 	}
 
 	/** 
@@ -2153,13 +2152,14 @@ class ImViewerComponent
      */
     public void saveRndSettings()
     {
-    	if (model.isOriginalSettings()) return;
+    	//if (model.isOriginalSettings()) return;
     	try {
     		model.saveRndSettings(true);
     		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
     		List<Long> l = new ArrayList<Long>();
     		l.add(model.getImageID());
     		bus.post(new RndSettingsCopied(l, getPixelsID()));
+    		fireStateChange();
 		} catch (Exception ex) {
 			handleException(ex);
 		}

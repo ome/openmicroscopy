@@ -1035,7 +1035,7 @@ class RenderingControlProxy
     	//DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.saveCurrentSettings();
-    		return rndDef;
+    		return rndDef.copy();
 		} catch (Throwable e) {
 			e.printStackTrace();
 			handleException(e, ERROR+"save current settings.");
