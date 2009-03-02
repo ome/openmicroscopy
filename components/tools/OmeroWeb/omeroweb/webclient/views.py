@@ -251,8 +251,7 @@ def getShareConnection (request, share_id=None):
             # login parameters found, create the connection
             try:
                 conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'])
-                conn.connectAsShare()
-                conn.activateShare(share_id)
+                conn.connectAsShare(share_id)
             except:
                 logger.error(traceback.format_exc())
                 raise sys.exc_info()[1]
@@ -2470,7 +2469,7 @@ def load_share_content(request, share_id, **kwargs):
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
+    print conn, conn_share
     try:
         share = BaseShare(request.session['nav']['menu'], conn, conn_share, share_id)
     except AttributeError, x:

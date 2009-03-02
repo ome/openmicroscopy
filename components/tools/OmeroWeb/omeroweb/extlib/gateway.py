@@ -186,7 +186,7 @@ class BlitzGateway (threading.Thread):
             logger.info("'%s' (id:%i) is connected to %s sessionUuid: %s" % (self._eventContext.userName, self._eventContext.userId, self.c.getRouter(self.c.ic), self._eventContext.sessionUuid))
             return True
     
-    def connectAsShare (self):
+    def connectAsShare (self, share_id):
         logger.info("Connecting...")
         if not self.c:
             self._connected = False
@@ -218,6 +218,11 @@ class BlitzGateway (threading.Thread):
             self._proxies['share'] = ProxyObjectWrapper(self, 'getShareService')
             self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
             self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
+            
+            sh = self._proxies['share'].getShare(long(share_id))
+            self._proxies['share'].activate(sh.id.val)
+            self._shareId = sh.id.val
+            
             self._eventContext = self._proxies['admin'].getEventContext()
             self.removeUserGroups()
             self._sessionUuid = self._eventContext.sessionUuid
@@ -1057,13 +1062,6 @@ class BlitzGateway (threading.Thread):
             return ShareWrapper(self, sh)
         else:
             return None
-    
-    def activateShare (self, oid):
-        sh_serv = self.getShareService()
-        sh = sh_serv.getShare(long(oid))
-        sh_serv.activate(sh.id.val)
-        self._shareId = sh.id.val
-        self._eventContext = self._proxies['admin'].getEventContext()
     
     def getProject (self, oid):
         query_serv = self.getQueryService()

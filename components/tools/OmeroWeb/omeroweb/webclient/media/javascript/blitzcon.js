@@ -56,12 +56,12 @@
  * Open the full viewer for a specific image.
  * Passing the dataset is needed to allow showing 'Figure List' on the viewer toolbar.
  */
- function popup (did, wname, iid) {
+ function popup (sid, wname, iid) {
    if (iid == null) {
-     iid = $.WeblitzViewport($('#iv'+did), '/webclient', _refresh_cb).loadedImg.id;
+     iid = $.WeblitzViewport($('#iv'+sid), '/webclient', _refresh_cb).loadedImg.id;
    }
-   if (did != null) {
-       var w = window.open('/webclient/img_detail/' + iid + '/' + did + '/', wname,
+   if (sid != null) {
+       var w = window.open('/webclient/img_detail/' + iid + '/' + sid + '/', wname,
                "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800");
    } else {
        var w = window.open('/webclient/img_detail/' + iid + '/', wname,
