@@ -24,8 +24,9 @@
     Privileged bean which has several "private" references injected. This is not
     an example of what should be done.
     </description>
-    <property name="sessionManager" ref="sessionManager"/>
-    <property name="currentDetails" ref="currentDetails"/>
+    <constructor-arg ref="sessionManager"/>
+    <constructor-arg ref="currentDetails"/>
+    <constructor-arg ref="executor"/>
   </bean> 
  
   <bean name="managed-ome.api.ISession" parent="selfManagingService">
@@ -49,7 +50,7 @@
     propagated and all resources freed.
     </description>
     <property name="jobDetail" ref="updateCacheRun" />
-    <property name="cronExpression" value="0/5 * * * * ?" />
+    <property name="cronExpression" value="0/3 * * * * ?" />
   </bean>
   
 </beans>

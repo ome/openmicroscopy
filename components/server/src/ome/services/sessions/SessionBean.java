@@ -8,10 +8,11 @@
 package ome.services.sessions;
 
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 import ome.annotations.Hidden;
 import ome.annotations.NotNull;
-import ome.annotations.PermitAll;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
@@ -24,9 +25,8 @@ import ome.conditions.SessionException;
 import ome.model.internal.Permissions;
 import ome.model.meta.Session;
 import ome.security.basic.CurrentDetails;
-import ome.services.util.BeanHelper;
+import ome.services.util.Executor;
 import ome.system.Principal;
-import ome.system.SelfConfigurableService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,69 +42,51 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RevisionDate("$Date: 2007-06-05 15:59:33 +0200 (Tue, 05 Jun 2007) $")
 @RevisionNumber("$Revision: 1593 $")
-public class SessionBean implements ISession, SelfConfigurableService {
+public class SessionBean implements ISession {
 
     private final static Log log = LogFactory.getLog(SessionBean.class);
 
-    private BeanHelper helper = new BeanHelper(SessionBean.class);
+    final private SessionManager mgr;
+    
+    final private Executor ex;
 
-    // Injected
-    SessionManager mgr;
+    final private CurrentDetails cd;
 
-    CurrentDetails currentUser;
-
+    public SessionBean(SessionManager mgr, Executor ex, CurrentDetails cd) {
+        this.mgr = mgr;
+        this.ex = ex;
+        this.cd = cd;
+    }
+    
     // ~ Injectors
     // =========================================================================
 
-    BeanHelper getHelper() {
-        if (helper == null) {
-            helper = new BeanHelper(SessionBean.class);
-        }
-        return helper;
-    }
-
-    public void setCurrentDetails(CurrentDetails cd) {
-        getHelper().throwIfAlreadySet(currentUser, cd);
-        this.currentUser = cd;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        getHelper().throwIfAlreadySet(mgr, sessionManager);
-        this.mgr = sessionManager;
-    }
-
     public Class<? extends ServiceInterface> getServiceInterface() {
         return ISession.class;
-    }
-
-    public void selfConfigure() {
-        getHelper().configure(this);
     }
 
     // ~ Session lifecycle
     // =========================================================================
 
     @RolesAllowed("user")
-    public Session createUserSession(long timeToLiveMs, long timeToIdleMs,
+    public Session createUserSession(final long timeToLiveMs, final long timeToIdleMs,
             String defaultGroup, Permissions umask) {
 
-        final String user = currentUser.getCurrentEventContext().getCurrentUserName();
+        final String user = currentUser();
         if (user == null) {
             throw new SecurityViolation("No current user");
         }
         
-        Session session = null;
         try {
-            Principal principal = null;
-            if (defaultGroup != null) {
-                principal = new Principal(user, defaultGroup, "User");
-            } else {
-                principal = new Principal(user);
-            }
-            session = mgr.create(principal);
-            session.setTimeToIdle(timeToIdleMs);
-            session.setTimeToLive(timeToLiveMs);
-            return mgr.update(session, false);
+            final Principal principal = principal(defaultGroup, user);
+            Future<Session> future = ex.submit(new Callable<Session>(){
+                public Session call() throws Exception {
+                    Session session = mgr.create(principal);
+                    session.setTimeToIdle(timeToIdleMs);
+                    session.setTimeToLive(timeToLiveMs);
+                    return mgr.update(session, false);
+                }});
+            return ex.get(future);
         } catch (Exception e) {
             throw creationExceptionHandler(e);
         }
@@ -112,31 +94,24 @@ public class SessionBean implements ISession, SelfConfigurableService {
     }
 
     @RolesAllowed("system")
-    public Session createSessionWithTimeout(@NotNull Principal principal,
-            long milliseconds) {
-
-        Session session = null;
-        try {
-            session = mgr.create(principal);
-            session.setTimeToIdle(0L);
-            session.setTimeToLive(milliseconds);
-            return mgr.update(session, true);
-        } catch (Exception e) {
-            throw creationExceptionHandler(e);
-        }
-
+    public Session createSessionWithTimeout(@NotNull final Principal principal,
+            final long milliseconds) {
+        return createSessionWithTimeouts(principal, milliseconds, 0L);
     }
 
     @RolesAllowed("system")
-    public Session createSessionWithTimeouts(@NotNull Principal principal,
-            long timeToLiveMilliseconds, long timeToIdleMilliseconds) {
+    public Session createSessionWithTimeouts(@NotNull final Principal principal,
+            final long timeToLiveMilliseconds, final long timeToIdleMilliseconds) {
 
-        Session session = null;
         try {
-            session = mgr.create(principal);
-            session.setTimeToIdle(timeToIdleMilliseconds);
-            session.setTimeToLive(timeToLiveMilliseconds);
-            return mgr.update(session, true);
+            Future<Session> future = ex.submit(new Callable<Session>(){
+                public Session call() throws Exception {
+                    Session session = mgr.create(principal);
+                    session.setTimeToIdle(timeToIdleMilliseconds);
+                    session.setTimeToLive(timeToLiveMilliseconds);
+                    return mgr.update(session, true);
+                }});
+            return ex.get(future);
         } catch (Exception e) {
             throw creationExceptionHandler(e);
         }
@@ -212,6 +187,22 @@ public class SessionBean implements ISession, SelfConfigurableService {
     // ~ Helpers
     // =========================================================================
 
+    String currentUser() {
+        String user = cd.getLast().getName();
+        return mgr.getEventContext(new Principal(user)).getCurrentUserName();
+    }
+    
+
+    private Principal principal(String defaultGroup, final String user) {
+        Principal p;
+        if (defaultGroup != null) {
+            p = new Principal(user, defaultGroup, "User");
+        } else {
+            p = new Principal(user);
+        }
+        return p;
+    }
+    
     RuntimeException creationExceptionHandler(Exception e) {
         log.info("Handling session exception: ", e);
         if (e instanceof SessionException) {

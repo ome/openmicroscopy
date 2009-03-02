@@ -9,8 +9,10 @@ package ome.server.utests.sessions;
 import ome.conditions.AuthenticationException;
 import ome.conditions.SessionException;
 import ome.model.meta.Session;
+import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionBean;
 import ome.services.sessions.SessionManager;
+import ome.services.util.Executor;
 import ome.system.Principal;
 
 import org.jmock.Mock;
@@ -24,8 +26,9 @@ import org.testng.annotations.Test;
  */
 public class SessionBeanUnitTest extends MockObjectTestCase {
 
+    private Executor ex;
     private SessionBean bean;
-    private Mock smMock;
+    private Mock smMock, exMock;
     private SessionManager mgr;
     private Session session;
     private Principal principal;
@@ -34,8 +37,8 @@ public class SessionBeanUnitTest extends MockObjectTestCase {
     public void config() {
         smMock = mock(SessionManager.class);
         mgr = (SessionManager) smMock.proxy();
-        bean = new SessionBean();
-        bean.setSessionManager(mgr);
+        ex = (Executor) exMock.proxy();
+        bean = new SessionBean(mgr, ex, new CurrentDetails());
         session = new Session();
         session.setId(1L);
         session.setUuid("uuid");
