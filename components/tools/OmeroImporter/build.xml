@@ -26,10 +26,18 @@
     <dirname property="up-two" file="${basedir}"/>
     <dirname property="up-one" file="${up-two}"/>
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
+	<property name="product.name" value="OMERO.importer"/>
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
     <import file="../common.xml"/>
+
+	<path id="jarbundler.classpath">
+		<fileset dir="${omero.home}/lib/repository" includes="jarbundler*.jar"/>
+	</path>
+	<taskdef name="jarbundler"
+		classpathref="jarbundler.classpath"
+		classname="net.sourceforge.jarbundler.JarBundler"/>
 
     <target name="package" depends="lifecycle.package">
         <copy todir="${target.dir}">
@@ -43,6 +51,48 @@
             <fileset dir="${src.dir}" includes="**/*.png"/>
         </jar>
     </target>
+	
+	<target name="release-zip" depends="package,install"
+		description="Zip the OMERO.importer releases up">
+	  <zip destfile="${product.name}-${omero.version}.zip">
+		  <zipfileset dir="${basedir}" prefix="${product.name}-${omero.version}"
+			  includes="config/**/*"/>
+		  <zipfileset dir="${target.dir}" prefix="${product.name}-${omero.version}"
+			  includes="libs/**/*,${ivy.module}.jar"/>
+		  <zipfileset dir="${basedir}" prefix="${product.name}-${omero.version}"
+			  includes="importer-*" filemode="755"/>
+      </zip>
+	</target>
+
+	<target name="release-osx" depends="package,install"
+		description="Create a MacOS X executable bundle">
+		<jarbundler dir="${basedir}"
+			name="OMERO.importer"
+			mainclass="ome.formats.importer.Main"
+			version="${omero.version}"
+			infostring="OMERO.importer Java Client, ${omero.version}"
+			aboutmenuname="OMERO.importer"
+			screenmenu="true"
+			icon="${basedir}/resources/omeroImporterLogo.icns"
+			stubfile="${basedir}/JavaApplicationStub"
+			jvmversion="1.5+"
+			vmoptions="-Xmx512M">
+			<jarfileset dir="${target.dir}/libs" includes="**"/>
+			<jarfileset dir="${target.dir}" includes="${ivy.module}.jar"/>
+		</jarbundler>
+	</target>
+
+	<target name="release-osx-zip" depends="release-osx"
+		description="Zip up the OMERO.importer release for MacOS X">
+	  <zip destfile="${product.name}-${omero.version}-mac.zip">
+		  <zipfileset dir="${basedir}" prefix="${product.name}-${omero.version}"
+			  includes="config/**/*,OMERO.importer.app/**/*"
+			  excludes="**/JavaApplicationStub"/>
+		  <zipfileset file="${basedir}/JavaApplicationStub" 
+			  fullpath="${product.name}-${omero.version}/OMERO.importer.app/Contents/MacOS/JavaApplicationStub"
+			  filemode="755"/> 
+      </zip>
+	</target>
 
     <target name="tools-init"/>
 
