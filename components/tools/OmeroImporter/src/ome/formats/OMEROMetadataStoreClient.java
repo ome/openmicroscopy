@@ -92,6 +92,7 @@ import omero.model.Medium;
 import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
+import omero.model.OriginalFile;
 import omero.model.PhotometricInterpretation;
 import omero.model.Pixels;
 import omero.model.PixelsType;
@@ -747,9 +748,35 @@ public class OMEROMetadataStoreClient
     public void setArchive(boolean archive)
     {
     	List<Image> images = getSourceObjects(Image.class);
-    	for (Image image : images)
+        String[] files = reader.getUsedFiles();
+        
+    	if (archive)
     	{
+    	    LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+    	    
+            for (int i = 0; i < files.length; i ++)
+            {
+                indexes.put("originaFileIndex", i);
+                
+                OriginalFile o = (OriginalFile) getSourceObject(OriginalFile.class, indexes);
+                o.setName(toRType(files[i]));
+                o.setSize(toRType(new File(files[i]).length()));
+            }
+    	}
+    	for (int i = 0; i < images.size(); i ++)
+    	{
+    	    Image image = images.get(i);
     		image.setArchived(toRType(archive));
+    		
+    		if (archive)
+    		{
+                LSID key = new LSID(Pixels.class, i, 0);
+                
+                for (int j = 0; j < files.length; j++)
+                {
+                    referenceCache.put(key, new LSID(OriginalFile.class, j));           
+                }
+    		}
     	}
     }
 
@@ -2004,9 +2031,7 @@ public class OMEROMetadataStoreClient
 
     public void writeFilesToFileStore(File[] files, Long pixId)
     {
-        // TODO Auto-generated method stub
-        //
-
+       
     }
     
     public long getRepositorySpace()

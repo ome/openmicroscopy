@@ -43,10 +43,10 @@ import ome.model.acquisition.LightSource;
 import ome.model.acquisition.OTF;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
-import ome.model.annotations.BooleanAnnotation;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
 import ome.model.screen.Plate;
@@ -54,7 +54,6 @@ import ome.model.screen.Screen;
 import ome.model.screen.Well;
 import ome.model.screen.WellSample;
 import ome.model.stats.StatsInfo;
-import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 
@@ -192,6 +191,11 @@ public class OMEROMetadataStore
     	{
     	    handle(lsid, (WellSample) sourceObject, indexes);
     	}
+    	else if (sourceObject instanceof OriginalFile)
+        {
+            handle(lsid, (OriginalFile) sourceObject, indexes);
+        }
+    	
     	else
     	{
     		throw new ApiUsageException(
@@ -274,6 +278,15 @@ public class OMEROMetadataStore
     		        continue;
     		    }
     		}
+            else if (targetObject instanceof Pixels)
+            {
+                if (referenceObject instanceof OriginalFile )
+                {
+                    handleReference((Pixels) targetObject,
+                                    (OriginalFile) referenceObject);
+                    continue;
+                }
+            }
     		
 			throw new ApiUsageException(String.format(
 					"Missing reference handler for %s(%s) --> %s(%s) reference.",
@@ -512,6 +525,19 @@ public class OMEROMetadataStore
     }
     
     /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, OriginalFile sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        //Do nothing
+    }
+    
+    /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
      * @param target Target model object.
@@ -587,6 +613,19 @@ public class OMEROMetadataStore
     {
         reference.addWellSample(target);
     }
+    
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Pixels target, OriginalFile reference)
+    {
+        target.linkOriginalFile(reference);
+    }
+    
     
     /**
      * Retrieves an object from the internal object graph by LSID.
