@@ -35,8 +35,8 @@ from email.MIMEImage import MIMEImage
 from django.conf import settings
 
 logger = logging.getLogger('sendemail')
-TIMEOUT = 600 #sec
-SLEEPTIME = 60
+TIMEOUT = 60 #sec
+SLEEPTIME = 20
 
 class SendEmail(threading.Thread):
 
@@ -62,7 +62,7 @@ class SendEmail(threading.Thread):
             self.smtp_tls = settings.EMAIL_SMTP_TLS
         except:
             pass
-        self.allow_thread_timeout = False
+        self.allow_thread_timeout = True
         self.updateTimeout()
         self.to_send = list()
         self.start()
@@ -123,9 +123,9 @@ class SendEmail(threading.Thread):
         logger.info("Thread death")
 
     def seppuku (self):
-        logger.info("Thread will be closed")
+        logger.info("Sendemail will be closed")
         self._timeout = 0
-        logger.info("Thread Deleted")
+        logger.info("Sendemail Deleted")
 
     def __del__ (self):
         logger.info("Garbage Collector KICK IN")

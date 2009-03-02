@@ -59,7 +59,7 @@ from omero_model_ProjectI import ProjectI
 from omero_model_ImageI import ImageI
 
 TIMEOUT = 580 #sec
-SLEEPTIME = 30
+SLEEPTIME = 60
 
 class BlitzGateway (threading.Thread):
 
@@ -100,7 +100,7 @@ class BlitzGateway (threading.Thread):
                 if self._connected:
                     logger.info("Ping...")
                     for k,v in self._proxies.items():
-                        logger.info("Sending keepalive to '%s'" % k)
+                        logger.info("Sending keepalive to '%s' by %s" % (k,self._sessionUuid))
                         if not v._ping():
                             logger.info("... some error sending keepalive to '%s'" % k)
                             # connection should have been recreated and proxies are different now, so start all over
