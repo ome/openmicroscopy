@@ -290,7 +290,6 @@ def getShareConnection (request, share_id=None):
             return getShareConnection(request, share_id)
         else:
             logger.info("Share connection '%s' exists, uuid: '%s'" % (str(conn_key), str(conn._sessionUuid)))
-            logger.info("Total share connectors: %i." % (len(share_connectors)))
     return conn
 
 ################################################################################
@@ -554,6 +553,20 @@ def logout(request, **kwargs):
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    for key in request.session['shares'].iterkeys():
+        try:
+            session_key = "S:%s#%s#%s" % (request.session.session_key,request.session['server'], key)
+            if share_connectors.has_key(session_key):
+                share_connectors.get(conn_key).seppuku()
+                del share_connectors[session_key]
+        except:
+            logger.error(traceback.format_exc())
+    
+    try:
+        del request.session['shares']
+    except KeyError:
+        logger.error(traceback.format_exc())
     
     try:
         session_key = "S:%s#%s" % (request.session.session_key,request.session['server'])
