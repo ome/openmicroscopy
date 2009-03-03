@@ -218,7 +218,7 @@ def getShareConnection (request, share_id=None):
             except:
                 logger.info("Connection was already killed.")
                 logger.error(traceback.format_exc())
-            del connectors[k]
+            del share_connectors[k]
 
     if len(share_connectors) > 150:
         for k,v in share_connectors.items()[150:]:
@@ -285,7 +285,7 @@ def getShareConnection (request, share_id=None):
             request.session['shares'][str(share_id)] = conn.getEventContext().sessionUuid
         except:
             # connection is no longer available, retrieves connection login parameters
-            connectors[conn_key] = None
+            share_connectors[conn_key] = None
             logger.info("Share connection '%s' is no longer available" % conn_key)
             return getShareConnection(request, share_id)
         else:
