@@ -7,8 +7,6 @@
 
 package ome.system;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -48,6 +46,8 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
 
     final private Map<String, Preference> preferences = new ConcurrentHashMap<String, Preference>();
 
+    private Properties mergedProperties;
+
     private String path;
 
     /**
@@ -83,17 +83,23 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
         this.path = userTreePath;
     }
 
+    @Override
+    public void afterPropertiesSet() {
+        super.afterPropertiesSet();
+        try {
+            this.mergedProperties = mergeProperties();
+        } catch (Exception e) {
+            log.error("Could not load properties", e);
+            this.mergedProperties = new Properties();
+        }
+    }
+    
     /**
      * Lookup method for getting access to the {@link #mergeProperties() merged
      * properties} for this instance.
      */
     public String getProperty(String key) {
-        try {
-            return resolvePlaceholder(key, this.mergeProperties());
-        } catch (IOException e) {
-            log.error("Error trying to retrieve property:" + key, e);
-            return null;
-        }
+        return resolvePlaceholder(key, this.mergedProperties);
     }
 
     public void setProperty(String key, String value) {
