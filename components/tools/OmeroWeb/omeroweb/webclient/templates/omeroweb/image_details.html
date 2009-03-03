@@ -70,14 +70,14 @@
 
 <div class="toolbar">
 {% if manager.image.isOwned %}
-    | {% trans "View" %} <a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> 
-    {% if manager.image.isOwned %}| {% trans "Select" %} <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a> {% endif %}
-    | {% trans "Copy" %} <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
-    {% if manager.image.isEditable %}| {% trans "Edit" %} <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
+    | <a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;">{% trans "View" %} <img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> 
+    {% if manager.image.isOwned %}| <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;">{% trans "Select" %} <img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a> {% endif %}
+    | <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;">{% trans "Copy" %} <img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
+    {% if manager.image.isEditable %}| <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}">{% trans "Edit" %} <img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
 {% else %}
-    | {% trans "View" %} <a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> 
-    | {% trans "Copy" %} <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
-    {% if manager.image.isEditable %}| {% trans "Edit" %} <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
+    | <a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;">{% trans "View" %} <img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> 
+    | <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;">{% trans "Copy" %} <img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
+    {% if manager.image.isEditable %}| <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}">{% trans "Edit" %} <img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
 {% endif %}
 </div>
 
