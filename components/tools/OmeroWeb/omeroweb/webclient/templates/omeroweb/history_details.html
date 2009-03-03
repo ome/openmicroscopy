@@ -58,7 +58,7 @@
 <h1><a href="{% get_webclient_root_url %}/history/calendar/{{ controller.year }}/{{ controller.month }}/{{ controller.day }}/">{{ eContext.breadcrumb.2 }} {{ eContext.breadcrumb.1 }}</a> ({{ controller.day_items_size }}/{{ controller.total_items_size }} {% trans "items" %})</h1>
 
 {% if form_history_type %}
-<div id="view"><form action="{% get_webclient_root_url %}/groupdata/?view=icon" method="POST">
+<div id="view"><form action="" method="POST">
     <input type="hidden" name="filter" value="group">
 <table>
   <tbody>
@@ -109,6 +109,8 @@
     {% endfor %}
 </tbody> 
 </table>
+
+{% include "omeroweb/history_paging.html" %}
 
 <div>{% trans "Recognize items" %}: <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="Project" alt="project"/> - {% trans "Project" %}; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img id="{{ c.getImage.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="Image" alt="image"/> - {% trans "Image" %};
 </div>

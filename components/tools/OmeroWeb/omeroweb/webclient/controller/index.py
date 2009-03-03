@@ -72,6 +72,5 @@ class BaseIndex(BaseController):
         self.font = font
         self.mostRecentTags = tags
     
-    def loadLastImports(self):
-        self.lastImportedImages = list(self.conn.getLastImportedImages())
-        
+    def loadLastAcquisitions(self):
+        self.lastAcquiredImages = list(self.conn.getLastImportedImages())

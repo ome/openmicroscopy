@@ -488,7 +488,7 @@ def index_last_imports(request, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseIndex(conn)
-    controller.loadLastImports()
+    controller.loadLastAcquisitions()
     
     context = {'controller':controller, 'eContext': controller.eContext }
     t = template_loader.get_template(template)
@@ -2943,7 +2943,12 @@ def history_details(request, menu, year, month, day, **kwargs):
         url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
-        
+    
+    try:
+        page = int(request.REQUEST['page'])
+    except:
+        page = 1
+    
     cal_type = None
     try:
         cal_type = request.REQUEST['history_type']
@@ -2955,7 +2960,7 @@ def history_details(request, menu, year, month, day, **kwargs):
     template = "omeroweb/history_details.html"
     
     controller = BaseCalendar(conn=conn, year=year, month=month, day=day)
-    controller.get_items(cal_type)
+    controller.get_items(cal_type, page)
     
     form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
     

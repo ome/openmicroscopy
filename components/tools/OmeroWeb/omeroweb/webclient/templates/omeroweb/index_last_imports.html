@@ -15,9 +15,9 @@ $(document).ready(function () {
 
 </script>
 
-{% if controller.lastImportedImages %}
+{% if controller.lastAcquiredImages %}
     <ul id="products">
-        {% for im in controller.lastImportedImages %}
+        {% for im in controller.lastAcquiredImages %}
             
             <li class="product">{% if im.isOwned %}
             <a href="{% get_webclient_root_url %}/mydata/image/{{ im.id }}/"><img id="{{ im.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ im.id }}/" alt="image" title="{{ im.name }}"/></a>{% else %}<a class="product" href="{% get_webclient_root_url %}/userdata/image/{{ im.id }}/"><img id="{{ im.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/64/{{ im.id }}/" alt="image" title="{{ im.name }}"/></a>{% endif %}

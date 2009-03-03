@@ -123,3 +123,31 @@ class BaseController(object):
             obj.details.permissions.setWorldRead(False)
             obj.details.permissions.setWorldWrite(False)
     
+    ###########################################################
+    # Paging
+    
+    def doPaging(self, page, page_size, total_size, limit=24):
+        total = list()
+        t = total_size/limit
+        if total_size > (limit*10):
+            if page > 10 :
+                total.append(-1)
+            for i in range((1, page-9)[ page-9 >= 1 ], (t+1, page+10)[ page+9 < t ]):
+                total.append(i)
+            if page < t-9:
+                total.append(-1)
+
+        elif total_size > limit and total_size <= (limit*10):
+            for i in range(1, t+2):
+                total.append(i)
+        else:
+            total.append(1)
+        next = None
+        if page_size == limit and (page*limit) < total_size:
+            next = page + 1
+        prev = None
+        if page > 1:
+            prev = page - 1
+        
+        return {'page': page, 'total':total, 'next':next, "prev":prev}
+    

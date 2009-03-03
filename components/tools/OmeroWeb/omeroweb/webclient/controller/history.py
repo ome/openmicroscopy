@@ -174,7 +174,8 @@ class BaseCalendar(BaseController):
             month += 1
         return (datetime.date(year, month, 1), datetime.date(year, month, 1)-datetime.timedelta(days=1))
 
-    def get_items(self, cal_type=None):
+    def get_items(self, cal_type=None, page=None):
+        
         if self.month < 10:
             mn = '0%i' % self.month
         else:
@@ -198,7 +199,8 @@ class BaseCalendar(BaseController):
         self.total_items_size = self.conn.countDataByPeriod(start, end)
         
         if cal_type is not None:
-            obj_logs = self.conn.getDataByPeriod(start, end, cal_type)
+            obj_logs = self.conn.getDataByPeriod(start, end, cal_type, page)
+            obj_logs_counter = self.conn.countDataByPeriod(start, end, cal_type)
             if len(obj_logs[cal_type]) > 0 :
                 
                 obj_ids = [ob.id for ob in obj_logs[cal_type]]
@@ -218,6 +220,8 @@ class BaseCalendar(BaseController):
                     
                 self.day_items.append({cal_type:obj_list_with_counters})
                 self.day_items_size = len(obj_list_with_counters)
+                
+                self.paging = self.doPaging(page, len(obj_list_with_counters), obj_logs_counter)
 
         else:
             obj_logs = self.conn.getDataByPeriod(start, end)
@@ -257,4 +261,6 @@ class BaseCalendar(BaseController):
                 
                 self.day_items.append({'project':pr_list_with_counters, 'dataset':ds_list_with_counters, 'image':im_list_with_counters})
                 self.day_items_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(im_list_with_counters)
+        
+        self.history_type = cal_type
         

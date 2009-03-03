@@ -1247,30 +1247,3 @@ class BaseContainer(BaseController):
             self.conn.saveObject(new_pdl)
             return True
 
-    ###########################################################
-    # Paging
-    
-    def doPaging(self, page, page_size, total_size):
-        total = list()
-        t = total_size/24
-        if total_size > 240:
-            if page > 10 :
-                total.append(-1)
-            for i in range((1, page-9)[ page-9 >= 1 ], (t+1, page+10)[ page+9 < t ]):
-                total.append(i)
-            if page < t-9:
-                total.append(-1)
-
-        elif total_size > 24 and total_size <= 240:
-            for i in range(1, t+2):
-                total.append(i)
-        else:
-            total.append(1)
-        next = None
-        if page_size == 24 and page*24 < total_size:
-            next = page + 1
-        prev = None
-        if page > 1:
-            prev = page - 1
-        
-        return {'page': page, 'total':total, 'next':next, "prev":prev}
