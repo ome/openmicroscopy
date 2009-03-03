@@ -121,7 +121,7 @@ def getConnection (request):
                 logger.info("Connection was already killed.")
             del connectors[k]
 
-    if len(connectors) > 75:
+    if len(connectors) > 250:
         for k,v in connectors.items()[50:]:
             v.seppuku()
             del connectors[k]
@@ -558,7 +558,7 @@ def logout(request, **kwargs):
         try:
             session_key = "S:%s#%s#%s" % (request.session.session_key,request.session['server'], key)
             if share_connectors.has_key(session_key):
-                share_connectors.get(conn_key).seppuku()
+                share_connectors.get(session_key).seppuku()
                 del share_connectors[session_key]
         except:
             logger.error(traceback.format_exc())
