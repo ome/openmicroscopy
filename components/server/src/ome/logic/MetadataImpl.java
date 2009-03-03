@@ -556,10 +556,11 @@ public class MetadataImpl
 				ann = link.parent();
 				
 				if (NS_INSIGHT_TAG_SET.equals(ann.getNs())) {
-					if (!ids.contains(id)) {
+					if (!ids.contains(ann.getId())) {
 						ids.add(id);
 						result.add(link);
-						tagSetIds.add(ann.getId());
+						if (!tagSetIds.contains(ann.getId()))
+							tagSetIds.add(ann.getId());
 					}
 				}
 				id = link.getChild().getId();
