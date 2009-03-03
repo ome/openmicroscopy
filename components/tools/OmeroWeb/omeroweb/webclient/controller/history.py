@@ -137,7 +137,7 @@ class BaseCalendar(BaseController):
                         except:
                             prCounter += 1
                             t_items['project'].append(item.get('id'))
-                self.cal_days.append({'day':self.cal_weeks[week][day], 'counter': {'imgCounter':imgCounter, 'rdCounter':rdCounter, 'dsCounter':dsCounter, 'prCounter':prCounter }})
+                self.cal_days.append({'day':self.cal_weeks[week][day], 'counter': {'imgCounter':imgCounter, 'dsCounter':dsCounter, 'prCounter':prCounter }})
             else:
                 self.cal_days.append({'day':self.cal_weeks[week][day], 'counter': {}})
             self.cal_weeks[week][day] = {'cell': self.cal_days[-1]}
