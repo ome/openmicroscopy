@@ -1,0 +1,23 @@
+{% load i18n %}
+{% load custom_tags %}
+
+{% if controller.paging %} 
+
+<div class="clear"> </div>
+<div class="paging"> 
+    {% if controller.paging.prev %}<a href="{% get_webclient_root_url %}/history/calendar/{{ controller.year }}/{{ controller.month }}/{{ controller.day }}/?history_type={{ controller.history_type }}&page={{controller.paging.prev}}">{% trans "preview" %}</a>{% endif %} {% trans "Page" %} 
+    {% for p in controller.paging.total %}
+        {% ifequal controller.paging.page p %}
+            {{ p }} 
+        {% else %}
+            {% ifequal p -1 %}
+                ...
+            {% else %}
+                <a href="{% get_webclient_root_url %}/history/calendar/{{ controller.year }}/{{ controller.month }}/{{ controller.day }}/?history_type={{ controller.history_type }}&&page={{ p }}">{{ p }}</a>
+            {% endifequal %}
+        {% endifequal %}
+    {% endfor %}
+    {% if controller.paging.next %}<a href="{% get_webclient_root_url %}/history/calendar/{{ controller.year }}/{{ controller.month }}/{{ controller.day }}/?history_type={{ controller.history_type }}&&page={{controller.paging.next}}">{% trans "next" %}</a>{% endif %}
+
+</div>
+{% endif %}
