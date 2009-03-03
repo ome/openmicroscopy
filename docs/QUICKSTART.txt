@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -e
+
+#
+# Prerequisites
+#
+java -version
+python --version 2>&1 | grep -E "Python 2.(4|5)"
+icegridnode --version 2>&1 | grep 3.3.0
+glacier2router --version 2>&1 | grep 3.3.0
+psql -U omero -h localhost -l 1> /dev/null
+
+#
+# Build
+#
+if test -e QUICKSTART.txt; then
+    cd ..
+fi
+test -e build.py
+test -e build.xml
+
+./build.py
+cd dist
+
+#
+# Setup database
+#
+bin/omero db script mypassword
+createlang plpgsql omero || echo "Database already ready?"
+psql -U omero -h localhost omero < OMERO4__0.sql
+
+#
+# Start
+#
+bin/omero admin start
