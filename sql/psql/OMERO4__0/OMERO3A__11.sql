@@ -932,6 +932,61 @@ DELETE FROM pixelsannotationlink
          AND tag.id = aal.child;
 
 --
+-- #1197 Adding share-member-links
+--
+
+    create table sharemember (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child)
+    );;
+
+    alter table sharemember 
+        add constraint FKsharemember_child_experimenter 
+        foreign key (child) 
+        references experimenter;;
+
+    alter table sharemember 
+        add constraint FKsharemember_update_id_event 
+        foreign key (update_id) 
+        references event;;
+
+    alter table sharemember 
+        add constraint FKsharemember_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter;;
+
+    alter table sharemember 
+        add constraint FKsharemember_creation_id_event 
+        foreign key (creation_id) 
+        references event;;
+
+    alter table sharemember 
+        add constraint FKsharemember_parent_session 
+        foreign key (parent) 
+        references session;;
+
+    alter table sharemember 
+        add constraint FKsharemember_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;;
+
+    alter table sharemember 
+        add constraint FKsharemember_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;;
+
+
+--
 -- Finally, dropping tables
 --
 

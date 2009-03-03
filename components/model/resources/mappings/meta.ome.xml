@@ -141,4 +141,11 @@
 			<required name="data" type="byte[]"/>
 		</properties>
 	</type>
+	<link id="ome.model.meta.ShareMember">
+		<!-- Note: ShareMember is not in model-->
+		<properties>
+			<from_parent type="ome.model.meta.Share"/>
+			<to_child type="ome.model.meta.Experimenter"/>
+		</properties>
+	</link>
 </types>
