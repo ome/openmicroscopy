@@ -283,7 +283,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public void setExpiration(long shareId, @NotNull Timestamp expiration) {
+    public void setExpiration(long shareId, Timestamp expiration) {
         Share share = (Share) iQuery.find(Share.class, shareId);
         ShareData data = store.get(shareId);
         share.setTimeToLive(expirationAsLong(share.getStarted().getTime(),
