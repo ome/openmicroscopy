@@ -2561,7 +2561,7 @@ def basket_action (request, action=None, oid=None, **kwargs):
         
         form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
         
-        form = ShareForm(initial={'experimenters': experimenters})
+        form = ShareForm(initial={'experimenters': experimenters, 'enable':True})
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == "todiscuss":
         template = "omeroweb/basket_discuss_action.html"
@@ -2572,7 +2572,7 @@ def basket_action (request, action=None, oid=None, **kwargs):
         
         form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
         
-        form = ShareForm(initial={'experimenters': experimenters})
+        form = ShareForm(initial={'experimenters': experimenters, 'enable':True})
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == "toannotate":
         # TODO

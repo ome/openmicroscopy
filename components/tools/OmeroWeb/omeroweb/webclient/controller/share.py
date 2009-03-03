@@ -113,9 +113,6 @@ class BaseShare(BaseController):
     def addComment(self, host, blitz_id, comment):
         self.conn.addComment(host, int(blitz_id), self.share.id, comment)
 
-    def getAllShares(self):
-        self.shares = self.sortByAttr(list(self.conn.getAllShares()), 'started', True)
-
     def getShares(self):
         self.ownShares = self.sortByAttr(list(self.conn.getOwnShares()), 'started', True)
         self.memberShares = self.sortByAttr(list(self.conn.getMemberShares()), 'started', True)

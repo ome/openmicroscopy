@@ -906,11 +906,6 @@ class BlitzGateway (threading.Thread):
     ##   Share methods
     
     # SHARE
-    def getAllShares(self):
-        sh = self.getShareService()
-        for e in sh.getAllShares(False):
-            yield ShareWrapper(self, e)
-
     def getOwnShares(self):
         sh = self.getShareService()
         for e in sh.getOwnShares(False):
