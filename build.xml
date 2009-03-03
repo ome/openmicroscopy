@@ -219,13 +219,16 @@ java component.
     </target>
 
     <target name="release-zip" description="Zip the dist directory into ${product.name}-${omero.version}.zip">
-        <zip destfile="${product.name}-${omero.version}.zip">
+        <zip destfile="target/${product.name}-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
                 excludes="bin/omero"/>
             <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
                 includes="bin/omero"
                 filemode="755"/>
         </zip>
+	<copy todir="target">
+	    <fileset dir="components/tools/OmeroImporter/target" includes="*.zip"/>
+	</copy>
     </target>
 
     <target name="release-tar" description="Tar the dist directory into ${product-name}-${omero.version}.tar.bz2">

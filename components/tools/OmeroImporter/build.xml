@@ -54,7 +54,7 @@
 	
 	<target name="release-zip" depends="package,install"
 		description="Zip the OMERO.importer releases up">
-	  <zip destfile="${product.name}-${omero.version}.zip">
+	  <zip destfile="target/${product.name}-${omero.version}.zip">
 		  <zipfileset dir="${basedir}" prefix="${product.name}-${omero.version}"
 			  includes="config/**/*"/>
 		  <zipfileset dir="${target.dir}" prefix="${product.name}-${omero.version}"
@@ -84,7 +84,7 @@
 
 	<target name="release-osx-zip" depends="release-osx"
 		description="Zip up the OMERO.importer release for MacOS X">
-	  <zip destfile="${product.name}-${omero.version}-mac.zip">
+	  <zip destfile="target/${product.name}-${omero.version}-mac.zip">
 		  <zipfileset dir="${basedir}" prefix="${product.name}-${omero.version}"
 			  includes="config/**/*,OMERO.importer.app/**/*"
 			  excludes="**/JavaApplicationStub"/>
@@ -98,7 +98,7 @@
 
     <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target"/>
 
-    <target name="tools-dist" depends="tools-build" description="Copied artifacts to tools/target" unless="skip.compile"/>
+    <target name="tools-dist" depends="tools-build,release-zip" description="Copied artifacts to tools/target" unless="skip.compile"/>
 
     <target name="tools-clean" depends="clean"/>
 
