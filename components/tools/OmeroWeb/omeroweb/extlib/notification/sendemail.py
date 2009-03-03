@@ -36,7 +36,7 @@ from django.conf import settings
 
 logger = logging.getLogger('sendemail')
 TIMEOUT = 600 #sec
-SLEEPTIME = 60
+SLEEPTIME = 30
 
 class SendEmail(threading.Thread):
 
