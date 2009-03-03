@@ -675,7 +675,7 @@ class CLI(cmd.Cmd, Context):
                     self.out("Use quit to exit")
 
     def precmd(self, input):
-        if not isinstance(input,list):
+        if isinstance(input,str):
             if COMMENT.match(input):
                 return ""
         return input
@@ -686,7 +686,7 @@ class CLI(cmd.Cmd, Context):
             # Starting a new command. Reset the return value to 0
             # If err or die are called, set rv non-0 value
             self.rv = 0
-            return cmd.Cmd.onecmd(self, args.join(" "))
+            return cmd.Cmd.onecmd(self, args)
         except AttributeError, ae:
             self.err("Possible error in plugin:")
             self.err(str(ae))
