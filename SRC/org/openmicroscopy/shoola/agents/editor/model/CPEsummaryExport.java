@@ -160,11 +160,14 @@ public class CPEsummaryExport {
 		// Add value
 		String value = "";
 		String v;
+		Object o;
 		int valueCount = param.getValueCount();
 		for (int i=0; i<valueCount; i++) {
-			v = param.getValueAt(i).toString();
 			if (i > 0) value = value + ", ";
-			if (v == null) continue;
+			
+			o = param.getValueAt(i);
+			if (o == null) continue;
+			v = o.toString();
 			if (param instanceof DateTimeParam) {
 				v = DateTimeParam.formatDate(v);
 			}
