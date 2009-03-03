@@ -79,7 +79,7 @@ class DatabaseControl(BaseControl):
     def _create(self, db_vers, db_patch, password_hash, location = None):
         sql_directory = self.ctx.dir / "sql" / "psql" / ("%s__%s" % (db_vers, db_patch))
         if not sql_directory.exists():
-            self.ctx.die(2, "Invalid Database version/patch: %s does not exist" % sql__directory)
+            self.ctx.die(2, "Invalid Database version/patch: %s does not exist" % sql_directory)
 
         script = "%s__%s.sql" % (db_vers, db_patch)
         if not location:
