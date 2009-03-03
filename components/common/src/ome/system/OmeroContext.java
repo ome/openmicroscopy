@@ -299,7 +299,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
             ac = ac.getParent();
         }
 
-        for (int i = list.size() - 1; i >= 0; i--) {
+        for (int i = 0; i < list.size(); i++) {
             list.get(i).close();
         }
 

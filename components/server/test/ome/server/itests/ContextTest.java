@@ -67,6 +67,12 @@ public class ContextTest extends TestCase {
         OmeroContext ctx = OmeroContext.getManagedServerContext();
         onContext(ctx);
     }
+    
+    @Test
+    public void testManagedContextClose() throws Exception {
+        OmeroContext ctx = OmeroContext.getManagedServerContext();
+        ctx.closeAll();
+    }
 
     protected void onContext(OmeroContext ctx) {
         ServiceFactory sf = new ServiceFactory(ctx);
