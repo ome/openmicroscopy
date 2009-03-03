@@ -38,7 +38,7 @@
                 $("#dataTable").tablesorter( {sortList: [[1,1]]} ); 
             
                 $('table#dataTable tbody tr').quicksearch({
-                    attached: "div#view",
+                    attached: "div#dataTable",
                     position: "before",
                     stripeRowClass: null,
                     labelText: '{% trans "Filter" %}:',
@@ -155,7 +155,8 @@
 {% else %}
     
     {% if manager.c_size %}
-    <div>
+    <div id="dataTable">
+    <br/>
     <table id="dataTable" class="tablesorter"> 
     <thead> 
     <tr> 
