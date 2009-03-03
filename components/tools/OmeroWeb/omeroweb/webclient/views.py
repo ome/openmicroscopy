@@ -196,7 +196,6 @@ def getConnection (request):
             logger.info("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
     return conn
 
-@timeit
 def getShareConnection (request, share_id=None):
 
     session_key = None
