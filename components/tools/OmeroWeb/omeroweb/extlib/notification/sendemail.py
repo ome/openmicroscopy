@@ -62,27 +62,27 @@ class SendEmail(threading.Thread):
             self.smtp_tls = settings.EMAIL_SMTP_TLS
         except:
             pass
-        self.allow_thread_timeout = True
-        self.updateTimeout()
+        self.allow_thread_timeout = False
+        #self.updateTimeout()
         self.to_send = list()
         self.start()
     
-    def updateTimeout (self):
-        self._timeout = time.time() + TIMEOUT
+    #def updateTimeout (self):
+    #    self._timeout = time.time() + TIMEOUT
     
-    def isTimedout (self):
-        if self._timeout < time.time():
-            return True
-        return False
+    #def isTimedout (self):
+    #    if self._timeout < time.time():
+    #        return True
+    #    return False
     
     def run (self):
         """ this thread lives forever, pinging whatever connection exists to keep it's services alive """
         logger.info("Starting sendemail thread...")
-        while not (self.allow_thread_timeout and self.isTimedout()):
+        while not (self.allow_thread_timeout): #isTimedout()
             try:
                 logger.info("%i emails in the queue." % (len(self.to_send)))
                 if len(self.to_send) > 0:
-                    self.updateTimeout()
+                    #self.updateTimeout()
                     try:
                         email = self.to_send[0]
                         logger.info("Sending...")
