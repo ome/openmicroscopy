@@ -101,7 +101,7 @@ public class Main extends JFrame
     static boolean USE_QUAQUA = true;
     
     
-    //public final static String TITLE            = "OMERO.importer";
+    public final static String TITLE            = "OMERO.importer";
     
     public final static String splash           = "gfx/importer_splash.png";
     public static final String ICON = "gfx/icon.png";

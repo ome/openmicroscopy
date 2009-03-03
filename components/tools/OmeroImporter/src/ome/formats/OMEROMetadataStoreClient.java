@@ -75,6 +75,7 @@ import omero.model.Experiment;
 import omero.model.ExperimentType;
 import omero.model.Filament;
 import omero.model.FilamentType;
+import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Illumination;
 import omero.model.Image;
@@ -109,6 +110,7 @@ import omero.model.Well;
 import omero.model.WellSample;
 
 import loci.formats.IFormatReader;
+import loci.formats.ImageReader;
 import loci.formats.meta.IMinMaxStore;
 import loci.formats.meta.MetadataStore;
 
@@ -753,14 +755,23 @@ public class OMEROMetadataStoreClient
     	if (archive)
     	{
     	    LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+    	    ImageReader imageReader = (ImageReader) reader;
+            String formatString = imageReader.getReader().getClass().toString();
+            formatString = formatString.replace("class loci.formats.in.", "");
+            formatString = formatString.replace("Reader", "");
     	    
             for (int i = 0; i < files.length; i ++)
             {
                 indexes.put("originaFileIndex", i);
                 
                 OriginalFile o = (OriginalFile) getSourceObject(OriginalFile.class, indexes);
-                o.setName(toRType(files[i]));
-                o.setSize(toRType(new File(files[i]).length()));
+                File file = new File(files[i]);
+                
+                o.setName(toRType(file.getName()));
+                o.setSize(toRType(file.length()));
+                o.setFormat((Format) getEnumeration(Format.class, formatString));
+                o.setPath(toRType(file.getAbsolutePath()));
+                o.setSha1(toRType("Pending"));
             }
     	}
     	for (int i = 0; i < images.size(); i ++)
