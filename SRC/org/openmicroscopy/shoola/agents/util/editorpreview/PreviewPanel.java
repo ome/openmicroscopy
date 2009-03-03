@@ -44,9 +44,7 @@ import javax.swing.border.EmptyBorder;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.model.CPEsummaryExport;
 import org.openmicroscopy.shoola.agents.util.editorpreview.MetadataComponent;
-import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -76,16 +74,7 @@ public class PreviewPanel
 {
 	
 	/** max number of characters to display in field value */
-	public static final int 			MAX_CHARS = 50;
-	
-	/** Default text if no data entered. */
-	static final String 				DEFAULT_TEXT = "None";
-	
-	/**
-	 * The Model passes the XML description. Then the steps and the name and
-	 * description/abstract of the protocol can be retrieved. 
-	 */
-	private PreviewModel 				model;
+	public static final int			MAX_CHARS = 50;
 
 	/** The element that holds the value of a parameter */
 	public static final String 		VALUE = "v";
@@ -107,6 +96,15 @@ public class PreviewPanel
 
 	/** The element/attribute holding the name of a parameter or protocol */
 	public static final String 		NAME = "n";
+
+	/** Default text if no data entered. */
+	private static final String		DEFAULT_TEXT = "None";
+	
+	/**
+	 * The Model passes the XML description. Then the steps and the name and
+	 * description/abstract of the protocol can be retrieved. 
+	 */
+	private PreviewModel 				model;
 	
 	/** Initiliases the components. */
 	private void initComponents()
@@ -216,7 +214,7 @@ public class PreviewPanel
 	/**
 	 * Transforms the Step into the corresponding UI objects.
 	 * 
-	 * @param setp The step to transform.
+	 * @param step The step to transform.
 	 * @return See above.
 	 */
 	private List<MetadataComponent> transformFieldParams(StepObject step)

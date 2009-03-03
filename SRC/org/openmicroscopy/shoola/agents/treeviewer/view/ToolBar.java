@@ -108,7 +108,7 @@ class ToolBar
         bar.add(b);
         b = new JButton(controller.getAction(TreeViewerControl.SWITCH_USER));
         UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
+        //bar.add(b);
         b = new JButton(controller.getAction(TreeViewerControl.EDITOR));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);

@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -204,6 +205,7 @@ public class OMEWikiComponent
 		installDefaultAction();
 		if (toolbar) {
 			toolBar = new JToolBar();
+			toolBar.setBackground(UIUtilities.BACKGROUND_COLOR);
 			toolBar.setBorder(null);
 			toolBar.setFloatable(false);
 			Iterator<JButton> b = toolBarActions.iterator();
@@ -264,12 +266,14 @@ public class OMEWikiComponent
 	public OMEWikiComponent(Map<String, FormatSelectionAction> formatters, 
 			boolean toolBar)
 	{
-		Iterator<String> i = DEFAULT_FORMATTERS.keySet().iterator();
+		Entry entry;
+		Iterator i = DEFAULT_FORMATTERS.entrySet().iterator();
 		String key;
 		while (i.hasNext()) {
-			key = i.next();
+			entry = (Entry) i.next();
+			key = (String) entry.getKey();
 			if (!formatters.containsKey(key))
-				formatters.put(key, DEFAULT_FORMATTERS.get(key));
+				formatters.put(key, (FormatSelectionAction) entry.getValue());
 		}
 		initComponents(formatters, toolBar);
 		buildGUI();

@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.io.File;
 import java.util.ArrayList;

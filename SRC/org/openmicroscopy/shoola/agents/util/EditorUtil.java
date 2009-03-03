@@ -814,7 +814,7 @@ public class EditorUtil
     	if (l != null) {
     		 int n = l.length;
              if (n >= 1) name = l[n-1]; 
-    	}
+    	} else return name;
     	   	
     	if (Pattern.compile(".").matcher(name).find()) {
     		l = name.split("\\.");
