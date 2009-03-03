@@ -2447,9 +2447,8 @@ def manage_share(request, action, oid=None, **kwargs):
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
             template = "omeroweb/share_form.html"
-            share.getShare(oid)
             share.getComments(oid)
-            context = {'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
+            context = {'url':url, 'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
     elif action == 'delete':
         return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
     elif action == 'view':
