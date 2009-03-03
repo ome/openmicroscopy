@@ -60,7 +60,7 @@ class ServerControl(BaseControl):
     def indexer(self, args):
         args = Arguments(args)
         pre, post = self._checkIceConfig(args)
-        xargs, debug = self._xargsAndDebug("indexer", ["-Xmx128M"])
+        xargs, debug = self._xargsAndDebug("indexer", ["-Xmx256M"])
         blitz_jar = os.path.join("lib","server","blitz.jar")
         omero.java.run(pre+["-jar",blitz_jar,"ome.fulltext"]+post, debug=debug, xargs=xargs, use_exec = True)
 
