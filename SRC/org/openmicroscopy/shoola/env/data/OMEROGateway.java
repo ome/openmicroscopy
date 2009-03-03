@@ -3952,6 +3952,7 @@ class OMEROGateway
 			Set<TagAnnotationData> tags;
 			List<Long> ids = new ArrayList<Long>();
 			IObject object;
+			Long id;
 			while (i.hasNext()) {
 				object = i.next();
 				if (object instanceof TagAnnotation) {
@@ -3960,9 +3961,10 @@ class OMEROGateway
 					link = (AnnotationAnnotationLink) object;
 					parent = link.getParent();
 					child = link.getChild();
-					if (sets.get(parent.getId()) == null) {
+					id = parent.getId().getValue();
+					if (sets.get(id) == null) {
 						tagSet = new TagAnnotationData((TagAnnotation) parent);
-						sets.put(parent.getId().getValue(), tagSet);
+						sets.put(id, tagSet);
 						result.add(tagSet);
 						tagSet.setTags(new HashSet<TagAnnotationData>());
 					} else 
