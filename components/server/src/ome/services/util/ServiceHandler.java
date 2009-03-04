@@ -304,7 +304,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
                 }
                 sb.append(k);
                 sb.append("=");
-                sb.append(map.get(k));
+                sb.append(getResultsString(map.get(k)));
                 count++;
             }
             sb.append("}");
