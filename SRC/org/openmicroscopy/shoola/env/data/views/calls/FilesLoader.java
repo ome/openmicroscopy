@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -32,6 +34,8 @@ import java.io.File;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+
+import pojos.FileAnnotationData;
 
 /** 
  * Loads collection of files or a specified file.
@@ -88,7 +92,14 @@ public class FilesLoader
             public void doCall() throws Exception
             {
                 OmeroMetadataService service = context.getMetadataService();
-                result = service.downloadFile(fileAnnotationID);
+                FileAnnotationData fa = (FileAnnotationData) 
+                	service.loadAnnotation(fileAnnotationID);
+                Map<FileAnnotationData, File> m = 
+                	new HashMap<FileAnnotationData, File>();
+                File f = service.downloadFile(new File(fa.getFileName()), 
+                		fa.getFileID(), fa.getFileSize());
+                m.put(fa, f);
+                result = m;
             }
         };
     }
@@ -133,17 +144,8 @@ public class FilesLoader
      */
     public FilesLoader(File file, long fileID, long size)
     {
-    	loadCall = makeBatchCall(file, fileID, size);
-    }
-    
-    /**
-     * Creates a new instance.
-     * 
-	 * @param fileAnnotationID	The id of the file annotation to download.
-     */
-    public FilesLoader(long fileAnnotationID)
-    {
-    	loadCall = makeBatchCall(fileAnnotationID);
+    	if (file == null) loadCall = makeBatchCall(fileID);
+    	else loadCall = makeBatchCall(file, fileID, size);
     }
     
     /**

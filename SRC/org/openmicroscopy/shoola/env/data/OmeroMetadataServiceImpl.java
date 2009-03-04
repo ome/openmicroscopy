@@ -1285,26 +1285,6 @@ class OmeroMetadataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#downloadFile(long)
-	 */
-	public File downloadFile(long fileAnnotationID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (fileAnnotationID < 0)
-			throw new IllegalArgumentException("File ID not valid");
-		FileAnnotation fa = (FileAnnotation) 
-		
-		
-		
-		gateway.findIObject(FileAnnotation.class.getName(), fileAnnotationID);
-		long id = fa.getFile().getId().getValue();
-		OriginalFile of = gateway.getOriginalFile(id);
-		File file = new File(of.getName().getValue());
-		return gateway.downloadFile(file, id, of.getSize().getValue());
-	}
-	
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#loadRatings(Class, List, long)
 	 */
 	public Map<Long, Collection> loadRatings(Class nodeType, 
