@@ -11,7 +11,7 @@
 #
 #   Environment Variables:
 #
-#     ICE_CONFIG=dist/etc/local.properties
+#     ICE_CONFIG=dist/etc/ice.config
 #     CPPPATH=<locations for headers to be added>
 #     LIBPATH=<location of libraries to be added>
 #     PYTHONPATH=<location of modules to be added>
@@ -83,9 +83,7 @@ if platform.name == "linux" or platform.name == "darwin":
         "PATH": os.environ["PATH"],
         "PYTHONPATH": map["PYTHONPATH"],
         "DYLD_LIBRARY_PATH": map["LIBPATH"],
-        "ICE_CONFIG":",".join((
-            os.path.join(builddir, 'etc', 'ice.config'),
-            os.path.join(builddir, 'etc', 'local.properties')))
+        "ICE_CONFIG": os.path.join(builddir, 'etc', 'ice.config')
     }
 
     if mode == "debug":
@@ -136,7 +134,7 @@ else:
 # Classpath
 #
 import glob, os
-classpath = glob.glob(os.path.join(builddir,"client","*.jar"))
+classpath = glob.glob(os.path.join(builddir,"lib","client","*.jar"))
 classpath.append(os.path.join(builddir,"etc"))
 env['ENV']['CLASSPATH']=os.path.pathsep.join(classpath)
 
@@ -162,7 +160,7 @@ for src_dir in glob.glob("*"):
                 # Cloning environment, so that CLASSPATH doesn't have all the subdirectories included
                 clone = env.Clone()
                 clone['ENV']['CLASSPATH'] = os.path.pathsep.join([ clone['ENV']['CLASSPATH'], src_dir ])
-                run = clone.Alias(os.path.join(src_dir,base), [], "java -ea" + base)
+                run = clone.Alias(os.path.join(src_dir,base), [], "java -ea " + base)
                 Depends(run, javac)
                 clone.AlwaysBuild(run)
                 targets.append(run)
