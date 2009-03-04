@@ -129,8 +129,9 @@ public class TimelineI extends AbstractAmdServant implements
                 + "join @FETCH@ obj.details.creationEvent "
                 + "join @FETCH@ obj.details.owner "
                 + "join @FETCH@ obj.details.group "
-                + "left outer join @FETCH@ obj.projectLinks pdl "
-                + "left outer join @FETCH@ pdl.parent p " + WHERE_OBJ_DETAILS);
+                //+ "left outer join @FETCH@ obj.projectLinks pdl "
+                //+ "left outer join @FETCH@ pdl.parent p "
+                + WHERE_OBJ_DETAILS);
         OWNERSHIP.put("Dataset", "obj");
         ORDERBY.put("Dataset", "order by obj.details.updateEvent.id desc");
 
@@ -147,10 +148,11 @@ public class TimelineI extends AbstractAmdServant implements
                 + "join @FETCH@ obj.details.creationEvent "
                 + "join @FETCH@ obj.details.owner "
                 + "join @FETCH@ obj.details.group "
-                + "left outer join @FETCH@ obj.datasetLinks dil "
-                + "left outer join @FETCH@ dil.parent d "
-                + "left outer join @FETCH@ d.projectLinks pdl "
-                + "left outer join @FETCH@ pdl.parent p " + "where "
+                //+ "left outer join @FETCH@ obj.datasetLinks dil "
+                //+ "left outer join @FETCH@ dil.parent d "
+                //+ "left outer join @FETCH@ d.projectLinks pdl "
+                //+ "left outer join @FETCH@ pdl.parent p "
+                + "where "
                 + "      obj.acquisitionDate >= :start "
                 + "and   obj.acquisitionDate <= :end ");
         OWNERSHIP.put("Image", "obj");

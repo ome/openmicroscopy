@@ -79,7 +79,7 @@ system to be re-configured.
   <category name="org.hibernate.SQL"> <priority value="ERROR"/> </category>
   <category name="org.hibernate.cfg"> <priority value="ERROR"/> </category>
   <category name="org.hibernate.engine"> <priority value="ERROR"/> </category>
-  <category name="org.hibernate.hql"> <priority value="ERROR"/> </category>
+  <category name="org.hibernate.hql"> <priority value="WARN"/> </category> <!-- for first/max in memory -->
   <category name="org.hibernate.hql.PARSER"> <priority value="FATAL"/> </category>
   <category name="org.hibernate.loader"> <priority value="ERROR"/> </category>
   <category name="org.hibernate.persister"> <priority value="ERROR"/> </category>
