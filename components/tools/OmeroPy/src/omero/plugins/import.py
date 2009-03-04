@@ -8,12 +8,17 @@
 """
 
 import subprocess, optparse, os, sys, signal, time
-from omero.cli import Arguments, BaseControl, VERSION
+from omero.cli import Arguments, BaseControl, VERSION, OMERODIR
 import omero.java
 
 START_CLASS="ome.formats.importer.cli.CommandLineImporter"
+TEST_CLASS="ome.formats.test.util.TestEngine"
 
 class ImportControl(BaseControl):
+
+    def __init__(self, ctx, dir = OMERODIR):
+        BaseControl.__init__(self, ctx, dir)
+        self.command = [ START_CLASS ]
 
     def _run(self, args = []):
         args = Arguments(args)
@@ -21,8 +26,7 @@ class ImportControl(BaseControl):
         log4j = "-Dlog4j.configuration=%s" % ( client_dir / "log4j.properties" )
         classpath = [ file.abspath() for file in client_dir.files("*.jar") ]
         xargs = [ log4j, "-Xmx256M", "-cp", os.pathsep.join(classpath) ]
-        command = [ START_CLASS ] + args.args
-        omero.java.run(command, debug=False, xargs = xargs, use_exec = False)
+        omero.java.run(self.command + args.args, debug=False, xargs = xargs, use_exec = False)
 
     def help(self, args = None):
         self._run() # Prints help by default
@@ -31,7 +35,15 @@ class ImportControl(BaseControl):
         args = Arguments(*args)
         self._run(args)
 
+
+class TestEngine(ImportControl):
+
+    def __init__(self, ctx, dir = OMERODIR):
+        ImportControl.__init__(self, ctx, dir)
+        self.command = [ TEST_CLASS ]
+
 try:
     register("import", ImportControl)
+    register("testengine", TestEngine)
 except NameError:
-    ServerControl()._main()
+    ImportControl()._main()

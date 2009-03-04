@@ -24,6 +24,7 @@ def build_hudson():
     # Build & Test
     java_omero("build-all")
     java_omero("test-integration")
+    java_omero("test-dist")
 
     #
     # Documentation and build reports

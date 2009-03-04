@@ -218,6 +218,11 @@ java component.
         <launchSuite suite="integration"/>
     </target>
 
+    <target name="test-dist" description="Copy test files into dist for further testing" depends="test-compile">
+        <ivy:resolve file="ivy.xml" type="jar" conf="test" settingsRef="ivy.toplevel" log="quiet"/>
+        <ivy:retrieve conf="test" pattern="${dist.dir}/lib/client/[module].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+    </target>
+
     <target name="release-zip" description="Zip the dist directory into ${product.name}-${omero.version}.zip">
         <zip destfile="target/${product.name}-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
@@ -396,6 +401,5 @@ java component.
             <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[module].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
        </sequential>
     </macrodef>
-
 
 </project>
