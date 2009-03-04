@@ -120,7 +120,7 @@ public class EditorAgent
 		// need to set the file
 		if (editor != null) {
 			if (editor.getState() == Editor.NEW)
-				editor.setFileToEdit(file);
+				editor.setFileToEdit(null, file);
 			
 			// this simply brings the editor to the front / de-iconifies it.
 			editor.activate();

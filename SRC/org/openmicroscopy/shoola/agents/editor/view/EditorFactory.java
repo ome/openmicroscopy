@@ -37,11 +37,9 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.ActivationAction;
-import org.openmicroscopy.shoola.agents.editor.preview.EditorPreview;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-
 import pojos.FileAnnotationData;
 
 /** 

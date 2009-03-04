@@ -25,6 +25,9 @@ package org.openmicroscopy.shoola.agents.editor;
 
 //Java imports
 import java.io.File;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -34,6 +37,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+
+import pojos.FileAnnotationData;
 
 /** 
  * Loads the file to edit. 
@@ -83,7 +88,6 @@ public class FileLoader
 			throw new IllegalArgumentException("ID not valid.");
 		this.fileID = fileID;
 		this.fileSize = fileSize;
-		System.out.println("File Loader: fileSize = " + fileSize);
 		if (fileName != null) file = new File(fileName);
 	}
 	
@@ -93,10 +97,7 @@ public class FileLoader
 	 */
 	public void load()
 	{
-		if (fileSize <= 0)
-			handle = mhView.loadFile(fileID, this);
-		else
-			handle = mhView.loadFile(file, fileID, fileSize, this);
+		handle = mhView.loadFile(file, fileID, fileSize, this);
 	}
 
 	/**
@@ -130,14 +131,31 @@ public class FileLoader
 	public void handleResult(Object result)
 	{
 		if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-		File file = (File) result;
-		if (file.exists()) {
-			viewer.setFileToEdit(file);
-			// don't need to keep a copy. Delete the local copy after 
-			// opening in viewer. 
-			String message = "Cannot delete the file.";
-			if (file.delete()) message = "File deleted.";
-			registry.getLogger().info(this, message);
+		File f;
+		FileAnnotationData fa;
+		if (file == null) {
+			Map m = (Map) result;
+			Entry entry;
+			Iterator i = m.entrySet().iterator();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				fa = (FileAnnotationData) entry.getKey();
+				f = (File) entry.getValue();
+				if (f.exists()) {
+					viewer.setFileToEdit(fa, f);
+				}
+			}
+		} else {
+			f = (File) result;
+			if (f.exists()) {
+				viewer.setFileToEdit(null, f);
+				// don't need to keep a copy. Delete the local copy after 
+				// opening in viewer. 
+				String message = "Cannot delete the file.";
+				if (f.delete()) message = "File deleted.";
+				registry.getLogger().info(this, message);
+				file.delete();
+			}
 		}
 	}
 	

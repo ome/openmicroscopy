@@ -30,8 +30,6 @@ import javax.swing.tree.TreeModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.FileAnnotation;
-
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.EditorLoader;
 import org.openmicroscopy.shoola.agents.editor.FileLoader;
@@ -437,8 +435,6 @@ class EditorModel
 			this.nameSpace = null;
 			return;
 		} 
-		
-		System.out.println("EditorModel setFileAnnotation size = " + data.getFileSize());
 		this.fileID = data.getFileID();
 		this.fileName = data.getFileName();
 	}
@@ -469,7 +465,7 @@ class EditorModel
 	long getOriginalFileId() 
 	{
 		if (fileAnnotation == null)  return 0;
-		
 		return fileAnnotation.getId();
 	}
+	
 }

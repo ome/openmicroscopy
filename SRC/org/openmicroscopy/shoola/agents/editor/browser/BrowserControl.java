@@ -585,12 +585,13 @@ public class BrowserControl
 	/**
 	 * Creates a {@link FileAnnotationLoader} and calls load. 
 	 * 
-	 * @param fileID		The fileID you want the annotation for. 
-	 * @param handler		The handler used when the annotation is returned
+	 * @param fileID  The fileID you want the annotation for. 
+	 * @param handler The handler used when the annotation is returned
 	 */
 	public void getFileAnnotation(long fileID, AnnotationHandler handler)
 	{
-		FileAnnotationLoader fal= new FileAnnotationLoader(model, fileID);
+		if (handler == null) return;
+		FileAnnotationLoader fal = new FileAnnotationLoader(model, fileID);
 		fal.setAnnotationHandler(handler);
 		fal.load();
 	}

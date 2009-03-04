@@ -33,7 +33,6 @@ import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.FileAnnotationData;
 
@@ -115,9 +114,7 @@ class EditorComponent
 				if (model.getFileID() != 0) {
 					model.fireFileLoading();
 					fireStateChange();
-					//view.setOnScreen();	// called by EditorUI initialize()
 				} else {
-					//if (view != null) view.deIconify();
 					if (view != null) view.setVisible(true);
 				}
 				break;
@@ -209,14 +206,14 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#setFileToEdit(File)
+	 * @see Editor#setFileToEdit(FileAnnotationData, File)
 	 */
-	public void setFileToEdit(File file)
+	public void setFileToEdit(FileAnnotationData fa, File file)
 	{
 		if ((model.getState() != LOADING) && (model.getState() != NEW))
 			throw new IllegalStateException("This method should only be " +
 					"invoked in the LOADING or NEW states.");
-					
+		if (fa != null) model.setFileAnnotationData(fa);
 		if (model.setFileToEdit(file)) {
 			model.updateNameSpace(); // based on whether file has experiment info
 			view.setTitle(model.getFileName());
@@ -226,6 +223,7 @@ class EditorComponent
 				view.setVisible(true);
 			}
 		}
+		
 		fireStateChange();
 	}
 

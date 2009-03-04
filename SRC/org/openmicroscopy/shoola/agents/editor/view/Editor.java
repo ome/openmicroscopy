@@ -111,9 +111,11 @@ public interface Editor
 	/**
 	 * Sets the loaded file.
 	 * 
-	 * @param file The loaded file.
+	 * @param fa    The file annotation corresponding to the file or 
+	 * 				<code>null</code>.
+	 * @param file  The loaded file.
 	 */
-	public void setFileToEdit(File file);
+	public void setFileToEdit(FileAnnotationData fa, File file);
 
 	/**
 	 * Returns the title of this editor.

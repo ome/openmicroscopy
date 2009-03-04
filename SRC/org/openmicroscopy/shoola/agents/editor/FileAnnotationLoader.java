@@ -79,8 +79,9 @@ public class FileAnnotationLoader
 	}
 	
 	/**
-	 * Allows classes to register to handle the result 
-	 * @param handler
+	 * Allows classes to register to handle the result.
+	 * 
+	 * @param handler The handler
 	 */
 	public void setAnnotationHandler(AnnotationHandler handler) 
 	{
@@ -89,7 +90,7 @@ public class FileAnnotationLoader
 	
 	/**
 	 * Loads the file annotation.
-	 * @see EditorLoader#load()
+	 * @see BrowserLoader#load()
 	 */
 	public void load()
 	{
@@ -98,19 +99,19 @@ public class FileAnnotationLoader
 	
 	/**
 	 * Cancels the data loading.
-	 * @see EditorLoader#cancel()
+	 * @see BrowserLoader#cancel()
 	 */
 	public void cancel() { handle.cancel(); }
     
 	/**
 	 * Feeds the result back to the viewer.
-	 * @see EditorLoader#handleResult(Object)
+	 * @see BrowserLoader#handleResult(Object)
 	 */
 	public void handleResult(Object result)
 	{
 		if (result instanceof FileAnnotationData) {
 			if (annotationHandler != null) {
-				annotationHandler.handleAnnotation((FileAnnotationData)result);
+				annotationHandler.handleAnnotation((FileAnnotationData) result);
 			}
 		}
 	}
