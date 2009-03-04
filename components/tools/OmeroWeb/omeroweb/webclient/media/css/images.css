@@ -9,12 +9,10 @@
 }
 #products img.imgzoom {
     border: 1px solid #999;
-    cursor: move;
 }
 
 #products img.catzoom {
     border: 0px;
-    cursor: move;
 }
 #products li {
     border: 0px;
