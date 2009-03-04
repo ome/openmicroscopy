@@ -52,10 +52,15 @@ class ServerControl(BaseControl):
 
     def blitz(self, args):
         args = Arguments(args)
+        print args.args
         pre, post = self._checkIceConfig(args)
         xargs, debug = self._xargsAndDebug("blitz", ["-Xmx400M"])
+        print "got args"
         blitz_jar = os.path.join("lib","server","blitz.jar")
-        omero.java.run(pre+["-jar",blitz_jar]+post, debug=debug, xargs=xargs, use_exec = True)
+        print "Execp"
+        command = pre+["-jar",blitz_jar]+post
+        print command
+        omero.java.run(command, debug=debug, xargs=xargs, use_exec = True)
 
     def indexer(self, args):
         args = Arguments(args)

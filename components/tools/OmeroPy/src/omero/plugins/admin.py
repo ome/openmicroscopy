@@ -114,12 +114,29 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         first, other = args.firstOther()
         descript = self._descript(first, other)
 
-        config = str(self._intcfg())
-        config += ","
-        config += str(self.dir / "etc" / (self._node()+".cfg"))
-        # TODO : This won't work for Windows. Must refactor.
-        command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",config,"--deploy",str(descript)] + other
-        self.ctx.popen(command)
+        if self._isWindows():
+            svc_name = "OMERO.%s" % self._node()
+            command = ["sc", "query", svc_name]
+            # Required to check the stdout since
+            # rcode is not non-0
+            popen = self.ctx.popen(command, stdout = True)
+            output = popen.communicate()[0]
+            if -1 < output.find("does not exist"):
+                 print "%s service not found" % svc_name
+                 command = [
+                       "sc", "create", svc_name,
+                       "binPath=","""C:\\Ice-3.3.0\\bin\\icegridnode.exe "%s" --deploy "%s" --service %s""" % (self._icecfg(), descript, svc_name),
+                       "DisplayName=", svc_name,
+                       "start=","auto"]
+                       #'obj="NT Authority\LocalService"',
+                       #'password=""']
+                 print self.ctx.popen(command)
+            else:
+                print "NYI: just starting service"
+        else:
+            # TODO : This won't work for Windows. Must refactor.
+            command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg(),"--deploy",str(descript)] + other
+            self.ctx.popen(command)
 
     def startandwait(self, args):
         self.start(args)

@@ -791,15 +791,19 @@ class CLI(cmd.Cmd, Context):
         except KeyError, ke:
             self.die(11, "Missing required plugin: "+ str(ke))
 
-    def popen(self, args, strict = True):
+    def popen(self, args, strict = True, stdout = None):
         """
         Calls the string in a subprocess and dies if the return value is not 0
         """
-        self.dbg("Executing: %s" % args)
-        rv = subprocess.call(args, env = os.environ, cwd = OMERODIR)
-        if strict and not rv == 0:
-            raise NonZeroReturnCode(rv, "%s => %d" % (" ".join(args), rv))
-        return rv
+        if not stdout:
+            self.dbg("Executing: %s" % args)
+            rv = subprocess.call(args, env = os.environ, cwd = OMERODIR)
+            if strict and not rv == 0:
+                raise NonZeroReturnCode(rv, "%s => %d" % (" ".join(args), rv))
+            return rv
+        else:
+            self.dbg("Returning popen: %s" % args)
+            return subprocess.Popen(args, env = os.environ, cwd = OMERODIR, stdout = subprocess.PIPE)
 
     def readDefaults(self):
         try:

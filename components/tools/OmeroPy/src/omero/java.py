@@ -6,15 +6,14 @@
 #
 
 import os, shlex
+import platform
 import subprocess
 
 DEFAULT_DEBUG = "-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=n"
 
-def makeVar(key):
+def makeVar(key, env):
         if os.environ.has_key(key):
-                return [key+"="+os.environ[key]]
-        else:
-                return []
+                env[key] = os.environ[key]
 
 def run(args,\
         use_exec = False,\
@@ -43,7 +42,7 @@ def run(args,\
 
     # Add our logging configuration early
     # so that it can be overwritten by xargs
-    java += [ "-Dlog4j.configuration=etc/log4j.xml" ]
+    java += [ "-Dlog4j.configuration=%s" % os.path.join("etc", "log4j.xml") ]
 
     # Preapre arguments
     if xargs == None:
@@ -70,15 +69,18 @@ def run(args,\
         env = os.environ
         if chdir:
             os.chdir(chdir)
-        os.execvpe(java[0], java, env)
+        if platform.system() == "Windows":
+             command = [ "\"%s\"" % i for i in java ]
+             os.execvpe(java[0], command, env)
+        else:
+             os.execvpe(java[0], java, env)
     else:
-        env = ['env']
-        PATH = makeVar("PATH")
-        LIBS = makeVar("LIBS")
-        LIBM = makeVar("LIBM")
-        command  = env+PATH+LIBS+LIBM+java
+        env = dict()
+        makeVar("PATH", env)
+        makeVar("LIBS", env)
+        makeVar("LIBM", env)
 
         if not chdir:
             chdir = os.getcwd()
-        output = subprocess.Popen(command, stdout=subprocess.PIPE, cwd=chdir).communicate()[0]
+        output = subprocess.Popen(java, stdout=subprocess.PIPE, cwd=chdir, env = env).communicate()[0]
         return output
