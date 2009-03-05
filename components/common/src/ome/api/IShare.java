@@ -49,23 +49,17 @@ public interface IShare extends ServiceInterface {
      */
     void deactivate();
 
-    // ~ Admin
+    // ~ Getting shares and objects (READ)
     // =========================================================================
 
     /**
-     * Looks up all shares present. Requires administrative privileges.
-     * 
-     * @param onlyActive
-     *            if true, then only shares which can be used for login will be
-     *            returned. All "draft" shares (see
-     *            {@link #createShare(String, Timestamp, List, List, List, boolean)}
-     *            and {@link #closeShare(long) closed shares} will be filtered.
-     * @return set of shares. Never null. May be empty.
+     * Returns a map from share id to comment count.  
+     * @param shareIds Not null.
+     * @return Map with all ids present and 0 if no count exists. 
+     * @throws ValidationException if a given share does not exist
      */
-    Set<Session> getAllShares(boolean onlyActive);
+    Map<Long, Long> getCommentCount(@NotNull @Validate(Long.class) Set<Long> shareIds);
 
-    // ~ Getting shares and objects (READ)
-    // =========================================================================
 
     /**
      * Gets all owned shares for the current {@link Experimenter}
@@ -251,6 +245,16 @@ public interface IShare extends ServiceInterface {
      * @return list of Annotation
      */
     List<Annotation> getComments(long shareId);
+
+    /**
+     * Returns a map from share id to the count of total members (including the
+     * owner). This is represented by {@link ome.model.meta.ShareMember} links.
+     *
+     * @param shareIds Not null.
+     * @return Map with all ids present.
+     * @throws ValidationException if a given share does not exist
+     */
+    Map<Long, Long> getMemberCount(@NotNull @Validate(Long.class) Set<Long> shareIds);
 
     /**
      * Creates {@link ome.model.annotations.TextAnnotation comment} for

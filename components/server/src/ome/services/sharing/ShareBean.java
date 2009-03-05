@@ -7,6 +7,7 @@
 
 package ome.services.sharing;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +19,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+
+import loci.formats.in.APLReader;
 
 import ome.annotations.NotNull;
 import ome.annotations.RolesAllowed;
@@ -32,6 +35,7 @@ import ome.model.annotations.Annotation;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.SessionAnnotationLink;
 import ome.model.internal.Details;
+import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
@@ -46,17 +50,21 @@ import ome.services.sharing.data.ShareData;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.tools.hibernate.QueryBuilder;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 
  * Note: {@link SessionManager} should not be used to obtain the {@link Share}
- * data since it may not be completely in sync. i.e. Don't use SM.find() 
+ * data since it may not be completely in sync. i.e. Don't use SM.find()
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
@@ -121,17 +129,59 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         sc.setShareId(null);
     }
 
-    // ~ Admin
-    // =========================================================================
-
-    @RolesAllowed("system")
-    public Set<Session> getAllShares(boolean active) {
-        List<ShareData> shares = store.getShares(active);
-        return sharesToSessions(shares);
-    }
-
     // ~ Getting shares and objects (READ)
     // =========================================================================
+
+    @RolesAllowed("user")
+    public Map<Long, Long> getMemberCount(final Set<Long> shareIds) {
+        
+        if (shareIds == null || shareIds.size() == 0) {
+            throw new ApiUsageException("Nothing to do");
+        }
+        
+        final QueryBuilder qb = new QueryBuilder();
+        qb.select("share2.id", "count(distinct links2.id)");
+        qb.from("ShareMember", "links2");
+        qb.join("links2.parent","share2", false, false);
+        qb.where();
+        qb.paramList("ids", shareIds);
+        qb.and("share2.id in (:ids) and share2.id in ");
+        // -- subselect for all accessible shares
+        {
+            QueryBuilder sub = new QueryBuilder();
+            sub.select("share");
+            sub.from("ShareMember", "memberLinks");
+            sub.join("memberLinks.parent", "share", false, false);
+            sub.join("memberLinks.child", "user", false, false);
+            sub.where();
+            applyIfShareAccessible(sub);
+            qb.subselect(sub);
+        }
+        // -- end subselect
+        qb.append("group by share2.id");
+        
+        final Map<Long, Long> rv = new HashMap<Long, Long>(shareIds.size());
+        sec.runAsAdmin(new AdminAction(){
+            public void runAsAdmin() {
+                iQuery.execute(new HibernateCallback(){
+                    public Object doInHibernate(org.hibernate.Session s)
+                        throws HibernateException, SQLException {
+                        Query q = qb.query(s);
+                        List<Object[]> results = q.list();
+                        if (results.size() != shareIds.size()) {
+                            throw new ValidationException(
+                                    "Missing or protected shares specified");
+                        }
+                        for (Object[] values : results) {
+                            Long shareId = (Long) values[0];
+                            Long count = (Long) values[1];
+                            rv.put(shareId, count);
+                        }
+                        return null;
+                    }});
+            }});
+        return rv;
+    }
 
     @RolesAllowed("user")
     public Set<Session> getOwnShares(boolean active) {
@@ -391,6 +441,52 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     // =========================================================================
 
     @RolesAllowed("user")
+    public Map<Long, Long> getCommentCount(final Set<Long> ids) {
+
+        if (ids == null || ids.size() == 0) {
+            throw new ApiUsageException("Nothing to do");
+        }
+
+        final QueryBuilder qb = new QueryBuilder();
+        qb.select("share.id","count(distinct sal)");
+        qb.from("ShareMember", "sm");
+        qb.join("sm.parent", "share", false, false);
+        qb.join("share.annotationLinks","sal", false, false);
+        qb.join("sal.child", "comment", false, false);
+        qb.join("sm.child", "user", false, false);
+        qb.where();
+        qb.and("share.id in (:ids)");
+        qb.paramList("ids", ids);
+        qb.and("comment.ns like :ns");
+        qb.param("ns", NS_COMMENT + "%");
+        applyIfShareAccessible(qb);
+        qb.append("group by share.id");
+
+        final Map<Long, Long> rv = new HashMap<Long, Long>(ids.size());
+        sec.runAsAdmin(new AdminAction(){
+            public void runAsAdmin() {
+                iQuery.execute(new HibernateCallback() {
+                    public Object doInHibernate(org.hibernate.Session s)
+                        throws HibernateException, SQLException {
+                        Query q = qb.query(s);
+                        List<Object[]> counts = q.list();
+                        if (counts.size() != ids.size()) {
+                            throw new ValidationException(
+                            "Missing or protected shares specified");
+                        }
+                        for (Object[] values : counts) {
+                            Long shareId = (Long) values[0];
+                            Long count = (Long) values[1];
+                            rv.put(shareId, count);
+                        }
+                        return null;
+                    }
+                });
+            }});
+        return rv;
+    }
+
+    @RolesAllowed("user")
     public List<Annotation> getComments(final long shareId) {
 
         final List<Annotation> rv = new ArrayList<Annotation>();
@@ -424,15 +520,31 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public CommentAnnotation addComment(long shareId, @NotNull String comment) {
-        Share s = new Share(shareId, false);
-        CommentAnnotation commentAnnotation = new CommentAnnotation();
-        commentAnnotation.setTextValue(comment);
-        commentAnnotation.setNs(NS_COMMENT);
-        SessionAnnotationLink link = new SessionAnnotationLink(s,
-                commentAnnotation);
-        link = iUpdate.saveAndReturnObject(link);
-        return (CommentAnnotation) link.child();
+    public CommentAnnotation addComment(final long shareId,
+            @NotNull final String commentText) {
+        
+        getShareIfAccessible(shareId);
+        
+        final CommentAnnotation[] rv = new CommentAnnotation[1];
+        sec.runAsAdmin(new AdminAction(){
+            public void runAsAdmin() {
+                
+                Share share = iQuery.get(Share.class, shareId);
+                Experimenter owner = share.getOwner();
+                
+                CommentAnnotation comment = new CommentAnnotation();
+                comment.setTextValue(commentText);
+                comment.setNs(NS_COMMENT);
+                comment.getDetails().setOwner(owner);
+                comment.getDetails().setPermissions(Permissions.DEFAULT);
+                SessionAnnotationLink link = share.linkAnnotation(comment);
+                link.getDetails().setOwner(owner);
+                link.getDetails().setPermissions(Permissions.DEFAULT);
+                
+                iUpdate.flush();
+                rv[0] = iQuery.get(CommentAnnotation.class, comment.getId());
+            }});
+        return rv[0];
     }
 
     @RolesAllowed("user")
@@ -648,8 +760,8 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         Set<Session> sessions = new HashSet<Session>();
         if (ids.size() > 0) {
             List<Session> list = iQuery.findAllByQuery(
-                    "select sh from Session sh " +
-                    "join fetch sh.owner where sh.id in (:ids) ",
+                    "select sh from Session sh "
+                            + "join fetch sh.owner where sh.id in (:ids) ",
                     new Parameters().addIds(ids));
             sessions = new HashSet<Session>(list);
         }
@@ -710,6 +822,32 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         }
     }
 
+    /**
+     * If the current user is not an admin, then this methods adds a subclause
+     * to the HQL:
+     * 
+     *   AND ( share.owner.id = :userId or user.id = :userId )
+     * 
+     * {@link QueryBuilder#where()} should already have been called.
+     */
+    protected void applyIfShareAccessible(QueryBuilder qb) {
+        EventContext ec = admin.getEventContext();
+        if ( ! ec.isCurrentUserAdmin()) {
+            qb.param("userId", ec.getCurrentUserId());
+            qb.and("(");
+            qb.append("share.owner.id = :userId" );
+            qb.append(" OR ");
+            qb.append("user.id = :userId" );
+            qb.append(" ) ");
+        }
+    }
+    
+    /**
+     * Loads share and checks it's owner and member data against the current
+     * context (owner/member/admin). This method must be kept in sync with
+     * {@link #applyIfShareAccessible(QueryBuilder)} which does the same check
+     * at the database rather than binary data level.
+     */
     protected ShareData getShareIfAccessible(long shareId) {
 
         ShareData data = store.get(shareId);
@@ -772,7 +910,6 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     // everything in sync. The other methods which mutate are create & close
     // =========================================================================
 
-
     abstract class SecureShare implements SecureAction {
 
         public final <T extends IObject> T updateObject(T... objs) {
@@ -799,25 +936,19 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     }
 
-    
     protected void storeShareData(long shareId, ShareData data) {
         // This should reload the object already in the first-cache
         Share share = iQuery.get(Share.class, shareId);
-        
+
         this.sec.doAction(new SecureStore(data), share);
         adminFlush();
     }
 
     /*
-    private void updateShare(final Share share) {
-        Future<Object> future = executor.submit(new Callable<Object>() {
-            public Object call() throws Exception {
-                sessionManager.update(share, true);
-                return null;
-            }
-        });
-        executor.get(future);
-    }
-    */
+     * private void updateShare(final Share share) { Future<Object> future =
+     * executor.submit(new Callable<Object>() { public Object call() throws
+     * Exception { sessionManager.update(share, true); return null; } });
+     * executor.get(future); }
+     */
 
 }

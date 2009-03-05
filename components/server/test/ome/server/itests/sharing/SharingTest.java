@@ -9,7 +9,9 @@ package ome.server.itests.sharing;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ome.api.IShare;
@@ -26,6 +28,7 @@ import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
+import ome.model.meta.ShareMember;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
@@ -59,30 +62,31 @@ public class SharingTest extends AbstractManagedContextTest {
 
     @Test(groups = "ticket:1201")
     public void testActive() {
-        
+
         loginNewUser();
-        
+
         share = factory.getShareService();
-        long id = share.createShare("before", null, null, null, Arrays.asList("guest"), false);
+        long id = share.createShare("before", null, null, null, Arrays
+                .asList("guest"), false);
         share.setActive(id, true);
         share.setDescription(id, "desc");
-        
+
         Share s = (Share) share.getShare(id);
         assertEquals(1, share.getAllGuests(id).size());
-        
+
         assertEquals(1, share.getOwnShares(true).size());
     }
 
-    
     @Test(groups = "ticket:1208")
     public void testMembersAreLoaded() {
-        
+
         Experimenter e1 = loginNewUser();
         Experimenter e2 = loginNewUser();
-        
+
         share = factory.getShareService();
-        long id = share.createShare("before", null, null, Arrays.asList(e1), Arrays.asList("guest"), false);
-        
+        long id = share.createShare("before", null, null, Arrays.asList(e1),
+                Arrays.asList("guest"), false);
+
         loginUser(e1.getOmeName());
         Set<Session> sessions = share.getMemberShares(false);
         assertEquals(1, sessions.size());
@@ -90,12 +94,12 @@ public class SharingTest extends AbstractManagedContextTest {
     }
 
     public void testSetOthers() {
-        
+
         loginNewUser();
-        
+
         share = factory.getShareService();
         long id = share.createShare("others", null, null, null, null, false);
-        
+
         loginNewUser();
         try {
             share.setActive(id, true);
@@ -103,9 +107,7 @@ public class SharingTest extends AbstractManagedContextTest {
         } catch (ValidationException ve) {
             // good.
         }
-        
-        
-        
+
     }
 
     @Test
@@ -125,7 +127,7 @@ public class SharingTest extends AbstractManagedContextTest {
         assertEquals((newExpiration - s.getStarted().getTime()), s
                 .getTimeToLive().longValue());
     }
-    
+
     @Test
     public void testClose() {
         share = factory.getShareService();
@@ -146,6 +148,61 @@ public class SharingTest extends AbstractManagedContextTest {
 
         annotations = share.getComments(id);
         assertNotContained(annotation, annotations);
+
+    }
+
+    @Test
+    public void testCommentCounts() {
+
+        Experimenter nonMember = loginNewUser();
+        Experimenter member = loginNewUser();
+        Experimenter owner = loginNewUser();
+
+        share = factory.getShareService();
+
+        long id1 = share.createShare("disabled", null, null, null, null, false);
+        share.addComment(id1, "hello");
+
+        long id2 = share.createShare("disabled", null, null, null, null, false);
+        share.addComment(id2, "hello");
+
+        // Add comment as member
+        share.addUser(id1, member);
+        share.addUser(id2, member);
+        loginUser(member.getOmeName());
+        share.addComment(id2, "hello");
+
+        
+        // as root
+        loginRoot();
+        Map<Long, Long> counts = share.getCommentCount(new HashSet<Long>(Arrays
+                .asList(id1, id2)));
+        assertEquals(new Long(1), counts.get(id1));
+        assertEquals(new Long(2), counts.get(id2));
+
+        // as owner
+        loginUser(owner.getOmeName());
+        counts = share.getCommentCount(new HashSet<Long>(Arrays
+                .asList(id1, id2)));
+        assertEquals(new Long(1), counts.get(id1));
+        assertEquals(new Long(2), counts.get(id2));
+
+        // as member
+        loginUser(member.getOmeName());
+        counts = share.getCommentCount(new HashSet<Long>(Arrays
+                .asList(id1, id2)));
+        assertEquals(new Long(1), counts.get(id1));
+        assertEquals(new Long(2), counts.get(id2));
+        
+        // as non-member
+        loginUser(nonMember.getOmeName());
+        try {
+            share.getCommentCount(new HashSet<Long>(Arrays
+                    .asList(id1, id2)));
+            fail("should throw");
+        } catch (ValidationException ve) {
+            // good
+        }
 
     }
 
@@ -230,13 +287,7 @@ public class SharingTest extends AbstractManagedContextTest {
 
         long id = share.createShare("disabled", null, null, null, null, false);
 
-        Set<Session> shares = share.getAllShares(true);
-        assertShareNotReturned(id, shares);
-
-        shares = share.getAllShares(false);
-        assertShareReturned(id, shares);
-
-        shares = share.getOwnShares(true);
+        Set<Session> shares = share.getOwnShares(true);
         assertShareNotReturned(id, shares);
 
         shares = share.getOwnShares(false);
@@ -395,6 +446,18 @@ public class SharingTest extends AbstractManagedContextTest {
         assertTrue(names.contains(firstMember.getOmeName()));
         assertTrue(names.contains(secondMember.getOmeName()));
 
+        // Counts as different people
+        assertEquals(new Long(3), share.getMemberCount(Collections.singleton(id)).get(id));
+        loginUser(firstMember.getOmeName());
+        assertEquals(new Long(3), share.getMemberCount(Collections.singleton(id)).get(id));
+        loginUser(nonMember.getOmeName());
+        try {
+            share.getMemberCount(Collections.singleton(id)).get(id);
+            fail("should throw");
+        } catch (ValidationException ve) {
+            // ok.
+        }
+        
     }
 
     @Test
@@ -517,14 +580,38 @@ public class SharingTest extends AbstractManagedContextTest {
         assertEquals(1, res.size());
     }
 
-    @Test
-    public void testWhoCanDoWhat() {
-        fail("NYI");
+    @Test(groups = "ticket:1197")
+    public void testShareMembers() {
+        Experimenter member1 = loginNewUser();
+        Experimenter member2 = loginNewUser();
+        Experimenter owner = loginNewUser();
+
+        long id = share.createShare("desc", null, null, Arrays.asList(member1),
+                null, true);
+
+        share.addUser(id, member2);
+
+        loginRoot();
+
+        List<ShareMember> res = iQuery
+                .findAllByQuery("select sm from ShareMember sm"
+                        + " where sm.parent.id = " + id, null);
+        assertEquals(3, res.size()); // includes owner
     }
 
     @Test
     public void testIsTheUUIDProtected() {
-        fail("NYI");
+        Experimenter nonowner = loginNewUser();
+        Experimenter owner = loginNewUser();
+
+        long id = share.createShare("desc", null, null, null,
+                null, true);
+
+        iQuery.get(Share.class, id);
+        
+        loginUser(nonowner.getOmeName());
+        
+        iQuery.get(Share.class, id);
     }
 
     // Assertions

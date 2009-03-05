@@ -99,12 +99,12 @@ public class QueryBuilder {
 
         sb.append("select ");
         for (int i = 0; i < selects.length; i++) {
-            sb.append(selects[i]);
-            if (i > 0) {
+            if (i != 0) {
                 sb.append(", ");
             }
+            sb.append(selects[i]);
+            appendSpace();
         }
-        appendSpace();
         select = true;
         return this;
     }
@@ -206,7 +206,30 @@ public class QueryBuilder {
         appendSpace();
         return this;
     }
+    
+    /**
+     * Appends the string representation of the {@link QueryBuilder} argument
+     * inside of parentheses.
+     */
+    public QueryBuilder subselect(QueryBuilder subselect) {
+        if (!select || !from || !join || !where || order || group) {
+            throwUsage();
+        }
+        sb.append("(");
+        sb.append(subselect.queryString());
+        sb.append(")");
+        for (String key : subselect.params.keySet()) {
+            this.params.put(key, subselect.params.get(key));
+        }
+        for (String key : subselect.listParams.keySet()) {
+            this.listParams.put(key, subselect.listParams.get(key));
+        }
+        appendSpace();
+        return this;
+    }
 
+    
+    
     public QueryBuilder order(String path, boolean ascending) {
         if (!select || !from || !join || !where || group) {
             throwUsage();

@@ -155,8 +155,6 @@ public abstract class ShareStore {
 
     public abstract ShareData get(long id);
 
-    public abstract List<ShareData> getShares(boolean active);
-
     public abstract List<ShareData> getShares(long userId, boolean own,
             boolean active);
 

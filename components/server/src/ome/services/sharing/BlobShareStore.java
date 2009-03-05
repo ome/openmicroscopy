@@ -15,18 +15,21 @@ import java.util.Set;
 import ome.api.IShare;
 import ome.conditions.OptimisticLockException;
 import ome.model.IObject;
+import ome.model.meta.Experimenter;
 import ome.model.meta.Share;
+import ome.model.meta.ShareMember;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
 import ome.system.OmeroContext;
+import ome.tools.hibernate.QueryBuilder;
 import ome.tools.hibernate.SessionFactory;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
 /**
  * 
@@ -99,7 +102,7 @@ public class BlobShareStore extends ShareStore implements
         share.setItemCount((long) items.size());
         share.setVersion((int) newOptLock);
         session.merge(share);
-
+        synchronizeMembers(session, data);
     }
 
     @Override
@@ -114,45 +117,38 @@ public class BlobShareStore extends ShareStore implements
     }
 
     @Override
-    public List<ShareData> getShares(boolean activeOnly) {
-        List<ShareData> rv = new ArrayList<ShareData>();
-        try {
-            Map<Long, byte[]> data = data();
-            for (Long id : data.keySet()) {
-                byte[] bs = data.get(id);
-                ShareData d = parse(id, bs);
-                if (activeOnly && !d.enabled) {
-                    continue;
-                }
-                rv.add(d);
-            }
-            return rv;
-        } catch (EmptyResultDataAccessException empty) {
-            return null;
-        }
-    }
-
-    @Override
     public List<ShareData> getShares(long userId, boolean own,
             boolean activeOnly) {
+
+        Session session = factory.getSession();
+        QueryBuilder qb = new QueryBuilder();
+        qb.select("share.id");
+        qb.from("ShareMember", "sm");
+        qb.join("sm.parent", "share", false, false);
+        qb.where();
+        qb.and("sm.child.id = :userId");
+        qb.param("userId", userId);
+        if (own) {
+            qb.and("share.owner.id = sm.child.id");
+        } else {
+            qb.and("share.owner.id != sm.child.id");
+        }
+        if (activeOnly) {
+            qb.and("share.active is true");
+        }
+        Query query = qb.query(session);
+        List<Long> shareIds = query.list();
+
+        if (shareIds.size() == 0) {
+            return new ArrayList<ShareData>(); // EARLY EXIT!
+        }
+
         List<ShareData> rv = new ArrayList<ShareData>();
         try {
-            Map<Long, byte[]> data = data();
+            Map<Long, byte[]> data = data(shareIds);
             for (Long id : data.keySet()) {
                 byte[] bs = data.get(id);
                 ShareData d = parse(id, bs);
-                if (activeOnly && !d.enabled) {
-                    continue;
-                }
-                if (own) {
-                    if (d.owner != userId) {
-                        continue;
-                    }
-                } else {
-                    if (!d.members.contains(userId)) {
-                        continue;
-                    }
-                }
                 rv.add(d);
             }
             return rv;
@@ -199,10 +195,12 @@ public class BlobShareStore extends ShareStore implements
      * @return
      */
     @SuppressWarnings("unchecked")
-    private Map<Long, byte[]> data() {
+    private Map<Long, byte[]> data(List<Long> ids) {
         Session session = session();
-        List<Object[]> data = session.createQuery("select id, data from Share")
-                .list();
+        Query q = session
+                .createQuery("select id, data from Share where id in (:ids)");
+        q.setParameterList("ids", ids);
+        List<Object[]> data = q.list();
         Map<Long, byte[]> rv = new HashMap<Long, byte[]>();
         for (Object[] objects : data) {
             rv.put((Long) objects[0], (byte[]) objects[1]);
@@ -236,6 +234,38 @@ public class BlobShareStore extends ShareStore implements
 
         // Finally calling init here, since before it's not possible
         init();
+    }
+
+    private void synchronizeMembers(Session session, ShareData data) {
+
+        Query q = session.createQuery("select sm from ShareMember sm "
+                + "where sm.parent = ?");
+        q.setLong(0, data.id);
+        List<ShareMember> members = q.list();
+        Map<Long, ShareMember> lookup = new HashMap<Long, ShareMember>();
+        for (ShareMember sm : members) {
+            lookup.put(sm.getChild().getId(), sm);
+        }
+
+        Set<Long> intendedUserIds = new HashSet<Long>(data.members);
+        intendedUserIds.add(data.owner);
+
+        Set<Long> currentUserIds = lookup.keySet();
+
+        Set<Long> added = new HashSet<Long>(intendedUserIds);
+        added.removeAll(currentUserIds);
+        for (Long toAdd : added) {
+            ShareMember sm = new ShareMember();
+            sm.link(new Share(data.id, false), new Experimenter(toAdd, false));
+            session.merge(sm);
+        }
+
+        Set<Long> removed = new HashSet<Long>(currentUserIds);
+        removed.removeAll(intendedUserIds);
+        for (Long toRemove : removed) {
+            session.delete(lookup.get(toRemove));
+        }
+
     }
 
 }

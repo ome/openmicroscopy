@@ -30,14 +30,15 @@ import omero.api.AMD_IShare_deleteComment;
 import omero.api.AMD_IShare_getActiveConnections;
 import omero.api.AMD_IShare_getAllGuests;
 import omero.api.AMD_IShare_getAllMembers;
-import omero.api.AMD_IShare_getAllShares;
 import omero.api.AMD_IShare_getAllUsers;
+import omero.api.AMD_IShare_getCommentCount;
 import omero.api.AMD_IShare_getComments;
 import omero.api.AMD_IShare_getContentMap;
 import omero.api.AMD_IShare_getContentSize;
 import omero.api.AMD_IShare_getContentSubList;
 import omero.api.AMD_IShare_getContents;
 import omero.api.AMD_IShare_getEvents;
+import omero.api.AMD_IShare_getMemberCount;
 import omero.api.AMD_IShare_getMemberShares;
 import omero.api.AMD_IShare_getMemberSharesFor;
 import omero.api.AMD_IShare_getOwnShares;
@@ -155,18 +156,18 @@ public class ShareI extends AbstractAmdServant implements _IShareOperations {
 
     }
 
-    public void getAllShares_async(AMD_IShare_getAllShares __cb,
-            boolean active, Current __current) {
-        callInvokerOnRawArgs(__cb, __current, active);
-
-    }
-
     public void getAllUsers_async(AMD_IShare_getAllUsers __cb, long shareId,
             Current __current) throws ValidationException {
         callInvokerOnRawArgs(__cb, __current, shareId);
 
     }
 
+    public void getCommentCount_async(AMD_IShare_getCommentCount __cb,
+            List<Long> shareIds, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, shareIds);
+
+    }
+    
     public void getComments_async(AMD_IShare_getComments __cb, long shareId,
             Current __current) {
         callInvokerOnRawArgs(__cb, __current, shareId);
@@ -194,6 +195,12 @@ public class ShareI extends AbstractAmdServant implements _IShareOperations {
     public void getContents_async(AMD_IShare_getContents __cb, long shareId,
             Current __current) {
         callInvokerOnRawArgs(__cb, __current, shareId);
+
+    }
+    
+    public void getMemberCount_async(AMD_IShare_getMemberCount __cb,
+            List<Long> shareIds, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, shareIds);
 
     }
 

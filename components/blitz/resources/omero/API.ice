@@ -383,7 +383,7 @@ module omero {
 	    void activate(long shareId) throws ServerError;
 	    void deactivate() throws ServerError;
 	    omero::model::Share getShare(long shareId) throws ServerError;
-	    SessionList getAllShares(bool active) throws ServerError;
+	    omero::sys::CountMap getMemberCount(omero::sys::LongList shareIds) throws ServerError;
 	    SessionList getOwnShares(bool active) throws ServerError;
 	    SessionList getMemberShares(bool active) throws ServerError;
 	    SessionList getSharesOwnedBy(omero::model::Experimenter user, bool active) throws ServerError;
@@ -409,6 +409,7 @@ module omero {
 	    void removeObjects(long shareId, IObjectList iobjects) throws ServerError;
 	    void removeObject(long shareId, omero::model::IObject iobject) throws ServerError;
 
+	    omero::sys::CountMap getCommentCount(omero::sys::LongList shareIds) throws ServerError;
 	    AnnotationList getComments(long shareId) throws ServerError;
 	    omero::model::TextAnnotation addComment(long shareId, string comment) throws ServerError;
 	    omero::model::TextAnnotation addReply(long shareId,
