@@ -1113,6 +1113,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 } catch (ApiUsageException e) {
                     return false;
                 }
+                return false;
             }
             return true;
         }
