@@ -330,23 +330,6 @@ class DocComponent
 		d.setOriginalDescription(originalDescription);
 		d.setSize(300, 250);
 		UIUtilities.showOnScreen(d, popupPoint);
-		/*
-		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		String title = "Add or Edit description";
-		IconManager icons = IconManager.getInstance();
-		Icon icon = icons.getIcon(IconManager.EDIT_48);
-		SwingUtilities.convertPointToScreen(popupPoint, this);
-		InputDialog d = new InputDialog(f, title, text, icon);
-		int option = d.showMsgBox(popupPoint);
-		if (option == InputDialog.SAVE) {
-			String txt = d.getText();
-			if (txt != null && txt.length() > 0) {
-				tag.setTagDescription(txt);
-				firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
-			}
-		} else if (option == InputDialog.CANCEL) 
-			originalText = null;
-			*/
 	}
 	
 	/**

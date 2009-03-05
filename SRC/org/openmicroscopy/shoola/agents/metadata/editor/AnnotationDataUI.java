@@ -252,7 +252,7 @@ class AnnotationDataUI
 		content = new JPanel();
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-    	double[] columns = {TableLayout.PREFERRED, 5, COLUMN_WIDTH};
+    	double[] columns = {TableLayout.PREFERRED, 5, DEFAULT_WIDTH};
     	TableLayout layout = new TableLayout();
     	content.setLayout(layout);
     	layout.setColumn(columns);
@@ -421,7 +421,6 @@ class AnnotationDataUI
 				doc = new DocComponent(i.next(), model);
 				doc.addPropertyChangeListener(controller);
 				tagsDocList.add(doc);
-				System.err.println(width+doc.getPreferredSize().width);
 			    if (width+doc.getPreferredSize().width >= COLUMN_WIDTH) {
 			    	tagsPane.add(p);
 			    	p = initRow();
