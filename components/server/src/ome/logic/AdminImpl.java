@@ -1100,6 +1100,20 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             }
             return false; // Password is turned off.
         } else if (hash.trim().length() == 0) {
+            if (ldap != null) {
+                // Check type of authentication if hash is empty
+                // Try to get DN
+                String dn = LdapUtil.lookupLdapAuthExperimenter(jdbc, id);
+                if (null == dn) {
+                    return false; // no DN. Unknown user. TODO Guest?
+                } 
+                try {
+                    if (ldap.validatePassword(dn, password))
+                        return true;
+                } catch (ApiUsageException e) {
+                    return false;
+                }
+            }
             return true;
         }
         String digest = PasswordUtil.preparePassword(password);
