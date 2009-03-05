@@ -77,7 +77,7 @@ public class NumberCellRenderer
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
 		
-		setText(value.toString());
+		if (value != null) setText(value.toString());
 		return this;
 	}
 	

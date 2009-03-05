@@ -147,8 +147,8 @@ public interface Browser
     /** 
      * Bound property name indicating a new node is selected. 
      */
-    public static final String  	SELECTED_DISPLAY_PROPERTY = 
-        								"selectedDisplay";
+    public static final String  	SELECTED_TREE_NODE_DISPLAY_PROPERTY = 
+        								"selectedTreeNodeDisplay";
     
     /** 
      * Bound property name indicating to remove the browser from the display. 

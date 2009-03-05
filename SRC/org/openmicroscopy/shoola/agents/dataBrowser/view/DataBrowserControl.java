@@ -283,11 +283,12 @@ class DataBrowserControl
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (Browser.SELECTED_DISPLAY_PROPERTY.equals(name)) {
+		if (Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY.equals(name)) {
 			ImageDisplay node = (ImageDisplay) evt.getNewValue();
             if (node == null) return;
 			model.setSelectedDisplay(node);
-		} else if (Browser.UNSELECTED_DISPLAY_PROPERTY.equals(name)) {
+		} else if (Browser.UNSELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY.equals(
+				name)) {
 			ImageDisplay node = (ImageDisplay) evt.getNewValue();
             if (node == null) return;
 			model.setUnselectedDisplay(node);

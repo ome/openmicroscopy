@@ -172,6 +172,7 @@ public interface TreeViewer
 	 */
 	public static final String		SELECTED_BROWSER_PROPERTY = 
 		"selectedBrowser";
+	
 	/**
 	 * Bound properties to indicate to remove the currently displayed editor.
 	 */

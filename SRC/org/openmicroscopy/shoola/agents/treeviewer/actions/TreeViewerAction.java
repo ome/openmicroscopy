@@ -119,7 +119,7 @@ public abstract class TreeViewerAction
         while (i.hasNext()) {
             browser = (Browser) i.next();
             browser.addPropertyChangeListener(
-                    Browser.SELECTED_DISPLAY_PROPERTY, this);
+                    Browser.SELECTED_TREE_NODE_DISPLAY_PROPERTY, this);
             browser.addChangeListener(this);
         }    
     }
@@ -155,7 +155,7 @@ public abstract class TreeViewerAction
     public void actionPerformed(ActionEvent e) {}
 
     /**
-     * Reacts to property changes {@link Browser#SELECTED_DISPLAY_PROPERTY}
+     * Reacts to property changes {@link Browser#SELECTED_TREE_NODE_DISPLAY_PROPERTY}
      * event fired by the {@link Browser} and to
      * the {@link TreeViewer#SELECTED_BROWSER_PROPERTY} event.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

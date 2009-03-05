@@ -94,10 +94,12 @@ public class EditorDialog
 	public static final String		CREATE_PROPERTY = "create";
 	
 	/** Bound property indicating to create an object. */
-	public static final String		CREATE_NO_PARENT_PROPERTY = "createNoParent";
+	public static final String		CREATE_NO_PARENT_PROPERTY = 
+		"createNoParent";
 	
 	/** Bound property indicating to create an object. */
-	public static final String		CLOSE_EDITOR_DIALOG_PROPERTY = "closeEditorDialog";
+	public static final String		CLOSE_EDITOR_DIALOG_PROPERTY = 
+		"closeEditorDialog";
 	
     /** The default size of the dialog. */
     private static final Dimension 	WIN_DIM = new Dimension(600, 300);

@@ -72,20 +72,22 @@ public interface Browser
 	 * Bound property name indicating an {@link ImageDisplay} object has been
 	 * selected in the visualization tree. 
 	 */
-	public static final String SELECTED_DISPLAY_PROPERTY = "selectedDisplay";
+	public static final String SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY = 
+		"selectedDataBrowserNodeDisplay";
 	
 	/** 
 	 * Bound property name indicating an {@link ImageDisplay} object has been
 	 * unselected in the visualization tree. 
 	 */
-	public static final String UNSELECTED_DISPLAY_PROPERTY = 
-														"unselectedDisplay";
+	public static final String UNSELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY =
+		"unselectedDataBrowserNodeDisplay";
 	
 	/** 
 	 * Bound property name indicating a {@link Thumbnail} has been selected
 	 * within an {@link ImageNode}.
 	 * The associated property change event is always dispatched <i>after</i>
-	 * dispatching the one for the {@link #SELECTED_DISPLAY_PROPERTY}.  This
+	 * dispatching the one for the 
+	 * {@link #SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY}.  This
 	 * latter property will be set to the {@link ImageNode} the 
 	 * {@link Thumbnail} belong in.
 	 */
@@ -108,16 +110,7 @@ public interface Browser
 	
 	/** Bound property indicating to magnify the node when moused over. */
 	public static final String  ROLL_OVER_PROPERTY = "rollOver";
-	
-	/**
-	 * Sets the specified <code>node</code> to be the currently selected
-	 * node in the visualization tree.
-	 * Sets it to <code>null</code> to indicate no node is currently selected.
-	 *  
-	 * @param node The node to become the currently selected node.
-	 */
-	public void setSelectedDisplay(ImageDisplay node);
-	
+
 	/**
 	 * Returns the node, if any, that is currently selected in the 
 	 * visualization tree.

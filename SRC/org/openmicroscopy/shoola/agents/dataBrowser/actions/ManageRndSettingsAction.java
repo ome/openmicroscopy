@@ -212,7 +212,9 @@ public class ManageRndSettingsAction
 		icons = IconManager.getInstance();
 		checkIndex(index);
 		this.index = index;
-		model.addPropertyChangeListener(this);
+		model.addPropertyChangeListener(DataBrowser.COPY_ITEMS_PROPERTY, this);
+		model.addPropertyChangeListener(
+				DataBrowser.RND_SETTINGS_TO_COPY_PROPERTY, this);
 	}
 	
 	/**

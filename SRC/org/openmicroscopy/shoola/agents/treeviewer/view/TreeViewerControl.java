@@ -541,7 +541,7 @@ class TreeViewerControl
 				browser = (Browser) i.next();
 				browser.setSelected(browser.equals(b));
 			}
-		} else if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
+		} else if (name.equals(Browser.SELECTED_TREE_NODE_DISPLAY_PROPERTY)) {
 			model.onSelectedDisplay();
 			view.updateMenuItems();
 		} else if (name.equals(TreeViewer.HIERARCHY_ROOT_PROPERTY)) {
@@ -591,6 +591,7 @@ class TreeViewerControl
 							TreeViewer.UPDATE_OBJECT);
 			}
 		} else if (DataBrowser.SELECTED_NODE_DISPLAY_PROPERTY.equals(name)) {
+			System.err.println(name);
 			model.setSelectedNode(pce.getNewValue());
 		} else if (DataBrowser.UNSELECTED_NODE_DISPLAY_PROPERTY.equals(name)) {
 			model.setUnselectedNode(pce.getNewValue());

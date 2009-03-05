@@ -225,7 +225,7 @@ class BrowserComponent
     	if (exp != null) model.setSelectedDisplay(exp, single);
     	else model.setSelectedDisplay(display, single);
     	if (display == null) view.setNullSelectedNode();
-    	firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, display);
+    	firePropertyChange(SELECTED_TREE_NODE_DISPLAY_PROPERTY, oldDisplay, display);
     }
     /**
      * Creates a new instance.
@@ -804,7 +804,7 @@ class BrowserComponent
         	if (i == 0) model.setSelectedDisplay(nodes[i], flush);
         	else model.setSelectedDisplay(nodes[i], false);
 		}
-        firePropertyChange(SELECTED_DISPLAY_PROPERTY, null, nodes[n-1]);
+        firePropertyChange(SELECTED_TREE_NODE_DISPLAY_PROPERTY, null, nodes[n-1]);
     }
 
     /**

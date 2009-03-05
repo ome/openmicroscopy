@@ -54,7 +54,6 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -607,6 +606,7 @@ class TreeViewerComponent
 	 */
 	public void setSelectedNode(Object object)
 	{
+		System.err.println("object: "+object);
 		if (object == null) return;
 		if (!(object instanceof List)) return;
 		List l = (List) object;

@@ -31,7 +31,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 import javax.swing.JComponent;
 
 
@@ -137,7 +136,8 @@ public class BrowserControl
     {
         if (model == null) throw new NullPointerException("No model.");
         if (view == null) throw new NullPointerException("No view.");
-        model.addPropertyChangeListener(Browser.SELECTED_DISPLAY_PROPERTY,
+        model.addPropertyChangeListener(
+        		Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY,
                                         this);
         model.addPropertyChangeListener(Browser.ROLL_OVER_PROPERTY,
                                             this);
@@ -191,9 +191,6 @@ public class BrowserControl
         } else if (Browser.ROLL_OVER_PROPERTY.equals(name)) {
             ImageDisplay newNode = (ImageDisplay) evt.getNewValue();
             view.setTitle(model.currentPathString(newNode));
-        } else if (Browser.SELECTED_DISPLAY_PROPERTY.equals(name)) {
-        	model.onNodeSelected((ImageDisplay) evt.getNewValue(), 
-        			      (Set) evt.getOldValue());
         } else if (ImageNode.PIN_THUMBNAIL_PROPERTY.equals(name)) {
         	ImageNode node = (ImageNode) evt.getNewValue();
         	model.setThumbSelected(true, node);
@@ -218,7 +215,6 @@ public class BrowserControl
     {
     	ImageDisplay d = findParentDisplay(me.getSource());
     	d.moveToFront();
-
     	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
     	boolean b = (me.isControlDown() || me.isMetaDown());//me.isShiftDown();
     	if (me.isPopupTrigger()) {
@@ -246,8 +242,9 @@ public class BrowserControl
     		if (remove) model.removeSelectedDisplay(d);
     		else model.setSelectedDisplay(d, true, true);
     	} else {
-    		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) 
-    			model.setSelectedDisplay(d);
+    		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
+    	    	model.setSelectedDisplay(d, false, true);
+    		}
     	}
         if (me.isPopupTrigger()) popupTrigger = true;
     }

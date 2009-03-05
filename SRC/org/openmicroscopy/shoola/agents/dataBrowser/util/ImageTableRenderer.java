@@ -81,7 +81,6 @@ public class ImageTableRenderer
 			if (value instanceof ImageTableNode) {
 				setBackground(((ImageTableNode) value).getHighLight());
 			} else setBackground(getBackgroundSelectionColor());
-			System.err.println(getBackgroundSelectionColor());
 		} else setBackground(getBackgroundNonSelectionColor());
 		if (!(value instanceof ImageTableNode)) return this;
 		ImageTableNode node = (ImageTableNode) value;

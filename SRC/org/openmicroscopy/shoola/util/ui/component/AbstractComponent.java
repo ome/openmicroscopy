@@ -126,14 +126,14 @@ public abstract class AbstractComponent
         //observers sets.  This way we avoid repeated notification.
         Set allPropsListeners = propsRegistry.get(allPropsKey),
             propListeners = propsRegistry.get(propertyName);
-        Set<Set>   notificationSet = new HashSet<Set>();
+        Set<Set> notificationSet = new HashSet<Set>();
         if (allPropsListeners != null) 
             notificationSet.addAll(allPropsListeners);
         if (propListeners != null) notificationSet.addAll(propListeners);
         
         //Do the stateless notification, then just return if there are no 
         //observers for the stateful notification.
-        fireStateChange();
+        //fireStateChange(); 05/03 test
         if (notificationSet.size() == 0) return;
         
         //Ok then, we've got observers.  Let's create the event and then

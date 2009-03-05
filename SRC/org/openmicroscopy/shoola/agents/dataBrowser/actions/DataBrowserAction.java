@@ -103,12 +103,12 @@ public class DataBrowserAction
     public void propertyChange(PropertyChangeEvent evt)
     {
     	String name = evt.getPropertyName();
-    	if (Browser.SELECTED_DISPLAY_PROPERTY.equals(name)) {
+    	if (Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY.equals(name)) {
     		Object node = evt.getNewValue();
     		if (node instanceof ImageDisplay)
     			onDisplayChange((ImageDisplay) node);
     		else onDisplayChange(null);
-    	} 
+    	}
     }
 
     /** 
@@ -120,7 +120,8 @@ public class DataBrowserAction
     	int state = model.getState();
     	if (state == DataBrowser.LOADING || (state == DataBrowser.READY &&
     			model.getBrowser().getImages().size() == 0)) {
-    		model.getBrowser().addPropertyChangeListener(this);
+    		model.getBrowser().addPropertyChangeListener(
+    				Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY, this);
     		onStateChange();
     	} else if (state == DataBrowser.READY)
     		onStateChange();
