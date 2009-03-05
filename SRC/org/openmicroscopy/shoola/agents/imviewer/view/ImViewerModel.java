@@ -279,15 +279,9 @@ class ImViewerModel
     	int sizeZ = currentRndControl.getPixelsDimensionsZ();
 		int sizeC = currentRndControl.getPixelsDimensionsC();
 		int sizeT = currentRndControl.getPixelsDimensionsT();
-		if (z < 0 || sizeZ <= z) 
-			throw new IllegalArgumentException(
-					"z out of range [0, "+sizeZ+"): "+z+".");
-		if (c < 0 || sizeC <= c) 
-			throw new IllegalArgumentException(
-					"w out of range [0, "+sizeC+"): "+c+".");
-		if (t < 0 || sizeT <= t) 
-			throw new IllegalArgumentException(
-					"t out of range [0, "+sizeT+"): "+t+".");
+		if (z < 0 || sizeZ <= z) return -1;
+		if (c < 0 || sizeC <= c) return -1;
+		if (t < 0 || sizeT <= t) return -1;
 		return Integer.valueOf(sizeZ*sizeC*t+sizeZ*c+z);
     }
     
@@ -1672,7 +1666,7 @@ class ImViewerModel
 			if (object != null) {
 				index = linearize(object.getTheZ().getValue(), 
 					object.getTheC().getValue(), object.getTheT().getValue());
-				planeInfos.put(index, object);
+				if (index >= 0) planeInfos.put(index, object);
 			}
 		}
     }
@@ -1690,6 +1684,7 @@ class ImViewerModel
     	Integer index = null;
     	try {
 			index = linearize(z, c, t);
+			if (index < 0) return null;
 			return planeInfos.get(index);
 		} catch (Exception e) {}
     	return null;
