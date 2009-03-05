@@ -421,6 +421,7 @@ class AnnotationDataUI
 				doc = new DocComponent(i.next(), model);
 				doc.addPropertyChangeListener(controller);
 				tagsDocList.add(doc);
+				System.err.println(width+doc.getPreferredSize().width);
 			    if (width+doc.getPreferredSize().width >= COLUMN_WIDTH) {
 			    	tagsPane.add(p);
 			    	p = initRow();
@@ -429,8 +430,6 @@ class AnnotationDataUI
 			    	width += doc.getPreferredSize().width;
 			    }
 				p.add(doc);
-				
-				//tagsPane.add(doc);
 			}
 			if (p.getComponentCount() > 0)
 				tagsPane.add(p);

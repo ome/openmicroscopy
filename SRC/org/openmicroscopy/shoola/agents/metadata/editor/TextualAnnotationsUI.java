@@ -278,6 +278,7 @@ class TextualAnnotationsUI
 				text = DEFAULT_TEXT_COMMENT;
 				b = true;
 			}
+			
 			originalText = text;
 			setAreaText(text, b);
 			
@@ -347,7 +348,7 @@ class TextualAnnotationsUI
 		if (text == null) return false;
 		text = text.trim();
 		if (text.length() == 0 && originalText != null) return true;
-		if (text.equals(originalText) || text.equals(DEFAULT_TEXT_COMMENT)) 
+		if (originalText.equals(text) || text.equals(DEFAULT_TEXT_COMMENT)) 
 			return false;
 		return true;
 	}
@@ -432,6 +433,7 @@ class TextualAnnotationsUI
 				text = DEFAULT_TEXT_COMMENT;
 				b = true;
 			}
+			text = text.trim();
 			originalText = text;
 			setAreaText(DEFAULT_TEXT_COMMENT, b);
 		}
