@@ -229,11 +229,14 @@ public class IconManager
     /** The <code>Tag set</code> icon. */
     public static final int           TAG_SET = 58;
     
+    /** The <code>Download 12</code> icon. */
+    public static final int           DOWNLOAD_12 = 59;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 58;
+	private static final int          MAX_ID = 59;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -296,6 +299,7 @@ public class IconManager
         relPaths[PLUS_12] = "plus11.png";
         relPaths[MINUS_12] = "minus11.png";
         relPaths[TAG_SET] = "nuvola_knotesRedRed16.png";
+        relPaths[DOWNLOAD_12] = "nuvola_download_manager11.png";
 	}
    
 	/** The sole instance. */

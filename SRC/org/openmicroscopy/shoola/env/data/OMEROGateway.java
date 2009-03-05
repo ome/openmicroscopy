@@ -47,6 +47,7 @@ import java.util.Set;
 import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
+import Ice.ConnectionLostException;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -170,6 +171,12 @@ import pojos.WellSampleData;
 class OMEROGateway
 {
 
+	/** Indicates that the connection has been lost. */
+	static final int LOST_CONNECTION = 0;
+	
+	/** Indicates that the server is out of service.. */
+	static final int SERVER_OUT_OF_SERVICE = 1;
+	
 	/** Maximum size of pixels read at once. */
 	private static final int				INC = 262144;//256000;
 	
@@ -3533,8 +3540,11 @@ class OMEROGateway
 			EventContext ctx = getAdminService().getEventContext();
 			getSessionService().getSession(ctx.sessionUuid);
 		} catch (Exception e) {
-			e.printStackTrace();
-			dsFactory.sessionExpiredExit();
+			Throwable cause = e.getCause();
+			int index = SERVER_OUT_OF_SERVICE;
+			if (cause instanceof ConnectionLostException)
+				index = LOST_CONNECTION;
+			dsFactory.sessionExpiredExit(index);
 		}
 	}
 	

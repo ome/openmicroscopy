@@ -47,6 +47,7 @@ import javax.swing.SwingUtilities;
 
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -54,6 +55,7 @@ import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
@@ -86,6 +88,9 @@ class DocComponent
 	/** Action id to edit the annotation. */
 	private static final int EDIT = 1;
 	
+	/** Action id to edit the annotation. */
+	private static final int DOWNLOAD = 2;
+	
 	/** The annotation hosted by this component. */
 	private Object		data;
 	
@@ -97,6 +102,9 @@ class DocComponent
 	
 	/** Button to edit the annotation. */
 	private JButton		editButton;
+	
+	/** Button to download the file linked to the annotation. */
+	private JButton		downloadButton;
 	
 	/** Component displaying the file name. */
 	private JLabel		label;
@@ -219,9 +227,20 @@ class DocComponent
 		deleteButton = new JButton(icons.getIcon(IconManager.MINUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(deleteButton);
 		deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		if (data instanceof FileAnnotationData)
+		if (data instanceof FileAnnotationData) {
+			FileAnnotationData fa = (FileAnnotationData) data;
 			deleteButton.setToolTipText("Remove the attachment.");
-		else if (data instanceof TagAnnotationData) {
+			if (fa.getId() > 0) {
+				downloadButton = new JButton(icons.getIcon(
+						IconManager.DOWNLOAD_12));
+				downloadButton.setOpaque(false);
+				UIUtilities.unifiedButtonLookAndFeel(downloadButton);
+				downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+				downloadButton.setToolTipText("Download the file.");
+				downloadButton.setActionCommand(""+DOWNLOAD);
+				downloadButton.addActionListener(this);
+			}
+		} else if (data instanceof TagAnnotationData) {
 			deleteButton.setToolTipText("Remove the Tag.");
 			editButton = new JButton(icons.getIcon(IconManager.EDIT_12));
 			editButton.setOpaque(false);
@@ -312,6 +331,7 @@ class DocComponent
 		bar.setOpaque(true);
 		if (editButton != null) bar.add(editButton);
 		if (deleteButton != null) bar.add(deleteButton);
+		if (downloadButton != null) bar.add(downloadButton);
 		if (bar.getComponentCount() > 0) add(bar);
 	}
 	
@@ -390,6 +410,10 @@ class DocComponent
 				break;
 			case EDIT:
 				editDescription();
+				break;
+			case DOWNLOAD:
+				UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+				un.notifyDownload((FileAnnotationData) data);
 		}
 	}
 
@@ -408,6 +432,5 @@ class DocComponent
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
 		} 
 	}
-	
 	
 }

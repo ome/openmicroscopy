@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 //Third-party libraries
@@ -44,6 +45,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import omero.RDouble;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMEComboBoxUI;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -383,14 +385,17 @@ public class EditorUtil
 		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.DOUBLE, 
 					"Double precision");
 		PIXELS_TYPE = new LinkedHashMap<String, String>();
-		Iterator<String> i = PIXELS_TYPE_DESCRIPTION.keySet().iterator();
-		String key;
+		Entry entry;
+		Iterator i = PIXELS_TYPE_DESCRIPTION.entrySet().iterator();
 		while (i.hasNext()) {
-			key = i.next();
-			PIXELS_TYPE.put(PIXELS_TYPE_DESCRIPTION.get(key), key);
+			entry = (Entry) i.next();
+			PIXELS_TYPE.put((String) entry.getValue(), (String) entry.getKey());
 		}
 	}
 
+	/** The filter to determine if a file is an editor file or not. */
+	private static final EditorFileFilter editorFilter = new EditorFileFilter();
+	
     /**
      * Transforms the specified {@link ExperimenterData} object into 
      * a visualization form.
@@ -1465,4 +1470,16 @@ public class EditorUtil
 		return taskPane;
 	}
 
+	/**
+	 * Returns <code>true</code> if the passed name is the name of an
+	 * editor file, <code>false</code> otherwise.
+	 * 
+	 * @param fileName The name of the file.
+	 * @return See above.
+	 */
+	public static boolean isEditorFile(String fileName)
+	{
+		return editorFilter.accept(fileName);
+	}
+	
 }

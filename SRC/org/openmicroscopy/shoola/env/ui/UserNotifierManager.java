@@ -247,7 +247,7 @@ class UserNotifierManager
 	void saveFileToDisk(OriginalFile file, File directory)
 	{
 		Logger log = container.getRegistry().getLogger();
-		 log.debug(this, "origianl: "+file);
+		log.debug(this, "original: "+file);
 		if (file == null) return;
 		if (download == null) {
 			Registry reg = container.getRegistry();

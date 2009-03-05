@@ -228,12 +228,19 @@ public class DataServicesFactory
 	/** 
 	 * Brings up a dialog indicating that the session has expired and
 	 * quits the application.
+	 * 
+	 * @param index One of the connection constants defined by the gateway.
 	 */
-	void sessionExpiredExit()
+	void sessionExpiredExit(int index)
 	{
 		UserNotifier un = registry.getUserNotifier();
-		un.notifyInfo("Connection Refused", "The server is no longer " +
-				"running. \nPlease contact your system administrator.");
+		String message = "The server is no longer " +
+			"running. \nPlease contact your system administrator.";
+		if (index == OMEROGateway.LOST_CONNECTION) {
+			message = "The connection has been lost. \nThe application will " +
+					"exit.";
+		}
+		un.notifyInfo("Connection Refused", message);
 		exitApplication();
 	}
 	

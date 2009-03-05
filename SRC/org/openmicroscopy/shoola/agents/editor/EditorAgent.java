@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;
 import org.openmicroscopy.shoola.agents.events.editor.CopyEvent;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -43,7 +44,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 
@@ -142,8 +142,7 @@ public class EditorAgent
 		} else {
 			String name = data.getFileName();
 			if (name == null) return;
-			EditorFileFilter filter = new EditorFileFilter();
-			if (!filter.accept(name)) return;
+			if (!EditorUtil.isEditorFile(name)) return;
 			editor = EditorFactory.getEditor(data);
 		}
 		if (editor != null)
