@@ -163,7 +163,7 @@ class BaseCalendar(BaseController):
         for i in all_logs:
             for d in items:
                 if time.gmtime(i.event.time.val / 1000).tm_mday == d:
-                    items[d].append({'id':i.entityId, 'type': i.entityType, 'action': i.action})
+                    items[d].append({'id':i.entityId.val, 'type': i.entityType.val, 'action': i.action.val})
         return items
         
     def month_range(self, year, month):

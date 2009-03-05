@@ -1698,7 +1698,7 @@ class BlitzGateway (threading.Thread):
         f = omero.sys.Filter()
         f.ownerId = rlong(self.getEventContext().userId)
         f.groupId = rlong(self.getEventContext().groupId)
-        f.limit = rint(20)
+        f.limit = rint(200)
         p.theFilter = f
         for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p):
             yield AnnotationLinkWrapper(self, e)
@@ -1783,8 +1783,8 @@ class BlitzGateway (threading.Thread):
         f.ownerId = rlong(self.getEventContext().userId)
         f.groupId = rlong(self.getEventContext().groupId)
         p.theFilter = f
-        for e in tm.getEventLogsByPeriod(rtime(start), rtime(end), p):
-            yield EventLogWrapper(self, e)
+        return tm.getEventLogsByPeriod(rtime(start), rtime(end), p)
+        #yield EventLogWrapper(self, e)
     
     ##############################################
     ##  Search methods                          ##

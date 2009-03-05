@@ -51,7 +51,7 @@ class BaseIndex(BaseController):
         self.mostRecentShares = self.sortByAttr(shares, 'started', True)
     
     def loadTagCloud(self):
-        tag_links = self.sortByAttr(list(self.conn.getMostRecentTagLinks()), 'child.textValue')
+        tag_links = list(self.conn.getMostRecentTagLinks())
         tags = dict()
         for t in tag_links:
             ann = t.getAnnotation()

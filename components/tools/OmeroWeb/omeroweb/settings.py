@@ -5,7 +5,7 @@ import logging
 import logging.handlers
 
 # Django settings for OMERO.web project.
-DEBUG = False # if True handler404 and handler500 works only when False
+DEBUG = True # if True handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
 
 # Database settings

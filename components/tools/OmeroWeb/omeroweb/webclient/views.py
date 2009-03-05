@@ -306,9 +306,9 @@ def isUserConnected (f):
             url = request.REQUEST['url']
         except:
             if request.META['QUERY_STRING']:
-                url = '%s://%s:%s%s?%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], request.META['PATH_INFO'], request.META['QUERY_STRING'])
+                url = '%s?%s' % (request.META['PATH_INFO'], request.META['QUERY_STRING'])
             else:
-                url = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], request.META['PATH_INFO'])
+                url = '%s' % (request.META['PATH_INFO'])
         
         conn = None
         try:
@@ -321,7 +321,7 @@ def isUserConnected (f):
         if conn is None:
             return HttpResponseRedirect("/%s/login/?url=%s" % (settings.WEBCLIENT_ROOT_BASE, url))
         
-        sessionHelper(request)        
+        sessionHelper(request)
         kwargs["conn"] = conn
         kwargs["url"] = url
         return f(request, *args, **kwargs)

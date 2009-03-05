@@ -101,7 +101,7 @@
     <li><a href='#'>{% trans "General" %}:</a>
         <div>
             <table class="forms">
-                <tr><td><label>{% trans "Image date" %} </label></td><td>{{ manager.image.getDate|date:" H:i:s d M Y" }}</td></tr>
+                <tr><td><label>{% trans "Image date" %} </label></td><td>{{ manager.image.getDate|date:"Y m d H:i:s" }}</td></tr>
                 <tr><td><label>{% trans "Dimensions" %} (XY) [px] </label></td><td>{{ manager.image.getWidth }} x {{ manager.image.getHeight }}</td></tr>
                 <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m] </label></td><td>{{ manager.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
                 <tr><td><label>{% trans "Z-sections/timepoints" %} </label></td><td>{{ manager.image.z_count }} x {{ manager.image.t_count }}</td></tr>
