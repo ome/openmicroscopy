@@ -278,7 +278,7 @@ class TextualAnnotationsUI
 				text = DEFAULT_TEXT_COMMENT;
 				b = true;
 			}
-			
+			text = text.trim();
 			originalText = text;
 			setAreaText(text, b);
 			

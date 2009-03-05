@@ -301,27 +301,29 @@ class EditorModel
 	 */
 	String getRefObjectName() 
 	{
+		String name = "";
 		if (refObject instanceof ImageData)
-			return ((ImageData) refObject).getName();
+			name = ((ImageData) refObject).getName();
 		else if (refObject instanceof DatasetData)
-			return ((DatasetData) refObject).getName();
+			name = ((DatasetData) refObject).getName();
 		else if (refObject instanceof ProjectData)
-			return ((ProjectData) refObject).getName();
+			name = ((ProjectData) refObject).getName();
 		else if (refObject instanceof TagAnnotationData)
-			return ((TagAnnotationData) refObject).getTagValue();
+			name = ((TagAnnotationData) refObject).getTagValue();
 		else if (refObject instanceof ScreenData)
-			return ((ScreenData) refObject).getName();
+			name = ((ScreenData) refObject).getName();
 		else if (refObject instanceof PlateData)
-			return ((PlateData) refObject).getName();
+			name = ((PlateData) refObject).getName();
 		else if (refObject instanceof FileAnnotationData)
-			return ((FileAnnotationData) refObject).getFileName();
+			name = ((FileAnnotationData) refObject).getFileName();
 		else if (refObject instanceof WellSampleData) {
 			WellSampleData ws = (WellSampleData) refObject;
 			ImageData img = ws.getImage();
-			if (img != null && img.getId() >= 0) return img.getName();
+			if (img != null && img.getId() >= 0) name = img.getName();
 			return "";
 		}
-		return "";
+		if (name == null) return "";
+		return name.trim();
 	}
 	
 	/**
@@ -331,21 +333,23 @@ class EditorModel
 	 */
 	String getRefObjectDescription() 
 	{
+		String description = "";
+		
 		if (refObject instanceof ImageData)
-			return ((ImageData) refObject).getDescription();
+			description = ((ImageData) refObject).getDescription();
 		else if (refObject instanceof DatasetData)
-			return ((DatasetData) refObject).getDescription();
+			description = ((DatasetData) refObject).getDescription();
 		else if (refObject instanceof ProjectData)
-			return ((ProjectData) refObject).getDescription();
+			description = ((ProjectData) refObject).getDescription();
 		else if (refObject instanceof ScreenData)
-			return ((ScreenData) refObject).getDescription();
+			description = ((ScreenData) refObject).getDescription();
 		else if (refObject instanceof PlateData)
-			return ((PlateData) refObject).getDescription();
+			description = ((PlateData) refObject).getDescription();
 		else if (refObject instanceof TagAnnotationData) {
-			return ((TagAnnotationData) refObject).getTagDescription();
-			//return getTagDescription((TagAnnotationData) refObject);
+			description = ((TagAnnotationData) refObject).getTagDescription();
 		}
-		return "";
+		if (description == null) return "";
+		return description.trim();
 	}
 	
 	/**
