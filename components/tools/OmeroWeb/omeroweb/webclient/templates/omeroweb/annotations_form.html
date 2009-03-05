@@ -28,8 +28,8 @@
                             <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                         </tr>
                     {% endfor %}
-                        <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-                    </table>
+                        <tr><td><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+                </table>
                 </form>
                 <script type="text/javascript">
                     var googie_spell = new GoogieSpell("static_core/googiespell/", "/webclient/spellchecker/?lang=");
@@ -50,7 +50,7 @@
                         <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                     </tr>
                 {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+                <tr><td><input type="submit" value="{% trans 'Save' %}" /></td></tr>
                 </table>
                 </form>
             </div>
@@ -71,7 +71,7 @@
                         <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                     </tr>
                 {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+                <tr><td><input type="submit" value="{% trans 'Save' %}" /></td></tr>
                 </table>
                 </form>
             </div>
@@ -89,7 +89,7 @@
                             <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                         </tr>
                     {% endfor %}
-                        <tr><td> </td><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+                    <tr><td><input type="submit" value="{% trans 'Save' %}" /></td></tr>
                     </table>
                 </form>
             </div>
@@ -112,7 +112,7 @@
                             <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                         </tr>
                     {% endfor %}
-                        <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+                    <tr><td><input type="submit" value="{% trans 'Save' %}" /></td></tr>
                     </table>
                 </form>
             </div>
@@ -131,7 +131,7 @@
                         <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                     </tr>
                 {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+                <tr><td><input type="submit" value="{% trans 'Save' %}" /></td></tr>
                 </table>
                 </form>
             </div>
@@ -152,7 +152,7 @@
                         <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                     </tr>
                 {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+                <tr><td><input type="submit" value="{% trans 'Save' %}" /></td></tr>
                 </table>
                 </form>
             </div>
@@ -170,8 +170,8 @@
                         <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                     </tr>
                 {% endfor %}
+                <tr><td><input type="submit" value="{% trans 'Save' %}" /></td></tr>
                 </table>
-                <input type="submit" value="{% trans 'Upload' %}" />
                 </form>
             </div>
             {% endif %}
