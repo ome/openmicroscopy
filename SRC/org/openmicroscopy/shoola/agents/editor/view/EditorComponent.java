@@ -218,7 +218,7 @@ class EditorComponent
 			model.updateNameSpace(); // based on whether file has experiment info
 			view.setTitle(model.getFileName());
 			view.displayFile();
-			model.getBrowser().setId(model.getOriginalFileId());
+			model.getBrowser().setId(model.getAnnotationId());
 			if (!view.isVisible()) {
 				view.setVisible(true);
 			}
@@ -328,7 +328,7 @@ class EditorComponent
 	{
 		if (model.saveFileAs(file)) {
 			view.setTitle(model.getFileName());
-			model.getBrowser().setId(model.getOriginalFileId()); // should be 0
+			model.getBrowser().setId(model.getAnnotationId()); // should be 0
 			return true;
 		}
 		return false;

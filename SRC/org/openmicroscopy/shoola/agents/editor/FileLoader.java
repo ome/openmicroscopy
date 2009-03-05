@@ -77,7 +77,7 @@ public class FileLoader
      * @param viewer	The Editor this data loader is for.
      *                  Mustn't be <code>null</code>.
      * @param fileName	The name of the file to edit.
-     * @param fileID	The id of the file to load.
+     * @param fileID	The id of the file to load OR of the fileAnnotation if fileName is null
      * @param fileSize	The size of the file to load.
      */
 	public FileLoader(Editor viewer, String fileName, long fileID, 
@@ -143,6 +143,9 @@ public class FileLoader
 				f = (File) entry.getValue();
 				if (f.exists()) {
 					viewer.setFileToEdit(fa, f);
+					// don't need to keep a copy. Delete the local copy after 
+					// opening in viewer. 
+					f.delete();
 				}
 			}
 		} else {

@@ -257,15 +257,21 @@ public class EditorFactory
 	 */
 	private Editor getEditor(EditorModel model)
 	{
-		Iterator v = editors.iterator();
+		Iterator<Editor> v = editors.iterator();
 		EditorComponent comp;
 		EditorModel m;
 		while (v.hasNext()) {
 			comp = (EditorComponent) v.next();
 			m = comp.getModel();
-			if ((m.getFileID() == model.getFileID()) && 
-					(m.getFileName().equals(model.getFileName())))
-				return comp;
+			// if the annotationID is not 0 and the IDs are the same, files are same
+			// (need to compare annotationIDs because sometimes you are trying
+			// to open a file using only the annotationID, so that's all you have) 
+			if (m.getAnnotationId() == model.getAnnotationId()) {
+				if (m.getFileID() > 0)	
+					return comp;
+				else if (m.getFileName().equals(model.getFileName()))
+					return comp;
+			}
 			if (m.getFileName().equals(BLANK_MODEL)) {
 				return comp;
 			}

@@ -81,6 +81,15 @@ class EditorModel
 	/** The id of the file to edit. Will not be set if editing local file */
 	private long 				fileID;
 	
+	/** 
+	 * The ID of the annotation for the file on the server, as returned by
+	 * {@link fileAnnotation.getId()}.
+	 * Allows {@link #getAnnotationId()} to be called after the 
+	 * {@link #EditorModel(long)} constructor has been used, before 
+	 * {@link #setFileAnnotationData(FileAnnotationData)} has been called. 
+	 */
+	private long 				annotationID;
+	
 	/**  A string that defines the type of file we're editing. eg protocol */
 	private String				nameSpace;
 	
@@ -135,12 +144,16 @@ class EditorModel
 	/** 
 	 * Creates a new instance and sets the state to {@link Editor#NEW}.
 	 * 
-	 * @param fileID	The id of the file to edit.
+	 * @param fileID	The id of the original file to edit.
 	 */
-	EditorModel(long fileID)
+	EditorModel(long annotationID)
 	{
 		state = Editor.NEW;
-		this.fileID = fileID;
+		this.annotationID = annotationID;
+		
+		// this sets the fileID with the annotationID so that when 
+		// fireFileLoading is subsequently called, it will pass the annotationID
+		this.fileID = annotationID;
 	}
 	
 	/**
@@ -240,6 +253,9 @@ class EditorModel
 	{
 		long size = 0;
 		if (fileAnnotation != null) size = fileAnnotation.getFileSize();
+		
+		// fileID can be annotationID if fileName is null 
+		// E.g. if EditorModel(long annotationID) was the constructor. 
 		currentLoader = new FileLoader(component, fileName, fileID, size);
 		currentLoader.load();
 		state = Editor.LOADING;
@@ -437,7 +453,7 @@ class EditorModel
 		} 
 		this.fileID = data.getFileID();
 		this.fileName = data.getFileName();
-		System.out.println("EditorModel setFileAnnoation: fileID " + fileID);
+		//System.out.println("EditorModel setFileAnnoation: fileID " + fileID);
 	}
 	
 	/**
@@ -463,9 +479,9 @@ class EditorModel
 	 * 
 	 * @return		see above
 	 */
-	long getOriginalFileId() 
+	long getAnnotationId() 
 	{
-		if (fileAnnotation == null)  return 0;
+		if (fileAnnotation == null)  	return annotationID;
 		return fileAnnotation.getId();
 	}
 	
