@@ -345,8 +345,7 @@ public class OMEROMetadataStoreClient
      */
     public void logout()
     {
-        serviceFactory.destroy();
-        c.close();
+        c.closeSession();
     }
     
     /* (non-Javadoc)

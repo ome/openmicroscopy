@@ -45,6 +45,8 @@ public class EnumHandlerFactory
     			     new CorrectionEnumHandler());
     	handlers.put(ImmersionEnumHandler.HANDLER_FOR, 
     	            new ImmersionEnumHandler());
+    	handlers.put(OriginalFileFormatEnumHandler.HANDLER_FOR, 
+    	        new OriginalFileFormatEnumHandler());
     }
     
     /** Our fall through no-op enumeration handler. */

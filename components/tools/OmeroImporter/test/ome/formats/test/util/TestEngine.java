@@ -176,6 +176,8 @@ public class TestEngine
 			{
 				// Flush our file log to disk
 				iniFile.flush();
+				store.logout();
+				log.error("Failed on file:" + file.getName());
 				throw e;
 			}
 		}
