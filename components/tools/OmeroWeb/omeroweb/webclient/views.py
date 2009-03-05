@@ -554,14 +554,17 @@ def logout(request, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    for key in request.session['shares'].iterkeys():
-        try:
-            session_key = "S:%s#%s#%s" % (request.session.session_key,request.session['server'], key)
-            if share_connectors.has_key(session_key):
-                share_connectors.get(session_key).seppuku()
-                del share_connectors[session_key]
-        except:
-            logger.error(traceback.format_exc())
+    try:
+        for key in request.session['shares'].iterkeys():
+            try:
+                session_key = "S:%s#%s#%s" % (request.session.session_key,request.session['server'], key)
+                if share_connectors.has_key(session_key):
+                    share_connectors.get(session_key).seppuku()
+                    del share_connectors[session_key]
+            except:
+                logger.error(traceback.format_exc())
+    except KeyError:
+        pass
     
     try:
         del request.session['shares']
