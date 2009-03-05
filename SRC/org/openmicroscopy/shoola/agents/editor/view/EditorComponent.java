@@ -311,12 +311,13 @@ class EditorComponent
 	
 		//This assumes that we are editing an existing file.
 		File toEdit = model.getFileToEdit();
-		if (toEdit != null) {
-			model.fireFileSaving(toEdit);
-			return true;
+		if (toEdit == null) {
+			String fileName = model.getFileName();
+			toEdit = new File(fileName);
 		} 
-		
-		return false;
+		model.fireFileSaving(toEdit);
+		return true;
+		//return false;
 	}
 	
 	/** 

@@ -437,6 +437,7 @@ class EditorModel
 		} 
 		this.fileID = data.getFileID();
 		this.fileName = data.getFileName();
+		System.out.println("EditorModel setFileAnnoation: fileID " + fileID);
 	}
 	
 	/**
