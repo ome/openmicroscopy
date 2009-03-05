@@ -145,5 +145,88 @@ class TestITimeline(lib.ITest):
         
         self.root.sf.closeOnDestroy()
     
+    def test1175(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        update = self.root.sf.getUpdateService()
+        timeline = self.root.sf.getTimelineService()
+        
+        # create dataset
+        ds = omero.model.DatasetI()
+        ds.setName(rstring('test1154-ds-%s' % (uuid)))
+        ds = update.saveAndReturnObject(ds)
+        ds.unload()
+        
+        # create tag
+        ann = omero.model.TagAnnotationI()
+        ann.textValue = rstring('tag-%s' % (uuid))
+        ann.setDescription(rstring('tag-%s' % (uuid)))
+        t_ann = omero.model.DatasetAnnotationLinkI()
+        t_ann.setParent(ds)
+        t_ann.setChild(ann)
+        update.saveObject(t_ann)
+        
+        p = omero.sys.Parameters()
+        p.map = {}
+        f = omero.sys.Filter()
+        f.ownerId = rlong(0)
+        f.limit = rint(10)
+        p.theFilter = f
+        res = timeline.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p)
+        self.assert_(len(res) > 0)
+        
+        self.root.sf.closeOnDestroy()
+    
+    def test1225(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        update = self.root.sf.getUpdateService()
+        timeline = self.root.sf.getTimelineService()
+        query = self.root.sf.getQueryService()
+        
+        # create dataset
+        to_save = list()
+        for i in range(0,10):
+            ds = DatasetI()
+            ds.setName(rstring("ds-%i-%s" % (i,uuid)))
+            to_save.append(ds)
+        
+        dss = update.saveAndReturnArray(to_save)
+        
+        # create tag
+        for i in range(0,10):
+            ds1 = query.get("Dataset", dss[i].id.val)
+            ann = omero.model.TagAnnotationI()
+            ann.textValue = rstring('tag-%i-%s' % (i,uuid))
+            ann.setDescription(rstring('desc-%i-%s' % (i,uuid)))
+            t_ann = omero.model.DatasetAnnotationLinkI()
+            t_ann.setParent(ds1)
+            t_ann.setChild(ann)
+            update.saveObject(t_ann)
+        
+        p = omero.sys.Parameters()
+        p.map = {}
+        f = omero.sys.Filter()
+        f.ownerId = rlong(0)
+        f.limit = rint(10)
+        p.theFilter = f
+        tagids = set([e.child.id.val for e in timeline.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p)])
+        self.assertEquals(len(tagids), 10)
+        
+        ann = omero.model.TagAnnotationI()
+        ann.textValue = rstring('tag-%s' % (uuid))
+        ann.setDescription(rstring('desc-%s' % (uuid)))
+        ann = update.saveAndReturnObject(ann)
+        for i in range(0,10):
+            ds1 = query.get("Dataset", dss[i].id.val)
+            ann1 = query.get("TagAnnotation", ann.id.val)
+            t_ann = omero.model.DatasetAnnotationLinkI()
+            t_ann.setParent(ds1)
+            t_ann.setChild(ann1)
+            update.saveObject(t_ann)
+        
+        tids = set([e.child.id.val for e in timeline.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p)])
+        self.assertEquals(len(tids), 10)
+        
+        self.root.sf.closeOnDestroy()
+    
 if __name__ == '__main__':
     unittest.main()
