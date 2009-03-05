@@ -31,7 +31,7 @@ public class ClientUsageTest extends TestCase {
         omero.client client = new omero.client(f1);
         client.createSession();
         client.getServiceFactory().closeOnDestroy();
-        client.close();
+        client.closeSession();
     }
 
     @Test
@@ -46,7 +46,7 @@ public class ClientUsageTest extends TestCase {
         assertTrue(client.getInputKeys().contains("a"));
         assertEquals("b", ((RString) client.getInput("a")).getValue());
 
-        client.close();
+        client.closeSession();
     }
 
 }
