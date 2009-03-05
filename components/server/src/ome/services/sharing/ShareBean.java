@@ -20,8 +20,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-import loci.formats.in.APLReader;
-
 import ome.annotations.NotNull;
 import ome.annotations.RolesAllowed;
 import ome.api.IShare;
