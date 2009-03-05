@@ -69,7 +69,7 @@ public class client {
                 Set<client> clients = new HashSet<client>(CLIENTS);
                 for (client client : clients) {
                     try {
-                        client.close();
+                        client.__del__();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -325,11 +325,11 @@ public class client {
      * 
      * Equivalent to OmeroPy's __del__ or OmeroCpp's omero::client::~client()
      */
-    public void close() {
+    protected void __del__() {
         try {
             closeSession();
         } catch (Exception e) {
-            System.out.println("Ignoring error in client.close()");
+            System.out.println("Ignoring error in client.__del__()");
             e.printStackTrace();
         }
     }

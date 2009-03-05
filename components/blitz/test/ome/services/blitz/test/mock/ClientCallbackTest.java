@@ -39,7 +39,7 @@ public class ClientCallbackTest extends MockObjectTestCase {
     public void tearDown() throws Exception {
         if (client != null) {
             // doesn't throw
-            client.close();
+            client.closeSession();
         }
         if (fixture != null) {
             fixture.tearDown();
