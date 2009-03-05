@@ -88,6 +88,9 @@ public interface DataBrowser
 	extends ObservableComponent
 {
 	
+	/** Bound property indicating to tag selected objects. */
+	public static final String		TAG_WIZARD_PROPERTY = "tagWizard";
+	
 	/** 
 	 * Bound property indicating that a <code>Dataobject</code> has 
 	 * been created.
@@ -526,5 +529,7 @@ public interface DataBrowser
 	 * @param ids  Collection of object's ids.
 	 */
 	public void markUnmodifiedNodes(Class type, Collection<Long> ids);
+
+	public void showTagWizard();
 	
 }

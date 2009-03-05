@@ -175,11 +175,14 @@ public class IconManager
     /** The <code>Save As 48</code> icon. */
     public static final int			SAVE_AS_48 = 39;
     
+    /** The <code>Tag</code> icon. */
+    public static final int			TAG = 40;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 39;
+    private static final int          MAX_ID = 40;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -226,6 +229,7 @@ public class IconManager
         relPaths[REPORT] = "nuvola_style16.png";
         relPaths[REPORT_48] = "nuvola_style48.png";
         relPaths[SAVE_AS_48] = "nuvola_filesaveas48.png";
+        relPaths[TAG] = "nuvola_knotes16.png";
     }
     
     /** The sole instance. */

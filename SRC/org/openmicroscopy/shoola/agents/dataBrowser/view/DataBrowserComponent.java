@@ -1064,5 +1064,14 @@ class DataBrowserComponent
 	{
 		return DataBrowserFactory.hasDataToCopy();
 	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#showTagWizard()
+	 */
+	public void showTagWizard()
+	{
+		firePropertyChange(TAG_WIZARD_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+	}
 	
 }

@@ -379,7 +379,7 @@ public class DataServicesFactory
     { 
         ((OmeroImageServiceImpl) is).shutDown();
         omeroGateway.logout(); 
-        executor.shutdown();
+        if (executor != null) executor.shutdown();
         executor = null;
     }
 	

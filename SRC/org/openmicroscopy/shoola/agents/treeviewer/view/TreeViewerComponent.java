@@ -606,7 +606,6 @@ class TreeViewerComponent
 	 */
 	public void setSelectedNode(Object object)
 	{
-		System.err.println("object: "+object);
 		if (object == null) return;
 		if (!(object instanceof List)) return;
 		List l = (List) object;

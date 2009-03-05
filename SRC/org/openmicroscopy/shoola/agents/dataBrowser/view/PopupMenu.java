@@ -78,6 +78,9 @@ class PopupMenu
 	/** Button to set the original rendering settings. */
 	private JMenuItem			setOriginalRndSettings;
 
+	/** Button to tag the element. */
+	private JMenuItem			tagElement;
+	
 	/**
 	 * Initializes the menu items with the given actions.
 	 * 
@@ -87,6 +90,7 @@ class PopupMenu
 	private void initComponents(DataBrowserControl controller, 
 								DataBrowserModel model)
 	{
+		tagElement = new JMenuItem(controller.getAction(DataBrowserControl.TAG));
 		view = new JMenuItem(controller.getAction(DataBrowserControl.VIEW));
 		copyElement = new JMenuItem(
 					controller.getAction(DataBrowserControl.COPY_OBJECT));
@@ -123,6 +127,8 @@ class PopupMenu
 		add(copyElement);
 		add(pasteElement);
 		add(removeElement);
+		add(new JSeparator(JSeparator.HORIZONTAL));
+		add(tagElement);
 		add(new JSeparator(JSeparator.HORIZONTAL));
 		add(copyRndSettings);
 		add(pasteRndSettings);

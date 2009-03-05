@@ -1200,8 +1200,6 @@ class OMEROGateway
 		throws DSOutOfServiceException
 	{
 		try {
-			//TMP
-			
 			compression = compressionLevel;
 			this.hostName = hostName;
 			if (port > 0) blitzClient = new client(hostName, port);
@@ -1213,7 +1211,6 @@ class OMEROGateway
 			//fillEnumerations();
 			return getUserDetails(userName);
 		} catch (Throwable e) {
-			e.printStackTrace();
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
 			s += printErrorText(e);
@@ -3530,6 +3527,7 @@ class OMEROGateway
 			EventContext ctx = getAdminService().getEventContext();
 			getSessionService().getSession(ctx.sessionUuid);
 		} catch (Exception e) {
+			e.printStackTrace();
 			dsFactory.sessionExpiredExit();
 		}
 	}

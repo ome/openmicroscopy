@@ -158,33 +158,26 @@ public class LoginServiceImpl
             logger.info(this, msg);
             
             return NOT_CONNECTED;
-            //Log success.
-            /*
-            LogMessage msg = new LogMessage();
-            msg.println("Logged onto OMERO at: "+uc.getHostName());
-            msg.println(uc);
-            Logger logger = container.getRegistry().getLogger();
-            logger.info(this, msg);
-            return CONNECTED;
-            */
         } catch (DSOutOfServiceException dsose) {  //Log failure.
-        	Throwable cause = dsose.getCause();
-        	if (cause instanceof ConnectionRefusedException) {
-        		failureIndex = CONNECTION_INDEX;
-        	} else if (cause instanceof DNSException) {
-        		failureIndex = DNS_INDEX;
-        	} else if (cause instanceof PermissionDeniedException) {
-        		failureIndex = PERMISSION_INDEX;
+        	if (dsose != null) {
+        		Throwable cause = dsose.getCause();
+            	if (cause instanceof ConnectionRefusedException) {
+            		failureIndex = CONNECTION_INDEX;
+            	} else if (cause instanceof DNSException) {
+            		failureIndex = DNS_INDEX;
+            	} else if (cause instanceof PermissionDeniedException) {
+            		failureIndex = PERMISSION_INDEX;
+            	}
+                LogMessage msg = new LogMessage();
+                msg.println("Failed to log onto OMERO.");
+                msg.println("Reason: "+dsose.getMessage());
+                if (uc != null) {
+                	msg.println("OMERO address: "+uc.getHostName());
+                	msg.println(uc);
+                }
+                Logger logger = container.getRegistry().getLogger();
+                logger.error(this, msg);
         	}
-            LogMessage msg = new LogMessage();
-            msg.println("Failed to log onto OMERO.");
-            msg.println("Reason: "+dsose.getMessage());
-            if (uc != null) {
-            	msg.println("OMERO address: "+uc.getHostName());
-            	msg.println(uc);
-            }
-            Logger logger = container.getRegistry().getLogger();
-            logger.error(this, msg);
         }
         return NOT_CONNECTED;
     }

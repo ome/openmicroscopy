@@ -234,7 +234,6 @@ class ImageTable
 			Iterator<Long> i = ids.iterator();
 			DataObject object = (DataObject) ho;
 			long objectId = object.getId();
-			DataObject data;
 			Long id;
 			while (i.hasNext()) {
 				id = i.next();
@@ -356,8 +355,7 @@ class ImageTable
 	protected void onMouseReleased(MouseEvent e)
 	{
 		int count = e.getClickCount();
-		if (count == 2) {
-			view.viewSelectedNode();
+		if (count == 2) { view.viewSelectedNode();
 		} else {
 			if (e.isPopupTrigger()) view.showMenu(e.getPoint());
 		}

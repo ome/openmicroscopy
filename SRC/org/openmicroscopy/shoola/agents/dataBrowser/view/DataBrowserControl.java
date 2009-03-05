@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.SaveAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
@@ -108,6 +109,9 @@ class DataBrowserControl
 	
 	/** Identifies the <code>Save As</code> action. */
 	static final Integer    SAVE_AS = Integer.valueOf(10);
+	
+	/** Identifies the <code>Tag</code> action. */
+	static final Integer    TAG = Integer.valueOf(11);
 
 	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,
@@ -144,6 +148,7 @@ class DataBrowserControl
     			new ManageRndSettingsAction(model, 
     					ManageRndSettingsAction.SET_ORIGINAL));
     	actionsMap.put(SAVE_AS, new SaveAction(model));
+    	actionsMap.put(TAG, new TaggingAction(model));
     }
     
 	/** 
