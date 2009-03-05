@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -217,7 +218,7 @@ public class PixelsServicesFactory
 		if (!(registry.equals(context)))
 			throw new IllegalArgumentException("Not allow to access method.");
 		RenderingControlProxy proxy = (RenderingControlProxy) 
-		singleton.rndSvcProxies.get(new Long(pixelsID));
+		singleton.rndSvcProxies.get(pixelsID);
 		if (proxy != null) {
 			proxy.shutDown();
 			proxy.setRenderingEngine(re);
@@ -248,7 +249,7 @@ public class PixelsServicesFactory
 		if (!(registry.equals(context)))
 			throw new IllegalArgumentException("Not allow to access method.");
 		RenderingControlProxy proxy = (RenderingControlProxy) 
-		singleton.rndSvcProxies.get(new Long(pixelsID));
+		singleton.rndSvcProxies.get(pixelsID);
 		if (proxy != null) 
 			proxy.resetRenderingEngine(re, convert(def));
 		
@@ -269,10 +270,10 @@ public class PixelsServicesFactory
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
 		RenderingControlProxy proxy = (RenderingControlProxy) 
-			singleton.rndSvcProxies.get(new Long(pixelsID));
+			singleton.rndSvcProxies.get(pixelsID);
 		if (proxy != null) {
 			proxy.shutDown();
-			singleton.rndSvcProxies.remove(new Long(pixelsID));
+			singleton.rndSvcProxies.remove(pixelsID);
 			getCacheSize();
 		}
 	}
@@ -288,11 +289,12 @@ public class PixelsServicesFactory
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
-		Iterator i = singleton.rndSvcProxies.keySet().iterator();
-		while (i.hasNext())
-			((RenderingControlProxy) 
-					singleton.rndSvcProxies.get(i.next())).shutDown();
-
+		Entry entry;
+		Iterator i = singleton.rndSvcProxies.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			((RenderingControlProxy) entry.getValue()).shutDown();
+		}
 		singleton.rndSvcProxies.clear();
 	}
 
@@ -494,15 +496,16 @@ public class PixelsServicesFactory
 		int n = 0;
 		int sizeCache = 0;
 		RenderingControlProxy proxy;
+		Entry entry;
 		if (singleton.pixelsSource != null) n = 1;
 		if (n == 0 && m == 0) return maxSize*FACTOR;
 		else if (n == 0 && m > 0) {
 			sizeCache = (maxSize/(m+1))*FACTOR;
 			//reset all the image caches.
-			Iterator i = singleton.rndSvcProxies.keySet().iterator();
+			Iterator i = singleton.rndSvcProxies.entrySet().iterator();
 			while (i.hasNext()) {
-				proxy = (RenderingControlProxy)
-							singleton.rndSvcProxies.get(i.next());
+				entry = (Entry) i.next();
+				proxy = (RenderingControlProxy) entry.getValue();
 				proxy.setCacheSize(sizeCache);
 			}
 			return sizeCache;
@@ -512,10 +515,10 @@ public class PixelsServicesFactory
 		}
 		sizeCache = (maxSize/(m+n+1))*FACTOR;
 		//reset all the image caches.
-		Iterator i = singleton.rndSvcProxies.keySet().iterator();
+		Iterator i = singleton.rndSvcProxies.entrySet().iterator();
 		while (i.hasNext()) {
-			proxy = (RenderingControlProxy)
-						singleton.rndSvcProxies.get(i.next());
+			entry = (Entry) i.next();
+			proxy = (RenderingControlProxy) entry.getValue();
 			proxy.setCacheSize(sizeCache);
 		}
 		

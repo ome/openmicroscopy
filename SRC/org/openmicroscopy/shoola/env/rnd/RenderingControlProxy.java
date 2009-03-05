@@ -184,7 +184,8 @@ class RenderingControlProxy
             //if (xyCache != null) xyCache.add(pd, object);
         	if (cacheID >= 0) {
         		int index = pd.z+getPixelsDimensionsZ()*pd.t;
-        		context.getCacheService().addElement(cacheID, new Integer(index), object);
+        		context.getCacheService().addElement(cacheID, 
+        				new Integer(index), object);
         	}
         }
     }
@@ -333,29 +334,10 @@ class RenderingControlProxy
                 cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
 				
 			}
-            /*
-            for (int i = 0; i < pixs.getSizeC().getValue(); i++) {
-                cb = rndDef.getChannel(i);
-                if (cb == null) {
-                    cb = new ChannelBindingsProxy();
-                    rndDef.setChannel(i, cb);
-                }
-                cb.setActive(servant.isActive(i));
-                cb.setInterval(servant.getChannelWindowStart(i), 
-                                servant.getChannelWindowEnd(i));
-                cb.setQuantization(
-                		servant.getChannelFamily(i).getValue().getValue(), 
-                        servant.getChannelCurveCoefficient(i), 
-                        servant.getChannelNoiseReduction(i));
-                cb.setRGBA(servant.getRGBA(i));
-                cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
-                cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
-            }
-            */
+            tmpSolutionForNoiseReduction();
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-    	
     }
     
     

@@ -120,13 +120,6 @@ public class ChannelButton
      * we know we have a single click.
      */
     private void singleClick()   { setChannelSelected(); }
-    
-    /**
-     * Executed in the {@link #onClick(MouseEvent)} method when the second click 
-     * event has been received before the double click threshold time has 
-     * expired. 
-     */
-    //private void doubleClick()   { showColorPicker(); }
        
     /** 
      * Handles the mouse released event because Popup menus are triggered 
@@ -153,7 +146,7 @@ public class ChannelButton
     {
     	 Font f = getFont();
          setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
-         int width = getFontMetrics(getFont()).stringWidth(getText());
+         int width = getFontMetrics(getFont()).stringWidth(getText())+4;
          Dimension d = DEFAULT_MIN_SIZE;
          if (width > DEFAULT_MIN_SIZE.width &&
          		width < DEFAULT_MAX_SIZE.width) d = new Dimension(width+6, 

@@ -1279,12 +1279,18 @@ class OMEROGateway
 			}
 			monitorIDs.clear();
 			*/
+			/*
 			if (thumbnailService != null) thumbnailService.close();
 			if (fileStore != null) fileStore.close();
+			*/
 			thumbnailService = null;
 			fileStore = null;
-			entry.destroy();
+			//System.err.println("step 1");
 			blitzClient.closeSession();
+			
+			//System.err.println("step 2");
+			entry.destroy();
+			//System.err.println("step 3");
 			entry = null;
 			blitzClient = null;
 			//metadataStore = null;
