@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -280,6 +281,9 @@ class EditorControl
 				view.handleObjectsSelection(type, 
 						(Collection) entry.getValue());
 			}
+		} else if (PreviewPanel.OPEN_FILE_PROPERTY.equals(name)) {
+			Long id = (Long) evt.getNewValue();
+			if (id != null) viewProtocol(id.longValue());
 		}
 	}
 

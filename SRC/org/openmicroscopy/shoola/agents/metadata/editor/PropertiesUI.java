@@ -424,7 +424,9 @@ class PropertiesUI
         			FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns)) {
         		String description = fa.getDescription();
         		if (description != null && description.length() > 0) {
-        			PreviewPanel panel = new PreviewPanel(description);
+        			PreviewPanel panel = new PreviewPanel(description, 
+        					fa.getId());
+        			panel.addPropertyChangeListener(controller);
         			add(Box.createVerticalStrut(5));
         			JLabel l = UIUtilities.setTextFont(panel.getTitle());
         			JPanel p = UIUtilities.buildComponentPanel(l);

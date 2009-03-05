@@ -221,8 +221,9 @@ class GeneralPaneUI
 			if (fa.getId() > 0 && isEditorFile(ns)) {
 				description = fa.getDescription();
 				if (description != null) {
-					preview = new PreviewPanel(description);
-					pane = EditorUtil.createTaskPane(preview.getTitle());
+					preview = new PreviewPanel(description, fa.getId());
+					preview.addPropertyChangeListener(controller);
+					pane = EditorUtil.createTaskPane(fa.getFileName());
 					pane.add(preview);
 					layout.insertRow(index, TableLayout.PREFERRED);
 					protocolComponent.add(pane, "0, "+index);

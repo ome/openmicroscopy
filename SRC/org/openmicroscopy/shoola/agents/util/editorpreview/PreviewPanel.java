@@ -28,6 +28,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -38,13 +40,16 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.editorpreview.MetadataComponent;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -72,6 +77,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class PreviewPanel 
 	extends JPanel
 {
+	
+	/** The property fired to open the file. */
+	public static final String		OPEN_FILE_PROPERTY = "openFile";
 	
 	/** max number of characters to display in field value */
 	public static final int			MAX_CHARS = 50;
@@ -104,7 +112,49 @@ public class PreviewPanel
 	 * The Model passes the XML description. Then the steps and the name and
 	 * description/abstract of the protocol can be retrieved. 
 	 */
-	private PreviewModel 				model;
+	private PreviewModel	model;
+	
+	/** The id of the file. */
+	private long			fileID;
+
+	/**
+	 * Lays out the title and the a button to open the file
+	 * 
+	 * @return See 
+	 */
+	private JPanel layoutTiTle()
+	{
+		IconManager icons = IconManager.getInstance();
+		JButton open = new JButton(icons.getIcon(IconManager.FILE_EDITOR));
+		open.setOpaque(false);
+		UIUtilities.unifiedButtonLookAndFeel(open);
+		open.setBackground(UIUtilities.BACKGROUND_COLOR);
+		open.setToolTipText("Open the file.");
+		open.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) {
+				if (fileID >= 0)
+					firePropertyChange(OPEN_FILE_PROPERTY, -1, fileID);
+			}
+		});
+		JToolBar bar = new JToolBar();
+    	bar.setBorder(null);
+    	bar.setFloatable(false);
+    	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	bar.add(open);
+    	
+    	JPanel p = new JPanel();
+    	double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL}, 
+    			{TableLayout.PREFERRED, TableLayout.FILL}};
+    	p.setLayout(new TableLayout(size));
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	if (fileID > 0) p.add(bar, "0, 0, l, t");
+    	p.add(UIUtilities.setTextFont(getTitle()), "1, 0, 1, 1");
+    	
+    	JPanel content = UIUtilities.buildComponentPanel(p, 0, 0);
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	return content;
+	}
 	
 	/** Initiliases the components. */
 	private void initComponents()
@@ -116,11 +166,10 @@ public class PreviewPanel
 		String description = model.getDescription();
 		if (description != null) {
 			//TODO: externalize that
-			description = "<html><span style='font-family:sans-serif;font-size:11pt'>"
+			description = "<html>" +
+					"<span style='font-family:sans-serif;font-size:11pt'>"
 							+ description + "</span></html>";
 			// display description in EditorPane, because text wraps nicely!
-			//MultilineLabel label = new MultilineLabel();
-			//label.setText(model.getDescription());
 			JEditorPane ep = new JEditorPane("text/html", description);
 			ep.setEditable(false);
 			ep.setBorder(new EmptyBorder(3, 5, 5, 3));
@@ -144,7 +193,7 @@ public class PreviewPanel
 			
 			stepName = stepObject.getName();
 			
-			indent = (stepObject.getLevel()) * 10;
+			indent = (stepObject.getLevel())*10;
 			nodePanel = new JPanel();
 			border = new EmptyBorder(0, indent, 0, 0);
 			border = BorderFactory.createCompoundBorder(border, 
@@ -158,6 +207,7 @@ public class PreviewPanel
 			p.add(nodePanel);
 		}
 		setLayout(new BorderLayout());
+		add(layoutTiTle(), BorderLayout.NORTH);
 		add(p, BorderLayout.CENTER);
 	}
 	
@@ -179,7 +229,7 @@ public class PreviewPanel
 	 * @param shown		Pass <code>true</code> to show the unset fields,
 	 * 					<code>false</code> to hide them.
 	 */
-	private static void layoutFields(JPanel pane, JButton button, 
+	private void layoutFields(JPanel pane, JButton button, 
 			List<MetadataComponent> fields, boolean shown)
 	{
 		pane.removeAll();
@@ -259,10 +309,12 @@ public class PreviewPanel
 	/**
 	 * Creates a new instance and sets the content with the XML summary. 
 	 * 
-	 * @param xmlDescription	A preview summary in XML. 
+	 * @param xmlDescription A preview summary in XML. 
+	 * @param fileID The id of the file.
 	 */
-	public PreviewPanel(String xmlDescription)
+	public PreviewPanel(String xmlDescription, long fileID)
 	{
+		this.fileID = fileID;
 		setDescriptionXml(xmlDescription);
 	}
 	
@@ -270,7 +322,10 @@ public class PreviewPanel
 	 * Creates an instance without setting the content. 
 	 * Use {@link #setDescriptionXml(String)} to set the content with XML
 	 */
-	public PreviewPanel() {}
+	public PreviewPanel()
+	{
+		fileID = -1;
+	}
 	
 	/**
 	 * Sets the XML description (XML that summarises an OMERO.editor file),
