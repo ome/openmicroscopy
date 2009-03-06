@@ -680,8 +680,8 @@ ALTER TABLE annotation
 	ADD COLUMN description text,
 	ADD COLUMN version integer,
 	ADD COLUMN update_id bigint;
-UPDATE annotation SET discriminator = '/basic/text/comment' WHERE discriminator = '/basic/text/';
-UPDATE annotation SET discriminator = '/basic/text/uri' WHERE discriminator = '/basic/text/ur;/';
+UPDATE annotation SET discriminator = '/basic/text/comment/' WHERE discriminator = '/basic/text/';
+UPDATE annotation SET discriminator = '/basic/text/uri/' WHERE discriminator = '/basic/text/ur;/';
 UPDATE annotation SET update_id = creation_id;
 ALTER TABLE annotation ALTER COLUMN update_id SET NOT NULL;
 
@@ -904,6 +904,13 @@ ALTER TABLE otf ADD CONSTRAINT fkotf_pixelstype_pixelstype FOREIGN KEY (pixelsty
 ALTER TABLE roi ADD CONSTRAINT fkroi_microbeammanipulation_microbeammanipulation FOREIGN KEY (microbeammanipulation) REFERENCES microbeammanipulation(id);
 ALTER TABLE session ADD CONSTRAINT fksession_node_node FOREIGN KEY (node) REFERENCES node(id);
 ALTER TABLE session ADD CONSTRAINT fksession_owner_experimenter FOREIGN KEY ("owner") REFERENCES experimenter(id);
+
+--
+-- Missing views
+--
+
+  CREATE OR REPLACE VIEW count_Node_annotationLinks_by_owner (Node_id, owner_id, count) AS select parent, owner_id, count(*)
+      FROM NodeAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
 
 --
 -- #1191 Annotation changes
