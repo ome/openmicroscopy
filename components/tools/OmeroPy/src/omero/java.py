@@ -75,12 +75,7 @@ def run(args,\
         else:
              os.execvpe(java[0], java, env)
     else:
-        env = dict()
-        makeVar("PATH", env)
-        makeVar("LIBS", env)
-        makeVar("LIBM", env)
-
         if not chdir:
             chdir = os.getcwd()
-        output = subprocess.Popen(java, stdout=subprocess.PIPE, cwd=chdir, env = env).communicate()[0]
+        output = subprocess.Popen(java, stdout=subprocess.PIPE, cwd=chdir, env = os.environ).communicate()[0]
         return output

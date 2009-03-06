@@ -91,8 +91,9 @@ class ShellControl(BaseControl):
         """
         Copied from IPython embed-short example
         """
+        args = Arguments(*args)
         from IPython.Shell import IPShellEmbed
-        ipshell = IPShellEmbed()
+        ipshell = IPShellEmbed(args.args)
         ipshell()
 
 try:

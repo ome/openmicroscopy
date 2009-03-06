@@ -619,7 +619,7 @@ class client(object):
     def _getCb(self):
         if not self.__oa:
             raise ClientError("No session active; call createSession()")
-        obj = self.__oa.find(self.ic.stringToIdentity("ClientCallback/" %  self.__uuid))
+        obj = self.__oa.find(self.ic.stringToIdentity("ClientCallback/%s" %  self.__uuid))
         if not isinstance(obj, client.CallbackI):
             raise ClientError("Cannot find CallbackI in ObjectAdapter")
         return obj
