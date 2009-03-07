@@ -42,10 +42,11 @@ public class BlobShareStore extends ShareStore implements
         ApplicationContextAware {
 
     /**
-     * Used to obtain sessions for querying and updating the store during normal
-     * operation.
+     * Used <em>indirectly</em> to obtain sessions for querying and updating the
+     * store during normal operation. Due to this classes late initialization,
+     * all sessions should be obtained from {@link #session()}.
      */
-    protected SessionFactory factory;
+    protected SessionFactory __dont_use_me_factory;
 
     protected OmeroContext ctx;
 
@@ -120,7 +121,7 @@ public class BlobShareStore extends ShareStore implements
     public List<ShareData> getShares(long userId, boolean own,
             boolean activeOnly) {
 
-        Session session = factory.getSession();
+        Session session = session();
         QueryBuilder qb = new QueryBuilder();
         qb.select("share.id");
         qb.from("ShareMember", "sm");
@@ -209,31 +210,35 @@ public class BlobShareStore extends ShareStore implements
     }
 
     private Session session() {
-        initialize();
-        return factory.getSession();
+        return initialize().getSession();
     }
 
     /**
-     * Loads the {@link SessionFactory}
+     * Loads the {@link SessionFactory}. This is the only method which should
+     * access the {@link #__dont_use_me_factory} instance variable, since it
+     * guarantees loading. Any direct access may well throw a
+     * {@link NullPointerException}
      */
-    private synchronized void initialize() {
+    private synchronized SessionFactory initialize() {
 
-        if (factory != null) {
-            return; // GOOD!
+        if (__dont_use_me_factory != null) {
+            return __dont_use_me_factory; // GOOD!
         }
 
         if (ctx == null) {
             throw new IllegalStateException("Have no context to load factory");
         }
 
-        factory = (SessionFactory) ctx.getBean("omeroSessionFactory");
+        __dont_use_me_factory = (SessionFactory) ctx
+                .getBean("omeroSessionFactory");
 
-        if (factory == null) {
+        if (__dont_use_me_factory == null) {
             throw new IllegalStateException("Cannot find factory");
         }
 
         // Finally calling init here, since before it's not possible
         init();
+        return __dont_use_me_factory;
     }
 
     private void synchronizeMembers(Session session, ShareData data) {
