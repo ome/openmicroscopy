@@ -53,15 +53,10 @@ public class MockedLdapTest extends AbstractManagedContextTest {
         limpl.setValues("values");
         // TODO Need to fix circular dependency on admin
 
-        AdminImpl aimpl = new AdminImpl();
-        aimpl.setJdbcTemplate(this.jdbcTemplate);
-        aimpl.setSecuritySystem(this.securitySystem);
-        aimpl.setSessionFactory((SessionFactory) applicationContext
-                .getBean("sessionFactory"));
-        aimpl.setMailSender(null);
-        aimpl.setTemplateMessage(null);
-        aimpl.setAclVoter((ACLVoter) applicationContext.getBean("aclVoter"));
-        aimpl.setLdapService(limpl);
+        AdminImpl aimpl = new AdminImpl(jdbcTemplate,
+                (SessionFactory)applicationContext.getBean("sessionFactory"),
+                null, null, limpl,
+                (ACLVoter) applicationContext.getBean("aclVoter"),null);
         limpl.setAdminService(aimpl);
 
         ldap = limpl;

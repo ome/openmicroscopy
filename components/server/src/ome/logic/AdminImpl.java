@@ -10,7 +10,6 @@ package ome.logic;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +47,8 @@ import ome.security.LdapUtil;
 import ome.security.PasswordUtil;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
+import ome.security.auth.PasswordChangeException;
+import ome.security.auth.PasswordProvider;
 import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.UpdateEventListener;
 import ome.services.query.Definitions;
@@ -71,6 +72,7 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
@@ -134,56 +136,41 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
     }
 
-    protected transient SimpleJdbcTemplate jdbc;
+    protected final SimpleJdbcOperations jdbc;
 
-    protected transient SessionFactory sf;
+    protected final SessionFactory sf;
 
-    protected transient OmeroContext context;
+    protected final MailSender mailSender;
 
-    protected transient MailSender mailSender;
+    protected final SimpleMailMessage templateMessage;
 
-    protected transient SimpleMailMessage templateMessage;
+    protected final LocalLdap ldap;
 
-    protected transient LocalLdap ldap;
+    protected final ACLVoter aclVoter;
+    
+    protected final PasswordProvider passwordProvider;
 
-    protected transient ACLVoter aclVoter;
-
-    /** injector for usage by the container. Not for general use */
-    public final void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
-        getBeanHelper().throwIfAlreadySet(this.jdbc, jdbcTemplate);
-        jdbc = jdbcTemplate;
-    }
-
-    /** injector for usage by the container. Not for general use */
-    public final void setSessionFactory(SessionFactory sessions) {
-        getBeanHelper().throwIfAlreadySet(this.sf, sessions);
-        sf = sessions;
-    }
+    protected OmeroContext context;
 
     public void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
         this.context = (OmeroContext) ctx;
     }
-
-    public void setMailSender(MailSender mailSender) {
+    
+    public AdminImpl(SimpleJdbcOperations jdbc, SessionFactory sf, MailSender mailSender, SimpleMailMessage templateMessage,
+            LocalLdap ldap, ACLVoter aclVoter, PasswordProvider passwordProvider) {
+        this.jdbc = jdbc;
+        this.sf = sf;
         this.mailSender = mailSender;
-    }
-
-    public void setTemplateMessage(SimpleMailMessage templateMessage) {
         this.templateMessage = templateMessage;
-    }
-
-    public void setLdapService(LocalLdap ldapService) {
-        getBeanHelper().throwIfAlreadySet(ldap, ldapService);
-        this.ldap = ldapService;
-        if (!this.ldap.getSetting()) {
+        this.aclVoter = aclVoter;
+        this.passwordProvider = passwordProvider;
+        // Optional ldap configuration.
+        if (ldap != null && ldap.getSetting()) {
+            this.ldap = ldap;
+        } else {
             this.ldap = null;
         }
-    }
-
-    public void setAclVoter(ACLVoter aclVoter) {
-        getBeanHelper().throwIfAlreadySet(this.aclVoter, aclVoter);
-        this.aclVoter = aclVoter;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -1041,19 +1028,23 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     @RolesAllowed("user")
     public void changePassword(String newPassword) {
-        long id = getSecuritySystem().getEventContext().getCurrentUserId();
-        changePasswordById(id, newPassword);
+        String user = getSecuritySystem().getEventContext().getCurrentUserName();
+        _changePassword(user, newPassword);
     }
 
     @RolesAllowed("system")
-    public void changeUserPassword(String omeName, String newPassword) {
-        Experimenter e = lookupExperimenter(omeName);
-        changePasswordById(e.getId(), newPassword);
+    public void changeUserPassword(String user, String newPassword) {
+        _changePassword(user, newPassword);
     }
 
-    private void changePasswordById(long id, String newPassword) {
-        PasswordUtil.changeUserPasswordById(jdbc, id, newPassword);
-        getBeanHelper().getLogger().info("Changed password for user: " + id);
+    private void _changePassword(String user, String newPassword) {
+        try {
+            passwordProvider.changePassword(user, newPassword);
+            getBeanHelper().getLogger().info("Changed password for user: " + user);
+        } catch (PasswordChangeException e) {
+            throw new SecurityViolation("PasswordChangeException: "
+                    + e.getMessage());
+        }
     }
 
     /**
@@ -1065,61 +1056,14 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      * available.
      */
     public boolean checkPassword(String name, String password) {
-        Long id = PasswordUtil.userId(jdbc, name);
-        if (null == id) {
-            if (ldap != null) {
-                // Try to create account from LDAP if set
-                try {
-                    boolean login = ldap.createUserFromLdap(name, password);
-                    if (login) {
-                        return true; // User exists on LDAP
-                    }
-                } catch (ApiUsageException e) {
-                    return false;
-                }
-                return false;
-            }
-            return false; // Unknown user. TODO Guest?
+        Boolean result = passwordProvider.checkPassword(name, password);
+        if (result == null) {
+            getBeanHelper().getLogger().warn("Password provider returned null: "
+                    + passwordProvider);
+            return false;
+        } else {
+            return result.booleanValue();
         }
-        // User exist
-        String hash = PasswordUtil.getUserPasswordHash(jdbc, id);
-        if (hash == null) {
-            if (ldap != null) {
-                // Check type of authentication if hash is empty
-                // Try to get DN
-                String dn = LdapUtil.lookupLdapAuthExperimenter(jdbc, id);
-                if (null == dn) {
-                    return false; // no DN. Unknown user. TODO Guest?
-                } 
-                try {
-                    if (ldap.validatePassword(dn, password))
-                        return true;
-                } catch (ApiUsageException e) {
-                    return false;
-                }
-            }
-            return false; // Password is turned off.
-        } else if (hash.trim().length() == 0) {
-            if (ldap != null) {
-                // Check type of authentication if hash is empty
-                // Try to get DN
-                String dn = LdapUtil.lookupLdapAuthExperimenter(jdbc, id);
-                if (null == dn) {
-                    return false; // no DN. Unknown user. TODO Guest?
-                } 
-                try {
-                    if (ldap.validatePassword(dn, password))
-                        return true;
-                } catch (ApiUsageException e) {
-                    return false;
-                }
-                return false;
-            }
-            return true;
-        }
-        String digest = PasswordUtil.preparePassword(password);
-        return hash.equals(digest);
-
     }
 
     // ~ Security context
