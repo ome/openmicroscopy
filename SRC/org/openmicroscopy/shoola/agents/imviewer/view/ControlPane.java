@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -421,13 +422,15 @@ class ControlPane
 	    projectionFrequency = new JSpinner(new SpinnerNumberModel(1, 1, 1, 1));
 	    String[] names = new String[projections.size()];
         int index = 0;
-        Iterator<Integer> i = projections.keySet().iterator();
+        Entry entry;
+        Iterator i = projections.entrySet().iterator();
         projectionTypes = new HashMap<Integer, Integer>();
         int j;
         while (i.hasNext()) {
-			j = i.next();
+        	entry = (Entry) i.next();
+			j = (Integer) entry.getKey();
 			projectionTypes.put(index, j);
-			names[index] = projections.get(j);
+			names[index] = (String) entry.getValue();
 			index++;
 		}
         projectionTypesBox = EditorUtil.createComboBox(names, 0, 
@@ -1390,15 +1393,14 @@ class ControlPane
 	}
 	
     /**
-     * Reacts to the selection of an item in the {@link #zoomingBox} or
-     * {@link #ratingBox}.
+     * Reacts to the selection of an item in the projection box
      * @see ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
         JComboBox cb = (JComboBox) e.getSource();
-        ViewerAction va = (ViewerAction) cb.getSelectedItem();
-        va.actionPerformed(e);
+        String value = (String) cb.getSelectedItem();
+        controller.setProjectionRange(true);
     }
 
     /**
