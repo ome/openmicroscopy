@@ -77,8 +77,7 @@ public class MethodSecurityTest extends MockObjectTestCase {
         mockMgr.expects(once()).method("getUserRoles").will(returnValue(roles));
 
         try {
-            msec.checkMethod(new AdminImpl(null, null, null, null, null, null,
-                    null), sync, p);
+            msec.checkMethod(new AdminImpl(), sync, p);
         } finally {
             check();
         }
@@ -94,8 +93,7 @@ public class MethodSecurityTest extends MockObjectTestCase {
         mockMgr.expects(once()).method("getUserRoles").will(returnValue(roles));
 
         try {
-            msec.checkMethod(new AdminImpl(null, null, null, null, null, null,
-                    null), ec, p);
+            msec.checkMethod(new AdminImpl(), ec, p);
         } finally {
             check();
         }
@@ -113,8 +111,7 @@ public class MethodSecurityTest extends MockObjectTestCase {
 
         ProxyFactory factory = new ProxyFactory();
         factory.setInterfaces(new Class[] { IAdmin.class });
-        factory.setTarget(new AdminImpl(null, null, null, null, null, null,
-                null));
+        factory.setTarget(new AdminImpl());
         factory.addAdvice(new JamonPerformanceMonitorInterceptor());
         IAdmin proxy = (IAdmin) factory.getProxy();
         try {
