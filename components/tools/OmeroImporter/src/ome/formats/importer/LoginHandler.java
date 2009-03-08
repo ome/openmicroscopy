@@ -26,8 +26,6 @@ import java.io.StringWriter;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
@@ -35,7 +33,6 @@ import javax.swing.JOptionPane;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.Actions;
-import ome.formats.importer.util.ClientKeepAlive;
 import ome.formats.importer.util.GuiCommonElements;
 
 import org.apache.commons.logging.Log;
@@ -80,10 +77,6 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
 
     private OMEROMetadataStoreClient store;
     
-    private ClientKeepAlive    keepAlive = new ClientKeepAlive();
-    
-    private ScheduledThreadPoolExecutor executor;
-       
     public LoginDialog         dialog;
     
     public LoginFrame          frame;
@@ -184,7 +177,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         server = frame.currentServer;
                         port = frame.port;
                         frame.updateServerList(server);                    
-                    } else
+                    }
+                    else
                     {
                         username = dialog.username;
                         password = dialog.password;
@@ -192,16 +186,16 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         port = dialog.port;
                         dialog.updateServerList(server);                    
                     }
-                    
                     userPrefs.put("username", username);
                     userPrefs.put("server", server);
                     userPrefs.putInt("port", port);
-                    
-                } else {
-                        username = lc.getUserName();
-                        password = lc.getPassword();
-                        server = lc.getHostName();
-                        port = 4063;
+                }
+                else
+                {
+                	username = lc.getUserName();
+                	password = lc.getPassword();
+                	server = lc.getHostName();
+                	port = lc.getPort();
                 }
             
                 viewer.statusBar.setStatusIcon("gfx/server_trying16.png",
@@ -260,12 +254,10 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                             refreshNewLogin();
                         return;
                     }
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {                   
-                    StringWriter sw = new StringWriter();
-                    PrintWriter pw = new PrintWriter(sw);
-                    e.printStackTrace(pw);
-                    log.info(sw);
+                    log.error("Exception in LoginHandler.", e);
                     
                     //e.printStackTrace();
 
@@ -332,30 +324,18 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         {
             store = new OMEROMetadataStoreClient();
             store.initialize(username, password, server, port);
-            store.getProjects();
-            
-            if (executor == null)
-            {
-                executor = new ScheduledThreadPoolExecutor(1);
-                executor.scheduleWithFixedDelay(keepAlive, 60, 60, TimeUnit.SECONDS);
-            }
-            keepAlive.setClient(store);
-                        
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             log.error("Login failure.", e);
-            e.printStackTrace();
             return false;
         }
         return true;
     }
 
-
     public void logout()
     {
-        executor.shutdown();
-        executor = null;
-        log.debug("LoginHandler logout called. Keepalive shutdown.");
+    	store.logout();
     }
     
     public OMEROMetadataStoreClient getMetadataStore()

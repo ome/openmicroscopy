@@ -17,6 +17,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,6 +30,7 @@ import static omero.rtypes.*;
 import ome.formats.enums.EnumerationProvider;
 import ome.formats.enums.IQueryEnumProvider;
 import ome.formats.importer.MetaLightSource;
+import ome.formats.importer.util.ClientKeepAlive;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.ChannelProcessor;
 import ome.formats.model.IObjectContainerStore;
@@ -115,6 +118,13 @@ import loci.formats.meta.IMinMaxStore;
 import loci.formats.meta.MetadataStore;
 
 
+/**
+ * Client side implementation of the Bio-Formats {@link MetadataStore}. It is
+ * responsible for handling metadata from Bio-Formats and maintaining
+ * communication with an OMERO server.
+ * @author Brian Loranger, brain at lifesci.dundee.ac.uk
+ * @author Chris Allan, callan at lifesci.dundee.ac.uk
+ */
 public class OMEROMetadataStoreClient
 	implements MetadataStore, IMinMaxStore, IObjectContainerStore
 {
@@ -169,6 +179,12 @@ public class OMEROMetadataStoreClient
     
     /** Image channel minimums and maximums. */
     private double[][][] imageChannelGlobalMinMax;
+    
+    /** Keep alive runnable, pings all services. */
+    private ClientKeepAlive keepAlive = new ClientKeepAlive();
+    
+    /** Executor that will run our keep alive task. */
+    private ScheduledThreadPoolExecutor executor;
 
     private void initializeServices()
     	throws ServerError
@@ -192,6 +208,14 @@ public class OMEROMetadataStoreClient
         modelProcessors.add(new PixelsProcessor());
     	modelProcessors.add(new ChannelProcessor());
     	modelProcessors.add(new InstrumentProcessor());
+    	
+    	// Start our keep alive executor
+        if (executor == null)
+        {
+            executor = new ScheduledThreadPoolExecutor(1);
+            executor.scheduleWithFixedDelay(keepAlive, 60, 60, TimeUnit.SECONDS);
+        }
+        keepAlive.setClient(this);
     }
     
     public IQueryPrx getIQuery()
@@ -340,11 +364,13 @@ public class OMEROMetadataStoreClient
     }
     
     /**
-     * Destroys the sessionFactor and closes the client
-     * @return <code>null</code>
+     * Destroys the sessionFactory and closes the client.
      */
     public void logout()
     {
+        log.debug("Logout called, keep alive shut down.");
+    	executor.shutdown();
+    	executor = null;
         c.closeSession();
     }
     
