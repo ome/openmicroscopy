@@ -96,6 +96,15 @@ public class CommandLineImporter
         }
         library.setDataset(d);
         library.importImage(f, 0, 0, 1, name, false);
+        store.logout();
+    }
+    
+    /**
+     * Cleans up after a successful or unsuccessful image import.
+     */
+    public void cleanup()
+    {
+    	store.logout();
     }
 
     /**
@@ -206,6 +215,7 @@ public class CommandLineImporter
         String path = args[g.getOptind()];
         
         // Start the importer and import the image we've been given
+        CommandLineImporter c = null;
         try
         {
             // Ensure that we have an image name
@@ -213,7 +223,6 @@ public class CommandLineImporter
             {
                 name = path;
             }
-            CommandLineImporter c;
             if (sessionKey != null)
             {
                 c = new CommandLineImporter(sessionKey, hostname, port);
@@ -230,6 +239,13 @@ public class CommandLineImporter
         {
             log.error("Error during import process." , t);
             System.exit(2);
+        }
+        finally
+        {
+        	if (c != null)
+        	{
+        		c.cleanup();
+        	}
         }
     }
 }
