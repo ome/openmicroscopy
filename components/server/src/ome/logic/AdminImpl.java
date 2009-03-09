@@ -424,14 +424,15 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public long createUser(Experimenter newUser, String defaultGroup) {
         // logged via createExperimenter
         return createExperimenter(newUser, groupProxy(defaultGroup),
-                groupProxy("user"));
+                groupProxy(sec.getSecurityRoles().getUserGroupName()));
     }
 
     @RolesAllowed("system")
     public long createSystemUser(Experimenter newSystemUser) {
         // logged via createExperimenter
-        return createExperimenter(newSystemUser, groupProxy("system"),
-                groupProxy("user"));
+        return createExperimenter(newSystemUser,
+                groupProxy(sec.getSecurityRoles().getSystemGroupName()),
+                groupProxy(sec.getSecurityRoles().getUserGroupName()));
     }
 
     @RolesAllowed("system")
