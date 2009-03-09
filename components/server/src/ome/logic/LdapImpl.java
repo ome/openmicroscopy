@@ -32,6 +32,7 @@ import ome.api.ILdap;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalLdap;
 import ome.conditions.ApiUsageException;
+import ome.conditions.SecurityViolation;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -90,8 +91,8 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
     protected final RoleProvider roleProvider;
 
     public LdapImpl(RoleProvider roleProvider, LdapOperations ldapOperations,
-            SimpleJdbcOperations jdbc, String newUserGroup, String groups,
-            String attributes, String values, boolean config) {
+            SimpleJdbcOperations jdbc, String newUserGroup, 
+            String groups, String attributes, String values, boolean config) {
         this.roleProvider = roleProvider;
         this.ldapOperations = ldapOperations;
         this.jdbc = jdbc;
@@ -385,11 +386,13 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
     // =========================================================================
 
     /**
-     * Creates the initial context with no connection request controls
+     * Creates the initial context with no connection request controls in order
+     * to check authentication. If authentication fails, this method throws
+     * a {@link SecurityViolation}.
      * 
      * @return {@link javax.naming.ldap.LdapContext}
      */
-    protected boolean isAuthContext(String username, String password) {
+    protected void isAuthContext(String username, String password) {
         // Set up environment for creating initial context
         LdapContextSource ctx = (LdapContextSource) OmeroContext
                 .getManagedServerContext().getBean("contextSource");
@@ -405,28 +408,29 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
                 }
             }
             new InitialLdapContext(env, null);
-            return true;
         } catch (AuthenticationException authEx) {
-            throw new ApiUsageException("Authentication falilure! "
+            throw new SecurityViolation("Authentication falilure! "
                     + authEx.toString());
         } catch (NamingException e) {
-            throw new ApiUsageException("Naming exception! " + e.toString());
+            throw new SecurityViolation("Naming exception! " + e.toString());
         }
     }
 
     /**
-     * Valids password for base. Base is user's DN. When context was created
-     * successful specyfied requrements are valid.
+     * Validates password for base. Base is user's DN. When context was created
+     * successful specified requirements are valid.
      * 
      * @return boolean
      */
     @RolesAllowed("system")
     public boolean validatePassword(String base, String password) {
-        if (isAuthContext(base, password)) {
-            // Check requiroments
-            return validateRequiroments(base);
+        try {
+            isAuthContext(base, password);
+        } catch (SecurityViolation sv) {
+            return false;
         }
-        return false;
+        // Check requiroments
+        return validateRequiroments(base);
     }
 
     /**
@@ -451,7 +455,6 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
         // Valid user's password
         boolean access = validatePassword(dn.toString(), password);
 
-        ExperimenterGroup defaultGroup = new ExperimenterGroup();
         if (access) {
             // If validation is successful create new user in DB
             long gid = roleProvider.createGroup(newUserGroup, false);
