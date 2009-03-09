@@ -176,9 +176,9 @@ public interface IShare extends ServiceInterface {
             @Validate(Experimenter.class) List<Experimenter> exps,
             @Validate(String.class) List<String> guests, boolean enabled);
 
-    void setDescription(long shareId, @NotNull String description);
+    void setDescription(long shareId, String description);
 
-    void setExpiration(long shareId, @NotNull Timestamp expiration);
+    void setExpiration(long shareId, Timestamp expiration);
 
     void setActive(long shareId, boolean active);
 

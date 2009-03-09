@@ -322,7 +322,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public void setDescription(long shareId, @NotNull String description) {
+    public void setDescription(long shareId, String description) {
         Share share = (Share) iQuery.find(Share.class, shareId);
         ShareData data = store.get(shareId);
         share.setMessage(description);
