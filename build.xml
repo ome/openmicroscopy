@@ -288,7 +288,7 @@ java component.
            </classespath>
        </jdepend>
        <style in="target/jdepend.xml" out="target/jdepend.dot" style="lib/repository/jdepend2dot.xsl"/>
-       <exec executable="dot">
+       <exec executable="dot" failifexecutionfails="false"> <!-- In case dot is missing -->
            <arg value="-Tpng"/>
            <arg value="target/jdepend.dot"/>
            <arg value="-o"/>
