@@ -31,7 +31,7 @@ def build_hudson():
     #
     java_omero("release-javadoc")
     java_omero("release-findbugs")
-    java_omero("release-jdepend")
+    ## java_omero("release-jdepend") ## Doesn't yet work. Running from hudson
 
     #
     # Prepare a distribution
