@@ -329,8 +329,8 @@ class client(object):
             while retries < 3:
                 reason = None
                 if retries > 0:
-                    self.__ic.getLogger().warning("%s - createSession retry: %s",\
-                                                      (reason, retries))
+                    self.__ic.getLogger().warning(\
+                    "%s - createSession retry: %s"% (reason, retries) )
                 try:
                     prx = self.getRouter(self.__ic).createSession(username, password)
                     break
@@ -340,7 +340,7 @@ class client(object):
                     reason = "%s:%s" % (wrapped.type, wrapped.reason)
                     retries = retries + 1
                 except Ice.ConnectTimeoutException, cte:
-                    reason = "Ice.ConnectTimeoutException:%" % str(ctr)
+                    reason = "Ice.ConnectTimeoutException:%s" % str(cte)
                     retries = retries + 1
 
             if not prx:
