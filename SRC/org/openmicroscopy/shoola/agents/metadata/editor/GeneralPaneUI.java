@@ -409,16 +409,13 @@ class GeneralPaneUI
 	boolean hasDataToSave()
 	{
 		Iterator<AnnotationUI> i = components.iterator();
-		boolean b = false;
 		AnnotationUI ui;
 		while (i.hasNext()) {
 			ui = i.next();
-			if (ui.hasDataToSave()) {
-				b = true;
-				break;
-			}
+			if (ui.hasDataToSave())
+				return true;
 		}
-		return b;
+		return false;
 	}
 	
 	/** Clears data to save. */

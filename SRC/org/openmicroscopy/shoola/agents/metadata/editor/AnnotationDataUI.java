@@ -716,14 +716,19 @@ class AnnotationDataUI
 			RatingAnnotationData rating = model.getUserRatingAnnotation();
 			if (rating != null) l.add(rating);
 		}
+		List<Long> idsToKeep;
+		DocComponent doc;
+		long id;
+		
+		Object object;
+		Iterator<DocComponent> i;
+		Collection original;
+		Iterator j;
 		if (tagFlag && !model.isMultiSelection()) {
-			List<Long> idsToKeep = new ArrayList<Long>();
-			DocComponent doc;
-			TagAnnotationData tag;
-			long id;
+			idsToKeep = new ArrayList<Long>();
 			
-			Object object;
-			Iterator<DocComponent> i = tagsDocList.iterator();
+			TagAnnotationData tag;
+			i = tagsDocList.iterator();
 			while (i.hasNext()) {
 				doc = i.next();
 				object = doc.getData();
@@ -735,14 +740,39 @@ class AnnotationDataUI
 				}
 			}
 			
-			Collection original = model.getTags();
-			Iterator j = original.iterator();
+			original = model.getTags();
+			j = original.iterator();
 			while (j.hasNext()) {
 				tag = (TagAnnotationData) j.next();
 				id = tag.getId();
 				if (!idsToKeep.contains(id))
 					l.add(tag);
 			}
+		}
+		if (docFlag) {
+			idsToKeep = new ArrayList<Long>();
+			i = filesDocList.iterator();
+			FileAnnotationData fa;
+			while (i.hasNext()) {
+				doc = i.next();
+				object = doc.getData();
+				if (object instanceof FileAnnotationData) {
+					fa = (FileAnnotationData) object;
+					id = fa.getId();
+					if (id > 0) 
+						idsToKeep.add(id);
+				}
+			}
+			
+			original = model.getAttachments();
+			j = original.iterator();
+			while (j.hasNext()) {
+				fa = (FileAnnotationData) j.next();
+				id = fa.getId();
+				if (!idsToKeep.contains(id))
+					l.add(fa);
+			}
+
 		}
 		return l; 
 	}

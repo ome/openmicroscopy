@@ -1292,12 +1292,8 @@ class OMEROGateway
 			*/
 			thumbnailService = null;
 			fileStore = null;
-			//System.err.println("step 1");
 			blitzClient.closeSession();
-			
-			//System.err.println("step 2");
 			entry.destroy();
-			//System.err.println("step 3");
 			entry = null;
 			blitzClient = null;
 			//metadataStore = null;
@@ -3537,8 +3533,9 @@ class OMEROGateway
 	void isSessionAlive()
 	{
 		try {
-			EventContext ctx = getAdminService().getEventContext();
-			getSessionService().getSession(ctx.sessionUuid);
+			getAdminService().getEventContext();
+			//EventContext ctx = getAdminService().getEventContext();
+			//getSessionService().getSession(ctx.sessionUuid);
 		} catch (Exception e) {
 			Throwable cause = e.getCause();
 			int index = SERVER_OUT_OF_SERVICE;
