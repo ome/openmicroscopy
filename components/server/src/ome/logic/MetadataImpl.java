@@ -390,10 +390,11 @@ public class MetadataImpl
                  map.put(id, set);
              }
              list = (List<A>) annotated.linkedAnnotationList();
+             supported = new ArrayList<A>();
              if (list != null) {
             	 if (annotationTypes != null && annotationTypes.size() > 0) {
             		 j = list.iterator();
-            		 supported = new ArrayList<A>();
+            		 
                 	 while (j.hasNext()) {
                 		 object = j.next();
                 		 if (annotationTypes.contains(
@@ -401,12 +402,10 @@ public class MetadataImpl
                 			 supported.add(object);
                 		 }
                 	 }
-                	 //set.addAll(supported);
             	 } else {
-            		 supported = list;
-            		 //set.addAll(list);
+            		 supported.addAll(list);
             	 }
-             } else supported = list; //  set.addAll(list);
+             } else supported.addAll(list);
              ann = supported.iterator();
              while (ann.hasNext()) {
             	 object = ann.next();
@@ -419,7 +418,7 @@ public class MetadataImpl
             	 }
              }
              //Archived if no updated script.
-            set.addAll(list);
+            set.addAll(supported);
          }
          return map;
     }
