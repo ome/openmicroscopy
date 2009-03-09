@@ -9,8 +9,8 @@ package ome.logic;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +48,9 @@ import ome.security.LdapUtil;
 import ome.security.PasswordUtil;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
+import ome.security.auth.PasswordChangeException;
+import ome.security.auth.PasswordProvider;
+import ome.security.auth.RoleProvider;
 import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.UpdateEventListener;
 import ome.services.query.Definitions;
@@ -71,6 +74,7 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
@@ -99,91 +103,38 @@ import org.springframework.util.Assert;
 public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         ApplicationContextAware {
 
-    /**
-     * Action used by various methods to save objects with the blessing of the
-     * {@link SecuritySystem}.Only the first object will be saved and returned,
-     * but all of the varargs will be given a token.
-     *
-     * @see SecuritySystem#doAction(IObject, SecureAction)
-     */
-    private static class SecureUpdate implements SecureAction {
-        protected final LocalUpdate iUpdate;
+    protected final SimpleJdbcOperations jdbc;
 
-        SecureUpdate(LocalUpdate iUpdate) {
-            this.iUpdate = iUpdate;
-        }
+    protected final SessionFactory sf;
 
-        public <T extends IObject> T updateObject(final T... objs) {
-            return iUpdate.saveAndReturnObject(objs[0]);
-        }
-    };
+    protected final MailSender mailSender;
 
-    /**
-     * Action used to flush already saved objects. The top-level objects will be
-     * given a token and so can be safely flushed.
-     */
-    private static class SecureFlush extends SecureUpdate {
-        SecureFlush(LocalUpdate iUpdate) {
-            super(iUpdate);
-        }
+    protected final SimpleMailMessage templateMessage;
 
-        @Override
-        public <T extends IObject> T updateObject(T... objs) {
-            iUpdate.flush();
-            return null;
-        }
-    }
+    protected final ACLVoter aclVoter;
+    
+    protected final PasswordProvider passwordProvider;
+    
+    protected final RoleProvider roleProvider;
 
-    protected transient SimpleJdbcTemplate jdbc;
-
-    protected transient SessionFactory sf;
-
-    protected transient OmeroContext context;
-
-    protected transient MailSender mailSender;
-
-    protected transient SimpleMailMessage templateMessage;
-
-    protected transient LocalLdap ldap;
-
-    protected transient ACLVoter aclVoter;
-
-    /** injector for usage by the container. Not for general use */
-    public final void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
-        getBeanHelper().throwIfAlreadySet(this.jdbc, jdbcTemplate);
-        jdbc = jdbcTemplate;
-    }
-
-    /** injector for usage by the container. Not for general use */
-    public final void setSessionFactory(SessionFactory sessions) {
-        getBeanHelper().throwIfAlreadySet(this.sf, sessions);
-        sf = sessions;
-    }
+    protected OmeroContext context;
 
     public void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
         this.context = (OmeroContext) ctx;
     }
-
-    public void setMailSender(MailSender mailSender) {
+    
+    public AdminImpl(SimpleJdbcOperations jdbc, SessionFactory sf,
+            MailSender mailSender, SimpleMailMessage templateMessage,
+            ACLVoter aclVoter, PasswordProvider passwordProvider,
+            RoleProvider roleProvider) {
+        this.jdbc = jdbc;
+        this.sf = sf;
         this.mailSender = mailSender;
-    }
-
-    public void setTemplateMessage(SimpleMailMessage templateMessage) {
         this.templateMessage = templateMessage;
-    }
-
-    public void setLdapService(LocalLdap ldapService) {
-        getBeanHelper().throwIfAlreadySet(ldap, ldapService);
-        this.ldap = ldapService;
-        if (!this.ldap.getSetting()) {
-            this.ldap = null;
-        }
-    }
-
-    public void setAclVoter(ACLVoter aclVoter) {
-        getBeanHelper().throwIfAlreadySet(this.aclVoter, aclVoter);
         this.aclVoter = aclVoter;
+        this.passwordProvider = passwordProvider;
+        this.roleProvider = roleProvider;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -487,26 +438,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @SuppressWarnings("unchecked")
     public long createExperimenter(Experimenter experimenter,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups) {
-
-        SecureAction action = new SecureUpdate(iUpdate);
-
-        Experimenter e = copyUser(experimenter);
-        e.getDetails().copy(getSecuritySystem().newTransientDetails(e));
-        e = getSecuritySystem().doAction(action, e);
-        iUpdate.flush();
-
-        GroupExperimenterMap link = linkGroupAndUser(defaultGroup, e);
-        if (null != otherGroups) {
-            for (ExperimenterGroup group : otherGroups) {
-                linkGroupAndUser(group, e);
-            }
-        }
-
-        changeUserPassword(e.getOmeName(), " ");
-
+        
+        long uid = roleProvider.createExperimenter(experimenter, defaultGroup, otherGroups);
+        // If this method passes, then the Experimenter is valid.
+        changeUserPassword(experimenter.getOmeName(), " ");
         getBeanHelper().getLogger().info(
-                "Created user with blank password: " + e.getOmeName());
-        return e.getId();
+                "Created user with blank password: " + experimenter.getOmeName());
+        return uid;
     }
 
     @RolesAllowed("system")
@@ -515,89 +453,39 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             String password, ExperimenterGroup defaultGroup,
             ExperimenterGroup... otherGroups) {
 
-        SecureAction action = new SecureUpdate(iUpdate);
-
-        Experimenter e = copyUser(experimenter);
-        e.getDetails().copy(getSecuritySystem().newTransientDetails(e));
-        e = getSecuritySystem().doAction(action, e);
-        iUpdate.flush();
-
-        GroupExperimenterMap link = linkGroupAndUser(defaultGroup, e);
-        if (null != otherGroups) {
-            for (ExperimenterGroup group : otherGroups) {
-                linkGroupAndUser(group, e);
-            }
-        }
-
-        changeUserPassword(e.getOmeName(), password);
+        long uid = roleProvider.createExperimenter(experimenter, defaultGroup, otherGroups);
+        // If this method passes, then the Experimenter is valid.
+        changeUserPassword(experimenter.getOmeName(), password);
 
         getBeanHelper().getLogger().info(
-                "Created user with password: " + e.getOmeName());
-        return e.getId();
-    }
-
-    private GroupExperimenterMap linkGroupAndUser(ExperimenterGroup group,
-            Experimenter e) {
-
-        if (group == null || group.getId() == null) {
-            throw new ApiUsageException("Group must be persistent.");
-        }
-
-        group = new ExperimenterGroup(group.getId(), false);
-
-        // ticket:1021 - check for already added groups
-        for (GroupExperimenterMap link : e.unmodifiableGroupExperimenterMap()) {
-            ExperimenterGroup test = link.parent();
-            if (test.getId().equals(group.getId())) {
-                return link; // EARLY EXIT!
-            }
-        }
-
-        GroupExperimenterMap link = e.linkExperimenterGroup(group);
-        link.getDetails().copy(getSecuritySystem().newTransientDetails(link));
-        worldReadable(link);
-        
-        getSecuritySystem().doAction(new SecureUpdate(iUpdate),
-                userProxy(e.getId()), link);
-        iUpdate.flush();
-        return link;
+                "Created user with password: " + experimenter.getOmeName());
+        return uid;
     }
 
     @RolesAllowed("system")
     public long createGroup(ExperimenterGroup group) {
-        group = copyGroup(group);
-        ExperimenterGroup g = getSecuritySystem().doAction(
-                new SecureUpdate(iUpdate), group);
-
-        getBeanHelper().getLogger().info("Created group: " + g.getName());
-        return g.getId();
+        long gid = roleProvider.createGroup(group);
+        getBeanHelper().getLogger().info("Created group: " + group.getName());
+        return gid;
     }
 
     @RolesAllowed("system")
     public void addGroups(final Experimenter user,
             final ExperimenterGroup... groups) {
+        
+        if (groups == null || groups.length == 0) {
+            throw new ValidationException("Nothing to do.");
+        }
+        
         assertManaged(user);
-
-        final List<String> added = new ArrayList<String>();
-
-        Experimenter foundUser = userProxy(user.getId());
         for (ExperimenterGroup group : groups) {
             assertManaged(group);
-            ExperimenterGroup foundGroup = groupProxy(group.getId());
-            boolean found = false;
-            for (ExperimenterGroup currentGroup : foundUser
-                    .linkedExperimenterGroupList()) {
-                found |= HibernateUtils.idEqual(foundGroup, currentGroup);
-            }
-            if (!found) {
-                linkGroupAndUser(foundGroup, foundUser);
-                added.add(foundGroup.getName());
-            }
         }
 
+        roleProvider.addGroups(user, groups);
         getBeanHelper().getLogger().info(
                 String.format("Added user %s to groups %s", userProxy(
-                        user.getId()).getOmeName(), added));
+                        user.getId()).getOmeName(), Arrays.asList(groups)));
     }
 
     @RolesAllowed("system")
@@ -608,33 +496,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         if (groups == null) {
             return;
         }
-
-        Experimenter foundUser = getExperimenter(user.getId());
-        List<Long> toRemove = new ArrayList<Long>();
-        List<String> removed = new ArrayList<String>();
-
-        for (ExperimenterGroup g : groups) {
-            if (g.getId() != null) {
-                toRemove.add(g.getId());
-            }
-        }
-        for (GroupExperimenterMap map : foundUser
-                .<GroupExperimenterMap> collectGroupExperimenterMap(null)) {
-            Long pId = map.parent().getId();
-            Long cId = map.child().getId();
-            if (toRemove.contains(pId)) {
-                ExperimenterGroup p = iQuery.get(ExperimenterGroup.class, pId);
-                Experimenter c = iQuery.get(Experimenter.class, cId);
-                p.unlinkExperimenter(c);
-                getSecuritySystem().doAction(new SecureUpdate(iUpdate), p);
-                removed.add(p.getName());
-            }
-        }
-        iUpdate.flush();
-
+        roleProvider.removeGroups(user, groups);
         getBeanHelper().getLogger().info(
-                String.format("Removed user %s from groups %s", foundUser
-                        .getOmeName(), removed));
+                String.format("Removed user %s from groups %s", user, groups));
     }
 
     @RolesAllowed("user")
@@ -664,30 +528,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                     + roles.getUserGroupName());
         }
 
-        Experimenter foundUser = getExperimenter(user.getId());
-        ExperimenterGroup foundGroup = getGroup(group.getId());
-        Set<GroupExperimenterMap> foundMaps = foundUser
-                .findGroupExperimenterMap(foundGroup);
-        if (foundMaps.size() < 1) {
-            throw new ApiUsageException("Group " + group.getId() + " was not "
-                    + "found for user " + user.getId());
-        } else if (foundMaps.size() > 1) {
-            getBeanHelper().getLogger().warn(
-                    foundMaps.size() + " copies of " + foundGroup
-                            + " found for " + foundUser);
-        } else {
-            // May throw an exception
-            foundUser.setPrimaryGroupExperimenterMap(foundMaps.iterator()
-                    .next());
-        }
-
-        // TODO: May want to move this outside the loop
-        // and after the !newDefaultSet check.
-        getSecuritySystem().doAction(new SecureUpdate(iUpdate), foundUser);
-
+        roleProvider.setDefaultGroup(user, group);
         getBeanHelper().getLogger().info(
-                String.format("Changing default group for %s to %s", foundUser
-                        .getOmeName(), foundGroup.getName()));
+                String.format("Changing default group for %s to %s", user, group));
 
     }
 
@@ -790,7 +633,11 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         // make change.
         copy.getDetails().setGroup(group);
-        getSecuritySystem().doAction(new SecureFlush(iUpdate), copy);
+        getSecuritySystem().doAction(new SecureAction(){
+            public <T extends IObject> T updateObject(T... objs) {
+                iUpdate.flush();
+                return null;
+            }}, copy);
     }
 
     /**
@@ -1032,6 +879,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
         return true;
     }
+    
+    // ~ Password access
+    // =========================================================================
 
     @PermitAll
     public void changeExpiredCredentials(String name, String oldCred,
@@ -1041,19 +891,23 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     @RolesAllowed("user")
     public void changePassword(String newPassword) {
-        long id = getSecuritySystem().getEventContext().getCurrentUserId();
-        changePasswordById(id, newPassword);
+        String user = getSecuritySystem().getEventContext().getCurrentUserName();
+        _changePassword(user, newPassword);
     }
 
     @RolesAllowed("system")
-    public void changeUserPassword(String omeName, String newPassword) {
-        Experimenter e = lookupExperimenter(omeName);
-        changePasswordById(e.getId(), newPassword);
+    public void changeUserPassword(String user, String newPassword) {
+        _changePassword(user, newPassword);
     }
 
-    private void changePasswordById(long id, String newPassword) {
-        PasswordUtil.changeUserPasswordById(jdbc, id, newPassword);
-        getBeanHelper().getLogger().info("Changed password for user: " + id);
+    private void _changePassword(String user, String newPassword) {
+        try {
+            passwordProvider.changePassword(user, newPassword);
+            getBeanHelper().getLogger().info("Changed password for user: " + user);
+        } catch (PasswordChangeException e) {
+            throw new SecurityViolation("PasswordChangeException: "
+                    + e.getMessage());
+        }
     }
 
     /**
@@ -1065,61 +919,14 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      * available.
      */
     public boolean checkPassword(String name, String password) {
-        Long id = PasswordUtil.userId(jdbc, name);
-        if (null == id) {
-            if (ldap != null) {
-                // Try to create account from LDAP if set
-                try {
-                    boolean login = ldap.createUserFromLdap(name, password);
-                    if (login) {
-                        return true; // User exists on LDAP
-                    }
-                } catch (ApiUsageException e) {
-                    return false;
-                }
-                return false;
-            }
-            return false; // Unknown user. TODO Guest?
+        Boolean result = passwordProvider.checkPassword(name, password);
+        if (result == null) {
+            getBeanHelper().getLogger().warn("Password provider returned null: "
+                    + passwordProvider);
+            return false;
+        } else {
+            return result.booleanValue();
         }
-        // User exist
-        String hash = PasswordUtil.getUserPasswordHash(jdbc, id);
-        if (hash == null) {
-            if (ldap != null) {
-                // Check type of authentication if hash is empty
-                // Try to get DN
-                String dn = LdapUtil.lookupLdapAuthExperimenter(jdbc, id);
-                if (null == dn) {
-                    return false; // no DN. Unknown user. TODO Guest?
-                } 
-                try {
-                    if (ldap.validatePassword(dn, password))
-                        return true;
-                } catch (ApiUsageException e) {
-                    return false;
-                }
-            }
-            return false; // Password is turned off.
-        } else if (hash.trim().length() == 0) {
-            if (ldap != null) {
-                // Check type of authentication if hash is empty
-                // Try to get DN
-                String dn = LdapUtil.lookupLdapAuthExperimenter(jdbc, id);
-                if (null == dn) {
-                    return false; // no DN. Unknown user. TODO Guest?
-                } 
-                try {
-                    if (ldap.validatePassword(dn, password))
-                        return true;
-                } catch (ApiUsageException e) {
-                    return false;
-                }
-                return false;
-            }
-            return true;
-        }
-        String digest = PasswordUtil.preparePassword(password);
-        return hash.equals(digest);
-
     }
 
     // ~ Security context
@@ -1139,57 +946,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     // ~ Helpers
     // =========================================================================
 
-    protected Experimenter copyUser(Experimenter e) {
-        if (e.getOmeName() == null) {
-            throw new ValidationException("OmeName may not be null.");
-        }
-        Experimenter copy = new Experimenter();
-        copy.setOmeName(e.getOmeName());
-        copy.setFirstName(e.getFirstName());
-        copy.setMiddleName(e.getMiddleName());
-        copy.setLastName(e.getLastName());
-        copy.setEmail(e.getEmail());
-        copy.setInstitution(e.getInstitution());
-        if (e.getDetails() != null && e.getDetails().getPermissions() != null) {
-            copy.getDetails().setPermissions(e.getDetails().getPermissions());
-        } else {
-            // ticket:1204 - If no permissions are set, we will need to make
-            // sure that this instance is visible, otherwise non-admin users
-            // will have significant problems.
-            worldReadable(copy);
-        }
-        // TODO make ShallowCopy-like which ignores collections and details.
-        // if possible, values should be validated. i.e. iTypes should say what
-        // is non-null
-        return copy;
-    }
-
-    /**
-     * @see ticket:1204
-     */
-    private void worldReadable(IObject obj) {
-        Permissions p = obj.getDetails().getPermissions();
-        if (p == null) {
-            p = new Permissions(Permissions.DEFAULT);
-            obj.getDetails().setPermissions(p);
-        }
-        p.grant(Role.GROUP, Right.READ);
-        p.grant(Role.WORLD, Right.READ);
-    }
-
-    protected ExperimenterGroup copyGroup(ExperimenterGroup g) {
-        if (g.getName() == null) {
-            throw new ValidationException("Group name may not be null.");
-        }
-        ExperimenterGroup copy = new ExperimenterGroup();
-        copy.setDescription(g.getDescription());
-        copy.setName(g.getName());
-        copy.getDetails().copy(getSecuritySystem().newTransientDetails(g));
-        worldReadable(copy);
-        // TODO see shallow copy comment on copy user
-        return copy;
-    }
-
     protected void assertManaged(IObject o) {
         if (o == null) {
             throw new ApiUsageException("Argument may not be null.");
@@ -1197,9 +953,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             throw new ApiUsageException(o.getClass().getName() + " has no id.");
         }
     }
-
-    // ~ Password access
-    // =========================================================================
 
     // ~ Queries for pulling full experimenter/experimenter group graphs
     // =========================================================================

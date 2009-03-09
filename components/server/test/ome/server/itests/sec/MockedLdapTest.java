@@ -8,20 +8,12 @@ package ome.server.itests.sec;
 
 import java.util.List;
 
-import ome.api.ServiceInterface;
-import ome.api.local.LocalAdmin;
 import ome.api.local.LocalLdap;
-import ome.conditions.ApiUsageException;
-import ome.logic.AdminImpl;
 import ome.logic.LdapImpl;
 import ome.model.meta.Experimenter;
-import ome.security.ACLVoter;
 import ome.server.itests.AbstractManagedContextTest;
 
-import org.hibernate.SessionFactory;
 import org.jmock.Mock;
-import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.ldap.core.LdapOperations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -34,7 +26,6 @@ import org.testng.annotations.Test;
 public class MockedLdapTest extends AbstractManagedContextTest {
 
     // Using local versions since we need to mock them.
-    LocalAdmin admin;
     LocalLdap ldap;
     Mock mock;
     LdapOperations ops;
@@ -44,41 +35,10 @@ public class MockedLdapTest extends AbstractManagedContextTest {
         mock = new Mock(LdapOperations.class);
         ops = (LdapOperations) mock.proxy();
 
-        LdapImpl limpl = new LdapImpl();
-        limpl.setLdapTemplate(ops);
-        limpl.setJdbcTemplate(jdbcTemplate);
-        limpl.setConfig(true);
-        limpl.setGroups("groups");
-        limpl.setAttributes("attributes");
-        limpl.setValues("values");
-        // TODO Need to fix circular dependency on admin
-
-        AdminImpl aimpl = new AdminImpl();
-        aimpl.setJdbcTemplate(this.jdbcTemplate);
-        aimpl.setSecuritySystem(this.securitySystem);
-        aimpl.setSessionFactory((SessionFactory) applicationContext
-                .getBean("sessionFactory"));
-        aimpl.setMailSender(null);
-        aimpl.setTemplateMessage(null);
-        aimpl.setAclVoter((ACLVoter) applicationContext.getBean("aclVoter"));
-        aimpl.setLdapService(limpl);
-        limpl.setAdminService(aimpl);
-
+        LdapImpl limpl = new LdapImpl(null, ops, jdbcTemplate, "default",
+                "groups", "attributes", "values", true);
         ldap = limpl;
-        List<String> list = (List<String>) applicationContext
-                .getBean("statelessInterceptors");
-        ProxyFactoryBean factory = new ProxyFactoryBean();
-        factory.setBeanFactory(applicationContext);
-        factory.setInterceptorNames(list.toArray(new String[] {}));
-        factory.setInterfaces(new Class[] { LocalAdmin.class });
-        factory.setTarget(aimpl);
 
-        admin = (LocalAdmin) factory.getObject();
-        ProxyFactory factory2 = new ProxyFactory();
-        factory2.setInterfaces(new Class[] { LocalAdmin.class });
-        factory2.addAdvice(this.loginAop);
-        factory2.setTarget(admin);
-        admin = (LocalAdmin) factory2.getProxy();
     }
 
     // ~ ILdap.searchAll
@@ -157,16 +117,7 @@ public class MockedLdapTest extends AbstractManagedContextTest {
 
     @Test
     public void testCreateUserFromLdap() throws Exception {
-        Experimenter exp = null;
-        try {
-            exp = admin.lookupExperimenter("jmoore");
-        } catch (ApiUsageException e) {
-            ldap.createUserFromLdap("jmoore", "XXX");
-        }
-
-        assertTrue("Experimenter exist, for test please try set another one.",
-                exp != null);
-
+        ldap.createUserFromLdap("jmoore", "XXX");
     }
 
     @Test

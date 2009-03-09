@@ -15,12 +15,15 @@ import java.util.UUID;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
+import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -534,8 +537,11 @@ public class AdminTest extends AbstractManagedContextTest {
         unlocked = iAdmin.unlock(pt);
         assertTrue(unlocked[0]);
 
-        pt.linkDataset(d);
-        pt = iUpdate.saveAndReturnObject(pt);
+        // With the security changes in 4.0, it is necessary to add world
+        // readable to the project, otherwise it wouldn't get locked.
+        ILink link = pt.linkDataset(d);
+        link.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
+        pt = iUpdate.saveAndReturnObject(pt); // Still broken ticket:1226
         assertTrue(pt.getDetails().getPermissions().isSet(Flag.LOCKED));
         unlocked = iAdmin.unlock(pt);
         assertFalse(unlocked[0]);
@@ -642,12 +648,9 @@ public class AdminTest extends AbstractManagedContextTest {
         
         Experimenter e = loginNewUser();
         // This creates all the types of interest: user, group, link
-        
+
         loginRoot();
-        List<Experimenter> users = iQuery.findAll(Experimenter.class, null);
-        assertWorldReadable(users);
-        users = null;
-        
+
         List<ExperimenterGroup> groups = iQuery.findAll(ExperimenterGroup.class, null);
         assertWorldReadable(groups);
         groups = null;
@@ -655,7 +658,10 @@ public class AdminTest extends AbstractManagedContextTest {
         List<GroupExperimenterMap> maps = iQuery.findAll(GroupExperimenterMap.class, null);
         assertWorldReadable(maps);
         maps = null;
-        
+
+        List<Experimenter> users = iQuery.findAll(Experimenter.class, null);
+        assertWorldReadable(users);
+        users = null;
     }
     
     // ~ Bugs

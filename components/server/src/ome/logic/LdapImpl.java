@@ -37,8 +37,10 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.LdapUtil;
 import ome.security.SecuritySystem;
+import ome.security.auth.RoleProvider;
 import ome.system.OmeroContext;
 
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.ContextMapper;
@@ -54,11 +56,11 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Provides methods for administering user accounts, passwords, as well as
  * methods which require special privileges.
- *
+ * 
  * Developer note: As can be expected, to perform these privileged the Admin
  * service has access to several resources that should not be generally used
  * while developing services. Misuse could circumvent security or auditing.
- *
+ * 
  * @author Aleksandra Tarkowska, A.Tarkowska@dundee.ac.uk
  * @version $Revision: 1552 $, $Date: 2007-05-23 09:43:33 +0100 (Wed, 23 May
  *          2007) $
@@ -71,59 +73,33 @@ import org.springframework.transaction.annotation.Transactional;
 @RevisionNumber("$Revision: 1552 $")
 public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
-    protected transient LdapOperations ldapOperations;
+    protected final LdapOperations ldapOperations;
 
-    protected transient SimpleJdbcTemplate jdbc;
+    protected final SimpleJdbcOperations jdbc;
 
-    protected transient String groups;
+    protected final String newUserGroup;
 
-    protected transient String attributes;
+    protected final String groups;
 
-    protected transient String values;
+    protected final String attributes;
 
-    protected transient boolean config;
+    protected final String values;
 
-    protected transient IAdmin adminService;
+    protected final boolean config;
 
-    /** injector for usage by the container. Not for general use */
-    public final void setLdapTemplate(LdapOperations ldapTemplate) {
-        getBeanHelper().throwIfAlreadySet(this.ldapOperations, ldapTemplate);
-        this.ldapOperations = ldapTemplate;
-    }
+    protected final RoleProvider roleProvider;
 
-    /** injector for usage by the container. Not for general use */
-    public final void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
-        getBeanHelper().throwIfAlreadySet(this.jdbc, jdbcTemplate);
-        jdbc = jdbcTemplate;
-    }
-
-    /** injector for usage by the container. Not for general use */
-    public final void setGroups(String groups) {
-        getBeanHelper().throwIfAlreadySet(this.groups, groups);
+    public LdapImpl(RoleProvider roleProvider, LdapOperations ldapOperations,
+            SimpleJdbcOperations jdbc, String newUserGroup, String groups,
+            String attributes, String values, boolean config) {
+        this.roleProvider = roleProvider;
+        this.ldapOperations = ldapOperations;
+        this.jdbc = jdbc;
+        this.newUserGroup = newUserGroup;
         this.groups = groups;
-    }
-
-    /** injector for usage by the container. Not for general use */
-    public final void setAttributes(String attributes) {
-        getBeanHelper().throwIfAlreadySet(this.attributes, attributes);
         this.attributes = attributes;
-    }
-
-    /** injector for usage by the container. Not for general use */
-    public final void setValues(String values) {
-        getBeanHelper().throwIfAlreadySet(this.values, values);
         this.values = values;
-    }
-
-    /** injector for usage by the container. Not for general use */
-    public final void setConfig(boolean config) {
         this.config = config;
-    }
-
-    /** injector for usage by the container. Not for general use */
-    public void setAdminService(IAdmin adminService) {
-        getBeanHelper().throwIfAlreadySet(this.adminService, adminService);
-        this.adminService = adminService;
     }
 
     // ~ System-only interface methods
@@ -162,8 +138,8 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
     @RolesAllowed("system")
     public Experimenter searchByDN(String dns) {
         DistinguishedName dn = new DistinguishedName(dns);
-        return (Experimenter) ldapOperations
-                .lookup(dn, new PersonContextMapper());
+        return (Experimenter) ldapOperations.lookup(dn,
+                new PersonContextMapper());
     }
 
     @RolesAllowed("system")
@@ -225,8 +201,8 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
         for (int i = 0; i < attributes.length; i++) {
             filter.and(new EqualsFilter(attributes[i], values[i]));
         }
-        return ldapOperations.search(new DistinguishedName(dn), filter.encode(),
-                new PersonContextMapper());
+        return ldapOperations.search(new DistinguishedName(dn),
+                filter.encode(), new PersonContextMapper());
     }
 
     @RolesAllowed("system")
@@ -478,22 +454,11 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
         ExperimenterGroup defaultGroup = new ExperimenterGroup();
         if (access) {
             // If validation is successful create new user in DB
-            try {
-                defaultGroup = adminService.lookupGroup("default");
-            } catch (Exception e) {
-                // Group "default" doesn't exist, has to be created
-                ExperimenterGroup newGr = new ExperimenterGroup();
-                newGr.setName("default");
-                newGr.setDescription("This group was created for users authenticated by LDAP.");
-                long idg = adminService.createGroup(newGr);
-                defaultGroup.setId(idg);
-            }
-            
-            ExperimenterGroup u_group = adminService.lookupGroup("user");
-            long id = adminService.createExperimenter(exp, defaultGroup, u_group);
-
+            long gid = roleProvider.createGroup(newUserGroup, false);
+            long uid = roleProvider.createExperimenter(exp,
+                    new ExperimenterGroup(gid, false));
             // Set user's DN in PASSWORD table (add sufix on the beginning)
-            setDN(id, dn.toString());
+            setDN(uid, dn.toString());
         }
         return access;
     }
