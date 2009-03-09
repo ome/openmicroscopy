@@ -144,6 +144,9 @@ class ImViewerComponent
 	 */
 	private boolean							saveBeforeCopy;
 
+    /** The color model used. */
+    private String							colorModel;
+    
 	/** 
 	 * Brings up the dialog used to set the parameters required for the
 	 * projection.
@@ -638,7 +641,10 @@ class ImViewerComponent
 			firePropertyChange(COLOR_MODEL_CHANGED_PROPERTY, 
 					Integer.valueOf(1), Integer.valueOf(-1));
 			view.setColorModel(key);
-			if (model.getTabbedIndex() != GRID_INDEX) renderXYPlane();
+			if (model.getTabbedIndex() != GRID_INDEX) {
+				colorModel = model.getColorModel();
+				renderXYPlane();
+			}
 		} catch (Exception ex) {
 			handleException(ex);
 		}
@@ -880,6 +886,7 @@ class ImViewerComponent
 		//Register the renderer
 		model.getRenderer().addPropertyChangeListener(controller);
 		if (rnd == null) { //initial 
+			colorModel = model.getColorModel();
 			view.buildComponents();
 			view.setOnScreen();
 			if (ImViewerAgent.isFastConnection())
@@ -2507,9 +2514,12 @@ class ImViewerComponent
 		if (oldIndex == index) return;
 		
 		view.setSelectedPane(index);
-		if (oldIndex == ImViewer.GRID_INDEX)
-			setColorModel(ColorModelAction.RGB_MODEL);
-		
+		if (oldIndex == ImViewer.GRID_INDEX) {
+			int key = ColorModelAction.RGB_MODEL;
+			if (GREY_SCALE_MODEL.equals(colorModel))
+				key = ColorModelAction.GREY_SCALE_MODEL;
+			setColorModel(key);
+		}
 		if ((oldIndex == ImViewer.PROJECTION_INDEX && 
 				index == ImViewer.VIEW_INDEX) ||
 				(index == ImViewer.PROJECTION_INDEX && 
