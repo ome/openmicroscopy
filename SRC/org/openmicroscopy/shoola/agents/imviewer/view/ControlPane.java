@@ -167,12 +167,6 @@ class ControlPane
     /** Slider to select the timepoint. */
     private OneKnobSlider			tSliderGrid;
     
-    /** Slider to select the z-section. */
-    private OneKnobSlider			zSliderAnnotator;
-    
-    /** Slider to select the timepoint. */
-    private OneKnobSlider			tSliderAnnotator;
-    
     /** Slider to select the timepoint. */
     private OneKnobSlider			tSliderProjection;
     
@@ -339,10 +333,7 @@ class ControlPane
         zSliderGrid.setEnabled(false);
         tSliderGrid = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
         tSliderGrid.setEnabled(false);
-        zSliderAnnotator = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
-        zSliderAnnotator.setEnabled(false);
-        tSliderAnnotator = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
-        tSliderAnnotator.setEnabled(false);
+       
         tSliderProjection = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
         tSliderProjection.setEnabled(false);
         
@@ -486,14 +477,12 @@ class ControlPane
         			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
         initSlider(zSliderGrid, maxZ, model.getDefaultZ(), 
     			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
-        initSlider(zSliderAnnotator, maxZ, model.getDefaultZ(), 
-    			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
+       
         initSlider(tSlider, maxT, model.getDefaultT(), 
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
         initSlider(tSliderGrid, maxT, model.getDefaultT(), 
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
-        initSlider(tSliderAnnotator, maxT, model.getDefaultT(), 
-        		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
+        
         gridRatioSlider.addChangeListener(this);
         ratioSlider.addChangeListener(this);
         projectionRatioSlider.addChangeListener(this);
@@ -783,16 +772,6 @@ class ControlPane
     }
     
     /**
-     * Returns the UI component hosting the z-section slider.
-     * 
-     * @return See above.
-     */
-    JPanel buildAnnotatorComponent()
-    {
-    	return layoutSlider(zSliderAnnotator);
-    }
-    
-    /**
      * Builds the control panel displayed in the grid view.
      * 
      * @return See above.
@@ -908,7 +887,6 @@ class ControlPane
     { 
     	updateSlider(tSlider, t);
     	updateSlider(tSliderGrid, t);
-    	updateSlider(tSliderAnnotator, t);
     	updateSlider(tSliderProjection, t);
     }
     
@@ -921,7 +899,6 @@ class ControlPane
     { 
     	updateSlider(zSlider, z); 
     	updateSlider(zSliderGrid, z); 
-    	updateSlider(zSliderAnnotator, z);
     }
     
     /** Updates UI components when a new color model is selected. */
@@ -1118,7 +1095,6 @@ class ControlPane
     {
     	setSliderMax(zSlider, model.getMaxZ());
     	setSliderMax(zSliderGrid, model.getMaxZ());
-    	setSliderMax(zSliderAnnotator, model.getMaxZ());
     	resetRndSettings();
     }
 
@@ -1203,12 +1179,10 @@ class ControlPane
     	if (b) {
             zSlider.setEnabled(model.getMaxZ() != 0);
             zSliderGrid.setEnabled(model.getMaxZ() != 0);
-            zSliderAnnotator.setEnabled(model.getMaxZ() != 0);
             projectionRange.setEnabled(model.getMaxZ() != 0);
         } else {
             zSlider.setEnabled(b);
             zSliderGrid.setEnabled(b);
-            zSliderAnnotator.setEnabled(b);
             projectionRange.setEnabled(b);
         } 
 	}
@@ -1225,12 +1199,10 @@ class ControlPane
     	if (b) {
             tSlider.setEnabled(model.getMaxT() != 0);
             tSliderGrid.setEnabled(model.getMaxT() != 0);
-            tSliderAnnotator.setEnabled(model.getMaxT() != 0);
             tSliderProjection.setEnabled(model.getMaxT() != 0);
         } else {
             tSlider.setEnabled(b);
             tSliderGrid.setEnabled(b);
-            tSliderAnnotator.setEnabled(b);
             tSliderProjection.setEnabled(b);
         } 
 	}
@@ -1398,8 +1370,6 @@ class ControlPane
      */
     public void actionPerformed(ActionEvent e)
     {
-        JComboBox cb = (JComboBox) e.getSource();
-        String value = (String) cb.getSelectedItem();
         controller.setProjectionRange(true);
     }
 
@@ -1426,9 +1396,16 @@ class ControlPane
         	else if (object == zSliderGrid || object == tSliderGrid)
         		controller.setSelectedXYPlane(zSliderGrid.getValue(), 
                         tSliderGrid.getValue());
-        	else if (object == zSliderAnnotator || object == tSliderAnnotator)
-        		controller.setSelectedXYPlane(zSliderAnnotator.getValue(), 
-        				tSliderAnnotator.getValue());
+        	else if (object == tSliderProjection) {
+        		//Only if knob is released.
+        		if (!tSliderProjection.getValueIsAdjusting()) {
+        			try {
+        				model.setSelectedXYPlane(-1, 
+            					tSliderProjection.getValue()-1);
+        				controller.setProjectionRange(true);
+					} catch (Exception ex) {}
+        		}
+        	}
         } else if (object == projectionFrequency)
 			controller.setProjectionRange(true);
     }
@@ -1447,10 +1424,6 @@ class ControlPane
         else if (source == zSliderGrid && zSliderGrid.isEnabled()) 
         	mouseWheelMovedZ(e);
         else if (source == tSliderGrid && tSliderGrid.isEnabled())
-            mouseWheelMovedT(e);
-        else if (source == zSliderAnnotator && zSliderAnnotator.isEnabled()) 
-        	mouseWheelMovedZ(e);
-        else if (source == tSliderAnnotator && tSliderAnnotator.isEnabled())
             mouseWheelMovedT(e);
     }
 

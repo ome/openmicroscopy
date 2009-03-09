@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -119,8 +118,6 @@ class ProjectionCanvas
         		g2D.setColor(Color.black);
         		g2D.fillRect(0, 0, w, h);
         		FontMetrics fm = g2D.getFontMetrics();
-        		Font f = g2D.getFont();
-        		g2D.setFont(f.deriveFont(Font.BOLD, f.getSize()+2));
         		g2D.setColor(Color.white);
         		int width = fm.stringWidth(DEFAULT_TEXT);
 
