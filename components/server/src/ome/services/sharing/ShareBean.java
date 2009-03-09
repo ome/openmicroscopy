@@ -609,7 +609,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         ShareData data = getShareIfAccessible(shareId);
         throwOnNullData(shareId, data);
         for (Experimenter experimenter : es) {
-            data.members.remove(experimenter.getId());
+            data.members.add(experimenter.getId());
         }
         storeShareData(shareId, data);
     }
