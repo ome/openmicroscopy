@@ -85,7 +85,7 @@ class BaseShare(BaseController):
             d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
             expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
         ms = [str(m) for m in members]
-        #gs = str(guests).split(';')
+        
         self.conn.createShare(host, int(blitz_id), imageInBasket, message, ms, enable, expiration_date)
 
     def createDiscussion(self, host, blitz_id, message, members, enable, expiration=None):
@@ -96,7 +96,7 @@ class BaseShare(BaseController):
             d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
             expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
         ms = [long(m) for m in members]
-        #gs = str(guests).split(';')
+        
         self.conn.createShare(host, int(blitz_id), [], message, ms, enable, expiration_date)
     
     def updateShareOrDiscussion(self, message, members, enable, expiration=None):
@@ -106,25 +106,12 @@ class BaseShare(BaseController):
         if expiration is not None:
             d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
             expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
-        ms = [int(m) for m in members]
-        #gs = str(guests).split(';')
         
-        # old list of members
-        old_groups = list()
-        for ogr in up_exp.copyGroupExperimenterMap():
-            old_groups.append(ogr.parent)
+        old_groups =  [m._obj for m in self.conn.getAllMembers(self.share.id)]
+        new_groups = [e._obj for e in self.conn.getExperimenters(members)]
         
-        # create list of new members
-        new_groups = list()
-        
-        # rest of groups
-        for g in self.groups:
-            for og in otherGroups:
-                if long(og) == g.id and g.name != defaultGroup.name.val:
-                    new_groups.append(g._obj)
-        
-        add_grs = list()
-        rm_grs = list()
+        add_mem = list()
+        rm_mem = list()
         
         # remove
         for ogr in old_groups:
@@ -133,7 +120,7 @@ class BaseShare(BaseController):
                 if ngr.id.val == ogr.id.val:
                     flag = True
             if not flag:
-                rm_grs.append(ogr)
+                rm_mem.append(ogr)
         
         # add
         for ngr in new_groups:
@@ -142,26 +129,45 @@ class BaseShare(BaseController):
                 if ogr.id.val == ngr.id.val:
                     flag = True
             if not flag:
-                add_grs.append(ngr)
+                add_mem.append(ngr)
                 
-        #print
-        '''print "add"
-        for g in add_grs:
-            print g.id.val, g.name.val
-        print "remove" 
-        for g in rm_grs:
-            print g.id.val, g.name.val'''
-            
-        self.conn.updateShareOrDiscussion(self.share.id, message, ms, enable, expiration_date)
+        self.conn.updateShareOrDiscussion(self.share.id, message, add_mem, rm_mem, enable, expiration_date)
     
     def addComment(self, host, blitz_id, comment):
         self.conn.addComment(host, int(blitz_id), self.share.id, comment)
 
     def getShares(self):
-        self.ownShares = self.sortByAttr(list(self.conn.getOwnShares()), 'started', True)
-        self.memberShares = self.sortByAttr(list(self.conn.getMemberShares()), 'started', True)
-        self.oshSize = len(self.ownShares)
-        self.mshSize = len(self.memberShares)
+        own_list = self.sortByAttr(list(self.conn.getOwnShares()), 'started', True)
+        mem_list = self.sortByAttr(list(self.conn.getMemberShares()), 'started', True)
+        
+        os_list_with_counters = list()
+        ms_list_with_counters = list()
+        
+        own_ids = [sh.id for sh in own_list]
+        if len(own_ids) > 0:
+            osh_child_counter = self.conn.getMemberCount(own_ids)
+            #osh_annotation_counter = self.conn.getCommentCount(own_ids)
+            
+            for sh in own_list:
+                sh.members_counter = osh_child_counter.get(sh.id)-1
+                #sh.annotation_counter = osh_annotation_counter.get(sh.id)
+                os_list_with_counters.append(sh)
+            
+            self.ownShares = os_list_with_counters
+            self.oshSize = len(self.ownShares)
+            
+        mem_ids = [sh.id for sh in mem_list]
+        if len(mem_ids) > 0:
+            msh_child_counter = self.conn.getMemberCount(mem_ids)
+            #msh_annotation_counter = self.conn.getCommentCount(mem_ids)
+            
+            for sh in mem_list:
+                sh.members_counter = msh_child_counter.get(sh.id)-1
+                #sh.annotation_counter = msh_annotation_counter.get(sh.id)
+                ms_list_with_counters.append(sh)
+            
+            self.memberShares = ms_list_with_counters
+            self.mshSize = len(self.memberShares)
 
     def getComments(self, share_id):
         self.comments = self.sortByAttr(list(self.conn.getComments(share_id)), 'details.creationEvent.time')

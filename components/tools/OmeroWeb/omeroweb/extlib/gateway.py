@@ -390,7 +390,7 @@ class BlitzGateway (threading.Thread):
         p = omero.sys.Parameters()
         if ids is not None:
             p.map = {}
-            p.map["ids"] = rlist([rlong(a) for a in ids])
+            p.map["ids"] = rlist([rlong(long(a)) for a in ids])
             sql = "select e from Experimenter as e where e.id in (:ids)"
         else:
             p.map = {}
@@ -915,6 +915,14 @@ class BlitzGateway (threading.Thread):
         sh = self.getShareService()
         for e in sh.getMemberShares(False):
             yield ShareWrapper(self, e)
+    
+    def getMemberCount(self, share_ids):
+        sh = self.getShareService()
+        return sh.getMemberCount(share_ids)
+    
+    def getCommentCount(self, share_ids):
+        sh = self.getShareService()
+        return sh.getCommentCount(share_ids)
     
     def getContents(self, share_id):
         sh = self.getShareService()
@@ -1617,11 +1625,15 @@ class BlitzGateway (threading.Thread):
                     except:
                         logger.error(traceback.format_exc())
     
-    def updateShareOrDiscussion (self, share_id, message, members, enable, expiration=None):
+    def updateShareOrDiscussion (self, share_id, message, add_members, rm_members, enable, expiration=None):
         sh = self.getShareService()
         sh.setDescription(long(share_id), message)
         sh.setExpiration(long(share_id), expiration)
         sh.setActive(long(share_id), enable)
+        if len(add_members) > 0:
+            sh.addUsers(long(share_id), add_members)
+        if len(rm_members) > 0:
+            sh.removeUsers(long(share_id), rm_members)
     
     def setFile(self, buf):
         f = self.createRawFileStore()
@@ -2769,6 +2781,9 @@ class ProjectWrapper (BlitzObjectWrapper):
     CHILD = 'Dataset'
     
 class ShareWrapper (BlitzObjectWrapper):
+    members_counter = None
+    annotation_counter = None
+    
     LINK_CLASS = None
     CHILD_WRAPPER_CLASS = None
     

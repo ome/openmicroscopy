@@ -116,7 +116,7 @@ INSTALLED_APPS = (
 
 # Cookies config
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
-SESSION_COOKIE_AGE = 604800 # 1 day in sec (86400)
+SESSION_COOKIE_AGE = 86400 # 1 day in sec (86400)
 
 # file upload settings
 FILE_UPLOAD_TEMP_DIR = '/tmp'
