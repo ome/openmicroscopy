@@ -43,6 +43,7 @@
         <bean class="ome.security.auth.LdapPasswordProvider">
           <constructor-arg ref="internal-ome.api.LocalLdap"/>
           <constructor-arg ref="simpleJdbcTemplate"/>
+          <constructor-arg value="true"/>
         </bean>
         <bean class="ome.security.auth.JdbcPasswordProvider">
           <constructor-arg ref="simpleJdbcTemplate"/>
