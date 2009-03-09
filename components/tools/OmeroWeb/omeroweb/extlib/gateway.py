@@ -2525,6 +2525,7 @@ class ImageWrapper (BlitzObjectWrapper):
             t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
         return datetime.fromtimestamp(t/1000)
     
+    # metadata getters
     def getImagingEnvironment(self):
         if self._obj.imagingEnvironment is None:
             return None
@@ -2538,19 +2539,13 @@ class ImageWrapper (BlitzObjectWrapper):
             return ImageObjectiveSettingsWrapper(self._conn, self._obj.objectiveSettings)
     
     def getObjective(self):
-        if self._obj.objectiveSettings is None:
-            return None
-        elif self._obj.objectiveSettings.objective is None:
+        if self._obj.objectiveSettings.objective is None:
             return None
         else:
             return ImageObjectiveWrapper(self._conn, self._obj.objectiveSettings.objective)
         
     def getInstrument(self):
-        if self._obj.objectiveSettings is None:
-            return None
-        elif self._obj.objectiveSettings.objective is None:
-            return None
-        elif self._obj.objectiveSettings.objective.instrument is None:
+        if self._obj.objectiveSettings.objective.instrument is None:
             return None
         else:
             return ImageInstrumentWrapper(self._conn, self._obj.objectiveSettings.objective.instrument)
@@ -2560,6 +2555,7 @@ class ImageWrapper (BlitzObjectWrapper):
             return None
         else:
             return ImageStageLabelWrapper(self._conn, self._obj.stageLabel)
+    # end
     
     def getThumbnail (self, size=(120,120)):
         try:

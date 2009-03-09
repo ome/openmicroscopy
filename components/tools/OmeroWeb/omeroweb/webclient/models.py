@@ -256,174 +256,174 @@ class MetadataObjectiveForm(forms.Form):
         
         # Correction Collar
         try:
-            if kwargs['initial']['image'].getObjectiveSettings():
-                self.fields['correctionCollar'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'correctionCollar\', this.value);'}), initial=kwargs['initial']['image'].getObjectiveSettings().correctionCollar, label="Calibrated collar", required=False)
+            if kwargs['initial']['image'].getObjectiveSettings().correctionCollar is not None:
+                self.fields['correctionCollar'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'correctionCollar\', this.value);'}), initial=kwargs['initial']['image'].getObjectiveSettings().correctionCollar, label="Correction collar", required=False)
             else:
-                self.fields['correctionCollar'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Calibrated collar", required=False)
+                self.fields['correctionCollar'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'correctionCollar\', this.value);'}), label="Correction collar", required=False)
             self.fields['correctionCollar'].widget.attrs['disabled'] = True 
             self.fields['correctionCollar'].widget.attrs['class'] = 'disable'
         except:
-            self.fields['correctionCollar'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Calibrated collar", required=False)
+            self.fields['correctionCollar'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Correction collar", required=False)
             self.fields['correctionCollar'].widget.attrs['disabled'] = True 
-            self.fields['correctionCollar'].widget.attrs['class'] = 'disable'
+            self.fields['correctionCollar'].widget.attrs['class'] = 'disabled'
         
         # Medium
         try:
-            if kwargs['initial']['image'].getObjectiveSettings():
+            if kwargs['initial']['image'].getObjectiveSettings().medium is not None:
                 self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['image'].getObjectiveSettings().medium, required=False) 
             else:
-                self.fields['medium'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['medium'].widget.attrs['disabled'] = True 
             self.fields['medium'].widget.attrs['class'] = 'disable'
         except:
             self.fields['medium'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
             self.fields['medium'].widget.attrs['disabled'] = True 
-            self.fields['medium'].widget.attrs['class'] = 'disable'
+            self.fields['medium'].widget.attrs['class'] = 'disabled'
         
         # Refractive Index
         try:
-            if kwargs['initial']['image'].getObjectiveSettings():
+            if kwargs['initial']['image'].getObjectiveSettings().refractiveIndex is not None:
                 self.fields['refractiveIndex'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'refractiveIndex\', this.value);'}), initial=kwargs['initial']['image'].getObjectiveSettings().refractiveIndex, label="Refractive index", required=False)
             else:
-                self.fields['refractiveIndex'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Refractive index", required=False)
+                self.fields['refractiveIndex'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'refractiveIndex\', this.value);'}), label="Refractive index", required=False)
             self.fields['refractiveIndex'].widget.attrs['disabled'] = True 
             self.fields['refractiveIndex'].widget.attrs['class'] = 'disable'
         except:
             self.fields['refractiveIndex'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Refractive index", required=False)
             self.fields['refractiveIndex'].widget.attrs['disabled'] = True 
-            self.fields['refractiveIndex'].widget.attrs['class'] = 'disable'
+            self.fields['refractiveIndex'].widget.attrs['class'] = 'disabled'
         
         # Objective
         
         # Manufacturer
         try:
-            if kwargs['initial']['image'].getObjective():
+            if kwargs['initial']['image'].getObjective().manufacturer is not None:
                 self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'manufacturer\', this.value);'}), initial=kwargs['initial']['image'].getObjective().manufacturer, required=False)
             else:
-                self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'manufacturer\', this.value);'}), required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disable'
         except:
             self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
-            self.fields['manufacturer'].widget.attrs['class'] = 'disable'
+            self.fields['manufacturer'].widget.attrs['class'] = 'disabled'
         
         # Model
         try:
-            if kwargs['initial']['image'].getObjective():
+            if kwargs['initial']['image'].getObjective().model is not None:
                 self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['image'].getObjective().model, required=False)
             else:
-                self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'model\', this.value);'}), required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disable'
         except:
             self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
-            self.fields['model'].widget.attrs['class'] = 'disable'
+            self.fields['model'].widget.attrs['class'] = 'disabled'
         
         # Serial Number
         try:
-            if kwargs['initial']['image'].getObjective():
+            if kwargs['initial']['image'].getObjective().serialNumber is not None:
                 self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'serialNumber\', this.value);'}), initial=kwargs['initial']['image'].getObjective().serialNumber, label="Serial number", required=False)
             else:
-                self.fields['serialNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Serial number", required=False)
+                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'serialNumber\', this.value);'}), label="Serial number", required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disable'
         except:
             self.fields['serialNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Serial number", required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
-            self.fields['serialNumber'].widget.attrs['class'] = 'disable'
+            self.fields['serialNumber'].widget.attrs['class'] = 'disabled'
         
         # Nominal Magnification
         try:
-            if kwargs['initial']['image'].getObjective():
+            if kwargs['initial']['image'].getObjective().nominalMagnification is not None:
                 self.fields['nominalMagnification'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'nominalMagnification\', this.value);'}), initial=kwargs['initial']['image'].getObjective().nominalMagnification, label="Nominal magnification", required=False)
             else:
-                self.fields['nominalMagnification'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), label="Nominal magnification", initial="N/A", required=False)
+                self.fields['nominalMagnification'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'nominalMagnification\', this.value);'}), label="Nominal magnification", required=False)
             self.fields['nominalMagnification'].widget.attrs['disabled'] = True 
             self.fields['nominalMagnification'].widget.attrs['class'] = 'disable'
         except:
             self.fields['nominalMagnification'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Nominal magnification", required=False)
             self.fields['nominalMagnification'].widget.attrs['disabled'] = True 
-            self.fields['nominalMagnification'].widget.attrs['class'] = 'disable'
+            self.fields['nominalMagnification'].widget.attrs['class'] = 'disabled'
         
         # Calibrated Magnification
         try:
-            if kwargs['initial']['image'].getObjective():
+            if kwargs['initial']['image'].getObjective().calibratedMagnification is not None:
                 self.fields['calibratedMagnification'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'calibratedMagnification\', this.value);'}), initial=kwargs['initial']['image'].getObjective().calibratedMagnification, label="Calibrated magnification", required=False)
             else:
-                self.fields['calibratedMagnification'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Calibrated magnification", required=False)
+                self.fields['calibratedMagnification'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'calibratedMagnification\', this.value);'}), label="Calibrated magnification", required=False)
             self.fields['calibratedMagnification'].widget.attrs['disabled'] = True 
             self.fields['calibratedMagnification'].widget.attrs['class'] = 'disable'
         except:
             self.fields['calibratedMagnification'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Calibrated magnification", required=False)
             self.fields['calibratedMagnification'].widget.attrs['disabled'] = True 
-            self.fields['calibratedMagnification'].widget.attrs['class'] = 'disable'
+            self.fields['calibratedMagnification'].widget.attrs['class'] = 'disabled'
         
         # Lens NA
         try:
-            if kwargs['initial']['image'].getObjective():
+            if kwargs['initial']['image'].getObjective().lensNA is not None:
                 self.fields['lensNA'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'lensNA\', this.value);'}), initial=kwargs['initial']['image'].getObjective().lensNA, label="Lens NA", required=False)
             else:
-                self.fields['lensNA'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Lens NA", required=False)
+                self.fields['lensNA'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'lensNA\', this.value);'}), required=False)
             self.fields['lensNA'].widget.attrs['disabled'] = True 
             self.fields['lensNA'].widget.attrs['class'] = 'disable'
         except:
             self.fields['lensNA'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Lens NA", required=False)
             self.fields['lensNA'].widget.attrs['disabled'] = True 
-            self.fields['lensNA'].widget.attrs['class'] = 'disable'
+            self.fields['lensNA'].widget.attrs['class'] = 'disabled'
         
         # Immersion
         try:
-            if kwargs['initial']['image'].getObjective():
+            if kwargs['initial']['image'].getObjective().immersion is not None:
                 self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['image'].getObjective().immersion, required=False) 
             else:
-                self.fields['immersion'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+                self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['immersion'].widget.attrs['disabled'] = True 
             self.fields['immersion'].widget.attrs['class'] = 'disable'
         except:
             self.fields['immersion'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
             self.fields['immersion'].widget.attrs['disabled'] = True 
-            self.fields['immersion'].widget.attrs['class'] = 'disable'
+            self.fields['immersion'].widget.attrs['class'] = 'disabled'
         
         # Correction
         try:
-            if kwargs['initial']['image'].getObjective():
+            if kwargs['initial']['image'].getObjective().correction is not None:
                 self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['image'].getObjective().correction, required=False) 
             else:
-                self.fields['correction'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+                self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['correction'].widget.attrs['disabled'] = True 
             self.fields['correction'].widget.attrs['class'] = 'disable'
         except:
             self.fields['correction'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
             self.fields['correction'].widget.attrs['disabled'] = True 
-            self.fields['correction'].widget.attrs['class'] = 'disable'
+            self.fields['correction'].widget.attrs['class'] = 'disabled'
         
         # Working Distance
         try:
-            if kwargs['initial']['image'].getObjective():
+            if kwargs['initial']['image'].getObjective().workingDistance is not None:
                 self.fields['workingDistance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'workingDistance\', this.value);'}), initial=kwargs['initial']['image'].getObjective().workingDistance, label="Working distance", required=False)
             else:
-                self.fields['workingDistance'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Working distance", required=False)
+                self.fields['workingDistance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'workingDistance\', this.value);'}), label="Working distance", required=False)
             self.fields['workingDistance'].widget.attrs['disabled'] = True 
             self.fields['workingDistance'].widget.attrs['class'] = 'disable'
         except:
             self.fields['workingDistance'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Working distance", required=False)
             self.fields['workingDistance'].widget.attrs['disabled'] = True 
-            self.fields['workingDistance'].widget.attrs['class'] = 'disable'
+            self.fields['workingDistance'].widget.attrs['class'] = 'disabled'
         
         # Iris
         try:
-            if kwargs['initial']['image'].getObjective() is not None:
-                self.fields['iris'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'iris\', this.options[this.selectedIndex].value);'}), required=False)
+            if kwargs['initial']['image'].getObjective().iris is not None:
+                self.fields['iris'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'iris\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['image'].getObjective().iris, required=False)
             else:
-                self.fields['iris'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+                self.fields['iris'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'iris\', this.options[this.selectedIndex].value);'}), required=False)
             self.fields['iris'].widget.attrs['disabled'] = True 
             self.fields['iris'].widget.attrs['class'] = 'disable'
         except:
             self.fields['iris'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
             self.fields['iris'].widget.attrs['disabled'] = True 
-            self.fields['iris'].widget.attrs['class'] = 'disable'
+            self.fields['iris'].widget.attrs['class'] = 'disabled'
         
         self.fields.keyOrder = ['correction', 'correctionCollar', 'calibratedMagnification', 'immersion', 'iris', 'lensNA', 'manufacturer', 'medium', 'model', 'nominalMagnification', 'refractiveIndex', 'serialNumber', 'workingDistance'] 
     
@@ -437,55 +437,55 @@ class MetadataEnvironmentForm(forms.Form):
         
         # Temperature
         try:
-            if kwargs['initial']['image'].getImagingEnvironment() is not None:
+            if kwargs['initial']['image'].getImagingEnvironment().temperature is not None:
                 self.fields['temperature'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'temperature\', this.value);'}), initial=kwargs['initial']['image'].getImagingEnvironment().temperature, required=False)
             else:
-                self.fields['temperature'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+                self.fields['temperature'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), required=False)
             self.fields['temperature'].widget.attrs['disabled'] = True 
             self.fields['temperature'].widget.attrs['class'] = 'disable'
         except:
             self.fields['temperature'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
             self.fields['temperature'].widget.attrs['disabled'] = True 
-            self.fields['temperature'].widget.attrs['class'] = 'disable'
+            self.fields['temperature'].widget.attrs['class'] = 'disabled'
         
         # Air Pressure
         try:
-            if kwargs['initial']['image'].getImagingEnvironment() is not None:
+            if kwargs['initial']['image'].getImagingEnvironment().airPressure is not None:
                 self.fields['airPressure'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'airPressure\', this.value);'}), initial=kwargs['initial']['image'].getImagingEnvironment().airPressure, label="Air Pressure", required=False)
             else:
-                self.fields['airPressure'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), label="Air Pressure", initial="N/A", required=False)
+                self.fields['airPressure'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), label="Air Pressure", required=False)
             self.fields['airPressure'].widget.attrs['disabled'] = True 
             self.fields['airPressure'].widget.attrs['class'] = 'disable'
         except:
             self.fields['airPressure'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), label="Air Pressure", initial="N/A", required=False)
             self.fields['airPressure'].widget.attrs['disabled'] = True 
-            self.fields['airPressure'].widget.attrs['class'] = 'disable'
+            self.fields['airPressure'].widget.attrs['class'] = 'disabled'
         
         # Humidity
         try:
-            if kwargs['initial']['image'].getImagingEnvironment() is not None:
+            if kwargs['initial']['image'].getImagingEnvironment().humidity is not None:
                 self.fields['humidity'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'humidity\', this.value);'}), initial=kwargs['initial']['image'].getImagingEnvironment().humidity, required=False)
             else:
-                self.fields['humidity'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+                self.fields['humidity'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), required=False)
             self.fields['humidity'].widget.attrs['disabled'] = True 
             self.fields['humidity'].widget.attrs['class'] = 'disable'
         except:
             self.fields['humidity'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
             self.fields['humidity'].widget.attrs['disabled'] = True 
-            self.fields['humidity'].widget.attrs['class'] = 'disable'
+            self.fields['humidity'].widget.attrs['class'] = 'disabled'
         
         # CO2 percent
         try:
-            if kwargs['initial']['image'].getImagingEnvironment() is not None:
+            if kwargs['initial']['image'].getImagingEnvironment().co2percent is not None:
                 self.fields['co2percent'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'co2percent\', this.value);'}), initial=kwargs['initial']['image'].getImagingEnvironment().co2percent, label="CO2 [%]", required=False)
             else:
-                self.fields['co2percent'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="CO2 [%]", required=False)
+                self.fields['co2percent'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), label="CO2 [%]", required=False)
             self.fields['co2percent'].widget.attrs['disabled'] = True 
             self.fields['co2percent'].widget.attrs['class'] = 'disable'
         except:
             self.fields['co2percent'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="CO2 [%]", required=False)
             self.fields['co2percent'].widget.attrs['disabled'] = True 
-            self.fields['co2percent'].widget.attrs['class'] = 'disable'
+            self.fields['co2percent'].widget.attrs['class'] = 'disabled'
         
         self.fields.keyOrder = ['airPressure', 'co2percent', 'humidity', 'temperature']
 

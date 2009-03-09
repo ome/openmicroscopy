@@ -41,8 +41,19 @@
     <script type="text/javascript">
         $(document).ready(function () {
             {% if share.oshSize or share.mshSize %}
-            $('div table#shareTable tbody tr').quicksearch({
+            $('table#shareTable tbody tr').quicksearch({
                 attached: "div#view",
+                position: "befor",
+                stripeRowClass: null,
+                labelText: '{% trans "Filter" %}:',
+                inputText: '...',
+                loaderImg: '{% get_webclient_static_url %}/images/tree/spinner.gif',
+            });
+            {% endif %}
+            
+            {% if share.mshSize or share.mshSize %}
+            $('table#sharedTable tbody tr').quicksearch({
+                attached: "div#view2",
                 position: "befor",
                 stripeRowClass: null,
                 labelText: '{% trans "Filter" %}:',
@@ -82,18 +93,16 @@
 <div class="clear"></div>
 <div class="separate70"></div>
 
-<div id="view">| {% trans "View" %} <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> | {% trans "New" %} <a href="{% get_webclient_root_url %}/basket/toshare/"><span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% get_webclient_static_url %}/images/folder_html16.png" alt="share" /></span></a> 
-<a href="{% get_webclient_root_url %}/basket/todiscuss/"><span id="discussion" title="Create discussion - <small>Starts the thread of the new discussion with no images currently stored in the basket.</small>"><img src="{% get_webclient_static_url %}/images/wp_protocol16.png" alt="discussion" /></span></a> | 
-</div>
-<div class="clear"> </div>
-
 {% if share.oshSize or share.mshSize %}
 
 {% if share.oshSize %}
 
-<div id="header_name"><h1>{% trans "Owned by me" %} ({{ share.oshSize }} {% trans "items" %}):</h1></div>
+<h1>{% trans "Owned by me" %} ({{ share.oshSize }} {% trans "items" %}):</h1>
+<div id="view">| {% trans "View" %} <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> | {% trans "New" %} <a href="{% get_webclient_root_url %}/basket/toshare/"><span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% get_webclient_static_url %}/images/folder_html16.png" alt="share" /></span></a> 
+<a href="{% get_webclient_root_url %}/basket/todiscuss/"><span id="discussion" title="Create discussion - <small>Starts the thread of the new discussion with no images currently stored in the basket.</small>"><img src="{% get_webclient_static_url %}/images/wp_protocol16.png" alt="discussion" /></span></a> | 
+</div>
 <div class="clear"> </div>
-<table id="shareTable" class="tablesorter"> 
+<div><table id="shareTable" class="tablesorter"> 
 <thead> 
 <tr> 
     <th>{% trans "Type" %}</th> 
@@ -127,13 +136,17 @@
     {% endfor %}
 </tbody> 
 </table>
+</div>
 {% endif %}
 
 <div class="clear"> </div>
 
 {% if share.mshSize %}
 
-<div id="header_name"><h1>{% trans "Shared with me" %} ({{ share.mshSize }} {% trans "items" %}):</h1></div>
+<h1>{% trans "Shared with me" %} ({{ share.mshSize }} {% trans "items" %}):</h1>
+<div id="view2">| {% trans "View" %} <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> | {% trans "New" %} <a href="{% get_webclient_root_url %}/basket/toshare/"><span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% get_webclient_static_url %}/images/folder_html16.png" alt="share" /></span></a> 
+<a href="{% get_webclient_root_url %}/basket/todiscuss/"><span id="discussion" title="Create discussion - <small>Starts the thread of the new discussion with no images currently stored in the basket.</small>"><img src="{% get_webclient_static_url %}/images/wp_protocol16.png" alt="discussion" /></span></a> | 
+</div>
 <div class="clear"> </div>
 <table id="sharedTable" class="tablesorter"> 
 <thead> 
@@ -151,17 +164,17 @@
         <td>
         {% ifequal c.getShareType "Discuss" %}
             {% if c.active %}
-                <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/wp_protocol32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/></a>
+                <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/wp_protocol32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> {{ c.getShareType }}</a>
             {% else %}
-                <img src="{% get_webclient_static_url %}/images/wp_protocol_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                <img src="{% get_webclient_static_url %}/images/wp_protocol_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> {{ c.getShareType }}
             {% endif %}
         {% else %}
             {% if c.active %}
-                <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/folder_html32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/></a>
+                <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/folder_html32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> {{ c.getShareType }}</a>
             {% else %}
-                <img src="{% get_webclient_static_url %}/images/folder_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                <img src="{% get_webclient_static_url %}/images/folder_locked32.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> {{ c.getShareType }}
             {% endif %}
-        {% endifequal %} {{ c.getShareType }}
+        {% endifequal %} 
         </td> 
         <td>{% if c.active %}<a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a>{% else %}{{ c.shortMessage }}{% endif %} {% if c.getCommentsSize %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.getCommentsSize }}]{% endif %}</td> 
         <td>{{ c.getShareOwner }}</td> 

@@ -160,7 +160,6 @@ class BaseContainer(BaseController):
         except:
             pass
         
-        #self.image._obj.getObjectiveSettings().getObjective().__dict__.has_key("_"+matadataType):
         meta = getattr(self.image, "get"+metadataFamily)()
         if meta is not None and meta._obj.__dict__.has_key("_"+matadataType):
             if enum is not None:

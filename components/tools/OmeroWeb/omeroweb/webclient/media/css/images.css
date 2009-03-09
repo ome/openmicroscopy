@@ -61,7 +61,7 @@ div.cloud {
     top: -100;
 }
 
-div#view, div#header_name {
+div#view, div#view2  {
     float:left;
     height:20px;
     margin:5px 0;
@@ -157,10 +157,14 @@ a.selected {
     background: #eee;
 }
 
-input.disable {
-    border: 0;
+.disable {
     background-color: #fff;
     color: #555;
+}
+.disabled {
+    background-color: #fff;
+    color: #555;
+    border: 0;
 }
 .box {
     float:left;

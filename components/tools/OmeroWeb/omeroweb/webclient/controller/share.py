@@ -95,7 +95,7 @@ class BaseShare(BaseController):
         if expiration is not None:
             d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
             expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
-        ms = [str(m) for m in members]
+        ms = [long(m) for m in members]
         #gs = str(guests).split(';')
         self.conn.createShare(host, int(blitz_id), [], message, ms, enable, expiration_date)
     
@@ -106,8 +106,52 @@ class BaseShare(BaseController):
         if expiration is not None:
             d1 = datetime.datetime(*(time.strptime((expiration+" 23:59:59"), "%Y-%m-%d %H:%M:%S")[0:6]))
             expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
-        ms = [str(m) for m in members]
+        ms = [int(m) for m in members]
         #gs = str(guests).split(';')
+        
+        # old list of members
+        old_groups = list()
+        for ogr in up_exp.copyGroupExperimenterMap():
+            old_groups.append(ogr.parent)
+        
+        # create list of new members
+        new_groups = list()
+        
+        # rest of groups
+        for g in self.groups:
+            for og in otherGroups:
+                if long(og) == g.id and g.name != defaultGroup.name.val:
+                    new_groups.append(g._obj)
+        
+        add_grs = list()
+        rm_grs = list()
+        
+        # remove
+        for ogr in old_groups:
+            flag = False
+            for ngr in new_groups:
+                if ngr.id.val == ogr.id.val:
+                    flag = True
+            if not flag:
+                rm_grs.append(ogr)
+        
+        # add
+        for ngr in new_groups:
+            flag = False
+            for ogr in old_groups:
+                if ogr.id.val == ngr.id.val:
+                    flag = True
+            if not flag:
+                add_grs.append(ngr)
+                
+        #print
+        '''print "add"
+        for g in add_grs:
+            print g.id.val, g.name.val
+        print "remove" 
+        for g in rm_grs:
+            print g.id.val, g.name.val'''
+            
         self.conn.updateShareOrDiscussion(self.share.id, message, ms, enable, expiration_date)
     
     def addComment(self, host, blitz_id, comment):
