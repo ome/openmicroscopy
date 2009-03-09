@@ -271,7 +271,6 @@ java component.
                <!--pathelement location="components/blitz/target/classes"/-->
            </classespath>
        </jdepend>
-       <style in="target/jdepend.xml" out="target/jdepend.dot" style="lib/repository/jdepend2dot.xsl"/>
        <jdepend outputfile="target/jdepend.xml" fork="yes" format="xml" classpathref="omero.classpath">
            <exclude name="java.*"/>
            <exclude name="java.lang.*"/>
@@ -288,7 +287,7 @@ java component.
                <!--pathelement location="components/blitz/target/classes"/-->
            </classespath>
        </jdepend>
-       <xslt in="target/jdepend.xml" out="target/jdepend.dot" style="lib/repository/jdepend2dot.xsl"/>
+       <style in="target/jdepend.xml" out="target/jdepend.dot" style="lib/repository/jdepend2dot.xsl"/>
        <exec executable="dot">
            <arg value="-Tpng"/>
            <arg value="target/jdepend.dot"/>
