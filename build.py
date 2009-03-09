@@ -31,6 +31,7 @@ def build_hudson():
     #
     java_omero("release-javadoc")
     java_omero("release-findbugs")
+    java_omero("release-jdepend")
 
     #
     # Prepare a distribution
@@ -50,11 +51,11 @@ def java_omero(args):
     command.extend(["omero"])
     command.extend(choose_omero_version())
     if isinstance(args,str):
-    	command.append(args)
+        command.append(args)
     else:
-    	command.extend(args)
+        command.extend(args)
     execute(command)
-    
+
 def find_java():
     return "java"
 
