@@ -24,6 +24,7 @@ import ome.server.itests.AbstractManagedContextTest;
 import ome.testing.ObjectFactory;
 import ome.tools.hibernate.ExtendedMetadata;
 
+import org.hibernate.SessionFactory;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
@@ -35,7 +36,7 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
     public void init() throws Exception {
         setUp();
         metadata = new ExtendedMetadata();
-        metadata.setSessionFactory(hibernateTemplate.getSessionFactory());
+        metadata.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
         tearDown();
     }
 

@@ -6,6 +6,7 @@
  */
 package ome.testing;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -267,6 +268,7 @@ public class CreatePojosFixture {
         Image i = new Image();
         i.getDetails().setOwner(e);
         i.setName(name);
+        i.setAcquisitionDate(new Timestamp(0));
         i = push(i);
         return i;
     }

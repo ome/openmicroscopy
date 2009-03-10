@@ -89,7 +89,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         da.setTextValue("ticket:657");
         da.setNs("");
         d.linkAnnotation(da);
-        Image i = new Image();
+        Image i = new_Image();
         i.setName("ticket:657");
         i.linkDataset(d);
         CommentAnnotation ia = new CommentAnnotation();
@@ -122,7 +122,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         // create
         Dataset ds = new Dataset();
         ds.setName("ticket:651");
-        Image im = new Image();
+        Image im = new_Image();
         im.setName("ticket:651");
         Pixels pi = ObjectFactory.createPixelGraph(null);
         im.addPixels(pi);
@@ -150,7 +150,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         // create
         Dataset ds = new Dataset();
         ds.setName("ticket:1018");
-        Image im = new Image();
+        Image im = new_Image();
         im.setName("ticket:1018");
         Pixels pi = ObjectFactory.createPixelGraph(null);
         im.addPixels(pi);
@@ -263,5 +263,13 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         return ds.collectAnnotationLinks((CBlock<ILink>) null).iterator()
                 .next();
     }
+    
+
+    private Image new_Image() {
+        Image i = new Image();
+        i.setAcquisitionDate(new Timestamp(0));
+        return i;
+    }
+
 
 }

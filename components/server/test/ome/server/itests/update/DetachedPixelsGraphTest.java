@@ -33,7 +33,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
 
         example = ObjectFactory.createPixelGraph(null);
 
-        example = iUpdate.saveAndReturnObject(example);
+        example = iUpdate.saveAndReturnObject(example.getImage()).getPixels(0);
 
         p = ObjectFactory.createPixelGraph(example);
         assertTrue("Starting off empty", p.sizeOfChannels() >= 0);

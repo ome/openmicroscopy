@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
-@Test(groups = "sharing")
+@Test(groups = "sharing", enabled = false) // Requires db native library
 public class FreezeShareStoreTest extends TestCase {
 
     FreezeShareStore store;

@@ -157,7 +157,7 @@ public class MetadataServiceTest
         Set<Long> ids = new HashSet<Long>(1);
         ids.add(p.getId());
         Set<Long> annotators = new HashSet<Long>(1);
-        ids.add(self);
+        annotators.add(self);
         //user id
        
         Set<String> types = new HashSet<String>(1);
