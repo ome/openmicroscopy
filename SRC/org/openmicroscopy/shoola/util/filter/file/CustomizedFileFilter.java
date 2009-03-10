@@ -59,8 +59,9 @@ public abstract class CustomizedFileFilter
 	protected boolean isSupported(String name, String[] extensions)
 	{
 		if (name == null || extensions == null) return false;
+		String value = name.toLowerCase();
 		for (int i = 0; i < extensions.length; i++) {
-			if (name.endsWith("."+extensions[i])) return true;
+			if (value.endsWith("."+extensions[i])) return true;
 		}
 		return false;
 	}

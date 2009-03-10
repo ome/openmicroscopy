@@ -54,9 +54,6 @@ public class BMPFilter
 	/** Possible file extensions. */
 	public static final String 	BMP = "bmp";
     
-    /** Possible file extensions. */
-	//public static final String 	DIB = "dib";
-		
 	/** The possible extensions. */
 	public static final String[] 	extensions;
 	
@@ -66,8 +63,6 @@ public class BMPFilter
 	static {
 		extensions = new String[1];
 		extensions[0] = BMP;
-		//extensions[1] = DIB;
-		
 		String s = "Windows Bitmap (";
 		for (int i = 0; i < extensions.length; i++) {
 			s += "*."+extensions[i];

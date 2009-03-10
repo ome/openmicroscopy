@@ -60,7 +60,6 @@ public class PDFFilter
 	static {
 		extensions = new String[1];
 		extensions[0] = TEXT;
-		
 		String s = "Adobe PDF (";
 		for (int i = 0; i < extensions.length; i++) {
 			s += "*."+extensions[i];
