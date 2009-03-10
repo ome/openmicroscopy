@@ -1625,7 +1625,7 @@ class BlitzGateway (threading.Thread):
                     except:
                         logger.error(traceback.format_exc())
     
-    def updateShareOrDiscussion (self, share_id, message, add_members, rm_members, enable, expiration=None):
+    def updateShareOrDiscussion (self, host, blitz_id, share_id, message, add_members, rm_members, enable, expiration=None):
         sh = self.getShareService()
         sh.setDescription(long(share_id), message)
         sh.setExpiration(long(share_id), expiration)
@@ -1653,7 +1653,7 @@ class BlitzGateway (threading.Thread):
                             logger.error(traceback.format_exc())
                 if sender is not None:
                     try:
-                        sender.handler().create_share_message(host, blitz_id, self.getUser(), sid, recipients)
+                        sender.handler().create_share_message(host, blitz_id, self.getUser(), share_id, recipients)
                     except:
                         logger.error(traceback.format_exc())
         

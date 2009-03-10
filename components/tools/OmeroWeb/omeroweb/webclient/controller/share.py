@@ -99,7 +99,7 @@ class BaseShare(BaseController):
         
         self.conn.createShare(host, int(blitz_id), [], message, ms, enable, expiration_date)
     
-    def updateShareOrDiscussion(self, message, members, enable, expiration=None):
+    def updateShareOrDiscussion(self, host, blitz_id, message, members, enable, expiration=None):
         # only for python 2.5
         # d1 = datetime.strptime(expiration+" 23:59:59", "%Y-%m-%d %H:%M:%S")
         expiration_date = None
@@ -131,7 +131,7 @@ class BaseShare(BaseController):
             if not flag:
                 add_mem.append(ngr)
                 
-        self.conn.updateShareOrDiscussion(self.share.id, message, add_mem, rm_mem, enable, expiration_date)
+        self.conn.updateShareOrDiscussion(host, int(blitz_id), self.share.id, message, add_mem, rm_mem, enable, expiration_date)
     
     def addComment(self, host, blitz_id, comment):
         self.conn.addComment(host, int(blitz_id), self.share.id, comment)

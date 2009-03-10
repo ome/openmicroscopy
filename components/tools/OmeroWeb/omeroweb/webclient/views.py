@@ -2458,7 +2458,8 @@ def manage_share(request, action, oid=None, **kwargs):
                 if request.REQUEST['enable']: enable = True
             except:
                 pass
-            share.updateShareOrDiscussion(message, members, enable, expiration)
+            host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
+            share.updateShareOrDiscussion(host, request.session['server'], message, members, enable, expiration)
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
             template = "omeroweb/share_form.html"
