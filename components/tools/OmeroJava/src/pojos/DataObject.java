@@ -145,12 +145,7 @@ public abstract class DataObject {
                 converted = new LongAnnotationData(ann);
             }
         } else if (obj instanceof BooleanAnnotation) {
-            BooleanAnnotation ann = (BooleanAnnotation) obj;
-            if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(ann.getNs())) {
-                converted = new ArchivedAnnotationData(ann);
-            } else {
-                converted = new BooleanAnnotationData(ann);
-            }
+        	converted = new BooleanAnnotationData((BooleanAnnotation) obj);
         } else if (obj instanceof FileAnnotation) {
             converted = new FileAnnotationData((FileAnnotation) obj);
         } else if (obj instanceof Image) {
