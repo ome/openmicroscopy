@@ -106,7 +106,7 @@ public class ColourFormatter
     		{
     			hilite.addHighlight(p0, p1, formatHighlighter);
     		}
-    		catch (BadLocationException e1) {System.err.println("Crap");}
+    		catch (BadLocationException e1) {System.err.println("Bad Allocation Error, should not see this");}
     	}
     	return newX;
     }

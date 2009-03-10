@@ -51,7 +51,7 @@ public class ClickSelectionAction
 	 */
 	public void onSelection(String selectedText)
 	{
-		System.err.println("Selected : " + selectedText);
+
 	}	
 
 }
