@@ -128,7 +128,6 @@ import omero.model.WellSample;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.sys.PojoOptions;
-import omero.util.PojoOptionsI;
 import pojos.ArchivedAnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -1336,7 +1335,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#loadContainerHierarchy(Class, List, Map)
 	 */
-	Set loadContainerHierarchy(Class rootType, List rootIDs, Map options)
+	Set loadContainerHierarchy(Class rootType, List rootIDs, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -1373,7 +1372,8 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#findContainerHierarchies(Class, List, Map)
 	 */
-	Set findContainerHierarchy(Class rootNodeType, List leavesIDs, Map options)
+	Set findContainerHierarchy(Class rootNodeType, List leavesIDs, 
+			Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -1397,7 +1397,7 @@ class OMEROGateway
 	 * <code>Set</code> containing <code>Annotation</code> objects.
 	 * Wraps the call to the 
 	 * {@link IMetadataPrx#loadAnnotations(String, List, List, List)}
-	 * and maps the result calling {@link PojoMapper#asDataObjects(Map)}.
+	 * and maps the result calling {@link PojoMapper#asDataObjects(Parameters)}.
 	 * 
 	 * @param nodeType      The type of the rootNodes.
 	 *                      Mustn't be <code>null</code>. 
@@ -1419,7 +1419,7 @@ class OMEROGateway
 	 * @see IPojos#findAnnotations(Class, List, List, Map)
 	 */
 	Map loadAnnotations(Class nodeType, List nodeIDs, 
-			List<Class> annotationTypes, List annotatorIDs, Map options)
+			List<Class> annotationTypes, List annotatorIDs, Parameters options)
 	throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -1505,7 +1505,7 @@ class OMEROGateway
 	/**
 	 * Retrieves the images contained in containers specified by the 
 	 * node type.
-	 * Wraps the call to the {@link IPojos#getImages(Class, List, Map)}
+	 * Wraps the call to the {@link IPojos#getImages(Class, List, Parameters)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
 	 * 
 	 * @param nodeType  The type of container. Can be either Project, Dataset,
@@ -1518,7 +1518,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#getImages(Class, List, Map)
 	 */
-	Set getContainerImages(Class nodeType, List nodeIDs, Map options)
+	Set getContainerImages(Class nodeType, List nodeIDs, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -1534,7 +1534,7 @@ class OMEROGateway
 
 	/**
 	 * Retrieves the images imported by the current user.
-	 * Wraps the call to the {@link IPojos#getUserImages(Map)}
+	 * Wraps the call to the {@link IPojos#getUserImages(Parameters)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
 	 * 
 	 * @param options   Options to retrieve the data.
@@ -1544,7 +1544,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#getUserImages(Map)
 	 */
-	Set getUserImages(Map options)
+	Set getUserImages(Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -1576,7 +1576,7 @@ class OMEROGateway
 	 * @see IPojos#getCollectionCount(String, String, List, Map)
 	 */
 	Map getCollectionCount(Class rootNodeType, String property, List ids,
-			Map options)
+			Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -1606,12 +1606,12 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#createDataObject(IObject, Map)
 	 */
-	IObject createObject(IObject object, Map options)
+	IObject createObject(IObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			isSessionAlive();
-			return saveAndReturnObject(object, options);
+			return saveAndReturnObject(object, null);
 		} catch (Throwable t) {
 			t.printStackTrace();
 			handleException(t, "Cannot update the object.");
@@ -1630,12 +1630,12 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#createDataObjects(IObject[], Map)
 	 */
-	List<IObject> createObjects(List<IObject> objects, Map options)
+	List<IObject> createObjects(List<IObject> objects)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			return saveAndReturnObject(objects, options);
+			return saveAndReturnObject(objects, null);
 		} catch (Throwable t) {
 			handleException(t, "Cannot create the objects.");
 		}
@@ -1751,7 +1751,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#updateDataObject(IObject, Map)
 	 */
-	IObject updateObject(IObject object, Map options)
+	IObject updateObject(IObject object, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -1777,7 +1777,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service.
 	 * @see IPojos#updateDataObjects(IObject[], Map) 
 	 */
-	List<IObject> updateObjects(List<IObject> objects, Map options)
+	List<IObject> updateObjects(List<IObject> objects, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -2554,7 +2554,6 @@ class OMEROGateway
 				oFile.setFormat(f);
 				
 				save = (OriginalFile) saveAndReturnObject(oFile, null);
-				//service.saveAndReturnObject(oFile);
 				store.setFileId(save.getId().getValue());
 			} else {
 				oFile = (OriginalFile) findIObject(OriginalFile.class.getName(), 
@@ -2769,7 +2768,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Collection getImages(Map map, boolean asDataObject)
+	Collection getImages(Parameters map, boolean asDataObject)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -3003,7 +3002,7 @@ class OMEROGateway
 	 * @throws DSAccessException
 	 */
 	Set loadSpecificAnnotation(Class type, List<String> toInclude, 
-			List<String> toExclude, Map options)
+			List<String> toExclude, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -3031,7 +3030,7 @@ class OMEROGateway
 	 * @throws DSAccessException
 	 */
 	long countSpecificAnnotation(Class type, List<String> toInclude, 
-			List<String> toExclude, Map options)
+			List<String> toExclude, Parameters options)
 	throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -3612,7 +3611,7 @@ class OMEROGateway
 			long imageID = service.projectPixels(pixelsID, type, algorithm, 
 					startT, endT, channels, stepping, startZ, endZ, name);
 			
-			return getImage(imageID, new PojoOptionsI().map());
+			return getImage(imageID, new PojoOptions());
 		} catch (Exception e) {
 			handleException(e, "Cannot project the image.");
 		}
@@ -3630,7 +3629,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	ImageData getImage(long imageID, Map options)
+	ImageData getImage(long imageID, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
@@ -3914,7 +3913,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Collection loadTags(Long id, Map options)
+	Collection loadTags(Long id, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		
@@ -3943,7 +3942,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Collection loadTagSets(Map options)
+	Collection loadTagSets(Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		

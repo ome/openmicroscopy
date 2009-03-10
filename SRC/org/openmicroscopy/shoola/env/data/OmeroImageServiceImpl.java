@@ -47,7 +47,8 @@ import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.RenderingDef;
 import omero.romio.PlaneDef;
-import omero.util.PojoOptionsI;
+import omero.sys.PojoOptions;
+
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -430,13 +431,12 @@ class OmeroImageServiceImpl
 		if (image == null) return null;
 		Image img = image.asImage();
 		img.setDescription(omero.rtypes.rstring(ref.getDescription()));
-		PojoOptionsI po = new PojoOptionsI();
 		image = (ImageData) 
-			PojoMapper.asDataObject(gateway.updateObject(img, po.map()));
-		image = gateway.getImage(image.getId(), new PojoOptionsI().map());
+			PojoMapper.asDataObject(gateway.updateObject(img, 
+					new PojoOptions()));
+		image = gateway.getImage(image.getId(), new PojoOptions());
 		List<DatasetData> datasets =  ref.getDatasets();
 		if (datasets != null && datasets.size() > 0) {
-			Map map = (new PojoOptionsI()).map();
 			Iterator<DatasetData> i = datasets.iterator();
 			//Check if we need to create a dataset.
 			List<DatasetData> existing = new ArrayList<DatasetData>();
@@ -463,7 +463,7 @@ class OmeroImageServiceImpl
 				l = ModelMapper.linkParentToChild(img, i.next().asIObject());
 				links.add(l);
 			}
-			gateway.createObjects(links, map);
+			gateway.createObjects(links);
 		}
 		return image;
 	}

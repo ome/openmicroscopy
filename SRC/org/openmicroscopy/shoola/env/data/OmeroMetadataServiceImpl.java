@@ -65,7 +65,6 @@ import omero.model.StageLabelI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.PojoOptions;
-import omero.util.PojoOptionsI;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -271,12 +270,11 @@ class OmeroMetadataServiceImpl
 		long objectiveSettingsID = data.getObjectiveSettingsId();
 
 		if (toUpdate.size() > 0) {
-			gateway.updateObjects(toUpdate, (new PojoOptions()).map());
+			gateway.updateObjects(toUpdate, new PojoOptions());
 		}
 		Iterator<IObject> i;
 		if (toCreate.size() > 0) {
-			List<IObject> l = gateway.createObjects(toCreate, 
-					      				(new PojoOptions()).map());
+			List<IObject> l = gateway.createObjects(toCreate);
 			i = l.iterator();
 			image = (Image) gateway.findIObject(data.asIObject());
 			while (i.hasNext()) {
@@ -332,8 +330,7 @@ class OmeroMetadataServiceImpl
 		} else { 
 			//create the object and link it to the objective settings.
 			//and link it to an instrument.
-			List<IObject> l = gateway.createObjects(toCreate, 
-      				(new PojoOptions()).map());
+			List<IObject> l = gateway.createObjects(toCreate);
 			i = l.iterator();
 			ObjectiveSettings settings = (ObjectiveSettings) 
 				gateway.findIObject(ObjectiveSettings.class.getName(), 
@@ -409,7 +406,6 @@ class OmeroMetadataServiceImpl
 		TextualAnnotationData desc;
 		TagAnnotationData tag;
 		IObject link = null;
-		Map map = (new PojoOptionsI()).map();
 		DataObject data;
 		while (i.hasNext()) {
 			ann = (AnnotationData) i.next();
@@ -459,8 +455,7 @@ class OmeroMetadataServiceImpl
 			while (i.hasNext()) 
 				l.add((IObject) i.next());
 
-			List<IObject> r = gateway.createObjects(l, 
-					(new PojoOptionsI()).map());
+			List<IObject> r = gateway.createObjects(l);
 			annotations.addAll(PojoMapper.asDataObjects(r));
 		}
 		if (links.size() > 0) {
@@ -468,7 +463,7 @@ class OmeroMetadataServiceImpl
 			List<IObject> l = new ArrayList<IObject>(toCreate.size());
 			while (i.hasNext()) 
 				l.add((IObject) i.next());
-			gateway.createObjects(l, (new PojoOptionsI()).map());
+			gateway.createObjects(l);
 		}
 		return annotations;
     }
@@ -523,8 +518,9 @@ class OmeroMetadataServiceImpl
 			link = ModelMapper.linkAnnotation(ho, an);
 		}
 		if (link != null && !exist) 
-			gateway.createObject(link, (new PojoOptionsI()).map());
+			gateway.createObject(link);
 	}
+	
 	/**
 	 * Updates the passed annotation.
 	 * 
@@ -570,8 +566,7 @@ class OmeroMetadataServiceImpl
 			ho = (TagAnnotation) gateway.findIObject(ioType, id);
 			ho.setTextValue(omero.rtypes.rstring(tag.getTagValue()));
 			ho.setDescription(omero.rtypes.rstring(tag.getTagDescription()));
-			IObject object = 
-				gateway.updateObject(ho, (new PojoOptionsI()).map());
+			IObject object = gateway.updateObject(ho, new PojoOptions());
 			return PojoMapper.asDataObject(object);
 		}
 		return ann;
@@ -944,27 +939,13 @@ class OmeroMetadataServiceImpl
 		} else
 			link = ModelMapper.createAnnotationAndLink(ho, annotation);
 		if (link != null) {
-			Map map = (new PojoOptionsI()).map();
 			IObject object;
 			if (exist) object = link;
-			else object = gateway.createObject(link, map);
+			else object = gateway.createObject(link);
 			return PojoMapper.asDataObject(
 								ModelMapper.getAnnotatedObject(object));
 		}
 		
-		return null;
-	}
-	
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#annotate(Set, AnnotationData)
-	 */
-	public List<DataObject> annotate(Set<DataObject> toAnnotate, 
-									AnnotationData annotation) 
-			throws DSOutOfServiceException, DSAccessException
-	{
-		if (annotation == null)
-			throw new IllegalArgumentException("Annotation cannot be null");
 		return null;
 	}
 
@@ -1145,9 +1126,7 @@ class OmeroMetadataServiceImpl
 		DataObject object, child;
 		List<Long> ids;
 		Set images = null;
-		PojoOptionsI po = new PojoOptionsI();
-		//po.allExps();
-		Map m = po.map();
+		PojoOptions po = new PojoOptions();
 		Iterator k;
 		List result = null;
 		//First create the new annotations 
@@ -1162,7 +1141,7 @@ class OmeroMetadataServiceImpl
 				//Tmp solution, this code should be pushed server side.
 				ids = new ArrayList<Long>(1);
 				ids.add(object.getId());
-				images = gateway.getContainerImages(DatasetData.class, ids, m);
+				images = gateway.getContainerImages(DatasetData.class, ids, po);
 				if (images != null) {
 					k = images.iterator();
 					while (k.hasNext()) {
@@ -1797,7 +1776,6 @@ class OmeroMetadataServiceImpl
 				fileAnnotation.getServerFileFormat(), originalID);
 		//Need to relink and delete the previous one.
 		FileAnnotation fa;
-		Map m = (new PojoOptionsI()).map();
 		String desc = fileAnnotation.getDescription();
 		if (id < 0) {
 			fa = new FileAnnotationI();
@@ -1805,14 +1783,14 @@ class OmeroMetadataServiceImpl
 			if (desc != null) fa.setDescription(omero.rtypes.rstring(desc));
 			if (ns != null)
 				fa.setNs(omero.rtypes.rstring(ns));
-			IObject object = gateway.createObject(fa, m);
+			IObject object = gateway.createObject(fa);
 			id = object.getId().getValue();
 		} else {
 			fa = (FileAnnotation) 
 				gateway.findIObject(FileAnnotation.class.getName(), id);
 			fa.setFile(of);
 			if (desc != null) fa.setDescription(omero.rtypes.rstring(desc));
-			gateway.updateObject(fa, m);
+			gateway.updateObject(fa, new PojoOptions());
 		}
 		fa = (FileAnnotation) 
 			gateway.findIObject(FileAnnotation.class.getName(), id);

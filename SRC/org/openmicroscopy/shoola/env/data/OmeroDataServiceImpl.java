@@ -724,9 +724,8 @@ class OmeroDataServiceImpl
 		IObject obj = ModelMapper.createIObject(child, parent);
 		if (obj == null) 
 			throw new NullPointerException("Cannot convert the object.");
-		Map options = (new PojoOptions()).map();
 
-		IObject created = gateway.createObject(obj, options);
+		IObject created = gateway.createObject(obj);
 		IObject link;
 		/*
 		if (child instanceof TagAnnotationData) {
@@ -743,7 +742,7 @@ class OmeroDataServiceImpl
 		if (parent != null) {
 			link = ModelMapper.linkParentToChild(created, parent.asIObject());
 			if ((child instanceof TagAnnotationData) && link != null) {
-				gateway.createObject(link, options);
+				gateway.createObject(link);
 			}
 		}
 			
@@ -758,7 +757,7 @@ class OmeroDataServiceImpl
 							((DataObject) node).asIObject(), created));
 			}
 			if (links.size() > 0)
-				gateway.createObjects(links, options);
+				gateway.createObjects(links);
 		}
 		return  PojoMapper.asDataObject(created);
 	}
@@ -847,9 +846,8 @@ class OmeroDataServiceImpl
 			if (gateway.findLink(ioParent, ioChild) == null)
 				objects.add(ModelMapper.linkParentToChild(ioChild, ioParent));
 		}
-		if (objects.size() != 0) {
-			gateway.createObjects(objects, (new PojoOptions()).map());
-		} 
+		if (objects.size() != 0)
+			gateway.createObjects(objects);
 	}
 
 	/**
@@ -1076,7 +1074,6 @@ class OmeroDataServiceImpl
 		}
 		Map<Integer, Object> results = new HashMap<Integer, Object>();
 		Set<DataObject> nodes;
-		Map pojoMap = new PojoOptions().map();
 		Object v;
 		
 		while (i.hasNext()) {
@@ -1097,7 +1094,7 @@ class OmeroDataServiceImpl
 						case SearchDataContext.FILE_ANNOTATION:
 						case SearchDataContext.URL_ANNOTATION:
 							images = gateway.getContainerImages(ImageData.class, 
-									value, pojoMap);
+									value, new PojoOptions());
 							k = images.iterator();
 							while (k.hasNext()) {
 								img = (DataObject) k.next();
@@ -1110,7 +1107,6 @@ class OmeroDataServiceImpl
 					}
 				}
 			}
-			
 		}
 		return results; 
 	}
