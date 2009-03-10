@@ -35,9 +35,27 @@
 	<path id="jarbundler.classpath">
 		<fileset dir="${omero.home}/lib/repository" includes="jarbundler*.jar"/>
 	</path>
+
 	<taskdef name="jarbundler"
 		classpathref="jarbundler.classpath"
 		classname="net.sourceforge.jarbundler.JarBundler"/>
+
+	<target name="exe4j-check-exists">
+		<condition property="exe4j.exists">
+			<available file="${exe4j.home}/bin/ant.jar"/>
+		</condition>
+	</target>
+
+	<target name="exe4j-echo-on-missing" unless="exe4j.exists">
+		<echo message="exe4j not present at ${exe4j.home}/bin/ant.jar, skipping exe4j tasks."/>
+	</target>
+
+	<target name="exe4j-init" depends="exe4j-check-exists,exe4j-echo-on-missing" if="exe4j.exists">
+		<echo message="exe4j present at ${exe4j.home}, preparing exe4j tasks."/>
+		<taskdef name="exe4j"
+			classpath="${exe4j.home}/bin/ant.jar"
+			classname="com.exe4j.Exe4JTask"/>
+	</target>
 
     <target name="package" depends="lifecycle.package">
         <copy todir="${target.dir}">
@@ -91,6 +109,21 @@
 		  <zipfileset file="${basedir}/JavaApplicationStub" 
 			  fullpath="${product.name}-${omero.version}/OMERO.importer.app/Contents/MacOS/JavaApplicationStub"
 			  filemode="755"/> 
+      </zip>
+	</target>
+
+	<target name="release-win" depends="package,install,exe4j-init" if="exe4j.exists"
+		description="Create a Windows executable bundle">
+		<exe4j projectfile="OmeroImporter.exe4j"/>
+	</target>
+
+	<target name="release-win-zip" depends="release-win"
+		description="Zip up the OMERO.importer release for Windows">
+	  <zip destfile="target/${product.name}-${omero.version}-win.zip">
+		  <zipfileset dir="${basedir}" prefix="${product.name}-${omero.version}"
+			  includes="config/**/*"/>
+		  <zipfileset dir="${target.dir}" prefix="${product.name}-${omero.version}"
+			  includes="libs/**/*,${ivy.module}.jar,*.exe"/>
       </zip>
 	</target>
 

@@ -23,6 +23,7 @@ javac.debuglevel=lines,vars,source
 javac.maxmem=400000000
 javadoc.maxmem=400000000
 ice.home=/usr/share/Ice
+exe4j.home=/opt/exe4j
 
 ############################################
 # Testing
