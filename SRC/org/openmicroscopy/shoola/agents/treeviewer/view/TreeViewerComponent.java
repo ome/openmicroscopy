@@ -1306,15 +1306,14 @@ class TreeViewerComponent
 		fireStateChange();
 		String name = model.getRefImageName();
 		int n = success.size();
-		String text;
+		String text = "The settings ";
+		if (name != null && name.length() > 0)
+			text += "of "+name;
 		if (failure.size() == 0) {
-			text = "The settings of "+name+"\nhave been applied to the " +
-					"selected image";
+			text += "\nhave been applied to the selected image";
 			if (n > 1) text += "s.";
 			else text += ".";
 			un.notifyInfo("Paste Image's settings", text);
-			
-			
 		} else {
 			String s = "";
 			Iterator i = failure.iterator();
@@ -1329,7 +1328,7 @@ class TreeViewerComponent
 				index++;
 			}
 			s = s.trim();
-			un.notifyInfo("Paste Image's settings", "The settings of "+name+
+			un.notifyInfo("Paste Image's settings", text+
 					"\ncould not be applied to the following images with ID:" +
 					"\n"+s);
 			//Indicates the wrong images.
