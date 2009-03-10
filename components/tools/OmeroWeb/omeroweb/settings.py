@@ -124,6 +124,10 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 #default 2621440
 
 # APPLICATIONS CONFIG
 
+# If web server is running behind a proxy server please set the host. 
+# That option is required by share notification sendere.
+# APPLICATION_HOST='http://www.domain.com:80'
+
 # BASE config
 WEBADMIN_ROOT_BASE = 'webadmin'
 WEBCLIENT_ROOT_BASE = 'webclient'

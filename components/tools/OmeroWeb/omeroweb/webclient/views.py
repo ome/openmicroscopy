@@ -2393,7 +2393,11 @@ def manage_share(request, action, oid=None, **kwargs):
                 if request.REQUEST['enable']: enable = True
             except:
                 pass
-            host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
+            
+            try:
+                host = '%s/%s' % (settings.APPLICATION_HOST, settings.WEBCLIENT_ROOT_BASE)
+            except:
+                host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
             share.createShare(host, request.session['server'], request.session['imageInBasket'], message, members, enable, expiration)
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
@@ -2419,7 +2423,10 @@ def manage_share(request, action, oid=None, **kwargs):
                 if request.REQUEST['enable']: enable = True
             except:
                 pass
-            host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
+            try:
+                host = '%s/%s' % (settings.APPLICATION_HOST, settings.WEBCLIENT_ROOT_BASE)
+            except:
+                host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
             share.createDiscussion(host, request.session['server'], message, members, enable, expiration)
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
@@ -2458,7 +2465,11 @@ def manage_share(request, action, oid=None, **kwargs):
                 if request.REQUEST['enable']: enable = True
             except:
                 pass
-            host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
+            
+            try:
+                host = '%s/%s' % (settings.APPLICATION_HOST, settings.WEBCLIENT_ROOT_BASE)
+            except:
+                host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
             share.updateShareOrDiscussion(host, request.session['server'], message, members, enable, expiration)
             return HttpResponseRedirect("/%s/share/" % (settings.WEBCLIENT_ROOT_BASE))
         else:
@@ -2477,7 +2488,10 @@ def manage_share(request, action, oid=None, **kwargs):
         f = ShareCommentForm(data=request.REQUEST.copy())
         if f.is_valid():
             comment = request.REQUEST['comment'].encode('utf-8')
-            host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
+            try:
+                host = '%s/%s' % (settings.APPLICATION_HOST, settings.WEBCLIENT_ROOT_BASE)
+            except:
+                host = '%s://%s:%s/%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], settings.WEBCLIENT_ROOT_BASE)
             share.addComment(host, request.session['server'], comment)
             return HttpResponseRedirect("/%s/share/view/%s/" % (settings.WEBCLIENT_ROOT_BASE, oid))
         else:
