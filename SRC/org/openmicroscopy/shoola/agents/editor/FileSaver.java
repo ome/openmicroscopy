@@ -95,6 +95,7 @@ public class FileSaver
 		if (file == null)
 			throw new IllegalArgumentException("No file to save.");
 		if (data == null) 
+			throw new IllegalArgumentException("No file Annotation.");
 			data = new FileAnnotationData(file);
 		this.file = file;
 		this.fileAnnotationData = data;
@@ -107,17 +108,6 @@ public class FileSaver
 			default:
 				this.index = OTHER;
 		}
-	}
-	
-	/**
-	 * Sets a description for the file annotation. 
-	 * 
-	 * @param description
-	 */
-	public void setDescription(String description)
-	{
-		if (description != null)
-			fileAnnotationData.setDescription(description);
 	}
 	
 	/**

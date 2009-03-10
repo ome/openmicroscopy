@@ -1707,8 +1707,8 @@ class OMEROGateway
 			IUpdatePrx service = getUpdateService();
 			IObject r;
 			if (options == null) r = service.saveAndReturnObject(object);
-			r = service.saveAndReturnObject(object, options);
-			return r;//findIObject(r);
+			else r = service.saveAndReturnObject(object, options);
+			return r;
 		} catch (Throwable t) {
 			t.printStackTrace();
 			handleException(t, "Cannot update the object.");

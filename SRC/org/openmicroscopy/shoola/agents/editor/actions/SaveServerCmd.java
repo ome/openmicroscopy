@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.actions;
 
 //Java imports
-import java.io.File;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -83,9 +82,8 @@ public class SaveServerCmd
 				execute();
 			} else {
 				EditorFileFilter editor = new EditorFileFilter();
-				if (!editor.accept(fileName)) {
+				if (!editor.accept(fileName)) 
 					fileName = fileName + "." + editor.getExtension();
-				}
 				model.saveFileServer(fileName);
 			}
 		}

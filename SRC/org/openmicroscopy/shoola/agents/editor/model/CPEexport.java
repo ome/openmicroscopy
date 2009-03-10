@@ -507,10 +507,12 @@ public class CPEexport {
 
 	/**
 	 * Exports a CPE XML document created from the {@link TreeModel} to the
-	 * {@link File} specified. 
+	 * {@link File} specified. Returns <code>true</code> if the export
+	 * was successful, <code>false</code> otherwise.
 	 * 
-	 * @param treeModel			The OMERO.editor data model. 
-	 * @param file				The XML file to export to. 
+	 * @param treeModel The OMERO.editor data model. 
+	 * @param file		The XML file to export to. 
+	 * @return See above.
 	 */
 	public boolean export(TreeModel treeModel, File file) 
 	{

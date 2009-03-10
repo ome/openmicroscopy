@@ -337,9 +337,7 @@ class EditorModel
 		return true;
 	}
 	
-	/**
-	 * Creates a new blank file and opens it in the browser.
-	 */
+	/** Creates a new blank file and opens it in the browser. */
 	void setBlankFile() 
 	{
 		fileToEdit = null;
@@ -353,7 +351,7 @@ class EditorModel
 	/**
 	 * Returns the browser component.
 	 * 
-	 * @return		see above.
+	 * @return See above.
 	 */
 	Browser getBrowser() { return browser; }
 
@@ -389,11 +387,11 @@ class EditorModel
 		saveFile(file);
 		FileAnnotationData data = null;
 		if (fileAnnotation != null) data = fileAnnotation;
-		currentLoader = new FileSaver(component, file, data, fileType);
-		
+		else data = new FileAnnotationData(file);
 		String description = CPEsummaryExport.export(browser.getTreeModel());
-		((FileSaver) currentLoader).setDescription(description);
-		
+		if (description != null)
+			data.setDescription(description);
+		currentLoader = new FileSaver(component, file, data, fileType);
 		currentLoader.load();
 		state = Editor.SAVING;
 	}
@@ -427,13 +425,14 @@ class EditorModel
 	void setState(int state) { this.state = state; }
 	
 	/**
-	 * Returns true if the browser is in the {@link Browser#TREE_EDITED} state.
+	 * Returns <code>true</code> if the browser is in the 
+	 * {@link Browser#TREE_EDITED} state, <code>false</code> otherwise.
 	 * 
-	 * @return		see above. 
+	 * @return See above. 
 	 */
 	boolean hasDataToSave() 
 	{
-	 return (browser != null  &&  browser.getState() == Browser.TREE_EDITED);
+		return (browser != null  &&  browser.getState() == Browser.TREE_EDITED);
 	}
 
 	/**
@@ -453,7 +452,6 @@ class EditorModel
 		} 
 		this.fileID = data.getFileID();
 		this.fileName = data.getFileName();
-		//System.out.println("EditorModel setFileAnnoation: fileID " + fileID);
 	}
 	
 	/**
@@ -477,11 +475,11 @@ class EditorModel
 	 * Gets a reference to the Original File if this file has been saved to 
 	 * the server. Otherwise returns 0.
 	 * 
-	 * @return		see above
+	 * @return See above
 	 */
 	long getAnnotationId() 
 	{
-		if (fileAnnotation == null)  	return annotationID;
+		if (fileAnnotation == null) return annotationID;
 		return fileAnnotation.getId();
 	}
 	

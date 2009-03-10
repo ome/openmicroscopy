@@ -24,13 +24,11 @@ package org.openmicroscopy.shoola.agents.editor.actions;
 
 
 //Java imports
-
 import java.awt.event.ActionEvent;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 
@@ -50,31 +48,29 @@ public class CloseEditorAction
 {
 
 	/** The description of the action. */
-    private static final String NAME = "Close Editor";
-    
-	 /** The description of the action. */
-    private static final String DESCRIPTION = "Close the Editor Window";
-    
-    /** Creates a new instance.
-     * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
-     */
-   public CloseEditorAction(Editor model)
-   {
-       super(model);
-       setEnabled(true);
-       setName(NAME);
-       setDescription(DESCRIPTION);
-       setIcon(IconManager.N0);
-   }
-   
-   /**
-    * Brings up on screen the {@link TreeViewer}.
-    * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-    */
-   public void actionPerformed(ActionEvent e) 
-   {
-	   model.discard();
-   }
+	private static final String NAME = "Close Editor";
+
+	/** The description of the action. */
+	private static final String DESCRIPTION = "Close the Editor Window.";
+
+	/** 
+	 * Creates a new instance.
+	 * 
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 */
+	public CloseEditorAction(Editor model)
+	{
+		super(model);
+		setEnabled(true);
+		setName(NAME);
+		setDescription(DESCRIPTION);
+		setIcon(IconManager.N0);
+	}
+
+	/**
+	 * Discards the editor.
+	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)  { model.discard(); }
    
 }

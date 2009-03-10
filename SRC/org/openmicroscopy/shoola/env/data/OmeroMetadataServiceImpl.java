@@ -1796,7 +1796,6 @@ class OmeroMetadataServiceImpl
 			gateway.findIObject(FileAnnotation.class.getName(), id);
 		FileAnnotationData data = 
 			(FileAnnotationData) PojoMapper.asDataObject(fa);
-		//of = gateway.getOriginalFile(data.getFileID());
 		if (of != null) 
 			data.setContent(of);
 		

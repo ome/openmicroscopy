@@ -63,17 +63,6 @@ public abstract class CustomizedFileFilter
 			if (name.endsWith("."+extensions[i])) return true;
 		}
 		return false;
-		/*
-		if (name == null || extensions == null) return false;
-		String extension = null;
-		int i = name.lastIndexOf('.');
-		if (i > 0 && i < name.length()-1)
-			extension = name.substring(i+1).toLowerCase();
-		if (extension == null) return false;
-		for (int j = 0; j < extensions.length; j++)
-			if (extension.equals(extensions[j])) return true;
-		return false;
-		*/
 	}
 	
 	/**
