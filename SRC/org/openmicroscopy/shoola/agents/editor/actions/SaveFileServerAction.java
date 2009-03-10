@@ -23,13 +23,11 @@
 package org.openmicroscopy.shoola.agents.editor.actions;
 
 //Java imports
-
 import java.awt.event.ActionEvent;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
@@ -61,18 +59,18 @@ public class SaveFileServerAction
 	 * Implement this method to disable the Save Action if no file is open,
 	 * or if the server is not available.
 	 */
-	protected void onStateChange() {
+	protected void onStateChange()
+	{
 		int state = model.getState();
 		setEnabled(state == Editor.READY);
 		
 		// if server not available, disable
 		boolean serverAvailable = EditorAgent.isServerAvailable();
-		if (!serverAvailable) {
-			setEnabled(false);
-		}
+		if (!serverAvailable) setEnabled(false);
 	}
 	
-	/** Creates a new instance.
+	/** 
+	 * Creates a new instance.
 	 * 
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 */
@@ -83,13 +81,12 @@ public class SaveFileServerAction
 		setName(NAME);
 		setDescription(DESCRIPTION);
 		setIcon(IconManager.SAVE_AS_ICON);
-		
 		// refresh enabled status
 		onStateChange();
 	}
 	
 	/**
-	 * Save file to server
+	 * Saves file to server.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) 
@@ -97,7 +94,5 @@ public class SaveFileServerAction
 		ActionCmd save = new SaveServerCmd(model);
 		save.execute();
 	}
-	
-	
 
 }

@@ -70,7 +70,6 @@ public class SaveServerCmd
 	 */
 	public void execute()
 	{
-		
 		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
 		InputDialog dialog = new InputDialog(f, 
 				"Save to server: Enter file name", "");
@@ -79,12 +78,12 @@ public class SaveServerCmd
 		int option = dialog.centerMsgBox();
 		if (option == InputDialog.SAVE) {
 			String fileName = dialog.getText();
-			if ((fileName == null) || (fileName.length() == 0)) {
+			if (fileName == null || fileName.length() == 0) {
 				// try again!
 				execute();
 			} else {
 				EditorFileFilter editor = new EditorFileFilter();
-				if (!editor.accept(new File(fileName))) {
+				if (!editor.accept(fileName)) {
 					fileName = fileName + "." + editor.getExtension();
 				}
 				model.saveFileServer(fileName);
