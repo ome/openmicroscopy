@@ -121,10 +121,6 @@ class TestIShare(lib.ITest):
         share2.addComment(self.id,"guest comment for share %i" % self.id)
         self.assert_(len(share2.getComments(self.id)) == 1)
 
-    def testRetrieval(self):
-        shs = self.root.sf.getShareService()
-        shs.getAllShares(True)
-    
     def test1154(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         share = self.root.sf.getShareService()
@@ -473,7 +469,7 @@ class TestIShare(lib.ITest):
             tb.setPixelsId(rdefs[0].pixels.id.val)
         except omero.SecurityViolation:
             self.fail("Pixels was not in share")
-        
+
     def test1201(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         share = self.client.sf.getShareService()
