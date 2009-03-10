@@ -271,6 +271,7 @@ public class MetadataImpl
     	sb.append("select channel from LogicalChannel as channel ");
 		sb.append("left outer join fetch channel.detectorSettings as ds ");
         sb.append("left outer join fetch channel.lightSourceSettings as lss ");
+        sb.append("left outer join fetch channel.mode as mode ");
         sb.append("left outer join fetch ds.detector as detector ");
         sb.append("left outer join fetch detector.type as dt ");
         sb.append("left outer join fetch ds.binning as binning ");
