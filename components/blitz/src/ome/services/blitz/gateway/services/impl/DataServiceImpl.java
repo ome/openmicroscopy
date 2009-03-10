@@ -51,7 +51,6 @@ import omero.model.PixelsType;
 import omero.model.Project;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
-import omero.util.PojoOptionsI;
 
 /** 
  * 
