@@ -29,7 +29,7 @@ Date:    9 Mar 2007
 
 from __future__ import generators
 
-import sys, warnings, os, fnmatch, glob, shutil, codecs, md5
+import sys, warnings, os, fnmatch, glob, shutil, codecs
 
 __version__ = '2.2'
 __all__ = ['path']
@@ -765,17 +765,7 @@ class path(_base):
 
         This reads through the entire file.
         """
-        f = self.open('rb')
-        try:
-            m = md5.new()
-            while True:
-                d = f.read(8192)
-                if not d:
-                    break
-                m.update(d)
-        finally:
-            f.close()
-        return m.digest()
+        raise Exception("read_md5 has been removed from this installation of path.py")
 
     # --- Methods for querying the filesystem.
 
