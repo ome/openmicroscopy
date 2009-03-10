@@ -37,7 +37,10 @@ public class SessionBeanUnitTest extends MockObjectTestCase {
     public void config() {
         smMock = mock(SessionManager.class);
         mgr = (SessionManager) smMock.proxy();
+        
+        exMock = mock(Executor.class);
         ex = (Executor) exMock.proxy();
+
         bean = new SessionBean(mgr, ex, new CurrentDetails());
         session = new Session();
         session.setId(1L);

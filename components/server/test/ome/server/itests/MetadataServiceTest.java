@@ -24,6 +24,8 @@ package ome.server.itests;
 
 
 //Java imports
+import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -106,9 +108,10 @@ public class MetadataServiceTest
         ids.add(self);
         //user id
        
-        Map result = iMetadata.loadAnnotations(Project.class, ids, null, 
+        Map result = iMetadata.loadAnnotations(Project.class, ids,
+                new HashSet(Arrays.asList(CommentAnnotation.class.getName())),
         		annotators, options.map());
-        assertTrue(result.size() == 1);
+        assertEquals(1, result.size());
         
         Set s = (Set) result.get(p.getId());
         assertTrue(s.size() == 2);
@@ -132,6 +135,8 @@ public class MetadataServiceTest
     @Test
     public void testLoadAnnotationTypesSet()
     {
+        loginNewUser();
+        
     	//create a project
     	Project p = new Project();
     	p.setName("project 1");
@@ -162,7 +167,7 @@ public class MetadataServiceTest
         assertTrue(result.size() == 1);
         
         Set s = (Set) result.get(p.getId());
-        assertTrue(s.size() == 1);
+        assertEquals(1, s.size() );
         Iterator i = s.iterator();
         Annotation annotation;
         int index = 0;
@@ -182,6 +187,8 @@ public class MetadataServiceTest
     @Test
     public void testLoadSpecifiedAnnotations()
     {
+        loginNewUser();
+        
         //create a project
         Project p = new Project();
         p.setName("project 1");
@@ -203,7 +210,7 @@ public class MetadataServiceTest
         PojoOptions options = new PojoOptions();
         Set result = iMetadata.loadSpecifiedAnnotations(
                 CommentAnnotation.class, null, null, options.map());
-        assertTrue(result.size() == 2);
+        assertEquals(2, result.size());
     }
     
     /** 
@@ -260,6 +267,7 @@ public class MetadataServiceTest
         
         Image i = new Image();
     	i.setName("image 1");
+    	i.setAcquisitionDate(new Timestamp(0));
     	//create a comment annotation and a tag annotation
         TagAnnotation t3 = new TagAnnotation();
         t3.setTextValue("tag 3");
@@ -286,6 +294,8 @@ public class MetadataServiceTest
     @Test
     public void testLoadTagSetNoOrphan()
     {
+        loginNewUser();
+        
     	//create a comment annotation and a tag annotation
     	TagAnnotation t1 = new TagAnnotation();
         t1.setTextValue("tag 1");
@@ -302,7 +312,7 @@ public class MetadataServiceTest
         link = iUpdate.saveAndReturnObject(link);
         PojoOptions po = new PojoOptions();
         Set set = iMetadata.loadTagSets(po.map());
-        assertTrue(set.size() == 1);
+        assertEquals(1, set.size());
         Iterator i = set.iterator();
         IObject object;
         while (i.hasNext()) {
@@ -315,6 +325,8 @@ public class MetadataServiceTest
     @Test
     public void testLoadTagSetOrphan()
     {
+        loginNewUser();
+        
     	//create a comment annotation and a tag annotation
     	TagAnnotation t1 = new TagAnnotation();
         t1.setTextValue("tag 1");
@@ -338,7 +350,7 @@ public class MetadataServiceTest
         PojoOptions po = new PojoOptions();
         po.orphan();
         Set set = iMetadata.loadTagSets(po.map());
-        assertTrue(set.size() == 2);
+        assertEquals(2, set.size());
         Iterator i = set.iterator();
         IObject object;
         while (i.hasNext()) {
@@ -363,6 +375,7 @@ public class MetadataServiceTest
     	Dataset d = new Dataset();
     	d.setName("dataset 1");
     	Image i = new Image();
+    	i.setAcquisitionDate(new Timestamp(0));
       	i.setName("image 1");
       	p.linkAnnotation(t1);
       	d.linkAnnotation(t1);

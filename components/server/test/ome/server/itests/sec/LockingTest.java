@@ -92,6 +92,7 @@ public class LockingTest extends AbstractManagedContextTest {
 
         d = new Dataset();
         d.setName("ticket:337");
+        d.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
         p.linkDataset(d);
 
         p = iUpdate.saveAndReturnObject(p);

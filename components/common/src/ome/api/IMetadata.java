@@ -1,5 +1,5 @@
 /*
- * ome.api.IMetadata 
+ *  $Id$
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -22,20 +22,15 @@
  */
 package ome.api;
 
-
-//Java imports
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import ome.annotations.NotNull;
 import ome.annotations.Validate;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.core.LogicalChannel;
-
+import ome.parameters.Parameters;
 
 /** 
  * Provides method to interact with acquisition metadata and 
@@ -130,7 +125,7 @@ public interface IMetadata
             @NotNull Class<T> nodeType, @NotNull @Validate(Long.class)
             Set<Long> rootNodeIds, @NotNull @Validate(String.class) 
             Set<String> annotationType,
-            @Validate(Long.class) Set<Long> annotatorIds, Map options);
+            @Validate(Long.class) Set<Long> annotatorIds, Parameters options);
     
     /**
      * Loads the annotations of a given type.
@@ -146,7 +141,7 @@ public interface IMetadata
     public <A extends Annotation> Set<A> loadSpecifiedAnnotations(
     		@NotNull Class type, 
     		@Validate(String.class) Set<String> include, 
-    		@Validate(String.class) Set<String> exclude, Map options);
+    		@Validate(String.class) Set<String> exclude, Parameters options);
     
     /**
      * Loads the Tag Set if the id is specified otherwis loads all the Tag
@@ -162,7 +157,7 @@ public interface IMetadata
      * 		   either a Map or a list of related <code>DataObject</code>.
      */
     public Map<Long, Set<IObject>> loadTagContent(
-    		@NotNull @Validate(Long.class) Set<Long> tagIds, Map options);
+    		@NotNull @Validate(Long.class) Set<Long> tagIds, Parameters options);
      
     /**
      * Loads all the tag Sets. Returns a collection of 
@@ -175,7 +170,7 @@ public interface IMetadata
      * @param options The pojo options.
      * @return See above.
      */
-    public Set<IObject> loadTagSets(Map options);
+    public Set<IObject> loadTagSets(Parameters options);
     
     /**
      * Returns a map whose key is a tag's id and the value the number of
@@ -186,7 +181,7 @@ public interface IMetadata
      * @return See above.
      */
     public Map<Long, Long> getTaggedObjectsCount(@NotNull @Validate(Long.class) 
-    		Set<Long> tagIds, Map options);
+    		Set<Long> tagIds, Parameters options);
     
     /**
      * Counts the number of annotation of a given type.
@@ -201,7 +196,7 @@ public interface IMetadata
      */
     public Long countSpecifiedAnnotations(@NotNull Class type, 
     		@Validate(String.class) Set<String> include, 
-    		@Validate(String.class) Set<String> exclude, Map options);
+    		@Validate(String.class) Set<String> exclude, Parameters options);
     
     /**
      * Loads the specified annotations.

@@ -11,6 +11,9 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
+import ome.parameters.Parameters;
+import ome.parameters.QueryParameter;
+
 /**
  * generates Maps for Pojo service calls.
  * 
@@ -74,7 +77,28 @@ public class PojoOptions
         if (null != map) {
             copy(map);
         } else {
-            copy(new PojoOptions().map());
+            copy(new PojoOptions().options);
+        }
+    }
+    
+    /**
+     * Builds a PojoOptions from a passed in {@link Parameters}. Nulls are handled
+     * as with {@link PojoOptions#PojoOptions(Map)}.
+     * 
+     * This constructor was added as a temporary fix for the API introduced
+     * in ticket:67.
+     * 
+     * @param params
+     */
+    public PojoOptions(Parameters params) {
+        if (null != params) {
+            Map m = new HashMap();
+            for(QueryParameter qp : params.queryParameters()) {
+                m.put(qp.name, qp.value);
+            }
+            copy(m);
+        } else {
+            copy(new PojoOptions().options);
         }
     }
 
@@ -438,7 +462,19 @@ public class PojoOptions
      * 
      * @return See above.
      */
-    public Map map() {
+    public Parameters map() {
+        Parameters parameters = new Parameters();
+        for (String key : options.keySet()) {
+            parameters.add(new QueryParameter(key, Object.class, options.get(key)));
+        }
+        return parameters;
+    }
+    
+    /**
+     * Workaround added during changes for ticket:67.
+     * @return
+     */
+    public Map realmap() {
         return options;
     }
 

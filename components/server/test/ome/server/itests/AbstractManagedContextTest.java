@@ -7,6 +7,7 @@
 package ome.server.itests;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,6 +43,7 @@ import ome.testing.InterceptingServiceFactory;
 import ome.testing.OMEData;
 
 import org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.ldap.core.LdapTemplate;
@@ -117,6 +119,22 @@ public class AbstractManagedContextTest extends
     @Override
     protected void onSetUp() throws Exception {
         this.applicationContext = createApplicationContext(null);
+
+        try {
+            this.applicationContext.isRunning();
+        } catch (IllegalStateException ise) {
+            ConfigurableApplicationContext ac = this.applicationContext;
+            List<ConfigurableApplicationContext> acs
+                = new ArrayList<ConfigurableApplicationContext>();
+            acs.add(ac);
+            while (ac.getParent() != null) {
+                ac = (ConfigurableApplicationContext) ac.getParent();
+                acs.add(ac);
+            }
+            for (int i = acs.size(); i > 0; i--) {
+                acs.get(i-1).refresh();
+            }
+        }
 
         DataSource dataSource = (DataSource) applicationContext
                 .getBean("dataSource");

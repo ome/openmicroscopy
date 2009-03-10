@@ -1,5 +1,5 @@
 /*
- * ome.logic.MetadataImpl 
+ *  $Id$
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -22,7 +22,6 @@
  */
 package ome.logic;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,10 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
 import org.springframework.transaction.annotation.Transactional;
 
-//Application-internal dependencies
 import ome.annotations.NotNull;
 import ome.annotations.RolesAllowed;
 import ome.annotations.Validate;
@@ -107,7 +104,7 @@ public class MetadataImpl
 	 * @return See above.
 	 */
 	private <A extends Annotation> List<A> getAnnotation(@NotNull Class type, 
-    		Set<String> include, Set<String> exclude, Map options)
+    		Set<String> include, Set<String> exclude, Parameters options)
     {
     	StringBuilder sb = new StringBuilder();
     	sb.append("select ann from Annotation as ann ");
@@ -207,7 +204,7 @@ public class MetadataImpl
      * @param options 	The options.
      * @return See above.
      */
-    private Set<IObject> loadObjects(long id, Map options)
+    private Set<IObject> loadObjects(long id, Parameters options)
     {
     	Parameters param = new Parameters();
     	param.addId(id);
@@ -331,7 +328,7 @@ public class MetadataImpl
     	Map<Long, Set<A>> loadAnnotations(
             Class<T> rootNodeType, Set<Long> rootNodeIds, 
             Set<String> annotationTypes, Set<Long> annotatorIds, 
-            Map options)
+            Parameters options)
     {
     	 Map<Long, Set<A>> map = new HashMap<Long, Set<A>>();
          if (rootNodeIds.size() == 0)  return map;
@@ -347,7 +344,7 @@ public class MetadataImpl
                  PojosFindAnnotationsQueryDefinition.class.getName(),
                  new Parameters().addIds(rootNodeIds).addClass(rootNodeType)
                          .addSet("annotatorIds", annotatorIds).addOptions(
-                                 po.map()));
+                                 po.realmap()));
 
          List<IAnnotated> l = iQuery.execute(q);
          // no count collection
@@ -427,13 +424,13 @@ public class MetadataImpl
     
     /**
      * Implemented as speficied by the {@link IMetadata} I/F
-     * @see IMetadata#loadSpecifiedAnnotations(Class, Set, Set, Map)
+     * @see IMetadata#loadSpecifiedAnnotations(Class, Set, Set, Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public <A extends Annotation> Set<A> loadSpecifiedAnnotations(
     		@NotNull Class type, Set<String> include, Set<String> exclude,
-    		 Map options)
+    		 Parameters options)
     {
     	List<A> list = getAnnotation(type, include, exclude, options);
     	if (FILE_TYPE.equals(type.getName()) && list != null) {
@@ -453,13 +450,13 @@ public class MetadataImpl
     
     /**
      * Implemented as speficied by the {@link IMetadata} I/F
-     * @see IMetadata#countSpecifiedAnnotations(Class, Set, Set, Map)
+     * @see IMetadata#countSpecifiedAnnotations(Class, Set, Set, Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Long countSpecifiedAnnotations(
     		@NotNull Class type, Set<String> include, Set<String> exclude,
-    		 Map options)
+    		 Parameters options)
     {
     	List list = getAnnotation(type, include, exclude, options);
     	if (list != null) return new Long(list.size());
@@ -502,13 +499,13 @@ public class MetadataImpl
     
     /**
      * Implemented as speficied by the {@link IMetadata} I/F
-     * @see IMetadata#loadTagContent(Set, Map)
+     * @see IMetadata#loadTagContent(Set, Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Map<Long, Set<IObject>> 
 		loadTagContent(@NotNull @Validate(Long.class) Set<Long> tagIds, 
-		 Map options)
+		 Parameters options)
 	{
 		Map<Long, Set<IObject>> m = new HashMap<Long, Set<IObject>>();
 		Iterator<Long> i = tagIds.iterator();
@@ -522,11 +519,11 @@ public class MetadataImpl
     
     /**
      * Implemented as speficied by the {@link IMetadata} I/F
-     * @see IMetadata#loadTagSets(Map)
+     * @see IMetadata#loadTagSets(Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
-    public Set<IObject> loadTagSets(Map options)
+    public Set<IObject> loadTagSets(Parameters options)
 	{
     	Set result = new HashSet();
     	PojoOptions po = new PojoOptions(options);
@@ -621,12 +618,12 @@ public class MetadataImpl
     
     /**
      * Implemented as speficied by the {@link IMetadata} I/F
-     * @see IMetadata#lgetTaggedObjectsCount(Set, Map)
+     * @see IMetadata#lgetTaggedObjectsCount(Set, Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Map getTaggedObjectsCount(@NotNull @Validate(Long.class) 
-    		Set<Long> tagIds, Map options)
+    		Set<Long> tagIds, Parameters options)
     {
     	Map<Long, Long> counts = new HashMap<Long, Long>();
     	Iterator<Long> i = tagIds.iterator();
@@ -643,7 +640,7 @@ public class MetadataImpl
 
     @RolesAllowed("user")
     @Transactional(readOnly = true) 
-    public Map loadTags(long id, boolean withObjects,  Map options)
+    public Map loadTags(long id, boolean withObjects,  Parameters options)
     {
     	Map m = new HashMap();
     	Annotation annotation;
@@ -677,7 +674,7 @@ public class MetadataImpl
     
     @RolesAllowed("user")
     @Transactional(readOnly = true)
-    public Map loadTagSets(long id, boolean withObjects, Map options)
+    public Map loadTagSets(long id, boolean withObjects, Parameters options)
     {
     	Map m = new HashMap();
     	Annotation parent = null;

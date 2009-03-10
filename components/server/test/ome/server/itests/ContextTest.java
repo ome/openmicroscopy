@@ -72,6 +72,7 @@ public class ContextTest extends TestCase {
     public void testManagedContextClose() throws Exception {
         OmeroContext ctx = OmeroContext.getManagedServerContext();
         ctx.closeAll();
+        ctx.refresh();
     }
 
     protected void onContext(OmeroContext ctx) {

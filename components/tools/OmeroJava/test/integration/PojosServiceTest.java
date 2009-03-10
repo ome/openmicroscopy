@@ -22,6 +22,7 @@ import java.util.Set;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
+import ome.parameters.Parameters;
 import ome.system.OmeroContext;
 import ome.testing.OMEData;
 import omero.ApiUsageException;
@@ -605,7 +606,7 @@ public class PojosServiceTest extends TestCase {
 
     }
 
-    private Dataset loadForCounts(Long id, Map options) throws ServerError {
+    private Dataset loadForCounts(Long id, omero.sys.Parameters options) throws ServerError {
         Dataset obj = (Dataset) iContainer.loadContainerHierarchy(Dataset.class.getName(),
                 Collections.singletonList(id), options).iterator().next();
         return obj;

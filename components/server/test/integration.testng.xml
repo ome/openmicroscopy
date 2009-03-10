@@ -15,7 +15,9 @@
     <packages>
       <package name="ome.io.*"/>
       <package name="ome.server.*"/>
-      <package name="ome.services.*"/>
+      <package name="ome.services.test.*"/>
+      <package name="ome.services.utests.*"/>
+      <package name="ome.services.delete.*"/>
       <package name="omeis.*"/>
     </packages>
   </test>

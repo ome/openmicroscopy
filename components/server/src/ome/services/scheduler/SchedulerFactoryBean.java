@@ -19,6 +19,7 @@ import org.quartz.Trigger;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.scheduling.SchedulingException;
 import org.springframework.scheduling.quartz.JobDetailAwareTrigger;
 
 /**
@@ -51,9 +52,7 @@ public class SchedulerFactoryBean extends
                         .getBean(name);
                 registerTrigger(name, trigger);
             }
-            if (!isRunning()) {
-                start();
-            }
+            restartIfNeeded();
         }
     }
 
@@ -71,6 +70,29 @@ public class SchedulerFactoryBean extends
             scheduler.scheduleJob(trigger);
         } catch (SchedulerException se) {
             throw new RuntimeException(se);
+        }
+    }
+
+    /**
+     * Similar to the {@link #isRunning()} method, but properly handles the
+     * situation where the {@link Scheduler} has been completely shutdown and
+     * therefore must be replaced.
+     */
+    protected void restartIfNeeded() {
+        if (!isRunning()) {
+            try {
+                start();
+            } catch (SchedulingException se) {
+                log.info("Replacing scheduler");
+                try {
+                    afterPropertiesSet();
+                    if (!isRunning()) {
+                        start();
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to restart scheduler", e);
+                }
+            }
         }
     }
 }

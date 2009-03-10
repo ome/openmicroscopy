@@ -1,5 +1,5 @@
 /*
- * ome.services.blitz.impl.MetadataI 
+ *  $Id$
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -23,16 +23,10 @@
 package ome.services.blitz.impl;
 
 
-//Java imports
 import java.util.List;
-import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import ome.api.IMetadata;
 import ome.services.blitz.util.BlitzExecutor;
-import omero.RType;
 import omero.ServerError;
 import omero.api.AMD_IMetadata_countSpecifiedAnnotations;
 import omero.api.AMD_IMetadata_getTaggedObjectsCount;
@@ -43,6 +37,7 @@ import omero.api.AMD_IMetadata_loadSpecifiedAnnotations;
 import omero.api.AMD_IMetadata_loadTagContent;
 import omero.api.AMD_IMetadata_loadTagSets;
 import omero.api._IMetadataOperations;
+import omero.sys.Parameters;
 import Ice.Current;
 
 /** 
@@ -84,7 +79,7 @@ public class MetadataI
 
 	 public void loadAnnotations_async(AMD_IMetadata_loadAnnotations __cb,
 			 String rootType, List<Long> rootIds, List<String> annotationTypes, 
-			 List<Long> annotatorIds, Map<String, RType> options, Current __current) 
+			 List<Long> annotatorIds, Parameters options, Current __current) 
 	 throws ServerError {
 		 callInvokerOnRawArgs(__cb, __current, rootType, rootIds, 
 				 annotationTypes, annotatorIds, options);
@@ -92,7 +87,7 @@ public class MetadataI
 	    
 	 public void loadSpecifiedAnnotations_async(AMD_IMetadata_loadSpecifiedAnnotations __cb,
 			 String annotationType, List<String> include, List<String> exclude,
-			Map<String, RType> options, Current __current) 
+			Parameters options, Current __current) 
 	 throws ServerError {
 		 callInvokerOnRawArgs(__cb, __current, annotationType, include, exclude, 
 				 options);
@@ -100,13 +95,13 @@ public class MetadataI
 	 
 	 public void countSpecifiedAnnotations_async(AMD_IMetadata_countSpecifiedAnnotations __cb,
 			 String annotationType, List<String> include, List<String> exclude,
-			Map<String, RType> options, Current __current) 
+			Parameters options, Current __current) 
 	 throws ServerError {
 		 callInvokerOnRawArgs(__cb, __current, annotationType, include, exclude, 
 				 options);
 	 }
 	 
-	 public void loadTagSets_async(AMD_IMetadata_loadTagSets __cb,  Map<String, RType> options,
+	 public void loadTagSets_async(AMD_IMetadata_loadTagSets __cb,  Parameters options,
 			 Current __current) 
 	 throws ServerError 
 	 {
@@ -114,14 +109,14 @@ public class MetadataI
 	 }
 	 
 	 public void loadTagContent_async(AMD_IMetadata_loadTagContent __cb, 
-			 List<Long> ids, Map<String, RType> options, Current __current) 
+			 List<Long> ids, Parameters options, Current __current) 
 	 throws ServerError 
 	 {
 		 callInvokerOnRawArgs(__cb, __current, ids, options);
 	 }
 	 
 	 public void getTaggedObjectsCount_async(AMD_IMetadata_getTaggedObjectsCount __cb, 
-			 List<Long> ids, Map<String, RType> options, Current __current) 
+			 List<Long> ids, Parameters options, Current __current) 
 	 throws ServerError 
 	 {
 		 callInvokerOnRawArgs(__cb, __current, ids, options);
@@ -136,7 +131,7 @@ public class MetadataI
 	 
 	 /*
 	 public void loadTags_async(AMD_IMetadata_loadTags __cb,
-			 long id, boolean wihtObjects, Map<String, RType> options, 
+			 long id, boolean wihtObjects, Parameters options, 
 			 Current __current) 
 	 throws ServerError {
 		 
@@ -144,7 +139,7 @@ public class MetadataI
 	 }
 
 	 public void loadTagSets_async(AMD_IMetadata_loadTagSets __cb,
-			 long id, boolean wihtObjects, Map<String, RType> options, 
+			 long id, boolean wihtObjects, Parameters options, 
 			 Current __current) 
 	 throws ServerError {
 		 callInvokerOnRawArgs(__cb, __current, id, wihtObjects, options);

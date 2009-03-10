@@ -163,14 +163,14 @@ public class ApiConstraintCheckerTest extends TestCase {
             SecurityException {
         c = PojosImpl.class;
         m = c.getMethod("loadContainerHierarchy", Class.class, Set.class,
-                Map.class);
+                ome.parameters.Parameters.class);
     }
 
     private void findContainerHierarchies() throws NoSuchMethodException,
             SecurityException {
         c = PojosImpl.class;
         m = c.getMethod("findContainerHierarchies", Class.class, Set.class,
-                Map.class);
+                ome.parameters.Parameters.class);
     }
 
 }

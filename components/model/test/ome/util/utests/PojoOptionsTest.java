@@ -7,6 +7,7 @@
 package ome.util.utests;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import ome.util.builders.PojoOptions;
@@ -40,7 +41,7 @@ public class PojoOptionsTest extends TestCase {
 
     @Test
     public void testNullMap() {
-        ob = new PojoOptions(null);
+        ob = new PojoOptions((Map)null);
         PojoOptions test = new PojoOptions();
         assertTrue("Should have default keys", ob.map().keySet().containsAll(
                 test.map().keySet()));

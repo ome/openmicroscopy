@@ -7,9 +7,7 @@
 
 package ome.api;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +16,7 @@ import ome.annotations.Validate;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.core.Image;
+import ome.parameters.Parameters;
 
 /**
  * Provides methods for dealing with the core "Pojos" of OME. Included are:
@@ -125,7 +124,7 @@ public interface IContainer extends ServiceInterface {
      *            is thrown to prevent all images in the entire database from
      *            being downloaded.
      * @param options
-     *            Map as above. <code>annotator</code>, <code>leaves</code>,
+     *            Parameters as above. <code>annotator</code>, <code>leaves</code>,
      *            <code>orphan</code>, <code>acquisition data</code> used. 
      *            <code>acquisition data</code> is only relevant for images
      *            and taken into account if the images are loaded.
@@ -146,7 +145,7 @@ public interface IContainer extends ServiceInterface {
      */
     public <T extends IObject> Set<T> loadContainerHierarchy(@NotNull
     Class<T> rootNodeType, @Validate(Long.class)
-    Set<Long> rootNodeIds, Map options);
+    Set<Long> rootNodeIds, Parameters options);
 
     /**
      * Retrieves hierarchy trees in various hierarchies that contain the
@@ -200,7 +199,7 @@ public interface IContainer extends ServiceInterface {
      *            Contains the ids of the Images that sit at the bottom of the
      *            trees. Not null.
      * @param options
-     *            Map as above. <code>annotator</code> used.
+     *            Parameters as above. <code>annotator</code> used.
      *            <code>experimenter|group</code> may be applied at the
      *            top-level only or at each level in the hierarchy, but will not
      *            apply to the leaf (Image) level.
@@ -210,7 +209,7 @@ public interface IContainer extends ServiceInterface {
     public <T extends IObject> Set<IObject> findContainerHierarchies(@NotNull
     Class<T> rootNodeType, @NotNull
     @Validate(Long.class)
-    Set<Long> imagesIds, Map options);
+    Set<Long> imagesIds, Parameters options);
 
     /**
      * Retrieve a user's (or all users') images within any given container. For
@@ -223,7 +222,7 @@ public interface IContainer extends ServiceInterface {
      * @param rootNodeIds
      *            A set of ids of type <code>rootNodeType</code> Not null.
      * @param options
-     *            Map as above. No notion of <code>leaves</code>.
+     *            Parameters as above. No notion of <code>leaves</code>.
      *            <code>experimenter|group</code> apply at the Image level.
      *            OPTIONS: - startTime and/or endTime should be
      *            Timestamp.valueOf("YYYY-MM-DD hh:mm:ss.ms");
@@ -244,31 +243,31 @@ public interface IContainer extends ServiceInterface {
     public <T extends IObject> Set<Image> getImages(@NotNull
     Class<T> rootNodeType, @NotNull
     @Validate(Long.class)
-    Set<Long> rootNodeIds, Map options);
+    Set<Long> rootNodeIds, Parameters options);
 
     /**
      * Retrieve images by options.
      * 
      * @param options
-     *            Map as above. No notion of <code>leaves</code>.
+     *            Parameters as above. No notion of <code>leaves</code>.
      *            <code>experimenter|group</code> apply at the Image level and
      *            <b>must be present</b>. OPTIONS: - startTime and/or endTime
      *            should be Timestamp.valueOf("YYYY-MM-DD hh:mm:ss.ms").
      *             <code>acquisition data</code> is only relevant for images.
      * @return A set of images.
      */
-    public Set<Image> getImagesByOptions(Map options);
+    public Set<Image> getImagesByOptions(Parameters options);
 
     /**
      * Retrieve a user's images.
      * 
      * @param options
-     *            Map as above. No notion of <code>leaves</code>.
+     *            Parameters as above. No notion of <code>leaves</code>.
      *            <code>experimenter|group</code> apply at the Image level and
      *            <b>must be present</b>.
      * @return A set of images.
      */
-    public Set<Image> getUserImages(Map options);
+    public Set<Image> getUserImages(Parameters options);
 
     /**
      * Counts the number of members in a collection for a given object. For
@@ -283,12 +282,12 @@ public interface IContainer extends ServiceInterface {
      * @param ids
      *            Set of Longs, the ids of the objects to test
      * @param options
-     *            Map. Unused.
+     *            Parameters. Unused.
      * @return A map from id integer to count integer
      */
     public Map getCollectionCount(@NotNull String type, 
     		@NotNull String property, 
-    		@NotNull @Validate(Long.class) Set<Long> ids, Map options);
+    		@NotNull @Validate(Long.class) Set<Long> ids, Parameters options);
 
     /**
      * Retrieves a collection with all members initialized ("loaded"). This is
@@ -300,11 +299,11 @@ public interface IContainer extends ServiceInterface {
      *            <code>public final static String</code> from the
      *            IObject.class
      * @param options
-     *            Map. Unused.
+     *            Parameters. Unused.
      * @return An initialized collection.
      */
     public Collection retrieveCollection(@NotNull IObject dataObject, 
-    		@NotNull String collectionName, Map options);
+    		@NotNull String collectionName, Parameters options);
 
     // ~ WRITE API
     // =========================================================================
@@ -329,11 +328,11 @@ public interface IContainer extends ServiceInterface {
      * @param object
      *            IObject. Supported: Project, Dataset,
      *            Annotation, Group, Experimenter. Not null.
-     * @options Map as above.
+     * @options Parameters as above.
      * @return the created object
      */
     public <T extends IObject> T createDataObject(@NotNull
-    T object, Map options);
+    T object, Parameters options);
 
     /**
      * convenience method to save network calls. Loops over the array of
@@ -342,12 +341,12 @@ public interface IContainer extends ServiceInterface {
      * @param dataObjects
      *            Array of Omero <code>IObjects</code>
      * @param options
-     *            Map as above.
+     *            Parameters as above.
      * 
      * @see createDataObject
      */
     public IObject[] createDataObjects(@NotNull IObject[] dataObjects, 
-    		Map options);
+    		Parameters options);
 
     /**
      * Removes links between OmeroDataObjects e.g Project-Dataset, Dataset-Image
@@ -356,21 +355,21 @@ public interface IContainer extends ServiceInterface {
      * @param dataObjectLinks
      *            Not null.
      * @param options
-     *            Map as above.
+     *            Parameters as above.
      */
-    public void unlink(@NotNull ILink[] dataOjectLinks, Map options);
+    public void unlink(@NotNull ILink[] dataOjectLinks, Parameters options);
 
     /**
      * Convenience method for creating links. Functionality also availeble
-     * from {@link #createDataObject(IObject, Map)}
+     * from {@link #createDataObject(IObject, Parameters)}
      * 
      * @param dataObjectLinks
      *            Array of links to be created.
      * @param options
-     *            Map as above.
+     *            Parameters as above.
      * @return the created links
      */
-    public ILink[] link(@NotNull ILink[] dataObjectLinks, Map options);
+    public ILink[] link(@NotNull ILink[] dataObjectLinks, Parameters options);
 
     /**
      * Updates a data object.
@@ -388,11 +387,11 @@ public interface IContainer extends ServiceInterface {
      *            Pojos-based IObject. Supported: supported: Project, Dataset,
      *            Annotation, Group, Experimenter.
      * @param options
-     *            Map as above.
+     *            Parameters as above.
      * @return created data object
      */
     public <T extends IObject> T updateDataObject(@NotNull
-    T dataObject, Map options);
+    T dataObject, Parameters options);
 
     /**
      * convenience method to save network calls. Loops over the array of
@@ -400,12 +399,12 @@ public interface IContainer extends ServiceInterface {
      * 
      * @param dataObjects
      * @param options
-     *            Map as above.
+     *            Parameters as above.
      * @return created data objects.
-     * @see #updateDataObject(IObject, Map)
+     * @see #updateDataObject(IObject, Parameters)
      */
     public IObject[] updateDataObjects(@NotNull IObject[] dataObjects, 
-    		Map options);
+    		Parameters options);
 
     /**
      * Deletes a data object. Currently this method takes a very conservative
@@ -416,7 +415,7 @@ public interface IContainer extends ServiceInterface {
      * @param dataObject
      * @param options
      */
-    public void deleteDataObject(@NotNull IObject dataObject, Map options);
+    public void deleteDataObject(@NotNull IObject dataObject, Parameters options);
 
     /**
      * convenience method to save network calls. Loops over the array of
@@ -424,8 +423,8 @@ public interface IContainer extends ServiceInterface {
      * 
      * @param dataObjects
      * @param options
-     *            Map as above.
+     *            Parameters as above.
      */
-    public void deleteDataObjects(@NotNull IObject[] dataObjects, Map options);
+    public void deleteDataObjects(@NotNull IObject[] dataObjects, Parameters options);
 
 }

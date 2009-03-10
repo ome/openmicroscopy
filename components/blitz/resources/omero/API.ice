@@ -262,22 +262,22 @@ module omero {
 	 */
 	["ami", "amd"] interface IContainer extends ServiceInterface
 	{
-	    idempotent IObjectList loadContainerHierarchy(string rootType, omero::sys::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
-	    idempotent IObjectList findContainerHierarchies(string rootType, omero::sys::LongList imageIds, omero::sys::ParamMap options) throws ServerError;
-	    //idempotent AnnotationMap findAnnotations(string rootType, omero::sys::LongList rootIds, omero::sys::LongList annotatorIds, omero::sys::ParamMap options) throws ServerError;
-	    idempotent ImageList getImages(string rootType, omero::sys::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
-	    idempotent ImageList getUserImages(omero::sys::ParamMap options) throws ServerError;
-	    idempotent ImageList getImagesByOptions(omero::sys::ParamMap options) throws ServerError;
-	    idempotent omero::sys::CountMap getCollectionCount(string type, string property, omero::sys::LongList ids, omero::sys::ParamMap options) throws ServerError;
-	    idempotent IObjectList retrieveCollection(omero::model::IObject obj, string collectionName, omero::sys::ParamMap options) throws ServerError;
-	    omero::model::IObject createDataObject(omero::model::IObject obj, omero::sys::ParamMap options) throws ServerError;
-	    IObjectList createDataObjects(IObjectList dataObjects, omero::sys::ParamMap options) throws ServerError;
-	    void unlink(IObjectList links, omero::sys::ParamMap options) throws ServerError;
-	    IObjectList link(IObjectList links, omero::sys::ParamMap options) throws ServerError;
-	    omero::model::IObject updateDataObject(omero::model::IObject obj, omero::sys::ParamMap options) throws ServerError;
-	    IObjectList updateDataObjects(IObjectList objs, omero::sys::ParamMap options) throws ServerError;
-	    void deleteDataObject(omero::model::IObject obj, omero::sys::ParamMap options) throws ServerError;
-	    void deleteDataObjects(IObjectList objs, omero::sys::ParamMap options) throws ServerError;
+	    idempotent IObjectList loadContainerHierarchy(string rootType, omero::sys::LongList rootIds, omero::sys::Parameters options) throws ServerError;
+	    idempotent IObjectList findContainerHierarchies(string rootType, omero::sys::LongList imageIds, omero::sys::Parameters options) throws ServerError;
+	    //idempotent AnnotationMap findAnnotations(string rootType, omero::sys::LongList rootIds, omero::sys::LongList annotatorIds, omero::sys::Parameters options) throws ServerError;
+	    idempotent ImageList getImages(string rootType, omero::sys::LongList rootIds, omero::sys::Parameters options) throws ServerError;
+	    idempotent ImageList getUserImages(omero::sys::Parameters options) throws ServerError;
+	    idempotent ImageList getImagesByOptions(omero::sys::Parameters options) throws ServerError;
+	    idempotent omero::sys::CountMap getCollectionCount(string type, string property, omero::sys::LongList ids, omero::sys::Parameters options) throws ServerError;
+	    idempotent IObjectList retrieveCollection(omero::model::IObject obj, string collectionName, omero::sys::Parameters options) throws ServerError;
+	    omero::model::IObject createDataObject(omero::model::IObject obj, omero::sys::Parameters options) throws ServerError;
+	    IObjectList createDataObjects(IObjectList dataObjects, omero::sys::Parameters options) throws ServerError;
+	    void unlink(IObjectList links, omero::sys::Parameters options) throws ServerError;
+	    IObjectList link(IObjectList links, omero::sys::Parameters options) throws ServerError;
+	    omero::model::IObject updateDataObject(omero::model::IObject obj, omero::sys::Parameters options) throws ServerError;
+	    IObjectList updateDataObjects(IObjectList objs, omero::sys::Parameters options) throws ServerError;
+	    void deleteDataObject(omero::model::IObject obj, omero::sys::Parameters options) throws ServerError;
+	    void deleteDataObjects(IObjectList objs, omero::sys::Parameters options) throws ServerError;
 	};
 
 	/*
@@ -286,19 +286,19 @@ module omero {
 	["ami", "amd"] interface IMetadata extends ServiceInterface
 	{
 	    idempotent LogicalChannelList loadChannelAcquisitionData(omero::sys::LongList ids) throws ServerError;
-	    idempotent AnnotationMap loadAnnotations(string rootType, omero::sys::LongList rootIds, omero::api::StringSet annotationTypes, omero::sys::LongList annotatorIds, omero::sys::ParamMap options) throws ServerError;
-		idempotent AnnotationList loadSpecifiedAnnotations(string annotationType, omero::api::StringSet include, omero::api::StringSet exclude, omero::sys::ParamMap options) throws ServerError;
-	    //idempotent omero::metadata::TagSetContainerList loadTagSets(long id, bool withObjects, omero::sys::ParamMap options) throws ServerError;
-	    //idempotent omero::metadata::TagContainerList loadTags(long id, bool withObjects, omero::sys::ParamMap options) throws ServerError;
-	     idempotent AnnotationMap loadTagContent(omero::sys::LongList ids, omero::sys::ParamMap options) throws ServerError;
-	     idempotent IObjectList loadTagSets(omero::sys::ParamMap options) throws ServerError;
-	     idempotent omero::sys::CountMap getTaggedObjectsCount(omero::sys::LongList ids, omero::sys::ParamMap options) throws ServerError;
-	    omero::RLong countSpecifiedAnnotations(string annotationType, omero::api::StringSet include, omero::api::StringSet exclude, omero::sys::ParamMap options) throws ServerError;
+	    idempotent AnnotationMap loadAnnotations(string rootType, omero::sys::LongList rootIds, omero::api::StringSet annotationTypes, omero::sys::LongList annotatorIds, omero::sys::Parameters options) throws ServerError;
+	    idempotent AnnotationList loadSpecifiedAnnotations(string annotationType, omero::api::StringSet include, omero::api::StringSet exclude, omero::sys::Parameters options) throws ServerError;
+	    //idempotent omero::metadata::TagSetContainerList loadTagSets(long id, bool withObjects, omero::sys::Parameters options) throws ServerError;
+	    //idempotent omero::metadata::TagContainerList loadTags(long id, bool withObjects, omero::sys::Parameters options) throws ServerError;
+	    idempotent AnnotationMap loadTagContent(omero::sys::LongList ids, omero::sys::Parameters options) throws ServerError;
+	    idempotent IObjectList loadTagSets(omero::sys::Parameters options) throws ServerError;
+	    idempotent omero::sys::CountMap getTaggedObjectsCount(omero::sys::LongList ids, omero::sys::Parameters options) throws ServerError;
+	    omero::RLong countSpecifiedAnnotations(string annotationType, omero::api::StringSet include, omero::api::StringSet exclude, omero::sys::Parameters options) throws ServerError;
 	    idempotent AnnotationList loadAnnotation(omero::sys::LongList annotationIds) throws ServerError;
 	};
-	
+
 	//interface IMetadata; // Forward definition. See omero/api/Metadata.ice
-	
+
 	/*
 	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IProjection.html
 	 */
@@ -312,7 +312,7 @@ module omero {
         long projectPixels(long pixelsId, omero::model::PixelsType pixelsType,
                            omero::constants::projection::ProjectionType algorithm,
                            int tStart, int tEnd,
-                           omero::sys::IntList channelList, int stepping, 
+                           omero::sys::IntList channelList, int stepping,
                            int zStart, int zEnd, string name)
                            throws ServerError;
 	};

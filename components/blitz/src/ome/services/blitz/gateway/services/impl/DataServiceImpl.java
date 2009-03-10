@@ -24,13 +24,12 @@ package ome.services.blitz.gateway.services.impl;
 
 
 //Java imports
+import static omero.rtypes.rbool;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import ome.services.blitz.gateway.services.DataService;
 import ome.services.blitz.gateway.services.GatewayFactory;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
@@ -50,8 +49,9 @@ import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.model.Project;
-
-import static omero.rtypes.rbool;
+import omero.sys.Parameters;
+import omero.sys.ParametersI;
+import omero.util.PojoOptionsI;
 
 /** 
  * 
@@ -144,7 +144,7 @@ public class DataServiceImpl
 			map.put(omero.constants.POJOLEAVES.value, rbool(true));
 		return ServiceUtilities.collectionCast(Dataset.class, 
 			iContainerService.loadContainerHierarchy(
-				convertContainer(ContainerClass.Dataset), ids,	map));
+				convertContainer(ContainerClass.Dataset), ids,	new ParametersI(map)));
 	}
 
 	/* (non-Javadoc)
@@ -181,7 +181,7 @@ public class DataServiceImpl
 		IContainerPrx iContainerService = gatewayFactory.getIContainer();
 		HashMap<String, RType> map = new HashMap<String, RType>();
 		return 
-			iContainerService.getImages(convertContainer(nodeType), nodeIds, map);
+			iContainerService.getImages(convertContainer(nodeType), nodeIds, new ParametersI(map));
 	}
 
 	
@@ -230,7 +230,7 @@ public class DataServiceImpl
 			map.put(omero.constants.POJOLEAVES.value, rbool(true));
 		return ServiceUtilities.collectionCast(Project.class, 
 			iContainerService.loadContainerHierarchy(
-				convertContainer(ContainerClass.Project), ids, map));
+				convertContainer(ContainerClass.Project), ids, new ParametersI(map)));
 	}
 
 	/* (non-Javadoc)

@@ -7,7 +7,6 @@
 
 package ome.services.blitz.impl;
 
-// Java imports
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,6 +36,7 @@ import omero.api.AMD_IContainer_updateDataObject;
 import omero.api.AMD_IContainer_updateDataObjects;
 import omero.api._IContainerOperations;
 import omero.model.IObject;
+import omero.sys.Parameters;
 import omero.util.IceMapper;
 import Ice.Current;
 import Ice.UserException;
@@ -58,28 +58,28 @@ public class ContainerI extends AbstractAmdServant implements _IContainerOperati
     // =========================================================================
 
     public void createDataObject_async(AMD_IContainer_createDataObject __cb,
-            IObject obj, Map<String, RType> options, Current __current)
+            IObject obj, Parameters options, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, obj, options);
 
     }
 
     public void createDataObjects_async(AMD_IContainer_createDataObjects __cb,
-            List<IObject> dataObjects, Map<String, RType> options,
+            List<IObject> dataObjects, Parameters options,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, dataObjects, options);
 
     }
 
     public void deleteDataObject_async(AMD_IContainer_deleteDataObject __cb,
-            IObject obj, Map<String, RType> options, Current __current)
+            IObject obj, Parameters options, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, obj, options);
 
     }
 
     public void deleteDataObjects_async(AMD_IContainer_deleteDataObjects __cb,
-            List<IObject> objs, Map<String, RType> options, Current __current)
+            List<IObject> objs, Parameters options, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, objs, options);
 
@@ -88,7 +88,7 @@ public class ContainerI extends AbstractAmdServant implements _IContainerOperati
     /*
     public void findAnnotations_async(AMD_IContainer_findAnnotations __cb,
             String rootType, List<Long> rootIds, List<Long> annotatorIds,
-            Map<String, RType> options, Current __current) throws ServerError {
+            Parameters options, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, rootType, rootIds, annotatorIds,
                 options);
 
@@ -96,7 +96,7 @@ public class ContainerI extends AbstractAmdServant implements _IContainerOperati
 */
     public void findContainerHierarchies_async(
             AMD_IContainer_findContainerHierarchies __cb, String rootType,
-            List<Long> imageIds, Map<String, RType> options, Current __current)
+            List<Long> imageIds, Parameters options, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, rootType, imageIds, options);
 
@@ -104,7 +104,7 @@ public class ContainerI extends AbstractAmdServant implements _IContainerOperati
 
     public void getCollectionCount_async(AMD_IContainer_getCollectionCount __cb,
             String type, String property, List<Long> ids,
-            Map<String, RType> options, Current __current) throws ServerError {
+            Parameters options, Current __current) throws ServerError {
 
         // This is a bit weird. The CountMap type in omero/Collections.ice
         // specifies <Long, Long> which makes sense, but ContainerImpl is returning,
@@ -132,26 +132,26 @@ public class ContainerI extends AbstractAmdServant implements _IContainerOperati
     }
 
     public void getImagesByOptions_async(AMD_IContainer_getImagesByOptions __cb,
-            Map<String, RType> options, Current __current) throws ServerError {
+            Parameters options, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, options);
 
     }
 
     public void getImages_async(AMD_IContainer_getImages __cb, String rootType,
-            List<Long> rootIds, Map<String, RType> options, Current __current)
+            List<Long> rootIds, Parameters options, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, rootType, rootIds, options);
 
     }
 
     public void getUserImages_async(AMD_IContainer_getUserImages __cb,
-            Map<String, RType> options, Current __current) throws ServerError {
+            Parameters options, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, options);
 
     }
 
     public void link_async(AMD_IContainer_link __cb, List<IObject> links,
-            Map<String, RType> options, Current __current) throws ServerError {
+            Parameters options, Current __current) throws ServerError {
 
         IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_ARRAY);
         ome.model.ILink[] array;
@@ -174,21 +174,21 @@ public class ContainerI extends AbstractAmdServant implements _IContainerOperati
 
     public void loadContainerHierarchy_async(
             AMD_IContainer_loadContainerHierarchy __cb, String rootType,
-            List<Long> rootIds, Map<String, RType> options, Current __current)
+            List<Long> rootIds, Parameters options, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, rootType, rootIds, options);
 
     }
 
     public void retrieveCollection_async(AMD_IContainer_retrieveCollection __cb,
-            IObject obj, String collectionName, Map<String, RType> options,
+            IObject obj, String collectionName, Parameters options,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, obj, collectionName, options);
 
     }
 
     public void unlink_async(AMD_IContainer_unlink __cb, List<IObject> links,
-            Map<String, RType> options, Current __current) throws ServerError {
+            Parameters options, Current __current) throws ServerError {
         IceMapper mapper = new IceMapper(IceMapper.VOID);
         ome.model.ILink[] array;
         if (links == null) {
@@ -209,14 +209,14 @@ public class ContainerI extends AbstractAmdServant implements _IContainerOperati
     }
 
     public void updateDataObject_async(AMD_IContainer_updateDataObject __cb,
-            IObject obj, Map<String, RType> options, Current __current)
+            IObject obj, Parameters options, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, obj, options);
 
     }
 
     public void updateDataObjects_async(AMD_IContainer_updateDataObjects __cb,
-            List<IObject> objs, Map<String, RType> options, Current __current)
+            List<IObject> objs, Parameters options, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, objs, options);
 

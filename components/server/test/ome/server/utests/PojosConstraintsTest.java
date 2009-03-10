@@ -19,6 +19,7 @@ import ome.logic.PojosImpl;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.parameters.Parameters;
 import ome.security.basic.CurrentDetails;
 import ome.security.basic.PrincipalHolder;
 import ome.server.itests.LoginInterceptor;
@@ -75,15 +76,15 @@ public class PojosConstraintsTest extends MockObjectTestCase {
         };
 
         // param1: not null or wrong type
-        t.blowup(true, null, new HashSet(), new HashSet(), new HashMap());
-        t.blowup(true, Project.class, null, new HashSet(), new HashMap());
+        t.blowup(true, null, new HashSet(), new HashSet(), null);
+        t.blowup(true, Project.class, null, new HashSet(), null);
         t.blowup(false, Image.class, new HashSet(), new HashSet(),
-                new HashMap()); // FIXME should check for empty sets.
+                null); // FIXME should check for empty sets.
         t.blowup(false, Dataset.class, new HashSet(), new HashSet(),
-                new HashMap());
+                null);
 
         // param2: not null
-        t.blowup(true, Dataset.class, null, new HashSet(), new HashMap());
+        t.blowup(true, Dataset.class, null, new HashSet(), null);
 
         // eek
         t.blowup(false, Dataset.class, new HashSet(), new HashSet(), null);
@@ -96,21 +97,21 @@ public class PojosConstraintsTest extends MockObjectTestCase {
             @Override
             public void doTest(Object[] arg) {
                 manager.findContainerHierarchies((Class) arg[0], (Set) arg[1],
-                        (Map) arg[2]);
+                        (Parameters) arg[2]);
             }
         };
 
         // param1: not null or wrong type
-        t.blowup(true, null, new HashSet(), new HashMap());
-        t.blowup(true, Dataset.class, new HashSet(), new HashMap());
-        t.blowup(true, Image.class, new HashSet(), new HashMap());
-        // FIXMEt.blowup(false,Project.class,new HashSet(), new HashMap());
+        t.blowup(true, null, new HashSet(), null);
+        t.blowup(true, Dataset.class, new HashSet(), null);
+        t.blowup(true, Image.class, new HashSet(), null);
+        // FIXMEt.blowup(false,Project.class,new HashSet(), null);
         // FIXMEt.blowup(false,CategoryGroup.class,new HashSet(), new
         // HashMap());
 
         // param2:
-        t.blowup(true, Project.class, null, new HashMap());
-        // FIXMEt.blowup(false,Project.class,new HashSet(),new HashMap());
+        t.blowup(true, Project.class, null, null);
+        // FIXMEt.blowup(false,Project.class,new HashSet(),null);
 
     }
 
@@ -119,13 +120,13 @@ public class PojosConstraintsTest extends MockObjectTestCase {
         T t = new T(ApiUsageException.class) {
             @Override
             public void doTest(Object[] arg) {
-                manager.getImages((Class) arg[0], (Set) arg[1], (Map) arg[2]);
+                manager.getImages((Class) arg[0], (Set) arg[1], (Parameters) arg[2]);
             }
         };
 
         // param1: not null
-        t.blowup(true, null, new HashSet(), new HashMap());
-        t.blowup(false, Dataset.class, new HashSet(), new HashMap());
+        t.blowup(true, null, new HashSet(), null);
+        t.blowup(false, Dataset.class, new HashSet(), null);
 
     }
 
@@ -134,7 +135,7 @@ public class PojosConstraintsTest extends MockObjectTestCase {
         T t = new T(ApiUsageException.class) {
             @Override
             public void doTest(Object[] arg) {
-                manager.getUserImages((Map) arg[0]);
+                manager.getUserImages((Parameters) arg[0]);
             }
         };
 
@@ -147,27 +148,26 @@ public class PojosConstraintsTest extends MockObjectTestCase {
     @Test
     public void testLoadContainerHierary() throws Exception {
         Set ids;
-        Map options;
+
         T t = new T(ApiUsageException.class) {
             @Override
             public void doTest(Object[] arg) {
                 manager.loadContainerHierarchy((Class) arg[0], (Set) arg[1],
-                        (Map) arg[2]);
+                        (Parameters) arg[2]);
             }
         };
 
         // param1: wrong or null class type
         ids = new HashSet<Integer>(Arrays.asList(1, 2, 3));
-        options = new HashMap();
-        t.blowup(true, null, ids, options);
-        t.blowup(true, Image.class, ids, options);
+        t.blowup(true, null, ids, null);
+        t.blowup(true, Image.class, ids, null);
         // FIXME do all blowup(false,...) belong in itests
         // t.blowup(false,Project.class,new HashSet(),options);
 
         // param2: not null unless there's an experimenter
         // FIXMEt.blowup(false,Project.class,null,new
         // PojoOptions().exp(1).map());
-        t.blowup(true, Project.class, null, new HashMap());
+        t.blowup(true, Project.class, null, null);
         // FIXMEt.blowup(false,Project.class,new HashSet(),new
         // HashMap());//empty set is ok? TODO
 

@@ -68,7 +68,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
          * ContainerQP.Class(QP.CLASS, Project.class ) );
          * 
          * PojoOptions po = new PojoOptions().allExps(); creation_fails(
-         * ContainerQP.ids( null ), ContainerQP.options( po.map() ), // Has to have
+         * ContainerQP.ids( null ), ContainerQP.options( po.realmap() ), // Has to have
          * experimenter ContainerQP.Class(QP.CLASS, Project.class ) );
          */
 
@@ -85,7 +85,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
 
         PojoOptions po = new PojoOptions().exp(doesntExist);
         q = new PojosGetImagesQueryDefinition(new Parameters().addIds(
-                Arrays.asList(doesntExist)).addOptions(po.map()).addClass(
+                Arrays.asList(doesntExist)).addOptions(po.realmap()).addClass(
                 Project.class));
 
         list = (List) iQuery.execute(q);
@@ -190,7 +190,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         }
 
         userPO = new PojoOptions().exp(user.getId());
-        filterForUser = new Parameters().addOptions(userPO.map());
+        filterForUser = new Parameters().addOptions(userPO.realmap());
         noFilter = new Parameters().addOptions(null);
 
         // ~ MIXED ROOT/USER ITEMS

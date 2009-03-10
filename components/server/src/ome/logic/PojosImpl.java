@@ -37,6 +37,7 @@ import ome.model.core.Image;
 import ome.model.screen.Plate;
 import ome.model.screen.Screen;
 import ome.parameters.Parameters;
+import ome.parameters.QueryParameter;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosGetImagesByOptionsQueryDefinition;
@@ -95,12 +96,12 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     
     /**
      * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#loadContainerHierarchy(Class, Set, Map)
+     * @see IContainer#loadContainerHierarchy(Class, Set, Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIds,
-            Map options) {
+            Parameters options) {
 
         PojoOptions po = new PojoOptions(options);
 
@@ -122,7 +123,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosLoadHierarchyQueryDefinition.class.getName(),
                 new Parameters().addClass(rootNodeType).addIds(rootNodeIds)
-                        .addOptions(po.map()));
+                        .addOptions(po.realmap()));
         List<IObject> l = iQuery.execute(q);
 
         Dataset d;
@@ -146,7 +147,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
             		q = getQueryFactory().lookup(
                             PojosLoadHierarchyQueryDefinition.class.getName(),
                             new Parameters().addClass(Dataset.class).addIds(rootNodeIds)
-                            .addOptions(po.map()));
+                            .addOptions(po.realmap()));
             		List<IObject> list = iQuery.execute(q);
             		Iterator<IObject> j = list.iterator();
             		Long id;
@@ -202,7 +203,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
             		q = getQueryFactory().lookup(
                             PojosLoadHierarchyQueryDefinition.class.getName(),
                             new Parameters().addClass(Plate.class).addIds(rootNodeIds)
-                            .addOptions(po.map()));
+                            .addOptions(po.realmap()));
             		List<IObject> list = iQuery.execute(q);
             		Iterator<IObject> j = list.iterator();
             		Long id;
@@ -227,12 +228,12 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     /**
      * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#findContainerHierarchies(Class, Set, Map)
+     * @see IContainer#findContainerHierarchies(Class, Set, Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Set findContainerHierarchies(final Class rootNodeType,
-            final Set imageIds, Map options) {
+            final Set imageIds, Parameters options) {
 
         PojoOptions po = new PojoOptions(options);
 
@@ -247,7 +248,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         Query<List<Image>> q = getQueryFactory().lookup(
                 PojosFindHierarchiesQueryDefinition.class.getName(),
                 new Parameters().addClass(rootNodeType).addIds(imageIds)
-                        .addOptions(po.map()));
+                        .addOptions(po.realmap()));
         List<Image> l = iQuery.execute(q);
 
         //
@@ -297,7 +298,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public Set getImages(final Class rootNodeType, final Set rootNodeIds,
-            final Map options) {
+            final Parameters options) {
 
         if (rootNodeIds.size() == 0) {
             return new HashSet();
@@ -333,7 +334,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosGetImagesQueryDefinition.class.getName(),
                 new Parameters().addIds(effIds).addClass(effType).addOptions(
-                        po.map()));
+                        po.realmap()));
 
         List<IObject> l = iQuery.execute(q);
         return new HashSet<IObject>(l);
@@ -341,12 +342,12 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     /**
      * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#getImagesByOptions(Map)
+     * @see IContainer#getImagesByOptions(Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
-    public Set getImagesByOptions(Map options) {
+    public Set getImagesByOptions(Parameters options) {
 
         PojoOptions po = new PojoOptions(options);
 
@@ -357,7 +358,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
         Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosGetImagesByOptionsQueryDefinition.class.getName(),
-                new Parameters().addOptions(options));
+                new Parameters().addOptions(po.realmap())); // FIXME ticket:67
 
         List<IObject> l = iQuery.execute(q);
         return new HashSet<IObject>(l);
@@ -366,12 +367,12 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     /**
      * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#getUserImages(Map)
+     * @see IContainer#getUserImages(Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
-    public Set getUserImages(Map options) {
+    public Set getUserImages(Parameters options) {
 
         PojoOptions po = new PojoOptions(options);
 
@@ -382,7 +383,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
         Query<List<Image>> q = getQueryFactory().lookup(
                 PojosGetUserImagesQueryDefinition.class.getName(),
-                new Parameters().addOptions(options));
+                new Parameters().addOptions(po.realmap())); // FIXME ticket:67
 
         List<Image> l = iQuery.execute(q);
         return new HashSet<Image>(l);
@@ -391,12 +392,12 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     /**
      * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#getCollectionCount(String, String, Set, Map)
+     * @see IContainer#getCollectionCount(String, String, Set, Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Map getCollectionCount(String type, String property, Set ids,
-            Map options) {
+            Parameters options) {
 
         String parsedProperty = LsidUtils.parseField(property);
 
@@ -422,11 +423,11 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     /**
      * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#retrieveCollection(IObject, String, Map)
+     * @see IContainer#retrieveCollection(IObject, String, Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
-    public Collection retrieveCollection(IObject arg0, String arg1, Map arg2) {
+    public Collection retrieveCollection(IObject arg0, String arg1, Parameters arg2) {
         IObject context = iQuery.get(arg0.getClass(), arg0.getId());
         Collection c = (Collection) context.retrieve(arg1); // FIXME not
         // type.o.null safe
@@ -439,41 +440,41 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     /**
      * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#createDataObject(IObject, Map)
+     * @see IContainer#createDataObject(IObject, Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public IObject createDataObject(IObject arg0, Map arg1) {
+    public IObject createDataObject(IObject arg0, Parameters arg1) {
         return iUpdate.saveAndReturnObject(arg0);
     }
 
     /**
      * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#createDataObject(IObject[], Map)
+     * @see IContainer#createDataObject(IObject[], Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public IObject[] createDataObjects(IObject[] arg0, Map arg1) {
+    public IObject[] createDataObjects(IObject[] arg0, Parameters arg1) {
         return iUpdate.saveAndReturnArray(arg0);
     }
 
     /**
      * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#unlink(ILink[], Map)
+     * @see IContainer#unlink(ILink[], Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public void unlink(ILink[] arg0, Map arg1) {
+    public void unlink(ILink[] arg0, Parameters arg1) {
         deleteDataObjects(arg0, arg1);
     }
 
     /**
      * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#link(ILink[], Map)
+     * @see IContainer#link(ILink[], Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public ILink[] link(ILink[] arg0, Map arg1) {
+    public ILink[] link(ILink[] arg0, Parameters arg1) {
         IObject[] retVal = iUpdate.saveAndReturnArray(arg0);
         // IUpdate returns an IObject array here. Can't be cast using (Link[])
         ILink[] links = new ILink[retVal.length];
@@ -484,41 +485,41 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     /**
      * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#updateDataObject(IObject, Map)
+     * @see IContainer#updateDataObject(IObject, Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public IObject updateDataObject(IObject arg0, Map arg1) {
+    public IObject updateDataObject(IObject arg0, Parameters arg1) {
         return iUpdate.saveAndReturnObject(arg0);
     }
 
     /**
      * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#updateDataObject(IObject[], Map)
+     * @see IContainer#updateDataObject(IObject[], Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public IObject[] updateDataObjects(IObject[] arg0, Map arg1) {
+    public IObject[] updateDataObjects(IObject[] arg0, Parameters arg1) {
         return iUpdate.saveAndReturnArray(arg0);
     }
 
     /**
      * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#deleteDataObject(IObject, Map)
+     * @see IContainer#deleteDataObject(IObject, Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public void deleteDataObject(IObject row, Map arg1) {
+    public void deleteDataObject(IObject row, Parameters arg1) {
         iUpdate.deleteObject(row);
     }
 
     /**
      * Implemented as speficied by the {@link IContainer} I/F
-     * @see IContainer#deleteDataObjects(IObject[], Map)
+     * @see IContainer#deleteDataObjects(IObject[], Parameters)
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public void deleteDataObjects(IObject[] rows, Map options) {
+    public void deleteDataObjects(IObject[] rows, Parameters options) {
         for (IObject object : rows) {
             deleteDataObject(object, options);
         }

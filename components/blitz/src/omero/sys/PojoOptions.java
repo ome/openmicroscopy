@@ -445,8 +445,8 @@ public class PojoOptions extends Parameters {
      * 
      * @return See above.
      */
-    public Map<String, RType> map() {
-        return this.map;
+    public Parameters map() {
+        return this;
     }
 
 }
