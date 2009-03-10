@@ -327,6 +327,13 @@ class OmeroDataServiceImpl
 		return result;
 	}
 	
+	/**
+	 * Removed the annotations links.
+	 * @param object
+	 * @return
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	private List<DeletableObject> deleteTagLinks(IObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -345,6 +352,10 @@ class OmeroDataServiceImpl
 		l = gateway.findAnnotationLinks(ProjectData.class.getName(), -1, 
 				ids);
 		if (l != null && l.size() > 0) links.addAll(l);
+		l = gateway.findAnnotationLinks(TagAnnotationData.class.getName(), -1, 
+				ids);
+		if (l != null && l.size() > 0) links.addAll(l);
+		
 		if (links.size() > 0)
 			gateway.deleteObjects(links);
 		context.getMetadataService().clearAnnotation(TagAnnotationData.class, 

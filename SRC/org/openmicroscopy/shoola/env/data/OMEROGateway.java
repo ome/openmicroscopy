@@ -424,6 +424,8 @@ class OMEROGateway
 			table = "ScreenAnnotationLink";
 		else if (klass.equals(PlateData.class.getName())) 
 			table = "PlateAnnotationLink";
+		else if (klass.equals(TagAnnotationData.class.getName()))
+			table = "AnnotationAnnotationLink";
 		return table;
 	}
 	

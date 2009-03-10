@@ -1974,6 +1974,8 @@ class TreeViewerComponent
 	{
 		Browser browser = model.getSelectedBrowser();
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+		bus.post(new ShowEditorEvent());
+		/*
 		if (browser == null) {
 			bus.post(new ShowEditorEvent());
 	        return;
@@ -1995,6 +1997,7 @@ class TreeViewerComponent
 		} else {
 			bus.post(new ShowEditorEvent());
 		}
+		*/
 	}
 
 	/**
