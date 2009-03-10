@@ -40,7 +40,8 @@
         $(document).ready(function() 
             { 
                 $("#dataTable").tablesorter( {sortList: [[1,1]]} ); 
-            
+                
+                {% if manager.c_mg_size and manager.c_size %}
                 $('table#dataTable tbody tr').quicksearch({
                     attached: "div#view",
                     position: "before",
@@ -49,6 +50,7 @@
                     inputText: '...',
                     loaderImg: '{% get_webclient_static_url %}/images/tree/spinner.gif',
                 });
+                {% endif %}
                 
                 $("a.loadData").click(function()
                 {
@@ -198,7 +200,7 @@
 <div class="clear"> </div>
 
 {% if not manager.c_mg_size and not manager.c_size %}
-    <h1>{% trans "No data." %}</h1>
+    {% trans "No data." %}
 {% else %}
     
     {% if manager.c_size %}

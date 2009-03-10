@@ -101,8 +101,7 @@ div#view, div#view2  {
     float:right;
     text-align: right;
     background-color: #fff;
-    padding: 5px 3px;
-    margin-top: 5px;
+    padding: 10px 0;
 }
 .toolbar-tree-details {
     top: 0;

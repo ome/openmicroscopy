@@ -79,11 +79,22 @@
 <div class="clear"></div>
 <div class="separate70"></div>
 
+<h1>
+    {% if share.oshSize %}
+        {% trans "Owned by me" %} ({{ share.oshSize }} {% trans "items" %})
+    {% else %}
+        {% trans "Owned by me" %} ({% trans "no items" %})
+    {% endif %} 
+    {% trans "and" %} 
+    {% if share.mshSize %}
+        {% trans "shared with me" %} ({{ share.mshSize }} {% trans "items" %})
+    {% else %}
+        {% trans "shared with me" %} ({% trans "no items" %})
+    {% endif %}:
+</h1>
 <div id="view"> | {% trans "View" %} <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> | {% trans "New" %} <a href="{% get_webclient_root_url %}/basket/toshare/"><span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% get_webclient_static_url %}/images/folder_html16.png" alt="share" /></span></a> 
 <a href="{% get_webclient_root_url %}/basket/todiscuss/"><span id="discussion" title="Create discussion - <small>Starts the thread of the new discussion with no images currently stored in the basket.</small>"><img src="{% get_webclient_static_url %}/images/wp_protocol16.png" alt="discussion" /></span></a> |
 </div>
-
-{% if share.oshSize or share.mshSize %}
 
 <div class="slider">
     <div class="slider_products"> 
@@ -98,10 +109,9 @@
 </div>
 <div class="clear"> </div>
 
+{% if share.oshSize or share.mshSize %}
 <ul id="products">
     {% if share.oshSize %}
-    <li class="header_name"><h1>{% trans "Owned by me" %} ({{ share.oshSize }} {% trans "items" %}):</h1></li>
-    <li class="clear"></li>
         {% for c in share.ownShares %}
         <li class="product"><em>{{ c.shortMessage }}</em>
             <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">
@@ -122,11 +132,11 @@
             <div class="center">{% if c.annotation_counter %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% get_webclient_static_url %}/images/kuser12.png" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}<br/>{{ c.tinyMessage }}</div>
         </li>
         {% endfor %}
+    {% else %}
+        <li>{% trans "No data." %}</li>
+    {% endif %}
     <li class="clear"></li>
-    {% endif %}    
     {% if share.mshSize %}
-    <li class="header_name"><h1>{% trans "Shared with me" %} ({{ share.mshSize }} {% trans "items" %}):</h1></li>
-    <li class="clear"></li>
         {% for c in share.memberShares %}
         <li class="product"><em>{{ c.shortMessage }}</em>
             {% ifequal c.getShareType "Discuss" %}
@@ -145,11 +155,10 @@
             <div class="center">{% if c.annotation_counter %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% get_webclient_static_url %}/images/kuser12.png" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}<br/>{{ c.tinyMessage }}</div>
         </li>
         {% endfor %}
-    <li class="clear"></li>
     {% endif %}
 </ul>
 {% else %}
-    {% trans "No shares yet." %}
+    {% trans "No data." %}
 {% endif %}
 <div class="clear"> </div>
 

@@ -146,7 +146,7 @@
 <div class="clear"> </div>
 
 {% if not manager.c_mg_size and not manager.c_size %}
-    <h1>{% trans "No data." %}</h1>
+    {% trans "No data." %}
 {% else %}
     
     {% if manager.c_size %}

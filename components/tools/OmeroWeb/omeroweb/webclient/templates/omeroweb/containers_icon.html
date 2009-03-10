@@ -40,6 +40,7 @@
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
     <script>
         $(document).ready(function(){
+            {% if manager.c_mg_size and manager.c_size %}
             $('ul#products li.product').quicksearch({
                 attached: "div#view",
                 position: "before",
@@ -48,6 +49,7 @@
                 inputText: '...',
                 loaderImg: '/webclient/static/images/tree/spinner.gif',
             });
+            {% endif %}
             
             $("a.loadData").click(function()
             {
@@ -205,7 +207,7 @@
 <div class="clear"> </div>
 
 {% if not manager.c_mg_size and not manager.c_size %}
-    <h1>{% trans "No data." %}</h1>
+    {% trans "No data." %}
 {% else %}
     {% if manager.c_size %}
     <ul id="products">

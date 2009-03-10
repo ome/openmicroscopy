@@ -39,9 +39,9 @@ class BaseShare(BaseController):
     shares = None
     shSize = None
     ownShares = None
-    oshSize = None
+    oshSize = 0
     memberShares = None
-    mshSize = None
+    mshSize = 0
     
     share = None
     imageInShare = None

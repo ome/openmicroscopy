@@ -694,7 +694,7 @@ class BlitzGateway (threading.Thread):
         p.map = {} 
         p.map[omero.constants.POJOEXPERIMENTER] = rlong(self.getEventContext().userId)
         p.map[omero.constants.POJOORPHAN] = rbool(True)
-        for e in q.loadContainerHierarchy('Project', None,  p.map):
+        for e in q.loadContainerHierarchy('Project', None,  p):
             if isinstance(e, ProjectI):
                 yield ProjectWrapper(self, e)
             if isinstance(e, DatasetI):
@@ -707,7 +707,7 @@ class BlitzGateway (threading.Thread):
         if eid == None: p.map[omero.constants.POJOEXPERIMENTER] = rlong(self.getEventContext().userId)
         else: p.map[omero.constants.POJOEXPERIMENTER] = rlong(long(eid))
         p.map[omero.constants.POJOORPHAN] = rbool(True)
-        for e in q.loadContainerHierarchy('Project', None,  p.map):
+        for e in q.loadContainerHierarchy('Project', None,  p):
             if isinstance(e, ProjectI):
                 yield ProjectWrapper(self, e)
             if isinstance(e, DatasetI):
@@ -720,7 +720,7 @@ class BlitzGateway (threading.Thread):
         if gid == None: p.map[omero.constants.POJOGROUP] = rlong(self.getEventContext().groupId)
         else: p.map[omero.constants.POJOGROUP] = rlong(long(gid))
         p.map[omero.constants.POJOORPHAN] = rbool(True)
-        for e in q.loadContainerHierarchy('Project', None,  p.map):
+        for e in q.loadContainerHierarchy('Project', None,  p):
             if isinstance(e, ProjectI):
                 yield ProjectWrapper(self, e)
             if isinstance(e, DatasetI):
