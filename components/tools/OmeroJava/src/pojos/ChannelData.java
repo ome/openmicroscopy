@@ -30,7 +30,6 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
-import omero.RDouble;
 import omero.RInt;
 import omero.RString;
 import omero.model.AcquisitionMode;
