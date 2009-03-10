@@ -126,8 +126,11 @@ class UserProfile
     /** Modifies the existing password. */
     private void changePassword()
     {
+    	UserNotifier un;
     	StringBuffer buf = new StringBuffer();
         buf.append(passwordNew.getPassword());
+        String newPass = buf.toString();
+        
         String pass = buf.toString();
         buf = new StringBuffer();
         buf.append(passwordConfirm.getPassword());
@@ -136,20 +139,32 @@ class UserProfile
         buf = new StringBuffer();
         buf.append(oldPassword.getPassword());
         String old = buf.toString();
-        UserNotifier un;
         if (old == null || old.trim().length() == 0) {
         	un = MetadataViewerAgent.getRegistry().getUserNotifier();
         	un.notifyInfo(PASSWORD_CHANGE_TITLE, 
         				"Please specify your old password.");
+        	oldPassword.requestFocus();
         	return;
         }
-        if (pass == null || confirm == null || !pass.equals(confirm)) {
+        if (newPass == null || newPass.length() == 0) {
+        	un = MetadataViewerAgent.getRegistry().getUserNotifier();
+        	un.notifyInfo(PASSWORD_CHANGE_TITLE, 
+        			"Please enter your new password.");
+        	passwordNew.requestFocus();
+        	return;
+        }
+        
+        
+        
+        if (pass == null || confirm == null || confirm.length() == 0 ||
+        	!pass.equals(confirm)) {
         	un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE, 
             			"The passwords entered do not match. " +
             			"Please try again.");
             passwordNew.setText("");
             passwordConfirm.setText("");
+            passwordNew.requestFocus();
             return;
         }
         model.changePassword(old, confirm);
