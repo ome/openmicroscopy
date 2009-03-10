@@ -1634,7 +1634,29 @@ class BlitzGateway (threading.Thread):
             sh.addUsers(long(share_id), add_members)
         if len(rm_members) > 0:
             sh.removeUsers(long(share_id), rm_members)
-    
+        
+        #send email if avtive
+        if enable:
+            sender = None
+            try:
+                if settings.EMAIL_NOTIFICATION:
+                    import omeroweb.extlib.notification.handlesender as sender
+            except:
+                logger.error(traceback.format_exc())
+            else:
+                recipients = list()
+                if add_members is not None:
+                    for m in add_members:
+                        try:
+                            recipients.append(m.email.val)
+                        except:
+                            logger.error(traceback.format_exc())
+                if sender is not None:
+                    try:
+                        sender.handler().create_share_message(host, blitz_id, self.getUser(), sid, recipients)
+                    except:
+                        logger.error(traceback.format_exc())
+        
     def setFile(self, buf):
         f = self.createRawFileStore()
         f.write(buf)
