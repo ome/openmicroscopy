@@ -83,12 +83,8 @@ public class DMLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                try {
-                	results = os.loadContainerHierarchy(rootNodeType, 
-                					rootNodeIDs, withLeaves, userID);
-				} catch (Exception e) {
-				}
-                
+                results = os.loadContainerHierarchy(rootNodeType, 
+    					rootNodeIDs, withLeaves, userID);
             }
         };
     }

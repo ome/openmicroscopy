@@ -56,7 +56,6 @@ import omero.model.TimestampAnnotation;
 import omero.model.UriAnnotation;
 import omero.model.Well;
 import omero.model.WellSample;
-import pojos.ArchivedAnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -146,15 +145,7 @@ public class PojoMapper
         } else if (object instanceof FileAnnotation) 
         	return new FileAnnotationData((FileAnnotation) object);
         else if (object instanceof BooleanAnnotation) {
-        	BooleanAnnotation ann = (BooleanAnnotation) object;
-        	RString ns = ann.getNs();
-        	if (ns != null) {
-        		if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(
-            			ns.getValue()))
-            		return new ArchivedAnnotationData(ann);
-        		return new BooleanAnnotationData(ann);
-        	}
-        	return new BooleanAnnotationData(ann);
+        	return new BooleanAnnotationData((BooleanAnnotation) object);
         }  else if (object instanceof TimestampAnnotation) 
         	return new TimeAnnotationData((TimestampAnnotation) object);
         else if (object instanceof Pixels) 
@@ -185,14 +176,13 @@ public class PojoMapper
      */
     public static Set asDataObjects(Collection objects)
     {
-        if (objects == null) 
-            throw new IllegalArgumentException("The set cannot be null.");
-        HashSet<DataObject> set = new HashSet<DataObject>(objects.size());
+    	if (objects == null) return new HashSet<DataObject>();
+        Set<DataObject> set = new HashSet<DataObject>(objects.size());
         Iterator i = objects.iterator();
         DataObject data;
         while (i.hasNext()) {
         	data = asDataObject((IObject) i.next());
-        	if (data != null)  set.add(data);
+        	if (data != null) set.add(data);
         }
         return set;
     }
@@ -208,14 +198,13 @@ public class PojoMapper
      */
     public static Set asDataObjects(List objects)
     {
-        if (objects == null) 
-            throw new IllegalArgumentException("The set cannot be null.");
+        if (objects == null) return new HashSet<DataObject>();
         Set<DataObject> set = new HashSet<DataObject>(objects.size());
         Iterator i = objects.iterator();
         DataObject data;
         while (i.hasNext()) {
         	data = asDataObject((IObject) i.next());
-            set.add(data);
+        	if (data != null) set.add(data);
         }
         return set;
     }
@@ -231,9 +220,8 @@ public class PojoMapper
      */
     public static Set asDataObjects(IObject[] objects)
     {
-    	if (objects == null) 
-            throw new IllegalArgumentException("The array cannot be null.");
     	Set<DataObject> set = new HashSet<DataObject>();
+    	if (objects == null) return set;
     	DataObject data;
         for (int i = 0; i < objects.length; i++) {
         	data = asDataObject(objects[i]);

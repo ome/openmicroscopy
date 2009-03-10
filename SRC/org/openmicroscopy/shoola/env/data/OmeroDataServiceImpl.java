@@ -627,11 +627,6 @@ class OmeroDataServiceImpl
 			boolean withLeaves, long userID)
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		/*
-		if (ScreenData.class.equals(rootNodeType)) {
-			return loadScreenPlates(rootNodeType, rootNodeIDs, userID);
-		}
-		*/
 		PojoOptions po = new PojoOptions();
 		if (rootNodeIDs == null) po.exp(omero.rtypes.rlong(userID));
 		if (withLeaves) po.leaves();
@@ -654,7 +649,6 @@ class OmeroDataServiceImpl
 	{
 		PojoOptions po = new PojoOptions();
 		po.exp(omero.rtypes.rlong(userID));
-		//po.noLeaves();
 		return gateway.loadContainerHierarchy(rootNodeType, null, po.map());                         
 	}
 
@@ -666,15 +660,11 @@ class OmeroDataServiceImpl
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		try {
-			PojoOptions po = new PojoOptions();
-			po.leaves();
-			po.exp(omero.rtypes.rlong(userID));
-			return gateway.findContainerHierarchy(rootNodeType, leavesIDs,
-					po.map());
-		} catch (Exception e) {
-			throw new DSAccessException(e.getMessage());
-		}
+		PojoOptions po = new PojoOptions();
+		po.leaves();
+		po.exp(omero.rtypes.rlong(userID));
+		return gateway.findContainerHierarchy(rootNodeType, leavesIDs,
+				po.map());
 	}
 	
 	/** 

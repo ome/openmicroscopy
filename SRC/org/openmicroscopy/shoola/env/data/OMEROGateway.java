@@ -60,7 +60,6 @@ import omero.AuthenticationException;
 import omero.ExpiredCredentialException;
 import omero.InternalException;
 import omero.RLong;
-import omero.RString;
 import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -128,7 +127,6 @@ import omero.model.WellSample;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.sys.PojoOptions;
-import pojos.ArchivedAnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DataObject;
@@ -350,6 +348,89 @@ class OMEROGateway
 		return sw.toString();
 	}
 
+	/**
+	 * Handles the result of the search.
+	 * 
+	 * @param type 	The supported type.
+	 * @param r		The collection to fill.
+	 * @param svc	Helper reference to the service.
+	 * @return See above.
+	 * @throws ServerError If an error occurs while reading the results.
+	 */
+	private Object handleSearchResult(String type, Collection r, SearchPrx svc)
+		throws ServerError
+	{
+		//First get object of a given type.
+		boolean hasNext = false;
+		try {
+			hasNext = svc.hasNext();
+		} catch (Exception e) {
+			int size = 0;
+			if (e instanceof InternalException) size = -1;
+			else svc.getBatchSize();
+			return new Integer(size);
+		}
+		if (!hasNext) return r;
+		List l = svc.results();
+		Iterator k = l.iterator();
+		IObject object;
+		long id;
+		while (k.hasNext()) {
+			object = (IObject) k.next();
+			if (type.equals(object.getClass().getName())) {
+				id = object.getId().getValue();
+				if (!r.contains(id)) 
+					r.add(id); //Retrieve the object of a given type.
+			}
+		}
+		return r;
+	}
+	
+	/**
+	 * Formats the elements of the passed array. Adds the 
+	 * passed field in front of each term.
+	 * 
+	 * @param terms	The terms to format.
+	 * @param field	The string to add in front of the terms.
+	 * @return See above.
+	 */
+	private List<String> formatText(List<String> terms, String field)
+	{
+		if (terms == null || terms.size() == 0) return null;
+		List<String> formatted = new ArrayList<String>(terms.size());
+		Iterator<String> j = terms.iterator();
+		while (j.hasNext()) 
+			formatted.add(field+":"+j.next());
+		
+		return formatted;
+	}
+	
+	/**
+	 * Formats the elements of the passed array. Adds the 
+	 * passed field in front of each term.
+	 * @param terms			The terms to format.
+	 * @param firstField	The string to add in front of the terms.
+	 * @param sep			Separator used to join, exclude etc.
+	 * @param secondField	The string to add in front of the terms.
+	 * @return See above.
+	 */
+	private List<String> formatText(List<String> terms, String firstField, 
+								String sep, String secondField)
+	{
+		if (terms == null || terms.size() == 0) return null;
+		List<String> formatted = new ArrayList<String>(terms.size());
+		String value;
+		Iterator<String> j = terms.iterator();
+		String v;
+		while (j.hasNext()) {
+			v = j.next();
+			value = firstField+":"+v+" "+sep+" ";
+			value += secondField+":"+v;
+			formatted.add(value);
+		}
+		return formatted;
+	}
+	
 	/**
 	 * Determines the table name corresponding to the specified class.
 	 * 
@@ -1081,8 +1162,7 @@ class OMEROGateway
 			return Dataset.class;
 		else if (ImageData.class.equals(nodeType)) 
 			return Image.class;
-		else if (BooleanAnnotationData.class.equals(nodeType) ||
-				ArchivedAnnotationData.class.equals(nodeType))
+		else if (BooleanAnnotationData.class.equals(nodeType))
 			return BooleanAnnotation.class;
 		else if (RatingAnnotationData.class.equals(nodeType) ||
 				LongAnnotationData.class.equals(nodeType)) 
@@ -1346,7 +1426,6 @@ class OMEROGateway
 			return PojoMapper.asDataObjects(service.loadContainerHierarchy(
 				convertPojos(rootType).getName(), rootIDs, options));
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot load hierarchy for " + rootType+".");
 		}
 		return new HashSet();
@@ -1501,7 +1580,7 @@ class OMEROGateway
 			handleException(t, "Cannot retrieve the requested link for "+
 					"userID: "+userID);
 		}
-		return null;
+		return new ArrayList();
 	}
 	
 	/**
@@ -1615,7 +1694,6 @@ class OMEROGateway
 			isSessionAlive();
 			return saveAndReturnObject(object, null);
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot update the object.");
 		}
 		return null;
@@ -1641,7 +1719,7 @@ class OMEROGateway
 		} catch (Throwable t) {
 			handleException(t, "Cannot create the objects.");
 		}
-		return null;
+		return new ArrayList<IObject>();
 	}
 
 	/**
@@ -1736,7 +1814,7 @@ class OMEROGateway
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
 		}
-		return null;
+		return new ArrayList<IObject>();
 	}
 	
 	/**
@@ -1786,15 +1864,16 @@ class OMEROGateway
 			if (l == null) return l;
 			Iterator<IObject> i = l.iterator();
 			List<IObject> r = new ArrayList<IObject>(l.size());
-			while (i.hasNext()) 
-				r.add(findIObject(i.next()));
-
+			IObject io;
+			while (i.hasNext()) {
+				io = findIObject(i.next());
+				if (io != null) r.add(io);
+			}
 			return r;
-			//return service.updateDataObjects(objects, options);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
 		}
-		return null;
+		return new ArrayList<IObject>();
 	}
 
 	/**
@@ -2049,7 +2128,7 @@ class OMEROGateway
 			handleException(t, "Cannot retrieve the annotation links for "+
 					"parent ID: "+parentID);
 		}
-		return null;
+		return new ArrayList();
 	}		
 	
 	/**
@@ -2120,7 +2199,7 @@ class OMEROGateway
 			handleException(t, "Cannot retrieve the requested link for "+
 					"parent ID: "+parent.getId());
 		}
-		return null;
+		return new ArrayList();
 	}
 
 	/**
@@ -2156,7 +2235,7 @@ class OMEROGateway
 			handleException(t, "Cannot retrieve the requested link for "+
 			"the specified children");
 		}
-		return null;
+		return new ArrayList();
 	}
 
 	/**
@@ -2197,7 +2276,7 @@ class OMEROGateway
 			handleException(t, "Cannot retrieve the requested link for "+
 					"child ID: "+childID);
 		}
-		return null;
+		return new ArrayList();
 	}
 
 	/**
@@ -2291,50 +2370,7 @@ class OMEROGateway
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the available groups ");
 		}
-		return null;
-	}
-
-	/**
-	 * Returns <code>true</code> if the imported set of pixels has 
-	 * been archived, <code>false</code> otherwise.
-	 * 
-	 * @param pixelsID The id of the pixels set.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	boolean hasArchivedFiles(long pixelsID)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		List<Long> ids = new ArrayList<Long>();
-		ids.add(pixelsID);
-		isSessionAlive();
-		try {
-			IMetadataPrx service = getMetadataService();
-			Map m = service.loadAnnotations(Pixels.class.getName(), ids, null, 
-									null, (new PojoOptions().map()));
-			Collection c = (Collection) m.get(pixelsID);
-			if (c == null || c.size() == 0) return false;
-			Iterator i = c.iterator();
-			Annotation data;
-			while (i.hasNext()) {
-				data = (Annotation) i.next();
-				if (data instanceof BooleanAnnotation) {
-					BooleanAnnotation ann = (BooleanAnnotation) data;
-					RString nameSpace = ann.getNs();
-					String ns = null;
-					if (nameSpace != null) ns = nameSpace.getValue();
-					if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(ns))
-						return ann.getBoolValue().getValue();
-				}
-			}
-		} catch (Exception e) {
-			handleException(e, "Cannot retrieve the annotations related " +
-								"to "+pixelsID);
-		}
-		
-		return false;
+		return new HashMap<GroupData, Set>();
 	}
 	
 	/**
@@ -2750,7 +2786,7 @@ class OMEROGateway
 			handleException(e, "Cannot retrieve the images imported during " +
 			"the selected period.");
 		}
-		return null;
+		return new ArrayList();
 	}
 
 	/**
@@ -2780,7 +2816,7 @@ class OMEROGateway
 			handleException(e, "Cannot retrieve the images imported " +
 							"the specified period.");
 		}
-		return null;
+		return new HashSet();
 	}
 
 	/**
@@ -2997,8 +3033,10 @@ class OMEROGateway
 	 * @param toExclude The collection of name space to exclude.
 	 * @param options The options.
 	 * @return See above.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 *@throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	Set loadSpecificAnnotation(Class type, List<String> toInclude, 
 			List<String> toExclude, Parameters options)
@@ -3014,7 +3052,7 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the annotations");
 		}
-		return null;
+		return new HashSet();
 	}
 	
 	/**
@@ -3025,12 +3063,14 @@ class OMEROGateway
 	 * @param toExclude The collection of name space to exclude.
 	 * @param options The options.
 	 * @return See above.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	long countSpecificAnnotation(Class type, List<String> toInclude, 
 			List<String> toExclude, Parameters options)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
@@ -3044,89 +3084,6 @@ class OMEROGateway
 			handleException(e, "Cannot retrieve the annotations");
 		}
 		return -1;
-	}
-	
-	/**
-	 * Handles the result of the search.
-	 * 
-	 * @param type 	The supported type.
-	 * @param r		The collection to fill.
-	 * @param svc	Helper reference to the service.
-	 * @return See above.
-	 * @throws ServerError If an error occurs while reading the results.
-	 */
-	private Object handleSearchResult(String type, Collection r, SearchPrx svc)
-		throws ServerError
-	{
-		//First get object of a given type.
-		boolean hasNext = false;
-		try {
-			hasNext = svc.hasNext();
-		} catch (Exception e) {
-			int size = 0;
-			if (e instanceof InternalException) size = -1;
-			else svc.getBatchSize();
-			return new Integer(size);
-		}
-		if (!hasNext) return r;
-		List l = svc.results();
-		Iterator k = l.iterator();
-		IObject object;
-		long id;
-		while (k.hasNext()) {
-			object = (IObject) k.next();
-			if (type.equals(object.getClass().getName())) {
-				id = object.getId().getValue();
-				if (!r.contains(id)) 
-					r.add(id); //Retrieve the object of a given type.
-			}
-		}
-		return r;
-	}
-	
-	/**
-	 * Formats the elements of the passed array. Adds the 
-	 * passed field in front of each term.
-	 * 
-	 * @param terms	The terms to format.
-	 * @param field	The string to add in front of the terms.
-	 * @return See above.
-	 */
-	private List<String> formatText(List<String> terms, String field)
-	{
-		if (terms == null || terms.size() == 0) return null;
-		List<String> formatted = new ArrayList<String>(terms.size());
-		Iterator<String> j = terms.iterator();
-		while (j.hasNext()) 
-			formatted.add(field+":"+j.next());
-		
-		return formatted;
-	}
-	
-	/**
-	 * Formats the elements of the passed array. Adds the 
-	 * passed field in front of each term.
-	 * @param terms			The terms to format.
-	 * @param firstField	The string to add in front of the terms.
-	 * @param sep			Separator used to join, exclude etc.
-	 * @param secondField	The string to add in front of the terms.
-	 * @return See above.
-	 */
-	private List<String> formatText(List<String> terms, String firstField, 
-								String sep, String secondField)
-	{
-		if (terms == null || terms.size() == 0) return null;
-		List<String> formatted = new ArrayList<String>(terms.size());
-		String value;
-		Iterator<String> j = terms.iterator();
-		String v;
-		while (j.hasNext()) {
-			v = j.next();
-			value = firstField+":"+v+" "+sep+" ";
-			value += secondField+":"+v;
-			formatted.add(value);
-		}
-		return formatted;
 	}
 	
 	/**
@@ -3353,7 +3310,7 @@ class OMEROGateway
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the containers.");
 		}
-		return null;
+		return new HashSet();
 	}
 	
 	/**
@@ -3361,9 +3318,11 @@ class OMEROGateway
 	 * @param type
 	 * @param annotationIds
 	 * @param ownerIds
-	 * @return
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	Set getAnnotatedObjects(Class type, Set<Long> annotationIds, 
 			Set<Long> ownerIds)
@@ -3390,22 +3349,21 @@ class OMEROGateway
 	            }
 	            return PojoMapper.asDataObjects(
 	         			service.findAllByQuery(sb.toString(), param));
-			}
-			return new HashSet();
-			
+			}	
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the annotated objects");
 		}
-		return null;
+		return new HashSet();
 	}
 	
 	/**
 	 * Returns the number of images related to a given tag.
 	 * 
 	 * @param rootNodeIDs
-	 * @return See above.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	Map getDataObjectsTaggedCount(List rootNodeIDs)
 		throws DSOutOfServiceException, DSAccessException
@@ -4033,24 +3991,22 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		List<EnumerationObject> l = getEnumerations(
-				OmeroMetadataService.IMMERSION);
-		l = getEnumerations(OmeroMetadataService.CORRECTION);
-		l = getEnumerations(OmeroMetadataService.MEDIUM);
-		l = getEnumerations(OmeroMetadataService.DETECTOR_TYPE);
-		l = getEnumerations(OmeroMetadataService.BINNING);
-		l = getEnumerations(OmeroMetadataService.CONTRAST_METHOD);
-		l = getEnumerations(OmeroMetadataService.ILLUMINATION_TYPE);
-		l = getEnumerations(OmeroMetadataService.PHOTOMETRIC_INTERPRETATION);
-		l = getEnumerations(OmeroMetadataService.ACQUISITION_MODE);
-		l = getEnumerations(OmeroMetadataService.LASER_MEDIUM);
-		l = getEnumerations(OmeroMetadataService.LASER_TYPE);
-		l = getEnumerations(OmeroMetadataService.LASER_PULSE);
-		l = getEnumerations(OmeroMetadataService.ARC_TYPE);
-		l = getEnumerations(OmeroMetadataService.FILAMENT_TYPE);
+		getEnumerations(OmeroMetadataService.IMMERSION);
+		getEnumerations(OmeroMetadataService.CORRECTION);
+		getEnumerations(OmeroMetadataService.MEDIUM);
+		getEnumerations(OmeroMetadataService.DETECTOR_TYPE);
+		getEnumerations(OmeroMetadataService.BINNING);
+		getEnumerations(OmeroMetadataService.CONTRAST_METHOD);
+		getEnumerations(OmeroMetadataService.ILLUMINATION_TYPE);
+		getEnumerations(OmeroMetadataService.PHOTOMETRIC_INTERPRETATION);
+		getEnumerations(OmeroMetadataService.ACQUISITION_MODE);
+		getEnumerations(OmeroMetadataService.LASER_MEDIUM);
+		getEnumerations(OmeroMetadataService.LASER_TYPE);
+		getEnumerations(OmeroMetadataService.LASER_PULSE);
+		getEnumerations(OmeroMetadataService.ARC_TYPE);
+		getEnumerations(OmeroMetadataService.FILAMENT_TYPE);
 	}
-	
-	
+
 	/**
 	 * Deletes the passed object using the {@link IDelete} service.
 	 * Returns an emtpy list of nothing prevent the delete to happen,
