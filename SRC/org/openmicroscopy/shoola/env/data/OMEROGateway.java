@@ -1705,12 +1705,9 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IUpdatePrx service = getUpdateService();
-			IObject r;
-			if (options == null) r = service.saveAndReturnObject(object);
-			else r = service.saveAndReturnObject(object, options);
-			return r;
+			if (options == null) return service.saveAndReturnObject(object);
+			return service.saveAndReturnObject(object, options);
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot update the object.");
 		}
 		return null;

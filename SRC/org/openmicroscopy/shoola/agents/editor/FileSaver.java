@@ -96,7 +96,6 @@ public class FileSaver
 			throw new IllegalArgumentException("No file to save.");
 		if (data == null) 
 			throw new IllegalArgumentException("No file Annotation.");
-			data = new FileAnnotationData(file);
 		this.file = file;
 		this.fileAnnotationData = data;
 		switch (index) {
