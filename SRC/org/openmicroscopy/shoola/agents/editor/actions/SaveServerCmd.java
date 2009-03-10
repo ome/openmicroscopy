@@ -23,11 +23,8 @@
 package org.openmicroscopy.shoola.agents.editor.actions;
 
 //Java imports
-
 import java.io.File;
-
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 //Third-party libraries
 
@@ -55,9 +52,15 @@ public class SaveServerCmd
 	/** Reference to the model */
 	private Editor 					model;
 	
-	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 */
 	SaveServerCmd(Editor model) 
 	{
+		if (model == null)
+			throw new IllegalArgumentException("No model.");
 		this.model = model;
 	}
 
@@ -65,7 +68,8 @@ public class SaveServerCmd
 	 * Implemented as specified by the {@link ActionCmd} interface. 
 	 * Saves file to the OMERO.server
 	 */
-	public void execute() {
+	public void execute()
+	{
 		
 		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
 		InputDialog dialog = new InputDialog(f, 
@@ -80,7 +84,7 @@ public class SaveServerCmd
 				execute();
 			} else {
 				EditorFileFilter editor = new EditorFileFilter();
-				if (! editor.accept(new File(fileName))) {
+				if (!editor.accept(new File(fileName))) {
 					fileName = fileName + "." + editor.getExtension();
 				}
 				model.saveFileServer(fileName);
@@ -88,6 +92,4 @@ public class SaveServerCmd
 		}
 	}
 
-
-	
 }

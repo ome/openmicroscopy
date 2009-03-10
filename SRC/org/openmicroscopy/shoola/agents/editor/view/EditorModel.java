@@ -392,7 +392,7 @@ class EditorModel
 		currentLoader = new FileSaver(component, file, data, fileType);
 		
 		String description = CPEsummaryExport.export(browser.getTreeModel());
-		((FileSaver)currentLoader).setDescription(description);
+		((FileSaver) currentLoader).setDescription(description);
 		
 		currentLoader.load();
 		state = Editor.SAVING;

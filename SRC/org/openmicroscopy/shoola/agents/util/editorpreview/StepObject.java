@@ -72,8 +72,8 @@ class StepObject
 	/**
 	 * Adds a parameter to the step. 
 	 * 
-	 * @param name		parameter name
-	 * @param value		parameter value
+	 * @param name	The parameter name
+	 * @param value	The parameter value
 	 */
 	void addParam(String name, String value) 
 	{
@@ -99,11 +99,10 @@ class StepObject
 	 * 
 	 * @return See above.
 	 */
-	List<Param>getParams() { return params; }
+	List<Param> getParams() { return params; }
 	
 	/**
 	 * A simple name-value class to represent the parameter in the list. 
-	 * @author will
 	 */
 	class Param {
 		

@@ -22,26 +22,24 @@
  */
 package org.openmicroscopy.shoola.agents.editor.preview;
 
+
+//Java imports
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.JPanel;
 
-import org.jdesktop.swingx.JXTaskPane;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
-import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-//Java imports
-
 //Third-party libraries
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
+
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * This UI contains a {@link JXTaskPane} showing the metadata preview for an 
@@ -57,10 +55,11 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-public class EditorPreviewUI 
+class EditorPreviewUI 
 	extends ScrollablePanel
 	implements PropertyChangeListener
 {
+	
 	/** Reference to the parent EditorPreview that acts as a controller */
 	private EditorPreview						controller;
 	
@@ -92,15 +91,6 @@ public class EditorPreviewUI
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 	}
 	
-	/**
-	 * Refreshes the title of the {@link #imagePane} from the model. 
-	 * Should be called when the model changes. 
-	 */
-	void setTitle(String title)
-	{
-		imagePane.setTitle(title);
-	}
-	
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
@@ -123,18 +113,29 @@ public class EditorPreviewUI
 	 * 
 	 * @param controller	Reference to the Control. 
 	 * 						Mustn't be <code>null</code>.
+	 * @param previewPanel	Reference to the preview.
 	 */
 	EditorPreviewUI(EditorPreview controller, JPanel previewPanel)
 	{	
-		this.previewPanel = previewPanel;
-		
 		if (controller == null)
 			throw new IllegalArgumentException("No control.");
 		this.controller = controller;
+		this.previewPanel = previewPanel;
 		initComponents();
 		buildGUI();
 	}
 	
+	
+	/**
+	 * Refreshes the title of the {@link #imagePane} from the model. 
+	 * Should be called when the model changes. 
+	 * 
+	 * @param title The value to set.
+	 */
+	void setTitle(String title)
+	{
+		imagePane.setTitle(title);
+	}
 	
 	/**
 	 * Loads the acquisition metadata.
@@ -147,6 +148,6 @@ public class EditorPreviewUI
 		
 		// load data, if not already loaded. 
 		controller.loadPreviewData();
-		
 	}
+	
 }

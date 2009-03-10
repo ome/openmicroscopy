@@ -23,13 +23,11 @@
 package org.openmicroscopy.shoola.agents.util.editorpreview;
 
 //Java imports
-
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 //Third-party libraries
-
 import net.n3.nanoxml.IXMLElement;
 import net.n3.nanoxml.IXMLParser;
 import net.n3.nanoxml.IXMLReader;
@@ -106,7 +104,8 @@ class PreviewModel
 			so = new StepObject(name, level); // make a step object
 			
 			// parameters within each step 
-			List<IXMLElement> params = step.getChildrenNamed(PreviewPanel.PARAMETER);
+			List<IXMLElement> params = step.getChildrenNamed(
+					PreviewPanel.PARAMETER);
 			String key, value;
 			for (IXMLElement element : params) {
 				key = getChildContent(element, PreviewPanel.NAME);

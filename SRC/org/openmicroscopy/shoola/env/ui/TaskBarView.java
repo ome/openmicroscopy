@@ -200,7 +200,7 @@ class TaskBarView
 		String aboutName = "About "+manager.getSoftwareName()+"...";
 		buttons[UPDATES_MI] = new JMenuItem(aboutName,
 								iconManager.getIcon(IconManager.SW_UPDATES));
-		buttons[ABOUT_MI] = new JMenuItem("About OME",
+		buttons[ABOUT_MI] = new JMenuItem("About OMERO",
 												IconManager.getOMEIcon());
 		buttons[COMMENT_MI] = new JMenuItem("Send Comment",
 								iconManager.getIcon(IconManager.COMMENT));
@@ -316,10 +316,10 @@ class TaskBarView
 	{
 		JMenu help = new JMenu("Help");
 		help.setMnemonic(KeyEvent.VK_H);
-		help.add(buttons[WELCOME_MI]);
+		//help.add(buttons[WELCOME_MI]);
 		help.add(buttons[COMMENT_MI]);
 		help.add(buttons[HELP_MI]);
-		help.add(buttons[HOWTO_MI]);
+		//help.add(buttons[HOWTO_MI]);
 		help.add(buttons[UPDATES_MI]);
 		//help.add(new JSeparator());
 		//help.add(buttons[ABOUT_MI]);

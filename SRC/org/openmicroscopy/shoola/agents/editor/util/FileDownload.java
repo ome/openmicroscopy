@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.util;
 
 //Java imports
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
@@ -49,20 +48,23 @@ import java.net.URL;
  * </small>
  * @since 3.0-Beta4
  */
-public class FileDownload {
+public class FileDownload 
+{
 
 	/**
 	 * Downloads a file from a specified URL, creating a new file of 
 	 * the specified name. The new file is returned by this method.
 	 * Throws an {@link IOException} if there is a problem downloading file. 
 	 * 
-	 * @param fileUrl
-	 * @param newFileName
-	 * @return
-	 * @throws IOException
+	 * @param fileUrl  The url to the file.
+	 * @param newFileName The name of the file.
+	 * @return See above.
+	 * @throws IOException Thrown if an exception occured while downloading the
+	 * file.
 	 */
-	public static File downloadFile (String fileUrl, String newFileName) 
-	throws IOException, IllegalArgumentException {
+	public static File downloadFile(String fileUrl, String newFileName) 
+		throws IOException
+	{
 		
 		File outputFile = new File(newFileName);
 		
@@ -90,8 +92,7 @@ public class FileDownload {
 		}catch (IllegalArgumentException e) {
 			throw e;
 		}
-		
 		return outputFile;
-		
 	}
+	
 }

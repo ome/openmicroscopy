@@ -29,7 +29,6 @@ package org.openmicroscopy.shoola.agents.editor;
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 

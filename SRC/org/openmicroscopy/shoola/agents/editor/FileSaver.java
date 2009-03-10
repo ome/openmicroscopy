@@ -78,32 +78,6 @@ public class FileSaver
     /** One of the constants defined by this class. */
     private int 				index;
     
-    /**
-     * Creates a new instance.
-     * 
-     * @param viewer		The Editor this data loader is for.
-     *                 	 	Mustn't be <code>null</code>.
-     * @param file			The file to save back to the server.
-     */
-	public FileSaver(Editor viewer, File file)
-	{
-		this(viewer, file, null);
-	}
-	
-	/**
-     * Creates a new instance.
-     * 
-     * @param viewer The Editor this data loader is for.
-     * 				 Mustn't be <code>null</code>.
-     * @param file	 The file to save back to the server.
-     * @param data	 The id of thet file if previously saved, or
-     * 				 <code>-1</code> if not previously saved.
-     */
-	public FileSaver(Editor viewer, File file, FileAnnotationData data)
-	{
-		this(viewer, file, data, OTHER);
-	}
-	
 	/**
      * Creates a new instance.
      * 
@@ -124,8 +98,6 @@ public class FileSaver
 			data = new FileAnnotationData(file);
 		this.file = file;
 		this.fileAnnotationData = data;
-		
-		System.out.println("FileSaver data.getFileSize(): "+ data.getFileSize());
 		switch (index) {
 			case EXPERIMENT:
 			case PROTOCOL:

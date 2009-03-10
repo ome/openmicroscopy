@@ -118,9 +118,9 @@ public class PreviewPanel
 	private long			fileID;
 
 	/**
-	 * Lays out the title and the a button to open the file
+	 * Lays out the title and the a button to open the file.
 	 * 
-	 * @return See 
+	 * @return See above.
 	 */
 	private JPanel layoutTiTle()
 	{
@@ -156,7 +156,7 @@ public class PreviewPanel
     	return content;
 	}
 	
-	/** Initiliases the components. */
+	/** Initialises the components. */
 	private void initComponents()
 	{
 		setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -211,7 +211,7 @@ public class PreviewPanel
 		add(p, BorderLayout.CENTER);
 	}
 	
-	/** Called when the model changes. */
+	/** Inovked when the model changes. */
 	private void rebuildUI() 
 	{	
 		removeAll();

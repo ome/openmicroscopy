@@ -67,7 +67,7 @@ public class MetadataComponent
 		this.label = label;
 		this.area = area;
 		setField = true;
-		label.setLabelFor(area);
+		if (label != null) label.setLabelFor(area);
 	}
 	
 	/**

@@ -125,7 +125,6 @@ import omero.model.UriAnnotation;
 import omero.model.UriAnnotationI;
 import omero.model.Well;
 import omero.model.WellSample;
-import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.sys.PojoOptions;
