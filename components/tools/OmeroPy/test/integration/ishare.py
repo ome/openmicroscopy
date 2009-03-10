@@ -621,5 +621,40 @@ class TestIShare(lib.ITest):
         
         client_share3.sf.closeOnDestroy()
     
+    def test1227(self):
+        share = self.client.sf.getShareService()
+        update = self.client.sf.getUpdateService()
+        admin = self.client.sf.getAdminService()
+
+        test_user = self.new_user()
+        # create share
+        description = "my description"
+        timeout = None
+        objects = []
+        experimenters = [test_user]
+        guests = ["ident@emaildomain.com"]
+        enabled = True
+        self.id = share.createShare(description, timeout, objects,experimenters, guests, enabled)
+        
+        share.addComment(self.id,"comment for share %i" % self.id)
+        self.assertEquals(1,len(share.getComments(self.id)))
+        
+        self.assertEquals(1,share.getCommentCount([self.id])[self.id])
+        
+        # create second share
+        description = "my second description"
+        timeout = None
+        objects = []
+        experimenters = [test_user]
+        guests = ["ident@emaildomain.com"]
+        enabled = True
+        self.id2 = share.createShare(description, timeout, objects,experimenters, guests, enabled)
+        
+        self.assertEquals(0,share.getCommentCount([self.id, self.id2])[self.id2])
+        share.addComment(self.id2,"comment for share %i" % self.id2)
+        self.assertEquals(1,share.getCommentCount([self.id, self.id2])[self.id2])
+        
+        self.client.sf.closeOnDestroy()
+    
 if __name__ == '__main__':
     unittest.main()
