@@ -468,10 +468,11 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
                         throws HibernateException, SQLException {
                         Query q = qb.query(s);
                         List<Object[]> counts = q.list();
-                        if (counts.size() != ids.size()) {
-                            throw new ValidationException(
-                            "Missing or protected shares specified");
-                        }
+                        // ticket:1227 - Returning 0 if missing
+                        // if (counts.size() != ids.size()) {
+                        //    throw new ValidationException(
+                        //    "Missing or protected shares specified");
+                        //}
                         for (Object[] values : counts) {
                             Long shareId = (Long) values[0];
                             Long count = (Long) values[1];
@@ -481,6 +482,12 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
                     }
                 });
             }});
+        for (Long id : ids) {
+            Long value = rv.get(id);
+            if (value == null) {
+                rv.put(id, 0L);
+            }
+        }
         return rv;
     }
 

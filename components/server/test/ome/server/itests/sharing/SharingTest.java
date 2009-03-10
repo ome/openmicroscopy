@@ -151,7 +151,7 @@ public class SharingTest extends AbstractManagedContextTest {
 
     }
 
-    @Test
+    @Test(groups = "ticket:1227")
     public void testCommentCounts() {
 
         Experimenter nonMember = loginNewUser();
@@ -160,6 +160,9 @@ public class SharingTest extends AbstractManagedContextTest {
 
         share = factory.getShareService();
 
+        long id0 = share.createShare("disabled", null, null, null, null, false);
+        // No comments! share.addComment(id1, "hello");
+
         long id1 = share.createShare("disabled", null, null, null, null, false);
         share.addComment(id1, "hello");
 
@@ -167,6 +170,7 @@ public class SharingTest extends AbstractManagedContextTest {
         share.addComment(id2, "hello");
 
         // Add comment as member
+        share.addUser(id0, member);
         share.addUser(id1, member);
         share.addUser(id2, member);
         loginUser(member.getOmeName());
@@ -176,34 +180,35 @@ public class SharingTest extends AbstractManagedContextTest {
         // as root
         loginRoot();
         Map<Long, Long> counts = share.getCommentCount(new HashSet<Long>(Arrays
-                .asList(id1, id2)));
+                .asList(id0, id1, id2)));
+        assertEquals(new Long(0), counts.get(id0));
         assertEquals(new Long(1), counts.get(id1));
         assertEquals(new Long(2), counts.get(id2));
 
         // as owner
         loginUser(owner.getOmeName());
         counts = share.getCommentCount(new HashSet<Long>(Arrays
-                .asList(id1, id2)));
+                .asList(id0, id1, id2)));
+        assertEquals(new Long(0), counts.get(id0));
         assertEquals(new Long(1), counts.get(id1));
         assertEquals(new Long(2), counts.get(id2));
 
         // as member
         loginUser(member.getOmeName());
         counts = share.getCommentCount(new HashSet<Long>(Arrays
-                .asList(id1, id2)));
+                .asList(id0, id1, id2)));
+        assertEquals(new Long(0), counts.get(id0));
         assertEquals(new Long(1), counts.get(id1));
         assertEquals(new Long(2), counts.get(id2));
         
         // as non-member
         loginUser(nonMember.getOmeName());
-        try {
-            share.getCommentCount(new HashSet<Long>(Arrays
-                    .asList(id1, id2)));
-            fail("should throw");
-        } catch (ValidationException ve) {
-            // good
-        }
-
+        // before ticket:1227, this method should have thrown
+        counts = share.getCommentCount(new HashSet<Long>(Arrays
+                .asList(id0, id1, id2)));
+        assertEquals(new Long(0), counts.get(id0));
+        assertEquals(new Long(0), counts.get(id1));
+        assertEquals(new Long(0), counts.get(id2));
     }
 
     @Test
