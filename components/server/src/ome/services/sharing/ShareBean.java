@@ -540,10 +540,10 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
                 CommentAnnotation comment = new CommentAnnotation();
                 comment.setTextValue(commentText);
                 comment.setNs(NS_COMMENT);
-                comment.getDetails().setOwner(owner);
+                //comment.getDetails().setOwner(commentOwner);
                 comment.getDetails().setPermissions(Permissions.DEFAULT);
                 SessionAnnotationLink link = share.linkAnnotation(comment);
-                link.getDetails().setOwner(owner);
+                //link.getDetails().setOwner(commentOwner);
                 link.getDetails().setPermissions(Permissions.DEFAULT);
                 
                 iUpdate.flush();

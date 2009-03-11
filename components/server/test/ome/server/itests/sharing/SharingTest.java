@@ -151,6 +151,34 @@ public class SharingTest extends AbstractManagedContextTest {
 
     }
 
+    @Test
+    public void testOwnerCommentsBelongToOwner() {
+        
+        Experimenter owner = loginNewUser();
+        
+        share = factory.getShareService();
+        long id = share.createShare("disabled", null, null,
+                null, null, false);
+        TextAnnotation annotation = share.addComment(id, "hello");
+        assertEquals(owner.getId(), annotation.getDetails().getOwner().getId());
+    }
+    
+    
+    @Test
+    public void testMemberCommentsBelongToMembers() {
+        
+        Experimenter member = loginNewUser();
+        Experimenter owner = loginNewUser();
+        
+        share = factory.getShareService();
+        long id = share.createShare("disabled", null, null,
+                Arrays.asList(member),
+                null, false);
+        loginUser(member.getOmeName());
+        TextAnnotation annotation = share.addComment(id, "hello");
+        assertEquals(member.getId(), annotation.getDetails().getOwner().getId());
+    }
+    
     @Test(groups = "ticket:1227")
     public void testCommentCounts() {
 
