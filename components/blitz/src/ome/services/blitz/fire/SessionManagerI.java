@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.logic.HardWiredInterceptor;
 import ome.security.SecuritySystem;
@@ -75,6 +76,8 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     protected final Ring ring;
 
+    protected final AtomicBoolean loaded = new AtomicBoolean(false);
+
     /**
      * An internal mapping to all {@link ServiceFactoryI} instances for a given
      * session since there is no method on {@link Ice.ObjectAdapter} to retrieve
@@ -96,12 +99,22 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             throws BeansException {
         this.context = (OmeroContext) applicationContext;
         HardWiredInterceptor.configure(CPTORS, context);
+        loaded.set(true);
     }
 
     public Glacier2.SessionPrx create(String userId,
             Glacier2.SessionControlPrx control, Ice.Current current)
             throws CannotCreateSessionException {
 
+        if (!loaded.get()) {
+            WrappedCreateSessionException wrapped = new WrappedCreateSessionException();
+            wrapped.backOff = 1000L;
+            wrapped.concurrency = true;
+            wrapped.reason = "Server not fully initialized";
+            wrapped.type = "ApiUsageException";
+            throw wrapped;
+        }
+        
         try {
 
             Glacier2.SessionPrx sf = ring.getProxyOrNull(userId, control,
