@@ -43,8 +43,8 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
+import ome.parameters.Parameters;
 import ome.testing.FileUploader;
-import ome.util.builders.PojoOptions;
 
 import org.testng.annotations.Test;
 
@@ -101,7 +101,7 @@ public class MetadataServiceTest
         p = iUpdate.saveAndReturnObject(p);
         
         long self = this.iAdmin.getEventContext().getCurrentUserId();
-        PojoOptions options = new PojoOptions();
+        Parameters options = new Parameters();
         Set<Long> ids = new HashSet<Long>(1);
         ids.add(p.getId());
         Set<Long> annotators = new HashSet<Long>(1);
@@ -110,7 +110,7 @@ public class MetadataServiceTest
        
         Map result = iMetadata.loadAnnotations(Project.class, ids,
                 new HashSet(Arrays.asList(CommentAnnotation.class.getName())),
-        		annotators, options.map());
+        		annotators, options);
         assertEquals(1, result.size());
         
         Set s = (Set) result.get(p.getId());
@@ -153,7 +153,7 @@ public class MetadataServiceTest
         p = iUpdate.saveAndReturnObject(p);
         
         long self = this.iAdmin.getEventContext().getCurrentUserId();
-        PojoOptions options = new PojoOptions();
+        Parameters options = new Parameters();
         Set<Long> ids = new HashSet<Long>(1);
         ids.add(p.getId());
         Set<Long> annotators = new HashSet<Long>(1);
@@ -163,7 +163,7 @@ public class MetadataServiceTest
         Set<String> types = new HashSet<String>(1);
         types.add(CommentAnnotation.class.getName());
         Map result = iMetadata.loadAnnotations(Project.class, ids, types, 
-        		annotators, options.map());
+        		annotators, options);
         assertTrue(result.size() == 1);
         
         Set s = (Set) result.get(p.getId());
@@ -207,9 +207,9 @@ public class MetadataServiceTest
         c2 = iUpdate.saveAndReturnObject(c2);
         t1 = iUpdate.saveAndReturnObject(t1);
         
-        PojoOptions options = new PojoOptions();
+        Parameters options = new Parameters();
         Set result = iMetadata.loadSpecifiedAnnotations(
-                CommentAnnotation.class, null, null, options.map());
+                CommentAnnotation.class, null, null, options);
         assertEquals(2, result.size());
     }
     
@@ -231,7 +231,7 @@ public class MetadataServiceTest
         t2 = iUpdate.saveAndReturnObject(t2);
         
         /*
-        PojoOptions po = new PojoOptions();
+        Parameters po = new Parameters();
         Set result = iMetadata.loadSpecifiedAnnotations(
         		TagAnnotation.class, IMetadata.NS_INSIGHT_TAG_SET, po.map());
         assertTrue(result.size() == 1);
@@ -276,12 +276,12 @@ public class MetadataServiceTest
         t3 = iUpdate.saveAndReturnObject(t3);
         
         
-        PojoOptions po = new PojoOptions();
+        Parameters po = new Parameters();
         Set<Long> ids = new HashSet<Long>(3);
         ids.add(t1.getId());
         ids.add(t2.getId());
         ids.add(t3.getId());
-        Map m = iMetadata.getTaggedObjectsCount(ids, po.map());
+        Map m = iMetadata.getTaggedObjectsCount(ids, po);
         Iterator k = m.keySet().iterator();
         Long id;
         while (k.hasNext()) {
@@ -310,8 +310,8 @@ public class MetadataServiceTest
         link.setParent(t2);
         link.setChild(t1);
         link = iUpdate.saveAndReturnObject(link);
-        PojoOptions po = new PojoOptions();
-        Set set = iMetadata.loadTagSets(po.map());
+        Parameters po = new Parameters();
+        Set set = iMetadata.loadTagSets(po);
         assertEquals(1, set.size());
         Iterator i = set.iterator();
         IObject object;
@@ -347,9 +347,9 @@ public class MetadataServiceTest
         
         t3 = iUpdate.saveAndReturnObject(t3);
         
-        PojoOptions po = new PojoOptions();
+        Parameters po = new Parameters();
         po.orphan();
-        Set set = iMetadata.loadTagSets(po.map());
+        Set set = iMetadata.loadTagSets(po);
         assertEquals(2, set.size());
         Iterator i = set.iterator();
         IObject object;
@@ -384,10 +384,10 @@ public class MetadataServiceTest
       	d = iUpdate.saveAndReturnObject(d);
       	i = iUpdate.saveAndReturnObject(i);
       	t1 = iUpdate.saveAndReturnObject(t1);
-      	PojoOptions po = new PojoOptions();
+      	Parameters po = new Parameters();
       	Set<Long> ids = new HashSet<Long>(1);
       	ids.add(t1.getId());
-      	Map m = iMetadata.loadTagContent(ids, po.map());
+      	Map m = iMetadata.loadTagContent(ids, po);
       	Set set = (Set) m.get(t1.getId());
       	assertTrue(set.size() == 3);
       	Iterator k = set.iterator();

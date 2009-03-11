@@ -35,7 +35,7 @@ import ome.parameters.Parameters;
 public abstract class AbstractClassIdsOptionsQuery extends Query {
 
     static Definitions defs = new Definitions(new IdsQueryParameterDef(),
-            new OptionsQueryParameterDef(), new ClassQueryParameterDef());
+            new ClassQueryParameterDef());
 
     public AbstractClassIdsOptionsQuery(Parameters parameters) {
         super(defs, parameters);

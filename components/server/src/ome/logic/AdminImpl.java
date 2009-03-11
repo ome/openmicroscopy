@@ -964,7 +964,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 true));
 
         public BaseQ(Parameters params) {
-            super(defs, new Parameters(new Filter().unique()).addAll(params));
+            super(defs, new Parameters().unique().addAll(params));
         }
 
     }

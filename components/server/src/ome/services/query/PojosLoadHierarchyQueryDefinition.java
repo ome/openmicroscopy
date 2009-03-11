@@ -8,11 +8,9 @@ package ome.services.query;
 
 import static ome.parameters.Parameters.CLASS;
 import static ome.parameters.Parameters.IDS;
-import static ome.parameters.Parameters.OPTIONS;
 
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Map;
 
 import ome.conditions.ApiUsageException;
 import ome.model.containers.Dataset;
@@ -20,7 +18,6 @@ import ome.model.containers.Project;
 import ome.model.screen.Plate;
 import ome.model.screen.Screen;
 import ome.parameters.Parameters;
-import ome.util.builders.PojoOptions;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -28,7 +25,7 @@ import org.hibernate.Session;
 public class PojosLoadHierarchyQueryDefinition extends Query {
 
     static Definitions defs = new Definitions(new CollectionQueryParameterDef(
-            Parameters.IDS, true, Long.class), new OptionsQueryParameterDef(),
+            Parameters.IDS, true, Long.class),
             new ClassQueryParameterDef());
 
     public PojosLoadHierarchyQueryDefinition(Parameters parameters) {
@@ -39,7 +36,6 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
     protected void buildQuery(Session session) throws HibernateException,
             SQLException {
 
-        PojoOptions po = new PojoOptions((Map) value(OPTIONS));
         Class klass = (Class) value(CLASS);
 
         StringBuilder sb = new StringBuilder();
@@ -47,7 +43,7 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
             sb.append("select this from Project this ");
             sb.append("left outer join fetch this.datasetLinks pdl ");
             sb.append("left outer join fetch pdl.child ds ");
-            if (po.isLeaves()) {
+            if (params.isLeaves()) {
                 sb.append("left outer join fetch ds.imageLinks dil ");
                 sb.append("left outer join fetch dil.child img ");
             }
@@ -55,7 +51,7 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
                     + "this.annotationLinksCountPerOwner this_a_c ");
         } else if (Dataset.class.isAssignableFrom(klass)) {
             sb.append("select this from Dataset this ");
-            if (po.isLeaves()) {
+            if (params.isLeaves()) {
                 sb.append("left outer join fetch this.imageLinks dil ");
                 sb.append("left outer join fetch dil.child img ");
             }
@@ -78,10 +74,10 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
                     + klass.getName());
         }
 
-        if (po.isLeaves()) {
+        if (params.isLeaves()) {
             sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
-            if (po.isAcquisitionData()) {
+            if (params.isAcquisitionData()) {
 	            sb.append("left outer join fetch img.stageLabel as position ");
 	            sb.append("left outer join fetch img.imagingEnvironment" +
 	            		" as condition ");

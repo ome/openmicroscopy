@@ -13,8 +13,8 @@ import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
+import ome.parameters.Parameters;
 import ome.testing.ObjectFactory;
-import ome.util.builders.PojoOptions;
 
 import org.testng.annotations.Test;
 
@@ -40,8 +40,7 @@ public class PostAnnotationsUpdateTest extends AbstractUpdateTest {
         d = iUpdate.saveAndReturnObject(d);
 
         Set<Dataset> s = iContainer.loadContainerHierarchy(Dataset.class,
-                Collections.singleton(d.getId()), new PojoOptions().leaves()
-                        .map());
+                Collections.singleton(d.getId()), new Parameters().leaves());
         d = s.iterator().next();
         i = d.linkedImageList().get(0);
         p = i.getPrimaryPixels();
@@ -49,7 +48,7 @@ public class PostAnnotationsUpdateTest extends AbstractUpdateTest {
         // assertTrue(p.unmodifiableChannels().iterator().next().isLoaded());
 
         s = iContainer.loadContainerHierarchy(Dataset.class, Collections
-                .singleton(d.getId()), new PojoOptions().noLeaves().map());
+                .singleton(d.getId()), new Parameters().noLeaves());
         d = s.iterator().next();
         assertTrue(d.sizeOfImageLinks() < 0);
 

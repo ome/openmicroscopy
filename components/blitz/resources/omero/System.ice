@@ -70,14 +70,14 @@ module omero {
      */
     class Filter
     {
-      omero::RBool  unique;   // MAY be used like "distinct"
+      omero::RBool  unique;
       omero::RLong  ownerId;
       omero::RLong  groupId;
-      omero::RBool  preferOwner;
       omero::RInt   offset;
       omero::RInt   limit;
       omero::RTime  startTime;
       omero::RTime  endTime;
+      // omero::RBool  preferOwner; Not yet implemented
     };
 
     /*

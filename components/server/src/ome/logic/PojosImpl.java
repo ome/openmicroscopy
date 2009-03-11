@@ -48,7 +48,6 @@ import ome.services.query.Query;
 import ome.tools.HierarchyTransformations;
 import ome.tools.lsid.LsidUtils;
 import ome.util.CBlock;
-import ome.util.builders.PojoOptions;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -103,9 +102,9 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIds,
             Parameters options) {
 
-        PojoOptions po = new PojoOptions(options);
-
-        if (null == rootNodeIds && !po.isExperimenter() && !po.isGroup()) {
+        options = new Parameters(options); // Checks for null
+        
+        if (null == rootNodeIds && !options.isExperimenter() && !options.isGroup()) {
             throw new ApiUsageException(
                     "Set of ids for loadContainerHierarchy() may not be null "
                             + "if experimenter and group options are null.");
@@ -122,8 +121,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         // TODO no more "options" just QPs.
         Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosLoadHierarchyQueryDefinition.class.getName(),
-                new Parameters().addClass(rootNodeType).addIds(rootNodeIds)
-                        .addOptions(po.realmap()));
+                options.addClass(rootNodeType).addIds(rootNodeIds));
         List<IObject> l = iQuery.execute(q);
 
         Dataset d;
@@ -137,7 +135,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                 p = (Project) o;
                 datasets.addAll(p.linkedDatasetList());
             }
-            if (po.isOrphan()) {
+            if (options.isOrphan()) {
             	if (rootNodeIds == null || rootNodeIds.size() == 0) {
             		Iterator<Dataset> i = datasets.iterator();
             		Set<Long> linked = new HashSet<Long>();
@@ -146,8 +144,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 					}
             		q = getQueryFactory().lookup(
                             PojosLoadHierarchyQueryDefinition.class.getName(),
-                            new Parameters().addClass(Dataset.class).addIds(rootNodeIds)
-                            .addOptions(po.realmap()));
+                            options.addClass(Dataset.class).addIds(rootNodeIds));
             		List<IObject> list = iQuery.execute(q);
             		Iterator<IObject> j = list.iterator();
             		Long id;
@@ -178,7 +175,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
             }
             // WORKAROUND ticket:907
             // Destructive changes in this block
-            if (!po.isLeaves()) {
+            if (!options.isLeaves()) {
                 EvictBlock<Dataset> evict = new EvictBlock<Dataset>();
                 for (IObject o : l) {
                     d = (Dataset) o;
@@ -193,7 +190,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                 p = (Screen) o;
                 plates.addAll(p.linkedPlateList());
             }
-            if (po.isOrphan()) {
+            if (options.isOrphan()) {
             	if (rootNodeIds == null || rootNodeIds.size() == 0) {
             		Iterator<Plate> i = plates.iterator();
             		Set<Long> linked = new HashSet<Long>();
@@ -202,8 +199,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 					}
             		q = getQueryFactory().lookup(
                             PojosLoadHierarchyQueryDefinition.class.getName(),
-                            new Parameters().addClass(Plate.class).addIds(rootNodeIds)
-                            .addOptions(po.realmap()));
+                            options.addClass(Plate.class).addIds(rootNodeIds));
             		List<IObject> list = iQuery.execute(q);
             		Iterator<IObject> j = list.iterator();
             		Long id;
@@ -235,7 +231,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     public Set findContainerHierarchies(final Class rootNodeType,
             final Set imageIds, Parameters options) {
 
-        PojoOptions po = new PojoOptions(options);
+        options = new Parameters(options); // Checks for null
 
         // TODO refactor to use Hierarchy class H.isTopLevel()
         if (!(Project.class.equals(rootNodeType))) {
@@ -247,8 +243,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
         Query<List<Image>> q = getQueryFactory().lookup(
                 PojosFindHierarchiesQueryDefinition.class.getName(),
-                new Parameters().addClass(rootNodeType).addIds(imageIds)
-                        .addOptions(po.realmap()));
+                options.addClass(rootNodeType).addIds(imageIds));
         List<Image> l = iQuery.execute(q);
 
         //
@@ -298,19 +293,20 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public Set getImages(final Class rootNodeType, final Set rootNodeIds,
-            final Parameters options) {
+            Parameters options) {
 
         if (rootNodeIds.size() == 0) {
             return new HashSet();
         }
 
-        final PojoOptions po = new PojoOptions(options);
+        options = new Parameters(options); // Checks for null
+        final Parameters view = options;
 
         // Effective values
         Class effType = rootNodeType;
         Set<Long> effIds = rootNodeIds;
 
-        if (po.isPagination()) {
+        if (options.isPagination()) {
             final String query = paginationQueries.get(rootNodeType);
             if (query == null) {
                 throw new ApiUsageException(rootNodeType.getName()
@@ -321,9 +317,15 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                     .execute(new HibernateCallback() {
                         public Object doInHibernate(Session s)
                                 throws HibernateException, SQLException {
-                            return s.createQuery(query).setParameterList("ids",
-                                    rootNodeIds).setMaxResults(po.getLimit())
-                                    .setFirstResult(po.getOffset()).list();
+                            org.hibernate.Query q = s.createQuery(query);
+                            q.setParameterList("ids", rootNodeIds);
+                            if (view.getLimit() != null) {
+                                q.setMaxResults(view.getLimit());
+                            }
+                            if (view.getOffset() != null) {
+                                q.setFirstResult(view.getOffset());
+                            }
+                            return q.list();
                         }
                     }));
             if (effIds == null || effIds.size() == 0) {
@@ -333,8 +335,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
         Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosGetImagesQueryDefinition.class.getName(),
-                new Parameters().addIds(effIds).addClass(effType).addOptions(
-                        po.realmap()));
+                options.addIds(effIds).addClass(effType));
 
         List<IObject> l = iQuery.execute(q);
         return new HashSet<IObject>(l);
@@ -349,16 +350,16 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     @SuppressWarnings("unchecked")
     public Set getImagesByOptions(Parameters options) {
 
-        PojoOptions po = new PojoOptions(options);
+        options = new Parameters(options); // Checks for null
 
-        if (!po.isStartTime() && !po.isEndTime()) {
+        if (options.getStartTime() == null && options.getEndTime() == null) {
             throw new ApiUsageException("start or end time option "
                     + "is required for getImagesByOptions().");
         }
 
         Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosGetImagesByOptionsQueryDefinition.class.getName(),
-                new Parameters().addOptions(po.realmap())); // FIXME ticket:67
+                options);
 
         List<IObject> l = iQuery.execute(q);
         return new HashSet<IObject>(l);
@@ -374,16 +375,15 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     @SuppressWarnings("unchecked")
     public Set getUserImages(Parameters options) {
 
-        PojoOptions po = new PojoOptions(options);
-
-        if (!po.isExperimenter() && !po.isGroup()) {
+        options = new Parameters(options); // Checks for null
+        
+        if (!options.isExperimenter() && !options.isGroup()) {
             throw new ApiUsageException("experimenter or group option "
                     + "is required for getUserImages().");
         }
 
         Query<List<Image>> q = getQueryFactory().lookup(
-                PojosGetUserImagesQueryDefinition.class.getName(),
-                new Parameters().addOptions(po.realmap())); // FIXME ticket:67
+                PojosGetUserImagesQueryDefinition.class.getName(), options);
 
         List<Image> l = iQuery.execute(q);
         return new HashSet<Image>(l);

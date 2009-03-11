@@ -30,7 +30,6 @@ import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosGetImagesQueryDefinition;
 import ome.testing.ObjectFactory;
-import ome.util.builders.PojoOptions;
 
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
@@ -57,10 +56,10 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         creation_fails(null);
 
         creation_fails(new Parameters().addIds(null) // Null
-                .addOptions(null).addClass(null));
+                .addClass(null));
 
         creation_fails(new Parameters().addIds(Arrays.asList(1)) // Not long
-                .addOptions(null).addClass(Project.class));
+                .addClass(Project.class));
 
         /*
          * TODO currently handled by IContainer creation_fails( ContainerQP.ids( new
@@ -78,15 +77,13 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
     public void test_simple_usage() throws Exception {
         Long doesntExist = -1L;
         q = new PojosGetImagesQueryDefinition(new Parameters().addIds(
-                Arrays.asList(doesntExist)).addOptions(null).addClass(
-                Project.class));
+                Arrays.asList(doesntExist)).addClass(Project.class));
 
         list = (List) iQuery.execute(q);
 
-        PojoOptions po = new PojoOptions().exp(doesntExist);
+        Parameters po = new Parameters().exp(doesntExist);
         q = new PojosGetImagesQueryDefinition(new Parameters().addIds(
-                Arrays.asList(doesntExist)).addOptions(po.realmap()).addClass(
-                Project.class));
+                Arrays.asList(doesntExist)).addClass(Project.class));
 
         list = (List) iQuery.execute(q);
 
@@ -104,8 +101,8 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
                         + " left outer join pdl.child as d "
                         + " left outer join d.imageLinks as dil "
                         + " left outer join dil.child as i "
-                        + " where i is not null", new Parameters(new Filter()
-                        .unique().page(0, 1)));
+                        + " where i is not null", new Parameters()
+                        .unique().page(0, 1));
 
         q = new PojosGetImagesQueryDefinition(new Parameters().addIds(
                 Arrays.asList(prj.getId())).addClass(Project.class));
@@ -128,7 +125,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
 
     MAP userProjectMap = new MAP();
 
-    PojoOptions userPO;
+    Parameters userPO;
 
     Parameters filterForUser;
 
@@ -189,9 +186,9 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
                     .getName()));
         }
 
-        userPO = new PojoOptions().exp(user.getId());
-        filterForUser = new Parameters().addOptions(userPO.realmap());
-        noFilter = new Parameters().addOptions(null);
+        userPO = new Parameters().exp(user.getId());
+        filterForUser = userPO; // See ticket:67
+        noFilter = new Parameters();
 
         // ~ MIXED ROOT/USER ITEMS
         // =====================================================================
@@ -288,7 +285,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
     private void runLevel(Class klass, Collection<Long> klassIds,
             Collection<IObject> results) {
         q = new PojosGetImagesQueryDefinition(new Parameters().addIds(klassIds)
-                .addOptions(null).addClass(klass));
+                .addClass(klass));
 
         list = (List) iQuery.execute(q);
 

@@ -58,7 +58,6 @@ import ome.parameters.Parameters;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.Query;
 import ome.util.CBlock;
-import ome.util.builders.PojoOptions;
 
 
 /** 
@@ -114,7 +113,7 @@ public class MetadataImpl
     	
     	String restriction = "";
     	Parameters param = new Parameters();
-    	PojoOptions po = new PojoOptions(options);
+    	Parameters po = new Parameters(options);
     	long id = -1;
     	boolean group = false;
     	if (po.getExperimenter() != null) id = po.getExperimenter();
@@ -247,11 +246,10 @@ public class MetadataImpl
 			while (i.hasNext()) {
 				ids.add(((IObject) i.next()).getId());
 			}
-			PojoOptions po = new PojoOptions(options);
+			Parameters po = new Parameters(options);
 			po.noLeaves();
 			po.noOrphan();
-			Set p = iContainer.loadContainerHierarchy(Project.class, ids, 
-					po.map());
+			Set p = iContainer.loadContainerHierarchy(Project.class, ids, po);
 			result.addAll(p);
 		}
 		
@@ -339,13 +337,12 @@ public class MetadataImpl
                              + "must be a subclass of ome.model.IAnnotated");
          }
 
-         PojoOptions po = new PojoOptions();
+         Parameters po = new Parameters();
 
          Query<List<IAnnotated>> q = getQueryFactory().lookup(
                  PojosFindAnnotationsQueryDefinition.class.getName(),
-                 new Parameters().addIds(rootNodeIds).addClass(rootNodeType)
-                         .addSet("annotatorIds", annotatorIds).addOptions(
-                                 po.realmap()));
+                 po.addIds(rootNodeIds).addClass(rootNodeType)
+                         .addSet("annotatorIds", annotatorIds));
 
          List<IAnnotated> l = iQuery.execute(q);
          // no count collection
@@ -527,7 +524,7 @@ public class MetadataImpl
     public Set<IObject> loadTagSets(Parameters options)
 	{
     	Set result = new HashSet();
-    	PojoOptions po = new PojoOptions(options);
+    	Parameters po = new Parameters(options);
     	Parameters param = new Parameters();
     	StringBuilder sb = new StringBuilder();
     	sb.append("select link from AnnotationAnnotationLink as link");

@@ -22,7 +22,7 @@ import org.hibernate.criterion.Restrictions;
 public class PojosFindAnnotationsQueryDefinition extends Query {
 
     static Definitions defs = new Definitions(new IdsQueryParameterDef(),
-            new OptionsQueryParameterDef(), new ClassQueryParameterDef(),
+            new ClassQueryParameterDef(),
             new QueryParameterDef("annotatorIds", Collection.class, true));
 
     public PojosFindAnnotationsQueryDefinition(Parameters parameters) {

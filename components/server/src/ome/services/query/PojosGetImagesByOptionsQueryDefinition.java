@@ -6,22 +6,18 @@
  */
 package ome.services.query;
 
-import static ome.parameters.Parameters.OPTIONS;
-
 import java.sql.SQLException;
-import java.util.Map;
 
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 import ome.tools.hibernate.QueryBuilder;
-import ome.util.builders.PojoOptions;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
 public class PojosGetImagesByOptionsQueryDefinition extends Query {
 
-    static Definitions defs = new Definitions(new OptionsQueryParameterDef());
+    static Definitions defs = new Definitions();
 
     public PojosGetImagesByOptionsQueryDefinition(Parameters parameters) {
         super(defs, parameters);
@@ -31,7 +27,6 @@ public class PojosGetImagesByOptionsQueryDefinition extends Query {
     protected void buildQuery(Session session) throws HibernateException,
             SQLException {
 
-    	PojoOptions po = new PojoOptions((Map) value(OPTIONS));
         // TODO copied from PojosGetImagesQueryDefinition. Should be merged.
         QueryBuilder qb = new QueryBuilder();
         qb.select("img");
@@ -43,7 +38,7 @@ public class PojosGetImagesByOptionsQueryDefinition extends Query {
         qb.join("img.annotationLinksCountPerOwner", "i_c_ann", true, true);
         // qb.join("img.datasetLinksCountPerOwner", "i_c_ds", true, true);
 
-        if (po.isAcquisitionData()) {
+        if (params.isAcquisitionData()) {
 	        qb.join("img.stageLabel", "position", true, true);
 	        qb.join("img.imagingEnvironment", "condition", true, true);
 	        qb.join("img.objectiveSettings", "os", true, true);
@@ -56,15 +51,13 @@ public class PojosGetImagesByOptionsQueryDefinition extends Query {
         qb.where();
 
         // if PojoOptions sets START_TIME and/or END_TIME
-        if (check(OPTIONS)) {
-            if (po.getStartTime() != null) {
-                qb.and("img.details.creationEvent.time > :starttime");
-                qb.param("starttime", po.getStartTime());
-            }
-            if (po.getEndTime() != null) {
-                qb.and("img.details.creationEvent.time < :endtime");
-                qb.param("endtime", po.getEndTime());
-            }
+        if (params.getStartTime() != null) {
+            qb.and("img.details.creationEvent.time > :starttime");
+            qb.param("starttime", params.getStartTime());
+        }
+        if (params.getEndTime() != null) {
+            qb.and("img.details.creationEvent.time < :endtime");
+            qb.param("endtime", params.getEndTime());
         }
 
         setQuery(qb.query(session));

@@ -144,12 +144,6 @@ class ClassQueryParameterDef extends QueryParameterDef {
     }
 }
 
-class OptionsQueryParameterDef extends QueryParameterDef {
-    public OptionsQueryParameterDef() {
-        super(Parameters.OPTIONS, Map.class, true);
-    }
-}
-
 class IdsQueryParameterDef extends CollectionQueryParameterDef {
     public IdsQueryParameterDef() {
         super(Parameters.IDS, false, Long.class);

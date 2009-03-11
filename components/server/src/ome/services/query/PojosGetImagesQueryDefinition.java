@@ -8,7 +8,6 @@ package ome.services.query;
 
 import static ome.parameters.Parameters.CLASS;
 import static ome.parameters.Parameters.IDS;
-import static ome.parameters.Parameters.OPTIONS;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -20,7 +19,6 @@ import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 import ome.tools.hibernate.QueryBuilder;
-import ome.util.builders.PojoOptions;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -37,7 +35,6 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
 
         Class klass = (Class) value(CLASS);
         Collection ids = (Collection) value(IDS);
-        PojoOptions po = new PojoOptions((Map) value(OPTIONS));
 
         QueryBuilder qb = new QueryBuilder();
         qb.select("img");
@@ -49,7 +46,7 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
         qb.join("img.annotationLinksCountPerOwner", "i_c_ann", true, true);
         qb.join("img.datasetLinksCountPerOwner", "i_c_ds", true, true);
 
-        if (po.isAcquisitionData()) {
+        if (params.isAcquisitionData()) {
 	        qb.join("img.stageLabel", "position", true, true);
 	        qb.join("img.imagingEnvironment", "condition", true, true);
 	        qb.join("img.objectiveSettings", "os", true, true);
@@ -82,13 +79,13 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
         }
 
         // if PojoOptions sets START_TIME and/or END_TIME
-        if (po.getStartTime() != null) {
+        if (params.getStartTime() != null) {
             qb.and("img.details.creationEvent.time > :starttime");
-            qb.param("starttime", po.getStartTime());
+            qb.param("starttime", params.getStartTime());
         }
-        if (po.getEndTime() != null) {
+        if (params.getEndTime() != null) {
             qb.and("img.details.creationEvent.time < :endtime");
-            qb.param("endtime", po.getEndTime());
+            qb.param("endtime", params.getEndTime());
         }
 
         qb.paramList("ids", ids);

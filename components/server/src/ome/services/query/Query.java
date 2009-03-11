@@ -1,5 +1,5 @@
 /*
- * ome.services.query.Query
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -14,13 +14,11 @@
 
 package ome.services.query;
 
-// Java imports
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
@@ -29,11 +27,9 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-// Application-internal dependencies
 import ome.parameters.Parameters;
 import static ome.parameters.Parameters.*;
 import ome.parameters.QueryParameter;
-import ome.util.builders.PojoOptions;
 
 /**
  * base Query type to facilitate the creation of ORM queries. This class
@@ -231,15 +227,23 @@ public abstract class Query<T> implements HibernateCallback {
                                 + "Criteria\n by calling setQuery() or setCriteria().");
             }
 
-            boolean unique = params.getFilter().isUnique();
+            boolean unique = params.isUnique();
 
             if (_query != null) {
-                _query.setFirstResult(params.getFilter().firstResult());
-                _query.setMaxResults(params.getFilter().maxResults());
+                if (params.getOffset() != null) {
+                    _query.setFirstResult(params.getOffset());
+                }
+                if (params.getLimit() != null) {
+                    _query.setMaxResults(params.getLimit());
+                }
                 return unique ? _query.uniqueResult() : _query.list();
             } else {
-                _criteria.setFirstResult(params.getFilter().firstResult());
-                _criteria.setMaxResults(params.getFilter().maxResults());
+                if (params.getOffset() != null) {
+                    _criteria.setFirstResult(params.getOffset());
+                }
+                if (params.getLimit() != null) {
+                    _criteria.setMaxResults(params.getLimit());
+                }
                 return unique ? _criteria.uniqueResult() : _criteria.list();
             }
 
@@ -306,30 +310,26 @@ public abstract class Query<T> implements HibernateCallback {
     protected void ownerOrGroupFilters(Session session, String[] ownerFilters,
             String[] groupFilters) {
 
-        if (check(OPTIONS)) {
-            PojoOptions po = new PojoOptions((Map) value(OPTIONS));
-
-            if (po.isGroup()) {
-                for (String filter : groupFilters) {
-                    if (session.getEnabledFilter(filter) != null) {
-                        newlyEnabledFilters.add(filter);
-                    }
-
-                    session.enableFilter(filter).setParameter(GROUP_ID,
-                            po.getGroup());
+        if (params.isGroup()) {
+            for (String filter : groupFilters) {
+                if (session.getEnabledFilter(filter) != null) {
+                    newlyEnabledFilters.add(filter);
                 }
-            } else if (po.isExperimenter()) {
-                for (String filter : ownerFilters) {
-                    if (session.getEnabledFilter(filter) != null) {
-                        newlyEnabledFilters.add(filter);
-                    }
 
-                    session.enableFilter(filter).setParameter(OWNER_ID,
-                            po.getExperimenter());
-                }
+                session.enableFilter(filter).setParameter(GROUP_ID,
+                        params.getGroup());
             }
+        } else if (params.isExperimenter()) {
+            for (String filter : ownerFilters) {
+                if (session.getEnabledFilter(filter) != null) {
+                    newlyEnabledFilters.add(filter);
+                }
 
+                session.enableFilter(filter).setParameter(OWNER_ID,
+                        params.getExperimenter());
+            }
         }
+
     }
 
     /**

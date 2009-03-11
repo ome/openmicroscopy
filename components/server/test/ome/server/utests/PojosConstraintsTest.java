@@ -25,7 +25,6 @@ import ome.security.basic.PrincipalHolder;
 import ome.server.itests.LoginInterceptor;
 import ome.services.util.ServiceHandler;
 import ome.system.Principal;
-import ome.util.builders.PojoOptions;
 
 import org.jmock.MockObjectTestCase;
 import org.springframework.aop.framework.ProxyFactory;
@@ -52,8 +51,8 @@ public class PojosConstraintsTest extends MockObjectTestCase {
         PrincipalHolder holder = new CurrentDetails();
         LoginInterceptor login = new LoginInterceptor(holder);
         ServiceHandler serviceHandler = new ServiceHandler(new CurrentDetails());
-        pf.addAdvice(login);
         pf.addAdvice(serviceHandler);
+        pf.addAdvice(login);
         login.p = new Principal("user","user","Test");
         manager = (IContainer) pf.getProxy();
     }
@@ -139,7 +138,7 @@ public class PojosConstraintsTest extends MockObjectTestCase {
             }
         };
 
-        t.blowup(true, new PojoOptions().allExps().map());
+        t.blowup(true, new Parameters().allExps());
         // TODO not in unit test t.blowup(false,new
         // PojoOptions().exp(1L).map());
 

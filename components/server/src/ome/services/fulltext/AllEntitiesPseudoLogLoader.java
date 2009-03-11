@@ -13,7 +13,6 @@ import java.util.Set;
 
 import ome.model.IObject;
 import ome.model.meta.EventLog;
-import ome.parameters.Filter;
 import ome.parameters.Parameters;
 
 /**
@@ -47,8 +46,8 @@ public class AllEntitiesPseudoLogLoader<T extends IObject> extends
         final String query = String.format(
                 "select obj from %s obj where obj.id > %d order by id asc",
                 current, last);
-        final IObject obj = queryService.findByQuery(query, new Parameters(
-                new Filter().page(0, 1)));
+        final IObject obj = queryService.findByQuery(query,
+                new Parameters().page(0, 1));
 
         if (obj != null) {
             last = obj.getId();

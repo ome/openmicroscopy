@@ -9,6 +9,8 @@ package ome.server.itests.details;
 // Java imports
 
 // Third-party libraries
+import java.sql.Timestamp;
+
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.core.Image;
@@ -155,6 +157,7 @@ public class ExternalInfoTest extends AbstractManagedContextTest {
     private Image createImage() {
         Image i = new Image();
         i.setName("ticket:371");
+        i.setAcquisitionDate(new Timestamp(0));
         return i;
     }
 

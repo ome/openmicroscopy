@@ -6,10 +6,9 @@
  */
 package ome.server.itests.query.pojos;
 
+import java.sql.Timestamp;
 import java.util.Collections;
-import java.util.Set;
 
-import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -51,6 +50,7 @@ public class FindContainersQueryTest extends AbstractManagedContextTest {
         String name = "find containers query test";
         Image i = new Image();
         i.setName(name);
+        i.setAcquisitionDate(new Timestamp(0));
         Dataset d = new Dataset();
         d.setName(name);
         i.linkDataset(d);

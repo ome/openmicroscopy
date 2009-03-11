@@ -7,12 +7,14 @@
 package ome.services.blitz.test.utests;
 
 import static omero.rtypes.rtime;
+import static omero.rtypes.rlong;
+import static omero.rtypes.rint;
 
 import java.sql.Timestamp;
 
 import ome.api.IContainer;
 import ome.api.IMetadata;
-import ome.util.builders.PojoOptions;
+import ome.parameters.Parameters;
 import omero.sys.ParametersI;
 import omero.util.IceMapper;
 
@@ -37,54 +39,127 @@ public class ParametersIToPojoOptionsTest extends MockObjectTestCase {
         m = new IceMapper();
     }
 
-    public void testLeaves() throws Exception {
+    public void testOptions() throws Exception {
+        assertFalse(p().isLeaves());
+        assertFalse(p().isOrphan());
+        assertFalse(p().isAcquisitionData());
         p.leaves();
-        assertTrue(po().isLeaves());
-        p.noLeaves();
-        assertFalse(po().isLeaves());
-    }
-    
-    public void testOrphan() throws Exception {
+        assertTrue(p().isLeaves());
+        assertFalse(p().isOrphan());
+        assertFalse(p().isAcquisitionData());
         p.orphan();
-        assertTrue(po().isOrphan());
+        assertTrue(p().isLeaves());
+        assertTrue(p().isOrphan());
+        assertFalse(p().isAcquisitionData());
         p.noOrphan();
-        assertFalse(po().isOrphan());
-    }
-    
-    public void testAcquisitionData() throws Exception {
+        assertTrue(p().isLeaves());
+        assertFalse(p().isOrphan());
+        assertFalse(p().isAcquisitionData());
         p.acquisitionData();
-        assertTrue(po().isOrphan());
+        assertTrue(p().isAcquisitionData());
         p.noAcquisitionData();
-        assertFalse(po().isOrphan());
+        assertFalse(p().isOrphan());
+        p.noLeaves();
+        assertFalse(p().isLeaves());
+        assertFalse(p().isLeaves());
+        assertFalse(p().isOrphan());
+        assertFalse(p().isAcquisitionData());
     }
     
     public void testTimes() throws Exception {
         p.startTime(rtime(0));
-        assertTrue(po().isStartTime());
-        assertEquals(new Timestamp(0L), po().getStartTime());
-        assertFalse(po().isEndTime());
-        assertNull(po().getEndTime());
+        assertEquals(new Timestamp(0L), p().getStartTime());
+        assertNull(p().getEndTime());
         p.endTime(rtime(1));
-        assertTrue(po().isStartTime());
-        assertEquals(new Timestamp(0L), po().getStartTime());
-        assertTrue(po().isEndTime());
-        assertEquals(new Timestamp(1L), po().getEndTime());
+        assertEquals(new Timestamp(0L), p().getStartTime());
+        assertEquals(new Timestamp(1L), p().getEndTime());
         p.startTime(null);
-        assertFalse(po().isStartTime());
-        assertNull(po().getStartTime());
-        assertTrue(po().isEndTime());
-        assertEquals(new Timestamp(1L), po().getEndTime());
+        assertNull(p().getStartTime());
+        assertEquals(new Timestamp(1L), p().getEndTime());
         p.endTime(null);
-        assertFalse(po().isStartTime());
-        assertNull(po().getStartTime());
-        assertFalse(po().isEndTime());
-        assertNull(po().getEndTime());
+        assertNull(p().getStartTime());
+        assertNull(p().getEndTime());
+    }
+    
+    public void testUserGroup() throws Exception {
+        assertFalse(p().isExperimenter());
+        assertFalse(p().isGroup());
+        assertEquals(-1, p().owner());
+        assertEquals(-1, p().group());
+        assertNull(p().getExperimenter());
+        assertNull(p().getGroup());
+        p.exp(rlong(1L));
+        assertTrue(p().isExperimenter());
+        assertFalse(p().isGroup());
+        assertEquals(1L, p().owner());
+        assertEquals(-1, p().group());
+        assertNotNull(p().getExperimenter());
+        assertNull(p().getGroup());
+        p.grp(rlong(1L));
+        assertTrue(p().isExperimenter());
+        assertTrue(p().isGroup());
+        assertEquals(1L, p().owner());
+        assertEquals(1L, p().group());
+        assertNotNull(p().getExperimenter());
+        assertNotNull(p().getGroup());
+        p.allExps();
+        assertFalse(p().isExperimenter());
+        assertTrue(p().isGroup());
+        assertEquals(-1L, p().owner());
+        assertEquals(1L, p().group());
+        assertNull(p().getExperimenter());
+        assertNotNull(p().getGroup());
+        p.allGrps();
+        assertFalse(p().isExperimenter());
+        assertFalse(p().isGroup());
+        assertEquals(-1L, p().owner());
+        assertEquals(-1L, p().group());
+        assertNull(p().getExperimenter());
+        assertNull(p().getGroup());
+    }
+    
+    public void testPaginationAndUniqueness() throws Exception {
+        assertFalse(p().isPagination());
+        assertFalse(p().isUnique());
+        assertNull(p().getOffset());
+        assertNull(p().getLimit());
+        p.page(0, 1);
+        assertTrue(p().isPagination());
+        assertFalse(p().isUnique());
+        assertEquals(new Integer(0), p().getOffset());
+        assertEquals(new Integer(1), p().getLimit());
+        assertFalse(p().isUnique());
+        p.noPage();
+        assertFalse(p().isPagination());
+        assertFalse(p().isUnique());
+        assertNull(p().getOffset());
+        assertNull(p().getLimit());
+        assertFalse(p().isUnique());
+        p.page(rint(0), rint(1));
+        assertTrue(p().isPagination());
+        assertFalse(p().isUnique());
+        assertEquals(new Integer(0), p().getOffset());
+        assertEquals(new Integer(1), p().getLimit());
+        assertFalse(p().isUnique());
+        p.unique();
+        assertTrue(p().isUnique());
+        assertTrue(p().isPagination());
+        assertEquals(new Integer(0), p().getOffset());
+        assertEquals(new Integer(1), p().getLimit());
+        p.noUnique();
+        assertFalse(p().isUnique());
+        assertTrue(p().isPagination());
+        assertFalse(p().isUnique());
+        assertEquals(new Integer(0), p().getOffset());
+        assertEquals(new Integer(1), p().getLimit());
+        p.noPage();
+        
     }
 
     // ============
     
-    private PojoOptions po() throws Exception {
-        return new PojoOptions(m.convert(p));
+    private Parameters p() throws Exception {
+        return m.convert(p);
     }
     
 }

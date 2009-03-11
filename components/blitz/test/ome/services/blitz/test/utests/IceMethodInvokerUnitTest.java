@@ -37,6 +37,7 @@ import ome.model.acquisition.Objective;
 import ome.model.enums.Family;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
+import ome.parameters.Parameters;
 import ome.parameters.QueryParameter;
 import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
 import ome.services.blitz.util.IceMethodInvoker;
@@ -44,7 +45,6 @@ import ome.services.messages.GlobalMulticaster;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Roles;
-import ome.util.builders.PojoOptions;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
 import omero.RString;
@@ -598,7 +598,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
             public boolean eval(Object o) {
                 if (o instanceof ome.parameters.Parameters) {
                     ome.parameters.Parameters p = (ome.parameters.Parameters) o;
-                    if (!Long.valueOf(p.getFilter().owner()).equals(2L)) {
+                    if (!Long.valueOf(p.owner()).equals(2L)) {
                         return false;
                     }
                     QueryParameter qp;
@@ -823,9 +823,8 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
             }
 
             public boolean eval(Object o) {
-                if (o instanceof Map) {
-                    Map map = (Map) o;
-                    PojoOptions po = new PojoOptions(map);
+                if (o instanceof Parameters) {
+                    Parameters po = (Parameters) o;
                     if (!po.isLeaves()) {
                         return false;
                     }

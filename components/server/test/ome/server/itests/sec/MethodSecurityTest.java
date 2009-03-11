@@ -26,7 +26,7 @@ public class MethodSecurityTest extends AbstractManagedContextTest {
 
         // Using unsafe here since we are not within a hibernate session
         SimpleJdbcTemplate jdbc = (SimpleJdbcTemplate) this.applicationContext
-                .getBean("unsafeJdbcTemplate");
+                .getBean("isolatedJdbcTemplate");
 
         SessionManager mgr = (SessionManager) this.applicationContext
                 .getBean("sessionManager");

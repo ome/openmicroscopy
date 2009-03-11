@@ -18,7 +18,6 @@ import ome.model.core.Image;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
-import ome.util.builders.PojoOptions;
 
 import org.testng.annotations.Test;
 
@@ -45,7 +44,7 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
 
     List level0img;
 
-    PojoOptions po10000;
+    Parameters po10000;
 
     Parameters filterForUser;
 
@@ -100,7 +99,7 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
 
         // With leaves
         ds = this.iContainer.loadContainerHierarchy(Dataset.class, Collections
-                .singleton(d.getId()), new PojoOptions().leaves().map());
+                .singleton(d.getId()), new Parameters().leaves());
         assertTrue(ds.size() == 1);
         d = ds.iterator().next();
         assertTrue(d.getImageLinksCountPerOwner() != null);
@@ -115,14 +114,13 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
 
         // with leaves
         Set<Dataset> ds = this.iContainer.loadContainerHierarchy(Dataset.class,
-                Collections.singleton(d.getId()), new PojoOptions().leaves()
-                        .map());
+                Collections.singleton(d.getId()), new Parameters().leaves());
         assertTrue(ds.size() == 1);
         assertTrue(ds.iterator().next().sizeOfImageLinks() == 1);
 
         // without leaves
         ds = this.iContainer.loadContainerHierarchy(Dataset.class, Collections
-                .singleton(d.getId()), new PojoOptions().noLeaves().map());
+                .singleton(d.getId()), new Parameters().noLeaves());
         assertTrue(ds.size() == 1);
         assertTrue(ds.iterator().next().sizeOfImageLinks() < 0);
 

@@ -17,7 +17,7 @@ import org.hibernate.Session;
 
 public class PojosGetUserImagesQueryDefinition extends Query {
 
-    static Definitions defs = new Definitions(new OptionsQueryParameterDef());
+    static Definitions defs = new Definitions();
 
     public PojosGetUserImagesQueryDefinition(Parameters parameters) {
         super(defs, parameters);

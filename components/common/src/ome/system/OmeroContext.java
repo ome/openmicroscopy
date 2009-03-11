@@ -283,6 +283,18 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
     }
 
     /**
+     * Calls {@link #refreshAll() if {@link #isRunning()} throws an
+     * {@link IllegalStateException}.
+     */
+    public void refreshAllIfNecessary() {
+        try {
+            isRunning();
+        } catch (IllegalStateException ise) {
+            refreshAll();
+        }
+    }
+
+    /**
      * closes all the nested OmeroContexts within this instance.
      * 
      * If this is a server-side instance ({@link OmeroContext#MANAGED_CONTEXT}

@@ -15,7 +15,6 @@ import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.testing.Report;
-import ome.util.builders.PojoOptions;
 
 import org.testng.annotations.Test;
 
@@ -49,7 +48,7 @@ public class PaginationTest extends AbstractManagedContextTest {
 
     @Test(enabled = false)
     public void testGetImagesFromDatasetPagination() {
-        PojoOptions po = new PojoOptions().leaves();// .exp(exp);
+        Parameters po = new Parameters().leaves();// .exp(exp);
         Dataset d = loadOrCreateDataset(BIG_BATCH, BIG_SIZE);
         Set<Long> datasetIds = Collections.singleton(d.getId());
         runGetImagesTest(Dataset.class, datasetIds, po, BIG_SIZE, 5);
@@ -57,7 +56,7 @@ public class PaginationTest extends AbstractManagedContextTest {
 
     @Test(enabled = false)
     public void testGetImagesFromProjectPagination() {
-        PojoOptions po = new PojoOptions().leaves();// .exp(exp);
+        Parameters po = new Parameters().leaves();// .exp(exp);
         Project p = loadOrCreateProject(BIG_BATCH, BIG_SIZE);
         Set<Long> projectIds = Collections.singleton(p.getId());
         runGetImagesTest(Project.class, projectIds, po, BIG_SIZE, 5);
@@ -67,10 +66,10 @@ public class PaginationTest extends AbstractManagedContextTest {
     // ===========================================================
 
     private void runGetImagesTest(Class kls, Set<Long> containerIds,
-            PojoOptions po, int size, int pages) {
+            Parameters po, int size, int pages) {
         long start;
         start = System.currentTimeMillis();
-        Set<Image> images = iContainer.getImages(kls, containerIds, po.map());
+        Set<Image> images = iContainer.getImages(kls, containerIds, po);
         assertTrue(images.size() + " items", images.size() >= size);
         long getImagesTime = System.currentTimeMillis() - start;
 
@@ -88,7 +87,7 @@ public class PaginationTest extends AbstractManagedContextTest {
         for (int i = 0; i < pages; i++) {
             po.paginate(i * page_size, page_size);
             start = System.currentTimeMillis();
-            images = iContainer.getImages(kls, containerIds, po.map());
+            images = iContainer.getImages(kls, containerIds, po);
             pageTimes[i] = System.currentTimeMillis() - start;
             assertTrue(images.size() + " items", images.size() == page_size);
             for (Image img : images) {

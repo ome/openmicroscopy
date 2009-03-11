@@ -83,8 +83,7 @@ public class QueryFactoryTest extends TestCase {
         qf = new QueryFactory(classQS);
         q = qf.lookup(PojosLoadHierarchyQueryDefinition.class.getName(),
                 new Parameters().addClass(Project.class).addIds(
-                        Arrays.asList(0L)).addString(Parameters.OWNER_ID, null)
-                        .addOptions(null));
+                        Arrays.asList(0L)).addString(Parameters.OWNER_ID, null));
         assertNotNull("We should have a Pojos Query", q);
     }
 

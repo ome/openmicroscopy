@@ -40,7 +40,7 @@ import ome.model.display.CodomainMapContext;
 import ome.model.display.PlaneSlicingContext;
 import ome.model.display.RenderingDef;
 import ome.model.meta.Event;
-import ome.util.builders.PojoOptions;
+import ome.parameters.Parameters;
 import omero.RArray;
 import omero.RBool;
 import omero.RClass;
@@ -246,7 +246,7 @@ public class AdapterTest extends TestCase {
 
     @Test
     public void testParameterMapAndPojoOptions() throws Exception {
-        PojoOptions po = new PojoOptions();
+        Parameters po = new Parameters();
         po.leaves();
         po.exp(1L);
 

@@ -9,9 +9,8 @@ package ome.server.itests.details;
 // Java imports
 
 // Third-party libraries
-import org.testng.annotations.Test;
+import java.sql.Timestamp;
 
-// Application-internal dependencies
 import ome.conditions.SecurityViolation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
@@ -19,6 +18,8 @@ import ome.model.meta.Event;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
+
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -34,7 +35,7 @@ public class UpdateEventsTest extends AbstractManagedContextTest {
 
         loginRoot();
 
-        Image i = new Image();
+        Image i = new_Image();
         i.setName("immutable creation");
         i = iUpdate.saveAndReturnObject(i);
 
@@ -59,7 +60,7 @@ public class UpdateEventsTest extends AbstractManagedContextTest {
 
         loginNewUser();
 
-        Image i = new Image();
+        Image i = new_Image();
         i.setName("revert changes");
         i = iUpdate.saveAndReturnObject(i);
         Event modification = i.getDetails().getUpdateEvent();
@@ -78,7 +79,7 @@ public class UpdateEventsTest extends AbstractManagedContextTest {
 
         loginNewUser();
 
-        Image i = new Image();
+        Image i = new_Image();
         i.setName("new mod");
         i = iUpdate.saveAndReturnObject(i);
         Event modification = i.getDetails().getUpdateEvent();
@@ -96,7 +97,7 @@ public class UpdateEventsTest extends AbstractManagedContextTest {
 
         loginNewUser();
 
-        Image i = new Image();
+        Image i = new_Image();
         i.setName("lock suprise");
         i = iUpdate.saveAndReturnObject(i);
         Event modification = i.getDetails().getUpdateEvent();
@@ -113,4 +114,11 @@ public class UpdateEventsTest extends AbstractManagedContextTest {
                 .getId().equals(test.getId()));
     }
 
+
+    private Image new_Image() {
+        Image i = new Image();
+        i.setAcquisitionDate(new Timestamp(0));
+        return i;
+    }
+    
 }

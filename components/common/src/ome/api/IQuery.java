@@ -14,7 +14,6 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.parameters.Filter;
-import ome.parameters.Page;
 import ome.parameters.Parameters;
 import ome.parameters.QueryParameter;
 

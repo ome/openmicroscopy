@@ -61,6 +61,7 @@ import omero.romio.ZY;
 import omero.rtypes.Conversion;
 import omero.sys.EventContext;
 import omero.sys.Filter;
+import omero.sys.Options;
 import omero.sys.Parameters;
 
 import org.apache.commons.logging.Log;
@@ -539,6 +540,10 @@ public class IceMapper extends ome.util.ModelMapper implements
         if (params.theFilter != null) {
             p.setFilter(convert(params.theFilter));
         }
+        
+        if (params.theOptions != null) {
+            p.setOptions(convert(params.theOptions));
+        }
         return p;
     }
 
@@ -568,6 +573,29 @@ public class IceMapper extends ome.util.ModelMapper implements
         return qp;
     }
 
+    public static ome.parameters.Options convert(Options o) {
+        
+        if (o == null) {
+            return null;
+        }
+        
+        ome.parameters.Options options = new ome.parameters.Options();
+        
+        if (o.orphan != null) {
+            options.orphan = o.orphan.getValue();
+        }
+
+        if (o.leaves != null) {
+            options.leaves= o.leaves.getValue();
+        }
+
+        if (o.acquisitionData != null) {
+            options.acquisitionData = o.acquisitionData.getValue();
+        }
+        
+        return options;
+}
+    
     public static ome.parameters.Filter convert(Filter f) {
 
         if (f == null) {
@@ -576,14 +604,12 @@ public class IceMapper extends ome.util.ModelMapper implements
 
         ome.parameters.Filter filter = new ome.parameters.Filter();
 
-        int offset = 0, limit = Integer.MAX_VALUE;
         if (f.offset != null) {
-            offset = f.offset.getValue();
+            filter.offset = f.offset.getValue();
         }
         if (f.limit != null) {
-            limit = f.limit.getValue();
+            filter.limit = f.limit.getValue();
         }
-        filter.page(offset, limit);
 
         if (f.ownerId != null) {
             filter.owner(f.ownerId.getValue());
@@ -593,16 +619,12 @@ public class IceMapper extends ome.util.ModelMapper implements
             filter.group(f.groupId.getValue());
         }
 
-        if (f.preferOwner != null) {
-            throw new UnsupportedOperationException();
-        }
-
         if (f.startTime != null) {
-            throw new UnsupportedOperationException();
+            filter.startTime = convert(f.startTime);
         }
 
         if (f.endTime != null) {
-            throw new UnsupportedOperationException();
+            filter.endTime = convert(f.endTime);
         }
 
         if (f.unique != null && f.unique.getValue()) {

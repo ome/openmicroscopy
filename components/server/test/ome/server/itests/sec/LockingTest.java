@@ -221,8 +221,7 @@ public class LockingTest extends AbstractManagedContextTest {
     public void test_OneToOnesGetLockedAsWell() throws Exception {
         login(uname, gname, "Test");
 
-        Image i = new Image();
-        i.setName("ticket:357");
+        Image i = new_Image("ticket:357");
         Pixels p = ObjectFactory.createPixelGraph(null);
         i.addPixels(p);
 

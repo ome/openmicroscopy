@@ -6,6 +6,7 @@
  */
 package ome.server.itests.query.pojos;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,20 +66,20 @@ public class FindAnnotationsQueryTest extends AbstractManagedContextTest {
     public void test_illegal_arguments() throws Exception {
 
         creation_fails(new Parameters().addIds(null) // Null
-                .addOptions(null).addClass(Image.class).addSet("annotatorIds",
+                .addClass(Image.class).addSet("annotatorIds",
                         Collections.emptySet()));
 
         creation_fails(new Parameters().addIds(Collections.emptySet()) // Empty!
-                .addOptions(null).addClass(Image.class).addSet("annotatorIds",
+                .addClass(Image.class).addSet("annotatorIds",
                         Collections.emptySet()));
 
-        creation_fails(new Parameters().addIds(Arrays.asList(1l)).addOptions(
-                null).addClass(null) // Null here
+        creation_fails(new Parameters().addIds(Arrays.asList(1l))
+                .addClass(null) // Null here
                 .addSet("annotatorIds", Collections.emptySet()));
 
         creation_fails(new Parameters().addIds(Arrays.asList(1)) // Integer
                 // not Long
-                .addOptions(null).addClass(Image.class).addSet("annotatorIds",
+                .addClass(Image.class).addSet("annotatorIds",
                         Collections.emptySet()));
     }
 
@@ -86,7 +87,7 @@ public class FindAnnotationsQueryTest extends AbstractManagedContextTest {
     public void test_simple_usage() throws Exception {
         Long doesntExist = -1L;
         q = new PojosFindAnnotationsQueryDefinition(new Parameters().addIds(
-                Arrays.asList(doesntExist)).addOptions(null).addClass(
+                Arrays.asList(doesntExist)).addClass(
                 Image.class).addSet("annotatorIds", Collections.emptySet()));
 
         list = (List) iQuery.execute(q);
@@ -96,7 +97,7 @@ public class FindAnnotationsQueryTest extends AbstractManagedContextTest {
     public void test_images_exist() throws Exception {
         ids = new HashSet(data.getMax("Image.Annotated.ids", 2));
         q = new PojosFindAnnotationsQueryDefinition(new Parameters()
-                .addIds(ids).addOptions(null).addClass(Image.class).addSet(
+                .addIds(ids).addClass(Image.class).addSet(
                         "annotatorIds", Collections.emptySet()));
 
         Collection<IAnnotated> results = (Collection) iQuery.execute(q);
@@ -109,7 +110,7 @@ public class FindAnnotationsQueryTest extends AbstractManagedContextTest {
     public void test_dataset_exist() throws Exception {
         ids = new HashSet(data.getMax("Dataset.Annotated.ids", 2));
         q = new PojosFindAnnotationsQueryDefinition(new Parameters()
-                .addIds(ids).addOptions(null).addClass(Dataset.class).addSet(
+                .addIds(ids).addClass(Dataset.class).addSet(
                         "annotatorIds", Collections.emptySet()));
 
         Collection<IAnnotated> results = (Collection) iQuery.execute(q);
@@ -122,6 +123,7 @@ public class FindAnnotationsQueryTest extends AbstractManagedContextTest {
     public void testFindImageAnnotationsReturnsEventTimes() throws Exception {
         Image i = new Image();
         i.setName("ticket:172");
+        i.setAcquisitionDate(new Timestamp(0));
         CommentAnnotation a = new CommentAnnotation();
         a.setNs("");
         a.setTextValue("ticket:172");
@@ -130,7 +132,7 @@ public class FindAnnotationsQueryTest extends AbstractManagedContextTest {
 
         ids = new HashSet(Arrays.asList(i.getId()));
         q = new PojosFindAnnotationsQueryDefinition(new Parameters()
-                .addIds(ids).addOptions(null).addClass(Image.class).addSet(
+                .addIds(ids).addClass(Image.class).addSet(
                         "annotatorIds", Collections.emptySet()));
 
         Collection<IAnnotated> results = (Collection) iQuery.execute(q);

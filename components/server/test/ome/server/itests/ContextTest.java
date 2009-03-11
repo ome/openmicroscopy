@@ -51,28 +51,29 @@ public class ContextTest extends TestCase {
     public void testFullTextContext() throws Exception {
         OmeroContext.getInstance("ome.fulltext");
     }
-    
+
     @Test
     public void testListBeans() throws Exception {
-
+        OmeroContext ctx = OmeroContext.getManagedServerContext();
+        ctx.refreshAllIfNecessary();
         assertTrue(0 < Arrays.asList(
-                BeanFactoryUtils
-                        .beanNamesForTypeIncludingAncestors(OmeroContext
-                                .getManagedServerContext().getBeanFactory(),
-                                Object.class, true, true)).size());
+                BeanFactoryUtils.beanNamesForTypeIncludingAncestors(ctx
+                        .getBeanFactory(), Object.class, true, true)).size());
     }
 
     @Test
     public void testManagedContext() throws Exception {
         OmeroContext ctx = OmeroContext.getManagedServerContext();
+        ctx.refreshAllIfNecessary();
         onContext(ctx);
     }
-    
+
     @Test
     public void testManagedContextClose() throws Exception {
         OmeroContext ctx = OmeroContext.getManagedServerContext();
+        ctx.refreshAllIfNecessary();
         ctx.closeAll();
-        ctx.refresh();
+        ctx.refreshAll();
     }
 
     protected void onContext(OmeroContext ctx) {
@@ -85,6 +86,7 @@ public class ContextTest extends TestCase {
     public void testConfigureBean() throws Exception {
 
         OmeroContext ctx = OmeroContext.getManagedServerContext();
+        ctx.refreshAllIfNecessary();
         ctx.applyBeanPropertyValues(rb, RenderingEngine.class);
         assertTrue(rb.csCalled);
     }

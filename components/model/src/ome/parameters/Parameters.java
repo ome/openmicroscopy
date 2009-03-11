@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,11 +64,6 @@ public class Parameters implements Serializable {
     public final static String CLASS = "class";
 
     /**
-     * named parameter "options". Used in query strings as ":options"
-     */
-    public final static String OPTIONS = "options";
-
-    /**
      * named parameter "algorithm". Used in query strings as ":algorithm"
      */
     public final static String ALGORITHM = "algorithm";
@@ -82,11 +78,9 @@ public class Parameters implements Serializable {
      */
     public final static String GROUP_ID = "groupId";
 
-    /**
-     * single {@link Filter} instance for this Parameters. Is lazily-loaded by
-     * the getter.
-     */
     private Filter filter;
+    
+    private Options options;
 
     /**
      * storage for the {@link QueryParameter query parameters}. For
@@ -135,16 +129,6 @@ public class Parameters implements Serializable {
 
     // ~ READ METHODS
     // =========================================================================
-    /**
-     * returns the Filter for this instance. If there was previously not a
-     * Filter, a default will be instantiated.
-     */
-    public Filter getFilter() {
-        if (filter == null) {
-            filter = new Filter();
-        }
-        return filter;
-    }
 
     /**
      * copies all QueryParameters to an array. Changes to this array do not
@@ -181,6 +165,11 @@ public class Parameters implements Serializable {
         this.filter = filter;
         return this;
     }
+    
+    public Parameters setOptions(Options options) {
+        this.options = options;
+        return this;
+    }
 
     public Parameters add(QueryParameter parameter) {
         if (parameter == null) {
@@ -211,6 +200,15 @@ public class Parameters implements Serializable {
                         "Two filters not allowed during copy constructor.");
             } else {
                 filter = old.filter;
+            }
+        }
+        
+        if (old.options != null) {
+            if (options != null) {
+                throw new ApiUsageException(
+                        "Two options not allowed during copy constructor.");
+            } else {
+                options = old.options;
             }
         }
 
@@ -297,14 +295,229 @@ public class Parameters implements Serializable {
         return this;
     }
 
-    public Parameters addOptions(Map options) {
-        addMap(OPTIONS, options);
-        return this;
-    }
-
     public Parameters addAlgorithm(String algo) {
         addString(ALGORITHM, algo);
         return this;
+    }
+    
+    // ~ Filter delegation methods
+    // =========================================================================
+    
+    public Parameters exp(long id) {
+        if (this.filter == null) {
+            this.filter = new Filter();
+        }
+        this.filter.owner(id);
+        return this;
+    }
+    
+    public Parameters allExps() {
+        if (this.filter == null) {
+            this.filter = new Filter();
+        }
+        this.filter.owner(-1);
+        return this;
+    }
+    
+    public long owner() {
+        if (this.filter != null) {
+            return this.filter.owner();
+        }
+        return -1;
+    }
+    
+    public boolean isExperimenter() {
+        if (this.filter != null) {
+            return this.filter.owner() != -1L;
+        }
+        return false;
+    }
+    
+    /**
+     * Fulfills the old PojoOptions requirement for returning null if no
+     * owner set.
+     */
+    public Long getExperimenter() {
+        long o = owner();
+        if (o == -1) {
+            return null;
+        }
+        return Long.valueOf(o);
+    }
+    
+    public Parameters grp(long id) {
+        if (this.filter == null) {
+            this.filter = new Filter();
+        }
+        this.filter.group(id);
+        return this;
+    }
+    
+    public long group() {
+        if (this.filter != null) {
+            return this.filter.group();
+        }
+        return -1;
+    }
+
+    /**
+     * Fulfills the old PojoOptions requirement for returning null if no
+     * owner set.
+     */
+    public Long getGroup() {
+        long g = group();
+        if (g == -1) {
+            return null;
+        }
+        return Long.valueOf(g);
+    }
+    
+    public boolean isGroup() {
+        if (this.filter != null) {
+            return this.filter.group() != -1L;
+        }
+        return false;
+    }
+    
+    public Parameters startTime(Timestamp timestamp) {
+        if (this.filter == null) {
+            this.filter = new Filter();
+        }
+        this.filter.startTime = timestamp;
+        return this;
+    }
+    
+    public Timestamp getStartTime() {
+        if (this.filter != null) {
+            return this.filter.startTime;
+        }
+        return null;
+    }
+    
+    public Parameters endTime(Timestamp timestamp) {
+        if (this.filter == null) {
+            this.filter = new Filter();
+        }
+        this.filter.endTime = timestamp;
+        return this;
+    }
+    
+    public Timestamp getEndTime() {
+        if (this.filter != null) {
+            return this.filter.endTime;
+        }
+        return null;
+    }
+    
+    public Parameters paginate(Integer offset, Integer limit) {
+        if (this.filter == null) {
+            this.filter = new Filter(); 
+        }
+        this.filter.limit = limit;
+        this.filter.offset = offset;
+        return this;
+    }
+    
+    public Integer getLimit() {
+        if (this.filter != null) {
+            return this.filter.limit;
+        }
+        return null;
+    }
+    
+    public Integer getOffset() {
+        if (this.filter != null) {
+            return this.filter.offset;
+        }
+        return null;
+    }
+    
+    public boolean isPagination() {
+        if (this.filter != null) {
+            return this.filter.offset != null || this.filter.limit != null;
+        }
+        return false;
+    }
+    
+    public Parameters page(Integer offset, Integer limit) {
+        if (this.filter == null) {
+            this.filter = new Filter();
+        }
+        this.filter.limit = limit;
+        this.filter.offset = offset;
+        return this;
+    }
+
+    public Parameters unique() {
+        if (this.filter == null) {
+            this.filter = new Filter();
+        }
+        this.filter.unique();
+        return this;
+    }
+    
+    public boolean isUnique() {
+        if (this.filter != null) {
+            return this.filter.isUnique();
+        }
+        return false;
+    }
+    
+
+    // ~ Options delegation methods
+    // =========================================================================
+
+    public boolean isAcquisitionData() {
+        if (this.options != null) {
+            return this.options.acquisitionData;
+        }
+        return false;
+    }
+
+    public boolean isLeaves() {
+        if (this.options != null) {
+            return this.options.leaves;
+        }
+        return false;
+    }
+    
+    public Parameters leaves() {
+        if (this.options == null) {
+            this.options = new Options();
+        }
+        this.options.leaves = true;
+        return this;
+    }
+    
+    public Parameters noLeaves() {
+        if (this.options == null) {
+            this.options = new Options();
+        }
+        this.options.leaves = false;
+        return this;
+    }
+    
+    public Parameters orphan() {
+        if (this.options == null) {
+            this.options = new Options();
+        }
+        this.options.orphan = true;
+        return this;
+    }
+    
+    public Parameters noOrphan() {
+        if (this.options == null) {
+            this.options = new Options();
+        }
+        this.options.orphan = false;
+        return this;
+    }
+    
+    public boolean isOrphan() {
+        if (this.options != null) {
+            return this.options.orphan;
+        }
+        return false;
     }
 
     // ~ Serialization

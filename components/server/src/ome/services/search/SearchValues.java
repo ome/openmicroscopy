@@ -89,14 +89,15 @@ public class SearchValues implements Serializable {
      */
     public void copy(Parameters params) {
         if (params != null) {
-            Filter filter = params.getFilter();
-            batchSize = filter.maxResults();
-            if (filter.owner() >= 0) {
+            if (params.getLimit() != null) {
+                batchSize = params.getLimit();
+            }
+            if (params.owner() >= 0) {
                 ownedBy = Details.create();
-                ownedBy.setOwner(new Experimenter(filter.owner(), false));
-            } else if (filter.group() >= 0) {
+                ownedBy.setOwner(new Experimenter(params.owner(), false));
+            } else if (params.group() >= 0) {
                 ownedBy = Details.create();
-                ownedBy.setGroup(new ExperimenterGroup(filter.group(), false));
+                ownedBy.setGroup(new ExperimenterGroup(params.group(), false));
             }
         }
 

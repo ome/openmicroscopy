@@ -13,6 +13,7 @@ import static ome.model.internal.Permissions.Role.WORLD;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -258,6 +259,7 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
     private Image createImage(Permissions p) {
         Image img = new Image();
         img.setName(ticket117 + ":" + UUID.randomUUID().toString());
+        img.setAcquisitionDate(new Timestamp(0));
         return createObject(img, p);
     }
 

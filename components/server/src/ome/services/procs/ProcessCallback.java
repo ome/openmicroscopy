@@ -25,7 +25,6 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import ome.parameters.Parameters;
 import static ome.parameters.Parameters.*;
 import ome.parameters.QueryParameter;
-import ome.util.builders.PojoOptions;
 
 /**
  * 

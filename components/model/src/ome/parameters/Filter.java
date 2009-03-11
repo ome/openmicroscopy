@@ -7,12 +7,8 @@
 
 package ome.parameters;
 
-// Java imports
 import java.io.Serializable;
-
-// Third-party libraries
-
-// Application-internal dependencies
+import java.sql.Timestamp;
 
 /**
  * parameter to generally reduce the size of a query result set.
@@ -36,8 +32,18 @@ public class Filter implements Serializable {
 
     private long id_owner = -1, id_group = -1;
 
-    private Page page = new Page(0, Integer.MAX_VALUE);
+    public Integer limit;
+    
+    public Integer offset;
 
+    public Timestamp startTime, endTime;
+
+    public Filter page(Integer offset, Integer limit) {
+        this.offset = offset;
+        this.limit = limit;
+        return this;
+    }
+    
     // ~ Flags
     // =========================================================================
     /**
@@ -52,8 +58,8 @@ public class Filter implements Serializable {
 
     /**
      * check uniqueness for this query. Participating queries will attempt to
-     * call <code>uniqueResult</code> rather than <code>list</code>. This
-     * may throw a {@link ome.conditions.ValidationException} on execution.
+     * call <code>uniqueResult</code> rather than <code>list</code>. This may
+     * throw a {@link ome.conditions.ValidationException} on execution.
      */
     public boolean isUnique() {
         return unique;
@@ -77,22 +83,6 @@ public class Filter implements Serializable {
 
     public long group() {
         return id_group;
-    }
-
-    // ~ Page
-    // =========================================================================
-
-    public Filter page(int offset, int limit) {
-        page = new Page(offset, limit);
-        return this;
-    }
-
-    public int firstResult() {
-        return page.offset();
-    }
-
-    public int maxResults() {
-        return page.limit();
     }
 
     // ~ Serialization

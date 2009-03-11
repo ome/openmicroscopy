@@ -17,7 +17,7 @@ public class ParamsTest extends TestCase {
     @Test
     public void test_ParamsWithFilter() throws Exception {
         Parameters p = new Parameters(new Filter().unique());
-        assertTrue(p.getFilter().isUnique());
+        assertTrue(p.isUnique());
     }
 
     @Test

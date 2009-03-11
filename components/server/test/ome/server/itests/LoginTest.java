@@ -23,6 +23,7 @@ import ome.system.Principal;
 import ome.system.ServiceFactory;
 
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
@@ -48,9 +49,10 @@ public class LoginTest extends TestCase {
 
     protected PrincipalHolder ph;
 
-    @Configuration(beforeTestClass = true)
+    @BeforeMethod
     public void config() {
         ctx = OmeroContext.getManagedServerContext();
+        ctx.refreshAllIfNecessary();
         sf = new ServiceFactory(ctx);
         q = sf.getQueryService();
         u = sf.getUpdateService();

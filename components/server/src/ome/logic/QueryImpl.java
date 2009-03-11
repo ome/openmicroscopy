@@ -325,7 +325,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         }
 
         // specify that we should only return a single value if possible
-        params.getFilter().unique();
+        params.unique();
 
         Query<T> q = getQueryFactory().lookup(queryName, params);
         T result = null;
@@ -414,8 +414,12 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      */
     protected void parseFilter(Criteria c, Filter f) {
         if (f != null) {
-            c.setFirstResult(f.firstResult());
-            c.setMaxResults(f.maxResults());
+            if (f.offset != null) {
+                c.setFirstResult(f.offset);
+            }
+            if (f.limit != null) {
+                c.setMaxResults(f.limit);
+            }
         }
     }
 

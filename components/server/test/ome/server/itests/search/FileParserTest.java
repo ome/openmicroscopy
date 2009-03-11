@@ -9,6 +9,7 @@ package ome.server.itests.search;
 import java.io.File;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class FileParserTest extends AbstractTest {
             // when run in the server
         }
 
-        i = new Image();
+        i = new_Image();
         i.setName("annotated with file");
         FileAnnotation fa = new FileAnnotation();
         fa.setNs("");
@@ -101,7 +102,7 @@ public class FileParserTest extends AbstractTest {
             // when run in the server
         }
 
-        i = new Image();
+        i = new_Image();
         i.setName("annotated"); // Don't put ABC123 here.
         FileAnnotation fa = new FileAnnotation();
         fa.setFile(new OriginalFile(upload.getId(), false));
@@ -115,6 +116,12 @@ public class FileParserTest extends AbstractTest {
         search.onlyIds(i.getId());
         search.byFullText("file.contents:ABC123");
         assertTrue(search.hasNext());
+    }
+
+    private Image new_Image() {
+        Image i = new Image();
+        i.setAcquisitionDate(new Timestamp(0));
+        return i;
     }
 
 }

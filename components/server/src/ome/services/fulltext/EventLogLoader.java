@@ -202,14 +202,13 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
         qb.order("id", true);
         String query = qb.queryString();
 
-        return queryService.findByQuery(query, new Parameters(new Filter()
-                .page(0, 1)));
+        return queryService.findByQuery(query, new Parameters().page(0, 1));
     }
 
     public final EventLog lastEventLog() {
         return queryService.findByQuery(
-                "select el from EventLog el order by id desc", new Parameters(
-                        new Filter().page(0, 1)));
+                "select el from EventLog el order by id desc",
+                new Parameters().page(0, 1));
     }
 
     // Re-Indexing

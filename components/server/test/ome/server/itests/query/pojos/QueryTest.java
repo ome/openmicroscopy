@@ -62,7 +62,7 @@ public class QueryTest extends AbstractManagedContextTest {
                 new Parameters().addClass(Project.class)
                         .addIds(
                                 Arrays.asList(9090L, 9091L, 9092L, 9990L,
-                                        9991L, 9992L)).addOptions(null));
+                                        9991L, 9992L)));
 
         List result = (List) iQuery.execute(queryDef);
         walkResult(result);
@@ -76,7 +76,7 @@ public class QueryTest extends AbstractManagedContextTest {
                         .addIds(
                                 Arrays.asList(9090L, 9091L, 9092L, 9990L,
                                         9991L, 9992L)).addLong("ownerId",
-                                10000L).addOptions(null));
+                                10000L));
         List result = (List) iQuery.execute(queryDef);
         walkResult(result);
     }
@@ -85,7 +85,7 @@ public class QueryTest extends AbstractManagedContextTest {
     public void testCriteriaCalls() {
         Parameters p = new Parameters().addClass(Project.class).addIds(
                 Arrays.asList(9090L, 9091L, 9092L, 9990L, 9991L, 9992L))
-                .addLong("ownerId", null).addOptions(null);
+                .addLong("ownerId", null);
 
         PojosLoadHierarchyQueryDefinition queryDef = new PojosLoadHierarchyQueryDefinition(
                 p);

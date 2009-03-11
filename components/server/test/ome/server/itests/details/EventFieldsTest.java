@@ -46,7 +46,7 @@ public class EventFieldsTest extends AbstractManagedContextTest {
 
     public void testExperimenterAndGroupFilled() throws Exception {
 
-        Image dummy = new Image();
+        Image dummy = newImage();
         dummy.setName("dummy");
         dummy = iUpdate.saveAndReturnObject(dummy);
 
@@ -60,6 +60,12 @@ public class EventFieldsTest extends AbstractManagedContextTest {
         assertNotNull(dummy.getDetails().getUpdateEvent()
                 .getExperimenterGroup());
 
+    }
+
+    private Image newImage() {
+        Image i = new Image();
+        i.setAcquisitionDate(new Timestamp(0));
+        return i;
     }
 
     // ~ Helpers

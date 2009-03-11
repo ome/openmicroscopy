@@ -46,7 +46,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
     public void testNewRecursiveEntityFieldOnDetachedPixels() throws Exception {
         // PREPARE ----------------------------------------------
         p.setRelatedTo(ObjectFactory.createPixelGraph(null));
-        p = iUpdate.saveAndReturnObject(p);
+        p = iUpdate.saveAndReturnObject(p.getImage()).getPixels(0);
 
         // TEST -------------------------------------------------
         assertTrue("Related-to is null", p.getRelatedTo() != null);
@@ -66,7 +66,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         // PREPARE ----------------------------------------------
         // Make field entry; we have to re-do what is done in setup above.
         Pixels example2 = ObjectFactory.createPixelGraph(null);
-        example2 = iUpdate.saveAndReturnObject(example2);
+        example2 = iUpdate.saveAndReturnObject(example2.getImage()).getPixels(0);
 
         Pixels p2 = ObjectFactory.createPixelGraph(example2);
 

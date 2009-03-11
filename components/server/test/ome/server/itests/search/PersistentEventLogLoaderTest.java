@@ -40,7 +40,7 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
         final boolean[] result = new boolean[1];
         ex.execute(new Principal(s.getUuid(), "system", "FullText"),
                 new Executor.SimpleWork(this, "with no db entry") {
-                    @Transactional(readOnly = true)
+                    @Transactional(readOnly = false)
                     public Object doWork(Session session, ServiceFactory sf) {
                         ll.deleteCurrentId();
                         EventLog log = ll.next();

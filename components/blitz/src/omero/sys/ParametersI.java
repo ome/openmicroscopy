@@ -123,6 +123,29 @@ public class ParametersI extends omero.sys.Parameters {
         }
         return null;
     }
+    
+    public ParametersI unique() {
+        if (this.theFilter == null) {
+            this.theFilter = new Filter();
+        }
+        this.theFilter.unique = rbool(true);
+        return this;
+    }
+    
+    public ParametersI noUnique() {
+        if (this.theFilter == null) {
+            this.theFilter = new Filter();
+        }
+        this.theFilter.unique = rbool(false);
+        return this;
+    }
+    
+    public omero.RBool getUnique() {
+        if (this.theFilter != null) {
+            return this.theFilter.unique;
+        }
+        return null;
+    }
 
     // ~ Parameters.theFilter.ownerId & groupId
     // =========================================================================

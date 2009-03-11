@@ -29,10 +29,10 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.screen.Plate;
 import ome.model.screen.Screen;
+import ome.parameters.Parameters;
 import ome.testing.OMEData;
 import ome.testing.ObjectFactory;
 import ome.util.CBlock;
-import ome.util.builders.PojoOptions;
 
 import org.testng.annotations.Test;
 
@@ -65,7 +65,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
     @Test(groups = "ticket:318")
     public void testLoadHiearchiesHandlesNullRootNodeIds() throws Exception {
-        PojoOptions po;
+        Parameters po;
 
         try {
             iContainer.loadContainerHierarchy(Project.class, null, null);
@@ -73,11 +73,11 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         } catch (ApiUsageException aue) {
             // ok
         }
-        po = new PojoOptions().exp(0L);
-        iContainer.loadContainerHierarchy(Project.class, null, po.map());
+        po = new Parameters().exp(0L);
+        iContainer.loadContainerHierarchy(Project.class, null, po);
 
-        po = new PojoOptions().grp(0L);
-        iContainer.loadContainerHierarchy(Project.class, null, po.map());
+        po = new Parameters().grp(0L);
+        iContainer.loadContainerHierarchy(Project.class, null, po);
 
     }
 
@@ -116,7 +116,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
     }
 
     @Test(groups = "ticket:651")
-    public void testIntervalInPojoOptions() {
+    public void testIntervalInParameters() {
         Long userID = factory.getAdminService().getEventContext()
                 .getCurrentUserId();
         // create
@@ -133,14 +133,14 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         Timestamp startTime = getDate("before");
         Timestamp endTime = getDate("after");
 
-        PojoOptions options = new PojoOptions();
+        Parameters options = new Parameters();
         options.exp(userID);
         options.startTime(startTime);
         options.endTime(endTime);
 
-        iContainer.getImagesByOptions(options.map());
+        iContainer.getImagesByOptions(options);
         iContainer.getImages(Dataset.class, Collections.singleton(ds.getId()),
-                options.map());
+                options);
     }
 
     @Test(groups = "ticket:1018")
@@ -161,12 +161,12 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         Timestamp startTime = getDate("before");
         Timestamp endTime = getDate("after");
 
-        PojoOptions options = new PojoOptions();
+        Parameters options = new Parameters();
         options.exp(userID);
         options.startTime(startTime);
         options.endTime(endTime);
 
-        Set<Image> images = iContainer.getImagesByOptions(options.map());
+        Set<Image> images = iContainer.getImagesByOptions(options);
         Image i = images.iterator().next();
         assertTrue(i.getAnnotationLinksCountPerOwner() != null);
 
@@ -186,11 +186,11 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         s = iUpdate.saveAndReturnObject(s);
         p2 = iUpdate.saveAndReturnObject(p2);
         
-        PojoOptions options = new PojoOptions();
+        Parameters options = new Parameters();
         
         //no orphan
         Set screens = iContainer.loadContainerHierarchy(Screen.class, 
-        		new HashSet(), options.map());
+        		new HashSet(), options);
 
         assertTrue(screens.size() == 1);
         
@@ -214,7 +214,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         //orphan
         options.orphan();
         screens = iContainer.loadContainerHierarchy(Screen.class, 
-        		new HashSet(), options.map());
+        		new HashSet(), options);
         assertTrue(screens.size() == 2);
         i = screens.iterator();
         IObject object;

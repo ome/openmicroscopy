@@ -120,22 +120,6 @@ public class AbstractManagedContextTest extends
     protected void onSetUp() throws Exception {
         this.applicationContext = createApplicationContext(null);
 
-        try {
-            this.applicationContext.isRunning();
-        } catch (IllegalStateException ise) {
-            ConfigurableApplicationContext ac = this.applicationContext;
-            List<ConfigurableApplicationContext> acs
-                = new ArrayList<ConfigurableApplicationContext>();
-            acs.add(ac);
-            while (ac.getParent() != null) {
-                ac = (ConfigurableApplicationContext) ac.getParent();
-                acs.add(ac);
-            }
-            for (int i = acs.size(); i > 0; i--) {
-                acs.get(i-1).refresh();
-            }
-        }
-
         DataSource dataSource = (DataSource) applicationContext
                 .getBean("dataSource");
         jdbcTemplate = (SimpleJdbcTemplate) applicationContext
@@ -229,7 +213,9 @@ public class AbstractManagedContextTest extends
     @Override
     protected ConfigurableApplicationContext createApplicationContext(
             String[] locations) {
-        return OmeroContext.getManagedServerContext();
+        OmeroContext ctx = OmeroContext.getManagedServerContext();
+        ctx.refreshAllIfNecessary();
+        return ctx;
     }
 
     protected Principal login(String userName, String groupName,
@@ -282,6 +268,9 @@ public class AbstractManagedContextTest extends
 
     protected <T extends IObject> void assertWorldReadable(List<T> list) {
         for (T t : list) {
+            if (t.getId().equals(0L) || t.getId().equals(1L)) {
+                continue; // Skipping root and guest.
+            }
             assertWorldReadable(t);
         }
     }
