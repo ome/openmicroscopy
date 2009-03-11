@@ -8,6 +8,7 @@ package ome.server.itests.sec;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -22,8 +23,6 @@ import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -681,4 +680,24 @@ public class AdminTest extends AbstractManagedContextTest {
 
     }
 
+    public void testLookupExperimentersOnlyReturnsEachUserOnce() throws Exception {
+        
+        Experimenter e = loginNewUser();
+        
+        loginRoot();
+        ExperimenterGroup g = new ExperimenterGroup(uuid());
+        g = new ExperimenterGroup( iAdmin.createGroup(g), false);
+        iAdmin.addGroups(e, g);
+        
+        loginUser(e.getOmeName());
+     
+        Set<Long> seen = new HashSet<Long>();
+        List<Experimenter> list = iAdmin.lookupExperimenters();
+        for (Experimenter user : list) {
+            assertFalse(String.format("Already saw %s in %s", user, list),
+                    seen.contains(user.getId()));
+            seen.add(user.getId());
+        }
+    }
+    
 }

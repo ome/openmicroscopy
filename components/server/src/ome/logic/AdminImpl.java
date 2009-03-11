@@ -8,13 +8,11 @@
 package ome.logic;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ome.annotations.NotNull;
 import ome.annotations.PermitAll;
@@ -24,7 +22,6 @@ import ome.annotations.RolesAllowed;
 import ome.api.IAdmin;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalAdmin;
-import ome.api.local.LocalLdap;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
@@ -34,13 +31,9 @@ import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
-import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.AdminAction;
@@ -61,7 +54,6 @@ import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.system.SimpleEventContext;
-import ome.tools.hibernate.HibernateUtils;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.Utils;
 
@@ -292,7 +284,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     @RolesAllowed("user")
     public List<Experimenter> lookupExperimenters() {
-        return iQuery.findAllByQuery("select e from Experimenter e "
+        return iQuery.findAllByQuery("select distinct e from Experimenter e "
                 + "left outer join fetch e.groupExperimenterMap m "
                 + "left outer join fetch m.parent g", null);
     }
@@ -334,7 +326,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     @RolesAllowed("user")
     public List<ExperimenterGroup> lookupGroups() {
-        return iQuery.findAllByQuery("select g from ExperimenterGroup g "
+        return iQuery.findAllByQuery("select distinct g from ExperimenterGroup g "
                 + "left outer join fetch g.groupExperimenterMap m "
                 + "left outer join fetch m.child u "
                 + "left outer join fetch u.groupExperimenterMap m2 "
@@ -344,7 +336,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     public Experimenter[] containedExperimenters(long groupId) {
         List<Experimenter> experimenters = iQuery.findAllByQuery(
-                "select e from Experimenter as e "
+                "select distinct e from Experimenter as e "
                 + "join fetch e.groupExperimenterMap as map "
                 + "join fetch map.parent g "
                 + "where e.id in "
@@ -358,7 +350,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public ExperimenterGroup[] containedGroups(long experimenterId) {
         List<ExperimenterGroup> groups = iQuery
                 .findAllByQuery(
-                        "select g from ExperimenterGroup as g "
+                        "select distinct g from ExperimenterGroup as g "
                         + "join fetch g.groupExperimenterMap as map "
                         + "join fetch map.parent e "
                         + "where g.id in "
