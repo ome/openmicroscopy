@@ -142,13 +142,21 @@ public class SessionBean implements ISession {
     }
 
     @RolesAllowed( { "user", "guest" })
-    public Session updateSession(@NotNull Session session) {
-        return mgr.update(session);
+    public Session updateSession(@NotNull final Session session) {
+        Future<Session> future = ex.submit(new Callable<Session>(){
+            public Session call() throws Exception {
+                return mgr.update(session);
+            }});
+        return ex.get(future);
     }
 
     @RolesAllowed( { "user", "guest" })
-    public int closeSession(@NotNull Session session) {
-        return mgr.close(session.getUuid());
+    public int closeSession(@NotNull final Session session) {
+        Future<Integer> future = ex.submit(new Callable<Integer>(){
+            public Integer call() throws Exception {
+                return mgr.close(session.getUuid());
+            }});
+        return ex.get(future);
     }
 
     // ~ Environment

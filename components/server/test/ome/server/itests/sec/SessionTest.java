@@ -6,8 +6,10 @@
  */
 package ome.server.itests.sec;
 
+import ome.api.IAdmin;
 import ome.api.ISession;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.system.EventContext;
@@ -52,4 +54,24 @@ public class SessionTest extends AbstractManagedContextTest {
 
     }
 
+    @Test(groups = "ticket:1229")
+    public void testUpdateDefaultGroup() throws Exception {
+        
+        ISession s = this.factory.getSessionService();
+        IAdmin a = this.factory.getAdminService();
+
+        Experimenter e = loginNewUser();
+        ExperimenterGroup g = new ExperimenterGroup(uuid());
+        g = new ExperimenterGroup(a.createGroup(g), false);
+        
+        loginRoot();
+        a.addGroups(e, g);
+        
+        loginUser(e.getOmeName());
+        String uuid = a.getEventContext().getCurrentSessionUuid();
+        Session session = s.getSession(uuid);
+        session.getDetails().setGroup(g);
+        s.updateSession(session);
+        
+    }
 }
