@@ -156,9 +156,9 @@ class SendEmail(threading.Thread):
         # Create the root message and fill in the from, to, and subject headers
         msgRoot = MIMEMultipart('related')
         try:
-            msgRoot['Subject'] = 'OMERO.%s - %s %s shares with you some of the data' % (app, user.firstName.val, user.lastName.val)
+            msgRoot['Subject'] = 'OMERO.%s - %s %s shared some data with you' % (app, user.firstName.val, user.lastName.val)
         except:
-            msgRoot['Subject'] = 'OMERO.%s - unknown person shares with you some of the data' % (app)
+            msgRoot['Subject'] = 'OMERO.%s - unknown person shared some data with you' % (app)
         try:
             msgRoot['From'] = '%s %s <%s>' % (user.firstName.val, user.lastName.val, user.email.val)
         except:
@@ -190,7 +190,7 @@ class SendEmail(threading.Thread):
         app = settings.WEBCLIENT_ROOT_BASE
         # Create the root message and fill in the from, to, and subject headers
         msgRoot = MIMEMultipart('related')
-        msgRoot['Subject'] = 'OMERO.%s - new comment on the share available' % (app)
+        msgRoot['Subject'] = 'OMERO.%s - new comment on share available' % (app)
         msgRoot['From'] = settings.EMAIL_SENDER_ADDRESS
 
         msgRoot.preamble = 'This is a multi-part message in MIME format.'
