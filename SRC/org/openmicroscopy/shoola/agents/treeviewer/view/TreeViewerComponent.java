@@ -23,9 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
-
-
-
 //Java imports
 import java.awt.Component;
 import java.awt.Cursor;

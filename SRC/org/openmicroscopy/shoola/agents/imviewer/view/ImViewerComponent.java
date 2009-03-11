@@ -910,13 +910,12 @@ class ImViewerComponent
 	 */
 	public void renderXYPlane()
 	{
-		//Check state
 		switch (model.getState()) {
 			case NEW:
-			case DISCARDED:
 				throw new IllegalStateException(
-				"This method can't be invoked in the DISCARDED, NEW or" +
-				" state.");
+						"This method can't be invoked in the NEW state.");
+			case DISCARDED:
+				return;
 		} 
 		boolean stop = false;
 		int index = model.getTabbedIndex();

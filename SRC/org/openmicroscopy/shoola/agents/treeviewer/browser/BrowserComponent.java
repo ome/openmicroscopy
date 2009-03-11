@@ -714,7 +714,6 @@ class BrowserComponent
         }
         if (parent != null) {
         	EditVisitor visitor = new EditVisitor(this, null, parent);
-            //accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
             loggedUser.accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
             nodes = visitor.getParentNodes();
         }
@@ -742,6 +741,12 @@ class BrowserComponent
      */
 	public void onOrphanDataObjectCreated(DataObject data) 
 	{
+		int type = model.getBrowserType();
+		if ((data instanceof DatasetData) || (data instanceof DatasetData)) {
+			if (type != PROJECT_EXPLORER) return;
+		} else if (data instanceof TagAnnotationData) {
+			if (type != TAGS_EXPLORER) return;
+		}
 		TreeImageDisplay loggedUser = view.getLoggedExperimenterNode();
 		List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>(1);
         nodes.add(loggedUser);

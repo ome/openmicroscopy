@@ -611,7 +611,7 @@ class TreeViewerControl
 				while (i.hasNext()) {
 					entry = (Entry) i.next();
 					data = (DataObject) entry.getKey();
-					o = entry.getValue();map.get(data);
+					o = entry.getValue();
 					if (o != null)
 						parent = (DataObject) o;
 					break;

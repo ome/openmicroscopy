@@ -57,7 +57,10 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisito
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * The Model component in the <code>DataBrowser</code> MVC triad.
@@ -464,6 +467,20 @@ abstract class DataBrowserModel
 		if (parent instanceof DataObject) p = (DataObject) parent;
 		if (grandParent != null && grandParent instanceof DataObject)
 			p = (DataObject) grandParent;
+		
+		//Review that code.
+		if (data instanceof DatasetData) {
+			if (!(p instanceof ProjectData)) p = null;
+		} else if (data instanceof TagAnnotationData) {
+			if (p instanceof TagAnnotationData) {
+				TagAnnotationData tag = (TagAnnotationData) p;
+				if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+						tag.getNameSpace()))
+					p = null;
+			}
+		}
+		
+		
 		DataObjectCreator loader = new DataObjectCreator(component, p, data, 
 														images);
 		loader.load();
