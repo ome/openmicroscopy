@@ -320,6 +320,7 @@ class AcquisitionDataUI
 	{
 		List channels = model.getChannelData();
 		channelAcquisitionPanes.clear();
+		channelComps.clear();
 		if (channels != null) {
 			ChannelData channel;
 			Iterator i = channels.iterator();
