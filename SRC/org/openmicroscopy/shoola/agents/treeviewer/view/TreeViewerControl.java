@@ -448,6 +448,7 @@ class TreeViewerControl
 		attachListeners();
 		TreeViewerFactory.attachWindowMenuToTaskBar();
 		loadingWindow = new LoadingWindow(view);
+		loadingWindow.setAlwaysOnTop(false);
 		loadingWindow.setStatus("Saving changes");
 	}
 	
@@ -725,6 +726,7 @@ class TreeViewerControl
 				view.setStatus(null, true);
 				view.setStatusIcon(false);
 				view.onStateChanged(true);
+				view.requestFocus();
 				break;  
 			case TreeViewer.SETTINGS_RND:
 				UIUtilities.centerAndShow(loadingWindow);
