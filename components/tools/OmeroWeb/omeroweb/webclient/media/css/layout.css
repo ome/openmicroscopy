@@ -221,12 +221,6 @@ ul.errorlist li {
     padding: 0px;
 }
 
-.mybox {
-    border: 0px;
-    margin: 5px;
-    background-color: #f5f5f5;
-    border: 1px dotted #bbb;
-}
 .details {
     border-bottom:1px solid #BBBBBB;
 }
@@ -236,4 +230,8 @@ ul.errorlist li {
 }
 label {
     font-weight: bold;
+}
+.box {
+    float:left;
+    margin:15px 0 10px 0;
 }

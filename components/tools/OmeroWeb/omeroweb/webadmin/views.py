@@ -512,7 +512,10 @@ def manage_experimenter(request, action, eid=None, **kwargs):
                 pass
             defaultGroup = request.REQUEST['default_group']
             otherGroups = request.POST.getlist('other_groups')
-            password = request.REQUEST['password'].encode('utf-8')
+            try:
+                password = request.REQUEST['password'].encode('utf-8')
+            except:
+                password = None
             controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution, password)
             return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid}
@@ -720,7 +723,10 @@ def my_account(request, action=None, **kwargs):
             email = request.REQUEST['email'].encode('utf-8')
             institution = request.REQUEST['institution'].encode('utf-8')
             defaultGroup = request.REQUEST['default_group']
-            password = request.REQUEST['password'].encode('utf-8')
+            try:
+                password = request.REQUEST['password'].encode('utf-8')
+            except:
+                password = None
             myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
             logout(request)
             return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))

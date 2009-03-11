@@ -55,6 +55,7 @@ from django.utils import simplejson
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
 
+from controller import sortByAttr
 from controller.index import BaseIndex
 from controller.annotation import BaseAnnotation
 from controller.basket import BaseBasket
@@ -1039,14 +1040,14 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
     '''grs = list()
     grs.extend(list(conn.getEventContext().memberOfGroups))
     #grs.extend(list(conn.getEventContext().leaderOfGroups))
-    my_groups = set(list(conn.getExperimenterGroups(set(grs))))
+    my_groups = sortByAttr(list(conn.getExperimenterGroups(set(grs))), "name")
     request.session['groupId'] = None
     form_mygroups = MyGroupsForm(initial={'mygroups': my_groups})'''
     form_mygroups = None
     
     filter_user_id = None
     form_users = None
-    users = set(conn.getColleaguesAndStaffs())
+    users = sortByAttr(list(conn.getColleaguesAndStaffs()), "lastName")
     
     try:
         if request.REQUEST['experimenter'] != "": 
@@ -1404,7 +1405,7 @@ def manage_user_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_i
         template = "omeroweb/container_subtree.html"
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager,  'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_environment':form_environment, 'form_objective':form_objective, 'form_stageLabel':form_stageLabel, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager,  'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_environment':form_environment, 'form_objective':form_objective, 'form_stageLabel':form_stageLabel, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files, 'form_active_group':form_active_group}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1450,7 +1451,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     manager.buildBreadcrumb(whos)
     
     form_users = None
-    users = set(conn.getColleaguesAndStaffs())
+    users = sortByAttr(list(conn.getColleaguesAndStaffs()), "lastName")
     request.session['experimenter'] = None
     form_users = MyUserForm(initial={'users': users})
     
@@ -1459,7 +1460,7 @@ def manage_group_containers(request, o1_type=None, o1_id=None, o2_type=None, o2_
     grs = list()
     grs.extend(list(conn.getEventContext().memberOfGroups))
     #grs.extend(list(conn.getEventContext().leaderOfGroups))
-    my_groups = set(list(conn.getExperimenterGroups(set(grs))))
+    my_groups = sortByAttr(list(conn.getExperimenterGroups(set(grs))), "name")
     try:
         if request.REQUEST['group'] != "": 
             form_mygroups = MyGroupsForm(initial={'mygroups': my_groups}, data=request.REQUEST.copy())
@@ -2699,7 +2700,7 @@ def update_clipboard(request, **kwargs):
             if action == 'copy':
                 prod = long(request.REQUEST['productId'])
                 ptype = str(request.REQUEST['productType'])
-                if len(request.session['clipboard']) > 0 and request.session['clipboard'][0] != ptype and request.session['clipboard'][1] != prod:
+                if len(request.session['clipboard']) > 0 and request.session['clipboard'][0] == ptype and request.session['clipboard'][1] == prod:
                     rv = "Error: This object is already in the clipboard."
                     return HttpResponse(rv)
                 else:
@@ -2869,8 +2870,8 @@ def myaccount(request, action, **kwargs):
     eContext['breadcrumb'] = ["My Account",  controller.experimenter.id]
     
     grs = list(conn.getGroupsMemberOf())
-    grs.extend(list(conn.getGroupsLeaderOf()))
-    eContext['memberOfGroups']  = controller.sortByAttr(grs, "name")
+    #grs.extend(list(conn.getGroupsLeaderOf()))
+    eContext['allGroups']  = controller.sortByAttr(grs, "name")
     #eContext['memberOfGroups'] = controller.sortByAttr(list(conn.getGroupsMemberOf()), "name")
     
     if controller.ldapAuth == "" or controller.ldapAuth is None:
@@ -2895,7 +2896,10 @@ def myaccount(request, action, **kwargs):
             email = request.REQUEST['email'].encode('utf-8')
             institution = request.REQUEST['institution'].encode('utf-8')
             defaultGroup = request.REQUEST['default_group']
-            password = str(request.REQUEST['password'].encode('utf-8'))
+            try:
+                password = str(request.REQUEST['password'].encode('utf-8'))
+            except:
+                password = None
             controller.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
             return HttpResponseRedirect("/%s/myaccount/details/" % (settings.WEBCLIENT_ROOT_BASE))
     elif action == "upload":
@@ -2906,7 +2910,7 @@ def myaccount(request, action, **kwargs):
                 controller.attach_photo(request.FILES['photo'])
                 return HttpResponseRedirect("/%s/myaccount/details/" % (settings.WEBCLIENT_ROOT_BASE))
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':eContext['context'].groupId, 'mygroups': eContext['memberOfGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':eContext['context'].groupId, 'mygroups': eContext['allGroups']})
     context = {'nav':request.session['nav'], 'eContext': eContext, 'form':form, 'ldapAuth': controller.ldapAuth, 'form_active_group':form_active_group, 'form_file':form_file}
     t = template_loader.get_template(template)
     c = Context(request,context)

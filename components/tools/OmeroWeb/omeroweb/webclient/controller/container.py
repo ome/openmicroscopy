@@ -371,9 +371,6 @@ class BaseContainer(BaseController):
             if isinstance(o._obj, DatasetI):
                 ds_list.append(o)
         
-        pr_list = self.sortByAttr(pr_list, 'name')
-        ds_list = self.sortByAttr(ds_list, 'name')
-        
         pr_list_with_counters = list()
         ds_list_with_counters = list()
         
@@ -395,6 +392,9 @@ class BaseContainer(BaseController):
                 ds.child_counter = ds_child_counter.get(ds.id)
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
+        
+        pr_list_with_counters = self.sortByAttr(pr_list_with_counters, 'name')
+        ds_list_with_counters = self.sortByAttr(ds_list_with_counters, 'name')
         
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)

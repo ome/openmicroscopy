@@ -25,6 +25,44 @@
 import operator
 from omeroweb.webclient.models import Advice
 
+def sortByAttr(seq, attr, reverse=False):
+    # Use the "Schwartzian transform".
+    # Wrapped object only.
+    #intermed = map(None, map(getattr, seq, (attr,)*len(seq)), xrange(len(seq)), seq)
+    #intermed.sort()
+    #if reverse:
+    #    intermed.reverse()
+    #return map(operator.getitem, intermed, (-1,) * len(intermed))
+    
+    intermed = list()
+    for i in xrange(len(seq)):
+        val = getAttribute(seq[i],attr)
+        intermed.append((val, i, seq[i]))
+    
+    intermed.sort()
+    if reverse:
+        intermed.reverse()
+    return [ tup[-1] for tup in intermed ]
+
+def getAttribute(o,a):
+    attr = a.split(".")
+    if len(attr) > 1:
+        for i in xrange(len(attr)):
+            if hasattr(o,attr[i]):
+                rv = getattr(o,attr[i])
+                if hasattr(rv,'val'):
+                    return getattr(rv,'val')
+                else:
+                    attr.remove(attr[i])
+                    return getAttribute(rv, ".".join(attr))
+    else:
+        if hasattr(o,attr[0]):
+            rv = getattr(o,attr[0])
+            if hasattr(rv,'val'):
+                return getattr(rv,'val')
+            else:
+                return rv
+
 class BaseController(object):
     
     conn = None
@@ -43,42 +81,7 @@ class BaseController(object):
         self.eContext['advice'] = Advice.objects.get(pk=1)
     
     def sortByAttr(self, seq, attr, reverse=False):
-        # Use the "Schwartzian transform".
-        # Wrapped object only.
-        #intermed = map(None, map(getattr, seq, (attr,)*len(seq)), xrange(len(seq)), seq)
-        #intermed.sort()
-        #if reverse:
-        #    intermed.reverse()
-        #return map(operator.getitem, intermed, (-1,) * len(intermed))
-        
-        intermed = list()
-        for i in xrange(len(seq)):
-            val = self.getAttribute(seq[i],attr)
-            intermed.append((val, i, seq[i]))
-        
-        intermed.sort()
-        if reverse:
-            intermed.reverse()
-        return [ tup[-1] for tup in intermed ]
-    
-    def getAttribute(self, o,a):
-        attr = a.split(".")
-        if len(attr) > 1:
-            for i in xrange(len(attr)):
-                if hasattr(o,attr[i]):
-                    rv = getattr(o,attr[i])
-                    if hasattr(rv,'val'):
-                        return getattr(rv,'val')
-                    else:
-                        attr.remove(attr[i])
-                        return self.getAttribute(rv, ".".join(attr))
-        else:
-            if hasattr(o,attr[0]):
-                rv = getattr(o,attr[0])
-                if hasattr(rv,'val'):
-                    return getattr(rv,'val')
-                else:
-                    return rv
+        return sortByAttr(seq, attr, reverse)
     
     #####################################################################
     # Permissions

@@ -58,6 +58,8 @@ from omero_model_DatasetI import DatasetI
 from omero_model_ProjectI import ProjectI
 from omero_model_ImageI import ImageI
 
+from omero_sys_ParametersI import ParametersI
+
 TIMEOUT = 580 #sec
 SLEEPTIME = 60
 
@@ -497,7 +499,7 @@ class BlitzGateway (threading.Thread):
             p.theFilter = f
         sql = "select ds from Dataset ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
               "left outer join fetch ds.projectLinks pdl left outer join fetch pdl.parent p " \
-              "where p.id=:oid and ds.details.owner.id=:eid order by ds.id asc"
+              "where p.id=:oid order by ds.id asc"
         for e in q.findAllByQuery(sql,p):
             yield DatasetWrapper(self, e)
 
@@ -514,7 +516,7 @@ class BlitzGateway (threading.Thread):
             p.theFilter = f
         sql = "select im from Image im join fetch im.details.owner join fetch im.details.group " \
               "left outer join fetch im.datasetLinks dil left outer join fetch dil.parent d " \
-              "where d.id = :oid and im.details.owner.id=:eid order by im.id asc"
+              "where d.id = :oid order by im.id asc"
         for e in q.findAllByQuery(sql, p):
             yield ImageWrapper(self, e)
     
@@ -690,10 +692,7 @@ class BlitzGateway (threading.Thread):
     # HIERARCHY
     def loadMyContainerHierarchy(self):
         q = self.getContainerService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map[omero.constants.POJOEXPERIMENTER] = rlong(self.getEventContext().userId)
-        p.map[omero.constants.POJOORPHAN] = rbool(True)
+        p = ParametersI().orphan().exp(self.getEventContext().userId)
         for e in q.loadContainerHierarchy('Project', None,  p):
             if isinstance(e, ProjectI):
                 yield ProjectWrapper(self, e)
@@ -702,11 +701,10 @@ class BlitzGateway (threading.Thread):
 
     def loadUserContainerHierarchy(self, eid=None):
         q = self.getContainerService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        if eid == None: p.map[omero.constants.POJOEXPERIMENTER] = rlong(self.getEventContext().userId)
-        else: p.map[omero.constants.POJOEXPERIMENTER] = rlong(long(eid))
-        p.map[omero.constants.POJOORPHAN] = rbool(True)
+        if eid == None: 
+            p = ParametersI().orphan().exp(self.getEventContext().userId)
+        else: 
+            p = ParametersI().orphan().exp(long(eid))
         for e in q.loadContainerHierarchy('Project', None,  p):
             if isinstance(e, ProjectI):
                 yield ProjectWrapper(self, e)
@@ -715,11 +713,10 @@ class BlitzGateway (threading.Thread):
 
     def loadGroupContainerHierarchy(self, gid=None):
         q = self.getContainerService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        if gid == None: p.map[omero.constants.POJOGROUP] = rlong(self.getEventContext().groupId)
-        else: p.map[omero.constants.POJOGROUP] = rlong(long(gid))
-        p.map[omero.constants.POJOORPHAN] = rbool(True)
+        if gid == None: 
+            p = ParametersI().orphan().grp(self.getEventContext().groupId)
+        else:
+            p = ParametersI().orphan().grp(long(gid))
         for e in q.loadContainerHierarchy('Project', None,  p):
             if isinstance(e, ProjectI):
                 yield ProjectWrapper(self, e)
