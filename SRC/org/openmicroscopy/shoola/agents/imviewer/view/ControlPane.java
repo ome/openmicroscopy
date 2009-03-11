@@ -47,6 +47,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -128,6 +129,11 @@ class ControlPane
     /** The maximum height of a magnification slider. */
     private static final int		SLIDER_HEIGHT = 100;
     
+    /** Action command id. */
+	private static final int		FREQUENCY = 0;
+	
+	/** Action command id. */
+	private static final int		TYPE = 1;
 	
     /** Default text describing the compression check box.  */
     private static final String		PROJECTION_DESCRIPTION = 
@@ -404,13 +410,17 @@ class ControlPane
 				controller.getAction(ImViewerControl.PLAY_MOVIE_Z));
 	    UIUtilities.unifiedButtonLookAndFeel(playZMovieGrid);
 	    
-	    //projectionPreview = new JButton(
-	    //		controller.getAction(ImViewerControl.PROJECTION_PREVIEW));
 	    projectionProject = new JButton(
 	    		controller.getAction(ImViewerControl.PROJECTION_PROJECT));
-	    //UIUtilities.unifiedButtonLookAndFeel(projectionProject);
 	    
 	    projectionFrequency = new JSpinner(new SpinnerNumberModel(1, 1, 1, 1));
+	    JComponent comp = projectionFrequency.getEditor();
+	    if (comp instanceof JSpinner.NumberEditor) {
+	    	JFormattedTextField field = 
+	    		((JSpinner.NumberEditor) comp).getTextField();
+	    	field.addActionListener(this);
+	    	field.setActionCommand(""+FREQUENCY);
+	    }
 	    String[] names = new String[projections.size()];
         int index = 0;
         Entry entry;
@@ -428,6 +438,7 @@ class ControlPane
         		getBackground());
         projectionTypesBox.setBackground(getBackground());
         projectionTypesBox.setToolTipText(PROJECTION_DESCRIPTION);
+        projectionTypesBox.setActionCommand(""+TYPE);
         projectionTypesBox.addActionListener(this);
     }
     
@@ -468,7 +479,6 @@ class ControlPane
         projectionRange.addPropertyChangeListener(this);
         projectionRange.addMouseWheelListener(this);
         projectionRange.setToolTipText(PROJECTION_SLIDER_DESCRIPTION);
-        
         
         initSlider(tSliderProjection, maxT, model.getDefaultT(), 
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
@@ -701,9 +711,7 @@ class ControlPane
     	slider.setMaximum(max);
     	slider.addChangeListener(this);
     }
-    
-   
-    
+
     /**
      * Creates a new instance.
      * 
@@ -876,7 +884,6 @@ class ControlPane
         content.add(p);
         return content;
     }
-    
     
     /**
      * Updates UI components when a new timepoint is selected.
@@ -1370,6 +1377,21 @@ class ControlPane
      */
     public void actionPerformed(ActionEvent e)
     {
+    	int index = Integer.parseInt(e.getActionCommand());
+    	if (index == FREQUENCY) {
+    		JComponent comp = projectionFrequency.getEditor();
+    	    if (comp instanceof JSpinner.NumberEditor) {
+    	    	JFormattedTextField field = 
+    	    		((JSpinner.NumberEditor) comp).getTextField();
+    	    	String value = field.getText();
+    	    	int v = -1;
+    	    	try {
+					v = Integer.parseInt(value);
+				} catch (Exception ex) {}
+				if (v == -1 || v > model.getMaxZ() || v < 1) return;
+				projectionFrequency.setValue(v);
+    	    }
+    	}
         controller.setProjectionRange(true);
     }
 
