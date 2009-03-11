@@ -233,7 +233,7 @@ class DataBrowserComponent
 				parent = model.getParent();
 			objects.add(parent);
 		}
-		EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
+		//EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
 		//bus.post(new SelectionEvent(objects));
 		firePropertyChange(SELECTED_NODE_DISPLAY_PROPERTY, null, objects);
 	}

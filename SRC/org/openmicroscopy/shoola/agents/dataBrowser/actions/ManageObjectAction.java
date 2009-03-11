@@ -43,6 +43,7 @@ import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /** 
  * Manages the object i.e. either copy, paste, cut or remove. 
@@ -173,6 +174,7 @@ public class ManageObjectAction
         }
         Object ho = node.getHierarchyObject();
         Class klass = model.hasDataToCopy();
+        
         switch (index) {
 			case COPY:
 				if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
@@ -198,35 +200,12 @@ public class ManageObjectAction
 		        		setEnabled(model.isObjectWritable(ho));
 		        	else setEnabled(false);
 		        } else setEnabled(false);
-				/*
-				 if ((ho instanceof DatasetData) ||(ho instanceof ImageData))
-					 setEnabled(model.isObjectWritable(ho));
-			     else setEnabled(false);
-			     */
 				break;
 			case REMOVE:
 				if ((ho instanceof ProjectData) || (ho instanceof DatasetData)
 					|| (ho instanceof ImageData) || (ho instanceof ScreenData)
 					|| (ho instanceof PlateData)) {
 					setEnabled(model.isObjectWritable(ho));
-				/*
-				else if (ho instanceof DatasetData) {
-					if (parent == null) setEnabled(false);
-					else {
-		    			parentObject = parent.getHierarchyObject();
-		    			if (parentObject instanceof ProjectData)
-							setEnabled(model.isObjectWritable(ho));
-						else setEnabled(false);
-		    		}
-				} else if (ho instanceof ImageData) {
-					if (parent == null) setEnabled(false);
-					else {
-		    			parentObject = parent.getHierarchyObject();
-		    			if (parentObject instanceof DatasetData)
-							setEnabled(model.isObjectWritable(ho));
-						else setEnabled(false);
-		    		}
-		    		*/
 				} else setEnabled(false);
 				break;
 			case CUT:
@@ -282,11 +261,13 @@ public class ManageObjectAction
     {
     	String name = evt.getPropertyName();
     	if (DataBrowser.COPY_RND_SETTINGS_PROPERTY.equals(name) ||
-    		DataBrowser.ITEMS_TO_COPY_PROPERTY.equals(name)) {
+    		DataBrowser.ITEMS_TO_COPY_PROPERTY.equals(name) || 
+    		Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY.equals(
+        			name)) {
     		Browser browser = model.getBrowser();
         	if (browser != null)
         		onDisplayChange(browser.getLastSelectedDisplay());
-    	}
+    	} 
     }
     
 }

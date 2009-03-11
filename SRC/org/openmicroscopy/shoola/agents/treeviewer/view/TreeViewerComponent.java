@@ -1313,7 +1313,7 @@ class TreeViewerComponent
 			text += "\nhave been applied to the selected image";
 			if (n > 1) text += "s.";
 			else text += ".";
-			un.notifyInfo("Paste Image's settings", text);
+			un.notifyInfo("Rendering Settings Applied", text);
 		} else {
 			String s = "";
 			Iterator i = failure.iterator();
