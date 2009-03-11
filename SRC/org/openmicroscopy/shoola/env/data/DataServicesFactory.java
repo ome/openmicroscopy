@@ -310,7 +310,7 @@ public class DataServicesFactory
         executor = new ScheduledThreadPoolExecutor(1);
         executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
         
-        
+        String ldap = omeroGateway.lookupLdapAuthExperimenter(exp.getId());
         //replace Server string in fs config
         /*
         Iterator k = fsConfig.keySet().iterator();
@@ -324,7 +324,7 @@ public class DataServicesFactory
 		}
         omeroGateway.startFS(fsConfig);
         */
-        
+        registry.bind(LookupNames.USER_AUTHENTICATION, ldap);
         boolean fastConnection = isFastConnection(uc.getSpeedLevel());
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.CONNECTION_SPEED, fastConnection);
@@ -359,15 +359,15 @@ public class DataServicesFactory
         List agents = (List) registry.lookup(LookupNames.AGENTS);
 		Iterator i = agents.iterator();
 		AgentInfo agentInfo;
+		Registry reg;
 		while (i.hasNext()) {
 			agentInfo = (AgentInfo) i.next();
-			agentInfo.getRegistry().bind(
-			        LookupNames.CURRENT_USER_DETAILS, exp);
-			agentInfo.getRegistry().bind(LookupNames.USER_GROUP_DETAILS, 
-									groups);
-			agentInfo.getRegistry().bind(LookupNames.USERS_DETAILS, exps);
-			agentInfo.getRegistry().bind(LookupNames.CONNECTION_SPEED, 
-					fastConnection);
+			reg = agentInfo.getRegistry();
+			reg.bind(LookupNames.USER_AUTHENTICATION, ldap);
+			reg.bind(LookupNames.CURRENT_USER_DETAILS, exp);
+			reg.bind(LookupNames.USER_GROUP_DETAILS, groups);
+			reg.bind(LookupNames.USERS_DETAILS, exps);
+			reg.bind(LookupNames.CONNECTION_SPEED, fastConnection);
 		}
 	}
 	

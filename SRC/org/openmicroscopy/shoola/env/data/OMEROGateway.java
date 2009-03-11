@@ -1292,7 +1292,8 @@ class OMEROGateway
 			if (port > 0) blitzClient = new client(hostName, port);
 			else blitzClient = new client(hostName);
 			entry = blitzClient.createSession(userName, password);
-			blitzClient.getProperties().setProperty("Ice.Override.Timeout", ""+5000);
+			blitzClient.getProperties().setProperty("Ice.Override.Timeout", 
+					""+5000);
 			//metadataStore = new OMEROMetadataStore(entry);
 			connected = true;
 			//fillEnumerations();
@@ -1305,7 +1306,28 @@ class OMEROGateway
 		} 
 	}
 	
+	/**
+	 * Returns the ladp details or an empty string.
+	 * 
+	 * @param userID The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection can't be established
+	 *                                  or the credentials are invalid.
+	 */
+	String lookupLdapAuthExperimenter(long userID)
+		throws DSOutOfServiceException
+	{
+		try {
+			return getAdminService().lookupLdapAuthExperimenter(userID);
+		} catch (Throwable e) {
+			String s = "Can't connect find the LDAP information.\n\n";
+			s += printErrorText(e);
+			throw new DSOutOfServiceException(s, e); 
+		}
+	}
+	
 	void startFS(Properties fsConfig)
+	
 	{
 		/*
 		monitorIDs = new ArrayList<String>();

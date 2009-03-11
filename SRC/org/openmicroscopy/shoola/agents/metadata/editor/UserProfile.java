@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -55,6 +56,8 @@ import javax.swing.event.DocumentListener;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.GroupsRenderer;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -314,9 +317,19 @@ class UserProfile
     private JPanel buildPasswordPanel()
     {
     	JPanel content = new JPanel();
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	Registry reg = MetadataViewerAgent.getRegistry();
+    	String ldap = (String) reg.lookup(LookupNames.USER_AUTHENTICATION);
+    	if (ldap != null && ldap.length() > 0) {
+    		content.setBorder(
+    				BorderFactory.createTitledBorder("LDAP Authentication"));
+    		content.setLayout(new FlowLayout(FlowLayout.LEFT));
+    		content.add(new JLabel(ldap));
+    		return content;
+    	}
     	content.setBorder(
 				BorderFactory.createTitledBorder("Change Password"));
-    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	
 		content.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;

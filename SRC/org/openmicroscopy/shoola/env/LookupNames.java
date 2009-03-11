@@ -82,6 +82,9 @@ public class LookupNames
     /** Field to access the users contained in the group. */
     public static final String USERS_DETAILS = "/users/details";
     
+    /** Field to access the LDAP user information. */
+    public static final String USER_AUTHENTICATION = "/user/authentication";
+    
     /** Field to indicate if the connection is fast or not. */
     public static final String CONNECTION_SPEED = "/connection/speed";
     
