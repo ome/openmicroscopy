@@ -65,7 +65,7 @@
 {% block center %}
 
 <div class="image">
-    <h1>{% trans "Image" %}: {{ manager.image.fullNameWrapped }} {% if not manager.image.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
+    <h1>{% trans "Image" %}: {{ manager.image.fullNameWrapped }}  (ID: {{ manager.image.id }}) {% if not manager.image.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
 </div>
 
 <div class="toolbar">
@@ -89,7 +89,7 @@
     <center>
         <p><a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/details/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></p>
     
-        <p>by {{ manager.image.getOwner }} ({{ manager.image.details.group.name.val }} {{ manager.image.details.permissions }})</p>
+        <p>by {{ manager.image.getOwner }}</p>
         <!---<p><a href="">Send this image to someone else.</a></p>-->
     </center>
     

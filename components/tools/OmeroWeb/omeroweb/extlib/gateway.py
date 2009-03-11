@@ -1666,7 +1666,6 @@ class BlitzGateway (threading.Thread):
     ##  History methods                        ##
     
     def getLastAcquiredImages (self):
-        # getMostRecentObjects - missed order by
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -1679,7 +1678,6 @@ class BlitzGateway (threading.Thread):
             yield ImageWrapper(self, e)
     
     def getLastImportedImages (self):
-        # getMostRecentObjects - missed order by
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}

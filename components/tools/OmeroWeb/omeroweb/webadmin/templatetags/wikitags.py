@@ -37,16 +37,16 @@ def wikify(value):
         wikifier = re.compile(r'\b(%s)\b' % WIKI_WORD)
         value = wikifier.sub(r'<a href="\1" target="_blank">\1</a>', value)
 
-        imagier = re.compile(r'\[((?i)image):( [0-9]+ )\]', re.VERBOSE)
-        value = imagier.sub(r'<a href="/%s/image/\2/" target="_blank"><img src="/%s/render_thumbnail/32/\1/" /></a>' % (settings.WEBCLIENT_ROOT_BASE, settings.WEBCLIENT_ROOT_BASE), value)
+        imagier = re.compile(r'\[((?i)image):[\s]?( [0-9]+ )\]', re.VERBOSE)
+        value = imagier.sub(r'<a href="/%s/image/\2/" target="_blank"><img src="/%s/render_thumbnail/32/\2/" /></a>' % (settings.WEBCLIENT_ROOT_BASE, settings.WEBCLIENT_ROOT_BASE), value)
 
-        datasetier = re.compile(r'\[((?i)dataset):( [0-9]+ )\]', re.VERBOSE)
+        datasetier = re.compile(r'\[((?i)dataset):[\s]?( [0-9]+ )\]', re.VERBOSE)
         value = datasetier.sub(r'<a href="/%s/dataset/\2/" target="_blank"><img src="/%s/static/images/folder_image32.png" /></a>' % (settings.WEBCLIENT_ROOT_BASE, settings.WEBCLIENT_ROOT_BASE), value)
 
-        projectier = re.compile(r'\[((?i)project):( [0-9]+ )\]', re.VERBOSE)
+        projectier = re.compile(r'\[((?i)project):[\s]?( [0-9]+ )\]', re.VERBOSE)
         value = projectier.sub(r'<a href="/%s/project/\2/" target="_blank"><img src="/%s/static/images/folder32.png" /></a>' % (settings.WEBCLIENT_ROOT_BASE, settings.WEBCLIENT_ROOT_BASE), value)
         
-        protocolier = re.compile(r'\[((?i)protocol):([0-9]+)\]', re.VERBOSE)
+        protocolier = re.compile(r'\[((?i)protocol):[\s]?([0-9]+)\]', re.VERBOSE)
         value = protocolier.sub(r'<a href="/%s/annotation/download/\2/" target="_blank">protocol file</a>' % (settings.WEBCLIENT_ROOT_BASE), value)
 
         # happy :) :-) 

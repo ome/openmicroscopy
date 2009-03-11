@@ -108,11 +108,11 @@
 <div class='clear'></div>
 
 {% if manager.dataset %}
-    <div class="dataset"><h1>Dataset: {{ manager.dataset.fullNameWrapped }} {% if not manager.dataset.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
+    <div class="dataset"><h1>Dataset: {{ manager.dataset.fullNameWrapped }} (ID: {{ manager.dataset.id }}) {% if not manager.dataset.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
     </div>
 {% else %}
     {% if manager.project %}
-        <div class="project"><h1>Project: {{ manager.project.fullNameWrapped }} {% if not manager.project.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
+        <div class="project"><h1>Project: {{ manager.project.fullNameWrapped }} (ID: {{ manager.project.id }}) {% if not manager.project.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
         </div>
     {% endif %}
 {% endif %}
@@ -149,14 +149,14 @@
 {% if manager.c_size or manager.c_mg_size %}
     {% if manager.c_size %}
         {% if manager.experimenter %}
-            <h1>{{ manager.experimenter.getFullName }}'s ({{ manager.c_size }} items):</h1>
+            <h1 id="data">{{ manager.experimenter.getFullName }}'s ({{ manager.c_size }} items):</h1>
         {% else %}
-            <h1>{% trans "My data" %} ({{ manager.c_size }} {% trans "items" %}):</h1>
+            <h1 id="data">{% trans "My data" %} ({{ manager.c_size }} {% trans "items" %}):</h1>
         {% endif %}
     {% endif %}
     {% if manager.c_mg_size %}
         {% if manager.myGroup %}
-            <h1>{{ manager.myGroup.name }}{% trans "'s data" %} ({{ manager.c_mg_size }} {% trans "items" %}):</h1>
+            <h1 id="data">{{ manager.myGroup.name }}{% trans "'s data" %} ({{ manager.c_mg_size }} {% trans "items" %}):</h1>
         {% endif %}
     {% endif %}
 {% else %}

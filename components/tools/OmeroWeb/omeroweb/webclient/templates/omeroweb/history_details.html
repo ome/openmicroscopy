@@ -55,7 +55,7 @@
 
 {% block center %}
 
-<h1><a href="{% get_webclient_root_url %}/history/calendar/{{ controller.year }}/{{ controller.month }}/{{ controller.day }}/">{{ eContext.breadcrumb.2 }} {{ eContext.breadcrumb.1 }}</a> ({{ controller.day_items_size }}/{{ controller.total_items_size }} {% trans "items" %})</h1>
+<h1 id="data"><a href="{% get_webclient_root_url %}/history/calendar/{{ controller.year }}/{{ controller.month }}/{{ controller.day }}/">{{ eContext.breadcrumb.2 }} {{ eContext.breadcrumb.1 }}</a> ({{ controller.day_items_size }}/{{ controller.total_items_size }} {% trans "items" %})</h1>
 
 {% if form_history_type %}
 <div id="view"><form action="" method="POST">

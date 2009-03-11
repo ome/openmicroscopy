@@ -62,6 +62,8 @@ class BaseIndex(BaseController):
                     tags[ann.id]['count'] = 1
             except:
                 tags[ann.id] = {'obj':ann, 'count':1}
+            if len(tags) == 20:
+                break
         
         font = {'max': 0, 'min': 1}
         for key, value in tags.items():

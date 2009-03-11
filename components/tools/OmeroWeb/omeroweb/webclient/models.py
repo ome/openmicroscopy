@@ -440,7 +440,7 @@ class MetadataEnvironmentForm(forms.Form):
             if kwargs['initial']['image'].getImagingEnvironment().temperature is not None:
                 self.fields['temperature'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'temperature\', this.value);'}), initial=kwargs['initial']['image'].getImagingEnvironment().temperature, required=False)
             else:
-                self.fields['temperature'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), required=False)
+                self.fields['temperature'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'temperature\', this.value);'}), required=False)
             self.fields['temperature'].widget.attrs['disabled'] = True 
             self.fields['temperature'].widget.attrs['class'] = 'disable'
         except:
@@ -453,7 +453,7 @@ class MetadataEnvironmentForm(forms.Form):
             if kwargs['initial']['image'].getImagingEnvironment().airPressure is not None:
                 self.fields['airPressure'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'airPressure\', this.value);'}), initial=kwargs['initial']['image'].getImagingEnvironment().airPressure, label="Air Pressure", required=False)
             else:
-                self.fields['airPressure'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), label="Air Pressure", required=False)
+                self.fields['airPressure'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'airPressure\', this.value);'}), label="Air Pressure", required=False)
             self.fields['airPressure'].widget.attrs['disabled'] = True 
             self.fields['airPressure'].widget.attrs['class'] = 'disable'
         except:
@@ -466,7 +466,7 @@ class MetadataEnvironmentForm(forms.Form):
             if kwargs['initial']['image'].getImagingEnvironment().humidity is not None:
                 self.fields['humidity'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'humidity\', this.value);'}), initial=kwargs['initial']['image'].getImagingEnvironment().humidity, required=False)
             else:
-                self.fields['humidity'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), required=False)
+                self.fields['humidity'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'humidity\', this.value);'}), required=False)
             self.fields['humidity'].widget.attrs['disabled'] = True 
             self.fields['humidity'].widget.attrs['class'] = 'disable'
         except:
@@ -479,7 +479,7 @@ class MetadataEnvironmentForm(forms.Form):
             if kwargs['initial']['image'].getImagingEnvironment().co2percent is not None:
                 self.fields['co2percent'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'co2percent\', this.value);'}), initial=kwargs['initial']['image'].getImagingEnvironment().co2percent, label="CO2 [%]", required=False)
             else:
-                self.fields['co2percent'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), label="CO2 [%]", required=False)
+                self.fields['co2percent'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'co2percent\', this.value);'}), label="CO2 [%]", required=False)
             self.fields['co2percent'].widget.attrs['disabled'] = True 
             self.fields['co2percent'].widget.attrs['class'] = 'disable'
         except:
@@ -501,38 +501,38 @@ class MetadataStageLabelForm(forms.Form):
             if kwargs['initial']['image'].getStageLabel() is not None:
                 self.fields['positionx'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'positionx\', this.value);'}), initial=kwargs['initial']['image'].getStageLabel().positionx, label="Position X", required=False)
             else:
-                self.fields['positionx'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Position X", required=False)
+                self.fields['positionx'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'positionx\', this.value);'}), label="Position X", required=False)
             self.fields['positionx'].widget.attrs['disabled'] = True 
             self.fields['positionx'].widget.attrs['class'] = 'disable'
         except:
-            self.fields['positionx'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Position X", required=False)
+            self.fields['positionx'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Position X", required=False)
             self.fields['positionx'].widget.attrs['disabled'] = True 
-            self.fields['positionx'].widget.attrs['class'] = 'disable'
+            self.fields['positionx'].widget.attrs['class'] = 'disabled'
         
         # Position y
         try:
             if kwargs['initial']['image'].getStageLabel() is not None:
                 self.fields['positiony'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'positiony\', this.value);'}), initial=kwargs['initial']['image'].getStageLabel().positiony, label="Position Y", required=False)
             else:
-                self.fields['positiony'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Position Y", required=False)
+                self.fields['positiony'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'positiony\', this.value);'}), label="Position Y", required=False)
             self.fields['positiony'].widget.attrs['disabled'] = True 
             self.fields['positiony'].widget.attrs['class'] = 'disable'
         except:
-            self.fields['positiony'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Position Y", required=False)
+            self.fields['positiony'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Position Y", required=False)
             self.fields['positiony'].widget.attrs['disabled'] = True 
-            self.fields['positiony'].widget.attrs['class'] = 'disable'
+            self.fields['positiony'].widget.attrs['class'] = 'disabled'
         
         # Position z
         try:
             if kwargs['initial']['image'].getStageLabel() is not None:
                 self.fields['positionz'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'positionz\', this.value);'}), initial=kwargs['initial']['image'].getStageLabel().positionz, label="Position Z", required=False)
             else:
-                self.fields['positionz'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Position Z", required=False)
+                self.fields['positionz'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'positionz\', this.value);'}), label="Position Z", required=False)
             self.fields['positionz'].widget.attrs['disabled'] = True 
             self.fields['positionz'].widget.attrs['class'] = 'disable'
         except:
-            self.fields['positionz'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Position Z", required=False)
+            self.fields['positionz'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Position Z", required=False)
             self.fields['positionz'].widget.attrs['disabled'] = True 
-            self.fields['positionz'].widget.attrs['class'] = 'disable'
+            self.fields['positionz'].widget.attrs['class'] = 'disabled'
         
         self.fields.keyOrder = ['positionx', 'positiony', 'positionz']
