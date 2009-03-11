@@ -197,10 +197,14 @@ public class EditorDialog
         cancelButton.setToolTipText("Close the dialog.");
         cancelButton.addActionListener(this);
         cancelButton.setActionCommand(""+CANCEL);
-        saveButton = new JButton("Save");
-        if (type == EDIT_TYPE)
+       
+        if (type == EDIT_TYPE) {
+        	 saveButton = new JButton("Save");
         	saveButton.setToolTipText("Edit the object.");
-        else saveButton.setToolTipText("Create a new object.");
+        } else {
+        	 saveButton = new JButton("Create");
+        	saveButton.setToolTipText("Create a new object.");
+        }
         saveButton.addActionListener(this);
         saveButton.setActionCommand(""+SAVE);
         saveButton.setEnabled(false);
