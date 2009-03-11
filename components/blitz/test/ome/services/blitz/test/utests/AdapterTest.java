@@ -54,8 +54,6 @@ import omero.RSet;
 import omero.RString;
 import omero.RTime;
 import omero.RType;
-import omero.constants.POJOEXPERIMENTER;
-import omero.constants.POJOLEAVES;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.CommentAnnotationI;
 import omero.model.DatasetI;
@@ -65,6 +63,7 @@ import omero.model.ImageI;
 import omero.model.PlaneSlicingContextI;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.sys.ParametersI;
 import omero.util.IceMapper;
 
 import org.testng.annotations.Configuration;
@@ -254,15 +253,18 @@ public class AdapterTest extends TestCase {
         RList rl = rlist(
                 Arrays.<RType> asList(rstring("a"), rstring("b")));
 
+        ParametersI p = new ParametersI();
+        p.leaves();
+        p.exp(rlong(1L));
         Map<String, RType> map = new HashMap<String, RType>();
-        map.put(POJOLEAVES.value, rbool(true));
-        map.put(POJOEXPERIMENTER.value, rlong(1L));
+        map.put("c", rbool(true));
+        map.put("d", rlong(1L));
 
         IceMapper mapper = new IceMapper();
         Map reversed = mapper.reverse(map);
-        Long l = (Long) reversed.get(POJOEXPERIMENTER.value);
+        Long l = (Long) reversed.get("d");
         assertEquals(l, po.getExperimenter());
-        Boolean b = (Boolean) reversed.get(POJOLEAVES.value);
+        Boolean b = (Boolean) reversed.get("c");
         assertEquals(b, Boolean.valueOf(po.isLeaves()));
     }
 

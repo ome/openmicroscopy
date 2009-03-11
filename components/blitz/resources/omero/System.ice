@@ -43,15 +43,63 @@ module omero {
     };
 
     /*
+     * Provides common filters which MAY be applied to a
+     * query. Check the documentation for the particular
+     * method for more information on how these values will
+     * be interpreted as well as default values if they
+     * are missing. In general they are intended to mean:
+     *
+     *  unique        := similar to SQL's "DISTINCT" keyword
+     *
+     *  ownerId       := (some) objects queried should belong
+     *                   to this user
+     *
+     *  groupId       := (some) objects queried should belong
+     *                   to this group
+     *
+     *  preferOwner   := true implies if if ownerId and groupId
+     *                   are both defined, use only ownerId
+     *
+     *  offset/limit  := represent a page which should be loaded
+     *                   Note: servers may choose to impose a
+     *                   maximum limit.
+     *
+     *  start/endTime := (some) objects queried shoud have been
+     *                   created and/or modified within time span.
      *
      */
     class Filter
     {
-      bool          unique;
+      omero::RBool  unique;   // MAY be used like "distinct"
       omero::RLong  ownerId;
       omero::RLong  groupId;
+      omero::RBool  preferOwner;
       omero::RInt   offset;
       omero::RInt   limit;
+      omero::RTime  startTime;
+      omero::RTime  endTime;
+    };
+
+    /*
+     * Similar to Filter, provides common options which MAY be
+     * applied on a given method. Check each interface's
+     * documentation for more details.
+     *
+     *  leaves        := whether or not graph leaves (usually images)
+     *                   should be loaded
+     *
+     *  orphan        := whether or not orphaned objects (e.g. datasets
+     *                   not in a project) should be loaded
+     *
+     *  acquisition...:= whether or not acquisitionData (objectives, etc.)
+     *                  should be loaded
+     *
+     */
+    class Options
+    {
+      omero::RBool  leaves;
+      omero::RBool  orphan;
+      omero::RBool  acquisitionData;
     };
 
     /*
@@ -59,8 +107,14 @@ module omero {
      */
     class Parameters
     {
-      Filter theFilter;
+      /*
+       * Contains named arguments which may either be used by
+       * a Query implementation or by the method itself for
+       * further refinements.
+       */
       ParamMap map;
+      Filter theFilter;
+      Options theOptions;
     };
 
     /*

@@ -24,48 +24,111 @@ namespace omero {
         typedef IceUtil::Handle<ParametersI> ParametersIPtr;
 
         /*
-         *
+         * Helper subclass of omero::sys::Parameters for simplifying method
+	 * parameter creation.
          */
         class ParametersI : virtual public Parameters {
 
 	protected:
 	    ~ParametersI(); // protected as outlined in Ice docs.
 	public:
+	    /*
+	     * If no argument is provided, creates an empty ParamMap for use
+	     * by this instance.
+	     *
+	     * Uses (and does not copy) the given map as the named parameter
+	     * store. Be careful if either null is passed in or if this instance
+	     * is being used in a multi-threaded environment. No synchrnization
+	     * takes place.
+	     */
 	    ParametersI(const omero::sys::ParamMap& map = omero::sys::ParamMap());
 
-	    //
-	    // Parameters.theFilter
-	    //
+	    // Parameters.theFilter.limit & offset
+	    // ===============================================================
 
-	    ParametersIPtr noPage(const Ice::Current& c = Ice::Current());
-	    ParametersIPtr page(Ice::Int offset, Ice::Int limit,
-				const Ice::Current& c = Ice::Current());
+	    /*
+	     * Nulls both the Filter.limit and Filter.offset values.
+	     */
+	    ParametersIPtr noPage();
+
+	    /*
+	     * Sets both the Filter.limit and Filter.offset values by
+	     * wrapping the arguments in omero::RInts and calling
+	     * page(RIntPtr&, RIntPtr&)
+	     */
+	    ParametersIPtr page(Ice::Int offset, Ice::Int limit);
+
+	    /*
+	     * Creates a Filter if necessary and sets both Filter.limit
+	     * and Filter.offset
+	     */
 	    ParametersIPtr page(const omero::RIntPtr& offset,
-				const omero::RIntPtr& limit,
-				const Ice::Current& c = Ice::Current());
+				const omero::RIntPtr& limit);
 
-	    //
+	    /*
+	     * Returns true if the filter contains a limit OR an offset.
+	     * false otherwise.
+	     */
+	    bool isPagination();
+
+	    omero::RIntPtr getOffset();
+	    omero::RIntPtr getLimit();
+	    ParametersIPtr unique();
+	    ParametersIPtr noUnique();
+	    omero::RBoolPtr getUnique();
+
+	    // Parameters.theFilter.ownerId & groupId
+	    // ===============================================================
+
+	    ParametersIPtr exp(Ice::Long id);
+	    ParametersIPtr allExps();
+	    bool isExperimenter();
+	    omero::RLongPtr getExperimenter();
+
+	    ParametersIPtr grp(Ice::Long id);
+	    ParametersIPtr allGrps();
+	    bool isGroup();
+	    omero::RLongPtr getGroup();
+
+	    // Parameters.theFilter.starttime, endTime
+	    // ===============================================================
+
+	    ParametersIPtr startTime(const omero::RTimePtr& time);
+	    ParametersIPtr endTime(const omero::RTimePtr& time);
+	    ParametersIPtr allTimes();
+	    bool isStartTime();
+	    bool isEndTime();
+	    omero::RTimePtr getStartTime();
+	    omero::RTimePtr getEndTime();
+
+	    // Parameters.theOptions.leaves, orphan, acquisitionData
+	    // ===============================================================
+
+	    ParametersIPtr leaves();
+	    ParametersIPtr noLeaves();
+	    omero::RBoolPtr getLeaves();
+
+	    ParametersIPtr orphan();
+	    ParametersIPtr noOrphan();
+	    omero::RBoolPtr getOrphan();
+
+	    ParametersIPtr acquisitionData();
+	    ParametersIPtr noAcquisitionData();
+	    omero::RBoolPtr getAcquisitionData();
+
 	    // Parameters.map
-	    //
+	    // ===============================================================
 
 	    ParametersIPtr add(const std::string& name,
-			       const omero::RTypePtr& r,
-			       const Ice::Current& c = Ice::Current());
-	    ParametersIPtr addId(Ice::Long id,
-				 const Ice::Current& c = Ice::Current());
-	    ParametersIPtr addId(const omero::RLongPtr& id,
-				 const Ice::Current& c = Ice::Current());
-	    ParametersIPtr addIds(omero::sys::LongList ids,
-				  const Ice::Current& c = Ice::Current());
+			       const omero::RTypePtr& r);
+	    ParametersIPtr addId(Ice::Long id);
+	    ParametersIPtr addId(const omero::RLongPtr& id);
+	    ParametersIPtr addIds(omero::sys::LongList ids);
+	    ParametersIPtr addLong(const std::string& name, Ice::Long l);
 	    ParametersIPtr addLong(const std::string& name,
-			       Ice::Long l,
-			       const Ice::Current& c = Ice::Current());
-	    ParametersIPtr addLong(const std::string& name,
-			       const omero::RLongPtr& l,
-			       const Ice::Current& c = Ice::Current());
+				   const omero::RLongPtr& l);
 	    ParametersIPtr addLongs(const std::string& name,
-				    omero::sys::LongList longs,
-				    const Ice::Current& c = Ice::Current());
+				    omero::sys::LongList longs);
 
 	};
 

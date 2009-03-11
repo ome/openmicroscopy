@@ -138,12 +138,12 @@ public class DataServiceImpl
 			throws ServerError
 	{
 		IContainerPrx iContainerService = gatewayFactory.getIContainer();
-		HashMap<String, RType> map = new HashMap<String, RType>();
+		ParametersI p = new ParametersI();
 		if(getLeaves)
-			map.put(omero.constants.POJOLEAVES.value, rbool(true));
+			p.leaves();
 		return ServiceUtilities.collectionCast(Dataset.class, 
 			iContainerService.loadContainerHierarchy(
-				convertContainer(ContainerClass.Dataset), ids,	new ParametersI(map)));
+				convertContainer(ContainerClass.Dataset), ids, p));
 	}
 
 	/* (non-Javadoc)
@@ -224,12 +224,12 @@ public class DataServiceImpl
 			throws ServerError
 	{
 		IContainerPrx iContainerService = gatewayFactory.getIContainer();
-		HashMap<String, RType> map = new HashMap<String, RType>();
+		ParametersI p = new ParametersI();
 		if(getLeaves)
-			map.put(omero.constants.POJOLEAVES.value, rbool(true));
+			p.leaves();
 		return ServiceUtilities.collectionCast(Project.class, 
 			iContainerService.loadContainerHierarchy(
-				convertContainer(ContainerClass.Project), ids, new ParametersI(map)));
+				convertContainer(ContainerClass.Project), ids, p));
 	}
 
 	/* (non-Javadoc)

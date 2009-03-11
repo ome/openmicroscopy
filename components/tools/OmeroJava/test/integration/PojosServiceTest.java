@@ -55,7 +55,6 @@ import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 import omero.sys.ParametersI;
-import omero.sys.PojoOptions;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -107,9 +106,9 @@ public class PojosServiceTest extends TestCase {
 
     DatasetData dsData;
     
-    PojoOptions GROUP_FILTER;
+    ParametersI GROUP_FILTER;
 
-    PojoOptions OWNER_FILTER;
+    ParametersI OWNER_FILTER;
 
     @Override
     @BeforeTest
@@ -132,8 +131,8 @@ public class PojosServiceTest extends TestCase {
         fixture = CreatePojosFixture2.withNewUser(root);
         fixture.createAllPojos();
 
-        GROUP_FILTER = new PojoOptions().grp(fixture.g.getId());
-        OWNER_FILTER = new PojoOptions().exp(fixture.e.getId());
+        GROUP_FILTER = new ParametersI().grp(fixture.g.getId());
+        OWNER_FILTER = new ParametersI().exp(fixture.e.getId());
 
     }
     
@@ -347,15 +346,15 @@ public class PojosServiceTest extends TestCase {
                 .getId().getValue());
         results = iContainer.loadContainerHierarchy(Project.class.getName(), ids, null);
 
-        PojoOptions po = new PojoOptions().exp(rlong(0L));
-        results = iContainer.loadContainerHierarchy(Project.class.getName(), null, po.map());
+        ParametersI po = new ParametersI().exp(rlong(0L));
+        results = iContainer.loadContainerHierarchy(Project.class.getName(), null, po);
 
     }
 
     @Test(groups = "EJBExceptions")
     public void test_findContainerHierarchies() throws ServerError {
 
-        PojoOptions defaults = new PojoOptions(), empty = new PojoOptions(new HashMap());
+        ParametersI defaults = new ParametersI(), empty = new ParametersI(new HashMap());
 
         ids = data.getMax("Image.ids", 2);
         results = iContainer.findContainerHierarchies(Project.class.getName(), ids, defaults
@@ -497,7 +496,7 @@ public class PojosServiceTest extends TestCase {
             // ok.
         }
 
-        results = iContainer.getUserImages(new PojoOptions().exp(fixture.e.getId())
+        results = iContainer.getUserImages(new ParametersI().exp(fixture.e.getId())
                 .map());
         assertTrue(results.size() > 0);
 

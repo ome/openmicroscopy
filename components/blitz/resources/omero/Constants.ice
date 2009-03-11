@@ -10,6 +10,7 @@
 #define OMERO_CONSTANTS_ICE
 
 module omero {
+
   module constants {
 
     /*
@@ -17,7 +18,6 @@ module omero {
      * by all omero.client implementations.
      */
     const string CLIENTUUID = "omero.client.uuid";
-
 
     /*
      * Default Ice.GC.Interval for OmeroCpp (60 seconds)
@@ -50,7 +50,9 @@ module omero {
 
     /*
      * Server-side names used for each of the services
-     * defined in API.ice
+     * defined in API.ice. These names can be used in
+     * the ServiceFactory.getByName() and createByName()
+     * methods.
      */
     const string ADMINSERVICE     = "omero.api.IAdmin";
     const string ANALYSISSERVICE  = "omero.api.IAnalysis";
@@ -85,32 +87,13 @@ module omero {
     const string EVENT    = "omero.event";
     const string UMASK    = "omero.umask";
 
-    /*
-     * Strings used by the Java class ome.util.builders.PojoOptions
-     * to create Map options for IPojos methods. omero::api::IPojos
-     * takes omero::sys::ParamMaps instead.
-     *
-     * See System.ice and RTypes.ice.
-     */
-    const string POJOLEAVES       = "leaves";         // omero::RBool (whether or not Images returned)
-    const string POJOEXPERIMENTER = "experimenter";   // omero::RLong
-    const string POJOGROUP        = "group";          // omero::RLong
-    const string POJOLIMIT        = "limit";          // omero::RInt
-    const string POJOOFFSET       = "offset";         // omero::RInt
-    const string POJOSTARTTIME    = "startTime";      // omero::RTime
-    const string POJOENDTIME      = "endTime";        // omero::RTime
-    const string POJOORPHAN       = "orphan";        // omero::RBool (whether or not orphan containers returned)
-	const string POJOACQUISITIONDATA = "acquisitionData"; // omero::RBool (whether or not image acquisition data returned)
-	
-	module metadata {
-	
-		const string NSINSIGHTTAGSET = "openmicroscopy.org/omero/insight/tagset";
-		const string NSINSIGHTRATING = "openmicroscopy.org/omero/insight/rating";
-		const string NSIMPORTERARCHIVED = "openmicroscopy.org/omero/importer/archived";
-		const string NSEDITORPROTOCOL = "openmicroscopy.org/omero/editor/protocol";
-		const string NSEDITOREXPERIMENT = "openmicroscopy.org/omero/editor/experiment";
-	};
-	
+    module metadata {
+        const string NSINSIGHTTAGSET = "openmicroscopy.org/omero/insight/tagset";
+        const string NSINSIGHTRATING = "openmicroscopy.org/omero/insight/rating";
+        const string NSEDITORPROTOCOL = "openmicroscopy.org/omero/editor/protocol";
+        const string NSEDITOREXPERIMENT = "openmicroscopy.org/omero/editor/experiment";
+    };
+
     module jobs {
 
       /*
@@ -121,7 +104,7 @@ module omero {
       const string QUEUED = "Queued";
       const string REQUEUED = "Requeued";
       const string RUNNING = "Running";
-      const string ERROR = "Error";
+      const string ERRORX = "Error"; // Can't be 'ERROR' or C++ won't compile
       const string WAITING = "Waiting";
       const string FINISHED = "Finished";
       const string CANCELLED = "Cancelled";

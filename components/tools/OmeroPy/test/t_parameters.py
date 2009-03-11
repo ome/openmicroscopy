@@ -16,8 +16,50 @@ from omero_sys_ParametersI import ParametersI
 
 class TestParameters(unittest.TestCase):
 
+    def assertNull(self, arg):
+        self.assertEquals(None, arg)
+
+    def assertNotNull(self, arg):
+        self.assertTrue( arg != None )
+
     #
-    # Parameters.theFilter
+    # From PojoOptionsTest
+    #
+
+    def testBasics(self):
+        p = ParametersI()
+        p.exp(rlong(1))
+        p.grp(rlong(1))
+        p.endTime(rtime(1))
+
+    def testDefaults(self):
+        p = ParametersI()
+        # Removed: self.assertFalse(p.isLeaves())
+        self.assertFalse(p.isGroup())
+        self.assertFalse(p.isExperimenter())
+        self.assertFalse(p.isEndTime())
+        self.assertFalse(p.isStartTime())
+        self.assertFalse(p.isPagination())
+        self.assertFalse(p.isUnique())
+
+    def testExperimenter(self):
+        p = ParametersI()
+        p.exp(rlong(1))
+        self.assertTrue(p.isExperimenter())
+        self.assertEquals(p.getExperimenter().getValue(), 1L)
+        p.allExps()
+        self.assertFalse(p.isExperimenter())
+
+    def testGroup(self):
+        p = ParametersI()
+        p.grp(rlong(1))
+        self.assert_(p.isGroup())
+        self.assertEquals(p.getGroup().getValue(), 1L)
+        p.allGrps()
+        self.assertFalse(p.isGroup())
+
+    #
+    # Parameters.theFilter.limit, offset
     #
 
     def testFilter(self):
@@ -25,10 +67,89 @@ class TestParameters(unittest.TestCase):
         p.noPage()
         self.assertEquals(None, p.theFilter)
         p.page(2,3)
+        self.assert_(p.isPagination())
         self.assertEquals( rint(2), p.theFilter.offset )
         self.assertEquals( rint(3), p.theFilter.limit )
         p.noPage()
-        self.assertEquals(None, p.theFilter)
+        self.assertFalse(p.isPagination())
+        self.assertEquals(None, p.theFilter.offset)
+        self.assertEquals(None, p.theFilter.limit)
+        self.assertEquals(None, p.getLimit())
+        self.assertEquals(None, p.getOffset())
+
+    def testUnique(self):
+        p = ParametersI()
+        self.assertNull(p.getUnique())
+        self.assertEquals(rbool(True), p.unique().getUnique())
+        self.assertEquals(rbool(False), p.noUnique().getUnique())
+        self.assertNotNull(p.getUnique())
+
+    #
+    # Parameters.theFilter.ownerId, groupId
+    #
+
+    def testOwnerId(self):
+        p = ParametersI()
+        self.assertNull(p.theFilter)
+        p.exp(rlong(1))
+        self.assertNotNull(p.theFilter)
+        self.assertNotNull(p.theFilter.ownerId)
+        self.assertEquals(rlong(1), p.getExperimenter())
+        self.assertNull(p.allExps().getExperimenter())
+        self.assertNotNull(p.theFilter)
+
+    def testGroupId(self):
+        p = ParametersI()
+        self.assertNull(p.theFilter)
+        p.grp(rlong(1))
+        self.assertNotNull(p.theFilter)
+        self.assertNotNull(p.theFilter.groupId)
+        self.assertEquals(rlong(1), p.getGroup())
+        self.assertNull(p.allGrps().getGroup())
+        self.assertNotNull(p.theFilter)
+
+    #
+    # Parameters.theFilter.startTime, endTime
+    #
+
+    def testTimes(self):
+        p = ParametersI()
+        self.assertNull(p.theFilter)
+        p.startTime(rtime(0))
+        self.assertNotNull(p.theFilter)
+        self.assertNotNull(p.theFilter.startTime)
+        p.endTime(rtime(1))
+        self.assertNotNull(p.theFilter.endTime)
+        p.allTimes()
+        self.assertNotNull(p.theFilter)
+        self.assertNull(p.theFilter.startTime)
+        self.assertNull(p.theFilter.endTime)
+
+    #
+    # Parameters.theOptions
+    #
+
+    def testOptionsAcquisitionData(self):
+        p = ParametersI()
+        self.assertNull(p.getAcquisitionData())
+        self.assertEquals(rbool(True), p.acquisitionData().getAcquisitionData())
+        self.assertEquals(rbool(False), p.noAcquisitionData().getAcquisitionData())
+        self.assertNotNull(p.getAcquisitionData())
+
+    def testOptionsOrphan(self):
+        p = ParametersI()
+        self.assertNull(p.getOrphan())
+        self.assertEquals(rbool(True), p.orphan().getOrphan())
+        self.assertEquals(rbool(False), p.noOrphan().getOrphan())
+        self.assertNotNull(p.getOrphan())
+
+    def testOptionsLeaves(self):
+        p = ParametersI()
+        self.assertNull(p.getLeaves())
+        self.assertEquals(rbool(True), p.leaves().getLeaves())
+        self.assertEquals(rbool(False), p.noLeaves().getLeaves())
+        self.assertNotNull(p.getLeaves())
+
 
     #
     # Parameters.map

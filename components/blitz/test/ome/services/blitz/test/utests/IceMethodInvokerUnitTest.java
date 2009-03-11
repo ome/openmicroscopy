@@ -20,6 +20,7 @@ import java.util.Set;
 import ome.api.IAdmin;
 import ome.api.IConfig;
 import ome.api.IContainer;
+import ome.api.IMetadata;
 import ome.api.IQuery;
 import ome.api.ISession;
 import ome.api.IShare;
@@ -49,8 +50,6 @@ import omeis.providers.re.RenderingEngine;
 import omero.RString;
 import omero.RType;
 import omero.UnloadedCollectionException;
-import omero.constants.POJOEXPERIMENTER;
-import omero.constants.POJOLEAVES;
 import omero.model.Experimenter;
 import omero.model.ExperimenterI;
 import omero.model.Image;
@@ -58,6 +57,7 @@ import omero.model.ImageI;
 import omero.model.TagAnnotationI;
 import omero.romio.XY;
 import omero.sys.Filter;
+import omero.sys.ParametersI;
 import omero.util.IceMap;
 import omero.util.IceMapper;
 
@@ -778,32 +778,30 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         Map<String, RType> paramMap = new HashMap<String, RType>();
         paramMap.put("foo", rstring("bar"));
-
-        init(IContainer.class, "getUserDetails");
-        method().will(returnValue(new HashMap()));
-        Object rv = invoke(Arrays.asList("u1", "u2"), paramMap);
-        Map map = (Map) rv;
-        assertNotNull(map);
+        ParametersI param = new ParametersI(paramMap);
 
         init(IContainer.class, "loadContainerHierarchy");
         method().will(returnValue(new HashSet()));
-        rv = invoke("Project", Arrays.asList(1L), paramMap);
+        Object rv = invoke("Project", Arrays.asList(1L), param);
 
     }
 
+    // Moved in 4.0
     @Test
     public void testContainerCanFindAnnotations() throws Exception {
-        IContainer p;
+        IMetadata p;
 
         Map<String, RType> paramMap = new HashMap<String, RType>();
         paramMap.put("foo", rbool(true));
+        ParametersI param = new ParametersI(paramMap);
 
         Map<Long, Set<? extends IObject>> retVal = new HashMap<Long, Set<? extends IObject>>();
 
-        init(IContainer.class, "findAnnotations");
+        init(IMetadata.class, "loadAnnotations");
         method().will(returnValue(retVal));
-        Object rv = invoke("Image", Arrays.asList(1L, 2L), Arrays
-                .asList(1L, 2L), paramMap);
+        Object rv = invoke("Image", Arrays.asList(1L, 2L), 
+                Arrays.asList("CommentAnnotation"),
+                Arrays.asList(1L, 2L), param);
         Map map = (Map) rv;
         assertNotNull(map);
 
@@ -813,9 +811,9 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     public void testContainerReceivesProperPojoOptions() throws Exception {
         IContainer p;
 
-        Map<String, RType> paramMap = new HashMap<String, RType>();
-        paramMap.put(POJOLEAVES.value, rbool(true));
-        paramMap.put(POJOEXPERIMENTER.value, rlong(1L));
+        ParametersI params = new ParametersI();
+        params.leaves();
+        params.exp(rlong(1));
 
         init(IContainer.class, "loadContainerHierarchy");
         method().with(ANYTHING, ANYTHING, new Constraint() {
@@ -841,7 +839,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
                 return true;
             }
         }).will(returnValue(new HashSet()));
-        Object rv = invoke("Image", Arrays.asList(1L, 2L), paramMap);
+        Object rv = invoke("Image", Arrays.asList(1L, 2L), params);
     }
 
     @Test
@@ -974,7 +972,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         Throwable t = mapper.handleException(new NullPointerException(), ctx);
         assertTrue(t.getClass().toString(),
-                t instanceof omero.InternalException);
+                t instanceof omero.ApiUsageException);
     }
 
     public void testByteArraysAsMaValues() {

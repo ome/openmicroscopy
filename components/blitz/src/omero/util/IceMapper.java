@@ -593,7 +593,19 @@ public class IceMapper extends ome.util.ModelMapper implements
             filter.group(f.groupId.getValue());
         }
 
-        if (f.unique) {
+        if (f.preferOwner != null) {
+            throw new UnsupportedOperationException();
+        }
+
+        if (f.startTime != null) {
+            throw new UnsupportedOperationException();
+        }
+
+        if (f.endTime != null) {
+            throw new UnsupportedOperationException();
+        }
+
+        if (f.unique != null && f.unique.getValue()) {
             filter.unique();
         }
 
