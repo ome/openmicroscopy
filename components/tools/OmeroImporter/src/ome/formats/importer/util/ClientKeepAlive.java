@@ -38,7 +38,12 @@ public class ClientKeepAlive implements Runnable
         {
             log.error(
                 "Exception while executing ping(), logging Connector out: ", t);
-            client.logout();
+            try {
+                client.logout();
+            } catch (Exception e) {
+                log.error("Nested error on client.logout() " +
+                		"while handling exception from ping()", e);
+            }
         }
     }
 

@@ -100,12 +100,16 @@ public interface IDelete extends ServiceInterface {
      * {@link SecurityViolation} is thrown, unless the user is root or the group
      * leader.
      * </p>
-     * An image will not be deleted if there are if it is contained in a
+     * An image will not be deleted if it is contained in a
      * {@link Dataset} owned by another user. If the {@link Image} is contained
      * in other {@link Dataset datasets} belonging to the same user, then the
      * force parameter decides what will happen. A force value of true implies
      * that the {@link Image} will be removed as well as the related
      * {@link DatasetImageLink links}.
+     * 
+     * The {@link Pixels#getRelatedTo()} field will be set to null for all
+     * {@link Pixels} pointing to a {@link Pixels} instance which is about to
+     * be deleted.
      * 
      * @param id
      *            id of the {@link Image} to be deleted

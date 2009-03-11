@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.IDelete;
 import ome.api.ServiceInterface;
@@ -150,6 +149,12 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
             }
 
         });
+        
+        sec.runAsAdmin(new AdminAction(){
+            public void runAsAdmin() {
+                clearPixelsRelatedTo(i);
+            }});
+        
 
         for (final IObject object : delete.list) {
             try {
@@ -372,6 +377,26 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
             throw new SecurityViolation(String.format(
                     "User %s cannot delete image %d", ec.getCurrentUserName(),
                     i.getId()));
+        }
+    }
+    
+    /**
+     * Finds all Pixels whose {@link Pixels#getRelatedTo()} field points to a 
+     * {@link Pixels} which is contained in the given {@link Image} and nulls
+     * the relatedTo field.
+     * @param i
+     */
+    private void clearPixelsRelatedTo(Image i) {
+        List<Long> ids = new ArrayList<Long>();
+        for (Pixels pixels : i.unmodifiablePixels()) {
+            ids.add(pixels.getId());
+        }
+        List<Pixels> relatedTo = iQuery.findAllByQuery("select p from Pixels p " +
+        		"where p.relatedTo.id in (:ids)",
+        		new Parameters().addIds(ids));
+        for (Pixels pixels : relatedTo) {
+            pixels.setRelatedTo(null);
+            iUpdate.flush();
         }
     }
 }

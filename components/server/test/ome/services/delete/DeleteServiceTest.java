@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import ome.api.IDelete;
+import ome.api.IProjection;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
@@ -173,9 +174,11 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
 
         String sql = "select lc from LogicalChannel lc "
                 + "join fetch lc.channels ch join ch.pixels p join p.image i where i.id = ";
-        List<LogicalChannel> lcs1 = iQuery.findAllByQuery(sql + i1.getId(), null);
+        List<LogicalChannel> lcs1 = iQuery.findAllByQuery(sql + i1.getId(),
+                null);
         Channel c1 = lcs1.get(0).iterateChannels().next();
-        List<LogicalChannel> lcs2 = iQuery.findAllByQuery(sql + i2.getId(), null);
+        List<LogicalChannel> lcs2 = iQuery.findAllByQuery(sql + i2.getId(),
+                null);
         c1.setLogicalChannel(lcs2.get(0));
         iUpdate.saveObject(c1);
 
@@ -266,37 +269,66 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         factory.getDeleteService().deleteSettings(i1.getId());
     }
 
+    @Test(groups = "ticket:1228")
+    public void testDeleteWithProjectionRemovesRelatedTo() throws Exception {
+
+        Experimenter e1 = loginNewUser();
+        Image i1 = makeImage(false);
+        Pixels p1 = i1.getPixels(0);
+        
+        Image i2 = makeImage(false);
+        Pixels p2 = i2.getPixels(0);
+        
+        p2.setRelatedTo(p1);
+        assertEquals(p1.getId(),
+                iUpdate.saveAndReturnObject(p2).getRelatedTo().getId());
+
+        /*
+        Leads to deadlock:
+        IProjection prj = this.factory.getProjectionService();
+        prj.projectPixels(p1.getId(), p1.getPixelsType(),
+                IProjection.MAXIMUM_INTENSITY, 0, p1.getSizeT(), // T
+                Arrays.asList(0), 0, 0, p1.getSizeZ(), // Z
+                "projection");
+        */
+        factory.getDeleteService().deleteImage(i1.getId(), true);
+    }
+
     // Helpers
     // =========================================================================
 
     private Image makeImage(boolean withDataset) throws Exception {
         MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(
                 this.factory, "");
-        File test = ResourceUtils.getFile("classpath:tinyTest.d3d.dv");
-        List<omero.model.Pixels> pixs = fixture.fullImport(test, "test");
-        assertEquals(1, pixs.size());
-        omero.model.Pixels p = pixs.get(0);
-        assertNotNull(p);
-        Image i = new Image(p.getImage().getId().getValue(), false);
+        try {
+            File test = ResourceUtils.getFile("classpath:tinyTest.d3d.dv");
+            List<omero.model.Pixels> pixs = fixture.fullImport(test, "test");
+            assertEquals(1, pixs.size());
+            omero.model.Pixels p = pixs.get(0);
+            assertNotNull(p);
+            Image i = new Image(p.getImage().getId().getValue(), false);
 
-        if (withDataset) {
-            Dataset d = new Dataset();
-            d.setName("test image");
-            d.linkImage(i);
-            iUpdate.saveObject(d);
+            if (withDataset) {
+                Dataset d = new Dataset();
+                d.setName("test image");
+                d.linkImage(i);
+                iUpdate.saveObject(d);
+            }
+
+            i = this.factory.getQueryService().findByQuery(
+                    "select i from Image i "
+                            + "left outer join fetch i.datasetLinks dil "
+                            + "left outer join fetch dil.parent d "
+                            + "left outer join fetch d.imageLinks "
+                            + "left outer join fetch i.pixels p "
+                            + "where p.id = :id",
+                    new Parameters().addId(pixs.get(0).getId().getValue()));
+
+            assertNotNull(i);
+            return i;
+        } finally {
+            fixture.tearDown();
         }
-
-        i = this.factory.getQueryService().findByQuery(
-                "select i from Image i "
-                        + "left outer join fetch i.datasetLinks dil "
-                        + "left outer join fetch dil.parent d "
-                        + "left outer join fetch d.imageLinks "
-                        + "left outer join fetch i.pixels p "
-                        + "where p.id = :id",
-                new Parameters().addId(pixs.get(0).getId().getValue()));
-
-        assertNotNull(i);
-        return i;
     }
 
 }

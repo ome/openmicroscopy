@@ -46,7 +46,7 @@ public class OMEROImportFixture {
 
     Log log = LogFactory.getLog(ImportFixture.class);
 
-    private OMEROMetadataStoreClient store;
+    protected OMEROMetadataStoreClient store;
 
     private OMEROWrapper reader;
 
@@ -85,7 +85,10 @@ public class OMEROImportFixture {
         this.store = null;
         this.library = null;
         try {
-            this.reader.close();
+            if (this.reader != null) {
+                this.reader.close();
+                this.reader = null;
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
