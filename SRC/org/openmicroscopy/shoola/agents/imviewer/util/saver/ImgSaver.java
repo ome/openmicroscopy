@@ -403,71 +403,76 @@ public class ImgSaver
      */
     void saveImage(boolean init)
     {
+    	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
     	if (init) createImages(uiDelegate.getSavingType());
         //Builds the image to display.
         boolean unitBar = model.isUnitBar();
         String v = getUnitBarValue(); 
         int s = (int) getUnitBarSize();
         boolean constrain;
-        if (imageComponents == null) {
-        	constrain = unitBar && v != null && s < mainImage.getWidth() 
-        				&& type == ImgSaverUI.IMAGE;
-        	writeSingleImage(mainImage, constrain, name);
-        } else {
-        	if (mainImage == null) return;
-        	Iterator i;
-        	int h, w;
-        	BufferedImage newImage;
-        	Graphics2D g2;
-        	if (uiDelegate.isSaveImagesInSeparatedFiles()) {
-        		constrain = unitBar && v != null && s < mainImage.getWidth() 
-							&& type == ImgSaverUI.IMAGE;
-        		writeSingleImage(mainImage, constrain, name);
-        		i = imageComponents.iterator();
-        		int j = 0;
-        		while (i.hasNext()) {
-        			constrain = unitBar && v != null && 
-                				type != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS;
-        			writeSingleImage((BufferedImage) i.next(), constrain, 
-        							name+"_"+j);
-        			j++;
-                }
-        		
-        	} else {
-        		int width = mainImage.getWidth();
-                h = mainImage.getHeight();
-                int n = imageComponents.size();
-                w = width*(n+1)+ImgSaverPreviewer.SPACE*(n-1);
+        try {
+            if (imageComponents == null) {
+            	constrain = unitBar && v != null && s < mainImage.getWidth() 
+            				&& type == ImgSaverUI.IMAGE;
+            	writeSingleImage(mainImage, constrain, name);
+            } else {
+            	if (mainImage == null) return;
+            	Iterator i;
+            	int h, w;
+            	BufferedImage newImage;
+            	Graphics2D g2;
+            	if (uiDelegate.isSaveImagesInSeparatedFiles()) {
+            		constrain = unitBar && v != null && s < mainImage.getWidth() 
+    							&& type == ImgSaverUI.IMAGE;
+            		writeSingleImage(mainImage, constrain, name);
+            		i = imageComponents.iterator();
+            		int j = 0;
+            		while (i.hasNext()) {
+            			constrain = unitBar && v != null && 
+            				type != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS;
+            			writeSingleImage((BufferedImage) i.next(), constrain, 
+            							name+"_"+j);
+            			j++;
+                    }
+            		
+            	} else {
+            		int width = mainImage.getWidth();
+                    h = mainImage.getHeight();
+                    int n = imageComponents.size();
+                    w = width*(n+1)+ImgSaverPreviewer.SPACE*(n-1);
 
-                newImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-                g2 = (Graphics2D) newImage.getGraphics();
-                g2.setColor(Color.WHITE);
-                ImagePaintingFactory.setGraphicRenderingSettings(g2);
-                //Paint the original image.
-                i = imageComponents.iterator();
-                int x = 0;
-                while (i.hasNext()) {
-                    g2.drawImage((BufferedImage) i.next(), null, x, 0); 
+                    newImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+                    g2 = (Graphics2D) newImage.getGraphics();
+                    g2.setColor(Color.WHITE);
+                    ImagePaintingFactory.setGraphicRenderingSettings(g2);
+                    //Paint the original image.
+                    i = imageComponents.iterator();
+                    int x = 0;
+                    while (i.hasNext()) {
+                        g2.drawImage((BufferedImage) i.next(), null, x, 0); 
+                        if (unitBar && v != null && 
+                            	type != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS)
+                            ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, 
+                            								h-10, s, v);
+                        x += width;
+                        g2.fillRect(x, 0, ImgSaverPreviewer.SPACE, h);
+                        x += ImgSaverPreviewer.SPACE;
+                    }
+                    g2.drawImage(mainImage, null, x, 0); 
                     if (unitBar && v != null && 
-                        	type != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS)
-                        ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, 
-                        								h-10, s, v);
-                    x += width;
-                    g2.fillRect(x, 0, ImgSaverPreviewer.SPACE, h);
-                    x += ImgSaverPreviewer.SPACE;
-                }
-                g2.drawImage(mainImage, null, x, 0); 
-                if (unitBar && v != null && 
-                	!(type == ImgSaverUI.LENS_IMAGE_AND_COMPONENTS ||
-                	 type == ImgSaverUI.LENS_IMAGE))
-                    ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, h-10, 
-                    									s, v);
-                writeImage(newImage, name);
-        	}
-            
-        }
-        UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-        un.notifyInfo("Image Saved", saveMessage);
+                    	!(type == ImgSaverUI.LENS_IMAGE_AND_COMPONENTS ||
+                    	 type == ImgSaverUI.LENS_IMAGE))
+                        ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, h-10, 
+                        									s, v);
+                    writeImage(newImage, name);
+            	}
+            }
+		} catch (Exception e) {
+			 un.notifyInfo("Saving Image", "An error occured while saving " +
+			 		"the image.");
+			 return;
+		}
+        un.notifyInfo("Saving Image", saveMessage);
         if (uiDelegate.isSetDefaultFolder())
         	UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
     }
