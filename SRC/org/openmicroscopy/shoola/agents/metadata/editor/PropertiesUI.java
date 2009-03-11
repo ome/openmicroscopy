@@ -428,11 +428,6 @@ class PropertiesUI
         					fa.getId());
         			panel.addPropertyChangeListener(controller);
         			add(Box.createVerticalStrut(5));
-        			JLabel l = UIUtilities.setTextFont(panel.getTitle());
-        			JPanel p = UIUtilities.buildComponentPanel(l);
-        			p.setBackground(UIUtilities.BACKGROUND);
-        			l.setBackground(UIUtilities.BACKGROUND);
-        			add(p);
         	    	add(panel);
         		}
         	}

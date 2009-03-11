@@ -43,6 +43,8 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 //Third-party libraries
 import layout.TableLayout;
@@ -172,6 +174,12 @@ public class PreviewPanel
 			// display description in EditorPane, because text wraps nicely!
 			JEditorPane ep = new JEditorPane("text/html", description);
 			ep.setEditable(false);
+			ep.addHyperlinkListener(new HyperlinkListener() {
+			
+				public void hyperlinkUpdate(HyperlinkEvent e) {
+					System.err.println(e.getURL());
+				}
+			});
 			ep.setBorder(new EmptyBorder(3, 5, 5, 3));
 			p.add(ep);
 		}

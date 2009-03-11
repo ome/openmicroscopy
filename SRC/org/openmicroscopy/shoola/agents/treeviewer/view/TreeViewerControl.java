@@ -232,7 +232,7 @@ class TreeViewerControl
 	static final Integer    NEW_OBJECT = Integer.valueOf(42);
 	
 	/** Identifies the <code>Launch Editor</code> in the menu. */
-	static final Integer    EDITOR = Integer.valueOf(43);
+	static final Integer    EDITOR_NO_SELECTION = Integer.valueOf(43);
 	
 	/** Identifies the <code>Files Explorer</code> action in the View menu. */
 	static final Integer	FILES_EXPLORER = Integer.valueOf(44);
@@ -245,6 +245,9 @@ class TreeViewerControl
 	
 	/** Identifies the <code>Add or remove tag</code> in the menu. */
 	static final Integer    TAGGING = Integer.valueOf(47);
+	
+	/** Identifies the <code>Launch Editor</code> in the menu. */
+	static final Integer    EDITOR_WITH_SELECTION = Integer.valueOf(48);
 	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
@@ -315,7 +318,8 @@ class TreeViewerControl
 		actionsMap.put(VIEW, new ViewImageAction(model));
 		actionsMap.put(NEW_OBJECT, new NewObjectAction(model, 
 								NewObjectAction.NEW_CONTAINERS));
-		actionsMap.put(EDITOR, new EditorAction(model));
+		actionsMap.put(EDITOR_NO_SELECTION, new EditorAction(model, false));
+		actionsMap.put(EDITOR_WITH_SELECTION, new EditorAction(model, true));
 		actionsMap.put(CREATE_TOP_TAG_SET,  
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.TAG_SET));

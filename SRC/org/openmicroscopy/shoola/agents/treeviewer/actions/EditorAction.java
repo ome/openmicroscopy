@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.List;
+
 import javax.swing.Action;
 
 
@@ -33,8 +35,11 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.FileAnnotationData;
 
 /** 
  * Action to launch the editor.
@@ -60,24 +65,56 @@ public class EditorAction
 	private static final String DESCRIPTION = "Launch the Editor.";
 	
 	/** 
+	 * Flag indicating to open the editor with a selected item if 
+	 * <code>true</code>, to open with a blank document if <code>false</code>
+	 */						
+	private boolean forSelected;
+	
+	/** 
+     * Enables the action if the browser is not ready.
+     * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
+     */
+	protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+	{
+		onBrowserStateChange(model.getSelectedBrowser());
+	}
+	
+	/** 
      * Enables the action if the browser is not ready.
      * @see TreeViewerAction#onBrowserStateChange(Browser)
      */
     protected void onBrowserStateChange(Browser browser)
     {
     	if (browser == null) return;
-    	setEnabled(browser.getState() == Browser.READY);
+    	int state = browser.getState();
+    	if (forSelected) {
+    		if (state == Browser.READY) {
+    			List l = browser.getSelectedDataObjects();
+    			if (l == null || l.size() != 1) setEnabled(false);
+    			else {
+    				Object object = l.get(0);
+    				setEnabled(object instanceof FileAnnotationData);
+    			}
+    		} else setEnabled(false);
+    	} else {
+    		setEnabled(state == Browser.READY);
+    	}
     }
     
 	/**
      * Creates a new instance.
      * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param model 		Reference to the Model. 
+     * 						Mustn't be <code>null</code>.
+     * @param forSelected 	Pass <code>true</code> to open the editor 
+     * 						with a selected item, <code>false</code> to open	
+     * 						with a blank document.
      */
-    public EditorAction(TreeViewer model)
+    public EditorAction(TreeViewer model, boolean forSelected)
     {
         super(model);
         name = NAME;
+        this.forSelected = forSelected;
         IconManager icons = IconManager.getInstance();
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -88,6 +125,9 @@ public class EditorAction
      * Launches the editor.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.openEditorFile(); }
+    public void actionPerformed(ActionEvent e)
+    { 
+    	model.openEditorFile(forSelected); 
+    }
     
 }

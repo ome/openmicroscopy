@@ -1306,7 +1306,7 @@ class TreeViewerComponent
 		fireStateChange();
 		String name = model.getRefImageName();
 		int n = success.size();
-		String text = "The settings ";
+		String text = "The rendering settings ";
 		if (name != null && name.length() > 0)
 			text += "of "+name;
 		if (failure.size() == 0) {
@@ -1328,7 +1328,7 @@ class TreeViewerComponent
 				index++;
 			}
 			s = s.trim();
-			un.notifyInfo("Paste Image's settings", text+
+			un.notifyInfo("Rendering Settings Applied", text+
 					"\ncould not be applied to the following images with ID:" +
 					"\n"+s);
 			//Indicates the wrong images.
@@ -1968,36 +1968,26 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#openEditorFile()
+	 * @see TreeViewer#openEditorFile(boolean)
 	 */
-	public void openEditorFile()
+	public void openEditorFile(boolean forSelected)
 	{
-		Browser browser = model.getSelectedBrowser();
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-		bus.post(new ShowEditorEvent());
-		/*
-		if (browser == null) {
-			bus.post(new ShowEditorEvent());
-	        return;
-		}
-		TreeImageDisplay d  = browser.getLastSelectedDisplay();
-		if (d == null) {
-			bus.post(new ShowEditorEvent());
-	        return;
-		}
-		Object object = d.getUserObject();
-		if (object == null) {
-			bus.post(new ShowEditorEvent());
-	        return;
-		}
-		if (object instanceof FileAnnotationData) {
-			FileAnnotationData data = (FileAnnotationData) d.getUserObject();
-			EditFileEvent evt = new EditFileEvent(data);
-			bus.post(evt);
+		if (forSelected) {
+			Browser browser = model.getSelectedBrowser();
+			if (browser == null) return;
+			TreeImageDisplay d  = browser.getLastSelectedDisplay();
+			if (d == null) return;
+			Object object = d.getUserObject();
+			if (object == null) return;
+			if (object instanceof FileAnnotationData) {
+				FileAnnotationData fa = (FileAnnotationData) d.getUserObject();
+				EditFileEvent evt = new EditFileEvent(fa);
+				bus.post(evt);
+			}
 		} else {
 			bus.post(new ShowEditorEvent());
 		}
-		*/
 	}
 
 	/**

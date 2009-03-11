@@ -164,7 +164,8 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.VIEW);
 				view = new JMenuItem(a);
 				initMenuItem(view, a.getActionName());
-				a = controller.getAction(TreeViewerControl.EDITOR);
+				a = controller.getAction(
+						TreeViewerControl.EDITOR_WITH_SELECTION);
 				editFile = new JMenuItem(a);
 				initMenuItem(editFile, a.getActionName());
 				

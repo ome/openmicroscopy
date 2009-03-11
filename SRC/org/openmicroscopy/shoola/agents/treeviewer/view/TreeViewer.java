@@ -748,8 +748,12 @@ public interface TreeViewer
 	/** 
 	 * Opens the editor without file if no file selected.
 	 * or opens the currently selected file.
+	 * 
+	 * @param forSelected   Pass <code>true</code> to open the editor 
+     * 						with a selected item, <code>false</code> to open	
+     * 						with a blank document.
 	 */
-	public void openEditorFile();
+	public void openEditorFile(boolean forSelected);
 
 	/** Displays the tag wizard. */
 	public void showTagWizard();
