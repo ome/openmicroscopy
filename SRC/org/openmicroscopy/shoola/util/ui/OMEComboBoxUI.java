@@ -61,7 +61,8 @@ public class OMEComboBoxUI
      *
      * @return a button which represents the popup control
      */
-    protected JButton createArrowButton() {
+    protected JButton createArrowButton()
+    {
     	if (backgroundColor == null)
     		backgroundColor = UIManager.getColor("ComboBox.buttonBackground");
         JButton button = new OMEBasicArrowButton(BasicArrowButton.SOUTH,

@@ -1611,7 +1611,8 @@ class TreeViewerComponent
 	{
 		if (ids == null || ids.size() == 0) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Set settings", "Please select at one element.");
+			un.notifyInfo("Set settings", "Please select at least " +
+					"one element.");
 			return;
 		}
 		model.fireSetOriginalRenderingSettings(ids, klass);
@@ -1626,7 +1627,8 @@ class TreeViewerComponent
 	{
 		if (ref == null) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Set settings", "Please select at one element.");
+			un.notifyInfo("Set settings", "Please select at least" +
+					" one element.");
 			return;
 		}
 		model.fireSetOriginalRenderingSettings(ref);

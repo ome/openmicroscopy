@@ -1400,10 +1400,10 @@ public class EditorUtil
     	OMEComboBox box = new OMEComboBox(values);
     	if (backgoundColor != null)
     		box.setBackground(backgoundColor);
-		OMEComboBoxUI ui = new OMEComboBoxUI();
-		ui.setBackgroundColor(box.getBackground());
-	    ui.installUI(box);
-		box.setUI(ui);
+		//OMEComboBoxUI ui = new OMEComboBoxUI();
+		//ui.setBackgroundColor(box.getBackground());
+	    //ui.installUI(box);
+		//box.setUI(ui);
 		Font f = box.getFont();
 		int size = f.getSize()-decrement;
 		box.setBorder(null);
