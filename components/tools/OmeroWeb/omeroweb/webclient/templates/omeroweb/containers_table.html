@@ -39,7 +39,7 @@
     <script type="text/javascript">
         $(document).ready(function() 
             { 
-                $("#dataTable").tablesorter( {sortList: [[1,1]]} ); 
+                $("#dataTable").tablesorter( {sortList: [[1,0]]} ); 
                 
                 {% if manager.c_mg_size and manager.c_size %}
                 $('table#dataTable tbody tr').quicksearch({
@@ -97,7 +97,6 @@
 {% block center %}
 
 {% if form_users %}
-
 <div class="box">
     {% for field in form_users %}{{ field.label_tag }} {{ field }} <br/>{% if field.errors %} {{ field.errors }} {% endif %} {{ field.help_text }}{% endfor %}
 </div>
@@ -130,10 +129,10 @@
 
 {% if manager.dataset %}
     <div class="toolbar">
-        {% if manager.dataset.isOwned %}<!--| <a href="#" onclick="toBasket('dataset', '{{ manager.dataset.id }}'); return false;">{% trans "Select" %} <img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a>--> {% endif %}
+        {% if manager.dataset.isOwned %}<!--| <a href="#" onclick="toBasket('dataset', '{{ manager.dataset.id }}'); return false;">{% trans "Select" %} <img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a>--> 
         | <a href="#" onclick="copyToClipboard('dataset', '{{ manager.dataset.id }}'); return false;">{% trans "Copy" %} <img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
         | <a href="#" onclick="pasteFromClipboard('dataset', '{{ manager.dataset.id }}', '{{ url }}'); return false;">{% trans "Paste" %} <img src="{% get_webclient_static_url %}/images/eclipse_paste_edit16.png" alt="p" title="paste"/></a> 
-        {% if manager.dataset.isEditable %} | <a href="{% get_webclient_root_url %}/action/edit/dataset/{{ manager.dataset.id }}/?url={{url}}">{% trans "Edit" %} <img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
+        | <a href="{% get_webclient_root_url %}/action/edit/dataset/{{ manager.dataset.id }}/?url={{url}}">{% trans "Edit" %} <img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a> | {% endif %}
     </div>
     
     <div class="clear"></div>
@@ -143,8 +142,9 @@
 {% else %}
     {% if manager.project %}
         <div class="toolbar">
-            | <a href="#" onclick="pasteFromClipboard('project', '{{ manager.project.id }}', '{{ url }}'); return false;">{% trans "Paste" %} <img src="{% get_webclient_static_url %}/images/eclipse_paste_edit16.png" alt="p" title="paste"/></a>
-            {% if manager.project.isEditable %} | <a href="{% get_webclient_root_url %}/action/edit/project/{{ manager.project.id }}/?url={{url}}">{% trans "Edit" %} <img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %} |
+            {% if manager.project.isOwned %}| <a href="#" onclick="pasteFromClipboard('project', '{{ manager.project.id }}', '{{ url }}'); return false;">{% trans "Paste" %} <img src="{% get_webclient_static_url %}/images/eclipse_paste_edit16.png" alt="p" title="paste"/></a> 
+            | <a href="{% get_webclient_root_url %}/action/edit/project/{{ manager.project.id }}/?url={{url}}">{% trans "Edit" %} <img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a> |
+            {% endif %}
         </div>
         
         <div class="clear"></div>
@@ -186,12 +186,13 @@
     {% ifequal nav.whos "groupdata" %} | {% trans "View" %} <a href="{% get_webclient_root_url %}/groupdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="details" title="details"/></a> <a href="{% get_webclient_root_url %}/groupdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> <a href="{% get_webclient_root_url %}/groupdata/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.png" alt="tree" title="tree"/></a> |
     {% endifequal %}
 {% endifequal %}
+
 {% if not manager.image %}
-    {% if manager.project %}
-        {% trans "New" %} <a href="{% get_webclient_root_url %}/action/new/project/{{ manager.project.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/window_new16.jpg" alt="new" title="new" /></a> | 
-    {% else %}
-        {% if not manager.dataset %}
-            {% trans "New" %} <a href="{% get_webclient_root_url %}/action/new/?url={{url}}"><img src="{% get_webclient_static_url %}/images/window_new16.jpg" alt="new" title="new" /></a> | 
+    {% if not manager.dataset %}
+        {% if manager.project and manager.project.isOwned %}
+            {% trans "New" %} <a href="{% get_webclient_root_url %}/action/new/project/{{ manager.project.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/window_new16.jpg" alt="new" title="new" /></a> | 
+        {% else %}
+            {% if manager.project.isOwned %}{% trans "New" %} <a href="{% get_webclient_root_url %}/action/new/?url={{url}}"><img src="{% get_webclient_static_url %}/images/window_new16.jpg" alt="new" title="new" /></a> | {% endif %}
         {% endif %}
     {% endif %}
 {% endif %}
@@ -227,7 +228,7 @@
         <tr> 
             <td class="product">{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="{{ c.name }}" alt="project"/></a>{% endif %}</td> 
             <td>{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/">{{ c.shortName }}</a>{% else %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% endif %} <img src="{% get_webclient_static_url %}/images/image16.png" title="image" alt="image"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
-            <td><a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a>{% if manager.project and manager.project.isOwned %} <a href="{% get_webclient_root_url %}/action/remove/?parent=pr-{{ manager.project.id }}&source=ds-{{ c.id }}&url={{ url }}" onClick="return confirm('Unlink dataset?');"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}</td>
+            <td>{% if c.isOwned %}<a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> {% if manager.project %}<a href="{% get_webclient_root_url %}/action/remove/?parent=pr-{{ manager.project.id }}&source=ds-{{ c.id }}&url={{ url }}" onClick="return confirm('Unlink dataset?');"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}{% endif %}</td>
             <td>{{ c.creationEventDate|date:"Y m d H:i:s" }}</td>
         </tr> 
         {% endfor %}
@@ -235,7 +236,7 @@
         <tr> 
             <td class="product">{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="{{ c.name }}" alt="image"/></a>{% else %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="{{ c.name }}" alt="image"/></a>{% endif %}</td> 
             <td>{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/">{{ c.shortName }}</a> {% else %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/">{{ c.shortName }}</a>{% endif %}{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
-            <td><a href="#" onclick="popup(null,'_blank','{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" title="{{ c.name }}" alt="image"/></a> <a href="{% get_webclient_root_url %}/image_zoom/{{ c.id }}/?keepThis=true&TB_iframe=true&height=500&width=860" alt="{{ c.shortName }}" class="thickbox" rel="gallery-omero" title="{{ c.shortName }} by {{ c.getOwner }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% get_webclient_static_url %}/images/kpresenter16.png" alt="p" title="presentation"/></a>{% if c.isOwned %} <a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endif %} <a href="#" onclick="copyToClipboard('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a>{% if manager.dataset and manager.dataset.isOwned %} <a href="{% get_webclient_root_url %}/action/remove/?parent=ds-{{ manager.dataset.id }}&source=img-{{ c.id }}&url={{ url }}" onClick="return confirm('Unlink image?');"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}</td>
+            <td><a href="#" onclick="popup(null,'_blank','{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" title="{{ c.name }}" alt="image"/></a> <a href="{% get_webclient_root_url %}/image_zoom/{{ c.id }}/?keepThis=true&TB_iframe=true&height=500&width=860" alt="{{ c.shortName }}" class="thickbox" rel="gallery-omero" title="{{ c.shortName }} by {{ c.getOwner }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% get_webclient_static_url %}/images/kpresenter16.png" alt="p" title="presentation"/></a>{% if c.isOwned %} <a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a> <a href="#" onclick="copyToClipboard('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> {% if manager.dataset %}<a href="{% get_webclient_root_url %}/action/remove/?parent=ds-{{ manager.dataset.id }}&source=img-{{ c.id }}&url={{ url }}" onClick="return confirm('Unlink image?');"><img src="{% get_webclient_static_url %}/images/cut16.png" alt="u" title="unlink"/></a>{% endif %}{% endif %}</td>
             <td>{{ c.getDate|date:"Y m d H:i:s" }}</td>
         </tr> 
         {% endfor %}

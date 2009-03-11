@@ -294,8 +294,8 @@ class BaseContainer(BaseController):
         #    self.hierarchy = self.conn.findContainerHierarchies(self.project.id)
     
     def listMyRoots(self):
-        pr_list = self.sortByAttr(list(self.conn.listProjectsMine()), 'name')
-        ds_list = self.sortByAttr(list(self.conn.listDatasetsOutoffProjectMine()), 'name')
+        pr_list = list(self.conn.listProjectsMine())
+        ds_list = list(self.conn.listDatasetsOutoffProjectMine())
         
         pr_list_with_counters = list()
         ds_list_with_counters = list()
@@ -320,11 +320,14 @@ class BaseContainer(BaseController):
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
+        pr_list_with_counters = self.sortByAttr(pr_list_with_counters, "name")
+        ds_list_with_counters = self.sortByAttr(ds_list_with_counters, "name")
+        
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)
 
     def listMyDatasetsInProject(self, project_id, page):
-        ds_list = self.sortByAttr(list(self.conn.listDatasetsInProjectMine(project_id, page)), 'name')
+        ds_list = list(self.conn.listDatasetsInProjectMine(project_id, page))
         ds_list_with_counters = list()
         
         ds_ids = [ds.id for ds in ds_list]
@@ -337,6 +340,7 @@ class BaseContainer(BaseController):
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
+        ds_list_with_counters = self.sortByAttr(ds_list_with_counters, "name")
         self.containers = {'datasets': ds_list_with_counters}
         self.c_size = self.conn.getCollectionCount("Project", "datasetLinks", [long(project_id)])[long(project_id)]
         
@@ -344,7 +348,7 @@ class BaseContainer(BaseController):
         
 
     def listMyImagesInDataset(self, dataset_id, page):
-        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetMine(dataset_id, page)), 'name')
+        im_list = list(self.conn.listImagesInDatasetMine(dataset_id, page))
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
@@ -355,6 +359,7 @@ class BaseContainer(BaseController):
                 im.annotation_counter = im_annotation_counter.get(im.id)
                 im_list_with_counters.append(im)
         
+        im_list_with_counters = self.sortByAttr(im_list_with_counters, 'name')
         self.containers = {'images': im_list_with_counters}
         self.c_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(dataset_id)])[long(dataset_id)]
         
