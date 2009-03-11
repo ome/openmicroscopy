@@ -27,13 +27,8 @@ class TestMetdataStore(lib.ITest):
         ms = self.client.sf.createByName(omero.constants.METADATASTORE)
         ms = omero.api.MetadataStorePrx.checkedCast(ms)
 
-        ms.setRoot(rlist([]))
-        ms.setPixelsSizeX(rint(1), 1, 1)
-        ms.setPixelsSizeY(rint(1), 1, 1)
-        ms.setPixelsSizeZ(rint(1), 1, 1)
-        ms.setPixelsSizeC(rint(1), 1, 1)
-        ms.setPixelsSizeT(rint(1), 1, 1)
-        ms.getProjects()
+        ms.createRoot()
+        # Needs work
 
 if __name__ == '__main__':
     unittest.main()

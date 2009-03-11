@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE( AddIdRaw )
 {
     ParametersIPtr p = new ParametersI();
     p->addId(1);
-    BOOST_CHECK_EQUAL(1, RIntPtr::dynamicCast(p->map["id"])->getValue());
+    BOOST_CHECK_EQUAL(1, RLongPtr::dynamicCast(p->map["id"])->getValue());
 }
 
 BOOST_AUTO_TEST_CASE( AddIdRType )
@@ -224,6 +224,7 @@ BOOST_AUTO_TEST_CASE( AddIds )
     omero::RTypeSeq::iterator beg = test->getValue().begin();
     omero::RTypeSeq::iterator end = test->getValue().end();
 
+    // Searching is broken because of the definition of equality
     found = find(beg, end, rlong(1));
     BOOST_CHECK( found != end );
 

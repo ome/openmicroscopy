@@ -12,7 +12,7 @@ import test.integration.library as lib
 import omero
 from omero_model_ImageI import ImageI
 from omero_model_TagAnnotationI import TagAnnotationI
-from omero.rtypes import rstring
+from omero.rtypes import rstring, rtime
 
 class TestCounts(lib.ITest):
 
@@ -21,6 +21,7 @@ class TestCounts(lib.ITest):
 
         img = ImageI()
         img.name = rstring("name")
+        img.acquisitionData = rtime(0)
         tag = TagAnnotationI()
         img.linkAnnotation( tag )
 

@@ -10,6 +10,7 @@
 
 import test.integration.library as lib
 import omero, tempfile, unittest
+from omero_sys_ParametersI import ParametersI
 from omero.rtypes import *
 
 # Reused bits
@@ -67,7 +68,7 @@ class TestTicket1000(lib.ITest):
 
         search = self.client.getSession().createSearchService()
         search.onlyType("OriginalFile")
-        search.byHqlQuery("select o from OriginalFile o where o.name = 'stderr'", params.theFilter)
+        search.byHqlQuery("select o from OriginalFile o where o.name = 'stderr'", params)
         if search.hasNext():
             ofile = search.next()
         else:
@@ -97,11 +98,10 @@ class TestTicket1000(lib.ITest):
 
         pixelsIds = list()
         pojos = self.client.sf.getContainerService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map[omero.constants.POJOEXPERIMENTER] = rlong(0)
+        p = ParametersI()
+        p.exp(rlong(0))
 
-        for e in pojos.getImages("Dataset",[d.id.val],  p.map):
+        for e in pojos.getImages("Dataset",[d.id.val],  p):
             for px in e.pixels:
                 pixelsIds.append(px.id.val)
 

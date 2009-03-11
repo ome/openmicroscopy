@@ -65,7 +65,7 @@ class TestClientConstructors(unittest.TestCase):
         cfg = os.path.join(here, "client_ctors.cfg")
         if not os.path.exists(cfg):
             self.fail(cfg + " does not exist")
-        args = ["--Ice.Config=" + cfg]
+        args = ["--Ice.Config=" + cfg,"--omero.host=unimportant"]
         c = omero.client(args)
         self.assertEquals("true",c.getProperty("in.ice.config"))
         #c.createSession()

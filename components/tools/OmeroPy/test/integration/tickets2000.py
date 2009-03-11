@@ -21,6 +21,7 @@ from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
+from omero_sys_ParametersI import ParametersI
 from omero.rtypes import *
 
 class TestTickets2000(lib.ITest):
@@ -172,6 +173,7 @@ class TestTickets2000(lib.ITest):
         #images
         im2 = ImageI()
         im2.setName(rstring('test1071-im2-%s' % (uuid)))
+        im2.acquisitionData = rtime(0)
         im2 = update.saveAndReturnObject(im2)
         im2.unload()
         
@@ -304,6 +306,7 @@ class TestTickets2000(lib.ITest):
         #images
         im2 = ImageI()
         im2.setName(rstring('test1071-im2-%s' % (c2_uuid)))
+        im2.acquisitionDate = rtime(0)
         im2 = c2_update.saveAndReturnObject(im2)
         im2.unload()
         
@@ -444,14 +447,11 @@ class TestTickets2000(lib.ITest):
         
         self.assert_( c2.sf.getAdminService().getEventContext() )
         #print c1.sf.getAdminService().getEventContext()
-        
-        p = omero.sys.Parameters()
-        p.map = {} 
-        #p.map[omero.constants.POJOEXPERIMENTER] = rlong(c2.sf.getAdminService().getEventContext().userId)
-        p.map[omero.constants.POJOGROUP] = rlong(c2.sf.getAdminService().getEventContext().groupId)
-        #p.map[omero.constants.POJOLEAVES] = rbool(True)
-        pojos.loadContainerHierarchy("Project",None,  p.map)
-    
+
+        p = omero.sys.ParametersI()
+        p.grp( rlong(c2.sf.getAdminService().getEventContext().groupId) )
+        pojos.loadContainerHierarchy("Project",None,  p)
+
     def test1088(self):
         admin = self.root.sf.getAdminService()
         q = self.root.sf.getQueryService()
