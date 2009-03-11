@@ -224,8 +224,8 @@ class GeneralPaneUI
 					preview = new PreviewPanel(description, fa.getId());
 					preview.addPropertyChangeListener(controller);
 					pane = EditorUtil.createTaskPane(fa.getFileName());
-					pane.setCollapsed(true);
 					pane.add(preview);
+					pane.setCollapsed(true);
 					layout.insertRow(index, TableLayout.PREFERRED);
 					protocolComponent.add(pane, "0, "+index);
 					index++;

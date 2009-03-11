@@ -62,7 +62,8 @@ import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
 import omero.model.WellAnnotationLink;
 import omero.model.WellSampleAnnotationLink;
-import omero.sys.PojoOptions;
+import omero.sys.Parameters;
+import omero.sys.ParametersI;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -627,16 +628,16 @@ class OmeroDataServiceImpl
 			boolean withLeaves, long userID)
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		PojoOptions po = new PojoOptions();
-		if (rootNodeIDs == null) po.exp(omero.rtypes.rlong(userID));
-		if (withLeaves) po.leaves();
-		else po.noLeaves();
+		ParametersI param = new ParametersI();
+		if (rootNodeIDs == null) param.exp(omero.rtypes.rlong(userID));
+		if (withLeaves) param.leaves();
+		else param.noLeaves();
 		if (rootNodeIDs == null || rootNodeIDs.size() == 0) {
 			if (ProjectData.class.equals(rootNodeType))
-				po.orphan();
+				param.orphan();
 		}
 		Set parents = gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
-				po.map()); 
+				param); 
 		return parents;                            
 	}
 
@@ -647,9 +648,9 @@ class OmeroDataServiceImpl
 	public Set loadTopContainerHierarchy(Class rootNodeType, long userID)
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		PojoOptions po = new PojoOptions();
-		po.exp(omero.rtypes.rlong(userID));
-		return gateway.loadContainerHierarchy(rootNodeType, null, po.map());                         
+		ParametersI param = new ParametersI();
+		param.exp(omero.rtypes.rlong(userID));
+		return gateway.loadContainerHierarchy(rootNodeType, null, param);                         
 	}
 
 	/** 
@@ -660,11 +661,10 @@ class OmeroDataServiceImpl
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		PojoOptions po = new PojoOptions();
+		ParametersI po = new ParametersI();
 		po.leaves();
 		po.exp(omero.rtypes.rlong(userID));
-		return gateway.findContainerHierarchy(rootNodeType, leavesIDs,
-				po.map());
+		return gateway.findContainerHierarchy(rootNodeType, leavesIDs, po);
 	}
 	
 	/** 
@@ -676,9 +676,9 @@ class OmeroDataServiceImpl
 	{
 		if (nodeType == null)
 			throw new IllegalArgumentException("No type specified.");
-		PojoOptions po = new PojoOptions();
+		ParametersI po = new ParametersI();
 		po.exp(omero.rtypes.rlong(userID));
-		return gateway.getContainerImages(nodeType, nodeIDs, po.map());
+		return gateway.getContainerImages(nodeType, nodeIDs, po);
 	}
 
 	/** 
@@ -688,9 +688,9 @@ class OmeroDataServiceImpl
 	public Set getExperimenterImages(long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		PojoOptions po = new PojoOptions();
+		ParametersI po = new ParametersI();
 		po.exp(omero.rtypes.rlong(userID));
-		return gateway.getUserImages(po.map());
+		return gateway.getUserImages(po);
 	}
 
 	/**
@@ -706,7 +706,7 @@ class OmeroDataServiceImpl
 		//if (rootNodeType.equals(TagAnnotationData.class))
 			//return gateway.getDataObjectsTaggedCount(rootNodeIDs);
 		return gateway.getCollectionCount(rootNodeType, property, rootNodeIDs, 
-				new PojoOptions().map());
+				new Parameters());
 	}
 
 	/**
@@ -782,8 +782,7 @@ class OmeroDataServiceImpl
 		if (ho == null) return null;
 		ModelMapper.fillIObject(oldObject, ho);
 		ModelMapper.unloadCollections(ho);
-		IObject updated = gateway.updateObject(ho,
-				(new PojoOptions()).map());
+		IObject updated = gateway.updateObject(ho, new Parameters());
 		return PojoMapper.asDataObject(updated);
 	}
 
@@ -1009,14 +1008,14 @@ class OmeroDataServiceImpl
 		if (startTime == null && endTime == null)
 			throw new NullPointerException("Time not specified.");
 		
-		PojoOptions po = new PojoOptions();
+		ParametersI po = new ParametersI();
 		po.leaves();
 		po.exp(omero.rtypes.rlong(userID));
 		if (startTime != null) 
 			po.startTime(omero.rtypes.rtime(startTime.getTime()));
 		if (endTime != null) 
 			po.endTime(omero.rtypes.rtime(endTime.getTime()));
-		return gateway.getImages(po.map(), asDataObject);
+		return gateway.getImages(po, asDataObject);
 	}
 
 	/**
@@ -1095,7 +1094,7 @@ class OmeroDataServiceImpl
 						case SearchDataContext.FILE_ANNOTATION:
 						case SearchDataContext.URL_ANNOTATION:
 							images = gateway.getContainerImages(ImageData.class, 
-									value, new PojoOptions());
+									value, new Parameters());
 							k = images.iterator();
 							while (k.hasNext()) {
 								img = (DataObject) k.next();

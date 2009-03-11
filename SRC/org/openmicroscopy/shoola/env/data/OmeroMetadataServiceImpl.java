@@ -64,7 +64,9 @@ import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
-import omero.sys.PojoOptions;
+import omero.sys.Parameters;
+import omero.sys.ParametersI;
+
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -167,7 +169,7 @@ class OmeroMetadataServiceImpl
 	{
 		LogicalChannel lc = data.asChannel().getLogicalChannel();
 		ModelMapper.unloadCollections(lc);
-		gateway.updateObject(lc, (new PojoOptions()).map());
+		gateway.updateObject(lc, new Parameters());
 	}
 	
 	/**
@@ -270,7 +272,7 @@ class OmeroMetadataServiceImpl
 		long objectiveSettingsID = data.getObjectiveSettingsId();
 
 		if (toUpdate.size() > 0) {
-			gateway.updateObjects(toUpdate, new PojoOptions());
+			gateway.updateObjects(toUpdate, new Parameters());
 		}
 		Iterator<IObject> i;
 		if (toCreate.size() > 0) {
@@ -289,7 +291,7 @@ class OmeroMetadataServiceImpl
 				}
 			}
 			ModelMapper.unloadCollections(image);
-			gateway.updateObject(image, (new PojoOptions()).map());
+			gateway.updateObject(image, new Parameters());
 		}
 		toUpdate.clear();
 		toCreate.clear();
@@ -326,7 +328,7 @@ class OmeroMetadataServiceImpl
 					omero.rtypes.rdouble(data.getWorkingDistance()));
 		}
 		if (toUpdate.size() > 0) {
-			gateway.updateObjects(toUpdate, (new PojoOptions()).map());
+			gateway.updateObjects(toUpdate, new Parameters());
 		} else { 
 			//create the object and link it to the objective settings.
 			//and link it to an instrument.
@@ -341,7 +343,7 @@ class OmeroMetadataServiceImpl
 					settings.setObjective((Objective) object);
 			}
 			ModelMapper.unloadCollections(settings);
-			gateway.updateObject(settings, (new PojoOptions()).map());
+			gateway.updateObject(settings, new Parameters());
 		}
 	}
 	
@@ -566,7 +568,7 @@ class OmeroMetadataServiceImpl
 			ho = (TagAnnotation) gateway.findIObject(ioType, id);
 			ho.setTextValue(omero.rtypes.rstring(tag.getTagValue()));
 			ho.setDescription(omero.rtypes.rstring(tag.getTagDescription()));
-			IObject object = gateway.updateObject(ho, new PojoOptions());
+			IObject object = gateway.updateObject(ho, new Parameters());
 			return PojoMapper.asDataObject(object);
 		}
 		return ann;
@@ -684,9 +686,8 @@ class OmeroMetadataServiceImpl
 		annotationTypes.add(TextualAnnotationData.class);
 		List<Long> annotators = new ArrayList<Long>(1);
 		annotators.add(userID);
-		PojoOptions po = new PojoOptions();
 		Map annotations = gateway.loadAnnotations(type, ids, 
-				annotationTypes, annotators, po.map());
+				annotationTypes, annotators, new Parameters());
 		List<AnnotationData> result = new ArrayList<AnnotationData>();
 		if (annotations == null || annotations.size() == 0)
 			return result;
@@ -740,8 +741,8 @@ class OmeroMetadataServiceImpl
 		nodeIds.add(id);
 		List<Class> types = new ArrayList<Class>();
 		types.add(RatingAnnotationData.class);
-		PojoOptions po = new PojoOptions();
-		Map map = gateway.loadAnnotations(type, nodeIds, types, ids, po.map());
+		Map map = gateway.loadAnnotations(type, nodeIds, types, ids, 
+				new Parameters());
 		if (map == null || map.size() == 0) return new ArrayList();
 		return (Collection) map.get(id);
 	}
@@ -1041,8 +1042,8 @@ class OmeroMetadataServiceImpl
 		}
 		List<Long> objects = new ArrayList<Long>(1);
 		objects.add(id);
-		PojoOptions po = new PojoOptions();
-		Map map = gateway.loadAnnotations(type, objects, null, ids, po.map());
+		Map map = gateway.loadAnnotations(type, objects, null, ids, 
+				new Parameters());
 		return (Collection) map.get(id);
 	}
 
@@ -1054,7 +1055,7 @@ class OmeroMetadataServiceImpl
 			                         long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		PojoOptions po = new PojoOptions();
+		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 		//else po.grp(i)
 		List<String> toInclude = new ArrayList<String>();
@@ -1062,7 +1063,7 @@ class OmeroMetadataServiceImpl
 		if (nameSpace != null) 
 			toInclude.add(nameSpace);
 		return gateway.loadSpecificAnnotation(annotationType, toInclude, 
-				toExclude, po.map());
+				toExclude, po);
 	}
 	
 	/**
@@ -1126,7 +1127,7 @@ class OmeroMetadataServiceImpl
 		DataObject object, child;
 		List<Long> ids;
 		Set images = null;
-		PojoOptions po = new PojoOptions();
+		Parameters po = new Parameters();
 		Iterator k;
 		List result = null;
 		//First create the new annotations 
@@ -1277,9 +1278,8 @@ class OmeroMetadataServiceImpl
 		}
 		List<Class> types = new ArrayList<Class>();
 		types.add(RatingAnnotationData.class);
-		PojoOptions po = new PojoOptions();
 		Map map = gateway.loadAnnotations(nodeType, nodeIds, types, ids, 
-				po.map());
+				new Parameters());
 		Map<Long, Collection> results = new HashMap<Long, Collection>();
 		if (map == null) return results;
 		
@@ -1323,9 +1323,8 @@ class OmeroMetadataServiceImpl
 		}
 		List<Class> types = new ArrayList<Class>();
 		types.add(annotationType);
-		PojoOptions po = new PojoOptions();
 		Map map = gateway.loadAnnotations(nodeType, nodeIds, types, ids, 
-				po.map());
+				new Parameters());
 		if (map == null || map.size() == 0) return results;
 		ExperimenterData exp = getUserDetails();
 		long id;
@@ -1385,9 +1384,8 @@ class OmeroMetadataServiceImpl
 		
 		List<Class> types = new ArrayList<Class>();
 		types.add(annotationType);
-		PojoOptions po = new PojoOptions();
 		Map map = gateway.loadAnnotations(nodeType, nodeIds, types, ids, 
-				po.map());
+				new Parameters());
 		if (map == null || map.size() == 0) return results;
 		long id;
 		Collection l;
@@ -1470,9 +1468,8 @@ class OmeroMetadataServiceImpl
 		}
 		List<Class> annotationTypes = new ArrayList<Class>();
 		//types.add(annotationType);
-		PojoOptions po = new PojoOptions();
 		Map map = gateway.loadAnnotations(nodeType, ids, annotationTypes, 
-				userIDs, po.map());
+				userIDs, new Parameters());
 		
 		if (map == null || map.size() == 0) {
 			if (rateIndex == FilterContext.EQUAL && filter.getRate() == 0)
@@ -1790,7 +1787,7 @@ class OmeroMetadataServiceImpl
 				gateway.findIObject(FileAnnotation.class.getName(), id);
 			fa.setFile(of);
 			if (desc != null) fa.setDescription(omero.rtypes.rstring(desc));
-			gateway.updateObject(fa, new PojoOptions());
+			gateway.updateObject(fa, new Parameters());
 		}
 		fa = (FileAnnotation) 
 			gateway.findIObject(FileAnnotation.class.getName(), id);
@@ -1835,13 +1832,13 @@ class OmeroMetadataServiceImpl
 			long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		PojoOptions po = new PojoOptions();
+		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 		if (topLevel) {
 			po.orphan();
-			return gateway.loadTagSets(po.map());
+			return gateway.loadTagSets(po);
 		}
-		Collection l = gateway.loadTags(id, po.map());
+		Collection l = gateway.loadTags(id, po);
 		return l;
 	}
 
@@ -1866,11 +1863,11 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
 				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 		}
-		PojoOptions po = new PojoOptions();
+		ParametersI po = new ParametersI();
 		long userID = getUserDetails().getId();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 		return gateway.countSpecificAnnotation(FileAnnotationData.class, 
-				include, exclude, po.map());
+				include, exclude, po);
 	}
 
 	/** 
@@ -1894,10 +1891,10 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
 				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 		}
-		PojoOptions po = new PojoOptions();
+		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 		return gateway.loadSpecificAnnotation(FileAnnotationData.class, 
-				include, exclude, po.map());
+				include, exclude, po);
 	}
 
 	/** 

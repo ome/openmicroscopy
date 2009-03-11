@@ -126,7 +126,6 @@ import omero.model.Well;
 import omero.model.WellSample;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
-import omero.sys.PojoOptions;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DataObject;
@@ -3590,7 +3589,7 @@ class OMEROGateway
 			long imageID = service.projectPixels(pixelsID, type, algorithm, 
 					startT, endT, channels, stepping, startZ, endZ, name);
 			
-			return getImage(imageID, new PojoOptions());
+			return getImage(imageID, new Parameters());
 		} catch (Exception e) {
 			handleException(e, "Cannot project the image.");
 		}
@@ -3774,14 +3773,13 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		PojoOptions po = new PojoOptions();
+		ParametersI po = new ParametersI();
 		po.acquisitionData();
 		List<Long> ids = new ArrayList<Long>(1);
 		ids.add(imageID);
 		IContainerPrx service = getPojosService();
         try {
-        	List images = service.getImages(Image.class.getName(), ids, 
-        			po.map());
+        	List images = service.getImages(Image.class.getName(), ids, po);
         	if (images != null && images.size() == 1)
         		return new ImageAcquisitionData((Image) images.get(0));
 		} catch (Exception e) {

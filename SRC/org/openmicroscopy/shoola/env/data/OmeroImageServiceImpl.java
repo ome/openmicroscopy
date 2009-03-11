@@ -47,7 +47,7 @@ import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.RenderingDef;
 import omero.romio.PlaneDef;
-import omero.sys.PojoOptions;
+import omero.sys.Parameters;
 
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -433,8 +433,8 @@ class OmeroImageServiceImpl
 		img.setDescription(omero.rtypes.rstring(ref.getDescription()));
 		image = (ImageData) 
 			PojoMapper.asDataObject(gateway.updateObject(img, 
-					new PojoOptions()));
-		image = gateway.getImage(image.getId(), new PojoOptions());
+					new Parameters()));
+		image = gateway.getImage(image.getId(), new Parameters());
 		List<DatasetData> datasets =  ref.getDatasets();
 		if (datasets != null && datasets.size() > 0) {
 			Iterator<DatasetData> i = datasets.iterator();
