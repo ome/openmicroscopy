@@ -227,7 +227,7 @@ public class ImportLibrary implements IObservable
     	// 1st we post-process the metadata that we've been given.
     	log.debug("Post-processing metadata.");
 
-    	store.setArchive(true);
+    	store.setArchive(archive);
     	store.setUserSpecifiedImageName(imageName);
     	store.postProcess();
         
