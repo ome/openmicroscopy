@@ -171,8 +171,8 @@ class ExperimenterQuerySetIterator(object):
                     name = "%s %s" % (firstName, lastName)
 
                 l = len(name)
-                if l > 40:
-                    name = name[:40] + "..."
+                if l > 50:
+                    name = name[:50] + "..."
             except:
                 name = _("Unknown")
             

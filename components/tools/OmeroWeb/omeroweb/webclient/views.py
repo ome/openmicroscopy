@@ -2576,7 +2576,7 @@ def basket_action (request, action=None, oid=None, **kwargs):
         basket = BaseBasket(conn)
         basket.buildBreadcrumb(action)
         basket.load_basket(request)
-        experimenters = conn.getExperimenters()
+        experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
         
         form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
         
@@ -2587,7 +2587,7 @@ def basket_action (request, action=None, oid=None, **kwargs):
         
         basket = BaseBasket(conn)
         basket.buildBreadcrumb(action)
-        experimenters = conn.getExperimenters()
+        experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
         
         form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
         
