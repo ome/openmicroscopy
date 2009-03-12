@@ -1,6 +1,7 @@
 package ome.formats;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.text.ParseException;
@@ -2073,9 +2074,69 @@ public class OMEROMetadataStoreClient
         }
     }
 
-    public void writeFilesToFileStore(File[] files, Long pixId)
+    /**
+     * Writes binary original file data to the OMERO server.
+     * @param files Files to populate against an original file list.
+     * @param pixels Original file list source.
+     */
+    public void writeFilesToFileStore(File[] files, Pixels pixels)
     {
-       
+    	// Populate a hash map of filename --> original file
+    	List<OriginalFile> originalFileList = pixels.linkedOriginalFileList();
+    	Map<String, OriginalFile> originalFileMap =
+    		new HashMap<String, OriginalFile>(originalFileList.size());
+    	for (OriginalFile originalFile: originalFileList)
+    	{
+    		String fileName = originalFile.getName().getValue();
+    		originalFileMap.put(fileName, originalFile);
+    	}
+    	
+    	// Lookup each source file in our hash map and write it to the
+    	// correct original file object server side.
+    	byte[] buf = new byte[1048576];  // 1 MB buffer
+    	for (File file : files)
+    	{
+    		OriginalFile originalFile = originalFileMap.get(file);
+    		if (originalFile == null)
+    		{
+    			log.warn("Cannot lookup original file with name: "
+    					 + file.getAbsolutePath());
+    			continue;
+    		}
+
+    		FileInputStream stream = null;
+    		try
+    		{    		
+    			stream = new FileInputStream(file);
+        		rawFileStore.setFileId(originalFile.getId().getValue());
+    			int rlen = 0;
+    			int offset = 0;
+    			while (stream.available() != 0)
+    			{
+    				rlen = stream.read(buf);
+    				rawFileStore.write(buf, offset, rlen);
+    			}
+    		}
+    		catch (Exception e)
+    		{
+    			log.error("I/O or server error populating file store.", e);
+    			break;
+    		}
+    		finally
+    		{
+    			if (stream != null)
+    			{
+    				try
+    				{
+    					stream.close();
+    				}
+    				catch (Exception e)
+    				{
+    					log.error("I/O error closing stream.", e);
+    				}
+    			}
+    		}
+    	}
     }
     
     public long getRepositorySpace()
@@ -2277,12 +2338,6 @@ public class OMEROMetadataStoreClient
         {
             throw new RuntimeException(e);
         }
-    }
-    
-    public void setOriginalFiles(File[] files, String formatString)
-    {
-        // TODO Implement
-        //
     }
     
     /**

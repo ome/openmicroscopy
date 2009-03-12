@@ -39,6 +39,7 @@ import ome.formats.importer.util.Actions;
 import omero.ServerError;
 import omero.model.Dataset;
 import omero.model.Image;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
 
 /**
@@ -290,20 +291,9 @@ public class ImportLibrary implements IObservable
         
         notifyObservers(Actions.LOADED_IMAGE, args);
         
-        String[] fileNameList = reader.getUsedFiles();
-        File[] files = new File[fileNameList.length];
-        for (int i = 0; i < fileNameList.length; i++) 
-        {
-            files[i] = new File(fileNameList[i]); 
-        }
         String formatString = reader.getImageReader().getReader().getClass().toString();
         formatString = formatString.replace("class loci.formats.in.", "");
         formatString = formatString.replace("Reader", "");
-        System.err.println(formatString);
-        if (archive == true)
-        {
-            store.setOriginalFiles(files, formatString);
-        }
         
         try {
             if (formatString.equals("Micromanager"))
@@ -313,8 +303,6 @@ public class ImportLibrary implements IObservable
                 shortName = imageName;
             } 
         } catch (Exception e) {}
-        
-        reader.getUsedFiles();
         
         // Save metadata and prepare the RawPixelsStore for our arrival.
         List<Pixels> pixList = importMetadata(imageName, archive);
@@ -357,16 +345,16 @@ public class ImportLibrary implements IObservable
             }
             
             notifyObservers(Actions.DATA_STORED, args);  
-           
-            if (archive == true)
-            {
-                //qTable.setProgressArchiving(index);
-                for (int i = 0; i < fileNameList.length; i++) 
-                {
-                    files[i] = new File(fileNameList[i]);
-                    store.writeFilesToFileStore(files, pixId);   
-                }
-            }
+        }
+        if (archive)
+        {
+        	String[] fileNameList = reader.getUsedFiles();
+        	File[] files = new File[fileNameList.length];
+        	for (int i = 0; i < fileNameList.length; i++) 
+        	{
+        		files[i] = new File(fileNameList[i]); 
+        	}
+        	store.writeFilesToFileStore(files, pixList.get(0));   
         }
         if (saveSha1)
         {

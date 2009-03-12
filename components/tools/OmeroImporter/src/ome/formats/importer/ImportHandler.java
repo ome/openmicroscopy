@@ -52,7 +52,6 @@ public class ImportHandler
     
     private FileQueueTable  qTable;
 
-    @SuppressWarnings("unused")
     private static Log      log = LogFactory.getLog(ImportHandler.class);
     
     private OMEROMetadataStoreClient store;
@@ -138,8 +137,10 @@ public class ImportHandler
                 db.insertImportHistory(store.getExperimenterID(), "pending");
                 importKey = db.getLastKey();
             }
-        } catch (SQLException e) {  
-            e.printStackTrace();
+        }
+        catch (SQLException e)
+        {  
+        	log.error("SQL exception updating history DB.", e);
         }
         
         for(int i = 0; i < importContainer.length; i++)
@@ -151,8 +152,10 @@ public class ImportHandler
                	    if (db != null)
                	        db.insertFileHistory(importKey, store.getExperimenterID(), i, importContainer[i].imageName, 
                	         importContainer[i].projectID, importContainer[i].getDatasetId(), "pending", importContainer[i].file);
-               	} catch (Exception e) { 
-               	    e.printStackTrace();
+               	}
+               	catch (Exception e) 
+               	{
+               		log.error("Generic error while updating progress.", e);
                	}
            	}
         }
@@ -173,9 +176,7 @@ public class ImportHandler
                 viewer.appendToOutputLn("> [" + j + "] Importing \"" + filename
                         + "\"");
                 
-                Dataset dataset = store.getDataset(importContainer[j].getDatasetId());
                 library.setDataset(store.getDataset(importContainer[j].getDatasetId()));
-                
                 try
                 {
                 	library.importImage(importContainer[j].file, j,
@@ -187,14 +188,16 @@ public class ImportHandler
                     {
                         if (db != null)
                             db.updateFileStatus(importKey, j, "done");
-                    } catch (SQLException e)
+                    }
+                    catch (SQLException e)
                     {
-                        e.printStackTrace();
+                    	log.error("SQL exception updating history DB.", e);
                     }
 
                 }
                 catch (FormatException fe)
                 {
+                	log.error("Format exception while importing image.", fe);
                     fe.printStackTrace();
                     qTable.setProgressUnknown(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
@@ -229,13 +232,15 @@ public class ImportHandler
                             db.updateImportStatus(importKey, "incomplete");
                             db.updateFileStatus(importKey, j, "failed");
                         }
-                    } catch (SQLException e)
+                    }
+                    catch (SQLException e)
                     {
-                        e.printStackTrace();
+                    	log.error("SQL exception updating history DB.", e);
                     }
                 }
                 catch (IOException ioe)
                 {
+                	log.error("I/O error while importing image.", ioe);
                     ioe.printStackTrace();
                     qTable.setProgressUnknown(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
@@ -256,13 +261,15 @@ public class ImportHandler
                             db.updateImportStatus(importKey, "incomplete");
                             db.updateFileStatus(importKey, j, "failed");
                         }
-                    } catch (SQLException e1)
+                    }
+                    catch (SQLException e)
                     {
-                        e1.printStackTrace();
+                    	log.error("SQL exception updating history DB.", e);
                     }
                 }
                 catch (ResourceError e)
                 {
+                	log.error("Resource error while importing image.", e);
                     JOptionPane.showMessageDialog(
                             viewer,
                             "The server is out of space and imports cannot continue.\n");
@@ -279,14 +286,16 @@ public class ImportHandler
                             db.updateImportStatus(importKey, "incomplete");
                             db.updateFileStatus(importKey, j, "failed");
                         }
-                    } catch (SQLException sqle)
+                    }
+                    catch (SQLException sqle)
                     {
-                        sqle.printStackTrace();
+                    	log.error("SQL exception updating history DB.", sqle);
                     }
                     
                 }
                 catch (Exception e)
                 {
+                	log.error("Generic error while importing image.", e);
                 	qTable.setProgressFailed(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
                     new DebugMessenger(null, "OMERO.importer Error Dialog", true, e);
@@ -300,9 +309,10 @@ public class ImportHandler
                             db.updateImportStatus(importKey, "incomplete");
                             db.updateFileStatus(importKey, j, "failed");
                         }
-                    } catch (SQLException e1)
+                    }
+                    catch (SQLException sqle)
                     {
-                        e1.printStackTrace();
+                    	log.error("SQL exception updating history DB.", sqle);
                     }
                 }
             }
