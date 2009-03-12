@@ -2384,9 +2384,9 @@ class AnnotationWrapper (BlitzObjectWrapper):
             try:
                 name = self._obj.textValue.val
                 l = len(name)
-                if l < 11:
+                if l < 17:
                     return name
-                return name[:5] + ".." + name[l - 5:] 
+                return name[:7] + "..." + name[l - 7:] 
             except:
                 logger.info(traceback.format_exc())
                 return self._obj.textValue.val

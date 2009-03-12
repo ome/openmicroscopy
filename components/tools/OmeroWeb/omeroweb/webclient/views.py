@@ -1883,7 +1883,6 @@ def manage_data_by_tag(request, tid=None, tid2=None, tid3=None, tid4=None, tid5=
             tag_list = list(conn.listSpecifiedTags(tag_ids))
         initail = {}
         for i in range(1,len(tag_list)+1):
-            
             val = tag_list[i-1].textValue
             if i == 1:
                 initail['tag'] = val

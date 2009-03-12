@@ -9,10 +9,15 @@
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/annotation.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/table.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/autocomplete.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tooltip.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.tooltip.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.dimensions.js"></script>
+    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.delegate.js"></script>
     
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.bgiframe.js"></script>
     <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.ajaxQueue.js"></script>
@@ -93,6 +98,20 @@
 
         });
     </script>
+    <script type="text/javascript">
+        $(function() {
+            $("{% for t in manager.tags %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
+                track: true, 
+                delay: 0, 
+                showURL: false, 
+                opacity: 1, 
+                fixPNG: true, 
+                showBody: " - ", 
+                top: -15, 
+                left: 5 
+            });
+        });
+    </script>
     
 {% endblock %}
 
@@ -115,7 +134,7 @@
             <tr>
                 {% for t in manager.tags %}
                 <td>{% if t %}
-                    ({{ t.id }}) {{ t.textValue }} {% if not t.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %} {% if t.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/tag/{{ t.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}
+                    ({{ t.id }}) <span id="tagdesc{{ t.id }}" title="{{ t.textValue }} - <small>{{ t.description|default_if_none:"no description"|safe|linebreaks  }}</small>"><a>{{ t.shortTag }}</a></span>{% if not t.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %} {% if t.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/tag/{{ t.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}
                 {% else %}
                     <ul class="errorlist"><li>{% trans "This tag does not exist." %}</li></ul>
                 {% endif %}</td><td> </td>
@@ -140,7 +159,7 @@
 <div id="view"> 
 
     {% if manager.c_size %}
-        <h1>{% trans "Data" %}({{ manager.c_size }} {% trans "items" %}):</h1>
+        <h1>{% trans "Data" %} ({{ manager.c_size }} {% trans "items" %}):</h1>
     {% else %}
         <h1>{% trans "Data (no item)" %}:</h1>
     {% endif %}
