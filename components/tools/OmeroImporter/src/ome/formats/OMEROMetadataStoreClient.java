@@ -2096,7 +2096,7 @@ public class OMEROMetadataStoreClient
     	byte[] buf = new byte[1048576];  // 1 MB buffer
     	for (File file : files)
     	{
-    		OriginalFile originalFile = originalFileMap.get(file);
+    		OriginalFile originalFile = originalFileMap.get(file.getName());
     		if (originalFile == null)
     		{
     			log.warn("Cannot lookup original file with name: "
@@ -2115,6 +2115,7 @@ public class OMEROMetadataStoreClient
     			{
     				rlen = stream.read(buf);
     				rawFileStore.write(buf, offset, rlen);
+    				offset += rlen;
     			}
     		}
     		catch (Exception e)
