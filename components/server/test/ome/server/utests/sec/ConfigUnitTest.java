@@ -112,7 +112,7 @@ public class ConfigUnitTest extends MockObjectTestCase {
         assertTrue(oldValue == null || oldValue.length() == 0);
         
         notInDatabase();
-        jdbcMock.expects(once()).method("update");
+        updateDb(1);
         config.setConfigValue(test, "new");
         
         inDatabase("new");
@@ -126,6 +126,25 @@ public class ConfigUnitTest extends MockObjectTestCase {
         notInDatabase();
         assertTrue(config.getConfigValue("omero.data.dir").contains("OMERO"));
     }
+    
+    @Test
+    public void testThatSetConfigIfEqualsWorksForDb() {
+        mockAdmin();
+        inDatabase("old");
+        inDatabase("old");
+        updateDb(1);
+        assertTrue(config.setConfigValueIfEquals("redirect","new","old"));
+    }
+    
+    @Test
+    public void testThatSetConfigIfEqualsWorksForPrefs() {
+        mockAdmin();
+        notInDatabase();
+        notInDatabase();
+        prefs.setProperty("redirect","old");
+        assertTrue(config.setConfigValueIfEquals("redirect","new","old"));
+    }
+    
     // Helpers
     // =========================================================================
 
@@ -140,6 +159,10 @@ public class ConfigUnitTest extends MockObjectTestCase {
     
     private void inDatabase(String value) {
         jdbcMock.expects(once()).method("queryForObject").will(returnValue(value));
+    }
+    
+    private void updateDb(int count) {
+        jdbcMock.expects(once()).method("update").will(returnValue(count));
     }
     
     private void match(Pattern pattern, String goal, String text) {

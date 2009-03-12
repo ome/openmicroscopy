@@ -158,7 +158,7 @@ public class MockFixture {
         // Removing any redirects post-BlitzConfiguration to
         // prevent weird ConnectionRefusedExceptions especially
         // when using our mock glacier
-        blitz.getRing().putRedirect(null); // Removing redirect
+        blitz.getRing().initializeRedirect(null); // Removing redirect
 
         // Finally, starting a scheduler to act like a real
         // server

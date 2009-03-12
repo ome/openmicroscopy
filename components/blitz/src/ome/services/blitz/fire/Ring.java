@@ -115,7 +115,7 @@ public class Ring extends _ClusterNodeDisp {
         // Before we add our self we check the validity of the cluster.
         checkClusterAndAddSelf();
         addManager(uuid, directProxy);
-        setRedirect(uuid, false);
+        initializeRedirect(uuid);
         log.info("Current redirect: " + getRedirect());
     }
 
@@ -215,7 +215,7 @@ public class Ring extends _ClusterNodeDisp {
      */
     public void down(String downUuid, Current __current) {
         removeRedirectIfEquals(downUuid);
-        if (setRedirect(this.uuid, false)) {
+        if (initializeRedirect(this.uuid)) {
             log.info("Installed self as new redirect: " + uuid);
         }
     }
@@ -246,16 +246,6 @@ public class Ring extends _ClusterNodeDisp {
                 return sf.getConfigService().getConfigValue(REDIRECT);
             }
         });
-    }
-
-    /**
-     * Set the new redirect value and return the previous value, which might be
-     * null. If the uuid is null or empty, then the existing redirect will be
-     * removed. Otherwise the value is set. In either case, the previous value
-     * is returned.
-     */
-    public void putRedirect(String uuid) {
-        setRedirect(uuid, true);
     }
 
     public SessionPrx getProxyOrNull(String userId,
@@ -370,7 +360,7 @@ public class Ring extends _ClusterNodeDisp {
         } catch (Exception e) {
             log.error("Failed to purge node " + manager, e);
         }
-        setRedirect(uuid, false);
+        initializeRedirect(uuid);
     }
 
     // Database interactions
@@ -460,8 +450,12 @@ public class Ring extends _ClusterNodeDisp {
         });
     }
 
-    private boolean setRedirect(final String managerUuid,
-            final boolean setIfPresent) {
+    /**
+     * Set the new redirect value if null, or 
+     * if the uuid is null or empty, then the existing redirect will be
+     * removed. Otherwise the value is set if it is currently missing.
+     */
+    public boolean initializeRedirect(final String managerUuid) {
         return (Boolean) executor.execute(principal, new Executor.SimpleWork(
                 this, "setRedirect") {
             @Transactional(readOnly = false)
@@ -469,9 +463,6 @@ public class Ring extends _ClusterNodeDisp {
                 IConfig config = sf.getConfigService();
                 if (managerUuid == null || managerUuid.length() == 0) {
                     config.setConfigValue(REDIRECT, null);
-                    return true;
-                } else if (setIfPresent) {
-                    config.setConfigValue(REDIRECT, managerUuid);
                     return true;
                 } else {
                     return config.setConfigValueIfEquals(REDIRECT, managerUuid,

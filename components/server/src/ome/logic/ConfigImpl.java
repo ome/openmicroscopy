@@ -290,8 +290,14 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
         lock.writeLock().lock();
         try {
             String current = getInternalValue(key);
-            if (!key.equals(current)) {
-                return false;
+            if (test == null) {
+                if (current != null) {
+                    return false;
+                }
+            } else {
+                if (!test.equals(current)) {
+                    return false;
+                }
             }
             setConfigValue(key, value);
             return true;
