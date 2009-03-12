@@ -175,7 +175,13 @@ public class TestEngine
 			catch (Throwable e)
 			{
 				// Flush our file log to disk
-				iniFile.flush();
+			    try 
+			    {
+			        iniFile.flush();
+			    } catch (Throwable e1)
+			    {
+			        log.error("Failed on flushing ini file" + e1);
+			    }
 				store.logout();
 				log.error("Failed on file:" + file.getName());
 				throw e;

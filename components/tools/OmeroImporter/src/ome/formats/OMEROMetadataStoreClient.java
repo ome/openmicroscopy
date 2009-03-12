@@ -368,10 +368,18 @@ public class OMEROMetadataStoreClient
      */
     public void logout()
     {
-        log.debug("Logout called, keep alive shut down.");
-    	executor.shutdown();
-    	executor = null;
-        c.closeSession();
+        if (executor != null)
+        {
+            log.debug("Logout called, keep alive shut down.");
+            executor.shutdown();
+            executor = null;
+        }
+        if (c != null)
+        {
+            c.closeSession();
+            c = null;
+        }
+
     }
     
     /* (non-Javadoc)
