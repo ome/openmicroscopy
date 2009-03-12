@@ -71,7 +71,7 @@ java component.
         <delete includeemptydirs="true">
             <fileset dir="${lib.dir}/repository" includes="omero/**,omero-tools/**"/>
         </delete>
-        <delete dir="${target.dir}"/>
+        <delete dir="${target.dir}" quiet="true"/>
     </target>
 
     <macrodef name="setup-py-install">
