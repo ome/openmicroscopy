@@ -210,9 +210,9 @@
 	    <flattenmapper/>
 	  </copy>
 	  <copy todir="${dist.dir}/include">
-	    <fileset dir="${resrc.dest}" includes="**/*.h"/>
-	    <fileset dir="${resrc.dir}"  includes="**/*.ice"/>
+	    <fileset dir="${resrc.dir}"  includes="**/*.ice,**/*.h"/>
 	    <fileset dir="${resrc.dest}" includes="**/*.ice,**/*.h"/>
+	    <fileset dir="${basedir}/generated" includes="**/*.ice,**/*.h"/>
 	  </copy>
 	</target>
 
