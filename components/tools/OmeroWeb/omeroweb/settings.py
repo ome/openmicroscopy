@@ -5,7 +5,7 @@ import logging
 import logging.handlers
 
 # Django settings for OMERO.web project.
-DEBUG = True # if True handler404 and handler500 works only when False
+DEBUG = False # if True handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
 
 # Database settings
@@ -138,8 +138,8 @@ DEFAULT_USER = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__),
 
 # LOGS
 # to change the log place, please specify new path for LOGDIR.
-LOGDIR = os.path.join(os.path.dirname(__file__), 'log')
-# LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), 'var'), 'log')
+# LOGDIR = os.path.join(os.path.dirname(__file__), 'log')
+LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), 'var'), 'log')
 
 if not os.path.isdir(LOGDIR):
     try:

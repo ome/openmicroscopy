@@ -98,7 +98,7 @@ class ShareForm(forms.Form):
                 date = datetime.datetime(*(time.strptime(("%s-%s-%s 23:59:59" % (d[0],d[1],d[2])), "%Y-%m-%d %H:%M:%S")[0:6]))
             except:
                 raise forms.ValidationError('Date is in the wrong format. YY-MM-DD')
-            if time.mktime(date.timetuple()) < time.time() :
+            if time.mktime(date.timetuple()) <= time.time():
                 raise forms.ValidationError('Expire date must be in the future.')
 
 class ShareCommentForm(forms.Form):
