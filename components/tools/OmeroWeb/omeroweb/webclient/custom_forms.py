@@ -147,18 +147,29 @@ class AnnotationQuerySetIterator(object):
         for obj in self.queryset:
             textValue = None
             from omero_model_FileAnnotationI import FileAnnotationI
+            from omero_model_TagAnnotationI import TagAnnotationI
             if isinstance(obj._obj, FileAnnotationI):
                 textValue = obj.file.name.val
             else:
                 if hasattr(obj.textValue, 'val'):
-                    textValue = obj.textValue.val
+                    if isinstance(obj._obj, TagAnnotationI):
+                        textValue = "%s... (%s)" % ((obj.textValue.val[:39], obj.textValue.val)[ len(obj.textValue.val)<40 ], (obj.description.val[:18], obj.description.val)[ len(obj.description.val)<20 ])
+                    else:
+                        textValue = obj.textValue.val
                 else:
                     if obj.textValue is not None:
-                        textValue = obj.textValue
-
+                        if isinstance(obj._obj, TagAnnotationI):
+                            if obj.description is not None:
+                                textValue = "%s... (%s)" % ((obj.textValue[:39], obj.textValue)[ len(obj.textValue)<40 ], (obj.description, obj.description[:18])[ len(obj.description)<20 ])
+                            else:
+                                textValue = obj.textValue
+                        else:
+                            textValue = obj.textValue
+            
             l = len(textValue)
-            if l > 55:
-                textValue = "%s..." % textValue[:55]
+            if l > 60:
+                textValue = "%s..." % textValue[:60]
+            
             if hasattr(obj.id, 'val'):
                 oid = obj.id.val
             else:
