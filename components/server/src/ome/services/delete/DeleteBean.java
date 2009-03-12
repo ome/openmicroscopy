@@ -391,12 +391,15 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         for (Pixels pixels : i.unmodifiablePixels()) {
             ids.add(pixels.getId());
         }
-        List<Pixels> relatedTo = iQuery.findAllByQuery("select p from Pixels p " +
+        if (ids != null && ids.size() > 0) {
+            List<Pixels> relatedTo = iQuery.findAllByQuery(
+                    "select p from Pixels p " +
         		"where p.relatedTo.id in (:ids)",
         		new Parameters().addIds(ids));
-        for (Pixels pixels : relatedTo) {
-            pixels.setRelatedTo(null);
-            iUpdate.flush();
+            for (Pixels pixels : relatedTo) {
+                pixels.setRelatedTo(null);
+                iUpdate.flush();
+            }
         }
     }
 }
