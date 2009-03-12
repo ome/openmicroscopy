@@ -118,7 +118,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                             + "{Project,Dataset, Screen, Plate}, not "
                             + rootNodeType);
         }
-        // TODO no more "options" just QPs.
+
         Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosLoadHierarchyQueryDefinition.class.getName(),
                 options.addClass(rootNodeType).addIds(rootNodeIds));

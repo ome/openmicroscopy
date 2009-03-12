@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import ome.model.IObject;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.containers.Dataset;
@@ -55,9 +56,9 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
 
         long self = iAdmin.getEventContext().getCurrentUserId();
 
-        Set<Dataset> ds = iContainer.loadContainerHierarchy(Dataset.class,
+        Set<IObject> ds = iContainer.loadContainerHierarchy(Dataset.class,
                 Collections.singleton(d.getId()), null);
-        d = ds.iterator().next();
+        d = (Dataset) ds.iterator().next();
         assertNotNull(d.getAnnotationLinksCountPerOwner());
         assertTrue(d.getAnnotationLinksCountPerOwner().get(self).longValue() == 1L);
     }
@@ -74,9 +75,9 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
 
         long self = iAdmin.getEventContext().getCurrentUserId();
 
-        Set<Project> ps = iContainer.loadContainerHierarchy(Project.class,
+        Set<IObject> ps = iContainer.loadContainerHierarchy(Project.class,
                 Collections.singleton(p.getId()), null);
-        p = ps.iterator().next();
+        p = (Project) ps.iterator().next();
         d = p.linkedDatasetList().get(0);
         assertNotNull(p.getAnnotationLinksCountPerOwner());
         assertTrue(p.getAnnotationLinksCountPerOwner().get(self).longValue() == 1L);
@@ -90,10 +91,10 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
     @Test(groups = "ticket:882")
     public void testDatasetImageCounts() throws Exception {
         Dataset d = createDataset();
-        Set<Dataset> ds = this.iContainer.loadContainerHierarchy(Dataset.class,
+        Set<IObject> ds = this.iContainer.loadContainerHierarchy(Dataset.class,
                 Collections.singleton(d.getId()), null);
         assertTrue(ds.size() == 1);
-        d = ds.iterator().next();
+        d = (Dataset) ds.iterator().next();
         assertTrue(d.getImageLinksCountPerOwner() != null);
         assertTrue(d.getAnnotationLinksCountPerOwner() != null);
 
@@ -101,7 +102,7 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
         ds = this.iContainer.loadContainerHierarchy(Dataset.class, Collections
                 .singleton(d.getId()), new Parameters().leaves());
         assertTrue(ds.size() == 1);
-        d = ds.iterator().next();
+        d = (Dataset) ds.iterator().next();
         assertTrue(d.getImageLinksCountPerOwner() != null);
         assertTrue(d.getAnnotationLinksCountPerOwner() != null);
         Image i = d.linkedImageIterator().next();
@@ -113,17 +114,47 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
         Dataset d = createDataset();
 
         // with leaves
-        Set<Dataset> ds = this.iContainer.loadContainerHierarchy(Dataset.class,
+        Set<IObject> ds = this.iContainer.loadContainerHierarchy(Dataset.class,
                 Collections.singleton(d.getId()), new Parameters().leaves());
         assertTrue(ds.size() == 1);
-        assertTrue(ds.iterator().next().sizeOfImageLinks() == 1);
+        assertTrue(((Dataset)ds.iterator().next()).sizeOfImageLinks() == 1);
 
         // without leaves
         ds = this.iContainer.loadContainerHierarchy(Dataset.class, Collections
                 .singleton(d.getId()), new Parameters().noLeaves());
         assertTrue(ds.size() == 1);
-        assertTrue(ds.iterator().next().sizeOfImageLinks() < 0);
+        assertTrue(((Dataset)ds.iterator().next()).sizeOfImageLinks() < 0);
 
+    }
+    
+    @Test(groups = "ticket:1223")
+    public void testStackOverflowWithLotsOfDatasets() throws Exception {
+        
+        loginNewUser();
+        long uid = iAdmin.getEventContext().getCurrentUserId();
+
+        for (int i = 0; i < 10; i++) {
+            
+            // Project with dataset
+            Project p = new Project("stackoverflow: 1223");
+            for (int j = 0; j < 1000; j++) {
+                Dataset d = new Dataset("stackoverflow: 1223");
+                p.linkDataset(d);
+            }
+            iUpdate.saveObject(p);
+            
+            // Other datasets
+            Dataset[] ds = new Dataset[1000];
+            for (int j = 0; j < 1000; j++) {
+                ds[j] = new Dataset("stackoverflow: 1223");
+            }
+            iUpdate.saveArray(ds);
+        }
+
+        // with leaves
+        Set<IObject> res = this.iContainer.loadContainerHierarchy(Project.class,
+                null, new Parameters().exp(uid).orphan());
+        assertEquals(10, res.size());
     }
 
     // Helpers

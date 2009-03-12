@@ -99,7 +99,8 @@ public interface IContainer extends ServiceInterface {
     // =========================================================================
 	
     /**
-     * Retrieves hierarchy trees rooted by a given node.
+     * Retrieves hierarchy trees rooted by a given node (unless orphan is
+     * specified -- See below)
      * <p>
      * This method also retrieves the Experimenters linked to the objects in the
      * tree. Similarly, all Images will be linked to their Pixel objects if
@@ -138,12 +139,16 @@ public interface IContainer extends ServiceInterface {
      *            Due to the amount of data potentially linked a Screen/Plate,
      *            the <code>leaves</code> option is not taken into account.
      *            when the root node is a {@link Screen}.
+     *            <code>orphan</code> implies that objects which are not contained
+     *            in an object of rootNodeType should also be returned.
      * @DEV.TODO should it be applied at all levels?
      * @return a set of hierarchy trees. The requested node as root and all of
-     *         its descendants. The type of the returned value will be
-     *         <code>rootNodeType</code>.
+     *           its descendants. The type of the returned value will be
+     *           <code>rootNodeType</code>, unless <code>orphan</code> is specified
+     *           in which case objects of type <code>rootNodeType</code> and below
+     *           may be returned.
      */
-    public <T extends IObject> Set<T> loadContainerHierarchy(@NotNull
+    public <T extends IObject> Set<IObject> loadContainerHierarchy(@NotNull
     Class<T> rootNodeType, @Validate(Long.class)
     Set<Long> rootNodeIds, Parameters options);
 
