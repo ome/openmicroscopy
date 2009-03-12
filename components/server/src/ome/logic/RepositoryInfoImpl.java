@@ -240,6 +240,14 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
      */
     public boolean needsSanityCheck() {
 
+        // Disabled in 4.0. See ticket:1230
+        // --------------------------------
+        // The getUsage() information is not being properly calculated
+        // and doing so in Java 1.5 requires undue hoop jumping.
+        if (true) {
+            return false;
+        }
+
         long time = System.currentTimeMillis();
         long elapsed = time - lastCheck;
 
