@@ -54,9 +54,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -154,7 +154,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     public void setPrincipalHolder(PrincipalHolder principal) {
         this.principalHolder = principal;
     }
-    
+
     public void setCounterFactory(CounterFactory factory) {
         this.factory = factory;
     }
@@ -164,10 +164,18 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      * {@link Session}.
      */
     public void init() {
-        asroot = new Principal(internal_uuid, "system", "Sessions");
-        final Session session = executeInternalSession();
-        internalSession = new InternalSessionContext(session, roles);
-        cache.putSession(internal_uuid, internalSession);
+        try {
+            asroot = new Principal(internal_uuid, "system", "Sessions");
+            final Session session = executeInternalSession();
+            internalSession = new InternalSessionContext(session, roles);
+            cache.putSession(internal_uuid, internalSession);
+        } catch (DataAccessException dataAccess) {
+            throw new RuntimeException("          "
+                    + "=====================================================\n"
+                    + "Data access exception: Did you create your database? \n"
+                    + "=====================================================\n",
+                    dataAccess);
+        }
     }
 
     // ~ Session definition
@@ -383,8 +391,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         session.getDetails().setGroup(grp);
 
         SessionContext sessionContext = new SessionContextImpl(session,
-                leaderOfGroupsIds, memberOfGroupsIds, userRoles,
-                factory.createStats());
+                leaderOfGroupsIds, memberOfGroupsIds, userRoles, factory
+                        .createStats());
         return sessionContext;
     }
 
@@ -739,7 +747,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             to.setActive(from.getActive());
             to.setData(from.getData());
         }
-        
+
         return target;
     }
 
@@ -882,8 +890,9 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                     @Transactional(readOnly = true)
                     public Object doWork(SimpleJdbcOperations jdbc) {
                         try {
-                            return jdbc.queryForLong("SELECT id FROM experimenter "
-                                    + "WHERE omename = ?", p.getName());
+                            return jdbc.queryForLong(
+                                    "SELECT id FROM experimenter "
+                                            + "WHERE omename = ?", p.getName());
                         } catch (EmptyResultDataAccessException erdae) {
                             throw new RemovedSessionException(
                                     "Cannot find a user with name "
@@ -1032,6 +1041,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     /**
      * Added as an attempt to cure ticket:1176
+     * 
      * @return
      */
     private Long executeNextSessionId() {
@@ -1040,7 +1050,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                         "executeNextSessionId") {
                     @Transactional(readOnly = false)
                     public Object doWork(SimpleJdbcOperations jdbcOps) {
-                        return jdbcOps.queryForLong("select ome_nextval('seq_session')");
+                        return jdbcOps
+                                .queryForLong("select ome_nextval('seq_session')");
                     }
                 });
     }
