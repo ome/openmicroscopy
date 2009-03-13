@@ -40,6 +40,7 @@ import ome.formats.model.PixelsProcessor;
 import ome.formats.model.InstanceProvider;
 import ome.formats.model.ModelProcessor;
 import ome.formats.model.ReferenceProcessor;
+import ome.util.LSID;
 import omero.RBool;
 import omero.RDouble;
 import omero.RInt;

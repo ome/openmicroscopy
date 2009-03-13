@@ -1,4 +1,4 @@
-package ome.formats;
+package ome.util;
 
 import java.text.Collator;
 import java.text.RuleBasedCollator;

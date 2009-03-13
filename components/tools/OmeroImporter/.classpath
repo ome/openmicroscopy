@@ -30,6 +30,5 @@
 	<classpathentry kind="lib" path="target/libs/cglib.jar"/>
 	<classpathentry kind="lib" path="target/libs/omero-clients-util.jar"/>
 	<classpathentry kind="lib" path="target/libs/ome-xml.jar"/>
-	<classpathentry kind="lib" path="target/libs/importer-common.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

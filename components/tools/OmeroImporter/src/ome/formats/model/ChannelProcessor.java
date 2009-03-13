@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
 
 import loci.formats.IFormatReader;
 
-import ome.formats.LSID;
+import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Channel;
 import omero.model.IObject;

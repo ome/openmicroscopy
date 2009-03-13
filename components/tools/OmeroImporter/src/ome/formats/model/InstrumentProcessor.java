@@ -26,7 +26,7 @@ package ome.formats.model;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import ome.formats.LSID;
+import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Arc;
 import omero.model.Detector;

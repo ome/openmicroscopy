@@ -56,6 +56,7 @@ import ome.model.screen.WellSample;
 import ome.model.stats.StatsInfo;
 import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
+import ome.util.LSID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

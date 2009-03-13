@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import ome.formats.LSID;
+import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.DetectorSettings;
 import omero.model.LightSettings;

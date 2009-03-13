@@ -13,8 +13,6 @@
   <dependencies defaultconfmapping="build,server->default">
     <!-- Internal -->
     <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
-    <dependency name="importer" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
-    <dependency name="importer-common" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency name="romio" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency name="rendering" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <!-- Ice -->
