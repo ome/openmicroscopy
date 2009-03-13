@@ -39,9 +39,9 @@ public class PostAnnotationsUpdateTest extends AbstractUpdateTest {
         d.linkImage(i);
         d = iUpdate.saveAndReturnObject(d);
 
-        Set<Dataset> s = iContainer.loadContainerHierarchy(Dataset.class,
+        Set<IObject> s = iContainer.loadContainerHierarchy(Dataset.class,
                 Collections.singleton(d.getId()), new Parameters().leaves());
-        d = s.iterator().next();
+        d = (Dataset) s.iterator().next();
         i = d.linkedImageList().get(0);
         p = i.getPrimaryPixels();
         assertTrue(p.isLoaded());
@@ -49,7 +49,7 @@ public class PostAnnotationsUpdateTest extends AbstractUpdateTest {
 
         s = iContainer.loadContainerHierarchy(Dataset.class, Collections
                 .singleton(d.getId()), new Parameters().noLeaves());
-        d = s.iterator().next();
+        d = (Dataset) s.iterator().next();
         assertTrue(d.sizeOfImageLinks() < 0);
 
     }
