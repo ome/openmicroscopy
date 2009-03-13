@@ -53,9 +53,6 @@ public class PixelsProcessor implements ModelProcessor
     /** Logger for this class */
     private Log log = LogFactory.getLog(PixelsProcessor.class);
 
-    /** Container store we're currently working with. */
-    private IObjectContainerStore store;
-
     /** First file importer **/   
     private Timestamp earliestMTime;
     
@@ -70,7 +67,6 @@ public class PixelsProcessor implements ModelProcessor
     public void process(IObjectContainerStore store)
     throws ModelException
     {
-        this.store = store;
         reader = store.getReader();
 
         List<IObjectContainer> containers = 

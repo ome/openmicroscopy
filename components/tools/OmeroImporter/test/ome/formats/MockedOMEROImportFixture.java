@@ -41,7 +41,7 @@ import org.jmock.MockObjectTestCase;
  */
 public class MockedOMEROImportFixture extends OMEROImportFixture {
 
-    Log log = LogFactory.getLog(ImportFixture.class);
+    Log log = LogFactory.getLog(MockedOMEROImportFixture.class);
 
     /**
      * Constructor for use when no blitz is available, like from server-side

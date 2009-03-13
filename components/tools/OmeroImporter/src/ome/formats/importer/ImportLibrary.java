@@ -39,7 +39,6 @@ import ome.formats.importer.util.Actions;
 import omero.ServerError;
 import omero.model.Dataset;
 import omero.model.Image;
-import omero.model.OriginalFile;
 import omero.model.Pixels;
 
 /**
@@ -299,7 +298,6 @@ public class ImportLibrary implements IObservable
             if (formatString.equals("Micromanager"))
             {
                 imageName = new File(file.getParent()).getName();
-                System.err.println("Parent is: " + imageName);
                 shortName = imageName;
             } 
         } catch (Exception e) {}
@@ -540,7 +538,6 @@ public class ImportLibrary implements IObservable
 
     int length;
     
-    //System.err.println(fileName + " is Little Endian: " + isLittleEndian(fileName));
     if (isLittleEndian(fileName)) {
       if (bytesPerPixel == 2) { // short
         ShortBuffer buf = buffer.asShortBuffer();

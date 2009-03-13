@@ -31,6 +31,9 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.Actions;
 import omero.model.Dataset;
@@ -40,13 +43,14 @@ public class FileQueueHandler
     extends JPanel 
     implements ActionListener, PropertyChangeListener, IObserver
 {
+	/** Logger for this class */
+	private Log log = LogFactory.getLog(FileQueueHandler.class);
 
     private Preferences    userPrefs = 
         Preferences.userNodeForPackage(Main.class);
     
     private String savedDirectory = userPrefs.get("savedDirectory", "");
     
-    @SuppressWarnings("unused")
     public ImportHandler       importHandler;
     private OMEROMetadataStoreClient  store;
  
@@ -103,7 +107,6 @@ public class FileQueueHandler
     public void actionPerformed(ActionEvent e)
     {
         String action = e.getActionCommand();
-        //System.err.println("Action Fired: " + prop);
         
         //If the directory changed, don't show an image.
         if (action.equals(JFileChooser.APPROVE_SELECTION)) {
@@ -284,7 +287,7 @@ public class FileQueueHandler
                     }
                 }
             } catch (Exception ex) {
-                ex.printStackTrace();
+            	log.error("Generic error while updating GUI for import.", ex);
                 return;  
             }
         }
@@ -465,7 +468,6 @@ public class FileQueueHandler
             if (historyTable != null)
                 count = historyTable.table.getRowCount();
 
-            //System.err.println(count);
             for (int r = 0; r < count; r++)
             {
                 Vector<Serializable> row = new Vector<Serializable>();
@@ -480,8 +482,7 @@ public class FileQueueHandler
                     datasetName = store.getDataset(datasetID).getName().getValue();
                 } catch (Exception e)
                 {
-                    //System.err.println("failed getDatasetName:" + datasetID);
-                    //e.printStackTrace();
+                	log.warn("Failed to retrieve dataset: " + datasetID, e);
                     continue;
                 } 
 
@@ -490,8 +491,7 @@ public class FileQueueHandler
                     projectName = store.getProject(projectID).getName().getValue();
                 } catch (Exception e)
                 {
-                    //System.err.println("failed getProjectName:" + projectID);
-                    //e.printStackTrace();
+                	log.warn("Failed to retrieve project: " + projectID, e);
                     continue;
                 }
                 
@@ -501,7 +501,6 @@ public class FileQueueHandler
                 row.add(fileName);
                 row.add(projectName + "/" + datasetName);
                 row.add("added");
-                // FIXME: Blitz types are not serializable.
                 row.add(d.getId().getValue());
                 row.add(file);
                 row.add(false);

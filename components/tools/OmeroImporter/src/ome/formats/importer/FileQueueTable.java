@@ -38,13 +38,18 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
 
 public class FileQueueTable 
     extends JPanel
     implements ActionListener, IObserver
-{   
+{
+	/** Logger for this class */
+	private Log log = LogFactory.getLog(FileQueueTable.class);
+	
     public QueueTableModel table = new QueueTableModel();
     public ETable queue = new ETable(table);
     
@@ -70,7 +75,6 @@ public class FileQueueTable
     private LeftDotRenderer fileCellRenderer;
     private CenterTextRenderer dpCellRenderer;
     private CenterTextRenderer statusCellRenderer;
-    private int series;
     
     FileQueueTable() {
             
@@ -100,7 +104,7 @@ public class FileQueueTable
             buttonPanel.setBorder(BorderFactory.createLineBorder(Color.red, 1));
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS));
         
-//        refreshBtn = addButton("¤", refreshIcon, null);
+//        refreshBtn = addButton("+", refreshIcon, null);
 //        refreshBtn.setMaximumSize(new Dimension(buttonSize, buttonSize));
 //        refreshBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
 //        refreshBtn.setMinimumSize(new Dimension(buttonSize, buttonSize));
@@ -216,12 +220,6 @@ public class FileQueueTable
         add(queuePanel);
     }
     
-    
-    public void setSeriesCount(int series)
-    {
-        this.series = series;
-    }
-    
     public void setProgressInfo(int row, int maxPlanes)
     {
         this.row = row;
@@ -297,7 +295,7 @@ public class FileQueueTable
         return maxPlanes;
     }
         
-    static JButton addButton(String name, String image, String tooltip)
+    private JButton addButton(String name, String image, String tooltip)
     {
         JButton button = null;
 
@@ -311,7 +309,7 @@ public class FileQueueTable
                 button = new JButton(null, new ImageIcon(imgURL));
             } else {
                 button = new JButton(name);
-                System.err.println("Couldn't find icon: " + image);
+                log.warn("Couldn't find icon: " + image);
             }
         }
         return button;
@@ -332,7 +330,7 @@ public class FileQueueTable
                 String imageName = table.getValueAt(i, 0).toString();
                 fads[i] = new ImportContainer(file, projectID, datasetID, imageName, archive);            }
             catch (ArrayIndexOutOfBoundsException e) {
-                e.printStackTrace();
+            	log.error("Error retrieving project and dataset from table.", e);
             }
 
         }
@@ -549,7 +547,7 @@ public class FileQueueTable
                     }
                 } catch (ArrayIndexOutOfBoundsException e)
                 {
-                    e.printStackTrace();
+                	log.error("Error deselecting rows in table.", e);
                 }
             }
         }

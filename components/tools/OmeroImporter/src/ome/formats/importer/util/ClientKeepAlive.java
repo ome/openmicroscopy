@@ -2,7 +2,6 @@ package ome.formats.importer.util;
 
 
 import ome.formats.OMEROMetadataStoreClient;
-import omero.client;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

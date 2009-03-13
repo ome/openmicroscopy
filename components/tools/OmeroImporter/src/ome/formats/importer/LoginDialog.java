@@ -316,10 +316,10 @@ public class LoginDialog extends JDialog
     
     private void removeServer(String server)
     {
-        List l = getServerList();
+        List<String> l = getServerList();
         if (l == null) return;
         l.remove(server);
-        Iterator i = l.iterator();
+        Iterator<String> i = l.iterator();
         String list = "";
         int n = l.size()-1;
         int index = 0;

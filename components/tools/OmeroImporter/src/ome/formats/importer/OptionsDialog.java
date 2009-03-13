@@ -70,7 +70,6 @@ public class OptionsDialog extends JDialog implements ActionListener
     public boolean    cancelled = true;
 
     /** Logger for this class. */
-    @SuppressWarnings("unused")
     private static Log          log     = LogFactory.getLog(OptionsDialog.class);
 
     public OMEROMetadataStoreClient store;
@@ -154,7 +153,7 @@ public class OptionsDialog extends JDialog implements ActionListener
         group.add(singlePaneBtn);
         group.add(triplePaneBtn);
         
-        System.err.println(ini.getUseQuaqua());
+        log.debug("Using Quaqua?" + ini.getUseQuaqua());
         if (ini.getUseQuaqua() == true)
         {
             triplePaneBtn.setSelected(true);

@@ -390,7 +390,7 @@ public class OMEROMetadataStoreClient
     {
         try
         {
-            System.err.println("Creating root!");
+            log.debug("Creating root!");
             containerCache = 
                 new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
             referenceCache = new HashMap<LSID, LSID>();
@@ -2177,29 +2177,46 @@ public class OMEROMetadataStoreClient
         	IObjectContainer[] containerArray = 
         		containers.toArray(new IObjectContainer[containers.size()]);
             
-            for (LSID key : containerCache.keySet())
-            {
-                System.err.println(key + " == " + containerCache.get(key).sourceObject
-                        + "," + containerCache.get(key).LSID);
-            }
+        	if (log.isDebugEnabled())
+        	{
+        		for (LSID key : containerCache.keySet())
+        		{
+        			String s = String.format("%s == %s,%s", 
+        					key, containerCache.get(key).sourceObject,
+        					containerCache.get(key).LSID);
+        			log.debug(s);
+        		}
+        	}
             
-            System.err.println("\nStarting references....");
+        	log.debug("\nStarting references....");
 
-            for (String key : referenceStringCache.keySet())
-            {
-                System.err.println(key + " == " + referenceStringCache.get(key));
-            }
-            
-            System.err.println("\ncontainerCache contains " + containerCache.size() + " entries.");
-            System.err.println("referenceCache contains " + referenceCache.size() + " entries.");
+        	if (log.isDebugEnabled())
+        	{
+        		for (String key : referenceStringCache.keySet())
+        		{
+        			String s = String.format("%s == %s", key,
+        					                 referenceStringCache.get(key));
+        			log.debug(s);
+        		}
+        		
+        		log.debug("\ncontainerCache contains " + containerCache.size()
+        				  + " entries.");
+        		log.debug("referenceCache contains " + referenceCache.size()
+        				  + " entries.");
+        	}
             
         	delegate.updateObjects(containerArray);
         	delegate.updateReferences(referenceStringCache);
         	pixelsList = delegate.saveToDB();
         	
-        	for (Pixels pixels : pixelsList)
+        	if (log.isDebugEnabled())
         	{
-        	    System.err.println("Saving pixels id: "  + pixels.getId().getValue());
+        		long pixelsId;
+        		for (Pixels pixels : pixelsList)
+        		{
+        			pixelsId = pixels.getId().getValue();
+        			log.debug("Saving pixels id: "  + pixelsId);
+        		}
         	}
         	return pixelsList;
         }

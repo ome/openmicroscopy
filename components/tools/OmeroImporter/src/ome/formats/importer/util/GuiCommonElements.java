@@ -67,6 +67,9 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.formats.importer.Main;
 
 import layout.TableLayout;
@@ -79,6 +82,9 @@ import layout.TableLayout;
  */
 public class GuiCommonElements
 {
+	/** Logger for this class */
+	private Log log = LogFactory.getLog(GuiCommonElements.class);
+	
     public boolean lafOpaque = true; // Hack for macness
     public boolean offsetButtons = false; //Another hack for macness
     public boolean motif = false;
@@ -256,8 +262,7 @@ public class GuiCommonElements
             document.insertString(document.getLength(), text, style);
         } catch (BadLocationException e)
         {
-            System.err
-                    .println("BadLocationException inserting text to document.");
+        	log.error("BadLocationException inserting text to document.");
         }
 
         JTextPane textPane = new JTextPane(document);
@@ -285,8 +290,7 @@ public class GuiCommonElements
             document.insertString(document.getLength(), text, style);
         } catch (BadLocationException e)
         {
-            System.err
-                    .println("BadLocationException inserting text to document.");
+        	log.error("BadLocationException inserting text to document.");
         }
 
         JTextPane textPane = new JTextPane(document);
@@ -534,7 +538,7 @@ public class GuiCommonElements
             doc.insertString(doc.getLength(), text, style);
         } catch (BadLocationException e)
         {
-            e.printStackTrace();
+        	log.error("Bad location exception appending text to document.", e);
         }
     }
     
@@ -573,7 +577,7 @@ public class GuiCommonElements
                 button = new JButton(null, new ImageIcon(imgURL));
             } else {
                 button = new JButton(label);
-                System.err.println("Couldn't find icon: " + image);
+                log.error("Couldn't find icon: " + image);
             }
         }
         button.setMaximumSize(new Dimension(width, height));
@@ -668,7 +672,7 @@ public class GuiCommonElements
     {
         java.net.URL imgURL = Main.class.getResource(path);
         if (imgURL != null) { return new ImageIcon(imgURL); } 
-        else { System.err.println("Couldn't find icon: " + imgURL); }
+        else { log.error("Couldn't find icon: " + imgURL); }
         return null;
     }
 
@@ -690,7 +694,6 @@ public class GuiCommonElements
                 options,
                 s2);
         if (n == JOptionPane.YES_OPTION) {
-            //System.err.println("quitConfirmed returned true");
             return true;
         } else {
             return false;
@@ -763,7 +766,6 @@ public class GuiCommonElements
                     }
                     else {
                         toolkit.beep();
-                        //System.err.println("insertString: " + source[i]);
                     }
                 }
                 super.insertString(offs, new String(result, 0, j), a);
@@ -833,16 +835,11 @@ public class GuiCommonElements
                     }
                     else {
                         toolkit.beep();
-                        //System.err.println("insertString: " + source[i]);
                     }
                 }
                 super.insertString(offs, new String(result, 0, j), a);
-
-
             }
-
         }
-
     }
 
     public JPanel addImagePanel(JPanel container, String imageString,

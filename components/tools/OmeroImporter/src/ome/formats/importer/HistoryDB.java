@@ -31,7 +31,6 @@ package ome.formats.importer;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -43,6 +42,9 @@ import java.util.Date;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.formats.importer.util.IniFileLoader;
 
 /**
@@ -51,6 +53,9 @@ import ome.formats.importer.util.IniFileLoader;
  */
 public class HistoryDB implements IObservable
 {
+	/** Logger for this class */
+	private static Log log = LogFactory.getLog(HistoryDB.class);
+	
     private static int DB_VERSION = 300;
     
     IniFileLoader ini = IniFileLoader.getIniFileLoader();
@@ -116,9 +121,9 @@ public class HistoryDB implements IObservable
 
             update ( "INSERT INTO db_version (version) VALUES(" + "'" + DB_VERSION + "'" + ")" );
             
-        } catch (SQLException ex2) { 
-            //ex2.printStackTrace(); 
-        } //ignore SQL error if table already exists
+        } catch (SQLException ex2) {
+        	//ignore SQL error if table already exists
+        } 
     } // HistoryDB()
 
     public static synchronized HistoryDB getHistoryDB()
@@ -129,6 +134,7 @@ public class HistoryDB implements IObservable
             ref = new HistoryDB();
         } catch (Exception e)
         {
+        	log.error("Could not start history DB.", e);
             if (alertOnce == false)
             {
             JOptionPane.showMessageDialog(null,
@@ -139,7 +145,6 @@ public class HistoryDB implements IObservable
                     "the importer, but the history feature will be disable.",
                     "Warning",
                     JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();    // could not start db
             }
             alertOnce = true;
             ref = null;
@@ -169,16 +174,28 @@ public class HistoryDB implements IObservable
             try
             {
                 return getQueryResults("SELECT * FROM " + table);
-            } catch (SQLException e)
-            { e.printStackTrace(); }
+            }
+            catch (SQLException e)
+            {
+            	String s = String.format(
+            			"Error retrieving results from %s as experimenter %d.",
+            			table, experimenterID);
+            	log.error(s, e);
+            }
             return null;            
         } else
         {
             try
             {
                 return getQueryResults("SELECT * FROM " + table + " WHERE ExperimenterID = " + experimenterID);
-            } catch (SQLException e)
-            { e.printStackTrace(); }
+            }
+            catch (SQLException e)
+            {
+            	String s = String.format(
+            			"Error retrieving results from %s as experimenter %d.",
+            			table, experimenterID);
+            	log.error(s, e);
+            }
             return null;
         }
     }
@@ -242,7 +259,6 @@ public class HistoryDB implements IObservable
         if (from != null)
         {
             fromString = sqlDateFormat.format(from);
-            //System.err.println(from + ", " + fromString);
             queryString = queryString + " AND date >= '" + fromString + "'";
         }
         
@@ -255,9 +271,13 @@ public class HistoryDB implements IObservable
         try
         {
             return getQueryResults(queryString);
-        } catch (SQLException e)
-        { 
-            e.printStackTrace(); 
+        }
+        catch (SQLException e)
+        {
+        	String s = String.format(
+        			"Error retrieving results with query string '%s'.",
+        			queryString);
+        	log.error(s, e);
         }
         return null;
     }
@@ -279,10 +299,14 @@ public class HistoryDB implements IObservable
             {
                 update("DELETE FROM import_table WHERE experimenterID = " + experimenterID);
                 update("DELETE FROM file_table WHERE experimenterID = " + experimenterID);
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
-                e.printStackTrace();
-                return false; 
+            	String s = String.format(
+            			"Error removing user history for experimenter %d.",
+            			experimenterID);
+            	log.error(s, e);
+            	return false;
             }
             return true;
         }        
@@ -308,8 +332,6 @@ public class HistoryDB implements IObservable
 
         String sql = "CALL IDENTITY()"; 
         
-        PreparedStatement ps = conn.prepareCall(sql); 
-         
         ResultSet rs = st.executeQuery(sql); 
         
         st.close();
@@ -346,7 +368,6 @@ public class HistoryDB implements IObservable
     public int updateImportStatus(int id, String status) throws SQLException
     {
         int result = update("UPDATE import_table SET status = '" + status + "' WHERE uID = " + id);
-        //System.err.println("observers" + observers.size());
         notifyObservers("QUICKBAR_UPDATE", null);
         return result;
     } // updateHistoryStatus()
@@ -360,8 +381,6 @@ public class HistoryDB implements IObservable
     //use for SQL commands CREATE, DROP, INSERT and UPDATE
     public synchronized int update(String expression) throws SQLException {
 
-        //System.err.println(expression);
-        
         Statement st = null;
 
         st = conn.createStatement();    // statements
@@ -379,10 +398,7 @@ public class HistoryDB implements IObservable
     
     public synchronized ResultSet getQueryResults(String expression) throws SQLException {
         Statement st = null;
-        ResultSet rs = null;
 
-        //System.err.println(expression);
-        
         st = conn.createStatement();         // statement objects can be reused with
 
         // repeated calls to execute but we
@@ -421,11 +437,15 @@ public class HistoryDB implements IObservable
                 list.addElement(entry);
             }
             return list;
-        } catch (SQLException e)
+        } 
+        catch (SQLException e)
         {
-            e.printStackTrace();
-            return null;
+        	String s = String.format(
+        			"Error retrieving import list from %s to %s.",
+        			start.toString(), end.toString());
+        	log.error(s, e);
         }
+        return null;
     }
     
     public Date getYesterday() {
@@ -457,7 +477,6 @@ public class HistoryDB implements IObservable
     public boolean deleteObserver(IObserver object)
     {
         return observers.remove(object);
-        
     }
 
     public void notifyObservers(Object message, Object[] args)

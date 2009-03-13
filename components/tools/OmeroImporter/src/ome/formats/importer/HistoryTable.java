@@ -38,6 +38,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdesktop.swingx.JXDatePicker;
 
 import layout.TableLayout;
@@ -52,6 +54,9 @@ public class HistoryTable
     extends JPanel
     implements ActionListener, PropertyChangeListener, IObserver, IObservable
 {
+	/** Logger for this class */
+	private static Log log = LogFactory.getLog(HistoryTable.class);
+	
     /**
      * 
      */
@@ -123,7 +128,7 @@ public class HistoryTable
         try {
             outlookBar.addPropertyChangeListener(this);
         } catch (Exception ex) {
-            //ex.printStackTrace();
+        	log.error("Exception adding property change listener.", ex);
         }
         
         db = HistoryDB.getHistoryDB();
@@ -294,9 +299,10 @@ public class HistoryTable
             ref = new HistoryTable();
         } catch (Exception e)
         {
+        	log.error("Could not start history DB.", e);
             if (HistoryDB.alertOnce == false)
             {
-            JOptionPane.showMessageDialog(null,
+            	JOptionPane.showMessageDialog(null,
                     "We were not able to connect to the history DB.\n" +
                     "Make sure you do not have a second importer\n" +
                     "running and try again.\n\n" +
@@ -304,13 +310,10 @@ public class HistoryTable
                     "the importer, but the history feature will be disable.",
                     "Warning",
                     JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();    // could not start db
             }
             ref = null;
             
             HistoryDB.alertOnce = true;
-            e.printStackTrace();    // could not start db
-            //System.exit(0);
         }
         return ref;
     }
@@ -377,7 +380,7 @@ public class HistoryTable
             rs.close();
             db.shutdown();
         } catch (SQLException ex3) {
-            ex3.printStackTrace();
+        	log.error("SQL exeception.", ex3);
         } catch (NullPointerException ex4) {} // results are null
     }
     
@@ -467,9 +470,9 @@ public class HistoryTable
             rs.close();
             //db.shutdown();
         } catch (SQLException ex3) {
-            ex3.printStackTrace();
+        	log.error("SQL exception.", ex3);
         } catch (NullPointerException ex4) {
-            ex4.printStackTrace();
+        	log.error("Null pointer exception.", ex4);
         } // results are null
     }
     
@@ -522,7 +525,6 @@ public class HistoryTable
     private void getQuickHistory(Integer importKey)
     {
        getFileQuery(importKey, experimenterID, null, null, null);
-       //System.err.println("key: "  + importKey + " exID: " + experimenterID);
     }
 
     public void actionPerformed(ActionEvent e)
@@ -530,7 +532,6 @@ public class HistoryTable
         Object src = e.getSource();
         if (src == searchBtn || src == doneCheckBox || src == failedCheckBox 
                 || src == invalidCheckBox || src == pendingCheckBox)
-            //System.err.println(fromDate.getDate());
             getFileQuery(-1, experimenterID, searchField.getText(), 
                     fromDate.getDate(), toDate.getDate());
         if (src == clearBtn)
@@ -544,13 +545,11 @@ public class HistoryTable
 
     public void propertyChange(PropertyChangeEvent e)
     {
-        //System.err.println(e.getPropertyName());
         String prop = e.getPropertyName();
         if (prop.equals("QUICK_HISTORY"))
             getQuickHistory((Integer)e.getNewValue());
         if (prop.equals("date"))
         {
-            //System.err.println(fromDate.getDate());
             getFileQuery(-1, experimenterID, searchField.getText(), 
                     fromDate.getDate(), toDate.getDate());
         }
@@ -560,7 +559,6 @@ public class HistoryTable
 
     public void update(IObservable importLibrary, Object message, Object[] args)
     {
-        //System.err.print("Update: " + message + "\n");
         getExperimenterID();
         if (experimenterID != -1 && message == "LOGGED_IN" || message == "QUICKBAR_UPDATE")
             {

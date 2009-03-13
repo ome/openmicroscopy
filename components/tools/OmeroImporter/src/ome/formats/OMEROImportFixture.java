@@ -44,7 +44,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class OMEROImportFixture {
 
-    Log log = LogFactory.getLog(ImportFixture.class);
+    Log log = LogFactory.getLog(OMEROImportFixture.class);
 
     protected OMEROMetadataStoreClient store;
 

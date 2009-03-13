@@ -23,27 +23,18 @@
 
 package ome.formats.model;
 
-import static omero.rtypes.*;
-
-import java.io.File;
-import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import loci.formats.IFormatReader;
 
 import ome.formats.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Arc;
 import omero.model.Detector;
 import omero.model.Filament;
-import omero.model.Image;
 import omero.model.Instrument;
 import omero.model.Laser;
-import omero.model.LightSource;
 import omero.model.OTF;
 import omero.model.Objective;
-import omero.model.Pixels;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,9 +52,6 @@ public class InstrumentProcessor implements ModelProcessor
     /** Logger for this class */
     private Log log = LogFactory.getLog(InstrumentProcessor.class);
 
-    /** Container store we're currently working with. */
-    private IObjectContainerStore store;
-
     /**
      * Processes the OMERO client side metadata store.
      * @param store OMERO metadata store to process.
@@ -72,8 +60,6 @@ public class InstrumentProcessor implements ModelProcessor
     public void process(IObjectContainerStore store)
     throws ModelException
     {
-        this.store = store;
-
         List<IObjectContainer> containers = 
             store.getIObjectContainers(Detector.class);
         containers.addAll(store.getIObjectContainers(Objective.class));

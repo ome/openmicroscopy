@@ -197,7 +197,6 @@ public class ImportHandler
                 catch (FormatException fe)
                 {
                 	log.error("Format exception while importing image.", fe);
-                    fe.printStackTrace();
                     qTable.setProgressUnknown(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
                     if (importStatus < 0)   importStatus = -3;
@@ -240,7 +239,6 @@ public class ImportHandler
                 catch (IOException ioe)
                 {
                 	log.error("I/O error while importing image.", ioe);
-                    ioe.printStackTrace();
                     qTable.setProgressUnknown(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
                     if (importStatus < 0)   importStatus = -3;
@@ -336,7 +334,7 @@ public class ImportHandler
                 db.updateImportStatus(importKey, "complete");
         } catch (SQLException e)
         {
-            e.printStackTrace();
+        	log.error("SQL exception when updating import status.", e);
         }
 
         timestampOut = System.currentTimeMillis();

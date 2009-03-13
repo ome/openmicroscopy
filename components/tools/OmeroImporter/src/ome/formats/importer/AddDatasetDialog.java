@@ -23,7 +23,6 @@
 
 package ome.formats.importer;
 
-import static omero.rtypes.*;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Window;
@@ -45,16 +44,11 @@ import layout.TableLayout;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.GuiCommonElements;
 
-import static omero.rtypes.*;
-import omero.RBool;
-import omero.RLong;
-import omero.RString;
 import omero.model.Dataset;
-import omero.model.DatasetI;
 import omero.model.Project;
-import omero.model.ProjectI;
 
 
+@SuppressWarnings("serial")
 public class AddDatasetDialog extends JDialog implements ActionListener
 {
     boolean debug = false;
@@ -168,30 +162,6 @@ public class AddDatasetDialog extends JDialog implements ActionListener
         if (source == cancelBtn)
         {
             dispose();
-        }
-    }
-
-    @Deprecated 
-    private DatasetI addDataset(String name, String description)
-    {
-        dataset = new DatasetI();
-        if (name.length() != 0)
-            dataset.setName(rstring(name));
-        if (description.length() != 0)
-            dataset.setDescription(rstring(description));
-        ProjectI p = new ProjectI(project.getId().getValue(), false);
-        dataset.linkProject(p);
-        
-        DatasetI storedDataset = null;
-        
-        if (store != null)
-        {
-            // FIXME: IUpdate changes.
-            //IUpdate iUpdate = store.getIUpdate();
-            //storedDataset = iUpdate.saveAndReturnObject(dataset);
-            return storedDataset;
-        } else {
-            return null;
         }
     }
 

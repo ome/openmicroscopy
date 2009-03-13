@@ -24,21 +24,10 @@
 package ome.formats.model;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import omero.RLong;
-import omero.RString;
-import omero.ServerError;
-import omero.api.IQueryPrx;
 import ome.formats.enums.EnumerationProvider;
-import ome.formats.enums.handler.EnumHandlerFactory;
-import ome.formats.enums.handler.EnumerationHandler;
 import ome.formats.importer.MetaLightSource;
 import ome.formats.model.handler.ModelObjectHandlerFactory;
 import omero.model.IObject;

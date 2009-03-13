@@ -27,7 +27,6 @@
 
 package ome.formats.importer;
 
-import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

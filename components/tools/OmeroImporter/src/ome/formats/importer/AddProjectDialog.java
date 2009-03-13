@@ -21,9 +21,9 @@ import layout.TableLayout;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.GuiCommonElements;
 import omero.model.Project;
-import omero.model.ProjectI;
 
 
+@SuppressWarnings("serial")
 public class AddProjectDialog extends JDialog implements ActionListener
 {
     boolean debug = false;

@@ -50,6 +50,8 @@ import ome.formats.importer.util.IniFileLoader;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import layout.TableLayout;
 
@@ -59,6 +61,9 @@ import layout.TableLayout;
  */
 public class DebugMessenger extends JDialog implements ActionListener
 {
+	/** Logger for this class */
+	private Log log = LogFactory.getLog(DebugMessenger.class);
+	
     private static final long serialVersionUID = -1026712513033611084L;
 
     IniFileLoader ini = IniFileLoader.getIniFileLoader();
@@ -289,6 +294,7 @@ public class DebugMessenger extends JDialog implements ActionListener
             this.dispose();
         }
         catch( Exception e ) {
+        	log.error("Error while sending debug information.", e);
             //Get the full debug text
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
@@ -296,7 +302,6 @@ public class DebugMessenger extends JDialog implements ActionListener
             
             String debugText = sw.toString();
             
-            e.printStackTrace();
             gui.appendTextToDocument(debugDocument, debugStyle, "----\n"+debugText);
             String internalURL = "Sorry, but due to an error we were not able " +
             "to automatically \n send your debug information. \n\n" +

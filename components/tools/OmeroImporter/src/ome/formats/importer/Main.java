@@ -93,7 +93,6 @@ public class Main extends JFrame
          = "$LastChangedDate: 2008-06-23 10:29:21 +0100 (Mon, 23 Jun 2008) $";
 
     /** Logger for this class. */
-    @SuppressWarnings("unused")
     private static Log          log     = LogFactory.getLog(Main.class);
    
     // -- Constants --
@@ -333,8 +332,6 @@ public class Main extends JFrame
                 + getPrintableKeyword(revision) + ").");
         appendToOutputLn("> Build date: " + getPrintableKeyword(revisionDate));
         appendToOutputLn("> Release date: " + releaseDate);
-        
-        //System.err.println(isUpgradeRequired());
         
         HistoryHandler historyHandler = HistoryHandler.getHistoryHandler();
         historyPanel.add(historyHandler, BorderLayout.CENTER);

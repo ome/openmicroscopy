@@ -66,6 +66,7 @@ import javax.swing.JSeparator;
  * </small>
  * @since OME2.2
  */
+@SuppressWarnings("serial")
 public class TitlePanel
     extends JPanel
 {

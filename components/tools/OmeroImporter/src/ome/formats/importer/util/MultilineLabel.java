@@ -46,6 +46,7 @@ import javax.swing.LookAndFeel;
  * </small>
  * @since OME2.2
  */
+@SuppressWarnings("serial")
 public class MultilineLabel
 	extends JTextArea
 {

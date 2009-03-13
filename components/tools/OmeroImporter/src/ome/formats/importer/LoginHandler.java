@@ -48,6 +48,8 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
  */
 public class LoginHandler implements IObservable, ActionListener, WindowListener, PropertyChangeListener, WindowStateListener, WindowFocusListener
 {
+	/** Logger for this class */
+	private static Log log = LogFactory.getLog(LoginHandler.class);
     
     private static boolean NEW_LOGIN = true;
     
@@ -66,9 +68,6 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     private String             server;
 
     private Main               viewer;
-
-    private static Log         log       = LogFactory
-                                                 .getLog(LoginHandler.class);
 
     private Preferences        userPrefs = Preferences
                                                  .userNodeForPackage(LoginHandler.class);
@@ -112,13 +111,13 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             ref = new LoginHandler(viewer, modal, center);
         } catch (Exception e)
         {
+        	log.error("Error constructing login handler.", e);
             JOptionPane.showMessageDialog(null,
                     "Unknown exception.\n\n" +
                     "We were not able to connect to the server.\n" +
                     "Click OK to exit.",
                     "Warning",
                     JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();    // could not start db
             System.exit(0);
 
         }
@@ -213,6 +212,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
 
                         viewer.statusBar.setProgress(false, 0, "");
                         viewer.appendToOutput("> Login Successful.\n");
+                        log.info("Login successful!");
                         viewer.enableMenus(true);
                         viewer.setImportEnabled(true);
                         viewer.loggedIn = true;
@@ -229,13 +229,14 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                             return;
                         } catch (Exception e) 
                         {
+                        	log.error("Exception retrieving repository free space.", e);
                             viewer.statusBar.setStatusIcon("gfx/server_connect16.png", "Connected to " + server + ".");
                             return;
                         }
                     } else {   
                         if (NEW_LOGIN)
                             viewer.view.setAlwaysOnTop(false);
-                        System.err.println("Login Valid");
+                        log.info("Login failed!");
                         viewer.statusBar.setProgress(false, 0, "");
                         viewer.statusBar.setStatusIcon("gfx/error_msg16.png",
                                 "Incorrect username/password. Server login failed, please try to "
@@ -257,8 +258,6 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                 {                   
                     log.error("Exception in LoginHandler.", e);
                     
-                    //e.printStackTrace();
-
                     viewer.statusBar.setProgress(false, 0, "");
                     viewer.statusBar.setStatusIcon("gfx/error_msg16.png",
                     "Server connection to " + server +" failed. " +
@@ -358,11 +357,9 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
 
         } else {
             if (prop.equals(ScreenLogin.LOGIN_PROPERTY)) {
-                System.err.println(evt.getNewValue());
                 lc = (LoginCredentials) evt.getNewValue();
                 if (lc != null)
                 {
-                    //System.err.println("Trying login");
                     tryLogin();
                 }
             } else if (ScreenLogin.QUIT_PROPERTY.equals(prop)) {

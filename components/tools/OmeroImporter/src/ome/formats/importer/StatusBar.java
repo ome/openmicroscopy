@@ -35,6 +35,9 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.border.Border;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 // Third-party libraries
 
 /**
@@ -52,6 +55,8 @@ import javax.swing.border.Border;
  */
 public class StatusBar extends JPanel
 {
+	/** Logger for this class */
+	private Log log = LogFactory.getLog(StatusBar.class);
 
     /**
      * 
@@ -167,7 +172,7 @@ public class StatusBar extends JPanel
                 status.setIcon(new ImageIcon(imgURL, description));
             } else
             {
-                System.err.println("Couldn't find icon: " + path);
+            	log.error("Couldn't find icon: " + path);
             }
         } else
         {

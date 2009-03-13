@@ -56,13 +56,9 @@ public class IniFileLoader
      */
     private IniFileLoader(String userConfigFile)
     {       
-        
-        
         // Set up static config file
         staticConfigDirectory = System.getProperty("user.dir") + File.separator + "config";
         staticConfigFile = staticConfigDirectory + File.separator + "importer.config";
-        if (IniFileLoader.staticConfigFile == null)
-            IniFileLoader.staticConfigFile = staticConfigFile;
         
         try
         {

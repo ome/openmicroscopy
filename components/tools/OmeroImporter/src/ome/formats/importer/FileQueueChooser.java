@@ -36,6 +36,9 @@ import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.formats.importer.util.Actions;
 
 import layout.TableLayout;
@@ -45,6 +48,9 @@ import loci.formats.ImageReader;
 public class FileQueueChooser 
     extends JFileChooser implements ActionListener
 {
+	/** Logger for this class */
+	private Log log = LogFactory.getLog(FileQueueChooser.class);
+	
     boolean DEBUG = false;
     
     private static final long serialVersionUID = 1L;
@@ -279,8 +285,6 @@ public class FileQueueChooser
         Object src = evt.getSource();
         int keyCode = evt.getKeyCode();
         
-        System.err.println(keyCode);
-        
         if (src == fileList && keyCode == KeyEvent.VK_ENTER) {                            
             File[] arr = getSelectedFiles();
             if (arr.length == 1 && arr[0].isFile())
@@ -290,22 +294,6 @@ public class FileQueueChooser
         }
     }
 
-    public void keyReleased(KeyEvent evt) 
-    {
-        Object src = evt.getSource();
-        int keyCode = evt.getKeyCode();
-        
-        System.err.println(keyCode);   
-    }
-    public void keyTyped(KeyEvent evt) 
-    {
-        Object src = evt.getSource();
-        int keyCode = evt.getKeyCode();
-        
-        System.err.println(keyCode);
-    }
-
-    
     class DashFileFilter extends javax.swing.filechooser.FileFilter
     {
 
@@ -398,7 +386,7 @@ public class FileQueueChooser
         }  
     }
 
-    static JButton addButton(String name, String image, String tooltip)
+    private JButton addButton(String name, String image, String tooltip)
     {
         JButton button = null;
 
@@ -412,7 +400,7 @@ public class FileQueueChooser
                 button = new JButton(name, new ImageIcon(imgURL));
             } else {
                 button = new JButton(name);
-                System.err.println("Couldn't find icon: " + image);
+                log.error("Couldn't find icon: " + image);
             }
         }
         return button;

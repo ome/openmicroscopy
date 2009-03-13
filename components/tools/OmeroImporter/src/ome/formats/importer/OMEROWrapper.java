@@ -3,7 +3,6 @@ package ome.formats.importer;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.security.MessageDigest;
 import java.util.List;
 
 import loci.formats.ChannelFiller;
@@ -16,9 +15,8 @@ import loci.formats.MinMaxCalculator;
 import loci.formats.in.LeicaReader;
 import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStoreClient;
-import omero.model.ChannelI;
+import omero.model.Channel;
 import omero.model.Pixels;
-import omero.model.PixelsI;
 
 public class OMEROWrapper extends MinMaxCalculator
 {
@@ -106,7 +104,7 @@ public class OMEROWrapper extends MinMaxCalculator
             int series = reader.getSeries();
             List<Pixels> pixels = (List<Pixels>) store.getRoot();
             Pixels p = pixels.get(series);
-            ChannelI c = (ChannelI) p.getChannel(p.getSizeC().getValue() - 1);
+            Channel c = p.getChannel(p.getSizeC().getValue() - 1);
             if (c.getStatsInfo() == null)
             {
                 minMaxSet = false;

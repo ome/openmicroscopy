@@ -52,7 +52,7 @@ public class IniWritingInterceptor implements MethodInterceptor
         if (sourceFile != null)
         {
             Method m = invocation.getMethod();
-            Class[] parameterTypes = m.getParameterTypes();
+            Class<?>[] parameterTypes = m.getParameterTypes();
             Object[] arguments = invocation.getArguments();
             String argumentString = "";
             
