@@ -38,11 +38,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
-import omero.RLong;
-import omero.model.DatasetI;
 
 public class FileQueueTable 
     extends JPanel
@@ -606,6 +603,10 @@ public class FileQueueTable
         if (message == Actions.IMPORT_DONE)
         {
             setProgressDone((Integer)args[1]);
+        }
+        if (message == Actions.IMPORT_ARCHIVING)
+        {
+            setProgressArchiving((Integer)args[1]);
         }
     }
     

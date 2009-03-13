@@ -24,7 +24,6 @@ import javax.swing.JOptionPane;
 import loci.formats.FormatException;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ResourceError;
-import omero.model.Dataset;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

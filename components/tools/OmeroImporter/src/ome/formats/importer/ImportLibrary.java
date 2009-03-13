@@ -348,6 +348,7 @@ public class ImportLibrary implements IObservable
         }
         if (archive)
         {
+            notifyObservers(Actions.IMPORT_ARCHIVING, args);
         	String[] fileNameList = reader.getUsedFiles();
         	File[] files = new File[fileNameList.length];
         	for (int i = 0; i < fileNameList.length; i++) 
