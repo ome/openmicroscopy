@@ -44,4 +44,5 @@ public class Actions
     public static final String IMPORT_DONE = "import_done";
     public static final String HISTORYREIMPORT = "history_reimport";
     public static final String IO_EXCEPTION = "java.io.IOException";
+    public static final Object IMPORT_ARCHIVING = "import_archiving";    
 }
