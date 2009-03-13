@@ -39,7 +39,6 @@
         <env>PYTHONPATH=lib:$PYTHONPATH</env>
         <adapter name="IndexerAdapter" register-process="true" endpoints="tcp"/>
         <properties>
-          <property name="omero.search.cron" value="0,30 * * * "/>
           <property name="Ice.ThreadPool.Client.Size" value="1"/>
           <property name="Ice.ThreadPool.Client.SizeMax" value="1"/>
           <property name="Ice.ThreadPool.Server.Size" value="1"/>
