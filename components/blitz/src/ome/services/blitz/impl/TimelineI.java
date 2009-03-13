@@ -555,17 +555,24 @@ public class TimelineI extends AbstractAmdServant implements
         return returnValue;
     }
 
+    /**
+     * @see ticket:1232
+     */
     private void applyParameters(final Parameters parameters, Query q) {
+        int limit = Integer.MAX_VALUE;
+        int offset = 0;
         if (parameters != null && parameters.theFilter != null) {
             Filter f = parameters.theFilter;
             if (f.offset != null) {
-                q.setFirstResult(f.offset.getValue());
+                offset = f.offset.getValue();
             }
 
             if (f.limit != null) {
-                q.setMaxResults(f.limit.getValue());
+                limit = f.limit.getValue();
             }
         }
+        q.setFirstResult(offset);
+        q.setMaxResults(limit);
     }
 
     private long defaultId() {

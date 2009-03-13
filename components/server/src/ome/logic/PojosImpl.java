@@ -319,11 +319,16 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                                 throws HibernateException, SQLException {
                             org.hibernate.Query q = s.createQuery(query);
                             q.setParameterList("ids", rootNodeIds);
+                            // ticket:1232
                             if (view.getLimit() != null) {
                                 q.setMaxResults(view.getLimit());
+                            } else {
+                                q.setMaxResults(Integer.MAX_VALUE);
                             }
                             if (view.getOffset() != null) {
                                 q.setFirstResult(view.getOffset());
+                            } else {
+                                q.setFirstResult(0);
                             }
                             return q.list();
                         }

@@ -228,22 +228,23 @@ public abstract class Query<T> implements HibernateCallback {
             }
 
             boolean unique = params.isUnique();
-
+            // ticket:1232
+            int offset = 0;
+            int limit = Integer.MAX_VALUE;
+            if (params.getOffset() != null) {
+                offset = params.getOffset();
+            }
+            if (params.getLimit() != null) {
+                limit = params.getLimit();
+            }
+            
             if (_query != null) {
-                if (params.getOffset() != null) {
-                    _query.setFirstResult(params.getOffset());
-                }
-                if (params.getLimit() != null) {
-                    _query.setMaxResults(params.getLimit());
-                }
+                _query.setFirstResult(offset);
+                _query.setMaxResults(limit);
                 return unique ? _query.uniqueResult() : _query.list();
             } else {
-                if (params.getOffset() != null) {
-                    _criteria.setFirstResult(params.getOffset());
-                }
-                if (params.getLimit() != null) {
-                    _criteria.setMaxResults(params.getLimit());
-                }
+                _criteria.setFirstResult(offset);
+                _criteria.setMaxResults(limit);
                 return unique ? _criteria.uniqueResult() : _criteria.list();
             }
 

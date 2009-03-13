@@ -413,13 +413,16 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      * instance.
      */
     protected void parseFilter(Criteria c, Filter f) {
-        if (f != null) {
-            if (f.offset != null) {
-                c.setFirstResult(f.offset);
-            }
-            if (f.limit != null) {
-                c.setMaxResults(f.limit);
-            }
+        // ticket:1232 - Reverting for 4.0
+        if (f != null && f.offset != null) {
+            c.setFirstResult(f.offset);
+        } else {
+            c.setFirstResult(0);
+        }
+        if (f != null && f.limit != null) {
+            c.setMaxResults(f.limit);
+        } else {
+            c.setMaxResults(Integer.MAX_VALUE);
         }
     }
 
