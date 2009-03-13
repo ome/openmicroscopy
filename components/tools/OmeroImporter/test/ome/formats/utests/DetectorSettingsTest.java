@@ -1,6 +1,6 @@
 package ome.formats.utests;
 
-import ome.formats.LSID;
+import ome.util.LSID;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;

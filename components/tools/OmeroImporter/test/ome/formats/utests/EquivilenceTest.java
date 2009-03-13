@@ -1,6 +1,6 @@
 package ome.formats.utests;
 
-import ome.formats.LSID;
+import ome.util.LSID;
 import omero.model.Image;
 import junit.framework.TestCase;
 
