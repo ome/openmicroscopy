@@ -23,8 +23,10 @@ body.share {
 }
 .imageInDataset {
 }
-.image {
+.imageshare {
     padding: 10px;
+    float:left;
+    width: 800px;
 }
 
 

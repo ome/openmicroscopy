@@ -3,13 +3,24 @@
 {% load custom_tags %}
 {% load wikitags %}
 
-<div id="cart">
+<script>
+$(document).ready(function () {
+    $(function() { 
+        $("#products li.product").css('width', 120);
+        $("#products li.product").css('height', 90);
+        $('#products img.imgzoom').attr('width', 80);
+        $('#products img.catzoom').attr('width', 80);
+    });
+})
+
+</script>
 
 {% if share.imgSize %}
+
 <div class="clear"></div>
+
 <h1>{% trans "Images" %} ({{ share.imgSize }} items)</h1>
-<div class="image"><ul id="products">
-    <li class="clear"> </li>
+<div class="imageshare"><ul id="products">
     {% for e in share.imageInShare %}
         <li id="image-{{ e.id }}"class="product"><em>{{ e.name }}</em>
             {% if share.share.isOwned %}
@@ -21,7 +32,5 @@
     {% endfor %}
 </ul></div>
 {% endif %}
-
-</div>
 
 </div>
