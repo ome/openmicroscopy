@@ -176,19 +176,6 @@
   		module.
   License: Lesser General Public License (LGPL)
   License File: lgpl.txt
-
-  Project: The JBOSS project.  A J2EE based application server
-  Web Site: www.jboss.org
-  Artifacts: The jboss-* files under LIB/
-  License: Lesser General Public License (LGPL)
-  License File: lgpl.txt
-  
-  Project: The Spring project. 
-  This library provides configuration for OMERO.insight.
-  Web Site: www.springframework.org
-  Artifacts: The spring-* file under LIB/
-  License: Lesser General Public License (LGPL)
-  License File: lgpl.txt
   
   Project: The JHotDraw project. A two-dimensional graphics framework for 
   structured drawing editors
@@ -222,12 +209,6 @@
   Project: Commons validator. Validate data.
   Web Site: http://commons.apache.org/validator/
   Artifacts: The commons-* file under LIB/
-  License: Apache License, Version 2.0
-  License File: apache-v2.0.txt
-  
-  Project: Jakarta oro. Set of text-processing classes.
-  Web Site: http://jakarta.apache.org/oro/
-  Artifacts: The jakarta-* file under LIB/
   License: Apache License, Version 2.0
   License File: apache-v2.0.txt
   
