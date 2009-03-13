@@ -122,7 +122,6 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             popen = self.ctx.popen(command, stdout = True)
             output = popen.communicate()[0]
             if -1 < output.find("does not exist"):
-                 print "%s service not found" % svc_name
                  command = [
                        "sc", "create", svc_name,
                        "binPath=","""C:\\Ice-3.3.0\\bin\\icegridnode.exe "%s" --deploy "%s" --service %s""" % (self._icecfg(), descript, svc_name),
@@ -130,11 +129,9 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
                        "start=","auto"]
                        #'obj="NT Authority\LocalService"',
                        #'password=""']
-                 print self.ctx.popen(command)
-            else:
-                print "NYI: just starting service"
+                 self.ctx.out(self.ctx.popen(command, stdout = True).communicate()[0])
+            self.ctx.out(self.ctx.popen(["sc","start",svc_name], stdout = True).communicate()[0])
         else:
-            # TODO : This won't work for Windows. Must refactor.
             command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg(),"--deploy",str(descript)] + other
             self.ctx.popen(command)
 
@@ -179,12 +176,17 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         return self.ctx.rv
 
     def stop(self, args):
-        command = self._cmd("-e","node shutdown master")
-        try:
-            self.ctx.popen(command)
-        except NonZeroReturnCode, nzrc:
-            self.ctx.rv = nzrc.rv
-            self.ctx.out("Was the server already stopped?")
+        if self._isWindows():
+            svc_name = "OMERO.%s" % self._node()
+            self.ctx.out(self.ctx.popen(["sc","stop",svc_name], stdout = True).communicate()[0])
+            self.ctx.out(self.ctx.popen(["sc","delete",svc_name], stdout = True).communicate()[0])
+        else:
+            command = self._cmd("-e","node shutdown master")
+            try:
+                self.ctx.popen(command)
+            except NonZeroReturnCode, nzrc:
+                self.ctx.rv = nzrc.rv
+                self.ctx.out("Was the server already stopped?")
 
     def check(self, args):
         # print "Check db. Have a way to load the db control"
