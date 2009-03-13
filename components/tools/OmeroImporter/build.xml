@@ -26,7 +26,7 @@
     <dirname property="up-two" file="${basedir}"/>
     <dirname property="up-one" file="${up-two}"/>
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
-	<property name="product.name" value="OMERO.importer"/>
+    <property name="importer.name" value="OMERO.importer"/>
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
@@ -72,12 +72,12 @@
 	
 	<target name="release-zip" depends="package,install"
 		description="Zip the OMERO.importer releases up">
-	  <zip destfile="target/${product.name}-${omero.version}.zip">
-		  <zipfileset dir="${basedir}" prefix="${product.name}-${omero.version}"
+	  <zip destfile="target/${importer.name}-${omero.version}.zip">
+		  <zipfileset dir="${basedir}" prefix="${importer.name}-${omero.version}"
 			  includes="config/**/*"/>
-		  <zipfileset dir="${target.dir}" prefix="${product.name}-${omero.version}"
+		  <zipfileset dir="${target.dir}" prefix="${importer.name}-${omero.version}"
 			  includes="libs/**/*,${ivy.module}.jar"/>
-		  <zipfileset dir="${basedir}" prefix="${product.name}-${omero.version}"
+		  <zipfileset dir="${basedir}" prefix="${importer.name}-${omero.version}"
 			  includes="importer-*" filemode="755"/>
       </zip>
 	</target>
@@ -102,12 +102,12 @@
 
 	<target name="release-osx-zip" depends="release-osx"
 		description="Zip up the OMERO.importer release for MacOS X">
-	  <zip destfile="target/${product.name}-${omero.version}-mac.zip">
-		  <zipfileset dir="${basedir}" prefix="${product.name}-${omero.version}"
+	  <zip destfile="target/${importer.name}-${omero.version}-mac.zip">
+		  <zipfileset dir="${basedir}" prefix="${importer.name}-${omero.version}"
 			  includes="config/**/*,OMERO.importer.app/**/*"
 			  excludes="**/JavaApplicationStub"/>
 		  <zipfileset file="${basedir}/JavaApplicationStub" 
-			  fullpath="${product.name}-${omero.version}/OMERO.importer.app/Contents/MacOS/JavaApplicationStub"
+			  fullpath="${importer.name}-${omero.version}/OMERO.importer.app/Contents/MacOS/JavaApplicationStub"
 			  filemode="755"/> 
       </zip>
 	</target>
@@ -119,10 +119,10 @@
 
 	<target name="release-win-zip" depends="release-win"
 		description="Zip up the OMERO.importer release for Windows">
-	  <zip destfile="target/${product.name}-${omero.version}-win.zip">
-		  <zipfileset dir="${basedir}" prefix="${product.name}-${omero.version}"
+	  <zip destfile="target/${importer.name}-${omero.version}-win.zip">
+		  <zipfileset dir="${basedir}" prefix="${importer.name}-${omero.version}"
 			  includes="config/**/*"/>
-		  <zipfileset dir="${target.dir}" prefix="${product.name}-${omero.version}"
+		  <zipfileset dir="${target.dir}" prefix="${importer.name}-${omero.version}"
 			  includes="libs/**/*,${ivy.module}.jar,*.exe"/>
       </zip>
 	</target>
