@@ -49,17 +49,23 @@ builddir = ARGUMENTS.get("builddir",builddir)
 cpppath = env_path("CPPPATH")
 libpath = env_path("LIBPATH")
 pypath  = env_path("PYTHONPATH")
+if os.environ.has_key("ICE_CONFIG"):
+    ice_config = os.environ["ICE_CONFIG"]
+else:
+    ice_config = os.path.join(builddir, 'etc', 'ice.config')
 
 #
 # Options
 #
 opts = Options()
-opts.Add(BoolOption('run', 'Execute build artifacts', 0))
+opts.Add(BoolOption('run', 'Execute all build artifacts', 0))
+opts.Add(BoolOption('run_java', 'Execute Java build artifacts', 0))
+opts.Add(BoolOption('run_cpp', 'Execute C++ build artifacts', 0))
+opts.Add(BoolOption('run_py', 'Execute Python build artifacts', 0))
 
 #
 # ENVIRONMENT: ===================================================
 #
-#env = Environment(JAVACFLAGS="-Xmx400M")
 map = { "options" : opts,
         "CPPPATH" : cpppath + [os.path.join(builddir,"include"), os.path.curdir],
         "LIBPATH" : libpath + [os.path.join(builddir,"lib")],
@@ -83,7 +89,6 @@ if platform.name == "linux" or platform.name == "darwin":
         "PATH": os.environ["PATH"],
         "PYTHONPATH": map["PYTHONPATH"],
         "DYLD_LIBRARY_PATH": map["LIBPATH"],
-        "ICE_CONFIG": os.path.join(builddir, 'etc', 'ice.config')
     }
 
     if mode == "debug":
@@ -152,7 +157,7 @@ for src_dir in glob.glob("*"):
         javac = env.Java(src_dir, src_dir)
         targets.append(javac)
 
-        if env["run"]:
+        if env["run"] or env["run_java"]:
             java_files = glob.glob(os.path.join(src_dir, "*.java"))
             for file in java_files:
                 base = os.path.basename(file)
@@ -160,7 +165,7 @@ for src_dir in glob.glob("*"):
                 # Cloning environment, so that CLASSPATH doesn't have all the subdirectories included
                 clone = env.Clone()
                 clone['ENV']['CLASSPATH'] = os.path.pathsep.join([ clone['ENV']['CLASSPATH'], src_dir ])
-                run = clone.Alias(os.path.join(src_dir,base), [], "java -ea " + base)
+                run = clone.Alias(os.path.join(src_dir,base), [], "java -ea %s --Ice.Config=%s" % (base,ice_config) )
                 Depends(run, javac)
                 clone.AlwaysBuild(run)
                 targets.append(run)
@@ -168,10 +173,10 @@ for src_dir in glob.glob("*"):
         #
         # Python
         #
-        if env["run"]:
+        if env["run"] or env["run_py"]:
             python_files = glob.glob(os.path.join(src_dir, "*.py"))
             for file in python_files:
-                run = env.Alias(file, [], "python " + file)
+                run = env.Alias(file, [], "python %s --Ice.Config=%s" % (file,ice_config) )
                 env.AlwaysBuild(run)
                 targets.append(run)
 
@@ -183,8 +188,8 @@ for src_dir in glob.glob("*"):
             base = os.path.splitext(file)[0]
             make = env.Program(base+".exe", file, LIBS=libs)
             targets.append(make)
-            if env["run"]:
-                run = env.Command(base+".out", base+".exe", "./$SOURCE")
+            if env["run"] or env["run_cpp"]:
+                run = env.Command(base+".out", base+".exe", "./$SOURCE --omero.debug=1 --Ice.Config=%s" % ice_config )
                 env.Depends(run, make)
                 env.AlwaysBuild(run)
                 targets.append(run)

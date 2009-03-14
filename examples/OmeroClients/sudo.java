@@ -10,7 +10,7 @@ public class sudo {
 
     public static void main(String args[]) throws Exception {
 
-        omero.client client = new omero.client();
+        omero.client client = new omero.client(args);
         ServiceFactoryPrx sf = client.createSession("root", "ome");
         ISessionPrx sessionSvc = sf.getSessionService();
 

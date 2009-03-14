@@ -13,7 +13,7 @@ public class queries {
 
     public static void main(String args[]) throws Exception {
 
-        omero.client client = new omero.client();
+        omero.client client = new omero.client(args);
         ServiceFactoryPrx sf = client.createSession();
         IQueryPrx q = sf.getQueryService();
 
