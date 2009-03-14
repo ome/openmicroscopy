@@ -101,6 +101,15 @@ public class ConfigTest extends AbstractManagedContextTest {
         iConfig.getConfigValue("omero.resetpassword.password");
 
     }
+    
+    @Test
+    public void testSettingClusterProperties() throws Exception {
+        
+        loginRoot();
+        iConfig.setConfigValue("omero.cluster.redirect", "foo");
+        assertEquals("foo", iConfig.getConfigValue("omero.cluster.redirect"));
+
+    }
 
     /*
      * Developer notes: --------------- Tests that should not be run, either

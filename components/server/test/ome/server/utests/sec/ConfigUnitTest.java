@@ -145,6 +145,14 @@ public class ConfigUnitTest extends MockObjectTestCase {
         assertTrue(config.setConfigValueIfEquals("redirect","new","old"));
     }
     
+    @Test
+    public void testThatSystemValuesWork() {
+        System.setProperty("omero.name","OMERO.test");
+        mockAdmin();
+        notInDatabase();
+        assertEquals("OMERO.test",config.getConfigValue("omero.name"));
+    }
+    
     // Helpers
     // =========================================================================
 

@@ -7,6 +7,7 @@
 
 package ome.system;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -16,6 +17,7 @@ import java.util.prefs.Preferences;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
@@ -99,18 +101,16 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
      * properties} for this instance.
      */
     public String getProperty(String key) {
-        return resolvePlaceholder(key, this.mergedProperties);
+        try {
+            return parseStringValue("${"+key+"}", this.mergedProperties, new HashSet<String>());
+        } catch (BeanDefinitionStoreException bdse) {
+            return null;
+        }
     }
 
     public void setProperty(String key, String value) {
         Preferences prefs = Preferences.userRoot().node(this.path);
         prefs.put(key, value);
-    }
-
-    @Override
-    protected void processProperties(ConfigurableListableBeanFactory arg0,
-            Properties arg1) throws BeansException {
-        super.processProperties(arg0, arg1);
     }
 
     public void setPreferences(List<Preference> preferences) {

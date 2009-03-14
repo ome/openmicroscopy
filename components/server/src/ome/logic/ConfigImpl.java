@@ -250,6 +250,8 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
 
         lock.writeLock().lock();
         try {
+            
+            boolean set = false;
 
             // If the value comes from the db, then set it there and return
             if (prefs.checkDatabase(key)) {
@@ -264,11 +266,12 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
                                 "Configuration tabled during modification of : "
                                         + key);
                     }
+                    set = true;
                 }
             }
 
             // Otherwise set it in the preferences.
-            else {
+            if (!set) {
                 prefs.setProperty(key, value);
             }
 
