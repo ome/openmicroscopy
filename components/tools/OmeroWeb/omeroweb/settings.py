@@ -165,3 +165,19 @@ logging.getLogger().addHandler(fileLog)
 # Starting...
 logging.info("Application Started...")
 
+
+# upgrade check:
+# -------------
+# On each startup OMERO.web checks for possible server upgrades
+# and logs the upgrade url at the WARNING level. If you would
+# like to disable the checks, change the following to
+#
+#   if False:
+#
+# For more information, see
+# http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck
+#
+if True:
+    from omero.util.upgrade_check import UpgradeCheck
+    check = UpgradeCheck("web")
+    check.run()
