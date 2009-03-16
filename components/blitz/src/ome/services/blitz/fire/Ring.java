@@ -308,7 +308,9 @@ public class Ring extends _ClusterNodeDisp {
         }
 
         // If we've found a proxy string, use that.
-        if (proxyString != null) {
+        // if (proxyString != null) {
+	// Disabling re-directs for 4.0-RC2
+	if (false) {
             current.ctx.put("omero.routed_from", directProxy);
             Ice.ObjectPrx remote = communicator.stringToProxy(proxyString);
             SessionManagerPrx sessionManagerPrx = SessionManagerPrxHelper
