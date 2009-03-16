@@ -2845,7 +2845,16 @@ class ShareWrapper (BlitzObjectWrapper):
         except:
             return None
     
-    # Owner methods has to be updated because share.details.owner does not exist. Share.owner.
+    def isExpired(self):
+        try:
+            if (self._obj.started.val+self._obj.timeToLive.val)/1000 <= time.time():
+                return True
+            else:
+                return False
+        except:
+            return True
+        
+    # Owner methods had to be updated because share.details.owner does not exist. Share.owner.
     def isOwned(self):
         if self._obj.owner.id.val == self._conn.getEventContext().userId:
             return True

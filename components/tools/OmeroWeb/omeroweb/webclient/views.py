@@ -2482,7 +2482,10 @@ def manage_share(request, action, oid=None, **kwargs):
         template = "omeroweb/share_details.html"
         share.getAllUsers(oid)
         share.getComments(oid)
-        form = ShareCommentForm()
+        if share.share.isExpired():
+            form = None
+        else:
+            form = ShareCommentForm()
         context = {'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
     elif action == 'comment':
         f = ShareCommentForm(data=request.REQUEST.copy())
