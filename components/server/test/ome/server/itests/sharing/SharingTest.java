@@ -647,6 +647,28 @@ public class SharingTest extends AbstractManagedContextTest {
         iQuery.get(Share.class, id);
     }
 
+    @Test(groups = "ticket:1234")
+    public void testThatGetShareReturnsNull() {
+        Experimenter nonMember = loginNewUser();
+        Experimenter owner = loginNewUser();
+        long id = share.createShare("desc",null, null, null, null, true);
+        assertNotNull(share.getShare(id));
+        assertNull(share.getShare(-1));
+        loginUser(nonMember.getOmeName());
+        assertNull(share.getShare(id));
+        assertNull(share.getShare(-1));
+    }
+    
+    public void testDuplicatesArentAllowedInContent() {
+        Experimenter owner = loginNewUser();
+        Dataset d = new Dataset("d");
+        d = iUpdate.saveAndReturnObject(d);
+        long id = share.createShare("desc",null, Arrays.asList(d,d), null, null, true);
+        assertEquals(1, share.getContentSize(id));
+        share.addObject(id, d);
+        assertEquals(1, share.getContentSize(id));
+    }
+    
     // Assertions
     // =========================================================================
 

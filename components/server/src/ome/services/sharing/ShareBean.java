@@ -213,11 +213,10 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     public Session getShare(long sessionId) {
+        Session session = null;
         ShareData data = getShareIfAccessible(sessionId);
-        throwOnNullData(sessionId, data);
-        Session session = shareToSession(data);
-        if (session == null) {
-            throw new ValidationException("No share found: " + sessionId);
+        if (data != null) {
+            session = shareToSession(data);
         }
         return session;
     }

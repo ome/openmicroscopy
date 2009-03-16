@@ -113,15 +113,17 @@ public interface IShare extends ServiceInterface {
     /**
      * Gets a share as a {@link Session} with all related:
      * {@link ome.model.annotations.Annotation comments},
-     * {@link ome.model.meta.Experimenter members}, fully loaded.
+     * {@link ome.model.meta.Experimenter members}, fully loaded. Unlike the
+     * other methods on this interface, if the sessionId is unknown, does not
+     * throw a {@link ValidationException}.
      * 
      * @param sessionId
-     * @return a {@link Session} with id and {@link Details} set. The owner in
+     * @return a {@link Session} with id and {@link Details} set or null.
+     *         The owner in
      *         the Details object is the true owner, and the group in the
      *         Details has all member users linked. {@link Annotation} instances
      *         of the share are linked to the {@link Session}. Missing is a list
      *         of share guests.
-     * @throws ValidationException if no share is found.
      */
     Session getShare(long sessionId);
 
