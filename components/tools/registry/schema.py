@@ -3,7 +3,10 @@
 # OMERO Registry Database Creation
 # Copyright 2007 Glencoe Software, Inc.  All Rights Reserved.
 #
-from pysqlite2 import dbapi2 as sqlite
+try:
+    from pysqlite2 import dbapi2 as sqlite
+except ImportError:
+    import sqlite3 as sqlite
 from pprint import pprint
 import os, sys
 
@@ -27,6 +30,7 @@ try:
         osarch text not null,
         osversion text not null,
 	headers text not null,
+        agent text not null,
         other text not null)""")
     conn.commit()
 finally:

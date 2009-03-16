@@ -3,7 +3,10 @@
 # OMERO Registry Database
 # Copyright 2007 Glencoe Software, Inc.  All Rights Reserved.
 #
-from pysqlite2 import dbapi2 as sqlite
+try:
+    from pysqlite2 import dbapi2 as sqlite
+except ImportError:
+    import sqlite3 as sqlite
 from pprint import pprint
 import os
 

@@ -53,7 +53,7 @@ def os_info(title, query):
 
 
 # This list should always be in sync with the csv method
-applications = ["editor","imagej", "importer","insight","server"]
+applications = ["editor","imagej", "importer","insight","server","web"]
 total_format = "TOTAL        \t%8s"+ "\t%8s"*len(applications)
 where_filter = """WHERE ip not like '10.%%' and ip != '127.0.0.1' and ip not like '134.36.%%' """
 
@@ -61,7 +61,7 @@ def csv(title, col1, data, keys):
 	print ""
 	print title
 	print "="*120
-        print "%-15s\t  EDITOR\t   IMAGEJ\tIMPORTER\t INSIGHT\t  SERVER\t   TOTAL"% col1
+        print "%-15s\t  EDITOR\t  IMAGEJ\tIMPORTER\t INSIGHT\t  SERVER\t     WEB\t   TOTAL"% col1
 	totals = [0 for app in applications]
         for idx in keys:
 		values = []

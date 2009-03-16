@@ -7,12 +7,13 @@
 # 9090/test seems not to work. check with and without slash
 # should do all comparisons by stripping slashes
 
+version = "Beta-4.0-RC2"
 config = {
     'port':9998,
-    'version':'3.0-Beta3',
+    'version':version,
     'agentprefix':'OMERO',
     'redirect':'http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck',
-    'upgrade':'Please upgrade to 3.0-Beta3 See http://trac.openmicroscopy.org.uk/omero for the latest version'
+    'upgrade':'Please upgrade to %s See http://trac.openmicroscopy.org.uk/omero for the latest version' % version
     }
 
 from twisted.application import internet, service
