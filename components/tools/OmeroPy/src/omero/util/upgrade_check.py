@@ -32,7 +32,7 @@ class UpgradeCheck(object):
     >>> uc.isExceptionThrown()
     False
     >>>
-    >>> uc = UpgradeCheck("doctest", url = "http://some-completely-unknown-host.abcd")
+    >>> uc = UpgradeCheck("doctest", url = "http://some-completely-unknown-host.abcd/")
     >>> uc.run()
     >>> uc.isUpgradeNeeded()
     False
@@ -45,7 +45,7 @@ class UpgradeCheck(object):
     #
     DEFAULT_TIMEOUT = 10 * 1000
 
-    def __init__(self, agent, url = "http://upgrade.openmicroscopy.org.uk", version = omero_version, timeout = DEFAULT_TIMEOUT):
+    def __init__(self, agent, url = "http://upgrade.openmicroscopy.org.uk/", version = omero_version, timeout = DEFAULT_TIMEOUT):
         """
         agent   := Name of the agent which is accessing the registry. This will
                    be appended to "OMERO." in order to adhere to the registry
@@ -121,7 +121,7 @@ class UpgradeCheck(object):
                 socket.setdefaulttimeout(old_timeout)
 
         except exceptions.Exception, e:
-            self.log.error(str(e))
+            self.log.error(str(e), exc_info = 0)
             self._set(None, e)
             return
 
