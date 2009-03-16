@@ -43,6 +43,19 @@
             });
         });
     </script>
+    
+    <script>
+    $(document).ready(function () {
+        $(function() { 
+            $("#products li.product").css('width', 110);
+            $("#products li.product").css('height', 90);
+            $('#products img.imgzoom').attr('width', 80);
+            $('#products img.catzoom').attr('width', 80);
+        });
+    })
+
+    </script>
+    
 {% endblock %}
 
 {% block center %}
