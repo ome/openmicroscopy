@@ -23,10 +23,11 @@
 #
 
 from django.core.management import execute_manager
+import sys
+
 try:
     import settings # Assumed to be in the same directory.
 except ImportError:
-    import sys
     sys.stderr.write("Error: Can't find the file 'settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n(If the file settings.py does indeed exist, it's causing an ImportError somehow.)\n" % __file__)
     sys.exit(1)
 
@@ -51,7 +52,6 @@ except Exception, x:
     sys.stderr.write("Upgrade check error: %s" % x)
 
 if not settings.EMAIL_NOTIFICATION:
-    import sys
     sys.stderr.write("Settings.py has not been configured. EmailServerError: The application will not send any emails. Sharing notification is not available.\n" )
 
 if __name__ == "__main__":
