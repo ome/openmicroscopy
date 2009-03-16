@@ -454,6 +454,7 @@ class DataBrowserToolBar
 		bar.add(rollOverButton);
 		bar.add(createDatasetButton);
 		bar.add(reportButton);
+		bar.add(saveButton);
 		bar.add(new JSeparator(JSeparator.VERTICAL));
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
@@ -461,15 +462,11 @@ class DataBrowserToolBar
 		panel.add(itemsPerRow);
 		panel.setToolTipText(itemsPerRow.getToolTipText());
 		bar.add(panel);
-		//bar.add(slideShowView);
-		//bar.add(managementButton);
-		//bar.add(refreshButton);
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(new JSeparator(JSeparator.VERTICAL));
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(slideShowView);
 		bar.add(refreshButton);
-		bar.add(saveButton);
 		return bar;
 	}
 	

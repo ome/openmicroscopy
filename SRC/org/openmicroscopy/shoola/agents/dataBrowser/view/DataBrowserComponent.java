@@ -821,11 +821,11 @@ class DataBrowserComponent
 			writer.createSheet("Thumbnails");
 //			ready to build report
 			BufferedImage thumbnail;
-			int n = model.getBrowser().getSelectedLayout().getImagesPerRow();
+			int n = browser.getSelectedLayout().getImagesPerRow();
 			int row = 0;
 			int col = 0;
-			int w = ThumbnailProvider.THUMB_MAX_WIDTH/2;
-			int h = ThumbnailProvider.THUMB_MAX_HEIGHT/2;
+			int w = ThumbnailProvider.THUMB_MAX_WIDTH;
+			int h = ThumbnailProvider.THUMB_MAX_HEIGHT;
 			int count = 0;
 			long id;
 			String imageName;
@@ -836,14 +836,14 @@ class DataBrowserComponent
 				thumbnail = node.getThumbnail().getFullScaleThumb();
 				writer.addImageToWorkbook(imageName, thumbnail); 
 				writer.writeImage(row, col, w, h, imageName);
-				writer.writeElement(row+3, col, id);
+				writer.writeElement(row+6, col, imageName);
 				if (count < n) {
-					col++;
+					col = col+4;
 				} else {
 					col = 0;
-					row = row+4;
+					row = row+7;
 				}
-				count++;
+				count = count+4;
 			}
 			
 			writer.createSheet("Legend");

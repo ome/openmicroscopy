@@ -37,6 +37,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -156,9 +158,7 @@ class UserProfile
         	passwordNew.requestFocus();
         	return;
         }
-        
-        
-        
+
         if (pass == null || confirm == null || confirm.length() == 0 ||
         	!pass.equals(confirm)) {
         	un = MetadataViewerAgent.getRegistry().getUserNotifier();
@@ -242,8 +242,8 @@ class UserProfile
         content.setBorder(
 				BorderFactory.createTitledBorder("Profile"));
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	
-    	Iterator i = details.keySet().iterator();
+    	Entry entry;
+    	Iterator i = details.entrySet().iterator();
         JLabel label;
         JTextField area;
         String key, value;
@@ -255,8 +255,9 @@ class UserProfile
         while (i.hasNext()) {
             ++c.gridy;
             c.gridx = 0;
-            key = (String) i.next();
-            value = (String) details.get(key);
+            entry = (Entry) i.next();
+            key = (String) entry.getKey();
+            value = (String) entry.getValue();
             if (key.equals(EditorUtil.LAST_NAME) || 
             		key.equals(EditorUtil.EMAIL)) 
             	label = UIUtilities.setTextFont(
@@ -447,14 +448,16 @@ class UserProfile
 	{
 		if (selectedIndex != originalIndex) return true;
 		if (details == null) return false;
-		Iterator i = details.keySet().iterator();
+		Entry entry;
+		Iterator i = details.entrySet().iterator();
 		String key;
 		String value;
 		JTextField field;
 		String v;
 		while (i.hasNext()) {
-			key = (String) i.next();
-			field = items.get(key);
+			entry = (Entry) i.next();
+			key = (String) entry.getKey();
+			field = (JTextField) entry.getValue();
 			v = field.getText();
 			if (v != null) {
 				v = v.trim();
@@ -476,28 +479,22 @@ class UserProfile
 	{
 		ExperimenterData original = (ExperimenterData) model.getRefObject();
     	//Required fields first
-    	//ExperimenterData newOne = new ExperimenterData();
     	JTextField f = items.get(EditorUtil.LAST_NAME);
     	String v = f.getText();
     	if (v == null || v.trim().length() == 0) showRequiredField();
-    	//newOne.setLastName(v);
     	original.setLastName(v);
     	f = items.get(EditorUtil.EMAIL);
     	v = f.getText();
     	if (v == null || v.trim().length() == 0) showRequiredField();
-    	//newOne.setEmail(v);
     	original.setEmail(v);
     	f = items.get(EditorUtil.INSTITUTION);
     	v = f.getText();
     	if (v == null) v = "";
-    	//newOne.setInstitution(v.trim());
     	original.setInstitution(v.trim());
     	f = items.get(EditorUtil.FIRST_NAME);
     	v = f.getText();
     	if (v == null) v = "";
-    	//newOne.setFirstName(v.trim());
-    	//newOne.setId(original.getId());
-    	original.setEmail(v.trim());
+    	original.setFirstName(v.trim());
     	
     	//set the groups
     	if (selectedIndex != originalIndex) {
