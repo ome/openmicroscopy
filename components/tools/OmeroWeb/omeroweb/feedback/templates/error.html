@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{% get_webclient_static_url %}/css/layout.css" type="text/css" />
     <link rel="shortcut icon" href="{% get_webadmin_static_url %}/images/ome.ico" type="image/x-icon" />
     
-    <title>{% trans "Web - Internal Application Error" %}</title>
+    <title>{% trans "Web - Internal Error" %}</title>
     
 </head>
 <body>
@@ -20,8 +20,7 @@
 </h1>
 
 {% block content %}
-    <div><h1>{% trans "Internal Application Error." %}</h1>
-    <p>{{ error }}</p></div>
+    <div><h1>{{ error }}</h1></div>
 {% endblock %}
 
 </div>

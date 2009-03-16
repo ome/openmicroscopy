@@ -75,48 +75,48 @@ class BaseContainer(BaseController):
         if o1_type == "project":
             self.project = self.conn.getProject(o1_id)
             if self.project is None:
-                raise AttributeError("Project does not exist.")
+                raise AttributeError("We are sorry, but that project does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
             if self.project._obj is None:
-                raise AttributeError("Project does not exist.")
+                raise AttributeError("We are sorry, but that project does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
             if o2_type == "dataset":
                 self.dataset = self.conn.getDataset(o2_id)
                 if self.dataset is None:
-                    raise AttributeError("Dataset does not exist.")
+                    raise AttributeError("We are sorry, but that dataset does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
                 if self.dataset._obj is None:
-                    raise AttributeError("Dataset does not exist.")
+                    raise AttributeError("We are sorry, but that dataset does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
                 if o3_type == "image":
                     self.image = self.conn.getImageWithMetadata(o3_id)
                     if self.image is None:
-                        raise AttributeError("Image does not exist.")
+                        raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
                     if self.image._obj is None:
-                        raise AttributeError("Image does not exist.")
+                        raise AttributeError("e are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
         elif o1_type == "dataset":
             self.dataset = self.conn.getDataset(o1_id)
             if self.dataset is None:
-                raise AttributeError("Dataset does not exist.")
+                raise AttributeError("We are sorry, but that dataset does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
             if self.dataset._obj is None:
-                raise AttributeError("Dataset does not exist.")
+                raise AttributeError("We are sorry, but that dataset does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
             if o2_type == "image":
                 self.image = self.conn.getImageWithMetadata(o2_id)
                 if self.image is None:
-                    raise AttributeError("Image does not exist.")
+                    raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
                 if self.image._obj is None:
-                    raise AttributeError("Image does not exist.")
+                    raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
         elif o1_type == "image":
             if metadata:
                 self.image = self.conn.getImageWithMetadata(o1_id)
                 if self.image is None:
-                    raise AttributeError("Image does not exist.")
+                    raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
                 if self.image._obj is None:
-                    raise AttributeError("Image does not exist.")
+                    raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
                 else:
                     self.image._loadPixels()
             else:
                 self.image = self.conn.getImage(o1_id)
                 if self.image is None:
-                    raise AttributeError("Image does not exist.")
+                    raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
                 if self.image._obj is None:
-                    raise AttributeError("Image does not exist.")
+                    raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
         elif o1_type == "tag":
             self.tag = self.conn.getTagAnnotation(o1_id)
         elif o1_type == "url":

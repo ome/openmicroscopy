@@ -56,12 +56,12 @@ class BaseShare(BaseController):
         if conn_share is None:
             if share_id: 
                 self.share = self.conn.getShare(share_id)
-                if not self.share.active and self.share.owner.id.val != self.conn.getUser().id.val:
-                    raise AttributeError("%s is not active." % self.share.getShareType())
                 if self.share is None:
-                    raise AttributeError("Share does not exist.")
+                    raise AttributeError("We are sorry, but that share either does not exist, or if it does, you have not been invited to see it. Contact the user you think might own this share for more information.")
                 if self.share._obj is None:
-                    raise AttributeError("Share does not exist.")
+                    raise AttributeError("We are sorry, but that share either does not exist, or if it does, you have not been invited to see it. Contact the user you think might own this share for more information.")
+                if self.share is not None and not self.share.active and not self.share.isOwned():
+                    raise AttributeError("%s is not active and cannot be visible. Please contact the user you think might own this share for more information." % self.share.getShareType())
                 self.eContext['breadcrumb'] = [ menu.title(), "Share", action ]
             elif action:
                 self.eContext['breadcrumb'] = ["Basket", action ]
@@ -70,12 +70,12 @@ class BaseShare(BaseController):
         else:
             self.conn_share = conn_share
             self.share = self.conn.getShare(share_id)
-            if not self.share.active:
-                raise AttributeError("%s is not active." % self.share.getShareType())
+            if self.share is not None and not self.share.active and not self.share.isOwned:
+                raise AttributeError("%s is not active and cannot be visible. Please contact the user you think might own this share for more information." % self.share.getShareType())
             if self.share is None:
-                raise AttributeError("Share does not exist.")
+                raise AttributeError("We are sorry, but that share either does not exist, or if it does, you have not been invited to see it. Contact the user you think might own this share for more information.")
             if self.share._obj is None:
-                raise AttributeError("Share does not exist.")
+                raise AttributeError("We are sorry, but that share either does not exist, or if it does, you have not been invited to see it. Contact the user you think might own this share for more information.")
 
     def createShare(self, host, blitz_id, imageInBasket, message, members, enable, expiration=None):
         # only for python 2.5

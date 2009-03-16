@@ -45,15 +45,15 @@ class BaseAnnotation(BaseController):
             if o_type == "comment":
                 self.comment = self.conn.getCommentAnnotation(long(oid))
                 if self.comment is None:
-                    raise AttributeError("Comment does not exist.")
+                    raise AttributeError("We are sorry, but that comment does not exist, or if it does, you have no permission to see it.")
             elif o_type == "url":
                 self.url = self.conn.getUriAnnotation(long(oid))
                 if self.url is None:
-                    raise AttributeError("Url does not exist.")
+                    raise AttributeError("We are sorry, but that url does not exist, or if it does, you have no permission to see it.")
             elif o_type == "tag":
                 self.tag = self.conn.getTagAnnotation(long(oid))
                 if self.tag is None:
-                    raise AttributeError("Tag does not exist.")
+                    raise AttributeError("We are sorry, but that tag does not exist, or if it does, you have no permission to see it.")
     
     def buildBreadcrumb(self, action):
         if self.comment is not None:

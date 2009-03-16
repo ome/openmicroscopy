@@ -1055,7 +1055,6 @@ class BlitzGateway (threading.Thread):
     
     def getShare (self, oid):
         sh_serv = self.getShareService()
-        sh = None
         sh = sh_serv.getShare(long(oid))
         if sh is not None:
             return ShareWrapper(self, sh)
@@ -1891,9 +1890,6 @@ def safeCallWrap (self, attr, f):
     def wrapped (*args, **kwargs):
         try:
             return f(*args, **kwargs)
-        except omero.ValidationException, x:
-            logger.error(x.message)
-            raise AttributeError(x.message)
         except omero.ResourceError, x:
             logger.error(x.message)
             raise AttributeError(x.message)
