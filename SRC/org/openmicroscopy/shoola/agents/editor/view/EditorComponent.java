@@ -303,6 +303,7 @@ class EditorComponent
 			// Try to save locally... return success. 
 			boolean b = model.saveLocalFile();
 			if (b) {
+				model.updateNameSpace(); // refresh namespace of saved file
 				UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("File Saved", "The File has been saved locally.");
 			}
@@ -316,6 +317,7 @@ class EditorComponent
 			toEdit = new File(fileName);
 		} 
 		model.fireFileSaving(toEdit);
+		model.updateNameSpace(); // refresh namespace of saved file
 		return true;
 		//return false;
 	}
