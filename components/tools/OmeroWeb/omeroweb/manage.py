@@ -47,7 +47,7 @@ try:
     check = UpgradeCheck("web")
     check.run()
     if check.isUpgradeNeeded():
-        sys.stderr.write("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads. ")
+        sys.stderr.write("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
 except Exception, x:
     sys.stderr.write("Upgrade check error: %s" % x)
 
