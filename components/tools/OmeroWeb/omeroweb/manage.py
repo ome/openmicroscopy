@@ -30,6 +30,26 @@ except ImportError:
     sys.stderr.write("Error: Can't find the file 'settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n(If the file settings.py does indeed exist, it's causing an ImportError somehow.)\n" % __file__)
     sys.exit(1)
 
+# upgrade check:
+# -------------
+# On each startup OMERO.web checks for possible server upgrades
+# and logs the upgrade url at the WARNING level. If you would
+# like to disable the checks, change the following to
+#
+#   if False:
+#
+# For more information, see
+# http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck
+#
+try:
+    from omero.util.upgrade_check import UpgradeCheck
+    check = UpgradeCheck("web")
+    check.run()
+    if check.isUpgradeNeeded():
+        sys.stderr.write("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads")
+except Exception, x:
+    sys.stderr.write("Upgrade check error: %s" % x)
+
 if not settings.EMAIL_NOTIFICATION:
     import sys
     sys.stderr.write("Settings.py has not been configured. EmailServerError: The application will not send any emails. Sharing notification is not available.\n" )
