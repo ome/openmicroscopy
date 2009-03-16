@@ -206,7 +206,3 @@ class BaseShare(BaseController):
 
         self.imgSize = len(self.imageInShare)
     
-# ### Test code below this line ###
-
-if __name__ == '__main__':
-    print "share"

@@ -138,8 +138,8 @@ DEFAULT_USER = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__),
 
 # LOGS
 # to change the log place, please specify new path for LOGDIR.
-# LOGDIR = os.path.join(os.path.dirname(__file__), 'log')
-LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), 'var'), 'log')
+LOGDIR = os.path.join(os.path.dirname(__file__), 'log')
+# LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), 'var'), 'log')
 
 if not os.path.isdir(LOGDIR):
     try:
@@ -165,7 +165,6 @@ logging.getLogger().addHandler(fileLog)
 # Starting...
 logging.info("Application Started...")
 
-
 # upgrade check:
 # -------------
 # On each startup OMERO.web checks for possible server upgrades
@@ -177,7 +176,11 @@ logging.info("Application Started...")
 # For more information, see
 # http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck
 #
-if True:
+try:
     from omero.util.upgrade_check import UpgradeCheck
     check = UpgradeCheck("web")
     check.run()
+    if check.isUpgradeNeeded():
+        logging.info("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads")
+except Exception, x:
+    logging.info("Upgrade check error: %s" % x)

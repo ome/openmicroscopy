@@ -2085,10 +2085,7 @@ class BlitzObjectWrapper (object):
                 return None
     
     def isOwned(self):
-        if self._obj.details.owner.id.val == self._conn.getEventContext().userId:
-            return True
-        else:
-            return False
+        return (self._obj.details.owner.id.val == self._conn.getEventContext().userId)
     
     def isEditable(self):
         return (self._conn.getEventContext().userId == self._obj.details.owner.id.val and self._obj.details.permissions.isUserWrite())
