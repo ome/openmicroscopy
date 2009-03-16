@@ -54,10 +54,10 @@ public abstract class ShareStore {
         data.guests = new ArrayList<String>(guests);
         data.enabled = enabled;
         data.objectMap = map(objects);
-        data.objectList = list(objects);
+        data.objectList = list(data.objectMap);
 
-        List<ShareItem> shareItems = asItems(share.getId(), objects, members,
-                guests);
+        List<ShareItem> shareItems = asItems(share.getId(),
+                data.objectList, members, guests);
 
         doSet(share, data, shareItems);
         return data;
@@ -170,13 +170,13 @@ public abstract class ShareStore {
     // =========================================================================
 
     private <T extends IObject> List<ShareItem> asItems(long share,
-            List<T> items, List<Long> members, List<String> guests) {
+            List<Obj> items, List<Long> members, List<String> guests) {
         List<ShareItem> shareItems = new ArrayList<ShareItem>(items.size());
-        for (T item : items) {
+        for (Obj item : items) {
             ShareItem shareItem = new ShareItem();
             shareItem.share = share;
-            shareItem.id = item.getId();
-            shareItem.type = item.getClass().getName();
+            shareItem.id = item.id;
+            shareItem.type = item.type;
             shareItem.members = new ArrayList<Long>(members);
             shareItem.guests = new ArrayList<String>(guests);
             shareItems.add(shareItem);
@@ -202,6 +202,9 @@ public abstract class ShareStore {
         return shareItems;
     }
 
+    /**
+     * Treats the List<Long> of ids as a set by only adding each once.
+     */
     private <T extends IObject> Map<String, List<Long>> map(List<T> items) {
         Map<String, List<Long>> map = new HashMap<String, List<Long>>();
         for (T t : items) {
@@ -211,20 +214,25 @@ public abstract class ShareStore {
                 ids = new ArrayList<Long>();
                 map.put(kls, ids);
             }
-            ids.add(t.getId());
+            if (!ids.contains(t.getId())) {
+                ids.add(t.getId());
+            }
         }
         return map;
     }
 
-    private <T extends IObject> List<Obj> list(List<T> items) {
+    private List<Obj> list(Map<String, List<Long>> items) {
         List<Obj> objList = new ArrayList<Obj>();
-        for (T t : items) {
-            Obj obj = new Obj();
-            String kls = t.getClass().getName();
-            obj.type = kls;
-            obj.id = t.getId();
-            objList.add(obj);
+        for (String key : items.keySet()) {
+            List<Long> ids = items.get(key);
+            for (Long id : ids) {
+                Obj obj = new Obj();
+                obj.type = key;
+                obj.id = id; 
+                objList.add(obj);
+            }
         }
         return objList;
     }
+
 }
