@@ -1728,7 +1728,7 @@ class ImViewerModel
 	boolean isSameSettings(RndProxyDef def)
 	{
 		if (currentRndControl == null) return true;
-		return currentRndControl.isSameSettings(def);
+		return currentRndControl.isSameSettings(def, false);
 	}
     /**
      * Sets the projected image for preview.

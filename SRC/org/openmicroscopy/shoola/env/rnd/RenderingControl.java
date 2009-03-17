@@ -655,7 +655,7 @@ public interface RenderingControl
     	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
-     * Copies rendering settings from the original image to the proejected
+     * Copies rendering settings from the original image to the projected
      * one.
      * 
      * @param rndToCopy The rendering settings to copy.
@@ -680,9 +680,13 @@ public interface RenderingControl
 	 * Returns <code>true</code> if the passed rendering settings are the same
 	 * than the current one <code>false</code> otherwise.
 	 * 
-	 * @param def The original settings. Mustn't be <code>null</code>.
+	 * @param def 		 The original settings. Mustn't be <code>null</code>.
+	 * @param checkPlane Pass <code>true</code> to take into account 
+	 * 					 the z-section and timepoint, <code>false</code> 
+	 * 					 otherwise.
+	 * 
 	 * @return See above.
 	 */
-    public boolean isSameSettings(RndProxyDef def);
+    public boolean isSameSettings(RndProxyDef def, boolean checkPlane);
     
 }

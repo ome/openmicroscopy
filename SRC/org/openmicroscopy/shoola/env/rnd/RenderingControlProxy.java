@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.imageio.ImageIO;
 
 
@@ -1439,13 +1438,15 @@ class RenderingControlProxy
 
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#isSameSettings(RndProxyDef)
+	 * @see RenderingControl#isSameSettings(RndProxyDef, boolean)
 	 */
-	public boolean isSameSettings(RndProxyDef def)
+	public boolean isSameSettings(RndProxyDef def, boolean checkPlane)
 	{
 		if (def == null) return false;
-		if (def.getDefaultZ() != getDefaultZ()) return false;
-		if (def.getDefaultT() != getDefaultT()) return false;
+		if (checkPlane) {
+			if (def.getDefaultZ() != getDefaultZ()) return false;
+			if (def.getDefaultT() != getDefaultT()) return false;
+		}
 		if (def.getBitResolution() != getBitResolution()) return false;
 		if (def.getCdEnd() != getCodomainEnd()) return false;
 		if (def.getCdStart() != getCodomainStart()) return false;
