@@ -725,6 +725,8 @@ def my_account(request, action=None, **kwargs):
             defaultGroup = request.REQUEST['default_group']
             try:
                 password = request.REQUEST['password'].encode('utf-8')
+                if len(password) == 0:
+                    password = None
             except:
                 password = None
             myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
