@@ -110,7 +110,11 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
 
     public void setProperty(String key, String value) {
         Preferences prefs = Preferences.userRoot().node(this.path);
-        prefs.put(key, value);
+        if (value != null) {
+            prefs.put(key, value);
+        } else {
+            prefs.remove(key);
+        }
     }
 
     public void setPreferences(List<Preference> preferences) {
