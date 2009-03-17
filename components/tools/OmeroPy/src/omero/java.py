@@ -15,24 +15,14 @@ def makeVar(key, env):
         if os.environ.has_key(key):
                 env[key] = os.environ[key]
 
-def run(args,\
-        use_exec = False,\
+def cmd(args,\
         java = "java",\
         xargs = None,\
         chdir = None,\
         debug = None,\
         debug_string = DEFAULT_DEBUG):
     """
-    Execute a Java process, either via subprocess waiting for the process to finish and
-    returning the output or if use_exec is True, via os.execvpe with the current environment.
-
-    -X style arguments for the Java process can be set either via the xargs argument
-    or if unset, the JAVA_OPTS environment variable will be checked. Note: shlex.split()
-    is called on the JAVA_OPTS value and so bash-style escaping can be used to protect
-    whitespaces.
-
-    Debugging can more simply be turned on by passing True for the debug argument.
-    If more control over the debugging configuration is needed, pass debug_string.
+    Defines the command to be used by run or popen.
     """
     # Convert strings to an array for appending
     if isinstance(java,str):
@@ -65,6 +55,28 @@ def run(args,\
     # Add the actual arguments now
     java += args
 
+    return java
+
+def run(args,\
+        use_exec = False,\
+        java = "java",\
+        xargs = None,\
+        chdir = None,\
+        debug = None,\
+        debug_string = DEFAULT_DEBUG):
+    """
+    Execute a Java process, either via subprocess waiting for the process to finish and
+    returning the output or if use_exec is True, via os.execvpe with the current environment.
+
+    -X style arguments for the Java process can be set either via the xargs argument
+    or if unset, the JAVA_OPTS environment variable will be checked. Note: shlex.split()
+    is called on the JAVA_OPTS value and so bash-style escaping can be used to protect
+    whitespaces.
+
+    Debugging can more simply be turned on by passing True for the debug argument.
+    If more control over the debugging configuration is needed, pass debug_string.
+    """
+    java = cmd(args, java, xargs, chdir, debug, debug_string)
     if use_exec:
         env = os.environ
         if chdir:
@@ -75,7 +87,23 @@ def run(args,\
         else:
              os.execvpe(java[0], java, env)
     else:
-        if not chdir:
-            chdir = os.getcwd()
-        output = subprocess.Popen(java, stdout=subprocess.PIPE, cwd=chdir, env = os.environ).communicate()[0]
+        p = popen(args, java, xargs, chdir, debug, debug_string)
+        output = p.communicate()[0]
         return output
+
+def popen(args,\
+        java = "java",\
+        xargs = None,\
+        chdir = None,\
+        debug = None,\
+        debug_string = DEFAULT_DEBUG,\
+        stdout = subprocess.PIPE):
+    """
+    Creates a subprocess.Popen object and returns it. Uses cmd() internally to create
+    the Java command to be executed. This is the same logic as run(use_exec=False) but
+    the Popen is returned rather than the stdout.
+    """
+    java = cmd(args, java, xargs, chdir, debug, debug_string)
+    if not chdir:
+        chdir = os.getcwd()
+    return subprocess.Popen(java, stdout=stdout, cwd=chdir, env = os.environ)

@@ -26,7 +26,8 @@ class ImportControl(BaseControl):
         log4j = "-Dlog4j.configuration=%s" % ( client_dir / "log4j.properties" )
         classpath = [ file.abspath() for file in client_dir.files("*.jar") ]
         xargs = [ log4j, "-Xmx256M", "-cp", os.pathsep.join(classpath) ]
-        omero.java.run(self.command + args.args, debug=False, xargs = xargs, use_exec = False)
+        p = omero.java.popen(self.command + args.args, debug=False, xargs = xargs)
+        self.ctx.rv = p.wait()
 
     def help(self, args = None):
         self._run() # Prints help by default
