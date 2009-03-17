@@ -457,11 +457,11 @@ class UserProfile
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			key = (String) entry.getKey();
-			field = (JTextField) entry.getValue();
+			field = items.get(key);
 			v = field.getText();
 			if (v != null) {
 				v = v.trim();
-				value = (String) details.get(key);
+				value = (String) entry.getValue();
 				if (value != null && !v.equals(value))
 					return true;
 			}
