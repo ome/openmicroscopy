@@ -334,6 +334,14 @@ public class Ring extends _ClusterNodeDisp {
 
     public void assertNodes(Set<String> nodeUuids) {
         Set<String> managers = knownManagers();
+        String redirect = getRedirect();
+
+        // First remove any redirect so that new sessions
+        // won't be created on the to-be-closed node.
+        if (! nodeUuids.contains(redirect)) {
+            initializeRedirect(null);
+        }
+        
         for (String manager : managers) {
             if (!nodeUuids.contains(manager)) {
                 // Also verify this is not ourself, since
@@ -453,9 +461,9 @@ public class Ring extends _ClusterNodeDisp {
     }
 
     /**
-     * Set the new redirect value if null, or 
-     * if the uuid is null or empty, then the existing redirect will be
-     * removed. Otherwise the value is set if it is currently missing.
+     * Set the new redirect value if null, or if the uuid is null or empty, then
+     * the existing redirect will be removed. Otherwise the value is set if it
+     * is currently missing.
      */
     public boolean initializeRedirect(final String managerUuid) {
         return (Boolean) executor.execute(principal, new Executor.SimpleWork(
