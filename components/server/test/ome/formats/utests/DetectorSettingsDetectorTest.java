@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import ome.formats.LSID;
+import ome.util.LSID;
 import ome.formats.OMEROMetadataStore;
 import ome.model.acquisition.Detector;
 import ome.model.acquisition.DetectorSettings;

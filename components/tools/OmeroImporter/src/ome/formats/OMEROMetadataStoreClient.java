@@ -539,7 +539,7 @@ public class OMEROMetadataStoreClient
     }
     
     /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#getSourceObject(ome.formats.LSID)
+     * @see ome.formats.model.IObjectContainerStore#getSourceObject(ome.util.LSID)
      */
     public IObject getSourceObject(LSID LSID)
     {
@@ -566,7 +566,7 @@ public class OMEROMetadataStoreClient
     }
     
     /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#hasReference(ome.formats.LSID, ome.formats.LSID)
+     * @see ome.formats.model.IObjectContainerStore#hasReference(ome.util.LSID, ome.util.LSID)
      */
     public boolean hasReference(LSID source, LSID target)
     {
