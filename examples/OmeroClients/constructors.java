@@ -12,13 +12,8 @@ public class constructors {
     public static void main(String args[]) {
 
         Image image = new ImageI();
-        Dataset dataset = new DatasetI();
-        /* FIXME DatasetImageLink link = */dataset.linkImage(image);
-
-        //FIXME Iterator<DatasetI> it = image.iterateDatasetLinks();
-        //while (it.hasNext()) {
-        //    it.next().getName();
-        //}
+        Dataset dataset = new DatasetI(1L, false);
+        dataset.linkImage(image);
 
     }
 

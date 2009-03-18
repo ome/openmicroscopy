@@ -11,12 +11,12 @@ public class iterators {
 
         Image image = new ImageI();
         Dataset dataset = new DatasetI();
-        /*DatasetImageLink link = */dataset.linkImage(image);
+        DatasetImageLink link = dataset.linkImage(image);
 
-        //Iterator<DatasetI> it = image.iterateDatasetLinks();
-        //while (it.hasNext()) {
-        //    it.next().getName();
-        //}
+        Iterator<DatasetI> it = image.iterateDatasetLinks();
+        while (it.hasNext()) {
+            it.next().getName();
+        }
 
     }
 

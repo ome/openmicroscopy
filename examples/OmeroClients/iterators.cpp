@@ -8,7 +8,7 @@ int main() {
 
     ImageIPtr image = new ImageI();
     DatasetIPtr dataset = new DatasetI();
-    /*DatasetImageLinkI link = */dataset->linkImage(image);
+    DatasetImageLinkI link = dataset->linkImage(image);
 
     omero::model::ImageDatasetLinksSeq seq = image->copyDatasetLinks();
     ImageDatasetLinksSeq::iterator beg = seq.begin();

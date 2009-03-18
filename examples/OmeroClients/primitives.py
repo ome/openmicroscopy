@@ -1,5 +1,6 @@
-import omero
+from omero.rtypes import *
 
-nulled = None
-empty = omero.RString() # Ice will send as ""
-initialized = omero.RString("value")
+s = rstring("value")
+b = rbool(True)
+l = rlong(1)
+i = rint(1)
