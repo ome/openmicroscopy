@@ -514,6 +514,8 @@ def manage_experimenter(request, action, eid=None, **kwargs):
             otherGroups = request.POST.getlist('other_groups')
             try:
                 password = request.REQUEST['password'].encode('utf-8')
+                if len(password) == 0:
+                    password = None
             except:
                 password = None
             controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution, password)
