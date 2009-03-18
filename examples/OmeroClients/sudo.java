@@ -11,7 +11,7 @@ public class sudo {
     public static void main(String args[]) throws Exception {
 
         omero.client client = new omero.client(args);
-        omero.client sudoClient = new omero.client();
+        omero.client sudoClient = new omero.client(args);
 	try {
             ServiceFactoryPrx sf = client.createSession("root", "ome");
             ISessionPrx sessionSvc = sf.getSessionService();
