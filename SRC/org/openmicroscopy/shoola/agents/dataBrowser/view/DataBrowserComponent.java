@@ -807,12 +807,14 @@ class DataBrowserComponent
 	{
 		if (!isImagesModel()) return;
 		Browser browser = model.getBrowser();
-		List<ImageNode> nodes = browser.getVisibleImageNodes();
+		List<ImageNode> l = browser.getVisibleImageNodes();
+		
 		UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-		if (nodes == null || nodes.size() == 0) {
-			un.notifyInfo("Create Report", "No images to save");
+		if (l == null || l.size() == 0) {
+			un.notifyInfo("Save Thumbnails", "No images to save");
 			return;
 		}
+		List<ImageNode> nodes = model.sortCollection(l);
 		Iterator<ImageNode> i = nodes.iterator();
 		ImageNode node;
 		try {
@@ -827,11 +829,9 @@ class DataBrowserComponent
 			int w = ThumbnailProvider.THUMB_MAX_WIDTH;
 			int h = ThumbnailProvider.THUMB_MAX_HEIGHT;
 			int count = 0;
-			long id;
 			String imageName;
 			while (i.hasNext()) {
 				node = i.next();
-				id = ((DataObject) node.getHierarchyObject()).getId();
 				imageName = node.toString();
 				thumbnail = node.getThumbnail().getFullScaleThumb();
 				writer.addImageToWorkbook(imageName, thumbnail); 
@@ -841,9 +841,10 @@ class DataBrowserComponent
 					col = col+4;
 				} else {
 					col = 0;
+					count = -1;
 					row = row+7;
 				}
-				count = count+4;
+				count++;
 			}
 			
 			writer.createSheet("Legend");
