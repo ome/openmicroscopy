@@ -69,12 +69,9 @@ public class ColourListRenderer
 	
 	/** Border colour of the cell when the icon is not selected. */
 	private Border emptyBorder;
-		
-	
-	
+
 	/**
-	 * Creates a new instance.
-     * Sets the background to opaque.
+	 * Creates a new instance. Sets the background to opaque.
 	 */
 	public ColourListRenderer()
 	{
@@ -94,7 +91,9 @@ public class ColourListRenderer
 	public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean hasFocus) 
 	{
+		if (value == null) return this;
 		Object [] array = (Object[]) value;
+		if (array.length != 2) return this;
 		Color c = (Color) array[0];
 		if (c != null) 
 			icon.setColour(new Color(c.getRed(), c.getGreen(), c.getBlue()));

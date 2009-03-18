@@ -140,8 +140,8 @@ public class HistogramPlot
 	{
 		if (newLegends == null || newData == null || newColours == null || 
 			newLegends.size() != newData.size() && 
-			newLegends.size() != newColours.size() || 
-			newLegends.size() == 0 || bins < 1)
+			newLegends.size() != newColours.size())// || 
+			//newLegends.size() == 0 || bins < 1)
 			throw new IllegalArgumentException("Mismatch between argument " +
 						"length");
 		this.title = title;

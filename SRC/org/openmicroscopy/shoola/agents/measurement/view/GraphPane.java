@@ -33,12 +33,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Map.Entry;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -54,9 +55,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
 import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
-import org.openmicroscopy.shoola.util.ui.graphutils.ScatterPlot;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
-
 import pojos.ChannelData;
 
 /** 
@@ -129,7 +128,7 @@ class GraphPane
 	private HistogramPlot	histogramChart;
 	
 	/** The state of the Graph pane. */
-	private int				state= READY;
+	private int				state = READY;
 	
 	/** Reference to the view.*/
 	private MeasurementViewerUI 					view;
@@ -170,12 +169,14 @@ class GraphPane
 	private double channelMinValue()
 	{
 		Map channels = model.getActiveChannels();
-		Iterator<Integer> i = channels.keySet().iterator();
+		Entry entry;
+		Iterator i = channels.entrySet().iterator();
 		double value = 0;
 		int channel;
 		while (i.hasNext())
 		{
-			channel = i.next();
+			entry = (Entry) i.next();
+			channel = (Integer) entry.getKey();
 			value = Math.min(value, model.getMetadata(channel).getGlobalMin());
 		}
 		return value;
@@ -189,12 +190,14 @@ class GraphPane
 	private double channelMaxValue()
 	{
 		Map channels = model.getActiveChannels();
-		Iterator<Integer> i = channels.keySet().iterator();
+		Entry entry;
+		Iterator i = channels.entrySet().iterator();
 		double value = 0;
 		int channel;
 		while (i.hasNext())
 		{
-			channel = i.next();
+			entry = (Entry) i.next();
+			channel = (Integer) entry.getKey();
 			value = Math.max(value, model.getMetadata(channel).getGlobalMax());
 		}
 		return value;
@@ -205,22 +208,18 @@ class GraphPane
 	 */
 	private void handleSliderReleased()
 	{
-		if(zSlider == null || tSlider == null )
-			return;
-		if(coord==null)
-			return;
-		if(state==ANALYSING)
-			return;
-		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
-		if(coord.equals(thisCoord))
-			return;
-		if(!pixelStats.containsKey(thisCoord))
-			return;
+		if (zSlider == null || tSlider == null) return;
+		if (coord == null) return;
+		if (state == ANALYSING) return;
+		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, 
+				tSlider.getValue()-1);
+		if (coord.equals(thisCoord)) return;
+		if (!pixelStats.containsKey(thisCoord)) return;
 	
 		state = ANALYSING;
-		this.buildGraphsAndDisplay();
-		state=READY;
-		if(shape!=null)
+		buildGraphsAndDisplay();
+		state = READY;
+		if (shape!=null)
 			view.selectFigure(shape.getFigure());
 	}
 	
@@ -275,9 +274,129 @@ class GraphPane
 		centrePanel.add(zSlider);
 		centrePanel.add(Box.createHorizontalStrut(5));
 		centrePanel.add(mainPanel);
-		this.add(centrePanel);
-		this.add(tSlider);
+		add(centrePanel);
+		add(tSlider);
+	}
+	
+	
+	/**
+	 * Draws the current data as a line plot in the graph.
+	 * 
+	 * @param title 			The graph title.
+	 * @param data 				The data to render.
+	 * @param channelNames 		The channel names.
+	 * @param channelColours	The channel colours.
+	 * @return See above.
+	 */
+	private LinePlot drawLineplot(String title,  List<String> channelNames, 
+			List<double[][]> data, List<Color> channelColours)
+	{
+		LinePlot plot = new LinePlot(title, channelNames, data, 
+			channelColours, channelMinValue(), channelMaxValue());
+		plot.setYAxisName("Intensity");
+		plot.setXAxisName("Pixel");
+		return plot;
+	}
+	
+	/**
+	 * Draws the current data as a histogram in the graph.
+	 * 
+	 * @param title 			The graph title.
+	 * @param data 				The data to render.
+	 * @param channelNames 		The channel names.
+	 * @param channelColours	The channel colours.
+	 * @param bins 				The number of bins in the histogram.
+	 * @return See above.
+	 */
+	private HistogramPlot drawHistogram(String title,  List<String> channelNames, 
+			List<double[]> data, List<Color> channelColours, int bins)
+	{
+		HistogramPlot plot = new HistogramPlot(title, channelNames, data, 
+			channelColours, bins, channelMinValue(), channelMaxValue());
+		plot.setXAxisName("Intensity");
+		plot.setYAxisName("Frequency");
+		return plot;
+	}
+	
+
+	/**
+	 * The method builds the graphs from the data that was constructed in the
+	 * display analysis method. This method should be called from either the 
+	 * display analysis method or the changelistener which uses the same ROI 
+	 * data generated in the displayAnalysis method.
+	 */
+	private void buildGraphsAndDisplay()
+	{
+		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
+		Map<Integer, double[]> data = pixelStats.get(coord);
+		if (data == null) return;
+		shape = shapeMap.get(coord);
+		double[][] dataXY;
+		Color c;
+		int channel;
+		List<double[]> channelData = new ArrayList<double[]>();
+		List<double[][]> channelXYData = new ArrayList<double[][]>();
+		channelName.clear();
+		channelColour.clear();
+		channelXYData.clear();
+		channelData.clear();
+
+		ChannelData cData;
+		List<ChannelData> metadata = model.getMetadata();
+		Iterator<ChannelData> j = metadata.iterator();
+		double[] values;
+		while (j.hasNext()) {
+			cData = j.next();
+			channel = cData.getIndex();
+			if (model.isChannelActive(channel)) 
+			{
+				cData = model.getMetadata(channel);
+				if (cData != null)
+				channelName.add(cData.getChannelLabeling());
+				c = model.getActiveChannelColor(channel);
+				if (c == null) c = Color.WHITE;
+				channelColour.add(c);
+				values = data.get(channel);
+				if (values != null && values.length != 0) {
+					channelData.add(values);
+					
+					if (lineProfileFigure(shape)) {
+						dataXY = new double[2][values.length];
+						for (int i = 0 ; i < values.length ; i++)
+						{
+							dataXY[0][i] = i;
+							dataXY[1][i] = values[i];
+						}
+						channelXYData.add(dataXY);
+					}
+				}
+				
+			}
+		}
+		mainPanel.removeAll();
 		
+		lineProfileChart = null;
+		histogramChart = null;
+		if (lineProfileFigure(shape))
+			lineProfileChart = drawLineplot("Line Profile", 
+					channelName, channelXYData, channelColour);
+		histogramChart = drawHistogram("Histogram", channelName, 
+				channelData, channelColour, 1001);
+			
+		if (lineProfileChart == null && histogramChart !=null)
+		{
+			mainPanel.setLayout(new BorderLayout());
+			mainPanel.add(histogramChart.getChart(), BorderLayout.CENTER);
+		}
+		
+		if (lineProfileChart != null && histogramChart !=null)
+		{
+			mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+			mainPanel.add(lineProfileChart.getChart());
+			mainPanel.add(histogramChart.getChart());
+		}
+		mainPanel.validate();
+		mainPanel.repaint();
 	}
 	
 	/**
@@ -331,34 +450,41 @@ class GraphPane
 		if (ROIStats == null) return;
 		shapeStatsList = new HashMap<Coord3D, Map<StatsType, Map>>();
 		pixelStats = new HashMap<Coord3D, Map<Integer, double[]>>();
-		Iterator<ROIShape> shapeIterator  = ROIStats.keySet().iterator();
 		shapeMap = new HashMap<Coord3D, ROIShape>();
 		channelName = new ArrayList<String>();
 		channelColour = new ArrayList<Color>();
+		Entry entry;
+		Iterator i  = ROIStats.entrySet().iterator();
+		
 	
-		int minZ=Integer.MAX_VALUE, maxZ=Integer.MIN_VALUE;
-		int minT=Integer.MAX_VALUE, maxT=Integer.MIN_VALUE;
-		while(shapeIterator.hasNext())
+		int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
+		int minT = Integer.MAX_VALUE, maxT = Integer.MIN_VALUE;
+		
+		Coord3D c3D;
+		Map<StatsType, Map> shapeStats;
+		Map<Integer, double[]> data;
+		while (i.hasNext())
 		{
-			shape = (ROIShape) shapeIterator.next();
-			minT = Math.min(minT, shape.getCoord3D().getTimePoint());
-			maxT = Math.max(maxT, shape.getCoord3D().getTimePoint());
-			minZ = Math.min(minZ, shape.getCoord3D().getZSection());
-			maxZ = Math.max(maxZ, shape.getCoord3D().getZSection());
-			Map<StatsType, Map> shapeStats;
-			Map<Integer, double[]> data;
+			entry = (Entry) i.next();
+			shape = (ROIShape) entry.getKey();
+			c3D = shape.getCoord3D();
+			minT = Math.min(minT, c3D.getTimePoint());
+			maxT = Math.max(maxT, c3D.getTimePoint());
+			minZ = Math.min(minZ, c3D.getZSection());
+			maxZ = Math.max(maxZ, c3D.getZSection());
 			
-			shapeMap.put(shape.getCoord3D(), shape);
+			
+			shapeMap.put(c3D, shape);
 			if (shape.getFigure() instanceof MeasureTextFigure)
 				return;
 		
 			shapeStats = AnalysisStatsWrapper.convertStats(
-											(Map) ROIStats.get(shape));
-			shapeStatsList.put(shape.getCoord3D(), shapeStats);
+											(Map) entry.getValue());
+			shapeStatsList.put(c3D, shapeStats);
 
 	
 			data = shapeStats.get(StatsType.PIXELDATA);
-			pixelStats.put(shape.getCoord3D(), data);
+			pixelStats.put(c3D, data);
 		}
 		maxZ = maxZ+1;
 		minZ = minZ+1;
@@ -375,178 +501,5 @@ class GraphPane
 
 		buildGraphsAndDisplay();
 	}
-
-	/**
-	 * The method builds the graphs from the data that was constructed in the
-	 * display analysis method. This method should be called from either the 
-	 * display analysis method or the changelistener which uses the same ROI 
-	 * data generated in the displayAnalysis method.
-	 */
-	private void buildGraphsAndDisplay()
-	{
-		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
-		Map<Integer, double[]> data = pixelStats.get(coord);
-		if (data == null) return;
-		shape = shapeMap.get(coord);
-		double[] dataY;
-		double[][] dataXY;
-		Color c;
-		int channel;
-		List<double[]> channelData = new ArrayList<double[]>();
-		List<double[][]> channelXYData = new ArrayList<double[][]>();
-		channelName.clear();
-		channelColour.clear();
-		channelXYData.clear();
-		channelData.clear();
-
-		ChannelData cData;
-		List<ChannelData> metadata = model.getMetadata();
-		Iterator<ChannelData> j = metadata.iterator();
-		while (j.hasNext()) {
-			cData = j.next();
-			channel = cData.getIndex();
-			if (model.isChannelActive(channel)) 
-			{
-				cData = model.getMetadata(channel);
-				if (cData != null)
-				channelName.add(cData.getChannelLabeling());
-				c = model.getActiveChannelColor(channel);
-				if (c == null) return;
-				channelColour.add(c);
-				if (data.get(channel).length == 0)
-					return;
-				channelData.add(data.get(channel));
-				
-				if (lineProfileFigure(shape)) {
-					dataY = data.get(channel);
-					dataXY = new double[2][dataY.length];
-					if (dataY.length == 0) 
-						return;
-					for (int i = 0 ; i < dataY.length ; i++)
-					{
-						dataXY[0][i] = i;
-						dataXY[1][i] = dataY[i];
-					}
-					channelXYData.add(dataXY);
-				}
-			}
-		}
-		/*
-		while (k.hasNext())
-		{
-			channel = k.next();
-			if (model.isChannelActive(channel)) 
-			{
-				cData = model.getMetadata(channel);
-				if (cData != null)
-				channelName.add(cData.getChannelLabeling());
-				c = model.getActiveChannelColor(channel);
-				if (c == null) return;
-				channelColour.add(c);
-				if (data.get(channel).length == 0)
-					return;
-				channelData.add(data.get(channel));
-				
-				if (lineProfileFigure(shape)) {
-					dataY = data.get(channel);
-					dataXY = new double[2][dataY.length];
-					if (dataY.length == 0) 
-						return;
-					for (int i = 0 ; i < dataY.length ; i++)
-					{
-						dataXY[0][i] = i;
-						dataXY[1][i] = dataY[i];
-					}
-					channelXYData.add(dataXY);
-				}
-			}
-		}
-		*/
-		lineProfileChart = null;
-		histogramChart = null;
-		if (lineProfileFigure(shape))
-			lineProfileChart = drawLineplot("Line Profile", 
-					channelName, channelXYData, channelColour);
-		histogramChart = drawHistogram("Histogram", channelName, 
-						channelData, channelColour, 1001);
-		mainPanel.removeAll();
-			
-		if (histogramChart == null && lineProfileChart == null)
-			return;
-
-		if (lineProfileChart == null && histogramChart !=null)
-		{
-			mainPanel.setLayout(new BorderLayout());
-			mainPanel.add(histogramChart.getChart(), BorderLayout.CENTER);
-		}
-		
-		if (lineProfileChart != null && histogramChart !=null)
-		{
-			mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-			mainPanel.add(lineProfileChart.getChart());
-			mainPanel.add(histogramChart.getChart());
-		}
-		mainPanel.validate();
-		mainPanel.repaint();
-	}
-	
-	/**
-	 * Draws the current data as a scatter plot in the graph.
-	 * 
-	 * @param title 			The graph title.
-	 * @param data 				The data to render.
-	 * @param channelNames 		The channel names.
-	 * @param channelColours	The channel colours.
-	 * @return See above.
-	 */
-	JPanel drawScatterplot(String title, List<String>	channelNames, 
-			List<double[][]> data, List<Color> channelColours)
-	{
-		ScatterPlot plot = new ScatterPlot(title, channelNames, data, 
-			channelColours);
-		return plot.getChart();
-	}
-	
-	/**
-	 * Draws the current data as a line plot in the graph.
-	 * 
-	 * @param title 			The graph title.
-	 * @param data 				The data to render.
-	 * @param channelNames 		The channel names.
-	 * @param channelColours	The channel colours.
-	 * @return See above.
-	 */
-	LinePlot drawLineplot(String title,  List<String> channelNames, 
-			List<double[][]> data, List<Color> channelColours)
-	{
-		LinePlot plot = new LinePlot(title, channelNames, data, 
-			channelColours, channelMinValue(), channelMaxValue());
-		plot.setYAxisName("Intensity");
-		plot.setXAxisName("Pixel");
-		return plot;
-	}
-	
-	/**
-	 * Draws the current data as a histogram in the graph.
-	 * 
-	 * @param title 			The graph title.
-	 * @param data 				The data to render.
-	 * @param channelNames 		The channel names.
-	 * @param channelColours	The channel colours.
-	 * @param bins 				The number of bins in the histogram.
-	 * @return See above.
-	 */
-	HistogramPlot drawHistogram(String title,  List<String> channelNames, 
-			List<double[]> data, List<Color> channelColours, int bins)
-	{
-		HistogramPlot plot = new HistogramPlot(title, channelNames, data, 
-			channelColours, bins, channelMinValue(), channelMaxValue());
-		plot.setXAxisName("Intensity");
-		plot.setYAxisName("Frequency");
-		return plot;
-	}
 	
 }
-
-
-

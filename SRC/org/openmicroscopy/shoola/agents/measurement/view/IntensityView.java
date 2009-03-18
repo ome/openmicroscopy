@@ -33,7 +33,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,10 +41,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
-
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -56,6 +55,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -471,7 +471,7 @@ class IntensityView
 	 */
 	public void displayAnalysisResults()
 	{
-		if(state==State.ANALYSING)
+		if (state == State.ANALYSING)
 			return;
 		this.ROIStats = model.getAnalysisResults();
 		if (ROIStats == null || ROIStats.size() == 0) 
@@ -480,7 +480,8 @@ class IntensityView
 		
 		clearMaps();
 		shapeStatsList = new TreeMap<Coord3D, Map<StatsType, Map>>(new Coord3D());
-		pixelStats = new TreeMap<Coord3D, Map<Integer, Map<Point, Double>>>(new Coord3D());
+		pixelStats = 
+			new TreeMap<Coord3D, Map<Integer, Map<Point, Double>>>(new Coord3D());
 		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
 		minStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
 		maxStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
@@ -488,24 +489,31 @@ class IntensityView
 		sumStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
 		stdDevStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
 		
-		Iterator<ROIShape> shapeIterator  = ROIStats.keySet().iterator();
+		Entry entry;
+		Iterator j  = ROIStats.entrySet().iterator();
 		channelName =  new TreeMap<Integer, String>();
 		nameMap = new LinkedHashMap<String, Integer>();
 
-		int minZ=Integer.MAX_VALUE, maxZ=Integer.MIN_VALUE;
-		int minT=Integer.MAX_VALUE, maxT=Integer.MIN_VALUE;
+		int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
+		int minT = Integer.MAX_VALUE, maxT = Integer.MIN_VALUE;
 		clearAllValues();
-		while(shapeIterator.hasNext())
+		Coord3D c3D;
+		Map<StatsType, Map> shapeStats;
+		ChannelData channelData;
+		int channel;
+		Iterator<ChannelData> i;
+		List<ChannelData> metadata = model.getMetadata();
+		while (j.hasNext())
 		{
-			shape = (ROIShape) shapeIterator.next();
-			minT = Math.min(minT, shape.getCoord3D().getTimePoint());
-			maxT = Math.max(maxT, shape.getCoord3D().getTimePoint());
-			minZ = Math.min(minZ, shape.getCoord3D().getZSection());
-			maxZ = Math.max(maxZ, shape.getCoord3D().getZSection());
-			Map<StatsType, Map> shapeStats;
-
-			Coord3D coord = shape.getCoord3D();
-			shapeMap.put(coord, shape);
+			entry = (Entry) j.next();
+			shape = (ROIShape) entry.getKey();
+			c3D = shape.getCoord3D();
+			minT = Math.min(minT, c3D.getTimePoint());
+			maxT = Math.max(maxT, c3D.getTimePoint());
+			minZ = Math.min(minZ, c3D.getZSection());
+			maxZ = Math.max(maxZ, c3D.getZSection());
+			
+			shapeMap.put(c3D, shape);
 			if (shape.getFigure() instanceof MeasureTextFigure)
 			{
 				state = State.READY;
@@ -513,25 +521,23 @@ class IntensityView
 			}
 	
 			shapeStats = AnalysisStatsWrapper.convertStats(
-										(Map) ROIStats.get(shape));
-			shapeStatsList.put(shape.getCoord3D(), shapeStats);
+										(Map) entry.getValue());
+			shapeStatsList.put(c3D, shapeStats);
 
-			minStats.put(shape.getCoord3D(), shapeStats.get(StatsType.MIN));
-			maxStats.put(shape.getCoord3D(), shapeStats.get(StatsType.MAX));
-			meanStats.put(shape.getCoord3D(), shapeStats.get(StatsType.MEAN));
-			sumStats.put(shape.getCoord3D(), shapeStats.get(StatsType.SUM));
-			stdDevStats.put(shape.getCoord3D(), shapeStats.get(StatsType.STDDEV));
-			pixelStats.put(shape.getCoord3D(), shapeStats.get(StatsType.PIXEL_PLANEPOINT2D));
+			minStats.put(c3D, shapeStats.get(StatsType.MIN));
+			maxStats.put(c3D, shapeStats.get(StatsType.MAX));
+			meanStats.put(c3D, shapeStats.get(StatsType.MEAN));
+			sumStats.put(c3D, shapeStats.get(StatsType.SUM));
+			stdDevStats.put(c3D, shapeStats.get(StatsType.STDDEV));
+			pixelStats.put(c3D, shapeStats.get(StatsType.PIXEL_PLANEPOINT2D));
 			
 			/* really inefficient but hey.... quick hack just now till refactor */
 			channelName.clear();
 			nameMap.clear();
 			channelColour.clear();
 			
-			ChannelData channelData;
-			int channel;
-			List<ChannelData> metadata = model.getMetadata();
-			Iterator<ChannelData> i = metadata.iterator();
+			
+			i = metadata.iterator();
 			while (i.hasNext()) {
 				channelData = i.next();
 				channel = channelData.getIndex();
@@ -543,55 +549,39 @@ class IntensityView
 						(Color) model.getActiveChannels().get(channel));
 				}
 			}
-			/*
-			while(channelIterator.hasNext())
-			{
-				int channel = channelIterator.next();
-				if (model.isChannelActive(channel)) 
-				{
-					channelName.put(channel,
-						model.getMetadata(channel).getChannelLabeling());
-					nameMap.put(channelName.get(channel), channel);
-					channelColour.put(channel, 
-						(Color)model.getActiveChannels().get(channel));
-				}
-			}
-			*/
-			
 		}
-		if (channelName.size() == 0 || nameMap.size() == 0 || 
-				channelColour.size() == 0)
+		if (channelName.size() != channelColour.size() || nameMap.size() == 0)
 		{
+			createComboBox();
+			List<String> names = channelSummaryModel.getRowNames();
+			List<String> channelNames = new ArrayList<String>();
+			Double data[][] = new Double[channelName.size()][names.size()];
+			channelSummaryModel = new ChannelSummaryModel(names, channelNames, 
+					data);
+			channelSummaryTable.setModel(channelSummaryModel);
+			saveButton.setEnabled(false);
+			showIntensityTable.setEnabled(false);
+			if (intensityDialog != null) intensityDialog.setVisible(false);
 			state = State.READY;
 			return;
 		}
+		saveButton.setEnabled(true);
+		showIntensityTable.setEnabled(true);
 		maxZ = maxZ+1;
 		minZ = minZ+1;
 		maxT = maxT+1;
 		minT = minT+1;
 		
-		if (channelName.size() != channelColour.size())
-		{
-			state = State.READY;
-			return;
-		}
 		createComboBox();
 		Object[] nameColour = (Object[]) channelSelection.getSelectedItem();
 		String string = (String) nameColour[1];
 		selectedChannel = nameMap.get(string);
-		/*if(selectedChannel >= channelSelection.getItemCount())
-		{
-			state = State.READY;
-			return;
-		}*/
-
-			
 		zSlider.setMaximum(maxZ);
 		zSlider.setMinimum(minZ);
 		tSlider.setMaximum(maxT);
 		tSlider.setMinimum(minT);
-		zSlider.setVisible((maxZ!=minZ));
-		tSlider.setVisible((maxT!=minT));
+		zSlider.setVisible((maxZ != minZ));
+		tSlider.setVisible((maxT != minT));
 		tSlider.setValue(model.getCurrentView().getTimePoint()+1);
 		zSlider.setValue(model.getCurrentView().getZSection()+1);
 		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
@@ -626,38 +616,28 @@ class IntensityView
 				index++;
 			}
 		}
-		/*
-		Iterator<Integer> iterator = channelName.keySet().iterator();
-		int i = 0;
-		int channel;
-		while (iterator.hasNext())
-		{
-			channel = iterator.next();
-			channelCols[i] = new Object[]{channelColour.get(channel), 
-											channelName.get(channel)};
-			i++;
-		}
-		*/
-		if (channelCols.length == 0)
-			return;
+		//if (channelCols.length == 0)
+			//return;
 		
 		channelSelection.setModel(new DefaultComboBoxModel(channelCols));	
 		ColourListRenderer renderer =  new ColourListRenderer();
 		channelSelection.setRenderer(renderer);
-		if(selectedChannelName!=null)
-			if(nameMap.containsKey(selectedChannelName))
+		if (selectedChannelName != null)
+			if (nameMap.containsKey(selectedChannelName))
 				selectedChannel = nameMap.get(selectedChannelName);
 			else
 				selectedChannel = 0;
 		else
-			selectedChannel =0;
-		if(selectedChannel >= channelSelection.getItemCount() || selectedChannel < 0)
+			selectedChannel = 0;
+		if (selectedChannel >= channelSelection.getItemCount() 
+				|| selectedChannel < 0)
 			return;
 		channelSelection.setSelectedIndex(selectedChannel);
-		
 	}
 	
-	/** Populate the table and fields with the data. 
+	/** 
+	 * Populates the table and fields with the data.
+	 *  
 	 * @param coord the coordinate of the shape being analysed.
 	 * @param channel the channel to be analysed. 
 	 */
@@ -674,8 +654,8 @@ class IntensityView
 	 */
 	private void populateChannelSummaryTable(Coord3D coord)
 	{
-		ArrayList<String> statNames = new ArrayList<String>();
-		ArrayList<String> channelNames = new ArrayList<String>();
+		List<String> statNames = new ArrayList<String>();
+		List<String> channelNames = new ArrayList<String>();
 		ROIFigure fig = shape.getFigure();
 		int count = 0;
 		statNames.add("Min");
@@ -684,14 +664,14 @@ class IntensityView
 		statNames.add("Mean");
 		statNames.add("Std Dev.");
 		statNames.add("NumPixels");
-		if(areaFigure(fig))
+		if (areaFigure(fig))
 			addAreaStats(statNames);
-		else if(lineFigure(fig))
+		else if (lineFigure(fig))
 			addLineStats(statNames);
-		else if(pointFigure(fig))
+		else if (pointFigure(fig))
 			addPointStats(statNames);
 		Iterator<Integer> channelIterator = channelName.keySet().iterator();
-		while(channelIterator.hasNext())
+		while (channelIterator.hasNext())
 			channelNames.add(channelName.get(channelIterator.next()));
 		Double data[][] = new Double[channelName.size()][statNames.size()];
 		
@@ -705,7 +685,8 @@ class IntensityView
 			count++;
 		}
 		
-		channelSummaryModel = new ChannelSummaryModel(statNames, channelNames, data);
+		channelSummaryModel = new ChannelSummaryModel(statNames, channelNames, 
+				data);
 		channelSummaryTable.setModel(channelSummaryModel);
 	}
 	
@@ -759,7 +740,8 @@ class IntensityView
 	 * @param channel the channel where the stats come from/.
 	 * @param count the column in the table being populated.
 	 */
-	private void addValuesForLineFigure(ROIFigure fig, Double data[][], int channel, int count)
+	private void addValuesForLineFigure(ROIFigure fig, Double data[][], 
+			int channel, int count)
 	{
 		data[count][6] = AnnotationKeys.STARTPOINTX.get(shape);
 		data[count][7] = AnnotationKeys.STARTPOINTY.get(shape);
@@ -777,7 +759,8 @@ class IntensityView
 	 * @param channel the channel where the stats come from/.
 	 * @param count the column in the table being populated.
 	 */
-	private void addValuesForPointFigure(ROIFigure fig, Double data[][], int channel, int count)
+	private void addValuesForPointFigure(ROIFigure fig, Double data[][], 
+			int channel, int count)
 	{
 		data[count][6] = AnnotationKeys.CENTREX.get(shape);
 		data[count][7] = AnnotationKeys.CENTREY.get(shape);
@@ -787,7 +770,7 @@ class IntensityView
 	 * Sets the rows describing the stats being displayed in the summary table. 
 	 * @param statNames The list of stats being displayed in the summary table.
 	 */
-	private void addAreaStats(ArrayList<String> statNames)
+	private void addAreaStats(List<String> statNames)
 	{
 		statNames.add("Area");
 		statNames.add("X Coord");
@@ -800,9 +783,10 @@ class IntensityView
 
 	/**
 	 * Sets the rows describing the stats being displayed in the summary table. 
+	 * 
 	 * @param statNames The list of stats being displayed in the summary table.
 	 */
-	private void addLineStats(ArrayList<String> statNames)
+	private void addLineStats(List<String> statNames)
 	{
 		statNames.add("X1 Coord");
 		statNames.add("Y1 Coord");
@@ -813,12 +797,12 @@ class IntensityView
 	}
 	
 	/**
-	 * Sets the rows describing the stats being displayed in the summary table. 
+	 * Sets the rows describing the stats being displayed in the summary table.
+	 *  
 	 * @param statNames The list of stats being displayed in the summary table.
 	 */
-	private void addPointStats(ArrayList<String> statNames)
+	private void addPointStats(List<String> statNames)
 	{
-
 		statNames.add("X Centre");
 		statNames.add("Y Centre");
 	}
@@ -832,7 +816,7 @@ class IntensityView
 	private void interpretResults(Coord3D coord, int channel)
 	{
 		Map<Point, Double> pixels = pixelStats.get(coord).get(channel);
-		if (pixels==null) return;
+		if (pixels == null) return;
 		Iterator<Point> pixelIterator = pixels.keySet().iterator();
 		double minX, maxX, minY, maxY;
 		if (!pixelIterator.hasNext()) return;

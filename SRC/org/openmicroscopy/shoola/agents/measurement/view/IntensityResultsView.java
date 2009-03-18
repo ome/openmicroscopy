@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -223,7 +224,7 @@ class IntensityResultsView
 	 * overridden version of {@line TabPaneInterface#getIndex()}
 	 * @return the index.
 	 */
-	public int getIndex() {return INDEX; }
+	public int getIndex() { return INDEX; }
 	
 	/** Initializes the component composing the display. */
 	private void initComponents()
@@ -322,7 +323,8 @@ class IntensityResultsView
 		this.ROIStats = model.getAnalysisResults();
 		if (ROIStats == null || ROIStats.size() == 0) return;
 		
-		pixelStats = new HashMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>>();
+		pixelStats = 
+			new HashMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>>();
 		shapeMap = new HashMap<Coord3D, ROIShape>();
 		minStats = new HashMap<Coord3D, Map<Integer, Double>>();
 		maxStats = new HashMap<Coord3D, Map<Integer, Double>>();
@@ -330,39 +332,42 @@ class IntensityResultsView
 		sumStats = new HashMap<Coord3D, Map<Integer, Double>>();
 		stdDevStats = new HashMap<Coord3D, Map<Integer, Double>>();
 		
-		
-		Iterator<ROIShape> shapeIterator  = ROIStats.keySet().iterator();
+		Entry entry;
+		Iterator j  = ROIStats.entrySet().iterator();
 		channelName = new TreeMap<Integer, String>();
 		nameMap = new HashMap<String, Integer>();
-		
-		while (shapeIterator.hasNext())
+		Map<StatsType, Map> shapeStats;
+		Coord3D c3D;
+		ChannelData channelData;
+		int channel;
+		List<ChannelData> metadata = model.getMetadata();
+		Iterator<ChannelData> i;
+		while (j.hasNext())
 		{
-			shape = shapeIterator.next();
-			Map<StatsType, Map> shapeStats;
-			
+			entry = (Entry) j.next();
+			shape = (ROIShape) entry.getKey();
 			shapeMap.put(shape.getCoord3D(), shape);
 			if (shape.getFigure() instanceof MeasureTextFigure)
 			{
 				state = State.READY;
 				return;
 			}
-			
+			c3D = shape.getCoord3D();
 			shapeStats = AnalysisStatsWrapper.convertStats(
-				(Map) ROIStats.get(shape));
+					(Map) entry.getValue());
 				
-			minStats.put(shape.getCoord3D(), shapeStats.get(StatsType.MIN));
-			maxStats.put(shape.getCoord3D(), shapeStats.get(StatsType.MAX));
-			meanStats.put(shape.getCoord3D(), shapeStats.get(StatsType.MEAN));
-			sumStats.put(shape.getCoord3D(), shapeStats.get(StatsType.SUM));
-			stdDevStats.put(shape.getCoord3D(), shapeStats.get(StatsType.STDDEV));
+			minStats.put(c3D, shapeStats.get(StatsType.MIN));
+			maxStats.put(c3D, shapeStats.get(StatsType.MAX));
+			meanStats.put(c3D, shapeStats.get(StatsType.MEAN));
+			sumStats.put(c3D, shapeStats.get(StatsType.SUM));
+			stdDevStats.put(c3D, shapeStats.get(StatsType.STDDEV));
 			
 			channelName.clear();
 			nameMap.clear();
 			channelColour.clear();
-			ChannelData channelData;
-			int channel;
-			List<ChannelData> metadata = model.getMetadata();
-			Iterator<ChannelData> i = metadata.iterator();
+			
+			
+			i = metadata.iterator();
 			while (i.hasNext()) {
 				channelData = i.next();
 				channel = channelData.getIndex();
@@ -374,35 +379,24 @@ class IntensityResultsView
 						(Color) model.getActiveChannels().get(channel));
 				}
 			}
-			/*
-			while(channelIterator.hasNext())
-			{
-				int channel = channelIterator.next();
-				if (model.isChannelActive(channel)) 
-				{
-					channelName.put(channel,
-						model.getMetadata(channel).getChannelLabeling());
-					nameMap.put(channelName.get(channel), channel);
-					channelColour.put(channel, 
-						(Color) model.getActiveChannels().get(channel));
-				}
-			}
-			*/
-			if(channelName.size()==0 || nameMap.size() ==0 || 
+			
+			if (channelName.size() == 0 || nameMap.size() == 0 || 
 				channelColour.size() == 0)
 			{
 				state = State.READY;
 				return;
 			}
 		
-			coord = shape.getCoord3D();
+			coord = c3D;
 			getResults(shape);
 		}
 		state = State.READY;
 	}
 	
-	/** Populate the table with the data. 
-	 * @param shape the shape to de analysed. 
+	/** 
+	 * Populates the table with the data. 
+	 * 
+	 * @param shape The shape to be analysed. 
 	 */
 	private void getResults(ROIShape shape)
 	{
@@ -414,11 +408,14 @@ class IntensityResultsView
 		channelMean = meanStats.get(coord);
 		channelStdDev = stdDevStats.get(coord);
 		channelSum = sumStats.get(coord);	
-		while(channelIterator.hasNext())
+		String cName;
+		int channel;
+		Vector rowData;
+		while (channelIterator.hasNext())
 		{
-			String cName = channelIterator.next();
-			int channel = nameMap.get(cName);
-			Vector rowData = new Vector();
+			cName = channelIterator.next();
+			channel = nameMap.get(cName);
+			rowData = new Vector();
 			rowData.add(shape.getID());
 			rowData.add(shape.getCoord3D().getZSection()+1);
 			rowData.add(shape.getCoord3D().getTimePoint()+1);
@@ -431,12 +428,12 @@ class IntensityResultsView
 			rowData.add(channelStdDev.get(channel));
 			rows.add(rowData);
 		}
-		for(Vector rowData : rows)
-			resultsModel.addRow(rowData);
+		for (Vector data : rows)
+			resultsModel.addRow(data);
 		results.repaint();
 	}
 	
-	/** Save the results of the table to a csv file. */
+	/** Saves the results of the table to a csv file. */
 	private void saveResults()
 	{
 		List<FileFilter> filterList = new ArrayList<FileFilter>();

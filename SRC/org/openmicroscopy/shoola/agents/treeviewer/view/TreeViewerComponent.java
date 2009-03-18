@@ -719,6 +719,7 @@ class TreeViewerComponent
 		browser.refreshEdition(data, parent, operation);
 		
 		if (operation == REMOVE_OBJECT || operation == CREATE_OBJECT) {
+			
 			DataBrowserFactory.discardAll();
 			view.removeAllFromWorkingPane();
 		}

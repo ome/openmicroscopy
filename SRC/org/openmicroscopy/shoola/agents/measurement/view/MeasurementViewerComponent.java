@@ -591,9 +591,8 @@ class MeasurementViewerComponent
 		if (!view.inDataView() || !view.isVisible()) return;
 		Collection<ROIFigure> collection = getSelectedFigures();
 		if (collection.size() != 1) return;
-		
 		ROIFigure figure = collection.iterator().next();
-		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+		List<ROIShape> shapeList = new ArrayList<ROIShape>();
 		ROI roi = figure.getROI();
 		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
 		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
@@ -677,9 +676,14 @@ class MeasurementViewerComponent
 			case ANALYSE_SHAPE:
 				return;
 		}
-		if (model.getActiveChannels().size() == 0) return;
-		model.fireAnalyzeShape(shapeList);
-		fireStateChange();
+		if (model.getActiveChannels().size() == 0) {
+			//view.displayAnalysisResults();
+			view.displayAnalysisResults();
+		} else {
+			model.fireAnalyzeShape(shapeList);
+			fireStateChange();
+		}
+		
 	}
 
 	/** 

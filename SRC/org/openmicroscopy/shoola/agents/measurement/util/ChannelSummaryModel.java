@@ -33,6 +33,8 @@ import javax.swing.table.AbstractTableModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
+
 /** 
  * 
  *
@@ -84,6 +86,13 @@ public class ChannelSummaryModel
 		this.numColumns = columnNames.size()+1;
 		this.numRows = rowNames.size();
 	}
+	
+	/**
+	 * Returns the name of the rows.
+	 * 
+	 * @return See above.
+	 */
+	public List<String> getRowNames() { return rowNames; }
 	
 	/**
 	 * Overridden to return the number of columns.
