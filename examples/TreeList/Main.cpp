@@ -14,10 +14,15 @@ int main(int argc, char* argv[]) {
         Usage::usage();
     }
 
-    omero::client client(/*FIXME host*/ argc, argv);
-    omero::api::ServiceFactoryPrx factory = client.createSession(user, pass);
-    std::vector<omero::model::ProjectPtr> projects = AllProjects::getProjects(factory->getQueryService(), user);
-    PrintProjects::print(projects);
-    return 0;
+    omero::client client(argc, argv);
+    int rc = 0;
+    try {
+        omero::api::ServiceFactoryPrx factory = client.createSession(user, pass);
+        std::vector<omero::model::ProjectPtr> projects = AllProjects::getProjects(factory->getQueryService(), user);
+        PrintProjects::print(projects);
+    } catch (...) {
+        client.closeSession();
+    }
+    return rc;
 
 }

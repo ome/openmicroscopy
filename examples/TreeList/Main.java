@@ -16,9 +16,13 @@ public class Main {
         }
 
         omero.client client = new omero.client(host);
-        ServiceFactoryPrx factory = client.createSession(user, pass);
-        List<Project> projects = AllProjects.getProjects(factory.getQueryService(), user);
-        PrintProjects.print(projects);
+	try {
+            ServiceFactoryPrx factory = client.createSession(user, pass);
+            List<Project> projects = AllProjects.getProjects(factory.getQueryService(), user);
+            PrintProjects.print(projects);
+	} finally {
+	    client.closeSession();
+	}
 
     }
 

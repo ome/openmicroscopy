@@ -10,7 +10,10 @@ if __name__ == "__main__":
         Usage.usage()
 
     client = omero.client(host)
-    factory = client.createSession(user, pasw)
-    projects = AllProjects.getProjects(factory.getQueryService(), user)
-    PrintProjects.print_(projects)
+    try:
+        factory = client.createSession(user, pasw)
+        projects = AllProjects.getProjects(factory.getQueryService(), user)
+        PrintProjects.print_(projects)
+    finally:
+        client.closeSession()
 
