@@ -51,11 +51,11 @@ public class ContainersLoader
 	extends MetadataLoader
 {
 
-	/** Either <code>DatasetData</code> or <code>ProjectData</code>. */
-	private Class					type;
+	/** The type of <code>DataObject</code>. */
+	private Class		type;
 	
 	/** The ID of the parent of the {@link #refNode}. */
-	private long 					id;
+	private long		id;
 
 	
 	/** Handle to the async call so that we can cancel it. */
@@ -91,8 +91,6 @@ public class ContainersLoader
 		super(viewer, null);
 		this.type = type;
 		this.id = id;
-		//type = data.getRelatedObject().getClass();
-		//id = ((DataObject) data.getRelatedObject()).getId();
 	}
 	
 	/** 

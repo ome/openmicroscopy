@@ -288,6 +288,7 @@ class MetadataViewerComponent
 			browser.setParents(null, (Collection) result);
 		} else
 			browser.setParents((TreeBrowserSet) node, (Collection) result);
+		model.getEditor().setStatus(false);
 	}
 	
 	/** 
@@ -532,10 +533,12 @@ class MetadataViewerComponent
 		if (data == null) return;
 		if (data.getParents() != null) return;
 		Object ho = data.getRelatedObject();
-		model.loadParents(ho.getClass(), ((DataObject) ho).getId());
-		setStatus(true);
-		firePropertyChange(LOADING_PARENTS_PROPERTY, Boolean.FALSE, 
-				Boolean.TRUE);
+		if (ho != null && ho instanceof DataObject) {
+			model.loadParents(ho.getClass(), ((DataObject) ho).getId());
+			setStatus(true);
+			firePropertyChange(LOADING_PARENTS_PROPERTY, Boolean.FALSE, 
+					Boolean.TRUE);
+		}
 	}
 
 	/** 

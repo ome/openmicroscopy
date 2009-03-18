@@ -366,19 +366,13 @@ class EditorComponent
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Editor#loadParents()
 	 */
-	public void loadParents()
-	{
-		model.loadParents();
-	}
+	public void loadParents() { model.loadParents(); }
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Editor#setStatus(boolean)
 	 */
-	public void setStatus(boolean busy)
-	{
-		view.setStatus(busy);
-	}
+	public void setStatus(boolean busy) { view.setStatus(busy); }
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.

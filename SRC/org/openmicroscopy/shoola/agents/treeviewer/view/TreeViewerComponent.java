@@ -772,10 +772,6 @@ class TreeViewerComponent
 			fireStateChange();
 		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		//TODO
-		//Browser browser = model.getSelectedBrowser();
-		//browser.refreshEdition(data, operation);
-		
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
