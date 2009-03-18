@@ -49,7 +49,9 @@
         <chmod file="${basedir}/build/bin/omero" perm="ugo+x"/>
         <copy file="${basedir}/../../common/target/classes/prefs.class" todir="${basedir}/build/"/>
         <!-- And copying once for top-level build -->
-        <copy file="${basedir}/bin/omero" tofile="../target/bin/omero"/>
+        <copy todir="../target/bin/">
+            <fileset dir="${basedir}/bin"/>
+        </copy>
     </target>
 
     <target name="tools-test" depends="tools-build,python-test" description="Runs test target of setup.py" unless="env.NOPYTHON"/>
