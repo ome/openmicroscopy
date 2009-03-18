@@ -43,7 +43,7 @@ def env_path(key):
 #
 platform = ARGUMENTS.get('OS', Platform())
 mode = ARGUMENTS.get('mode', "debug")
-link = ARGUMENTS.get("link","OMERO_client").split()
+link = ARGUMENTS.get("link","omero_client").split()
 builddir = os.path.abspath(os.path.join(os.pardir,"dist"))
 builddir = ARGUMENTS.get("builddir",builddir)
 cpppath = env_path("CPPPATH")
@@ -78,7 +78,7 @@ map = { "options" : opts,
 if platform.name == "darwin":
     map["CPPPATH"].append( '/opt/local/include/' )
 
-if platform.name == "linux" or platform.name == "darwin":
+if platform.name == "posix" or platform.name == "linux" or platform.name == "darwin":
     #
     map["CPPPATH"].append(os.path.join(builddir, 'include'))
     #
@@ -120,7 +120,7 @@ if not conf.CheckCXXHeader('Ice/Ice.h'):
     print 'Ice must be installed!'
     Exit(1)
 
-if platform.name == "linux":
+if platform.name == "posix" or platform.name == "linux":
     if not conf.CheckLib('Ice'):
         print 'Ice library must be in path'
         Exit(1)
@@ -128,7 +128,7 @@ if platform.name == "linux":
 #
 # Use C++ libraries
 #
-if platform.name == "linux" or platform.name == "darwin":
+if platform.name == "posix" or platform.name == "linux" or platform.name == "darwin":
     libs = Split("Ice IceUtil Glacier2")+link
 else:
     libs = Split("Ice.lib")

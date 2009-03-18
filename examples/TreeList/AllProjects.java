@@ -1,7 +1,8 @@
 import java.util.List;
 import omero.model.Project;
 import omero.api.IQueryPrx;
-import omero.util.ParametersI;
+import omero.sts.ParametersI;
+import static omero.rtypes.*;
 
 public class AllProjects {
 
@@ -9,7 +10,7 @@ public class AllProjects {
 
         List rv = query.findAllByQuery(
             "select p from Project p where p.details.owner.name = :name",
-            new ParametersI().add("name", new omero.RString(username)));
+            new ParametersI().add("name", rstring(username)));
         return (List<Project>) rv;
 
     }
