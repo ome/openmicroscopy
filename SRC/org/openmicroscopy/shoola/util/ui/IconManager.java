@@ -403,11 +403,14 @@ public class IconManager
     /** A 16x16 version of the <code>Edit</code> icon. */
     public static final int EDIT = 116;
     
+    /** A 16x16 version of the <code>Experiment</code> icon. */
+    public static final int EDITOR_EXPERIMENT = 117;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 116;
+    private static int      MAX_ID = 117;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -532,6 +535,7 @@ public class IconManager
         relPaths[SCREEN_48] = "nuvola_knotes48.png";
         relPaths[CREATE_48] = "nuvola_filenew48.png";
         relPaths[EDIT] = "nuvola_ksig16.png";
+        relPaths[EDITOR_EXPERIMENT] = "expNew.png";
     }
     
     /** 

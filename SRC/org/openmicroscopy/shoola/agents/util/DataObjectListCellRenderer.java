@@ -131,9 +131,12 @@ public class DataObjectListCellRenderer
         		icon = icons.getIcon(IconManager.FILE_EXCEL);
         	else if (FileAnnotationData.XML.equals(format) ||
         			FileAnnotationData.RTF.equals(format)) {
-        		if (filter.accept(fad.getFileName()))
-        			icon = icons.getIcon(IconManager.FILE_EDITOR);
-        		else icon = icons.getIcon(IconManager.FILE_XML);
+        		if (filter.accept(fad.getFileName())) {
+        			if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(
+        					fad.getNameSpace()))
+        				icon = icons.getIcon(IconManager.EDITOR_EXPERIMENT);
+        			else icon = icons.getIcon(IconManager.FILE_EDITOR);
+        		} else icon = icons.getIcon(IconManager.FILE_XML);
         	} else icon = icons.getIcon(IconManager.FILE);
 			setIcon(icon);
 		} else if (value instanceof URLAnnotationData) {

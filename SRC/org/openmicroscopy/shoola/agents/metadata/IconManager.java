@@ -232,11 +232,14 @@ public class IconManager
     /** The <code>Download 12</code> icon. */
     public static final int           DOWNLOAD_12 = 59;
     
+    /** The <code>Editor 12</code> icon. */
+    public static final int           EDITOR_12= 60;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 59;
+	private static final int          MAX_ID = 60;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -300,6 +303,7 @@ public class IconManager
         relPaths[MINUS_12] = "minus11.png";
         relPaths[TAG_SET] = "nuvola_knotesRedRed16.png";
         relPaths[DOWNLOAD_12] = "nuvola_download_manager11.png";
+        relPaths[EDITOR_12] = "omeroEditorLink11.png";
 	}
    
 	/** The sole instance. */

@@ -772,12 +772,10 @@ class AnnotationDataUI
 				if (!idsToKeep.contains(id))
 					l.add(fa);
 			}
-
 		}
 		return l; 
 	}
 
-	
 	/**
 	 * Returns the collection of annotations to add.
 	 * @see AnnotationUI#getAnnotationToSave()

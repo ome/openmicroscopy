@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -88,8 +89,11 @@ class DocComponent
 	/** Action id to edit the annotation. */
 	private static final int EDIT = 1;
 	
-	/** Action id to edit the annotation. */
+	/** Action id to download the file. */
 	private static final int DOWNLOAD = 2;
+	
+	/** Action id to edit the annotation. */
+	private static final int OPEN = 3;
 	
 	/** The annotation hosted by this component. */
 	private Object		data;
@@ -105,6 +109,9 @@ class DocComponent
 	
 	/** Button to download the file linked to the annotation. */
 	private JButton		downloadButton;
+	
+	/** Button to open the file linked to the annotation. */
+	private JButton		openButton;
 	
 	/** Component displaying the file name. */
 	private JLabel		label;
@@ -140,6 +147,22 @@ class DocComponent
 		}
 		
 		if (data instanceof FileAnnotationData) {
+			String ns = ((FileAnnotationData) data).getNameSpace();
+			if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns)) {
+				buf.append("<b>");
+				buf.append("Editor File: ");
+				buf.append("</b>");
+				buf.append("Experiment");
+				buf.append("<br>");
+				buf.append("<b>");
+			} else if (FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns)) {
+				buf.append("<b>");
+				buf.append("Editor File: ");
+				buf.append("</b>");
+				buf.append("Protocol");
+				buf.append("<br>");
+				buf.append("<b>");
+			}
 			if (annotation.getId() > 0) {
 				buf.append("<b>");
 				buf.append("Date Added: ");
@@ -239,6 +262,19 @@ class DocComponent
 				downloadButton.setToolTipText("Download the file.");
 				downloadButton.setActionCommand(""+DOWNLOAD);
 				downloadButton.addActionListener(this);
+				
+				String ns = fa.getNameSpace();
+				if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
+						FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns)) {
+					openButton = new JButton(icons.getIcon(
+							IconManager.EDITOR_12));
+					openButton.setOpaque(false);
+					UIUtilities.unifiedButtonLookAndFeel(openButton);
+					openButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+					openButton.setToolTipText("Open the file in editor.");
+					openButton.setActionCommand(""+OPEN);
+					openButton.addActionListener(this);
+				}
 			}
 		} else if (data instanceof TagAnnotationData) {
 			deleteButton.setToolTipText("Remove the Tag.");
@@ -332,6 +368,7 @@ class DocComponent
 		if (editButton != null) bar.add(editButton);
 		if (deleteButton != null) bar.add(deleteButton);
 		if (downloadButton != null) bar.add(downloadButton);
+		if (openButton != null) bar.add(openButton);
 		if (bar.getComponentCount() > 0) add(bar);
 	}
 	
@@ -414,6 +451,14 @@ class DocComponent
 			case DOWNLOAD:
 				UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
 				un.notifyDownload((FileAnnotationData) data);
+				break;
+			case OPEN:
+				if (data instanceof FileAnnotationData) {
+					EventBus bus = 
+						MetadataViewerAgent.getRegistry().getEventBus();
+					bus.post(new EditFileEvent((FileAnnotationData) data));
+				}
+				
 		}
 	}
 

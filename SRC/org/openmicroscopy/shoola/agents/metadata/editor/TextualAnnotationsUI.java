@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -37,6 +38,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.DocumentEvent;
@@ -199,11 +201,11 @@ class TextualAnnotationsUI
 	private void layoutPreviousComments()
 	{
 		TableLayout layout = (TableLayout) getLayout();
-		layout.setRow(1, TableLayout.PREFERRED);
 		layout.setRow(2, TableLayout.PREFERRED);
+		layout.setRow(3, TableLayout.PREFERRED);
 		remove(moreComponent);
-		add(hideComponent, "0, 1");
-		add(buildPreviousCommentsPane(), "0, 2");
+		add(hideComponent, "0, 2");
+		add(buildPreviousCommentsPane(), "0, 3");
 		revalidate();
 		repaint();
 	}
@@ -228,21 +230,28 @@ class TextualAnnotationsUI
 	{
     	setBorder(new SeparatorOneLineBorder());
 		setBackground(UIUtilities.BACKGROUND_COLOR);
-		double[][] size = {{TableLayout.FILL}, {150, 0, 0}};
+		double[][] size = {{TableLayout.FILL}, {TableLayout.PREFERRED, 
+			150, 0, 0}};
     	setLayout(new TableLayout(size));
     	JScrollPane pane = new JScrollPane(commentArea);
     	pane.setBorder(null);
-    	add(pane, "0, 0");
+    	JLabel l = new JLabel();
+    	
+		Font f = l.getFont();
+		l = UIUtilities.setTextFont("comment", Font.BOLD, f.getSize()-1);
+		l.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+		add(l, "0, 0");
+    	add(pane, "0, 1");
 	}
 
 	/** Hides the previous comments. */
 	private void hidePreviousComments()
 	{
 		TableLayout layout = (TableLayout) getLayout();
-		layout.setRow(1, TableLayout.PREFERRED);
-		layout.setRow(2, 0);
+		layout.setRow(2, TableLayout.PREFERRED);
+		layout.setRow(3, 0);
 		remove(hideComponent);
-		add(moreComponent, "0, 1");
+		add(moreComponent, "0, 2");
 		revalidate();
 		repaint();
 	}
@@ -284,11 +293,11 @@ class TextualAnnotationsUI
 			
 		}
 		TableLayout layout = (TableLayout) getLayout();
-		layout.setRow(1, 0);
 		layout.setRow(2, 0);
+		layout.setRow(3, 0);
 		if (hasPreviousTextualAnnotations()) {
-			layout.setRow(1, TableLayout.PREFERRED);
-			add(moreComponent, "0, 1");
+			layout.setRow(2, TableLayout.PREFERRED);
+			add(moreComponent, "0, 2");
 		}
 		revalidate();
 		repaint();

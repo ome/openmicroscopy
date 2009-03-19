@@ -182,16 +182,6 @@ class EditorComponent
 			throw new IllegalArgumentException("Root object not valid.");
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		/*
-		if ((refObject instanceof String) && 
-			(refObject instanceof TimeRefObject)) {
-			view.showEditor(false);
-		} else {
-			view.showEditor(true);
-			
-			//model.loadUserThumbnail();
-		}
-		*/
 		view.setRootObject();
 	}
 

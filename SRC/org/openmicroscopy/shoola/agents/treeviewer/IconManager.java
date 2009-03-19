@@ -350,11 +350,14 @@ public class IconManager
     /** A version of the <code>Editor protocol</code> icon. */
     public static final int           EDITOR_PROTOCOL = 98;
     
+    /** A version of the <code>Editor protocol</code> icon. */
+    public static final int           FILE_PROTOCOL_EXPERIMENT = 99;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 98;
+    private static final int          MAX_ID = 99;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -462,6 +465,7 @@ public class IconManager
         relPaths[SCREEN_48] = "nuvola_knotes48.png";
         relPaths[EDITOR_PROTOCOL] = "nuvola_folder_cyan_open16.png";
         relPaths[EDITOR_EXPERIMENT] = "nuvola_folder_cyan_open16.png";
+        relPaths[FILE_PROTOCOL_EXPERIMENT] = "expNew.png";
     }
     
     /** The sole instance. */

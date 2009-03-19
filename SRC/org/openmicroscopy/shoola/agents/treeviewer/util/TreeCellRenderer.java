@@ -140,9 +140,13 @@ public class TreeCellRenderer
         		icon = icons.getIcon(IconManager.FILE_EXCEL);
         	else if (FileAnnotationData.XML.equals(format) ||
         			FileAnnotationData.RTF.equals(format)) {
-        		if (filter.accept(data.getFileName()))
-        			icon = icons.getIcon(IconManager.FILE_EDITOR);
-        		else icon = icons.getIcon(IconManager.FILE_XML);
+        		if (filter.accept(data.getFileName())) {
+        			if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(
+        					data.getNameSpace())) {
+        				icon = icons.getIcon(
+        						IconManager.FILE_PROTOCOL_EXPERIMENT);
+        			} else icon = icons.getIcon(IconManager.FILE_EDITOR);
+        		} else icon = icons.getIcon(IconManager.FILE_XML);
         	} else icon = icons.getIcon(IconManager.FILE);
         } else if (node instanceof TreeImageTimeSet)
         	icon = icons.getIcon(IconManager.DATE);
