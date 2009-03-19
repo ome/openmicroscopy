@@ -1787,6 +1787,8 @@ class OmeroMetadataServiceImpl
 				gateway.findIObject(FileAnnotation.class.getName(), id);
 			fa.setFile(of);
 			if (desc != null) fa.setDescription(omero.rtypes.rstring(desc));
+			if (ns != null)
+				fa.setNs(omero.rtypes.rstring(ns));
 			gateway.updateObject(fa, new Parameters());
 		}
 		fa = (FileAnnotation) 
