@@ -671,6 +671,16 @@ public class SharingTest extends AbstractManagedContextTest {
         assertEquals(1, share.getContentSize(id));
     }
     
+    public void testRemoveFunctions() {
+        Experimenter owner = loginNewUser();
+        Dataset d = new Dataset("d");
+        d = iUpdate.saveAndReturnObject(d);
+        long id = share.createShare("desc",null, Arrays.asList(d), null, null, true);
+        assertEquals(1, share.getContentSize(id));
+        share.removeObject(id, d);
+        assertEquals(0, share.getContentSize(id));
+    }
+    
     // Assertions
     // =========================================================================
 
