@@ -41,7 +41,7 @@ if os.environ.has_key("DEBUG"):
     DEBUG = True
 TEXT="""
   OMERO Python Shell. Version %s
-  Type "?" or "help" for more information, "quit" or Ctrl-D to exit
+  Type "help" for more information, "quit" or Ctrl-D to exit
 """ % str(VERSION)
 
 OMEROCLI = path(__file__).expand().dirname()
