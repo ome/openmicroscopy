@@ -87,6 +87,11 @@ module omero {
     const string EVENT    = "omero.event";
     const string UMASK    = "omero.umask";
 
+    module cluster {
+        // config string used by the ConfigRedirector
+        const string REDIRECT = "omero.cluster.redirect";
+    };
+
     module metadata {
         const string NSINSIGHTTAGSET = "openmicroscopy.org/omero/insight/tagset";
         const string NSINSIGHTRATING = "openmicroscopy.org/omero/insight/rating";

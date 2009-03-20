@@ -8,17 +8,15 @@
 package ome.services.blitz.fire;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ome.api.IConfig;
-import ome.api.local.LocalConfig;
 import ome.model.meta.Node;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.services.blitz.redirect.Redirector;
 import ome.services.blitz.util.BlitzConfiguration;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.state.SessionCache;
@@ -35,8 +33,6 @@ import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
 import Glacier2.CannotCreateSessionException;
-import Glacier2.SessionManagerPrx;
-import Glacier2.SessionManagerPrxHelper;
 import Glacier2.SessionPrx;
 import Ice.Current;
 
@@ -52,11 +48,9 @@ import Ice.Current;
  * 
  *@since Beta4
  */
-public class Ring extends _ClusterNodeDisp {
+public class Ring extends _ClusterNodeDisp implements Redirector.Context {
 
     private final static Log log = LogFactory.getLog(Ring.class);
-
-    private final static String REDIRECT = "omero.cluster.redirect";
 
     /**
      * UUID for this cluster node. Used to uniquely identify the session manager
@@ -68,6 +62,8 @@ public class Ring extends _ClusterNodeDisp {
     public final Principal principal;
 
     private final Executor executor;
+
+    private final Redirector redirector;
 
     private final SessionCache cache;
 
@@ -85,10 +81,12 @@ public class Ring extends _ClusterNodeDisp {
      */
     private/* final */String directProxy;
 
-    public Ring(String uuid, Executor executor, SessionCache cache) {
+    public Ring(String uuid, Executor executor, SessionCache cache,
+            Redirector redirector) {
         this.uuid = uuid;
         this.executor = executor;
         this.cache = cache;
+        this.redirector = redirector;
         this.principal = new Principal(uuid, "system", "Internal");
     }
 
@@ -98,6 +96,30 @@ public class Ring extends _ClusterNodeDisp {
      */
     public void setRegistry(Registry registry) {
         this.registry = registry;
+    }
+
+    // Redirector.Context API
+    // =========================================================================
+
+    public String uuid() {
+        return this.uuid;
+    }
+
+    public Principal principal() {
+        return this.principal;
+    }
+
+    /**
+     * Returns the proxy information for the local {@link SessionManager}.
+     * 
+     * @return
+     */
+    public String getDirectProxy() {
+        return this.directProxy;
+    }
+
+    public Ice.Communicator getCommunicator() {
+        return this.communicator;
     }
 
     // Configuration and cluster usage
@@ -113,23 +135,23 @@ public class Ring extends _ClusterNodeDisp {
         this.directProxy = directProxy;
 
         // Before we add our self we check the validity of the cluster.
-        checkClusterAndAddSelf();
+        Set<String> nodeUuids = checkClusterAndAddSelf();
         addManager(uuid, directProxy);
-        initializeRedirect(uuid);
-        log.info("Current redirect: " + getRedirect());
+        nodeUuids.add(uuid);
+        redirector.chooseNextRedirect(this, nodeUuids);
     }
 
     /**
      * Method called during initialization to get all the active uuids within
      * the cluster, and remove any dead nodes. After this, we add this instance
-     * to the cluster.
+     * to the cluster. May return null if lookup fails.
      */
-    protected void checkClusterAndAddSelf() {
+    protected Set<String> checkClusterAndAddSelf() {
 
         ClusterNodePrx[] nodes = registry.lookupClusterNodes();
         if (nodes == null) {
             log.error("Could not lookup nodes. Skipping initialization...");
-            return; // EARLY EXIT
+            return null; // EARLY EXIT
         }
 
         // Contact each of the cluster. This instance has not been added, so
@@ -138,7 +160,8 @@ public class Ring extends _ClusterNodeDisp {
         for (int i = 0; i < nodes.length; i++) {
             ClusterNodePrx prx = nodes[i];
             if (prx == null) {
-                return;
+                log.warn("Null proxy found");
+                continue;
             } else {
                 try {
                     nodeUuids.add(nodes[i].getNodeUuid());
@@ -164,6 +187,8 @@ public class Ring extends _ClusterNodeDisp {
         } catch (Exception e) {
             throw new RuntimeException("Cannot register self as node: ", e);
         }
+
+        return nodeUuids;
     }
 
     public void destroy() {
@@ -171,7 +196,7 @@ public class Ring extends _ClusterNodeDisp {
             Ice.Identity id = this.communicator.stringToIdentity("ClusterNode/"
                     + uuid);
             registry.removeObjectSafely(id);
-            removeRedirectIfEquals(uuid);
+            redirector.handleRingShutdown(this, this.uuid);
             int count = closeSessionsForManager(uuid);
             log.info("Removed " + count + " entries for " + uuid);
             log.info("Disconnected from OMERO.cluster");
@@ -214,10 +239,7 @@ public class Ring extends _ClusterNodeDisp {
      * that instance. Then we try to install ourselves.
      */
     public void down(String downUuid, Current __current) {
-        removeRedirectIfEquals(downUuid);
-        if (initializeRedirect(this.uuid)) {
-            log.info("Installed self as new redirect: " + uuid);
-        }
+        redirector.handleRingShutdown(this, downUuid);
     }
 
     // Local usage
@@ -233,99 +255,13 @@ public class Ring extends _ClusterNodeDisp {
     }
 
     /**
-     * Returns the current redirect, to which all calls to
-     * {@link #getProxyOrNull(String, Glacier2.SessionControlPrx, Ice.Current)}
-     * will be pointed. May be null, but is typically set to a non-null value
-     * when the first {@link Ring} joins the cluster.
+     * Delegates to the {@link #redirector} strategy configured for this
+     * instance.
      */
-    public String getRedirect() {
-        return (String) executor.execute(principal, new Executor.SimpleWork(
-                this, "getRedirect") {
-            @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getConfigService().getConfigValue(REDIRECT);
-            }
-        });
-    }
-
     public SessionPrx getProxyOrNull(String userId,
             Glacier2.SessionControlPrx control, Ice.Current current)
             throws CannotCreateSessionException {
-
-        // If by the end of this method this string is non-null, then
-        // SM.create() will be called on it.
-        String proxyString = null;
-
-        // If there is a redirect, then we honor it as long as it doesn't
-        // point back to us, in which case we bail.
-        String redirect = getRedirect();
-        if (redirect != null) {
-            log.info("Found redirect: " + redirect);
-            if (redirect.equals(uuid)) {
-                log.info("Redirect points to this instance; setting null");
-                proxyString = null;
-            } else {
-                proxyString = findProxy(redirect);
-                if (proxyString == null || proxyString.length() == 0) {
-                    log.warn("No proxy found for manager: " + redirect);
-                } else {
-                    log.info("Resolved redirect to: " + proxyString);
-                }
-            }
-        }
-
-        // Otherwise, if this is not a recursive invocation
-        else if (!current.ctx.containsKey("omero.routed_from")) {
-
-            // Check if the session is in ring
-            proxyString = proxyForSession(userId);
-            if (proxyString != null && !proxyString.equals(directProxy)) {
-                log.info(String.format("Returning remote session on %s",
-                        proxyString));
-            }
-
-            // or needs to be load balanced
-            else {
-                double IMPOSSIBLE = 314159.0;
-                if (Math.random() > IMPOSSIBLE) {
-                    Set<String> values = getManagerList(true);
-                    if (values != null) {
-                        values.remove(uuid);
-                        int size = values.size();
-                        if (size != 0) {
-                            double rnd = Math.floor(size * Math.random());
-                            int idx = (int) Math.round(rnd);
-                            List<String> v = new ArrayList<String>(values);
-                            String uuid = (String) v.get(idx);
-                            proxyString = findProxy(uuid);
-                            log.info(String.format("Load balancing to %s",
-                                    proxyString));
-                        }
-                    }
-                }
-            }
-
-        }
-
-        // If we've found a proxy string, use that.
-        // if (proxyString != null) {
-	// Disabling re-directs for 4.0-RC2
-	if (false) {
-            current.ctx.put("omero.routed_from", directProxy);
-            Ice.ObjectPrx remote = communicator.stringToProxy(proxyString);
-            SessionManagerPrx sessionManagerPrx = SessionManagerPrxHelper
-                    .checkedCast(remote);
-            try {
-                return sessionManagerPrx.create(userId, control, current.ctx);
-            } catch (Exception e) {
-                log.error("Error while routing to " + remote, e);
-                throw new CannotCreateSessionException(
-                        "Error while routing to remote blitz");
-            }
-        }
-
-        // Otherwise, return null.
-        return null;
+        return redirector.getProxyOrNull(this, userId, control, current);
     }
 
     public Set<String> knownManagers() {
@@ -334,14 +270,7 @@ public class Ring extends _ClusterNodeDisp {
 
     public void assertNodes(Set<String> nodeUuids) {
         Set<String> managers = knownManagers();
-        String redirect = getRedirect();
 
-        // First remove any redirect so that new sessions
-        // won't be created on the to-be-closed node.
-        if (! nodeUuids.contains(redirect)) {
-            initializeRedirect(null);
-        }
-        
         for (String manager : managers) {
             if (!nodeUuids.contains(manager)) {
                 // Also verify this is not ourself, since
@@ -370,14 +299,13 @@ public class Ring extends _ClusterNodeDisp {
         } catch (Exception e) {
             log.error("Failed to purge node " + manager, e);
         }
-        initializeRedirect(uuid);
     }
 
     // Database interactions
     // =========================================================================
 
     @SuppressWarnings("unchecked")
-    private Set<String> getManagerList(final boolean onlyActive) {
+    public Set<String> getManagerList(final boolean onlyActive) {
         return (Set<String>) executor.execute(principal,
                 new Executor.SimpleWork(this, "getManagerList") {
                     @Transactional(readOnly = true)
@@ -460,63 +388,4 @@ public class Ring extends _ClusterNodeDisp {
         });
     }
 
-    /**
-     * Set the new redirect value if null, or if the uuid is null or empty, then
-     * the existing redirect will be removed. Otherwise the value is set if it
-     * is currently missing.
-     */
-    public boolean initializeRedirect(final String managerUuid) {
-        return (Boolean) executor.execute(principal, new Executor.SimpleWork(
-                this, "setRedirect") {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                IConfig config = sf.getConfigService();
-                if (managerUuid == null || managerUuid.length() == 0) {
-                    config.setConfigValue(REDIRECT, null);
-                    return true;
-                } else {
-                    return config.setConfigValueIfEquals(REDIRECT, managerUuid,
-                            null);
-                }
-            }
-        });
-    }
-
-    private void removeRedirectIfEquals(final String redirect) {
-        executor.execute(principal, new Executor.SimpleWork(this,
-                "removeRedirectIfEquals") {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                LocalConfig config = (LocalConfig) sf.getConfigService();
-                return config.setConfigValueIfEquals(REDIRECT, null, redirect);
-            }
-        });
-    }
-
-    private String findProxy(final String redirect) {
-        final String query = "select node from Node node where node.uuid = :uuid";
-        return nodeProxyQuery(redirect, query);
-    }
-
-    private String proxyForSession(final String sessionUuid) {
-        final String query = "select node from Node node "
-                + "join node.sessions as s where s.uuid = :uuid";
-        return nodeProxyQuery(sessionUuid, query);
-    }
-
-    private String nodeProxyQuery(final String uuid, final String query) {
-        return (String) executor.execute(principal, new Executor.SimpleWork(
-                this, "nodeProxyQuery") {
-            @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
-                Parameters p = new Parameters().addString("uuid", uuid);
-                Node node = sf.getQueryService().findByQuery(query, p);
-                if (node == null) {
-                    return null;
-                } else {
-                    return node.getConn();
-                }
-            }
-        });
-    }
 }
