@@ -195,13 +195,13 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
                         sm.create("####### STATUS CHECK ########", None) # Not adding "omero.client.uuid"
                     except omero.WrappedCreateSessionException, wcse:
                         # Only the server will throw one of these
-                        self.ctx.dbg("Search reachable")
+                        self.ctx.dbg("Server reachable")
                         self.ctx.rv = 0
                 finally:
                     ic.destroy()
             except Exc, exc:
                 self.ctx.rv = 1
-                self.ctx.dbg("Server not reachable")
+                self.ctx.dbg("Server not reachable: "+str(exc))
         return self.ctx.rv
 
     def __DISABLED__restart(self, args):

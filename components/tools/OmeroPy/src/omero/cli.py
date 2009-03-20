@@ -441,7 +441,7 @@ class BaseControl:
         as an argument.
         """
         icecfg = "--Ice.Config=%s" % ",".join(self._cfglist())
-        return icecfg
+        return str(icecfg)
 
     def _intcfg(self):
         """
@@ -450,7 +450,7 @@ class BaseControl:
         """
         intcfg = self.dir / "etc" / "internal.cfg"
         intcfg.abspath()
-        return "--Ice.Config=%s" % intcfg
+        return str("--Ice.Config=%s" % intcfg)
 
     def _properties(self, prefix=""):
         """
