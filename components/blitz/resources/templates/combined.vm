@@ -1434,12 +1434,12 @@ super class where the property was defined.
 [$pyc]       def get${property.shortType}(self, index, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           return self._${fieldName}.get(index)
+[$pyc]           return self._${fieldName}[index]
 [$pyc]
 [$pyc]       def set${property.shortType}(self, index, element, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           self._${fieldName}.set(index, element)
+[$pyc]           self._${fieldName}[index] =  element
 [$pyc]
 [$pyc]       def getPrimary${property.shortType}(self, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
