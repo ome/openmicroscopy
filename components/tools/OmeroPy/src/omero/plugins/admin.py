@@ -223,6 +223,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         self.ctx.out("Waiting on shutdown. Use CTRL-C to exit")
         while 0 == self.status(args):
             self.ctx.out(".", newline = False)
+	self.ctx.rv = 0
 
     def stopasync(self, args):
         ##if 0 == self.status(args):
