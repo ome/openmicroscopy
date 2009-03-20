@@ -1,7 +1,7 @@
 import java.util.List;
 import omero.model.Project;
 import omero.api.IQueryPrx;
-import omero.sts.ParametersI;
+import omero.sys.ParametersI;
 import static omero.rtypes.*;
 
 public class AllProjects {

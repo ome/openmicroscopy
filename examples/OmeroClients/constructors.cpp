@@ -4,5 +4,5 @@ using namespace omero::model;
 int main() {
     ImagePtr image = new ImageI();
     DatasetPtr dataset = new DatasetI(1L, false);
-    dataset->linkImage(image);
+    image->linkDataset(dataset);
 }

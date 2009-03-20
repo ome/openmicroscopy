@@ -17,7 +17,7 @@ public class sudo {
             ISessionPrx sessionSvc = sf.getSessionService();
 
             Principal p = new Principal();
-            p.name = "user";
+            p.name = "root"; // Can change to any user
             p.group = "user";
             p.eventType = "User";
 

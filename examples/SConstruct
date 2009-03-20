@@ -69,7 +69,7 @@ opts.Add(BoolOption('run_py', 'Execute Python build artifacts', 0))
 map = { "options" : opts,
         "CPPPATH" : cpppath + [os.path.join(builddir,"include"), os.path.curdir],
         "LIBPATH" : libpath + [os.path.join(builddir,"lib")],
-        "PYTHONPATH" : pypath + [os.path.join(builddir,"lib")],
+        "PYTHONPATH" : pypath + [os.path.join(builddir,"lib","python")],
         "CXXFLAGS" : [],
         "CPPDEFINES" : [],
         "LINKFLAGS" : [],
@@ -189,7 +189,7 @@ for src_dir in glob.glob("*"):
             make = env.Program(base+".exe", file, LIBS=libs)
             targets.append(make)
             if env["run"] or env["run_cpp"]:
-                run = env.Command(base+".out", base+".exe", "./$SOURCE --omero.debug=1 --Ice.Config=%s" % ice_config )
+                run = env.Command(base+".out", base+".exe", "./$SOURCE --Ice.Config=%s" % ice_config )
                 env.Depends(run, make)
                 env.AlwaysBuild(run)
                 targets.append(run)

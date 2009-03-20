@@ -4,6 +4,8 @@ import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 
+import java.util.*;
+
 public class iterators {
 
     public static void main(String args[]) {
@@ -12,9 +14,9 @@ public class iterators {
         Dataset dataset = new DatasetI();
         DatasetImageLink link = dataset.linkImage(image);
 
-        Iterator<DatasetI> it = image.iterateDatasetLinks();
+        Iterator<DatasetImageLinkI> it = image.iterateDatasetLinks();
         while (it.hasNext()) {
-            it.next().getName();
+            it.next().getChild().getName();
         }
 
     }

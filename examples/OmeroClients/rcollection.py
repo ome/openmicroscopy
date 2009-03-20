@@ -1,3 +1,4 @@
+import omero
 from omero.rtypes import *
 
 # Sets and Lists may be interpreted differently on the server

@@ -1,15 +1,15 @@
 import omero
 
-image = ImageI()                # A loaded object by default
+image = omero.model.ImageI()                # A loaded object by default
 assert image.isLoaded()
-image.unload()                  # can then be unloaded
-assert ! image.isLoaded()
+image.unload()                              # can then be unloaded
+assert (not image.isLoaded())
 
-image = ImageI( 1L, false )     # Creates an unloaded "proxy"
-assert ! image.isLoaded()
+image = omero.model.ImageI( 1L, False )     # Creates an unloaded "proxy"
+assert (not image.isLoaded())
 
-image.getId()                   # Ok
+image.getId()                               # Ok
 try:
-    image.getName()             # No data access is allowed other than id.
+    image.getName()                         # No data access is allowed other than id.
 except:
     pass

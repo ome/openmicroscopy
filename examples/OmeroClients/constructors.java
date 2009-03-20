@@ -13,7 +13,7 @@ public class constructors {
 
         Image image = new ImageI();
         Dataset dataset = new DatasetI(1L, false);
-        dataset.linkImage(image);
+        image.linkDataset(dataset);
 
     }
 

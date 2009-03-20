@@ -1,11 +1,12 @@
 #include <string>
 #include <omero/API.h>
 #include <omero/System.h>
+#include <omero/RTypesI.h>
 #include <omero/Collections.h>
 #include <omero/templates.h>
 #include <omero/model/Project.h>
 #include <omero/sys/ParametersI.h>
-
+using namespace omero::rtypes;
 struct AllProjects {
 
     static std::vector<omero::model::ProjectPtr> getProjects(omero::api::IQueryPrx query, std::string username) {
