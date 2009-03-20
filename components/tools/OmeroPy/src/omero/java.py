@@ -26,36 +26,39 @@ def cmd(args,\
     """
     # Convert strings to an array for appending
     if isinstance(java,str):
-        java = [java]
+        command = [java]
+    else:
+        command = list(java)
+
     if isinstance(xargs,str):
         xargs = shlex.split(xargs)
 
     # Add our logging configuration early
     # so that it can be overwritten by xargs
-    java += [ "-Dlog4j.configuration=%s" % os.path.join("etc", "log4j.xml") ]
+    command += [ "-Dlog4j.configuration=%s" % os.path.join("etc", "log4j.xml") ]
 
     # Preapre arguments
     if xargs == None:
         if os.environ.has_key("JAVA_OPTS"):
-            java += shlex.split(os.environ["JAVA_OPTS"])
+            command += shlex.split(os.environ["JAVA_OPTS"])
     else:
-        java += xargs
+        command += xargs
 
     # Prepare debugging
     if debug == None:
         if os.environ.has_key("DEBUG"):
-            java += ["-Xdebug",debug_string]
+            command += ["-Xdebug",debug_string]
     else:
         if debug:
-            java += ["-Xdebug",debug_string]
+            command += ["-Xdebug",debug_string]
 
     # Do any mandatory configuration very late
-    java += [ "-Djava.awt.headless=true" ]
+    command += [ "-Djava.awt.headless=true" ]
 
     # Add the actual arguments now
-    java += args
+    command += args
 
-    return java
+    return command
 
 def run(args,\
         use_exec = False,\
@@ -76,16 +79,16 @@ def run(args,\
     Debugging can more simply be turned on by passing True for the debug argument.
     If more control over the debugging configuration is needed, pass debug_string.
     """
-    java = cmd(args, java, xargs, chdir, debug, debug_string)
+    command = cmd(args, java, xargs, chdir, debug, debug_string)
     if use_exec:
         env = os.environ
         if chdir:
             os.chdir(chdir)
         if platform.system() == "Windows":
-             command = [ "\"%s\"" % i for i in java ]
-             os.execvpe(java[0], command, env)
+             command = [ "\"%s\"" % i for i in command ]
+             os.execvpe(command[0], command, env)
         else:
-             os.execvpe(java[0], java, env)
+             os.execvpe(command[0], command, env)
     else:
         p = popen(args, java, xargs, chdir, debug, debug_string)
         output = p.communicate()[0]
@@ -103,7 +106,7 @@ def popen(args,\
     the Java command to be executed. This is the same logic as run(use_exec=False) but
     the Popen is returned rather than the stdout.
     """
-    java = cmd(args, java, xargs, chdir, debug, debug_string)
+    command = cmd(args, java, xargs, chdir, debug, debug_string)
     if not chdir:
         chdir = os.getcwd()
-    return subprocess.Popen(java, stdout=stdout, cwd=chdir, env = os.environ)
+    return subprocess.Popen(command, stdout=stdout, cwd=chdir, env = os.environ)

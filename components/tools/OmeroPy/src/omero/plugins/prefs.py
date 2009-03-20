@@ -21,7 +21,7 @@ def getprefs(args, dir):
     if not isinstance(args,list):
         raise Exception("Not a list")
     cmd = ["prefs"]+list(args)
-    return omero.java.run(["prefs"]+list(args), chdir=dir)
+    return omero.java.run(cmd, chdir=dir)
 
 class PrefsControl(BaseControl):
 
