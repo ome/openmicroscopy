@@ -90,7 +90,7 @@ public class FullTextIndexer implements Work {
 
     /**
      * Spring injector. Sets the number of indexing runs will be made if there
-     * is a substantal backlog.
+     * is a substantial backlog.
      */
     public void setRepetitions(int reps) {
         this.reps = reps;
@@ -106,11 +106,8 @@ public class FullTextIndexer implements Work {
     }
     
     /**
-     * Runes {@link #doIndexing(FullTextSession)} within a Lucene transaction.
+     * Runs {@link #doIndexing(FullTextSession)} within a Lucene transaction.
      * {@link #doIndexing(FullTextSession)} will also be called
-     *
-     * Note: This is read-write because the configuration value in the database
-     * will be reset. However, Hibernate should consider it read-only. TODO.
      */
     @Transactional(readOnly = false)
     public Object doWork(Session session, ServiceFactory sf) {
