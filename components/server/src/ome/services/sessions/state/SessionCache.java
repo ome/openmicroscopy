@@ -528,10 +528,12 @@ public class SessionCache implements ApplicationContextAware {
                 boolean success = false;
 
                 try {
-                    log.info("Synchronizing session cache");
                     if (staleCacheListener != null) {
                         staleCacheListener.prepareReload();
                         List<String> ids = sessions.getKeys();
+                        log.info("Synchronizing session cache. Count = "
+                                + ids.size());
+                        long start = System.currentTimeMillis();
                         for (String id : ids) {
                             Element elt = sessions.getQuiet(id);
                             SessionContext ctx = (SessionContext) elt
@@ -556,6 +558,8 @@ public class SessionCache implements ApplicationContextAware {
                             }
                         }
                         success = true;
+                        log.info(String.format("Synchronization took %s ms.",
+                                System.currentTimeMillis() - start));
                     }
                 } catch (Exception e) {
                     log.error("Error synchronizing cache", e);
