@@ -60,6 +60,7 @@ if os.environ.has_key("ICE_CONFIG"):
     ice_config = os.environ["ICE_CONFIG"]
 else:
     ice_config = os.path.join(builddir, 'etc', 'ice.config')
+ice_config = os.path.abspath( ice_config )
 
 #
 # Options
