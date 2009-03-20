@@ -158,15 +158,21 @@ class AnnotationDataUI
 	{
 		if (docSelectionMenu != null) return docSelectionMenu;
 		docSelectionMenu = new JPopupMenu();
-		JMenuItem item = new JMenuItem("Local document");
+		JMenuItem item = new JMenuItem("Local document...");
 		item.setToolTipText("Upload and attach a local document.");
 		item.addActionListener(controller);
 		item.setActionCommand(""+EditorControl.ADD_LOCAL_DOCS);
 		docSelectionMenu.add(item);
-		item = new JMenuItem("Uploaded document");
+		item = new JMenuItem("Uploaded document...");
 		item.setToolTipText("Attach a document already uploaded.");
 		item.addActionListener(controller);
 		item.setActionCommand(""+EditorControl.ADD_UPLOADED_DOCS);
+		docSelectionMenu.add(item);
+		item = new JMenuItem("New Experiment...");
+		item.setEnabled(controller.isSingleMode());
+		item.setToolTipText("Create a new experiment.");
+		item.addActionListener(controller);
+		item.setActionCommand(""+EditorControl.CREATE_NEW_EXPERIMENT);
 		docSelectionMenu.add(item);
 		return docSelectionMenu;
 	}

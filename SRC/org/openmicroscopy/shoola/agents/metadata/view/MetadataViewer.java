@@ -279,4 +279,12 @@ public interface MetadataViewer
 	/** Displays the tag wizard. */
 	public void showTagWizard();
 	
+	/** 
+	 * Returns the object path i.e. if a dataset is selected,
+	 * the name of the project_name of the dataset.
+	 * 
+	 * @return See above.
+	 */
+	public String getObjectPath();
+	
 }

@@ -38,7 +38,6 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -560,16 +559,24 @@ class MetadataViewerComponent
 		model.getEditor().setStatus(busy);
 	}
 	
-
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see TreeViewer#showTagWizard()
+	 * @see MetadataViewer#showTagWizard()
 	 */
 	public void showTagWizard()
 	{
 		if (model.getState() == DISCARDED) return;
 		model.getEditor().loadExistingTags();
 		//model.getMetadataViewer().showTagWizard();
+	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getObjectPath()
+	 */
+	public String getObjectPath()
+	{
+		return model.getRefObjectPath();
 	}
 	
 }

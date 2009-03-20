@@ -1462,4 +1462,20 @@ class EditorModel
 		return tag.getTagDescription();
 	}
 	
+	/**
+	 * Returns <code>true</code> if the display is for a single 
+	 * object, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isSingleMode() { return parent.isSingleMode(); }
+
+	/** 
+	 * Returns the object path i.e. if a dataset is selected,
+	 * the name of the project_name of the dataset.
+	 * 
+	 * @return See above.
+	 */
+	String getObjectPath() { return parent.getObjectPath(); }
+	
 }

@@ -37,14 +37,21 @@ import javax.swing.JTabbedPane;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
+import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Application-internal dependencies
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellSampleData;
 
@@ -414,6 +421,38 @@ public class EditorUI
 	void setChannelAcquisitionData(int index)
 	{
 		acquisitionPane.setChannelAcquisitionData(index);
+	}
+
+	/**
+	 * Returns <code>true</code> if the display is for a single 
+	 * object, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isSingleMode() { return model.isSingleMode(); }
+	
+	/** 
+	 * Posts an event to create a new experiment.
+	 */
+	void createNewExperiment()
+	{
+		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+		String name = model.getObjectPath();
+		Object object = model.getRefObject();
+		if ((object instanceof ProjectData) || 
+				(object instanceof DatasetData) ||
+				(object instanceof ImageData) || 
+				(object instanceof ScreenData) ||
+				(object instanceof PlateData)) {
+			if (name != null && name.trim().length() > 0) {
+				name += ShowEditorEvent.EXPERIMENT_EXTENSION;
+				ShowEditorEvent event = new ShowEditorEvent(
+						(DataObject) object, name, 
+						ShowEditorEvent.EXPERIMENT);
+				bus.post(event);
+			}
+		}
+		
 	}
 	
 }

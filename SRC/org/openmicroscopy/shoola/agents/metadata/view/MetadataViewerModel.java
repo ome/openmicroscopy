@@ -51,7 +51,9 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * The Model component in the <code>MetadataViewer</code> MVC triad.
@@ -294,6 +296,17 @@ class MetadataViewerModel
 		return true;
 	}
 	
+	/** 
+	 * Returns the object path i.e. if a dataset is selected,
+	 * the name of the project_name of the dataset.
+	 * 
+	 * @return See above.
+	 */
+	String getRefObjectPath()
+	{
+		return getRefObjectName();
+	}
+	
 	/**
 	 * Returns the name of the object if any.
 	 * 
@@ -306,7 +319,11 @@ class MetadataViewerModel
 		else if (refObject instanceof DatasetData)
 			return ((DatasetData) refObject).getName();
 		else if (refObject instanceof ProjectData)
-		return ((ProjectData) refObject).getName();
+			return ((ProjectData) refObject).getName();
+		else if (refObject instanceof PlateData)
+			return ((PlateData) refObject).getName();
+		else if (refObject instanceof ScreenData)
+			return ((ScreenData) refObject).getName();
 		return "";
 	}
 

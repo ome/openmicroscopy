@@ -89,10 +89,10 @@ class EditorControl
 	/** Bound property indicating that the save status has been modified. */
 	static final String SAVE_PROPERTY = "save";
 	
-	/** Action id indicating to upload attach documents . */
+	/** Action id indicating to upload attach documents. */
 	static final int	ADD_LOCAL_DOCS = 0;
 	
-	/** Action id indicating to upload attach documents . */
+	/** Action id indicating to upload attach documents. */
 	static final int	ADD_UPLOADED_DOCS = 1;
 	
 	/** Action id indicating to attach documents. */
@@ -106,6 +106,9 @@ class EditorControl
 
 	/** Action ID to display the acquisition metadata. */
 	static final int	ACQUISITION_METADATA = 5;
+	
+	/** Action id indicating to create a new experiment. */
+	static final int	CREATE_NEW_EXPERIMENT = 6;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -221,6 +224,15 @@ class EditorControl
 	/** Loads the existing Tags. */
 	void loadExistingTags() { model.loadExistingTags(); }
 	
+
+	/**
+	 * Returns <code>true</code> if the display is for a single 
+	 * object, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isSingleMode() { return view.isSingleMode(); }
+	
 	/**
 	 * Reacts to property change.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -309,6 +321,9 @@ class EditorControl
 				break;
 			case ADD_TAGS:
 				loadExistingTags();
+				break;
+			case CREATE_NEW_EXPERIMENT:
+				view.createNewExperiment();
 		}
 	}
 	
