@@ -694,7 +694,9 @@ class TreeViewerControl
 			}
 		} else if (DataBrowser.TAG_WIZARD_PROPERTY.equals(name)) {
 			model.showTagWizard();
-		}
+		} else if (DataBrowser.CREATE_NEW_EXPERIMENT_PROPERTY.equals(name)) {
+			model.openEditorFile(TreeViewer.NEW_WITH_SELECTION);
+		} 
 	}
 
 	/**

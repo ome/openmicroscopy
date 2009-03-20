@@ -38,6 +38,7 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.CreateExperimentAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.RefreshAction;
@@ -113,6 +114,9 @@ class DataBrowserControl
 	/** Identifies the <code>Tag</code> action. */
 	static final Integer    TAG = Integer.valueOf(11);
 
+	/** Identifies the <code>New Experiment</code> action. */
+	static final Integer    NEW_EXPERIMENT = Integer.valueOf(12);
+	
 	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,
 	 * is regarded as the Model.
@@ -149,6 +153,7 @@ class DataBrowserControl
     					ManageRndSettingsAction.SET_ORIGINAL));
     	actionsMap.put(SAVE_AS, new SaveAction(model));
     	actionsMap.put(TAG, new TaggingAction(model));
+    	actionsMap.put(NEW_EXPERIMENT, new CreateExperimentAction(model));
     }
     
 	/** 

@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.Action;
 
 //Third-party libraries
@@ -43,7 +42,6 @@ import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
-import pojos.TagAnnotationData;
 
 /** 
  * Manages the object i.e. either copy, paste, cut or remove. 

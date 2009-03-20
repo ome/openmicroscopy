@@ -88,6 +88,13 @@ public interface DataBrowser
 	extends ObservableComponent
 {
 	
+	/** 
+	 * Bound property indicating to launch the editor to create a new 
+	 * experiment. 
+	 */
+	public static final String		CREATE_NEW_EXPERIMENT_PROPERTY = 
+		"createNewExperiment";
+	
 	/** Bound property indicating to tag selected objects. */
 	public static final String		TAG_WIZARD_PROPERTY = "tagWizard";
 	
@@ -530,6 +537,12 @@ public interface DataBrowser
 	 */
 	public void markUnmodifiedNodes(Class type, Collection<Long> ids);
 
+	/**
+	 * Brings up the tag wizard.
+	 */
 	public void showTagWizard();
+
+	/** Posts an event to launch the editor to create a new experiment. */
+	public void createNewExperiment();
 	
 }

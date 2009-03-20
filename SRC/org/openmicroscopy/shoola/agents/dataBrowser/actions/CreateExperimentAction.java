@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.actions.TaggingAction 
+ * org.openmicroscopy.shoola.agents.dataBrowser.actions.CreateExperimentAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -23,14 +23,18 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 
 
+
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.Collection;
+
 import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -42,7 +46,7 @@ import pojos.ProjectData;
 import pojos.ScreenData;
 
 /** 
- * Action to launch the available tags.
+ * Action to launch the editor to create a new experiment.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,16 +58,16 @@ import pojos.ScreenData;
  * </small>
  * @since 3.0-Beta4
  */
-public class TaggingAction 
+public class CreateExperimentAction 
 	extends DataBrowserAction
 {
 
 	/** The default name of the action. */
-    private static final String NAME = "Tag...";
-    
-    /** The default name of the action. */
-    private static final String DESCRIPTION = "Add or remove tags.";
-    
+    private static final String NAME = "New Experiment...";
+
+	/** The description of the action. */
+	private static final String DESCRIPTION = "Launch the Editor.";
+	
     /**
      * Sets the action enabled depending on the currently selected display
      * @see DataBrowserAction#onDisplayChange(ImageDisplay)
@@ -74,33 +78,38 @@ public class TaggingAction
             setEnabled(false);
             return;
         }
-    	Object object = node.getHierarchyObject();
-    	setEnabled((object instanceof ImageData) || 
-				(object instanceof DatasetData) || 
-				(object instanceof ProjectData) ||
-				(object instanceof ScreenData) ||
-				(object instanceof PlateData));
+    	Browser browser = model.getBrowser();
+    	Collection l = browser.getSelectedDisplays();
+    	if (l != null && l.size() == 1) {
+    		Object object = node.getHierarchyObject();
+    		setEnabled((object instanceof ImageData) || 
+    				(object instanceof DatasetData) || 
+    				(object instanceof ProjectData) ||
+    				(object instanceof ScreenData) ||
+    				(object instanceof PlateData));
+    	}
     }
-      
+    
     /**
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-	public TaggingAction(DataBrowser model)
+	public CreateExperimentAction(DataBrowser model)
 	{
 		super(model);
 		putValue(Action.NAME, NAME);
 		putValue(Action.SHORT_DESCRIPTION, 
 				UIUtilities.formatToolTipText(DESCRIPTION));
 		IconManager im = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, im.getIcon(IconManager.TAG));
+		putValue(Action.SMALL_ICON, im.getIcon(IconManager.EDITOR));
 	}
 	
+	
 	/**
-	 * Brings up the tagging wizard.
+	 * Posts an event to create a new experiment.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
-    public void actionPerformed(ActionEvent e) { model.showTagWizard(); }
-    
+    public void actionPerformed(ActionEvent e) { model.createNewExperiment(); }
+	
 }

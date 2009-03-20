@@ -1073,5 +1073,15 @@ class DataBrowserComponent
 	{
 		firePropertyChange(TAG_WIZARD_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#createNewExperiment()
+	 */
+	public void createNewExperiment()
+	{
+		firePropertyChange(CREATE_NEW_EXPERIMENT_PROPERTY, Boolean.FALSE, 
+				Boolean.TRUE);
+	}
 	
 }
