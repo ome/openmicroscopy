@@ -116,6 +116,7 @@ public class FullTextIndexer implements Work {
     public Object doWork(Session session, ServiceFactory sf) {
         int count = 1;
         int perbatch = 0;
+        long start = System.currentTimeMillis();
         do {
             try {
                 // ticket:1254 -
@@ -138,8 +139,8 @@ public class FullTextIndexer implements Work {
             session.flush();
             count++;
         } while (doMore(count));
-        log.info(String.format("INDEXED %s objects in %s batches", perbatch,
-                count - 1));
+        log.info(String.format("INDEXED %s objects in %s batch(es) [%s ms.]",
+                perbatch, (count - 1), (System.currentTimeMillis() - start)));
         return null;
     }
 
