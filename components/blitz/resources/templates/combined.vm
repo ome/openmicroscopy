@@ -298,12 +298,8 @@ DEFAULT CONSTRUCTOR BLOCK:
 Python combines the two constructors. See below for a comparison.
 [$pyc]       def __init__(self,id = None, loaded = True):
 [$pyc]           super(${Pojo}I, self).__init__()
-[$pyc]           if None == id or isinstance(id, _omero.RLong):
-[$pyc]               self.id = id
-[$pyc]           elif isinstance(id, long):
-[$pyc]               self.id = rlong(id)
-[$pyc]           else:
-[$pyc]               raise omero.ClientError("id argument can only be an omero.RLong or long, not " + str(id))
+[$pyc]           # Relying on omero.rtypes.rlong's error-handling
+[$pyc]           self.id = rlong(id)
 [$pyc]           self._loaded = loaded
 [$pyc]           if self._loaded:
 [$pyc]              self._details = _omero_model.DetailsI()
