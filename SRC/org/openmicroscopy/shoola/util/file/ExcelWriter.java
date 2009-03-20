@@ -491,8 +491,10 @@ public class ExcelWriter
 				element = getElement(tableModel.getValueAt(rowCount, 
 						columnCount), elementRowCount);
 				setCellStyle(cell, TWODECIMALPOINTS);
-				writeElement(currentSheet.getCurrentRow()+
-						elementRowCount,startColumn + columnCount, element);
+				if (element != null) {
+					writeElement(currentSheet.getCurrentRow()+
+							elementRowCount,startColumn + columnCount, element);
+				}
 			}
 		}
 		currentSheet.setCurrentRow(currentSheet.getCurrentRow()+maxRows);
@@ -737,8 +739,8 @@ public class ExcelWriter
 			entry = (Entry) it.next();
 			key = entry.getKey();
 			value = entry.getValue();
-			writeElement(rowIndex, columnIndex, key);
-			writeElement(rowIndex, columnIndex+1, value);
+			if (key != null) writeElement(rowIndex, columnIndex, key);
+			if (value != null) writeElement(rowIndex, columnIndex+1, value);
 			rowIndex++;
 		}
 		currentSheet.setCurrentRow(rowIndex);
