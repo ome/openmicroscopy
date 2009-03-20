@@ -5,15 +5,15 @@ public class unloaded {
 
         ImageI image = new ImageI();           // A loaded object by default
         assert image.isLoaded();
-        image.unload();                       // can then be unloaded
+        image.unload();                        // can then be unloaded
         assert ! image.isLoaded();
 
-        image = new ImageI( 1L, false );     // Creates an unloaded "proxy"
+        image = new ImageI( 1L, false );       // Creates an unloaded "proxy"
         assert ! image.isLoaded();
 
-        image.getId();                        // Ok.
+        image.getId();                         // Ok.
         try {
-            image.getName();                  // No data access is allowed other than id.
+            image.getName();                   // No data access is allowed other than id.
         } catch (Exception e) {
             // Ok.
         }

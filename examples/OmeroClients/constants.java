@@ -8,7 +8,7 @@ public class constants {
             omero.constants.MESSAGESIZEMAX.value));
         System.out.println(String.format(
             "By default, client.createSession() will wait %s seconds for a connection",
-            CONNECTTIMEOUT/1000));
+            omero.constants.CONNECTTIMEOUT.value/1000));
 
     }
 }
