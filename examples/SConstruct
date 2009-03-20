@@ -5,7 +5,10 @@
 
 # www.scons.org based build file which builds and optionally runs
 # all the examples in this directory. Each directory is its own
-# context, but should contain no sub-directories.
+# context. If it contains a "SConscript", it will be called with
+# the same parameters. Otherwise, all the files will be built via
+# the default logic in this file. Such basic directories should
+# not contain sub-directories.
 
 # Instructions:
 #
@@ -20,7 +23,11 @@
 #
 #   Command-line arguments:
 #
-#     run=1      # Causes all the files to be executed
+#     builddir=../omero  # Path to a build directory other than ../dist
+#     run=1              # Causes all the files to be executed
+#     run_java=1         # Causes Java files to be executed
+#     run_cpp=1          # Causes C++ files to be executed
+#     run_py=1           # Causes Python files to be executed
 #
 #
 import glob, os
@@ -151,6 +158,15 @@ targets = []
 
 for src_dir in glob.glob("*"):
     if os.path.isdir(src_dir):
+
+
+        #
+        # SConscript-based directory
+        #
+        sconscript = os.path.join(src_dir, "SConscript")
+        if os.path.exists(sconscript):
+            rv = env.SConscript(sconscript, 'env libs ice_config')
+            continue
 
         #
         # Java

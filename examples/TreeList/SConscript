@@ -1,0 +1,64 @@
+#
+#   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+#   Use is subject to license terms supplied in LICENSE.txt
+#
+
+# Subdirectory build for the TreeList example. See ../SConstruct
+# for more information.
+
+import os
+Import('env libs ice_config')
+files = ["Main","Usage","AllProjects","PrintProjects"]
+targets = []
+
+#
+# Configuration
+#
+m = {"omero.host":"localhost", "omero.port":4063}
+f = open(ice_config)
+for line in f:
+    parts = line.split("=")
+    try:
+        m[parts[0]] = parts[1].strip()
+    except:
+        pass
+f.close()
+args = """ '--omero.host=%(omero.host)s' '--omero.port=%(omero.port)s' '%(omero.user)s' '%(omero.pass)s' """ % m
+
+
+#
+# Java
+#
+javac = env.Java(".",".")
+targets.append(javac)
+if env["run"] or env["run_java"]:
+    # Cloning environment, so that CLASSPATH doesn't have all the subdirectories included
+    clone = env.Clone()
+    clone['ENV']['CLASSPATH'] = os.path.pathsep.join([ clone['ENV']['CLASSPATH'], "TreeList" ])
+    run = clone.Alias("Main.class", [], "java -ea Main " + args)
+    Depends(run, javac)
+    clone.AlwaysBuild(run)
+    targets.append(run)
+
+#
+# Python
+#
+if env["run"] or env["run_py"]:
+    run = env.Alias("Main.py", [], "python TreeList/Main.py " + args)
+    env.AlwaysBuild(run)
+    targets.append(run)
+
+#
+# C++
+#
+make = env.Program("TreeList.exe", "Main.cpp", LIBS = libs)
+targets.append(make)
+if env["run"] or env["run_cpp"]:
+    run = env.Command("TreeList.out", "TreeList.exe", "./$SOURCE " + args)
+    env.Depends(run, make)
+    env.AlwaysBuild(run)
+    targets.append(run)
+
+# PREPARING SCONS EXECUTION: =================================
+#
+Default(targets)

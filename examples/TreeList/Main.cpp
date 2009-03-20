@@ -1,15 +1,16 @@
 #include <omero/client.h>
-#include <TreeList/Usage.h>
-#include <TreeList/AllProjects.h>
-#include <TreeList/PrintProjects.h>
+#include <Usage.h>
+#include <AllProjects.h>
+#include <PrintProjects.h>
 
 int main(int argc, char* argv[]) {
 
-    std::string host, user, pass;
+    std::string host, port, user, pass;
     try {
         host = argv[0];
-        user = argv[1];
-        pass = argv[2];
+        port = argv[1];
+        user = argv[2];
+        pass = argv[3];
     } catch (...) {
         Usage::usage();
     }
