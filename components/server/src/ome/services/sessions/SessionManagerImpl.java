@@ -8,11 +8,14 @@ package ome.services.sessions;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -170,10 +173,11 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             internalSession = new InternalSessionContext(session, roles);
             cache.putSession(internal_uuid, internalSession);
         } catch (DataAccessException dataAccess) {
-            throw new RuntimeException("          "
-                    + "=====================================================\n"
-                    + "Data access exception: Did you create your database? \n"
-                    + "=====================================================\n",
+            throw new RuntimeException(
+                    "          "
+                            + "=====================================================\n"
+                            + "Data access exception: Did you create your database? \n"
+                            + "=====================================================\n",
                     dataAccess);
         }
     }
@@ -252,7 +256,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         return (Share) createSession(principal, share);
     }
 
-    private Session createSession(Principal principal, Session session) {
+    private Session createSession(final Principal principal,
+            final Session oldsession) {
         // If username exists as session, then return that
         try {
             SessionContext context = cache.getSessionContext(principal
@@ -265,115 +270,140 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             // oh well
         }
 
-        principal = checkPrincipalNameAndDefaultGroup(principal);
-        long userId = executeLookupUser(principal);
-        session = executeUpdate(session, userId);
-        SessionContext ctx = currentDatabaseShapshot(principal, session);
-        if (ctx == null) {
+        List rv = (List) executor.execute(this.asroot, new Executor.SimpleWork(
+                this, "createSession") {
+            @Transactional(readOnly = false)
+            public Object doWork(org.hibernate.Session __s, ServiceFactory sf) {
+                Principal p = checkPrincipalNameAndDefaultGroup(sf, principal);
+                long userId = executeLookupUser(sf, p);
+                Session s = executeUpdate(sf, oldsession, userId);
+                SessionContext ctx = currentDatabaseShapshot(sf, p, s);
+                return Arrays.asList(s, ctx);
+            }
+
+        });
+        Session newsession = (Session) rv.get(0);
+        SessionContext newctx = (SessionContext) rv.get(1);
+
+        if (newctx == null) {
             throw new RemovedSessionException("No info in database for "
                     + principal);
         }
 
         // This the publishEvent returns successfully, then we will have to
         // handle rolling back this addition our selves
-        cache.putSession(session.getUuid(), ctx);
+        cache.putSession(newsession.getUuid(), newctx);
         try {
-            context.publishEvent(new CreateSessionMessage(this, session
+            context.publishEvent(new CreateSessionMessage(this, newsession
                     .getUuid()));
         } catch (RuntimeException re) {
             log.warn("Session creation cancelled by event listener", re);
-            cache.removeSession(session.getUuid());
+            cache.removeSession(newsession.getUuid());
             throw re;
         }
 
         // All successful, increment and return.
-        ctx.increment();
-        return session;
+        newctx.increment();
+        return newsession;
     }
 
     public Session update(Session session) {
         return update(session, false);
     }
 
-    public Session update(Session session, boolean trusted) {
+    public Session update(final Session session, final boolean trusted) {
 
         if (session == null || !session.isLoaded() || session.getUuid() == null) {
             throw new RemovedSessionException("Cannot update; No uuid.");
         }
 
-        SessionContext ctx = cache.getSessionContext(session.getUuid(), true);
-        if (ctx == null) {
+        final SessionContext oldctx = cache.getSessionContext(
+                session.getUuid(), true);
+        if (oldctx == null) {
             throw new RemovedSessionException(
                     "Can't update; No session with uuid:" + session.getUuid());
         }
-        Session orig = ctx.getSession();
+        final Session orig = oldctx.getSession();
 
         // TODO // FIXME
         // =====================================================
         // This needs to get smarter
 
-        // Allow user to change default group
-        String defaultGroup = null;
-        final ome.model.internal.Details d = session.getDetails();
-        if (d != null) {
-            ExperimenterGroup group = d.getGroup();
-            if (group != null) {
-                try {
-                    Long groupId = group.getId();
-                    if (groupId != null) {
-                        group = this.executeGroupProxy(groupId);
-                        if (group != null) {
-                            defaultGroup = group.getName();
+        return (Session) executor.execute(asroot, new Executor.SimpleWork(this,
+                "update") {
+            @Transactional(readOnly = false)
+            public Object doWork(org.hibernate.Session __s, ServiceFactory sf) {
+
+                // Allow user to change default group
+                String defaultGroup = null;
+                final ome.model.internal.Details d = session.getDetails();
+                if (d != null) {
+                    ExperimenterGroup group = d.getGroup();
+                    if (group != null) {
+                        try {
+                            Long groupId = group.getId();
+                            if (groupId != null) {
+                                group = ((LocalAdmin) sf.getAdminService())
+                                        .groupProxy(groupId);
+                                if (group != null) {
+                                    defaultGroup = group.getName();
+                                }
+                            }
+                        } catch (Exception e) {
+                            throw new ApiUsageException(
+                                    "Cannot change default group to " + group
+                                            + "\n" + e.getMessage());
                         }
                     }
-                } catch (Exception e) {
-                    throw new ApiUsageException(
-                            "Cannot change default group to " + group + "\n"
-                                    + e.getMessage());
                 }
+
+                // If still null, take the current
+                if (defaultGroup == null) {
+                    defaultGroup = oldctx.getCurrentGroupName();
+                }
+
+                Principal principal = new Principal(
+                        oldctx.getCurrentUserName(), defaultGroup, oldctx
+                                .getCurrentEventType());
+                principal = checkPrincipalNameAndDefaultGroup(sf, principal);
+
+                // Unconditionally settable; these are open to the user for
+                // change
+                parseAndSetDefaultType(session.getDefaultEventType(), orig);
+                parseAndSetDefaultPermissions(session.getDefaultPermissions(),
+                        orig);
+                parseAndSetUserAgent(session.getUserAgent(), orig);
+
+                // Conditionally settable
+                parseAndSetTimeouts(session.getTimeToLive(), session
+                        .getTimeToIdle(), orig, trusted);
+
+                // Need to handle notifications
+
+                SessionContext newctx = currentDatabaseShapshot(sf, principal,
+                        orig);
+                if (newctx == null) {
+                    cache.removeSession(principal.getName());
+                    throw new RemovedSessionException(
+                            "Database contains no info for " + principal);
+                } else {
+                    Session copy = copy(orig);
+                    executeUpdate(sf, copy, newctx.getCurrentUserId());
+                    cache.putSession(orig.getUuid(), newctx);
+                    return copy(orig);
+                }
+
             }
-        }
-
-        // If still null, take the current
-        if (defaultGroup == null) {
-            defaultGroup = ctx.getCurrentGroupName();
-        }
-
-        Principal principal = new Principal(ctx.getCurrentUserName(),
-                defaultGroup, ctx.getCurrentEventType());
-        principal = checkPrincipalNameAndDefaultGroup(principal);
-
-        // Unconditionally settable; these are open to the user for change
-        parseAndSetDefaultType(session.getDefaultEventType(), orig);
-        parseAndSetDefaultPermissions(session.getDefaultPermissions(), orig);
-        parseAndSetUserAgent(session.getUserAgent(), orig);
-
-        // Conditionally settable
-        parseAndSetTimeouts(session.getTimeToLive(), session.getTimeToIdle(),
-                orig, trusted);
-
-        // Need to handle notifications
-
-        ctx = currentDatabaseShapshot(principal, orig);
-        if (ctx == null) {
-            cache.removeSession(principal.getName());
-            throw new RemovedSessionException("Database contains no info for "
-                    + principal);
-        } else {
-            Session copy = copy(orig);
-            executeUpdate(copy, ctx.getCurrentUserId());
-            cache.putSession(orig.getUuid(), ctx);
-            return copy(orig);
-        }
+        });
 
     }
 
     @SuppressWarnings("unchecked")
-    protected SessionContext currentDatabaseShapshot(Principal principal,
-            Session session) {
+    protected SessionContext currentDatabaseShapshot(ServiceFactory sf,
+            Principal principal, Session session) {
 
         // Do lookups
-        final List<?> list = executeSessionContextLookup(principal);
+        final List<?> list = executeSessionContextLookup(sf, principal);
         if (list == null) {
             return null; // EARLY EXIT when user no longer exists (on delete)
         }
@@ -608,7 +638,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      * Checks the validity of the given {@link Principal}, and in the case of an
      * error attempts to correct the problem by returning a new Principal.
      */
-    private Principal checkPrincipalNameAndDefaultGroup(Principal p) {
+    private Principal checkPrincipalNameAndDefaultGroup(ServiceFactory sf,
+            Principal p) {
 
         if (p == null || p.getName() == null) {
             throw new ApiUsageException("Null principal name.");
@@ -629,7 +660,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         // ticket:404 -- preventing users from logging into "user" group
         else if (roles.getUserGroupName().equals(p.getGroup())) {
             // Throws an exception if no properly defined default group
-            ExperimenterGroup g = executeDefaultGroup(p.getName());
+            ExperimenterGroup g = _getDefaultGroup(sf, p.getName());
             if (g == null) {
                 throw new ApiUsageException("Can't find default group for "
                         + p.getName());
@@ -637,8 +668,9 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             group = g.getName();
         }
 
-        // Also checking event type
-        executeCheckEventType(type);
+        // Also checking event type. Throws if missing (and at least a NPE)
+        type = sf.getTypesService().getEnumeration(EventType.class, type)
+                .getValue();
 
         Principal copy = new Principal(p.getName(), group, type);
         Permissions umask = p.getUmask();
@@ -764,10 +796,17 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      * Will be called in a synchronized block by {@link SessionCache} in order
      * to allow for an update.
      */
-    public SessionContext reload(SessionContext ctx) {
-        Principal p = new Principal(ctx.getCurrentUserName(), ctx
+    public SessionContext reload(final SessionContext ctx) {
+        final Principal p = new Principal(ctx.getCurrentUserName(), ctx
                 .getCurrentGroupName(), ctx.getCurrentEventType());
-        return currentDatabaseShapshot(p, ctx.getSession());
+        return (SessionContext) executor.execute(asroot,
+                new Executor.SimpleWork(this, "reload") {
+                    @Transactional(readOnly = false)
+                    public Object doWork(org.hibernate.Session session,
+                            ServiceFactory sf) {
+                        return currentDatabaseShapshot(sf, p, ctx.getSession());
+                    }
+                });
     }
 
     // Executor methods
@@ -783,161 +822,58 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     @SuppressWarnings("unchecked")
-    private Session executeUpdate(final Session session, final long userId) {
-        return (Session) executor.execute(asroot, new Executor.SimpleWork(this,
-                "executeUpdate") {
-            @Transactional(readOnly = false)
-            public Object doWork(org.hibernate.Session s, ServiceFactory sf) {
-                Node node = sf.getQueryService().findByQuery(
-                        "select n from Node n where uuid = :uuid",
-                        new Parameters().addString("uuid", internal_uuid)
-                                .setFilter(new Filter().page(0, 1)));
-                if (node == null) {
-                    node = new Node(0L, false); // Using default node.
-                }
-                session.setNode(node);
-                session.setOwner(new Experimenter(userId, false));
-                return sf.getUpdateService().saveAndReturnObject(session);
-            }
-        });
+    private Session executeUpdate(ServiceFactory sf, Session session,
+            long userId) {
+        Node node = sf.getQueryService().findByQuery(
+                "select n from Node n where uuid = :uuid",
+                new Parameters().addString("uuid", internal_uuid).setFilter(
+                        new Filter().page(0, 1)));
+        if (node == null) {
+            node = new Node(0L, false); // Using default node.
+        }
+        session.setNode(node);
+        session.setOwner(new Experimenter(userId, false));
+        return sf.getUpdateService().saveAndReturnObject(session);
     }
 
     private boolean executeCheckPassword(final Principal _principal,
             final String credentials) {
-        boolean ok = (Boolean) executor.execute(asroot,
-                new Executor.SimpleWork(this, "executeCheckPassword") {
-                    @Transactional(readOnly = false)
-                    public Object doWork(org.hibernate.Session session,
-                            ServiceFactory sf) {
-                        return ((LocalAdmin) sf.getAdminService())
-                                .checkPassword(_principal.getName(),
-                                        credentials);
-                    }
-                });
+        boolean ok = false;
+        try {
+            ok = executeCheckPasswordRO(_principal, credentials);
+            // WORKAROUND: If this throws a Spring exception then most likely
+            // it's because the previous block was read-only. So try again with
+            // read-write
+        } catch (InternalException ie) {
+            ok = executeCheckPasswordRW(_principal, credentials);
+        }
         return ok;
     }
 
-    private EventType executeCheckEventType(final String type) {
-        return (EventType) executor.execute(asroot, new Executor.SimpleWork(
-                this, "executeUserProxy") {
+    private boolean executeCheckPasswordRO(final Principal _principal,
+            final String credentials) {
+        return (Boolean) executor.execute(asroot, new Executor.SimpleWork(this,
+                "executeCheckPassword") {
             @Transactional(readOnly = true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
-                return sf.getTypesService().getEnumeration(EventType.class,
-                        type);
+                return ((LocalAdmin) sf.getAdminService()).checkPassword(
+                        _principal.getName(), credentials);
             }
         });
     }
 
-    private Experimenter executeUserProxy(final long uid) {
-        return (Experimenter) executor.execute(asroot, new Executor.SimpleWork(
-                this, "executeUserProxy") {
-            @Transactional(readOnly = true)
-            public Object doWork(org.hibernate.Session session,
-                    ServiceFactory sf) {
-                return ((LocalAdmin) sf.getAdminService()).userProxy(uid);
-            }
-        });
-    }
-
-    private ExperimenterGroup executeGroupProxy(final long gid) {
-        return (ExperimenterGroup) executor.execute(asroot,
-                new Executor.SimpleWork(this, "executeGroupProxy") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(org.hibernate.Session session,
-                            ServiceFactory sf) {
-                        return ((LocalAdmin) sf.getAdminService())
-                                .groupProxy(gid);
-                    }
-                });
-    }
-
-    /**
-     * To prevent having the transaction rolled back, this method returns null
-     * rather than throw an exception.
-     */
-    @SuppressWarnings("unchecked")
-    private ExperimenterGroup executeDefaultGroup(final String name) {
-        return (ExperimenterGroup) executor.execute(asroot,
-                new Executor.SimpleWork(this, "executeDefaultGroup") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(org.hibernate.Session session,
-                            ServiceFactory sf) {
-                        LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-
-                        try {
-                            Experimenter exp = admin.userProxy(name);
-                            ExperimenterGroup grp = admin.getDefaultGroup(exp
-                                    .getId());
-                            return grp;
-                        } catch (Exception e) {
-                            log.warn("Exception while running "
-                                    + "executeDefaultGroup", e);
-                            return null;
-                        }
-                    }
-                });
-    }
-
-    /**
-     * Looks up a user id by principal. If the name of the principal is actually
-     * a removed user session, then a {@link RemovedSessionException} is thrown.
-     */
-    private long executeLookupUser(final Principal p) {
-        return (Long) executor
-                .executeStateless(new Executor.SimpleStatelessWork(this,
-                        "executeLookupUser") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(SimpleJdbcOperations jdbc) {
-                        try {
-                            return jdbc.queryForLong(
-                                    "SELECT id FROM experimenter "
-                                            + "WHERE omename = ?", p.getName());
-                        } catch (EmptyResultDataAccessException erdae) {
-                            throw new RemovedSessionException(
-                                    "Cannot find a user with name "
-                                            + p.getName());
-                        }
-                    }
-                });
-    }
-
-    /**
-     * Returns a List of state for creating a new {@link SessionContext}. If an
-     * exception is thrown, return nulls since throwing an exception within the
-     * Work will set our transaction to rollback only.
-     */
-    @SuppressWarnings("unchecked")
-    private List<Object> executeSessionContextLookup(final Principal principal) {
-        return (List<Object>) executor.execute(asroot, new Executor.SimpleWork(
-                this, "executeSessionContextLookup") {
+    private boolean executeCheckPasswordRW(final Principal _principal,
+            final String credentials) {
+        return (Boolean) executor.execute(asroot, new Executor.SimpleWork(this,
+                "executeCheckPassword") {
             @Transactional(readOnly = false)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
-                try {
-                    List<Object> list = new ArrayList<Object>();
-                    LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-                    final Experimenter exp = admin.userProxy(principal
-                            .getName());
-                    final ExperimenterGroup grp = admin.groupProxy(principal
-                            .getGroup());
-                    final List<Long> memberOfGroupsIds = admin
-                            .getMemberOfGroupIds(exp);
-                    final List<Long> leaderOfGroupsIds = admin
-                            .getLeaderOfGroupIds(exp);
-                    final List<String> userRoles = admin.getUserRoles(exp);
-                    list.add(exp);
-                    list.add(grp);
-                    list.add(memberOfGroupsIds);
-                    list.add(leaderOfGroupsIds);
-                    list.add(userRoles);
-                    return list;
-                } catch (Exception e) {
-                    return null;
-                }
+                return ((LocalAdmin) sf.getAdminService()).checkPassword(
+                        _principal.getName(), credentials);
             }
         });
-
     }
 
     /**
@@ -1056,4 +992,64 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 });
     }
 
+    // ~ Non-executor helpers
+    // =========================================================================
+
+    /**
+     * To prevent having the transaction rolled back, this method returns null
+     * rather than throw an exception.
+     */
+    @SuppressWarnings("unchecked")
+    private ExperimenterGroup _getDefaultGroup(ServiceFactory sf, String name) {
+        LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+        try {
+            Experimenter exp = admin.userProxy(name);
+            ExperimenterGroup grp = admin.getDefaultGroup(exp.getId());
+            return grp;
+        } catch (Exception e) {
+            log.warn("Exception while running " + "executeDefaultGroup", e);
+            return null;
+        }
+    }
+
+    /**
+     * Looks up a user id by principal. If the name of the principal is actually
+     * a removed user session, then a {@link RemovedSessionException} is thrown.
+     */
+    private long executeLookupUser(ServiceFactory sf, Principal p) {
+        try {
+            return sf.getAdminService().lookupExperimenter(p.getName()).getId();
+        } catch (ApiUsageException aue) {
+            throw new RemovedSessionException("Cannot find a user with name "
+                    + p.getName());
+        }
+    }
+
+    /**
+     * Returns a List of state for creating a new {@link SessionContext}. If an
+     * exception is thrown, return nulls since throwing an exception within the
+     * Work will set our transaction to rollback only.
+     */
+    @SuppressWarnings("unchecked")
+    private List<Object> executeSessionContextLookup(ServiceFactory sf,
+            Principal principal) {
+        try {
+            List<Object> list = new ArrayList<Object>();
+            LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+            final Experimenter exp = admin.userProxy(principal.getName());
+            final ExperimenterGroup grp = admin
+                    .groupProxy(principal.getGroup());
+            final List<Long> memberOfGroupsIds = admin.getMemberOfGroupIds(exp);
+            final List<Long> leaderOfGroupsIds = admin.getLeaderOfGroupIds(exp);
+            final List<String> userRoles = admin.getUserRoles(exp);
+            list.add(exp);
+            list.add(grp);
+            list.add(memberOfGroupsIds);
+            list.add(leaderOfGroupsIds);
+            list.add(userRoles);
+            return list;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
