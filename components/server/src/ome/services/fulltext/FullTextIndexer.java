@@ -7,6 +7,8 @@
 
 package ome.services.fulltext;
 
+import java.sql.Statement;
+
 import ome.conditions.InternalException;
 import ome.model.IAnnotated;
 import ome.model.IGlobal;
@@ -24,6 +26,7 @@ import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -104,16 +107,29 @@ public class FullTextIndexer implements Work {
     public String description() {
         return "FullTextIndexer";
     }
-    
+
     /**
      * Runs {@link #doIndexing(FullTextSession)} within a Lucene transaction.
      * {@link #doIndexing(FullTextSession)} will also be called
      */
-    @Transactional(readOnly = false)
+    @Transactional(readOnly = false, isolation = Isolation.READ_UNCOMMITTED)
     public Object doWork(Session session, ServiceFactory sf) {
         int count = 1;
         int perbatch = 0;
         do {
+            try {
+                // ticket:1254 -
+                // The following is non-portable and can later be refactored
+                // for a more general solution.
+                Statement s = session.connection().createStatement();
+                s.execute("set constraints all deferred;");
+                // s.execute("set statement_timeout=10000");
+                // The Postgresql Driver does not currently support the
+                // "timeout" value on @Transactional and so if a query timeout
+                // is required, then this must be set.
+            } catch (Exception e) {
+                throw new InternalException("Failed to configure connection");
+            }
             FullTextSession fullTextSession = Search
                     .createFullTextSession(session);
             fullTextSession.setFlushMode(FlushMode.MANUAL);
