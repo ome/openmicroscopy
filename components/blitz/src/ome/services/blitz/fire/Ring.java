@@ -399,7 +399,7 @@ public class Ring extends _ClusterNodeDisp {
     @SuppressWarnings("unchecked")
     private int closeSessionsForManager(String managerUuid) {
         final String query = "select session from Session session where "
-                + "session.node.uuid = :uuid";
+            + "session.node.uuid = :uuid and session.closed is null";
         final Parameters p = new Parameters().addString("uuid", managerUuid);
 
         // First look up the sessions in on transaction
