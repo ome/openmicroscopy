@@ -145,6 +145,21 @@ public class SessionCache implements ApplicationContextAware {
     private Executor executor;
 
     /**
+     * Default constructor is explicitly added, since the session cache will
+     * acquire what it needs from the {@link OmeroContext} if not given.
+     */
+    public SessionCache() {
+        
+    }
+    
+    /**
+     * Primarily used for testing, so that a mock executor can be passed in.
+     */
+    public SessionCache(Executor ex) {
+        this.executor = ex;
+    }
+    
+    /**
      * Injection method, also performs the creation of {@link #sessions}
      */
     public void setCacheManager(CacheManager manager) {
@@ -158,7 +173,9 @@ public class SessionCache implements ApplicationContextAware {
     public void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
         context = (OmeroContext) ctx;
-        executor = (Executor) context.getBean("executor");
+        if (executor == null) {
+            executor = (Executor) context.getBean("executor");
+        }
     }
 
     /**

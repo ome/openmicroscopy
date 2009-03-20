@@ -15,8 +15,13 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Session;
 import ome.services.sessions.stats.SessionStats;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class SessionContextImpl implements SessionContext {
 
+    private final static Log log = LogFactory.getLog(SessionContextImpl.class);
+    
     private int ref = 0;
     private final Object refLock = new Object();
     private final Session session;
@@ -49,7 +54,13 @@ public class SessionContextImpl implements SessionContext {
             if (ref < 0) {
                 ref = 1;
             } else {
-                ref = ref + 1;
+                // This should never happen, but just in case
+                // some loop is incrementing indefinitely.
+                if (ref < Integer.MAX_VALUE) {
+                    ref = ref + 1;
+                } else {
+                    log.error("Reference count == MAX_VALUE");
+                }
             }
             return ref;
         }
