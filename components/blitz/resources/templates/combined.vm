@@ -1325,7 +1325,7 @@ super class where the property was defined.
 [$pyc]           if toCopy.getId().getValue() != self.getId().getValue():
 [$pyc]              raise omero.ClientError("Argument must have the same id as this instance")
 #if( ! $type.immutable )
-[$pyc]           if toCopy.getDetails().getUpdateEvent().getId().getValue() < getDetails().getUpdateEvent().getId().getValue():
+[$pyc]           if toCopy.getDetails().getUpdateEvent().getId().getValue() < self.getDetails().getUpdateEvent().getId().getValue():
 [$pyc]              raise omero.ClientError("Argument may not be older than this instance")
 #end
 [$pyc]           copy = toCopy.copy${PropertyName}() # May also throw
