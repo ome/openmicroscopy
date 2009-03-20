@@ -6,17 +6,20 @@
  */
 package ome.services.blitz.test.utests;
 
-import javax.sql.DataSource;
+import java.util.HashSet;
 
+import ome.model.meta.Node;
+import ome.services.blitz.fire.Registry;
 import ome.services.blitz.fire.Ring;
 import ome.services.sessions.state.SessionCache;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
+import omero.internal.ClusterNodePrx;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -25,14 +28,15 @@ import org.testng.annotations.Test;
  */
 public class RingTest extends MockObjectTestCase {
 
-    OmeroContext ctx;
     Executor ex;
+    Registry reg;
+    OmeroContext ctx;
     SimpleJdbcTemplate jdbc;
     Ice.ObjectAdapter oa;
     Ice.Communicator ic;
-    Mock mockIc, mockOa, mockEx;
+    Mock mockIc, mockOa, mockEx, mockReg;
 
-    @BeforeTest
+    @BeforeMethod
     public void setupMethod() throws Exception {
         mockIc = mock(Ice.Communicator.class);
         ic = (Ice.Communicator) mockIc.proxy();
@@ -40,16 +44,46 @@ public class RingTest extends MockObjectTestCase {
         oa = (Ice.ObjectAdapter) mockOa.proxy();
         mockEx = mock(Executor.class);
         ex = (Executor) mockEx.proxy();
+        mockReg = mock(Registry.class);
+        reg = (Registry) mockReg.proxy();
     }
 
     @Test
     public void testFirstTakesOver() throws Exception {
+
+        prepareInit("one");
         Ring one = new Ring("one", ex, new SessionCache());
+        one.setRegistry(reg);
         one.init(oa, "one");
-        assertEquals("one", one.getRedirect());
+
+        prepareInit("two");
         Ring two = new Ring("two", ex, new SessionCache());
+        two.setRegistry(reg);
         two.init(oa, "two");
-        assertEquals("one", two.getRedirect());
+
+    }
+
+    private void prepareInit(String uuid) {
+        mockOa.expects(once()).method("getCommunicator").will(returnValue(ic));
+
+        mockReg.expects(once()).method("lookupClusterNodes").will(
+                returnValue(new ClusterNodePrx[0]));
+        mockEx.expects(once()).method("execute").will(
+                returnValue(new HashSet<String>())).id(uuid + "lookup");
+        mockEx.expects(once()).method("execute").after(uuid + "lookup").will(
+                returnValue(new Node())).id(uuid + "createManager");
+        mockEx.expects(once()).method("execute").after(uuid + "createManager")
+                .will(returnValue(Boolean.TRUE))
+                .id(uuid + "initializeRedirect");
+        mockEx.expects(once()).method("execute").after(
+                uuid + "initializeRedirect").will(returnValue(uuid)).id(
+                uuid + "getRedirect");
+
+        mockIc.expects(once()).method("stringToIdentity").will(
+                returnValue(new Ice.Identity()));
+        mockOa.expects(once()).method("add");
+        mockOa.expects(once()).method("createDirectProxy");
+        mockReg.expects(once()).method("addObject");
     }
 
     @Test

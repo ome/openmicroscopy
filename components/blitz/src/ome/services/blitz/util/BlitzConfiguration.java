@@ -104,7 +104,7 @@ public class BlitzConfiguration {
         try {
             
             // This component is inert, and so can be created early.
-            registry = new Registry(this.communicator);
+            registry = new Registry.Impl(this.communicator);
             
             registerObjectFactory();
                         blitzAdapter = createAdapter();

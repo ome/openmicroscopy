@@ -38,6 +38,9 @@
     <constructor-arg ref="executor"/>
     <constructor-arg ref="sessionCache"/>
   </bean>
+  
+  <bean id="uuid_object" class="java.util.UUID" factory-method="randomUUID"/>
+  <bean id="uuid" factory-bean="uuid_object" factory-method="toString"/>
 
 <!--
   <bean id="topicManagerMock" class="org.jmock.Mock">
