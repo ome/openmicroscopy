@@ -35,6 +35,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 
@@ -96,7 +97,7 @@ public class ChannelButton
     {
         Boolean value = Boolean.TRUE;
         if (isSelected()) value = Boolean.FALSE;
-        HashMap<Integer, Boolean> map = new HashMap<Integer, Boolean>(1);
+        Map<Integer, Boolean> map = new HashMap<Integer, Boolean>(1);
         map.put(Integer.valueOf(index), value);
         firePropertyChange(CHANNEL_SELECTED_PROPERTY, null, map);
     }

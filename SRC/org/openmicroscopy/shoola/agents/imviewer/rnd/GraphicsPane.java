@@ -31,6 +31,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -261,6 +263,7 @@ class GraphicsPane
    	 	p.add(panel, "2, 0");
    	 	
    	 	JPanel content = new JPanel();
+   	 	content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
    	 	content.setBackground(UIUtilities.BACKGROUND_COLOR);
    	 	content.add(p);
    	 	JPanel comp = UIUtilities.buildComponentPanel(rangeButton);

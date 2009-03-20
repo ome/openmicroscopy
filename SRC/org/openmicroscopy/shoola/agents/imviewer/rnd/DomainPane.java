@@ -52,6 +52,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -117,6 +118,10 @@ class DomainPane
     
     /** The default value of the bit resolution. */ 
     static final int            	DEFAULT_BIT_DEPTH = 8;
+    
+    /** The border of the selected channel. */
+    private static final Border		SELECTION_BORDER = 
+    	BorderFactory.createLineBorder(Color.BLACK, 4);
     
     /** The factor .*/
     private static final int    	FACTOR = 10;
@@ -602,8 +607,7 @@ class DomainPane
 			index = btn.getChannelIndex();
 			btn.setSelected(active.contains(index));
 			if (index == c) {
-				//TODO
-				btn.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 3));
+				btn.setBorder(SELECTION_BORDER);
 			}
 		}
         //Sets the channel border.
