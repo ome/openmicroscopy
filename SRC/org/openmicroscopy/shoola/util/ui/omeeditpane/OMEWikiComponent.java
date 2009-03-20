@@ -142,8 +142,9 @@ public class OMEWikiComponent
 		DEFAULT_FORMATTERS = new LinkedHashMap<String, FormatSelectionAction>();
 		DEFAULT_FORMATTERS.put(URLREGEX, 
 				new FormatSelectionAction(
-				new ColourFormatter(Formatter.DEFAULT_URL, true), 
+				new ColourFormatter(Formatter.DEFAULT_URL, false), 
 				new URLLaunchAction()));
+		/*
 		DEFAULT_FORMATTERS.put(IMAGEREGEX, 
 				new FormatSelectionAction(
 				new ColourFormatter(Formatter.DEFAULT_LINK), 
@@ -152,6 +153,7 @@ public class OMEWikiComponent
 				new FormatSelectionAction(
 				new ColourFormatter(Formatter.PROTOCOL_LINK), 
 				new ElementSelectionAction(WikiDataObject.PROTOCOL)));
+				*/
 	}
 	
 	/** The edit pane. */
@@ -177,6 +179,7 @@ public class OMEWikiComponent
 		b.setActionCommand(""+HYPERLINK);
 		b.setToolTipText(OMEWikiConstants.HYPERLINK_TOOLTIP);
 		toolBarActions.add(b);
+		/*
 		b = new JButton(icons.getIcon(IconManager.IMAGE));
 		b.setToolTipText(OMEWikiConstants.IMAGE_TOOLTIP);
 		b.addActionListener(this);
@@ -187,6 +190,8 @@ public class OMEWikiComponent
 		b.addActionListener(this);
 		b.setActionCommand(""+PROTOCOL);
 		//UIUtilities.unifiedButtonLookAndFeel(b);
+		 *
+		 */
 		toolBarActions.add(b);
 	}
 	

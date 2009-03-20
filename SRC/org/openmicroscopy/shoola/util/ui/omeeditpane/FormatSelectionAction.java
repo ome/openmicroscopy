@@ -41,42 +41,41 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
  * </small>
  * @since OME3.0
  */
-public class FormatSelectionAction
+class FormatSelectionAction
 {	
+	
 	/** The formatter action for the text */
-	Formatter 			formatter;
+	private Formatter 			formatter;
 	
 	/** The selection action for the text action. */
-	SelectionAction 	selectionAction;
+	private SelectionAction 	selectionAction;
 	
 	/**
 	 * Create the selection action for formatters and selectionAction events.
+	 * 
 	 * @param formatter see above.
 	 * @param selectionAction see above.
 	 */
-	public FormatSelectionAction(Formatter formatter, SelectionAction selectionAction)
+	public FormatSelectionAction(Formatter formatter, 
+			SelectionAction selectionAction)
 	{
 		this.formatter = formatter;
 		this.selectionAction = selectionAction;
 	}
 	
 	/** 
-	 * Get the formatter for the text
-	 * @return see above.
+	 * Returns the formatter for the text.
+	 * 
+	 * @return See above.
 	 */
-	public Formatter getFormatter()
-	{
-		return formatter;
-	}
+	Formatter getFormatter() { return formatter; }
 	
 	/**
-	 * Get selection action for text.
+	 * Returns the selection action for text.
 	 * @return see above.
 	 */
-	public SelectionAction getSelectionAction()
-	{
-		return selectionAction;
-	}
+	SelectionAction getSelectionAction() { return selectionAction; }
+	
 }
 
 

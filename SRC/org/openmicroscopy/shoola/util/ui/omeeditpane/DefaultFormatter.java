@@ -46,8 +46,7 @@ import javax.swing.text.Utilities;
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
  * @since OME3.0
- */
-public class DefaultFormatter
+ */class DefaultFormatter
 	implements Formatter
 {
 
@@ -60,7 +59,7 @@ public class DefaultFormatter
     		Graphics g, TabExpander e, int startOffset, int p0, int p1) 
     {
  	
-    	g.setColor(editor.getForeground());
+    	if (editor != null) g.setColor(editor.getForeground());
     	return Utilities.drawTabbedText(s, x, y, g, e, startOffset);
     }
 	
