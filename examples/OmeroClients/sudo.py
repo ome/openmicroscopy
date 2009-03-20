@@ -1,7 +1,9 @@
+import sys
 import omero
 
-client = new omero.client(args)
-sudoClient = new omero.client(args)
+args = list(sys.argv)
+client = omero.client(args)
+sudoClient = omero.client(args)
 try:
     sf = client.createSession("root", "ome")
     sessionSvc = sf.getSessionService()

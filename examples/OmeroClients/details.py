@@ -2,10 +2,12 @@ import omero
 
 image = omero.model.ImageI()
 details = image.getDetails()
-# Always available
-p = details.getPermissions()
-THIS WAS NULL IN THE OTHER BINDINGS!
+
+p = omero.model.PermissionsI()
+p.setUserRead(True)
 assert p.isUserRead()
+details.setPermissions(p)
+
 # Available when returned from server
 # Possibly modifiable
 details.getOwner()
