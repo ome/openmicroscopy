@@ -2163,6 +2163,32 @@ class ImViewerUI
 		*/
 	}
 	
+	/**
+	 * Packs the window and resizes it if the screen is too small.
+	 */
+	private void packWindow()
+	{
+		pack();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension size = getSize();
+		int width = 8*(screenSize.width/10);
+		int height = 8*(screenSize.height/10);
+		int w = size.width;
+		int h = size.height;
+		boolean reset = false;
+		if (w > width) {
+			reset = true;
+			w = width;
+		}
+		if (h > height) {
+			reset = true;
+			h = height;
+		} 
+		System.err.println(w+" "+h);
+		if (reset)
+			setSize(w, h);
+	}
+	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
@@ -2188,12 +2214,12 @@ class ImViewerUI
 				if (pref != null) {
 					setBounds(r.x, r.y, w, h);
 					setVisible(true);
-				} else pack();
-			} else pack();
+				} else packWindow();
+			} else packWindow();
 			UIUtilities.incrementRelativeToAndShow(
 							model.getRequesterBounds(), this);
 		} else {
-			pack();
+			packWindow();
 			UIUtilities.incrementRelativeToAndShow(null, this);
 		}
 	}
