@@ -53,7 +53,7 @@ CONSTANTS -- Don't change for whole file
 #set($POJO  = "${Pojo.toUpperCase()}")
 #set($POJOI = "${PojoI.toUpperCase()}")
 #set($JAV_CURRENT = "Ice.Current current" )
-#set($PYC_CURRENT = "current = Ice.Current()" )
+#set($PYC_CURRENT = "current = None" )
 #set($CPP_CURRENT = "const Ice::Current& current" )
 #set($HDR_CURRENT = "${CPP_CURRENT} = Ice::Current()")
 
