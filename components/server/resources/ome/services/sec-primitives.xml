@@ -72,6 +72,7 @@
   <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">  
     <property name="cacheManager"  ref="cacheManager"/>
     <property name="updateInterval" value="${omero.sessions.sync_interval}"/><!-- ms -->
+    <property name="allowedBlockTime" value="${omero.sessions.sync_wait}"/><!-- ms -->
   </bean>
 
   <bean name="sessionManager" class="ome.services.sessions.SessionManagerImpl"
