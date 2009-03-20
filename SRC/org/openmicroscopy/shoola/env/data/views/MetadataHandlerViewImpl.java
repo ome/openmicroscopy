@@ -264,12 +264,13 @@ class MetadataHandlerViewImpl
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#saveFile(FileAnnotationData, File, int, 
-	 * 								AgentEventListener)
+	 * 								DataObject, AgentEventListener)
 	 */
 	public CallHandle saveFile(FileAnnotationData fileAnnotation, File file, 
-			int index, AgentEventListener observer)
+			int index, DataObject linkTo, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ArchivedFilesSaver(fileAnnotation, file, index);
+		BatchCallTree cmd = new ArchivedFilesSaver(fileAnnotation, file, index,
+				linkTo);
 		return cmd.exec(observer);
 	}
 

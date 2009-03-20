@@ -33,6 +33,8 @@ import java.io.File;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+
+import pojos.DataObject;
 import pojos.FileAnnotationData;
 
 /** 
@@ -64,16 +66,19 @@ public class ArchivedFilesSaver
      * @param fileAnnotation 	The annotation hosting the previous info.
      * @param file				The file to save.
      * @param index				Index used to determine the name space.
+     *  @param linkTo			The <code>DataObject</code> to link the 
+     *  						annotation to.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final FileAnnotationData fileAnnotation, 
-    								final File file, final int index)
+    								final File file, final int index,
+    								final DataObject linkTo)
     {
         return new BatchCall("Loading annotation") {
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
-                result = os.archivedFile(fileAnnotation, file, index);
+                result = os.archivedFile(fileAnnotation, file, index, linkTo);
             }
         };
     }
@@ -96,11 +101,13 @@ public class ArchivedFilesSaver
      * @param fileAnnotation 	The annotation hosting the previous info.
      * @param file				The file to save.
      * @param index				Index used to determine the name space.
+     * @param linkTo			The <code>DataObject</code> to link the 
+     *  						annotation to.
      */
     public ArchivedFilesSaver(FileAnnotationData fileAnnotation, File file, 
-    		int  index)
+    		int  index, DataObject linkTo)
     {
-    	loadCall = makeBatchCall(fileAnnotation, file, index);
+    	loadCall = makeBatchCall(fileAnnotation, file, index, linkTo);
     }
 
 }

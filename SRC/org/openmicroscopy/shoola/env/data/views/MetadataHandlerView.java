@@ -299,10 +299,11 @@ public interface MetadataHandlerView
 	 * @param fileAnnotation	The file to save back to the server.
 	 * @param file				The id of the file if previously saved.
 	 * @param index				One of the constants defined by this class.
+	 * @param linkTo			The <code>DataObject</code> the
 	 * @param observer	Callback handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle saveFile(FileAnnotationData fileAnnotation, File file, 
-			int index, AgentEventListener observer);
+			int index, DataObject linkTo, AgentEventListener observer);
 	
 }

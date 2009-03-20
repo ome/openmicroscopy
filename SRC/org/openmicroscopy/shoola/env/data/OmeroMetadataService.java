@@ -521,6 +521,8 @@ public interface OmeroMetadataService
 	 * @param fileAnnotation 	The annotation hosting the previous info.
      * @param file				The file to save.
      * @param index				One of the constants defined by this class.
+     * @param linkTo			The <code>DataObject</code> to link the 
+     *  						annotation to.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
@@ -528,7 +530,7 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object archivedFile(FileAnnotationData fileAnnotation, File file, int
-			index)
+			index, DataObject linkTo)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

@@ -1749,10 +1749,11 @@ class OmeroMetadataServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroMetadataService#archivedFile(FileAnnotationData, File, int)
+	 * @see OmeroMetadataService#archivedFile(FileAnnotationData, File, int,
+	 * 											DataObject)
 	 */
 	public Object archivedFile(FileAnnotationData fileAnnotation, File file, 
-			int index) 
+			int index, DataObject linkTo) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (file == null) 
@@ -1797,7 +1798,11 @@ class OmeroMetadataServiceImpl
 			(FileAnnotationData) PojoMapper.asDataObject(fa);
 		if (of != null) 
 			data.setContent(of);
-		
+		if (linkTo != null) {
+			if (linkTo.getId() > 0) {
+				annotate(linkTo, data);
+			}
+		}
 		return data;
 	}
 
