@@ -102,6 +102,15 @@ class EditorComponent
 	 */
 	EditorModel getModel() { return model; }
 	
+	/** Sets a new experiment. */
+	void setNewExperiment()
+	{
+		model.setBlankFile(model.getFileName());
+		view.displayFile();
+		model.updateNameSpace();
+		fireStateChange();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see Editor#activate()
@@ -215,13 +224,12 @@ class EditorComponent
 					"invoked in the LOADING or NEW states.");
 		if (fa != null) model.setFileAnnotationData(fa);
 		if (model.setFileToEdit(file)) {
-			model.updateNameSpace(); // based on whether file has experiment info
+			// based on whether file has experiment info
+			model.updateNameSpace(); 
 			view.setTitle(model.getFileName());
 			view.displayFile();
 			model.getBrowser().setId(model.getAnnotationId());
-			if (!view.isVisible()) {
-				view.setVisible(true);
-			}
+			if (!view.isVisible()) view.setVisible(true);
 		}
 		
 		fireStateChange();
@@ -253,7 +261,8 @@ class EditorComponent
 	 * 
 	 * @see Editor#newBlankFile()
 	 */
-	public void newBlankFile() {
+	public void newBlankFile()
+	{
 		// gets a new editor
 		Editor editor = EditorFactory.getNewBlankEditor();
 		
@@ -269,15 +278,15 @@ class EditorComponent
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
 	 * Primes the model to display a blank file, and updates the view. 
-	 * 
 	 * @see Editor#setBlankFile()
 	 */
-	public void setBlankFile() {
-		model.setBlankFile();
+	public void setBlankFile()
+	{
+		model.setBlankFile(null);
 		view.displayFile();
 		fireStateChange();
 	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
 	 * Saves the file in model. 
@@ -319,7 +328,6 @@ class EditorComponent
 		model.fireFileSaving(toEdit);
 		model.updateNameSpace(); // refresh namespace of saved file
 		return true;
-		//return false;
 	}
 	
 	/** 
