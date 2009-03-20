@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.view;
 
 //Java imports
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -36,7 +35,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 
 //Third-party libraries
 
@@ -45,7 +43,6 @@ import javax.swing.border.EmptyBorder;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomFont;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -62,9 +59,35 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-public class NoFileOpenUI 
-	extends JPanel {
+class NoFileOpenUI 
+	extends JPanel 
+{
 	
+	/** The default font. */
+	private static final Font DEFAULT_FONT = new Font("Sans Serif", 
+			Font.PLAIN, 14);
+	
+	/**
+	 * Handy method for setting font, alignment, icon of buttons
+	 * 
+	 * @param action
+	 * @param container
+	 * @param icon
+	 */
+	private void addButton(Action action, JPanel container, Icon icon) 
+	{
+		JButton b = new CustomButton(action);
+		b.setIcon(icon);
+		b.setAlignmentX(Component.LEFT_ALIGNMENT);
+		b.setFont(DEFAULT_FONT);
+		container.add(b);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param controller Reference to the control.
+	 */
 	NoFileOpenUI(EditorControl controller)
 	{
 		// configure the main panel 
@@ -78,10 +101,10 @@ public class NoFileOpenUI
 		// only show welcome message if running as stand-alone. 
 		boolean server = EditorAgent.isServerAvailable();
 		JLabel welcomeLabel = null;
-		if (! server) {
+		if (!server) {
 			// Labels for text 
 			welcomeLabel = new CustomLabel();
-			welcomeLabel.setFont(new Font("Sans Serif", Font.PLAIN, 14));
+			welcomeLabel.setFont(DEFAULT_FONT);
 			welcomeLabel.setText("Welcome to OMERO.editor");
 			welcomeLabel.setIconTextGap(10);
 			welcomeLabel.setIcon(im.getIcon(IconManager.OMERO_EDITOR_48));
@@ -89,11 +112,11 @@ public class NoFileOpenUI
 		}
 		
 		JLabel infoLabel = new CustomLabel();
-		infoLabel.setForeground(new Color(100,100,100));
+		infoLabel.setForeground(new Color(100, 100, 100));
 		infoLabel.setFont(new Font("Sans Serif", Font.PLAIN, 12));
 		infoLabel.setText("Please choose an option to get you started:");
 		infoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		infoLabel.setBorder(new EmptyBorder(10,10,10,10));
+		infoLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		if (server) {
 			infoLabel.setIcon(im.getIcon(IconManager.OMERO_EDITOR));
 		}
@@ -104,7 +127,7 @@ public class NoFileOpenUI
 		Border lineBorder = BorderFactory.createMatteBorder(1, 1, 1, 1,
                 UIUtilities.LIGHT_GREY);
 		Border cb = BorderFactory.createCompoundBorder(lineBorder, 
-						new EmptyBorder(10,10,10,10));
+						BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		buttonContainer.setBorder(cb);
 		buttonContainer.setAlignmentX(Component.CENTER_ALIGNMENT);
 		buttonContainer.setLayout
@@ -138,22 +161,6 @@ public class NoFileOpenUI
 		add(buttonContainer);
 		
 		add(bottomSpacer);
-	}
-	
-	/**
-	 * Handy method for setting font, alignment, icon of buttons
-	 * 
-	 * @param action
-	 * @param container
-	 * @param icon
-	 */
-	private void addButton(Action action, JPanel container, Icon icon) 
-	{
-		JButton b = new CustomButton(action);
-		b.setIcon(icon);
-		b.setAlignmentX(Component.LEFT_ALIGNMENT);
-		b.setFont(new Font("Sans Serif", Font.PLAIN, 14));
-		container.add(b);
 	}
 
 }

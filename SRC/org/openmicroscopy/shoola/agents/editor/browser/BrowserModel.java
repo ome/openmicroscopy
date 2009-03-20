@@ -66,15 +66,20 @@ class BrowserModel
     /** The model is delegated to a treeModel. */
     private TreeModel 			treeModel;
     
+    /** The type of browser. */
+    private int 				type;
+    
     /**
      * Creates an instance. 
      * 
-     * @param	The editing state of the browser. 
-     * 		One of the flags defined by the {@link Browser} interface.
+     * @param state	The editing state of the browser. 
+     * 				One of the flags defined by the {@link Browser} interface.
+     * @param type 
      */
-    BrowserModel(int state) 
+    BrowserModel(int state, int type) 
     {
     	this.state = state;
+    	this.type = type;
     }
     
     /**
@@ -112,20 +117,20 @@ class BrowserModel
 	/**
      * Sets the Edited state of the Browser.
      * 
-     * @param edited		Set true to indicate that the file is edited. 
+     * @param edited Pass to <code>true</code> to indicate that the file is 
+     * 				 edited, <code>false</code> otherwise. 
      */
-    void setEdited(boolean edited) {
+    void setEdited(boolean edited)
+    {
     	
-    	if (edited) 
-    		state = Browser.TREE_EDITED;
-    	else 
-    		state = Browser.TREE_SAVED;
+    	if (edited)  state = Browser.TREE_EDITED;
+    	else state = Browser.TREE_SAVED;
     	
     	// notify listeners of changes to the model 
     	// when file saved (eg Exp-Info last-saved date)
     	if (!edited) {
-    		DefaultTreeModel d = ((DefaultTreeModel)treeModel);
-    		d.nodeChanged((TreeNode)d.getRoot());
+    		DefaultTreeModel d = ((DefaultTreeModel) treeModel);
+    		d.nodeChanged((TreeNode) d.getRoot());
     	}
     }
     
@@ -143,11 +148,10 @@ class BrowserModel
     
     /**
      * Sets the ID so that it can be displayed in the browser.
-     * @param id
+     * 
+     * @param id The value to set.
      */
-    void setId(long id) {
-    	this.id = id;
-    }
+    void setId(long id) { this.id = id; }
     
     /**
      * Gets the ID for display. Not used for file saving etc (handled by Editor)

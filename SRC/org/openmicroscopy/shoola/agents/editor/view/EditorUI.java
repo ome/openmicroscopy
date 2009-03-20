@@ -223,9 +223,7 @@ class EditorUI
         statusBar.setProgress(hide);
     }
     
-    /**
-     * Displays the browser by adding it to this UI. 
-     */
+    /** Displays the browser by adding it to this UI. */
     void displayFile()
     {
     	remove(splashScreen);

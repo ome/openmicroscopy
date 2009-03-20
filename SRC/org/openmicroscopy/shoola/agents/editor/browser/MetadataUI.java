@@ -137,7 +137,7 @@ class MetadataUI
 	void refreshTitle()
 	{
 		String rootName = model.getRoot().toString();
-		setTitle(rootName);
+		imagePane.setTitle(rootName);
 	}
 	
 	/**
@@ -173,17 +173,6 @@ class MetadataUI
 	{
 		String name = evt.getPropertyName();
 		if (!UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE.equals(name)) return;
-		
-		
 	}
-
-	/**
-	 * Allows the title to be set before model has data. 
-	 * 
-	 * @param title
-	 */
-	public void setTitle(String title) 
-	{
-		imagePane.setTitle(title);
-	}
+	
 }

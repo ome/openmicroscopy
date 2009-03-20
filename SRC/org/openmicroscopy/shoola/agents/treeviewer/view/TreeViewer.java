@@ -88,6 +88,15 @@ public interface TreeViewer
 	extends ObservableComponent
 {
 
+	/** Indicates to open the editor without selection. */
+	public static final int		NO_SELECTION = 0;
+	
+	/** Indicates to open the editor with a selected file. */
+	public static final int		WITH_SELECTION = 1;
+	
+	/** Indicates to launch a new editor with a data object to link to. */
+	public static final int		NEW_WITH_SELECTION = 2;
+	
 	/** 
 	 * Indicates that the {@link TreeViewer} displayed the various explorers.
 	 */
@@ -749,11 +758,9 @@ public interface TreeViewer
 	 * Opens the editor without file if no file selected.
 	 * or opens the currently selected file.
 	 * 
-	 * @param forSelected   Pass <code>true</code> to open the editor 
-     * 						with a selected item, <code>false</code> to open	
-     * 						with a blank document.
+	 * @param index   One of the constants for the editor.
 	 */
-	public void openEditorFile(boolean forSelected);
+	public void openEditorFile(int index);
 
 	/** Displays the tag wizard. */
 	public void showTagWizard();

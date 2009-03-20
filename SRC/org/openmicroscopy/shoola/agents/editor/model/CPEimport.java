@@ -383,7 +383,6 @@ public class CPEimport {
 		}
 		
 		else {
-			System.err.println("UpeXmlReader getParameter() param-type not recognised.");
 			param = FieldParamsFactory.getFieldParam(paramType);
 			if (param == null) {	
 				// if paramType not recognised, return text text parameter

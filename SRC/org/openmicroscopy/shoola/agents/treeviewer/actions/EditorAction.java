@@ -39,7 +39,12 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.DatasetData;
 import pojos.FileAnnotationData;
+import pojos.ImageData;
+import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Action to launch the editor.
@@ -58,17 +63,45 @@ public class EditorAction
 	extends TreeViewerAction
 {
 
+	/** Indicates to open the editor without selection. */
+	public static final int		NO_SELECTION = TreeViewer.NO_SELECTION;
+	
+	/** Indicates to open the editor with a selected file. */
+	public static final int		WITH_SELECTION = TreeViewer.WITH_SELECTION;
+	
+	/** Indicates to launch a new editor with a data object to link to. */
+	public static final int		NEW_WITH_SELECTION = 
+		TreeViewer.NEW_WITH_SELECTION;
+	
 	/** The name of the action. */
 	private static final String NAME = "Launch Editor...";
+	
+	/** The name of the action. */
+	private static final String NAME_EXPERIMENT = "New Experiment...";
 	
 	/** The description of the action. */
 	private static final String DESCRIPTION = "Launch the Editor.";
 	
-	/** 
-	 * Flag indicating to open the editor with a selected item if 
-	 * <code>true</code>, to open with a blank document if <code>false</code>
-	 */						
-	private boolean forSelected;
+	/**  One of the constants defined by this class. */						
+	private int index;
+	
+	/**
+	 * Controls if the passed index is supported.
+	 * 
+	 * @param index The value to control.
+	 */
+	private void checkValue(int index)
+	{
+		switch (index) {
+			case WITH_SELECTION:
+			case NO_SELECTION:
+			case NEW_WITH_SELECTION:
+				this.index = index;
+				break;
+			default:
+				throw new IllegalArgumentException("Index not supported.");
+		}
+	}
 	
 	/** 
      * Enables the action if the browser is not ready.
@@ -87,34 +120,51 @@ public class EditorAction
     {
     	if (browser == null) return;
     	int state = browser.getState();
-    	if (forSelected) {
-    		if (state == Browser.READY) {
-    			List l = browser.getSelectedDataObjects();
-    			if (l == null || l.size() != 1) setEnabled(false);
-    			else {
-    				Object object = l.get(0);
-    				setEnabled(object instanceof FileAnnotationData);
-    			}
-    		} else setEnabled(false);
-    	} else {
-    		setEnabled(state == Browser.READY);
-    	}
+    	switch (index) {
+			case WITH_SELECTION:
+				if (state == Browser.READY) {
+	    			List l = browser.getSelectedDataObjects();
+	    			if (l == null || l.size() != 1) setEnabled(false);
+	    			else {
+	    				Object object = l.get(0);
+	    				setEnabled(object instanceof FileAnnotationData);
+	    			}
+	    		} else setEnabled(false);
+				break;
+			case NO_SELECTION:
+				setEnabled(state == Browser.READY);
+				break;
+			case NEW_WITH_SELECTION:
+				if (state == Browser.READY) {
+	    			List l = browser.getSelectedDataObjects();
+	    			if (l == null || l.size() != 1) setEnabled(false);
+	    			else {
+	    				Object object = l.get(0);
+	    				if ((object instanceof ProjectData) ||
+	    						(object instanceof DatasetData) || 
+	    						(object instanceof ImageData) ||
+	    						(object instanceof ScreenData) ||
+	    						(object instanceof PlateData))
+	    					setEnabled(true);
+	    				else setEnabled(false);
+	    			}
+	    		} else setEnabled(false);
+		}
     }
     
 	/**
      * Creates a new instance.
      * 
-     * @param model 		Reference to the Model. 
-     * 						Mustn't be <code>null</code>.
-     * @param forSelected 	Pass <code>true</code> to open the editor 
-     * 						with a selected item, <code>false</code> to open	
-     * 						with a blank document.
+     * @param model	Reference to the Model. Mustn't be <code>null</code>.
+     * @param index One of the constants defined by this class.
      */
-    public EditorAction(TreeViewer model, boolean forSelected)
+    public EditorAction(TreeViewer model, int index)
     {
         super(model);
         name = NAME;
-        this.forSelected = forSelected;
+        checkValue(index);
+        if (index == NEW_WITH_SELECTION)
+        	name = NAME_EXPERIMENT;
         IconManager icons = IconManager.getInstance();
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -127,7 +177,7 @@ public class EditorAction
      */
     public void actionPerformed(ActionEvent e)
     { 
-    	model.openEditorFile(forSelected); 
+    	model.openEditorFile(index); 
     }
     
 }

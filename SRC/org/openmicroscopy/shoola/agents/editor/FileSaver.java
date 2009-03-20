@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 
+import pojos.DataObject;
 import pojos.FileAnnotationData;
 
 /** 
@@ -78,6 +79,9 @@ public class FileSaver
     /** One of the constants defined by this class. */
     private int 				index;
     
+    /** The <code>DataObject</code> to link the file annotation to. */
+    private DataObject			linkTo;
+    
 	/**
      * Creates a new instance.
      * 
@@ -87,9 +91,10 @@ public class FileSaver
      * @param data	 The id of thet file if previously saved, or
      * 				 <code>-1</code> if not previously saved.
      * @param index  One of the constants defined by this class.
+     * @param linkTo The <code></code>
      */
 	public FileSaver(Editor viewer, File file, FileAnnotationData data, 
-			int index)
+			int index, DataObject linkTo)
 	{
 		super(viewer);
 		if (file == null)
@@ -98,6 +103,7 @@ public class FileSaver
 			throw new IllegalArgumentException("No file Annotation.");
 		this.file = file;
 		this.fileAnnotationData = data;
+		this.linkTo = linkTo;
 		switch (index) {
 			case EXPERIMENT:
 			case PROTOCOL:
@@ -115,7 +121,7 @@ public class FileSaver
 	 */
 	public void load()
 	{
-		handle = mhView.saveFile(fileAnnotationData, file, index, this);
+		handle = mhView.saveFile(fileAnnotationData, file, index, linkTo, this);
 	}
 
 	/**

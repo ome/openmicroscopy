@@ -30,6 +30,7 @@ import java.io.File;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.FileAnnotationData;
 
@@ -50,6 +51,12 @@ public interface Editor
 	extends ObservableComponent
 {
 
+	/** Indicates to create a blank protocol. */
+	public static final int 	PROTOCOL = Browser.PROTOCOL;
+	
+	/** Indicates to create a blank experiment. */
+	public static final int 	EXPERIMENT = Browser.EXPERIMENT;
+	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
 

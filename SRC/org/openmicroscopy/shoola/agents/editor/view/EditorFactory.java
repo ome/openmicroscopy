@@ -40,6 +40,8 @@ import org.openmicroscopy.shoola.agents.editor.actions.ActivationAction;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
+
+import pojos.DataObject;
 import pojos.FileAnnotationData;
 
 /** 
@@ -96,6 +98,26 @@ public class EditorFactory
 	}
 	
 	/**
+	 * Returns the {@link Editor} for the passed data object.
+	 * 
+	 * @param parent The data object that the file should be linked to.
+	 * @param name	 The name of the editor file.
+	 * @param type	 Either {@link Editor#PROTOCOL} or 
+	 * 				 {@link Editor#EXPERIMENT}.
+	 * @return See above.
+	 */
+	public static Editor getEditor(DataObject parent, String name, int type)
+	{
+		EditorModel model = new EditorModel(parent, name, type);
+		Editor editor = singleton.getEditor(model);
+		if (editor != null) {
+			((EditorComponent) editor).setNewExperiment();
+			editor.setStatus("", true);
+		}
+		return editor;
+	}
+	
+	/**
 	 * Returns the {@link Editor} created to display a particular file. 
 	 * 
 	 * 
@@ -127,15 +149,12 @@ public class EditorFactory
 	public static Editor getEditor()
 	{
 		EditorModel model;
-		Editor editor;
-		if (singleton.editors.isEmpty()) {
-			editor = getNewBlankEditor();
-		} else {
-			Editor e = singleton.editors.iterator().next();
-			model = ((EditorComponent) e).getModel();
-			editor = singleton.getEditor(model);
-		}
-		return editor;
+		if (singleton.editors.isEmpty())
+			return getNewBlankEditor();
+		Editor e = singleton.editors.iterator().next();
+		if (e == null) return e;
+		model = ((EditorComponent) e).getModel();
+		return singleton.getEditor(model);
 	}
 	
 	/**
@@ -168,12 +187,11 @@ public class EditorFactory
 	 */
 	public static Editor getNewBlankEditor()
 	{
-		
 		EditorModel model = new EditorModel();
 		 // this will return any existing editors with a 'blank' model, or
 		// create an editor with the blank model above, if none exist. 
 		Editor editor = singleton.getEditor(model);
-		editor.setStatus("", true);
+		if (editor != null) editor.setStatus("", true);
 		
 		return editor;
 	}
@@ -272,7 +290,7 @@ public class EditorFactory
 				else if (m.getFileName().equals(model.getFileName()))
 					return comp;
 			}
-			if (m.getFileName().equals(BLANK_MODEL)) {
+			if (m.getFileName().equals(model.getFileName())) {
 				return comp;
 			}
 		}

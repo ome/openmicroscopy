@@ -151,10 +151,26 @@ public class EditorAgent
 	
 	/**
 	 * Creates a {@link Editor#NEW} editor with no file, or recycles an editor.
+	 * 
+	 * @param evt The event to handle.
 	 */
-	private void handleShowEditor()
+	private void handleShowEditor(ShowEditorEvent evt)
 	{
-		Editor editor = EditorFactory.getEditor();
+		Editor editor = null;
+		if (evt == null) {
+			editor = EditorFactory.getEditor();
+			if (editor != null) editor.activate();
+			return;
+		}
+		if (evt.getParent() == null)
+			editor = EditorFactory.getEditor();
+		else {
+			int editorType = Editor.PROTOCOL;
+			if (evt.getType() == ShowEditorEvent.EXPERIMENT)
+				editorType = Editor.EXPERIMENT;
+			editor = EditorFactory.getEditor(evt.getParent(), evt.getName(), 
+					editorType);
+		}
 		if (editor != null) editor.activate();
 	}
 	
@@ -163,7 +179,7 @@ public class EditorAgent
 	 * to the {@link EditorFactory} where it can be accessed by any Editor 
 	 * instance. 
 	 * 
-	 * @param evt		The CopyEvent event. 
+	 * @param evt The CopyEvent event. 
 	 */
 	private void handleCopyData(CopyEvent evt)
 	{
@@ -179,7 +195,7 @@ public class EditorAgent
      */
     public void activate()
     {
-    	if (!isServerAvailable()) handleShowEditor();
+    	if (!isServerAvailable()) handleShowEditor(null);
     }
 
     /**
@@ -232,9 +248,9 @@ public class EditorAgent
        if (e instanceof EditFileEvent)
     	   handleFileEdition((EditFileEvent) e);
        else if (e instanceof ShowEditorEvent)
-    	   handleShowEditor();
+    	   handleShowEditor((ShowEditorEvent) e);
        else if (e instanceof CopyEvent)
-    	   handleCopyData((CopyEvent)e);
+    	   handleCopyData((CopyEvent) e);
     }
 
 }

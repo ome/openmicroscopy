@@ -522,6 +522,7 @@ abstract class DataBrowserModel
 		switch (getType()) {
 			case DATASETS:
 			case IMAGES:
+			case TAGS:
 				return true;
 			default:
 				return false;
@@ -573,6 +574,11 @@ abstract class DataBrowserModel
      */
     protected abstract int getType(); 
     
+    /**
+     * Returns the collection of {@link ImageDisplay}.
+     * 
+     * @return See above.
+     */
     protected abstract List<ImageDisplay> getNodes();
     
 }

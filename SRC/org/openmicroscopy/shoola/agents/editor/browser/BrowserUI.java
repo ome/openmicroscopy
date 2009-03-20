@@ -24,9 +24,7 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
-
 import java.awt.BorderLayout;
-
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -39,11 +37,11 @@ import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 
 /** 
  * The UI for the Browser (the View of the Browser MVC).
@@ -65,9 +63,11 @@ class BrowserUI
 	implements ChangeListener 
 {
 	
-	public static final String 		TREE_VIEW = "Tree View";
+	/** The title of the tree tabbed pane. */
+	private static final String 		TREE_VIEW = "Tree View";
 	
-	public static final String 		TEXT_VIEW = "Text View";
+	/** The title of the text tabbed pane. */
+	private static final String 		TEXT_VIEW = "Text View";
 
 	/** The tree hosting the display. */
     private JTree           		treeDisplay;
@@ -121,9 +121,9 @@ class BrowserUI
      */
     private TextAreasView 			textView;
     
-    private MetadataUI 		metadataUI;
-    
-    
+    /** Reference to the metadata UI. */
+    private MetadataUI 				metadataUI;
+
     /**
      * Initialises the JTrees for this UI.
      */
@@ -281,7 +281,8 @@ class BrowserUI
     /**
      * Sets the model of the JTrees with the treeModel from the BrowserModel. 
      */
-    void displayTree() {
+    void displayTree()
+    {
     	TreeModel tm = model.getTreeModel();
     	
     	navTree.setModel(tm);
@@ -337,4 +338,5 @@ class BrowserUI
     public void stateChanged(ChangeEvent e) {
     	updateViewingMode();
 	}
+    
 }

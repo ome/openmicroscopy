@@ -152,17 +152,8 @@ class TagSetsModel
 				}
 			}
 		}
-		
+		if (imgs.size() == 0) return null;
 		return new ThumbnailLoader(component, sorter.sort(imgs));
-	}
-
-	/**
-	 * Creates a concrete loader.
-	 * @see DataBrowserModel#reloadThumbnails(Collection)
-	 */
-	protected DataBrowserLoader reloadThumbnails(Collection ids)
-	{
-		return null;
 	}
 	
 	/**

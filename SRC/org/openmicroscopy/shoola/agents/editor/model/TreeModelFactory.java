@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.model;
 
 //Java imports
-
 import java.io.File;
 import java.io.FileInputStream;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -151,14 +150,12 @@ public class TreeModelFactory
 		} 
 		
 		if (root != null) {
-		
 			return PROimport.createTreeModel(root);
 		}
 		// if you reach here, something is wrong. Throw exception.
 		throw new ParsingException(errMsg);
 	}
-	
-	
+
 	/**
 	 * Creates a new 'blank file' TreeModel, for users to start editing. 
 	 * Contains a root field and one step (no attributes set, no parameters etc) 
@@ -169,13 +166,28 @@ public class TreeModelFactory
 	{
 		IField rootField = new ProtocolRootField();
 		DefaultMutableTreeNode rootNode = new FieldNode(rootField);
-		
-		IField firstStep = new Field();
-		DefaultMutableTreeNode firstNode = new FieldNode(firstStep);
-		
+		DefaultMutableTreeNode firstNode = new FieldNode(new Field());
 		rootNode.add(firstNode);
-		
 		return new DefaultTreeModel(rootNode);
 	}
 
+	/**
+	 * Creates a new 'blank file' TreeModel, for users to start editing. 
+	 * Contains a root field and one step (no attributes set, no parameters etc) 
+	 * 
+	 * @param name The name of the expereiment
+	 * @return A new TreeModel 
+	 */
+	public static TreeModel getExperimentTree(String name)
+	{
+		ProtocolRootField rootField = new ProtocolRootField();
+		rootField.setAttribute(Field.FIELD_NAME, name);
+		IAttributes experimentInfo = new ExperimentInfo();
+		rootField.setExpInfo(experimentInfo);
+		DefaultMutableTreeNode rootNode = new FieldNode(rootField);
+		DefaultMutableTreeNode firstNode = new FieldNode(new Field());
+		rootNode.add(firstNode);
+		return new DefaultTreeModel(rootNode);
+	}
+	
 }

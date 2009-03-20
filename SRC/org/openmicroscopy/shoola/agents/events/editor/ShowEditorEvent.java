@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.events.editor;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
+import pojos.DataObject;
 
 /** 
  * Requests that OMERO.editor agent becomes active. 
@@ -47,8 +48,67 @@ public class ShowEditorEvent
 	extends RequestEvent
 {
 	
-	/** Creates a new instance. */
-	public ShowEditorEvent() {}
+	/** Possible extension of the experiment. */
+	public static final String EXPERIMENT_EXTENSION = "_exp";
 	
+	/** Indicates to open an experiment file. */
+	public static final int EXPERIMENT = 0;
+	
+	/** Indicates to open a protocol file. */
+	public static final int PROTOCOL = 1;
+	
+	/** The data object the new file has to be linked to. */
+	private DataObject parent;
+	
+	/** The name of the file. */
+	private String		name;
+	
+	/** The type of editor file to create. */
+	private int			type;
+	
+	/** Creates a new instance. */
+	public ShowEditorEvent()
+	{
+		type = PROTOCOL;
+		parent = null;
+	}
+	
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param parent The data object the new experiment should be linked to. 
+	 * @param name   The name to give to the experiment.
+	 * @param type	 One of the constants defined by this class.
+	 */
+	public ShowEditorEvent(DataObject parent, String name, int type)
+	{
+		this.parent = parent;
+		this.name = name;
+		if (type == PROTOCOL || type == EXPERIMENT)
+			this.type = type;
+		else this.type = PROTOCOL;
+	} 
+	
+	/**
+	 * Returns the data object the new experiment should be linked to. 
+	 * 
+	 * @return See above.
+	 */
+	public DataObject getParent() { return parent; }
+	
+	/**
+	 * Returns the name to give to the experiment.
+	 * 
+	 * @return See above.
+	 */
+	public String getName() { return name; }
+	
+	/**
+	 * Returns the type.
+	 * 
+	 * @return See above.
+	 */
+	public int getType() { return type; }
+
 } 
 

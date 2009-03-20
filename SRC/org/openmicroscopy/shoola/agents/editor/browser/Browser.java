@@ -23,14 +23,12 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
-
 import javax.swing.JComponent;
 import javax.swing.tree.TreeModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 
@@ -48,6 +46,12 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 public interface Browser
 	extends ObservableComponent
 {
+	
+	/** Indicates to create a blank protocol. */
+	public static final int 	PROTOCOL = 100;
+	
+	/** Indicates to create a blank experiment. */
+	public static final int 	EXPERIMENT = 101;
 	
 	/** 
 	 * Bound property indicating that the edit mode of the browser has

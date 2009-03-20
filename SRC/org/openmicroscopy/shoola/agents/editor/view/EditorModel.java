@@ -43,6 +43,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
+
+import pojos.DataObject;
 import pojos.FileAnnotationData;
 
 /** 
@@ -83,7 +85,7 @@ class EditorModel
 	
 	/** 
 	 * The ID of the annotation for the file on the server, as returned by
-	 * {@link fileAnnotation.getId()}.
+	 * {@link FileAnnotationData#getId()}.
 	 * Allows {@link #getAnnotationId()} to be called after the 
 	 * {@link #EditorModel(long)} constructor has been used, before 
 	 * {@link #setFileAnnotationData(FileAnnotationData)} has been called. 
@@ -93,14 +95,17 @@ class EditorModel
 	/**  A string that defines the type of file we're editing. eg protocol */
 	private String				nameSpace;
 	
-	/** The size of the file to edit. */
-	//private long 				fileSize;
-	
 	/** The file retrieved either from the DB or local machine. */
 	private File				fileToEdit;
 
 	/**	The browser component */
 	private Browser 			browser;
+	
+	/** The <code>DataObject</code> to link the editor file to. */
+	private DataObject			parent;
+	
+	/** Either {@link Editor#PROTOCOL} or {@link Editor#EXPERIMENT}. */
+	private int					type;
 	
 	/** 
 	 * Will either be a data loader or <code>null</code> depending on the 
@@ -139,12 +144,13 @@ class EditorModel
 		if (fileAnnotationData == null)
 			throw new IllegalArgumentException("No file annotation specified.");
 		setFileAnnotationData(fileAnnotationData);
+		type = Editor.PROTOCOL;
 	}
 	
 	/** 
 	 * Creates a new instance and sets the state to {@link Editor#NEW}.
 	 * 
-	 * @param fileID	The id of the original file to edit.
+	 * @param annotationID	The id of the original file to edit.
 	 */
 	EditorModel(long annotationID)
 	{
@@ -154,6 +160,7 @@ class EditorModel
 		// this sets the fileID with the annotationID so that when 
 		// fireFileLoading is subsequently called, it will pass the annotationID
 		this.fileID = annotationID;
+		type = Editor.PROTOCOL;
 	}
 	
 	/**
@@ -168,18 +175,40 @@ class EditorModel
 	{
 		if (file == null) throw new NullPointerException("No file.");
 		state = Editor.NEW;
-		this.fileName = file.getName();
+		fileName = file.getName();
+		type = Editor.PROTOCOL;
 	}
 	
 	/**
 	 * Creates a new instance and sets the state to {@link Editor#NEW}.
-	 * {@link #fileSize} and {@link #fileID} are not set.
-	 *  
+	 * The {@link #fileSize} and {@link #fileID} are not set. 
 	 */
 	EditorModel() 
 	{
 		state = Editor.NEW;
-		this.fileName = EditorFactory.BLANK_MODEL;
+		fileName = EditorFactory.BLANK_MODEL;
+		type = Editor.PROTOCOL;
+	}
+	
+	/**
+	 * Creates a new instance and sets the state to {@link Editor#NEW}.
+	 * The {@link #fileSize} and {@link #fileID} are not set. 
+	 * 
+	 * @param parent The object to the new file to.
+	 * @param name	 The name of the file.
+	 * @param type   Either {@link Editor#PROTOCOL} or 
+	 * 				 {@link Editor#EXPERIMENT}.
+	 */
+	EditorModel(DataObject parent, String name, int type)
+	{
+		state = Editor.NEW;
+		if (name == null || name.length() == 0) 
+			name = EditorFactory.BLANK_MODEL;
+		fileName = name;
+		this.parent = parent;
+		if (type == Editor.PROTOCOL || type == Editor.EXPERIMENT)
+			this.type = type;
+		else this.type = Editor.PROTOCOL;
 	}
 	
 	/**
@@ -192,7 +221,7 @@ class EditorModel
 	void initialize(Editor component)
 	{ 
 		this.component = component; 
-		browser = BrowserFactory.createBrowser();
+		browser = BrowserFactory.createBrowser(type);
 	}
 	
 	/**
@@ -337,13 +366,29 @@ class EditorModel
 		return true;
 	}
 	
-	/** Creates a new blank file and opens it in the browser. */
-	void setBlankFile() 
+	/** 
+	 * Creates a new file if the name is not <code>null</code>
+	 * or a new blank file and opens it in the browser. 
+	 * 
+	 * @param name The name of the default file or <code>null</code>.
+	 */
+	void setBlankFile(String name) 
 	{
 		fileToEdit = null;
 		fileID = 0;
-		fileName = "New Blank File";
-		TreeModel treeModel = TreeModelFactory.getTree();
+		boolean blank = false;
+		if (name == null || name.trim().length() == 0) {
+			blank = true;
+			fileName = "New Blank File";
+		} else fileName = name;
+		TreeModel treeModel;
+		if (blank) treeModel = TreeModelFactory.getTree();
+		else {
+			if (type == Editor.EXPERIMENT)
+				treeModel = TreeModelFactory.getExperimentTree(name);
+			else 
+				treeModel = TreeModelFactory.getTree();
+		}
 		browser.setTreeModel(treeModel);
 		state = Editor.READY;
 	}
@@ -391,7 +436,7 @@ class EditorModel
 		String description = CPEsummaryExport.export(browser.getTreeModel());
 		if (description != null)
 			data.setDescription(description);
-		currentLoader = new FileSaver(component, file, data, fileType);
+		currentLoader = new FileSaver(component, file, data, fileType, parent);
 		currentLoader.load();
 		state = Editor.SAVING;
 	}
@@ -409,7 +454,7 @@ class EditorModel
 		if (saveFile(file)) {
 			fileToEdit = file;
 			fileName = file.getName();
-			// indicates the current file is now local, even if it wasn't before.
+			//indicates the current file is now local, even if it wasn't before.
 			fileID = 0;	
 			fileAnnotation = null;
 			return true;
@@ -482,5 +527,12 @@ class EditorModel
 		if (fileAnnotation == null) return annotationID;
 		return fileAnnotation.getId();
 	}
+	
+	/**
+	 * Returns the type.
+	 * 
+	 * @return See above.
+	 */
+	int getType() { return type; }
 	
 }

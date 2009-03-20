@@ -147,7 +147,7 @@ class DatasetsModel
 				}
 			}
 		}
-		
+		if (imgs.size() == 0) return null;
 		return new ThumbnailLoader(component, sorter.sort(imgs));
 	}
 	

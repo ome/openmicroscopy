@@ -48,6 +48,7 @@ public class EditFileEvent
 	extends RequestEvent
 {
 
+	
 	/** The annotation to edit. */
 	private FileAnnotationData fileAnnotation;
 	

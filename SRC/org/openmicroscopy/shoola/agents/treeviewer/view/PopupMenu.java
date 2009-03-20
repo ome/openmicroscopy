@@ -130,6 +130,9 @@ class PopupMenu
 	/** Button to open the Tag wizard. */
 	private JMenuItem			tagElement;
 	
+	/** Button to open the new Editor. */
+	private JMenuItem			newExperimentElement;
+	
 	/** Reference to the Control. */
 	private TreeViewerControl   controller;
 
@@ -211,6 +214,11 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.SET_RND_SETTINGS);
 				setRndElement = new JMenuItem(a);
 				initMenuItem(setRndElement, a.getActionName());
+				
+				a = controller.getAction(
+						TreeViewerControl.EDITOR_NEW_WITH_SELECTION);
+				newExperimentElement = new JMenuItem(a);
+				initMenuItem(newExperimentElement, a.getActionName());
 				break;
 			case TreeViewer.PARTIAL_POP_UP_MENU:
 				a = controller.getAction(TreeViewerControl.REFRESH_TREE);
@@ -285,6 +293,7 @@ class PopupMenu
 				add(deleteElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(tagElement);
+				add(newExperimentElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(copyRndElement);
 				add(pasteRndElement);

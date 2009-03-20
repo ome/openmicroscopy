@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Java imports
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
+
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -229,10 +231,12 @@ class RendererUI
 	void onStateChange(boolean b)
 	{
 		if (controlPanes != null && controlPanes.size() > 0) {
-			Iterator i = controlPanes.keySet().iterator();
+			Iterator i = controlPanes.entrySet().iterator();
 			ControlPane pane;
+			Entry entry;
 			while (i.hasNext()) {
-				pane = controlPanes.get(i.next());
+				entry = (Entry) i.next();
+				pane = controlPanes.get(entry.getKey());
 				pane.onStateChange(b);
 			}
 		}

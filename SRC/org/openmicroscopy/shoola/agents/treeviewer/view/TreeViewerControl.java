@@ -249,6 +249,9 @@ class TreeViewerControl
 	/** Identifies the <code>Launch Editor</code> in the menu. */
 	static final Integer    EDITOR_WITH_SELECTION = Integer.valueOf(48);
 	
+	/** Identifies the <code>Launch Editor</code> in the menu. */
+	static final Integer    EDITOR_NEW_WITH_SELECTION = Integer.valueOf(49);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -318,14 +321,18 @@ class TreeViewerControl
 		actionsMap.put(VIEW, new ViewImageAction(model));
 		actionsMap.put(NEW_OBJECT, new NewObjectAction(model, 
 								NewObjectAction.NEW_CONTAINERS));
-		actionsMap.put(EDITOR_NO_SELECTION, new EditorAction(model, false));
-		actionsMap.put(EDITOR_WITH_SELECTION, new EditorAction(model, true));
+		actionsMap.put(EDITOR_NO_SELECTION, new EditorAction(model, 
+				EditorAction.NO_SELECTION));
+		actionsMap.put(EDITOR_WITH_SELECTION, new EditorAction(model, 
+				EditorAction.WITH_SELECTION));
 		actionsMap.put(CREATE_TOP_TAG_SET,  
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.TAG_SET));
 		actionsMap.put(NEW_TAG_OBJECT, new NewObjectAction(model, 
 				NewObjectAction.NEW_TAGS));
 		actionsMap.put(TAGGING, new TaggingAction(model));
+		actionsMap.put(EDITOR_NEW_WITH_SELECTION, new EditorAction(model, 
+				EditorAction.NEW_WITH_SELECTION));
 	}
 
 	/** 

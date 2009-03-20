@@ -63,8 +63,8 @@ public class SaveAction
 {
 
     /** Description of the action. */
-    private static final String DESCRIPTION = "Save the thumbnails " +
-    		"displayed in a Microsoft Excel file.";
+    private static final String DESCRIPTION = "Save the displayed thumbnails " +
+    		"in a Microsoft Excel file.";
     
     /** 
      * Enables the action when the state is {@link DataBrowser#READY}.
@@ -103,7 +103,7 @@ public class SaveAction
 		JFrame frame = DataBrowserAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser =
 			new FileChooser(frame, FileChooser.SAVE, "Save thumbnails", 
-					"Save the images", filterList);
+					"Save the thumbnails", filterList);
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.SAVE_AS_48));
 		File f = UIUtilities.getDefaultFolder();

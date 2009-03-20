@@ -64,7 +64,6 @@ import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
@@ -175,7 +174,7 @@ class DomainPane
     	taskPane.setTitle(ADVANCED_OPTIONS);
     	taskPane.setCollapsed(true);
         graphicsPane = new GraphicsPane(model, controller);
-        familyBox = EditorUtil.createComboBox(model.getFamilies().toArray(), 0);
+        familyBox = new JComboBox(model.getFamilies().toArray());
         familyBox.setBackground(UIUtilities.BACKGROUND_COLOR);
         String family = model.getFamily();
         familyBox.setSelectedItem(family);
@@ -187,8 +186,8 @@ class DomainPane
         							MAX_GAMMA, (int) (k*FACTOR));
         gammaSlider.setBackground(UIUtilities.BACKGROUND_COLOR);
         gammaSlider.setShowArrows(false);
-        gammaSlider.setEnabled(!(family.equals(RendererModel.LINEAR) || 
-                family.equals(RendererModel.LOGARITHMIC)));
+        gammaSlider.setEnabled(family.equals(RendererModel.EXPONENTIAL) || 
+                family.equals(RendererModel.POLYNOMIAL));
         gammaSlider.addChangeListener(this);
         gammaSlider.addMouseListener(new MouseAdapter() {
     		
@@ -531,7 +530,12 @@ class DomainPane
 	protected void onStateChange(boolean b)
 	{
 		if (familyBox != null) familyBox.setEnabled(b);
-		if (gammaSlider != null) gammaSlider.setEnabled(b);
+		if (gammaSlider != null) {
+			String family = model.getFamily();
+			gammaSlider.setEnabled(b);
+			gammaSlider.setEnabled(family.equals(RendererModel.EXPONENTIAL) || 
+	                family.equals(RendererModel.POLYNOMIAL));
+		}
 		if (bitDepthSlider != null) bitDepthSlider.setEnabled(b);
 		if (noiseReduction != null) noiseReduction.setEnabled(b);
 		if (channelList != null) {

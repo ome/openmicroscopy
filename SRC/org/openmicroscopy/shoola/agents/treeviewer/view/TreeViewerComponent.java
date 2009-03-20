@@ -1964,25 +1964,71 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#openEditorFile(boolean)
+	 * @see TreeViewer#openEditorFile(int)
 	 */
-	public void openEditorFile(boolean forSelected)
+	public void openEditorFile(int index)
 	{
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-		if (forSelected) {
-			Browser browser = model.getSelectedBrowser();
-			if (browser == null) return;
-			TreeImageDisplay d  = browser.getLastSelectedDisplay();
-			if (d == null) return;
-			Object object = d.getUserObject();
-			if (object == null) return;
-			if (object instanceof FileAnnotationData) {
-				FileAnnotationData fa = (FileAnnotationData) d.getUserObject();
-				EditFileEvent evt = new EditFileEvent(fa);
-				bus.post(evt);
-			}
-		} else {
-			bus.post(new ShowEditorEvent());
+		Browser browser = model.getSelectedBrowser();
+		TreeImageDisplay d;
+		Object object;
+		switch (index) {
+			case WITH_SELECTION:
+				if (browser == null) return;
+				d  = browser.getLastSelectedDisplay();
+				if (d == null) return;
+				object = d.getUserObject();
+				if (object == null) return;
+				if (object instanceof FileAnnotationData) {
+					FileAnnotationData fa = 
+						(FileAnnotationData) d.getUserObject();
+					EditFileEvent evt = new EditFileEvent(fa);
+					bus.post(evt);
+				}
+				break;
+			case NO_SELECTION:
+				bus.post(new ShowEditorEvent());
+				break;
+			case NEW_WITH_SELECTION:
+				if (browser == null) return;
+				d  = browser.getLastSelectedDisplay();
+				if (d == null) return;
+				object = d.getUserObject();
+				TreeImageDisplay parent = d.getParentDisplay();
+				Object po = null;
+				if (parent != null) po = parent.getUserObject();
+				if (object == null) return;
+				String name = null;
+				if (object instanceof ProjectData)
+					name = ((ProjectData) object).getName();
+				else if (object instanceof DatasetData) {
+					if (po != null && po instanceof ProjectData) {
+						name = ((ProjectData) po).getName();
+						name += "_";
+						name += ((DatasetData) object).getName();
+					} else {
+						name = ((DatasetData) object).getName();
+					}
+				} else if (object instanceof ImageData)
+					name = ((ImageData) object).getName();
+				else if (object instanceof ScreenData)
+					name = ((ScreenData) object).getName();
+				else if (object instanceof PlateData) {
+					if (po != null && po instanceof ScreenData) {
+						name = ((ScreenData) po).getName();
+						name += "_";
+						name += ((PlateData) object).getName();
+					} else {
+						name = ((PlateData) object).getName();
+					}
+				}
+				if (name != null) {
+					name += ShowEditorEvent.EXPERIMENT_EXTENSION;
+					ShowEditorEvent event = new ShowEditorEvent(
+							(DataObject) object, name, 
+							ShowEditorEvent.EXPERIMENT);
+					bus.post(event);
+				}
 		}
 	}
 

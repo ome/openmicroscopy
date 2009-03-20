@@ -47,13 +47,14 @@ public class BrowserFactory
      * Creates a new {@link Browser}, with a UI either for disply or editing
      * of the Tree data. 
      * 
-     * @param viewingMode	either Browser.TREE_DISPLAY or Browser.TREE_EDIT
+     * @param viewingState Either {@link Browser#TREE_DISPLAY},
+     * 					{@link Browser#TREE_EDIT}, or {@link Browser#TREE_SAVED}.
      * 
-     * @return 		A browser component. 
+     * @return A browser component. 
      */
-    public static Browser createBrowser(int viewingState)
+    public static Browser createBrowser(int viewingState, int type)
     {
-        BrowserModel model = new BrowserModel(viewingState);
+        BrowserModel model = new BrowserModel(viewingState, type);
         BrowserComponent component = new BrowserComponent(model);
         model.initialize(component);
         component.initialize();
@@ -63,10 +64,13 @@ public class BrowserFactory
     /**
      * Creates a new {@link Browser}, with a UI either in the Display mode.
      * 
-     * @return 		A browser component. 
+     * @param type Either {@link Browser#PROTOCOL} or {@link Browser#EXPERIMENT}.
+     * @return A browser component. 
+     * 
      */
-    public static Browser createBrowser() {
-    	return createBrowser(Browser.TREE_SAVED);
+    public static Browser createBrowser(int type)
+    {
+    	return createBrowser(Browser.TREE_SAVED, type);
     }
     
 }
