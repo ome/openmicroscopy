@@ -532,6 +532,9 @@ class client(object):
                 except Ice.ConnectionRefusedException:
                     # ok. Server probably went down
                     pass
+                except Ice.ConnectTimeoutException:
+                    # ok. Server probably went down
+                    pass
             finally:
                 oldIc.destroy()
 

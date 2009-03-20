@@ -585,6 +585,8 @@ public class client {
                 // ok. Exception will always be thrown
             } catch (Ice.ConnectionRefusedException cle) {
                 // ok. Server probably went down
+            } catch (Ice.ConnectTimeoutException cte) {
+                // ok. Server probably went down
             } finally {
                 oldIc.destroy();
             }

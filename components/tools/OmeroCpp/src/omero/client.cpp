@@ -405,6 +405,9 @@ namespace omero {
 	} catch (const Ice::ConnectionRefusedException& cre) {
 	    // ok. Server probably went down
 	    oldIc->destroy();
+	} catch (const Ice::ConnectTimeoutException& cre) {
+	    // ok. Server probably went down
+	    oldIc->destroy();
         } catch (const omero::ClientError& ce) {
             // This is called by getRouter() if a router is not configured.
             // If there isn't one, then we can't be connected. That's alright.
