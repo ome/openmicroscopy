@@ -2184,7 +2184,6 @@ class ImViewerUI
 			reset = true;
 			h = height;
 		} 
-		System.err.println(w+" "+h);
 		if (reset)
 			setSize(w, h);
 	}
