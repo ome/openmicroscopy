@@ -481,6 +481,8 @@ public class SharingTest extends AbstractManagedContextTest {
 
         // Counts as different people
         assertEquals(new Long(3), share.getMemberCount(Collections.singleton(id)).get(id));
+        loginRoot(); // ticket:1239
+        assertEquals(new Long(3), share.getMemberCount(Collections.singleton(id)).get(id));
         loginUser(firstMember.getOmeName());
         assertEquals(new Long(3), share.getMemberCount(Collections.singleton(id)).get(id));
         loginUser(nonMember.getOmeName());

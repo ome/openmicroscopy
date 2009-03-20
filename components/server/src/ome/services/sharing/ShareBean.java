@@ -152,6 +152,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
             sub.join("memberLinks.parent", "share", false, false);
             sub.join("memberLinks.child", "user", false, false);
             sub.where();
+            sub.and("1=1"); // WORKAROUND for ticket:1239 for root
             applyIfShareAccessible(sub);
             qb.subselect(sub);
         }
