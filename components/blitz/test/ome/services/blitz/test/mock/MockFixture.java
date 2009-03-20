@@ -155,11 +155,6 @@ public class MockFixture {
         router = "OMERO.Glacier2/router:"
                 + prx.ice_getEndpoints()[0]._toString();
 
-        // Removing any redirects post-BlitzConfiguration to
-        // prevent weird ConnectionRefusedExceptions especially
-        // when using our mock glacier
-        blitz.getRing().initializeRedirect(null); // Removing redirect
-
         // Finally, starting a scheduler to act like a real
         // server
         try {

@@ -17,6 +17,7 @@ import ome.model.meta.Node;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.services.blitz.redirect.Redirector;
+import ome.services.blitz.redirect.NullRedirector;
 import ome.services.blitz.util.BlitzConfiguration;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.state.SessionCache;
@@ -80,6 +81,10 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
      * Direct proxy value to the {@link SessionManager} in this blitz instance.
      */
     private/* final */String directProxy;
+
+    public Ring(String uuid, Executor executor, SessionCache cache) {
+        this(uuid, executor, cache, new NullRedirector());
+    }
 
     public Ring(String uuid, Executor executor, SessionCache cache,
             Redirector redirector) {

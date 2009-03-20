@@ -65,13 +65,6 @@ public class ClusteredRingTest extends MockObjectTestCase {
     }
 
     @Test
-    public void testFirstTakesOver() throws Exception {
-        ring1 = fixture1.blitz.getRing();
-        ring2 = fixture2.blitz.getRing();
-        assertEquals(ring1.getRedirect(), ring2.getRedirect());
-    }
-
-    @Test
     public void testAfterStartupNoNonActiveManagersArePresent()
             throws Exception {
         String key = "manager-foo";
