@@ -194,12 +194,16 @@ class Context:
     def setdebug(self):
         self.isdebug = True
 
-    def safePrint(self, text, stream):
+    def safePrint(self, text, stream, newline = True):
         """
         Prints text to a given string, caputring any exceptions.
         """
         try:
-            print >>stream, (text % {"program_name": pysys.argv[0]})
+            stream.write(text % {"program_name": pysys.argv[0]})
+            if newline:
+                stream.write("\n")
+            else:
+                stream.flush()
         except:
             print >>pysys.stderr, "Error printing text"
             print >>pysys.stdout, text
@@ -250,24 +254,24 @@ class Context:
         else:
             return raw_input(prompt)
 
-    def out(self, text):
+    def out(self, text, newline = True):
         """
         Expects as single string as argument"
         """
-        self.safePrint(text, pysys.stdout)
+        self.safePrint(text, pysys.stdout, newline)
 
-    def err(self, text):
+    def err(self, text, newline = True):
         """
         Expects a single string as argument.
         """
-        self.safePrint(text, pysys.stderr)
+        self.safePrint(text, pysys.stderr, newline)
 
-    def dbg(self, text):
+    def dbg(self, text, newline = True):
         """
         Passes text to err() if self.isdebug is set
         """
         if self.isdebug:
-            self.err(text)
+            self.err(text, newline)
 
     def die(self, rc, args):
         raise exceptions.Exception((rc,args))
