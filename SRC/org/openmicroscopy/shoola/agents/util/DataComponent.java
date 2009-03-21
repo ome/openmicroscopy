@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.AcquisitionComponent 
+ * org.openmicroscopy.shoola.agents.util.DataComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,29 +20,31 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata.editor;
-
+package org.openmicroscopy.shoola.agents.util;
 
 //Java imports
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
+import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Utility class where UI component about acquisition metadata are stored.
+ * Utility class where a editable (key, value) pair is displayed.
+ *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,10 +56,18 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-class AcquisitionComponent
+public class DataComponent 	
 	extends JComponent
+	implements DocumentListener
 {
-
+	
+	/** The border when the field are is editable. */
+	public static final Border EDIT_BORDER = BorderFactory.createLineBorder(
+			Color.LIGHT_GRAY);
+	
+	/** Data Object indicating that the value has been modified. */
+	public static final String DATA_MODIFIED_PROPERTY = "dataModified";
+	
 	/** Component displaying the name of the field. */
 	private JLabel 		label;
 	
@@ -98,8 +108,8 @@ class AcquisitionComponent
 		dirty = true;
 		Object v = getValue();
 		if (value != null && value.equals(v)) dirty = false;
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-				Boolean.TRUE);
+		firePropertyChange(DATA_MODIFIED_PROPERTY, Boolean.valueOf(!dirty), 
+				Boolean.valueOf(dirty));
 	}
 	
 	/**
@@ -108,7 +118,7 @@ class AcquisitionComponent
 	 * @param label	Component displaying the name of the field.
 	 * @param area	Component displaying the value of the field.
 	 */
-	AcquisitionComponent(JLabel label, JComponent area)
+	public DataComponent(JLabel label, JComponent area)
 	{
 		dirty = false;
 		this.label = label;
@@ -116,8 +126,8 @@ class AcquisitionComponent
 		setField = true;
 		label.setLabelFor(area);
 		value = getValue();
-		area.setEnabled(false);
-		setBorder(AnnotationUI.EDIT_BORDER);
+		//area.setEnabled(false);
+		//setBorder(EDIT_BORDER);
 	}
 	
 	/**
@@ -126,12 +136,12 @@ class AcquisitionComponent
 	 * 
 	 * @param setField The value to set.
 	 */
-	void setSetField(boolean setField)
+	public void setSetField(boolean setField)
 	{ 
 		this.setField = setField;
 		if (!setField) {
 			if (area instanceof JTextComponent)
-				area.setBorder(AnnotationUI.EDIT_BORDER);
+				area.setBorder(EDIT_BORDER);
 		}
 	}
 	
@@ -141,21 +151,21 @@ class AcquisitionComponent
 	 * 
 	 * @return See above.
 	 */
-	boolean isSetField() { return setField; }
+	public boolean isSetField() { return setField; }
 	
 	/**
 	 * Returns the component displaying the name of the field.
 	 * 
 	 * @return See above.
 	 */
-	JLabel getLabel() { return label; }
+	public JLabel getLabel() { return label; }
 	
 	/**
 	 * Returns the component displaying the value of the field.
 	 * 
 	 * @return See above.
 	 */
-	JComponent getArea()
+	public JComponent getArea()
 	{ 
 		if (area instanceof JComboBox) {
 			JPanel p = UIUtilities.buildComponentPanel(area, 0, 0);
@@ -170,7 +180,7 @@ class AcquisitionComponent
 	 * 
 	 * @return See above.
 	 */
-	Object getAreaValue() { return getValue(); }
+	public Object getAreaValue() { return getValue(); }
 	
 	/**
 	 * Returns <code>true</code> if the value of the {@link #area} has been 
@@ -178,14 +188,14 @@ class AcquisitionComponent
 	 *  
 	 * @return See above.
 	 */
-	boolean isDirty() { return dirty; }
+	public boolean isDirty() { return dirty; }
 	
 	/**
 	 * Adds the passed property listener.
 	 * 
 	 * @param listener The listener to add.
 	 */
-	void attachListener(PropertyChangeListener listener)
+	public void attachListener(PropertyChangeListener listener)
 	{
 		addPropertyChangeListener(listener);
 		if (area instanceof JComboBox) {
@@ -199,20 +209,37 @@ class AcquisitionComponent
 			});
 		} else if (area instanceof JTextComponent) {
 			JTextComponent c = (JTextComponent) area;
-			c.getDocument().addDocumentListener(new DocumentListener() {
-			
-				public void removeUpdate(DocumentEvent e) {
-					notifyDataToSave();
-				}
-			
-				public void insertUpdate(DocumentEvent e) {
-					notifyDataToSave();
-				}
-			
-				public void changedUpdate(DocumentEvent e) {}
-			
-			});
+			c.getDocument().addDocumentListener(this);
 		} 
 	}
+	
+	/**
+	 * Overridden to set the enabled flag of the area.
+	 * @see JComponent#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		area.setEnabled(enabled);
+	}
 
+	/**
+	 * Implemented as specified by the {@link DocumentListener} I/F.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e) { notifyDataToSave(); }
+
+	/**
+	 * Implemented as specified by the {@link DocumentListener} I/F.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e) { notifyDataToSave(); }
+
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
+	
+	
 }

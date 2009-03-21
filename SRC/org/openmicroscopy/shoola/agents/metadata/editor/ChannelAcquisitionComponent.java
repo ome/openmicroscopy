@@ -51,6 +51,8 @@ import javax.swing.JPanel;
 import omero.model.AcquisitionMode;
 import omero.model.ContrastMethod;
 import omero.model.Illumination;
+
+import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.util.ui.JLabelButton;
@@ -146,13 +148,13 @@ class ChannelAcquisitionComponent
 	private OMEComboBox							laserPulseBox;
 	
 	/** The fields displaying the metadata. */
-	private Map<String, AcquisitionComponent> 	fieldsGeneral;
+	private Map<String, DataComponent> 			fieldsGeneral;
 	
 	/** The fields displaying the metadata. */
-	private Map<String, AcquisitionComponent> 	fieldsDetector;
+	private Map<String, DataComponent> 			fieldsDetector;
 	
 	/** The fields displaying the metadata. */
-	private Map<String, AcquisitionComponent> 	fieldsLight;
+	private Map<String, DataComponent> 			fieldsLight;
 	
 	/** Button to show or hides the unset fields of the light. */
 	private JLabelButton						unsetLight;
@@ -292,9 +294,9 @@ class ChannelAcquisitionComponent
 				handleLightSourceSelection();
 			}
 		});
-		fieldsGeneral = new LinkedHashMap<String, AcquisitionComponent>();
-		fieldsDetector = new LinkedHashMap<String, AcquisitionComponent>();
-		fieldsLight = new LinkedHashMap<String, AcquisitionComponent>();
+		fieldsGeneral = new LinkedHashMap<String, DataComponent>();
+		fieldsDetector = new LinkedHashMap<String, DataComponent>();
+		fieldsLight = new LinkedHashMap<String, DataComponent>();
 		
 		unsetDetector = null;
 		unsetDetectorShown = false;
@@ -373,7 +375,7 @@ class ChannelAcquisitionComponent
 			title = EMITTING_DIODE_TYPE;
 		lightPane.setBorder(BorderFactory.createTitledBorder(title));
 		
-		AcquisitionComponent comp;
+		DataComponent comp;
 		JLabel label;
 		JComponent area = null;
 		String key;
@@ -547,7 +549,8 @@ class ChannelAcquisitionComponent
             }
             if (area != null) {
             	area.setEnabled(!set);
-            	comp = new AcquisitionComponent(label, area);
+            	comp = new DataComponent(label, area);
+            	comp.setEnabled(false);
     			comp.setSetField(!notSet.contains(key));
     			fieldsLight.put(key, comp);
             }
@@ -572,7 +575,7 @@ class ChannelAcquisitionComponent
 	 */
 	private void transformDetectorSource(Map<String, Object> details)
 	{
-		AcquisitionComponent comp;
+		DataComponent comp;
 		JLabel label;
 		JComponent area;
 		String key;
@@ -641,7 +644,8 @@ class ChannelAcquisitionComponent
             	 ((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
             }
             area.setEnabled(!set);
-            comp = new AcquisitionComponent(label, area);
+            comp = new DataComponent(label, area);
+            comp.setEnabled(false);
 			comp.setSetField(!notSet.contains(key));
 			fieldsDetector.put(key, comp);
         }
@@ -665,7 +669,7 @@ class ChannelAcquisitionComponent
 	 */
 	private void transformGeneralSource(Map<String, Object> details)
 	{
-		AcquisitionComponent comp;
+		DataComponent comp;
 		JLabel label;
 		JComponent area;
 		String key;
@@ -754,7 +758,8 @@ class ChannelAcquisitionComponent
             	}
             }
             area.setEnabled(!set);
-            comp = new AcquisitionComponent(label, area);
+            comp = new DataComponent(label, area);
+            comp.setEnabled(false);
 			comp.setSetField(!notSet.contains(key));
 			fieldsGeneral.put(key, comp);
         }
@@ -857,16 +862,18 @@ class ChannelAcquisitionComponent
 		List<Object> data = new ArrayList<Object>();
 		if (!hasDataToSave()) return data;
 		String key;
-		AcquisitionComponent comp;
+		DataComponent comp;
 		Object value;
 		EnumerationObject enumObject;
 		Number number;
-		Iterator<String> i; 
+		Iterator i; 
+		Entry entry;
 		if (channel.isDirty()) {
-			i = fieldsGeneral.keySet().iterator();
+			i = fieldsGeneral.entrySet().iterator();
 			while (i.hasNext()) {
-				key = i.next();
-				comp = fieldsGeneral.get(key);
+				entry = (Entry) i.next();
+				key = (String) entry.getKey();
+				comp = (DataComponent) entry.getValue();
 				if (comp.isDirty()) {
 					value = comp.getAreaValue();
 					if (EditorUtil.NAME.equals(key)) {
@@ -918,11 +925,12 @@ class ChannelAcquisitionComponent
 		}
 		ChannelAcquisitionData metadata = model.getChannelAcquisitionData(
     			channel.getIndex());
-		i = fieldsDetector.keySet().iterator();
+		i = fieldsDetector.entrySet().iterator();
 		
 		while (i.hasNext()) {
-			key = i.next();
-			comp = fieldsDetector.get(key);
+			entry = (Entry) i.next();
+			key = (String) entry.getKey();
+			comp = (DataComponent) entry.getValue();
 			if (comp.isDirty()) {
 				value = comp.getAreaValue();
 				if (EditorUtil.MODEL.equals(key)) {

@@ -55,7 +55,7 @@ abstract class AnnotationUI
 	extends JPanel
 {
 
-	/** The border when an editable are is editable. */
+	/** The border when an editable field are is editable. */
 	static final Border EDIT_BORDER = BorderFactory.createLineBorder(
 			Color.LIGHT_GRAY);
 	

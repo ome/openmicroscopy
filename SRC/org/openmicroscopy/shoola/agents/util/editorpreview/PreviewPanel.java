@@ -30,7 +30,10 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -43,22 +46,18 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 
 //Third-party libraries
 import layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.editorpreview.MetadataComponent;
+import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Displays an entire Editor file, using code based on code from
- * {@link org.openmicroscopy.shoola.agents.metadata.editor.ImageAcquisitionComponent}
- * 
+ * Displays an entire Editor file.
  * This is simply the display panel, and does not include E.g the JXTaskPane 
  * Other classes may display this panel in a JXTaskPane, and use the 
  * {@link getTitle} method to set the JXTaskPane title. 
@@ -78,10 +77,14 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class PreviewPanel 
 	extends JPanel
+	implements PropertyChangeListener
 {
 	
-	/** The property fired to open the file. */
+	/** Bound property indicating to open the file. */
 	public static final String		OPEN_FILE_PROPERTY = "openFile";
+	
+	/** Bound property indicating modifications of fields. */
+	public static final String		PREVIEW_EDITED_PROPERTY = "previewEdited";
 	
 	/** max number of characters to display in field value */
 	public static final int			MAX_CHARS = 50;
@@ -114,11 +117,14 @@ public class PreviewPanel
 	 * The Model passes the XML description. Then the steps and the name and
 	 * description/abstract of the protocol can be retrieved. 
 	 */
-	private PreviewModel	model;
+	private PreviewModel		model;
 	
 	/** The id of the file. */
-	private long			fileID;
+	private long				fileID;
 
+	/** Collection of fields to update. */
+	private List<DataComponent> fields;
+	
 	/**
 	 * Lays out the title and the a button to open the file.
 	 * 
@@ -174,12 +180,6 @@ public class PreviewPanel
 			// display description in EditorPane, because text wraps nicely!
 			JEditorPane ep = new JEditorPane("text/html", description);
 			ep.setEditable(false);
-			ep.addHyperlinkListener(new HyperlinkListener() {
-			
-				public void hyperlinkUpdate(HyperlinkEvent e) {
-					System.err.println(e.getURL());
-				}
-			});
 			ep.setBorder(new EmptyBorder(3, 5, 5, 3));
 			p.add(ep);
 		}
@@ -190,7 +190,8 @@ public class PreviewPanel
 		JPanel nodePanel;
 		Border border;
 		int indent;
-		List<MetadataComponent> paramComponents;
+		fields = new ArrayList<DataComponent>();
+		List<DataComponent> paramComponents;
 		for (StepObject stepObject : protocolSteps) {
 
 			// each child node has a list of parameters 
@@ -199,6 +200,7 @@ public class PreviewPanel
 			// don't add a field unless it has some parameters to display
 			if (paramComponents.isEmpty()) continue;
 			
+			fields.addAll(paramComponents);
 			stepName = stepObject.getName();
 			
 			indent = (stepObject.getLevel())*10;
@@ -210,7 +212,7 @@ public class PreviewPanel
 			nodePanel.setBackground(UIUtilities.BACKGROUND_COLOR);
 			nodePanel.setLayout(new GridBagLayout());
 			
-			layoutFields(nodePanel, null, paramComponents, true);
+			layoutFields(nodePanel, null, paramComponents);
 			
 			p.add(nodePanel);
 		}
@@ -234,11 +236,9 @@ public class PreviewPanel
 	 * @param pane 		The main component.
 	 * @param button	The button to show or hide the unset fields.
 	 * @param fields	The fields to lay out.
-	 * @param shown		Pass <code>true</code> to show the unset fields,
-	 * 					<code>false</code> to hide them.
 	 */
 	private void layoutFields(JPanel pane, JButton button, 
-			List<MetadataComponent> fields, boolean shown)
+			List<DataComponent> fields)
 	{
 		pane.removeAll();
 		GridBagConstraints c = new GridBagConstraints();
@@ -246,9 +246,9 @@ public class PreviewPanel
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
 	    
-		for (MetadataComponent comp : fields) {
+		for (DataComponent comp : fields) {
 	        c.gridx = 0;
-	        if (comp.isSetField() || shown) {
+	        if (comp.isSetField()) {
 	        	 ++c.gridy;
 	        	 c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 	             c.fill = GridBagConstraints.NONE;      //reset to default
@@ -275,10 +275,10 @@ public class PreviewPanel
 	 * @param step The step to transform.
 	 * @return See above.
 	 */
-	private List<MetadataComponent> transformFieldParams(StepObject step)
+	private List<DataComponent> transformFieldParams(StepObject step)
 	{
-		List<MetadataComponent> cmps = new ArrayList<MetadataComponent>();
-		MetadataComponent comp;
+		List<DataComponent> cmps = new ArrayList<DataComponent>();
+		DataComponent comp;
 		JLabel label;
 		JComponent area;
 		String key;
@@ -306,12 +306,22 @@ public class PreviewPanel
 			label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
 			label.setBackground(UIUtilities.BACKGROUND_COLOR);
 			
-			comp = new MetadataComponent(label, area);
+			comp = new DataComponent(label, area);
+			comp.attachListener(this);
 			comp.setSetField(value != null);
+			comp.setEnabled(false);
 			cmps.add(comp);
 		}
 		
 		return cmps;
+	}
+	
+	/** Invokes when a field is modified. */
+	private void onFieldModified()
+	{
+		boolean dirty = hasDataToSave();
+		firePropertyChange(PREVIEW_EDITED_PROPERTY, Boolean.valueOf(!dirty), 
+				Boolean.valueOf(dirty));
 	}
 	
 	/**
@@ -357,6 +367,49 @@ public class PreviewPanel
 	{
 		if (model == null) return "OMERO.editor";
 		return model.getTitle();
+	}
+
+	/**
+	 * Returns <code>true</code> if the preview has been modified,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasDataToSave()
+	{
+		boolean dirty = false;
+		Iterator<DataComponent> i = fields.iterator();
+		DataComponent comp;
+		while (i.hasNext()) {
+			comp = i.next();
+			if (comp.isDirty()) {
+				dirty = true;
+				break;
+			}
+		}
+		return dirty;
+	}
+	
+	/**
+	 * Updates the description and returns it.
+	 * 
+	 * @return See above.
+	 */
+	public String prepareDataToSave()
+	{
+		return null;
+	}
+	
+	/** 
+	 * Listens to property fired by the {@link DataComponent}s.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (DataComponent.DATA_MODIFIED_PROPERTY.equals(name)) {
+			onFieldModified();
+		}
 	}
 	
 }

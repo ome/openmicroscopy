@@ -111,6 +111,9 @@ class GeneralPaneUI
 	/** The component hosting the various protocols. */
 	private JPanel						protocolComponent;
 	
+	/** Collection of preview panels. */
+	private List<PreviewPanel>			previews;
+	
 	/**
 	 * Loads or cancels any on-going loading of containers hosting
 	 * the edited object.
@@ -150,6 +153,7 @@ class GeneralPaneUI
 			i.next().addPropertyChangeListener(EditorControl.SAVE_PROPERTY,
 											controller);
 		}
+		previews = new ArrayList<PreviewPanel>();
 	}
 	
 	/** Builds and lays out the components. */
@@ -215,6 +219,7 @@ class GeneralPaneUI
 		String description;
 		String ns;
 		int index = 0;
+		previews.clear();
 		while (i.hasNext()) {
 			fa = (FileAnnotationData) i.next();
 			ns = fa.getNameSpace();
@@ -222,6 +227,7 @@ class GeneralPaneUI
 				description = fa.getDescription();
 				if (description != null) {
 					preview = new PreviewPanel(description, fa.getId());
+					previews.add(preview);
 					preview.addPropertyChangeListener(controller);
 					pane = EditorUtil.createTaskPane(fa.getFileName());
 					pane.add(preview);
@@ -414,6 +420,13 @@ class GeneralPaneUI
 		while (i.hasNext()) {
 			ui = i.next();
 			if (ui.hasDataToSave())
+				return true;
+		}
+		Iterator<PreviewPanel> p = previews.iterator();
+		PreviewPanel pp;
+		while (p.hasNext()) {
+			pp = p.next();
+			if (pp.hasDataToSave())
 				return true;
 		}
 		return false;

@@ -34,7 +34,7 @@ import javax.swing.event.DocumentListener;
 //Application-internal dependencies
 
 /** 
- * 
+ * Updates the color of the fields when the value is modified.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

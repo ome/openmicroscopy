@@ -47,6 +47,8 @@ import javax.swing.JPanel;
 import omero.model.Correction;
 import omero.model.Immersion;
 import omero.model.Medium;
+
+import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.util.ui.JLabelButton;
@@ -102,13 +104,13 @@ class ImageAcquisitionComponent
 	private OMEComboBox							irisBox;
 	
 	/** The fields displaying the metadata. */
-	private Map<String, AcquisitionComponent> 	fieldsObjective;
+	private Map<String, DataComponent> 			fieldsObjective;
 	
 	/** The fields displaying the metadata. */
-	private Map<String, AcquisitionComponent> 	fieldsEnv;
+	private Map<String, DataComponent> 			fieldsEnv;
 	
 	/** The fields displaying the metadata. */
-	private Map<String, AcquisitionComponent> 	fieldsStage;
+	private Map<String, DataComponent> 			fieldsStage;
 	
 	/** Flag indicating if the components have been initialized. */
 	private boolean								init;
@@ -204,9 +206,9 @@ class ImageAcquisitionComponent
 		
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		fieldsObjective = new LinkedHashMap<String, AcquisitionComponent>();
-		fieldsEnv = new LinkedHashMap<String, AcquisitionComponent>();
-		fieldsStage = new LinkedHashMap<String, AcquisitionComponent>();
+		fieldsObjective = new LinkedHashMap<String, DataComponent>();
+		fieldsEnv = new LinkedHashMap<String, DataComponent>();
+		fieldsStage = new LinkedHashMap<String, DataComponent>();
 		unsetObjective = null;
 		unsetObjectiveShown = false;
 		objectivePane = new JPanel();
@@ -234,7 +236,7 @@ class ImageAcquisitionComponent
 	 */
 	private void transformObjective(Map<String, Object> details)
 	{
-		AcquisitionComponent comp;
+		DataComponent comp;
 		JLabel label;
 		JComponent area;
 		String key;
@@ -332,7 +334,8 @@ class ImageAcquisitionComponent
 				}
 			}
 			area.setEnabled(!set);
-			comp = new AcquisitionComponent(label, area);
+			comp = new DataComponent(label, area);
+			comp.setEnabled(false);
 			comp.setSetField(!notSet.contains(key));
 			fieldsObjective.put(key, comp);
 		}
@@ -345,7 +348,7 @@ class ImageAcquisitionComponent
 	 */
 	private void transformStage(Map<String, Object> details)
 	{
-		AcquisitionComponent comp;
+		DataComponent comp;
 		JLabel label;
 		JComponent area;
 		String key;
@@ -394,7 +397,8 @@ class ImageAcquisitionComponent
             	
             }
             area.setEnabled(!set);
-            comp = new AcquisitionComponent(label, area);
+            comp = new DataComponent(label, area);
+            comp.setEnabled(false);
 			comp.setSetField(!notSet.contains(key));
 			fieldsStage.put(key, comp);
         }
@@ -407,7 +411,7 @@ class ImageAcquisitionComponent
 	 */
 	private void transformEnv(Map<String, Object> details)
 	{
-		AcquisitionComponent comp;
+		DataComponent comp;
 		JLabel label;
 		JComponent area;
 		String key;
@@ -462,7 +466,8 @@ class ImageAcquisitionComponent
 						UIUtilities.EDITED_COLOR);
 			}
 			area.setEnabled(!set);
-			comp = new AcquisitionComponent(label, area);
+			comp = new DataComponent(label, area);
+            comp.setEnabled(false);
 			comp.setSetField(!notSet.contains(key));
 			fieldsEnv.put(key, comp);
 		}
@@ -554,17 +559,19 @@ class ImageAcquisitionComponent
 		if (!hasDataToSave()) return null;
 		ImageAcquisitionData data = model.getImageAcquisitionData();
 		String key;
-		AcquisitionComponent comp;
+		DataComponent comp;
 		Object value;
 		EnumerationObject enumObject;
 		
-		Iterator<String> i = fieldsObjective.keySet().iterator();
+		Iterator i = fieldsObjective.entrySet().iterator();
 		//objective
 		Number number;
 		Boolean bool;
+		Entry entry;
 		while (i.hasNext()) {
-			key = i.next();
-			comp = fieldsObjective.get(key);
+			entry = (Entry) i.next();
+			key = (String) entry.getKey();
+			comp = (DataComponent) entry.getValue();
 			if (comp.isDirty()) {
 				value = comp.getAreaValue();
 				if (EditorUtil.MODEL.equals(key)) {
@@ -615,11 +622,12 @@ class ImageAcquisitionComponent
 		}
 		
 		//environment
-		i = fieldsEnv.keySet().iterator();
+		i = fieldsEnv.entrySet().iterator();
 		float v;
 		while (i.hasNext()) {
-			key = i.next();
-			comp = fieldsEnv.get(key);
+			entry = (Entry) i.next();
+			key = (String) entry.getKey();
+			comp = (DataComponent) entry.getValue();
 			if (comp.isDirty()) {
 				value = comp.getAreaValue();
 				if (EditorUtil.TEMPERATURE.equals(key)) {
@@ -650,10 +658,11 @@ class ImageAcquisitionComponent
 		
 		//stage label
 
-		i = fieldsStage.keySet().iterator();
+		i = fieldsStage.entrySet().iterator();
 		while (i.hasNext()) {
-			key = i.next();
-			comp = fieldsStage.get(key);
+			entry = (Entry) i.next();
+			key = (String) entry.getKey();
+			comp = (DataComponent) entry.getValue();
 			if (comp.isDirty()) {
 				value = comp.getAreaValue();
 				if (EditorUtil.NAME.equals(key)) {

@@ -60,8 +60,8 @@ import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
+import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.editorpreview.MetadataComponent;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
@@ -158,8 +158,7 @@ public class MetadataPanelsComponent
 			field = (IField)userOb;
 			
 			// each child node has a list of parameters 
-			List<MetadataComponent> paramComponents = 
-				transformFieldParams(field);
+			List<DataComponent> paramComponents = transformFieldParams(field);
 			
 			// don't add a field unless it has some parameters to display
 			if (paramComponents.isEmpty()) continue;
@@ -186,10 +185,10 @@ public class MetadataPanelsComponent
 	 * 
 	 * @param params The metadata to transform.
 	 */
-	private List<MetadataComponent> transformFieldParams(IField field)
+	private List<DataComponent> transformFieldParams(IField field)
 	{
-		List<MetadataComponent> cmps = new ArrayList<MetadataComponent>();
-		MetadataComponent comp;
+		List<DataComponent> cmps = new ArrayList<DataComponent>();
+		DataComponent comp;
 		JLabel label;
 		JComponent area;
 		String key;
@@ -259,9 +258,8 @@ public class MetadataPanelsComponent
 			label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
 			label.setBackground(UIUtilities.BACKGROUND_COLOR);
 			
-			comp = new MetadataComponent(label, area);
+			comp = new DataComponent(label, area);
 			comp.setSetField(value != null);
-			// fieldsObjective.put(key, comp);
 			cmps.add(comp);
 		}
 		
@@ -362,7 +360,7 @@ public class MetadataPanelsComponent
 	 * 					<code>false</code> to hide them.
 	 */
 	static void layoutFields(JPanel pane, JButton button, 
-			List<MetadataComponent> fields, boolean shown)
+			List<DataComponent> fields, boolean shown)
 	{
 		pane.removeAll();
 		GridBagConstraints c = new GridBagConstraints();
@@ -370,7 +368,7 @@ public class MetadataPanelsComponent
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
 	    
-		for (MetadataComponent comp : fields) {
+		for (DataComponent comp : fields) {
 	        c.gridx = 0;
 	        if (comp.isSetField() || shown) {
 	        	 ++c.gridy;

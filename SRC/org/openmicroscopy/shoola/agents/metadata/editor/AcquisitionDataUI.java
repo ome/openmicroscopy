@@ -48,6 +48,7 @@ import javax.swing.JPanel;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -206,11 +207,14 @@ class AcquisitionDataUI
 	 * 
 	 * @param map The map to handle.
 	 */
-	void attachListener(Map<String, AcquisitionComponent> map)
+	void attachListener(Map<String, DataComponent> map)
 	{
-		Iterator<String> i = map.keySet().iterator();
-		while (i.hasNext())
-			map.get(i.next()).attachListener(controller);
+		Iterator i = map.entrySet().iterator();
+		Entry entry;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			((DataComponent) entry.getValue()).attachListener(controller);
+		}
 	}
 	
 	/**
@@ -220,13 +224,15 @@ class AcquisitionDataUI
 	 * @param map The map to handle.
 	 * @return See above.
 	 */
-	boolean hasDataToSave(Map<String, AcquisitionComponent> map)
+	boolean hasDataToSave(Map<String, DataComponent> map)
 	{
 		if (map == null) return false;
-		Iterator<String> i = map.keySet().iterator();
-		AcquisitionComponent comp;
+		Iterator i = map.entrySet().iterator();
+		DataComponent comp;
+		Entry entry;
 		while (i.hasNext()) {
-			comp = map.get(i.next());
+			entry = (Entry) i.next();
+			comp = (DataComponent) entry.getValue();
 			if (comp.isDirty()) return true;
 		}
 		return false;
@@ -260,14 +266,14 @@ class AcquisitionDataUI
 	 * 					<code>false</code> to hide them.
 	 */
 	void layoutFields(JPanel pane, JComponent button, 
-			Map<String, AcquisitionComponent> fields, boolean shown)
+			Map<String, DataComponent> fields, boolean shown)
 	{
 		pane.removeAll();
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
-        AcquisitionComponent comp;
+		DataComponent comp;
         Set set = fields.entrySet();
         Entry entry;
         
@@ -276,7 +282,7 @@ class AcquisitionDataUI
         while (i.hasNext()) {
             c.gridx = 0;
             entry = (Entry) i.next();
-            comp = (AcquisitionComponent) entry.getValue();
+            comp = (DataComponent) entry.getValue();
             if (comp.isSetField() || shown) {
             	 ++c.gridy;
             	 c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last

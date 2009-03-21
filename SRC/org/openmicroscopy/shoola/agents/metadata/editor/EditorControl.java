@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -240,7 +241,9 @@ class EditorControl
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (SAVE_PROPERTY.equals(name)) {
+		if (SAVE_PROPERTY.equals(name) || 
+				DataComponent.DATA_MODIFIED_PROPERTY.equals(name) ||
+				PreviewPanel.PREVIEW_EDITED_PROPERTY.equals(name)) {
 			view.setDataToSave(view.hasDataToSave());
 		} else if (MetadataViewer.SAVE_DATA_PROPERTY.equals(name)) {
 			view.saveData();
