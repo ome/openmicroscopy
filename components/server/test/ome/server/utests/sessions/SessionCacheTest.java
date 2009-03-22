@@ -12,15 +12,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -38,13 +34,8 @@ import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.state.SessionCache.StaleCacheListener;
 import ome.services.sessions.stats.NullSessionStats;
-import ome.services.util.Executor;
 import ome.system.OmeroContext;
-import ome.system.Principal;
 
-import org.jmock.MockObjectTestCase;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationEventMulticaster;
@@ -56,12 +47,11 @@ import org.testng.annotations.Test;
  * @since 3.0-Beta2
  */
 @Test(groups = "sessions")
-public class SessionCacheTest extends MockObjectTestCase {
+public class SessionCacheTest extends TestCase {
 
     OmeroContext ctx = new OmeroContext(
             new String[] { "classpath:ome/services/messaging.xml" });
     SessionCache cache;
-    Executor ex;
     final boolean[] called = new boolean[2];
 
     @BeforeMethod
@@ -71,9 +61,7 @@ public class SessionCacheTest extends MockObjectTestCase {
     }
 
     private void initCache() {
-        ex = new TestExecutor();
-        
-        cache = new SessionCache(ex);
+        cache = new SessionCache();
         cache.setApplicationContext(ctx);
         cache.setStaleCacheListener(new NoOpStaleCacheListener());
         cache.setCacheManager(CacheManager.getInstance());
@@ -81,7 +69,7 @@ public class SessionCacheTest extends MockObjectTestCase {
         while (cache.getLastUpdated() == System.currentTimeMillis()) {
             try {
                 Thread.sleep(10L);
-            } catch (InterruptedException exc) {
+            } catch (InterruptedException e) {
                 // ok
             }
         }
@@ -226,7 +214,7 @@ public class SessionCacheTest extends MockObjectTestCase {
         cache.putSession(s.getUuid(), sc(s));
         cache.setStaleCacheListener(new ThrowsStaleCacheListener());
         cache.updateEvent(new UserGroupUpdateEvent(this));
-                
+        
         TryUpdate t1 = new TryUpdate(0, s.getUuid());
         t1.start();
         t1.barrier.await();
@@ -600,46 +588,4 @@ public class SessionCacheTest extends MockObjectTestCase {
             throw new RuntimeException();
         }
     }
-    
-    // ~Executor
-    // =========================================================================
-    static class TestExecutor implements Executor {
-        
-        private ExecutorService es = Executors.newFixedThreadPool(1);
-        
-        public Object execute(Principal p, Work work) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Object executeStateless(StatelessWork work) {
-            throw new UnsupportedOperationException();
-        }
-
-        public <T> T get(Future<T> future) {
-            try {
-                return future.get();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
-                throw (RuntimeException) e.getCause();
-            }
-        }
-
-        public OmeroContext getContext() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Principal principal() {
-            throw new UnsupportedOperationException();
-        }
-
-        public <T> Future<T> submit(Callable<T> callable) {
-            return es.submit(callable);
-        }
-
-        public void setApplicationContext(
-                ApplicationContext applicationContext)
-                throws BeansException {
-            throw new UnsupportedOperationException();
-        }};
 }

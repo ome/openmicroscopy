@@ -66,17 +66,11 @@ public abstract class ExecutionThread implements Runnable {
      */
     public abstract void doRun();
 
-    /**
-     * Make sure that the session is still active. If not, re-create.
-     * Note: create is used because it is a non-blocking call, but it
-     * does increment the reference count, which shouldn't be an issue
-     * since we want this session to live as long as possible.
-     */
     protected final void sessionInit() {
 
         if (sessionPrincipal != null) {
             try {
-                this.manager.create(sessionPrincipal); // increments ref 
+                this.manager.getEventContext(sessionPrincipal);
             } catch (SessionException e) {
                 sessionPrincipal = null;
             }

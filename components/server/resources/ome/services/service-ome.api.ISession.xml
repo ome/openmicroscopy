@@ -38,4 +38,19 @@
     <property name="target" ref="internal-ome.api.ISession"/>
   </bean>  
 
+  <bean id="updateCacheRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="sessionCache" />
+    <property name="targetMethod" value="doUpdate" />
+  </bean>
+  
+  <bean id="updateCacheTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+    <description>
+    Runs the update cache thread ever sync_interval so that
+    unreaped sessions will be found and the DestroySessionMessage
+    propagated and all resources freed.
+    </description>
+    <property name="jobDetail" ref="updateCacheRun" />
+    <property name="repeatInterval" value="${omero.sessions.sync_interval}" />
+  </bean>
+  
 </beans>

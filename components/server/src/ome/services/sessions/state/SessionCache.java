@@ -10,10 +10,7 @@ import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -32,7 +29,6 @@ import ome.services.sessions.SessionCallback;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
-import ome.services.util.Executor;
 import ome.system.OmeroContext;
 
 import org.apache.commons.logging.Log;
@@ -89,7 +85,7 @@ public class SessionCache implements ApplicationContextAware {
      * The amount of time in milliseconds that a thread is allowed to block for
      * during {@link #waitForUpdate()}.
      */
-    private long allowedBlockTime = 30000L;
+    private long allowedBlockTime = 10000L;
 
     /**
      * Time of the last update. This will be updated by a background thread.
@@ -109,11 +105,6 @@ public class SessionCache implements ApplicationContextAware {
      */
     private final ReadWriteLock runUpdate = new ReentrantReadWriteLock();
 
-    /**
-     * Single counter which lets the first thread needing an update to progress
-     * to performing the update.
-     */
-    private final Semaphore firstComes = new Semaphore(1);
     /**
      * Injected {@link CacheManager} used to create various caches.
      */
@@ -140,26 +131,6 @@ public class SessionCache implements ApplicationContextAware {
     private OmeroContext context;
 
     /**
-     * Used for running the background call to {@link #doUpdate()}
-     */
-    private Executor executor;
-
-    /**
-     * Default constructor is explicitly added, since the session cache will
-     * acquire what it needs from the {@link OmeroContext} if not given.
-     */
-    public SessionCache() {
-        
-    }
-    
-    /**
-     * Primarily used for testing, so that a mock executor can be passed in.
-     */
-    public SessionCache(Executor ex) {
-        this.executor = ex;
-    }
-    
-    /**
      * Injection method, also performs the creation of {@link #sessions}
      */
     public void setCacheManager(CacheManager manager) {
@@ -173,9 +144,6 @@ public class SessionCache implements ApplicationContextAware {
     public void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
         context = (OmeroContext) ctx;
-        if (executor == null) {
-            executor = (Executor) context.getBean("executor");
-        }
     }
 
     /**
@@ -461,61 +429,43 @@ public class SessionCache implements ApplicationContextAware {
         long finish = start + allowedBlockTime;
         boolean first = true;
         while (finish > System.currentTimeMillis()) {
+            boolean needsUpdate = false;
 
             // Gets the current status, possibly waiting on any running updates
-            // If we can't get a read lock, the continue for the allowed block
-            // time (~10 seconds)
-            boolean locked = false;
             try {
-                locked = runUpdate.readLock().tryLock(500L,
+                boolean locked = runUpdate.readLock().tryLock(500L,
                         TimeUnit.MILLISECONDS);
+                if (!locked) {
+                    log.debug("Failed to acquire read lock in 500 ms");
+                    continue;
+                }
             } catch (InterruptedException e1) {
                 log.debug("Interrupted while waiting on read lock");
                 continue;
             }
 
-            if (!locked) {
-                log.debug("Failed to acquire read lock in 500 ms");
-                continue;
-            }
-            
             try {
-                if (!checkNeedsUpdateWithoutLock()) {
-                    return; // SUCCESS
-                }
+                needsUpdate = checkNeedsUpdateWithoutLock();
             } finally {
                 runUpdate.readLock().unlock();
             }
 
-            // This block must use a separate concurrency primitive, since
-            // the doUpdate call takes place in a separate thread.
-            if (firstComes.tryAcquire()) {
+            if (needsUpdate) {
                 try {
-                    Future<Object> future = executor
-                            .submit(new Callable<Object>() {
-                                public Object call() throws Exception {
-                                    doUpdate();
-                                    return null;
-                                }
-                            });
-                    executor.get(future);
-                    return; // SUCCESS
-                } finally {
-                    firstComes.release();
+                    if (first) {
+                        log.info("Waiting for synchronization");
+                        first = false;
+                    }
+                    Thread.sleep(500L);
+                } catch (InterruptedException e) {
+                    log.warn("Interrupted. Retrying wait...");
+                    continue; // Not sure about this. Shouldn't happen.
                 }
+            } else {
+                return;
             }
-
-            // This thread wasn't the first to need an update, it will
-            // just have to wait.
-            if (first) {
-                log.info("Waiting for synchronization");
-                first = false;
-            }
-            continue;
-
         }
 
-        // Throw since the while loop timed out.
         throw new InternalException(
                 "Timed out while waiting on synchronization");
 
@@ -547,25 +497,23 @@ public class SessionCache implements ApplicationContextAware {
     }
 
     /**
-     * Will only ever be accessed by a single "fresh" thread. Rechecks the
-     * target update time again in case a second write thread was blocking the
-     * current one. {@link #lastUpdateRun} gets set to a negative value to
-     * specify that this method is currently running.
+     * Will only ever be accessed by a single thread. Rechecks the target update
+     * time again in case a second write thread was blocking the current one.
+     * {@link #lastUpdateRun} gets set to a negative value to specify that this
+     * method is currently running.
      */
     @SuppressWarnings("unchecked")
     public void doUpdate() {
 
         boolean locked = false;
         try {
-            locked = runUpdate.writeLock().tryLock(allowedBlockTime,
-                    TimeUnit.MILLISECONDS);
+            locked = runUpdate.writeLock().tryLock(3 * 60, TimeUnit.SECONDS);
         } catch (InterruptedException e1) {
-            log.debug("Interrupted while waiting on write lock");
+            log.debug("Interrupted while waiting on update lock");
         }
 
         if (!locked) {
-            throw new InternalException(
-                    "Could now acquire write lock for update");
+            throw new InternalException("Cannot get access to update lock");
         }
 
         try {
