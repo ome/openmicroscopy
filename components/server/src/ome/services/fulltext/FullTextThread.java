@@ -72,7 +72,7 @@ public class FullTextThread extends ExecutionThread {
      */
     public FullTextThread(SessionManager manager, Executor executor,
             FullTextIndexer indexer, FullTextBridge bridge, Principal principal) {
-        super(manager, executor, indexer, DEFAULT_PRINCIPAL);
+        super(manager, executor, indexer, principal);
         Assert.notNull(bridge);
         this.indexer = indexer;
         this.bridge = bridge;
@@ -85,7 +85,7 @@ public class FullTextThread extends ExecutionThread {
     public FullTextThread(SessionManager manager, Executor executor,
             FullTextIndexer indexer, FullTextBridge bridge,
             Principal principal, boolean waitForLock) {
-        super(manager, executor, indexer, DEFAULT_PRINCIPAL);
+        super(manager, executor, indexer, principal);
         Assert.notNull(bridge);
         this.indexer = indexer;
         this.bridge = bridge;
