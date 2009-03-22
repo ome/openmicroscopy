@@ -43,6 +43,7 @@ import ome.model.acquisition.LightSource;
 import ome.model.acquisition.OTF;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
+import ome.model.annotations.Annotation;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
@@ -196,7 +197,10 @@ public class OMEROMetadataStore
         {
             handle(lsid, (OriginalFile) sourceObject, indexes);
         }
-    	
+    	else if (sourceObject instanceof Annotation)
+    	{
+    		handle(lsid, (Annotation) sourceObject, indexes); 
+    	}
     	else
     	{
     		throw new ApiUsageException(
@@ -231,6 +235,12 @@ public class OMEROMetadataStore
     			{
     				handleReference((Image) targetObject,
     						        (Instrument) referenceObject);
+    				continue;
+    			}
+    			if (referenceObject instanceof Annotation)
+    			{
+    				handleReference((Image) targetObject,
+					                (Annotation) referenceObject);
     				continue;
     			}
     		}
@@ -535,7 +545,20 @@ public class OMEROMetadataStore
     private void handle(String LSID, OriginalFile sourceObject,
                         Map<String, Integer> indexes)
     {
-        //Do nothing
+        // No-op.
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Annotation sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        // No-op.
     }
     
     /**
@@ -615,7 +638,6 @@ public class OMEROMetadataStore
         reference.addWellSample(target);
     }
     
-    
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
@@ -627,6 +649,16 @@ public class OMEROMetadataStore
         target.linkOriginalFile(reference);
     }
     
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Image target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
     
     /**
      * Retrieves an object from the internal object graph by LSID.
