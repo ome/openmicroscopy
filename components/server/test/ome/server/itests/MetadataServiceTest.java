@@ -114,7 +114,7 @@ public class MetadataServiceTest
         assertEquals(1, result.size());
         
         Set s = (Set) result.get(p.getId());
-        assertTrue(s.size() == 2);
+        assertEquals(2, s.size());
         Iterator i = s.iterator();
         Annotation annotation;
         int index = 0;
