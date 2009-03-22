@@ -215,13 +215,16 @@ public class ImportLibrary implements IObservable
      * Uses the {@link OMEROMetadataStoreClient} to save the current all
      * image metadata provided.
      * @param imageName A user specified image name.
+     * @param imageDescription A user specified description.
      * @param archive Whether or not the user requested the original files to
      * be archived.
      * @return the newly created {@link Pixels} id.
 	 * @throws FormatException if there is an error parsing metadata.
 	 * @throws IOException if there is an error reading the file.
      */
-	public List<Pixels> importMetadata(String imageName, boolean archive)
+	private List<Pixels> importMetadata(String imageName,
+			                            String imageDescription,
+			                            boolean archive)
     	throws FormatException, IOException
     {
     	// 1st we post-process the metadata that we've been given.
@@ -229,6 +232,7 @@ public class ImportLibrary implements IObservable
 
     	store.setArchive(archive);
     	store.setUserSpecifiedImageName(imageName);
+    	store.setUserSpecifiedImageDescription(imageDescription);
     	store.postProcess();
         
         log.debug("Saving pixels to DB.");
@@ -263,15 +267,32 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * @param file
-     * @param index
-     * @param total Import the actual image planes
-     * @param b 
-     * @throws FormatException if there is an error parsing metadata.
-     * @throws IOException if there is an error reading the file.
+     * Perform an image import.
+     * @param file Target file to import.
+     * @param index Index of the import in a set. <code>0</code> is safe if 
+     * this is a singular import.
+     * @param numDone Number of imports completed in a set. <code>0</code> is 
+     * safe if this is a singular import.
+     * @param total Total number of imports in a set. <code>1</code> is safe
+     * if this is a singular import.
+     * @param imageName Name to use for all images that are imported from the
+     * target file <code>file</code>.
+     * @param imageDescription Description to use for all images that are
+     * imported from target file <code>file</code>
+     * @param archive Whether or not to archive target file <code>file</code>
+     * and all sub files.
+     * @return List of Pixels that have been imported.
+     * @throws FormatException If there is a Bio-Formats image file format
+     * error during import.
+     * @throws IOException If there is an I/O error.
+     * @throws ServerError If there is an error communicating with the OMERO
+     * server we're importing into.
+     * 
+     * TODO: Add observer messaging for any agnostic viewer class to use
      */
-    // TODO: Add observer messaging for any agnostic viewer class to use
-    public List<Pixels> importImage(File file, int index, int numDone, int total, String imageName, boolean archive)
+    public List<Pixels> importImage(File file, int index, int numDone,
+    		                        int total, String imageName, 
+    		                        String imageDescription, boolean archive)
     	throws FormatException, IOException, ServerError
     {        
         String fileName = file.getAbsolutePath();
@@ -303,7 +324,8 @@ public class ImportLibrary implements IObservable
         } catch (Exception e) {}
         
         // Save metadata and prepare the RawPixelsStore for our arrival.
-        List<Pixels> pixList = importMetadata(imageName, archive);
+        List<Pixels> pixList = 
+        	importMetadata(imageName, imageDescription, archive);
         List<Long> pixelsIds = new ArrayList<Long>(pixList.size());
         for (Pixels pixels : pixList)
         {

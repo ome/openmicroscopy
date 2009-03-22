@@ -86,7 +86,7 @@ public class PixelsProcessor implements ModelProcessor
                 image = (Image) container.sourceObject;
             }
             
-            // If acquistionData is missing
+            // If acquistionDate is missing
             if (image.getAcquisitionDate() == null)
             {
                 if (earliestMTime == null)
@@ -107,12 +107,11 @@ public class PixelsProcessor implements ModelProcessor
                 image.setAcquisitionDate(rtime(earliestMTime));  
             }
             
-            // Ensure that the Image name is set.
+            // Ensure that the Image name is set
             String userSpecifiedName = store.getUserSpecifiedImageName();
             String saveName = "";
-
-            if (image.getName() == null ||
-                    image.getName().getValue().trim().length() == 0)
+            if (image.getName() == null
+                || image.getName().getValue().trim().length() == 0)
             {
                 saveName = userSpecifiedName;
                 
@@ -124,9 +123,16 @@ public class PixelsProcessor implements ModelProcessor
             else
             {
                 saveName = image.getName().getValue();
-            } 
-
+            }
             image.setName(rstring(saveName));
+            
+            // Set the Image description if one was supplied by the user
+            String userSpecifiedDescription = 
+            	store.getUserSpecifiedImageDescription();            
+            if (userSpecifiedDescription != null)
+            {
+            	image.setDescription(rstring(userSpecifiedDescription));
+            }
         }
     }
 }

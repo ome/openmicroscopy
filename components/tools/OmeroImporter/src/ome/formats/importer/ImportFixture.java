@@ -15,13 +15,11 @@ package ome.formats.importer;
 // Java imports
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.model.Dataset;
-import omero.model.Pixels;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -137,11 +135,8 @@ public class ImportFixture
             String fileName = file.getAbsolutePath();
             library.setDataset(fads.get(file));
             library.open(fileName);
-            List<Pixels> pixelsList =
-            	library.importMetadata(file.getAbsolutePath(), false);
-            Pixels pixels = pixelsList.get(0);
-            library.calculateImageCount(fileName, pixels);
-            library.importData(pixels.getId().getValue(), fileName, 0, step);
+           	library.importImage(file, 0, 0, 1, file.getAbsolutePath(),
+            			        null, false);
         }
     }
 

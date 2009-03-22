@@ -181,6 +181,7 @@ public class ImportHandler
                 	library.importImage(importContainer[j].file, j,
                 			    numOfDone, numOfPendings,
                 			    importContainer[j].imageName,
+                			    null,  // Description
                 			    importContainer[j].archive);
                 	store.createRoot();
                     try

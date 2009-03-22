@@ -169,7 +169,7 @@ public class TestEngine
 			try
 			{
 				interceptor.setSourceFile(file);
-				importLibrary.importImage(file, 0, 0, 1, fileList[j], false);
+				importLibrary.importImage(file, 0, 0, 1, fileList[j], null, false);
 				iniFile.flush();
 			}
 			catch (Throwable e)

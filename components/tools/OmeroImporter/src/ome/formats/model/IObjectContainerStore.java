@@ -70,6 +70,18 @@ public interface IObjectContainerStore
     void setUserSpecifiedImageName(String name);
     
     /**
+     * Returns the user specified image description.
+     * @return See above.
+     */
+    String getUserSpecifiedImageDescription();
+    
+    /**
+     * Sets the user specified image description.
+     * @param name user specified image description
+     */
+    void setUserSpecifiedImageDescription(String description);
+    
+    /**
      * Returns the current container cache.
      * @return See above.
      */

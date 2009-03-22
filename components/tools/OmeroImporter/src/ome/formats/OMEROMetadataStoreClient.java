@@ -179,6 +179,9 @@ public class OMEROMetadataStoreClient
     /** Image name that the user specified for use by model processors. */
     private String userSpecifiedImageName;
     
+    /** Image description that the user specified for use by model processors. */
+    private String userSpecifiedImageDescription;
+    
     /** Image channel minimums and maximums. */
     private double[][][] imageChannelGlobalMinMax;
     
@@ -397,6 +400,8 @@ public class OMEROMetadataStoreClient
             referenceCache = new HashMap<LSID, LSID>();
             referenceStringCache = null;
             imageChannelGlobalMinMax = null;
+            userSpecifiedImageName = null;
+            userSpecifiedImageDescription = null;
             delegate.createRoot();
         }
         catch (ServerError e)
@@ -454,6 +459,22 @@ public class OMEROMetadataStoreClient
     public void setUserSpecifiedImageName(String name)
     {
         this.userSpecifiedImageName = name;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedImageDescription()
+     */
+    public String getUserSpecifiedImageDescription()
+    {
+        return userSpecifiedImageDescription;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedImageDescription(java.lang.String)
+     */
+    public void setUserSpecifiedImageDescription(String description)
+    {
+        this.userSpecifiedImageDescription = description;
     }
     
     /**

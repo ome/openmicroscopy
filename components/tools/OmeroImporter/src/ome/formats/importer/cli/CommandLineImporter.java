@@ -81,11 +81,13 @@ public class CommandLineImporter
      * @param path The file path to import.
      * @param datasetId The Id of the dataset to import the image into.
      * @param name Image name to use for import.
+     * @param description Image description to use for import.
      * @throws IOException If there is an error reading from <code>path</code>.
      * @throws FormatException If there is an error parsing metadata.
      * @throws ServerError If there is a problem interacting with the server.
      */
-    public void importImage(String path, Long datasetId, String name)
+    public void importImage(String path, Long datasetId, String name,
+    		                String description)
         throws IOException, FormatException, ServerError
     {
         File f = new File(path);
@@ -95,7 +97,7 @@ public class CommandLineImporter
             d = store.getDataset(datasetId);
         }
         library.setDataset(d);
-        library.importImage(f, 0, 0, 1, name, false);
+        library.importImage(f, 0, 0, 1, name, description, false);
         store.logout();
     }
     
@@ -125,6 +127,7 @@ public class CommandLineImporter
                 "Optional arguments:\n" +
                 "  -d\tOMERO dataset Id to import image into\n" +
                 "  -n\tImage name to use\n" +
+                "  -x\tImage description to use\n" +
                 "  -p\tOMERO server port [defaults to 4063]\n" +
                 "  -h\tDisplay this help and exit\n" +
                 "\n" +
@@ -147,7 +150,7 @@ public class CommandLineImporter
      */
     public static void main(String[] args)
     {
-        Getopt g = new Getopt(APP_NAME, args, "s:u:w:d:k:y:n:p:h");
+        Getopt g = new Getopt(APP_NAME, args, "s:u:w:d:k:x:n:p:h");
         int a;
         String username = null;
         String password = null;
@@ -156,6 +159,7 @@ public class CommandLineImporter
         int port = PORT;
         Long datasetId = null;
         String name = null;
+        String description = null;
         while ((a = g.getopt()) != -1)
         {
             switch (a)
@@ -195,6 +199,11 @@ public class CommandLineImporter
                     name = g.getOptarg();
                     break;
                 }
+                case 'x':
+                {
+                	description = g.getOptarg();
+                	break;
+                }
                 default:
                 {
                     usage();
@@ -232,7 +241,7 @@ public class CommandLineImporter
                 c = new CommandLineImporter(username, password, hostname, port);
             }
             c.library.addObserver(new LoggingImportMonitor());
-            c.importImage(path, datasetId, name);
+            c.importImage(path, datasetId, name, description);
             System.exit(0);  // Exit with specified return code
         }
         catch (Throwable t)
