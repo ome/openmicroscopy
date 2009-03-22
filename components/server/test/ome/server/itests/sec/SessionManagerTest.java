@@ -7,6 +7,8 @@
 package ome.server.itests.sec;
 
 import ome.conditions.SecurityViolation;
+import ome.conditions.ValidationException;
+import ome.model.containers.Dataset;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
@@ -71,7 +73,7 @@ public class SessionManagerTest extends AbstractManagedContextTest {
         fail("nyi");
     }
 
-    @Test
+    @Test(expectedExceptions = ValidationException.class)
     public void testDeleteUserShouldntHang() {
 
         Experimenter e = loginNewUser();
@@ -150,6 +152,21 @@ public class SessionManagerTest extends AbstractManagedContextTest {
         newSession.setUuid(uuid);
         newSession.setTimeToIdle(12346L);
         sm.update(newSession);
+    }
+    
+    @Test(groups = {"ticket:1254","manual"})
+    public void testSynchronizationLocksCallers() throws Exception {
+        long start = System.currentTimeMillis();
+        while((System.currentTimeMillis() - start) < 5*60*1000L) {
+            loginRoot();
+            iQuery.find(Experimenter.class, 0L);
+            Dataset[] ds = new Dataset[10];
+            for (int i = 0; i < ds.length; i++) {
+                ds[i] = new Dataset("ticket:1254");
+            }
+            iUpdate.saveArray(ds);
+            sm.close(loginAop.p.getName());
+        }
     }
     
 }
