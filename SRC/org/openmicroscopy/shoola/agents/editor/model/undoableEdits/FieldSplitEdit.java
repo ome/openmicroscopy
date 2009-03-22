@@ -31,6 +31,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import javax.swing.undo.AbstractUndoableEdit;
 
 //Third-party libraries
@@ -229,7 +230,7 @@ public class FieldSplitEdit
 			field.removeContent(i);
 		}
 		
-		// remove the content from daughter (not really necessary)
+		// remove the content from daughter
 		for(int i=newField.getContentCount()-1; i>=0; i--) {
 			newField.removeContent(i);
 		}
@@ -239,7 +240,12 @@ public class FieldSplitEdit
 			field.addContent(newItem);
 		}
 		
-		notifySelect();
+		notifyNodeChanged();
+		
+		tree.clearSelection();
+		// re-select the node (which was selected before the tree was modified)
+		TreePath path = new TreePath(((DefaultMutableTreeNode)node).getPath());
+		tree.setSelectionPath(path);
 	}
 	
 	/**
@@ -276,8 +282,13 @@ public class FieldSplitEdit
 		int indexToAdd = parentNode.getIndex(node);
 		treeModel.insertNodeInto(newNode, parentNode, indexToAdd);
 		
-		notifySelect();
+		// need to clear selection so that the re-select has the desired effect
+		// otherwise, doesn't behave as desired. 
+		tree.clearSelection();
 		
+		// re-select the node (which was selected before the tree was modified)
+		TreePath path = new TreePath(((DefaultMutableTreeNode)node).getPath());
+		tree.setSelectionPath(path);
 	}
 	
 	/**
@@ -298,19 +309,8 @@ public class FieldSplitEdit
 	}
 	
 	/**
-	 * This should be called after undo or redo.
-	 * It notifies listeners to the treeModel that a change has been made,
-	 * then selects the edited node in the JTree specified in the constructor. 
-	 */
-	private void notifySelect() 
-	{
-		notifyNodeChanged();
-		TreeModelMethods.selectNode(node, tree);
-	}
-	
-	/**
 	 * This notifies all listeners to the TreeModel of a change to the node
-	 * in which the attribute has been edited. 
+	 * in which the content has been edited. 
 	 * This will update any JTrees that are currently displaying the model. 
 	 */
 	private void notifyNodeChanged() 

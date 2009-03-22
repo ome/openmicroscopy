@@ -28,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.IllegalComponentStateException;
+import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
@@ -759,8 +760,16 @@ public class FieldTextArea
 		// don't want to hide the button, or the text will expand to fill! 
 		addParamButton.setIcon(selected ? addParamIcon : blankIcon);
 		
-		// don't allow addition of parameters to root. 
 		if (selected) {
+			
+			// prepare for typing. Get focus and make sure cursor is showing
+			contentEditor.removeFocusListener(this);
+			contentEditor.requestFocusInWindow();
+			int c = contentEditor.getCaretPosition();
+			if (c == 0) contentEditor.setCaretPosition(1);
+			contentEditor.addFocusListener(this);
+			
+			// don't allow addition of parameters to root. 
 			if(treeNode.isRoot()) {
 				selected = false;
 			}
@@ -910,8 +919,8 @@ public class FieldTextArea
 	
 	/**
 	 * Implemented as specified by the {@link FocusListener} interface.
-	 * Sets a selected border, and attempts to select the corresponding
-	 * path in the navigation {@link JTree}
+	 * Attempts to select the corresponding
+	 * path in the navigation {@link JTree} (if not already selected)
 	 * @see FocusListener#focusGained(FocusEvent)
 	 */
 	public void focusGained(FocusEvent e) {
@@ -919,8 +928,7 @@ public class FieldTextArea
 		if (treeNode == null) return;
 		TreePath path = new TreePath(treeNode.getPath());
 		if (navTree != null) {
-			TreePath currentPath = navTree.getSelectionPath();
-			if (!path.equals(currentPath)) {
+			if (! navTree.isPathSelected(path)) {
 				navTree.setSelectionPath(path);
 			}
 		}
