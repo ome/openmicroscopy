@@ -20,6 +20,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.conditions.ApiUsageException;
+import ome.conditions.DatabaseBusyException;
 import ome.conditions.InternalException;
 import ome.conditions.RemovedSessionException;
 import ome.conditions.SessionTimeoutException;
@@ -422,7 +423,7 @@ public class SessionCache implements ApplicationContextAware {
      * wait until the next background thread updates lastUpdateRequest. Note:
      * this method does not use {@link #forceUpdateInterval} since that is
      * primarily to guarantee that old sessions are removed. If synchronization
-     * takes too long, an {@link InternalException} is thrown.
+     * takes too long, an {@link DatabaseBusyException} is thrown.
      */
     protected void waitForUpdate() {
         long start = System.currentTimeMillis();
@@ -466,8 +467,8 @@ public class SessionCache implements ApplicationContextAware {
             }
         }
 
-        throw new InternalException(
-                "Timed out while waiting on synchronization");
+        throw new DatabaseBusyException(
+                "Timed out while waiting on synchronization", 2000L);
 
     }
 
