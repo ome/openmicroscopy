@@ -6,6 +6,7 @@
  */
 package ome.security.basic;
 
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,6 +89,11 @@ public class EventHandler implements MethodInterceptor {
         boolean stateful = StatefulServiceInterface.class.isAssignableFrom(arg0
                 .getThis().getClass());
 
+        // ticket:1254
+        Session session = factory.getSession();
+        Statement statement = session.connection().createStatement();
+        statement.execute("set constraints all deferred;");
+        
         secSys.loadEventContext(readOnly);
         // now the user can be considered to be logged in.
         EventContext ec = secSys.getEventContext();
@@ -99,7 +105,6 @@ public class EventHandler implements MethodInterceptor {
 
         boolean failure = false;
         Object retVal = null;
-        Session session = factory.getSession();
         try {
             secSys.enableReadFilter(session);
             retVal = arg0.proceed();
