@@ -243,7 +243,6 @@ public class FieldTextArea
 		d = nameEditor.getDocument();
 		if (d instanceof AbstractDocument) {
             doc = (AbstractDocument)d;
-            if (doc instanceof StyledDocument)
             doc.setDocumentFilter(new TextAreaNameFilter());
         }
 		
@@ -762,12 +761,14 @@ public class FieldTextArea
 		
 		if (selected) {
 			
-			// prepare for typing. Get focus and make sure cursor is showing
-			contentEditor.removeFocusListener(this);
-			contentEditor.requestFocusInWindow();
-			int c = contentEditor.getCaretPosition();
-			if (c == 0) contentEditor.setCaretPosition(1);
-			contentEditor.addFocusListener(this);
+			if (!nameEditor.hasFocus()) {
+				// prepare for typing. Get focus and make sure cursor is showing
+				contentEditor.removeFocusListener(this);
+				contentEditor.requestFocusInWindow();
+				int c = contentEditor.getCaretPosition();
+				if (c == 0) contentEditor.setCaretPosition(1);
+				contentEditor.addFocusListener(this);
+			}
 			
 			// don't allow addition of parameters to root. 
 			if(treeNode.isRoot()) {
@@ -872,8 +873,7 @@ public class FieldTextArea
 		// set name html
 		String content = getNameHtml();
 		String html = "<html><head> <style type='text/css'> \n" +
-			FieldTextArea.NAME_TAG + "#" + FieldTextArea.NAME_ID +
-			" {font-weight: 500; font-family: arial} \n" +
+			"body {font-weight: 500; font-family: arial} \n" +
 			"</style> </head> " +
 			"<body> " + content + " </body> </html>";
 		nameEditor.setText(html);
