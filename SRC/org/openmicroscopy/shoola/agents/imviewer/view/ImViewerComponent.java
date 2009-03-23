@@ -1152,32 +1152,47 @@ class ImViewerComponent
 		}
 		if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
 		List l = model.getActiveChannels();
-		if (l.size() < 2) return null;
+		int n = l.size();
+		List<BufferedImage> images = new ArrayList<BufferedImage>(n);
+		if (n == 0) return images;
+		else if (n == 1) {
+			images.add(model.getDisplayedImage());
+			return images;
+		}
 		Iterator i = l.iterator();
 		int index;
 		String oldColorModel = model.getColorModel();
-		List<BufferedImage> images = new ArrayList<BufferedImage>(l.size());
+		Map<Integer, BufferedImage> map = 
+			new HashMap<Integer, BufferedImage>(n);
 		try {
 			model.setColorModel(colorModel);
 			BufferedImage img = null, splitImage;
 			while (i.hasNext()) {
-				index = ((Integer) i.next()).intValue();
+				index = (Integer) i.next();
 				for (int j = 0; j < model.getMaxC(); j++)
 					model.setChannelActive(j, j == index); 
 				splitImage = model.getSplitComponentImage();
 				if (splitImage != null)
 					img = Factory.magnifyImage(splitImage, 
 							model.getZoomFactor(), 0);
-				images.add(img);
+				map.put(index, img);
 			}
 			model.setColorModel(oldColorModel);
 			i = l.iterator();
 			while (i.hasNext()) { //reset values.
 				index = ((Integer) i.next()).intValue();
-			model.setChannelActive(index, true);
+				model.setChannelActive(index, true);
 			}
 		} catch (Exception ex) {
 			handleException(ex);
+		}
+		List<ChannelData> channels = model.getChannelData();
+		Iterator<ChannelData> k = channels.iterator();
+		ChannelData channel;
+		while (k.hasNext()) {
+			channel = k.next();
+			if (map.containsKey(channel.getIndex()))
+				images.add(map.get(channel.getIndex()));
 		}
 		return images;
 	}

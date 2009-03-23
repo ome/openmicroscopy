@@ -1001,6 +1001,36 @@ class ImViewerUI
 		pack();
 		container.addHierarchyBoundsListener(boundsAdapter);
 	}
+	
+	/**
+	 * Packs the window and resizes it if the screen is too small.
+	 */
+	private void packWindow()
+	{
+		pack();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension size = getSize();
+		int width = 8*(screenSize.width/10);
+		int height = 8*(screenSize.height/10);
+		int w = size.width;
+		int h = size.height;
+		boolean reset = false;
+		if (w > width) {
+			reset = true;
+			w = width;
+		}
+		if (h > height) {
+			reset = true;
+			h = height;
+		} 
+		if (reset) {
+			setAlwaysOnTop(true);
+			setSize(w, h);
+			controller.setZoomFactor(ZoomAction.ZOOM_FIT_TO_WINDOW);
+		}
+		
+	}
+	
 
 	/**
 	 * Creates a new instance.
@@ -2161,31 +2191,6 @@ class ImViewerUI
 		node.addMouseListenerToComponents(nodeListener);
 		addHistoryItem(node);
 		*/
-	}
-	
-	/**
-	 * Packs the window and resizes it if the screen is too small.
-	 */
-	private void packWindow()
-	{
-		pack();
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		Dimension size = getSize();
-		int width = 8*(screenSize.width/10);
-		int height = 8*(screenSize.height/10);
-		int w = size.width;
-		int h = size.height;
-		boolean reset = false;
-		if (w > width) {
-			reset = true;
-			w = width;
-		}
-		if (h > height) {
-			reset = true;
-			h = height;
-		} 
-		if (reset)
-			setSize(w, h);
 	}
 	
 	/** 
