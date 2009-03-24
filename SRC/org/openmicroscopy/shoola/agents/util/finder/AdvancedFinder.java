@@ -394,6 +394,8 @@ public class AdvancedFinder
 		setSearchEnabled(false);
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		
 		Map map = (Map) result;
 
 		//Format UI component
@@ -441,6 +443,7 @@ public class AdvancedFinder
 					p.add(l);
 				}
 			}
+			
 			displayResult(UIUtilities.buildComponentPanel(p));
 		}
 		

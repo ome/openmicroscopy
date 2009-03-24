@@ -524,13 +524,14 @@ class ImViewerComponent
 	 */
 	public void setZoomFactor(double factor, int zoomIndex)
 	{
-		if (factor != -1 && (factor > ZoomAction.MAX_ZOOM_FACTOR ||
-				factor < ZoomAction.MIN_ZOOM_FACTOR))
+		if (factor != ZoomAction.ZOOM_FIT_FACTOR &&
+			(factor > ZoomAction.MAX_ZOOM_FACTOR ||
+					factor < ZoomAction.MIN_ZOOM_FACTOR))
 			throw new IllegalArgumentException("The zoom factor is value " +
 					"between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
 					ZoomAction.MAX_ZOOM_FACTOR);
 		double oldFactor = model.getZoomFactor();
-		if (oldFactor == factor) return;
+		if (oldFactor == factor && factor != ZoomAction.ZOOM_FIT_FACTOR) return;
 		try {
 			model.setZoomFactor(factor, false);
 		} catch (Exception e) {
@@ -538,7 +539,6 @@ class ImViewerComponent
 			logger.debug(this, "Cannot zoom image. Magnification: "+factor);
 			model.setZoomFactor(factor, true);
 		}
-		model.setZoomFitToWindow(factor == -1);
 		view.setZoomFactor(factor, zoomIndex);
 		
 		if (view.isLensVisible()) {
@@ -557,7 +557,7 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#isZoomFitToWindow()
 	 */
-	public boolean isZoomFitToWindow() { return model.getZoomFitToWindow(); }
+	public boolean isZoomFitToWindow() { return model.isZoomFitToWindow(); }
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
@@ -703,9 +703,14 @@ class ImViewerComponent
 			
 		if (newPlane) postMeasurePlane();
 		newPlane = false;
+
+		BufferedImage originalImage = model.getOriginalImage();
 		model.setImage(image);
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();
+		if (originalImage == null && model.isZoomFitToWindow()) {
+			controller.setZoomFactor(ZoomAction.ZOOM_FIT_TO_WINDOW);
+		}
 		if (model.isPlayingChannelMovie())
 			model.setState(ImViewer.CHANNEL_MOVIE);
 		if (!model.isPlayingMovie()) {

@@ -53,6 +53,9 @@ public class ZoomAction
     extends ViewerAction
 {
     
+	/** The Zoom fit factor. */
+	public static final double	ZOOM_FIT_FACTOR = -1;
+	
     /** The maximun value of the zoom factor. */
     public static final double  MAX_ZOOM_FACTOR = 12*ZoomCmd.INCREMENT;
     
@@ -140,7 +143,7 @@ public class ZoomAction
         factors[ZOOM_250] = factors[ZOOM_225]+ZoomCmd.INCREMENT;
         factors[ZOOM_275] = factors[ZOOM_250]+ZoomCmd.INCREMENT;
         factors[ZOOM_300] = factors[ZOOM_275]+ZoomCmd.INCREMENT;
-        factors[ZOOM_FIT_TO_WINDOW] = -1;
+        factors[ZOOM_FIT_TO_WINDOW] = ZOOM_FIT_FACTOR;
         names = new String[MAX+1];
         names[ZOOM_25] = (int) (factors[ZOOM_25]*100)+"%";
         names[ZOOM_50] = (int) (factors[ZOOM_50]*100)+"%";
@@ -212,7 +215,7 @@ public class ZoomAction
     public static double getZoomFactor(int index)
     {
     	if (index < 0 || index >= (factors.length-1))
-    		return -1;
+    		return ZOOM_FIT_FACTOR;
     	return factors[index];
     }
     

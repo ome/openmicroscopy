@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsCreator;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsLoader;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
@@ -173,9 +174,6 @@ class ImViewerModel
 
 	/** The bounds of the component requesting the viewer. */
 	private Rectangle           		requesterBounds;
-
-	/** Fit the image to the size of window, on resize. */
-	private boolean						zoomFitToWindow; 
 
 	/** The index of the selected tabbed. */
 	private int							tabbedIndex;
@@ -335,7 +333,6 @@ class ImViewerModel
 		state = ImViewer.NEW;
 		initMagnificationFactor = false;
 		sizeX = sizeY = -1;
-		zoomFitToWindow = false; 
 		tabbedIndex = ImViewer.VIEW_INDEX;
 		textVisible = true;
 		movieIndex = -1;
@@ -726,22 +723,17 @@ class ImViewerModel
 	 * @return The factor to set.
 	 */
 	double getZoomFactor() { return browser.getZoomFactor(); }
-
-	/**
-	 * This method determines if the browser image should be resized to fit 
-	 * the window size if the window is resized. 
-	 * 
-	 * @param option see above.
-	 */
-	void setZoomFitToWindow(boolean option) { zoomFitToWindow = option; }
-
+	
 	/**
 	 * This method determines if the browser image should be resized to fit 
 	 * the window size if the window is resized.
 	 *  
 	 * @return <code>true</code> if image should resize on window resize. 
 	 */ 
-	boolean getZoomFitToWindow() { return zoomFitToWindow; }
+	boolean isZoomFitToWindow()
+	{ 
+		return getZoomFactor() == ZoomAction.ZOOM_FIT_FACTOR; 
+	}
 
 	/**
 	 * Sets the retrieved image, returns the a magnification or <code>-1</code>

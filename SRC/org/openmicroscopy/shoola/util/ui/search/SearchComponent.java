@@ -439,6 +439,7 @@ public class SearchComponent
 	{
 		remove(resultPane);
 		resultPane = result;
+		resultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		add(resultPane, "0, 4");
 		repaint();
 	}

@@ -1024,9 +1024,8 @@ class ImViewerUI
 			h = height;
 		} 
 		if (reset) {
-			setAlwaysOnTop(true);
 			setSize(w, h);
-			controller.setZoomFactor(ZoomAction.ZOOM_FIT_TO_WINDOW);
+			model.setZoomFactor(ZoomAction.ZOOM_FIT_FACTOR, false);
 		}
 	}
 	
@@ -1130,7 +1129,7 @@ class ImViewerUI
 	void setMagnificationStatus(double factor)
 	{
 		if (statusBar == null) return;
-		if (factor != -1)
+		if (factor != ZoomAction.ZOOM_FIT_FACTOR)
 			statusBar.setRigthStatus("x"+Math.round(factor*100)/100.0);
 		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
 	}
@@ -1142,7 +1141,7 @@ class ImViewerUI
 	 */
 	int getZoomIndex()
 	{
-		if (zoomingGroup == null) return -1;
+		if (zoomingGroup == null) return ZoomAction.ZOOM_FIT_TO_WINDOW;
 		JCheckBoxMenuItem b;
 		Enumeration e;
 		Action a;
@@ -1152,7 +1151,7 @@ class ImViewerUI
 			if (b.isSelected())
 				return ((ZoomAction) a).getIndex();
 		}
-		return -2;
+		return ZoomAction.ZOOM_FIT_TO_WINDOW;
 	}
 
 	/**

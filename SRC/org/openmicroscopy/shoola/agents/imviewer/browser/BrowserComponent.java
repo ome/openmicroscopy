@@ -203,7 +203,7 @@ class BrowserComponent
     public void setZoomFactor(double factor, boolean reset)
     {
     	int index = model.getSelectedIndex();
-    	if (factor != -1) {
+    	if (factor != ZoomAction.ZOOM_FIT_FACTOR) {
 	        if (factor > ZoomAction.MAX_ZOOM_FACTOR ||
 	            factor < ZoomAction.MIN_ZOOM_FACTOR)
 	            throw new IllegalArgumentException("The zoom factor is value " +
@@ -219,7 +219,6 @@ class BrowserComponent
     			img = model.getProjectedImage();
     			viewport = projectionView.getViewportSize();
     		}
-    			
     		if (img != null) {
     			int width = img.getWidth();
         		int height = img.getHeight();
