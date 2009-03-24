@@ -95,6 +95,12 @@ public class EventHandler implements MethodInterceptor {
         statement.execute("set constraints all deferred;");
         
         secSys.loadEventContext(readOnly);
+        
+        // and ticket:1266
+        if (!readOnly) {
+            statement.execute("COMMIT;");
+            statement.execute("BEGIN");
+        }
         // now the user can be considered to be logged in.
         EventContext ec = secSys.getEventContext();
         if (log.isInfoEnabled()) {
