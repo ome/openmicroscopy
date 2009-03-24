@@ -55,12 +55,15 @@ public class SaveFileLocallyAction
 	
 	/** The description of the action. */
 	private static final String 	DESCRIPTION = 
-		"Save As a new local file on your computer";
+		"Save As a new local file on your computer.";
 	
-	/** Implement this method to disable the Save Action if no file is open. */
-	protected void onStateChange() {
-		int state = model.getState();
-		setEnabled(state == Editor.READY);
+	/** 
+	 * Implement this method to disable the Save Action if no file is open. 
+	 * @see EditorAction#onStateChange()
+	 */
+	protected void onStateChange()
+	{
+		setEnabled(model.getState() == Editor.READY);
 	}
 	
 	/** Creates a new instance.

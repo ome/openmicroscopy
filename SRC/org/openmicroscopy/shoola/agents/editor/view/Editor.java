@@ -31,6 +31,7 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
+import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.FileAnnotationData;
 
@@ -51,6 +52,10 @@ public interface Editor
 	extends ObservableComponent
 {
 
+	/** Possible extension of the experiment. */
+	public static final String EXPERIMENT_EXTENSION = 
+		ShowEditorEvent.EXPERIMENT_EXTENSION;
+	
 	/** Indicates to create a blank protocol. */
 	public static final int 	PROTOCOL = Browser.PROTOCOL;
 	
@@ -199,4 +204,13 @@ public interface Editor
      * 					<code>false</code> otherwise.
      */
     public void setEdited(boolean editable);
+    
+    /**
+     * Returns <code>true</code> if the file is an experiment,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isExperiment();
+    
 }

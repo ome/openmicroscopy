@@ -53,7 +53,7 @@ public class SaveFileServerAction
 	
 	/** The description of the action. */
 	private static final String 	DESCRIPTION = 
-		"Save As a new file on the OMERO.server";
+		"Save As a new file to the OMERO.server.";
 	
 	/** 
 	 * Implement this method to disable the Save Action if no file is open,

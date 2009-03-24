@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.actions;
 
 //Java imports
-
 import java.awt.event.ActionEvent;
 
 //Third-party libraries
@@ -33,7 +32,6 @@ import java.awt.event.ActionEvent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.UrlChooser;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
-import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 /** 
  * Action that allows users to browse on-line files, pick files to download
@@ -56,7 +54,7 @@ public class OpenWwwFileAction
     
 	 /** The description of the action. */
     private static final String 	DESCRIPTION = 
-    	"Choose from a number of example OMERO.editor files on-line";
+    	"Choose from a number of example OMERO.editor files on-line.";
     
     /** Creates a new instance.
      * 
@@ -72,11 +70,12 @@ public class OpenWwwFileAction
    }
    
    /**
-    * Brings up on screen the {@link FileChooser}.
+    * Brings up on screen the {@link UrlChooser}.
     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
     */
    public void actionPerformed(ActionEvent e) 
    {
 	   new UrlChooser(model);
    }
+   
 }

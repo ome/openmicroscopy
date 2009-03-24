@@ -31,6 +31,7 @@ import java.io.File;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
+import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -393,8 +394,21 @@ class EditorComponent
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setEdited(boolean)
 	 */
-	public void setEdited(boolean editable) {
-		model.getBrowser().setEdited(editable);
+	public void setEdited(boolean editable)
+	{
+		Browser browser = model.getBrowser();
+		if (browser != null) browser.setEdited(editable);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#isExperiment()
+	 */
+	public boolean isExperiment()
+	{
+		Browser browser = model.getBrowser();
+		if (browser == null) return false;
+		return browser.isModelExperiment();
 	}
 	
 }

@@ -22,18 +22,17 @@
  */
 package org.openmicroscopy.shoola.agents.editor.actions;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
-import org.openmicroscopy.shoola.agents.editor.view.Editor;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
 
 //Java imports
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+import org.openmicroscopy.shoola.agents.editor.view.Editor;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 
 /** 
  * 
@@ -47,7 +46,8 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
  * @since 3.0-Beta4
  */
 public class SaveNewCmd 
-	implements ActionCmd {
+	implements ActionCmd
+{
 
 	/** Reference to the model */
 	private Editor 					model;
@@ -59,18 +59,21 @@ public class SaveNewCmd
 	 */
 	public SaveNewCmd(Editor model) 
 	{
+		if (model == null)
+			throw new IllegalArgumentException("No model.");
 		this.model = model;
 	}
 	
 	/**
-	 * Creates an instance.
-	 * 
-	 * @param model		The {@link Editor} model for saving. 
+	 * Implemented as specified by the {@link ActionCmd} interface. 
+	 * Save new file, offer option to either save locally or save back to 
+	 * server. 
+	 * @see ActionCmd#execute()
 	 */
-	public void execute() {
+	public void execute()
+	{
 		
 		ActionCmd save;
-		
 		// if server available, ask where to save
 		if (EditorAgent.isServerAvailable()) {
 			//Custom button text
@@ -91,7 +94,6 @@ public class SaveNewCmd
 				save = new SaveLocallyCmd(model);
 				save.execute();
 			}
-			
 		} else {
 			// server not available, Save locally
 			save = new SaveLocallyCmd(model);

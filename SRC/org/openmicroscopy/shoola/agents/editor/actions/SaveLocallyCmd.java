@@ -23,13 +23,11 @@
 package org.openmicroscopy.shoola.agents.editor.actions;
 
 //Java imports
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
@@ -59,7 +57,8 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
  */
 public class SaveLocallyCmd 
 	implements ActionCmd,
-	PropertyChangeListener {
+	PropertyChangeListener
+{
 	
 	/** Reference to the model */
 	private Editor 					model;
@@ -78,8 +77,9 @@ public class SaveLocallyCmd
 	 */
 	SaveLocallyCmd(Editor model) 
 	{
+		if (model == null)
+			throw new IllegalArgumentException("No model.");
 		this.model = model;
-		
 		filters = new ArrayList<FileFilter>();
 		filters.add(new EditorFileFilter());
 	}
@@ -88,8 +88,10 @@ public class SaveLocallyCmd
 	 * Implemented as specified by the {@link ActionCmd} interface. 
 	 * Opens a file chooser for users to choose a local file to save their 
 	 * file to. 
+	 * @see ActionCmd#execute()
 	 */
-	public void execute() {
+	public void execute()
+	{
 		
 		FileChooser chooser = new FileChooser(null, FileChooser.SAVE, 
 				"Save File", "Choose a location and name to save the file", 
@@ -98,15 +100,14 @@ public class SaveLocallyCmd
 		if (startDir != null)
 			chooser.setCurrentDirectory(startDir);
 		// set default name according to the file title 
-		String fileTitle = model.getEditorTitle();
-		File newFile = new File(fileTitle);		
-		chooser.setSelectedFile(newFile);	// this method doesn't truncate name
+		String text = model.getEditorTitle();
+		if (model.isExperiment()) text += Editor.EXPERIMENT_EXTENSION;
+		// this method doesn't truncate name
+		chooser.setSelectedFile(new File(text));	
 		chooser.addPropertyChangeListener(
 				FileChooser.APPROVE_SELECTION_PROPERTY, this);
 		UIUtilities.centerAndShow(chooser);
-		
 	}
-
 
 	/**
 	 * Responds to the user choosing a file to save.
@@ -126,11 +127,12 @@ public class SaveLocallyCmd
 			FileFilter filter = fileChooser.getSelectedFilter();
 			String filterExtension = "";
 			if (filter instanceof CustomizedFileFilter) {
-				filterExtension = ((CustomizedFileFilter)filter).getExtension();
+				filterExtension = 
+					((CustomizedFileFilter) filter).getExtension();
 			}
 			
 			// check if file is allowed. If not, add extension. 
-			if (! filter.accept(file)) {
+			if (!filter.accept(file)) {
 				String filePath = file.getAbsolutePath();
 				filePath = filePath + "." + filterExtension;
 				file = new File(filePath);

@@ -72,7 +72,9 @@ public class SaveServerCmd
 		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
 		InputDialog dialog = new InputDialog(f, 
 				"Save to server: Enter file name", "");
-		dialog.setText(model.getEditorTitle());	// default file name
+		String text = model.getEditorTitle();
+		if (model.isExperiment()) text += Editor.EXPERIMENT_EXTENSION;
+		dialog.setText(text);	// default file name
 		
 		int option = dialog.centerMsgBox();
 		if (option == InputDialog.SAVE) {
