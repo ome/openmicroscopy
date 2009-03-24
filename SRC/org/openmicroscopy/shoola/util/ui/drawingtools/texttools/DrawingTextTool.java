@@ -64,10 +64,10 @@ public class DrawingTextTool
 {
 
 	/** The floating text field. */
-	private DrawingFloatingTextField   	textField;
+	protected DrawingFloatingTextField   	textField;
 	
 	/** The figure of reference. */
-    private TextHolderFigure  			typingTarget;
+	protected TextHolderFigure  			typingTarget;
     
     /** 
      * Begins the edition.
@@ -96,7 +96,7 @@ public class DrawingTextTool
      * @param figure The figure to handle.
      * @return See above.
      */
-    private Rectangle getFieldBounds(TextHolderFigure figure)
+    protected Rectangle getFieldBounds(TextHolderFigure figure)
     {
         Rectangle textBox = getView().drawingToView(figure.getBounds());
     

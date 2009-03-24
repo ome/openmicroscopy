@@ -51,6 +51,7 @@ import org.jhotdraw.geom.Insets2D;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
+import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.TransformedDrawingTextTool;
 
 /** 
  * An ellipse figure with text.
@@ -215,7 +216,7 @@ public class EllipseTextFigure
 		if (isEditable() && contains(p)) 
 		{
 			invalidate();
-			return new DrawingTextTool(this); 
+			return new TransformedDrawingTextTool(this, this.getTransformedShape()); 
 		}
 		return null;
 	}
