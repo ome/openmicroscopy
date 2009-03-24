@@ -760,14 +760,19 @@ public class FieldTextArea
 		addParamButton.setIcon(selected ? addParamIcon : blankIcon);
 		
 		if (selected) {
-			
-			if (!nameEditor.hasFocus()) {
-				// prepare for typing. Get focus and make sure cursor is showing
-				contentEditor.removeFocusListener(this);
-				contentEditor.requestFocusInWindow();
-				int c = contentEditor.getCaretPosition();
-				if (c == 0) contentEditor.setCaretPosition(1);
-				contentEditor.addFocusListener(this);
+			// if the focus is not already on the content-editor...
+			if (!contentEditor.hasFocus()) {
+				// ...prepare for typing in title.
+				// Request focus and select text (if not been edited before)
+				nameEditor.removeFocusListener(this);
+				nameEditor.requestFocusInWindow();
+				int c = nameEditor.getCaretPosition();
+				if (c == 0) {
+					int length = nameEditor.getDocument().getLength();
+					nameEditor.setSelectionStart(0);
+					nameEditor.setSelectionEnd(length-1);
+				}
+				nameEditor.addFocusListener(this);
 			}
 			
 			// don't allow addition of parameters to root. 
