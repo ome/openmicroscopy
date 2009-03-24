@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.env.data;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
+import Ice.ConnectionLostException;
+
 /** 
  * Keeps the services alive.
  *
@@ -66,10 +68,14 @@ class KeepClientAlive
         	message.append("Exception while keeping the services alive.\n");
         	message.print(t);
         	container.getRegistry().getLogger().error(this, message);
+        	Throwable cause = t.getCause();
+			int index = OMEROGateway.SERVER_OUT_OF_SERVICE;
+			if (cause instanceof ConnectionLostException)
+				index = OMEROGateway.LOST_CONNECTION;
         	try {
         		DataServicesFactory f = 
         			DataServicesFactory.getInstance(container);
-            	if (f.isConnected()) f.shutdown();
+            	if (f.isConnected()) f.sessionExpiredExit(index);
 			} catch (Exception e) {}
         }
 	}

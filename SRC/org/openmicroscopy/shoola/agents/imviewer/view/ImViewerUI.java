@@ -1028,7 +1028,6 @@ class ImViewerUI
 			setSize(w, h);
 			controller.setZoomFactor(ZoomAction.ZOOM_FIT_TO_WINDOW);
 		}
-		
 	}
 	
 
