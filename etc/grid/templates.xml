@@ -71,9 +71,11 @@
     <server-template id="FSTemplate">
       <parameter name="exe" default="python"/>
       <server id="FSServer" exe="${exe}" activation="always">
-        <option>lib/python/runFSServer.py</option>
+        <option>lib/python/fsRunFSServer.py</option>
         <env>PYTHONPATH=lib/python:$PYTHONPATH</env>
-        <adapter name="omerofs.MonitorServer" register-process="true" endpoints="tcp"/>
+        <adapter name="omerofs.MonitorServer" register-process="true" endpoints="tcp">
+			<object identity="FSServer" type="::monitors::MonitorServer"/>
+		</adapter>
         <properties>
           <property name="Ice.ThreadPool.Client.Size" value="2"/>
           <property name="Ice.ThreadPool.Client.SizeMax" value="10"/>
@@ -88,7 +90,7 @@
     <server-template id="DropBoxTemplate">
       <parameter name="exe" default="python"/>
       <server id="DropBox" exe="${exe}" activation="always">
-        <option>lib/python/runFSDropBox.py</option>
+        <option>lib/python/fsRunFSDropBox.py</option>
         <env>PYTHONPATH=lib/python:$PYTHONPATH</env>
         <adapter name="omerofs.DropBox" register-process="true" endpoints="tcp"/>
         <properties>
