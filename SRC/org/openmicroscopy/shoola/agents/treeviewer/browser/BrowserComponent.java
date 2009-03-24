@@ -670,7 +670,9 @@ class BrowserComponent
         }
         boolean old = model.isSelected();
         if (old == b) return;
-        setSelectedDisplay(null);
+        TreeImageDisplay[] nodes = model.getSelectedDisplays();
+        //setSelectedDisplay(null); 24/03
+        setSelectedDisplays(nodes);
         model.setSelected(b);
     }
 
