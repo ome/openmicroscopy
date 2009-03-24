@@ -64,7 +64,10 @@ public class LogAppender
             } catch (BadLocationException e)
             {
                 throw new RuntimeException(e);
-            }
+            } catch (Throwable t) 
+            {
+                
+            } //Safety catch in case NP passed in.
         }
     }
 
