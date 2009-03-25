@@ -370,7 +370,6 @@ class GraphPane
 						channelXYData.add(dataXY);
 					}
 				}
-				
 			}
 		}
 		mainPanel.removeAll();
