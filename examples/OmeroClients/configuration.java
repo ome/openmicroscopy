@@ -1,6 +1,6 @@
-public void configuration {
+public class configuration {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
 	// All configuration in file pointed to by
 	// --Ice.Config=file.config
