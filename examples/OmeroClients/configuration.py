@@ -5,16 +5,19 @@ import omero
 # No username, password entered
 client1 = omero.client(args)
 client1.createSession()
+client1.createSession()
 
 # Most basic configuration.
 # Uses default port 4063
 # createSession needs username and password
 client2 = omero.client("localhost")
 client2.createSession("root","ome")
+client2.createSession()
     
 # Configuration with port information
 client3 = omero.client("localhost", 10463)
 client3.createSession("root","ome")
+client3.createSession()
 
 # Advanced configuration can also be done
 # via an InitializationData instance.
@@ -23,6 +26,7 @@ data.properties = Ice.Util.createProperties()
 data.properties.setProperty("omero.host", "localhost")
 client4 = omero.client(data)
 client4.createSession("root","ome")
+client4.createSession()
 
 # Or alternatively via a dict instance
 m = {"omero.host":"localhost",
@@ -32,4 +36,5 @@ client5 = omero.client(m)
 # Again, no username or password needed
 # since present in the map. But they *can*
 # be overridden.
+client5.createSession()
 client5.createSession()
