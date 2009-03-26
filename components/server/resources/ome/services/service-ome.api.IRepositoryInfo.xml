@@ -17,7 +17,7 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-<beans>	
+<beans>
 
   <bean id="internal-ome.api.IRepositoryInfo" class="ome.logic.RepositoryInfoImpl">
     <property name="datadir" value="${omero.data.dir}"/>
@@ -26,8 +26,7 @@
     <property name="fileService" ref="/OMERO/Files"/>
     <property name="simpleJdbcOperations" ref="simpleJdbcTemplate"/>
   </bean>
-  
-  
+
   <bean id="managed-ome.api.IRepositoryInfo" parent="managedService">
 	<property name="proxyInterfaces" value="ome.api.IRepositoryInfo"/>
     <property name="target" ref="internal-ome.api.IRepositoryInfo"/>
@@ -37,7 +36,8 @@
     <property name="targetObject" ref="internal-ome.api.IRepositoryInfo" />
     <property name="targetMethod" value="removeUnusedFiles" />
   </bean>
-  
+
+  <!-- ticket:1230 - Disabling for 4.0.0 due to odd behavior
   <bean id="removeUnusedFilesTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
     <description>
     Runs the update cache thread every 5 seconds so that
@@ -47,5 +47,6 @@
     <property name="jobDetail" ref="removeUnusedFilesRun" />
     <property name="cronExpression" value="${omero.data.cron}"/>
   </bean>
+  -->
 
 </beans>
