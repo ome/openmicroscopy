@@ -34,7 +34,7 @@
     <server-template id="IndexerTemplate">
       <parameter name="index"/>
       <parameter name="config" default="default"/>
-      <server id="Indexer-${index}" exe="bin/omero" activation="always" pwd="c:\\omero">
+      <server id="Indexer-${index}" exe="java" activation="always" pwd="c:\\omero">
         <option>-Dlog4j.configuration=etc\\log4j.xml</option>
         <option>-Xmx400M</option>
         <option>-Djava.awt.headless=true</option>
