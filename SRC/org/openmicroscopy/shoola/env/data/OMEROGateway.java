@@ -55,9 +55,9 @@ import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 //import Ice.Communicator;
+import ome.conditions.ResourceError;
 import ome.system.UpgradeCheck;
 import omero.AuthenticationException;
-import omero.ExpiredCredentialException;
 import omero.InternalException;
 import omero.RLong;
 import omero.RType;
@@ -325,8 +325,8 @@ class OMEROGateway
 		} else if (cause instanceof AuthenticationException) {
 			String s = "Cannot initialize the session. \n"; 
 			throw new DSOutOfServiceException(s+message, t);
-		} else if (cause instanceof ExpiredCredentialException) {
-			String s = "Cannot initialize the session. \n"; 
+		} else if (cause instanceof ResourceError) {
+			String s = "Fatal error. Please contact the administrator. \n"; 
 			throw new DSOutOfServiceException(s+message, t);
 		}
 		throw new DSAccessException("Cannot access data. \n"+message, t);
