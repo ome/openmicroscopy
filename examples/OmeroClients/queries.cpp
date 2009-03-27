@@ -7,7 +7,7 @@ using namespace omero::rtypes;
 int main(int argc, char* argv[]) {
 
     omero::client_ptr client = new omero::client(argc, argv);
-    omero::api::ServiceFactoryPrx sf = client.createSession();
+    omero::api::ServiceFactoryPrx sf = client->createSession();
     omero::api::IQueryPrx q = sf->getQueryService();
 
     std::string query_string = "select i from Image i where i.id = :id and name like :namedParameter";

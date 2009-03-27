@@ -16,7 +16,7 @@ public class updates {
 
             Image i = new ImageI();
             i.setName( rstring("name") );
-            i.setAcquisitionDate( rtime(System.currentTimeMillis()) )
+            i.setAcquisitionDate( rtime(System.currentTimeMillis()) );
 
             ServiceFactoryPrx sf = client.createSession();
             IUpdatePrx u = sf.getUpdateService();

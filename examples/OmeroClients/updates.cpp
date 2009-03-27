@@ -11,10 +11,10 @@ int main(int argc, char* argv[]) {
 
     omero::model::ImagePtr i = new omero::model::ImageI();
     i->setName( rstring("name") );
-    i->setAcquisitionDate( rtime(IceUtil::Time::now().toMilliseconds()) );
+    i->setAcquisitionDate( rtime(IceUtil::Time::now().toMilliSeconds()) );
 
-    omero::api::ServiceFactoryPrx sf = client.createSession();
+    omero::api::ServiceFactoryPrx sf = client->createSession();
     omero::api::IUpdatePrx u = sf->getUpdateService();
 
-    i = ImagePtr::dynamicCast( u->saveAndReturnObject( i ) );
+    i = omero::model::ImagePtr::dynamicCast( u->saveAndReturnObject( i ) );
 }
