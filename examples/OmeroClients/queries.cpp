@@ -6,7 +6,7 @@ using namespace omero::rtypes;
 
 int main(int argc, char* argv[]) {
 
-    omero::client client(argc, argv);
+    omero::client_ptr client = new omero::client(argc, argv);
     omero::api::ServiceFactoryPrx sf = client.createSession();
     omero::api::IQueryPrx q = sf->getQueryService();
 
