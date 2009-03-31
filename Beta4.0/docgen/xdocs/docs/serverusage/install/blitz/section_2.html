@@ -1,0 +1,39 @@
+<html>
+<head>
+<title>Setting Configuration Files</title>
+</head>
+<body>
+
+<div align="center">
+<p><b>Setting Configuration Files</b></p>
+</div>
+
+<p><b>Setting Up The Environment</b></p>
+
+<p>
+Add the following locations to your <code>$PYTHON_HOME path</code>
+<ol>
+<li>
+<code>PYTHON_HOME=/Library/Frameworks/Python.framework/Versions/2.5/</code>
+</li>
+<li>
+<code>PYTHON_HOME=$PYTHON_HOME:/YOUR_OMERO_DIR/dist/lib</code>
+</li>
+</ol>
+</p>
+
+<p><b>Configuring OMERO.Blitz files</b></p>
+<p>To enable the blitz server the omero.properties file in 
+<code>OMERO_DIR/etc</code> needs to be configured</p>
+<ol>
+<li>
+<code>ice.home=</code>YOUR_ICE_PATH
+</li>
+<li>
+<code>no.ice=false</code>
+</li>
+</ol>
+
+
+</body>
+</html>

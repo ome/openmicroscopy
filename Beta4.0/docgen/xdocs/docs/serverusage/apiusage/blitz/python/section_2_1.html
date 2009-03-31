@@ -1,0 +1,85 @@
+<html>
+<head>
+<title>OMERO.Blitz Simple Types</title>
+</head>
+<body>
+
+<pre class="code"></pre>
+
+<div align="center">
+<p><b>OMERO.Blitz Simple Types</b></p>
+</div>
+
+<p>These are basic types that have been wrapped by the 
+OMERO.Blitz API. Each type is proceeded by an R - so RInt, RLong, RDouble.</p>
+
+<p>Each OMERO.Blitz type is derived from a base type called RType.</p>
+
+<p><b>List of Simple RTypes</b></p>
+<ol>
+<li>
+	RType
+</li>
+<li>
+	RString
+</li>
+<li>
+	RBool
+</li>
+<li>
+	RInt
+</li>
+<li>
+	RLong
+</li>
+<li>
+	RFloat
+</li>
+<li>
+	RDouble
+</li>
+</ol>
+
+<p><b>Creating an RType object</b></p>
+<p>To create an RType is simple. <code>string = omero.RString("A String")</code></p>
+
+<p><b>Example Code</b></p>
+<p>The following code snippet gets the plane at (zSection, channel, timePoint)
+from image id. The code makes a 2 calls(setPixelsId, getPlane) to the 
+RawPixelsStore service in the OMERO.Blitz API call. The complete example of the 
+code is here [TODO].</p>
+<pre>
+<code>
+>id = omero.RLong(pixelsID)
+rawPixelsStore.setPixelsId(id)
+>rawPlane = rawPixelsStore.getPlane(zSection, channel, timePoint)
+</code>
+</pre>
+
+<p><b>Retrieving a value from an RType Object</b></p>
+<p>To access the contents of an RType object, just access it's val member.</p>
+<p><b>Example Code</b></p>
+<pre>
+<code>
+id = omero.RLong(pixelsID)
+idValue = id.val
+</code>
+</pre>
+
+<p><b>Output of an RType from console</b></p>
+<code>
+<pre>
+>>> import omero
+>>> a = omero.RLong(100)
+>>> a
+object #0 (::omero::RLong)
+{
+    val = 100
+}
+>>> a.val
+100
+</pre>
+</code>
+
+</body>
+</html>

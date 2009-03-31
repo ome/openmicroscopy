@@ -1,0 +1,54 @@
+<html>
+<head>
+<title>Dynamics</title>
+</head>
+<body>
+<p>
+Now we only need talk a little bit about how events are fired and 
+eventually dispatched. The event bus sits idle after creation. When a 
+subscriber invokes the <code>register</code> or <code>remove</code> method, 
+the de-multiplex table is updated accordingly and then the event bus returns 
+to idle. The interesting bit is when a publisher invokes <code>postEvent() 
+</code>passing in <code>e</code> - an instance of a subclass of 
+<code>AgentEvent</code>. Now the event bus enters into its dispatching loop 
+and delivers <code>e</code> (by calling the <code>eventFired</code> method) 
+to all subscribers in the event notification list of <code>e</code>. If one 
+of those subscribers happens to be the object that initially posted 
+<code>e</code>, then it is not notified - that is, an event is never dispatched 
+back to its source.
+</p>
+<p>
+ We stated that the event bus can be regarded as a time-ordered event queue - 
+if event A is posted on the bus before event B, then event A is also 
+delivered before event B. How do we enforce this? First off, all methods 
+of the event bus are run within the same thread that runs the agents -
+ the <i>Swing</i> dispatching thread. Whenever the container needs access 
+ the event bus from another thread (the rendering engine runs in a 
+ separate thread), it uses a trick (<code>invokeLater</code> method of 
+ <code>SwingUtilities</code>) to have the invoked method run within the 
+ <i>Swing</i> dispatching thread. So, in any case, the event dispatching 
+ loop runs synchronously with respect to the publisher that calls 
+ <code>postEvent()</code>. This leaves us with only one thing that 
+ could break time-ordering: nested dispatching loops. This can happen 
+ if a subscriber calls 
+ <code>postEvent()</code> from <code>eventFired()</code>, that is,
+  while an event is being dispatched, some listener fires a new event 
+  in response to the current event notification. In this case, we 
+  have to dispatch the new event only after the current event has been 
+  delivered to all the subscribers in the event notification list. This
+   is easily achieved by using an event queue and by checking the state 
+   of the event  bus every time <code>postEvent</code> is invoked: if 
+   the bus is already running its dispatching loop, <code>postEvent</code> 
+   simply adds the passed event to the queue and returns.
+</p>
+<p>
+The event bus' state machine is illustrated by the following UML state-chart.
+</p>
+<p>
+A final note on time-ordering. We added this constraint to the event bus in
+ order to maintain consistency. In fact, if the dispatching loop doesn't 
+ deliver the events in the same order in which they were posted, the agents 
+ might not behave correctly.
+</p>
+</body>
+</html>

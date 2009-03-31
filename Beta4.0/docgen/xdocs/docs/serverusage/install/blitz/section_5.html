@@ -1,0 +1,51 @@
+<html>
+<head>
+<title>Troubleshooting</title>
+</head>
+<body>
+
+<div align="center">
+<p><b>Troubleshooting The OMERO.Blitz Server Install</b></p>
+</div>
+
+<p><b>To Rebuild the Database</b></p>
+<ol>
+<li>
+	<code>dropdb omero3</code>
+</li>
+<li>
+	<code>createdb omero3</code>
+</li>
+<li>
+	<code>java omero reload-db</code> or <code>dist/setup-db</code>
+</li>
+</ol>
+<p><b>Find the Password in Database</b></p>
+<code>psql omero3 -c "select * from password"</code>
+
+<p><b>Ports Required by OMERO.Blitz</b></p>
+<ol>
+<li>
+	4444
+</li>
+<li>
+	1098
+</li>
+<li>
+	1099
+</li>
+</ol>
+
+<p>To Check that the Ports are Open</p>
+<code>netstat -nav | grep PORTNO</code>
+
+<div class="noteFrame">
+	<div class="noteLabel">Example</div>
+  	<div class="noteContent">
+		<p><code>netstat -nav | grep 1099</code></p>
+		<p>tcp        0      0 0.0.0.0:1099            0.0.0.0:*               LISTEN   </p>
+  	</div>
+</div> 
+
+</body>
+</html>
