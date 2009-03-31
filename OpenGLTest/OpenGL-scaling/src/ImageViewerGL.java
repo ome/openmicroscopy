@@ -25,6 +25,7 @@
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.color.ColorSpace;
 import java.awt.event.MouseAdapter;
@@ -61,7 +62,10 @@ import com.sun.opengl.util.texture.TextureIO;
 
 import omero.ServerError;
 import omero.api.GatewayPrx;
+import omero.api.RenderingEngine;
+import omero.api.RenderingEnginePrx;
 import omero.model.Pixels;
+import omero.romio.PlaneDef;
 import sun.awt.image.IntegerInterleavedRaster;
 
 //Third-party libraries
@@ -85,7 +89,7 @@ public class ImageViewerGL
 	extends JPanel implements ChangeListener, MouseWheelListener
 {
 	private Pixels	pixels;
-	private GatewayPrx gateway;
+	private RenderingEnginePrx re;
 	private JSlider zSlider;
 	private JSlider tSlider;
 	private Texture texture;
@@ -95,6 +99,8 @@ public class ImageViewerGL
 	
 	private long	meanRT = 0;
 	private long 	numRT = 0;
+	private long timeC 	= 0;
+	private long numC = 0;
 	/**
 	 * Get the free memory available in the system.
 	 * @return see above.
@@ -125,21 +131,53 @@ public class ImageViewerGL
 	}
 	
 	
-	public ImageViewerGL(GatewayPrx gateway)
+	public ImageViewerGL(RenderingEnginePrx re)
 	{
-		this.gateway = gateway;
+		this.re = re;
 		buildUI();
+	}
+	
+	private void setPixelsId(long pixelsId) throws ServerError
+	{
+		re.lookupPixels(pixelsId);
+		if(!re.lookupRenderingDef(pixelsId))
+			re.resetDefaults();
+		re.lookupRenderingDef(pixelsId);
+		re.load();
 	}
 	
 	public void setImage(long pixelsId) throws ServerError
 	{
-		pixels = gateway.getPixels(pixelsId);
+		setPixelsId(pixelsId);
+		pixels = re.getPixels();
 		zSlider.setValue(0);
 		zSlider.setMaximum(pixels.getSizeZ().getValue()-1);
 		tSlider.setValue(0);
 		tSlider.setMaximum(pixels.getSizeT().getValue()-1);
 	}
 	
+	private int[] renderAsPackedInt(int z, int t)
+	throws  omero.ServerError
+	{
+		PlaneDef def = new PlaneDef();
+		def.t = t;
+		def.z = z;
+		def.x = 0;
+		def.y = 0;
+		def.slice = 0;
+		return re.renderAsPackedInt(def);
+	}
+	private int[] renderAsPackedIntAsRGBA(int z, int t)
+	throws  omero.ServerError
+	{
+		PlaneDef def = new PlaneDef();
+		def.t = t;
+		def.z = z;
+		def.x = 0;
+		def.y = 0;
+		def.slice = 0;
+		return re.renderAsPackedIntAsRGBA(def);
+	}
 	public BufferedImage getPlaneAsBufferedImage(int z, int t) throws ServerError
 	{
 		long a  = System.currentTimeMillis();
@@ -147,15 +185,16 @@ public class ImageViewerGL
 		
 													zSlider.getValue(), 
 													tSlider.getValue());*/
-		int[] dataARGB = gateway.getRenderedImage(pixels.getId().getValue(), 
+		int[] dataARGB = renderAsPackedInt( 
 				zSlider.getValue(), 
 				tSlider.getValue());
-		long rt = (System.currentTimeMillis()-a);
+		
+			long rt = (System.currentTimeMillis()-a);
 			meanRT = meanRT + rt;
 		numRT = numRT+1;
 		
-		System.err.println("retrieval time (ms) : "+ rt);
-		System.err.println("MEAN retrieval time (ms) : "+ (double)meanRT/(double)numRT);
+	//	System.err.println("retrieval time (ms) : "+ rt);
+	//	System.err.println("MEAN retrieval time (ms) : "+ (double)meanRT/(double)numRT);
 		/*int[] newData = new int[512*512];
 		for(int x = 0 ; x < 512*512; x++)
 			{
@@ -174,7 +213,7 @@ public class ImageViewerGL
 			diff= diff + (dataARGB[x]-newData[x]);
 		System.err.println(diff);*/
 		
-		a  = System.currentTimeMillis();
+	//	a  = System.currentTimeMillis();
 		DataBuffer j2DBuf = new DataBufferInt(dataARGB, 
 										(int)(pixels.getSizeX().getValue() 
 												* pixels.getSizeY().getValue()), 0);
@@ -201,15 +240,17 @@ public class ImageViewerGL
 		else
 			img.setData(raster);
 	//	System.err.println(data.length);
-		System.err.println(pixels.getSizeX().getValue());
-		System.err.println(pixels.getSizeY().getValue());
+	//	System.err.println(pixels.getSizeX().getValue());
+	//	System.err.println(pixels.getSizeY().getValue());
 	//	IntBuffer b = IntBuffer.wrap(data);
 	//	IntBuffer b2 = IntBuffer.wrap(dataARGB);
 	
 /*		TextureData textureData = new TextureData(GL.GL_RGBA, pixels.getSizeX().getValue(), 
 			pixels.getSizeY().getValue(), 0, GL.GL_RGBA, GL.GL_UNSIGNED_INT_8_8_8_8, false,
 				false, false, b, null );*/
-		System.err.println("Texture time (ms) : "+(System.currentTimeMillis()-a));
+		timeC=timeC+(System.currentTimeMillis()-a);
+		numC=numC+1;
+	//		System.err.println("Texture time (ms) : "+(System.currentTimeMillis()-a));
 				
 //		TextureData textureData = new TextureData(
 		//Texture texture = TextureIO.newTexture(textureData);
@@ -225,15 +266,15 @@ public class ImageViewerGL
 		
 													zSlider.getValue(), 
 													tSlider.getValue());*/
-		int[] dataARGB = gateway.getRenderedImage(pixels.getId().getValue(), 
+		int[] dataARGB = renderAsPackedIntAsRGBA( 
 				zSlider.getValue(), 
 				tSlider.getValue());
 		long rt = (System.currentTimeMillis()-a);
 		meanRT = meanRT + rt;
 		numRT = numRT+1;
 		
-		System.err.println("retrieval time (ms) : "+ rt);
-		System.err.println("MEAN retrieval time (ms) : "+ (double)meanRT/(double)numRT);
+	//	System.err.println("retrieval time (ms) : "+ rt);
+	//	System.err.println("MEAN retrieval time (ms) : "+ (double)meanRT/(double)numRT);
 		/*int[] newData = new int[512*512];
 		for(int x = 0 ; x < 512*512; x++)
 			{
@@ -278,16 +319,18 @@ public class ImageViewerGL
 		else
 			img.setData(raster);*/
 	//	System.err.println(data.length);
-		System.err.println(pixels.getSizeX().getValue());
-		System.err.println(pixels.getSizeY().getValue());
+	//	System.err.println(pixels.getSizeX().getValue());
+	//	System.err.println(pixels.getSizeY().getValue());
 		//IntBuffer b = IntBuffer.wrap(data);
 		IntBuffer b2 = IntBuffer.wrap(dataARGB);
 	
-		a = System.currentTimeMillis();
+		//a = System.currentTimeMillis();
 		TextureData textureData = new TextureData(GL.GL_RGBA, pixels.getSizeX().getValue(), 
-			pixels.getSizeY().getValue(), 0, GL.GL_BGRA, GL.GL_UNSIGNED_INT_8_8_8_8_REV, false,
+			pixels.getSizeY().getValue(), 0, GL.GL_RGBA, GL.GL_UNSIGNED_INT_8_8_8_8, false,
 				false, false, b2, null );
-		System.err.println("Texture time (ms) : "+(System.currentTimeMillis()-a));
+		timeC=timeC+(System.currentTimeMillis()-a);
+		numC=numC+1;
+		//System.err.println("Texture time (ms) : "+);
 				
 //		TextureData textureData = new TextureData(
 		//Texture texture = TextureIO.newTexture(textureData);
@@ -327,18 +370,19 @@ public class ImageViewerGL
 		long a  = System.currentTimeMillis();
 		imagePanel.zoom(r);
 		imagePanel.repaint();
-		System.err.println("scaling time (ms) : "+(System.currentTimeMillis()-a));
+	//	System.err.println("scaling time (ms) : "+(System.currentTimeMillis()-a));
 	}
 
 	
 	public void stateChanged(ChangeEvent arg0) 
 	{
-		System.err.println("getUsedMemory : " + getUsedMemory());
+	//	System.err.println("getUsedMemory : " + getUsedMemory());
 		try {
 			//getPlaneAsBufferedImage(zSlider.getValue(), tSlider.getValue());
 			//getPlane(zSlider.getValue(), tSlider.getValue());
-			//imagePanel.setTextureAsBufferedImage(getPlaneAsBufferedImage(zSlider.getValue(), tSlider.getValue()));
-			imagePanel.setTexture(getPlane(zSlider.getValue(), tSlider.getValue()));
+			imagePanel.setTextureAsBufferedImage(getPlaneAsBufferedImage(zSlider.getValue(), tSlider.getValue()));
+			//imagePanel.setTexture((getPlane(zSlider.getValue(), tSlider.getValue())));
+			//imagePanel.setTexture((getPlane(zSlider.getValue(), tSlider.getValue())));
 			imagePanel.repaint();
 		} catch (ServerError e) {
 			// TODO Auto-generated catch block
@@ -347,13 +391,18 @@ public class ImageViewerGL
 	}
 
 	public void mouseWheelMoved(MouseWheelEvent arg0) {
-		System.err.println("getUsedMemory : " + getUsedMemory());
-		System.err.println("arg0 : " + arg0);
-		double v = Math.exp((double)arg0.getWheelRotation());
-		System.err.println("val : " + v);
+	//	System.err.println("getUsedMemory : " + getUsedMemory());
+	//	System.err.println("arg0 : " + arg0);
+		double v = (double)-arg0.getWheelRotation()/100.0;
+	//	System.err.println("val : " + v);
 		zoom(v);
 	}
 	
-	
+	public void paint(Graphics g)
+	{
+		super.paint(g);
+		g.setColor(Color.white);
+		g.drawRect(200,50,50,50);
+	}
 }
 

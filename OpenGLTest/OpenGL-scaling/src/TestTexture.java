@@ -57,6 +57,7 @@ import javax.media.opengl.glu.*;
 import omero.ServerError;
 import omero.client;
 import omero.api.GatewayPrx;
+import omero.api.RenderingEnginePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Pixels;
 import omero.model.PixelsI;
@@ -87,7 +88,7 @@ public class TestTexture
 	private BufferedImage img;
 	private Pixels 	  pixels;
 	
-	
+	RenderingEnginePrx re;
 	public static void main(String[] args) 
 	{
 		new TestTexture().run(args);
@@ -113,7 +114,7 @@ public class TestTexture
 		frame.setSize(800, 600);
 		frame.show();
 		try {
-			imagePanel.setImage(11136);
+			imagePanel.setImage(13);
 			//imagePanel.getPlane(0,0);
 		} catch (ServerError e) {
 			// TODO Auto-generated catch block
@@ -126,14 +127,16 @@ public class TestTexture
 										PermissionDeniedException, 
 										ServerError
 	{
-		client = new client("warlock.openmicroscopy.org.uk");
+		client = new client("localhost");
 		session = client.createSession("root", "ome");
-		gateway = session.createGateway();
+		//gateway = session.createGateway();
+		re = session.createRenderingEngine();
+		
 	}
 	
 	private void buildUI()
 	{
-		imagePanel = new ImageViewerGL(gateway);
+		imagePanel = new ImageViewerGL(re);
 		frame.getContentPane().add(imagePanel);
 	}
   	

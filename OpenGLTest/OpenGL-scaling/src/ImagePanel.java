@@ -1,3 +1,5 @@
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 import javax.media.opengl.DebugGL;
@@ -72,7 +74,12 @@ public class ImagePanel
 	    caps = new GLCapabilities();
 	    caps.setAlphaBits(8);
 	  }
-	
+	public void paint(Graphics g)
+	{
+		super.paint(g);
+		g.setColor(Color.white);
+		g.drawRect(200,50,50,50);
+	}
 	ImagePanel()
 	{
 		super(caps, null, null);
