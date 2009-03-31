@@ -24,6 +24,7 @@ package browser;
 
 
 //Java imports
+import java.io.IOException;
 import java.util.Map;
 
 import javax.swing.JPanel;
@@ -80,9 +81,9 @@ public class View
 		return view.getView();
 	}
 	
-	void setThumbnails(Map<Long, byte[]> thumbnails)
+	void setThumbnails(Map<Long, byte[]> thumbnails, int width, int height) throws IOException
 	{
-		view.setThumbnails(thumbnails);
+		view.setThumbnails(thumbnails, width, height);
 	}
 }
 

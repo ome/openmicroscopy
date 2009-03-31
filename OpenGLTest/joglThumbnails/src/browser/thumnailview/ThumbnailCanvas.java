@@ -24,7 +24,11 @@ package browser.thumnailview;
 
 
 //Java imports
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.media.opengl.DebugGL;
 import javax.media.opengl.GL;
@@ -34,7 +38,10 @@ import javax.media.opengl.GLEventListener;
 import javax.media.opengl.GLJPanel;
 import javax.media.opengl.glu.GLU;
 
+import browser.thumnailview.model.ThumbnailModel;
+
 import com.sun.opengl.util.texture.Texture;
+import com.sun.opengl.util.texture.TextureCoords;
 import com.sun.opengl.util.texture.TextureData;
 
 //Third-party libraries
@@ -60,6 +67,7 @@ public class ThumbnailCanvas
 {
 	private GLU glu = new GLU();
 	private static GLCapabilities caps;
+	private ThumbnailModel model;
 	
 	static 
 	{
@@ -67,12 +75,14 @@ public class ThumbnailCanvas
 	    caps.setAlphaBits(8);
 	}
 	
-	public ThumbnailCanvas()
+	public ThumbnailCanvas(ThumbnailModel model)
 	{
 		super(caps, null, null);
+		this.model = model;
 		addGLEventListener(this);
 		setOpaque(true);
 		createUI();
+		
 	}
 	
 	private void createUI()
@@ -84,8 +94,36 @@ public class ThumbnailCanvas
 	{
 		GL gl = drawable.getGL();
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-
-
+		Map<Long, Texture> texture = model.getThumbnailTexture();
+		Map<Long, Rectangle2D> position = model.getThumbnailPosition();
+		Iterator<Long> thumbnail = texture.keySet().iterator();
+		while(thumbnail.hasNext())
+		{
+			Long thumbnailId = thumbnail.next();
+			renderThumbnail(gl, (Rectangle2D.Float) position.get(thumbnailId), 
+							texture.get(thumbnailId));
+		}
+	}
+	
+	private void renderThumbnail(GL gl, Rectangle2D.Float position, Texture texture)
+	{
+		texture.enable();
+		texture.bind();
+		gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE,
+				GL.GL_REPLACE);
+		TextureCoords coords = texture.getImageTexCoords();
+		coords = new TextureCoords(0, 0, 1, 1);
+		gl.glBegin(GL.GL_QUADS);
+		gl.glTexCoord2f(coords.left(), coords.bottom());
+		gl.glVertex3f(position.x, position.y, 0);
+		gl.glTexCoord2f(coords.right(), coords.bottom());
+		gl.glVertex3d(position.x+position.width, position.y, 0);
+		gl.glTexCoord2f(coords.right(), coords.top());
+		gl.glVertex3f(position.x+position.width, position.y+position.height,  0);
+		gl.glTexCoord2f(coords.left(), coords.top());
+		gl.glVertex3f(position.x, position.y+position.height, 0);
+		gl.glEnd();
+		texture.disable();
 	}
 
 	public void displayChanged(GLAutoDrawable arg0, boolean arg1, boolean arg2) 

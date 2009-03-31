@@ -24,9 +24,12 @@ package browser.thumnailview;
 
 
 //Java imports
+import java.io.IOException;
 import java.util.Map;
 
 import javax.swing.JPanel;
+
+import browser.thumnailview.model.ThumbnailModel;
 
 
 //Third-party libraries
@@ -50,9 +53,11 @@ public class ThumbnailView
 	extends JPanel
 {
 	ThumbnailCanvas canvas;
+	ThumbnailModel	thumbnailModel;
 	
 	public ThumbnailView()
 	{
+		thumbnailModel = new ThumbnailModel();
 		buildUI();
 	}
 	
@@ -63,13 +68,14 @@ public class ThumbnailView
 	
 	void buildUI()
 	{
-		canvas = new ThumbnailCanvas();
+		canvas = new ThumbnailCanvas(thumbnailModel);
 		add(canvas);
 	}
 	
-	public void setThumbnails(Map<Long, byte[]> thumbnails)
+	public void setThumbnails(Map<Long, byte[]> thumbnails, int width,
+											int height) throws IOException
 	{
-		
+		thumbnailModel.setThumbnails(thumbnails, width, height);
 	}
 	
 	

@@ -23,6 +23,7 @@
 package browser.thumnailview.model;
 
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.IntBuffer;
@@ -58,36 +59,34 @@ import com.sun.opengl.util.texture.TextureIO;
  */
 public class ThumbnailModel 
 {
-	HashMap<Long, Point2D> thumbnailPosition;
+	HashMap<Long, Rectangle2D> thumbnailPosition;
 	HashMap<Long, Texture> thumbnailImage;
-	int	width;
-	int height;
 	int NUMCOLUMNS = 5;
 	
-	ThumbnailModel(int width, int height)
+	public ThumbnailModel()
 	{
-		this.width = width;
-		this.height = height;
 	}
 	
-	public void setThumbnail(Map<Long, byte[]> thumbnails) throws IOException
+	public void setThumbnails(Map<Long, byte[]> thumbnails, int width, 
+												int height) throws IOException
 	{
-		thumbnailPosition = new HashMap<Long, Point2D>();
+		thumbnailPosition = new HashMap<Long, Rectangle2D>();
 		thumbnailImage = new HashMap<Long, Texture>();
 		createThumbnailTexures(thumbnails);
-		setThumbnailPositions(thumbnails);
+		setThumbnailPositions(thumbnails, width, height);
 	}
 	
-	private void setThumbnailPositions(Map<Long, byte[]> thumbnails)
+	private void setThumbnailPositions(Map<Long, byte[]> thumbnails, int width, int height)
 	{
 		Iterator<Long> thumbnailIterator = thumbnails.keySet().iterator();
 		int count = 0;
 		while(thumbnailIterator.hasNext())
 		{
 			Long id = thumbnailIterator.next();
-			Point2D point = new Point2D.Float((count%NUMCOLUMNS)*width, 
-											  (count/NUMCOLUMNS)*height);
-			thumbnailPosition.put(id, point);
+			Rectangle2D rectangle = new Rectangle2D.Float((count%NUMCOLUMNS)*width, 
+											  (count/NUMCOLUMNS)*height, 
+											  width, height);
+			thumbnailPosition.put(id, rectangle);
 			count++;
 		}
 	}
@@ -113,14 +112,14 @@ public class ThumbnailModel
 		return texture;
 	}
 	
-	Point2D getThumbnailPosition(long id)
+	public Map<Long, Rectangle2D> getThumbnailPosition()
 	{
-		return thumbnailPosition.get(id);
+		return thumbnailPosition;
 	}
 	
-	Texture getThumbnailTexture(long id)
+	public Map<Long,Texture> getThumbnailTexture()
 	{
-		return thumbnailImage.get(id);
+		return thumbnailImage;
 	}
 
 	

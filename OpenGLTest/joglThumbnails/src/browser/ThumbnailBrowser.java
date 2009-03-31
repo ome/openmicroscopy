@@ -25,9 +25,13 @@ package browser;
 
 
 //Java imports
+import java.io.IOException;
+import java.util.Map;
+
 import javax.swing.JPanel;
 
 //Third-party libraries
+import omero.ServerError;
 import omerogateway.OmeroGateway;
 
 //Application-internal dependencies
@@ -65,7 +69,12 @@ public class ThumbnailBrowser
 		return view.getView();
 	}
 	
-	
+	public void viewDataset(long id, int width, int height) 
+											throws ServerError, IOException
+	{
+		Map<Long, byte[]> thumbnails = model.getThumbnails(id);
+		view.setThumbnails(thumbnails, width, height);
+	}
 	
 	
 	
