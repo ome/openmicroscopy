@@ -83,9 +83,8 @@ public class ServerListEditor
 	private String getComponentValue()
 	{
 		String s = component.getText();
-		if (s == null) s = "";
-		else s = s.trim();
-		return s;
+		if (s == null) return "";
+		return s.trim();
 	}
 	
 	/** 

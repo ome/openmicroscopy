@@ -41,6 +41,7 @@ import omero.RString;
 import omero.model.BooleanAnnotation;
 import omero.model.CommentAnnotation;
 import omero.model.Dataset;
+import omero.model.DoubleAnnotation;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
@@ -59,6 +60,7 @@ import omero.model.WellSample;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
@@ -142,6 +144,8 @@ public class PojoMapper
         		return new LongAnnotationData(ann);
         	}
         	return new LongAnnotationData(ann);
+        } else if (object instanceof DoubleAnnotation) {
+        	return new DoubleAnnotationData((DoubleAnnotation) object);
         } else if (object instanceof FileAnnotation) 
         	return new FileAnnotationData((FileAnnotation) object);
         else if (object instanceof BooleanAnnotation) {
