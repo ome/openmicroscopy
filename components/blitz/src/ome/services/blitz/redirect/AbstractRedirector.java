@@ -94,9 +94,13 @@ public abstract class AbstractRedirector implements Redirector {
             try {
                 return sessionManagerPrx.create(userId, control, current.ctx);
             } catch (Exception e) {
-                log.error("Error while routing to " + remote, e);
-                throw new CannotCreateSessionException(
+                if (e instanceof CannotCreateSessionException) {
+                    throw (CannotCreateSessionException) e;
+                } else {
+                    log.error("Error while routing to " + remote, e);
+                    throw new CannotCreateSessionException(
                         "Error while routing to remote blitz");
+                }
             }
         }
         return null;
