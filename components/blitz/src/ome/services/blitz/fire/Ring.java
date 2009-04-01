@@ -31,6 +31,7 @@ import omero.internal._ClusterNodeDisp;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
 
 import Glacier2.CannotCreateSessionException;
@@ -255,8 +256,19 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
      * performed by {@link ome.services.sessions.SessionManager} cannot find the
      * session, then the cluster has no extra information.
      */
-    public boolean checkPassword(String userId) {
-        return false;
+    public boolean checkPassword(final String userId) {
+        return (Boolean) executor
+                .executeStateless(new Executor.SimpleStatelessWork(this,
+                        "checkPassword") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(SimpleJdbcOperations jdbc) {
+                        int count = jdbc.queryForInt(
+                                "select count(id) from session s "
+                                        + "where s.closed is null "
+                                        + "and s.uuid = ?", userId);
+                        return count > 0;
+                    }
+                });
     }
 
     /**
@@ -332,7 +344,7 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
     @SuppressWarnings("unchecked")
     private int closeSessionsForManager(String managerUuid) {
         final String query = "select session from Session session where "
-            + "session.node.uuid = :uuid and session.closed is null";
+                + "session.node.uuid = :uuid and session.closed is null";
         final Parameters p = new Parameters().addString("uuid", managerUuid);
 
         // First look up the sessions in on transaction
