@@ -129,6 +129,7 @@ import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.transaction.annotation.Transactional;
 
+import Ice.ConnectTimeoutException;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.Current;
@@ -603,6 +604,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                             + " did the client die?");
                 } catch (ConnectionLostException cle) {
                     log.debug(clientId + "'s connection lost as expected");
+                } catch (ConnectTimeoutException cte) {
+                    log.warn("ConnectTimeoutException on callback:"+clientId);
                 } catch (Exception e) {
                     log.error("Unknown error on oneway "
                             + "ClientCallback.sessionClosed to "
