@@ -711,8 +711,13 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                         stateful.close_async(
                                 new AMD_StatefulServiceInterface_close() {
                                     public void ice_exception(Exception ex) {
-                                        log.error("Error on close callback: "
-                                                + key + "=" + stateful);
+                                        if (ex instanceof omero.SessionException) {
+                                            log.warn("Stateful session not properly closed: "
+                                                    +key);
+                                        } else {
+                                            log.error("Error on close callback: "
+                                                + key + "=" + stateful, ex);
+                                        }
                                     }
 
                                     public void ice_response() {
