@@ -9,7 +9,30 @@ Copyright (c) 2007, Glencoe Software, Inc.
 See LICENSE for details.
 
 """
-import sys, os
+import sys, os, stat
+
+def not_root(omero):
+    try:
+        if os.geteuid() == 0:
+            owner = os.stat(omero)[stat.ST_UID]
+            if owner == 0:
+                print "OMERO directories belong to root"
+                print "Please use \"chown -R NEWUSER %s\" and run as the new user" % omero
+                print "Exiting"
+            else:
+                try:
+                   import pwd
+                   owner = "%s" % pwd.getpwuid(owner)[0]
+                except:
+                   pass
+                print "Running %s as root can corrupt your directory permissions." % sys.argv[0]
+                print "Login as the user (%s) who owns the OMERO directories: %s" % (owner, omero)
+                print "Exiting..."
+            sys.exit(1)
+    except AttributeError, ae:
+        # This platform doesn't support effective uid
+        # So nothing to worry about.
+        pass
 
 def readlink(file=sys.argv[0]):
     import stat
@@ -38,6 +61,8 @@ lib = os.path.join(top, "lib")
 lib = os.path.join(top, "lib","python")
 sys.path.append(lib)
 
+
+not_root(top)
 try:
     import omero.cli
     rv = omero.cli.argv()
