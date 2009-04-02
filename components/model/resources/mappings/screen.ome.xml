@@ -35,6 +35,13 @@
 	<type id="ome.model.screen.Plate" named="true" described="true" annotated="true">
 		<!-- Note: Name is optional in model-->
 		<properties>
+			<!-- Note: the following are not (yet) in model -->
+                        <optional name="defaultSample" type="int"/><!-- index of well sample which is currently selected-->
+                        <optional name="columnNamingConvention" type="string"/><!-- first column name to indicate naming convention-->
+                        <optional name="rowNamingConvention" type="string"/><!-- first row name to indicate naming convention-->
+                        <optional name="wellOriginX" type="double"/><!-- percent width offset from top left-->
+                        <optional name="wellOriginY" type="double"/><!-- percent height offset from top left-->
+                        <!-- end not in model -->
 			<optional name="status" type="string"/>
 			<optional name="externalIdentifier" type="string"/>
 			<parent name="screenLinks" type="ome.model.screen.ScreenPlateLink" target="ome.model.screen.Screen"/>
@@ -45,6 +52,14 @@
 		<properties>
 			<optional name="column" type="int"/>
 			<optional name="row" type="int"/>
+			<!-- Note: the following are not (yet) in model -->
+                        <!-- Color options for well. See the description for explanation
+                        of what a given color means -->
+                        <optional name="red" type="int"/>
+                        <optional name="green" type="int"/>
+                        <optional name="blue" type="int"/>
+                        <optional name="alpha" type="int"/>
+                        <!-- end not in model -->
 			<child name="reagentLinks" type="ome.model.screen.WellReagentLink" target="ome.model.screen.Reagent"/>
 			<!-- Note: only one reagent per well in model-->
 			<optional name="externalDescription" type="string"/>
