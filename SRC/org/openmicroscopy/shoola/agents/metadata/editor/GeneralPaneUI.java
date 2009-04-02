@@ -33,17 +33,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.border.TitledBorder;
 
 //Third-party libraries
 import layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
@@ -52,9 +48,6 @@ import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
-
-import com.sun.tools.doclets.formats.html.AllClassesFrameWriter;
-
 import pojos.AnnotationData;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
@@ -81,9 +74,6 @@ class GeneralPaneUI
 	extends JScrollPane
 {
 
-	/** The default height. */
-	private static final int			DEFAULT_H = 5;
-	
 	/** Reference to the controller. */
 	private EditorControl				controller;
 	
@@ -132,8 +122,10 @@ class GeneralPaneUI
 	/** Collection of preview panes. */
 	private Map<JXTaskPane, Integer>	panes;
 	
+	/** The index of the taskPane, the value in layout. */
 	private Map<Integer, Double>		indexes;
 	
+	/** The default height of a <code>JXTaskPane</code>. */
 	private double						defaultProtocolHeight;
 	
 	/**
