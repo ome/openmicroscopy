@@ -58,6 +58,11 @@ public class TargetProcessor implements ModelProcessor
     	throws ModelException
     {
     	IObject target = store.getUserSpecifiedTarget();
+    	if (target == null)
+    	{
+    		return;
+    	}
+    	
     	Map<LSID, LSID> referenceCache = store.getReferenceCache();
 		List<IObjectContainer> containers = null;
 			store.getIObjectContainers(Image.class);
@@ -73,7 +78,6 @@ public class TargetProcessor implements ModelProcessor
     	{
     		throw new ModelException("Unable to handle target: " + target);
     	}
-    	
 		for (IObjectContainer container : containers)
 		{
 			LSID targetLSID = new LSID(container.LSID, true);
