@@ -142,9 +142,13 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
 
         // Before we add our self we check the validity of the cluster.
         Set<String> nodeUuids = checkClusterAndAddSelf();
-        addManager(uuid, directProxy);
-        nodeUuids.add(uuid);
-        redirector.chooseNextRedirect(this, nodeUuids);
+        if (nodeUuids == null) {
+            log.warn("No clusters found. Aborting ring initialization");
+        } else {
+            addManager(uuid, directProxy);
+            nodeUuids.add(uuid);
+            redirector.chooseNextRedirect(this, nodeUuids);
+        }
     }
 
     /**
