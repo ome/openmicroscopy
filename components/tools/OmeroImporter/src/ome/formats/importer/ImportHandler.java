@@ -197,6 +197,7 @@ public class ImportHandler
                 }
                 catch (FormatException fe)
                 {
+                    System.err.println(fe.getMessage());
                 	log.error("Format exception while importing image.", fe);
                     qTable.setProgressUnknown(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");

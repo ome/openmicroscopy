@@ -112,7 +112,7 @@ public class FileQueueHandler
         if (action.equals(JFileChooser.APPROVE_SELECTION)) {
             file = fileChooser.getSelectedFile();
             store = viewer.loginHandler.getMetadataStore();
-
+            
             if (store != null)
             {
                 ImportDialog dialog = 
@@ -165,10 +165,26 @@ public class FileQueueHandler
 
             store = viewer.loginHandler.getMetadataStore();
             
-            if (store != null)
+            
+            System.err.println(reader.getImageReader().getReader().getClass());
+            
+            if (store != null && reader.isSPWReader(files[0].getAbsolutePath()))
+            {
+                SPWDialog dialog =
+                    new SPWDialog(viewer, "Screen Import", true, store);
+                if (dialog.cancelled == true || dialog.screen == null) 
+                    return;                    
+                for (File f : files)
+                {
+                    //Add SPW handler here
+                }
+                
+                qTable.centerOnRow(qTable.queue.getRowCount()-1);
+            }
+            else if (store != null)
             {
                 ImportDialog dialog = 
-                    new ImportDialog(viewer, "Import", true, store);
+                    new ImportDialog(viewer, "Image Import", true, store);
                 if (dialog.cancelled == true || dialog.dataset == null) 
                     return;                    
                 for (File f : files)

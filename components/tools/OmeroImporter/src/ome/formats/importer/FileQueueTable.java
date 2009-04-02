@@ -262,7 +262,7 @@ public class FileQueueTable
     
     public void setProgressUnknown(int row)
     {
-        table.setValueAt("unknown format", row, 2);
+        table.setValueAt("unreadable", row, 2);
         failedFiles = true;
         table.fireTableDataChanged();
     }    

@@ -151,7 +151,7 @@ public class ImportDialog extends JDialog implements ActionListener
         // Set up the import panel for tPane, quit, and send buttons
         
         double mainTable[][] =
-            {{TableLayout.FILL, 120, 5, 120, TableLayout.FILL}, // columns
+            {{TableLayout.FILL, 120, 5, 160, TableLayout.FILL}, // columns
             {TableLayout.PREFERRED, 10, TableLayout.PREFERRED, 
                 TableLayout.FILL, 40, 30}}; // rows
 

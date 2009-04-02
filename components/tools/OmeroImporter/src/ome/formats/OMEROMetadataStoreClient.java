@@ -110,6 +110,7 @@ import omero.model.Pulse;
 import omero.model.Reagent;
 import omero.model.Screen;
 import omero.model.ScreenAcquisition;
+import omero.model.ScreenI;
 import omero.model.StageLabel;
 import omero.model.Well;
 import omero.model.WellSample;
@@ -2323,6 +2324,26 @@ public class OMEROMetadataStoreClient
         }
     }
 
+    public List<Screen> getScreens()
+    {
+        try
+        {
+            List<IObject> objects = 
+                iContainer.loadContainerHierarchy(Screen.class.getName(), null, null);
+            List<Screen> screens = new ArrayList<Screen>(objects.size());
+            for (IObject object : objects)
+            {
+                screens.add((Screen) object);
+            }
+            return screens;
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    
     public List<Project> getProjects()
     {
     	try
@@ -2374,6 +2395,23 @@ public class OMEROMetadataStoreClient
         try
         {
             return (Project) iUpdate.saveAndReturnObject(project);
+        } catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public Screen addScreen(String screenName, String screenDescription)
+    {
+        Screen screen = new ScreenI();
+        if (screenName.length() != 0)
+            screen.setName(toRType(screenName));
+        if (screenDescription.length() != 0)
+            screen.setDescription(toRType(screenDescription));
+
+        try
+        {
+            return (Screen) iUpdate.saveAndReturnObject(screen);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
