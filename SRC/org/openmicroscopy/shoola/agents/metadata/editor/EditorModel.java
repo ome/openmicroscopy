@@ -539,7 +539,7 @@ class EditorModel
 		if (data == null) return new ArrayList();
 		Collection attachements = data.getAttachments(); 
 		if (attachements == null) return new ArrayList();
-		return attachements; 
+		return sorter.sort(attachements); 
 	}
 
 	/**
@@ -1253,7 +1253,7 @@ class EditorModel
 	{
 		EnumerationLoader loader = new EnumerationLoader(component, 
 				EnumerationLoader.CHANNEL);
-	loader.load();
+		loader.load();
 	}
 	
 	/** Loads the image acquisition data. */
