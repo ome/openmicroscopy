@@ -137,7 +137,7 @@ DEFAULT_USER = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__),
 # LOGS
 # to change the log place, please specify new path for LOGDIR.
 # LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
-LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), 'var'), 'log').replace('\\','/')
+LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
 
 if not os.path.isdir(LOGDIR):
     try:

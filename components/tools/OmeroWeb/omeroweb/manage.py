@@ -23,14 +23,19 @@
 #
 
 import sys
+from django.core.management import execute_manager
+
+try:
+    import settings # Assumed to be in the same directory.
+except ImportError:
+    sys.stderr.write("Error: Can't find the file 'settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n(If the file settings.py does indeed exist, it's causing an ImportError somehow.)\n" % __file__)
+    sys.exit(1)
+
 import os
 import logging
 import logging.handlers
 
-from django.core.management import execute_manager
-
 try:
-    import settings
     LOGDIR = settings.LOGDIR
 except:
     LOGDIR = os.path.dirname(__file__).replace('\\','/')
@@ -49,13 +54,7 @@ formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(messag
 fileLog.setFormatter(formatter)
 logging.getLogger().addHandler(fileLog)
 
-try:
-    import settings # Assumed to be in the same directory.
-except ImportError:
-    logging.info("Error: Can't find the file 'settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n(If the file settings.py does indeed exist, it's causing an ImportError somehow.)\n" % __file__)
-    sys.stderr.write("Error: Can't find the file 'settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n(If the file settings.py does indeed exist, it's causing an ImportError somehow.)\n" % __file__)
-    sys.exit(1)
-
+logger = logging.getLogger()
 
 # upgrade check:
 # -------------
@@ -73,18 +72,16 @@ try:
     check = UpgradeCheck("web")
     check.run()
     if check.isUpgradeNeeded():
-        logging.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
-        sys.stderr.write("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
+        logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
 except Exception, x:
-    logging.error("Upgrade check error: %s" % x)
-    sys.stderr.write("Upgrade check error: %s" % x)
+    logger.error("Upgrade check error: %s" % x)
 
 if not settings.EMAIL_NOTIFICATION:
-    logging.error("Settings.py has not been configured. EmailServerError: The application will not send any emails. Sharing notification is not available.\n" )
-    sys.stderr.write("Settings.py has not been configured. EmailServerError: The application will not send any emails. Sharing notification is not available.\n" )
+    logger.error("Settings.py has not been configured. EmailServerError: The application will not send any emails. Sharing notification is not available.\n" )
 
 if __name__ == "__main__":
     execute_manager(settings)
 
+    logger = logging.getLogger()
     # Starting...
-    logging.info("Application Started...")
+    logger.info("Application Started...")
