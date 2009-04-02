@@ -239,7 +239,7 @@ public class DeleteBox
 			return "File"+end;
 		else if (TagAnnotationData.class.equals(type)) {
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
-				return "TagSet"+end;
+				return "Tag Set"+end;
 			return "Tag"+end;
 		}
 		return "";

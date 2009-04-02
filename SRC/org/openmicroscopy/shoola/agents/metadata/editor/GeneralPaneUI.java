@@ -288,7 +288,7 @@ class GeneralPaneUI
 					s = "Contained in Tag Sets";
 				}
 			}
-		} else if  (refObject instanceof DatasetData) {
+		} else if (refObject instanceof DatasetData) {
 			if (!multi) {
 				h = TableLayout.PREFERRED;
 				s = "Contained in Projects";
@@ -303,17 +303,25 @@ class GeneralPaneUI
 			if (!multi) {
 				controller.loadChannelData();
 			}
-		} else if ((refObject instanceof ProjectData) || 
+		} 
+		/*
+		else if ((refObject instanceof ProjectData) || 
 				(refObject instanceof ScreenData) ||
-				(refObject instanceof WellSampleData))
+				(refObject instanceof WellSampleData)) {
 			browserTaskPane.setCollapsed(true);
+		}*/
 		browserTaskPane.setTitle(s);
-		layout.setRow(browserIndex, h);
+		content.remove(browserTaskPane);
+		
+		if (h != 0.0) {
+			//layout.setRow(browserIndex, h);
+			content.add(browserTaskPane, "0, "+browserIndex);
+		}
 		int n = buildProtocolTaskPanes();
 		double hp = 0;
 		if (n > 0) hp = TableLayout.PREFERRED;
 		layout.setRow(protocolsIndex, hp);
-		if (h != 0 && !browserTaskPane.isCollapsed()) {
+		if (h != 0.0 && !browserTaskPane.isCollapsed()) {
 			loadParents(true);
 		}
 	}
