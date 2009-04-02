@@ -303,13 +303,11 @@ class GeneralPaneUI
 			if (!multi) {
 				controller.loadChannelData();
 			}
-		} 
-		/*
-		else if ((refObject instanceof ProjectData) || 
+		} else if ((refObject instanceof ProjectData) || 
 				(refObject instanceof ScreenData) ||
 				(refObject instanceof WellSampleData)) {
 			browserTaskPane.setCollapsed(true);
-		}*/
+		}
 		browserTaskPane.setTitle(s);
 		content.remove(browserTaskPane);
 		
