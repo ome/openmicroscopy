@@ -68,7 +68,7 @@ class ServerControl(BaseControl):
     def web(self, args):
         args = Arguments(args)
         sys.stderr.write("Starting django... \n")
-        omero_web = self.ctx.dir / "lib" / "omeroweb"
+        omero_web = self.ctx.dir / "lib" / "python" / "omeroweb"
         subprocess.call(["python","manage.py","syncdb","--noinput"], cwd=str(omero_web), env = os.environ)
         # Now exec
         os.chdir(str(omero_web))
