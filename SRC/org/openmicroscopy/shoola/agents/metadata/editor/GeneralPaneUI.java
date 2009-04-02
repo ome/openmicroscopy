@@ -32,8 +32,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
@@ -128,9 +130,11 @@ class GeneralPaneUI
 	private List<PreviewPanel>			previews;
 	
 	/** Collection of preview panes. */
-	private List<JXTaskPane>			panes;
+	private Map<JXTaskPane, Integer>	panes;
 	
-	private int							defaultProtocolHeight;
+	private Map<Integer, Double>		indexes;
+	
+	private double						defaultProtocolHeight;
 	
 	/**
 	 * Loads or cancels any on-going loading of containers hosting
@@ -172,7 +176,8 @@ class GeneralPaneUI
 											controller);
 		}
 		previews = new ArrayList<PreviewPanel>();
-		panes = new ArrayList<JXTaskPane>(); 
+		panes = new HashMap<JXTaskPane, Integer>(); 
+		indexes = new HashMap<Integer, Double>(); 
 	}
 	
 	/** Builds and lays out the components. */
@@ -228,9 +233,10 @@ class GeneralPaneUI
 		Collection list = model.getAttachments();
 		protocolComponent.removeAll();
 		
-		double[][] size = {{TableLayout.FILL}, {TableLayout.PREFERRED}};
-		//layout.setColumn(size);
-		TableLayout layout = new TableLayout(size);
+		TableLayout layout = new TableLayout();
+		double[] size = {TableLayout.FILL};
+		layout.setColumn(size);
+		
 		protocolComponent.setLayout(layout);
 		if (list.size() == 0) return 0;
 		Iterator i = list.iterator();
@@ -242,11 +248,9 @@ class GeneralPaneUI
 		int index = 0;
 		previews.clear();
 		panes.clear();
-		JXTaskPaneContainer container = new JXTaskPaneContainer();
-		container.setBackground(UIUtilities.BACKGROUND_COLOR);
-		container.setBorder(new TitledLineBorder("Protocols and Experiments"));
+		protocolComponent.setBorder(
+				new TitledLineBorder("Protocols and Experiments"));
 		
-		int height = 0;
 		while (i.hasNext()) {
 			fa = (FileAnnotationData) i.next();
 			ns = fa.getNameSpace();
@@ -258,19 +262,22 @@ class GeneralPaneUI
 					preview.addPropertyChangeListener(controller);
 					pane = EditorUtil.createTaskPane(fa.getFileName());
 					pane.addPropertyChangeListener(controller);
-					panes.add(pane);
-					height += pane.getMinimumSize().height;
+					defaultProtocolHeight = 
+						pane.getMinimumSize().getHeight()/2+2;
+					panes.put(pane, index);
+					indexes.put(index, defaultProtocolHeight);
+					
 					pane.add(preview);
-					container.add(pane);
-					//layout.insertRow(index, 46/2+1);//TableLayout.PREFERRED);
-					//protocolComponent.add(pane, "0, "+index);
+					layout.insertRow(index, defaultProtocolHeight);
+					protocolComponent.add(pane, "0, "+index);
+					index++;
+					layout.insertRow(index, 5);
+					protocolComponent.add(new JLabel(), "0, "+index);
 					index++;
 				}
 			}
 		}
-		protocolComponent.add(container, "0, 0");
-		if (index != 0) height += DEFAULT_H;
-		return height;//index;
+		return index;
 	}
 	
 	/**
@@ -349,8 +356,8 @@ class GeneralPaneUI
 		int n = buildProtocolTaskPanes();
 		double hp = 0;
 		if (n > 0) {
-			defaultProtocolHeight = n;
-			hp = n;//TableLayout.PREFERRED;
+			//defaultProtocolHeight = n;
+			hp = TableLayout.PREFERRED;
 		}
 		layout.setRow(protocolsIndex, hp);
 		if (h != 0.0 && !browserTaskPane.isCollapsed()) {
@@ -497,24 +504,25 @@ class GeneralPaneUI
 			loadParents(!browserTaskPane.isCollapsed());
 		else {
 			if (panes.size() == 0) return;
-			if (!panes.contains(source)) return;
-			TableLayout layout = (TableLayout) content.getLayout();
-			if (!source.isCollapsed()) {
-				layout.setRow(protocolsIndex, TableLayout.PREFERRED);
-			} else {
-				Iterator<JXTaskPane> i = panes.iterator();
-				JXTaskPane p;
-				int all = 0;
-				while (i.hasNext()) {
-					p = i.next();
-					if (p.isCollapsed()) all++;
+			Iterator i = panes.entrySet().iterator();
+			Entry entry;
+			JXTaskPane pane;
+			int index;
+			double h;
+			TableLayout layout = (TableLayout) protocolComponent.getLayout();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				pane = (JXTaskPane) entry.getKey();
+				index = (Integer) entry.getValue();
+				if (pane == source) {
+					if (pane.isCollapsed()) h = defaultProtocolHeight;
+					else h = TableLayout.PREFERRED;
+					indexes.put(index, h);	
+					layout.setRow(index, h);
 				}
-				if (all == panes.size())
-					layout.setRow(protocolsIndex,defaultProtocolHeight);
-				else layout.setRow(protocolsIndex, TableLayout.PREFERRED);
 			}
-			content.validate();
-			content.repaint();
+			protocolComponent.validate();
+			protocolComponent.repaint();
 		}
 	}
 
