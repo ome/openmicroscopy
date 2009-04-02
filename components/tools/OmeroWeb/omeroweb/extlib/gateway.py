@@ -36,6 +36,7 @@ logger = logging.getLogger('gateway')
 try:
     import Image,ImageDraw
 except:
+    logger.error("You need to install the Python Imaging Library. Get it at http://www.pythonware.com/products/pil/")
     logger.error(traceback.format_exc())
 
 import threading
@@ -2120,7 +2121,7 @@ class BlitzObjectWrapper (object):
             return name[:40] + "..."
         except:
             logger.info(traceback.format_exc())
-            return _("Unknown")
+            return None
     
     def accessControll(self):
         if self._obj.details.permissions.isUserRead() and self._obj.details.permissions.isUserWrite():

@@ -1,8 +1,6 @@
 import os.path
 import sys
 import datetime
-import logging
-import logging.handlers
 
 # Django settings for OMERO.web project.
 DEBUG = False # if True handler404 and handler500 works only when False
@@ -138,8 +136,8 @@ DEFAULT_USER = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__),
 
 # LOGS
 # to change the log place, please specify new path for LOGDIR.
-# LOGDIR = os.path.join(os.path.dirname(__file__), 'log')
-LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), 'var'), 'log')
+# LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
+LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), 'var'), 'log').replace('\\','/')
 
 if not os.path.isdir(LOGDIR):
     try:
@@ -147,20 +145,3 @@ if not os.path.isdir(LOGDIR):
     except Exception, x:
         exctype, value = sys.exc_info()[:2]
         raise exctype, value
-
-LOGFILE = ('OMEROweb.log')
-logging.basicConfig(level=logging.INFO,
-                format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                datefmt='%a, %d %b %Y %H:%M:%S',
-                filename=os.path.join(LOGDIR, LOGFILE),
-                filemode='w')
-
-fileLog = logging.handlers.TimedRotatingFileHandler(os.path.join(LOGDIR, LOGFILE),'midnight',1)
-fileLog.doRollover()
-fileLog.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(message)s')
-fileLog.setFormatter(formatter)
-logging.getLogger().addHandler(fileLog)
-
-# Starting...
-logging.info("Application Started...")
