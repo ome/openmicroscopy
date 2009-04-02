@@ -30,6 +30,7 @@ import omero.internal._ClusterNodeDisp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
@@ -345,39 +346,32 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
                 });
     }
 
+    /**
+     * Assumes that the given manager is no longer available and so will not
+     * attempt to call cache.removeSession() since that requires the session to
+     * be in memory. Instead directly modifies the database to set the session
+     * to closed.
+     * 
+     * @param managerUuid
+     * @return
+     */
     @SuppressWarnings("unchecked")
-    private int closeSessionsForManager(String managerUuid) {
-        final String query = "select session from Session session where "
-                + "session.node.uuid = :uuid and session.closed is null";
-        final Parameters p = new Parameters().addString("uuid", managerUuid);
+    private int closeSessionsForManager(final String managerUuid) {
+
+        final String sql = "update Session set closed = now() where "
+                + "closed is null and node in "
+                + "(select id from Node where uuid = :uuid)";
 
         // First look up the sessions in on transaction
-        final List<ome.model.meta.Session> sessions = (List<ome.model.meta.Session>) executor
-                .execute(principal, new Executor.SimpleWork(this,
-                        "findAllSessions") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        List<ome.model.meta.Session> sessions = sf
-                                .getQueryService().findAllByQuery(query, p);
-                        return sessions;
-                    }
-                });
-
-        // Then call removeSession which will start it's own transaction
-        for (ome.model.meta.Session s : sessions) {
-            // TODO this could possibly be better done by raising a
-            // new message which is received by SessionManagerImpl
-            // and then passes it to SessionCache.
-            try {
-                cache.removeSession(s.getUuid());
-            } catch (Exception e) {
-                log
-                        .error("Error calling cache.removeSession "
-                                + s.getUuid(), e);
+        return (Integer) executor.execute(principal, new Executor.SimpleWork(
+                this, "executeUpdate - set closed = now()") {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                Query q = session.createSQLQuery(sql);
+                q.setParameter("uuid", managerUuid);
+                return q.executeUpdate();
             }
-
-        }
-        return sessions.size();
+        });
     }
 
     private void setManagerDown(final String managerUuid) {
@@ -385,12 +379,10 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
                 "setManagerDown") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                Node node = sf.getQueryService().findByQuery(
-                        "select n from Node n where uuid = :uuid",
-                        new Parameters().addString("uuid", managerUuid)
-                                .setFilter(new Filter().page(0, 1)));
-                node.setDown(new Timestamp(System.currentTimeMillis()));
-                return sf.getUpdateService().saveAndReturnObject(node);
+                Query q = session.createSQLQuery("update Node set down = now()" +
+                		" where uuid = :uuid");
+                q.setParameter("uuid", managerUuid);
+                return q.executeUpdate();
             }
         });
     }
