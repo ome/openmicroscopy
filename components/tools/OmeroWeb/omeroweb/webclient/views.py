@@ -34,7 +34,6 @@ import cStringIO
 import datetime
 import httplib
 import Ice
-import Image,ImageDraw
 import locale
 import logging
 import traceback
@@ -412,6 +411,9 @@ def login(request):
                     if request.session['username']:
                         data = {'server': unicode(blitz[0].id), 'username':unicode(request.session['username']) }
                         form = LoginForm(data=data)
+                    else:
+                        initial = {'server': unicode(blitz[0].id)}
+                        form = LoginForm(initial=initial)
                 except:
                     initial = {'server': unicode(blitz[0].id)}
                     form = LoginForm(initial=initial)
@@ -3375,14 +3377,3 @@ def spellchecker(request):
         con.close()
         return HttpResponse(r_text, mimetype='text/javascript')
 
-
-def defaultThumbnail():
-    img = Image.new("RGB", (200,200), "#FFF")
-    draw = ImageDraw.Draw(img)
-    draw.text((73,95), "no image", font=None, fill="#000")
-    draw.line((0,0) + img.size, fill=128)
-    draw.line((0, img.size[1], img.size[0], 0), fill=128)
-    f = cStringIO.StringIO()
-    img.save(f, "PNG")
-    f.seek(0)
-    return f.read()

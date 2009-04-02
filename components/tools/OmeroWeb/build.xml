@@ -31,7 +31,7 @@
 
     <target name="_test">
         <exec dir="${basedir}/omeroweb" executable="python" failonerror="fals">
-            <env key="PYTHONPATH" value="${omero.home}/dist/lib"/>
+            <env key="PYTHONPATH" value="${omero.home}/dist/lib/python"/>
            <arg line="manage.py test"/>
         </exec>
     </target>
@@ -41,14 +41,14 @@
     <target name="integration" depends="_test"/>
 
     <target name="tools-init">
-        <untar compression="gzip" src="${lib.dir}/repository/django-lib-1.0.tar.gz" dest="${basedir}/omeroweb"/>
+        <untar compression="gzip" src="${lib.dir}/repository/django-lib-1.0.tar.gz" dest="${basedir}/../target/lib/python"/>
     </target>
 
     <target name="tools-build" depends="tools-init"/>
 
     <target name="tools-dist" depends="tools-build" description="Copies files into tools/target">
-        <copy todir="${basedir}/../target/lib/omeroweb">
-            <fileset dir="omeroweb" excludes="**/*.pyc,logs,db.sqlite3"/>
+        <copy todir="${basedir}/../target/lib/python/omeroweb">
+            <fileset dir="omeroweb" excludes="**/*.pyc,logs,log,db.sqlite3"/>
         </copy>
     </target>
 
@@ -56,6 +56,7 @@
         <delete dir="${basedir}/omeroweb/db.sqlite3"/>
         <delete dir="${basedir}/omeroweb/django"/>
         <delete dir="${basedir}/omeroweb/logs"/>
+        <delete dir="${basedir}/omeroweb/log"/>
         <delete>
             <fileset dir="${basedir}" includes="**/*.pyc"/>
         </delete>
