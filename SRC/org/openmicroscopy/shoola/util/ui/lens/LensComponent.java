@@ -364,9 +364,8 @@ public class LensComponent
 	 * 
 	 * @param image The image to zoom.
 	 * @return Se above.
-	 * @throws Exception 
 	 */
-	public BufferedImage createZoomedImage(BufferedImage image) throws Exception
+	public BufferedImage createZoomedImage(BufferedImage image)
 	{
 		if (image == null) return null;
 		return lensModel.createZoomedImage(image);

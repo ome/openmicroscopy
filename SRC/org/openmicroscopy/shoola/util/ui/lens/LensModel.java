@@ -287,11 +287,12 @@ class LensModel
      */
 	BufferedImage getZoomedImage()
 	{
-		if(UIUtilities.getFreeMemory()<MINHEAPSIZE)
-		{
+		/*
+		if (UIUtilities.getFreeMemory() < MINHEAPSIZE) {
 			Runtime.getRuntime().gc();
 			return null;
 		}
+		*/
 		try {
 			if (planeImage == null) return null;
 			ColorModel cm = planeImage.getColorModel();
@@ -301,7 +302,7 @@ class LensModel
 																		null);
 			return scaleBufferedImage(img, zoomFactor, zoomFactor);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			Runtime.getRuntime().gc();
 		}
 		return null;
 	}

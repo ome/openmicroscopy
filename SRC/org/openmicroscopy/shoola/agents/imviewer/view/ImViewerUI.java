@@ -1460,7 +1460,6 @@ class ImViewerUI
 				break;
 			case ImViewer.GRID_INDEX:
 				img = model.getGridImage();
-				break;
 		}
 		int width = lens.getLensUI().getWidth();
 		int height = lens.getLensUI().getHeight();
