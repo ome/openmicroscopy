@@ -119,7 +119,7 @@ class OMEEditPane
 				selectAll();
 			else {
 				setText(text);
-				int n = text.length()-1;
+				int n = text.length();//-1;
 				if (n >= 0) setCaretPosition(n);
 			}
 		}

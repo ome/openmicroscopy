@@ -36,14 +36,12 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The Lens model controls the manipulation of the lens, creating the zoomed 
@@ -187,7 +185,6 @@ class LensModel
 	 * @param xScale	x scale factor for image, as a percent. 
 	 * @param yScale	y scale factor for image, as a percent.
 	 * @return thumbImage scaled image.
-	 * @see ome.api.IScale#scaleBufferedImage(BufferedImage, float, float)
 	 */
     private BufferedImage scaleBufferedImage(BufferedImage image,
                                             float xScale, float yScale)
