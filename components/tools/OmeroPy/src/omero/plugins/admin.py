@@ -149,7 +149,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             if -1 < output.find("does not exist"):
                  command = [
                        "sc", "create", svc_name,
-                       "binPath=","""C:\\Ice-3.3.0\\bin\\icegridnode.exe "%s" --deploy "%s" --service %s""" % (self._icecfg(), descript, svc_name),
+                       "binPath=","""icegridnode.exe "%s" --deploy "%s" --service %s""" % (self._icecfg(), descript, svc_name),
                        "DisplayName=", svc_name,
                        "start=","auto"]
                        #'obj="NT Authority\LocalService"',
