@@ -226,6 +226,26 @@ public class SessionCache implements ApplicationContextAware {
             waitForUpdate();
         }
 
+        SessionContext ctx = (SessionContext) getElementNullOrThrowOnTimeout(
+                uuid, true).getObjectValue();
+
+        // Up'ing access time
+        sessions.get(uuid);
+        return ctx;
+    }
+
+    /**
+     * Gets the {@link SessionContext} without upping its access information and
+     * instead checks the current values for timeouts. Can optionally return
+     * null or throw an exception.
+     * 
+     * @param uuid
+     * @param strict
+     *            If true, an exception will be raised on timeout; otherwise
+     *            null returned.
+     * @return
+     */
+    private Element getElementNullOrThrowOnTimeout(String uuid, boolean strict) {
         //
         // All times are in milliseconds
         //
@@ -239,7 +259,11 @@ public class SessionCache implements ApplicationContextAware {
             // element to be set to null. That's no longer allowed
             // and will only occur by a call to internalRemove,
             // making that call unneeded.
-            throw new RemovedSessionException("No context for " + uuid);
+            if (strict) {
+                throw new RemovedSessionException("No context for " + uuid);
+            } else {
+                return null;
+            }
         }
 
         long lastAccess = elt.getLastAccessTime();
@@ -265,16 +289,21 @@ public class SessionCache implements ApplicationContextAware {
         if (0 < timeToLive && timeToLive < alive) {
             String reason = reason("timeToLive", lastAccess, hits, start,
                     timeToLive, (alive - timeToLive));
-            throw new SessionTimeoutException(reason);
+            if (strict) {
+                throw new SessionTimeoutException(reason);
+            } else {
+                return null;
+            }
         } else if (0 < timeToIdle && timeToIdle < idle) {
             String reason = reason("timeToIdle", lastAccess, hits, start,
                     timeToIdle, (idle - timeToIdle));
-            throw new SessionTimeoutException(reason);
+            if (strict) {
+                throw new SessionTimeoutException(reason);
+            } else {
+                return null;
+            }
         }
-
-        // Up'ing access time
-        sessions.get(uuid);
-        return ctx;
+        return elt;
     }
 
     private String reason(String why, long lastAccess, long hits, long start,
@@ -293,7 +322,7 @@ public class SessionCache implements ApplicationContextAware {
         try {
 
             if (!sessions.isKeyInCache(uuid)) {
-                log.info("Session already destroyed: " + uuid);
+                log.warn("Session not in cache: " + uuid);
                 return; // EARLY EXIT!
             }
 
@@ -536,26 +565,32 @@ public class SessionCache implements ApplicationContextAware {
                                 + ids.size());
                         long start = System.currentTimeMillis();
                         for (String id : ids) {
-                            Element elt = sessions.getQuiet(id);
-                            SessionContext ctx = (SessionContext) elt
-                                    .getObjectValue();
-                            // May throw an exception
-                            SessionContext replacement = staleCacheListener
-                                    .reload(ctx);
-                            if (replacement == null) {
-                                internalRemove(id, "Replacement null");
+                            Element elt = getElementNullOrThrowOnTimeout(id,
+                                    false);
+                            if (elt == null) {
+                                internalRemove(id, "Timeout");
                             } else {
-                                // Adding and upping access information.
-                                long version = elt.getVersion() + 1;
-                                long creation = elt.getCreationTime();
-                                long access = elt.getLastAccessTime();
-                                long nextToLast = elt.getNextToLastAccessTime();
-                                long update = System.currentTimeMillis();
-                                long hits = elt.getHitCount();
-                                Element fresh = new Element(id, replacement,
-                                        version, creation, access, nextToLast,
-                                        update, hits);
-                                sessions.putQuiet(fresh);
+                                SessionContext ctx = (SessionContext) elt
+                                        .getObjectValue();
+                                // May throw an exception
+                                SessionContext replacement = staleCacheListener
+                                        .reload(ctx);
+                                if (replacement == null) {
+                                    internalRemove(id, "Replacement null");
+                                } else {
+                                    // Adding and upping access information.
+                                    long version = elt.getVersion() + 1;
+                                    long creation = elt.getCreationTime();
+                                    long access = elt.getLastAccessTime();
+                                    long nextToLast = elt
+                                            .getNextToLastAccessTime();
+                                    long update = System.currentTimeMillis();
+                                    long hits = elt.getHitCount();
+                                    Element fresh = new Element(id,
+                                            replacement, version, creation,
+                                            access, nextToLast, update, hits);
+                                    sessions.putQuiet(fresh);
+                                }
                             }
                         }
                         success = true;

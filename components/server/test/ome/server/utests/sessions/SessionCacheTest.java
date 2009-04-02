@@ -21,6 +21,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import ome.conditions.DatabaseBusyException;
 import ome.conditions.InternalException;
 import ome.conditions.RemovedSessionException;
 import ome.conditions.SessionException;
@@ -220,7 +221,7 @@ public class SessionCacheTest extends TestCase {
         t1.barrier.await();
         t1.join();
         assertNotNull(t1.ex);
-        assertTrue(t1.ex instanceof InternalException);
+        assertTrue(t1.ex.toString(), t1.ex instanceof DatabaseBusyException);
         assertTrue(done[0]);
 
     }
