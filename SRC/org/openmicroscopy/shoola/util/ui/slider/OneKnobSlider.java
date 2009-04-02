@@ -103,7 +103,7 @@ public class OneKnobSlider
 	
 	/**
 	 * Returns <code>true</code> if the  arrows on the track, 
-   * <code>false</code> otherwise.
+	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
@@ -111,7 +111,7 @@ public class OneKnobSlider
 	
 	/**
 	 * Shows the arrows on the track if the passed value is <code>true</code>,
-   * hides otherwise.
+	 * hides otherwise.
 	 * 
 	 * @param isShow See above.
 	 */
@@ -156,32 +156,32 @@ public class OneKnobSlider
 	
 	/**
 	 * Returns <code>true</code> if the component has an <code>endLabel</code>,
-   * <code>false</code> otherwise.
+	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above. 
 	 */
 	public boolean hasEndLabel() { return hasLabel; }
 	
-  /**
-   * Shows the end label if set to <code>true</code>, hides it 
-   * <code>otherwise</code>.
-   *  
-   * @param show  Pass <code>true</code> to show the label, 
-   *              <code>false</code> otherwise.
-   */
+	/**
+	 * Shows the end label if set to <code>true</code>, hides it 
+	 * <code>otherwise</code>.
+	 *  
+	 * @param show  Pass <code>true</code> to show the label, 
+	 *              <code>false</code> otherwise.
+	 */
 	public void setShowEndLabel(boolean show)
 	{
 		showEndLabel = show;
 		sliderUI.setShowEndLabel(show);
 	}
 	
-  /**
-   * Shows the tip label if set to <code>true</code>, hides it 
-   * <code>otherwise</code>.
-   *  
-   * @param show Pass <code>true</code> to show the tip label, 
-   *              <code>false</code> otherwise.
-   */
+	/**
+	 * Shows the tip label if set to <code>true</code>, hides it 
+	 * <code>otherwise</code>.
+	 *  
+	 * @param show Pass <code>true</code> to show the tip label, 
+	 *              <code>false</code> otherwise.
+	 */
 	public void setShowTipLabel(boolean show)
 	{
 		showTipLabel = show;
@@ -208,7 +208,8 @@ public class OneKnobSlider
 	 * Sets the space between the minor ticks. Passes <code>true</code>
 	 * to set the value to <code>0</code>, <code>false</code> otherwise
 	 * 
-	 * @param b 
+	 * @param b Pass <code>true</code> to paint the minor ticks,
+	 * 			<code>false</code> otherwise.
 	 */
 	public void setPaintMinorTicks(boolean b)
 	{
