@@ -279,7 +279,7 @@ class UserNotifierManager
 										path, file.getId().getValue(), 
 										file.getSize().getValue());
 		loader.load();
-		download.addDowloadEntry(path, name, file.getId().getValue());
+		download.addDowloadEntry(dirPath, name, file.getId().getValue());
 		loaders.put(path, loader);
 		
 		if (!download.isVisible())
@@ -327,7 +327,7 @@ class UserNotifierManager
 						path, file.getId().getValue(), 
 						file.getSize().getValue());
         	loader.load();
-        	download.addDowloadEntry(path, name, file.getId().getValue());
+        	download.addDowloadEntry(dirPath, name, file.getId().getValue());
         	loaders.put(path, loader);
 		}
 		

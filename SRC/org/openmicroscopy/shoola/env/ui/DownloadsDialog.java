@@ -200,13 +200,13 @@ class DownloadsDialog
 	/**
 	 * Adds a new entry for the file to download.
 	 * 
-	 * @param absolutePath	The absolute path of the file.
+	 * @param directory		The directory where to download the file.
 	 * @param fileName 		The name of the file.
 	 * @param fileID		The id of the file.
 	 */
-	void addDowloadEntry(String absolutePath, String fileName, long fileID)
+	void addDowloadEntry(String directory, String fileName, long fileID)
 	{
-		FileLoadingComponent c = new FileLoadingComponent(absolutePath, 
+		FileLoadingComponent c = new FileLoadingComponent(directory, 
 											fileName, fileID, icons);
 		c.addPropertyChangeListener(this);
 		components.add(c);
