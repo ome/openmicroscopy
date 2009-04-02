@@ -60,7 +60,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      * is necessary here fore testing.
      */
     private final static List<HardWiredInterceptor> CPTORS = HardWiredInterceptor
-    .parse(new String[] { "ome.security.basic.BasicSecurityWiring" });
+            .parse(new String[] { "ome.security.basic.BasicSecurityWiring" });
 
     private final static Log log = LogFactory.getLog(SessionManagerI.class);
 
@@ -114,13 +114,29 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             wrapped.type = "ApiUsageException";
             throw wrapped;
         }
-        
+
         try {
 
-            Glacier2.SessionPrx sf = ring.getProxyOrNull(userId, control,
-                    current);
-            if (sf != null) {
-                return sf; // EARLY EXIT
+            // Before asking the ring, see if we already have the
+            // session locally.
+            boolean local = false;
+            try {
+                Object o = sessionManager.find(userId);
+                local = (o != null);
+                log.info("Found session locally: " + userId);
+            } catch (Exception e) {
+                log.debug("Exception while waiting on "
+                        + "SessionManager.find " + e);
+            }
+
+            // If not, then give the ring a chance to redirect to
+            // other instances which may already have it.
+            if (!local) {
+                Glacier2.SessionPrx sf = ring.getProxyOrNull(userId, control,
+                        current);
+                if (sf != null) {
+                    return sf; // EARLY EXIT
+                }
             }
 
             // Defaults
@@ -208,7 +224,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                     || t instanceof ome.conditions.ApiUsageException || t instanceof ome.conditions.SecurityViolation)) {
                 log.error("Error while creating ServiceFactoryI", t);
             }
-            
+
             WrappedCreateSessionException wrapped = new WrappedCreateSessionException();
             wrapped.backOff = -1;
             wrapped.concurrency = false;
