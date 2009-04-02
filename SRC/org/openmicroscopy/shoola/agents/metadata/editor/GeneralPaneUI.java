@@ -28,14 +28,20 @@ import java.awt.Cursor;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.border.TitledBorder;
 
 //Third-party libraries
 import layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
+import org.jdesktop.swingx.JXTaskPaneContainer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
@@ -43,6 +49,10 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+
+import com.sun.tools.doclets.formats.html.AllClassesFrameWriter;
+
 import pojos.AnnotationData;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
@@ -69,6 +79,9 @@ class GeneralPaneUI
 	extends JScrollPane
 {
 
+	/** The default height. */
+	private static final int			DEFAULT_H = 5;
+	
 	/** Reference to the controller. */
 	private EditorControl				controller;
 	
@@ -114,6 +127,11 @@ class GeneralPaneUI
 	/** Collection of preview panels. */
 	private List<PreviewPanel>			previews;
 	
+	/** Collection of preview panes. */
+	private List<JXTaskPane>			panes;
+	
+	private int							defaultProtocolHeight;
+	
 	/**
 	 * Loads or cancels any on-going loading of containers hosting
 	 * the edited object.
@@ -154,6 +172,7 @@ class GeneralPaneUI
 											controller);
 		}
 		previews = new ArrayList<PreviewPanel>();
+		panes = new ArrayList<JXTaskPane>(); 
 	}
 	
 	/** Builds and lays out the components. */
@@ -163,7 +182,7 @@ class GeneralPaneUI
 		content.setBackground(UIUtilities.BACKGROUND);
 		double[][]	size = {{TableLayout.FILL}, 
 				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
-				TableLayout.PREFERRED, 0, 0}};
+				TableLayout.PREFERRED, 0, 5, 0}};
 		int i = 0;
 		content.setLayout(new TableLayout(size));
 
@@ -179,6 +198,7 @@ class GeneralPaneUI
 		i++;
 		protocolsIndex = i;
 		content.add(protocolComponent, "0, "+i);
+		i++;
 		i++;
 		browserIndex = i;
 		content.add(browserTaskPane, "0, "+i);
@@ -207,9 +227,10 @@ class GeneralPaneUI
 	{
 		Collection list = model.getAttachments();
 		protocolComponent.removeAll();
-		TableLayout layout = new TableLayout();
-		double[] size = {TableLayout.FILL};
-		layout.setColumn(size);
+		
+		double[][] size = {{TableLayout.FILL}, {TableLayout.PREFERRED}};
+		//layout.setColumn(size);
+		TableLayout layout = new TableLayout(size);
 		protocolComponent.setLayout(layout);
 		if (list.size() == 0) return 0;
 		Iterator i = list.iterator();
@@ -220,6 +241,12 @@ class GeneralPaneUI
 		String ns;
 		int index = 0;
 		previews.clear();
+		panes.clear();
+		JXTaskPaneContainer container = new JXTaskPaneContainer();
+		container.setBackground(UIUtilities.BACKGROUND_COLOR);
+		container.setBorder(new TitledLineBorder("Protocols and Experiments"));
+		
+		int height = 0;
 		while (i.hasNext()) {
 			fa = (FileAnnotationData) i.next();
 			ns = fa.getNameSpace();
@@ -230,16 +257,20 @@ class GeneralPaneUI
 					previews.add(preview);
 					preview.addPropertyChangeListener(controller);
 					pane = EditorUtil.createTaskPane(fa.getFileName());
+					pane.addPropertyChangeListener(controller);
+					panes.add(pane);
+					height += pane.getMinimumSize().height;
 					pane.add(preview);
-					pane.setCollapsed(true);
-					layout.insertRow(index, TableLayout.PREFERRED);
-					protocolComponent.add(pane, "0, "+index);
+					container.add(pane);
+					//layout.insertRow(index, 46/2+1);//TableLayout.PREFERRED);
+					//protocolComponent.add(pane, "0, "+index);
 					index++;
 				}
 			}
 		}
-		
-		return index;
+		protocolComponent.add(container, "0, 0");
+		if (index != 0) height += DEFAULT_H;
+		return height;//index;
 	}
 	
 	/**
@@ -317,7 +348,10 @@ class GeneralPaneUI
 		}
 		int n = buildProtocolTaskPanes();
 		double hp = 0;
-		if (n > 0) hp = TableLayout.PREFERRED;
+		if (n > 0) {
+			defaultProtocolHeight = n;
+			hp = n;//TableLayout.PREFERRED;
+		}
 		layout.setRow(protocolsIndex, hp);
 		if (h != 0.0 && !browserTaskPane.isCollapsed()) {
 			loadParents(true);
@@ -330,7 +364,7 @@ class GeneralPaneUI
 	 * 
 	 * @return See above.
 	 */
-	List<AnnotationData>[] prepareDataToSave()
+	Map<Integer, List<AnnotationData>> prepareDataToSave()
 	{
 		if (!model.isMultiSelection()) propertiesUI.updateDataObject();
 		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
@@ -349,11 +383,11 @@ class GeneralPaneUI
 		l = textualAnnotationsUI.getAnnotationToRemove();
 		if (l != null && l.size() > 0)
 			toRemove.addAll(l);
-		List<AnnotationData>[] array = new List[2];
-		array[0] = toAdd;
-		array[1] = toRemove;
-		return array;
-		
+		Map<Integer, List<AnnotationData>> 
+			map = new HashMap<Integer, List<AnnotationData>>();
+		map.put(EditorUI.TO_ADD, toAdd);
+		map.put(EditorUI.TO_REMOVE, toRemove);
+		return map;
 	}
 	
 	/** Updates display when the new root node is set. */
@@ -461,6 +495,27 @@ class GeneralPaneUI
 		if (source == null) return;
 		if  (source.equals(browserTaskPane)) 
 			loadParents(!browserTaskPane.isCollapsed());
+		else {
+			if (panes.size() == 0) return;
+			if (!panes.contains(source)) return;
+			TableLayout layout = (TableLayout) content.getLayout();
+			if (!source.isCollapsed()) {
+				layout.setRow(protocolsIndex, TableLayout.PREFERRED);
+			} else {
+				Iterator<JXTaskPane> i = panes.iterator();
+				JXTaskPane p;
+				int all = 0;
+				while (i.hasNext()) {
+					p = i.next();
+					if (p.isCollapsed()) all++;
+				}
+				if (all == panes.size())
+					layout.setRow(protocolsIndex,defaultProtocolHeight);
+				else layout.setRow(protocolsIndex, TableLayout.PREFERRED);
+			}
+			content.validate();
+			content.repaint();
+		}
 	}
 
 	/**

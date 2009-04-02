@@ -143,8 +143,7 @@ class WellsModel
 		wellDimension = null;
 		this.parent = parent;
 		long userID = DataBrowserAgent.getUserDetails().getId();
-		Set nodes = DataBrowserTranslator.transformHierarchy(wells, 
-							userID, 0);
+		Set nodes = DataBrowserTranslator.transformHierarchy(wells, userID, 0);
 		
 		wellNodes = sortByRow(nodes);
 		

@@ -38,6 +38,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import javax.swing.JPanel;
+
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 

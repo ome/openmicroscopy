@@ -30,6 +30,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -72,9 +74,12 @@ public class DataBrowserFactory
 	/** Discards all the tracked {@link DataBrowser}s. */
 	public static final void discardAll()
 	{
-		Iterator<String> i = singleton.browsers.keySet().iterator();
-		while (i.hasNext()) 
-			singleton.discardedBrowsers.add(i.next());
+		Iterator i = singleton.browsers.entrySet().iterator();
+		Entry entry;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			singleton.discardedBrowsers.add((String) entry.getKey());
+		}
 		singleton.browsers.clear();
 	}
 	
@@ -204,9 +209,14 @@ public class DataBrowserFactory
 		if (ids != null && ids.size() > 0) {
 			if (singleton.searchBrowser != null)
 				singleton.searchBrowser.reloadThumbnails(ids);
-			Iterator i = singleton.browsers.keySet().iterator();
-			while (i.hasNext())
-				singleton.browsers.get(i.next()).reloadThumbnails(ids);
+			Iterator i = singleton.browsers.entrySet().iterator();
+			Entry entry;
+			DataBrowserComponent comp;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				comp = (DataBrowserComponent) entry.getValue();
+				comp.reloadThumbnails(ids);
+			}
 		}
 	}
 	
@@ -219,10 +229,12 @@ public class DataBrowserFactory
 	public static final void setRndSettingsToCopy(boolean rndSettingsToCopy)
 	{
 		singleton.rndSettingsToCopy = rndSettingsToCopy; 
-		Iterator v = singleton.browsers.keySet().iterator();
+		Iterator v = singleton.browsers.entrySet().iterator();
 		DataBrowserComponent comp;
+		Entry entry;
 		while (v.hasNext()) {
-			comp = (DataBrowserComponent) singleton.browsers.get(v.next());
+			entry = (Entry) v.next();
+			comp = (DataBrowserComponent) entry.getValue();
 			comp.notifyRndSettingsToCopy();
 		}
 		if (singleton.searchBrowser != null)
@@ -239,10 +251,12 @@ public class DataBrowserFactory
 	public static final void setDataToCopy(Class dataToCopy)
 	{
 		singleton.dataToCopy = dataToCopy;
-		Iterator v = singleton.browsers.keySet().iterator();
+		Iterator v = singleton.browsers.entrySet().iterator();
 		DataBrowserComponent comp;
+		Entry entry;
 		while (v.hasNext()) {
-			comp = (DataBrowserComponent) singleton.browsers.get(v.next());
+			entry = (Entry) v.next();
+			comp = (DataBrowserComponent) entry.getValue();
 			comp.notifyDataToCopy();
 		}
 		if (singleton.searchBrowser != null)
