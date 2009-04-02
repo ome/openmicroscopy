@@ -82,6 +82,20 @@ public interface IObjectContainerStore
     void setUserSpecifiedImageDescription(String description);
     
     /**
+     * Returns the user specified linkage target (usually a Dataset for Images
+     * and a Screen for Plates).
+     * @return See above.
+     */
+    IObject getUserSpecifiedTarget();
+    
+    /**
+     * Sets the user specified linkage target (usually a Dataset for Images
+     * and a Screen for Plates).
+     * @param name user specified image description
+     */
+    void setUserSpecifiedTarget(IObject target);
+    
+    /**
      * Returns the current container cache.
      * @return See above.
      */

@@ -62,6 +62,12 @@ public class ReferenceProcessor implements ModelProcessor
                 IObjectContainer container = containerCache.get(target);
                 if (container == null)
                 {
+                	// Handle the cases where a "Settings" object has been
+                	// used to link an element of the Instrument to the Image
+                	// but there were no acquisition specific settings to
+                	// record. Hence, the "Settings" object needs to be created
+                	// as no MetadataStore methods pertaining to the "Settings"
+                	// object have been entered.
                     Class targetClass = target.getJavaClass();
                     LinkedHashMap<String, Integer> indexes = 
                         new LinkedHashMap<String, Integer>();

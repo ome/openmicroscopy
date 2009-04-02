@@ -12,6 +12,8 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import omero.ServerError;
 import omero.model.Dataset;
+import omero.model.IObject;
+import omero.model.Screen;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -79,24 +81,26 @@ public class CommandLineImporter
     /**
      * Imports an image into OMERO.
      * @param path The file path to import.
-     * @param datasetId The Id of the dataset to import the image into.
+     * @param targetClass The class of the target object to import the image
+     * into.
+     * @param targetId The Id of the target object to import the image into.
      * @param name Image name to use for import.
      * @param description Image description to use for import.
      * @throws IOException If there is an error reading from <code>path</code>.
      * @throws FormatException If there is an error parsing metadata.
      * @throws ServerError If there is a problem interacting with the server.
      */
-    public void importImage(String path, Long datasetId, String name,
-    		                String description)
+    public void importImage(String path, Class<? extends IObject> targetClass,
+    						Long targetId, String name, String description)
         throws IOException, FormatException, ServerError
     {
         File f = new File(path);
-        Dataset d = null;
-        if (datasetId != null)
+        IObject target = null;
+        if (targetId != null)
         {
-            d = store.getDataset(datasetId);
+            target = store.getTarget(targetClass, targetId);
         }
-        library.setDataset(d);
+        library.setTarget(target);
         library.importImage(f, 0, 0, 1, name, description, false);
         store.logout();
     }
@@ -126,6 +130,7 @@ public class CommandLineImporter
                 "\n" +
                 "Optional arguments:\n" +
                 "  -d\tOMERO dataset Id to import image into\n" +
+                "  -r\tOMERO screen Id to import plate into\n" +
                 "  -n\tImage name to use\n" +
                 "  -x\tImage description to use\n" +
                 "  -p\tOMERO server port [defaults to 4063]\n" +
@@ -150,14 +155,15 @@ public class CommandLineImporter
      */
     public static void main(String[] args)
     {
-        Getopt g = new Getopt(APP_NAME, args, "s:u:w:d:k:x:n:p:h");
+        Getopt g = new Getopt(APP_NAME, args, "s:u:w:d:r:k:x:n:p:h");
         int a;
         String username = null;
         String password = null;
         String sessionKey = null;
         String hostname = null;
         int port = PORT;
-        Long datasetId = null;
+        Class<? extends IObject> targetClass = null;
+        Long targetId = null;
         String name = null;
         String description = null;
         while ((a = g.getopt()) != -1)
@@ -191,8 +197,15 @@ public class CommandLineImporter
                 }
                 case 'd':
                 {
-                    datasetId = Long.parseLong(g.getOptarg());
+                	targetClass = Dataset.class;
+                    targetId = Long.parseLong(g.getOptarg());
                     break;
+                }
+               	case 'r':
+                {
+                	targetClass= Screen.class;
+                	targetId = Long.parseLong(g.getOptarg());
+                	break;
                 }
                 case 'n':
                 {
@@ -241,7 +254,7 @@ public class CommandLineImporter
                 c = new CommandLineImporter(username, password, hostname, port);
             }
             c.library.addObserver(new LoggingImportMonitor());
-            c.importImage(path, datasetId, name, description);
+            c.importImage(path, targetClass, targetId, name, description);
             System.exit(0);  // Exit with specified return code
         }
         catch (Throwable t)

@@ -39,7 +39,9 @@ import ome.formats.model.InstrumentProcessor;
 import ome.formats.model.PixelsProcessor;
 import ome.formats.model.InstanceProvider;
 import ome.formats.model.ModelProcessor;
+import ome.formats.model.PlateProcessor;
 import ome.formats.model.ReferenceProcessor;
+import ome.formats.model.TargetProcessor;
 import ome.util.LSID;
 import omero.RBool;
 import omero.RDouble;
@@ -70,8 +72,6 @@ import omero.model.ContrastMethod;
 import omero.model.Correction;
 import omero.model.Dataset;
 import omero.model.DatasetI;
-import omero.model.DatasetImageLink;
-import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.DetectorType;
@@ -183,6 +183,9 @@ public class OMEROMetadataStoreClient
     /** Image description that the user specified for use by model processors. */
     private String userSpecifiedImageDescription;
     
+    /** Linkage target for all Images/Plates. */
+    private IObject userSpecifiedTarget;
+    
     /** Image channel minimums and maximums. */
     private double[][][] imageChannelGlobalMinMax;
     
@@ -210,10 +213,12 @@ public class OMEROMetadataStoreClient
     	instanceProvider = new BlitzInstanceProvider(enumProvider);
     	
     	// Default model processors
-    	modelProcessors.add(new ReferenceProcessor());
         modelProcessors.add(new PixelsProcessor());
     	modelProcessors.add(new ChannelProcessor());
     	modelProcessors.add(new InstrumentProcessor());
+    	modelProcessors.add(new TargetProcessor());
+    	modelProcessors.add(new PlateProcessor());
+    	modelProcessors.add(new ReferenceProcessor());
     	
     	// Start our keep alive executor
         if (executor == null)
@@ -476,6 +481,22 @@ public class OMEROMetadataStoreClient
     public void setUserSpecifiedImageDescription(String description)
     {
         this.userSpecifiedImageDescription = description;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedTarget()
+     */
+    public IObject getUserSpecifiedTarget()
+    {
+        return userSpecifiedTarget;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedTarget(omero.model.IObject)
+     */
+    public void setUserSpecifiedTarget(IObject target)
+    {
+        this.userSpecifiedTarget = target;
     }
     
     /**
@@ -2211,7 +2232,7 @@ public class OMEROMetadataStoreClient
         		}
         	}
             
-        	log.debug("\nStarting references....");
+        	log.debug("Starting references....");
 
         	if (log.isDebugEnabled())
         	{
@@ -2222,7 +2243,7 @@ public class OMEROMetadataStoreClient
         			log.debug(s);
         		}
         		
-        		log.debug("\ncontainerCache contains " + containerCache.size()
+        		log.debug("containerCache contains " + containerCache.size()
         				  + " entries.");
         		log.debug("referenceCache contains " + referenceCache.size()
         				  + " entries.");
@@ -2249,36 +2270,6 @@ public class OMEROMetadataStoreClient
         }
     }
 
-    /**
-     * Links the Image objects of Pixels returned after a {@link saveToDb()}
-     * action to a particular dataset.
-     * @param pixelsList List of Pixels objects whose Images we are to link.
-     * @param dataset Dataset to link to.
-     */
-    public void addImagesToDataset(List<Pixels> pixelsList, Dataset dataset)
-    {   
-        try
-        {
-        	List<IObject> links = 
-        		new ArrayList<IObject>(pixelsList.size());
-        	Dataset unloadedDataset = new DatasetI(dataset.getId(), false);
-        	for (int i = 0; i < pixelsList.size(); i++)
-        	{
-        		RLong imageId = pixelsList.get(i).getImage().getId();
-        		Image unloadedImage = new ImageI(imageId, false);
-                DatasetImageLink l = new DatasetImageLinkI();
-                l.setChild(unloadedImage);
-                l.setParent(unloadedDataset);
-        		links.add(l);
-        	}
-        	iUpdate.saveArray(links);
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
     public Project getProject(long projectId)
     {
         try
@@ -2291,11 +2282,12 @@ public class OMEROMetadataStoreClient
         }
     }
 
-    public Dataset getDataset(long datasetId)
+    @SuppressWarnings("unchecked")
+	public <T extends IObject> T getTarget(Class<T> klass, long id)
     {
         try
         {
-            return (Dataset) iQuery.get("Dataset", datasetId);
+            return (T) iQuery.get(klass.getName(), id);
         }
         catch (ServerError e)
         {
@@ -2700,21 +2692,11 @@ public class OMEROMetadataStoreClient
 			int[] xIndexes = x.getIndexes();
 			int[] yIndexes = y.getIndexes();
 			
-			// Handle the null class (unparsable internal reference) case.
-			if (xClass == null)
+			// Handle the null class (one or more unparsable internal 
+			// references) case.
+			if (xClass == null || yClass == null)
 			{
-			    int stringDifference = 
-			        stringComparator.compare(x.toString(), y.toString());
-				if (yClass == null || stringDifference == 0)
-				{
-					// Handle different supplied LSIDs by string difference.
-				    return stringDifference;
-				}
-				return 1;
-			}
-			if (yClass == null)
-			{
-				return -1;
+				return stringComparator.compare(x.toString(), y.toString()); 
 			}
 
 			// Assign values to the classes

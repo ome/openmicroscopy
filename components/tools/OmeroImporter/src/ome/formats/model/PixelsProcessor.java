@@ -42,8 +42,9 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * Processes the pixels sets of an IObjectContainerStore and ensures
- * that LogicalChannel containers are present in the container cache, adding
- * them if they are missing.
+ * that Image containers are present, Image.acquisitionDate is filled out and
+ * that the Image name and description match that which was specified by the
+ * user if the if provided either.
  *   
  * @author Chris Allan <callan at blackcat dot ca>
  *
@@ -57,7 +58,6 @@ public class PixelsProcessor implements ModelProcessor
     private Timestamp earliestMTime;
     
     private IFormatReader reader;
-
 
     /**
      * Processes the OMERO client side metadata store.

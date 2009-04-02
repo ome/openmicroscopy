@@ -40,9 +40,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Processes the pixels sets of an IObjectContainerStore and ensures
- * that LogicalChannel containers are present in the container cache, adding
- * them if they are missing.
+ * Processes the members of an Instrument (Objective, OTF, Arc Laser and
+ * Filament) and ensures that the Instrument containers are present in the 
+ * container cache, adding them if they are missing.
  *   
  * @author Chris Allan <callan at blackcat dot ca>
  *
@@ -71,9 +71,11 @@ public class InstrumentProcessor implements ModelProcessor
         for (IObjectContainer container : containers)
         {
             Integer instrumentIndex = container.indexes.get("instrumentIndex");
-            Instrument instrument = (Instrument) store.getSourceObject(new LSID(Instrument.class, instrumentIndex));
+            Instrument instrument = 
+            	(Instrument) store.getSourceObject(new LSID(Instrument.class,
+            			                           instrumentIndex));
 
-            // If image is missing
+            // If instrument is missing
             if (instrument == null)
             {
                 LinkedHashMap<String, Integer> indexes = 

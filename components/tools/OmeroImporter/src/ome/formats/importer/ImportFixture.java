@@ -133,7 +133,7 @@ public class ImportFixture
         for (File file : fads.keySet())
         {
             String fileName = file.getAbsolutePath();
-            library.setDataset(fads.get(file));
+            library.setTarget(fads.get(file));
             library.open(fileName);
            	library.importImage(file, 0, 0, 1, file.getAbsolutePath(),
             			        null, false);

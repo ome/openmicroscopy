@@ -42,6 +42,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
+import omero.model.Dataset;
 
 public class FileQueueTable 
     extends JPanel
@@ -322,14 +323,20 @@ public class FileQueueTable
 
         for (int i = 0; i < num; i++)
         {
-            try {
+            try
+            {
                 boolean archive = (Boolean) table.getValueAt(i, 5);
                 File file = new File(table.getValueAt(i, 4).toString());
                 Long projectID = (Long) table.getValueAt(i, 6);
+       	    	// FIXME: This is now "broken" with targets now able to
+       	    	// be of type Screen or Dataset.
                 Long datasetID = (Long) table.getValueAt(i,3);
                 String imageName = table.getValueAt(i, 0).toString();
-                fads[i] = new ImportContainer(file, projectID, datasetID, imageName, archive);            }
-            catch (ArrayIndexOutOfBoundsException e) {
+                fads[i] = new ImportContainer(file, projectID, Dataset.class,
+                		                      datasetID, imageName, archive);
+            }
+            catch (ArrayIndexOutOfBoundsException e)
+            {
             	log.error("Error retrieving project and dataset from table.", e);
             }
 

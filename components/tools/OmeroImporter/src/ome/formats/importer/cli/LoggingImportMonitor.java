@@ -6,7 +6,7 @@ import org.apache.commons.logging.LogFactory;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.util.Actions;
-import omero.model.Dataset;
+import omero.model.IObject;
 
 /**
  * Basic import process monitor that writes information to the log.
@@ -37,6 +37,8 @@ public class LoggingImportMonitor implements IObserver
         else
         {
             /*
+            XXX: Modified to handle new (IObject) target from previous
+            (Dataset) only target.
             (String)  args[0] = shortName;   (Dataset) args[4] = getDataset();
             (Integer) args[1] = index;       (Long) args[5] = pixId;
             (Integer) args[2] = numDone;     (Integer) args[6] = count;
@@ -50,7 +52,7 @@ public class LoggingImportMonitor implements IObserver
                     (Integer) args[1],
                     (Integer) args[2],
                     (Integer) args[3],
-                    (Dataset) args[4],
+                    (IObject) args[4],
                     (Long) args[5],
                     (Integer) args[6],
                     (Integer) args[7]);

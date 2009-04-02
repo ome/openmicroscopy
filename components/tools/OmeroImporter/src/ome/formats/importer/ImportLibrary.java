@@ -36,8 +36,9 @@ import org.apache.commons.logging.LogFactory;
 
 import ome.formats.importer.util.Actions;
 
+
 import omero.ServerError;
-import omero.model.Dataset;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
 
@@ -84,7 +85,7 @@ public class ImportLibrary implements IObservable
     
     private static Log         log = LogFactory.getLog(ImportLibrary.class);
 
-    private Dataset           dataset;
+    private IObject            target;
 
     private OMEROMetadataStoreClient store;
 
@@ -125,14 +126,14 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * Sets the dataset to which images will be imported. Must be called before
+     * Sets the target to which images will be imported. Must be called before
      * {@link #importMetadata()}.
      * 
-     * @param dataset Dataset to be linked to.
+     * @param target Target object to be linked to.
      */
-    public void setDataset(Dataset dataset)
+    public void setTarget(IObject target)
     {
-        this.dataset = dataset;
+        this.target = target;
     }
 
     
@@ -140,12 +141,12 @@ public class ImportLibrary implements IObservable
     // =========================================================================
 
     /**
-     * Returns the current dataset to be linked to imported images.
+     * Returns the current target to be linked to imported images.
      * @return See above.
      */
-    public Dataset getDataset()
+    public IObject getTarget()
     {
-        return dataset;
+        return target;
     }
 
     /** simpler getter for {@link #files} */
@@ -233,14 +234,11 @@ public class ImportLibrary implements IObservable
     	store.setArchive(archive);
     	store.setUserSpecifiedImageName(imageName);
     	store.setUserSpecifiedImageDescription(imageDescription);
+    	store.setUserSpecifiedTarget(target);
     	store.postProcess();
-        
+    	
         log.debug("Saving pixels to DB.");
         List<Pixels> pixelsList = store.saveToDB();
-        if (dataset != null)
-        {
-        	store.addImagesToDataset(pixelsList, dataset);
-        }
         return pixelsList;
     }
 
@@ -341,7 +339,7 @@ public class ImportLibrary implements IObservable
             Pixels pixels = pixList.get(series); 
             long pixId = pixels.getId().getValue(); 
             
-            args[4] = getDataset();
+            args[4] = getTarget();
             args[5] = pixId;
             args[6] = count;
             args[7] = series;

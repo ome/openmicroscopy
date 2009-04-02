@@ -494,8 +494,12 @@ public class FileQueueHandler
                 fileName = (String) historyTable.table.getValueAt(r, 0);
                 file = new File((String) historyTable.table.getValueAt(r, 4));
                 
+                Dataset d = null;
                 try {
-                    datasetName = store.getDataset(datasetID).getName().getValue();
+           	    	// FIXME: This is now "broken" with targets now able to
+           	    	// be of type Screen or Dataset.
+                	d = store.getTarget(Dataset.class, datasetID);
+                    datasetName = d.getName().getValue();
                 } catch (Exception e)
                 {
                 	log.warn("Failed to retrieve dataset: " + datasetID, e);
@@ -512,7 +516,6 @@ public class FileQueueHandler
                 }
                 
                 finalCount = finalCount + 1;
-                Dataset d = store.getDataset(datasetID);
                 
                 row.add(fileName);
                 row.add(projectName + "/" + datasetName);
