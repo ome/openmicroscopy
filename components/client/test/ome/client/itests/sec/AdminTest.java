@@ -208,6 +208,25 @@ public class AdminTest extends AbstractAccountTest {
         assertEquals(s.size(), s2.size());
         assertEquals(dfault.getId(), rootAdmin.getDefaultGroup(id).getId());
     }
+    
+    @Test(groups = "ticket:1104")
+    public void testCreateUserWithPassword() throws Exception {
+        Roles roles = rootAdmin.getSecurityRoles();
+
+        ExperimenterGroup userGrp = new ExperimenterGroup(1L, false);
+
+        Experimenter e = new Experimenter();
+        e.setOmeName(new GUID().asString());
+        e.setFirstName("ticket:1104");
+        e.setLastName("ticket:1104");
+        long eid = rootAdmin.createExperimenterWithPassword(e, "password",
+                userGrp, null);
+        
+        Login ul = new Login(GUID().asString(), "password");
+        ServiceFactory usf = new ServiceFactory(ul);
+        usf.getAdminService().getEventContext();
+        
+    }
 
     // ~ utilities
     // =========================================================================
