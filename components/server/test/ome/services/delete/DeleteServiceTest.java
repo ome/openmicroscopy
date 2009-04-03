@@ -6,12 +6,12 @@
 package ome.services.delete;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
 import ome.api.IDelete;
-import ome.api.IProjection;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
@@ -26,6 +26,9 @@ import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.screen.Plate;
+import ome.model.screen.Well;
+import ome.model.screen.WellSample;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 
@@ -275,33 +278,56 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         Experimenter e1 = loginNewUser();
         Image i1 = makeImage(false);
         Pixels p1 = i1.getPixels(0);
-        
+
         Image i2 = makeImage(false);
         Pixels p2 = i2.getPixels(0);
-        
+
         p2.setRelatedTo(p1);
-        assertEquals(p1.getId(),
-                iUpdate.saveAndReturnObject(p2).getRelatedTo().getId());
+        assertEquals(p1.getId(), iUpdate.saveAndReturnObject(p2).getRelatedTo()
+                .getId());
 
         /*
-        Leads to deadlock:
-        IProjection prj = this.factory.getProjectionService();
-        prj.projectPixels(p1.getId(), p1.getPixelsType(),
-                IProjection.MAXIMUM_INTENSITY, 0, p1.getSizeT(), // T
-                Arrays.asList(0), 0, 0, p1.getSizeZ(), // Z
-                "projection");
-        */
+         * Leads to deadlock: IProjection prj =
+         * this.factory.getProjectionService(); prj.projectPixels(p1.getId(),
+         * p1.getPixelsType(), IProjection.MAXIMUM_INTENSITY, 0, p1.getSizeT(),
+         * // T Arrays.asList(0), 0, 0, p1.getSizeZ(), // Z "projection");
+         */
         factory.getDeleteService().deleteImage(i1.getId(), true);
+    }
+
+    // 4.1 - Plates
+    // =========================================================================
+
+    @Test(groups = "ticket:1228")
+    public void testDeleteByPlate() throws Exception {
+
+        String name = "2007.08.02.16.43.24.xdce";
+        Experimenter e1 = loginNewUser();
+        try {
+            makeImage("classpath:"+name, false);
+
+        } catch (FileNotFoundException fnfe) {
+            // Partial support
+        }
+        Plate p = iQuery.findByQuery("select p from Plate p "
+                + "where name like :name " + "order by id desc",
+                new Parameters().page(0, 1).addString("name",name));
+        
+        factory.getDeleteService().deletePlate(p.getId());
     }
 
     // Helpers
     // =========================================================================
 
     private Image makeImage(boolean withDataset) throws Exception {
+        return makeImage("classpath:tinyTest.d3d.dv", withDataset);
+    }
+
+    private Image makeImage(String path, boolean withDataset) throws Exception {
         MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(
                 this.factory, "");
         try {
-            File test = ResourceUtils.getFile("classpath:tinyTest.d3d.dv");
+            File test = ResourceUtils.getFile(path);
             List<omero.model.Pixels> pixs = fixture.fullImport(test, "test");
             assertEquals(1, pixs.size());
             omero.model.Pixels p = pixs.get(0);

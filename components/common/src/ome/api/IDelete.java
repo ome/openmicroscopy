@@ -180,4 +180,15 @@ public interface IDelete extends ServiceInterface {
      */
     public void deleteSettings(long pixelId);
     
+    /**
+     * Deletes all the images in contained in a plate as if deleted by:
+     * <code>
+     *   deleteImage(id, true)
+     * </code>
+     * so that all Dataset links are broken. All Wells and WellSamples linked
+     * to the Images will be deleted, as well as the Plate itself.
+     *   
+     * @param plateId
+     */
+    public void deletePlate(long plateId);
 }
