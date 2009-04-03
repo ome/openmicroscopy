@@ -39,7 +39,7 @@ if not env.GetOption('clean'):
         env.Exit(1)
     has_boost = conf.CheckBoost()
     if has_boost:
-    	if conf.CheckLib(BOOST_DEBUG):
+	if conf.CheckLib(BOOST_DEBUG):
 	    boost_libs.append(BOOST_DEBUG)
 	elif conf.CheckLib(BOOST_NDEBUG):
 	    boost_libs.append(BOOST_NDEBUG)
@@ -68,7 +68,13 @@ env.Alias('install', install)
 #
 # Build tests
 #
-if has_boost:
+if not has_boost:
+    if "test" in COMMAND_LINE_TARGETS:
+        print "*" * 55
+        print " WARNING: boost_unit_test_framework-mt not installed"
+        print "*" * 55
+        # env.Exit(1)
+else:
     tenv = env.Clone()
     tenv["CPPPATH"].append("test")
     tenv["ENV"]["BOOST_TEST_DYN_LINK"] = "1"
