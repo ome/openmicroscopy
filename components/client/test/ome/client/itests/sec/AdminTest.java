@@ -228,9 +228,9 @@ public class AdminTest extends AbstractAccountTest {
         
         rootAdmin.updateExperimenterWithPassword(e, "password2");
         
-        Login ul = new Login(GUID().asString(), "password2");
-        ServiceFactory usf = new ServiceFactory(ul);
-        usf.getAdminService().getEventContext();
+        Login ul2 = new Login(GUID().asString(), "password2");
+        ServiceFactory usf2 = new ServiceFactory(ul2);
+        usf2.getAdminService().getEventContext();
     }
 
     // ~ utilities

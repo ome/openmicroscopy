@@ -152,9 +152,9 @@ public class AdminTest extends AbstractManagedContextTest {
            
         iAdmin.updateExperimenterWithPassword(e, "password2");
         
-        Login ul = new Login(e.getOmeName(), "password2");
-        ServiceFactory usf = new ServiceFactory(ul);
-        usf.getAdminService().getEventContext();
+        Login ul2 = new Login(e.getOmeName(), "password2");
+        ServiceFactory usf2 = new ServiceFactory(ul2);
+        usf2.getAdminService().getEventContext();
     }
 
     @Test(groups = "ticket:1021")
