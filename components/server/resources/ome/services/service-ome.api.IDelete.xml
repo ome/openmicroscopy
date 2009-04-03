@@ -21,7 +21,8 @@
 
   <bean parent="level2" id="internal-ome.api.IDelete"
         class="ome.services.delete.DeleteBean">
-        <property name="adminService" ref="internal-ome.api.LocalAdmin"/>
+        <constructor-arg ref="internal-ome.api.LocalAdmin"/>
+        <constructor-arg ref="omeroSessionFactory"/>
   </bean>
 
   <bean id="managed-ome.api.IDelete" parent="managedService">

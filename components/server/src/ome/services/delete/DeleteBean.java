@@ -32,15 +32,18 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.internal.Details;
+import ome.model.screen.Plate;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecuritySystem;
 import ome.system.EventContext;
+import ome.tools.hibernate.SessionFactory;
 import ome.util.CBlock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,8 +65,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
     /**
      * Loads an {@link Image} graph including: Pixels, Channel, LogicalChannel,
-     * StatsInfo, PlaneInfo, Thumbnails, file maps, OriginalFiles,
-     * and Settings
+     * StatsInfo, PlaneInfo, Thumbnails, file maps, OriginalFiles, and Settings
      */
     public final static String IMAGE_QUERY = "select i from Image as i "
             + "left outer join fetch i.pixels as p "
@@ -83,15 +85,21 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
             + "left outer join fetch r.quantization "
             + "join r.pixels pix join pix.image img " + "where img.id = :id";
 
-    LocalAdmin admin;
+    public final static String PLATEIMAGES_QUERY = "select i from Image i "
+            + "join i.wellSamples ws join ws.well w "
+            + "join w.plate p where p.id = :id";
+
+    protected final LocalAdmin admin;
+
+    protected final SessionFactory sf;
 
     public final Class<? extends ServiceInterface> getServiceInterface() {
         return IDelete.class;
     }
 
-    public void setAdminService(LocalAdmin adminService) {
-        getBeanHelper().throwIfAlreadySet(admin, adminService);
-        this.admin = adminService;
+    public DeleteBean(LocalAdmin admin, SessionFactory sf) {
+        this.admin = admin;
+        this.sf = sf;
     }
 
     // ~ Service Methods
@@ -149,12 +157,12 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
             }
 
         });
-        
-        sec.runAsAdmin(new AdminAction(){
+
+        sec.runAsAdmin(new AdminAction() {
             public void runAsAdmin() {
                 clearPixelsRelatedTo(i);
-            }});
-        
+            }
+        });
 
         for (final IObject object : delete.list) {
             try {
@@ -252,6 +260,49 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
     }
 
+    @RolesAllowed("user")
+    public void deletePlate(final long plateId) {
+
+        Plate p = iQuery.get(Plate.class, plateId);
+        throwSecurityViolationIfNotAllowed(p);
+        ;
+
+        sec.runAsAdmin(new AdminAction() {
+            public void runAsAdmin() {
+
+                List<Image> imagesOnPlate = iQuery.findAllByQuery(
+                        PLATEIMAGES_QUERY, new Parameters().addId(plateId));
+
+                if (imagesOnPlate.size() > 0) {
+                    Set<Long> imageIdsForPlate = new HashSet<Long>();
+                    for (Image img : imagesOnPlate) {
+                        imageIdsForPlate.add(img.getId());
+                    }
+                    Session session = sf.getSession();
+                    // Samples
+                    Query q = session.createQuery("delete WellSample ws "
+                            + "where ws.image.id in (:ids)");
+                    q.setParameterList("ids", imageIdsForPlate);
+                    int wellSampleCount = q.executeUpdate();
+                    log.info("Deleted " + wellSampleCount
+                            + " well samples for plate " + plateId);
+                    // Images
+                    deleteImages(imageIdsForPlate, true);
+                    // Well
+                    q = session.createQuery("delete Well w where w.plate.id = :id");
+                    q.setParameter("id", plateId);
+                    q.executeUpdate();
+                    // Plate
+                    q = session.createQuery("delete Plate p where p.id = :id");
+                    q.setParameter("id", plateId);
+                    q.executeUpdate();
+                }
+                iUpdate.flush();
+            }
+        });
+
+    }
+
     // Implementation
     // =========================================================================
 
@@ -287,11 +338,11 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         i.collectPixels(new CBlock<Pixels>() {
 
             public Pixels call(IObject object) {
-                
+
                 if (object == null) {
                     return null; // EARLY EXIT. Happening due to image_index=1
                 }
-                
+
                 Pixels p = (Pixels) object;
 
                 p.eachLinkedOriginalFile(delete);
@@ -318,10 +369,10 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
                     Channel channel = channels.set(i, null);
                     delete.call(channel);
                     delete.call(channel.getStatsInfo());
-                    
+
                     LogicalChannel lc = channel.getLogicalChannel();
                     if (lc.sizeOfChannels() < 2) {
-                    delete.call(lc);
+                        delete.call(lc);
                     }
                     // delete.call(lc.getLightSource());
                     // // TODO lightsource
@@ -356,8 +407,9 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
     }
 
-    private void throwSecurityViolationIfNotAllowed(final Image i) {
+    private void throwSecurityViolationIfNotAllowed(final IObject i) {
 
+        final String type = i.getClass().getName();
         final Details d = i.getDetails();
         final long user = d.getOwner().getId();
         final long group = d.getGroup().getId();
@@ -370,20 +422,21 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
         if (!own && !root && !pi) {
             if (log.isWarnEnabled()) {
-                log.warn(String.format("User %d attempted to delete "
-                        + "Image %d belonging to User %d", ec
-                        .getCurrentUserId(), i.getId(), user));
+                log.warn(String.format("User %d attempted to delete " + type
+                        + " %d belonging to User %d", ec.getCurrentUserId(), i
+                        .getId(), user));
             }
             throw new SecurityViolation(String.format(
-                    "User %s cannot delete image %d", ec.getCurrentUserName(),
-                    i.getId()));
+                    "User %s cannot delete %s %d ", ec.getCurrentUserName(),
+                    type, i.getId()));
         }
     }
-    
+
     /**
-     * Finds all Pixels whose {@link Pixels#getRelatedTo()} field points to a 
+     * Finds all Pixels whose {@link Pixels#getRelatedTo()} field points to a
      * {@link Pixels} which is contained in the given {@link Image} and nulls
      * the relatedTo field.
+     * 
      * @param i
      */
     private void clearPixelsRelatedTo(Image i) {
@@ -393,9 +446,9 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         }
         if (ids != null && ids.size() > 0) {
             List<Pixels> relatedTo = iQuery.findAllByQuery(
-                    "select p from Pixels p " +
-        		"where p.relatedTo.id in (:ids)",
-        		new Parameters().addIds(ids));
+                    "select p from Pixels p "
+                            + "where p.relatedTo.id in (:ids)",
+                    new Parameters().addIds(ids));
             for (Pixels pixels : relatedTo) {
                 pixels.setRelatedTo(null);
                 iUpdate.flush();
