@@ -13,6 +13,7 @@
 """
 
 import os
+import time
 from path import path
 
 from omero.cli import Arguments
@@ -215,14 +216,30 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
     def waitup(self, args):
         args = Arguments(args)
         self.ctx.out("Waiting on startup. Use CTRL-C to exit")
-        while 0 != self.status(args):
-            self.ctx.out(".", newline = False)
+        count = 30
+        while True:
+            count = count - 1
+            if count == 0:
+                self.ctx.die(43, "Failed to startup after 5 minutes")
+            elif 0 == self.status(args):
+                break
+            else:
+                self.ctx.out(".", newline = False)
+                time.sleep(10)
 
     def waitdown(self, args):
         args = Arguments(args)
         self.ctx.out("Waiting on shutdown. Use CTRL-C to exit")
-        while 0 == self.status(args):
-            self.ctx.out(".", newline = False)
+        count = 30
+        while True:
+            count = count - 1
+            if count == 0:
+                self.ctx.die(44, "Failed to shutdown after 5 minutes")
+            elif 0 != self.status(args):
+                break
+            else:
+                self.ctx.out(".", newline = False)
+                time.sleep(10)
 	self.ctx.rv = 0
 
     def stopasync(self, args):
