@@ -46,6 +46,18 @@ import omero.model.ScreenPlateLink;
  */
 public class PlateData extends DataObject {
 
+	/** Indicates that the column or row is a number starting from 1. */
+	public final static int	   ASCENDING_NUMBER = 0;
+	
+	/** Indicates that the column or row is a letter starting from A. */
+	public final static int	   ASCENDING_LETTER = 1;
+	
+	/** Indicates that the column or row is a letter starting from 26 or 16. */
+	public final static int	   DESCENDING_NUMBER = 2;
+	
+	/** Indicates that the column or row is a letter starting from Z or P. */
+	public final static int	   DESCENDING_LETTER = 3;
+	
     /** Identifies the {@link Plate#NAME} field. */
     public final static String NAME = PlateI.NAME;
 
@@ -60,7 +72,7 @@ public class PlateData extends DataObject {
 
     /** Identifies the {@link Plate#ANNOTATIONLINKS} field. */
     public final static String ANNOTATIONS = PlateI.ANNOTATIONLINKS;
-
+    
     /**
      * All the Wells contained in this plate. The elements of this set are
      * {@link WellData} objects. If this Plate contains no Images, then this set
@@ -82,6 +94,20 @@ public class PlateData extends DataObject {
      */
     private Long annotationCount;
 
+    /**
+     * Returns the index corresponding to the passed value.
+     * 
+     * @param value The value to handle.
+     * @return See above.
+     */
+    private int getSequenceIndex(String value)
+    {
+    	if ("a".equals(value)) return ASCENDING_LETTER;
+    	else if ("1".equals(value)) return ASCENDING_NUMBER;
+    	//TODO
+    	return -1;
+    }
+    
     /** Creates a new instance. */
     public PlateData() {
         setDirty(true);
@@ -188,8 +214,7 @@ public class PlateData extends DataObject {
     /**
      * Sets the screens containing the plate.
      * 
-     * @param value
-     *            The set of screens.
+     * @param value The set of screens.
      */
     public void setScreens(Set<ScreenData> value) {
         Set<ScreenData> currentValue = getScreens();
@@ -208,5 +233,60 @@ public class PlateData extends DataObject {
 
         screens = new HashSet<ScreenData>(m.result());
     }
-
+    
+    /**
+     * Returns the index indicating how to label a column.
+     * 
+     * @return See above.
+     */
+    public int getColumnSequenceIndex()
+    {
+    	omero.RString value = asPlate().getColumnNamingConvention();
+    	if (value == null) return ASCENDING_NUMBER;
+    	String v = value.getValue();
+    	if (v == null) return ASCENDING_NUMBER;
+    	int index =  getSequenceIndex(value.getValue().toLowerCase());
+    	if (index == -1) return ASCENDING_NUMBER;
+    	return index;
+    }
+    
+    /**
+     * Returns the index indicating how to label a row.
+     * 
+     * @return See above.
+     */
+    public int getRowSequenceIndex()
+    {
+    	omero.RString value = asPlate().getRowNamingConvention();
+    	if (value == null) return ASCENDING_LETTER;
+    	String v = value.getValue();
+    	if (v == null) return ASCENDING_LETTER;
+    	int index =  getSequenceIndex(v.toLowerCase());
+    	if (index == -1) return ASCENDING_LETTER;
+    	return index;
+    }
+    
+    /**
+     * Returns the currently selected field or <code>0</code>.
+     * 
+     * @return See above.
+     */
+    public int getDefaultSample()
+    {
+    	omero.RInt value = asPlate().getDefaultSample();
+    	if (value == null) return 0;
+    	return value.getValue();
+    }
+    
+    /**
+     * Sets the default sample.
+     * 
+     * @param value The value to set.
+     */
+    public void setDefaultSample(int value)
+    {
+    	if (value < 0) value = 0;
+    	asPlate().setDefaultSample(omero.rtypes.rint(value));
+    }
+    
 }
