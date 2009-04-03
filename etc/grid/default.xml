@@ -30,7 +30,7 @@
       <server-instance template="DropBoxTemplate"/>
       <server-instance template="FSTemplate"/>
       <server-instance template="ProcessorTemplate" index="0"/>
-      <server-instance template="ShellTemplate" id="Web"/>
+      <server-instance template="ShellTemplate" id="Web" act="on-demand"/>
       <server-instance template="StormTemplate"/>
     </node>
 
