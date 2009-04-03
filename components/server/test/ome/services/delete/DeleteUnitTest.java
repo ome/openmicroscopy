@@ -59,12 +59,11 @@ public class DeleteUnitTest extends MockObjectTestCase {
     @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
-        bean = new DeleteBean();
-        service = bean;
-
         am = mock(LocalAdmin.class);
         a = (LocalAdmin) am.proxy();
-        bean.setAdminService(a);
+
+        bean = new DeleteBean(a, null);
+        service = bean;
 
         qm = mock(LocalQuery.class);
         q = (LocalQuery) qm.proxy();
