@@ -136,7 +136,7 @@ public class AdminTest extends AbstractManagedContextTest {
     }
     
     @Test
-    public void testExperimenterAccountCreationWithPassword() throws Exception {
+    public void testExperimenterAccountCreationAndUpdateWithPassword() throws Exception {
         Experimenter e = testExperimenter();
         e = iAdmin.getExperimenter(iAdmin.createExperimenterWithPassword(e, "password", 
                 new ExperimenterGroup(0L, false), (ome.model.meta.ExperimenterGroup[])null));
@@ -145,6 +145,12 @@ public class AdminTest extends AbstractManagedContextTest {
         assertNotNull(e.getFirstName());
         assertNotNull(e.getLastName());
         assertTrue(e.sizeOfGroupExperimenterMap() == 1);
+        
+        Login ul = new Login(e.getOmeName(), "password");
+        ServiceFactory usf = new ServiceFactory(ul);
+        usf.getAdminService().getEventContext();
+           
+        iAdmin.updateExperimenterWithPassword(e, "password2");
         
         Login ul = new Login(e.getOmeName(), "password");
         ServiceFactory usf = new ServiceFactory(ul);

@@ -210,7 +210,7 @@ public class AdminTest extends AbstractAccountTest {
     }
     
     @Test(groups = "ticket:1104")
-    public void testCreateUserWithPassword() throws Exception {
+    public void testCreateAndUpdateUserWithPassword() throws Exception {
         Roles roles = rootAdmin.getSecurityRoles();
 
         ExperimenterGroup userGrp = new ExperimenterGroup(1L, false);
@@ -226,6 +226,11 @@ public class AdminTest extends AbstractAccountTest {
         ServiceFactory usf = new ServiceFactory(ul);
         usf.getAdminService().getEventContext();
         
+        rootAdmin.updateExperimenterWithPassword(e, "password2");
+        
+        Login ul = new Login(GUID().asString(), "password2");
+        ServiceFactory usf = new ServiceFactory(ul);
+        usf.getAdminService().getEventContext();
     }
 
     // ~ utilities
