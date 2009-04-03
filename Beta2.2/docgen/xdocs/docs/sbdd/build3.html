@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Dependencies</title>
+</head>
+<body>
+<p>OMERO.insight is entirely written in Java and you will need a Java Runtime Environment 
+  (version 1.5 or later) to run it. All the third-party libraries required by OMERO.insight 
+  come already in each distribution bundle and are automatically linked at runtime, 
+  so you won't have to worry about installing/upgrading libraries.</p>
+<p>For the sake of record, here's a brief description of the third-party libraries 
+  used by OMERO.insight. First off, all of those libraries are stored in the <code>LIB</code> 
+  directory under the CVS root. Its <code>test</code> sub-directory contains additional 
+  libraries required by the test code -- these are not obviously included in the 
+  distribution bundles. The libraries required by the OMERO.insight source code are:</p>
+<ul>
+  <li><code>log4j-1.2.8.jar</code>: 
+  The Log4j logging framework 
+  (<a href="http://logging.apache.org/log4j/">http://logging.apache.org/log4j/</a>). 
+    Version 1.2.8. This library provides logging facilities to OMERO.insight.</li>
+  <li><code>commons-httpclient-3.0.1.jar</code>: 
+  The Jakarta Commons HttpClient 
+    (<a href="http://jakarta.apache.org/commons/httpclient/">
+    http://jakarta.apache.org/commons/httpclient/</a>). 
+  </li>
+  <li><code>commons-logging-1.0.4.jar</code>: 
+  The Jakarta Commons Logging 
+  (<a href="http://jakarta.apache.org/commons/logging/">
+  http://jakarta.apache.org/commons/logging/</a>). 
+    Version 1.0. This library is not directly required by OMERO.insight, 
+    but by the <code>commons-httpclient-3.0.1.jar</code>.</li>
+    <li><code>client-3.0-TRUNK.jar:</code>:
+    This library is part of the OMERO distributions and provides 
+    extensions of JBoss and Spring classes for login and configuration.
+    It provides simple wrappers of some common OMERO types.
+    </li>
+    <li><code>common-3.0-TRUNK.jar:</code>:
+    This library is part of the OMERO distributions and contains all model objects,
+    APIs as well as all parameters which pass through API calls.
+    </li>
+    <li> 
+    JBoss (<a href="http://labs.jboss.com/portal/">
+    http://labs.jboss.com/portal/</a>) client libraries, see list below, 
+    provide JBoss-specific JNDI and RMI stacks.
+    <ul>
+      <li><code>jboss-annotations-ejb3-4.0.4.GA.jar</code>.</li>
+      <li><code>jboss-aop-jdk50-client-4.0.4.GA.jar</code>.</li>
+      <li><code>jboss-aspect-library-jdk50-4.0.4.GA.jar</code>.</li>
+      <li><code>jboss-ejb3-4.0.4.GA.jar</code>.</li>
+      <li><code>jboss-ejb3x-4.0.4.GA.jar</code>.</li>
+      <li><code>jbossall-client-4.0.4.GA.jar</code>.</li>
+    </ul>
+    </li>
+    <li><code>spring-2.0-m3.jar:</code>:
+    The Spring framework (<a href="http://www.springframework.org/">
+    http://www.springframework.org/</a>).
+    Version 2.0-m3: This library provides configuration for OMERO.insight.
+    </li>
+        <li><code>TableLayout.jar:</code>:
+    This library provides a layout manager 
+    (<a href="https://tablelayout.dev.java.net/">
+    https://tablelayout.dev.java.net/</a>).
+    </li>
+</ul>
+<p>&#160;</p>
+<p>The additional libraries required by the test code are:</p>
+<ul>
+  <li><code>junit-3.8.1.jar</code>: The JUnit Testing Framework 
+  (<a href="http://www.junit.org/">http://www.junit.org/</a>). Version 3.8.1.</li>
+</ul>
+</body>
+</html>
+

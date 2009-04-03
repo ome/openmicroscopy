@@ -1,0 +1,167 @@
+/*
+ * org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+
+package org.openmicroscopy.shoola.agents.hiviewer.cmd;
+
+
+
+//Java imports
+import java.awt.Rectangle;
+import java.util.Iterator;
+import java.util.Set;
+
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.env.event.EventBus;
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
+
+
+/** 
+ * Views the selected image or browses the selected container.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:a.falconi@dundee.ac.uk">
+ * 					a.falconi@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
+public class ViewCmd
+    implements ActionCmd
+{
+    
+    /** Reference to the model. */
+    private HiViewer    model;
+    
+    /** The hierarchy object hosting by the selected {@link ImageDisplay}. */
+    private DataObject  hierarchyObject;
+    
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param hierarchyObject The hierarchy object hosting by the selected
+     * {@link ImageDisplay}.
+     */
+    public ViewCmd(DataObject hierarchyObject)
+    {
+        if (hierarchyObject == null)
+            throw new IllegalArgumentException("No hierarchy object.");
+        if (!(hierarchyObject instanceof ImageData))
+            throw new IllegalArgumentException("Object must be an ImageData " +
+                    "object.");
+        this.hierarchyObject = hierarchyObject;
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model             Reference to the model.
+     *                          Mustn't be <code>null</code>.
+     */
+    public ViewCmd(HiViewer model)
+    {
+        if (model == null) throw new IllegalArgumentException("No model.");
+        this.model = model;
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model             Reference to the model.
+     *                          Mustn't be <code>null</code>.
+     * @param hierarchyObject   The hierarchy object hosting by the selected
+     *                          {@link ImageDisplay}.
+     */
+    public ViewCmd(HiViewer model, DataObject hierarchyObject)
+    {
+        if (model == null) throw new IllegalArgumentException("No model.");
+        this.hierarchyObject = hierarchyObject;
+        this.model = model;
+    }
+    
+    /** Implemented as specified by {@link ActionCmd}. */
+    public void execute()
+    {
+        if (model != null && hierarchyObject == null) {
+        	Browser browser = model.getBrowser();
+        	if (browser != null) {
+        		ImageDisplay d = browser.getLastSelectedDisplay();
+        		hierarchyObject = (DataObject) d.getHierarchyObject();
+        	}
+        }
+        if (hierarchyObject == null) return;
+        Rectangle bounds = null;
+        if (model != null)
+            bounds = model.getUI().getBounds();
+        if (hierarchyObject instanceof DatasetData)
+        	HiViewerAgent.browse(Browse.DATASET, 
+                    ((DatasetData) hierarchyObject).getId(), 
+                    model.getExperimenter(), bounds);
+        else if (hierarchyObject instanceof ProjectData)
+            HiViewerAgent.browse(Browse.PROJECT, 
+                    ((ProjectData) hierarchyObject).getId(),
+                    model.getExperimenter(), bounds);
+        else if (hierarchyObject instanceof CategoryGroupData)
+            HiViewerAgent.browse(Browse.CATEGORY_GROUP, 
+                    ((CategoryGroupData) hierarchyObject).getId(),
+                    model.getExperimenter(), bounds);
+        else if (hierarchyObject instanceof CategoryData)
+            HiViewerAgent.browse(Browse.CATEGORY, 
+                    ((CategoryData) hierarchyObject).getId(),
+                    model.getExperimenter(), bounds);
+        else if (hierarchyObject instanceof ImageData) {
+            EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
+            ImageData is = (ImageData) hierarchyObject;
+            if (model != null) {
+                Set images = model.getBrowser().getSelectedDisplays();
+                Iterator i = images.iterator();
+                ImageDisplay d;
+                while (i.hasNext()) {
+                    d = (ImageDisplay) i.next();
+                    is = (ImageData) d.getHierarchyObject();
+                    eventBus.post(new ViewImage(is, bounds)); 
+                }
+            } else {
+                eventBus.post(new ViewImage(is, bounds)); 
+            }
+        }
+    }
+
+}

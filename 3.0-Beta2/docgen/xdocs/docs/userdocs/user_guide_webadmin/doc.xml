@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xdoc>
+<xdoc-info>
+
+  <title>OMERO.webadmin User Guide</title>
+  <author name="Aleksandra Takowska" email="comments@openmicroscopy.org.uk" />
+  <version number="3.0-Beta"/>
+  <last-modified date="2007-06-01"/>
+</xdoc-info>
+
+ <toc name="Table of Contents" href="index.htm">
+ <section href="intro.html" name="Introduction"/>
+ <section href="section_2.html" name="Glossary"/>
+ <section href="section_3.html" name="Configuration"/>
+ <section href="section_4.html" name="Administration"/>
+  </toc>
+</xdoc>

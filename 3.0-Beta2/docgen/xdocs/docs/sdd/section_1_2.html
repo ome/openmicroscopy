@@ -1,0 +1,215 @@
+<html>
+<head>
+<title>Structure</title>
+</head>
+<body>
+<p>
+Configuration files are XML files that conform to a simple XML schema, 
+which declares only two elements [<font color="red">PENDING: 
+XML schema is not used for the time being, need to use others built-in libraries</font>]:
+</p>
+<p>
+<pre class="code">
+&lt;<font color="blue">element</font> name="<font color="blue">entry</font>" minOccurs="0" maxOccurs="unbounded"&gt;
+  &lt;complexType&gt;
+    &lt;<font color="blue">simpleContent</font>&gt;
+      &lt;extension base="string"&gt;
+        &lt;<font color="blue">attribute</font> name="<font color="blue">name</font>" type="string" use="<font color="blue">required</font>"/&gt;
+		&lt;<font color="blue">attribute</font> name="<font color="blue">type</font>" type="string" default="string"/&gt;
+        &lt;simpleType&gt;
+          &lt;restriction base="string"&gt;
+            &lt;enumeration value="string"/&gt;
+            &lt;enumeration value="integer"/&gt;
+            &lt;enumeration value="float"/&gt;
+            &lt;enumeration value="double"/&gt;
+            &lt;enumeration value="boolean"/&gt;
+          &lt;/restriction&gt;
+<font color="gray">... close all tags</font>
+&lt;<font color="blue">element</font> name="<font color="blue">structuredEntry</font>" minOccurs="0" maxOccurs="unbounded"/&gt;
+  &lt;complexType&gt;
+    &lt;sequence&gt;
+      &lt;<font color="blue">any</font> maxOccurs="unbounded"/&gt;
+    &lt;/sequence&gt;
+    &lt;<font color="blue">attribute</font> name="<font color="blue">name</font>" type="string" use="<font color="blue">required</font>"/&gt;
+    &lt;<font color="blue">attribute</font> name="<font color="blue">type</font>" type="string" default="map"/&gt;
+  &lt;/complexType&gt;
+&lt;/element&gt;
+</pre>
+
+</p>
+<p>
+The <i>entry</i> and <i>structuredEntry</i> elements are used to 
+specify name-value pairs in the actual configuration files. 
+Both elements have a required name attribute whose content is used as a 
+key for accessing the entry value from within the application. In the 
+case of the  <i>entry</i> element, the value is a string - this element can 
+thus be used for "classic" name-value style, such as:
+<pre class="code">
+&lt;entry name="ITEM"&gt; The item's value &lt;/entry&gt;
+</pre>
+</p>
+<br/>
+<p>
+On the other hand, the value of <i>structuredEntry</i> can be made up 
+by any arbitrary sequence of tags. 
+</p>
+<p>
+In both cases (<i>entry</i> and <i>structuredEntry</i>), 
+the entry value is returned to the application as an object and the <i>type</i> 
+attribute dictates how the entry value is turned into an object. 
+Only "string", "integer", "float", "double" and "boolean" 
+may be used for the type attribute within the <i>entry</i>  
+element, whose content is parsed into a Java <code>String</code>, 
+<code>Integer</code>, <code>Float</code>, <code>Double</code> or 
+<code>Boolean</code> object according to the content of the <i>type</i> 
+attribute - if this attribute is missing, then "string" is assumed. 
+For example, say you write the following into an agent's configuration file:
+
+<pre class="code">
+&lt;entry name="/some/name" type="<font color="magenta">boolean</font>"&gt;true&lt;/entry&gt;
+</pre>
+
+This will make a <code>Boolean</code> object 
+(set to hold <i>true</i>) available to the agent - the key for accessing the 
+object will be the string <code>/some/name</code>.
+</p>
+<p>
+Things work similarly for the <i>structuredEntry</i> element. 
+In this case, the content of the <i>type</i> attribute can be 
+specified to be the fully qualified name of the class that will 
+handle the transformation of the entry value into an object. This 
+is provided so that agents may specify custom handlers for custom 
+configuration entries. For example, an agent's configuration 
+file could contain the entry:
+<pre class="code">
+&lt;structuredEntry name="/some/name" type="<font color="magenta">some.pkg.SomeHandler</font>"&gt;
+  &lt;tag_1&gt;aValue&lt;/tag_1&gt;
+  &lt;tag_2&gt;anotherValue&lt;/tag_2&gt;
+&lt;/structuredEntry&gt;
+</pre>
+</p>
+<p>
+In this case, an instance of <code>some.pkg.SomeHandler</code> will be 
+created to transform the contents of the entry 
+(that is <i>tag_1</i> and <i>tag_2</i>) into a custom object. 
+Obviously enough, the tags contained within a <i>structuredEntry</i> 
+have to be exactly the tags that the handler expects.
+</p>
+<p>
+If no type attribute is specified, then it is assumed <i>type = "map"</i>, 
+which results in the entry's contents being parsed into a <code>Map</code> object. 
+Each child tag is assumed to be a simple tag with a string content, 
+like in the following example:
+<pre class="code">
+&lt;structuredEntry name="/some/name"&gt;
+  &lt;key_1&gt;value_1&lt;/key_1&gt;
+  &lt;key_2&gt;value_2&lt;/key_2&gt;
+&lt;/structuredEntry&gt;
+</pre>
+</p>
+<p>
+Each child tag's name is a key in the map and the tag's content is its value -
+ the above would generate the map: (<code>key_1</code>, <code>value_1</code>), 
+(<code>key_2</code>, <code>value_2</code>). 
+</p>
+<p>
+Some predefined structured entries are supplied by the container for 
+common cases (icons and font entries) and for use by the container only 
+(OMERO and agents entries). Here's an excerpt from the 
+container's configuration file
+
+<pre class="code">
+<font color="gray">
+&lt;container&gt;
+  &lt;agents&gt;</font>
+    &lt;<font color="blue">structuredEntry</font> name="/agents" type="<font color="magenta">agents</font>"&gt;
+      &lt;agent&gt;
+        &lt;name&gt;Viewer&lt;/name&gt;
+        <font color="green">&lt;!-- The class tag specifies the FQN of the agent's class. --&gt;</font>
+          &lt;class&gt;org.openmiscroscopy.shoola.agents.viewer.Viewer&lt;/class&gt;
+          <font color="green">&lt;!-- The config tag specifies the name of the agent'ss configuration file.
+               This file has to be placed in the config directory under the 
+               installation directory. --&gt;</font>
+          &lt;config&gt;viewer.xml&lt;config&gt;
+        &lt;/agent&gt;
+<font color="gray"> ... a similar entry for every other agent</font>
+    &lt;/structuredEntry&gt;
+  <font color="gray">&lt;/agents&gt;</font>
+  <font color="gray">&lt;resources&gt;
+    &lt;iconFactories&gt;</font>
+      <font color="green">&lt;!-- This entry can be used in agents' configuration files as well.
+	   It is turned into an instance of: 
+	   org.openmicroscopy.shoola.env.config.IconFactory
+	   This object can then be used to retrieve any image file within
+	   the directory pointed by the location tag. --&gt;</font>
+      &lt;<font color="blue">structuredEntry</font> name="/resources/icons/DefaultFactory" type="<font color="magenta">icons</font>"&gt;
+       <font color="green">&lt;!-- The location tag specifies the FQN of the package that contains the icon files. --&gt;</font>
+        &lt;location&gt;org.openmicroscopy.shoola.env.ui.graphx&lt;/location&gt;
+    &lt;/structuredEntry&gt;
+ <font color="gray">...more similar entries
+    &lt;/iconFactories&gt;
+    &lt;fonts&gt;</font>
+      <font color="green">&lt;!-- This entry can be used in agents' configuration files as well. 
+           It is turned into an instance of java.awt.Font. --&gt;</font>
+      &lt;<font color="blue">structuredEntry</font> name="/resources/fonts/Titles" type="<font color="magenta">font</font>"&gt;
+        &lt;family&gt;SansSerif&lt;/family&gt;
+        &lt;size&gt;12&lt;/size&gt;
+        &lt;style&gt;bold&lt;/style&gt;
+      &lt;/structuredEntry&gt;
+ <font color="gray">... more similar entries
+    &lt;/fonts&gt;
+    &lt;/resources&gt;
+&lt;/container&gt;</font>
+</pre>
+
+
+</p>
+<p>
+The configuration parser only takes the <i>entry</i> and 
+<i>structuredEntry</i> tags into account and ignores all the others. 
+It may be useful to group sets of related entries together, as shown above.
+</p>
+<p>
+The classes that encompass the machinery for parsing configuration 
+files and building registries are depicted by the following UML class diagram.
+</p>
+<p>
+The <code>Entry</code> abstract class sits at the base of a hierarchy of 
+classes that represent entries in configuration files. It 
+represents a name-value pair, where the name is the content of the 
+<i>name</i> attribute of a configuration entry (which is stored by 
+the <code>name</code> field) and the value is the object representing the 
+entry's content. As the logic for building an object from the entry's 
+content depends on what is specified by the <i>type</i> attribute, this 
+class declares an abstract <code>getValue</code> method which subclasses 
+implement to return the desired object - we use polymorphism to avoid 
+conditional logic. So we have subclasses (<code>StringEntry</code>, 
+<code>IntegerEntry</code>, <code>IconFactoryEntry</code>, etc.) to handle 
+the content of an entry tag (either <i>entry</i> or <i>structuredEntry</i>) 
+in correspondence of each predefined value of the type attribute 
+("string",  "integer", "icons", and so on). Given an entry tag, the 
+<code>createEntryFor</code> static method (which can be considered a Factory 
+Method [GoF95]) creates a concrete <code>Entry</code> object to handle the c
+onversion of that tag's content into an object. Subclasses of 
+<code>Entry</code> implement the <code>setContent</code> method to grab the 
+tag's content, which is then used for building the object returned by the 
+implementation of <code>getValue()</code>. 
+</p>
+<p>
+The <code>RegistryImpl</code> class implements the <code>Registry</code> 
+interface. It maintains a map of <code>Entry</code> objects, which are 
+keyed by their <i>name</i> attribute and represent entries in the 
+configuration file. It also maintains references to the container's services 
+into member fields - as services are accessed frequently, this ensures 
+<i>o(1)</i> access time.
+</p>
+<p>
+The <code>Parser</code> class is in charge of parsing a configuration 
+file, extracting entries (only <i>entry</i> and <i>structuredEntry</i> 
+tags are taken into account), obtain an <code>Entry</code> object to 
+represent each of those entries and add these objects to a given 
+<code>RegistryImpl</code> object.
+</p>
+
+</body>
+</html>

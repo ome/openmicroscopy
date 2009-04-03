@@ -1,0 +1,61 @@
+<html>
+<head>
+ <title>Dynamics</title>
+</head>
+<body>
+<p>
+ If you're wondering why requests and responses are organized in such a 
+ fancy way, keep on reading this explanation of how the Asynchronous 
+ Completion Token pattern works in our case. </p>
+ <p>
+ As we mentioned earlier, a concrete <code>RequestEvent</code> encapsulates a 
+ request to execute an asynchronous operation. Asynchrony involves a separation 
+ in space and time between invocation and processing of the result of an 
+ operation: we request the execution of the operation at some point in 
+ time within a given call stack (say in <code>methodX</code> we make a new 
+ request and we post it on the event bus). Then, at a later point in time 
+ and within another call stack (<code>eventFired</code> method), we receive 
+ a notification that the execution has completed and we have to handle this 
+ completion event -
+  which mainly boils down to doing something with the result, if any, of 
+  the operation. Recall that the <code>ResponseEvent</code> class is used for 
+  representing a completion event and a concrete subclass carries the result 
+  of the operation, if any. After the operation has completed, a concrete 
+  <code>ResponseEvent</code> is put on the event bus so that the object which 
+  initially made the request (often an agent, but, in this context, we'll 
+  refer to it as the initiator, which is obviously required to implement the 
+  <code>AgentEventListener</code> interface and register with the event bus) 
+  can be notified that execution has completed and possibly handle the result. 
+  Thus, at some point in time the initiator's <code>eventFired</code> method 
+  is called passing in the response object. 
+ </p>
+ <p>
+ Now the initiator has to find out which processing action has to be dispatched 
+ to handle the response. Moreover, the processing action often needs to know 
+ about the original invocation context - unfortunately, we can't relinquish 
+ the original call stack (<code>methodX</code> is gone). The solution is to 
+ require that a response be linked to the original request and that the 
+ initiator link a request to a completion handler (which encapsulates the 
+ processing action) before posting it on the event bus (this explains the 
+ fancy arrangement of the <code>RequestEvent</code>, <code>ResponseEvent</code> 
+ and <code>CompletionHandler</code>).
+</p>
+<p>
+This way de-multiplexing matters are made very easy for the initiator. Upon 
+reception of a completion event notification, all what the initiator has to 
+do is to ask the response object to start the de-multiplexing process -
+by calling the complete method. This method calls <code>handleCompletion()</code>
+on the original request, passing in the response object. In turn, 
+<code>handleCompletion()</code> calls the handle method on its completion 
+handler, passing in both the request and the response. Voila', the right 
+processing action has been dispatched to handle the response. Also, notice that 
+the completion handler is linked to the request in the original invocation
+context, which makes it possible to provide the handler with all the needed 
+information from the invocation context. Moreover, both the original request
+and the corresponding response are made available to the completion handler. 
+This is enough to provide the completion handler with a suitable execution 
+context - all the needed information from the original call stack is now 
+available to the processing action.
+</p>
+</body>
+</html>

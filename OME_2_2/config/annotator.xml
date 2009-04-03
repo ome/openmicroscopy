@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<agent name="Annotator">
+   <resources>
+     <iconFactories>
+     </iconFactories>
+     <fonts>
+       <!-- This entry is turned into an instance of java.awt.Font. --> 
+       <structuredEntry name="/resources/fonts/Titles" type="font">
+         <family>SansSerif</family>
+         <size>12</size>
+         <style>bold</style>
+       </structuredEntry>
+     </fonts>
+   </resources>
+</agent>

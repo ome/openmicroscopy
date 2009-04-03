@@ -1,0 +1,112 @@
+/*
+ * org.openmicroscopy.shoola.util.concur.tasks.TestInvocationAdapter
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+
+package org.openmicroscopy.shoola.util.concur.tasks;
+
+
+//Java imports
+
+//Third-party libraries
+import junit.framework.TestCase;
+
+//Application-internal dependencies
+
+/** 
+ * Routine unit test for {@link InvocationAdapter}.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:a.falconi@dundee.ac.uk">
+ * 					a.falconi@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
+public class TestInvocationAdapter
+    extends TestCase
+{
+
+    private InvocationAdapter   target;  //Object under test.
+    private MockInvocation      call;  //Mock.
+    
+    
+    public void setUp()
+    {
+        call = new MockInvocation();
+        target = new InvocationAdapter(call);
+    }
+    
+    public void testInvocationAdapter()
+    {
+        try {
+            new InvocationAdapter(null);
+            fail("InvocationAdapter shouldn't accept null.");
+        } catch (NullPointerException npe) {
+            //OK, expected.
+        }
+    }
+    
+    public void testIsDone() 
+        throws Exception
+    {
+        //Set up expected calls.
+        call.call(null);
+        
+        //Transition mock to verification mode.
+        call.activate();
+        
+        //Test.
+        assertFalse("Before doStep we're not done!", target.isDone());
+        target.doStep();
+        assertTrue("After doStep we're done!", target.isDone());
+        target.doStep();
+        assertTrue("After the fisrt doStep we're done!", target.isDone());
+        
+        //Make sure all expected calls were performed.
+        call.verify();
+    }
+    
+    public void testDoStep() 
+        throws Exception
+    {
+        //Set up expected calls.
+        Object result = new Object();
+        call.call(result);
+        
+        //Transition mock to verification mode.
+        call.activate();
+        
+        //Test.
+        assertEquals("Should return the same value as call().", 
+                result, target.doStep());
+        assertEquals("Shouldn't execute and return null after the first call.", 
+                null, target.doStep());
+        
+        //Make sure all expected calls were performed.
+        call.verify();
+    }
+    
+}

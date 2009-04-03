@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>The OMERO Data Model and Hierarchies</title>
+</head>
+<body>
+<p>
+All information in OMERO revolves around a data structure 
+called the object hierarchy. 
+An understanding of this is core to efficient and effective use of OMERO. 
+This hierarchy defines three kinds of objects:
+<ol>
+<li>Projects</li>
+<li>Datasets</li>
+<li>Images</li>
+</ol>
+and an organisational structure for grouping these objects together. 
+This structure is shown in 
+<a href="#figure_47">Figure 4.4-1</a>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center">
+    <img src="images/hierarchy.jpg" 
+    alt="OMERO Object hierarchy"></img></td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="figure_47"><b>Figure 5.4-1</b></a>: 
+    OMERO Object hierarchy</td>
+  </tr>
+  <tr> 
+    <td height="40"></td></tr>
+</table>
+
+</p>
+<p>
+At the top of the object hierarchy is the <b>project</b>. 
+Projects represent a large, long-term investigation, usually by either a 
+single OMERO user or a small collection of users in the same research group.
+</p>
+<p>
+Each project contains a number of <b>datasets</b>. Projects and datasets 
+form a many-to-many relationship; a project can contain more than one dataset, 
+and each dataset can belong to more than one project. Most analysis routines 
+are performed at the dataset level. This provides both a convenient batch 
+processing capability, and the ability to calculate aggregate information 
+about the contents of a dataset.
+</p>
+<p>
+Each dataset contains a number of <b>images</b>. Like projects, images form 
+a many-to-many relationship with datasets. Images in OMERO are inherently 
+multi-dimensional - they consist of pixels across the usual three spatial 
+dimensions, and can include multiple colour channels and time series.
+</p>
+
+</body>
+</html>

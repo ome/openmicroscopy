@@ -1,0 +1,186 @@
+/*
+ * org.openmicroscopy.shoola.agents.browser.images.PaintShapeGenerator
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2004 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
+
+/*------------------------------------------------------------------------------
+ *
+ * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
+ *
+ *------------------------------------------------------------------------------
+ */
+ 
+package org.openmicroscopy.shoola.agents.browser.images;
+
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.GeneralPath;
+
+/**
+ * A generator for rapidly reusing shape-based icon objects in paint overlay
+ * methods.
+ *
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
+ * <b>Internal version:</b> $Revision$ $Date$
+ * @version 2.2
+ * @since OME2.2
+ */
+public final class PaintShapeGenerator
+{
+    private static PaintShapeGenerator singleton;
+    private Shape annotationNoteShape;
+    private Shape outerMagnifierShape;
+    
+    // singleton constructor
+    private PaintShapeGenerator()
+    {
+        annotationNoteShape = getAnnotationNoteShape();
+        outerMagnifierShape = getOuterMagnifierShape();
+    }
+    
+    // returns the annotation node shape.
+    private Shape getAnnotationNoteShape()
+    {
+        GeneralPath paperPath = new GeneralPath();
+        GeneralPath foldPath = new GeneralPath();
+        GeneralPath linesPath = new GeneralPath();
+        
+        paperPath.moveTo(0,0);
+        paperPath.lineTo(8,0);
+        paperPath.lineTo(12,4);
+        paperPath.lineTo(12,16);
+        paperPath.lineTo(0,16);
+        paperPath.closePath();
+        return paperPath;
+    }
+    
+    private Shape getOuterMagnifierShape()
+    {
+        GeneralPath circlePath = new GeneralPath();
+        Ellipse2D outerEllipse = new Ellipse2D.Double(0,0,12,12);
+        circlePath.append(outerEllipse,false);
+        
+        GeneralPath handlePath = new GeneralPath();
+        handlePath.moveTo(7,9);
+        handlePath.lineTo(19,21);
+        handlePath.lineTo(21,19);
+        handlePath.lineTo(9,7);
+        handlePath.closePath();
+        
+        circlePath.append(handlePath,false);
+        return circlePath;
+    }
+    
+    public Shape getFoldUpperShape()
+    {
+        GeneralPath path = new GeneralPath();
+        path.moveTo(0,0);
+        path.lineTo(12,0);
+        path.lineTo(12,12);
+        path.closePath();
+        return path;
+    }
+    
+    public Shape getFoldLowerShape()
+    {
+        GeneralPath path = new GeneralPath();
+        path.moveTo(0,0);
+        path.lineTo(0,10);
+        path.lineTo(10,10);
+        path.closePath();
+        return path;
+    }
+    
+    public Shape getPrevImageShape()
+    {
+        GeneralPath path = new GeneralPath();
+        path.moveTo(12,0);
+        path.lineTo(0,12);
+        path.lineTo(12,24);
+        path.lineTo(12,16);
+        path.lineTo(18,16);
+        path.lineTo(18,8);
+        path.lineTo(12,8);
+        path.closePath();
+        return path;
+    }
+    
+    public Shape getNextImageShape()
+    {
+        GeneralPath path = new GeneralPath();
+        path.moveTo(6,0);
+        path.lineTo(18,12);
+        path.lineTo(6,24);
+        path.lineTo(6,16);
+        path.lineTo(0,16);
+        path.lineTo(0,8);
+        path.lineTo(6,8);
+        path.closePath();
+        return path;
+    }
+    
+    /**
+     * Get an instance of the PaintShapeGenerator.
+     * @return See above.
+     */
+    public static PaintShapeGenerator getInstance()
+    {
+        if(singleton == null)
+        {
+            singleton = new PaintShapeGenerator();
+        }
+        return singleton;
+    }
+    
+    /**
+     * Gets the annotation note shape and shifts it to the location
+     * specified by offsetX and offsetY.
+     * @param offsetX The x-offset of the shape.
+     * @param offsetY The y-offset of the shape.
+     * @return An annotation note shape with upper-left corner shifted to (x,y).
+     */
+    public Shape getAnnotationNoteShape(double offsetX, double offsetY)
+    {
+        AffineTransform xform =
+            AffineTransform.getTranslateInstance(offsetX,offsetY);
+        return xform.createTransformedShape(annotationNoteShape);
+    }
+    
+    /**
+     * Gets the outer magnifier shape.
+     * @param offsetX The x-offset of the shape.
+     * @param offsetY The y-offset of the shape.
+     * @return
+     */
+    public Shape getOuterMagnifierShape(double offsetX, double offsetY)
+    {
+        AffineTransform xform =
+            AffineTransform.getTranslateInstance(offsetX, offsetY);
+        return xform.createTransformedShape(outerMagnifierShape);
+    }
+}

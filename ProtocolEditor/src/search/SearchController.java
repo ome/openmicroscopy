@@ -1,0 +1,379 @@
+package search;
+
+import java.awt.BorderLayout;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.swing.AbstractButton;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.JTextComponent;
+
+import org.openmicroscopy.shoola.util.ui.HistoryDialog;
+import org.xml.sax.SAXParseException;
+
+import tree.DataFieldConstants;
+import ui.AbstractComponent;
+import ui.IModel;
+import ui.XMLView;
+import util.ImageFactory;
+import util.XMLMethods;
+import util.XMLMethods.ElementAttributesHashMapHandler;
+import xmlMVC.ConfigConstants;
+
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ *	author Will Moore will@lifesci.dundee.ac.uk
+ *
+ * This code is adapted from the Apache demo classes:
+ * (see below)
+ */
+
+/**
+ * This class controls the search process.
+ * It has a searchTerm source (a JTextComponent to provide a search term String) 
+ * and it listens to a number of ActionEvent sources which can start the search process.
+ * This includes a searchTerm search and a "more-like-this" search, using a <code>File</code>
+ * from the model (uses the currently-opened file).
+ * Once a search is complete, a changeEvent is fired, and listeners 
+ * can get the searchPanel (displaying results).
+ */
+
+public class SearchController 
+	extends AbstractComponent
+	implements ActionListener,
+	DocumentListener, PropertyChangeListener {
+	
+	/**
+	 * Action command for determining which search to perform;
+	 * Keyword search performs a "Google" type search using a String from <code>searchTermSource</code>
+	 */
+	public static final String KEYWORD_SEARCH = "keywordSearch";
+	
+	/**
+	 * Action command for determining which search to perform;
+	 * More-Like-This-Search uses a file to build a search query, to return similar files
+	 */
+	public static final String MORE_LIKE_THIS_SEARCH = "moreLikeThisSearch";
+	
+	/**
+	 * Action command for determining which search to perform;
+	 * Template-Search uses a file to build a search query string. 
+	 * Fields that are filled in are used as search fields (like a search form). 
+	 */
+	public static final String TEMPLATE_SEARCH = "templateSearch";
+	
+	/**
+	 * Model, passed to SearchPanel, so results files can be opened. 
+	 * Also used to provide a reference to the currently opened file, for use in 
+	 * a more-like-this search. 
+	 */
+	IModel model;
+	
+	/**
+	 * This is a UI component the user types the searchWord into. When the search is 
+	 * started, use getText() to get the searchWord from this component
+	 */
+	JTextComponent searchTermSource;	
+	
+	/**
+	 * The outer UI panel, holds a "Close" button and the searchResultsPanel 
+	 */
+	JPanel searchControllerPanel;
+	
+	/**
+	 * This is an instance of <code>SearchPanel</code> that is generated from each search.
+	 * It is placed within the <code>searchControllerPanel</code>.
+	 */
+	JPanel searchResultsPanel;
+	
+	/**
+	 * a flag set to false when close button is clicked. When this is false,
+	 * getSearchResultsPanel() will return null, so that observers will know to hide the search pane
+	 */
+	boolean displayControllerPanel = true;
+	
+	/**
+	 * A popup to display the terms from the lucene index that match what the
+	 * user is typing into the searchTermSource, so as to provide an
+	 * Auto-Complete functionality. 
+	 */
+	HistoryDialog popup;
+	
+	/**
+	 * Creates an instance of this class. 
+	 * 
+	 * @param model		model is used to open files (search hits) and provide current-file
+	 */
+	public SearchController(IModel model) {
+		this.model = model;
+		buildUI();
+	}
+	
+	/**
+	 * Used to provide the search with a searchTerm source. 
+	 * This is required before you can run a searchTerm search, but is not needed for 
+	 * a More-Like-This search.
+	 * A DocumentListener is added to allow auto-complete, based on words in the 
+	 * Lucene index.
+	 * 
+	 * @param searchTermSource
+	 */
+	public void setSearchTermSource(JTextComponent searchTermSource) {
+		this.searchTermSource = searchTermSource;
+		searchTermSource.getDocument().addDocumentListener(this);
+	}
+	
+	
+	/**
+	 * Allows button components to register as source of searchAction.
+	 * eg Keyword search button, Template search button...
+	 */
+	public void addSearchActionSource(AbstractButton button) {
+		button.addActionListener(this);
+	}
+	
+	/**
+	 * Allows textField components to register as source of searchAction
+	 */
+	public void addSearchActionSource(JTextField textField) {
+		textField.addActionListener(this);
+	}
+
+	
+	/**
+	 * Once this class is registered as an ActionListener to a button or textField,
+	 * they can be used to start the search. 
+	 * The default search is a searchTerm search, but if the ActionCommand is moreLikeThis
+	 * then a more-like-this search will be performed.
+	 */
+	public void actionPerformed(ActionEvent event) {
+		if (event.getActionCommand().equals(MORE_LIKE_THIS_SEARCH)) {
+			findMoreLikeThis();
+		} else 
+		if (event.getActionCommand().equals(TEMPLATE_SEARCH)) {
+			handleTemplateSearch();
+		} else
+			searchFiles();
+	}
+	
+	/**
+	 * Starts the search using a searchTerm from <code>searchTermSource</code>
+	 * Creates an instance of <code>SearchPanel</code>
+	 */
+	public void searchFiles() {
+		
+		if (searchTermSource == null) 
+			return;
+		
+		JPanel newResultPanel = new SearchPanel(searchTermSource.getText(), model);
+		setSearchResultsPanel(newResultPanel);
+	}
+	
+	/**
+	 * Starts the search using a given search term.
+	 * Creates an instance of <code>SearchPanel</code>
+	 */
+	public void searchFiles(String searchQuery) {
+		if (searchQuery == null) 
+			return;
+		JPanel newResultPanel = new SearchPanel(searchQuery, model);
+		setSearchResultsPanel(newResultPanel);
+	}
+
+	/**
+	 * Uses the currently opened file from <code>IModel</code> to start a more-like-this search.
+	 */
+	public void findMoreLikeThis() {
+		File file = new File(ConfigConstants.OMERO_EDITOR_FILE + File.separator + "searchFile");
+		
+		model.exportTreeToXmlFile(file);
+		
+		if (file == null) return;
+				
+		searchFiles(file);
+				
+		file.delete();
+		
+	}
+
+	/**
+	 * Starts the search using a file from <code>IModel</code>
+	 * Creates an instance of <code>SearchPanel</code>
+	 */
+	public void searchFiles(File file) {
+		if (file == null) 
+			return;
+		JPanel newResultPanel = new SearchPanel(file, model);
+		setSearchResultsPanel(newResultPanel);
+	}
+	
+	public void handleTemplateSearch() {
+		TemplateSearch templateSearcher = new TemplateSearch();
+		templateSearcher.addPropertyChangeListener(
+				TemplateSearch.TEMPLATE_SEARCH_DONE, this);
+	}
+	
+	
+	/**
+	 * Takes a JPanel from a search and places it within <code>searchControllerPanel</code>,
+	 * removing any previous instances of <code>searchResultsPanel</code>
+	 * This method is called after each search to display the results and notify any changeListeners.
+	 * @param resultsPanel	The panel returned from a search
+	 */
+	public void setSearchResultsPanel(JPanel resultsPanel) {
+		
+		if (searchResultsPanel != null)
+			searchControllerPanel.remove(searchResultsPanel);
+		
+		searchResultsPanel = resultsPanel;
+		
+		searchControllerPanel.add(searchResultsPanel, BorderLayout.CENTER);
+		// update the flag which tells getSearchResultsPanel() to return Panel (instead of null)
+		displayControllerPanel = true;
+		fireStateChange();
+	}
+	
+	/**
+	 * Builds the UI of the search results panel.
+	 * A simple layout of a close-button placed above a space for the results panel.
+	 * The search results panel is added after a search, and replaced with subsequent searches.
+	 */
+	public void buildUI() {
+		
+		searchControllerPanel = new JPanel(new BorderLayout());
+		
+		Icon noIcon = ImageFactory.getInstance().getIcon(ImageFactory.N0);
+		JButton closeButton = new JButton("Close this window", noIcon);
+		closeButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				displayControllerPanel = false;
+				fireStateChange();
+			}
+		});
+		
+		searchControllerPanel.add(closeButton, BorderLayout.NORTH);
+		
+	}
+	
+	/** 
+	 * called by observers that want to display the search panel after a search.
+	 * Normally returns the <code>searchControllerPanel</code>, containing the closeButton
+	 * and the searchResultsPanel.
+	 * Unless the <code>displayControllerPanel</code> boolean is set to false (by the closeButton)
+	 * in which case <code>null</code> is returned, as this panel should be closed. 
+	 * 
+	 * @return
+	 */
+	public JPanel getSearchResultsPanel() {
+		if (displayControllerPanel)
+			return searchControllerPanel;
+		else return null;
+	}
+	
+	/**
+	 * This method is called by the DocumentListener on the searchTermSource.
+	 * It adds auto-complete functionality to the search-term box, using 
+	 * tokens from the Lucene index, displaid in
+	 * the HistoryDialog, from the clients.jar. 
+	 */
+	public void autoComplete() {
+		Rectangle rect = searchTermSource.getBounds();
+		String text = searchTermSource.getText();
+		/*
+		 * Don't auto-complete for 0 or 1 letter.
+		 */
+		if (text.length() < 2) return;
+		
+		IndexTermFinder indexFinder = new IndexTermFinder(IndexFiles.INDEX_PATH,
+				IndexFiles.CONTENTS);
+		String[] matchingTerms = indexFinder.getMatchingTerms(text);
+		
+		popup = new HistoryDialog(matchingTerms, rect.width);
+		popup.addPropertyChangeListener(
+				HistoryDialog.SELECTION_PROPERTY, this);
+		
+		popup.show(searchTermSource, 0, rect.height);
+		
+		searchTermSource.requestFocusInWindow();
+	}
+
+	/**
+	 * Method of DocumentListener added to the search box, for auto-complete.
+	 * Simply calls autoComplete()
+	 */
+	public void insertUpdate(DocumentEvent e) {
+		autoComplete();
+	}
+	
+	/**
+	 * Method of DocumentListener added to the search box, for auto-complete.
+	 * Simply calls autoComplete()
+	 */
+	public void changedUpdate(DocumentEvent e) {
+		autoComplete();
+	}
+	
+	/**
+	 * Method of DocumentListener added to the search box, for auto-complete.
+	 * Simply calls autoComplete()
+	 */
+	public void removeUpdate(DocumentEvent e) {
+		autoComplete();
+	}
+
+	/**
+	 * This class listeners for changes to windows or dialogs that it creates.
+	 * eg. Auto-complete dialog to populate the search box with a chosen word,
+	 * or The template search dialog when the search has been completed. 
+	 */
+	public void propertyChange(PropertyChangeEvent evt) {
+		String propName = evt.getPropertyName();
+		
+		if (HistoryDialog.SELECTION_PROPERTY.equals(propName)) {
+			Object item = evt.getNewValue();
+			searchTermSource.setText(item.toString());
+			
+			popup.setVisible(false);
+		}
+		
+		if (TemplateSearch.TEMPLATE_SEARCH_DONE.equals(propName)) {
+			
+			List<Object> results = (List<Object>)evt.getNewValue();
+			JPanel newResultPanel = new SearchPanel(results, " ", model);
+			setSearchResultsPanel(newResultPanel);
+		}
+	}
+
+}

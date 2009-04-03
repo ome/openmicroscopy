@@ -1,0 +1,504 @@
+/*
+ * org.openmicroscopy.shoola.env.ui.ViewerSorter
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+
+package org.openmicroscopy.shoola.agents.util;
+
+//Java imports
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeViewNode;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.GroupData;
+import pojos.ImageData;
+import pojos.ProjectData;
+
+/** 
+ * Sorts the values.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision: 3208 $ $Date: 2006-02-27 18:56:26 +0000 (Mon, 27 Feb 2006) $)
+ * </small>
+ * @since OME2.2
+ */
+public class ViewerSorter
+{
+
+    /** Flag to indicate the order selected. */
+    private boolean     ascending;
+    
+    /** Flag to indicate that the objects are ordered by date. */
+    private boolean     byDate;
+    
+    /** The collection to sort. */
+    private Collection  collection;
+    
+    /** The list containing the ordered values. */
+    private List        results;
+    
+    /**
+     * Compares two {@link Date}s.
+     * 
+     * @param d1 The first object to compare.
+     * @param d2 The second object to compare.
+     * @return See below.
+     */
+    private int compareDates(Date d1, Date d2)
+    {
+        long n1 = d1.getTime();
+        long n2 = d2.getTime();
+        int v = 0;
+        if (n1 < n2) v = -1;
+        else if (n1 > n2) v = 1;
+        return v;
+    }
+    
+    /**
+     * Compares two {@link String}s.
+     * 
+     * @param s1 The first object to compare.
+     * @param s2 The second object to compare.
+     * @return See below.
+     */
+    private int compareStrings(String s1, String s2)
+    {
+        if (s1 == null && s2 == null) return 0; 
+        else if (s1 == null) return -1; 
+        else if (s2 == null) return 1; 
+        int v = 0;
+        int result = (s1.toLowerCase()).compareTo(s2.toLowerCase());
+        if (result < 0) v = -1;
+        else if (result > 0) v = 1;
+        return v;
+    }
+    
+    /**
+     * Compares two {@link Object}s.
+     * 
+     * @param o1 The first object to compare.
+     * @param o2 The second object to compare.
+     * @return See below.
+     */
+    private int compareObjects(Object o1, Object o2)
+    {
+        return compareStrings(o1.toString(), o2.toString());
+    }
+    
+    /**
+     * Compares two {@link Boolean}s.
+     * 
+     * @param bool1 The first object to compare.
+     * @param bool2 The second object to compare.
+     * @return See below.
+     */
+    private int compareBooleans(Boolean bool1, Boolean bool2)
+    {
+        boolean b1 = bool1.booleanValue();
+        boolean b2 = bool2.booleanValue();
+        int v = 0;
+        if (b1 == b2) v = 0;
+        else if (b1) v =  -1; //1
+        else v = 1;//-1
+        return v;
+    }
+    
+    /**
+     * Compares two {@link Number}s.
+     * 
+     * @param n1 The first object to compare.
+     * @param n2 The second object to compare.
+     * @return See below.
+     */
+    private int compareNumbers(Number n1, Number n2)
+    {
+        double d1 = n1.doubleValue();
+        double d2 = n2.doubleValue();
+        int v = 0;
+        if (d1 < d2) v = -1;
+        else if (d1 > d2)   v = 1;
+        return v;
+    }
+    
+    /**
+     * Compares two {@link Timestamp}s.
+     * 
+     * @param t1 The first object to compare.
+     * @param t2 The second object to compare.
+     * @return See below.
+     */
+    private int compareTimestamps(Timestamp t1, Timestamp t2)
+    {
+    	int v = 0;
+        int r = t1.compareTo(t2);
+        if (r < 0) v = -1;
+        else if (r > 0) v = 1;
+        return v;
+    }
+    
+    /**
+     * Compares two {@link DataObject}s.
+     * 
+     * @param o1 The first object to compare.
+     * @param o2 The second object to compare.
+     * @return See below.
+     */
+    private int compareDataObjects(DataObject o1, DataObject o2)
+    {
+        if (!byDate) return compareStrings(getNameFor(o1), getNameFor(o2));
+        return compareTimestamps(getTimeFor(o1), getTimeFor(o2));
+    }
+
+    /**
+     * Compares two {@link TreeImageDisplay}s.
+     * 
+     * @param o1 The first object to compare.
+     * @param o2 The second object to compare.
+     * @return See below.
+     */
+    private int compareTreeImageDisplays(TreeImageDisplay o1, 
+            TreeImageDisplay o2)
+    {
+        Object ob1 = o1.getUserObject();
+        Object ob2 = o2.getUserObject();
+        if (!(ob1 instanceof DataObject)) return -1;
+        if (!(ob2 instanceof DataObject)) return 1;
+        return compareDataObjects((DataObject) ob1, (DataObject) ob2);
+    }
+    
+    /**
+     * Compares two {@link ImageDisplay}s.
+     * 
+     * @param o1 The first object to compare.
+     * @param o2 The second object to compare.
+     * @return See below.
+     */
+    private int compareImageDisplays(ImageDisplay o1, ImageDisplay o2)
+    {
+        Object ob1 = o1.getHierarchyObject();
+        Object ob2 = o2.getHierarchyObject();
+        if (!(ob1 instanceof DataObject)) return -1;
+        if (!(ob2 instanceof DataObject)) return 1;
+        return compareDataObjects((DataObject) ob1, (DataObject) ob2);
+    }
+    
+    /**
+     * Compares two {@link TreeViewNode}s.
+     * 
+     * @param o1 The first object to compare.
+     * @param o2 The second object to compare.
+     * @return See below.
+     */
+    private int compareTreeViewNodes(TreeViewNode o1, TreeViewNode o2)
+    {
+        Object ob1 = o1.getUserObject();
+        Object ob2 = o2.getUserObject();
+        if (!(ob1 instanceof DataObject)) return -1;
+        if (!(ob2 instanceof DataObject)) return 1;
+        return compareImageDisplays((ImageDisplay) ob1, (ImageDisplay) ob2);
+    }
+    
+    /** 
+     * Returns the insertion time for the specified data object.
+     * 
+     * @param o The data object to control.
+     * @return See above.
+     */
+    private Timestamp getTimeFor(DataObject o)
+    {
+        Timestamp t = null;
+        if (o instanceof ImageData) {
+            try {
+                t = ((ImageData) o).getInserted();
+            } catch (Exception e) {}
+        }
+        if (t == null) t = new Timestamp(new Date().getTime());
+        return t;
+    }
+    
+    /**
+     * Returns the name of the node.
+     * 
+     * @param obj The object to handle
+     * @return See above.
+     */
+    public String getNameFor(Object obj)
+    { 
+        if (obj instanceof ProjectData) return ((ProjectData) obj).getName();
+        else if (obj instanceof DatasetData) 
+            return ((DatasetData) obj).getName();
+        else if (obj instanceof ImageData) 
+            return ((ImageData) obj).getName();
+        else if (obj instanceof CategoryGroupData) 
+            return ((CategoryGroupData) obj).getName();
+        else if (obj instanceof CategoryData) 
+            return ((CategoryData) obj).getName();
+        else if (obj instanceof ExperimenterData) {
+        	ExperimenterData exp = (ExperimenterData) obj;
+        	return exp.getLastName()+" "+exp.getFirstName();
+        }  else if (obj instanceof GroupData) 
+            return ((GroupData) obj).getName();
+        else if (obj instanceof String) return (String) obj;
+        return "";
+    }
+    
+    /**
+     * Compares two {@link Object}s.
+     * 
+     * @param o1 The first object to compare.
+     * @param o2 The second object to compare.
+     * @return See below.
+     */
+    private int compare(Object o1, Object o2)
+    {
+        // If both values are null, return 0.
+        if (o1 == null && o2 == null) return 0; 
+        else if (o1 == null) return -1; 
+        else if (o2 == null) return 1; 
+        int result = 0;
+
+        if (o1 instanceof Number || o1 instanceof Integer || 
+                o1 instanceof Double || o1 instanceof Float)
+            result = compareNumbers((Number) o1, (Number) o2);
+        else if (o1 instanceof Date) 
+            result = compareDates((Date) o1, (Date) o2);
+        else if (o1 instanceof String)
+            result = compareStrings((String) o1, (String) o2);
+        else if (o1 instanceof Boolean)
+            result = compareBooleans((Boolean) o1, (Boolean) o2);    
+        else if (o1 instanceof DataObject)
+            result = compareDataObjects((DataObject) o1, (DataObject) o2);
+        else if (o1 instanceof TreeImageDisplay)
+            result = compareTreeImageDisplays((TreeImageDisplay) o1, 
+                    (TreeImageDisplay) o2);
+        else if (o1 instanceof ImageDisplay)
+            result = compareImageDisplays((ImageDisplay) o1, (ImageDisplay) o2);
+        else if (o1 instanceof TreeViewNode)
+            result = compareTreeViewNodes((TreeViewNode) o1, (TreeViewNode) o2);
+        else if (o1 instanceof Timestamp)
+        	result = compareTimestamps((Timestamp) o1, (Timestamp) o2);
+        else result = compareObjects(o1, o2);
+           
+        if (result != 0) return ascending ? result : -result;
+        return result;
+    }
+
+    /**
+     * Sorts the objects.
+     * 
+     * @param from
+     * @param to
+     * @param low
+     * @param high
+     */
+    private void shuttlesort(Object[] from, Object[] to, int low, int high)
+    {
+        if (high-low < 2) return;
+        int middle = (low+high)/2;
+        shuttlesort(to, from, low, middle);
+        shuttlesort(to, from, middle, high);
+
+        int p = low, q = middle;
+
+        /* This is an optional short-cut; at each recursive call,
+        check to see if the elements in this subset are already
+        ordered.  If so, no further comparisons are needed; the
+        sub-array can just be copied.  The array must be copied rather
+        than assigned otherwise sister calls in the recursion might
+        get out of sinc.  When the number of elements is three they
+        are partitioned so that the first set, [low, mid), has one
+        element and and the second, [mid, high), has two. We skip the
+        optimisation when the number of elements is three or less as
+        the first compare in the normal merge will produce the same
+        sequence of steps. This optimisation seems to be worthwhile
+        for partially ordered lists but some analysis is needed to
+        find out how the performance drops to Nlog(N) as the initial
+        order diminishes - it may drop very quickly.  */
+
+        if (high-low >= 4 && compare(from[middle-1], from[middle]) <= 0) {
+            for (int i = low; i < high; i++)
+                to[i] = from[i];
+            return;
+        }
+
+        for (int i = low; i < high; i++) {
+            if (q >= high || (p < middle && compare(from[p], from[q]) <= 0)) 
+                to[i] = from[p++];
+            else to[i] = from[q++]; 
+        }
+    }
+    
+    /** Sets the default values. */
+    private void initialize()
+    {
+        ascending = true;
+        byDate = false;
+    }
+    
+    /** Creates a new instance. */
+    public ViewerSorter()
+    {
+        initialize();
+    }
+    
+    /**
+     * Creates a new instance. 
+     * 
+     * @param collection The collection to sort. Mustn't be <code>null</code>.
+     */
+    public ViewerSorter(Collection collection)
+    {
+        if (collection == null) throw new NullPointerException("No collection");
+        this.collection = collection;
+        initialize();
+    }
+    
+    /**
+     * Returns the value of the {@link #ascending} flag.
+     * 
+     * @return See above.
+     */
+    public boolean isAscending() { return ascending; } 
+    
+    /**
+     * Sets the ascending flag.
+     * 
+     * @param b Pass <code>true</code> to order the values in the ascending
+     *          order, <code>false</code> otherwise.
+     */
+    public void setAscending(boolean b)
+    {
+        if (b == ascending) return;
+        ascending = b;
+    }
+ 
+    /**
+     * Returns <code>true</code> if the collection is ordered by date,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isByDate() { return byDate; }
+
+    /**
+     * Passes <code>true</code> to order the collection by date, 
+     * <code>false</code> otherwise.
+     * 
+     * @param b The passed value.
+     */
+    public void setByDate(boolean b) { byDate = b; }
+
+    /**
+     * Sorts the specified collection.
+     * 
+     * @param collection The collection to sort.
+     * @return A list of ordered values.
+     */
+    public List sort(Collection collection)
+    {
+        if (collection == null) 
+            throw new NullPointerException("No collection to sort.");
+        this.collection = collection;
+        return sort();
+    }
+    
+    /**
+     * Sorts the collection previously set.
+     * 
+     * @return A list of ordered values.
+     */
+    public List sort()
+    {
+        if (collection == null) 
+            throw new NullPointerException("No collection to sort.");
+        Iterator i = collection.iterator();
+        Object[]  array = new Object[collection.size()];
+        Object[]  clone = new Object[collection.size()];
+        int index = 0;
+        Object obj;
+        while (i.hasNext()) {
+            obj = i.next();
+            array[index] = obj;
+            clone[index] = obj;
+            index++;
+        }
+        shuttlesort(clone, array, 0, array.length);
+        results = new ArrayList();
+        for (int j = 0; j < array.length; j++)  
+            results.add(array[j]);
+        return results;
+    }
+
+    /**
+     * Sorts the specified collection.
+     * 
+     * @param collection The collection to sort.
+     * @return An array of ordered values.
+     */
+    public Object[] sortArray(Collection collection)
+    {
+    	if (collection == null) 
+            throw new NullPointerException("No collection to sort.");
+        this.collection = collection;
+        return sortArray();
+    }
+    
+    /**
+     * Sorts the collection previously set.
+     * 
+     * @return An array of ordered values.
+     */
+    public Object[] sortArray()
+    {
+    	if (collection == null) 
+            throw new NullPointerException("No collection to sort.");
+        Iterator i = collection.iterator();
+        Object[]  array = new Object[collection.size()];
+        Object[]  clone = new Object[collection.size()];
+        int index = 0;
+        Object obj;
+        while (i.hasNext()) {
+            obj = i.next();
+            array[index] = obj;
+            clone[index] = obj;
+            index++;
+        }
+        shuttlesort(clone, array, 0, array.length);
+        return array;
+    }
+}

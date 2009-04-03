@@ -1,0 +1,49 @@
+<html>
+<head>
+<title>Slice and OMERO.Blitz</title>
+</head>
+<body>
+
+<pre class="code"></pre>
+
+<div align="center">
+<p><b>Slice and OMERO.Blitz</b></p>
+</div>
+
+<p><b>Introduction</b></p>
+
+<p>The OMERO.Blitz API is contructed using ICE's slice definition language. 
+A specification language for ICE it defines the contract between client and 
+server and persistant data.</p>
+
+<p>The slice definitions for the OMERO.Blitz server are located at 
+YOUR_OMERO_DIR/components/blitz/resources/omero. The slice files are broken it 
+different sections. The omero/ ice files are the central definitions of the blitz
+implementation. They provide an Ice facade over the existing
+OMERO.server architecture. Due to the increased overhead of
+creating implementations in multiple languages, the mappings are
+simplified and work mostly as simple data transfer objects. </p>
+
+<p>The main files of interest are</p>
+<ol>
+<li>
+	API.ice which contains the slice definition for the services and session calls. 
+</li>
+<li>
+	RTypes.ice which defines the primitive OMERO.Blitz persistant data types.
+</li>
+<li>
+	System.ice defines some basic class objects used in the API calls, for instance
+	<code>omero.system.Parameters</code> is used to set the search context of the 
+	<code>getUserImages()</code> in the IPojoService.
+</li>
+<li>
+	ServerErrors.ice contains all the exceptions thrown by the server.
+</li>
+<li>
+	Constants.ice has all the constants used in the API calls in the API.ice.
+</li>
+</ol>
+
+</body>
+</html>

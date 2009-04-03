@@ -1,0 +1,78 @@
+<html>
+<head>
+<title>Technical background and configuration.</title>
+</head>
+<body>
+
+<p>Web Admin is the basic application which allows managing users
+and groups in Omero server. WebAdmin was build by the JavaServer Faces
+(JSF), which is a Java technology-based Web application framework that
+simplifies the development of user interfaces for Java EE applications.
+Unlike to other traditional request-driven Model-View-Controller web
+frameworks, JSF uses a component-based approach. The state of UI
+components are saved when the client requests a new page and then they
+are restored when the request is returned. Out of the box, JSF uses
+JavaServer Pages for its display technology, but JSF can also
+accommodate other display technologies. JSF includes:
+<ul>
+	<li>A set of APIs for representing user interface components and
+	managing their state, handling events and input validation, converting
+	values, defining page navigation, and supporting internationalization
+	and accessibility.</li>
+	<li>A default set of user interface components.</li>
+	<li>A server-side event model.</li>
+	<li>State management.</li>
+	<li>Managed Beans (JavaBeans created with dependency injection).</li>
+</ul>
+</p>
+
+<p>The list below presents the files that can be configured.
+<ul>
+	<li><b>web.xml</b> is the main web-application configuration file.
+	You can set the following parameters
+	<ol type="a">
+		<li><b><i>defaultServerHost</i></b>: the value sets in the <b><i>Hostname</i></b>
+		field of the login page (see <a href="section_4_1.html">Section
+		4.1</a>). The default value is <b>localhost</b>.</li>
+		<li><b><i>defaultServerPort</i></b>: the value sets in the <b><i>Port</i></b>
+		field of the login page (see <a href="section_4_1.html">Section
+		4.1</a>). The default value is <b>1099</b>.</li>
+		<li><b><i>topTenValue </i></b>: the number of users using most of
+		the drive space (see <a href="section_4_18.html">Section 4.18</a>).
+		The default value is <b>5</b>.</li>
+		<li><b><i>usersListsDir</i></b>: path where the intermediary
+		files will be stored with users' details (see <a
+			href="section_4_5.html">Section 4.5</a>). The default value is <b>/OMERO/WebAdmin</b>.
+		(<b>WARNING</b>: if you change this directory name please, remember to
+		change <b><i>uploadRepositoryPath</i></b>. The default value is <b>/OMERO/WebAdmin</b>).</li>
+		<li><b><i>ldapAttributes</i></b>: list of Ldap search attributes
+		(see <a href="section_4_20.html">Section 4.20</a>). The defult
+		values are: <b>sn,givenName,cn,mail,employeeNumber,uidNumber,gidNumber</b></li>
+	</ol>
+	</li>
+	<li><b>log4j.properties</b> - Log4j is used to collect logs
+	statement. You can edit log4j.properties to specify the location of the
+	log file.</li>
+
+	<li><b>faces-config.xml</b> - sets the parameter <b><i>ome.admin.bundle.messages
+	</i></b> to specify the language used, which supporting internationalization
+	and accessibility (default language: en, supported: de, nl, fr, sp, it,
+	pl, ect.). (<b>WARNING</b>: For adding new language needs to be
+	duplicated the tag: <code>&lt;supported-locale&gt;lang&lt;/supported-locale&gt;</code>
+	and creates the new file under <b><i>WebAdmin/src/omero/admin/boundle/</i></b>
+	with specified name: <b><i>messages_LANG.properties</i></b> and context
+	with translated sentences)</li>
+	<li><b>message.properties</b> - defines the internationalization
+	context.</li>
+</ul>
+</p>
+
+
+<p>To build the application from your IDE you need to run build.xml.
+Every changes needs to rebuild the application.</p>
+
+<p>To start the tool, use your favorite web browser and enter the
+following link: <a href="http://localhost:1099/WebAdmin/">http://localhost:1099/WebAdmin/</a>
+</p>
+</body>
+</html>

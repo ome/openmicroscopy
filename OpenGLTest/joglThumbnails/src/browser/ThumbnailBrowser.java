@@ -1,0 +1,82 @@
+/*
+* browser.ThumnailBrower
+*
+ *------------------------------------------------------------------------------
+*  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+*
+*
+* 	This program is free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation; either version 2 of the License, or
+*  (at your option) any later version.
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License along
+*  with this program; if not, write to the Free Software Foundation, Inc.,
+*  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*
+*------------------------------------------------------------------------------
+*/
+package browser;
+
+
+
+//Java imports
+import java.io.IOException;
+import java.util.Map;
+
+import javax.swing.JPanel;
+
+//Third-party libraries
+import omero.ServerError;
+import omerogateway.OmeroGateway;
+
+//Application-internal dependencies
+
+/**
+ *
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since 3.0-Beta4
+ */
+public class ThumbnailBrowser 
+{
+	
+	private View	view;
+	private Model	model;
+	private	Control	control;
+	
+	public ThumbnailBrowser(OmeroGateway gateway)
+	{
+		model = new Model(gateway);
+		view = new View();
+		control = new Control(model, view);
+		view.setControl(control);
+	}
+	
+	public JPanel getBrowserView()
+	{
+		return view.getView();
+	}
+	
+	public void viewDataset(long id, int width, int height) 
+											throws ServerError, IOException
+	{
+		Map<Long, byte[]> thumbnails = model.getThumbnails(id);
+		view.setThumbnails(thumbnails, width, height);
+	}
+	
+	
+	
+}
+

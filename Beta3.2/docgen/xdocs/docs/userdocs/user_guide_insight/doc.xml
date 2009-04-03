@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xdoc>
+<xdoc-info>
+  <title>OMERO clients User Guide</title>
+  <author name="David Sloan" email="comments@openmicroscopy.org.uk" />
+  <author name="Xinyi Jiang" email="comments@openmicroscopy.org.uk" />
+  <author name="Paul Forbes" email="comments@openmicroscopy.org.uk" />
+  <author name="Jean-Marie Burel" email="comments@openmicroscopy.org.uk" />
+  <author name="Donald MacDonald" email="comments@openmicroscopy.org.uk" />
+  <author name="Brian Loranger" email="comments@openmicroscopy.org.uk" />
+  <version number="3.0-Beta 2.2"/>
+  <last-modified date="2007-11-05"/>
+</xdoc-info>
+
+ <toc name="Table of Contents" href="index.htm">
+  <section href="intro.html" name="Introduction"/>	
+  <section href="section_1.html" name="Getting started with OMERO">
+    <section href="section_1_1.html" name="Installing OMERO.importer and OMERO.insight"/>
+    <section href="section_1_2.html" name="Logging in"/>
+     <section href="section_1_3.html" name="Importing images"/>
+     <section href="section_1_4.html" name="Viewing images">
+     	<section href="section_1_4_1.html" name="Viewing a single image">
+     		<section href="section_1_4_1_1.html" name="Viewing z-sections or timepoints"/>
+     		<section href="section_1_4_1_2.html" name="Adjusting channels"/>
+     		<section href="section_1_4_1_3.html" name="Additional viewing options"/>
+     	</section>
+     	<section href="section_1_4_2.html" name="Viewing a selection of images: the Hierarchy Viewer"/>
+     	</section>
+     <section href="section_1_5.html" name="Saving images"/>
+  </section>
+   <section href="section_2.html" name="Advanced OMERO">
+    <section href="section_2_1.html" name="Getting to know the Data Manager"/>
+    <section href="section_2_2.html" name="Viewing and editing user account details"/>
+    <section href="section_2_3.html" name="Managing projects and datasets">
+      <section href="section_2_3_1.html" name="Creating projects and datasets"/>
+      <section href="section_2_3_2.html" name="Renaming projects or datasets"/>
+      <section href="section_2_3_3.html" name="Removing projects or datasets"/>
+      <section href="section_2_3_4.html" name="Expanding a project to see constituent datasets"/>
+      <section href="section_2_3_5.html" name="Expanding a dataset to see constituent images"/>
+      <section href="section_2_3_6.html" name="The Projects, Categories and Images tabs"/>
+     </section>
+     <section href="section_2_4.html" name="Viewing other people's images"/>
+     <section href="section_2_5.html" name="Additional information about projects, datasets and images"/>
+     <section href="section_2_6.html" name="Annotations">
+       <section href="section_2_6_1.html" name="Viewing annotations"/>
+       <section href="section_2_6_2.html" name="Annotating a single image or dataset"/>
+       <section href="section_2_6_3.html" name="Annotating multiple images or datasets"/>
+     </section>
+     <section href="section_2_7.html" name="Categorising images">
+       <section href="section_2_7_1.html" name="Creating category groups"/>
+       <section href="section_2_7_2.html" name="Creating categories"/>
+       <section href="section_2_7_3.html" name="Removing categories and category groups"/>
+       <section href="section_2_7_4.html" name="Categorising images">
+       <section href="section_2_7_4_1.html" name="Categorising a single image"/>
+       <section href="section_2_7_4_2.html" name="Categorising multiple images"/>
+          <section href="section_2_7_4_3.html" name="Viewing images in a category"/>
+          <section href="section_2_7_4_4.html" name="Removing an image from a category"/>
+       </section>
+     </section>
+     <section href="section_2_8.html" name="Sorting and finding images">
+       <section href="section_2_8_1.html" name="Sorting images"/>
+       <section href="section_2_8_2.html" name="Retrieving selected images"/>
+       <section href="section_2_8_3.html" name="Finding images with Find in Tree"/>
+     </section>
+     <section href="section_2_9.html" name="Viewing images">
+       <section href="section_2_9_1.html" name="Viewing a specific Channel"/>
+       <section href="section_2_9_2.html" name="Additional viewing options">
+           <section href="section_2_9_2_1.html" name="Colour and greyscale viewing"/>
+           <section href="section_2_9_2_2.html" name="Movie viewing across channels"/>
+           <section href="section_2_9_2_3.html" name="Channel configuration"/>
+           <section href="section_2_9_2_4.html" name="Image information"/>
+           <section href="section_2_9_2_5.html" name="Annotation View"/>
+       </section>
+       <section href="section_2_9_3.html" name="Magnification">
+           <section href="section_2_9_3_1.html" name="Magnifying the whole image"/>
+           <section href="section_2_9_3_2.html" name="Magnifying an area of the image"/>
+           <section href="section_2_9_3_3.html" name="Scale bar"/>
+       </section>
+       <section href="section_2_9_4.html" name="Viewing z-sections and timepoints">
+           <section href="section_2_9_4_1.html" name="Automated viewing of z-sections and timepoints"/>
+           <section href="section_2_9_4_2.html" name="Selecting z-section and timepoints"/>
+           <section href="section_2_9_4_3.html" name="Additional Movie Player options for z-section and timepoint viewing"/>
+       </section>
+       <section href="section_2_9_5.html" name="Image Rendering options"/>  
+     </section>
+     <section href="section_2_13.html" name="Introduction to the Measurement Tool">
+       <section href="section_2_13_1.html" name="Accessing the Measurement Tool"/> 
+       <section href="section_2_13_2.html" name="The Measurement Tool interface"/> 
+       <section href="section_2_13_3.html" name="Creating ROIs"> 
+          <section href="section_2_13_3_1.html" name="What is an ROI?"/> 
+          <section href="section_2_13_3_2.html" name="Creating a single shape"/> 
+          <section href="section_2_13_3_3.html" name="Adding multiple ROI shapes on one plane"/>
+          <section href="section_2_13_3_4.html" name="Creating an ROI across z-sections and timepoints"/>  
+        </section>
+        <section href="section_2_13_4.html" name="Saving and loading ROIs"> 
+          <section href="section_2_13_4_1.html" name="Saving ROIs"/> 
+          <section href="section_2_13_4_2.html" name="Loading ROIs"/> 
+        </section>
+        <section href="section_2_13_5.html" name="Editing ROIs"> 
+          <section href="section_2_13_5_1.html" name="Selecting ROIs"/> 
+          <section href="section_2_13_5_2.html" name="Annotation and labelling"> 
+            <section href="section_2_13_5_2_1.html" name="Annotating an existing ROI shape"/> 
+            <section href="section_2_13_5_2_2.html" name="Labelling Images"/> 
+          </section>
+          <section href="section_2_13_5_3.html" name="Moving or resizing a single ROI"> 
+            <section href="section_2_13_5_3_1.html" name="Moving a single ROI shape"/> 
+            <section href="section_2_13_5_3_2.html" name="Resizing a single ROI shape"/> 
+          </section>
+          <section href="section_2_13_5_4.html" name="Changing the appearance of an ROI shape"> 
+            <section href="section_2_13_5_4_1.html" name="Adjusting display of annotation text"/> 
+            <section href="section_2_13_5_4_2.html" name="Adjusting display of the ROI shape"/>  
+            <section href="section_2_13_5_4_3.html" name="Hiding ROI shapes"/> 
+          </section>
+          <section href="section_2_13_5_5.html" name="Deleting a single ROI shape"/> 
+          <section href="section_2_13_5_6.html" name="Editing multiple ROI shapes and ROIs"/> 
+        </section>
+        <section href="section_2_13_6.html" name="Viewing ROI information"> 
+            <section href="section_2_13_6_1.html" name="Viewing summary ROI information"/> 
+            <section href="section_2_13_6_2.html" name="Measurement results">
+              <section href="section_2_13_6_2_1.html" name="Showing summary results"/>
+              <section href="section_2_13_6_2_2.html" name="Refreshing summary data"/>
+              <section href="section_2_13_6_2_3.html" name="Saving summary data"/>
+            </section>
+            <section href="section_2_13_6_3.html" name="Viewing pixel intensity values">
+              <section href="section_2_13_6_3_1.html" name="Graphical view">
+                <section href="section_2_13_6_3_1_1.html" name="Configuring the Graph view"/>
+                <section href="section_2_13_6_3_1_2.html" name="Saving graphical views"/>
+              </section>
+              <section href="section_2_13_6_3_2.html" name="Intensity View"/>
+            </section>
+        </section>
+     </section>
+     <section href="section_2_10.html" name="The Hierarchy Viewer: viewing multiple images">
+         <section href="section_2_10_1.html" name="Viewing an image from the Hierarchy Viewer"/> 
+         <section href="section_2_10_2.html" name="Using the Hierarchy Viewer">  
+            <section href="section_2_10_2_1.html" name="Adjusting thumbnail display"/>
+            <section href="section_2_10_2_2.html" name="Display Tree View of images"/>
+            <section href="section_2_10_2_3.html" name="Sorting images"/>  
+            <section href="section_2_10_2_4.html" name="Managing images in the Hierarchy Viewer"/>  
+            <section href="section_2_10_2_5.html" name="Additional image information: the Working Area"/>  
+          </section> 
+     </section>
+     <section href="section_2_11.html" name="Managing windows in OMERO.insight"/>
+     <section href="section_2_12.html" name="Closing OMERO.insight"/>
+   </section>
+   <section href="section_3.html" name="Feedback reporting">
+     <section href="section_3_1.html" name="Help Information"/>
+     <section href="section_3_2.html" name="Feedback Facility"/>
+    </section>
+    <section href="section_4.html" name="Background information">
+     <section href="section_4_1.html" name="What is OMERO?"/>
+     <section href="section_4_2.html" name="The OMERO Environment: client and server"/>
+     <section href="section_4_3.html" name="5-Dimensional images"/>
+     <section href="section_4_4.html" name="The OMERO Data Model and Hierarchies"/>
+    </section>
+  </toc>
+</xdoc>

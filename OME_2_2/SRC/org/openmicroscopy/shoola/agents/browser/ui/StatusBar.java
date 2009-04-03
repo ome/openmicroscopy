@@ -1,0 +1,361 @@
+/*
+ * org.openmicroscopy.shoola.agents.browser.ui.StatusBar
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2004 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
+
+/*------------------------------------------------------------------------------
+ *
+ * Written by:    Jeff Mellen <jeffm@alum.mit.edu>
+ *
+ *------------------------------------------------------------------------------
+ */
+ 
+package org.openmicroscopy.shoola.agents.browser.ui;
+
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import org.openmicroscopy.shoola.agents.browser.BrowserMode;
+import org.openmicroscopy.shoola.agents.browser.BrowserModel;
+import org.openmicroscopy.shoola.agents.browser.BrowserModelListener;
+import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener;
+import org.openmicroscopy.shoola.agents.browser.datamodel.ProgressMessageFormatter;
+import org.openmicroscopy.shoola.agents.browser.images.Thumbnail;
+
+/**
+ * Shows the status bar for the view.  General messages like the name of the
+ * dataset, the name/number of images selected, changes to the modes in the
+ * system, and more, should go here.
+ *
+ * @author Jeff Mellen, <a href="mailto:jeffm@alum.mit.edu">jeffm@alum.mit.edu</a><br>
+ * <b>Internal version:</b> $Revision$ $Date$
+ * @version 2.2
+ * @since OME2.2
+ */
+public final class StatusBar extends JPanel
+                             implements BrowserModelListener,
+                                        BrowserViewListener,
+                                        ProgressListener
+{
+    private JLabel leftLabel;
+    
+    private Timer temporaryTimer;
+    private TimerTask currentTask;
+    
+    private String persistentString;
+    private Font persistentFont;
+    private Color persistentColor;
+    
+    private final Font defaultFont = new Font(null,Font.PLAIN,12);
+    private final Color defaultColor = Color.black;
+    private final Color modeChangeColor = Color.blue;
+    private final Font modeChangeFont = new Font(null,Font.BOLD,12);
+    
+    // progress listener variables
+    private int totalPieces;
+    private int piecesCompleted;
+    
+    /**
+     * Creates a StatusBar.
+     */
+    public StatusBar()
+    {
+        leftLabel = new JLabel();
+        
+        persistentFont = defaultFont;
+        persistentColor = defaultColor;
+        
+        setLayout(new FlowLayout(FlowLayout.LEFT));
+        
+        add(leftLabel);
+        revertToFontDefaults();
+        
+        temporaryTimer = new Timer();
+    }
+    
+    /**
+     * Sets the (persistent) text on the left side to the specified value.
+     * @param text The message to display.
+     */
+    public void setLeftText(String text)
+    {
+        if(text == null)
+        {
+            text = "";
+        }
+        leftLabel.setText(text);
+        persistentString = text;
+    }
+    
+    /**
+     * Sets the (persistent) font on the left side to the specified value.
+     * @param font
+     */
+    public void setStatusFont(Font font)
+    {
+        if(font != null)
+        {
+            persistentFont = font;
+            leftLabel.setFont(persistentFont);
+        }
+    }
+    
+    /**
+     * Sets the left (persistent) color to the specified hue.
+     * @param color The color to set.
+     */
+    public void setStatusColor(Color color)
+    {
+        if(color != null)
+        {
+            persistentColor = color;
+            leftLabel.setForeground(persistentColor);
+        }
+    }
+    
+    /**
+     * Reverts to the default font.
+     */
+    public void revertToFontDefaults()
+    {
+        setStatusFont(defaultFont);
+        setStatusColor(defaultColor);
+    }
+    
+    /**
+     * Do nothing for now unless a major UI mode change has occurred.
+     * Otherwise, display an appropriate status message and revert after 3
+     * seconds.
+     * 
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#modeChanged(java.lang.String, org.openmicroscopy.shoola.agents.browser.BrowserMode)
+     */
+    public void modeChanged(String className, BrowserMode mode)
+    {
+        TimerTask revertTask = getRevertTask();
+        
+        if(className.equals(BrowserModel.MAJOR_UI_MODE_NAME))
+        {
+            leftLabel.setForeground(modeChangeColor);
+            leftLabel.setFont(modeChangeFont);
+            
+            if(mode.equals(BrowserMode.DEFAULT_MODE))
+            {
+                leftLabel.setText("Default mode selected.");
+            }
+            else if(mode.equals(BrowserMode.ANNOTATE_MODE))
+            {
+                leftLabel.setText("Annotation mode selected.");
+            }
+            else if(mode.equals(BrowserMode.CLASSIFY_MODE))
+            {
+                leftLabel.setText("Classification mode selected.");
+            }
+            else if(mode.equals(BrowserMode.GRAPH_MODE))
+            {
+                leftLabel.setText("Graph mode selected.");
+            }
+        }
+        temporaryTimer.cancel();
+        temporaryTimer = new Timer();
+        temporaryTimer.schedule(revertTask,3000);
+    }
+    
+    /**
+     * Does nothing.
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#modelUpdated()
+     */
+    public void modelUpdated()
+    {
+        // do nothing
+    }
+    
+    /**
+     * Does nothing.
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#paintMethodsChanged()
+     */
+    public void paintMethodsChanged()
+    {
+       // do nothing
+    }
+    
+    /**
+     * Does nothing.
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#thumbnailAdded(org.openmicroscopy.shoola.agents.browser.images.Thumbnail)
+     */
+    public void thumbnailAdded(Thumbnail t)
+    {
+        // do nothing
+    }
+    
+    public void thumbnailsAdded(Thumbnail[] t)
+    {
+        // do nothing
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#thumbnailRemoved(org.openmicroscopy.shoola.agents.browser.images.Thumbnail)
+     */
+    public void thumbnailRemoved(Thumbnail t)
+    {
+        // TODO: get name of thumbnail, say that it's been removed.
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#thumbnailsRemoved(org.openmicroscopy.shoola.agents.browser.images.Thumbnail[])
+     */
+    public void thumbnailsRemoved(Thumbnail[] t)
+    {
+        // do nothing
+    }
+    
+    /**
+     * Does nothing.
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#thumbnailsDeselected(org.openmicroscopy.shoola.agents.browser.images.Thumbnail[])
+     */
+    public void thumbnailsDeselected(Thumbnail[] thumbnails)
+    {
+        // do nothing
+    }
+        
+    /**
+     * Displays the message that a certain number of thumbnails have been
+     * selected.
+     * 
+     * @see org.openmicroscopy.shoola.agents.browser.BrowserModelListener#thumbnailsSelected(org.openmicroscopy.shoola.agents.browser.images.Thumbnail[])
+     */
+    public void thumbnailsSelected(Thumbnail[] thumbnails)
+    {
+        leftLabel.setText(String.valueOf(thumbnails.length) +
+                          " images selected.");
+                          
+        TimerTask revertTask = getRevertTask();
+        temporaryTimer.cancel();
+        temporaryTimer = new Timer();
+        temporaryTimer.schedule(revertTask,3000);
+    }
+    
+    /**
+     * Indicates to the user that an iterative, potentially time-consuming
+     * process has started.
+     * 
+     * @param piecesOfData The number of steps in the process about to start.
+     * @see org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener#processStarted(int)
+     */
+    public void processStarted(int piecesOfData)
+    {
+        // error state...
+        if(piecesOfData < 1)
+        {
+            return;
+        }
+        else
+        {
+            setStatusColor(Color.black);
+            piecesCompleted = 0;
+            totalPieces = piecesOfData;
+        }
+    }
+    
+    /**
+     * Indicates to the user that a process has advanced a step.
+     * 
+     * @param info The message to display.
+     * @see org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener#processAdvanced(java.lang.String)
+     */
+    public void processAdvanced(String info)
+    {
+        piecesCompleted++;
+        String formatted =
+            ProgressMessageFormatter.format(info,piecesCompleted,totalPieces);
+        
+        setLeftText(info);
+    }
+
+    /**
+     * Display that the process has failed for some reason.
+     * 
+     * @param The displayed reason why a process failed.
+     * @see org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener#processFailed(java.lang.String)
+     */
+    public void processFailed(String reason)
+    {
+        setStatusColor(Color.red);
+        setLeftText("FAIL: "+reason);
+    }
+    
+    /**
+     * Display that a process has succeeded.
+     * @see org.openmicroscopy.shoola.agents.browser.datamodel.ProgressListener#processSucceeded()
+     */
+    public void processSucceeded(String successMessage)
+    {
+        setLeftText(successMessage);
+    }
+
+    
+    // returns a revert task, commonly used to replace temporary messages.
+    private TimerTask getRevertTask()
+    {
+        TimerTask task = new TimerTask() {
+            /* (non-Javadoc)
+             * @see java.util.TimerTask#run()
+             */
+            public void run()
+            {
+                leftLabel.setForeground(persistentColor);
+                leftLabel.setFont(persistentFont);
+                leftLabel.setText(persistentString);
+            }
+
+        };
+        
+        return task;
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.ui.BrowserViewListener#messageGenerated(java.lang.String)
+     */
+    public void messageGenerated(String message)
+    {
+        persistentString = leftLabel.getText();
+        leftLabel.setText(message);
+    }
+    
+    /**
+     * @see org.openmicroscopy.shoola.agents.browser.ui.BrowserViewListener#clearMessages()
+     */
+    public void clearMessages()
+    {
+        leftLabel.setText(persistentString);
+    }
+}

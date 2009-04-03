@@ -1,0 +1,93 @@
+/*
+ * org.openmicroscopy.shoola.env.config.IntegerEntry
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2004 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
+
+package org.openmicroscopy.shoola.env.config;
+
+//Java imports
+
+// Third-party libraries
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
+
+//Application-internal dependencies
+
+
+/**
+ * Hanldes an <i>entry</i> of type <i>integer</i>.
+ * The tag's value is stored into a {@link Integer} object which is then
+ * returned by the {@link #getValue() getValue} method.
+ * 
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *              a.falconi@dundee.ac.uk</a>
+ * @version 2.2 
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
+class IntegerEntry
+    extends Entry
+{
+    
+	/** The entry value. */
+    private Integer value;
+    
+    
+	/** Creates a new instance. */
+    IntegerEntry() {}
+    
+	/** Implemented as specified by {@link Entry}. */  
+    protected void setContent(Node node)
+		throws ConfigException
+    { 
+		String cfgVal = null;
+		try {
+			cfgVal = node.getFirstChild().getNodeValue();
+            value = new Integer(cfgVal);
+		} catch (DOMException dex) { 
+			rethrow("Can't parse integer entry, name: "+getName()+".", dex);
+		} catch (NumberFormatException nfe) {
+			rethrow(cfgVal+" is not a valid integer, entry name: "+
+					getName()+".", nfe);
+		}
+    }
+    
+	/**
+	 * Returns a {@link Integer} object which represents the tag's content.
+	 * The double value wrapped by the returned object will be parsed as
+	 * specified by the {@link Integer} class. 
+	 * 
+	 * @return	See above.
+	 */  
+    Object getValue() { return value; }
+    
+}

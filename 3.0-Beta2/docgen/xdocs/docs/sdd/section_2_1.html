@@ -1,0 +1,26 @@
+<html>
+<head>
+<title>Interactions</title>
+</head>
+<body>
+<p>
+Interactions among agents are event-driven. 
+Agents communicate by using a shared event bus provided by the container. 
+The event bus is an event propagation mechanism loosely based on 
+the Publisher-Subscriber <a href="biblio.html#pos_a1">[POSA1]</a> pattern and can be regarded as a 
+time-ordered event queue - if event A is posted on the bus before event B, 
+then event A is also delivered before event B. Events are fired by creating an 
+instance of a subclass of <code>AgentEvent</code> and by posting it on the 
+event bus. Agents interested in receiving notification of 
+<code>AgentEvent</code> occurrences implement the <code>AgentEventListener</code>
+interface and register with the event bus. 
+This interface has a callback method, <code>eventFired</code>, that the event 
+bus invokes in order to dispatch an event. A listener typically registers 
+interest only for some given events - by specifying a list of 
+<code>AgentEvent</code> subclasses when registering with the event bus. 
+The event bus will then take care of event de-multiplexing - an event is 
+eventually dispatched to a listener only if the listener registered for that 
+kind of event. 
+</p>
+</body>
+</html>

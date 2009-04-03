@@ -1,0 +1,42 @@
+<html>
+<head>
+<title>Building the OMERO.Blitz Server</title>
+</head>
+<body>
+
+<div align="center">
+<p><b>Building the OMERO.Blitz Server</b></p>
+</div>
+
+<p><b>Building the Database</b></p>
+<p><code>java omero rebuild-db</code></p>
+
+<p><b>Clean the build</b></p>
+<p><code>java omero clean cleantools</code></p>
+
+<p><b>Build OMERO.Blitz</b></p>
+<p><code>NOMAKE=1 java omero quick build dist withtools</code></p>
+
+<p><b>Running OMERO.Blitz</b></p>
+<pre>
+<code>cd YOUR_OMERO_DIR/dist/blitz</code>
+The first time you want to run the server type <code>chmod +x ./blitz</code>
+<code>JAVA_OPTS=-Xmx256M ./blitz start</code>
+</pre>
+<div class="noteFrame">
+	<div class="noteLabel">Warning</div>
+  	<div class="noteContent">
+  		if macports not installed change <code>BLITZEXE='readlink -f $0'</code>
+  		 in file YOUR_OMERO_DIR/dist/blitz to
+  		<code>BLITZEXE='$0'</code>
+  	</div>
+</div> 
+
+<p><b>Testing your OMERO.Blitz Server</b></p>
+<pre>
+<code>./setup.py test -s test.scripts.harness</code>
+in YOUR_OMERO_DIR/dist/etc/ice.config <code>omero.user=root</code>
+</pre>
+
+</body>
+</html>

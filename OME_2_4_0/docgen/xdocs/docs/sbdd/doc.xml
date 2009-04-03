@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xdoc>
+<xdoc-info>
+
+  <title>Software Build and Deployment Document</title>
+  <author name="Jean-Marie Burel" email="j.burel@dundee.ac.uk" />
+  <author name="Andrea Falconi" email="a.falconi@dundee.ac.uk" />
+
+  <revision number="$Revision$" />
+  <last-modified date="$Date$" />
+</xdoc-info>
+
+ <toc name="Table of Contents" href="index.htm">
+    <section href="intro.html" name="Introduction">
+      <section href="intro1.html" name="Purpose"/>
+      <section href="intro2.html" name="Readership"/>
+      <section href="intro3.html" name="Document Overview"/>
+    </section>
+    <section href="repos.html" name="Project Repository">
+      <section href="repos1.html" name="Repository Organization"/>
+      <section href="repos2.html" name="Downloading from CVS"/>
+    </section>
+    <section href="build.html" name="Build Process">
+      <section href="build1.html" name="Build Tool"/>
+      <section href="build2.html" name="Build Targets"/>
+	  <section href="build3.html" name="Dependencies"/>
+	  <section href="build4.html" name="Building with Ant"/>
+	  <section href="build5.html" name="Versioning"/>
+    </section>
+	<section href="deploy.html" name="Deployment">
+	  <section href="deploy1.html" name="System Requirements"/>
+	  <section href="deploy2.html" name="Installing and Running"/>
+	</section>
+	<section href="design.html" name="Build System Design">
+	  <section href="design1.html" name="Build Files"/>
+	  <section href="design2.html" name="Targets"/>
+	  <section href="design3.html" name="Build Tool"/>
+	  <section href="design4.html" name="Rationale"/>
+	</section>
+	<section href="future.html" name="Future Directions"/>
+	<section href="legal.html" name="Legal"/> 
+  </toc>
+</xdoc>

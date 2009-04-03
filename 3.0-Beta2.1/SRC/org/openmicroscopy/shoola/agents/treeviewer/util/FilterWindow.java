@@ -1,0 +1,405 @@
+/*
+ * rg.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+
+package org.openmicroscopy.shoola.agents.treeviewer.util;
+
+
+//Java imports
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+
+import layout.TableLayout;
+
+
+
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.clsf.TreeCheck;
+import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
+import pojos.CategoryData;
+import pojos.DatasetData;
+
+/** 
+ * This Component is used to select the containers from which the images are
+ * retrieved. The containers are either <code>Dataset</code> or 
+ * <code>Category</code>.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
+public class FilterWindow
+    extends JDialog
+    implements PropertyChangeListener
+{
+
+    /** The <code>Dataset</code> container type. */
+    public static final int         DATASET = 0;
+    
+    /** The <code>Category</code> container type. */
+    public static final int         CATEGORY = 1;
+    
+    /** Bound property name indicating the close the window. */
+    public static final String      CLOSE_PROPERTY = "close";
+    
+    /** Text corresponding to the {@link #DATASET} type. */
+    private static final String     DATASET_MSG = "datasets";
+    
+    /** Text corresponding to the {@link #CATEGORY} type. */
+    private static final String     CATEGORY_MSG = "categories";
+    
+    /** The title of the window. */
+    private static final String     TITLE = "Filter images retrieval";
+    
+    /** The subtitle of the window. */
+    private static final String     NOTE = "Select items in the following " +
+                                            "list.";
+    
+    /** The subtitle of the window. */
+    private static final String     MESSAGE = "No items available.";
+    
+    /** The subtitle of the window. */
+    private static final String     NOTE_MESSAGE = "Limit the images " +
+    								"retrieval by selecting items in the " +
+    								"following list of ";
+    
+    /** The default size of the window. */
+    private static final Dimension  WINDOW_SIZE = new Dimension(500, 500);
+
+    /** 
+     * The size of the invisible components used to separate buttons
+     * horizontally.
+     */
+    private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
+    
+    /** The specified type of container. */
+    private int             containerType;
+    
+    /** Button to close the window. */
+    private JButton         cancelButton;
+    
+    /** Button to set the containers' selection. */ 
+    private JButton         setButton;
+    
+    /** Button to select all items of the tree. */
+    private JButton         selectAll;
+    
+    /** Button to clear the selection. */
+    private JButton         clearAll;
+    
+    /** The tree hosting the hierarchical structure. */
+    private TreeCheck       tree;
+    
+    /** The parent requesting this component. */
+    private Object          parent;
+    
+    /** 
+     * Controls if the supported type is supported.
+     * 
+     * @param type The type to control.
+     */
+    private void checkType(int type)
+    {
+        switch (type) {
+            case DATASET:
+            case CATEGORY:    
+                break;
+                default:
+                    throw new IllegalArgumentException("Container not " +
+                                                        "supported");
+        }
+    }
+    
+    /**
+     * Returns the string corresponding to the {@link #containerType}.
+     * 
+     * @return See above.
+     */
+    private String getContainerString()
+    {
+        switch (containerType) {
+            case DATASET: return NOTE_MESSAGE+DATASET_MSG;
+            case CATEGORY: return NOTE_MESSAGE+CATEGORY_MSG;
+        }
+        return "";
+    }
+    
+    /** Initializes the UI components. */
+    private void initComponents()
+    {
+        IconManager im = IconManager.getInstance();
+        tree = new TreeCheck("", im.getIcon(IconManager.ROOT)); 
+        tree.setRootVisible(false);
+        selectAll = new JButton("Select All");
+        selectAll.setToolTipText(
+                UIUtilities.formatToolTipText("Select all items."));
+        clearAll = new JButton("Deselect All");
+        clearAll.setToolTipText(
+                UIUtilities.formatToolTipText("Clear selection."));
+        cancelButton = new JButton("Cancel");
+        cancelButton.setToolTipText(
+                UIUtilities.formatToolTipText("Close the window."));
+        setButton = new JButton("Apply");
+        setButton.setEnabled(false);
+        setButton.setToolTipText(
+                UIUtilities.formatToolTipText("Apply the selection."));
+    }
+    
+    /**
+     * Builds the tool bar hosting the {@link #cancelButton} and
+     * {@link #setButton}.
+     * 
+     * @return See above;
+     */
+    private JPanel buildRightToolBar()
+    {
+    	JPanel bar = new JPanel();
+        bar.setBorder(null);
+        bar.add(setButton);
+        bar.add(Box.createRigidArea(H_SPACER_SIZE));
+        bar.add(cancelButton);
+        return bar;
+    }
+    
+    /**
+     * Builds the tool bar hosting the {@link #selectAll} and {@link #clearAll}
+     * buttons.
+     * 
+     * @return See above;
+     */
+    private JPanel buildLeftToolBar()
+    {
+    	JPanel bar = new JPanel();
+        bar.setBorder(null);
+        bar.add(selectAll);
+        bar.add(Box.createRigidArea(H_SPACER_SIZE));
+        bar.add(clearAll);
+        return bar;
+    }
+    
+    /**
+     * Builds the component hosting the tree. If the specified collection
+     * is empty then a message is displayed.
+     * 
+     * @param nodes The nodes to add to the tree.
+     * @return See above.
+     */
+    private JComponent getFilterComponent(Set nodes)
+    {
+        if (nodes.size() == 0) {
+            setButton.setEnabled(false);
+            JPanel p = new JPanel();
+            p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+            p.add(UIUtilities.setTextFont(MESSAGE), BorderLayout.CENTER);
+            return p;
+        }
+        //      populates the tree
+        DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
+        TreeCheckNode r = (TreeCheckNode) dtm.getRoot();
+        Iterator i = nodes.iterator();
+        while (i.hasNext())
+            r.addChildDisplay((TreeCheckNode) i.next()) ;
+        ViewerSorter sorter = new ViewerSorter();
+        List sortedNodes = sorter.sort(nodes);
+        i = sortedNodes.iterator();
+        TreeCheckNode n;
+        while (i.hasNext()) {
+            n = (TreeCheckNode) i.next();
+            r.addChildDisplay(n);
+            dtm.insertNodeInto(n, r, r.getChildCount());
+        }
+           
+        dtm.reload();
+        tree.expandPath(new TreePath(r.getPath()));
+        JPanel content = new JPanel();
+        double[][] tl = {{TableLayout.FILL}, //columns
+ 							{400}};
+        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        content.setLayout(new TableLayout(tl));
+        content.add(new JScrollPane(tree), "0, 0");
+        return content;
+    }
+    
+    /** 
+     * Builds and lays out the GUI. 
+     * 
+     * @param filterComponent The component hosting the tree.
+     */
+    private void buildGUI(JComponent filterComponent)
+    {
+        JPanel contentPanel = new JPanel();
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        IconManager im = IconManager.getInstance();
+        TitlePanel tp = new TitlePanel(TITLE, NOTE, getContainerString(), 
+                                    im.getIcon(IconManager.FILTER_BIG));
+        //Set the layout and add components
+        Container c = getContentPane();
+        c.setLayout(new BorderLayout(0, 0));
+        c.add(tp, BorderLayout.NORTH);
+        c.add(filterComponent, BorderLayout.CENTER);
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(UIUtilities.buildComponentPanel(buildLeftToolBar()));
+        p.add(UIUtilities.buildComponentPanelRight(buildRightToolBar()));
+        p.setOpaque(true);
+        c.add(p, BorderLayout.SOUTH);
+    }
+    
+    /** Binds the {@link #close() close} action to the exit event generated. */
+    private void attachListeners()
+    {
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) { close(); }
+        });
+        selectAll.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            { 
+                tree.selectAllNodes(); 
+            }
+        });
+        clearAll.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                tree.deselectAllNodes();
+            }
+        });
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) { close(); }
+        });
+        setButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) { setValues(); }
+        });
+    }
+    
+    /** Closes and disposes of the window. */
+    private void close()
+    {
+        firePropertyChange(CLOSE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+        setVisible(false);
+        dispose();
+    }
+    
+    /** Sets the selected values and closes the window. */
+    private void setValues()
+    {
+        //Need to retrieve the node.
+        Set nodes = tree.getSelectedNodes(); 
+        if (nodes == null || nodes.size() == 0) { 
+            UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+            un.notifyInfo("Categorization", "No category selected."); 
+            return; 
+        }
+        Set paths = new HashSet(nodes.size()); 
+        Iterator i = nodes.iterator();
+        Object object; 
+        while (i.hasNext()) { 
+            object = ((TreeCheckNode) i.next()).getUserObject(); 
+            if ((object instanceof CategoryData) || 
+                 (object instanceof DatasetData)) paths.add(object); 
+        } 
+        HashMap map = new HashMap(1);
+        map.put(parent, paths);
+        firePropertyChange(TreeViewer.FILTER_NODES_PROPERTY, null, map);
+        setVisible(false);
+        dispose();
+    }
+    
+    /**
+     * Creates a new instance. 
+     * 
+     * @param parent        The parent requesting this window.
+     *                      Mustn't be <code>null</code>.
+     * @param owner         The owner of the frame.
+     * @param containerType The type of container this window is for. One of the
+     *                      following constants: {@link #DATASET} or 
+     *                      {@link #CATEGORY}.
+     * @param nodes         The nodes to display. Mustn't be <code>null</code>.
+     */
+    public FilterWindow(Object parent, JFrame owner, int containerType, 
+                        Set nodes)
+    {
+        super(owner, "Filter Images Retrieval", true);
+        if (nodes == null) 
+            throw new IllegalArgumentException("No nodes.");
+        if (parent == null)
+            throw new IllegalArgumentException("Parent cannot be null.");
+        checkType(containerType);
+        this.parent = parent;
+        this.containerType = containerType;
+        initComponents();
+        tree.addPropertyChangeListener(TreeCheck.NODE_SELECTED_PROPERTY, this);
+        buildGUI(getFilterComponent(nodes));
+        attachListeners();
+        setSize(WINDOW_SIZE);
+    }
+
+    /**
+     * Reacts to property change fired by the <code>tree</code>.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+	public void propertyChange(PropertyChangeEvent pce)
+	{
+		String name = pce.getPropertyName();
+    	if (TreeCheck.NODE_SELECTED_PROPERTY.equals(name)) {
+    		int i = ((Integer) pce.getNewValue()).intValue();
+    		setButton.setEnabled(i > 0);
+    	} 
+	}
+    
+}

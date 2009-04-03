@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xdoc>
+<xdoc-info>
+
+  <title>OMERO.importer User Guide</title>
+  <author name="Brian Loranger" email="comments@openmicroscopy.org.uk" />
+  <version number="3.0-Beta"/>
+  <last-modified date="2007-02-16"/>
+</xdoc-info>
+
+ <toc name="Table of Contents" href="index.htm">
+  <section href="intro.html" name="Introduction"/>
+  <section href="section_2.html" name="Quick Start">
+    <section href="section_2_1.html" name="Installing OMERO.importer"/>
+    <section href="section_2_2.html" name="Importing Images"/>
+  </section>
+  <section href="section_3.html" name="Feedback reporting">
+	  <section href="section_3_1.html" name="Help Information"/>
+	  <section href="section_3_2.html" name="Feedback Facility"/>
+    </section>	
+  </toc>
+</xdoc>

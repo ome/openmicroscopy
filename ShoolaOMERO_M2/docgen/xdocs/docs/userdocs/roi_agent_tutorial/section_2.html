@@ -1,0 +1,93 @@
+<html>
+<head>
+  <title>Defining ROIs</title>
+</head>
+<body>
+<p>We're now going to define a cylinder within the stack of the first time-point (t 
+  = 0).</p>
+<ol>
+  <li>We create a new ROI by pressing the <i>New ROI</i> button <img src="images/nuvola_kpovmodeler16.gif" width="16" height="16"/> 
+    and by entering the name of the ROI in the <i>ROI Editor</i>. This new ROI will 
+    be automatically given an id of ROI #0.
+  </li>
+  <li>Then we press the Oval tool button <img src="images/openOffice_stock_draw-ellip.gif" width="16" height="16"/> 
+    in the Drawing context panel.</li>
+  <li>We now draw an ellipse on the displayed image -- the XY-plane at (z = 9, 
+    t = 0).</li>
+  <li>In order to define a cylinder, we need to propagate this shape in the stack. 
+    Instead of drawing manually the same shape across the stack, we use the <i>ROI 
+    Assistant</i> <img src="images/openOffice_stock_chart-data.gif" width="16" height="16"/> 
+    to automate this task.</li>
+  <li>In the <i>ROI Assistant</i>, we select the cell at (z = 9, t = 0), which corresponds 
+    to the XY-plane at (z = 9, t = 0). A little circle inside this cell indicates 
+    that this plane contains a 2D-selection. We now drag it down to (z = 5, t = 0). 
+    When the mouse is released, we select the <i>fill-to-here</i> option in the pop-up 
+    menu brought up on screen. New circles will appear to reflect that our initial 
+    2D-selection has now been applied to all z between 9 and 5 at t = 0.</li>
+  <li>The next step is to propagate the cylinder across time. Again, we do this using 
+    the <i>ROI Assistant</i>. We want to propagate from t = 0 to t = 6, so we enter 
+    these values in the <i>From t</i> and <i>To t</i> text fields, respectively (press 
+    enter each time). Then we press the <i>Copy stack</i> button <img src="images/openOffice_stock_3d-perspec.gif" width="16" height="16"/>. 
+    Again, the grid will be updated accordingly. </li>
+</ol>
+<p>&#160;</p>
+<div class="noteFrame">
+  <div class="noteLabel">Tip</div>
+  <div class="noteContent">Selecting <i>Show label</i> in the <i>Drawing context</i> 
+    panel, will display the ROI id on screen.</div>
+</div>
+<p>Here's what the ROI Assistant looks like now:</p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr> 
+    <td align="center"><img src="images/sc_1_thumb.jpg" width="343" height="256" /></td>
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td>
+  </tr>
+  <tr> 
+    <td align="center"><a name="fig_2-1"><b>Fig 2-1</b></a>: The ROI Assistant (top 
+      right) and the ROI Editor (bottom center).<br/>
+      <a href="images/sc_1.jpg" target="_blank">enlarge image</a></td>
+  </tr>
+  <tr> 
+    <td height="40">
+      <hr width="80%" align="center"/>
+    </td>
+  </tr>
+</table>
+<p>By dragging the Z or T slider in the <i>Viewer</i>, it's possible to see where 
+  each 2D-selection is positioned within each XY-plane.</p>
+<p>In a similar way we define the next ROI. This is going to be a cube that propagates 
+  across time. We first define a new ROI by pressing the <i>New ROI</i> button <img src="images/nuvola_kpovmodeler16.gif" width="16" height="16"/>. 
+  The new ROI will be automatically given an id of ROI #1. At this point we press 
+  the <i>Rectangle tool</i> button <img src="images/openOffice_stock_draw-recta.gif" width="16" height="16"/> 
+  and we draw a square on plane (z = 9, t = 0). In order to constraint the dimensions 
+  of the rectangle to be the same, we hold the <i>Shift key</i> as we draw. We need 
+  to look at this selection a little bit closer, so we bring up the <i>ROI Inspector</i> 
+  <img src="images/ome_eye16.gif" width="16" height="16"/> and we zoom our selection. 
+  We realize that some unwanted pixels ended up in our selection, so we resize it 
+  to cut them off the selection. Then in a similar way as explained above (steps 3 
+  to 6), we define a cube and we propagate it across time.</p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr> 
+    <td align="center"><img src="images/sc_2_thumb.jpg" width="193" height="258" /></td>
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td>
+  </tr>
+  <tr> 
+    <td align="center"><a name="fig_2-2"><b>Fig 2-2</b></a>: The ROI Inspector (bottom 
+      right).<br/>
+      <a href="images/sc_2.jpg" target="_blank">enlarge image</a></td>
+  </tr>
+  <tr> 
+    <td height="40"> 
+      <hr width="80%" align="center"/>
+    </td>
+  </tr>
+</table>
+<p>The screenshot above shows that the XY-plane at (z = 8, t = 1) contains two 2D-selections. 
+  The green one belongs to ROI #1, as the red one to ROI #0. Note that it&#146;s not 
+  possible for an XY-plane to contain two different 2D-selections for the same ROI.</p>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!--
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	#
+	# Experimental xsd for Protocol Editor
+	# William Moore
+	#
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+targetNamespace="http://morstonmud.com/omero/schemas"
+xmlns="http://morstonmud.com/omero/schemas"
+elementFormDefault="qualified">
+
+
+	<xs:annotation>
+		<xs:documentation>
+			Protocol Editor - William Moore
+			See http://trac.openmicroscopy.org.uk/~will/ 
+			for user guides etc. 
+			The structure permitted for elements in the Protocol Editor xml is highly flexible, allowing users to define structured annotations from these elements in any way they choose.
+		</xs:documentation>
+	</xs:annotation>
+
+
+	<xs:element name="ProtocolTitle">
+		<xs:complexType>
+		<xs:complexContent>
+    		<xs:extension base="baseElement">
+    			<xs:attribute name="keywords" type="xs:string" />
+				<xs:attribute name="version" type="xs:string" />
+				<xs:attribute name="protocolFileName" type="xs:string" />
+				<xs:attribute name="protocolHasExpChildren" type="xs:boolean" />
+			</xs:extension>
+		</xs:complexContent>
+		</xs:complexType>
+	
+	</xs:element>
+	
+	
+	<xs:element name="FixedStep">
+		<xs:complexType>
+		<xs:complexContent>
+    		<xs:extension base="baseElement">
+		
+			</xs:extension>
+		</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	<xs:element name="TextField">
+		<xs:complexType>
+		<xs:complexContent>
+    		<xs:extension base="baseElement">
+				<xs:attribute name="value" type="xs:string" />
+				<xs:attribute name="default" type="xs:string" />
+			</xs:extension>
+		</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	<xs:element name="TextBox">
+		<xs:complexType>
+		<xs:complexContent>
+    		<xs:extension base="baseElement">
+				<xs:attribute name="value" type="xs:string" />
+				<xs:attribute name="default" type="xs:string" />
+			</xs:extension>
+		</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	<xs:element name="NumberField">
+		<xs:complexType>
+		<xs:complexContent>
+    		<xs:extension base="baseElement">
+				<xs:attribute name="value" type="xs:decimal" />
+				<xs:attribute name="default" type="xs:decimal" />
+				<xs:attribute name="units" type="xs:string" />
+			</xs:extension>
+		</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+
+	<xs:element name="DropDownMenu">
+		<xs:complexType>
+		<xs:complexContent>
+    		<xs:extension base="baseElement">
+				<xs:attribute name="value" type="xs:string" />
+				<xs:attribute name="dropdownOptions" type="xs:string" />
+				<xs:attribute name="default" type="xs:string" />
+			</xs:extension>
+		</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	<xs:element name="DateField">
+		<xs:complexType>
+		<xs:complexContent>
+    		<xs:extension base="baseElement">
+				<xs:attribute name="value" type="xs:string" />
+				<xs:attribute name="default" type="xs:string" />
+			</xs:extension>
+		</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	<xs:element name="CheckBoxField">
+		<xs:complexType>
+		<xs:complexContent>
+    		<xs:extension base="baseElement">
+				<xs:attribute name="value" type="xs:boolean" />
+				<xs:attribute name="default" type="xs:boolean" />
+			</xs:extension>
+		</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	<xs:element name="TimeField">
+		<xs:complexType>
+		<xs:complexContent>
+    		<xs:extension base="baseElement">
+    			<xs:attribute name="seconds" type="xs:integer" />
+				<xs:attribute name="value" type="xs:string" />
+				<xs:attribute name="default" type="xs:string" />
+			</xs:extension>
+		</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	<xs:element name="TableField">
+		<xs:complexType>
+		<xs:complexContent>
+    		<xs:extension base="baseElement">
+				<xs:attribute name="tableColumnNames" type="xs:string" />
+				<xs:attribute name="tableRowCount" type="xs:integer" />
+				<xs:attribute name="rowNumber0" type="xs:string" />
+				<xs:attribute name="rowNumber1" type="xs:string" />
+				<xs:anyAttribute/>
+			</xs:extension>
+		</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	<xs:element name="ImageField">
+		<xs:complexType>
+		<xs:complexContent>
+    		<xs:extension base="baseElement">
+				<xs:attribute name="imagePath" type="xs:string" />
+				<xs:attribute name="imageZoom" type="xs:integer" />
+			</xs:extension>
+		</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	<xs:element name="LinkField">
+		<xs:complexType>
+		<xs:complexContent>
+    		<xs:extension base="baseElement">
+				<xs:attribute name="absoluteFileLink" type="xs:string" />
+				<xs:attribute name="relativeFileLink" type="xs:string" />
+				<xs:attribute name="urlLink" type="xs:string" />
+			</xs:extension>
+		</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	<xs:element name="OntologyLookupServiceField">
+		<xs:complexType>
+		<xs:complexContent>
+    		<xs:extension base="baseElement">
+				<xs:attribute name="ontolgoyTermId" type="xs:string" />
+			</xs:extension>
+		</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	
+	<xs:element name="ObservationDefinition">
+		<xs:complexType>
+		<xs:complexContent>
+    		<xs:extension base="baseElement">
+				<xs:attribute name="observationAttributeTermID" type="xs:string" />
+				<xs:attribute name="observationEntityTermID" type="xs:string" />
+				<xs:attribute name="observationType" type="xs:string" />
+				<xs:attribute name="observationUnitsTermID" type="xs:string" />
+			</xs:extension>
+		</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	<xs:complexType name="baseElement">
+		  
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:any minOccurs="0" processContents="lax"/>
+		</xs:sequence>
+		
+		<xs:attribute name="elementName" type="xs:string" use="required"/>
+		<xs:attribute name="description" type="xs:string" />
+		<xs:attribute name="url" type="xs:string" />
+		
+		<xs:attribute name="substepsCollapsed" type="xs:boolean" />
+		<xs:attribute name="displayChildrenHorizontally" type="xs:boolean" />
+		<xs:attribute name="backgroundColour" type="xs:string" />
+		
+		<xs:attribute name="fieldLockedUTC" type="xs:integer" />
+		<xs:attribute name="fieldLockedUserName" type="xs:string" />
+		<xs:attribute name="lockLevel" type="xs:string" />
+		
+		<xs:attribute name="requiredField" type="xs:boolean" />
+		
+	</xs:complexType>
+		
+	
+</xs:schema>
