@@ -34,6 +34,7 @@ except ImportError:
 import os
 import logging
 import logging.handlers
+import platform
 
 try:
     LOGDIR = settings.LOGDIR
@@ -48,7 +49,14 @@ logging.basicConfig(level=logging.INFO,
                 filemode='w')
 
 fileLog = logging.handlers.TimedRotatingFileHandler(os.path.join(LOGDIR, LOGFILE),'midnight',1)
-fileLog.doRollover()
+
+# Windows will not allow renaming (or deleting) a file that's open. 
+# There's nothing the logging package can do about that.
+try:
+    sys.getwindowsversion()
+except:
+    fileLog.doRollover()
+
 fileLog.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(message)s')
 fileLog.setFormatter(formatter)
@@ -80,8 +88,7 @@ if not settings.EMAIL_NOTIFICATION:
     logger.error("Settings.py has not been configured. EmailServerError: The application will not send any emails. Sharing notification is not available.\n" )
 
 if __name__ == "__main__":
-    execute_manager(settings)
-
     logger = logging.getLogger()
-    # Starting...
-    logger.info("Application Started...")
+    logger.info("Application Starting...")
+    
+    execute_manager(settings)
