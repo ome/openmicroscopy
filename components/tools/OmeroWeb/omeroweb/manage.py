@@ -34,7 +34,6 @@ except ImportError:
 import os
 import logging
 import logging.handlers
-import platform
 
 try:
     LOGDIR = settings.LOGDIR
