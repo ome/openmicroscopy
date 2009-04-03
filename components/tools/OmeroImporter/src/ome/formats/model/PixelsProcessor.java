@@ -1,5 +1,5 @@
 /*
- * ome.formats.model.ChannelProcessor
+ * ome.formats.model.PixelsProcessor
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -42,10 +42,11 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * Processes the pixels sets of an IObjectContainerStore and ensures
- * that Image containers are present, Image.acquisitionDate is filled out and
- * that the Image name and description match that which was specified by the
- * user if the if provided either.
- *   
+ * that the physical pixel dimensions are updated if they were specified by
+ * the user. If Image containers are present, Image.acquisitionDate is filled 
+ * out and that the Image name and description match that which was specified
+ * by the user if the if provided either.
+ * 
  * @author Chris Allan <callan at blackcat dot ca>
  *
  */
@@ -74,7 +75,28 @@ public class PixelsProcessor implements ModelProcessor
         for (IObjectContainer container : containers)
         {
             Integer imageIndex = container.indexes.get("imageIndex");
-            Image image = (Image) store.getSourceObject(new LSID(Image.class, imageIndex));
+            LSID imageLSID = new LSID(Image.class, imageIndex);
+            Image image = (Image) store.getSourceObject(imageLSID);
+            Pixels pixels = (Pixels) container.sourceObject;
+            Double[] physicalPixelSizes = 
+            	store.getUserSpecifiedPhysicalPixelSizes();
+            
+            // If we have user specified physical pixel sizes
+            if (physicalPixelSizes != null)
+            {
+            	if (physicalPixelSizes[0] != null)
+            	{
+            		pixels.setPhysicalSizeX(rdouble(physicalPixelSizes[0]));
+            	}
+            	if (physicalPixelSizes[1] != null)
+            	{
+            		pixels.setPhysicalSizeX(rdouble(physicalPixelSizes[0]));
+            	}
+            	if (physicalPixelSizes[2] != null)
+            	{
+            		pixels.setPhysicalSizeX(rdouble(physicalPixelSizes[0]));
+            	}
+            }
 
             // If image is missing
             if (image == null)

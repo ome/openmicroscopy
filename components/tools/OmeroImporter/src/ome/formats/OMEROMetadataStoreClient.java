@@ -177,14 +177,17 @@ public class OMEROMetadataStoreClient
     /** Current pixels ID we're writing planes for. */
     private Long currentPixId;
     
-    /** Image name that the user specified for use by model processors. */
+    /** Image name the user specified for use by model processors. */
     private String userSpecifiedImageName;
     
-    /** Image description that the user specified for use by model processors. */
+    /** Image description the user specified for use by model processors. */
     private String userSpecifiedImageDescription;
     
-    /** Linkage target for all Images/Plates. */
+    /** Linkage target for all Images/Plates for use by model processors. */
     private IObject userSpecifiedTarget;
+    
+    /** Physical pixel sizes the user specified for use by model processors. */
+    private Double[] userSpecifiedPhysicalPixelSizes;
     
     /** Image channel minimums and maximums. */
     private double[][][] imageChannelGlobalMinMax;
@@ -408,6 +411,8 @@ public class OMEROMetadataStoreClient
             imageChannelGlobalMinMax = null;
             userSpecifiedImageName = null;
             userSpecifiedImageDescription = null;
+            userSpecifiedTarget = null;
+            userSpecifiedPhysicalPixelSizes = null;
             delegate.createRoot();
         }
         catch (ServerError e)
@@ -497,6 +502,25 @@ public class OMEROMetadataStoreClient
     public void setUserSpecifiedTarget(IObject target)
     {
         this.userSpecifiedTarget = target;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedPhysicalPixelSizes()
+     */
+    public Double[] getUserSpecifiedPhysicalPixelSizes()
+    {
+    	return userSpecifiedPhysicalPixelSizes;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedPhysicalPixelSizes(java.lang.Double, java.lang.Double, java.lang.Double)
+     */
+    public void setUserSpecifiedPhysicalPixelSizes(Double physicalSizeX,
+    		                                       Double physicalSizeY,
+    		                                       Double physicalSizeZ)
+    {
+    	userSpecifiedPhysicalPixelSizes = 
+    		new Double[] { physicalSizeX, physicalSizeY, physicalSizeZ };
     }
     
     /**

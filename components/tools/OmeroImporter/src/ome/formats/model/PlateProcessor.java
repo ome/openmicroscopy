@@ -1,5 +1,5 @@
 /*
- * ome.formats.model.ChannelProcessor
+ * ome.formats.model.PlateProcessor
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
