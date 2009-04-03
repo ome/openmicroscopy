@@ -78,7 +78,7 @@ class DataBrowserWellToolBar
 		if (f > 1) { 
 			String[] values = new String[f];
  			for (int i = 0; i < f; i++) 
-				values[i] = "Field #"+i;
+				values[i] = "Field #"+(i+1);
  			fields = new JComboBox(values);
  			fields.setSelectedIndex(view.getSelectedField());
  			fields.addActionListener(new ActionListener() {

@@ -40,6 +40,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
+import org.openmicroscopy.shoola.agents.dataBrowser.PlateSaver;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
@@ -52,6 +53,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import pojos.DataObject;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
@@ -144,9 +146,12 @@ class WellsModel
 		this.parent = parent;
 		long userID = DataBrowserAgent.getUserDetails().getId();
 		Set nodes = DataBrowserTranslator.transformHierarchy(wells, userID, 0);
-		
 		wellNodes = sortByRow(nodes);
-		
+		PlateData plate = (PlateData) parent;
+		int columSequenceIndex = plate.getColumnSequenceIndex();
+		int rowSequenceIndex = plate.getRowSequenceIndex();
+		selectedField = plate.getDefaultSample();
+		if (selectedField < 0) selectedField = 0;
 		Set<ImageDisplay> samples = new HashSet<ImageDisplay>();
 		cells = new HashSet<CellDisplay>();
         rows = -1;
@@ -155,17 +160,30 @@ class WellsModel
 		Iterator j = wellNodes.iterator();
 		WellImageSet node;
 		ImageNode selected;
-		int f = -1;
+		int f;
+		String columSequence;
+		String rowSequence;
 		while (j.hasNext()) {
 			node = (WellImageSet) j.next();
 			row = node.getRow();
 			column = node.getColumn();
 			if (row > rows) rows = row;
 			if (column > columns) columns = column;
-			//TODO: modify when info available from plate.
-			node.setCellDisplay(""+(column+1), EditorUtil.LETTERS.get(row+1));
+			columSequence = "";
+			if (columSequenceIndex == PlateData.ASCENDING_LETTER)
+				columSequence = EditorUtil.LETTERS.get(column+1);
+			else if (columSequenceIndex == PlateData.ASCENDING_NUMBER)
+				columSequence = ""+(column+1);
+			rowSequence = "";
+			if (rowSequenceIndex == PlateData.ASCENDING_LETTER)
+				rowSequence = EditorUtil.LETTERS.get(row+1);
+			else if (rowSequenceIndex == PlateData.ASCENDING_NUMBER)
+				rowSequence = ""+(row+1);
+			node.setCellDisplay(columSequence, rowSequence);
 			f = node.getNumberOfSamples();
 			if (fieldsNumber < f) fieldsNumber = f;
+			//if (selectedField >= f) selectedField = 0;
+			node.setSelectedWellSample(selectedField);
 			selected = node.getSelectedWellSample();
 			samples.add(selected);
 			if (((DataObject) selected.getHierarchyObject()).getId() >= 0 &&
@@ -180,13 +198,23 @@ class WellsModel
 		//info should come from the plate.
 		CellDisplay cell;
 		for (int k = 1; k <= columns; k++) {
-			cell = new CellDisplay(k-1, ""+k);
+			columSequence = "";
+			if (columSequenceIndex == PlateData.ASCENDING_LETTER)
+				columSequence = EditorUtil.LETTERS.get(k+1);
+			else if (columSequenceIndex == PlateData.ASCENDING_NUMBER)
+				columSequence = ""+k;
+			cell = new CellDisplay(k-1, columSequence);
 			samples.add(cell);
 			cells.add(cell);
 		}
 		for (int k = 1; k <= rows; k++) {
-			cell = new CellDisplay(k-1, EditorUtil.LETTERS.get(k), 
-					CellDisplay.TYPE_VERTICAL);
+			rowSequence = "";
+			if (rowSequenceIndex == PlateData.ASCENDING_LETTER)
+				rowSequence = EditorUtil.LETTERS.get(k);
+			else if (rowSequenceIndex == PlateData.ASCENDING_NUMBER)
+				rowSequence = ""+k;
+			
+			cell = new CellDisplay(k-1, rowSequence, CellDisplay.TYPE_VERTICAL);
 			samples.add(cell);
 			cells.add(cell);
 		}
@@ -229,6 +257,11 @@ class WellsModel
 		samples.addAll(cells);
 		browser.refresh(samples);
 		layoutBrowser(LayoutFactory.PLATE_LAYOUT);
+		//quietly save the field.
+		PlateData plate = (PlateData) parent;
+		plate.setDefaultSample(selectedField);
+		DataBrowserLoader loader = new PlateSaver(component, plate);
+		loader.load();
 	}
 	
 	/**

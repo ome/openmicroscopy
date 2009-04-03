@@ -52,6 +52,9 @@ public class DataObjectSaver
 
     /** Indicates to create a <code>DataObject</code>. */
     public static final int CREATE = 0;
+    
+    /** Indicates to update a <code>DataObject</code>. */
+    public static final int UPDATE = 1;
 
     /** The save call. */
     private BatchCall       saveCall;
@@ -75,6 +78,23 @@ public class DataObjectSaver
             {
                 OmeroDataService os = context.getDataService();
                 result = os.createDataObject(object, parent, children);
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to update the specified {@link DataObject}.
+     * 
+     * @param object    The <code>DataObject</code> to update.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall update(final DataObject object)
+    {
+        return new BatchCall("Create Data object.") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                result = os.updateDataObject(object);
             }
         };
     }
@@ -111,6 +131,9 @@ public class DataObjectSaver
             case CREATE:
                 saveCall = create(userObject, parent, null);
                 break;
+            case UPDATE:
+                saveCall = update(userObject);
+                break;
             default:
                 throw new IllegalArgumentException("Operation not supported.");
         }
@@ -134,5 +157,5 @@ public class DataObjectSaver
     		throw new IllegalArgumentException("No object to create.");
     	saveCall = create(data, parent, children);
     }
-    
+
 }

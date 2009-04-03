@@ -32,6 +32,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.PlateSaver;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -40,6 +41,7 @@ import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.PlateData;
 
 /** 
  * Provides methods to handle the annotations.
@@ -305,5 +307,16 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle saveFile(FileAnnotationData fileAnnotation, File file, 
 			int index, DataObject linkTo, AgentEventListener observer);
+
+	/**
+	 * Updates the data object. This method will for now only be implemented
+	 * for the plate.
+	 * 
+	 * @param object 	The object to update. Mustn't be <code>null</code>.
+	 * @param observer	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle updateDataObject(DataObject object, 
+			AgentEventListener observer);
 	
 }

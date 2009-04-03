@@ -580,5 +580,6 @@ abstract class DataBrowserModel
      * @return See above.
      */
     protected abstract List<ImageDisplay> getNodes();
+
     
 }

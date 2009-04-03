@@ -148,25 +148,21 @@ class TreeViewerWin
         tabs.setForeground(UIUtilities.STEELBLUE);
 
         Map browsers = model.getBrowsers();
-        Browser browser = (Browser) browsers.get(Integer.valueOf(
-                                            Browser.PROJECT_EXPLORER));
+        Browser browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-        browser = (Browser) browsers.get(
-        		Integer.valueOf(Browser.FILES_EXPLORER));
+        browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-        
-        /*
-        browser = (Browser) browsers.get(Integer.valueOf(Browser.SCREENS_EXPLORER));
+       
+        browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-            */
-        browser = (Browser) browsers.get(Integer.valueOf(Browser.TAGS_EXPLORER));
+       
+        browser = (Browser) browsers.get(Browser.TAGS_EXPLORER);
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-        browser = (Browser) browsers.get(
-        		Integer.valueOf(Browser.IMAGES_EXPLORER));
+        browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
     }
@@ -241,34 +237,29 @@ class TreeViewerWin
         menu.setMnemonic(KeyEvent.VK_V);
         JCheckBoxMenuItem item = new JCheckBoxMenuItem();
         Map browsers = model.getBrowsers();
-        Browser browser = (Browser) browsers.get(Integer.valueOf(
-                                            Browser.PROJECT_EXPLORER));
+        Browser browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(
                 controller.getAction(TreeViewerControl.HIERARCHY_EXPLORER));
         menu.add(item);
         item = new JCheckBoxMenuItem();
-        browser = (Browser) browsers.get(
-        		Integer.valueOf(Browser.SCREENS_EXPLORER));
+        browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(
         		TreeViewerControl.SCREENS_EXPLORER));
-        //menu.add(item);
+        menu.add(item);
         item = new JCheckBoxMenuItem();
-        browser = (Browser) browsers.get(
-        		Integer.valueOf(Browser.TAGS_EXPLORER));
+        browser = (Browser) browsers.get(Browser.TAGS_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(TreeViewerControl.TAGS_EXPLORER));
         menu.add(item);
         item = new JCheckBoxMenuItem();
-        browser = (Browser) browsers.get(
-        		Integer.valueOf(Browser.IMAGES_EXPLORER));
+        browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(TreeViewerControl.IMAGES_EXPLORER));
         menu.add(item);
         item = new JCheckBoxMenuItem();
-        browser = (Browser) browsers.get(
-        		Integer.valueOf(Browser.FILES_EXPLORER));
+        browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(TreeViewerControl.FILES_EXPLORER));
         menu.add(item);

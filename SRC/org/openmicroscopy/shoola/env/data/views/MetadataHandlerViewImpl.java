@@ -284,5 +284,17 @@ class MetadataHandlerViewImpl
 		BatchCallTree cmd = new StructuredAnnotationLoader(annotationID);
 		return cmd.exec(observer);
 	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#updateDataObject(DataObject, AgentEventListener)
+	 */
+	public CallHandle updateDataObject(DataObject object,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new DataObjectSaver(object, null, 
+				DataObjectSaver.UPDATE);
+		return cmd.exec(observer);
+	}
 	
 }

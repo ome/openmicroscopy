@@ -796,6 +796,7 @@ class DataBrowserComponent
 		if (!(model instanceof WellsModel)) return;
 		((WellsModel) model).viewField(selectedIndex);
 		view.repaint();
+		//quietly save the field back to the server.
 		model.loadData(false, null); 
 	}
 

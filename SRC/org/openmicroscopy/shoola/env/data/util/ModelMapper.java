@@ -581,6 +581,7 @@ public class ModelMapper
     		Plate o = (Plate) oldObject;
     		n.setName(o.getName());
     		n.setDescription(o.getDescription());
+    		n.setDefaultSample(o.getDefaultSample());
     	}
     }
   
