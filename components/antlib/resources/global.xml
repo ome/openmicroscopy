@@ -43,6 +43,11 @@
         <property environment="env" />
         <property name="env.J" value="1"/>
 
+        <!-- Taking properties from the environment before imports-->
+        <condition property="ice.home" value="${env.ICE_HOME}">
+            <isset property="env.ICE_HOME"/>
+        </condition>
+
         <property file="${root.dir}/etc/local.properties" />
         <property file="${root.dir}/etc/local.properties.example" />
         <property file="${root.dir}/etc/omero.properties" />
@@ -60,9 +65,6 @@
 
         <!-- Post-import properties -->
         <property name="sql.dir"  value="${omero.home}/sql/${omero.db.profile}/${omero.db.version}__${omero.db.patch}"/>
-        <condition property="ice.home" value="${env.ICE_HOME}">
-            <isset property="env.ICE_HOME"/>
-        </condition>
 
         <!--
           The idea for this macro is taken from maven2. Use deps-buildlist
@@ -158,6 +160,7 @@
             <attribute name="failonerror" default="true"/>
             <element name="args" implicit="yes"/>
             <sequential>
+                <echo>Building with ICE_HOME=${ice.home}</echo>
                 <exec executable="python" dir="@{dir}" failonerror="@{failonerror}">
                     <env key="ICE_HOME" value="${ice.home}"/>
                     <arg value="${omero.home}/target/scons/scons.py"/>
