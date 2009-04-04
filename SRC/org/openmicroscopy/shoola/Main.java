@@ -62,8 +62,10 @@ public class Main
 	public static void main(String[] args) 
 	{
 		String homeDir = "";
-		if (0 < args.length) homeDir = args[0];
-		Container.startup(homeDir);
+		String configFile = Container.CONFIG_FILE;
+		if (args.length > 0) configFile = args[0];
+		if (args.length > 1) homeDir = args[1];
+		Container.startup(homeDir, configFile);
 	}
 	
 }

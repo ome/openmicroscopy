@@ -88,7 +88,6 @@ public class ChannelDataLoader
     	viewer.setChannelsData(new ArrayList(), true);
     }
     
-    
     /** 
      * Cancels the data loading. 
      * @see EditorLoader#cancel()
