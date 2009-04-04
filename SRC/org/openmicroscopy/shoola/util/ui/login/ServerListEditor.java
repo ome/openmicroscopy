@@ -60,7 +60,7 @@ public class ServerListEditor
 	extends AbstractCellEditor 
 	implements ActionListener, DocumentListener, TableCellEditor
 {
-
+	
 	/** The component handling the editing of the cell value. */
 	private JTextField 		component;
 
@@ -83,9 +83,8 @@ public class ServerListEditor
 	private String getComponentValue()
 	{
 		String s = component.getText();
-		if (s == null) s = "";
-		else s = s.trim();
-		return s;
+		if (s == null) return "";
+		return s.trim();
 	}
 	
 	/** 

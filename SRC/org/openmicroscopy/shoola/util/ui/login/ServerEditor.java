@@ -192,7 +192,6 @@ public class ServerEditor
 		editor = table.getCellEditor();
 		
 		if (editor != null) editor.stopCellEditing();
-		
 		if (model.getRowCount() == 0) setEditing(false);
 		handleServers(activeServer, activePort);
 		editing = false;
@@ -222,9 +221,11 @@ public class ServerEditor
 	/** 
 	 * Initializes the components. 
 	 * 
-	 * @param servers Collection of servers to display.
+	 * @param servers   Collection of servers to display.
+	 * @param enabled 	Pass <code>true</code> to allow edition,
+	 * 					
 	 */
-	private void initComponents(Map<String, String> servers)
+	private void initComponents(Map<String, String> servers, boolean enabled)
 	{
 		table = new ServerTable(this, servers, 
 				icons.getIcon(IconManager.SERVER_22));
@@ -251,30 +252,13 @@ public class ServerEditor
 		editButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) 
 			{ 
-				editRow(table.getSelectedRow()); 
+				requestFocusOnEditedCell(table.getSelectedRow(), 1);
 			}
 		});
+		addButton.setEnabled(enabled);
+		editButton.setEnabled(enabled);
 	}
-	
-	/**
-	 * Edits the selected row.
-	 * 
-	 * @param row The selected row.
-	 */
-	private void editRow(int row)
-	{
-		switch (table.getEditingColumn()) {
-			case 1:
-				requestFocusOnEditedCell(row, 2);
-				break;
-			case 2:
-				requestFocusOnEditedCell(row, 1);
-				break;
-			default:
-				requestFocusOnEditedCell(row, 1);
-		}
-	}
-	
+
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -370,12 +354,15 @@ public class ServerEditor
 	 */
 	private void fireEditProperty(boolean b)
 	{
+		/*
 		Boolean newValue = Boolean.TRUE, oldValue = Boolean.FALSE;
 		if (!b) {
 			newValue = Boolean.FALSE;
 			oldValue = Boolean.TRUE;
 		}
-		firePropertyChange(EDIT_PROPERTY, oldValue, newValue);
+		*/
+		firePropertyChange(EDIT_PROPERTY, Boolean.valueOf(!b), 
+				Boolean.valueOf(b));
 	}
 	
 	/** Creates the {@link #emptyMessagePanel} if required. */
@@ -461,7 +448,7 @@ public class ServerEditor
 	{
 		fireEditProperty(row != -1);
 		if (previousRow == -1 || previousRow == row) return;
-		if (!editing) return;
+		//if (!editing) return;
 		editing = false;
 		List<String> values = new ArrayList<String>();
 		for (int i = 0; i < table.getRowCount(); i++) {
@@ -701,8 +688,8 @@ public class ServerEditor
 		int n = 0; 
 		Map<String, String> servers = getServers();
 		if (servers != null) n = servers.size();
-		initComponents(servers);
-		setEditing(n == 0);
+		initComponents(servers, n != 0);
+		editing = false;
 		buildGUI();
 	}
 	

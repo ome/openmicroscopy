@@ -159,7 +159,8 @@ class AnnotationDataUI
 		if (docSelectionMenu != null) return docSelectionMenu;
 		docSelectionMenu = new JPopupMenu();
 		JMenuItem item = new JMenuItem("Local document...");
-		item.setToolTipText("Upload and attach a local document.");
+		item.setToolTipText("Import a local document to the server " +
+				"and attach it.");
 		item.addActionListener(controller);
 		item.setActionCommand(""+EditorControl.ADD_LOCAL_DOCS);
 		docSelectionMenu.add(item);
@@ -928,5 +929,5 @@ class AnnotationDataUI
 			}
 		}
 	}
-
+	
 }

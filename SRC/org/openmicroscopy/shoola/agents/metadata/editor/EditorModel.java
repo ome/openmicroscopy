@@ -539,7 +539,7 @@ class EditorModel
 		if (data == null) return new ArrayList();
 		Collection attachements = data.getAttachments(); 
 		if (attachements == null) return new ArrayList();
-		return attachements; 
+		return sorter.sort(attachements); 
 	}
 
 	/**

@@ -30,6 +30,8 @@ import java.awt.Cursor;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -71,6 +73,12 @@ import pojos.WellSampleData;
 public class EditorUI 
 	extends JPanel
 {
+	
+	/** Identifies the collection of data to add. */
+	static final int 					TO_ADD = 0;
+	
+	/** Identifies the collection of data to remove. */
+	static final int 					TO_REMOVE = 1;
 	
 	/** Identifies the general component of the tabbed pane. */
 	private static final int			GENERAL_INDEX = 0;
@@ -248,9 +256,9 @@ public class EditorUI
 			model.fireDataObjectSaving(exp);
 			return;
 		}
-		List<AnnotationData>[] array = generalPane.prepareDataToSave();
-		List<AnnotationData> toAdd = array[0];
-		List<AnnotationData> toRemove = array[1];
+		Map<Integer, List<AnnotationData>> m = generalPane.prepareDataToSave();
+		List<AnnotationData> toAdd = m.get(TO_ADD);
+		List<AnnotationData> toRemove = m.get(TO_REMOVE);
 		List<Object> metadata = null;
 		Object refObject = model.getRefObject();
 		if (refObject instanceof ImageData)
@@ -452,7 +460,6 @@ public class EditorUI
 				bus.post(event);
 			}
 		}
-		
 	}
 	
 }

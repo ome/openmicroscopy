@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -73,7 +72,7 @@ class FileLoadingComponent
 	private static final int 	REMOVE = 1;
 	
 	/** Message displayed when the downloading is completed. */
-	private static final String DONE = "Done";
+	private static final String DONE = "Downloaded in: ";
 	
 	/** Message displayed when the downloading is cancelled. */
 	private static final String CANCEL_LOADING = "Cancelled";
@@ -90,8 +89,8 @@ class FileLoadingComponent
 	/** The name of the file to download. */
 	private String 		fileName;
 	
-	/** The name of the file to download. */
-	private String 		absolutePath;
+	/** The directory where to download the file. */
+	private String 		directory;
 	
 	/** Convenience reference to the icons manager. */
 	private IconManager icons;
@@ -99,17 +98,21 @@ class FileLoadingComponent
 	/** Component notifying of progress. */
 	private JPanel		barPane;
 	
+	/** Component notifying of progress. */
+	private JPanel		textPane;
+	
+	/** Component hosting the buttons. */
 	private JToolBar 	toolBar;
 	
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		cancelButton = new JButton("Cancel");//icons.getIcon(IconManager.CANCEL));
+		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand(""+CANCEL);
 		cancelButton.setOpaque(false);
 		UIUtilities.unifiedButtonLookAndFeel(cancelButton);
-		removeButton = new JButton("Remove");//icons.getIcon(IconManager.REMOVE));
+		removeButton = new JButton("Remove");
 		removeButton.setActionCommand(""+REMOVE);
 		removeButton.addActionListener(this);
 		removeButton.setOpaque(false);
@@ -128,6 +131,7 @@ class FileLoadingComponent
 		toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 		toolBar.setBorder(null);
+		textPane = UIUtilities.buildComponentPanel(barPane);
 	}
 	
 	/**
@@ -151,6 +155,7 @@ class FileLoadingComponent
 			//bar.setPreferredSize(new Dimension(20, 60));
 			//JPanel p = UIUtilities.buildComponentPanelCenter(bar);
 			//p.setOpaque(false);
+			bar.setBackground(barPane.getBackground());
 			barPane.add(bar, "0, 1");
 			toolBar.add(cancelButton);
 			add(toolBar, "2, 0");
@@ -161,22 +166,22 @@ class FileLoadingComponent
 			toolBar.add(removeButton);
 			add(toolBar, "2, 0");
 		}
-		add(barPane, "1, 0");
+		add(textPane, "1, 0");
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param absolutePath 	The absolute path of the file.
+	 * @param directory	 	The directory where to load the file.
 	 * @param fileName		The name of the file.
 	 * @param fileID		The id of the file.
 	 * @param icons			Reference to the icons manager.
 	 */
-	FileLoadingComponent(String absolutePath, String fileName, 
+	FileLoadingComponent(String directory, String fileName, 
 						long fileID, IconManager icons)
 	{
 		this.fileName = fileName;
-		this.absolutePath = absolutePath;
+		this.directory = directory;
 		this.fileID = fileID;
 		this.icons = icons;
 		initComponents();
@@ -190,7 +195,7 @@ class FileLoadingComponent
 	 */
 	void setStatus(int percent)
 	{
-		if (percent == 0) buildGUI(false, DONE);
+		if (percent == 0) buildGUI(false, DONE+directory);
 		else if (percent == -1) buildGUI(false, CANCEL_LOADING);
 		revalidate();
 		repaint();
@@ -208,7 +213,7 @@ class FileLoadingComponent
 	 * 
 	 * @return See above.
 	 */
-	String getAbsolutePath() { return absolutePath; }
+	String getAbsolutePath() { return directory+fileName; }
 	
 	/**
 	 * Cancels the downloading.
@@ -219,10 +224,10 @@ class FileLoadingComponent
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case CANCEL:
-				firePropertyChange(CANCEL_PROPERTY, -1, absolutePath);
+				firePropertyChange(CANCEL_PROPERTY, -1, getAbsolutePath());
 				break;
 			case REMOVE:
-				firePropertyChange(REMOVE_PROPERTY, -1, absolutePath);
+				firePropertyChange(REMOVE_PROPERTY, -1, getAbsolutePath());
 		}
 	}
 
@@ -235,6 +240,7 @@ class FileLoadingComponent
 	{
 		super.setBackground(color);
 		if (barPane != null) barPane.setBackground(color);
+		if (textPane != null) textPane.setBackground(color);
 		if (cancelButton != null) cancelButton.setBackground(color);
 		if (removeButton != null) removeButton.setBackground(color);
 		if (toolBar != null) toolBar.setBackground(color);

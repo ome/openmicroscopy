@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.ui.login;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -250,9 +251,8 @@ class ServerTable
 	{
 		super.changeSelection(row, column, toggle, extend);
 		String v = null;
-		DefaultTableModel model= ((DefaultTableModel) getModel());
+		DefaultTableModel model = ((DefaultTableModel) getModel());
 		if (row != previousRow && row >= 0 && previousRow != -1) {
-			
 			if (model.getColumnCount() < 3) return; 
 			v = (String) model.getValueAt(previousRow, 1);
 			TableCellEditor editor = getCellEditor();
@@ -263,8 +263,9 @@ class ServerTable
 			handleTextModification((String) model.getValueAt(row, 1));
 		parent.changeSelection(row, previousRow, v);
 		previousRow = row;
-		if (editCellAt(row, column)) {
-			getEditorComponent().requestFocusInWindow();
+		if (parent.isEditing()) {//if (editCellAt(row, column)) {
+			Component comp = getEditorComponent();
+			if (comp != null) comp.requestFocusInWindow();
 		}
 	}
 	

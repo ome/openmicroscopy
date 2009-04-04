@@ -122,10 +122,15 @@ public class DeleteBox
 		return box;
 	}
 	
-	/** Initializes the components composing the display. */
-	private void initComponents()
+	/** 
+	 * Initializes the components composing the display. 
+	 * 
+	 * @param annotationText The text to display after the annotations text.
+	 */
+	private void initComponents(String annotationText)
 	{
-		withAnnotation = new JCheckBox("Also delete the annotations.");
+		withAnnotation = new JCheckBox("Also delete the annotations " +
+				"only linked to the "+annotationText+".");
 		withContent = new JRadioButton("Also delete contents.");
 		withoutContent = new JRadioButton("Do not delete contents.");
 		ButtonGroup group = new ButtonGroup();
@@ -133,9 +138,7 @@ public class DeleteBox
 		group.add(withoutContent);
 		withoutContent.setSelected(true);
 		annotationTypes = new LinkedHashMap<JCheckBox, Class>();
-		//annotationTypes.put(createBox("Rating"), RatingAnnotationData.class);
 		annotationTypes.put(createBox("Tag"), TagAnnotationData.class);
-		//annotationTypes.put(createBox("Comment"), TextualAnnotationData.class);
 		annotationTypes.put(createBox("Attachment"), FileAnnotationData.class);
 		
 		withAnnotation.addChangeListener(new ChangeListener() {
@@ -215,6 +218,34 @@ public class DeleteBox
 	}
 	
 	/**
+	 * Returns the text corresponding to the specified type.
+	 * 
+	 * @param type		The type of object to handle.
+	 * @param number	The number of object to remove.
+	 * @param ns		Name space related to the data object if any.
+	 * @return See above.
+	 */
+	private static String getTypeAsString(Class type, int number, String ns)
+	{
+		String end = "";
+		if (number > 1) end = "s";
+		if (ImageData.class.equals(type))
+			return "Image"+end;
+		else if (DatasetData.class.equals(type))
+			return "Dataset"+end;
+		else if (ProjectData.class.equals(type))
+			return "Project"+end;
+		else if (FileAnnotationData.class.equals(type))
+			return "File"+end;
+		else if (TagAnnotationData.class.equals(type)) {
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
+				return "Tag Set"+end;
+			return "Tag"+end;
+		}
+		return "";
+	}
+	
+	/**
 	 * Returns the message corresponding to the specified class and
 	 * the number of selected items.
 	 * 
@@ -231,32 +262,22 @@ public class DeleteBox
 						boolean annotation, boolean children)
 	{
 		StringBuffer buffer = new StringBuffer(); 
-		String end = "?";
-		if (number > 1) end = "s?";
-		if (ImageData.class.equals(type)) {
-			buffer.append(DEFAULT_TEXT+" Image"+end);
+		String value = getTypeAsString(type, number, nameSpace);
+		String text = null;
+		if (value != null && value.length() > 0)
+			text = DEFAULT_TEXT+value+"?";
+		if (text != null) {
+			buffer.append(text);
 			buffer.append("\n");
-			if (annotation || children) buffer.append("If yes, ");
-		} else if (DatasetData.class.equals(type)) {
-			buffer.append(DEFAULT_TEXT+" Dataset"+end);
-			buffer.append("\n");
-			if (annotation || children) buffer.append("If yes, ");
-		} else if (ProjectData.class.equals(type)) {
-			buffer.append(DEFAULT_TEXT+" Project"+end);
-			buffer.append("\n");
-			if (annotation || children) buffer.append("If yes, ");
-		} else if (FileAnnotationData.class.equals(type)) {
-			buffer.append(DEFAULT_TEXT+" File"+end);
-			buffer.append("\n");
-		} else if (TagAnnotationData.class.equals(type)) {
-			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(nameSpace)) {
-				buffer.append(DEFAULT_TEXT+" Tag Set"+end);
-				buffer.append("\n");
+			if (ImageData.class.equals(type) || 
+					DatasetData.class.equals(type) || 
+					ProjectData.class.equals(type)) {
+				if (annotation || children) buffer.append("If yes, ");
+			} else if (TagAnnotationData.class.equals(type) &&
+						TagAnnotationData.INSIGHT_TAGSET_NS.equals(nameSpace)) {
 				if (children) buffer.append("If yes, ");
-			} else {
-				buffer.append(DEFAULT_TEXT+" Tag"+end);
-				buffer.append("\n");
 			}
+					
 		}
 		return buffer.toString();
 	}
@@ -283,7 +304,7 @@ public class DeleteBox
 		this.type = type;
 		this.annotation = annotation;
 		this.children = children;
-		initComponents();
+		initComponents(DeleteBox.getTypeAsString(type, number, nameSpace));
 		layoutComponents();
 		pack();
 	}

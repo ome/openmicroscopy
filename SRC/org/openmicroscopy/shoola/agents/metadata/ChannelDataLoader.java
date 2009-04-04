@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.List;
 
 //Third-party libraries
@@ -76,6 +77,15 @@ public class ChannelDataLoader
     public void load()
     {
         handle = dmView.loadChannelsData(pixelsID, this);
+    }
+    
+    /**
+     * Notifies the user that it wasn't possible to retrieve the data and
+     * and discards the {@link #viewer}.
+     */
+    public void handleNullResult() 
+    {
+    	viewer.setChannelsData(new ArrayList(), true);
     }
     
     /** 

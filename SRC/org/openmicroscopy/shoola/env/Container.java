@@ -96,13 +96,14 @@ public final class Container
 	 * 
 	 * @param home	Path to the installation directory.  If <code>null<code> or
 	 * 				empty, then the user directory is assumed.
+	 * @param configFile The configuration file.
 	 */
-	private static void runStartupProcedure(String home)
+	private static void runStartupProcedure(String home, String configFile)
 	{
 		AbnormalExitHandler.configure();
 		Initializer initManager = null;
 		try {
-			singleton = new Container(home);
+			singleton = new Container(home, configFile);
 			initManager = new Initializer(singleton);
 			initManager.configure();
 			initManager.doInit();
@@ -139,15 +140,17 @@ public final class Container
 	 * <p>This method rolls back all executed tasks and terminates the program
 	 * if an error occurs during the initialization procedure.</p>
 	 * 
-	 * @param home	Path to the installation directory.  If <code>null<code> or
-	 * 				empty, then the user directory is assumed.
+	 * @param home		Path to the installation directory.  
+	 * 					If <code>null<code> or
+	 * 					empty, then the user directory is assumed.
+	 * @param configFile The configuration file.
 	 */
-	public static void startup(final String home)
+	public static void startup(final String home, final String configFile)
 	{
 		if (singleton != null)	return;
 		ThreadGroup root = new RootThreadGroup();
 		Runnable r = new Runnable() {
-			public void run() { runStartupProcedure(home); }
+			public void run() { runStartupProcedure(home, configFile); }
 		};
 		Thread t = new Thread(root, r, "Initializer");
         t.start();
@@ -157,6 +160,8 @@ public final class Container
 		//a subgroup of root.
     }
 	
+	/** The configuration file. */
+	private String		configFile;
 	
 	/** Absolute path to the installation directory. */
 	private String		homeDir;
@@ -178,12 +183,16 @@ public final class Container
 	 * 
 	 * @param home	Path to the installation directory.  If <code>null</code> or
 	 * 				empty, then the user directory is assumed.
+	 * @param configFile The configuration file.
 	 * @throws StartupException	If <code>home</code> can't be resolved to a
 	 * 			valid and existing directory. 				
 	 */
-	private Container(String home)
+	private Container(String home, String configFile)
 		throws StartupException
 	{
+		if (configFile == null || configFile.trim().equals(""))
+			configFile = CONFIG_FILE;
+		this.configFile = configFile;
 		//Convert to abstract pathname. 
 		//(empty string leads to empty abstract pathname)
 		File f = new File(home == null ? "" : home);
@@ -213,7 +222,7 @@ public final class Container
 	 * 
 	 * @return	See above.
 	 */
-	public String getConfigFile() { return resolveConfigFile(CONFIG_FILE); }
+	public String getConfigFile() { return resolveConfigFile(configFile); }
 	
 	/**
 	 * Resolves <code>fileName</code> against the configuration directory.
@@ -362,7 +371,7 @@ public final class Container
         //with exceptions instead.  Initialize services as usual though.
         Initializer initManager = null;
         try {
-            singleton = new Container(home);
+            singleton = new Container(home, CONFIG_FILE);
             initManager = new Initializer(singleton);
             initManager.configure();
             initManager.doInit();

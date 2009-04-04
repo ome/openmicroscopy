@@ -28,8 +28,13 @@ import java.awt.Cursor;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -43,6 +48,8 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+
 import pojos.AnnotationData;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
@@ -114,6 +121,15 @@ class GeneralPaneUI
 	/** Collection of preview panels. */
 	private List<PreviewPanel>			previews;
 	
+	/** Collection of preview panes. */
+	private Map<JXTaskPane, Integer>	panes;
+	
+	/** The index of the taskPane, the value in layout. */
+	private Map<Integer, Double>		indexes;
+	
+	/** The default height of a <code>JXTaskPane</code>. */
+	private double						defaultProtocolHeight;
+	
 	/**
 	 * Loads or cancels any on-going loading of containers hosting
 	 * the edited object.
@@ -154,6 +170,8 @@ class GeneralPaneUI
 											controller);
 		}
 		previews = new ArrayList<PreviewPanel>();
+		panes = new HashMap<JXTaskPane, Integer>(); 
+		indexes = new HashMap<Integer, Double>(); 
 	}
 	
 	/** Builds and lays out the components. */
@@ -163,7 +181,7 @@ class GeneralPaneUI
 		content.setBackground(UIUtilities.BACKGROUND);
 		double[][]	size = {{TableLayout.FILL}, 
 				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
-				TableLayout.PREFERRED, 0, 0}};
+				TableLayout.PREFERRED, 0, 5, 0}};
 		int i = 0;
 		content.setLayout(new TableLayout(size));
 
@@ -179,6 +197,7 @@ class GeneralPaneUI
 		i++;
 		protocolsIndex = i;
 		content.add(protocolComponent, "0, "+i);
+		i++;
 		i++;
 		browserIndex = i;
 		content.add(browserTaskPane, "0, "+i);
@@ -207,9 +226,11 @@ class GeneralPaneUI
 	{
 		Collection list = model.getAttachments();
 		protocolComponent.removeAll();
+		
 		TableLayout layout = new TableLayout();
 		double[] size = {TableLayout.FILL};
 		layout.setColumn(size);
+		
 		protocolComponent.setLayout(layout);
 		if (list.size() == 0) return 0;
 		Iterator i = list.iterator();
@@ -220,6 +241,10 @@ class GeneralPaneUI
 		String ns;
 		int index = 0;
 		previews.clear();
+		panes.clear();
+		protocolComponent.setBorder(
+				new TitledLineBorder("Protocols and Experiments"));
+		
 		while (i.hasNext()) {
 			fa = (FileAnnotationData) i.next();
 			ns = fa.getNameSpace();
@@ -230,15 +255,22 @@ class GeneralPaneUI
 					previews.add(preview);
 					preview.addPropertyChangeListener(controller);
 					pane = EditorUtil.createTaskPane(fa.getFileName());
+					pane.addPropertyChangeListener(controller);
+					defaultProtocolHeight = 
+						pane.getMinimumSize().getHeight()/2+2;
+					panes.put(pane, index);
+					indexes.put(index, defaultProtocolHeight);
+					
 					pane.add(preview);
-					pane.setCollapsed(true);
-					layout.insertRow(index, TableLayout.PREFERRED);
+					layout.insertRow(index, defaultProtocolHeight);
 					protocolComponent.add(pane, "0, "+index);
+					index++;
+					layout.insertRow(index, 5);
+					protocolComponent.add(new JLabel(), "0, "+index);
 					index++;
 				}
 			}
 		}
-		
 		return index;
 	}
 	
@@ -288,7 +320,7 @@ class GeneralPaneUI
 					s = "Contained in Tag Sets";
 				}
 			}
-		} else if  (refObject instanceof DatasetData) {
+		} else if (refObject instanceof DatasetData) {
 			if (!multi) {
 				h = TableLayout.PREFERRED;
 				s = "Contained in Projects";
@@ -305,15 +337,24 @@ class GeneralPaneUI
 			}
 		} else if ((refObject instanceof ProjectData) || 
 				(refObject instanceof ScreenData) ||
-				(refObject instanceof WellSampleData))
+				(refObject instanceof WellSampleData)) {
 			browserTaskPane.setCollapsed(true);
+		}
 		browserTaskPane.setTitle(s);
-		layout.setRow(browserIndex, h);
+		content.remove(browserTaskPane);
+		
+		if (h != 0.0) {
+			//layout.setRow(browserIndex, h);
+			content.add(browserTaskPane, "0, "+browserIndex);
+		}
 		int n = buildProtocolTaskPanes();
 		double hp = 0;
-		if (n > 0) hp = TableLayout.PREFERRED;
+		if (n > 0) {
+			//defaultProtocolHeight = n;
+			hp = TableLayout.PREFERRED;
+		}
 		layout.setRow(protocolsIndex, hp);
-		if (h != 0 && !browserTaskPane.isCollapsed()) {
+		if (h != 0.0 && !browserTaskPane.isCollapsed()) {
 			loadParents(true);
 		}
 	}
@@ -324,7 +365,7 @@ class GeneralPaneUI
 	 * 
 	 * @return See above.
 	 */
-	List<AnnotationData>[] prepareDataToSave()
+	Map<Integer, List<AnnotationData>> prepareDataToSave()
 	{
 		if (!model.isMultiSelection()) propertiesUI.updateDataObject();
 		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
@@ -343,11 +384,11 @@ class GeneralPaneUI
 		l = textualAnnotationsUI.getAnnotationToRemove();
 		if (l != null && l.size() > 0)
 			toRemove.addAll(l);
-		List<AnnotationData>[] array = new List[2];
-		array[0] = toAdd;
-		array[1] = toRemove;
-		return array;
-		
+		Map<Integer, List<AnnotationData>> 
+			map = new HashMap<Integer, List<AnnotationData>>();
+		map.put(EditorUI.TO_ADD, toAdd);
+		map.put(EditorUI.TO_REMOVE, toRemove);
+		return map;
 	}
 	
 	/** Updates display when the new root node is set. */
@@ -455,6 +496,28 @@ class GeneralPaneUI
 		if (source == null) return;
 		if  (source.equals(browserTaskPane)) 
 			loadParents(!browserTaskPane.isCollapsed());
+		else {
+			if (panes.size() == 0) return;
+			Iterator i = panes.entrySet().iterator();
+			Entry entry;
+			JXTaskPane pane;
+			int index;
+			double h;
+			TableLayout layout = (TableLayout) protocolComponent.getLayout();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				pane = (JXTaskPane) entry.getKey();
+				index = (Integer) entry.getValue();
+				if (pane == source) {
+					if (pane.isCollapsed()) h = defaultProtocolHeight;
+					else h = TableLayout.PREFERRED;
+					indexes.put(index, h);	
+					layout.setRow(index, h);
+				}
+			}
+			protocolComponent.validate();
+			protocolComponent.repaint();
+		}
 	}
 
 	/**
@@ -496,5 +559,6 @@ class GeneralPaneUI
 		if (objects == null) return;
 		annotationUI.handleObjectsSelection(type, objects);
 	}
+	
 	
 }

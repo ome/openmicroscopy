@@ -36,14 +36,12 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The Lens model controls the manipulation of the lens, creating the zoomed 
@@ -287,11 +285,13 @@ class LensModel
      */
 	BufferedImage getZoomedImage()
 	{
+		/*
 		if(UIUtilities.getFreeMemory()<MINHEAPSIZE)
 		{
 			Runtime.getRuntime().gc();
 			return null;
 		}
+		*/
 		try {
 			if (planeImage == null) return null;
 			ColorModel cm = planeImage.getColorModel();
@@ -301,7 +301,7 @@ class LensModel
 																		null);
 			return scaleBufferedImage(img, zoomFactor, zoomFactor);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			Runtime.getRuntime().gc();
 		}
 		return null;
 	}

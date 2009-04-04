@@ -98,8 +98,7 @@ class ControlPane
     implements ActionListener, ChangeListener, MouseWheelListener, 
     PropertyChangeListener
 {
-
-    /** The description of a z-sections selection slider. */
+	/** The description of a z-sections selection slider. */
     private static final String 	Z_SLIDER_DESCRIPTION = 
     								"Select a z-section.";
 
@@ -138,6 +137,9 @@ class ControlPane
     /** Default text describing the compression check box.  */
     private static final String		PROJECTION_DESCRIPTION = 
     				"Select the type of projection.";
+    
+    /** The value after which no ticks are displayed. */
+    private static final int		MAX_NO_TICKS = 10;
     
     /** Dimension of the box between the channel buttons. */
     private static final Dimension VBOX = new Dimension(1, 10);
@@ -298,9 +300,9 @@ class ControlPane
      */
     private String getColorModelDescription(String model)
     {
-    	if (model.equals(ImViewer.GREY_SCALE_MODEL))
+    	if (ImViewer.GREY_SCALE_MODEL.equals(model))
             return ColorModelAction.DESCRIPTION_GREY_SCALE;
-        else if (model.equals(ImViewer.RGB_MODEL))
+        else if (ImViewer.RGB_MODEL.equals(model))
         	return ColorModelAction.DESCRIPTION_RGB;
         return null;
     }
@@ -313,9 +315,9 @@ class ControlPane
      */
     private Icon getColorModelIcon(String model)
     {
-        if (model.equals(ImViewer.GREY_SCALE_MODEL))
+        if (ImViewer.GREY_SCALE_MODEL.equals(model))
             return icons.getIcon(IconManager.GRAYSCALE);
-        else if (model.equals(ImViewer.RGB_MODEL))
+        else if (ImViewer.RGB_MODEL.equals(model))
             return icons.getIcon(IconManager.RGB);
         return null;
     }
@@ -340,7 +342,8 @@ class ControlPane
         tSliderGrid = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
         tSliderGrid.setEnabled(false);
        
-        tSliderProjection = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
+        tSliderProjection = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 
+        		0);
         tSliderProjection.setEnabled(false);
         
         IconManager icons = IconManager.getInstance();
@@ -465,6 +468,10 @@ class ControlPane
         slider.setEndLabel(endLabel);
         slider.setShowEndLabel(true);
         slider.setShowTipLabel(true);
+        if (max > 0  && max <= MAX_NO_TICKS) {
+        	slider.setPaintTicks(true);
+        	slider.setMajorTickSpacing(1);
+        }
     }
     
     /**
@@ -608,17 +615,16 @@ class ControlPane
     /** 
      * Builds the tool bar displayed on the left side of the  grid view.
      * 
+     * @param button The button to add to the tool bar.
      * @return See above.
      */
-    private JToolBar buildGridBar()
+    private JToolBar buildGridBar(JComponent button)
     {
     	JToolBar bar = new JToolBar(JToolBar.VERTICAL);
         bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
-        bar.add(colorModelButtonGrid);
-        bar.add(Box.createRigidArea(VBOX));
-        bar.add(textVisibleButton);
+        bar.add(button);
         return bar;
     }
     
@@ -633,8 +639,6 @@ class ControlPane
     	bar.setFloatable(false);
     	bar.setRollover(true);
     	bar.setBorder(null);
-        //bar.add(projectionProject);
-        //bar.add(Box.createRigidArea(VBOX));
         bar.add(colorModelButtonProjection);
         return bar;
     }
@@ -803,15 +807,18 @@ class ControlPane
         JPanel controls = new JPanel();
         double size[][] = {{TableLayout.PREFERRED}, 
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,
-        				TableLayout.PREFERRED, SLIDER_HEIGHT}};
+        	TableLayout.PREFERRED, TableLayout.PREFERRED, SLIDER_HEIGHT}};
         
         controls.setLayout(new TableLayout(size));
         controls.add(Box.createVerticalStrut(20), "0, 0");
-        controls.add(buildGridBar(), "0, 1, c, c");
+        JToolBar bar = buildGridBar(colorModelButtonGrid);
+        bar.add(Box.createRigidArea(VBOX));
+        controls.add(bar, "0, 1, c, c");
+        controls.add(buildGridBar(textVisibleButton), "0, 2, c, c");
         if (channelButtonsGrid.size() > ImViewer.MAX_CHANNELS) 
-        	controls.add(new JScrollPane(buttons), "0, 2");
-        else controls.add(buttons, "0, 2");
-        controls.add(gridRatioSlider, "0, 3, c, c");
+        	controls.add(new JScrollPane(buttons), "0, 3");
+        else controls.add(buttons, "0, 3");
+        controls.add(gridRatioSlider, "0, 4, c, c");
         
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.X_AXIS));
@@ -1462,5 +1469,5 @@ class ControlPane
 		else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name))
 			controller.setProjectionRange(true);
 	}
-
+	
 }

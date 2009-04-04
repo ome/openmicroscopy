@@ -259,7 +259,10 @@ class DocComponent
 				downloadButton.setOpaque(false);
 				UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 				downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-				downloadButton.setToolTipText("Download the file.");
+				String defaultFolder = UIUtilities.getDefaultFolderAsString();
+				String toolTip = "Download the file in: \n";
+				toolTip += defaultFolder;
+				downloadButton.setToolTipText(toolTip);
 				downloadButton.setActionCommand(""+DOWNLOAD);
 				downloadButton.addActionListener(this);
 				
@@ -271,7 +274,7 @@ class DocComponent
 					openButton.setOpaque(false);
 					UIUtilities.unifiedButtonLookAndFeel(openButton);
 					openButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-					openButton.setToolTipText("Open the file in editor.");
+					openButton.setToolTipText("Open the file in the editor.");
 					openButton.setActionCommand(""+OPEN);
 					openButton.addActionListener(this);
 				}
@@ -477,5 +480,5 @@ class DocComponent
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
 		} 
 	}
-	
+
 }
