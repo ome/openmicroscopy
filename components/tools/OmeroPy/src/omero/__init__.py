@@ -21,6 +21,10 @@ import omero_Constants_ice
 import uuid
 import omero.constants
 import omero.rtypes
+import omero.gateway
+
+def client_wrapper(*args, **kwargs):
+    return omero.gateway.BlitzGateway(*args, **kwargs)
 
 class client(object):
     """
