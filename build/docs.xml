@@ -101,7 +101,7 @@
              verbose="yes">
       <classpath refid="app.run.classpath" />
       <bottom>
-        <![CDATA[<p><i>Copyright &#169; 2006, 2007 Open Microscopy Environment.  
+        <![CDATA[<p><i>Copyright &#169; 2006, 2009 Open Microscopy Environment.  
         All Rights reserved.</i></p>]]>
       </bottom>
     </javadoc>

@@ -54,7 +54,7 @@
   <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="dist.jar.file" value="omero.insight.jar"/>
   <property name="dist.bundle.name" value="omero.insight"/> 
-  <property name="dist.bundle.version" value="Beta4.0-rc1"/>
+  <property name="dist.bundle.version" value="Beta4.0.1"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
@@ -222,7 +222,8 @@
 	        icon="${distEditor.osx.icon}"
 	        stubfile="${dist.osx.stub}" 
 	        jvmversion="1.5+"
-	        vmoptions="-Xms256M -Xmx512M">
+	        vmoptions="-Xms256M -Xmx512M"
+  			arguments="containerEditor.xml">
 	  <jarfileset refid="app.libs"/>
 	  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
   </jarbundler>  
