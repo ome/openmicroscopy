@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
 //Java imports
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
@@ -40,6 +41,8 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
+
 import pojos.ImageData;
 
 /** 
@@ -207,6 +210,14 @@ public class BrowserControl
         }
     }
     
+    private void setSelectedCell(Point p, CellDisplay node)
+    {
+    	ColourPicker picker = new ColourPicker(DataBrowserAgent.getRegistry().getTaskBar().getFrame(), true);
+    	picker.setColorDescription("control");
+    	picker.setLocation(p);
+    	picker.setVisible(true);
+    }
+    
     /**
      * Sets the currently selected display.
      * @see MouseListener#mousePressed(MouseEvent)
@@ -243,7 +254,9 @@ public class BrowserControl
     		else model.setSelectedDisplay(d, true, true);
     	} else {
     		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
-    	    	model.setSelectedDisplay(d, false, true);
+    			if (d instanceof CellDisplay) {
+    				setSelectedCell(me.getPoint(), (CellDisplay) d);
+    			} else model.setSelectedDisplay(d, false, true);
     		}
     	}
         if (me.isPopupTrigger()) popupTrigger = true;

@@ -30,8 +30,6 @@ import java.awt.GridBagLayout;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -71,8 +69,14 @@ public class ColourPicker
     /** The title of the window. */
     private static final String TITLE = "Colour Picker Window";
     
+    /** The default color. */
+    private static final Color DEFAULT_COLOR = Color.red;
+    
     /** Reference to the model. */
     private RGBModel model;
+    
+    /** Reference to the UI. */
+    private TabbedPaneUI tabbedPane;
     
     /** Sets the properties of the window. */
     private void setWindowProperties()
@@ -113,7 +117,12 @@ public class ColourPicker
                 (original.getGreen() == c.getGreen()) &&
                 (original.getBlue() == c.getBlue()) &&
                 (original.getAlpha() == c.getAlpha())) return;
-        firePropertyChange(COLOUR_PROPERTY, model.getOriginalColor(), c);
+        String description = tabbedPane.getDescription();
+        if (description == null)
+        	firePropertyChange(COLOUR_PROPERTY, model.getOriginalColor(), c);
+        else 
+        	firePropertyChange(COLOUR_PROPERTY, null, 
+        			new ColourObject(c, description));	
         cancel();
     }
     
@@ -123,17 +132,20 @@ public class ColourPicker
      * @param owner     The owner of the window.
      * @param color     The original color. If <code>null</code>, sets to 
      *                  the default color.
+     * @param field		Pass <code>true</code> to add a field, 
+     * 					<code>false</code> otherwise.       
      */
-	public ColourPicker(JFrame owner, Color color)
+	public ColourPicker(JFrame owner, Color color, boolean field)
 	{
 	    super(owner);
+	    if (color == null) color = DEFAULT_COLOR;
         setWindowProperties();
         float[] vals = new float[4];
         vals = color.getComponents(vals);
         model = new RGBModel(vals[0], vals[1], vals[2], vals[3]);
         RGBControl control = new RGBControl(model);
         
-        TabbedPaneUI tabbedPane = new TabbedPaneUI(this, control);
+        tabbedPane = new TabbedPaneUI(this, control, field);
 		setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.weightx = 80;
@@ -145,4 +157,48 @@ public class ColourPicker
         pack();
 	}
 
+	/** 
+	 * Creates a new instance with color set to <code>red</code>.
+	 * 
+	 * @param owner The owner of the window.
+	 * @param color	The original color. If <code>null</code>, sets to 
+	 * 				the default color.
+	 */
+	public ColourPicker(JFrame owner, Color color)
+	{
+		this(owner, color, false);
+	}
+	
+	/** 
+	 * Creates a new instance with color set to <code>red</code>.
+	 * 
+	 * @param owner The owner of the window.
+	 */
+	public ColourPicker(JFrame owner)
+	{
+		this(owner, null, false);
+	}
+	
+	/** 
+	 * Creates a new instance with color set to <code>red</code>.
+	 * 
+	 * @param owner  The owner of the window.
+	 * @param field	 Pass <code>true</code> to add a field, 
+     * 					<code>false</code> otherwise. 
+	 */
+	public ColourPicker(JFrame owner, boolean field)
+	{
+		this(owner, null, field);
+	}
+	
+	/**
+	 * Sets the description associated to the color.
+	 * 
+	 * @param description The value to set.
+	 */
+	public void setColorDescription(String description)
+	{
+		tabbedPane.setColorDescription(description);
+	}
+	
 }

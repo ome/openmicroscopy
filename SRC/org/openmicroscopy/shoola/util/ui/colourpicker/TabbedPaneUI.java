@@ -33,11 +33,16 @@ import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import layout.TableLayout;
 
 
 //Third-party libraries
@@ -107,6 +112,9 @@ class TabbedPaneUI
 	
 	/** Cancel the colour panel. */
 	private JButton				cancelButton;
+	
+	/** The deescrption of the color. */
+	private JTextField			fieldDescription;
 	
 	/** ColourWheel panel, containing the HSVPickerUI. */
 	private HSVColourWheelUI	colourWheelPane;
@@ -258,8 +266,13 @@ class TabbedPaneUI
         swatchPane = new ColourSwatchUI(control);
     }
     
-    /** Creates all the UI elements and display the HSVWheel as active. */
-    private void createUI()
+    /** 
+     * Creates all the UI elements and displays the HSVWheel as active. 
+     * 
+     * @param field	  Pass <code>true</code> to add a field, 
+	 * 				  <code>false</code> otherwise. 
+	 */
+    private void createUI(boolean field)
     {
         createToolbar();
         createActionbar();
@@ -272,22 +285,34 @@ class TabbedPaneUI
           
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(container);
-        paintPotPane.setPreferredSize(new Dimension(260,24));
+        paintPotPane.setPreferredSize(new Dimension(260, 24));
         add(Box.createVerticalStrut(5));
         add(paintPotPane);
         add(Box.createVerticalStrut(5));
         tabPanel = new JPanel();
         tabPaneLayout = new CardLayout();
         tabPanel.setLayout(tabPaneLayout);
-        tabPanel.add(colourWheelPane,COLOURWHEELPANE);
-        tabPanel.add(RGBSliderPane,RGBSLIDERPANE);
-        tabPanel.add(swatchPane,SWATCHPANE);
+        tabPanel.add(colourWheelPane, COLOURWHEELPANE);
+        tabPanel.add(RGBSliderPane, RGBSLIDERPANE);
+        tabPanel.add(swatchPane, SWATCHPANE);
         add(tabPanel);
+        if (field) {
+        	add(new JSeparator());
+        	JLabel label = UIUtilities.setTextFont("Description: ");
+        	JPanel p = new JPanel();
+        	double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL}, 
+        			{TableLayout.PREFERRED}};
+        	p.setLayout(new TableLayout(size));
+        	p.add(label, "0, 0");
+        	fieldDescription = new JTextField();
+        	p.add(fieldDescription, "1, 0");
+        	add(p);
+        }
         add(userActionPanel);
         pickSwatchPane();
     }
     
-    /** Clear all buttons. */
+    /** Clears all buttons. */
     private void clearToggleButtons()
     {
         colourWheelButton.setSelected(false);
@@ -295,7 +320,7 @@ class TabbedPaneUI
         colourSwatchButton.setSelected(false);
     }
     
-    /** Sets Wheelbutton as picked and make it visible. */
+    /** Sets Wheelbutton as picked and makes it visible. */
     private void pickWheelPane()
     {   
         colourWheelButton.setSelected(true);
@@ -335,26 +360,28 @@ class TabbedPaneUI
     }
     
 	/**
-	 * Instantiates the tabbed pane, create the UI and set the control to c.
+	 * Instantiates the tabbed pane, creates the UI and sets the control.
 	 * 
-     * @param parent The parent of this component. Mustn't be <code>null</code>.
-	 * @param c      Reference to the control. Mustn't be <code>null</code>.
+     * @param parent  The parent of this component. Mustn't be <code>null</code>.
+	 * @param control Reference to the control. Mustn't be <code>null</code>.
+	 * @param field	  Pass <code>true</code> to add a field, 
+	 * 				  <code>false</code> otherwise. 
 	 */
-	TabbedPaneUI(ColourPicker parent, RGBControl c)
+	TabbedPaneUI(ColourPicker parent, RGBControl control, boolean field)
 	{
         if (parent == null)
             throw new NullPointerException("No parent.");
-        if (c == null)
+        if (control == null)
             throw new NullPointerException("No control.");
         this.parent = parent;
-		control = c;
-		createUI();
-		control.addListener(this);
+		this.control = control;
+		createUI(field);
+		this.control.addListener(this);
 	}
 	
 	/**
 	 * Sets the enabled flag of the {@link #acceptButton} and 
-	 * {@link #acceptButton}.
+	 * {@link #revertButton}.
 	 * 
 	 * @param enabled The value to set.
 	 */
@@ -365,23 +392,47 @@ class TabbedPaneUI
 	}
 	
 	/** 
-	 * User has clicked revert button. Revert current colour to the original 
-	 * colour choice passed to Colourpicker.
+	 * Reverts current colour to the original colour choice passed to 
+	 * Colourpicker.
 	 */
 	void revertAction() { control.revert(); }
 
+	/** 
+	 * Returns the description entered if any.
+	 * 
+	 * @return See above.
+	 */
+	String getDescription()
+	{
+		if (fieldDescription == null) return null;
+		String text = fieldDescription.getText();
+		if (text == null) return null;
+		return text.trim();
+	}
+	
+	/**
+	 * Sets the description associated to the color.
+	 * 
+	 * @param description The value to set.
+	 */
+	void setColorDescription(String description)
+	{
+		if (fieldDescription == null || description == null) return;
+		fieldDescription.setText(description);
+	}
+	
 	/** 
 	 * Listens to ChangeEvent. 
 	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */
 	public void stateChanged(ChangeEvent evt) 
 	{
-		if (RGBSliderPane != null)
-			if (RGBSliderPane.isVisible()) RGBSliderPane.refresh();
-		if (colourWheelPane != null)
-			if (colourWheelPane.isVisible()) colourWheelPane.refresh();
-		if (swatchPane != null)
-			if (swatchPane.isVisible()) swatchPane.refresh();
+		if (RGBSliderPane != null && RGBSliderPane.isVisible())
+			RGBSliderPane.refresh();
+		if (colourWheelPane != null && colourWheelPane.isVisible())
+			colourWheelPane.refresh();
+		if (swatchPane != null && swatchPane.isVisible())
+			swatchPane.refresh();
 		setButtonsEnabled(!control.isOriginalColour());
 	}
 

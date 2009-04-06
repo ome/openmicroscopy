@@ -175,6 +175,16 @@ class BrowserModel
 		else setNodesColor(selected, nodes);
     }
     
+    /**
+     * Sets the selected cells.
+     * 
+     * @param cell The selected cell.
+     */
+    private void setSelectedCell(CellDisplay cell)
+    {
+    	
+    }
+    
 	/**
 	 * Sets the specified <code>node</code> to be the currently selected
 	 * node in the visualization tree.
