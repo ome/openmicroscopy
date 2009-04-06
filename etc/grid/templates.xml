@@ -37,6 +37,7 @@
       <server id="Blitz-${index}" exe="bin/omero" activation="always">
         <option>server</option>
         <option>blitz</option>
+        <option>-Domero.name=Blitz-${index}</option>
         <env>${PYTHONPATH}</env>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" register-process="true" endpoints="tcp"/>
         <properties>
