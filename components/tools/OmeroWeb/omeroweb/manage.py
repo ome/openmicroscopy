@@ -23,6 +23,21 @@
 #
 
 import sys
+
+
+#
+# Ice handling: When manage.py is called by icegridnode
+# an extra argument "--Ice.Config=..." is added. For now,
+# it must be stripped out.
+#
+while True:
+    for i in range(0, len(sys.argv)):
+        if sys.argv[i].startswith("--Ice.Config"):
+            sys.argv.pop(i)
+        continue
+    break
+
+
 from django.core.management import execute_manager
 
 try:
