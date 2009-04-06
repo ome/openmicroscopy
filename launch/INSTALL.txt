@@ -41,7 +41,10 @@
   Double-click on the startup script (for example "OMEROinsight_windows.bat") 
   file within the installation directory. A splash screen will pop up. 
   Enter your OMERO user name, password and the name of the server then press
-  the log in button.  Enjoy OMERO!
-
+  the log in button. Enjoy OMERO!
+  
+  If you want to run the editor as a standalone application,
+  double-click on the startup script (for example "OMEROeditor_windows.bat") 
+  file within the installation directory. A splash screen will pop up. 
   
   
