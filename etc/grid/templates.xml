@@ -8,23 +8,49 @@
 
   <application name="templates">
 
+    <properties id="Profile">
+      <!-- Here you can specify values which will be passed to
+      the Java servers and added via System.setPreference() -->
+      <property name="my_property" value="my_value"/>
+    </properties>
+
+    <properties id="Blitz">
+      <property name="Ice.Default.CollocationOptimized" value="0"/>
+    </properties>
+
+    <properties id="Basics">
+      <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
+      <property name="Ice.Override.ConnectTimeout" value="5000"/>
+    </properties>
+
+    <properties id="SingleThreaded">
+      <property name="Ice.ThreadPool.Client.Size" value="1"/>
+      <property name="Ice.ThreadPool.Client.SizeMax" value="1"/>
+      <property name="Ice.ThreadPool.Server.Size" value="1"/>
+      <property name="Ice.ThreadPool.Server.SizeMax" value="1"/>
+    </properties>
+
+    <properties id="MultiThreaded">
+      <property name="Ice.ThreadPool.Client.Size" value="2"/>
+      <property name="Ice.ThreadPool.Client.SizeMax" value="50"/>
+      <property name="Ice.ThreadPool.Server.Size" value="10"/>
+      <property name="Ice.ThreadPool.Server.SizeMax" value="100"/>
+    </properties>
+
     <server-template id="BlitzTemplate">
       <parameter name="index"/>
       <parameter name="config" default="default"/>
       <server id="Blitz-${index}" exe="bin/omero" activation="always">
         <option>server</option>
         <option>blitz</option>
-        <option>-Domero.name=${server}</option>
         <env>PYTHONPATH=lib:$PYTHONPATH</env>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" register-process="true" endpoints="tcp"/>
         <properties>
-          <property name="Ice.ThreadPool.Client.Size" value="2"/>
-          <property name="Ice.ThreadPool.Client.SizeMax" value="50"/>
-          <property name="Ice.ThreadPool.Server.Size" value="10"/>
-          <property name="Ice.ThreadPool.Server.SizeMax" value="100"/>
-          <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
-          <property name="Ice.Default.CollocationOptimized" value="0"/>
-          <property name="Ice.Override.ConnectTimeout" value="5000"/>
+          <properties refid="Profile"/>
+          <properties refid="Blitz"/>
+          <properties refid="Basics"/>
+          <properties refid="MultiThreaded"/>
+          <property name="omero.name" value="${server}"/>
         </properties>
       </server>
     </server-template>
@@ -39,13 +65,10 @@
         <env>PYTHONPATH=lib:$PYTHONPATH</env>
         <adapter name="IndexerAdapter" register-process="true" endpoints="tcp"/>
         <properties>
-          <property name="Ice.ThreadPool.Client.Size" value="1"/>
-          <property name="Ice.ThreadPool.Client.SizeMax" value="1"/>
-          <property name="Ice.ThreadPool.Server.Size" value="1"/>
-          <property name="Ice.ThreadPool.Server.SizeMax" value="1"/>
-          <property name="Ice.MessageSizeMax" value="128"/> <!-- 128KB -->
-          <property name="Ice.Default.CollocationOptimized" value="0"/>
-          <property name="Ice.Override.ConnectTimeout" value="5000"/>
+          <properties refid="Profile"/>
+          <properties refid="Blitz"/>
+          <properties refid="Basics"/>
+          <properties refid="SingleThreaded"/>
         </properties>
       </server>
     </server-template>
@@ -58,12 +81,8 @@
         <env>PYTHONPATH=lib/python:$PYTHONPATH</env>
         <adapter name="ProcessorAdapter" replica-group="ProcessorAdapters" register-process="true" endpoints="tcp"/>
         <properties>
-          <property name="Ice.ThreadPool.Client.Size" value="2"/>
-          <property name="Ice.ThreadPool.Client.SizeMax" value="10"/>
-          <property name="Ice.ThreadPool.Server.Size" value="2"/>
-          <property name="Ice.ThreadPool.Server.SizeMax" value="10"/>
-          <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
-          <property name="Ice.Override.ConnectTimeout" value="5000"/>
+          <properties refid="Basics"/>
+          <properties refid="MultiThreaded"/>
         </properties>
       </server>
     </server-template>
@@ -77,12 +96,8 @@
 			<object identity="FSServer" type="::monitors::MonitorServer"/>
 		</adapter>
         <properties>
-          <property name="Ice.ThreadPool.Client.Size" value="2"/>
-          <property name="Ice.ThreadPool.Client.SizeMax" value="10"/>
-          <property name="Ice.ThreadPool.Server.Size" value="2"/>
-          <property name="Ice.ThreadPool.Server.SizeMax" value="10"/>
-          <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
-          <property name="Ice.Override.ConnectTimeout" value="5000"/>
+          <properties refid="Basics"/>
+          <properties refid="MultiThreaded"/>
         </properties>
       </server>
     </server-template>
@@ -94,12 +109,8 @@
         <env>PYTHONPATH=lib/python:$PYTHONPATH</env>
         <adapter name="omerofs.DropBox" register-process="true" endpoints="tcp"/>
         <properties>
-          <property name="Ice.ThreadPool.Client.Size" value="2"/>
-          <property name="Ice.ThreadPool.Client.SizeMax" value="10"/>
-          <property name="Ice.ThreadPool.Server.Size" value="2"/>
-          <property name="Ice.ThreadPool.Server.SizeMax" value="10"/>
-          <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
-          <property name="Ice.Override.ConnectTimeout" value="5000"/>
+          <properties refid="Basics"/>
+          <properties refid="MultiThreaded"/>
         </properties>
       </server>
     </server-template>
@@ -115,7 +126,6 @@
       </server>
     </server-template>
 
-    <!-- Templates from Ice-3.2.1/config/templates.xml -->
     <server-template id="IcePatch2Template">
        <parameter name="instance-name" default="${application}.IcePatch2"/>
        <parameter name="endpoints" default="default"/>
@@ -140,6 +150,7 @@
        <parameter name="session-timeout" default="0"/>
        <server id="${instance-name}" exe="glacier2router" activation="always">
          <properties>
+           <properties refid="Basics"/>
            <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
            <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
            <property name="Glacier2.InstanceName" value="${instance-name}"/>
@@ -147,8 +158,6 @@
            <property name="Glacier2.PermissionsVerifier" value="BlitzVerifier@BlitzAdapters"/>
            <property name="Glacier2.SessionManager" value="BlitzManager@BlitzAdapters"/>
            <property name="Glacier2.Client.ForwardContext" value="1"/>
-           <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64MB -->
-          <property name="Ice.Override.ConnectTimeout" value="5000"/>
          </properties>
        </server>
      </server-template>
