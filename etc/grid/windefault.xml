@@ -2,15 +2,24 @@
 
 <!--
     OMERO Grid Application Descriptor
-    Copyright 2008 Glencoe Software, Inc.  All Rights Reserved.
+    Copyright 2009 Glencoe Software, Inc.  All Rights Reserved.
     Use is subject to license terms supplied in LICENSE.txt
+
+    Configuration for use on Windows. See definition of OMERO_HOME
+    parameter below.
+
 -->
 
   <application name="OMERO" import-default-templates="true">
 
-    <parameter name="OMERO_HOME" default="."/>
-    <parameter name="OMEROPY_HOME" default="lib/python"/>
-    <parameter name="PYTHONPATH" default="$PYTHONPATH:lib/python/>
+    <!--
+      On Windows, absolute paths are required for proper functioning.
+      All the necessary paths will use the ${OMERO_HOME} parameter,
+      especially in templates.xml
+    -->
+    <parameter name="OMERO_HOME" default="c:\\omero"/>
+    <parameter name="OMEROPY_HOME" default="c:\\omero\\lib\\python"/>
+    <parameter name="PYTHONPATH" default="%PYTHONPATH%;lib\\python/>
 
     <properties id="Profile">
       <!-- Here you can specify values which will be passed to
@@ -35,12 +44,11 @@
         client-endpoints="tcp -p 4063"
         session-timeout="300"
         server-endpoints="tcp -h 127.0.0.1"/>
-      <server-instance template="BlitzTemplate" index="0" config="default"/>
-      <server-instance template="IndexerTemplate" index="0"/>
+      <server-instance template="WinBlitzTemplate" index="0" config="default"/>
+      <server-instance template="WinIndexerTemplate" index="0"/>
       <server-instance template="DropBoxTemplate"/>
       <server-instance template="FSTemplate"/>
-      <server-instance template="ProcessorTemplate" index="0"/>
-      <server-instance template="ShellTemplate" id="Web" act="on-demand"/>
+      <server-instance template="WebTemplate"/>
       <server-instance template="StormTemplate"/>
     </node>
 

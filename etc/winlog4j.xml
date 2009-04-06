@@ -5,7 +5,7 @@
 #
 # $Id$
 #
-# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Copyright 2009 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -15,9 +15,8 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Log configuration which is pointed to by the -Dlog4j.configuration setting in
-lib/omero/java.py but can be overwritten by setting omero.blitz.xargs. This
-file is periodically read during runtime, and any changes cause the log4j
-system to be re-configured.
+etc\grid\template.xml. It is a copy of the log4j.xml configuration file, made
+April 2009 for 4.0.1
 
 -->
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
@@ -25,7 +24,7 @@ system to be re-configured.
   <appender name="PRIMARY" class="org.apache.log4j.RollingFileAppender">
     <errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
     <param name="Threshold" value="INFO"/>
-    <param name="File" value="c:\\omero\\var\\log\\${omero.name}.log"/>
+    <param name="File" value="var\\log\\${omero.name}.log"/>
     <param name="MaxFileSize" value="500000KB"/>
     <param name="MaxBackupIndex" value="9"/>
     <param name="Append" value="true"/>
