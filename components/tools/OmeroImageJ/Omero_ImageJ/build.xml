@@ -37,4 +37,10 @@
     <target name="integration"/>
     <target name="findbugs"/>
 
+    <!-- LIFECYCLE OVERRIDE -->
+    <target name="package" depends="lifecycle.package">
+        <jar destfile="${target.dir}/${ivy.module}.jar" update="true">
+            <fileset dir="${resrc.dir}" includes="*.config"/>
+        </jar>
+    </target>
 </project>

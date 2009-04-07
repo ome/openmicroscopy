@@ -1,14 +1,14 @@
 <ivy-module version="1.0">
   <info
       organisation="omero"
-      module="OmeroImageJ"
+      module="Omero_ImageJ"
       status="integration"/>
   <configurations>
     <conf name="build"/>
     <conf name="client"/>
   </configurations>
   <publications>
-    <artifact name="OmeroImageJ" type="jar"/>
+    <artifact name="Omero_ImageJ" type="jar"/>
   </publications>
   <dependencies defaultconfmapping="build,client->default">
     <!-- Internal -->

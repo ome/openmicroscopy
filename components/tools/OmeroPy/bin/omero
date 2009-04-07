@@ -12,6 +12,10 @@ See LICENSE for details.
 import sys, os, stat
 
 def not_root(omero):
+    """
+    Check that the effective current user is not 0
+    on systems supporting os.geteuid()
+    """
     try:
         if os.geteuid() == 0:
             owner = os.stat(omero)[stat.ST_UID]
@@ -35,6 +39,10 @@ def not_root(omero):
         pass
 
 def readlink(file=sys.argv[0]):
+    """
+    Resolve symlinks and similar. This is useful to allow
+    linking this file under /usr/bin/, for example.
+    """
     import stat
 
     file = sys.argv[0]
@@ -48,10 +56,15 @@ def readlink(file=sys.argv[0]):
     file = os.path.abspath(file)
     return file
 
+omero_home = None
 if os.environ.has_key("OMERO_HOME"):
-    top = os.environ["OMERO_HOME"]
-    if not os.path.exists(top):
-        print "OMERO_HOME=%s cannot be found" % top
+    omero_home = os.environ["OMERO_HOME"]
+    if not os.path.exists(omero_home):
+        print "OMERO_HOME=%s cannot be found" % omero_home
+        sys.exit(3)
+
+if omero_home:
+    top = omero_home
 else:
     exe = readlink()
     top = os.path.join(exe, os.pardir, os.pardir)
@@ -63,8 +76,36 @@ sys.path.append(lib)
 
 
 not_root(top)
+
 try:
     import omero.cli
+except ImportError, ie:
+    print "*"*80
+    print """
+    ERROR: Could not import omero.cli!
+
+    This means that your installation is incomplete. Contact
+    the OME mailing lists for more information:
+
+    https://www.openmicroscopy.org/site/community
+
+    If you are building from source, please supply the build log
+    as well as which version you are building from. If you
+    downloaded a distribution, please provide which link you
+    used.
+    """
+    print "*"*80
+    print """
+    Debugging Info:
+    --------------
+    CWD=%s
+    VERSION=%s
+    OMERO_HOME=%s
+    PYTHONPATH=%s
+    """ % (os.getcwd(), sys.version.replace("\n"," "), omero_home, sys.path)
+    sys.exit(2)
+
+try:
     rv = omero.cli.argv()
     sys.exit(rv)
 except KeyboardInterrupt, ki:
