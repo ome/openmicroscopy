@@ -1,4 +1,4 @@
-<project name="Omero_ImageJ" default="" basedir=".">
+<project name="Omero_ImageJ" default="" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
     <description>
     	Omero_ImageJ Ant build file
     </description>
