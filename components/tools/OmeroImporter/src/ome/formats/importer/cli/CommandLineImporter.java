@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 
 import loci.formats.FormatException;
+import loci.formats.ImageReader;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportLibrary;
@@ -129,6 +130,7 @@ public class CommandLineImporter
                 "  -k\tOMERO session key (can be used in place of -u and -w)\n" +
                 "\n" +
                 "Optional arguments:\n" +
+                "  -f\tDisplay the used files [does not require mandatory arguments]\n" +
                 "  -d\tOMERO dataset Id to import image into\n" +
                 "  -r\tOMERO screen Id to import plate into\n" +
                 "  -n\tImage name to use\n" +
@@ -155,7 +157,7 @@ public class CommandLineImporter
      */
     public static void main(String[] args)
     {
-        Getopt g = new Getopt(APP_NAME, args, "s:u:w:d:r:k:x:n:p:h");
+        Getopt g = new Getopt(APP_NAME, args, "fs:u:w:d:r:k:x:n:p:h");
         int a;
         String username = null;
         String password = null;
@@ -166,6 +168,7 @@ public class CommandLineImporter
         Long targetId = null;
         String name = null;
         String description = null;
+        boolean getUsedFiles = false;
         while ((a = g.getopt()) != -1)
         {
             switch (a)
@@ -217,11 +220,43 @@ public class CommandLineImporter
                 	description = g.getOptarg();
                 	break;
                 }
+                case 'f':
+                {
+                	getUsedFiles = true;
+                	break;
+                }
                 default:
                 {
                     usage();
                 }
             }
+        }
+
+        // Parse out our file path
+        if (args.length - g.getOptind() != 1)
+        {
+            usage();
+        }
+        String path = args[g.getOptind()];
+        
+        // If we've been asked to display used files, display them and exit.
+        if (getUsedFiles)
+        {
+        	ImageReader reader = new ImageReader();
+        	try
+        	{
+        		reader.setId(path);
+        		for (String usedFile : reader.getUsedFiles())
+        		{
+        			System.out.println(usedFile);
+        		}
+        		return;
+        	}
+        	catch (Throwable t)
+        	{
+        		log.error("Error retrieving used files.", t);
+        		System.exit(2);
+        	}
         }
         
         // Ensure that we have all of our required login arguments
@@ -230,12 +265,7 @@ public class CommandLineImporter
         {
             usage();
         }
-        if (args.length - g.getOptind() != 1)
-        {
-            usage();
-        }
-        String path = args[g.getOptind()];
-        
+
         // Start the importer and import the image we've been given
         CommandLineImporter c = null;
         try
