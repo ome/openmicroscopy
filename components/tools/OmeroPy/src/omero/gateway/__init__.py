@@ -85,15 +85,11 @@ class _BlitzGateway (object):
         self.ice_config = [self.ICE_CONFIG]
         self.ice_config.extend(extra_config)
         self.ice_config = map(lambda x: str(x), filter(None, self.ice_config))
-        #self.server = server
-        #self.port = port
 
-        if host is not None:
-            logger.info('host: %s, port: %i' % (str(host), int(port)))
-            self.c = omero.client(host=str(host), port=int(port))#, pmap=['--Ice.Config='+','.join(self.ice_config)])
-        else:
-            logger.info('--Ice.Config='+','.join(self.ice_config))
-            self.c = omero.client(pmap=['--Ice.Config='+','.join(self.ice_config)])
+        self.host = host
+        self.port = port
+
+        self._resetOmeroClient()
         if not username:
             username = self.c.ic.getProperties().getProperty('weblitz.anon_user')
             passwd = self.c.ic.getProperties().getProperty('weblitz.anon_pass')
@@ -257,7 +253,12 @@ class _BlitzGateway (object):
             pass
 
     def _resetOmeroClient (self):
-        self.c = omero.client(['--Ice.Config='+','.join(self.ice_config)])
+        if self.host is not None:
+            logger.info('host: %s, port: %i' % (str(self.host), int(self.port)))
+            self.c = omero.client(host=str(self.host), port=int(self.port))#, pmap=['--Ice.Config='+','.join(self.ice_config)])
+        else:
+            logger.info('--Ice.Config='+','.join(self.ice_config))
+            self.c = omero.client(pmap=['--Ice.Config='+','.join(self.ice_config)])
 
     def connect (self, sUuid=None):
         logger.debug("Connect attempt, sUuid=%s, group=%s, self.sUuid=%s" % (str(sUuid), str(self.group), self._sessionUuid))
