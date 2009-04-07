@@ -36,6 +36,10 @@ DROP FUNCTION omero_assert_omero4_0();
 INSERT into dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
              values ('OMERO4-DEV',       1,              'OMERO4',            0);
 
+ALTER TABLE node    ADD UNIQUE (uuid);
+
+ALTER TABLE session ADD UNIQUE (uuid);
+
 ALTER TABLE plate
     ADD COLUMN columnNamingConvention varchar(255),
     ADD COLUMN rowNamingConvention varchar(255),

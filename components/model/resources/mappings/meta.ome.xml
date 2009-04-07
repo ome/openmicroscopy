@@ -52,7 +52,7 @@
 			<!-- Type & Group are not really optional. Needed to bootstrap.
                  Constraints are added later -->
 			<manyone name="node" type="ome.model.meta.Node"/>
-			<required name="uuid" type="string"/>
+			<required name="uuid" type="string" unique="true"/>
 			<required name="owner" type="ome.model.meta.Experimenter"/>
 			<required name="timeToIdle" type="long"/>
 			<required name="timeToLive" type="long"/>
@@ -68,8 +68,8 @@
 
 	<type id="ome.model.meta.Node" global="true" annotated="true">
 		<properties>
-		    <onemany name="sessions"   type="ome.model.meta.Session" inverse="node"/>
-			<required name="uuid"  type="string"/>
+			<onemany name="sessions" type="ome.model.meta.Session" inverse="node"/>
+			<required name="uuid"  type="string" unique="true"/>
 			<required name="conn"  type="string"/>
 			<required name="up"    type="timestamp"/>
 			<optional name="down"  type="timestamp"/>

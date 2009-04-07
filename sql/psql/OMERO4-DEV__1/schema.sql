@@ -1114,7 +1114,7 @@
         down timestamp,
         scale int4,
         up timestamp not null,
-        uuid varchar(255) not null,
+        uuid varchar(255) not null unique,
         version int4,
         external_id int8 unique,
         primary key (id)
@@ -1642,7 +1642,7 @@
         timeToIdle int8 not null,
         timeToLive int8 not null,
         userAgent varchar(255),
-        uuid varchar(255) not null,
+        uuid varchar(255) not null unique,
         version int4,
         external_id int8 unique,
         node int8 not null,
