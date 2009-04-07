@@ -37,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.Actions;
 import omero.model.Dataset;
+import omero.model.IObject;
 
 @SuppressWarnings("serial")
 public class FileQueueHandler 
@@ -175,8 +176,15 @@ public class FileQueueHandler
                 if (dialog.cancelled == true || dialog.screen == null) 
                     return;                    
                 for (File f : files)
-                {
-                    //Add SPW handler here
+                {             
+                    
+                    addFileToQueue(f, dialog.screen, 
+                            null, 
+                            dialog.screen.getName().getValue(),
+                            false, 
+                            0,
+                            dialog.archiveImage.isSelected(),
+                            null);
                 }
                 
                 qTable.centerOnRow(qTable.queue.getRowCount()-1);
@@ -272,7 +280,7 @@ public class FileQueueHandler
             try {
                 if (qTable.importing == false)
                 {
-                    ImportContainer[] fads = qTable.getFilesAndDataset();
+                    ImportContainer[] fads = qTable.getFilesAndObjectTypes();
 
                     if (fads != null)
                     {
@@ -346,18 +354,27 @@ public class FileQueueHandler
     }
     
     @SuppressWarnings("unchecked")
-    private void addFileToQueue(File file, Dataset dataset, String dName, 
+    private void addFileToQueue(File file, IObject object, String dName, 
             String project, Boolean useFullPath, 
             int numOfDirectories, boolean archiveImage, Long projectID)
     {
         Vector row = new Vector();
         
         String imageName = getImageName(file, useFullPath, numOfDirectories);
-               
+        String pdsString = null;
+        
+        if (dName != null)
+        {
+            pdsString = project + "/" + dName;
+        } else
+        {
+            pdsString = project;
+        }
+
         row.add(imageName);
-        row.add(project + "/" + dName);
+        row.add(pdsString);
         row.add("added");
-        row.add(dataset.getId().getValue());
+        row.add(object);
         row.add(file);
         row.add(archiveImage);
         row.add(projectID);
@@ -549,6 +566,8 @@ public class FileQueueHandler
                 qTable.importBtn.setEnabled(true);
         }
     }
+    
+    
 }
 
 

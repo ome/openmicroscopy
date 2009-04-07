@@ -156,7 +156,8 @@ public class ImportHandler
                	    	// FIXME: This is now "broken" with targets now able to
                	    	// be of type Screen or Dataset.
                	        db.insertFileHistory(importKey, store.getExperimenterID(), i, importContainer[i].imageName, 
-               	         importContainer[i].projectID, importContainer[i].getTargetID(), "pending", importContainer[i].file);
+               	         importContainer[i].projectID, importContainer[i].getTarget().getId().getValue(), 
+               	         "pending", importContainer[i].file);
                	    }
                	}
                	catch (Exception e) 
@@ -183,9 +184,9 @@ public class ImportHandler
                 viewer.appendToOutputLn("> [" + j + "] Importing \"" + filename
                         + "\"");
                 
-                IObject target = instantiateTarget(container.getTargetClass(),
-                		                           container.getTargetID());
+                IObject target = container.getTarget();
                 library.setTarget(target);
+                
                 try
                 {
                 	library.importImage(importContainer[j].file, j,

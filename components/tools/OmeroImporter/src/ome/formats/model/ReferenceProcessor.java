@@ -27,6 +27,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.DetectorSettings;
@@ -44,6 +47,9 @@ import omero.model.ObjectiveSettings;
  */
 public class ReferenceProcessor implements ModelProcessor
 {
+    /** Logger for this class */
+    private Log log = LogFactory.getLog(ReferenceProcessor.class);
+    
     /* (non-Javadoc)
      * @see ome.formats.model.ModelProcessor#process(ome.formats.model.IObjectContainerStore)
      */
@@ -72,7 +78,12 @@ public class ReferenceProcessor implements ModelProcessor
                     LinkedHashMap<String, Integer> indexes = 
                         new LinkedHashMap<String, Integer>();
                     int[] indexArray = target.getIndexes();
-                    if (targetClass.equals(DetectorSettings.class))
+                    if (targetClass == null)
+                    {
+                        log.warn("Unknown target class for LSID: " + target);
+                        continue;
+                    }
+                    else if (targetClass.equals(DetectorSettings.class))
                     {
                         indexes.put("imageIndex", indexArray[0]);
                         indexes.put("logicalChannelIndex", indexArray[1]);

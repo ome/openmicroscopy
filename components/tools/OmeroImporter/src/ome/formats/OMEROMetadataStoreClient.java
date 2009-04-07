@@ -2790,28 +2790,28 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setCirclecx(String arg0, int arg1, int arg2, int arg3)
+    public void setCircleCx(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setCirclecy(String arg0, int arg1, int arg2, int arg3)
+    public void setCircleCy(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setCircler(String arg0, int arg1, int arg2, int arg3)
+    public void setCircleR(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setCircletransform(String arg0, int arg1, int arg2, int arg3)
+    public void setCircleTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -2923,35 +2923,35 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setEllipsecx(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseCx(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setEllipsecy(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseCy(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setEllipserx(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseRx(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setEllipsery(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseRy(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setEllipsetransform(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3234,35 +3234,35 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setLinetransform(String arg0, int arg1, int arg2, int arg3)
+    public void setLineTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setLinex1(String arg0, int arg1, int arg2, int arg3)
+    public void setLineX1(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setLinex2(String arg0, int arg1, int arg2, int arg3)
+    public void setLineX2(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setLiney1(String arg0, int arg1, int arg2, int arg3)
+    public void setLineY1(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setLiney2(String arg0, int arg1, int arg2, int arg3)
+    public void setLineY2(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3357,35 +3357,36 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setMaskheight(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskHeight(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setMasktransform(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setMaskwidth(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskWidth(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setMaskx(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskX(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
+    
 
-    public void setMasky(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskY(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3498,28 +3499,28 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setPointcx(String arg0, int arg1, int arg2, int arg3)
+    public void setPointCx(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setPointcy(String arg0, int arg1, int arg2, int arg3)
+    public void setPointCy(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setPointr(String arg0, int arg1, int arg2, int arg3)
+    public void setPointR(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setPointtransform(String arg0, int arg1, int arg2, int arg3)
+    public void setPointTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3533,14 +3534,14 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setPolygonpoints(String arg0, int arg1, int arg2, int arg3)
+    public void setPolygonPoints(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setPolygontransform(String arg0, int arg1, int arg2, int arg3)
+    public void setPolygonTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3554,14 +3555,14 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setPolylinepoints(String arg0, int arg1, int arg2, int arg3)
+    public void setPolylinePoints(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setPolylinetransform(String arg0, int arg1, int arg2, int arg3)
+    public void setPolylineTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3631,35 +3632,35 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setRectheight(String arg0, int arg1, int arg2, int arg3)
+    public void setRectHeight(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setRecttransform(String arg0, int arg1, int arg2, int arg3)
+    public void setRectTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setRectwidth(String arg0, int arg1, int arg2, int arg3)
+    public void setRectWidth(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setRectx(String arg0, int arg1, int arg2, int arg3)
+    public void setRectX(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setRecty(String arg0, int arg1, int arg2, int arg3)
+    public void setRectY(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3716,12 +3717,12 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setShapetheT(Integer arg0, int arg1, int arg2, int arg3)
+    public void setShapeTheT(Integer arg0, int arg1, int arg2, int arg3)
     {
 
     }
 
-    public void setShapetheZ(Integer arg0, int arg1, int arg2, int arg3)
+    public void setShapeTheZ(Integer arg0, int arg1, int arg2, int arg3)
     {
 
     }
@@ -3786,4 +3787,25 @@ public class OMEROMetadataStoreClient
     {
 
     }
+
+    public void setPlateColumnNamingConvention(String arg0, int arg1)
+    {
+
+    }
+
+    public void setPlateRowNamingConvention(String arg0, int arg1)
+    {
+    }
+
+    public void setPlateWellOriginX(Double arg0, int arg1)
+    {
+
+    }
+
+    public void setPlateWellOriginY(Double arg0, int arg1)
+    {
+
+    }
+    
+   /*-----------*/
 }

@@ -71,7 +71,6 @@ public class SPWDialog extends JDialog implements ActionListener
     private JComboBox sbox;
 
     public  Screen screen;
-    public  ScreenI newScreen;
     public  ScreenItem[] screenItems = null;
 
     public boolean    cancelled = true;

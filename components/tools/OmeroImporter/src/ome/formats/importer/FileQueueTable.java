@@ -43,6 +43,7 @@ import org.apache.commons.logging.LogFactory;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
 import omero.model.Dataset;
+import omero.model.IObject;
 
 public class FileQueueTable 
     extends JPanel
@@ -316,10 +317,13 @@ public class FileQueueTable
         return button;
     }
 
-    public ImportContainer[] getFilesAndDataset() {
+    /**
+     * @return ImportContainer
+     */
+    public ImportContainer[] getFilesAndObjectTypes() {
 
         int num = table.getRowCount();     
-        ImportContainer[] fads = new ImportContainer[num];
+        ImportContainer[] importContainer = new ImportContainer[num];
 
         for (int i = 0; i < num; i++)
         {
@@ -328,12 +332,9 @@ public class FileQueueTable
                 boolean archive = (Boolean) table.getValueAt(i, 5);
                 File file = new File(table.getValueAt(i, 4).toString());
                 Long projectID = (Long) table.getValueAt(i, 6);
-       	    	// FIXME: This is now "broken" with targets now able to
-       	    	// be of type Screen or Dataset.
-                Long datasetID = (Long) table.getValueAt(i,3);
                 String imageName = table.getValueAt(i, 0).toString();
-                fads[i] = new ImportContainer(file, projectID, Dataset.class,
-                		                      datasetID, imageName, archive);
+                IObject target = (IObject) table.getValueAt(i, 3);
+                importContainer[i] = new ImportContainer(file, projectID, target, imageName, archive);
             }
             catch (ArrayIndexOutOfBoundsException e)
             {
@@ -341,7 +342,7 @@ public class FileQueueTable
             }
 
         }
-        return fads;
+        return importContainer;
     }
 
     public void actionPerformed(ActionEvent e)
@@ -389,7 +390,7 @@ public class FileQueueTable
         implements TableModelListener {
         
         private static final long serialVersionUID = 1L;
-        private String[] columnNames = {"Files in Queue", "Project/Dataset", "Status", "DatasetNum", "Path", "Archive", "ProjectNum"};
+        private String[] columnNames = {"Files in Queue", "Project/Dataset or Screen", "Status", "DatasetNum", "Path", "Archive", "ProjectNum"};
 
         public void tableChanged(TableModelEvent arg0) { }
         
