@@ -9,7 +9,7 @@
   <application name="OMERO" import-default-templates="true">
 
     <variable name="OMERO_HOME"   value="."/>
-    <variable name="OMEROPY_HOME" value="lib/python"/>
+    <variable name="OMEROPY_HOME" value="lib/python/"/>
     <variable name="PYTHONPATH"   value="PYTHONPATH=$${PYTHONPATH}:lib/python"/>
 
     <properties id="Profile">
