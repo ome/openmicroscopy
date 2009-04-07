@@ -209,9 +209,13 @@ public abstract class QuantumStrategy {
     	} else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
     			PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
     		range = globalMax - globalMin;
-    		if (range < 0x10000) { 
+    		if (range < 0x10000 && globalMin > -1) { 
     			pixelsTypeMin = 0;
         		pixelsTypeMax = 65535;
+            }
+    		if (range < 0x10000 && globalMin < 0) { 
+    			pixelsTypeMin = -32768;
+        		pixelsTypeMax = 32767;
             }
     	} 
     }
