@@ -102,10 +102,6 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         command = ["icegridadmin", self._intcfg() ]
         command.extend(args)
         return command
-    ##############################################
-    #
-    # Commands
-    #
 
     def _descript(self, first, other):
         if first != None and len(first) > 0:
@@ -126,6 +122,46 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             self.ctx.err("No descriptor given. Using %s" % os.path.sep.join(["etc","grid",__d__]))
         return descript
 
+    def _checkWindows(self):
+        """
+	Checks that the templates file as defined in etc\Windows.cfg
+	can be found.
+	"""
+
+        import Ice
+        key = "IceGrid.Registry.DefaultTemplates"
+        properties = Ice.createProperties([self._icecfg()])
+        templates = properties.getProperty(key)
+        if not os.path.exists(templates):
+            self.ctx.die(200, """
+            %s does not exist. Aborting...
+
+            Please see the installation instructions on modifying
+            the files for your installation (%s):
+
+              etc\Windows.cfg
+              etc\grid\windefault.xml
+
+            """ % (templates, self.ctx.dir))
+
+    def _queryService(self, svc_name):
+        """
+        Query the service
+        Required to check the stdout since
+        rcode is not non-0
+	"""
+        command = ["sc", "query", svc_name]
+        popen = self.ctx.popen(command) # popen
+        output = popen.communicate()[0]
+        self.ctx.dbg("Checking for %s: %s" % (svc_name, output))
+	return output
+
+
+    ##############################################
+    #
+    # Commands
+    #
+
     def startasync(self, args):
         """
         First checks for a valid installation, then checks the grid,
@@ -144,13 +180,12 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         descript = self._descript(first, other)
 
         if self._isWindows():
+            self._checkWindows()
             svc_name = "OMERO.%s" % self._node()
-            command = ["sc", "query", svc_name]
-            # Required to check the stdout since
-            # rcode is not non-0
-            popen = self.ctx.popen(command, stdout = True)
-            output = popen.communicate()[0]
-            if -1 < output.find("does not exist"):
+            output = self._queryService(svc_name)
+
+	    # Now check if the server exists
+            if 0 <= output.find("does not exist"):
                  command = [
                        "sc", "create", svc_name,
                        "binPath=","""icegridnode.exe "%s" --deploy "%s" --service %s""" % (self._icecfg(), descript, svc_name),
@@ -158,11 +193,18 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
                        "start=","auto"]
                        #'obj="NT Authority\LocalService"',
                        #'password=""']
-                 self.ctx.out(self.ctx.popen(command, stdout = True).communicate()[0])
-            self.ctx.out(self.ctx.popen(["sc","start",svc_name], stdout = True).communicate()[0])
+                 self.ctx.out(self.ctx.popen(command).communicate()[0]) # popen
+
+            # Then check if the server is already running
+            if 0 <= output.find("RUNNING"):
+	         self.ctx.die(201, "%s is already running. Use stop first" % svc_name)
+
+            # Finally start the service
+            output = self.ctx.popen(["sc","start",svc_name]).communicate()[0] # popen
+            self.ctx.out(output)
         else:
             command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg(),"--deploy",str(descript)] + other
-            self.ctx.popen(command)
+            self.ctx.call(command)
 
     def start(self, args):
         self.startasync(args)
@@ -175,7 +217,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
 
         # TODO : Doesn't properly handle whitespace
         command = ["icegridadmin",self._intcfg(),"-e"," ".join(["application","update", str(descript)] + other)]
-        self.ctx.popen(command)
+        self.ctx.call(command)
 
     def status(self, args):
         args = Arguments(args)
@@ -184,7 +226,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             first = "master"
 
         command = self._cmd("-e","node ping %s" % first)
-        self.ctx.rv = self.ctx.popen(command, strict = False, stdout = True).wait()
+        self.ctx.rv = self.ctx.popen(command).wait() # popen
 
         if self.ctx.rv == 0:
             try:
@@ -250,12 +292,15 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         ##    self.ctx.err("Server not running")
         if self._isWindows():
             svc_name = "OMERO.%s" % self._node()
-            self.ctx.out(self.ctx.popen(["sc","stop",svc_name], stdout = True).communicate()[0])
-            self.ctx.out(self.ctx.popen(["sc","delete",svc_name], stdout = True).communicate()[0])
+            output = self._queryService(svc_name)
+            if 0 <= output.find("does not exist"):
+	        self.ctx.die(203, "%s does not exist. Use 'start' first." % svc_name)
+            self.ctx.out(self.ctx.popen(["sc","stop",svc_name]).communicate()[0]) # popen
+            self.ctx.out(self.ctx.popen(["sc","delete",svc_name]).communicate()[0]) # popen
         else:
             command = self._cmd("-e","node shutdown master")
             try:
-                self.ctx.popen(command)
+                self.ctx.call(command)
             except NonZeroReturnCode, nzrc:
                 self.ctx.rv = nzrc.rv
                 self.ctx.out("Was the server already stopped?")
@@ -273,9 +318,9 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         command = self._cmd()
         if len(args) > 0:
             command.extend(["-e",args.join(" ")])
-            return self.ctx.popen(command)
+            return self.ctx.call(command)
         else:
-            rv = self.ctx.popen(command, False)
+            rv = self.ctx.call(command)
 
 try:
     register("admin", AdminControl)
