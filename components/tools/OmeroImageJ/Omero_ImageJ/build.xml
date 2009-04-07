@@ -1,38 +1,40 @@
-<project name="Omero_ImageJ" default="" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="Omero_ImageJ" default="tools-build" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
     <description>
-    	Omero_ImageJ Ant build file
+        Omero_ImageJ Ant build file
     </description>
-  <property name="src" location="src" />
-  <property name="build" location="bin" />
-  <property name="dist"  location="dist" />
- 
-	 <property name="pluginsDir"  location="$basedir/../../IJ/plugins/" />
- 
-  <property name="user.name" value="Andrew Patterson" />
-<target name="main" depends="compress" description="Main target">
-	<echo>
-		Building the .jar file.
-	</echo>
-</target>
- <target name="compress" depends="" description="generate the distribution">
- 	<jar jarfile="Omero_ImageJ.jar">
- 		<fileset dir="." includes="plugins.config" />
-		<fileset dir="${build}" includes="**/*.*" />
- 		<manifest>
-			<attribute name="Built-By" value="${user.name}"/>
- 		</manifest>
- 	</jar>
-    <copy file="${src}/bio-formats.jar" toDir="${pluginsDir}" />
-    <copy file="${src}/loci-common.jar" toDir="${pluginsDir}" />
-    <copy file="${src}/forms-1.2.1.jar" toDir="${pluginsDir}" />
-    <copy file="${src}/omero_client.jar" toDir="${pluginsDir}" />
-    <copy file="Omero_ImageJ.jar" toDir="${pluginsDir}" />
-  </target>
-  <target name="retrieve-client-libs" description="Utility target for getting client libs">
-      <installIvy/>
-      <ivy:resolve file="${basedir}/../ivy.xml" type="jar" conf="client" settingsRef="ivy.${ant.project.name}" log="quiet"/>
-      <ivy:retrieve conf="client" pattern="${target.dir}/client-libs/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.${ant.project.name}"/>
-  </target>
 
+    <property name="src" location="src" />
+    <property name="pluginsDir"  location="$basedir/../../IJ/plugins/" />
+
+    <dirname property="up-three" file="${basedir}"/>
+    <dirname property="up-two" file="${up-three}"/>
+    <dirname property="up-one" file="${up-two}"/>
+    <property name="import.dir"       value="${up-one}/antlib/resources"/>
+    <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/lifecycle.xml"/>
+    <import file="../../common.xml"/>
+
+    <target name="compress" depends="" description="generate the distribution from Eclipse bin/ directory">
+        <jar jarfile="Omero_ImageJ.jar">
+                <fileset dir="${basedir}" includes="plugins.config" />
+                <fileset dir="${basedir}/bin" includes="**/*.*" />
+        </jar>
+        <copy file="${src}/bio-formats.jar" toDir="${pluginsDir}" />
+        <copy file="${src}/loci-common.jar" toDir="${pluginsDir}" />
+        <copy file="${src}/forms-1.2.1.jar" toDir="${pluginsDir}" />
+        <copy file="${src}/omero_client.jar" toDir="${pluginsDir}" />
+        <copy file="Omero_ImageJ.jar" toDir="${pluginsDir}" />
+      </target>
+
+    <!-- TOOLS BUILD API -->
+
+    <target name="tools-init"/>
+    <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target"/>
+    <target name="tools-dist" depends="tools-build" description="Copied artifacts to tools/target" unless="skip.compile"/>
+    <target name="tools-clean" depends="clean"/>
+    <target name="test-compile"/>
+    <target name="test"/>
+    <target name="integration"/>
+    <target name="findbugs"/>
 
 </project>

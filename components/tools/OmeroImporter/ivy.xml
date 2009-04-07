@@ -43,7 +43,7 @@
     <dependency org="loci" name="ome-xml" rev="${versions.bio-formats}"/>
     <dependency org="loci" name="bufr" rev="1.1.00"/>
     <dependency org="loci" name="grib" rev="5.1.03"/>
-    <dependency org="loci" name="ij" rev="unknown"/>
+    <dependency org="loci" name="ij" rev="${versions.ij}"/>
     <dependency org="loci" name="netcdf" rev="4.0"/>
   </dependencies>
 </ivy-module>

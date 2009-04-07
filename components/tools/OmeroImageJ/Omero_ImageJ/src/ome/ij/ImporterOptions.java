@@ -53,7 +53,7 @@ import omero.model.IObject;
 import omero.model.Project;
 import omero.model.Image;
 import omero.sys.EventContext;
-import omero.sys.PojoOptions;
+import omero.sys.ParametersI;
 import loci.common.*;
 import loci.formats.*;
 
@@ -1079,7 +1079,7 @@ private ServiceFactoryPrx createConnectionAndServiceFactory(
 	  {
 		  List<Long> ids = new ArrayList<Long>(1);
 		  ids.add(d.getId().getValue());
-		  PojoOptions po = new PojoOptions();
+		  ParametersI po = new ParametersI();
 		  po.leaves();
 		  List<IObject> objects = 
 			  iContainer.loadContainerHierarchy(Dataset.class.getName(), ids, po.map());

@@ -25,7 +25,7 @@ import omero.model.IObject;
 import omero.model.Project;
 import omero.model.Image;
 import omero.sys.EventContext;
-import omero.sys.PojoOptions;
+import omero.sys.ParametersI;
 
 public class Omero_ImageJ implements PlugIn {
 	public void run(String arg) {
@@ -110,7 +110,7 @@ public class Omero_ImageJ implements PlugIn {
 		{
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(theImageId);
-			PojoOptions po = new PojoOptions();
+			ParametersI po = new ParametersI();
 			po.leaves();
 			List<Image> images = 
 				iContainer.getImages(Image.class.getName(), ids, po.map());
