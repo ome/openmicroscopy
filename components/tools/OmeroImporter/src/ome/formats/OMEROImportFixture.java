@@ -132,7 +132,7 @@ public class OMEROImportFixture {
         }
         String fileName = file.getAbsolutePath();
         library.setTarget(null);
-        pixels = library.importImage(file, 0, 0, 1, fileName, null, false);
+        pixels = library.importImage(file, 0, 0, 1, fileName, null, false, null);
     }
 
     /**

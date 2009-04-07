@@ -101,7 +101,7 @@ public class CommandLineImporter
             target = store.getTarget(targetClass, targetId);
         }
         library.setTarget(target);
-        library.importImage(f, 0, 0, 1, name, description, false);
+        library.importImage(f, 0, 0, 1, name, description, false, null);
         store.logout();
     }
     
