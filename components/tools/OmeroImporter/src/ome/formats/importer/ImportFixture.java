@@ -136,7 +136,7 @@ public class ImportFixture
             library.setTarget(fads.get(file));
             library.open(fileName);
            	library.importImage(file, 0, 0, 1, file.getAbsolutePath(),
-            			        null, false);
+            			        null, false, null);
         }
     }
 

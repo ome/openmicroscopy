@@ -95,7 +95,7 @@ public class ImportDialog extends JDialog implements ActionListener
     public  Dataset dataset;
     public  Project project;
     
-    public  float pixelSizeX, pixelSizeY, pixelSizeZ;
+    Double pixelSizeX, pixelSizeY, pixelSizeZ;
     public  int redChannel, greenChannel, blueChannel;
     
     public  ProjectI newProject;
@@ -288,13 +288,13 @@ public class ImportDialog extends JDialog implements ActionListener
         gui.addTextPane(pixelPanel, message, "1, 0, 6, 0", debug);
         
         xPixelSize = gui.addDecimalNumberField(pixelPanel, 
-                "X: " , "1.0", "", 0, "", 8, 80, "1,1,l,c", debug);
+                "X: " , null, "", 0, "", 8, 80, "1,1,l,c", debug);
 
         yPixelSize = gui.addDecimalNumberField(pixelPanel, 
-                "Y: " , "1.0", "", 0, "", 8, 80, "3,1,l,c", debug);
+                "Y: " , null, "", 0, "", 8, 80, "3,1,l,c", debug);
 
         zPixelSize = gui.addDecimalNumberField(pixelPanel, 
-                "Z: " , "1.0", "", 0, "", 8, 80, "5,1,l,c", debug);
+                "Z: " , null, "", 0, "", 8, 80, "5,1,l,c", debug);
         
         metadataPanel.add(pixelPanel, "0, 0");
 
@@ -317,7 +317,7 @@ public class ImportDialog extends JDialog implements ActionListener
         		" will be used if no channel values are included in the image file metadata:";
         gui.addTextPane(channelPanel, message, "1, 0, 6, 0", debug);
         
-        metadataPanel.add(channelPanel, "0, 2");
+        //metadataPanel.add(channelPanel, "0, 2");
 
     
         /////////////////////// START TABBED PANE ////////////////////////

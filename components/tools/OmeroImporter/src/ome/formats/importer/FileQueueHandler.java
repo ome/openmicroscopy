@@ -113,18 +113,41 @@ public class FileQueueHandler
         if (action.equals(JFileChooser.APPROVE_SELECTION)) {
             file = fileChooser.getSelectedFile();
             store = viewer.loginHandler.getMetadataStore();
-            
-            if (store != null)
+                       
+            if (store != null && reader.isSPWReader(files[0].getAbsolutePath()))
+            {
+                SPWDialog dialog =
+                    new SPWDialog(viewer, "Screen Import", true, store);
+                if (dialog.cancelled == true || dialog.screen == null) 
+                    return;                    
+                for (File f : files)
+                {             
+                    
+                    addFileToQueue(f, dialog.screen, 
+                            null, 
+                            dialog.screen.getName().getValue(),
+                            false, 
+                            0,
+                            dialog.archiveImage.isSelected(),
+                            null, null);
+                }
+                
+                qTable.centerOnRow(qTable.queue.getRowCount()-1);
+            }
+            else if (store != null)
             {
                 ImportDialog dialog = 
                     new ImportDialog(viewer, "Import", true, store);
                 if (dialog.cancelled == true || dialog.dataset == null) 
                     return;
                 
+                Double[] pixelSizes = new Double[] {dialog.pixelSizeX, dialog.pixelSizeY, dialog.pixelSizeZ};
+                
                 addFileToQueue(file, dialog.dataset,
                         dialog.dataset.getName().getValue(), dialog.project.getName().getValue(), 
                         dialog.useFullPath, dialog.numOfDirectories, 
-                        dialog.archiveImage.isSelected(), dialog.project.getId().getValue());
+                        dialog.archiveImage.isSelected(), dialog.project.getId().getValue(),
+                        pixelSizes);
             } else { 
                 JOptionPane.showMessageDialog(viewer, 
                         "Due to an error the application is unable to \n" +
@@ -166,9 +189,6 @@ public class FileQueueHandler
 
             store = viewer.loginHandler.getMetadataStore();
             
-            
-            System.err.println(reader.getImageReader().getReader().getClass());
-            
             if (store != null && reader.isSPWReader(files[0].getAbsolutePath()))
             {
                 SPWDialog dialog =
@@ -184,7 +204,7 @@ public class FileQueueHandler
                             false, 
                             0,
                             dialog.archiveImage.isSelected(),
-                            null);
+                            null, null);
                 }
                 
                 qTable.centerOnRow(qTable.queue.getRowCount()-1);
@@ -194,7 +214,11 @@ public class FileQueueHandler
                 ImportDialog dialog = 
                     new ImportDialog(viewer, "Image Import", true, store);
                 if (dialog.cancelled == true || dialog.dataset == null) 
-                    return;                    
+                    return;  
+                
+                Double[] pixelSizes = new Double[] {dialog.pixelSizeX, dialog.pixelSizeY, dialog.pixelSizeZ};
+                System.err.println(dialog.pixelSizeX);
+                
                 for (File f : files)
                 {
                     if (f.isFile()) 
@@ -204,7 +228,8 @@ public class FileQueueHandler
                                 dialog.useFullPath, 
                                 dialog.numOfDirectories,
                                 dialog.archiveImage.isSelected(),
-                                dialog.project.getId().getValue());
+                                dialog.project.getId().getValue(),
+                                pixelSizes);
                 }
                 
                 qTable.centerOnRow(qTable.queue.getRowCount()-1);
@@ -356,7 +381,7 @@ public class FileQueueHandler
     @SuppressWarnings("unchecked")
     private void addFileToQueue(File file, IObject object, String dName, 
             String project, Boolean useFullPath, 
-            int numOfDirectories, boolean archiveImage, Long projectID)
+            int numOfDirectories, boolean archiveImage, Long projectID, Double[] pixelSizes)
     {
         Vector row = new Vector();
         
@@ -378,6 +403,7 @@ public class FileQueueHandler
         row.add(file);
         row.add(archiveImage);
         row.add(projectID);
+        row.add(pixelSizes);
         qTable.table.addRow(row);
         if (qTable.table.getRowCount() == 1)
             qTable.importBtn.setEnabled(true);

@@ -225,7 +225,8 @@ public class ImportLibrary implements IObservable
      */
 	private List<Pixels> importMetadata(String imageName,
 			                            String imageDescription,
-			                            boolean archive)
+			                            boolean archive,
+			                            Double[] userPixels)
     	throws FormatException, IOException
     {
     	// 1st we post-process the metadata that we've been given.
@@ -234,8 +235,11 @@ public class ImportLibrary implements IObservable
     	store.setArchive(archive);
     	store.setUserSpecifiedImageName(imageName);
     	store.setUserSpecifiedImageDescription(imageDescription);
+    	if (userPixels != null)
+    	    store.setUserSpecifiedPhysicalPixelSizes(userPixels[0], userPixels[1], userPixels[2]);
     	store.setUserSpecifiedTarget(target);
-    	store.postProcess();
+        store.postProcess();
+
     	
         log.debug("Saving pixels to DB.");
         List<Pixels> pixelsList = store.saveToDB();
@@ -290,7 +294,8 @@ public class ImportLibrary implements IObservable
      */
     public List<Pixels> importImage(File file, int index, int numDone,
     		                        int total, String imageName, 
-    		                        String imageDescription, boolean archive)
+    		                        String imageDescription, boolean archive,
+    		                        Double[] userPixels)
     	throws FormatException, IOException, ServerError
     {        
         String fileName = file.getAbsolutePath();
@@ -323,7 +328,7 @@ public class ImportLibrary implements IObservable
         
         // Save metadata and prepare the RawPixelsStore for our arrival.
         List<Pixels> pixList = 
-        	importMetadata(imageName, imageDescription, archive);
+        	importMetadata(imageName, imageDescription, archive, userPixels);
         List<Long> pixelsIds = new ArrayList<Long>(pixList.size());
         for (Pixels pixels : pixList)
         {

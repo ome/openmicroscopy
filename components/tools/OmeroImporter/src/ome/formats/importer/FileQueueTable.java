@@ -42,7 +42,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
-import omero.model.Dataset;
 import omero.model.IObject;
 
 public class FileQueueTable 
@@ -185,6 +184,8 @@ public class FileQueueTable
         TableColumnModel tcm = queue.getColumnModel();
         TableColumn projectColumn = tcm.getColumn(6);
         tcm.removeColumn(projectColumn);
+        TableColumn userPixelColumn = tcm.getColumn(6);
+        tcm.removeColumn(userPixelColumn);
         TableColumn datasetColumn = tcm.getColumn(3);
         tcm.removeColumn(datasetColumn);
         TableColumn pathColumn = tcm.getColumn(3);
@@ -334,7 +335,8 @@ public class FileQueueTable
                 Long projectID = (Long) table.getValueAt(i, 6);
                 String imageName = table.getValueAt(i, 0).toString();
                 IObject target = (IObject) table.getValueAt(i, 3);
-                importContainer[i] = new ImportContainer(file, projectID, target, imageName, archive);
+                importContainer[i] = new ImportContainer(file, projectID, target, imageName, archive, 
+                        (Double[]) table.getValueAt(i, 7));
             }
             catch (ArrayIndexOutOfBoundsException e)
             {
@@ -390,7 +392,7 @@ public class FileQueueTable
         implements TableModelListener {
         
         private static final long serialVersionUID = 1L;
-        private String[] columnNames = {"Files in Queue", "Project/Dataset or Screen", "Status", "DatasetNum", "Path", "Archive", "ProjectNum"};
+        private String[] columnNames = {"Files in Queue", "Project/Dataset or Screen", "Status", "DatasetNum", "Path", "Archive", "ProjectNum", "UserPixels"};
 
         public void tableChanged(TableModelEvent arg0) { }
         

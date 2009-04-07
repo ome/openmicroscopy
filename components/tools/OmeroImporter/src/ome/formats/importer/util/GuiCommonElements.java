@@ -232,7 +232,7 @@ public class GuiCommonElements
         prefex.setDisplayedMnemonic(mnemonic);
         panel.add(prefex,"0,0");
 
-        DecimalNumberField result = new DecimalNumberField(0.0f, maxChars);
+        DecimalNumberField result = new DecimalNumberField(null, maxChars);
         result.setHorizontalAlignment(JTextField.CENTER);
         prefex.setLabelFor(result);
         result.setToolTipText(tooltip);
@@ -784,20 +784,20 @@ public class GuiCommonElements
          */
         private static final long serialVersionUID = 1L;
         private Toolkit toolkit;
-        private NumberFormat floatFormatter;
+        private NumberFormat formatter;
 
-        public DecimalNumberField(float avaluelue, int columns) {
+        public DecimalNumberField(Double avaluelue, int columns) {
             super(columns);
             toolkit = Toolkit.getDefaultToolkit();
-            floatFormatter = NumberFormat.getNumberInstance(Locale.US);
-            floatFormatter.setParseIntegerOnly(false);
+            formatter = NumberFormat.getNumberInstance(Locale.US);
+            formatter.setParseIntegerOnly(false);
             setValue(avaluelue);
         }
 
-        public float getValue() {
-            float retVal = 0;
+        public Double getValue() {
+            Double retVal = null;
             try {
-                retVal = floatFormatter.parse(getText()).floatValue();
+                retVal = formatter.parse(getText()).doubleValue();
             } catch (ParseException e) {
                 // This should never happen because insertString allows
                 // only properly formatted data to get in the field.
@@ -806,8 +806,9 @@ public class GuiCommonElements
             return retVal;
         }
 
-        public void setValue(float value) {
-            setText(floatFormatter.format(value));
+        public void setValue(Double value) {
+            if (value != null)
+                setText(formatter.format(value));
         }
 
         protected Document createDefaultModel() {

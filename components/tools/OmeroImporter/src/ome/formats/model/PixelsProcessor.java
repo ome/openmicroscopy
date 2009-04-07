@@ -84,17 +84,17 @@ public class PixelsProcessor implements ModelProcessor
             // If we have user specified physical pixel sizes
             if (physicalPixelSizes != null)
             {
-            	if (physicalPixelSizes[0] != null)
+            	if (physicalPixelSizes[0] != null && pixels.getPhysicalSizeX() == null)
             	{
             		pixels.setPhysicalSizeX(rdouble(physicalPixelSizes[0]));
             	}
-            	if (physicalPixelSizes[1] != null)
+            	if (physicalPixelSizes[1] != null && pixels.getPhysicalSizeY() == null)
             	{
-            		pixels.setPhysicalSizeX(rdouble(physicalPixelSizes[0]));
+            		pixels.setPhysicalSizeY(rdouble(physicalPixelSizes[1]));
             	}
-            	if (physicalPixelSizes[2] != null)
+            	if (physicalPixelSizes[2] != null && pixels.getPhysicalSizeZ() == null)
             	{
-            		pixels.setPhysicalSizeX(rdouble(physicalPixelSizes[0]));
+            		pixels.setPhysicalSizeZ(rdouble(physicalPixelSizes[2]));
             	}
             }
 

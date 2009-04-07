@@ -193,7 +193,8 @@ public class ImportHandler
                 			    numOfDone, numOfPendings,
                 			    container.imageName,
                 			    null,  // Description
-                			    container.archive);
+                			    container.archive,
+                			    container.userPixels);
                 	store.createRoot();
                     try
                     {

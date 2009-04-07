@@ -81,6 +81,8 @@ public class ReferenceProcessor implements ModelProcessor
                     if (targetClass == null)
                     {
                         log.warn("Unknown target class for LSID: " + target);
+                        referenceStringCache.put(target.toString(),
+                                                 reference.toString());
                         continue;
                     }
                     else if (targetClass.equals(DetectorSettings.class))
