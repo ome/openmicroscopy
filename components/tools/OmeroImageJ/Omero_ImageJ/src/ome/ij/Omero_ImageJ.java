@@ -19,6 +19,7 @@ import omero.api.IContainerPrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Image;
+import omero.model.PixelsType;
 import omero.sys.ParametersI;
 
 public class Omero_ImageJ implements PlugIn {
@@ -82,6 +83,26 @@ public class Omero_ImageJ implements PlugIn {
     	    IJ.showStatus("Creating Image5D...");
     	    int imageCreationOptions = 0;
     	    
+    	    // get the bit depth of the image
+    	    PixelsType thePixelsType = theImage.getPrimaryPixels().getPixelsType();
+    	    String theVal = thePixelsType.getValue().getValue();
+    	    
+    	    // TODO replace with GatewayUtils.getBytesPerPixels when getBytesPerPixels is public in gateway
+            int theBitDepth = 8;
+            switch (getBytesPerPixels(theVal)) {
+                case 1:
+                	theBitDepth = 8;
+                    break;
+                case 2:
+                	theBitDepth = 16;
+                    break;
+                case 4:
+                	theBitDepth = 32;
+                    break;
+                default:
+                	// TODO what to do for double? 
+                	theBitDepth = 8;
+            }
         	Image5D i5d = createImage5D(
             		theImage.getName().getValue(), 
             		theImage.getPrimaryPixels().getSizeX().getValue(), 
@@ -89,7 +110,7 @@ public class Omero_ImageJ implements PlugIn {
             		theImage.getPrimaryPixels().getSizeC().getValue(), 
             		theImage.getPrimaryPixels().getSizeZ().getValue(), 
             		theImage.getPrimaryPixels().getSizeT().getValue(), 
-            		8, /* 8, 16 or 32 */
+            		theBitDepth, /* 8, 16 or 32 */
             		imageCreationOptions
             		);
             i5d.setDefaultColors();
@@ -163,7 +184,11 @@ public class Omero_ImageJ implements PlugIn {
         for (int c=1; c<=nChannels; c++) {
             for (int s=1; s<=nSlicesZ; s++) {
                 for (int f=1; f<=nFramesT; f++) {
-                    ImagePlus imp = NewImage.createImage(title, width, height, 1, bitDepth, options);
+
+                	// TODO Chris - code probably goes here!
+                	// And you will need to pass the Pixels down as an argument
+                	
+                	ImagePlus imp = NewImage.createImage(title, width, height, 1, bitDepth, options);
                     i5d.setPixels(imp.getProcessor().getPixels(), c, s, f);
                 }
             }
@@ -173,5 +198,39 @@ public class Omero_ImageJ implements PlugIn {
         return i5d;        
     }
 
+    // TODO remove this function when getBytesPerPixels is public in gateway
+    
+	/** Identifies the type used to store pixel values. */
+	static final String INT_8 = "int8";
+
+	/** Identifies the type used to store pixel values. */
+	static final String UINT_8 = "uint8";
+
+	/** Identifies the type used to store pixel values. */
+	static final String INT_16 = "int16";
+
+	/** Identifies the type used to store pixel values. */
+	static final String UINT_16 = "uint16";
+
+	/** Identifies the type used to store pixel values. */
+	static final String INT_32 = "int32";
+
+	/** Identifies the type used to store pixel values. */
+	static final String UINT_32 = "uint32";
+
+	/** Identifies the type used to store pixel values. */
+	static final String FLOAT = "float";
+
+	/** Identifies the type used to store pixel values. */
+	static final String DOUBLE = "double";
+		static private int getBytesPerPixels(String v)
+	{
+		if (INT_8.equals(v) || UINT_8.equals(v)) return 1;
+		if (INT_16.equals(v) || UINT_16.equals(v)) return 2;
+		if (INT_32.equals(v) || UINT_32.equals(v) || FLOAT.equals(v)) 
+			return 4;
+		if (DOUBLE.equals(v)) return 8;
+		return -1;
+	}
 }
 
