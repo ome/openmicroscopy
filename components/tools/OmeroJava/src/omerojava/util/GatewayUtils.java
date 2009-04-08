@@ -61,28 +61,28 @@ import omero.model.ProjectI;
 public class GatewayUtils 
 {
 	/** Identifies the type used to store pixel values. */
-	static final String INT_8 = "int8";
+	static final public String INT_8 = "int8";
 
 	/** Identifies the type used to store pixel values. */
-	static final String UINT_8 = "uint8";
+	static final public String UINT_8 = "uint8";
 
 	/** Identifies the type used to store pixel values. */
-	static final String INT_16 = "int16";
+	static final public String INT_16 = "int16";
 
 	/** Identifies the type used to store pixel values. */
-	static final String UINT_16 = "uint16";
+	static final public String UINT_16 = "uint16";
 
 	/** Identifies the type used to store pixel values. */
-	static final String INT_32 = "int32";
+	static final public String INT_32 = "int32";
 
 	/** Identifies the type used to store pixel values. */
-	static final String UINT_32 = "uint32";
+	static final public String UINT_32 = "uint32";
 
 	/** Identifies the type used to store pixel values. */
-	static final String FLOAT = "float";
+	static final public String FLOAT = "float";
 
 	/** Identifies the type used to store pixel values. */
-	static final String DOUBLE = "double";
+	static final public String DOUBLE = "double";
 	
 	/**
 	 * Convert the raw integer(4byte colour data) to a bufferedImage, for
@@ -237,7 +237,7 @@ public class GatewayUtils
 	 * @param v The pixels Type.
 	 * @return See above.
 	 */
-	static private int getBytesPerPixels(String v)
+	static public int getBytesPerPixels(String v)
 	{
 		if (INT_8.equals(v) || UINT_8.equals(v)) return 1;
 		if (INT_16.equals(v) || UINT_16.equals(v)) return 2;
