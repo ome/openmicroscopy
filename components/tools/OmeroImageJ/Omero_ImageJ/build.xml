@@ -1,10 +1,10 @@
 <project name="Omero_ImageJ" default="tools-build" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
-    <description>
-        Omero_ImageJ Ant build file
-    </description>
+	<description>
+		Omero_ImageJ Ant build file
+	</description>
 
     <property name="src" location="src" />
-    <property name="pluginsDir"  location="$basedir/../../IJ/plugins/" />
+	<property name="pluginsDir"  location="$basedir/../../IJ/plugins/" />
 
     <dirname property="up-three" file="${basedir}"/>
     <dirname property="up-two" file="${up-three}"/>
@@ -14,17 +14,21 @@
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="../../common.xml"/>
 
-    <target name="compress" depends="" description="generate the distribution from Eclipse bin/ directory">
-        <jar jarfile="Omero_ImageJ.jar">
-                <fileset dir="${basedir}" includes="plugins.config" />
-                <fileset dir="${basedir}/bin" includes="**/*.*" />
-        </jar>
-        <copy file="${src}/bio-formats.jar" toDir="${pluginsDir}" />
-        <copy file="${src}/loci-common.jar" toDir="${pluginsDir}" />
-        <copy file="${src}/forms-1.2.1.jar" toDir="${pluginsDir}" />
-        <copy file="${src}/omero_client.jar" toDir="${pluginsDir}" />
-        <copy file="Omero_ImageJ.jar" toDir="${pluginsDir}" />
-      </target>
+	<target name="compress" depends="" description="generate the distribution from Eclipse bin/ directory">
+		<jar jarfile="Omero_ImageJ.jar">
+			<fileset dir="${src}" includes="plugins.config" />
+			<fileset dir="${build}" includes="**/*.class" />
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+			</manifest>
+		</jar>
+		<copy file="${src}/bio-formats.jar" toDir="${pluginsDir}" />
+		<copy file="${src}/loci-common.jar" toDir="${pluginsDir}" />
+		<copy file="${src}/forms-1.2.1.jar" toDir="${pluginsDir}" />
+		<copy file="${src}/Image_5D.jar" toDir="${pluginsDir}" />
+		<copy file="${src}/omero_client.jar" toDir="${pluginsDir}" />
+		<copy file="Omero_ImageJ.jar" toDir="${pluginsDir}" />
+	</target>
 
     <!-- TOOLS BUILD API -->
 

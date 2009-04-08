@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="src/forms-1.2.1.jar"/>
 	<classpathentry kind="lib" path="src/loci-common.jar"/>
 	<classpathentry kind="lib" path="src/bio-formats.jar"/>
+	<classpathentry kind="lib" path="src/Image_5D.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

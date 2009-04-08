@@ -17,5 +17,6 @@
     <dependency org="OME" name="loci-common" rev="${versions.bio-formats}"/>
     <dependency org="gui" name="forms" rev="${versions.forms}"/>
     <dependency org="ij" name="ij" rev="${versions.ij}"/>
+    <dependency org="i5d" name="Image_5D" rev="${versions.i5d}"/>
   </dependencies>
 </ivy-module>
