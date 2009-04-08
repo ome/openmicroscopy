@@ -40,6 +40,15 @@ public class ModelException extends RuntimeException
 
     /**
      * Default constructor.
+     * @param message Error message.
+     */
+    public ModelException(String message)
+    {
+    	super(message);
+    }
+    
+    /**
+     * Default constructor.
      * @param message Error message. 
      * @param klass Failed instantiation class.
      * @param exception Upstream exception.

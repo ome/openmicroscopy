@@ -37,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.Actions;
 import omero.model.Dataset;
+import omero.model.IObject;
 
 @SuppressWarnings("serial")
 public class FileQueueHandler 
@@ -112,18 +113,41 @@ public class FileQueueHandler
         if (action.equals(JFileChooser.APPROVE_SELECTION)) {
             file = fileChooser.getSelectedFile();
             store = viewer.loginHandler.getMetadataStore();
-
-            if (store != null)
+                       
+            if (store != null && reader.isSPWReader(files[0].getAbsolutePath()))
+            {
+                SPWDialog dialog =
+                    new SPWDialog(viewer, "Screen Import", true, store);
+                if (dialog.cancelled == true || dialog.screen == null) 
+                    return;                    
+                for (File f : files)
+                {             
+                    
+                    addFileToQueue(f, dialog.screen, 
+                            null, 
+                            dialog.screen.getName().getValue(),
+                            false, 
+                            0,
+                            dialog.archiveImage.isSelected(),
+                            null, null);
+                }
+                
+                qTable.centerOnRow(qTable.queue.getRowCount()-1);
+            }
+            else if (store != null)
             {
                 ImportDialog dialog = 
                     new ImportDialog(viewer, "Import", true, store);
                 if (dialog.cancelled == true || dialog.dataset == null) 
                     return;
                 
+                Double[] pixelSizes = new Double[] {dialog.pixelSizeX, dialog.pixelSizeY, dialog.pixelSizeZ};
+                
                 addFileToQueue(file, dialog.dataset,
                         dialog.dataset.getName().getValue(), dialog.project.getName().getValue(), 
                         dialog.useFullPath, dialog.numOfDirectories, 
-                        dialog.archiveImage.isSelected(), dialog.project.getId().getValue());
+                        dialog.archiveImage.isSelected(), dialog.project.getId().getValue(),
+                        pixelSizes);
             } else { 
                 JOptionPane.showMessageDialog(viewer, 
                         "Due to an error the application is unable to \n" +
@@ -165,12 +189,36 @@ public class FileQueueHandler
 
             store = viewer.loginHandler.getMetadataStore();
             
-            if (store != null)
+            if (store != null && reader.isSPWReader(files[0].getAbsolutePath()))
+            {
+                SPWDialog dialog =
+                    new SPWDialog(viewer, "Screen Import", true, store);
+                if (dialog.cancelled == true || dialog.screen == null) 
+                    return;                    
+                for (File f : files)
+                {             
+                    
+                    addFileToQueue(f, dialog.screen, 
+                            null, 
+                            dialog.screen.getName().getValue(),
+                            false, 
+                            0,
+                            dialog.archiveImage.isSelected(),
+                            null, null);
+                }
+                
+                qTable.centerOnRow(qTable.queue.getRowCount()-1);
+            }
+            else if (store != null)
             {
                 ImportDialog dialog = 
-                    new ImportDialog(viewer, "Import", true, store);
+                    new ImportDialog(viewer, "Image Import", true, store);
                 if (dialog.cancelled == true || dialog.dataset == null) 
-                    return;                    
+                    return;  
+                
+                Double[] pixelSizes = new Double[] {dialog.pixelSizeX, dialog.pixelSizeY, dialog.pixelSizeZ};
+                System.err.println(dialog.pixelSizeX);
+                
                 for (File f : files)
                 {
                     if (f.isFile()) 
@@ -180,7 +228,8 @@ public class FileQueueHandler
                                 dialog.useFullPath, 
                                 dialog.numOfDirectories,
                                 dialog.archiveImage.isSelected(),
-                                dialog.project.getId().getValue());
+                                dialog.project.getId().getValue(),
+                                pixelSizes);
                 }
                 
                 qTable.centerOnRow(qTable.queue.getRowCount()-1);
@@ -256,7 +305,7 @@ public class FileQueueHandler
             try {
                 if (qTable.importing == false)
                 {
-                    ImportContainer[] fads = qTable.getFilesAndDataset();
+                    ImportContainer[] fads = qTable.getFilesAndObjectTypes();
 
                     if (fads != null)
                     {
@@ -330,21 +379,31 @@ public class FileQueueHandler
     }
     
     @SuppressWarnings("unchecked")
-    private void addFileToQueue(File file, Dataset dataset, String dName, 
+    private void addFileToQueue(File file, IObject object, String dName, 
             String project, Boolean useFullPath, 
-            int numOfDirectories, boolean archiveImage, Long projectID)
+            int numOfDirectories, boolean archiveImage, Long projectID, Double[] pixelSizes)
     {
         Vector row = new Vector();
         
         String imageName = getImageName(file, useFullPath, numOfDirectories);
-               
+        String pdsString = null;
+        
+        if (dName != null)
+        {
+            pdsString = project + "/" + dName;
+        } else
+        {
+            pdsString = project;
+        }
+
         row.add(imageName);
-        row.add(project + "/" + dName);
+        row.add(pdsString);
         row.add("added");
-        row.add(dataset.getId().getValue());
+        row.add(object);
         row.add(file);
         row.add(archiveImage);
         row.add(projectID);
+        row.add(pixelSizes);
         qTable.table.addRow(row);
         if (qTable.table.getRowCount() == 1)
             qTable.importBtn.setEnabled(true);
@@ -478,8 +537,12 @@ public class FileQueueHandler
                 fileName = (String) historyTable.table.getValueAt(r, 0);
                 file = new File((String) historyTable.table.getValueAt(r, 4));
                 
+                Dataset d = null;
                 try {
-                    datasetName = store.getDataset(datasetID).getName().getValue();
+           	    	// FIXME: This is now "broken" with targets now able to
+           	    	// be of type Screen or Dataset.
+                	d = store.getTarget(Dataset.class, datasetID);
+                    datasetName = d.getName().getValue();
                 } catch (Exception e)
                 {
                 	log.warn("Failed to retrieve dataset: " + datasetID, e);
@@ -496,7 +559,6 @@ public class FileQueueHandler
                 }
                 
                 finalCount = finalCount + 1;
-                Dataset d = store.getDataset(datasetID);
                 
                 row.add(fileName);
                 row.add(projectName + "/" + datasetName);
@@ -530,6 +592,8 @@ public class FileQueueHandler
                 qTable.importBtn.setEnabled(true);
         }
     }
+    
+    
 }
 
 

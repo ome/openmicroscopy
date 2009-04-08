@@ -82,7 +82,7 @@ public class TestEngine
             String name = projectDirectory.getName(); 
             log.info("Storing dataset: " + name);
             Dataset dataset = store.addDataset(name, "", project);
-            importLibrary.setDataset(dataset);
+            importLibrary.setTarget(dataset);
         	status = processDirectory(config.getPopulate(), projectDirectory);
         }
         else
@@ -95,7 +95,7 @@ public class TestEngine
                     String name = datasetDirectory.getName(); 
                     log.info("Storing dataset: " + name);
                     Dataset dataset = store.addDataset(name, "", project);
-                    importLibrary.setDataset(dataset);
+                    importLibrary.setTarget(dataset);
                     // In each sub-directory/dataset, import the images needed
         			status = processDirectory(config.getPopulate(),
         					                  datasetDirectory);
@@ -169,7 +169,7 @@ public class TestEngine
 			try
 			{
 				interceptor.setSourceFile(file);
-				importLibrary.importImage(file, 0, 0, 1, fileList[j], null, false);
+				importLibrary.importImage(file, 0, 0, 1, fileList[j], null, false, null);
 				iniFile.flush();
 			}
 			catch (Throwable e)

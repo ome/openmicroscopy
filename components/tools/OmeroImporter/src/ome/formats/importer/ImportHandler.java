@@ -21,9 +21,12 @@ import java.util.Date;
 
 import javax.swing.JOptionPane;
 
+import static omero.rtypes.*;
 import loci.formats.FormatException;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.model.InstanceProvider;
 import omero.ResourceError;
+import omero.model.IObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -149,8 +152,13 @@ public class ImportHandler
                 numOfPendings++;
                	try {
                	    if (db != null)
+               	    {
+               	    	// FIXME: This is now "broken" with targets now able to
+               	    	// be of type Screen or Dataset.
                	        db.insertFileHistory(importKey, store.getExperimenterID(), i, importContainer[i].imageName, 
-               	         importContainer[i].projectID, importContainer[i].getDatasetId(), "pending", importContainer[i].file);
+               	         importContainer[i].projectID, importContainer[i].getTarget().getId().getValue(), 
+               	         "pending", importContainer[i].file);
+               	    }
                	}
                	catch (Exception e) 
                	{
@@ -166,23 +174,27 @@ public class ImportHandler
         numOfDone = 0;
         for (int j = 0; j < importContainer.length; j++)
         {
+        	ImportContainer container = importContainer[j];
             if (qTable.table.getValueAt(j, 2).equals("pending") 
                     && qTable.cancel == false)
             {
                 numOfDone++;
-                String filename = importContainer[j].file.getAbsolutePath();
+                String filename = container.file.getAbsolutePath();
                 
                 viewer.appendToOutputLn("> [" + j + "] Importing \"" + filename
                         + "\"");
                 
-                library.setDataset(store.getDataset(importContainer[j].getDatasetId()));
+                IObject target = container.getTarget();
+                library.setTarget(target);
+                
                 try
                 {
                 	library.importImage(importContainer[j].file, j,
                 			    numOfDone, numOfPendings,
-                			    importContainer[j].imageName,
+                			    container.imageName,
                 			    null,  // Description
-                			    importContainer[j].archive);
+                			    container.archive,
+                			    container.userPixels);
                 	store.createRoot();
                     try
                     {
@@ -197,6 +209,7 @@ public class ImportHandler
                 }
                 catch (FormatException fe)
                 {
+                    System.err.println(fe.getMessage());
                 	log.error("Format exception while importing image.", fe);
                     qTable.setProgressUnknown(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
@@ -353,5 +366,21 @@ public class ImportHandler
                 + minutes + " minute(s), " + seconds + " second(s).");
 
         viewer.appendToOutputLn("> Image import completed!");
+    }
+    
+    /**
+     * Instantiates an unloaded target object to feed to the import library for
+     * usage during the import.
+     * @param klass Target object class.
+     * @param id Target object ID.
+     * @return Target object instance.
+     */
+    private <T extends IObject> T instantiateTarget(Class<T> klass, long id)
+    {
+    	InstanceProvider provider = store.getInstanceProvider();
+    	T o = provider.getInstance(klass);
+    	o.setId(rlong(id));
+    	o.unload();
+    	return o;
     }
 }

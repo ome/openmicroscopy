@@ -48,6 +48,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
 import ome.formats.importer.util.GuiCommonElements;
+import omero.model.Dataset;
 
 
 public class HistoryTable
@@ -418,7 +419,7 @@ public class HistoryTable
                 {
                     oldDatasetID = datasetID;
                     try {
-                        datasetName = store.getDataset(rs.getLong("datasetID")).getName().getValue();
+                        datasetName = store.getTarget(Dataset.class, rs.getLong("datasetID")).getName().getValue();
                     } catch (Exception e)
                     {
                         datasetName = "unknown";

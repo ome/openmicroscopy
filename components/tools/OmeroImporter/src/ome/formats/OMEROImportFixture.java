@@ -131,8 +131,8 @@ public class OMEROImportFixture {
             throw new ApiUsageException("Step may not be null.");
         }
         String fileName = file.getAbsolutePath();
-        library.setDataset(null);
-        pixels = library.importImage(file, 0, 0, 1, fileName, null, false);
+        library.setTarget(null);
+        pixels = library.importImage(file, 0, 0, 1, fileName, null, false, null);
     }
 
     /**

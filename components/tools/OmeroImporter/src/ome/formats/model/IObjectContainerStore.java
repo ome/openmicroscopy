@@ -82,6 +82,41 @@ public interface IObjectContainerStore
     void setUserSpecifiedImageDescription(String description);
     
     /**
+     * Returns the user specified linkage target (usually a Dataset for Images
+     * and a Screen for Plates).
+     * @return See above.
+     */
+    IObject getUserSpecifiedTarget();
+    
+    /**
+     * Sets the user specified linkage target (usually a Dataset for Images
+     * and a Screen for Plates).
+     * @param name user specified image description
+     */
+    void setUserSpecifiedTarget(IObject target);
+    
+    /**
+     * Returns the user specified physical pixel sizes.
+     * @return An array of double[] { physicalSizeX, physicalSizeY,
+     * physicalSizeZ } as specified by the user. A value of <code>null</code>
+     * for any one index states the user has not made a choice for the size
+     * of that particular dimension.
+     */
+    Double[] getUserSpecifiedPhysicalPixelSizes();
+    
+    /**
+     * Sets the user specified physical pixel sizes. A value of 
+     * <code>null</code> states the original file physical size for that
+     * dimension should be used.
+     * @param physicalSizeX Physical pixel size width.
+     * @param physicalSizeY Physical pixel height.
+     * @param physicalSizeZ Physical pixel depth.
+     */
+    void setUserSpecifiedPhysicalPixelSizes(Double physicalSizeX,
+    		                                Double physicalSizeY,
+    		                                Double physicalSizeZ);
+    
+    /**
      * Returns the current container cache.
      * @return See above.
      */

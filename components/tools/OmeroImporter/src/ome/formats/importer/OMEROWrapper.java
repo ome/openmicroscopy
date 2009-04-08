@@ -12,6 +12,7 @@ import loci.formats.FormatException;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
+import loci.formats.in.InCellReader;
 import loci.formats.in.LeicaReader;
 import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStoreClient;
@@ -94,6 +95,20 @@ public class OMEROWrapper extends MinMaxCalculator
         else
             return false;
     } 
+    
+    public boolean isSPWReader(String string)
+    {
+        try
+        {
+            if (iReader.getReader(string) instanceof InCellReader)
+                return true;
+            else
+                return false;
+        } catch (Exception e)
+        {
+            return false;
+        }
+    }
     
     @SuppressWarnings("unchecked")
 	public boolean isMinMaxSet() throws FormatException, IOException

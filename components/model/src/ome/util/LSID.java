@@ -2,6 +2,8 @@ package ome.util;
 
 import java.text.Collator;
 import java.text.RuleBasedCollator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -61,6 +63,22 @@ public class LSID
 	}
 	
 	/**
+	 * Constructor for standard LSIDs that should be parsed.
+	 * @param asString The LSID as a string.
+	 * @param parse Whether or not to parse the LSID.
+	 */
+	public LSID(String asString, boolean parse)
+	{
+		this.asString = asString;
+		hashCode = asString.hashCode();
+		if (parse)
+		{
+			klass = parseJavaClass();
+			indexes = parseIndexes();
+		}
+	}
+	
+	/**
 	 * Returns the Java class which qualifies the type of object this
 	 * LSID represents.
 	 * @return See above.
@@ -68,6 +86,62 @@ public class LSID
 	public Class getJavaClass()
 	{
 		return klass;
+	}
+	
+	/**
+	 * Attempts to parse and return the concrete Java class for the LSID from
+	 * the LSID's string representation.
+	 * @return See above. <code>null</code> if the concrete class cannot be
+	 * parsed. 
+	 */
+	public Class parseJavaClass()
+	{
+		int colonIndex = asString.indexOf(":");
+		if (colonIndex > -1)
+		{
+			try
+			{
+				return Class.forName(asString.substring(0, colonIndex));
+			}
+			catch (ClassNotFoundException e)
+			{
+				// No-op. We return null below.
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Attempts to parse and return the indexes for the LSID parsed from the
+	 * LSID's string representation.
+	 * @return See above.
+	 */
+	public int[] parseIndexes()
+	{
+		List<Integer> indexList = new ArrayList<Integer>();
+		int colonIndex = asString.indexOf(":");
+		while (colonIndex > - 1)
+		{
+			int nextIndex = asString.indexOf(":", colonIndex + 1);
+			if (nextIndex > -1)
+			{
+				String s = asString.substring(colonIndex + 1, nextIndex);
+				indexList.add(Integer.parseInt(s));
+				colonIndex = nextIndex;
+			}
+			else
+			{
+				String s = asString.substring(colonIndex + 1);
+				indexList.add(Integer.parseInt(s));
+				break;
+			}
+		}
+		int[] toReturn = new int[indexList.size()];
+		for (int i = 0; i < indexList.size(); i++)
+		{
+			toReturn[i] = indexList.get(i);
+		}
+		return toReturn;
 	}
 	
 	/**

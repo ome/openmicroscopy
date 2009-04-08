@@ -44,8 +44,8 @@ import omero.model.Pixels;
 
 /**
  * Processes the pixels sets of an IObjectContainerStore and ensures
- * that LogicalChannel containers are present in the container cache, adding
- * them if they are missing.
+ * that LogicalChannel containers are present in the container cache, and
+ * populating channel name and colour where appropriate.
  *   
  * @author Chris Allan <callan at blackcat dot ca>
  *

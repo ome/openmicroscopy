@@ -40,6 +40,7 @@ import ome.formats.model.PixelsProcessor;
 import ome.formats.model.InstanceProvider;
 import ome.formats.model.ModelProcessor;
 import ome.formats.model.ReferenceProcessor;
+import ome.formats.model.TargetProcessor;
 import ome.util.LSID;
 import omero.RBool;
 import omero.RDouble;
@@ -70,8 +71,6 @@ import omero.model.ContrastMethod;
 import omero.model.Correction;
 import omero.model.Dataset;
 import omero.model.DatasetI;
-import omero.model.DatasetImageLink;
-import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.DetectorType;
@@ -110,6 +109,7 @@ import omero.model.Pulse;
 import omero.model.Reagent;
 import omero.model.Screen;
 import omero.model.ScreenAcquisition;
+import omero.model.ScreenI;
 import omero.model.StageLabel;
 import omero.model.Well;
 import omero.model.WellSample;
@@ -176,11 +176,17 @@ public class OMEROMetadataStoreClient
     /** Current pixels ID we're writing planes for. */
     private Long currentPixId;
     
-    /** Image name that the user specified for use by model processors. */
+    /** Image name the user specified for use by model processors. */
     private String userSpecifiedImageName;
     
-    /** Image description that the user specified for use by model processors. */
+    /** Image description the user specified for use by model processors. */
     private String userSpecifiedImageDescription;
+    
+    /** Linkage target for all Images/Plates for use by model processors. */
+    private IObject userSpecifiedTarget;
+    
+    /** Physical pixel sizes the user specified for use by model processors. */
+    private Double[] userSpecifiedPhysicalPixelSizes;
     
     /** Image channel minimums and maximums. */
     private double[][][] imageChannelGlobalMinMax;
@@ -209,10 +215,11 @@ public class OMEROMetadataStoreClient
     	instanceProvider = new BlitzInstanceProvider(enumProvider);
     	
     	// Default model processors
-    	modelProcessors.add(new ReferenceProcessor());
         modelProcessors.add(new PixelsProcessor());
     	modelProcessors.add(new ChannelProcessor());
     	modelProcessors.add(new InstrumentProcessor());
+    	modelProcessors.add(new TargetProcessor());
+    	modelProcessors.add(new ReferenceProcessor());
     	
     	// Start our keep alive executor
         if (executor == null)
@@ -402,6 +409,8 @@ public class OMEROMetadataStoreClient
             imageChannelGlobalMinMax = null;
             userSpecifiedImageName = null;
             userSpecifiedImageDescription = null;
+            userSpecifiedTarget = null;
+            userSpecifiedPhysicalPixelSizes = null;
             delegate.createRoot();
         }
         catch (ServerError e)
@@ -475,6 +484,41 @@ public class OMEROMetadataStoreClient
     public void setUserSpecifiedImageDescription(String description)
     {
         this.userSpecifiedImageDescription = description;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedTarget()
+     */
+    public IObject getUserSpecifiedTarget()
+    {
+        return userSpecifiedTarget;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedTarget(omero.model.IObject)
+     */
+    public void setUserSpecifiedTarget(IObject target)
+    {
+        this.userSpecifiedTarget = target;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedPhysicalPixelSizes()
+     */
+    public Double[] getUserSpecifiedPhysicalPixelSizes()
+    {
+    	return userSpecifiedPhysicalPixelSizes;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedPhysicalPixelSizes(java.lang.Double, java.lang.Double, java.lang.Double)
+     */
+    public void setUserSpecifiedPhysicalPixelSizes(Double physicalSizeX,
+    		                                       Double physicalSizeY,
+    		                                       Double physicalSizeZ)
+    {
+    	userSpecifiedPhysicalPixelSizes = 
+    		new Double[] { physicalSizeX, physicalSizeY, physicalSizeZ };
     }
     
     /**
@@ -2210,7 +2254,7 @@ public class OMEROMetadataStoreClient
         		}
         	}
             
-        	log.debug("\nStarting references....");
+        	log.debug("Starting references....");
 
         	if (log.isDebugEnabled())
         	{
@@ -2221,7 +2265,7 @@ public class OMEROMetadataStoreClient
         			log.debug(s);
         		}
         		
-        		log.debug("\ncontainerCache contains " + containerCache.size()
+        		log.debug("containerCache contains " + containerCache.size()
         				  + " entries.");
         		log.debug("referenceCache contains " + referenceCache.size()
         				  + " entries.");
@@ -2248,36 +2292,6 @@ public class OMEROMetadataStoreClient
         }
     }
 
-    /**
-     * Links the Image objects of Pixels returned after a {@link saveToDb()}
-     * action to a particular dataset.
-     * @param pixelsList List of Pixels objects whose Images we are to link.
-     * @param dataset Dataset to link to.
-     */
-    public void addImagesToDataset(List<Pixels> pixelsList, Dataset dataset)
-    {   
-        try
-        {
-        	List<IObject> links = 
-        		new ArrayList<IObject>(pixelsList.size());
-        	Dataset unloadedDataset = new DatasetI(dataset.getId(), false);
-        	for (int i = 0; i < pixelsList.size(); i++)
-        	{
-        		RLong imageId = pixelsList.get(i).getImage().getId();
-        		Image unloadedImage = new ImageI(imageId, false);
-                DatasetImageLink l = new DatasetImageLinkI();
-                l.setChild(unloadedImage);
-                l.setParent(unloadedDataset);
-        		links.add(l);
-        	}
-        	iUpdate.saveArray(links);
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
     public Project getProject(long projectId)
     {
         try
@@ -2290,11 +2304,12 @@ public class OMEROMetadataStoreClient
         }
     }
 
-    public Dataset getDataset(long datasetId)
+    @SuppressWarnings("unchecked")
+	public <T extends IObject> T getTarget(Class<T> klass, long id)
     {
         try
         {
-            return (Dataset) iQuery.get("Dataset", datasetId);
+            return (T) iQuery.get(klass.getName(), id);
         }
         catch (ServerError e)
         {
@@ -2323,6 +2338,26 @@ public class OMEROMetadataStoreClient
         }
     }
 
+    public List<Screen> getScreens()
+    {
+        try
+        {
+            List<IObject> objects = 
+                iContainer.loadContainerHierarchy(Screen.class.getName(), null, null);
+            List<Screen> screens = new ArrayList<Screen>(objects.size());
+            for (IObject object : objects)
+            {
+                screens.add((Screen) object);
+            }
+            return screens;
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    
     public List<Project> getProjects()
     {
     	try
@@ -2374,6 +2409,23 @@ public class OMEROMetadataStoreClient
         try
         {
             return (Project) iUpdate.saveAndReturnObject(project);
+        } catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public Screen addScreen(String screenName, String screenDescription)
+    {
+        Screen screen = new ScreenI();
+        if (screenName.length() != 0)
+            screen.setName(toRType(screenName));
+        if (screenDescription.length() != 0)
+            screen.setDescription(toRType(screenDescription));
+
+        try
+        {
+            return (Screen) iUpdate.saveAndReturnObject(screen);
         } catch (ServerError e)
         {
             throw new RuntimeException(e);
@@ -2662,21 +2714,11 @@ public class OMEROMetadataStoreClient
 			int[] xIndexes = x.getIndexes();
 			int[] yIndexes = y.getIndexes();
 			
-			// Handle the null class (unparsable internal reference) case.
-			if (xClass == null)
+			// Handle the null class (one or more unparsable internal 
+			// references) case.
+			if (xClass == null || yClass == null)
 			{
-			    int stringDifference = 
-			        stringComparator.compare(x.toString(), y.toString());
-				if (yClass == null || stringDifference == 0)
-				{
-					// Handle different supplied LSIDs by string difference.
-				    return stringDifference;
-				}
-				return 1;
-			}
-			if (yClass == null)
-			{
-				return -1;
+				return stringComparator.compare(x.toString(), y.toString()); 
 			}
 
 			// Assign values to the classes
@@ -2746,28 +2788,28 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setCirclecx(String arg0, int arg1, int arg2, int arg3)
+    public void setCircleCx(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setCirclecy(String arg0, int arg1, int arg2, int arg3)
+    public void setCircleCy(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setCircler(String arg0, int arg1, int arg2, int arg3)
+    public void setCircleR(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setCircletransform(String arg0, int arg1, int arg2, int arg3)
+    public void setCircleTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -2879,35 +2921,35 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setEllipsecx(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseCx(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setEllipsecy(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseCy(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setEllipserx(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseRx(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setEllipsery(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseRy(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setEllipsetransform(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3190,35 +3232,35 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setLinetransform(String arg0, int arg1, int arg2, int arg3)
+    public void setLineTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setLinex1(String arg0, int arg1, int arg2, int arg3)
+    public void setLineX1(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setLinex2(String arg0, int arg1, int arg2, int arg3)
+    public void setLineX2(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setLiney1(String arg0, int arg1, int arg2, int arg3)
+    public void setLineY1(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setLiney2(String arg0, int arg1, int arg2, int arg3)
+    public void setLineY2(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3313,35 +3355,36 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setMaskheight(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskHeight(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setMasktransform(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setMaskwidth(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskWidth(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setMaskx(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskX(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
+    
 
-    public void setMasky(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskY(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3454,28 +3497,28 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setPointcx(String arg0, int arg1, int arg2, int arg3)
+    public void setPointCx(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setPointcy(String arg0, int arg1, int arg2, int arg3)
+    public void setPointCy(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setPointr(String arg0, int arg1, int arg2, int arg3)
+    public void setPointR(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setPointtransform(String arg0, int arg1, int arg2, int arg3)
+    public void setPointTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3489,14 +3532,14 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setPolygonpoints(String arg0, int arg1, int arg2, int arg3)
+    public void setPolygonPoints(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setPolygontransform(String arg0, int arg1, int arg2, int arg3)
+    public void setPolygonTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3510,14 +3553,14 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setPolylinepoints(String arg0, int arg1, int arg2, int arg3)
+    public void setPolylinePoints(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setPolylinetransform(String arg0, int arg1, int arg2, int arg3)
+    public void setPolylineTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3587,35 +3630,35 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setRectheight(String arg0, int arg1, int arg2, int arg3)
+    public void setRectHeight(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setRecttransform(String arg0, int arg1, int arg2, int arg3)
+    public void setRectTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setRectwidth(String arg0, int arg1, int arg2, int arg3)
+    public void setRectWidth(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setRectx(String arg0, int arg1, int arg2, int arg3)
+    public void setRectX(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
 
     }
 
-    public void setRecty(String arg0, int arg1, int arg2, int arg3)
+    public void setRectY(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3672,12 +3715,12 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setShapetheT(Integer arg0, int arg1, int arg2, int arg3)
+    public void setShapeTheT(Integer arg0, int arg1, int arg2, int arg3)
     {
 
     }
 
-    public void setShapetheZ(Integer arg0, int arg1, int arg2, int arg3)
+    public void setShapeTheZ(Integer arg0, int arg1, int arg2, int arg3)
     {
 
     }
@@ -3742,4 +3785,25 @@ public class OMEROMetadataStoreClient
     {
 
     }
+
+    public void setPlateColumnNamingConvention(String arg0, int arg1)
+    {
+
+    }
+
+    public void setPlateRowNamingConvention(String arg0, int arg1)
+    {
+    }
+
+    public void setPlateWellOriginX(Double arg0, int arg1)
+    {
+
+    }
+
+    public void setPlateWellOriginY(Double arg0, int arg1)
+    {
+
+    }
+    
+   /*-----------*/
 }

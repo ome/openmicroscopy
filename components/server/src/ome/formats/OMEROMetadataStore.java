@@ -44,6 +44,7 @@ import ome.model.acquisition.OTF;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
 import ome.model.annotations.Annotation;
+import ome.model.containers.Dataset;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
@@ -217,9 +218,11 @@ public class OMEROMetadataStore
     {
     	for (String target : referenceCache.keySet())
     	{
-    		IObject targetObject = lsidMap.get(new LSID(target));
+    		LSID targetLSID = new LSID(target);
+    		IObject targetObject = lsidMap.get(targetLSID);
     		String reference = referenceCache.get(target);
-    		IObject referenceObject = lsidMap.get(new LSID(reference));
+    		LSID referenceLSID = new LSID(reference);
+    		IObject referenceObject = lsidMap.get(referenceLSID);
     		if (targetObject instanceof DetectorSettings)
     		{
     			if (referenceObject instanceof Detector)
@@ -241,6 +244,16 @@ public class OMEROMetadataStore
     			{
     				handleReference((Image) targetObject,
 					                (Annotation) referenceObject);
+    				continue;
+    			}
+    			if (referenceLSID.toString().contains("DatasetI"))
+    			{
+    				int colonIndex = reference.indexOf(":");
+    				long datasetId = Long.parseLong(
+    						reference.substring(colonIndex + 1));
+    				referenceObject = new Dataset(datasetId, false);
+    				handleReference((Image) targetObject,
+    						        (Dataset) referenceObject);
     				continue;
     			}
     		}
@@ -297,6 +310,19 @@ public class OMEROMetadataStore
                                     (OriginalFile) referenceObject);
                     continue;
                 }
+            }
+            else if (targetObject instanceof Plate)
+            {
+    			if (referenceLSID.toString().contains("ScreenI"))
+    			{
+    				int colonIndex = reference.indexOf(":");
+    				long screenId = Long.parseLong(
+    						reference.substring(colonIndex + 1));
+    				referenceObject = new Screen(screenId, false);
+    				handleReference((Plate) targetObject,
+    						        (Screen) referenceObject);
+    				continue;
+    			}
             }
     		
 			throw new ApiUsageException(String.format(
@@ -589,6 +615,17 @@ public class OMEROMetadataStore
      * @param target Target model object.
      * @param reference Reference model object.
      */
+    private void handleReference(Image target, Dataset reference)
+    {
+    	target.linkDataset(reference);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
     private void handleReference(LightSettings target, LightSource reference)
     {
     	target.setLightSource(reference);
@@ -658,6 +695,17 @@ public class OMEROMetadataStore
     private void handleReference(Image target, Annotation reference)
     {
         target.linkAnnotation(reference);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Plate target, Screen reference)
+    {
+        target.linkScreen(reference);
     }
     
     /**

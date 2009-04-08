@@ -9,25 +9,32 @@ package ome.formats.importer;
 
 import java.io.File;
 
+import omero.model.IObject;
+
 public class ImportContainer
 {
-        public File file;
-        public Long projectID;
-        private Long datasetID; 
-        public String imageName;
-        public boolean archive;
-        
-        public ImportContainer(File file, Long projectID, Long datasetID, String imageName, boolean archive2)
-        {
-            this.file = file;
-            this.projectID = projectID;
-            this.datasetID = datasetID;
-            this.imageName = imageName;
-            this.archive = archive2;
-        }
-        
-        public Long getDatasetId()
-        {
-            return datasetID;
-        }
+	public File file;
+	public Long projectID;
+	private IObject target;
+	public String imageName;
+	public boolean archive;
+    public Double[] userPixels;
+
+	public ImportContainer(File file, Long projectID,
+			IObject target, 
+			String imageName, boolean archive, 
+			Double[] userPixels)
+	{
+		this.file = file;
+		this.projectID = projectID;
+		this.target = target;
+		this.imageName = imageName;
+		this.archive = archive;
+		this.userPixels = userPixels;
+	}
+
+	public IObject getTarget()
+	{
+	    return target;
+	}
 }

@@ -42,6 +42,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
+import omero.model.IObject;
 
 public class FileQueueTable 
     extends JPanel
@@ -183,6 +184,8 @@ public class FileQueueTable
         TableColumnModel tcm = queue.getColumnModel();
         TableColumn projectColumn = tcm.getColumn(6);
         tcm.removeColumn(projectColumn);
+        TableColumn userPixelColumn = tcm.getColumn(6);
+        tcm.removeColumn(userPixelColumn);
         TableColumn datasetColumn = tcm.getColumn(3);
         tcm.removeColumn(datasetColumn);
         TableColumn pathColumn = tcm.getColumn(3);
@@ -262,7 +265,7 @@ public class FileQueueTable
     
     public void setProgressUnknown(int row)
     {
-        table.setValueAt("unknown format", row, 2);
+        table.setValueAt("unreadable", row, 2);
         failedFiles = true;
         table.fireTableDataChanged();
     }    
@@ -315,26 +318,33 @@ public class FileQueueTable
         return button;
     }
 
-    public ImportContainer[] getFilesAndDataset() {
+    /**
+     * @return ImportContainer
+     */
+    public ImportContainer[] getFilesAndObjectTypes() {
 
         int num = table.getRowCount();     
-        ImportContainer[] fads = new ImportContainer[num];
+        ImportContainer[] importContainer = new ImportContainer[num];
 
         for (int i = 0; i < num; i++)
         {
-            try {
+            try
+            {
                 boolean archive = (Boolean) table.getValueAt(i, 5);
                 File file = new File(table.getValueAt(i, 4).toString());
                 Long projectID = (Long) table.getValueAt(i, 6);
-                Long datasetID = (Long) table.getValueAt(i,3);
                 String imageName = table.getValueAt(i, 0).toString();
-                fads[i] = new ImportContainer(file, projectID, datasetID, imageName, archive);            }
-            catch (ArrayIndexOutOfBoundsException e) {
+                IObject target = (IObject) table.getValueAt(i, 3);
+                importContainer[i] = new ImportContainer(file, projectID, target, imageName, archive, 
+                        (Double[]) table.getValueAt(i, 7));
+            }
+            catch (ArrayIndexOutOfBoundsException e)
+            {
             	log.error("Error retrieving project and dataset from table.", e);
             }
 
         }
-        return fads;
+        return importContainer;
     }
 
     public void actionPerformed(ActionEvent e)
@@ -382,7 +392,7 @@ public class FileQueueTable
         implements TableModelListener {
         
         private static final long serialVersionUID = 1L;
-        private String[] columnNames = {"Files in Queue", "Project/Dataset", "Status", "DatasetNum", "Path", "Archive", "ProjectNum"};
+        private String[] columnNames = {"Files in Queue", "Project/Dataset or Screen", "Status", "DatasetNum", "Path", "Archive", "ProjectNum", "UserPixels"};
 
         public void tableChanged(TableModelEvent arg0) { }
         

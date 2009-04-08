@@ -7,6 +7,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import omero.metadatastore.IObjectContainer;
+import omero.model.Plate;
 import omero.api.ServiceFactoryPrx;
 import junit.framework.TestCase;
 
@@ -100,6 +101,9 @@ public class ContainerCacheOrderTest extends TestCase
 		store.setObjectiveLensNA(1.0f, INSTRUMENT_INDEX, OBJECTIVE_INDEX + 1);
 		store.setObjectiveID("Objective:1", INSTRUMENT_INDEX, OBJECTIVE_INDEX + 1);
 		store.setObjectiveSettingsObjective("Objective:1", IMAGE_INDEX + 1);
+		
+		// A Plate
+		store.setPlateName("Plate", 0);
 	}
 	
 	public void testOrder()
@@ -110,5 +114,27 @@ public class ContainerCacheOrderTest extends TestCase
 		{
 			System.err.println(key + " == " + containerCache.get(key).sourceObject);
 		}
+	}
+	
+	public void testPlateLSIDEquivilence()
+	{
+		LSID a = new LSID(Plate.class, 0);
+		LSID b = new LSID("omero.model.Plate:0");
+		assertEquals(a, b);
+		assertEquals(b, a);
+	}
+	
+	public void testGetPlateByString()
+	{
+		Map<LSID, IObjectContainer> containerCache = 
+			store.getContainerCache();
+		assertNotNull(containerCache.get(new LSID("omero.model.Plate:0", true)));
+	}
+	
+	public void testGetPlateByClassAndIndex()
+	{
+		Map<LSID, IObjectContainer> containerCache = 
+			store.getContainerCache();
+		assertNotNull(containerCache.get(new LSID(Plate.class, 0)));
 	}
 }
