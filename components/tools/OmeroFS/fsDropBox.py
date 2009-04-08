@@ -5,9 +5,7 @@
 """
 import logging
 import fsLogger
-log = logging.getLogger("fs.DropBox")
-
-from traceback import format_exc
+log = logging.getLogger("fs."+__name__)
 
 import time, os
 import uuid
@@ -16,7 +14,6 @@ import omero
 import Ice
 import IceGrid
 import Glacier2
-
 
 import monitors
 import fsDropBoxMonitorClient
@@ -34,34 +31,39 @@ except:
 class DropBox(Ice.Application):
     
     def run(self, args):
-        log.info('Trying to start OMERO.fs DropBox client')
-                   
+                 
+        try:
+            root = omero.client(config.host, config.port)
+        except:
+            log.exception("Failed to get client: \n")
+            raise
+          
         try:   
             sf = self.getOmeroServiceFactory()
-        except Exception, e:
-            log.error("Failed to get Session: %s", format_exc())
+        except:
+            log.exception("Failed to get Session: \n")
             raise
             
         try:
             configService = sf.getConfigService()
-        except Exception, e:
-            log.error("Failed to get configService: %s", format_exc())
+        except:
+            log.exception("Failed to get configService: \n")
             raise
         
         try:
             dropBoxBase = configService.getConfigValue("omero.data.dir")
             dropBoxBase += config.dropBoxDir
-        except Exception, e:
-            log.exception("Failed to use a query service : ")
+        except:
+            log.exception("Failed to use a query service : \n")
             raise
 
         try:
             sf.destroy()
-        except Exception, e:
-            log.error("Failed to get close session: %s", format_exc())
+        except:
+            log.exception("Failed to get close session: \n")
             raise
 
-        try:   
+        try:
             fsServer = self.communicator().stringToProxy(config.serverIdString)
             fsServer = monitors.MonitorServerPrx.checkedCast(fsServer.ice_twoway())
             
@@ -75,7 +77,7 @@ class DropBox(Ice.Application):
             mClientProxy = monitors.MonitorClientPrx.checkedCast(adapter.createProxy(identity))
             eventType = monitors.EventType.__dict__[config.eventType]
             pathMode = monitors.PathMode.__dict__[config.pathMode]
-            serverId = fsServer.createMonitor(eventType, dropBoxBase, config.fileTypes, 
+            serverId = fsServer.createMonitor(eventType, dropBoxBase, list(config.fileTypes), 
                 config.blacklist, pathMode, mClientProxy)
 
             mClient.setId(serverId)
@@ -83,8 +85,8 @@ class DropBox(Ice.Application):
             mClient.setMaster(self)
             fsServer.startMonitor(serverId)
 
-        except Exception, e:
-            log.exception("Failed to access proxy : ")
+        except:
+            log.exception("Failed to access proxy : \n")
             raise
             
         log.info('Started OMERO.fs DropBox client')        
@@ -94,18 +96,24 @@ class DropBox(Ice.Application):
             fsServer.stopMonitor(id)
             fsServer.destroyMonitor(id)
         except:
-            log.info('Unable to contact server, must have been stopped already.')
-            pass
+            log.info('Unable to contact FS Server, must have been stopped already.')
             
         log.info('Stopping OMERO.fs DropBox client')
 
 
     def getOmeroServiceFactory(self):
+        """
+            Try to return a ServiceFactory from the grid.
+            
+            Try a number of times then give up and raise the 
+            last exception returned.
+        """
         gotSession = False 
         tryCount = 0
         excpt = None
         query = self.communicator().stringToProxy("IceGrid/Query")
         query = IceGrid.QueryPrx.checkedCast(query)
+
         while (not gotSession) and (tryCount < config.maxTries):
             try:
                 time.sleep(config.retryInterval)
@@ -118,27 +126,9 @@ class DropBox(Ice.Application):
                 tryCount += 1
                 log.info("Failed to get session on attempt %s", str(tryCount))
                 excpt = e
+
         if gotSession:
             return sf
-        else:
-            raise Exception(excpt)
-
-    
-    def getOmeroSession(self, client, username, password):
-        gotSession = False
-        tryCount = 0
-        excpt = None
-        while (not gotSession) and (tryCount < config.maxTries):
-            try:
-                time.sleep(config.retryInterval)
-                session = client.createSession(username=username, password=password)
-                gotSession = True
-            except Exception, e:
-                tryCount += 1
-                log.info("Failed to get session on attempt %s", str(tryCount))
-                excpt = e
-        if gotSession:
-            return session
         else:
             raise Exception(excpt)
 

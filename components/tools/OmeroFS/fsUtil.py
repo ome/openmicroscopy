@@ -49,9 +49,9 @@ def monitorPackage():
             else:
                 errorString = "Mac Os 10.5 or above required. You have: %s" % str(platform.mac_ver()[0])
         except:
-            ## mac_ver() on python built with macports returns a version tuple
-            ## full of empty strings. That's caught here but the OS version is unknown.
-            ## Until a better solution is found MACOS-UNKNOWN_VERSION is used to flag this.
+            # mac_ver() on python built with macports returns a version tuple
+            # full of empty strings. That's caught here but the OS version is unknown.
+            # Until a better solution is found MACOS-UNKNOWN_VERSION is used to flag this.
             current = 'MACOS-UNKNOWN_VERSION'
             errorString = "Mac Os 10.5 or above required. You have an unkown version"
 
@@ -91,8 +91,9 @@ def monitorPackage():
             # Although there is a working monitor system for XP the whole blitzed
             # FS system has yet to be deployed against an XP blitz server. Thus the
             # option is forced to fail until this deployment is tested.
-            current = 'WIN_XP-NOT_YET_SUPPORTED'
-            errorString = "Windows XP not yet supported."
+            #current = 'WIN_XP-NOT_YET_SUPPORTED'
+            #errorString = "Windows XP not yet supported."
+            current = 'WIN_XP'
         else:
             errorString = "Windows XP required. You have: %s" % str(version)
     

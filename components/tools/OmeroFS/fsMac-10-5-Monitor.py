@@ -5,7 +5,7 @@
 """
 import logging
 import fsLogger
-log = logging.getLogger("fs.Mac-10-5-Monitor")
+log = logging.getLogger("fs."+__name__)
 
 from Foundation import NSAutoreleasePool, NSMutableArray, NSString
 import FSEvents
