@@ -22,9 +22,13 @@
     <variable name="PYTHONPATH"   value="PYTHONPATH=%PYTHONPATH%;${OMEROPY_HOME}"/>
 
     <properties id="Profile">
-      <!-- Here you can specify values which will be passed to
-      the Java servers and added via System.setPreference() -->
-      <property name="my_property" value="my_value"/>
+      <!--
+      Any properties beginning with "omero" set here will
+      be passed to the servers as if via "-Domero.example=value"
+      were set on the command line. These values may be overwritten
+      by `bin/omero config` values.
+      -->
+      <property name="omero.example" value="my_value"/>
     </properties>
 
     <replica-group id="BlitzAdapters">
