@@ -1050,6 +1050,24 @@ class BlitzObjectWrapper (object):
         return rv and rv.val or ''
 
     def getOwner (self):
+        return self.getDetails().getOwner()
+
+    def getOwnerFullName (self):
+        try:
+            lastName = self.getDetails().getOwner().lastName
+            firstName = self.getDetails().getOwner().firstName
+            middleName = self.getDetails().getOwner().middleName
+            
+            if middleName is not None and middleName != '':
+                name = "%s %s. %s" % (firstName, middleName, lastName)
+            else:
+                name = "%s %s" % (firstName, lastName)
+            return name
+        except:
+            logger.error(traceback.format_exc())
+            return None
+
+    def getOwnerOmeName (self):
         return self.getDetails().getOwner().omeName
 
     def creationEventDate(self):
@@ -1060,6 +1078,16 @@ class BlitzObjectWrapper (object):
                 t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
         except:
             t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
+        return datetime.fromtimestamp(t/1000)
+    
+    def updateEventDate(self):
+        try:
+            if self._obj.details.updateEvent.time is not None:
+                t = self._obj.details.updateEvent.time.val
+            else:
+                t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val).time.val
+        except:
+            t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val).time.val
         return datetime.fromtimestamp(t/1000)
     
     # setters are also provided
@@ -1841,15 +1869,27 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     @assert_pixels
     def getPixelSizeX (self):
-        return self._obj.getPrimaryPixels().getPhysicalSizeX().val
+        try:
+            val = self._obj.getPrimaryPixels().getPhysicalSizeX().val
+        except:
+            val = None
+        return val
 
     @assert_pixels
     def getPixelSizeY (self):
-        return self._obj.getPrimaryPixels().getPhysicalSizeY().val
+        try:
+            val = self._obj.getPrimaryPixels().getPhysicalSizeY().val
+        except:
+            val = None
+        return val
 
     @assert_pixels
     def getPixelSizeZ (self):
-        return self._obj.getPrimaryPixels().getPhysicalSizeZ().val
+        try:
+            val = self._obj.getPrimaryPixels().getPhysicalSizeY().val
+        except:
+            val = None
+        return val
 
     @assert_pixels
     def getWidth (self):
