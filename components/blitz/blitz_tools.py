@@ -134,6 +134,9 @@ class OmeroEnvironment(SConsEnvironment):
             self.Replace(LINKCOMSTR = "Linking   $TARGET")
             self.Replace(SHCXXCOMSTR  = "Compiling $TARGET")
             self.Replace(SHLINKCOMSTR = "Linking   $TARGET")
+        # CXX
+        if os.environ.has_key("CXX"):
+            self.Replace(CXX = os.environ["CXX"])
         # CXXFLAGS
         self.Append(CPPFLAGS="-D_REENTRANT")
         if os.environ.has_key("CXXFLAGS"):
