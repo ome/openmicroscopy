@@ -8,9 +8,9 @@
 
   <application name="OMERO" import-default-templates="true">
 
-    <parameter name="OMERO_HOME" default="."/>
-    <parameter name="OMEROPY_HOME" default="lib/python"/>
-    <parameter name="PYTHONPATH" default="$PYTHONPATH:lib/python/>
+    <variable name="OMERO_HOME"   value="."/>
+    <variable name="OMEROPY_HOME" value="lib/python"/>
+    <variable name="PYTHONPATH"   value="PYTHONPATH=$${PYTHONPATH}:lib/python/>
 
     <properties id="Profile">
       <!-- Here you can specify values which will be passed to

@@ -123,7 +123,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             if self._isWindows():
                 __d__ = "windefault.xml"
             descript = self.dir / "etc" / "grid" / __d__
-            self.ctx.err("No descriptor given. Using %s" os.path.sep.join(["etc","grid",__d__]))
+            self.ctx.err("No descriptor given. Using %s" % os.path.sep.join(["etc","grid",__d__]))
         return descript
 
     def startasync(self, args):

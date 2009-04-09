@@ -110,11 +110,12 @@
 
     <server-template id="WebTemplate">
       <parameter name="act" default="on-demand"/>
-      <server id="Web" exe="python" activation="${act}" pwd="${OMEROPY_HOME}omeroweb"/>
+      <server id="Web" exe="python" activation="${act}" pwd="${OMEROPY_HOME}omeroweb">
         <option>manage.py</option>
         <option>runserver</option>
         <option>--noreload</option>
-        <adapter name="${id}Adapter" register-process="true" endpoints="tcp"/>
+        <env>${PYTHONPATH}</env>
+        <adapter name="WebAdapter" register-process="true" endpoints="tcp" server-lifetime="false"/>
       </server>
     </server-template>
 
