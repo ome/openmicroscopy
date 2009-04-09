@@ -51,6 +51,7 @@ import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
+import ome.model.experiment.Experiment;
 import ome.model.screen.Plate;
 import ome.model.screen.Screen;
 import ome.model.screen.Well;
