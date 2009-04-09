@@ -212,8 +212,8 @@ class _BlitzGateway (object):
         self._proxies['types'] = ProxyObjectWrapper(self, 'getTypesService')
 #            self._proxies['update'] = ProxyObjectWrapper(self, 'getUpdateService')
         self._proxies['config'] = self.c.sf.getConfigService()
-        ctx = self._proxies['admin'].getEventContext()
-        self._userid = ctx.userId
+        self._ctx = self._proxies['admin'].getEventContext()
+        self._userid = self._ctx.userId
         self._user = self.getExperimenter(self._userid)
         if self._session_cb: #pragma: no cover
             if self._was_join:
@@ -377,7 +377,7 @@ class _BlitzGateway (object):
     
     # userName, userId, _sessionUuid, sessionId, isAdmin, memberOfGroups, leaderOfGroups
     def getEventContext (self):
-        return self._proxies['admin'].getEventContext()
+        return self._ctx
 
     def getUser (self):
         return self._user
