@@ -154,5 +154,12 @@ public class Preference implements BeanNameAware {
     public void setDb(boolean db) {
         this.db = db;
     }
+    
+    public boolean isPrefs() {
+        return this.prefs;
+    }
 
+    public void setPrefs(boolean prefs) {
+        this.prefs = prefs;
+    }
 }
