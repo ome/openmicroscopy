@@ -150,17 +150,25 @@ public class Entry {
     public void start() {
         try {
             log.info("Creating " + name + ". Please wait...");
+
+            // TEMPORARY WORKAROUND
+            String ICE_CONFIG = System.getProperty("ICE_CONFIG");
+            
+            // Parse out any omero.* properties from ICE_CONFIG
+            // and set them in the System
+            Ice.InitializationData id = new Ice.InitializationData();
+            id.properties = Ice.Util.createProperties();
+            if (ICE_CONFIG != null) {
+                id.properties.load(ICE_CONFIG);
+                for (String k : id.properties.getPropertiesForPrefix("omero").keySet()) {
+                    System.setProperty(k, id.properties.getProperty(k));
+                }
+            }
+            
             ctx = OmeroContext.getInstance(name);
             if (ctx.containsBean("Ice.Communicator")) {
                 ic = (Ice.Communicator) ctx.getBean("Ice.Communicator");
             } else {
-                Ice.InitializationData id = new Ice.InitializationData();
-                id.properties = Ice.Util.createProperties();
-                // TEMPORARY WORKAROUND
-                String ICE_CONFIG = System.getProperty("ICE_CONFIG");
-                if (ICE_CONFIG != null) {
-                    id.properties.load(ICE_CONFIG);
-                }
                 ic = Ice.Util.initialize(id);
                 Ice.ObjectAdapter oa = ic.createObjectAdapter("IndexerAdapter");
                 oa.activate();
