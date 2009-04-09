@@ -1869,27 +1869,18 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     @assert_pixels
     def getPixelSizeX (self):
-        try:
-            val = self._obj.getPrimaryPixels().getPhysicalSizeX().val
-        except:
-            val = None
-        return val
+        rv = self._obj.getPrimaryPixels().getPhysicalSizeX()
+        return rv and rv.val or None
 
     @assert_pixels
     def getPixelSizeY (self):
-        try:
-            val = self._obj.getPrimaryPixels().getPhysicalSizeY().val
-        except:
-            val = None
-        return val
+        rv = self._obj.getPrimaryPixels().getPhysicalSizeY()
+        return rv and rv.val or None
 
     @assert_pixels
     def getPixelSizeZ (self):
-        try:
-            val = self._obj.getPrimaryPixels().getPhysicalSizeY().val
-        except:
-            val = None
-        return val
+        rv = self._obj.getPrimaryPixels().getPhysicalSizeZ()
+        return rv and rv.val or None
 
     @assert_pixels
     def getWidth (self):
