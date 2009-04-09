@@ -17,7 +17,7 @@
       All the necessary paths will use the ${OMERO_HOME} parameter,
       especially in templates.xml
     -->
-    <variable name="OMERO_HOME"   value="c:\\omero"/>
+    <variable name="OMERO_HOME"   value="c:\\omero_dist"/>
     <variable name="OMEROPY_HOME" value="${OMERO_HOME}\\lib\\python\\"/>
     <variable name="PYTHONPATH"   value="PYTHONPATH=%PYTHONPATH%;${OMEROPY_HOME}"/>
 
