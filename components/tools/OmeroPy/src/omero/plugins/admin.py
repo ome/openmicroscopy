@@ -186,14 +186,22 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
 
 	    # Now check if the server exists
             if 0 <= output.find("does not exist"):
-                 command = [
-                       "sc", "create", svc_name,
-                       "binPath=","""icegridnode.exe "%s" --deploy "%s" --service %s""" % (self._icecfg(), descript, svc_name),
-                       "DisplayName=", svc_name,
-                       "start=","auto"]
-                       #'obj="NT Authority\LocalService"',
-                       #'password=""']
-                 self.ctx.out(self.ctx.popen(command).communicate()[0]) # popen
+                command = [
+                   "sc", "create", svc_name,
+                   "binPath=","""icegridnode.exe "%s" --deploy "%s" --service %s""" % (self._icecfg(), descript, svc_name),
+                   "DisplayName=", svc_name,
+                   "start=","auto"]
+
+                # By default: "NT Authority\LocalService"
+                user = self.ctx.initData().properties.getProperty("omero.windows.user")
+                if len(user) > 0:
+                    command.append("obj=")
+                    command.append(user)
+                pasw = self.ctx.initData().properties.getProperty("omero.windows.pass")
+                if len(pasw) > 0:
+                    command.append("password=")
+                    command.append(pasw)
+                self.ctx.out(self.ctx.popen(command).communicate()[0]) # popen
 
             # Then check if the server is already running
             if 0 <= output.find("RUNNING"):
