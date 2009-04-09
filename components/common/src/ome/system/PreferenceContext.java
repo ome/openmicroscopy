@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import org.apache.commons.logging.Log;
@@ -114,6 +115,11 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
             prefs.put(key, value);
         } else {
             prefs.remove(key);
+        }
+        try {
+            prefs.flush();
+        } catch (BackingStoreException e) {
+            log.error("Error flushing prefs on setProperty: "+key);
         }
     }
 
