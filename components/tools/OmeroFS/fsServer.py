@@ -9,9 +9,7 @@
 """
 import logging
 import fsLogger
-log = logging.getLogger("fs.Server")
-
-from traceback import format_exc
+log = logging.getLogger("fs."+__name__)
 
 import sys
 import Ice
@@ -41,15 +39,15 @@ class Server(Ice.Application):
             :return: Exit state.
             :rtype: int
         """      
-        log.info('Trying to start OMERO.fs Server')
-        
         # Create a MonitorServer, its adapter and activate it.
         mServer = fsMonitorServer.MonitorServerI()
         adapter = self.communicator().createObjectAdapter(config.serverAdapterName)
         mServerPrx = adapter.add(mServer, self.communicator().stringToIdentity(config.serverIdString))
         adapter.activate() 
 
-        """       
+        """ 
+        # I used to need to do this but for some reason it
+        # stopped being necessary.      
         try:
             reg = self.communicator().stringToProxy("IceGrid/Registry")
             reg = IceGrid.RegistryPrx.checkedCast(reg)
@@ -72,5 +70,3 @@ class Server(Ice.Application):
         # Wait for an interrupt.
         self.communicator().waitForShutdown()
         log.info('Stopping OMERO.fs Server')
-        
-        return 0

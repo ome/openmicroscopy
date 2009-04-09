@@ -5,7 +5,7 @@
 """
 import logging
 import fsLogger
-log = logging.getLogger("fs.Pyinotify-0-7-Monitor")
+log = logging.getLogger("fs."+__name__)
 
 import pyinotify
 

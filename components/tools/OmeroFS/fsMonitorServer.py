@@ -5,7 +5,7 @@
 """
 import logging
 import fsLogger
-log = logging.getLogger("fs.MonitorServer")
+log = logging.getLogger("fs."+__name__)
 
 
 import sys, traceback

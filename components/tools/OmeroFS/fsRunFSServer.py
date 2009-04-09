@@ -5,15 +5,16 @@
 """
 import logging
 import fsLogger
-log = logging.getLogger("fs.runFSServer")
+log = logging.getLogger("fs.fsRunFSServer")
 
 import sys
 
 try:
+    log.info('Trying to start OMERO.fs Server')   
     import fsServer
     app = fsServer.Server()
     app.main(sys.argv)
 except:
-    log.exception("Failed to start FSServer. Reason: \n")
+    log.exception("Failed to start Server. Reason: \n")
     sys.exit(-1)
 
