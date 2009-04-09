@@ -202,6 +202,10 @@ public class OMEROMetadataStore
     	{
     		handle(lsid, (Annotation) sourceObject, indexes); 
     	}
+    	else if (sourceObject instanceof Experiment)
+    	{
+    		handle(lsid, (Experiment) sourceObject, indexes); 
+    	}
     	else
     	{
     		throw new ApiUsageException(
@@ -582,6 +586,19 @@ public class OMEROMetadataStore
      * object.
      */
     private void handle(String LSID, Annotation sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        // No-op.
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Experiment sourceObject,
                         Map<String, Integer> indexes)
     {
         // No-op.
