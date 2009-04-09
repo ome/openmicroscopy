@@ -8,12 +8,6 @@
 
   <application name="templates">
 
-    <properties id="Profile">
-      <!-- Here you can specify values which will be passed to
-      the Java servers and added via System.setPreference() -->
-      <property name="my_property" value="my_value"/>
-    </properties>
-
     <properties id="Blitz">
       <property name="Ice.Default.CollocationOptimized" value="0"/>
     </properties>
@@ -43,7 +37,7 @@
       <server id="Blitz-${index}" exe="bin/omero" activation="always">
         <option>server</option>
         <option>blitz</option>
-        <env>PYTHONPATH=lib:$PYTHONPATH</env>
+        <env>${PYTHONPATH}</env>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" register-process="true" endpoints="tcp"/>
         <properties>
           <properties refid="Profile"/>
@@ -55,6 +49,26 @@
       </server>
     </server-template>
 
+    <server-template id="WinBlitzTemplate">
+      <parameter name="index"/>
+      <parameter name="config" default="default"/>
+      <server id="Blitz-${index}" exe="java" activation="always" pwd="${OMERO_HOME}">
+        <option>-Dlog4j.configuration=etc\\winlog4j.xml</option>
+        <option>-Xmx400M</option>
+        <option>-Djava.awt.headless=true</option>
+        <option>-Domero.name=Blitz-${index}</option>
+        <option>-jar</option>
+        <option>lib\server\blitz.jar</option>
+        <adapter name="BlitzAdapter" replica-group="BlitzAdapters" register-process="true" endpoints="tcp"/>
+        <properties>
+          <properties refid="Profile"/>
+          <properties refid="Blitz"/>
+          <properties refid="Basics"/>
+          <properties refid="MultiThreaded"/>
+        </properties>
+      </server>
+    </server-template>
+
     <server-template id="IndexerTemplate">
       <parameter name="index"/>
       <parameter name="config" default="default"/>
@@ -62,7 +76,7 @@
         <option>server</option>
         <option>indexer</option>
         <option>-Domero.name=${server}</option>
-        <env>PYTHONPATH=lib:$PYTHONPATH</env>
+        <env>${PYTHONPATH}</env>
         <adapter name="IndexerAdapter" register-process="true" endpoints="tcp"/>
         <properties>
           <properties refid="Profile"/>
@@ -73,12 +87,43 @@
       </server>
     </server-template>
 
+    <server-template id="WinIndexerTemplate">
+      <parameter name="index"/>
+      <parameter name="config" default="default"/>
+      <server id="Indexer-${index}" exe="java" activation="always" pwd="${OMERO_HOME}">
+        <option>-Dlog4j.configuration=etc\\winlog4j.xml</option>
+        <option>-Xmx256M</option>
+        <option>-Djava.awt.headless=true</option>
+        <option>-Domero.name=Indexer-${index}</option>
+        <option>-jar</option>
+        <option>lib\server\blitz.jar</option>
+        <option>ome.fulltext</option>
+        <adapter name="IndexerAdapter" register-process="true" endpoints="tcp"/>
+        <properties>
+          <properties refid="Profile"/>
+          <properties refid="Blitz"/>
+          <properties refid="Basics"/>
+          <properties refid="SingleThreaded"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <server-template id="WebTemplate">
+      <parameter name="act" default="on-demand"/>
+      <server id="Web" exe="python" activation="${act}" pwd="${OMEROPY_HOME}omeroweb"/>
+        <option>manage.py</option>
+        <option>runserver</option>
+        <option>--noreload</option>
+        <adapter name="${id}Adapter" register-process="true" endpoints="tcp"/>
+      </server>
+    </server-template>
+
     <server-template id="ProcessorTemplate">
       <parameter name="index"/>
       <parameter name="exe" default="python"/>
       <server id="Processor${index}" exe="${exe}" activation="always">
         <option>lib/python/omero/processor.py</option>
-        <env>PYTHONPATH=lib/python:$PYTHONPATH</env>
+        <env>${PYTHONPATH}</env>
         <adapter name="ProcessorAdapter" replica-group="ProcessorAdapters" register-process="true" endpoints="tcp"/>
         <properties>
           <properties refid="Basics"/>
@@ -89,12 +134,12 @@
 
     <server-template id="FSTemplate">
       <parameter name="exe" default="python"/>
-      <server id="FSServer" exe="${exe}" activation="always">
-        <option>lib/python/fsRunFSServer.py</option>
-        <env>PYTHONPATH=lib/python:$PYTHONPATH</env>
+      <server id="FSServer" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
+        <option>${OMEROPY_HOME}fsRunFSServer.py</option>
+        <env>${PYTHONPATH}</env>
         <adapter name="omerofs.MonitorServer" register-process="true" endpoints="tcp">
-			<object identity="FSServer" type="::monitors::MonitorServer"/>
-		</adapter>
+          <object identity="FSServer" type="::monitors::MonitorServer"/>
+        </adapter>
         <properties>
           <properties refid="Basics"/>
           <properties refid="MultiThreaded"/>
@@ -104,9 +149,9 @@
 
     <server-template id="DropBoxTemplate">
       <parameter name="exe" default="python"/>
-      <server id="DropBox" exe="${exe}" activation="always">
-        <option>lib/python/fsRunFSDropBox.py</option>
-        <env>PYTHONPATH=lib/python:$PYTHONPATH</env>
+      <server id="DropBox" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
+        <option>${OMEROPY_HOME}fsRunFSDropBox.py</option>
+        <env>${PYTHONPATH}</env>
         <adapter name="omerofs.DropBox" register-process="true" endpoints="tcp"/>
         <properties>
           <properties refid="Basics"/>
