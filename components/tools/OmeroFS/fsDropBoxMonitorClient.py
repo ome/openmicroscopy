@@ -15,6 +15,8 @@ import threading
 import path as pathModule
 
 import omero
+import omero.java
+
 import Ice
 import IceGrid
 import Glacier2
@@ -43,6 +45,7 @@ class MonitorClientI(monitors.MonitorClient):
         self.id = ''
         #: dictionary of files onHold
         self.onHold = {}
+        self.ometifHold = {}
         
 
     def fsEventHappened(self, id, eventList, current=None):
@@ -87,9 +90,11 @@ class MonitorClientI(monitors.MonitorClient):
                         fileExt = pathModule.path(fileInfo.fileId).ext
                         fileName = pathModule.path(fileInfo.fileId).name
                         fileBase = pathModule.path(fileInfo.fileId).namebase
+
                         # Deal with lsm files
                         if fileExt == ".lsm":
                             self.importFile(fileInfo.fileId, exName)
+
                         # Deal with dv files and their logs
                         elif fileExt == ".dv":
                             if (fileName+".log", exName) in self.onHold.keys():
@@ -108,6 +113,34 @@ class MonitorClientI(monitors.MonitorClient):
                             else:
                                 self.onHold[(fileName,exName)] = threading.Timer(config.dropTimes[".dv"], self.ignoreFile, (fileName, exName))
                                 self.onHold[(fileName,exName)].start()
+
+                        # Deal with ome.tif files
+                        elif fileExt == ".tif" or fileExt == ".tiff":
+                            if pathModule.path(fileBase).ext == ".ome":
+                                command = [config.climporter + " -f " + fileInfo.fileId]
+                                output = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True).communicate()
+                                files = output[0].splitlines()
+                                # Single file 
+                                if len(files) == 1:
+                                    self.importFile(fileInfo.fileId, exName)
+                                # Multiple files
+                                else:
+                                    fileList = []
+                                    for line in files:
+                                        fileList.append(pathModule.path(line).name)
+                                    fileList.sort()
+                                    omeKey = tuple(fileList)
+                                    if omeKey in self.ometifHold.keys():
+                                        self.ometifHold[omeKey].discard(fileName)
+                                        log.info("File identified as part of %s", str(omeKey))
+                                        if len(self.ometifHold[omeKey]) == 0:
+                                            self.importFile(fileInfo.fileId, exName)
+                                            self.ometifHold.pop(omeKey)    
+                                    else:
+                                        log.info("First file of %s",str(omeKey))
+                                        self.ometifHold[omeKey] = set(fileList)
+                                        self.ometifHold[omeKey].discard(fileName)
+                                                                         
                         # Deal with all other notified file types.
                         else:
                             # ignore other file types for now.
@@ -201,7 +234,7 @@ class MonitorClientI(monitors.MonitorClient):
         except:
             raise
         
-    def dontimportFile(self, fileName, exName):
+    def dummyimportFile(self, fileName, exName):
         """
             Log a potential import for test purposes
 
