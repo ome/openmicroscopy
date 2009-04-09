@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ome.api.StatefulServiceInterface;
+import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
@@ -58,6 +59,8 @@ public class EventHandler implements MethodInterceptor {
 
     protected final SimpleJdbcOperations isolatedJdbc, simpleJdbc;
 
+    protected final boolean readOnly;
+
     /**
      * only public constructor, used for dependency injection. Requires an
      * active {@link HibernateTemplate} and {@link BasicSecuritySystem}.
@@ -71,11 +74,20 @@ public class EventHandler implements MethodInterceptor {
             SimpleJdbcOperations simpleJdbc,
             BasicSecuritySystem securitySystem, SessionFactory factory,
             TransactionAttributeSource txSource) {
+        this(isolatedJdbc, simpleJdbc, securitySystem, factory, txSource, false);
+    }
+    
+    public EventHandler(SimpleJdbcOperations isolatedJdbc,
+            SimpleJdbcOperations simpleJdbc,
+            BasicSecuritySystem securitySystem, SessionFactory factory,
+            TransactionAttributeSource txSource,
+            boolean readOnly) {
         this.secSys = securitySystem;
         this.txSource = txSource;
         this.factory = factory;
         this.simpleJdbc = simpleJdbc;
         this.isolatedJdbc = isolatedJdbc;
+        this.readOnly = readOnly;
     }
 
     /**
@@ -89,6 +101,10 @@ public class EventHandler implements MethodInterceptor {
         boolean stateful = StatefulServiceInterface.class.isAssignableFrom(arg0
                 .getThis().getClass());
 
+        if (!readOnly && this.readOnly) {
+            throw new ApiUsageException("This instance is read-only");
+        }
+        
         // ticket:1254
         Session session = factory.getSession();
         Statement statement = session.connection().createStatement();

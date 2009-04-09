@@ -13,9 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -97,6 +95,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     protected long maxUserTimeToLive;
     protected PrincipalHolder principalHolder;
     protected CounterFactory factory;
+    protected boolean readOnly = false;
 
     // Local state
 
@@ -160,6 +159,10 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     public void setCounterFactory(CounterFactory factory) {
         this.factory = factory;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
 
     /**
@@ -270,18 +273,38 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             // oh well
         }
 
-        List rv = (List) executor.execute(this.asroot, new Executor.SimpleWork(
-                this, "createSession") {
-            @Transactional(readOnly = false)
-            public Object doWork(org.hibernate.Session __s, ServiceFactory sf) {
-                Principal p = checkPrincipalNameAndDefaultGroup(sf, principal);
-                long userId = executeLookupUser(sf, p);
-                Session s = executeUpdate(sf, oldsession, userId);
-                SessionContext ctx = currentDatabaseShapshot(sf, p, s);
-                return Arrays.asList(s, ctx);
-            }
+        List rv;
+        if (readOnly) {
+            rv = (List) executor.execute(this.asroot, new Executor.SimpleWork(
+                    this, "read-only createSession") {
+                @Transactional(readOnly = true)
+                public Object doWork(org.hibernate.Session __s,
+                        ServiceFactory sf) {
+                    Principal p = checkPrincipalNameAndDefaultGroup(sf,
+                            principal);
+                    long userId = executeLookupUser(sf, p);
+                    // Not performed! Session s = executeUpdate(sf, oldsession, userId);
+                    Session s = oldsession;
+                    SessionContext ctx = currentDatabaseShapshot(sf, p, s);
+                    return Arrays.asList(s, ctx);
+                }
+            });
+        } else {
+            rv = (List) executor.execute(this.asroot, new Executor.SimpleWork(
+                    this, "createSession") {
+                @Transactional(readOnly = false)
+                public Object doWork(org.hibernate.Session __s,
+                        ServiceFactory sf) {
+                    Principal p = checkPrincipalNameAndDefaultGroup(sf,
+                            principal);
+                    long userId = executeLookupUser(sf, p);
+                    Session s = executeUpdate(sf, oldsession, userId);
+                    SessionContext ctx = currentDatabaseShapshot(sf, p, s);
+                    return Arrays.asList(s, ctx);
+                }
 
-        });
+            });
+        }
         Session newsession = (Session) rv.get(0);
         SessionContext newctx = (SessionContext) rv.get(1);
 
@@ -801,7 +824,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 .getCurrentGroupName(), ctx.getCurrentEventType());
         return (SessionContext) executor.execute(asroot,
                 new Executor.SimpleWork(this, "reload") {
-                    @Transactional(readOnly = false)
+                    @Transactional(readOnly = true)
                     public Object doWork(org.hibernate.Session session,
                             ServiceFactory sf) {
                         return currentDatabaseShapshot(sf, p, ctx.getSession());

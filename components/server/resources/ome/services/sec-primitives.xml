@@ -85,6 +85,7 @@
     <property name="defaultTimeToIdle" value="${omero.sessions.timeout}"/>
     <property name="defaultTimeToLive" value="${omero.sessions.maximum}"/>
     <property name="counterFactory" ref="sessionCounterFactory"/>
+    <property name="readOnly"       value="${omero.cluster.read_only}"/>
   </bean>
 
   <bean id="methodSecurity" class="ome.security.basic.BasicMethodSecurity">

@@ -60,6 +60,7 @@
     <constructor-arg ref="basicSecuritySystem"/>
     <constructor-arg ref="omeroSessionFactory"/>
     <constructor-arg ref="transactionAttributeSource"/>
+    <constructor-arg value="${omero.cluster.read_only}"/>
   </bean>
 
 </beans>
