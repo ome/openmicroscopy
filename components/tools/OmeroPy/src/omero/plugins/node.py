@@ -145,11 +145,11 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
             command = ["icegridnode", self._icecfg()]
             if self._isWindows():
                 command = command + ["--install","OMERO."+self._node()]
-                self.ctx.popen(command)
-                self.ctx.popen(["icegridnode","--start","OMERO."+self._node()])
+                self.ctx.call(command)
+                self.ctx.call(["icegridnode","--start","OMERO."+self._node()])
             else:
                 command = command + ["--daemon", "--pidfile", str(self._pid()),"--nochdir"]
-                self.ctx.popen(command)
+                self.ctx.call(command)
         except OSError, o:
                 msg = """%s\nPossibly an error finding "icegridnode". Try "icegridnode -h" from the command line.""" % o
                 raise Exc(msg)
@@ -169,9 +169,9 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
         if self._isWindows():
                 try:
                         command = ["icegridnode", "--stop", "OMERO."+self._node()]
-                        self.ctx.popen(command)
+                        self.ctx.call(command)
                         command = ["icegridnode", "--uninstall", "OMERO."+self._node()]
-                        self.ctx.popen(command)
+                        self.ctx.call(command)
                 except NonZeroReturnCode, nzrc:
                         self._handleNZRC(nzrc)
         else:

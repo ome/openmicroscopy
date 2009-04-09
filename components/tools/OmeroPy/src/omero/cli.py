@@ -280,6 +280,9 @@ class Context:
         self.out(args)
         self.interrupt_loop = True
 
+    def call(self, args):
+        self.out(str(args))
+
     def popen(self, args):
         self.out(str(args))
 
@@ -795,19 +798,21 @@ class CLI(cmd.Cmd, Context):
         except KeyError, ke:
             self.die(11, "Missing required plugin: "+ str(ke))
 
-    def popen(self, args, strict = True, stdout = None):
+    def call(self, args, strict = True):
         """
         Calls the string in a subprocess and dies if the return value is not 0
+        If stdout is True, then rather than executing
+        Yes, stdout is something of a misnomer.
         """
-        if not stdout:
-            self.dbg("Executing: %s" % args)
-            rv = subprocess.call(args, env = os.environ, cwd = OMERODIR)
-            if strict and not rv == 0:
-                raise NonZeroReturnCode(rv, "%s => %d" % (" ".join(args), rv))
-            return rv
-        else:
-            self.dbg("Returning popen: %s" % args)
-            return subprocess.Popen(args, env = os.environ, cwd = OMERODIR, stdout = subprocess.PIPE)
+        self.dbg("Executing: %s" % args)
+        rv = subprocess.call(args, env = os.environ, cwd = OMERODIR)
+        if strict and not rv == 0:
+            raise NonZeroReturnCode(rv, "%s => %d" % (" ".join(args), rv))
+        return rv
+
+    def popen(self, args):
+        self.dbg("Returning popen: %s" % args)
+        return subprocess.Popen(args, env = os.environ, cwd = OMERODIR, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 
     def readDefaults(self):
         try:
