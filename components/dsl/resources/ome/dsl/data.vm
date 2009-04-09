@@ -125,7 +125,7 @@ alter table pixels add column url varchar(2048);
 alter table originalfile add column url varchar(2048);
 alter table thumbnail add column url varchar(2048);
 
-create table password ( experimenter_id bigint unique not null REFERENCES experimenter (id) , hash char(24), dn text );
+create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash char(24), dn text );
 insert into password values (0,'@ROOTPASS@'); 
 insert into password values (1,'');
 -- root can now login with omero.rootpass property value
