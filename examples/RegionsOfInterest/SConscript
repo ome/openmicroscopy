@@ -1,0 +1,17 @@
+#
+#   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+#   Use is subject to license terms supplied in LICENSE.txt
+#
+
+# Subdirectory build for the RegionsOfInterest example. See ../SConstruct
+# for more information.
+
+import os
+Import('env libs ice_config get_targets')
+files = ["Model"]
+
+targets = get_targets(env, "RegionsOfInterest", "Main")
+
+# PREPARING SCONS EXECUTION: =================================
+#
+Default(targets)

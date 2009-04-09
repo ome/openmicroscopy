@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2009 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+<types>
+        <type id="ome.model.roi.Roi" annotated="true" described="true">
+                <properties>
+                        <!--optional name="union" type="boolean"/-->
+                        <onemany name="shapes" type="ome.model.roi.Shape" inverse="roi" ordered="true"/>
+                        <manyone name="image" type="ome.model.core.Image" inverse="rois"/>
+                        <optional name="source" type="ome.model.core.OriginalFile"/>
+                </properties>
+        </type>
+        <abstract id="ome.model.roi.Shape" discriminator="">
+                <properties>
+                        <!-- ====== OME SPECIFIC ====== -->
+                        <optional name="theZ" type="int"/>
+                        <optional name="theT" type="int"/>
+                        <zeromany name="channels" type="ome.model.core.LogicalChannel" inverse="shapes"/>
+                        <manyone name="roi" type="ome.model.roi.Roi" inverse="shapes" ordered="true"/>
+                       <!-- Though ROI modification may be implemented via
+                            copy-on-write, conceptually a "locked" Shape should
+                            not be modifiable by the user -->
+                        <optional name="locked" type="boolean"/>
+                        <!-- ====== SVG BASED ====== -->
+                        <!-- A note on color:
+                             5 different string representations are supported in SVG:
+                               Three digit hex : #rgb with each 0-F
+                               Six digit hex : #rrggbb with each 00-FF
+                               Integer functional : rgb(rrr, ggg, bbb) with each 0-255
+                               Float functional : rgb(R%, G%, B%) with each 0.0-100.0
+                               Color keyword : red, blue, black, ...
+                        -->
+                        <!-- Global -->
+                        <!-- "g" provides limited support for the nestable g
+                              elements in SVG. All shapes with the same roi and the same
+                              g value are in the same group -->
+                        <optional name="g" type="string"/>
+                        <optional name="transform" type="string"/><!-- e.g. [cos(a) sin(a) -sin(a) cos(a) 0 0] -->
+                        <optional name="vectorEffect" type="string"/><!-- non-scaling-stroke, none -->
+                        <optional name="visibility" type="boolean"/>
+                        <!-- Font -->
+                        <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
+                        <optional name="fontSize" type="int"/>
+                        <optional name="fontStretch" type="string"/><!-- normal, wider, narrower, expanded, ultra-condensed, extra-condensed -->
+                        <optional name="fontStyle" type="string"/><!-- normal, italic, oblique -->
+                        <optional name="fontVariant" type="string"/><!-- normal, small-caps -->
+                        <optional name="fontWeight" type="string"/><!-- normal, bold, bolder, lighter, 100, 900 -->
+                        <!-- Fill -->
+                        <optional name="fillColor" type="string"/>
+                        <optional name="fillOpacity" type="float"/>
+                        <optional name="fillRule" type="string"/><!-- even-odd, nonzero -->
+                        <!-- Stroke -->
+                        <optional name="strokeColor" type="string"/>
+                        <optional name="strokeDashArray" type="string"/><!-- e.g. none, 10 20 30 10 -->
+                        <optional name="strokeDashOffset" type="int"/>
+                        <optional name="strokeLineCap" type="string"/><!-- butt, round, square -->
+                        <optional name="strokeLineJoin" type="string"/><!-- miter, round, bevel -->
+                        <optional name="strokeMiterLimit" type="int"/>
+                        <optional name="strokeOpacity" type="float"/>
+                        <optional name="strokeWidth" type="int"/>
+                        <!-- Text -->
+                        <optional name="text" type="text"/>
+                        <optional name="textAnchor" type="string"/><!-- start, middle, end -->
+                        <optional name="textDecoration" type="string"/><!-- underline, overline, line-through -->
+                        <optional name="textFill" type="string"/><!-- red, green, blue, none -->
+                        <optional name="textStroke" type="string"/><!-- red, green, blue, none -->
+                        <optional name="baselineShift" type="string"/><!-- 70%, -70%, 7, sup, sub, normal -->
+                        <optional name="glyphOrientationVertical" type="int"/><!-- 0, 90, 180, 270 -->
+                        <optional name="direction" type="string"/><!-- ltr, rtl -->
+                        <optional name="writingMode" type="string"/><!-- r-tb | rl-tb | tb-rl | lr | rl | tb -->
+                        <!-- Marker
+                        To support something of the form:
+                        <marker id="startArrow" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" orient="auto" markerWidth="5" markerHeight="4">
+                            <polyline points="10,0 0,5 10,10 9,5" fill="darkblue" />
+                        </marker>
+                        We may need a component object or a reference to another shape. For now,
+                        create the polyline at the proper location and group it to the line.
+                        <optional name="markerStart" type="string"/>
+                        <optional name="markerMid" type="string"/>
+                        <optional name="markerEnd" type="string"/>
+                        -->
+                </properties>
+        </abstract>
+        <type id="ome.model.roi.Rect" discriminator="rect" superclass="ome.model.roi.Shape">
+                <properties>
+                        <optional name="x" type="double"/>
+                        <optional name="y" type="double"/>
+                        <optional name="width" type="double"/>
+                        <optional name="height" type="double"/>
+                        <optional name="rx" type="double"/>
+                </properties>
+        </type>
+        <type id="ome.model.roi.Mask" discriminator="mask" superclass="ome.model.roi.Shape">
+                <properties>
+                        <optional name="x" type="double"/>
+                        <optional name="y" type="double"/>
+                        <optional name="width" type="double"/>
+                        <optional name="height" type="double"/>
+                        <optional name="pixels" type="ome.model.core.Pixels"/>
+                </properties>
+        </type>
+        <type id="ome.model.roi.Ellipse" discriminator="ellipse" superclass="ome.model.roi.Shape">
+                <properties>
+                        <optional name="cx" type="double"/>
+                        <optional name="cy" type="double"/>
+                        <optional name="rx" type="double"/>
+                        <optional name="ry" type="double"/>
+                </properties>
+        </type>
+        <type id="ome.model.roi.Point" discriminator="point" superclass="ome.model.roi.Shape">
+                <properties>
+                        <optional name="cx" type="double"/>
+                        <optional name="cy" type="double"/>
+                </properties>
+        </type>
+        <type id="ome.model.roi.Path" discriminator="path" superclass="ome.model.roi.Shape">
+                <properties>
+                        <optional name="d" type="string"/><!-- e.g. "M 100 100 L 300 100 L 200 300 z" -->
+                </properties>
+        </type>
+        <type id="ome.model.roi.Polygon" discriminator="polygon" superclass="ome.model.roi.Shape">
+                <properties>
+                        <optional name="points" type="string"/>
+                </properties>
+        </type>
+        <type id="ome.model.roi.Polyline" discriminator="polyline" superclass="ome.model.roi.Shape">
+                <properties>
+                        <optional name="points" type="string"/>
+                </properties>
+        </type>
+        <type id="ome.model.roi.Line" discriminator="line" superclass="ome.model.roi.Shape">
+                <properties>
+                        <optional name="x1" type="double"/>
+                        <optional name="y1" type="double"/>
+                        <optional name="x2" type="double"/>
+                        <optional name="y2" type="double"/>
+                </properties>
+        </type>
+        <!-- MISSING:
+          ShapeConnections
+          RoiConnections
+          Gradients
+          Text as shape
+          Text on curve
+          Image
+          Defs (trefs, etc.)
+          Support for "inherit"
+          Circles are merged with ellipses for the moment.
+          Hierarchical groupings "g". See Shape.g. Use "derived" and "measurements" for special cases.
+           Possibly use syntax "/Group1/Group1-1/..." or a start/stop group shape?
+        -->
+</types>

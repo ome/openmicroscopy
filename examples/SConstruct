@@ -65,11 +65,11 @@ ice_config = os.path.abspath( ice_config )
 #
 # Options
 #
-opts = Options()
-opts.Add(BoolOption('run', 'Execute all build artifacts', 0))
-opts.Add(BoolOption('run_java', 'Execute Java build artifacts', 0))
-opts.Add(BoolOption('run_cpp', 'Execute C++ build artifacts', 0))
-opts.Add(BoolOption('run_py', 'Execute Python build artifacts', 0))
+opts = Variables()
+opts.Add(BoolVariable('run', 'Execute all build artifacts', 0))
+opts.Add(BoolVariable('run_java', 'Execute Java build artifacts', 0))
+opts.Add(BoolVariable('run_cpp', 'Execute C++ build artifacts', 0))
+opts.Add(BoolVariable('run_py', 'Execute Python build artifacts', 0))
 
 #
 # ENVIRONMENT: ===================================================
@@ -94,6 +94,7 @@ if platform.name == "posix" or platform.name == "linux" or platform.name == "dar
     map["LIBPATH"].append(os.path.join(builddir, 'lib'))
     #
     map["ENV"] = {
+        "ICE_CONFIG" : ice_config,
         "PATH": os.environ["PATH"],
         "PYTHONPATH": map["PYTHONPATH"],
         "LD_LIBRARY_PATH": map["LIBPATH"],
@@ -144,6 +145,41 @@ else:
 
 
 # TARGETS / EXECUTION: ==========================================
+
+#
+# Helpers
+#
+def get_targets(env, subdir, name):
+
+    targets = []
+
+    # Java
+    javac = env.Java(".",".")
+    targets.append(javac)
+    if env["run"] or env["run_java"]:
+        env['ENV']['CLASSPATH'] = os.path.pathsep.join([ env['ENV']['CLASSPATH'], subdir ])
+        run = env.Alias("%s/%s.class" % (subdir,name), [], "java -ea %s " % name)
+        Depends(run, javac)
+        env.AlwaysBuild(run)
+        targets.append(run)
+
+    # Python
+    if env["run"] or env["run_py"]:
+        run = env.Alias("%s/%s.py" % (subdir,name), [], "python %s/%s.py " % (subdir, name))
+        env.AlwaysBuild(run)
+        targets.append(run)
+
+    # C++
+    make = env.Program("%s.exe" % subdir, "%s.cpp" % name, LIBS = libs)
+    targets.append(make)
+    if env["run"] or env["run_cpp"]:
+        run = env.Command("%s/%s.out" % (subdir,name), "%s.exe" % subdir, "./$SOURCE ")
+        env.Depends(run, make)
+        env.AlwaysBuild(run)
+        targets.append(run)
+
+    return targets
+
 #
 # Classpath
 #
@@ -166,7 +202,7 @@ for src_dir in glob.glob("*"):
         #
         sconscript = os.path.join(src_dir, "SConscript")
         if os.path.exists(sconscript):
-            rv = env.SConscript(sconscript, 'env libs ice_config')
+            rv = env.SConscript(sconscript, 'env libs ice_config get_targets')
             continue
 
         #
@@ -217,3 +253,5 @@ for src_dir in glob.glob("*"):
 #
 Default(targets)
 Help(opts.GenerateHelpText(env))
+
+
