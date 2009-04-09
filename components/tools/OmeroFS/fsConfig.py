@@ -30,7 +30,7 @@ serverAdapterName = "omerofs.MonitorServer"
 eventType = "Create"
 pathMode = "Follow"
 # file extensions to watch for
-fileTypes = set([".lsm", ".dv"])
+fileTypes = set([".lsm", ".dv", ".tif", ".tiff"])
 # add the related extensions
 for ext in relatedTypes.keys():
     for extra in relatedTypes[ext]:
