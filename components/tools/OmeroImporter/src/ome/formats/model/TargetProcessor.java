@@ -1,5 +1,5 @@
 /*
- * ome.formats.model.ChannelProcessor
+ * ome.formats.model.TargetProcessor
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -65,7 +65,6 @@ public class TargetProcessor implements ModelProcessor
     	
     	Map<LSID, LSID> referenceCache = store.getReferenceCache();
 		List<IObjectContainer> containers = null;
-			store.getIObjectContainers(Image.class);
     	if (target instanceof Dataset)
     	{
     		containers = store.getIObjectContainers(Image.class);
@@ -80,7 +79,7 @@ public class TargetProcessor implements ModelProcessor
     	}
 		for (IObjectContainer container : containers)
 		{
-			LSID targetLSID = new LSID(container.LSID, true);
+			LSID targetLSID = new LSID(container.LSID);
 			LSID referenceLSID = 
 				new LSID(String.format("%s:%d", target.getClass().getName(),
 						               target.getId().getValue()));
