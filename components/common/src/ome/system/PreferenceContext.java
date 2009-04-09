@@ -7,6 +7,7 @@
 
 package ome.system;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,9 +18,7 @@ import java.util.prefs.Preferences;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 
@@ -48,8 +47,6 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
     public final static String ENV = "OMERO_CONFIG";
 
     final private Map<String, Preference> preferences = new ConcurrentHashMap<String, Preference>();
-
-    private Properties mergedProperties;
 
     private String path;
 
@@ -86,25 +83,22 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
         this.path = userTreePath;
     }
 
-    @Override
-    public void afterPropertiesSet() {
-        super.afterPropertiesSet();
-        try {
-            this.mergedProperties = mergeProperties();
-        } catch (Exception e) {
-            log.error("Could not load properties", e);
-            this.mergedProperties = new Properties();
-        }
-    }
-    
     /**
      * Lookup method for getting access to the {@link #mergeProperties() merged
      * properties} for this instance.
      */
     public String getProperty(String key) {
         try {
-            return parseStringValue("${"+key+"}", this.mergedProperties, new HashSet<String>());
+            try {
+                Preferences.userRoot().node(this.path).sync();
+            } catch (BackingStoreException e) {
+                log.error("Error synchronizing for mergeProperties()");
+            }
+            return parseStringValue("${"+key+"}", mergeProperties(), new HashSet<String>());
         } catch (BeanDefinitionStoreException bdse) {
+            return null; // Unknown property. Ok
+        } catch (IOException e) {
+            log.error("Error on mergeProperties()",e);
             return null;
         }
     }
