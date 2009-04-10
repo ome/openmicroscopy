@@ -37,6 +37,8 @@ def build_hudson():
     # Prepare a distribution
     #
     "rm -f OMERO.server-build*.zip"
+    java_omero(["-f","components/tools/OmeroImporter/build.xml","release-win-zip"])
+    java_omero(["-f","components/tools/OmeroImporter/build.xml","release-osx-zip"])
     java_omero("release-zip")
 
     # Install into the hudson repository
