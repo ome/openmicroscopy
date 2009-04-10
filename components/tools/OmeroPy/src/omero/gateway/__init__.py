@@ -109,6 +109,7 @@ class _BlitzGateway (object):
         self._connected = False
         self._user = None
         self._userid = None
+        self._proxies = NoProxies()
 
     def clone (self):
         return self.__class__(self._ic_props[omero.constants.USERNAME],
@@ -190,28 +191,33 @@ class _BlitzGateway (object):
         logger.debug("##GARBAGE COLLECTOR KICK IN")
 
     def _createProxies (self):
-        logger.debug("## Creating proxies")
-        self._proxies = {}
-        self._proxies['admin'] = ProxyObjectWrapper(self, 'getAdminService')
-        self._proxies['query'] = ProxyObjectWrapper(self, 'getQueryService')
-        self._proxies['rendering'] = ProxyObjectWrapper(self, 'createRenderingEngine')
-        #self._proxies['projection'] = ProxyObjectWrapper(self, 'getProjectionService')
-        self._proxies['pixels'] = ProxyObjectWrapper(self, 'createRawPixelsStore')
-        self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
-        self._proxies['container'] = ProxyObjectWrapper(self, 'getContainerService')
-#            self._proxies['ldap'] = ProxyObjectWrapper(self, 'getLdapService')
-        self._proxies['metadata'] = ProxyObjectWrapper(self, 'getMetadataService')
-        self._proxies['rawfile'] = ProxyObjectWrapper(self, 'createRawFileStore')
-        self._proxies['repository'] = ProxyObjectWrapper(self, 'getRepositoryInfoService')
-#            self._proxies['script'] = ProxyObjectWrapper(self, 'getScriptService')
-#            self._proxies['search'] = ProxyObjectWrapper(self, 'createSearchService')
-#            self._proxies['session'] = ProxyObjectWrapper(self, 'getSessionService')
-        self._proxies['share'] = ProxyObjectWrapper(self, 'getShareService')
-#            self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
-        self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
-        self._proxies['types'] = ProxyObjectWrapper(self, 'getTypesService')
-#            self._proxies['update'] = ProxyObjectWrapper(self, 'getUpdateService')
-        self._proxies['config'] = self.c.sf.getConfigService()
+        if not isinstance(self._proxies, NoProxies):
+            logger.debug("## Reusing proxies")
+            for k, p in self._proxies.items():
+                p._resyncConn(self)
+        else:
+            logger.debug("## Creating proxies")
+            self._proxies = {}
+            self._proxies['admin'] = ProxyObjectWrapper(self, 'getAdminService')
+            self._proxies['query'] = ProxyObjectWrapper(self, 'getQueryService')
+            self._proxies['rendering'] = ProxyObjectWrapper(self, 'createRenderingEngine')
+            #self._proxies['projection'] = ProxyObjectWrapper(self, 'getProjectionService')
+            self._proxies['pixels'] = ProxyObjectWrapper(self, 'createRawPixelsStore')
+            self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
+            self._proxies['container'] = ProxyObjectWrapper(self, 'getContainerService')
+    #            self._proxies['ldap'] = ProxyObjectWrapper(self, 'getLdapService')
+            self._proxies['metadata'] = ProxyObjectWrapper(self, 'getMetadataService')
+            self._proxies['rawfile'] = ProxyObjectWrapper(self, 'createRawFileStore')
+            self._proxies['repository'] = ProxyObjectWrapper(self, 'getRepositoryInfoService')
+    #            self._proxies['script'] = ProxyObjectWrapper(self, 'getScriptService')
+    #            self._proxies['search'] = ProxyObjectWrapper(self, 'createSearchService')
+    #            self._proxies['session'] = ProxyObjectWrapper(self, 'getSessionService')
+            self._proxies['share'] = ProxyObjectWrapper(self, 'getShareService')
+    #            self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
+            self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
+            self._proxies['types'] = ProxyObjectWrapper(self, 'getTypesService')
+    #            self._proxies['update'] = ProxyObjectWrapper(self, 'getUpdateService')
+            self._proxies['config'] = self.c.sf.getConfigService()
         self._ctx = self._proxies['admin'].getEventContext()
         self._userid = self._ctx.userId
         self._user = self.getExperimenter(self._userid)
@@ -276,7 +282,6 @@ class _BlitzGateway (object):
                         self._connected = False
                         logger.debug("was connected, creating new omero.client")
                         self._resetOmeroClient()
-                        logger.debug("was connected, created new omero.client")
                     logger.debug('joining session %s' % self._sessionUuid)
                     s = self.c.joinSession(self._sessionUuid)
                     logger.debug('setting detachOnDestroy for %s' % str(s))
@@ -666,11 +671,8 @@ def splitHTMLColor (color):
 class ProxyObjectWrapper (object):
     def __init__ (self, conn, func_str):
         self._obj = None
-        self._conn = conn
         self._func_str = func_str
-        self._sf = conn.c.sf
-        self._create_func = getattr(self._sf, self._func_str)
-        #self._obj = self._create_func()
+        self._resyncConn(conn)
 
     def _connect (self): #pragma: no cover
         logger.debug("proxy_connect: a");
@@ -679,13 +681,20 @@ class ProxyObjectWrapper (object):
             logger.debug('/n'.join(traceback.format_stack()))
             return False
         logger.debug("proxy_connect: b");
-        self._sf = self._conn.c.sf
+        self._resyncConn(self._conn)
         logger.debug("proxy_connect: c");
-        self._create_func = getattr(self._sf, self._func_str)
-        logger.debug("proxy_connect: d");
         self._obj = self._create_func()
-        logger.debug("proxy_connect: e");
+        logger.debug("proxy_connect: d");
         return True
+
+    def _resyncConn (self, conn):
+        self._conn = conn
+        self._sf = conn.c.sf
+        self._create_func = getattr(self._sf, self._func_str)
+        if self._obj is not None:
+            logger.debug("## - refreshing %s" % (self._func_str))
+            obj = conn.c.ic.stringToProxy(str(self._obj))
+            self._obj = self._obj.checkedCast(obj)
 
     def _getObj (self):
         if not self._obj:
@@ -697,7 +706,7 @@ class ProxyObjectWrapper (object):
     def _ping (self): #pragma: no cover
         """ For some reason, it seems that keepAlive doesn't, so every so often I need to recreate the objects """
         try:
-            if not self._sf.keepAlive(self._getObj()):
+            if not self._sf.keepAlive(self._obj):
                 logger.debug("... died, recreating ...")
                 self._obj = self._create_func()
         except Ice.ObjectNotExistException:
