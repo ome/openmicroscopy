@@ -270,6 +270,7 @@ class EditorComponent
 	 */
 	public void setDownloadedFiles(Collection files)
 	{
+		setStatus(false);
 		if (files == null || files.size() == 0) return;
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		un.notifyDownload(files);
@@ -497,6 +498,16 @@ class EditorComponent
 	public void loadExistingAttachments()
 	{
 		model.loadExistingAttachments();
+		setStatus(true);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#download()
+	 */
+	public void download()
+	{
+		model.download();
 		setStatus(true);
 	}
 	

@@ -303,7 +303,5 @@ public class UserNotifierImpl
 	{
 		manager.setLoadingStatus(percent, fileID, fileName);
 	}
-
-
 	
 }

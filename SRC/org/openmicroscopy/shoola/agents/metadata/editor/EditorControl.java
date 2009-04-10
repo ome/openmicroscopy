@@ -320,7 +320,7 @@ class EditorControl
 				view.saveData();
 				break;
 			case DOWNLOAD:
-				//model.download();
+				model.download();
 				break;
 			case ADD_TAGS:
 				loadExistingTags();
