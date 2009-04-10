@@ -1118,9 +1118,9 @@ class EditorModel
 	 */
 	boolean isArchived()
 	{ 
-		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return false;
-		return data.isArchived(); 
+		if (!(refObject instanceof ImageData)) return false;
+		ImageData img = (ImageData) refObject;
+		return img.isArchived();
 	}
 
 	/** Starts an asynchronous loading. */

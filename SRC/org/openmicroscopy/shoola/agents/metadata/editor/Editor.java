@@ -273,4 +273,7 @@ public interface Editor
 	/** Loads the existing attachments. */
 	public void loadExistingAttachments();
 
+	/** Downloads the archived images. */
+	public void download();
+
 }
