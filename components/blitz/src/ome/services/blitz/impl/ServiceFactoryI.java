@@ -323,8 +323,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     public IMetadataPrx getMetadataService(Ice.Current current)
     throws ServerError {
-    	return IMetadataPrxHelper.uncheckedCast(getByName(
-    			METADATASERVICE.value, current));
+        return IMetadataPrxHelper.uncheckedCast(getByName(
+                        METADATASERVICE.value, current));
     }
     
     // ~ Stateful
@@ -561,13 +561,33 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * reconnecting to it. This means that the Glacier timeout property is
      * fairly unimportant. If a Glacier connection times out or is otherwise
      * destroyed, a client can attempt to reconnect.
-     * 
+     *
      * However, in the case of only one reference to the session, if the
      * Glacier2 timeout is greater than the session timeout, exceptions can be
      * thrown when this method tries to clean up the session. Therefore all
      * session access must be guarded by a try/finally block.
      */
     public void destroy(Ice.Current current) {
+
+        // Remove this instance from the adapter: 1) to prevent
+        // further remote calls on it, and 2) to reduce the number
+        // of calls to destroy() from SessionManagerI.reapSession()
+        // If an exception if thrown, there's not much we can do,
+        // and it's important to continue cleaning up resources!
+        try {
+            adapter.remove(sessionId());
+        } catch (Ice.NotRegisteredException nre) {
+            // It's possible that another thread tried to remove
+            // this session first. Logging the fact, but we will
+            // continue with the closing which should be safe
+            // to call multiple times.
+            log.warn("NotRegisteredException: " + Ice.Util.identityToString(sessionId()));
+        } catch (Ice.ObjectAdapterDeactivatedException oade) {
+            log.warn("Adapter already deactivated. Cannot remove: "
+                    + sessionId());
+        } catch (Throwable t) {
+            log.error("Can't remove service factory", t);
+        }
 
         int ref;
         try {
@@ -628,19 +648,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
         }
 
-        // All resources cleaned up or not based on the reference count.
-        // Now we can remove the current session. If an exception if thrown,
-        // there's not much we can do.
-        try {
-            adapter.remove(sessionId());
-        } catch (Ice.ObjectAdapterDeactivatedException oade) {
-            log.warn("Adapter already deactivated. Cannot remove: "
-                    + sessionId());
-        } catch (Throwable t) {
-            // FIXME
-            log.error("Possible memory leak: can't remove service factory", t);
-        }
-
     }
 
     /**
@@ -649,7 +656,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * {@link Session}. Since {@link #destroy()} is called regardless by the
      * router, even when a client has just died, we have this internal method
      * for handling the actual closing of resources.
-     * 
+     *
      * This method must take precautions to not throw a {@link SessionException}
      * . See {@link #destroy(Current)} for more information.
      */
