@@ -14,20 +14,10 @@
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="../../common.xml"/>
 
-	<target name="compress" depends="" description="generate the distribution from Eclipse bin/ directory">
-		<jar jarfile="Omero_ImageJ.jar">
-			<fileset dir="${src}" includes="plugins.config" />
-			<fileset dir="${build}" includes="**/*.class" />
-			<manifest>
-				<attribute name="Built-By" value="${user.name}"/>
-			</manifest>
-		</jar>
-		<copy file="${src}/bio-formats.jar" toDir="${pluginsDir}" />
-		<copy file="${src}/loci-common.jar" toDir="${pluginsDir}" />
-		<copy file="${src}/forms-1.2.1.jar" toDir="${pluginsDir}" />
-		<copy file="${src}/Image_5D.jar" toDir="${pluginsDir}" />
-		<copy file="${src}/omero_client.jar" toDir="${pluginsDir}" />
-		<copy file="Omero_ImageJ.jar" toDir="${pluginsDir}" />
+	<target name="compress" depends="package" description="generate the distribution from Eclipse bin/ directory">
+		<copy flatten="true" todir="${pluginsDir}">
+			<fileset dir="${target.dir}" includes="libs/*.jar,${ivy.module}.jar"/>
+		</copy>
 	</target>
 
     <!-- TOOLS BUILD API -->

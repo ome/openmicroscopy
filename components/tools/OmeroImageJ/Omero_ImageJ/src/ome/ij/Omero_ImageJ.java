@@ -1,5 +1,8 @@
 package ome.ij;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,10 +19,13 @@ import i5d.Image5D;
 import omero.ServerError;
 import omero.client;
 import omero.api.IContainerPrx;
+import omero.api.IPixelsPrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Image;
+import omero.model.Pixels;
 import omero.model.PixelsType;
+import omero.model.StatsInfo;
 import omero.sys.ParametersI;
 
 public class Omero_ImageJ implements PlugIn {
@@ -57,28 +63,26 @@ public class Omero_ImageJ implements PlugIn {
 
 		System.out.println("Getting IContainer Proxy");
 		IContainerPrx theContainer;
+		IPixelsPrx iPixels;
 		Image theImage = null;
+		Pixels thePixels = null;
+		long pixelsId = 0;
 		try {
 			theContainer = theNewServiceFactory.getContainerService();
+			iPixels = theNewServiceFactory.getPixelsService();
 			theImage = getImage(theContainer, theCredentials.imageID);
+			pixelsId = theImage.getPrimaryPixels().getId().getValue();
+			thePixels = iPixels.retrievePixDescription(pixelsId);
 		} catch (ServerError e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		int sizeX = thePixels.getSizeX().getValue();
+		int sizeY = thePixels.getSizeY().getValue();
+		int sizeZ = thePixels.getSizeZ().getValue();
+		int sizeC = thePixels.getSizeC().getValue();
+		int sizeT = thePixels.getSizeT().getValue();
 		
-	    IJ.showStatus("Reading Image...");
-		theImage.getPrimaryPixels().getSizeX();
-		byte[] theArray = null;
-		try {
-			RawPixelsStorePrx theRawPixelsStore = theNewServiceFactory.createRawPixelsStore();
-			theRawPixelsStore.setPixelsId(theImage.getPrimaryPixels().getId().getValue(), true);
-			theArray = theRawPixelsStore.getPlane(0, 0, 0);
-		    IJ.showStatus("Reading Image... (got pixel store)");
-		} catch (ServerError e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
         try {
     	    IJ.showStatus("Creating Image5D...");
     	    int imageCreationOptions = 0;
@@ -104,25 +108,59 @@ public class Omero_ImageJ implements PlugIn {
                 	theBitDepth = 8;
             }
         	Image5D i5d = createImage5D(
-            		theImage.getName().getValue(), 
-            		theImage.getPrimaryPixels().getSizeX().getValue(), 
-            		theImage.getPrimaryPixels().getSizeY().getValue(), 
-            		theImage.getPrimaryPixels().getSizeC().getValue(), 
-            		theImage.getPrimaryPixels().getSizeZ().getValue(), 
-            		theImage.getPrimaryPixels().getSizeT().getValue(), 
+            		theImage.getName().getValue(),
+            		sizeX, sizeY, sizeC, sizeZ, sizeT,
             		theBitDepth, /* 8, 16 or 32 */
             		imageCreationOptions
             		);
-            i5d.setDefaultColors();
-            i5d.setDefaultChannelNames();
-            if (i5d!=null) {
-                i5d.show();
-            }
+    		
+    		IJ.showStatus("Reading Image...");				
+    		RawPixelsStorePrx store = 
+    			theNewServiceFactory.createRawPixelsStore();
+    		store.setPixelsId(pixelsId, false);
+    		for (int z = 0; z < sizeZ; z++)
+    		{
+    			for (int c = 0; c < sizeC; c++)
+    			{
+    				// We populate the minimum and maximum for each channel
+    				// here from the database in order to improve visualization
+    				// quality.
+    				StatsInfo statsInfo = 
+    					thePixels.getChannel(c).getStatsInfo();
+    				double min = statsInfo.getGlobalMin().getValue();
+    				double max = statsInfo.getGlobalMax().getValue();
+    				// Channel "offsets" in ImageJ start at 1
+    				i5d.setChannelMinMax(c + 1, min, max);
+    				for (int t = 0; t < sizeT; t++)
+    				{
+    					i5d.setCurrentPosition(0, 0, c, z, t);
+    					if (theBitDepth == 8)
+    					{
+    						i5d.setPixels(store.getPlane(z, c, t));
+    					}
+    					else if (theBitDepth == 16)
+    					{
+    						i5d.setPixels(asShort(store.getPlane(z, c, t)));
+    					}
+    					else if (theBitDepth == 32)
+    					{
+    						i5d.setPixels(asInt(store.getPlane(z, c, t)));
+    					}
+    				}
+    			}
+    		}
 
+    		i5d.setCurrentPosition(0, 0, 0, (sizeZ / 2) + 1, 0);
+    		i5d.show();
         }
-        catch(OutOfMemoryError e) {
+        catch(OutOfMemoryError e)
+        {
         	IJ.outOfMemory("New_Image5D");
         }
+		catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
 	    IJ.showStatus("Saving Preferances...");
 		options.savePreferences();
 	    IJ.showStatus("Omero Reader - Done");
@@ -149,6 +187,40 @@ public class Omero_ImageJ implements PlugIn {
 		{
 			throw new RuntimeException(e);
 		}
+	}
+	
+	/**
+	 * Transforms a byte array into a 16-bit integer array.
+	 * @param plane Byte array to transform.
+	 * @return Copy of <code>plane</code> as a 16-bit integer array.
+	 */
+	public short[] asShort(byte[] plane)
+	{
+		int pixelCount = plane.length / 2;
+		short[] toReturn = new short[pixelCount];
+		ShortBuffer source = ByteBuffer.wrap(plane).asShortBuffer();
+		for (int i = 0; i < pixelCount; i++)
+		{
+			toReturn[i] = source.get(i);
+		}
+		return toReturn;
+	}
+	
+	/**
+	 * Transforms a byte array into a 32-bit integer array.
+	 * @param plane Byte array to transform.
+	 * @return Copy of <code>plane</code> as a 32-bit integer array.
+	 */
+	public int[] asInt(byte[] plane)
+	{
+		int pixelCount = plane.length / 4;
+		int[] toReturn = new int[pixelCount];
+		IntBuffer source = ByteBuffer.wrap(plane).asIntBuffer();
+		for (int i = 0; i < pixelCount; i++)
+		{
+			toReturn[i] = source.get(i);
+		}
+		return toReturn;
 	}
 
     public static Image5D createImage5D(
@@ -179,22 +251,8 @@ public class Omero_ImageJ implements PlugIn {
         options |= NewImage.CHECK_AVAILABLE_MEMORY;
 
         // Create Image5D
-        Image5D i5d = new Image5D(title, imageType, width, height, nChannels, nSlicesZ, nFramesT, true /* was fill */);
-
-        for (int c=1; c<=nChannels; c++) {
-            for (int s=1; s<=nSlicesZ; s++) {
-                for (int f=1; f<=nFramesT; f++) {
-
-                	// TODO Chris - code probably goes here!
-                	// And you will need to pass the Pixels down as an argument
-                	
-                	ImagePlus imp = NewImage.createImage(title, width, height, 1, bitDepth, options);
-                    i5d.setPixels(imp.getProcessor().getPixels(), c, s, f);
-                }
-            }
-        }
-
-        i5d.updateImageAndDraw();
+        Image5D i5d = new Image5D(title, imageType, width, height, nChannels,
+        		                  nSlicesZ, nFramesT, false);
         return i5d;        
     }
 
