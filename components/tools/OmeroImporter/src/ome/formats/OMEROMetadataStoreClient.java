@@ -1751,16 +1751,40 @@ public class OMEROMetadataStoreClient
         o.setName(toRType(name));
     }
 
-    public void setPlateRefID(String id, int screenIndex, int plateRefIndex)
-    {
-    }
-
     public void setPlateStatus(String status, int plateIndex)
     {
         Plate o = getPlate(plateIndex);
         o.setStatus(toRType(status));
     }
 
+    public void setPlateColumnNamingConvention(String theColumnNamingConvention, int plateIndex)
+    {
+        Plate o = getPlate(plateIndex);
+        o.setColumnNamingConvention(toRType(theColumnNamingConvention));
+    }
+
+    public void setPlateRowNamingConvention(String theRowNamingConvention, int plateIndex)
+    {
+        Plate o = getPlate(plateIndex);
+        o.setRowNamingConvention(toRType(theRowNamingConvention));
+    }
+
+    public void setPlateWellOriginX(Double theWellOriginX, int plateIndex)
+    {
+        Plate o = getPlate(plateIndex);
+        o.setWellOriginX(toRType(theWellOriginX));
+    }
+
+    public void setPlateWellOriginY(Double theWellOriginY, int plateIndex)
+    {
+        Plate o = getPlate(plateIndex);
+        o.setWellOriginY(toRType(theWellOriginY));
+    }
+    
+    public void setPlateRefID(String id, int screenIndex, int plateRefIndex)
+    {
+    }
+    
     public void setROIID(String id, int imageIndex, int roiIndex)
     {
     }
@@ -2130,6 +2154,26 @@ public class OMEROMetadataStoreClient
         o.setType(toRType(type));
     }
     
+
+    public void setWellReagent(String reagent, int plateIndex, int wellIndex)
+    {
+        LSID key = new LSID(Well.class, plateIndex, wellIndex);
+        referenceCache.put(key, new LSID(reagent));
+    }
+
+    public void setWellSampleImageRef(String image, int plateIndex, 
+            int wellIndex, int wellSampleIndex)
+    {
+        LSID key = new LSID(WellSample.class, plateIndex, wellIndex, wellSampleIndex);
+        referenceCache.put(key, new LSID(image));
+    }
+
+    public void setWellSampleRefID(String arg0, int arg1, int arg2, int arg3)
+    {
+
+    }
+
+ 
     public long getExperimenterID()
     {
         try
@@ -3766,43 +3810,6 @@ public class OMEROMetadataStoreClient
 
     public void setTransmittanceRangeTransmittance(Integer arg0, int arg1,
             int arg2)
-    {
-
-    }
-
-    public void setWellReagent(String reagent, int plateIndex, int wellIndex)
-    {
-        LSID key = new LSID(Well.class, plateIndex, wellIndex);
-        referenceCache.put(key, new LSID(reagent));
-    }
-
-    public void setWellSampleImageRef(String image, int plateIndex, 
-            int wellIndex, int wellSampleIndex)
-    {
-        LSID key = new LSID(WellSample.class, plateIndex, wellIndex, wellSampleIndex);
-        referenceCache.put(key, new LSID(image));
-    }
-
-    public void setWellSampleRefID(String arg0, int arg1, int arg2, int arg3)
-    {
-
-    }
-
-    public void setPlateColumnNamingConvention(String arg0, int arg1)
-    {
-
-    }
-
-    public void setPlateRowNamingConvention(String arg0, int arg1)
-    {
-    }
-
-    public void setPlateWellOriginX(Double arg0, int arg1)
-    {
-
-    }
-
-    public void setPlateWellOriginY(Double arg0, int arg1)
     {
 
     }
