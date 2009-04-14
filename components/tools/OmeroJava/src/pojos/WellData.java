@@ -92,7 +92,7 @@ public class WellData extends DataObject {
 
     /**
      * Returns a human readable identifier for the screening status e.g. empty,
-     * positive control etc.
+     * positive control, etc.
      * 
      * @return See above.
      */
@@ -101,6 +101,146 @@ public class WellData extends DataObject {
         return t == null ? null : t.getValue();
     }
 
+    /**
+     * Sets a human readable identifier for the screening status e.g. empty,
+     * positive control, etc.
+     * 
+     * @param type The value to set.
+     */
+    public void setWellType(String type)
+    {
+    	setDirty(true);
+        asWell().setType(type == null ? null : rstring(type));
+    }
+    
+    /**
+     * Returns the red component of the color associated to the well,
+     * or <code>-1</code>.
+     * 
+     * @return See above.
+     */
+    public int getRed()
+    {
+    	omero.RInt value = asWell().getRed();
+    	if (value == null) return -1;
+    	return value.getValue();
+    }
+    
+    /**
+     * Sets the red component of the color associated to the well.
+     * 
+     * @param red The value to set.
+     */
+    public void setRed(Integer red)
+    {
+    	setDirty(true);
+    	if (red == null) {//reset the color
+    		asWell().setRed(null);
+    		asWell().setGreen(null);
+    		asWell().setBlue(null);
+    		asWell().setAlpha(null);
+    	}
+    	if (red < 0) red = 0;
+    	if (red > 255) red = 255;
+        asWell().setRed(rint(red));
+    }
+    
+    /**
+     * Returns the green component of the color associated to the well,
+     * or <code>-1</code>.
+     * 
+     * @return See above.
+     */
+    public int getGreen()
+    {
+    	omero.RInt value = asWell().getGreen();
+    	if (value == null) return -1;
+    	return value.getValue();
+    }
+    
+    /**
+     * Sets the green component of the color associated to the well.
+     * 
+     * @param green The value to set.
+     */
+    public void setGreen(Integer green)
+    {
+    	setDirty(true);
+    	if (green == null) {
+    		asWell().setRed(null);
+    		asWell().setGreen(null);
+    		asWell().setBlue(null);
+    		asWell().setAlpha(null);
+    	}
+    	if (green < 0) green = 0;
+    	if (green > 255) green = 255;
+        asWell().setGreen(rint(green));
+    }
+    
+    /**
+     * Returns the blue component of the color associated to the well,
+     * or <code>-1</code>.
+     * 
+     * @return See above.
+     */
+    public int getBlue()
+    {
+    	omero.RInt value = asWell().getBlue();
+    	if (value == null) return -1;
+    	return value.getValue();
+    }
+    
+    /**
+     * Sets the blue component of the color associated to the well.
+     * 
+     * @param blue The value to set.
+     */
+    public void setBlue(Integer blue)
+    {
+    	setDirty(true);
+    	if (blue == null) {
+    		asWell().setRed(null);
+    		asWell().setGreen(null);
+    		asWell().setBlue(null);
+    		asWell().setAlpha(null);
+    	}
+    	if (blue < 0) blue = 0;
+    	if (blue > 255) blue = 255;
+        asWell().setBlue(rint(blue));
+    }
+    
+    /**
+     * Returns the alpha component of the color associated to the well,
+     * or <code>-1</code>.
+     * 
+     * @return See above.
+     */
+    public int getAlpha()
+    {
+    	omero.RInt value = asWell().getAlpha();
+    	if (value == null) return -1;
+    	return value.getValue();
+    }
+    
+    /**
+     * Sets the alpha component of the color associated to the well.
+     * 
+     * @param alpha The value to set.
+     */
+    public void setAlpha(Integer alpha)
+    {
+    	setDirty(true);
+    	if (alpha == null) {
+    		asWell().setRed(null);
+    		asWell().setGreen(null);
+    		asWell().setBlue(null);
+    		asWell().setAlpha(null);
+    	}
+    	if (alpha < 0) alpha = 0;
+    	if (alpha > 255) alpha = 255;
+        asWell().setAlpha(rint(alpha));
+    }
+    
     /**
      * Sets the external description of the well.
      * 
