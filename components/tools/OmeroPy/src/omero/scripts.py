@@ -43,15 +43,15 @@ class Type:
 class Long(Type):
     def __init__(self, name, optional = False, out = False):
         Type.__init__(self, name, optional, out)
-        self.type = RLongI()
+        self.type = RLongI(1)
 class String(Type):
     def __init__(self, name, optional = False, out = False):
         Type.__init__(self, name, optional, out)
-        self.type = RStringI()
+        self.type = RStringI("")
 class Bool(Type):
     def __init__(self, name, optional = False, out = False):
         Type.__init__(self, name, optional, out)
-        self.type = RBoolI()
+        self.type = RBoolI(1)
 class Point(Type):
     def __init__(self, name, optional = False, out = False):
         Type.__init__(self, name, optional, out)
