@@ -155,6 +155,40 @@ class WellsModel
 	}
 	
 	/**
+	 * Returns <code>true</code> if the passed colors are the same, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param c1 The color to handle.
+	 * @param c2 The color to handle.
+	 * @return See above.
+	 */
+	private boolean isSameColor(Color c1, Color c2)
+	{
+		if (c1 == null && c2 == null) return true;
+		if (c1 == null && c2 != null) return false;
+		if (c1 != null && c2 == null) return false;
+		return (c1.getRed() == c2.getRed() && c1.getBlue() == c2.getBlue() &&
+				c1.getGreen() == c2.getGreen() && 
+				c1.getAlpha() == c2.getAlpha());
+	}
+	
+	/**
+	 * Returns <code>true</code> if the passed description are the same, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param d1 The color to handle.
+	 * @param d2 The color to handle.
+	 * @return See above.
+	 */
+	private boolean isSameDescription(String d1, String d2)
+	{
+		if (d1 == null && d2 == null) return true;
+		if (d1 == null && d2 != null) return false;
+		if (d1 != null && d2 == null) return false;
+		return d1.trim().equals(d2.trim());
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param parent	The parent of the wells.
@@ -189,11 +223,41 @@ class WellsModel
 		Map<Integer, ColourObject> cMap = new HashMap<Integer, ColourObject>();
 		Map<Integer, ColourObject> rMap = new HashMap<Integer, ColourObject>();
 		WellData data;
+		String type;
+		ColourObject co;
+		Color color;
 		while (j.hasNext()) {
 			node = (WellImageSet) j.next();
 			row = node.getRow();
 			column = node.getColumn();
 			data = (WellData) node.getHierarchyObject();
+			type = data.getWellType();
+			if (cMap.containsKey(column)) {
+				co = cMap.get(column);
+				color = createColor(data);
+				if (!isSameColor(co.getColor(), color) ||
+						!isSameDescription(co.getDescription(), type)) {
+					co.setColor(null);
+					co.setDescription(null);
+					cMap.put(column, co);
+				}
+			} else {
+				cMap.put(column, new ColourObject(createColor(data), type));
+			}
+			
+			if (rMap.containsKey(row)) {
+				co = rMap.get(row);
+				color = createColor(data);
+				if (!isSameColor(co.getColor(), color) ||
+						!isSameDescription(co.getDescription(), type)) {
+					co.setColor(null);
+					co.setDescription(null);
+					rMap.put(row, co);
+				}
+			} else {
+				rMap.put(row, new ColourObject(createColor(data), type));
+			}
+			/*
 			if (!cMap.containsKey(column)) {
 				cMap.put(column, 
 						new ColourObject(createColor(data), data.getWellType()));
@@ -203,6 +267,7 @@ class WellsModel
 						new ColourObject(createColor(data), 
 								data.getWellType()));
 			}
+			*/
 			if (row > rows) rows = row;
 			if (column > columns) columns = column;
 			columSequence = "";
@@ -233,7 +298,6 @@ class WellsModel
 		rows++;
 		
 		CellDisplay cell;
-		ColourObject co;
 		for (int k = 1; k <= columns; k++) {
 			columSequence = "";
 			if (columSequenceIndex == PlateData.ASCENDING_LETTER)
@@ -257,7 +321,7 @@ class WellsModel
 				rowSequence = ""+k;
 			
 			cell = new CellDisplay(k-1, rowSequence, CellDisplay.TYPE_VERTICAL);
-			co = cMap.get(k-1);
+			co = rMap.get(k-1);
 			if (co != null) {
 				cell.setHighlight(co.getColor());
 				cell.setDescription(co.getDescription());
@@ -338,7 +402,7 @@ class WellsModel
 					data.setWellType(description);
 					well.setDescription(description);
 					results.add(data);
-					if (c == null){// || !cell.isSpecified()) {
+					if (c == null || !cell.isSpecified()) {
 						data.setRed(null);
 					} else {
 						data.setRed(c.getRed());

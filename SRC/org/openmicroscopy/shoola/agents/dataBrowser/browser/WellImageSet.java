@@ -68,7 +68,7 @@ public class WellImageSet
 	private List<WellSampleNode> 	samples;
 	
 	/** The description of the well. */
-	private String description;
+	private String 					description;
 	
 	/** 
 	 * Sets the default value for the row and column display.

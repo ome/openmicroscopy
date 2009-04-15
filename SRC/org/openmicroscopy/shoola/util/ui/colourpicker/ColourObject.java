@@ -65,6 +65,23 @@ public class ColourObject
 	}
 	
 	/**
+	 * Sets the color.
+	 * 
+	 * @param color The value to set.
+	 */
+	public void setColor(Color color) { this.color = color; }
+	
+	/**
+	 * Sets the description.
+	 * 
+	 * @param description The value to set.
+	 */
+	public void setDescription(String description)
+	{ 
+		this.description = description;
+	}
+	
+	/**
 	 * Returns the color.
 	 * 
 	 * @return See above.

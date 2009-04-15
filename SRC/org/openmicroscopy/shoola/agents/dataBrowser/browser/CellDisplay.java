@@ -28,14 +28,10 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.JLabel;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 
 /** 
  * Creates a cell image, this is used to display wells.
@@ -147,8 +143,13 @@ public class CellDisplay
     		setToolTipText(TEXT_ROW);
     		setToolTipText(TEXT_ROW);
     	}
-    	
-    	setNodeDecoration();
+    	addMouseListener(new MouseAdapter() {
+    		public void mousePressed(MouseEvent evt)
+    		{
+    			showDescriptor(evt.getPoint());
+    		}
+    	});
+    	//setNodeDecoration();
     }
     
     /**
@@ -212,12 +213,7 @@ public class CellDisplay
      */
     public void setNodeDecoration()
     {
-    	addMouseListener(new MouseAdapter() {
-    		public void mousePressed(MouseEvent evt)
-    		{
-    			showDescriptor(evt.getPoint());
-    		}
-    	});
+    	
     	/*
     	IconManager icons = IconManager.getInstance();
     	List<JLabel> nodes = new ArrayList<JLabel>();
