@@ -139,10 +139,11 @@ public class WellData extends DataObject {
     		asWell().setGreen(null);
     		asWell().setBlue(null);
     		asWell().setAlpha(null);
+    	} else {
+    		if (red < 0) red = 0;
+        	if (red > 255) red = 255;
+            asWell().setRed(rint(red));
     	}
-    	if (red < 0) red = 0;
-    	if (red > 255) red = 255;
-        asWell().setRed(rint(red));
     }
     
     /**
@@ -171,10 +172,11 @@ public class WellData extends DataObject {
     		asWell().setGreen(null);
     		asWell().setBlue(null);
     		asWell().setAlpha(null);
+    	} else {
+    		if (green < 0) green = 0;
+        	if (green > 255) green = 255;
+            asWell().setGreen(rint(green));
     	}
-    	if (green < 0) green = 0;
-    	if (green > 255) green = 255;
-        asWell().setGreen(rint(green));
     }
     
     /**
@@ -203,10 +205,11 @@ public class WellData extends DataObject {
     		asWell().setGreen(null);
     		asWell().setBlue(null);
     		asWell().setAlpha(null);
+    	} else {
+    		if (blue < 0) blue = 0;
+        	if (blue > 255) blue = 255;
+            asWell().setBlue(rint(blue));
     	}
-    	if (blue < 0) blue = 0;
-    	if (blue > 255) blue = 255;
-        asWell().setBlue(rint(blue));
     }
     
     /**
@@ -235,10 +238,11 @@ public class WellData extends DataObject {
     		asWell().setGreen(null);
     		asWell().setBlue(null);
     		asWell().setAlpha(null);
+    	} else {
+    		if (alpha < 0) alpha = 0;
+        	if (alpha > 255) alpha = 255;
+            asWell().setAlpha(rint(alpha));
     	}
-    	if (alpha < 0) alpha = 0;
-    	if (alpha > 255) alpha = 255;
-        asWell().setAlpha(rint(alpha));
     }
     
     /**
