@@ -287,12 +287,12 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#updateDataObject(DataObject, AgentEventListener)
+	 * @see MetadataHandlerView#updateDataObjects(List, AgentEventListener)
 	 */
-	public CallHandle updateDataObject(DataObject object,
+	public CallHandle updateDataObjects(List<DataObject> objects,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new DataObjectSaver(object, null, 
+		BatchCallTree cmd = new DataObjectSaver(objects, null, 
 				DataObjectSaver.UPDATE);
 		return cmd.exec(observer);
 	}

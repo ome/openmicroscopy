@@ -81,6 +81,7 @@ import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.WellData;
 import pojos.WellSampleData;
 
 /** 
@@ -110,8 +111,11 @@ class EditorModel
 	/** Reference to the component that embeds this model. */
 	private Editor					component;
 	
-	/** The object this editor later. */
+	/** The object this editor is for. */
 	private Object					refObject;
+
+	/** The parent of the object this editor is for. */
+	private Object					parentRefObject;
 	
     /** 
      * Map containing the annotations made by users.
@@ -320,12 +324,11 @@ class EditorModel
 			WellSampleData ws = (WellSampleData) refObject;
 			ImageData img = ws.getImage();
 			if (img != null && img.getId() >= 0) name = img.getName();
-			return "";
 		}
 		if (name == null) return "";
 		return name.trim();
 	}
-	
+
 	/**
 	 * Returns the description of the object if any.
 	 * 
@@ -334,7 +337,6 @@ class EditorModel
 	String getRefObjectDescription() 
 	{
 		String description = "";
-		
 		if (refObject instanceof ImageData)
 			description = ((ImageData) refObject).getDescription();
 		else if (refObject instanceof DatasetData)
@@ -347,6 +349,11 @@ class EditorModel
 			description = ((PlateData) refObject).getDescription();
 		else if (refObject instanceof TagAnnotationData) {
 			description = ((TagAnnotationData) refObject).getTagDescription();
+		} else if (refObject instanceof WellSampleData) {
+			if (parentRefObject instanceof WellData) {
+				WellData ws = (WellData) parentRefObject;
+				description = ws.getWellType();
+			}
 		}
 		if (description == null) return "";
 		return description.trim();
@@ -783,6 +790,7 @@ class EditorModel
 	void setRootObject(Object refObject)
 	{ 
 		this.refObject = refObject; 
+		parentRefObject = null;
 		if (thumbnails != null) thumbnails.clear();
 		thumbnails = null;
 		if (existingTags != null) existingTags.clear();
@@ -807,6 +815,16 @@ class EditorModel
 	    }
 	}
 
+	/**
+	 * Sets the parent of the object of reference.
+	 * 
+	 * @param parentRefObject The value to set.
+	 */
+	void setParentRootObject(Object parentRefObject)
+	{
+		this.parentRefObject = parentRefObject;
+	}
+	
 	/**
 	 * Returns the owner of the ref object or <code>null</code>
 	 * if the object is not a <code>DataObject</code>.

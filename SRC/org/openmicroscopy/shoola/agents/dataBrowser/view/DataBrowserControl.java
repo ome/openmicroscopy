@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
@@ -341,6 +342,9 @@ class DataBrowserControl
 		} else if (ImageTableView.TABLE_SELECTION_VIEW_PROPERTY.equals(name)) {
 			Boolean b = (Boolean) evt.getNewValue();
 			if (b) view.viewSelectedNode();
+		} else if (Browser.CELL_SELECTION_PROPERTY.equals(name)) {
+			CellDisplay cell = (CellDisplay) evt.getNewValue();
+			model.setSelectedCell(cell);
 		}
 	}
 

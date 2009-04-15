@@ -309,14 +309,14 @@ public interface MetadataHandlerView
 			int index, DataObject linkTo, AgentEventListener observer);
 
 	/**
-	 * Updates the data object. This method will for now only be implemented
-	 * for the plate.
+	 * Updates the data objects. This method will for now only be implemented
+	 * for the plate or wells.
 	 * 
-	 * @param object 	The object to update. Mustn't be <code>null</code>.
+	 * @param objects	The objects to update. Mustn't be <code>null</code>.
 	 * @param observer	Callback handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle updateDataObject(DataObject object, 
+	public CallHandle updateDataObjects(List<DataObject> objects, 
 			AgentEventListener observer);
 	
 }

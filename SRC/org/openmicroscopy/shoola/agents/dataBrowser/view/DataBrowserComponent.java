@@ -43,10 +43,13 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
@@ -64,6 +67,7 @@ import pojos.DataObject;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.WellSampleData;
 
 /** 
  * Implements the {@link DataBrowser} interface to provide the functionality
@@ -226,14 +230,19 @@ class DataBrowserComponent
 			objects.add(model.parent);
 		} else objects.add(object);
 		if (object instanceof DataObject) {
-			ImageDisplay p = node.getParentDisplay();
-			Object parent = p.getHierarchyObject();
-			if (!(parent instanceof DataObject))
-				parent = model.getParent();
+			Object parent;
+			if (object instanceof WellSampleData) {
+				WellSampleNode wsn = (WellSampleNode) node;
+				parent = wsn.getParentObject();
+			} else {
+				ImageDisplay p = node.getParentDisplay();
+				parent = p.getHierarchyObject();
+				if (!(parent instanceof DataObject))
+					parent = model.getParent();
+			}
+			
 			objects.add(parent);
 		}
-		//EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
-		//bus.post(new SelectionEvent(objects));
 		firePropertyChange(SELECTED_NODE_DISPLAY_PROPERTY, null, objects);
 	}
 
@@ -794,12 +803,25 @@ class DataBrowserComponent
 	public void viewField(int selectedIndex)
 	{
 		if (!(model instanceof WellsModel)) return;
+		//quietly save the field back to the server.
 		((WellsModel) model).viewField(selectedIndex);
 		view.repaint();
-		//quietly save the field back to the server.
 		model.loadData(false, null); 
 	}
 
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setSelectedCell(CellDisplay)
+	 */
+	public void setSelectedCell(CellDisplay cell)
+	{
+		if (cell == null) return;
+		if (!(model instanceof WellsModel)) return;
+		//quietly save the description of the well and the color.
+		((WellsModel) model).setSelectedCell(cell);
+		view.repaint();
+	}
+	
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#saveThumbnails(String)

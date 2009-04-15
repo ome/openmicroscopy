@@ -28,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.List;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 
 //Third-party libraries
@@ -54,11 +55,14 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME3.0
  */
 class UserDiskSpace
-	extends JPanel
+	extends JScrollPane
 {
 
 	/** Reference to the view. */
 	private UserUI		view;
+	
+	/** The component hosting the data. */
+	private JPanel		data;
 	
 	/**
 	 * Creates a new instance.
@@ -68,15 +72,18 @@ class UserDiskSpace
 	UserDiskSpace(UserUI view)
 	{
 		this.view = view;
-		setLayout(new BorderLayout());
-		setPreferredSize(new Dimension(300, 200));
-		setBackground(UIUtilities.BACKGROUND_COLOR);
+		data = new JPanel();
+		data.setLayout(new BorderLayout());
+		data.setPreferredSize(new Dimension(300, 200));
+		data.setBackground(UIUtilities.BACKGROUND_COLOR);
+		setPreferredSize(new Dimension(320, 200));
+		getViewport().add(data);
 	}
 
 	/** Builds and lays out the GUI. */
 	void buildGUI()
 	{
-		removeAll();
+		data.removeAll();
 		List list = view.isDiskSpaceLoaded();
 		if (list != null) {
 			DefaultPieDataset dataset = new DefaultPieDataset();
@@ -86,7 +93,7 @@ class UserDiskSpace
 			dataset.setValue("Used "+UIUtilities.formatFileSize(used), used);
 			JFreeChart freeChart = ChartFactory.createPieChart("", 
 					dataset, false, true, false);
-			add(new ChartPanel(freeChart), BorderLayout.CENTER);
+			data.add(new ChartPanel(freeChart), BorderLayout.CENTER);
 		} else {
 			JXBusyLabel busyLabel = new JXBusyLabel();
 			busyLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -94,7 +101,7 @@ class UserDiskSpace
 			busyLabel.setBusy(true);
 			JPanel p = UIUtilities.buildComponentPanelCenter(busyLabel);
 			p.setBackground(UIUtilities.BACKGROUND_COLOR);
-			add(p, BorderLayout.CENTER);
+			data.add(p, BorderLayout.CENTER);
 		}
 		revalidate();
 		repaint();

@@ -25,10 +25,17 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JLabel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 
 /** 
  * Creates a cell image, this is used to display wells.
@@ -47,11 +54,20 @@ public class CellDisplay
 	extends ImageNode
 {
 
+	/** 
+	 * Bound property indicating to show the dialog to set the color 
+	 * and its description.
+	 */
+	public static final String	DESCRIPTOR_PROPERTY = "descriptor";
+	
 	/** Indicates that the cell is a vertical cell. */
-	public static final int	TYPE_VERTICAL = 0;
+	public static final int		TYPE_VERTICAL = 0;
 	
 	/** Indicates that the cell is a horizontal cell. */
-	public static final int	TYPE_HORIZONTAL = 1;
+	public static final int		TYPE_HORIZONTAL = 1;
+	
+	/** The default color of the cell. */
+	public static final Color	DEFAULT_COLOR = Color.WHITE;
 	
 	/**
      * A placeholder to simulate an hierarchy object.
@@ -61,11 +77,38 @@ public class CellDisplay
      */
     static final Object FAKE_HIERARCHY_OBJECT = new Object();
     
-    /** One of the constants defined by this class. */
-    private int type;
+    /** The tooltip text if it is a column. */
+    private static final String	TEXT_COLUMN = 
+    	"Click to edit the selected column.";
+    
+    /** The tooltip text if it is a row. */
+    private static final String	TEXT_ROW = "Click to edit the selected row.";
     
     /** One of the constants defined by this class. */
-    private int index;
+    private int 	type;
+    
+    /** One of the constants defined by this class. */
+    private int 	index;
+    
+    /** The location of the mouse click. */
+    private Point 	location;
+    
+    /** The description of the column or row. */
+    private String 	description;
+    
+    /** The color of the column if vertical or the row if horizontal. */
+    private Color	cellColor;
+    
+    /**
+     * Sets the location and fires a property change.
+     * 
+     * @param location The mouse click location.
+     */
+    private void showDescriptor(Point location)
+    {
+    	this.location = location;
+    	firePropertyChange(DESCRIPTOR_PROPERTY, null, this);
+    }
     
     /** 
      * Creates a new root display. 
@@ -87,15 +130,25 @@ public class CellDisplay
      */
     public CellDisplay(int index, String value, int type)  
     {
-        super(value, FAKE_HIERARCHY_OBJECT, null);
-        clearDefaultButtons();
-        setCollapsed(true);
-        this.type = type;
-        this.index = index;
-        setHighlight(Color.WHITE);
-        setTitleBarType(SMALL_TITLE_BAR);
-        setListenToBorder(false);
-        setTitle(value);
+    	super(value, FAKE_HIERARCHY_OBJECT, null);
+    	clearDefaultButtons();
+    	setCollapsed(true);
+    	this.type = type;
+    	this.index = index;
+    	super.setHighlight(DEFAULT_COLOR);
+    	cellColor = DEFAULT_COLOR;
+    	setTitleBarType(SMALL_TITLE_BAR);
+    	setListenToBorder(false);
+    	setTitle(value);
+    	if (type == TYPE_HORIZONTAL) {
+    		setToolTipText(TEXT_COLUMN);
+    		setCanvasToolTip(TEXT_COLUMN);
+    	} else {
+    		setToolTipText(TEXT_ROW);
+    		setToolTipText(TEXT_ROW);
+    	}
+    	
+    	setNodeDecoration();
     }
     
     /**
@@ -113,4 +166,87 @@ public class CellDisplay
      */
     public int getType() { return type; }
 
+    /**
+     * Returns <code>false</code> if the highlight color is
+     * the default color or <code>null</code>, <code>true</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isSpecified()
+    {
+    	if (cellColor == null) return false;
+    	return !(cellColor.getRed() == DEFAULT_COLOR.getRed() &&
+    			cellColor.getGreen() == DEFAULT_COLOR.getGreen() && 
+    			cellColor.getBlue() == DEFAULT_COLOR.getBlue() && 
+    			cellColor.getAlpha() == DEFAULT_COLOR.getAlpha());
+    }
+    
+    /**
+     * Returns the location.
+     * 
+     * @return See above.
+     */
+    public Point getLocation() { return location; }
+    
+    /**
+     * Sets the description.
+     * 
+     * @param description The value to set.
+     */
+    public void setDescription(String description) 
+    { 
+    	this.description = description;
+    	if (description != null) setToolTipText(description);
+    }
+    
+    /**
+     * Returns the description.
+     * 
+     * @return See above.
+     */
+    public String getDescription() { return description; }
+    
+    /** 
+     * Overridden to set the edit icon. 
+     * @see ImageNode#setNodeDecoration()
+     */
+    public void setNodeDecoration()
+    {
+    	addMouseListener(new MouseAdapter() {
+    		public void mousePressed(MouseEvent evt)
+    		{
+    			showDescriptor(evt.getPoint());
+    		}
+    	});
+    	/*
+    	IconManager icons = IconManager.getInstance();
+    	List<JLabel> nodes = new ArrayList<JLabel>();
+    	JLabel l = new JLabel(icons.getIcon(IconManager.EDIT_8));
+    	l.addMouseListener(new MouseAdapter() {
+    		public void mousePressed(MouseEvent evt)
+    		{
+    			showDescriptor(evt.getPoint());
+    		}
+    	});
+    	nodes.add(l);
+    	setDecoration(nodes);
+    	*/
+    }
+    
+    /**
+     * Overridden to return the color associated to the column or row
+     * @see ImageNode#getHighlight()
+     */
+    public Color getHighlight() { return cellColor; }
+    
+    /**
+     * Overridden to make sure that the default color is set.
+     * @see ImageNode#setHighlight(Color) 
+     */
+    public void setHighlight(Color highlight)
+    {
+    	if (highlight == null) highlight = DEFAULT_COLOR;
+    	cellColor = highlight;
+    }
+    
 }

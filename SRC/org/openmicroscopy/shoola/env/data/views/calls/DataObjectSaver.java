@@ -25,7 +25,10 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
@@ -63,38 +66,49 @@ public class DataObjectSaver
     private Object          result;
     
     /**
-     * Creates a {@link BatchCall} to create the specified {@link DataObject}.
+     * Creates a {@link BatchCall} to create the specified {@link DataObject}s.
      * 
-     * @param object    The <code>DataObject</code> to create.
+     * @param objects    The <code>DataObject</code>s to create.
      * @param parent    The parent of the <code>DataObject</code>.
      * @param children	The children to add to the newly created node.
      * @return The {@link BatchCall}.
      */
-    private BatchCall create(final DataObject object, final DataObject parent, 
+    private BatchCall create(final List<DataObject> objects, 
+    		final DataObject parent, 
     						final Collection children)
     {
         return new BatchCall("Create Data object.") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.createDataObject(object, parent, children);
+                List<DataObject> l = new ArrayList<DataObject>();
+                Iterator<DataObject> i = objects.iterator();
+                while (i.hasNext()) {
+                	l.add(os.createDataObject(i.next(), parent, children));
+				}
+                result = l;
             }
         };
     }
     
     /**
-     * Creates a {@link BatchCall} to update the specified {@link DataObject}.
+     * Creates a {@link BatchCall} to update the specified {@link DataObject}s.
      * 
-     * @param object    The <code>DataObject</code> to update.
+     * @param objects    The <code>DataObject</code>s to update.
      * @return The {@link BatchCall}.
      */
-    private BatchCall update(final DataObject object)
+    private BatchCall update(final List<DataObject> objects)
     {
         return new BatchCall("Create Data object.") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.updateDataObject(object);
+                List<DataObject> l = new ArrayList<DataObject>();
+                Iterator<DataObject> i = objects.iterator();
+                while (i.hasNext()) {
+                	l.add(os.updateDataObject(i.next()));
+				}
+                result = l;
             }
         };
     }
@@ -127,12 +141,43 @@ public class DataObjectSaver
     {
         if (userObject == null)
             throw new IllegalArgumentException("No DataObject.");
+        List<DataObject> objects = new ArrayList<DataObject>();
+        objects.add(userObject);
         switch (index) {
             case CREATE:
-                saveCall = create(userObject, parent, null);
+                saveCall = create(objects, parent, null);
                 break;
             case UPDATE:
-                saveCall = update(userObject);
+                saveCall = update(objects);
+                break;
+            default:
+                throw new IllegalArgumentException("Operation not supported.");
+        }
+    }
+    
+    /**
+     * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
+     * 
+     * @param objects	The {@link DataObject}s to create or update.
+     *                  Mustn't be <code>null</code>.
+     * @param parent    The parent of the <code>DataObject</code>. 
+     * 				    The value is <code>null</code> if there 
+     * 					is no parent.
+     * @param index     One of the constants defined by this class.
+     */
+    public DataObjectSaver(List<DataObject> objects, DataObject parent, 
+    		int index)
+    {
+        if (objects == null)
+            throw new IllegalArgumentException("No DataObject.");
+        switch (index) {
+            case CREATE:
+                saveCall = create(objects, parent, null);
+                break;
+            case UPDATE:
+                saveCall = update(objects);
                 break;
             default:
                 throw new IllegalArgumentException("Operation not supported.");
@@ -155,7 +200,9 @@ public class DataObjectSaver
     {
     	if (data == null) 
     		throw new IllegalArgumentException("No object to create.");
-    	saveCall = create(data, parent, children);
+    	 List<DataObject> objects = new ArrayList<DataObject>();
+         objects.add(data);
+    	saveCall = create(objects, parent, children);
     }
 
 }

@@ -96,4 +96,12 @@ public class WellSampleNode
 	 */
 	public int getColumn() { return parent.getColumn(); }
 	
+	/**
+	 * Returns the well related to that wellSample.
+	 * 
+	 * @return See above.
+	 */
+	public Object getParentObject() { return parent.getHierarchyObject(); }
+	
+	
 }

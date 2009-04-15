@@ -60,7 +60,20 @@ public class Colors
     public static final int     TITLE_BAR = 1;
     
     /** Identifies the color used to highlight an unmodified title bar. */
-    public static final int     TITLE_BAR_UNMODIFIED = 2;
+    private static final int     TITLE_BAR_UNMODIFIED = 2;
+    
+    /** Identifies the color of the title bar of the primary node. */
+    private static final int     TITLE_BAR_PRIMARY = 3;
+    
+    /** Identifies the color used to highlight an unmodified title bar. */
+    private static final int     TITLE_BAR_HIGHLIGHT_PRIMARY = 4;
+    
+    /** The default color the title bar. */
+    private static final Color	 COLOR_TITLE_BAR = new Color(189, 210, 230);
+
+    /** The default color the title bar. */
+    private static final Color	 COLOR_TITLE_BAR_HIGHLIGHT_BAR = 
+    	new Color(58, 116, 215);
     
     /** The sole instance. */
     private static Colors   	singleton;
@@ -89,9 +102,15 @@ public class Colors
     {
         Color c;
         c = (Color) registry.lookup("/resources/colors/TitleBarHighlight");
+        if (c == null) c = COLOR_TITLE_BAR_HIGHLIGHT_BAR;
         colorsMap.put(TITLE_BAR_HIGHLIGHT, c);
+        //colorsMap.put(TITLE_BAR_HIGHLIGHT_PRIMARY, c.darker());
+        colorsMap.put(TITLE_BAR_HIGHLIGHT_PRIMARY, c);
         c = (Color) registry.lookup("/resources/colors/TitleBar");
+        if (c == null) c = COLOR_TITLE_BAR;
         colorsMap.put(TITLE_BAR, c);
+        //colorsMap.put(TITLE_BAR_PRIMARY, c.darker());
+        colorsMap.put(TITLE_BAR_PRIMARY, c);
         c = (Color) registry.lookup("/resources/colors/TitleBarUnmodified");
         colorsMap.put(TITLE_BAR_UNMODIFIED, c);
     }
@@ -137,23 +156,29 @@ public class Colors
         Color c = node.getHighlight();
         if (c == null) return null;
         if (c.equals(getColor(TITLE_BAR_HIGHLIGHT)) ||
-        	c.equals(getColor(TITLE_BAR_UNMODIFIED))) c = null;	
+        	c.equals(getColor(TITLE_BAR_UNMODIFIED)) ||
+        	c.equals(getColor(TITLE_BAR_HIGHLIGHT_PRIMARY))) c = null;	
+        else c = c.brighter();
         return c;
     }
     
     /**
      * Returns the color corresponding to the node selection.
      * 
-     * @param node The selected node.
+     * @param node 		The selected node.
+     * @param primary 	Pass <code>true</code> if the node is the first node
+     * 					selected, <code>false</code> otherwise.
      * @return See above.
      */
-    public Color getSelectedHighLight(ImageDisplay node)
+    public Color getSelectedHighLight(ImageDisplay node, boolean primary)
     {
     	if (node == null) return getColor(TITLE_BAR); 
         if (node.getParentDisplay() == null) return getColor(TITLE_BAR);
         Color c = node.getHighlight();
-        if (c == null || c.equals(getColor(TITLE_BAR_UNMODIFIED))) 
-        	c = getColor(TITLE_BAR_HIGHLIGHT);
+        if (c == null || c.equals(getColor(TITLE_BAR_UNMODIFIED))) {
+        	if (primary) c = getColor(TITLE_BAR_HIGHLIGHT_PRIMARY);
+        	else c = getColor(TITLE_BAR_HIGHLIGHT);
+        } else return c.darker();
         return c;
     }
 

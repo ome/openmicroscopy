@@ -41,6 +41,8 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import layout.TableLayout;
 
@@ -68,7 +70,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 class TabbedPaneUI
 	extends JPanel
-	implements ChangeListener
+	implements ChangeListener, DocumentListener
 {
 	
 	/** The number of column of the label displaying the alpha value. */
@@ -145,6 +147,9 @@ class TabbedPaneUI
     
     /** The owner of this component. */
     private ColourPicker    	parent;
+    
+    /** The original description of the color. */
+    private String				originalDescription;
     
     /** 
      * The toolbar controls which panel is active, the user has the choice
@@ -418,7 +423,9 @@ class TabbedPaneUI
 	void setColorDescription(String description)
 	{
 		if (fieldDescription == null || description == null) return;
+		originalDescription = description;
 		fieldDescription.setText(description);
+		fieldDescription.getDocument().addDocumentListener(this);
 	}
 	
 	/** 
@@ -433,7 +440,44 @@ class TabbedPaneUI
 			colourWheelPane.refresh();
 		if (swatchPane != null && swatchPane.isVisible())
 			swatchPane.refresh();
-		setButtonsEnabled(!control.isOriginalColour());
+		if (fieldDescription == null)
+			setButtonsEnabled(!control.isOriginalColour());
+		else {
+			String text = fieldDescription.getText();
+			setButtonsEnabled(!text.equals(originalDescription) 
+					|| !control.isOriginalColour());
+		}
 	}
 
+	/**
+	 * Implemented as specified byt {@link DocumentListener} I/F.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e)
+	{
+		if (fieldDescription == null) return;
+		String text = fieldDescription.getText();
+		setButtonsEnabled(!text.equals(originalDescription) 
+				|| !control.isOriginalColour());
+	}
+
+	/**
+	 * Implemented as specified byt {@link DocumentListener} I/F.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e)
+	{
+		if (fieldDescription == null) return;
+		String text = fieldDescription.getText();
+		setButtonsEnabled(!text.equals(originalDescription) ||
+				!control.isOriginalColour());
+	}
+
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
+	
 }

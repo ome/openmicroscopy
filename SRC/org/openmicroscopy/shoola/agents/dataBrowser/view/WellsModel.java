@@ -24,14 +24,17 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -51,6 +54,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
+
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -131,6 +136,24 @@ class WellsModel
         Collections.sort(l, c);
 		return l;
 	}
+	
+	/**
+	 * Creates the color related to the passed Well.
+	 * 
+	 * @param data The well to handle.
+	 * @return See above.
+	 */
+	private Color createColor(WellData data)
+	{
+		int red = data.getRed();
+		int green = data.getGreen();
+		int blue = data.getBlue();
+		int alpha = data.getAlpha();
+		if (red < 0 || green < 0 || blue < 0 || alpha < 0) return null;
+		if (red > 255 || green > 255 || blue > 255 || alpha > 255) return null;
+		return new Color(red, green, blue, alpha);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -163,10 +186,23 @@ class WellsModel
 		int f;
 		String columSequence;
 		String rowSequence;
+		Map<Integer, ColourObject> cMap = new HashMap<Integer, ColourObject>();
+		Map<Integer, ColourObject> rMap = new HashMap<Integer, ColourObject>();
+		WellData data;
 		while (j.hasNext()) {
 			node = (WellImageSet) j.next();
 			row = node.getRow();
 			column = node.getColumn();
+			data = (WellData) node.getHierarchyObject();
+			if (!cMap.containsKey(column)) {
+				cMap.put(column, 
+						new ColourObject(createColor(data), data.getWellType()));
+			}
+			if (!rMap.containsKey(row)) {
+				rMap.put(row, 
+						new ColourObject(createColor(data), 
+								data.getWellType()));
+			}
 			if (row > rows) rows = row;
 			if (column > columns) columns = column;
 			columSequence = "";
@@ -180,6 +216,7 @@ class WellsModel
 			else if (rowSequenceIndex == PlateData.ASCENDING_NUMBER)
 				rowSequence = ""+(row+1);
 			node.setCellDisplay(columSequence, rowSequence);
+			//node.setDescription(data.getWellType());
 			f = node.getNumberOfSamples();
 			if (fieldsNumber < f) fieldsNumber = f;
 			//if (selectedField >= f) selectedField = 0;
@@ -195,8 +232,8 @@ class WellsModel
 		columns++;
 		rows++;
 		
-		//info should come from the plate.
 		CellDisplay cell;
+		ColourObject co;
 		for (int k = 1; k <= columns; k++) {
 			columSequence = "";
 			if (columSequenceIndex == PlateData.ASCENDING_LETTER)
@@ -204,6 +241,11 @@ class WellsModel
 			else if (columSequenceIndex == PlateData.ASCENDING_NUMBER)
 				columSequence = ""+k;
 			cell = new CellDisplay(k-1, columSequence);
+			co = cMap.get(k-1);
+			if (co != null) {
+				cell.setHighlight(co.getColor());
+				cell.setDescription(co.getDescription());
+			}
 			samples.add(cell);
 			cells.add(cell);
 		}
@@ -215,6 +257,11 @@ class WellsModel
 				rowSequence = ""+k;
 			
 			cell = new CellDisplay(k-1, rowSequence, CellDisplay.TYPE_VERTICAL);
+			co = cMap.get(k-1);
+			if (co != null) {
+				cell.setHighlight(co.getColor());
+				cell.setDescription(co.getDescription());
+			}
 			samples.add(cell);
 			cells.add(cell);
 		}
@@ -260,8 +307,72 @@ class WellsModel
 		//quietly save the field.
 		PlateData plate = (PlateData) parent;
 		plate.setDefaultSample(selectedField);
-		DataBrowserLoader loader = new PlateSaver(component, plate);
+		List<DataObject> list = new ArrayList<DataObject>();
+		list.add(plate);
+		DataBrowserLoader loader = new PlateSaver(component, list);
 		loader.load();
+	}
+	
+	/**
+	 * Sets the values for the row or the column.
+	 * Returns the collection of wells to update.
+	 * 
+	 * @param cell The selected cell.
+	 */
+	void setSelectedCell(CellDisplay cell)
+	{
+		if (cell == null) return;
+		List<DataObject> results = new ArrayList<DataObject >();
+		List l = getNodes();
+		Iterator i = l.iterator();
+		WellImageSet well;
+		String description = cell.getDescription();
+		int index = cell.getIndex();
+		Color c = cell.getHighlight();
+		WellData data;
+		if (cell.getType() == CellDisplay.TYPE_HORIZONTAL) {
+			while (i.hasNext()) {
+				well = (WellImageSet) i.next();
+				if (well.getColumn() == index) {
+					data = (WellData) well.getHierarchyObject();
+					data.setWellType(description);
+					well.setDescription(description);
+					results.add(data);
+					if (c == null){// || !cell.isSpecified()) {
+						data.setRed(null);
+					} else {
+						data.setRed(c.getRed());
+						data.setGreen(c.getGreen());
+						data.setBlue(c.getBlue());
+						data.setAlpha(c.getAlpha());
+					}
+					well.setHighlight(c);
+				}
+			}
+		} else {
+			while (i.hasNext()) {
+				well = (WellImageSet) i.next();
+				if (well.getRow() == index) {
+					data = (WellData) well.getHierarchyObject();
+					data.setWellType(description);
+					well.setDescription(description);
+					results.add(data);
+					if (c == null || !cell.isSpecified()) {
+						data.setRed(null);
+					} else {
+						data.setRed(c.getRed());
+						data.setGreen(c.getGreen());
+						data.setBlue(c.getBlue());
+						data.setAlpha(c.getAlpha());
+					}
+					well.setHighlight(c);
+				}
+			}
+		}
+		if (results.size() > 0) {
+			DataBrowserLoader loader = new PlateSaver(component, results);
+			loader.load();
+		}
 	}
 	
 	/**

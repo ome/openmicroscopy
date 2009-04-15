@@ -582,6 +582,15 @@ public class ModelMapper
     		n.setName(o.getName());
     		n.setDescription(o.getDescription());
     		n.setDefaultSample(o.getDefaultSample());
+    	} else if (oldObject instanceof Well) {
+    		Well n = (Well) newObject;
+    		Well o = (Well) oldObject;
+    		n.setType(o.getType());
+    		n.setExternalDescription(o.getExternalDescription());
+    		n.setRed(o.getRed());
+    		n.setGreen(o.getGreen());
+    		n.setBlue(o.getBlue());
+    		n.setAlpha(o.getAlpha());
     	}
     }
   

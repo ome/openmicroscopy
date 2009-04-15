@@ -288,8 +288,8 @@ public class DataBrowserTranslator
      * Creates node hosting the well sample.
      * 
      * @param wsd 	The image data to host.
-     * @param index
-     * @param parent
+     * @param index The field.
+     * @param parent The parent of the node.
      * @return See above.
      */
     private static WellSampleNode createWellImage(WellSampleData wsd, int index, 

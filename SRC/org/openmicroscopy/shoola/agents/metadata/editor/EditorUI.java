@@ -198,6 +198,12 @@ public class EditorUI
     	repaint();
     }
     
+    /** Updates display when the parent of the root node is set. */
+    void setParentRootObject()
+    {
+    	generalPane.setParentRootObject();
+    }
+    
     /** Updates display when the new root node is set. */
 	void setRootObject()
 	{

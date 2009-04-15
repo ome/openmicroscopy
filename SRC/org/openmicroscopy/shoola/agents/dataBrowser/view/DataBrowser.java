@@ -36,6 +36,7 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.RateFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -544,5 +545,13 @@ public interface DataBrowser
 
 	/** Posts an event to launch the editor to create a new experiment. */
 	public void createNewExperiment();
+	
+	/**
+	 * Sets the selected cell. This method can only be invoked if
+	 * the model is <code>WellsModel</code>.
+	 *  
+	 * @param cell The selected cell.
+	 */
+	public void setSelectedCell(CellDisplay cell);
 	
 }

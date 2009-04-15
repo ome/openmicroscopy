@@ -286,5 +286,13 @@ public interface MetadataViewer
 	 * @return See above.
 	 */
 	public String getObjectPath();
+
+	/**
+	 * Sets the parent of the root object. This will be taken into account
+	 * only if the root is a well sample.
+	 * 
+	 * @param parent The parent of the root object.
+	 */
+	public void setParentRootObject(Object parent);
 	
 }

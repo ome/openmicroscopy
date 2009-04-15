@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
 //Java imports
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -66,6 +67,9 @@ public class WellImageSet
 	/** Collection of well samples. */
 	private List<WellSampleNode> 	samples;
 	
+	/** The description of the well. */
+	private String description;
+	
 	/** 
 	 * Sets the default value for the row and column display.
 	 * Sets the tooltip.
@@ -74,8 +78,13 @@ public class WellImageSet
 	{
 		if (rowDisplay == null) setRowDisplay(""+getRow());
 		if (columnDisplay == null) setColumnDisplay(""+getColumn());
-		String txt = 
-			UIUtilities.formatToolTipText(rowDisplay+"-"+columnDisplay);
+		StringBuffer buf = new StringBuffer();
+		buf.append(rowDisplay+"-"+columnDisplay);
+		if (description != null) {
+			buf.append("\n");
+			buf.append(description);
+		}
+		String txt = UIUtilities.formatToolTipText(buf.toString());
 		Iterator i = samples.iterator();
 		ImageNode n;
 		String title = "Well: "+rowDisplay+"-"+columnDisplay;
@@ -85,6 +94,19 @@ public class WellImageSet
 			n.setCanvasToolTip(txt);
 			n.setTitle(title+" "+n.getTitle());
 		}
+	}
+	
+	/** Sets the color of the well. */
+	private void setWellColor()
+	{
+		WellData well = (WellData) getHierarchyObject();
+		int r = well.getRed();
+		int g = well.getGreen();
+		int b = well.getBlue();
+		int a = well.getAlpha();
+		if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255 &&
+				a >= 0 && a <= 255)
+			super.setHighlight(new Color(r, g, b, a));
 	}
 	
 	/**
@@ -98,6 +120,8 @@ public class WellImageSet
 		super("", well);
 		if (well == null) 
 			throw new IllegalArgumentException("Well cannot be null.");
+		description = well.getWellType();
+		setWellColor();
 		samples = new ArrayList<WellSampleNode>();
 		setDefault();
 		rowDisplay = null;
@@ -111,7 +135,10 @@ public class WellImageSet
 	 */
 	public void addWellSample(WellSampleNode node)
 	{
-		if (node != null) samples.add(node);
+		if (node != null) {
+			samples.add(node);
+			node.setHighlight(getHighlight());
+		}
 		setSelectedWellSample(0);
 	}
 	
@@ -217,6 +244,17 @@ public class WellImageSet
 	}
 	
 	/**
+     * Sets the description.
+     * 
+     * @param description The value to set.
+     */
+    public void setDescription(String description) 
+    { 
+    	this.description = description;
+    	setDefault();
+    }
+    
+	/**
 	 * Returns the UI representation of the row index.
 	 * 
 	 * @return See above
@@ -230,4 +268,29 @@ public class WellImageSet
 	 */
 	public String getColumnDisplay() { return columnDisplay; }
 	
+    /**
+     * Overridden to make sure that the default color is set.
+     * @see ImageSet#setHighlight(Color) 
+     */
+    public void setHighlight(Color highlight)
+    {
+    	super.setHighlight(highlight);
+    	WellSampleNode node;
+		Iterator i = samples.iterator();
+		while (i.hasNext()) {
+			node = (WellSampleNode) i.next();
+			node.setHighlight(highlight);
+		}
+    }
+    
+    /**
+     * Overridden to return the name of the selected sample.
+     * @see ImageSet#getTitle()
+     */
+    public String getTitle()
+    {
+    	if (selectedWellSample == null) return "";
+    	return selectedWellSample.getTitle();
+    }
+    
 }

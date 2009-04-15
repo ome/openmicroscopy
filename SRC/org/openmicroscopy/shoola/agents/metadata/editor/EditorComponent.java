@@ -187,6 +187,16 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setParentRootObject(Object)
+	 */
+	public void setParentRootObject(Object parentRefObject)
+	{
+		model.setParentRootObject(parentRefObject);
+		view.setParentRootObject();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Editor#setThumbnails(Map, long)
 	 */
 	public void setThumbnails(Map<Long, BufferedImage> thumbnails, 

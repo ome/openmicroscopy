@@ -85,6 +85,9 @@ class MetadataViewerModel
 	/** The ref object for the viewer i.e. the root. */
 	private Object									refObject;
 	
+	/** The ref object for the viewer i.e. the root. */
+	private Object									parentRefObject;
+	
 	/** The object hosting the various annotations linked to an object. */
 	private StructuredDataResults					data;
 	
@@ -181,6 +184,18 @@ class MetadataViewerModel
 		browser.setRootObject(refObject);
 		editor.setRootObject(refObject);
 		data = null;
+		parentRefObject = null;
+	}
+	
+	/**
+	 * Sets the parent of the object of reference.
+	 * 
+	 * @param parentRefObject The value to set.
+	 */
+	void setParentRootObject(Object parentRefObject)
+	{
+		this.parentRefObject = parentRefObject;
+		editor.setParentRootObject(parentRefObject);
 	}
 	
 	/** 

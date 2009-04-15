@@ -33,6 +33,7 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Iterator;
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 
 //Third-party libraries
@@ -41,6 +42,7 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 
 import pojos.ImageData;
@@ -79,6 +81,28 @@ public class BrowserControl
     
     /** Flag to indicate that a popupTrigger event occured. */
     private boolean         popupTrigger;
+    
+    /** The selected cell, only used when displaying Plate. */
+    private CellDisplay		selectedCell;
+    
+    /**
+     * Brings up the color picker to set the color of the node.
+     * 
+     * @param p 	The location of the dialog.
+     * @param node	The selected node.
+     */
+    private void setSelectedCell(Point p, CellDisplay node)
+    {
+    	selectedCell = node;
+    	SwingUtilities.convertPointToScreen(p, node);
+    	ColourPicker picker = new ColourPicker(
+    			DataBrowserAgent.getRegistry().getTaskBar().getFrame(), 
+    			node.getHighlight(), true);
+    	picker.setColorDescription(node.getDescription());
+    	picker.addPropertyChangeListener(this);
+    	picker.setLocation(p);
+    	picker.setVisible(true);
+    }
     
     /**
      * Finds the first {@link ImageDisplay} in <code>x</code>'s containement
@@ -162,7 +186,8 @@ public class BrowserControl
     public void visit(ImageNode node) 
     { 
     	node.addMouseListenerToComponents(this);
-        node.addPropertyChangeListener(ImageNode.PIN_THUMBNAIL_PROPERTY, this);
+    	node.addPropertyChangeListener(this);
+        //node.addPropertyChangeListener(ImageNode.PIN_THUMBNAIL_PROPERTY, this);
     }
 
     /**
@@ -173,7 +198,8 @@ public class BrowserControl
     {
         node.getTitleBar().addMouseListener(this);
         node.getInternalDesktop().addMouseListener(this);
-        node.addPropertyChangeListener(ImageDisplay.END_MOVING_PROPERTY, this);
+        node.addPropertyChangeListener(this);
+        //node.addPropertyChangeListener(ImageDisplay.END_MOVING_PROPERTY, this);
     }
     
     /** 
@@ -207,15 +233,16 @@ public class BrowserControl
             node.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
         	view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         	*/
+        } else if (CellDisplay.DESCRIPTOR_PROPERTY.equals(name)) {
+        	CellDisplay node = (CellDisplay) evt.getNewValue();
+        	setSelectedCell(node.getLocation(), node);
+        } else if (ColourPicker.COLOUR_PROPERTY.equals(name)) {
+        	ColourObject co = (ColourObject) evt.getNewValue();
+        	if (selectedCell == null) return;
+        	selectedCell.setHighlight(co.getColor());
+        	selectedCell.setDescription(co.getDescription());
+        	model.setSelectedCell(selectedCell);
         }
-    }
-    
-    private void setSelectedCell(Point p, CellDisplay node)
-    {
-    	ColourPicker picker = new ColourPicker(DataBrowserAgent.getRegistry().getTaskBar().getFrame(), true);
-    	picker.setColorDescription("control");
-    	picker.setLocation(p);
-    	picker.setVisible(true);
     }
     
     /**

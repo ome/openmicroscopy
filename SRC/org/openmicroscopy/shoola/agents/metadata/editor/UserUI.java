@@ -60,7 +60,6 @@ class UserUI
 	/** The title of the chart. */
 	static final String TITLE = "Disk Space";
 
-	
 	/** The component displaying the user profile. */
 	private UserProfile 	profile;
 	
@@ -214,16 +213,14 @@ class UserUI
 	protected void setComponentTitle() {}
 	
 	/**
-	 * 
+	 * Loads the data if expanding, cancels any on-going loading otherwise.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		if (!(model.getRefObject() instanceof ExperimenterData)) return;
-		if (diskTask.isCollapsed())
-			model.cancelDiskSpaceLoading();
+		if (diskTask.isCollapsed()) model.cancelDiskSpaceLoading();
 		else model.loadDiskSpace();
-		//diskSpace.buildGUI();
 	}
 
 }

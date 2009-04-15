@@ -545,6 +545,7 @@ class PropertiesUI
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
         boolean b = model.isCurrentUserOwner(model.getRefObject());
+        if (refObject instanceof WellSampleData) b = false;
         namePane.setEnabled(b);
         descriptionPane.setEnabled(b);
         if (b) {
@@ -557,6 +558,23 @@ class PropertiesUI
     /** Sets the focus on the name area. */
 	void setFocusOnName() { namePane.requestFocus(); }
    
+	/** Updates the data object. */
+	void setParentRootObject()
+	{
+		Object object =  model.getRefObject();
+		if (!(object instanceof WellSampleData)) return;
+		originalDescription = model.getRefObjectDescription();
+		if (originalDescription == null || originalDescription.length() == 0)
+			originalDescription = DEFAULT_DESCRIPTION_TEXT;
+		descriptionPane.setText(originalDescription);
+        boolean b = model.isCurrentUserOwner(model.getRefObject());
+        descriptionPane.setEnabled(b);
+        if (b) {
+        	descriptionPane.getDocument().addDocumentListener(this);
+        }
+        //buildGUI();
+	}
+	
 	/** Updates the data object. */
 	void updateDataObject() 
 	{

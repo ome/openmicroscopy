@@ -74,7 +74,7 @@ public class BrowserFactory
         //Finally the Controller.  Call intialize to allow subscription.
         BrowserControl controller = new BrowserControl(model, view);
         controller.initialize();
-        
+
         //Fit to go!
         return model;
     }

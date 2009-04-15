@@ -103,7 +103,7 @@ class BrowserModel
 	private boolean         	multiSelection;
 	
 	/** The selected nodes. */
-	private Set<ImageDisplay>	selectedDisplays;
+	private List<ImageDisplay>	selectedDisplays;
 	
 	/** Indicates if the image's title bar is visible. */
 	private boolean         	titleBarVisible;
@@ -137,6 +137,36 @@ class BrowserModel
 	}
 	
 	/**
+	 * Sets the color of the selected and deselected nodes.
+	 * 
+	 * @param toSelect		The collection of selected nodes.
+	 * @param toDeselect	The collection of deselected nodes.
+	 */
+	private void setNodesColor(Collection toSelect, Collection toDeselect)
+    {
+    	//paint the nodes
+        Colors colors = Colors.getInstance();
+        Iterator i = toSelect.iterator();
+        ImageDisplay node;
+        int index = 0;
+        ImageDisplay primary = null;
+        if (selectedDisplays != null && selectedDisplays.size() > 0)
+        	primary = selectedDisplays.get(0);
+        while (i.hasNext()) {
+			node = (ImageDisplay) i.next();
+			node.setHighlight(colors.getSelectedHighLight(node, true));
+			index++;
+		}
+        if (toDeselect == null) return;
+        i = toDeselect.iterator();
+        while (i.hasNext()) {
+        	node = (ImageDisplay) i.next();
+            if (node != null && !toSelect.contains(node))
+            	node.setHighlight(colors.getDeselectedHighLight(node));
+        }
+    }
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param view The root display of the visualization trees. Each child node
@@ -148,7 +178,7 @@ class BrowserModel
 	    super();
 	    if (view == null) throw new NullPointerException("No view.");
 	    rootDisplay = view;
-	    selectedDisplays = new HashSet<ImageDisplay>();
+	    selectedDisplays = new ArrayList<ImageDisplay>();
 	    originalNodes = new HashSet<ImageDisplay>();
 	    titleBarVisible = true;
 	    Set nodes = rootDisplay.getChildrenDisplay();
@@ -180,9 +210,9 @@ class BrowserModel
      * 
      * @param cell The selected cell.
      */
-    private void setSelectedCell(CellDisplay cell)
+    void setSelectedCell(CellDisplay cell)
     {
-    	
+    	firePropertyChange(CELL_SELECTION_PROPERTY, null, cell);
     }
     
 	/**
@@ -213,6 +243,7 @@ class BrowserModel
 	        oldValue.add((ImageDisplay) i.next());
 	    
 	    if (!multiSelection) selectedDisplays.clear();
+	    int n = selectedDisplays.size();
 	    if (node != null) selectedDisplays.add(node);
 	    if (fireProperty) {
 	    	onNodeSelected(node, oldValue);
@@ -221,7 +252,7 @@ class BrowserModel
 	    } else {
 	    	if (multiSelection) {
 	    		Colors colors = Colors.getInstance();
-	    		node.setHighlight(colors.getSelectedHighLight(node));
+	    		node.setHighlight(colors.getSelectedHighLight(node, n == 0));
 	    	} else onNodeSelected(node, oldValue);
 	    }
 	}
@@ -245,8 +276,9 @@ class BrowserModel
 	    		else title = "row: "+parent.getTitle();
 	    	} else if (parent instanceof WellImageSet) {
 	    		WellImageSet wiNode = (WellImageSet) parent;
-	    		title = "Well: "+wiNode.getRowDisplay();
-	    		title += "-"+wiNode.getColumnDisplay();
+	    		//title = "Well: "+wiNode.getRowDisplay();
+	    		//title += "-"+wiNode.getColumnDisplay();
+	    		title = wiNode.getTitle();
 	    	} else {
 	    		title = parent.getTitle();
 	    		if (title == null || title.length() == 0) title = "[..]";
@@ -280,31 +312,6 @@ class BrowserModel
 	    rollOverNode = newNode;
 	    firePropertyChange(ROLL_OVER_PROPERTY, previousNode, newNode);
 	}
-
-	/**
-	 * Sets the color of the selected and deselected nodes.
-	 * 
-	 * @param toSelect		The collection of selected nodes.
-	 * @param toDeselect	The collection of deselected nodes.
-	 */
-	void setNodesColor(Collection toSelect, Collection toDeselect)
-    {
-    	//paint the nodes
-        Colors colors = Colors.getInstance();
-        Iterator i = toSelect.iterator();
-        ImageDisplay node;
-        while (i.hasNext()) {
-			node = (ImageDisplay) i.next();
-			node.setHighlight(colors.getSelectedHighLight(node));	
-		}
-        if (toDeselect == null) return;
-        i = toDeselect.iterator();
-        while (i.hasNext()) {
-        	node = (ImageDisplay) i.next();
-            if (node != null && !toSelect.contains(node))
-            	node.setHighlight(colors.getDeselectedHighLight(node));
-        }
-    }
 	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
@@ -557,11 +564,8 @@ class BrowserModel
 		setNodesColor(found, getSelectedDisplays());
 		boolean b = found.size() > 1;
 		Iterator<ImageDisplay> i = found.iterator();
-		ImageDisplay node = null;
-		while (i.hasNext()) {
-			node = i.next();
-			setSelectedDisplay(node, b, false);
-		}
+		while (i.hasNext()) 
+			setSelectedDisplay(i.next(), b, false);
 	}
 	
 	/**

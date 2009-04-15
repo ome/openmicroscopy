@@ -133,13 +133,7 @@ public class ImageNode
     	 //addMouseListener(listener);
     	 if (canvas != null) canvas.addMouseListener(listener);
     }
-    
-    /** Fired a property change event to bring up the classification widget. */
-    public void fireClassification()
-    {
-        firePropertyChange(CLASSIFY_NODE_PROPERTY, null, this);
-    }
-    
+
     /**
      * Spits out a runtime exception because it's not possible to add a
      * child to a leaf node.

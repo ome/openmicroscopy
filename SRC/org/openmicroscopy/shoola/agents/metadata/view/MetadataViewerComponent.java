@@ -266,6 +266,16 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#setParentRootObject(Object)
+	 */
+	public void setParentRootObject(Object parent)
+	{
+		model.setParentRootObject(parent);
+		
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#loadContainers(TreeBrowserDisplay)
 	 */
 	public void loadContainers(TreeBrowserDisplay node)

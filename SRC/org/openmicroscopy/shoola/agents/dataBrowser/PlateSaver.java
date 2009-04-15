@@ -24,13 +24,14 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.PlateData;
+import pojos.DataObject;
 
 /** 
  * Updates the specified plate.
@@ -49,8 +50,8 @@ public class PlateSaver
 	extends DataBrowserLoader
 {
 
-	/** The plate to update. */
-	private PlateData 	plate;
+	/** The data object to update, either plate or wells. */
+	private List<DataObject> toUpdate;
 	
     /** Handle to the async call so that we can cancel it. */
     private CallHandle	handle;
@@ -60,13 +61,14 @@ public class PlateSaver
 	 * 
 	 * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
-	 * @param plate	 The plate to update.
+	 * @param toUpdate	 The collection of objects to update.
 	 */
-	public PlateSaver(DataBrowser viewer, PlateData plate)
+	public PlateSaver(DataBrowser viewer, List<DataObject> toUpdate)
 	{
 		super(viewer);	
-		if (plate == null) throw new IllegalArgumentException("No plate.");
-		this.plate = plate;
+		if (toUpdate == null || toUpdate.size() == 0) 
+			throw new IllegalArgumentException("No objects to update.");
+		this.toUpdate = toUpdate;
 	}
 	
 	/** 
@@ -81,7 +83,7 @@ public class PlateSaver
 	 */
 	public void load()
 	{
-		handle = mhView.updateDataObject(plate, this);
+		handle = mhView.updateDataObjects(toUpdate, this);
 	}
 	
 	/**

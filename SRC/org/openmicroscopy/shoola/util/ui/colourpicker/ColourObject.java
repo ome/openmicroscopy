@@ -58,7 +58,7 @@ public class ColourObject
 	 * @param color		  The color to set.
 	 * @param description The description associated to the color.
 	 */
-	ColourObject(Color color, String description)
+	public ColourObject(Color color, String description)
 	{
 		this.color = color;
 		this.description = description;

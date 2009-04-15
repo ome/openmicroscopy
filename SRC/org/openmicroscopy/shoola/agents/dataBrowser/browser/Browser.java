@@ -63,6 +63,11 @@ public interface Browser
 {
 	
 	/** 
+	 * Bound property name indicating that a cell is selected. 
+	 */
+	public static final String CELL_SELECTION_PROPERTY = "cellSelection";
+	
+	/** 
 	 * Bound property name indicating an {@link ImageDisplay} object has been
 	 * selected in the visualization tree. 
 	 */
