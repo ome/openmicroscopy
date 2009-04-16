@@ -5,7 +5,8 @@ Using Method 1 detailed on the page:
 "Method 1: Setting up Eclipse to create and debug plugins for ImageJ"
 
 To make it work you need to:
-* Get the latest copy of ij and extract the zip
+* Get the latest copy of imagej and extract the zip
+* Rename the folder ImageJ to be ij
 * Copy the ij folder and its subfolders into the "source" folder
 * Copy the contents of the "source/ij/macros" folder into the "macros"in the IJ project root.
 * Copy the contents of the "source/ij/plugins" folder into the "plugins"in the IJ project root.

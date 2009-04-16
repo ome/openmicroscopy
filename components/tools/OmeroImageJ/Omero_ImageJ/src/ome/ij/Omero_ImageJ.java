@@ -38,7 +38,7 @@ public class Omero_ImageJ implements PlugIn {
 		int status;
 		status = options.promptLocation();
 		status = options.promptId();
-		status = options.promptOptions();
+		// status = options.promptOptions();
 
 		String id = options.getId();
 
@@ -161,7 +161,7 @@ public class Omero_ImageJ implements PlugIn {
 		{
 			throw new RuntimeException(e);
 		}
-	    IJ.showStatus("Saving Preferances...");
+	    IJ.showStatus("Saving Preferences...");
 		options.savePreferences();
 	    IJ.showStatus("Omero Reader - Done");
 	}
