@@ -46,7 +46,16 @@ from omero.rtypes import rstring, rint, rlong, rbool, rtime
 
 logger = logging.getLogger('blitz_gateway')
 
+# TODO: what is this for?
 SLEEPTIME = 30
+
+
+##
+# Measures the execution time of a function using {@link time.time() time.time()} 
+# and the a @ function decorator.
+# 
+# @param func function
+# @return wrapped
 
 def timeit (func):
     def wrapped (*args, **kwargs):
@@ -56,6 +65,18 @@ def timeit (func):
         logger.debug("timed %s: %f" % (func.func_name, time.time()-now))
         return rv
     return wrapped
+
+
+##
+# Converts rtypes from static factory methods:
+#  - StringType to rstring
+#  - UnicodeType to rstring
+#  - IntType to rint
+#  - LongType to rlong
+# elswere return the argument itself
+# 
+# @param val value 
+# @return matched RType or value
 
 def omero_type(val):
     if isinstance(val, StringType):
@@ -69,13 +90,36 @@ def omero_type(val):
     else:
         return val
 
+
 class NoProxies (object):
     def __getitem__ (self, k):
         raise Ice.ConnectionLostException
 
+##
+# TODO: description
+
 class _BlitzGateway (object):
+    
+    ## 
+    # ICE_CONFIG - Defines the path to the Ice configuration
+    
     ICE_CONFIG = None#os.path.join(p,'etc/ice.config')
 #    def __init__ (self, username, passwd, server, port, client_obj=None, group=None, clone=False):
+
+
+    ## 
+    # TODO: Constructor
+    # 
+    # @param username User name. String
+    # @param passwd Password. String
+    # @param client_obj {@link omero.client} 
+    # @param group admin group
+    # @param clone Boolean
+    # @param try_super Boolean
+    # @param host Omero server host. String
+    # @param port Omero server port. Integer
+    # @param extra_config
+    
     def __init__ (self, username, passwd, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=[]):
         super(_BlitzGateway, self).__init__()
         self.client = client_obj
@@ -111,6 +155,7 @@ class _BlitzGateway (object):
         self._userid = None
         self._proxies = NoProxies()
 
+
     def clone (self):
         return self.__class__(self._ic_props[omero.constants.USERNAME],
                               self._ic_props[omero.constants.PASSWORD],
@@ -118,11 +163,26 @@ class _BlitzGateway (object):
                               clone=True)
                               #self.server, self.port, clone=True)
 
+
+    ## 
+    # TODO: description
+    # 
+    # @param username User name. String
+    # @param passwd Password. String
+    # @param _internal Boolean
+    
     def setIdentity (self, username, passwd, _internal=False):
         self._ic_props = {omero.constants.USERNAME: username,
                           omero.constants.PASSWORD: passwd}
         self._anonymous = _internal
 
+
+    ## 
+    # Keeps service alive. 
+    # Returns True if connected. If connection was lost, reconnecting.
+    # 
+    # @return Boolean
+    
     def keepAlive (self):
         try:
             logger.debug('connected? %s' % str(self._connected))
@@ -156,6 +216,12 @@ class _BlitzGateway (object):
             logger.debug("... ice says something bad happened, not reconnecting")
             return False
 
+
+    ## 
+    # Terminates connection.
+    # 
+    # @param softclose Boolean
+    
     def seppuku (self, softclose=False): #pragma: no cover
         """ if softclose is False, the session is really terminate disregarding its connection refcount. """
         self._connected = False
@@ -190,6 +256,10 @@ class _BlitzGateway (object):
     def __del__ (self):
         logger.debug("##GARBAGE COLLECTOR KICK IN")
 
+
+    ## 
+    # Creates proxies to the server services.
+    
     def _createProxies (self):
         if not isinstance(self._proxies, NoProxies):
             logger.debug("## Reusing proxies")
@@ -227,6 +297,10 @@ class _BlitzGateway (object):
             else:
                 self._session_cb.create(self)
 
+
+    ##
+    # Creates a new session for the principal given in the constructor.
+    
     def _createSession (self):
         s = self.c.createSession(self._ic_props[omero.constants.USERNAME],
                                  self._ic_props[omero.constants.PASSWORD])
@@ -238,6 +312,9 @@ class _BlitzGateway (object):
             self.c.sf.getAdminService().getEventContext()
 
 
+    ##
+    # Close session.
+    
     def _closeSession (self):
         self._session_cb and self._session_cb.close(self)
         if self._sessionUuid:
@@ -258,6 +335,10 @@ class _BlitzGateway (object):
         except omero.Glacier2.SessionNotExistException: #pragma: no cover
             pass
 
+
+    ##
+    # Resets {@link omero.client} object.
+    
     def _resetOmeroClient (self):
         if self.host is not None:
             logger.info('host: %s, port: %i' % (str(self.host), int(self.port)))
@@ -266,6 +347,14 @@ class _BlitzGateway (object):
             logger.info('--Ice.Config='+','.join(self.ice_config))
             self.c = omero.client(pmap=['--Ice.Config='+','.join(self.ice_config)])
 
+
+    ##
+    # Creates or retrieves connection for the given sessionUuid.
+    # Returns True if connected.
+    # 
+    # @param sUuid {@link omero_model_SessionI} 
+    # @return Boolean
+    
     def connect (self, sUuid=None):
         logger.debug("Connect attempt, sUuid=%s, group=%s, self.sUuid=%s" % (str(sUuid), str(self.group), self._sessionUuid))
         if not self.c: #pragma: no cover
@@ -371,70 +460,192 @@ class _BlitzGateway (object):
         logger.debug(".. connected!")
         return True
 
+
+    ##
+    # Returns error if thrown by {@link #_BlitzGateway.connect connect}.
+    # 
+    # @return String
+    
     def getLastError (self): #pragma: no cover
         return self._last_error
 
+
+    ##
+    # Returns last status of connection.
+    # 
+    # @return Boolean
+    
     def isConnected (self):
         return self._connected
 
     ######################
     ## Connection Stuff ##
     
-    # userName, userId, _sessionUuid, sessionId, isAdmin, memberOfGroups, leaderOfGroups
+    ##
+    # Returns {@link omero_System_ice.EventContext}.
+    # EventContext containes: shareId, sessionId, sessionUuid, userId, userName, 
+    #       groupId, groupName, isAdmin, isReadOnly, eventId, eventType, eventType,
+    #       memberOfGroups, leaderOfGroups
+    # 
+    # @return omero.sys.EventContext
+    
     def getEventContext (self):
         return self._ctx
 
+
+    ##
+    # Returns current {@link omero_model_ExperimenterI user}.
+    # 
+    # @return omero.model.ExperimenterI
+    
     def getUser (self):
         return self._user
 
+
+    ##
+    # Checks if a user has administration privileges.
+    # 
+    # @return Boolean
+    
     def isAdmin (self):
         return self.getEventContext().isAdmin
 
+
+    ##
+    # Checks if a user has write privileges to the given object.
+    # 
+    # @param obj Given object
+    # @return Boolean
+    
     def canWrite (self, obj):
         return self.isAdmin() or (self._userid == obj.details.owner.id.val and obj.details.permissions.isUserWrite())
 
     ##############
     ## Services ##
 
+
+    ##
+    # Gets reference to the AdminService from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
+
     def getAdminService (self):
         return self._proxies['admin']
 
+
+    ##
+    # Gets reference to the QueryService from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
+    
     def getQueryService (self):
         return self._proxies['query']
 
+
+    ##
+    # Gets reference to the ContainerService from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
+    
     def getContainerService (self):
         return self._proxies['container']
 
+
+    ##
+    # Gets reference to the MetadataService from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
+    
     def getMetadataService (self):
         return self._proxies['metadata']
+
+
+    ##
+    # Gets reference to the RawFileStore from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
     
     def createRawFileStore (self):
         return self._proxies['rawfile']
+
+
+    ##
+    # Gets reference to the RepositoryInfoService from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
     
     def getRepositoryInfoService (self):
         return self._proxies['repository']
+
+
+    ##
+    # Gets reference to the ShareService from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
     
     def getShareService(self):
         return self._proxies['share']
+
+
+    ##
+    # Gets reference to the TimelineService from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
     
     def getTimelineService (self):
         return self._proxies['timeline']
+
+
+    ##
+    # Gets reference to the TypesService from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
     
     def getTypesService(self):
         return self._proxies['types']
+
+
+    ##
+    # Gets reference to the ConfigService from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
     
     def getConfigService (self):
         return self._proxies['config']
+
+
+    ##
+    # Creates reference to the RenderingEngine from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
     
     def createRenderingEngine (self):
         return self._proxies['rendering']
 
+
+    ##
+    # Creates reference to the RawPixelsStore from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
+    
     def createRawPixelsStore (self):
         return self._proxies['pixels']
 
+
+    ##
+    # Creates reference to the ThumbnailStore from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
+    
     def createThumbnailStore (self):
         return self._proxies['thumbs']
 
+
+    ##
+    # Creates reference to the SearchService from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
+    
     def createSearchService (self):
         """
         Creates a new search service.
@@ -443,16 +654,34 @@ class _BlitzGateway (object):
         """
         return ProxyObjectWrapper(self, 'createSearchService')
 
+
+    ##
+    # Gets reference to the UpdateService from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
+    
     def getUpdateService (self):
         """
         """
         return ProxyObjectWrapper(self, 'getUpdateService')
 
+
+    ##
+    # Gets reference to the DeleteService from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
+    
     def getDeleteService (self):
         """
         """
         return ProxyObjectWrapper(self, 'getDeleteService')
 
+
+    ##
+    # Gets reference to the SessionService from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
+    
     def getSessionService (self):
         """
         """
@@ -461,6 +690,12 @@ class _BlitzGateway (object):
     #############################
     # Top level object fetchers #
 
+    ##
+    # List every Projects controlled by the security system.
+    # 
+    # @param only_owned Only owned by the logged user. Boolean.
+    # @return Generator yielding {@link #_ProjectWrapper}
+    
     def listProjects (self, only_owned=False):
         q = self.getQueryService()
         cache = {}
@@ -479,9 +714,15 @@ class _BlitzGateway (object):
 #        for e in q.findAll("CategoryGroup", None):
 #            yield CategoryGroupWrapper(self, e, cache)
 
+
+    ##
+    # Return a generator for all Experimenters whose omeName starts with 'start'.
+    # The generated values follow the alphabetic order on omeName.
+    # 
+    # @param start Only if {@link omero_model_ExperimenterI.omeName} starts with. String.
+    # @return Generator yielding {@link #_ExperimenterWrapper}
+    
     def listExperimenters (self, start=''):
-        """ Return a generator for all Experimenters whose omeName starts with 'start'.
-        The generated values follow the alphabetic order on omeName."""
         if isinstance(start, UnicodeType):
             start = start.encode('utf8')
         params = omero.sys.Parameters()
@@ -492,6 +733,13 @@ class _BlitzGateway (object):
         for e in rv:
             yield ExperimenterWrapper(self, e)
 
+
+    ##
+    # Return an Experimenter for the given ID.
+    # 
+    # @param eid User ID.
+    # @return {@link #_ExperimenterWrapper} or None
+    
     def getExperimenter(self, eid):
         admin_serv = self.getAdminService()
         try:
@@ -499,6 +747,13 @@ class _BlitzGateway (object):
             return ExperimenterWrapper(self, exp)
         except omero.ApiUsageException:
             return None
+
+
+    ##
+    # Return an Experimenter for the given username.
+    # 
+    # @param name Username. String
+    # @return {@link #_ExperimenterWrapper} or None
     
     def lookupExperimenter(self, name):
         admin_serv = self.getAdminService()
@@ -512,6 +767,13 @@ class _BlitzGateway (object):
     ###########################
     # Specific Object Getters #
 
+
+    ##
+    # Return Project for the given ID.
+    # 
+    # @param oid Project ID.
+    # @return {@link #_ProjectWrapper} or None
+    
     def getProject (self, oid):
         q = self.getQueryService()
         pr = q.find("Project", long(oid))
@@ -519,6 +781,13 @@ class _BlitzGateway (object):
             pr = ProjectWrapper(self, pr)
         return pr
 
+
+    ##
+    # Return Dataset for the given ID.
+    # 
+    # @param oid Dataset ID.
+    # @return {@link #_DatasetWrapper} or None
+    
     def getDataset (self, oid):
         q = self.getQueryService()
         ds = q.find("Dataset", long(oid))
@@ -526,6 +795,13 @@ class _BlitzGateway (object):
             ds = DatasetWrapper(self, ds)
         return ds
 
+
+    ##
+    # Return Image for the given ID.
+    # 
+    # @param oid Image ID.
+    # @return {@link #_ImageWrapper} or None
+    
     def getImage (self, oid):
         q = self.getQueryService()
         img = q.find("Image", long(oid))
@@ -536,6 +812,11 @@ class _BlitzGateway (object):
     ##############################
     # Annotation based iterators #
 
+    ##
+    # TODO: description
+    # 
+    # @return Generator yielding {@link #_ImageWrapper}
+    
     def listImages (self, ns, params=None):
         if not params:
             params = omero.sys.Parameters()
@@ -556,11 +837,13 @@ class _BlitzGateway (object):
     ###################
     # Searching stuff #
 
+
     def searchImages (self, text):
         """
         Fulltext search for images
         """
         return self.simpleSearch(text,(ImageWrapper,))
+
 
     def simpleSearch (self, text, types=None):
         """
@@ -589,6 +872,13 @@ class _BlitzGateway (object):
                 timeit(searchProcessing)()
         search.close()
         return rv
+
+
+##
+# Captures called function. 
+# 
+# @return TODO
+# @exception TODO
 
 def safeCallWrap (self, attr, f): #pragma: no cover
     def inner (*args, **kwargs):
@@ -642,7 +932,9 @@ def safeCallWrap (self, attr, f): #pragma: no cover
             return inner(*args, **kwargs)
     return wrapped
 
+
 BlitzGateway = _BlitzGateway
+
 
 def splitHTMLColor (color):
     """ splits an hex stream of characters into an array of bytes in format (R,G,B,A).
@@ -668,12 +960,23 @@ def splitHTMLColor (color):
         pass
     return None
 
+
+##
+# TODO: description
+
 class ProxyObjectWrapper (object):
     def __init__ (self, conn, func_str):
         self._obj = None
         self._func_str = func_str
         self._resyncConn(conn)
 
+
+    ##
+    # TODO: description.
+    # Returns True if connected.
+    # 
+    # @return Boolean
+    
     def _connect (self): #pragma: no cover
         logger.debug("proxy_connect: a");
         if not self._conn.connect():
@@ -687,6 +990,12 @@ class ProxyObjectWrapper (object):
         logger.debug("proxy_connect: d");
         return True
 
+
+    ##
+    # TODO: description.
+    # 
+    # @param conn Connection
+    
     def _resyncConn (self, conn):
         self._conn = conn
         self._sf = conn.c.sf
@@ -696,6 +1005,12 @@ class ProxyObjectWrapper (object):
             obj = conn.c.ic.stringToProxy(str(self._obj))
             self._obj = self._obj.checkedCast(obj)
 
+
+    ##
+    # TODO: description.
+    # 
+    # @return TODO
+    
     def _getObj (self):
         if not self._obj:
             self._obj = self._create_func()
@@ -703,6 +1018,12 @@ class ProxyObjectWrapper (object):
             self._ping()
         return self._obj
 
+
+    ##
+    # TODO: description.
+    # 
+    # @return Boolean
+    
     def _ping (self): #pragma: no cover
         """ For some reason, it seems that keepAlive doesn't, so every so often I need to recreate the objects """
         try:
@@ -741,6 +1062,13 @@ class ProxyObjectWrapper (object):
             return False
         return True
 
+
+    ##
+    # TODO: description.
+    # 
+    # @param conn Connection
+    # @return TODO
+    
     def __getattr__ (self, attr):
         # safe call wrapper
         obj = self._obj or self._getObj()
@@ -749,6 +1077,10 @@ class ProxyObjectWrapper (object):
             rv = safeCallWrap(self, attr, rv)
         #self._conn.updateTimeout()
         return rv
+
+
+##
+# Object wrapper class.
 
 class BlitzObjectWrapper (object):
     OMERO_CLASS = None
@@ -868,11 +1200,23 @@ class BlitzObjectWrapper (object):
     #        ds = self.CHILD_WRAPPER_CLASS(self._conn, ds)
     #    return ds
 
+
+    ##
+    # Counts available number of child objects.
+    #
+    # @return Long
+    
     def countChildren (self):
         """ return the number of child objects available """
         self._cached_countChildren = len(self._conn.getQueryService().findAllByQuery("from %s as c where c.parent.id=%i" % (self.LINK_CLASS, self._oid), None))
         return self._cached_countChildren
 
+
+    ##
+    # Counts available number of child objects from cache.
+    #
+    # @return Long
+    
     def countChildren_cached (self):
         """ countChildren, but caching the first result, useful if you need to call this multiple times in
         a single sequence, but have no way of storing the value between them.
@@ -881,6 +1225,12 @@ class BlitzObjectWrapper (object):
             return self.countChildren()
         return self._cached_countChildren
 
+
+    ##
+    # Lists available child objects.
+    #
+    # @return Generator yielding child objects
+    
     def listChildren (self, ns=None, val=None, params=None):
         """ return a generator yielding child objects """
         childw = self._getChildWrapper()
@@ -923,6 +1273,12 @@ class BlitzObjectWrapper (object):
     #    for child in self._cache[self.LINK_CLASS].get(self._oid, ()):
     #        yield self.CHILD_WRAPPER_CLASS(self._conn, child, self._cache)
 
+
+    ##
+    # Lists available parent objects.
+    #
+    # @return Generator yielding parent objects
+    
     @timeit
     def listParents (self, single=True):
         if self.PARENT_WRAPPER_CLASS is None:
@@ -934,6 +1290,7 @@ class BlitzObjectWrapper (object):
             return len(parentnodes) and parentw(self._conn, parentnodes[0], self._cache) or None
         return map(lambda x: parentw(self._conn, x, self._cache), parentnodes)
 
+
     @timeit
     def getAncestry (self):
         rv = []
@@ -943,6 +1300,7 @@ class BlitzObjectWrapper (object):
             p = p.listParents()
         return rv
 
+
     def _loadAnnotationLinks (self):
         if not hasattr(self._obj, 'isAnnotationLinksLoaded'): #pragma: no cover
             raise NotImplementedError
@@ -951,12 +1309,14 @@ class BlitzObjectWrapper (object):
             self._obj._annotationLinksLoaded = True
             self._obj._annotationLinksSeq = links
 
+
     def _getAnnotationLinks (self, ns=None):
         self._loadAnnotationLinks()
         rv = self.copyAnnotationLinks()
         if ns is not None:
             rv = filter(lambda x: x.getChild().getNs() and x.getChild().getNs().val == ns, rv)
         return rv
+
 
     def removeAnnotations (self, ns):
         for al in self._getAnnotationLinks(ns=ns):
@@ -966,17 +1326,29 @@ class BlitzObjectWrapper (object):
             update.deleteObject(a)
         self._obj.unloadAnnotationLinks()
 
+
+    ##
+    # Gets the first annotation in the ns namespace, linked to this object
+    #
+    # @return {@link #AnnotationWrapper} or None
+    
     def getAnnotation (self, ns=None):
-        """ Returns the first annotation in the ns namespace, linked to this object """
         rv = self._getAnnotationLinks(ns)
         if len(rv):
             return AnnotationWrapper._wrap(self._conn, rv[0].child)
         return None
 
+
+    ##
+    # List annotations in the ns namespace, linked to this object
+    #
+    # @return Generator yielding {@link #AnnotationWrapper}
+    
     @timeit
     def listAnnotations (self, ns=None):
         for ann in self._getAnnotationLinks(ns):
             yield AnnotationWrapper._wrap(self._conn, ann.child)
+
 
     def _linkAnnotation (self, ann):
         if not ann.getId():
@@ -993,6 +1365,7 @@ class BlitzObjectWrapper (object):
         lnk.setChild(ann._obj.__class__(ann._obj.id, False))
         self._conn.getUpdateService().saveObject(lnk)
         return ann
+
 
     def linkAnnotation (self, ann, sameOwner=True):
         if sameOwner and self._conn.isAdmin():
@@ -1015,6 +1388,7 @@ class BlitzObjectWrapper (object):
             ann = self._linkAnnotation(ann)
         self.unloadAnnotationLinks()
         return ann
+
 
     def simpleMarshal (self, xtra=None, parents=False):
         rv = {'type': self.OMERO_CLASS,
@@ -1046,21 +1420,52 @@ class BlitzObjectWrapper (object):
             return rv
         raise AttributeError("'%s' object has no attribute '%s'" % (self._obj.__class__.__name__, attr))
 
+
     # some methods are accessors in _obj and return and omero:: type. The obvious ones we wrap to return a python type
+    
+    ##
+    # Gets this object ID
+    #
+    # @return Long or None
+    
     def getId (self):
         oid = self._obj.getId()
         return oid is not None and oid.val or None
 
+
+    ##
+    # Gets this object name
+    #
+    # @return String or None
+    
     def getName (self):
         return self._obj.getName().val
 
+
+    ##
+    # Gets this object description
+    #
+    # @return String
+    
     def getDescription (self):
         rv = self._obj.getDescription()
         return rv and rv.val or ''
 
+
+    ##
+    # Gets user who is the owner of this object.
+    #
+    # @return {@link #_ExperimenterWrapper}
+    
     def getOwner (self):
         return self.getDetails().getOwner()
 
+
+    ##
+    # Gets full name of the owner of this object.
+    #
+    # @return String or None
+    
     def getOwnerFullName (self):
         try:
             lastName = self.getDetails().getOwner().lastName
@@ -1076,9 +1481,21 @@ class BlitzObjectWrapper (object):
             logger.error(traceback.format_exc())
             return None
 
+
+    ##
+    # Gets omeName of the owner of this object.
+    #
+    # @return String
+    
     def getOwnerOmeName (self):
         return self.getDetails().getOwner().omeName
 
+
+    ##
+    # Gets event time in timestamp format (yyyy-mm-dd hh:mm:ss.fffffff) when object was created.
+    #
+    # @return Long
+    
     def creationEventDate(self):
         try:
             if self._obj.details.creationEvent.time is not None:
@@ -1088,6 +1505,12 @@ class BlitzObjectWrapper (object):
         except:
             t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
         return datetime.fromtimestamp(t/1000)
+
+
+    ##
+    # Gets event time in timestamp format (yyyy-mm-dd hh:mm:ss.fffffff) when object was updated.
+    #
+    # @return Long
     
     def updateEventDate(self):
         try:
@@ -1098,10 +1521,16 @@ class BlitzObjectWrapper (object):
         except:
             t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val).time.val
         return datetime.fromtimestamp(t/1000)
-    
+
+
     # setters are also provided
+    
     def setName (self, value):
         self._obj.setName(omero_type(value))
+
+
+##
+# omero_model_AnnotationI class wrapper extends {@link #BlitzObjectWrapper}.
 
 class AnnotationWrapper (BlitzObjectWrapper):
     registry = {}
@@ -1146,7 +1575,12 @@ class AnnotationWrapper (BlitzObjectWrapper):
     def setValue (self, val): #pragma: no cover
         raise NotImplementedError
 
+
 from omero_model_TimestampAnnotationI import TimestampAnnotationI
+
+##
+# omero_model_TimestampAnnotatio class wrapper extends {@link #AnnotationWrapper}.
+
 class TimestampAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = TimestampAnnotationI
 
@@ -1164,6 +1598,10 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
 AnnotationWrapper._register(TimestampAnnotationWrapper)
 
 from omero_model_BooleanAnnotationI import BooleanAnnotationI
+
+##
+# omero_model_BooleanAnnotationI class wrapper extends {@link #AnnotationWrapper}.
+
 class BooleanAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = BooleanAnnotationI
 
@@ -1176,6 +1614,10 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
 AnnotationWrapper._register(BooleanAnnotationWrapper)
 
 from omero_model_CommentAnnotationI import CommentAnnotationI
+
+##
+# omero_model_CommentAnnotationI class wrapper extends {@link #AnnotationWrapper}.
+
 class CommentAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = CommentAnnotationI
 
@@ -1188,6 +1630,10 @@ class CommentAnnotationWrapper (AnnotationWrapper):
 AnnotationWrapper._register(CommentAnnotationWrapper)
 
 from omero_model_LongAnnotationI import LongAnnotationI
+
+##
+# omero_model_LongAnnotationI class wrapper extends {@link #AnnotationWrapper}.
+
 class LongAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = LongAnnotationI
 
@@ -1199,6 +1645,9 @@ class LongAnnotationWrapper (AnnotationWrapper):
 
 AnnotationWrapper._register(LongAnnotationWrapper)
 
+##
+# omero_model_ExperimenterI class wrapper extends {@link #BlitzObjectWrapper}.
+
 class _ExperimenterWrapper (BlitzObjectWrapper):
     def getDetails (self):
         if not self._obj.details.owner:
@@ -1209,10 +1658,16 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
 ExperimenterWrapper = _ExperimenterWrapper
 
+##
+# omero_model_ExperimenterGroupI class wrapper extends {@link #BlitzObjectWrapper}.
+
 class _ExperimenterGroupWrapper (BlitzObjectWrapper):
     pass
 
 ExperimenterGroupWrapper = _ExperimenterGroupWrapper
+
+##
+# omero_model_DetailsI class wrapper extends {@link #BlitzObjectWrapper}.
 
 class DetailsWrapper (BlitzObjectWrapper):
     def __init__ (self, *args, **kwargs):
@@ -1323,6 +1778,10 @@ class ColorHolder (object):
         """ Return a list of (r,g,b) values """
         return (self._color['red'], self._color['green'], self._color['blue'])
 
+
+##
+# omero_model_ChannelI class wrapper extends {@link #BlitzObjectWrapper}.
+
 class ChannelWrapper (BlitzObjectWrapper):
     BLUE_MIN = 400
     BLUE_MAX = 500
@@ -1398,6 +1857,10 @@ def assert_pixels (func):
             return None
         return func(self, *args, **kwargs)
     return wrapped
+
+
+##
+# omero_model_ImageI class wrapper extends {@link #BlitzObjectWrapper}.
 
 class _ImageWrapper (BlitzObjectWrapper):
 
@@ -1944,6 +2407,9 @@ class _ImageWrapper (BlitzObjectWrapper):
 
 ImageWrapper = _ImageWrapper
 
+##
+# omero_model_DatasetI class wrapper extends {@link #BlitzObjectWrapper}.
+
 class _DatasetWrapper (BlitzObjectWrapper):
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Dataset'
@@ -1952,6 +2418,9 @@ class _DatasetWrapper (BlitzObjectWrapper):
         self.PARENT_WRAPPER_CLASS = 'ProjectWrapper'
 
 DatasetWrapper = _DatasetWrapper
+
+##
+# omero_model_ProjectI class wrapper extends {@link #BlitzObjectWrapper}.
 
 class _ProjectWrapper (BlitzObjectWrapper):
     def __bstrap__ (self):
