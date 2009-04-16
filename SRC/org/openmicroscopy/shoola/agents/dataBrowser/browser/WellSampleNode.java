@@ -103,5 +103,11 @@ public class WellSampleNode
 	 */
 	public Object getParentObject() { return parent.getHierarchyObject(); }
 	
+	/**
+	 * Returns the well this sample is part of.
+	 * 
+	 * @return See above.
+	 */
+	public WellImageSet getParentWell() { return parent; }
 	
 }

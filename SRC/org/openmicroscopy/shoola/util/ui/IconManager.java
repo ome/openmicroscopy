@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.net.URL;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
@@ -52,6 +53,10 @@ import javax.swing.ImageIcon;
 public class IconManager
 {
 
+	/** The pathname, relative to this class, of the login splash screen. */
+	private static final String		LOGIN_BACKGROUND = 
+										"graphx/login_background.png";
+	
     /** ID of the <code>Colour slider</code> icon. */
     public static final int COLOUR_SLIDER_24 = 0;
     
@@ -537,7 +542,17 @@ public class IconManager
         relPaths[EDIT] = "nuvola_ksig16.png";
         relPaths[EDITOR_EXPERIMENT] = "expNew.png";
     }
-    
+	
+	/**
+	 * Returns the image of the login button within the splash screen.
+	 * 
+	 * @return See above.
+	 */
+	public static Icon getLoginBackground()
+	{
+		return createIcon(LOGIN_BACKGROUND);
+	}
+	
     /** 
      * Retrieves the icon specified by <code>id</code>.
      * If the icon can't be retrieved, then this method will log the error and
@@ -642,5 +657,20 @@ public class IconManager
     {
         factory = new IconFactory();
     }
-    
+
+    /** 
+	 * Utility factory method to create an icon from a file.
+	 *
+	 * @param path    The path of the icon file relative to this class.
+	 * @return  An instance of {@link javax.swing.Icon Icon} or
+	 * 			<code>null</code> if the path was invalid.
+	 */
+	private static Icon createIcon(String path)
+	{
+		URL location = IconManager.class.getResource(path);
+		ImageIcon icon = null;
+		if (location != null)	icon = new ImageIcon(location);
+		return icon;
+	}
+	
 }

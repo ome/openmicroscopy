@@ -807,6 +807,14 @@ class DataBrowserComponent
 		((WellsModel) model).viewField(selectedIndex);
 		view.repaint();
 		model.loadData(false, null); 
+		ImageDisplay node = model.getBrowser().getLastSelectedDisplay();
+		if (node != null) {
+			if (node instanceof WellSampleNode) {
+				WellSampleNode wsn = (WellSampleNode) node;
+				WellImageSet parent = wsn.getParentWell();
+				setSelectedDisplay(parent.getSelectedWellSample());
+			}
+		}
 	}
 
 	/**

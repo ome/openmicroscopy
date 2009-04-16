@@ -111,13 +111,9 @@ public class ColourPicker
     void accept()
     {
         Color c = model.getColour();
-        if (model.isOriginalColor(model.getColour())) return;
-        Color original = model.getOriginalColor();
-        if ((original.getRed() == c.getRed()) && 
-                (original.getGreen() == c.getGreen()) &&
-                (original.getBlue() == c.getBlue()) &&
-                (original.getAlpha() == c.getAlpha())) return;
         String description = tabbedPane.getDescription();
+        if (model.isOriginalColor(model.getColour()) && description == null) 
+        	return;
         if (description == null)
         	firePropertyChange(COLOUR_PROPERTY, model.getOriginalColor(), c);
         else 
