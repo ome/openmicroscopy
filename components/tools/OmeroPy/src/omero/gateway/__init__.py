@@ -2201,6 +2201,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         at the set Z and T points."""
         dims = self.splitChannelDims(border=border)[self.isGreyscaleRenderingModel() and 'g' or 'c']
         canvas = Image.new('RGBA', (dims['width'], dims['height']), '#fff')
+        cmap = [ch.isActive() and i+1 or 0 for i,ch in enumerate(self.getChannels())]
         c = self.c_count()
         pxc = 0
         px = dims['border']
@@ -2229,13 +2230,15 @@ class _ImageWrapper (BlitzObjectWrapper):
         if fsize > 0:
             font = ImageFont.load('pilfonts/B%0.2d.pil' % fsize) 
 
+
         for i in range(c):
-            self.setActiveChannels((i+1,))
-            img = self.renderImage(z,t, compression)
-            if fsize > 0:
-                draw = ImageDraw.ImageDraw(img)
-                draw.text((2,2), "w=%i" % (self.getChannels()[i].getEmissionWave()), font=font, fill="#fff")
-            canvas.paste(img, (px, py))
+            if cmap[i]:
+                self.setActiveChannels((i+1,))
+                img = self.renderImage(z,t, compression)
+                if fsize > 0:
+                    draw = ImageDraw.ImageDraw(img)
+                    draw.text((2,2), "w=%i" % (self.getChannels()[i].getEmissionWave()), font=font, fill="#fff")
+                canvas.paste(img, (px, py))
             pxc += 1
             if pxc < dims['gridx']:
                 px += self.getWidth() + border
@@ -2244,7 +2247,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 px = border
                 py += self.getHeight() + border
         if not self.isGreyscaleRenderingModel():
-            self.setActiveChannels((range(1,c+1)))
+            self.setActiveChannels(cmap)
             img = self.renderImage(z,t, compression)
             if fsize > 0:
                 draw = ImageDraw.ImageDraw(img)
