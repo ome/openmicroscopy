@@ -271,7 +271,7 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
                 ec.getCurrentGroupName(), "Processing"));
         newSession.setTimeToIdle(0L);
         newSession.setTimeToLive(timeout);
-        newSession = mgr.update(newSession);
+        newSession = mgr.update(newSession, true);
 
         return newSession;
     }
