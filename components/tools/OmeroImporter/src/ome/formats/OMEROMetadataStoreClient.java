@@ -3781,7 +3781,7 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setThumbnailhref(String arg0, int arg1)
+    public void setThumbnailHref(String arg0, int arg1)
     {
 
     }

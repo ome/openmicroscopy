@@ -12,6 +12,7 @@ import loci.formats.FormatException;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
+import loci.formats.in.FlexReader;
 import loci.formats.in.InCellReader;
 import loci.formats.in.LeicaReader;
 import loci.formats.meta.MetadataStore;
@@ -100,7 +101,8 @@ public class OMEROWrapper extends MinMaxCalculator
     {
         try
         {
-            if (iReader.getReader(string) instanceof InCellReader)
+            if (iReader.getReader(string) instanceof InCellReader ||
+                    iReader.getReader(string) instanceof FlexReader)
                 return true;
             else
                 return false;
