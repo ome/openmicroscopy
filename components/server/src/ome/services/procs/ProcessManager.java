@@ -7,6 +7,7 @@
 
 package ome.services.procs;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import ome.api.JobHandle;
-import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.jobs.Job;
 import ome.model.jobs.JobStatus;
@@ -30,7 +30,6 @@ import ome.system.ServiceFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
-import org.springframework.transaction.TransactionStatus;
 
 /**
  * 
@@ -64,12 +63,11 @@ public class ProcessManager extends ExecutionThread implements IProcessManager {
 
         public Work(SecuritySystem sec, Processor... procs) {
             this.sec = sec;
-            if (procs == null || procs.length == 0) {
-                throw new ApiUsageException(
-                        "Processor[] argument to ProcessManager constructor "
-                                + "may not be null or empty.");
+            if (procs == null) {
+                this.processors = new ArrayList<Processor>();
+            } else {
+                this.processors = Arrays.asList(procs);
             }
-            this.processors = Arrays.asList(procs);
         }
 
         public String description() {

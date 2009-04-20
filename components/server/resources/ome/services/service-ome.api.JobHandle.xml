@@ -37,7 +37,6 @@
     <property name="target" ref="internal-ome.api.JobHandle"/>
   </bean>
   
-  <!--
   <bean id="processManager" class="ome.services.procs.ProcessManager">
     <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="securitySystem"/>
@@ -47,6 +46,7 @@
     </constructor-arg>
   </bean>
 
+  <!--
   <bean id="process-jobs-run" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="processManager" />
     <property name="targetMethod" value="run" />
