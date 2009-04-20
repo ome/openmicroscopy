@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.Image;
 import java.net.URL;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -56,6 +57,13 @@ public class IconManager
 	/** The pathname, relative to this class, of the login splash screen. */
 	private static final String		LOGIN_BACKGROUND = 
 										"graphx/login_background.png";
+	
+	/** The pathname, relative to this class, of the login splash screen. */
+	private static final String		IMAGEJ_SPLASHSCREEN = 
+										"graphx/omeroImageJSplashscreen.png";
+	
+	/** The pathname, relative to this class, of the OME screen. */
+	private static final String		OME_ICON = "graphx/OME16.png";
 	
     /** ID of the <code>Colour slider</code> icon. */
     public static final int COLOUR_SLIDER_24 = 0;
@@ -411,11 +419,44 @@ public class IconManager
     /** A 16x16 version of the <code>Experiment</code> icon. */
     public static final int EDITOR_EXPERIMENT = 117;
     
+    /** A 16x16 version of the <code>Collapse</code> icon. */
+    public static final int COLLAPSE = 118;
+    
+    /** A 16x16 version of the <code>sort alphabetically</code> icon. */
+    public static final int SORT_ALPHABETICALLY = 119;
+    
+    /** A 16x16 version of the <code>sort by date</code> icon. */
+    public static final int SORT_BY_DATE = 120;
+    
+    /** A 16x16 version of the <code>words</code> icon. */
+    public static final int MESSED_WORDS = 121;
+    
+    /** A 16x16 version of the <code>project</code> icon. */
+    public static final int PROJECT = 122;
+    
+    /** A 16x16 version of the <code>quit</code> icon. */
+    public static final int QUIT = 123;
+    
+    /** A 16x16 version of the <code>refresh</code> icon. */
+    public static final int REFRESH = 124;
+    
+    /** A 16x16 version of the <code>empty trash can</code> icon. */
+    public static final int TRASH_CAN_EMPTY = 125;
+    
+    /** A 22x22 version of the <code>quit</code> icon. */
+    public static final int QUIT_22 = 126;
+    
+    /** A 22x22 version of the <code>refresh</code> icon. */
+    public static final int REFRESH_22 = 127;
+    
+    /** A 22x22 version of the <code>image</code> icon. */
+    public static final int IMAGE_22 = 128;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 117;
+    private static int      MAX_ID = 128;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -541,6 +582,17 @@ public class IconManager
         relPaths[CREATE_48] = "nuvola_filenew48.png";
         relPaths[EDIT] = "nuvola_ksig16.png";
         relPaths[EDITOR_EXPERIMENT] = "expNew.png";
+        relPaths[COLLAPSE] = "eclipse_collapseall16.png";
+        relPaths[SORT_ALPHABETICALLY] = "eclipse_alphab_sort_co16.png";
+        relPaths[SORT_BY_DATE] = "eclipse_trace_persp16.png";
+        relPaths[MESSED_WORDS] = "nuvola_kmessedwords16.png";
+        relPaths[PROJECT] = "nuvola_folder_darkblue_open16.png";
+        relPaths[QUIT] = "nuvola_exit16.png";
+        relPaths[REFRESH] = "nuvola_reload16.png";
+        relPaths[TRASH_CAN_EMPTY] = "nuvola_reload16.png";
+        relPaths[QUIT_22] = "nuvola_exit22.png";
+        relPaths[REFRESH_22] = "nuvola_reload22.png";
+        relPaths[IMAGE_22] = "nuvola_indeximg22.png";
     }
 	
 	/**
@@ -552,6 +604,34 @@ public class IconManager
 	{
 		return createIcon(LOGIN_BACKGROUND);
 	}
+	
+	/**
+	 * Returns the splash screen for ImageJ.
+	 * 
+	 * @return See above.
+	 */
+	public static Icon getImageJSplashscreen()
+	{
+		return createIcon(IMAGEJ_SPLASHSCREEN);
+	}
+	
+	/**
+	 * Returns the <i>OME</i> logo to be used for title-bars.
+	 * 
+	 * @return See above.
+	 */
+	public static Image getOMEImageIcon()
+	{
+		//This type cast is OK, see implementation of createIcon.
+		return ((ImageIcon) getOMEIcon()).getImage();
+	}
+	
+	/**
+	 * Returns the <i>OME</i> logo.
+	 * 
+	 * @return See above.
+	 */
+	public static Icon getOMEIcon() { return createIcon(OME_ICON); }
 	
     /** 
      * Retrieves the icon specified by <code>id</code>.

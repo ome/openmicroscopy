@@ -54,7 +54,7 @@
   <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="dist.jar.file" value="omero.insight.jar"/>
   <property name="dist.bundle.name" value="omero.insight"/> 
-  <property name="dist.bundle.version" value="Beta4.1.0-DEV"/>
+  <property name="dist.bundle.version" value="Beta-4.1.0-DEV"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
@@ -119,9 +119,10 @@
 	                 dirsep="/" 
 	                 refid="app.libs">
 	      <map from="${base.lib.dir}" to="${dist.app.lib.dir.name}"/>                
-	    </pathconvert>      
-	    <jar destfile="${dist.dir}/${dist.util.name}.jar">
+	    </pathconvert>   
+	    <jar destfile="${dist.dir}/${dist.util.name}-${dist.bundle.version}.jar">
 	      <fileset dir="${app.compiled.util.dir}"/>
+	    	<fileset dir="${base.lib.dir}" includes="${ivy.module}.jar"/>
 	    	<manifest>
 	    	        <attribute name="Created-By" value="OMERO Development Team"/>
 	    	      </manifest> 

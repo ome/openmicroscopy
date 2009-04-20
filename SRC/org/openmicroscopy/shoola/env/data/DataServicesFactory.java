@@ -239,6 +239,7 @@ public class DataServicesFactory
 		if (index == OMEROGateway.LOST_CONNECTION) {
 			message = "The connection has been lost. \nThe application will " +
 					"exit.";
+			//Need to reconnect.
 		}
 		un.notifyInfo("Connection Refused", message);
 		exitApplication();

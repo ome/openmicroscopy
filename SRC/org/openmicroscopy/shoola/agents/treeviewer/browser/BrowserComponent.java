@@ -207,8 +207,8 @@ class BrowserComponent
 	    	//case LOADING_LEAVES:
 	    	case DISCARDED:
 	    		throw new IllegalStateException(
-	    				"This method cannot be invoked in the LOADING_DATA, "+
-	    		" LOADING_LEAVES or DISCARDED state.");
+	    				"This method cannot be invoked in the "+
+	    		"DISCARDED state.");
     	}
     	hasDataToSave(display);
     	//if (hasDataToSave(display)) return;
@@ -227,6 +227,7 @@ class BrowserComponent
     	if (display == null) view.setNullSelectedNode();
     	firePropertyChange(SELECTED_TREE_NODE_DISPLAY_PROPERTY, oldDisplay, display);
     }
+	
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straight 

@@ -340,8 +340,7 @@ class BrowserModel
         numberLoader = new ContainerCounterLoader(component, containers, nodes);
         numberLoader.load();
     }
-    
-    
+
     /**
      * Sets the object in the {@link Browser#DISCARDED} state.
      * Any ongoing data loading will be cancelled.
@@ -494,13 +493,13 @@ class BrowserModel
      */
 	String getExperimenterNames() { return parent.getExperimenterNames(); }
 
-	 /**
-     * Starts the asynchronous retrieval of the hierarchy objects needed
-     * by this model and sets the state to {@link Browser#LOADING_DATA}
-     * depending on the value of the {@link #filterType}. 
-     * 
-     * @param expNode 	The node hosting the experimenter.
-     */
+	/**
+	 * Starts the asynchronous retrieval of the hierarchy objects needed
+	 * by this model and sets the state to {@link Browser#LOADING_DATA}
+	 * depending on the value of the {@link #filterType}. 
+	 * 
+	 * @param expNode 	The node hosting the experimenter.
+	 */
 	void fireExperimenterDataLoading(TreeImageSet expNode)
 	{
 		int index = -1;

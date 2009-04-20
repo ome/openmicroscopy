@@ -610,7 +610,7 @@ class OMEROGateway
 	}
 
 	/**
-	 * Returns the {@link IPojosPrx} service.
+	 * Returns the {@link IContainerPrx} service.
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -627,7 +627,7 @@ class OMEROGateway
 			}
 			return pojosService; 
 		} catch (Throwable e) {
-			handleException(e, "Cannot access Pojos service.");
+			handleException(e, "Cannot access container service.");
 		}
 		return null;
 	}
@@ -1122,7 +1122,7 @@ class OMEROGateway
 	 * @param port			The port used to connect.
 	 * @param dsFactory 	A reference to the factory. Used whenever a broken 
 	 * 						link is detected to get the Login Service and try 
-	 *                  	reestablishing a valid link to <i>OMEDS</i>.
+	 *                  	reestablishing a valid link to <i>OMERO</i>.
 	 *                  	Mustn't be <code>null</code>.
 	 */
 	OMEROGateway(int port, DataServicesFactory dsFactory)
@@ -1413,7 +1413,6 @@ class OMEROGateway
 		} catch (Exception e) {
 			//session already dead.
 		}
-		return;
 	}
 
 	/**

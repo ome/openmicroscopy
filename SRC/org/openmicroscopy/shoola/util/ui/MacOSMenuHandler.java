@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.Frame;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -60,14 +62,14 @@ public class MacOSMenuHandler
 	public static final String QUIT_APPLICATION_PROPERTY = "quitpplication";
 	
 	/** Helper reference to the parent. */
-	private JFrame parent;
+	private Frame parent;
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param parent Reference to the parent. Mustn't be <code>null</code>.
 	 */
-	public MacOSMenuHandler(JFrame parent)
+	public MacOSMenuHandler(Frame parent)
 	{
 		if (parent == null)
 			throw new IllegalArgumentException("No parent specified.");

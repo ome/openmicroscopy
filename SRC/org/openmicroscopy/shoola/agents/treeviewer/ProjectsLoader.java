@@ -53,7 +53,7 @@ import pojos.ProjectData;
  * @since OME3.0
  */
 public class ProjectsLoader 
-extends DataTreeViewerLoader
+	extends DataTreeViewerLoader
 {
 
 	/** Handle to the async call so that we can cancel it. */

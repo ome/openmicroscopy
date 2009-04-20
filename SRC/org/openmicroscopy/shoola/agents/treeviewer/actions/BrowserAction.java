@@ -80,8 +80,8 @@ public class BrowserAction
         if (model == null) throw new IllegalArgumentException("No Model.");
         this.model = model;
         model.addChangeListener(this);
-        model.addPropertyChangeListener(Browser.SELECTED_TREE_NODE_DISPLAY_PROPERTY,
-                                        this);
+        model.addPropertyChangeListener(
+        		Browser.SELECTED_TREE_NODE_DISPLAY_PROPERTY, this);
     }
 
     /** 

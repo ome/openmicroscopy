@@ -32,8 +32,8 @@ import org.openmicroscopy.shoola.env.Container;
 
 /** 
  * Application entry point.
- * This class implements the main method, which gets only one optional
- * argument to specify the path to the installation directory.
+ * This class implements the main method, which gets one or two optional
+ * arguments to specify the path to the installation directory.
  * <p>If this argument doesn't specify an absolute path, then it'll be 
  * translated into an absolute path. Translation is system dependent -- in
  * many cases, the path is resolved against the user directory (typically the
@@ -56,8 +56,9 @@ public class Main
 	/**
 	 * Main method.
 	 * 
-	 * @param args	Optional path to the installation directory.  If not 
-	 * 				specified, then the user directory is assumed.
+	 * @param args	Optional configuration file and path to the installation 
+	 * 				directory. If not specified, then the user directory is 
+	 * 				assumed and the <code>container.xml</code> is used.
 	 */
 	public static void main(String[] args) 
 	{

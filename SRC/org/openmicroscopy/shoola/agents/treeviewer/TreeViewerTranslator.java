@@ -84,6 +84,22 @@ public class TreeViewerTranslator
 	/** Text of the dummy TreeImageSet containing the orphaned categories.*/
 	public static final String ORPHANED_CATEGORIES = "Ungrouped Tags";
 	
+	/**
+     * Returns the creation time associate to the image.
+     * 
+     * @param image The image to handle.
+     * @return See above.
+     */
+    public static Timestamp getAcquisitionTime(ImageData image)
+    {
+    	if (image == null) return null;
+    	Timestamp date = null;
+        try {
+        	date = image.getAcquisitionDate();
+		} catch (Exception e) {}
+		return date;
+    }
+    
     /**
      * Formats the toolTip of the specified {@link TreeImageDisplay} node.
      * 

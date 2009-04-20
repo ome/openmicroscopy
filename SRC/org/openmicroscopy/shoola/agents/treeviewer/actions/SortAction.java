@@ -53,7 +53,7 @@ public class SortAction
 {
     
     /** Description of the action. */
-    private static final String DESCRIPTION = "Sort by name";
+    private static final String DESCRIPTION = "Sort by name.";
     
     /** 
      * Reacts to {@link Browser}'s state change.
