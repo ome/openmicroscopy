@@ -55,17 +55,17 @@ abstract class BytesConverter
 	 */
 	static BytesConverter getConverter(String pixelsType)
 	{
-		if (DataSink.UINT_8.equals(pixelsType) || 
-			DataSink.UINT_16.equals(pixelsType) ||
-			DataSink.UINT_32.equals(pixelsType))
+		if (PixelTypes.UINT_8.equals(pixelsType) || 
+			PixelTypes.UINT_16.equals(pixelsType) ||
+			PixelTypes.UINT_32.equals(pixelsType))
 			return new UintConverter();
-		else if (DataSink.INT_8.equals(pixelsType) || 
-				DataSink.INT_16.equals(pixelsType) ||
-				DataSink.INT_32.equals(pixelsType))
+		else if (PixelTypes.INT_8.equals(pixelsType) || 
+				PixelTypes.INT_16.equals(pixelsType) ||
+				PixelTypes.INT_32.equals(pixelsType))
 			return new IntConverter();
-		else if (DataSink.FLOAT.equals(pixelsType))
+		else if (PixelTypes.FLOAT.equals(pixelsType))
 			return new FloatConverter();
-		else if (DataSink.DOUBLE.equals(pixelsType))
+		else if (PixelTypes.DOUBLE.equals(pixelsType))
 			return new DoubleConverter();
 		return null;
 	}

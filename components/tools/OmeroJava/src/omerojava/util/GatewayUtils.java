@@ -60,29 +60,6 @@ import omero.model.ProjectI;
  */
 public class GatewayUtils 
 {
-	/** Identifies the type used to store pixel values. */
-	static final public String INT_8 = "int8";
-
-	/** Identifies the type used to store pixel values. */
-	static final public String UINT_8 = "uint8";
-
-	/** Identifies the type used to store pixel values. */
-	static final public String INT_16 = "int16";
-
-	/** Identifies the type used to store pixel values. */
-	static final public String UINT_16 = "uint16";
-
-	/** Identifies the type used to store pixel values. */
-	static final public String INT_32 = "int32";
-
-	/** Identifies the type used to store pixel values. */
-	static final public String UINT_32 = "uint32";
-
-	/** Identifies the type used to store pixel values. */
-	static final public String FLOAT = "float";
-
-	/** Identifies the type used to store pixel values. */
-	static final public String DOUBLE = "double";
 	
 	/**
 	 * Convert the raw integer(4byte colour data) to a bufferedImage, for
@@ -91,8 +68,12 @@ public class GatewayUtils
 	 * @param rawImage see above.
 	 * @return
 	 */
-	static public BufferedImage toBufferedImage(PixelsI pixels, int[] rawImage)
+	static public BufferedImage toBufferedImage(Pixels pixels, int[] rawImage)
 	{
+		if (pixels == null)
+			throw new NullPointerException("pixels is null");
+		if (rawImage == null)
+			throw new NullPointerException("rawImage is null");
 		return ome.util.ImageUtil.createBufferedImage(rawImage, 
 				pixels.getSizeX().getValue(), 
 				pixels.getSizeX().getValue());
@@ -101,20 +82,50 @@ public class GatewayUtils
 	/**
 	 * Extracts a 2D plane from the pixels set this object is working for.
 	 * 
-	 * @param z			The z-section at which data is to be fetched.
-	 * @param t			The timepoint at which data is to be fetched.
-	 * @param w			The wavelength at which data is to be fetched.
+	 * @param pixels	The pixels object from which the rawPlane was retrieved.
+	 * @param rawPlane	The raw bytes of the plane (z,c,t)
 	 * @return A plane 2D object that encapsulates the actual plane pixels.
 	 * @throws DSAccessException 
 	 * @throws DSOutOfServiceException 
 	 */
-	static public Plane2D getPlane2D(PixelsI pixels, byte[] rawPlane)
+	static public Plane2D getPlane2D(Pixels pixels, byte[] rawPlane)
 		throws omero.ServerError
 	{
+		if (pixels == null)
+			throw new NullPointerException("pixels is null");
+		if (rawPlane == null)
+			throw new NullPointerException("rawPlane is null");
+		if (pixels.getPixelsType().getValue().getValue() == null)
+			throw new NullPointerException("pixels.getPixelsType().getValue() is null");
 		String type = pixels.getPixelsType().getValue().getValue();
 		int bytesPerPixels = getBytesPerPixels(type);
-		BytesConverter strategy = getConverter(type);
-		return createPlane(pixels, rawPlane, bytesPerPixels, strategy);
+		BytesConverter strategy = BytesConverter.getConverter(type);
+		return createPlane2D(pixels, rawPlane, bytesPerPixels, strategy);
+	}
+	
+	
+	/**
+	 * Extracts a 1D plane from the pixels set this object is working for.
+	 * 
+	 * @param pixels	The pixels object from which the rawPlane was retrieved.
+	 * @param rawPlane	The raw bytes of the plane (z,c,t)
+	 * @return A plane 1D object that encapsulates the actual plane pixels.
+	 * @throws DSAccessException 
+	 * @throws DSOutOfServiceException 
+	 */
+	static public Plane1D getPlane1D(Pixels pixels, byte[] rawPlane)
+		throws omero.ServerError
+	{
+		if (pixels == null)
+			throw new NullPointerException("pixels is null");
+		if (rawPlane == null)
+			throw new NullPointerException("rawPlane is null");
+		if (pixels.getPixelsType().getValue().getValue() == null)
+			throw new NullPointerException("pixels.getPixelsType().getValue() is null");
+		String type = pixels.getPixelsType().getValue().getValue();
+		int bytesPerPixels = getBytesPerPixels(type);
+		BytesConverter strategy = BytesConverter.getConverter(type);
+		return createPlane1D(pixels, rawPlane, bytesPerPixels, strategy);
 	}
 	
 	/**
@@ -122,15 +133,19 @@ public class GatewayUtils
 	 * loaded already.
 	 * This method makes no calls to the server.
 	 * @param project
-	 * @return
+	 * @return see above.
 	 * @throws ServerError
 	 */
 	static public List<Dataset> getDatasetsFromProject(Project project)
 			throws ServerError
 	{
+		if (project == null)
+			throw new NullPointerException("project is null");
+		if (!project.isLoaded())
+			throw new IllegalArgumentException("project not loaded.");
 		List<Dataset> datasets = new ArrayList<Dataset>();
 		Iterator<ProjectDatasetLink> iterator = ((ProjectI)project).iterateDatasetLinks();
-		while(iterator.hasNext())
+		while (iterator.hasNext())
 			datasets.add(iterator.next().getChild());
 		return datasets;
 	}
@@ -145,6 +160,10 @@ public class GatewayUtils
 	static public List<Pixels> getPixelsFromProject(Project project)
 			throws ServerError
 	{
+		if (project == null)
+			throw new NullPointerException("project is null");
+		if (!project.isLoaded())
+			throw new IllegalArgumentException("project not loaded.");
 		List<Image> images = getImagesFromProject(project);
 		return getPixelsFromImageList(images);
 	}
@@ -159,8 +178,8 @@ public class GatewayUtils
 	static public List<Pixels> getPixelsFromImageList(List<Image> images)
 	{
 		List<Pixels> pixelsList = new ArrayList<Pixels>();
-		for(Image image : images)
-			for(Pixels pixels : image.copyPixels())
+		for (Image image : images)
+			for (Pixels pixels : image.copyPixels())
 				pixelsList.add(pixels);
 		return pixelsList;
 	}
@@ -175,8 +194,8 @@ public class GatewayUtils
 	static public Map<Long, Pixels> getPixelsImageMap(List<Image> images)
 	{
 		Map<Long, Pixels> pixelsList = new TreeMap<Long, Pixels>();
-		for(Image image : images)
-			for(Pixels pixels : image.copyPixels())
+		for (Image image : images)
+			for (Pixels pixels : image.copyPixels())
 				pixelsList.put(image.getId().getValue(), pixels);
 		return pixelsList;
 	}
@@ -191,6 +210,10 @@ public class GatewayUtils
 	static public List<Pixels> getPixelsFromDataset(Dataset dataset)
 			throws ServerError
 	{
+		if (dataset == null)
+			throw new NullPointerException("dataset is null");
+		if (!dataset.isLoaded())
+			throw new IllegalArgumentException("dataset not loaded.");
 		List<Image> images = getImagesFromDataset(dataset);
 		return getPixelsFromImageList(images);
 	}
@@ -204,9 +227,13 @@ public class GatewayUtils
 	 */
 	static public List<Image> getImagesFromDataset(Dataset dataset) throws ServerError
 	{
+		if (dataset == null)
+			throw new NullPointerException("dataset is null");
+		if (!dataset.isLoaded())
+			throw new IllegalArgumentException("dataset not loaded.");
 		List<Image> images = new ArrayList<Image>();
 		Iterator<DatasetImageLink> iterator = ((DatasetI)dataset).iterateImageLinks(); 
-		while(iterator.hasNext())
+		while (iterator.hasNext())
 		    images.add(iterator.next().getChild());
 		return images;
 	}
@@ -220,12 +247,16 @@ public class GatewayUtils
 	 */
 	static public List<Image> getImagesFromProject(Project project) throws ServerError
 	{
+		if (project == null)
+			throw new NullPointerException("project is null");
+		if (!project.isLoaded())
+			throw new IllegalArgumentException("project not loaded.");
 		List<Image> images = new ArrayList<Image>();
 		List<Dataset> datasets = getDatasetsFromProject(project);
-		for(Dataset dataset : datasets)
+		for (Dataset dataset : datasets)
 		{
 			List<Image> datasetImages = getImagesFromDataset(dataset);
-			for(Image image : datasetImages)
+			for (Image image : datasetImages)
 				images.add(image);
 		}
 		return images;
@@ -234,25 +265,23 @@ public class GatewayUtils
 	/**
 	 * Returns the number of bytes per pixel depending on the pixel type.
 	 * 
-	 * @param v The pixels Type.
+	 * @param pixelsType The pixels Type.
 	 * @return See above.
 	 */
-	static public int getBytesPerPixels(String v)
+	static public int getBytesPerPixels(String pixelsType)
 	{
-		if (INT_8.equals(v) || UINT_8.equals(v)) return 1;
-		if (INT_16.equals(v) || UINT_16.equals(v)) return 2;
-		if (INT_32.equals(v) || UINT_32.equals(v) || FLOAT.equals(v)) 
-			return 4;
-		if (DOUBLE.equals(v)) return 8;
-		return -1;
+		if (!PixelTypes.pixelMap.containsKey(pixelsType))
+			throw new IllegalArgumentException(pixelsType + " is not a valid PixelsType.");
+		return PixelTypes.pixelMap.get(pixelsType);
 	}
 	
 	/**
-	 * Factory method to fetch plane data and create an object to access it.
-	 * 
-	 * @param z			The z-section at which data is to be fetched.
-	 * @param t			The timepoint at which data is to be fetched.
-	 * @param w			The wavelength at which data is to be fetched.
+	 * Convert the rawPlane data to a Plane2D object which can then convert 
+	 * that raw byte data to anytype the caller wants.
+	 *
+	 * @param pixels	The pixels object representing the raw data of the plane 
+	 * @param rawPlane	The raw bytes of the plane (z,c,t)
+	 * @param bytesPerPixel The number of bytes per pixel.
 	 * @param strategy	To transform bytes into pixels values.
 	 * @return A plane 2D object that encapsulates the actual plane pixels.
 	 * @throws DSAccessException 
@@ -260,7 +289,7 @@ public class GatewayUtils
 	 * @throws DataSourceException If an error occurs while retrieving the
 	 *                              plane data from the pixels source.
 	 */
-	static private Plane2D createPlane(PixelsI pixels, byte[] rawPlane,
+	static private Plane2D createPlane2D(Pixels pixels, byte[] rawPlane,
 						int bytesPerPixels, BytesConverter strategy) 
 		throws omero.ServerError
 	{
@@ -269,6 +298,31 @@ public class GatewayUtils
 							pixels.getSizeY().getValue(), bytesPerPixels, 
 							strategy);
 	}
+	
+	/**
+	 * Convert the rawPlane data to a Plane1D object which can then convert 
+	 * that raw byte data to anytype the caller wants.
+	 *
+	 * @param pixels	The pixels object representing the raw data of the plane 
+	 * @param rawPlane	The raw bytes of the plane (z,c,t)
+	 * @param bytesPerPixel The number of bytes per pixel.
+	 * @param strategy	To transform bytes into pixels values.
+	 * @return A plane 2D object that encapsulates the actual plane pixels.
+	 * @throws DSAccessException 
+	 * @throws DSOutOfServiceException 
+	 * @throws DataSourceException If an error occurs while retrieving the
+	 *                              plane data from the pixels source.
+	 */
+	static private Plane1D createPlane1D(Pixels pixels, byte[] rawPlane,
+						int bytesPerPixels, BytesConverter strategy) 
+		throws omero.ServerError
+	{
+		ReadOnlyByteArray array = new ReadOnlyByteArray(rawPlane, 0, rawPlane.length);
+		return new Plane1D(array, pixels.getSizeX().getValue(), 
+							pixels.getSizeY().getValue(), bytesPerPixels, 
+							strategy);
+	}
+	
 	/**
 	 * convert the client data pixels to server byte array, also sets the data
 	 * pixel size to the size of the pixels in the pixels Id param.
@@ -278,6 +332,12 @@ public class GatewayUtils
 	 */
 	public static byte[] convertClientToServer(Pixels pixels, double [][] data)
 	{
+		if (pixels == null)
+			throw new NullPointerException("pixels is null");
+		if (data == null)
+			throw new NullPointerException("data is null");
+		if (pixels.getPixelsType().getValue().getValue() == null)
+			throw new NullPointerException("pixels.getPixelsType() is null");
 		String pixelsType  = pixels.getPixelsType().getValue().getValue();
 		int pixelsSize = getPixelsSize(pixelsType); 
 		int sizex = pixels.getSizeX().getValue();
@@ -288,7 +348,7 @@ public class GatewayUtils
 			{
 				int offset = calcOffset(pixelsSize, sizex, x, y);
 				byte[] newBytes = convertValue(pixelsType, data[x][y]);
-				for( int offsetLength = 0 ; offsetLength < newBytes.length ; offsetLength++)
+				for (int offsetLength = 0 ; offsetLength < newBytes.length ; offsetLength++)
 					rawbytes[offset+offsetLength] = newBytes[offsetLength];  
 			}
 		return rawbytes;
@@ -385,35 +445,18 @@ public class GatewayUtils
 	 */
 	static private byte[] convertValue(String pixelsType, Double val)
 	{
-		if(pixelsType.equals(PixelTypes.INT_8) || pixelsType.equals(PixelTypes.UINT_8))
+		if (pixelsType.equals(PixelTypes.INT_8) || pixelsType.equals(PixelTypes.UINT_8))
 			return mapToByteArray(val.byteValue());
-		else if(pixelsType.equals(PixelTypes.INT_16) || pixelsType.equals(PixelTypes.UINT_16))
+		else if (pixelsType.equals(PixelTypes.INT_16) || pixelsType.equals(PixelTypes.UINT_16))
 			return mapToByteArray(val.shortValue());
-		else if(pixelsType.equals(PixelTypes.INT_32) || pixelsType.equals(PixelTypes.UINT_32))
+		else if (pixelsType.equals(PixelTypes.INT_32) || pixelsType.equals(PixelTypes.UINT_32))
 			return mapToByteArray(val.intValue());
-		else if(pixelsType.equals(PixelTypes.FLOAT))
+		else if (pixelsType.equals(PixelTypes.FLOAT))
 			return mapToByteArray(val.floatValue());
 		else
 			return mapToByteArray(val.doubleValue());
 	}
 
-	static BytesConverter getConverter(String pixelsType)
-	{
-		if (UINT_8.equals(pixelsType) || 
-			UINT_16.equals(pixelsType) ||
-			UINT_32.equals(pixelsType))
-			return new UintConverter();
-		else if (INT_8.equals(pixelsType) || 
-				INT_16.equals(pixelsType) ||
-				INT_32.equals(pixelsType))
-			return new IntConverter();
-		else if (FLOAT.equals(pixelsType))
-			return new FloatConverter();
-		else if (DOUBLE.equals(pixelsType))
-			return new DoubleConverter();
-		return null;
-	}
-	
 	
 }
 
