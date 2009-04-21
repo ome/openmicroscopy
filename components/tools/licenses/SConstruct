@@ -8,8 +8,8 @@ blitz = os.path.abspath( os.path.join(os.path.curdir, os.path.pardir, os.path.pa
 sys.path.append( blitz )
 from blitz_tools import *
 
-env = OmeroEnvironment()
-env.Repository("generated", "resources")
+env = OmeroEnvironment( ENV = os.environ )
+env.Repository(["generated", "resources"])
 env.Append(CPPPATH=["generated",tools_include])
 
 if os.environ.has_key("NOMAKE"):

@@ -119,6 +119,13 @@ else:
 
 
 env = Environment(**map)
+
+# Support for ICE_HOME
+if os.environ.has_key("ICE_HOME"):
+    ice_home = os.environ["ICE_HOME"]
+    env.AppendUnique( CPPPATH = [os.path.join(ice_home, "include")] )
+    env.AppendUnique( LIBPATH = [os.path.join(ice_home, "lib"    )] )
+
 # env.Decider('MD5-timestamp')
 
 # CONFIGURATION: ==============================================

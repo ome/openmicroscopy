@@ -155,9 +155,9 @@ class OmeroEnvironment(SConsEnvironment):
         #
         # CPPPATH
         #
-        self.AppendUnique(CPPPATH=blitz_generated)
+        self.AppendUnique(CPPPATH = [blitz_generated] )
         if ice_home:
-            self.Append(CPPPATH=os.path.join(ice_home, "include"))
+            self.Append(CPPPATH = [os.path.join(ice_home, "include")] )
         if os.environ.has_key("CPPPATH"):
             self.AppendUnique(CPPPATH=os.environ["CPPPATH"].split(os.path.pathsep))
         if win32:
