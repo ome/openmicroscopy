@@ -83,7 +83,7 @@ public interface DataService
 		throws  omero.ServerError;
 	
 	/**
-	 * Get the Datasets from the projects with id's
+	 * Get the Datasets with id's passed as list in ids.
 	 * @param ids see above.
 	 * @param getLeaves should image data be populated.
 	 * @return see above.
