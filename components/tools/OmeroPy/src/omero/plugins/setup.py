@@ -75,6 +75,7 @@ Syntax: %(program_name)s setup [simple|intermediate|advanced] [+|-psql] [+|-djan
         """
 
 try:
-    register("setup", SetupControl)
+    # DISABLED register("setup", SetupControl)
+    pass
 except NameError:
     SetupControl()._main()

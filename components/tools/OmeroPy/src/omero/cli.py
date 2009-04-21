@@ -610,7 +610,7 @@ For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/Ome
                 ##event.extend(other)
                 ##self.ctx.pub(event)
             except KeyError, ke:
-                self.ctx.err("Unknown command:" + first)
+                self.ctx.unknown_command(first)
 
 class CLI(cmd.Cmd, Context):
     """
@@ -749,7 +749,10 @@ class CLI(cmd.Cmd, Context):
             if self.controls.has_key(first):
                 return self.invoke(arg.args)
             else:
-                self.err("Unknown command: " + arg.join(" "))
+                self.unknown_command(first)
+
+    def unknown_command(self, first):
+            self.err("""Unknown command: "%s" Try "help".""" % first)
 
     def completenames(self, text, line, begidx, endidx):
         names = self.controls.keys()
