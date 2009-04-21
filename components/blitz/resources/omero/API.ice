@@ -193,7 +193,8 @@ module omero {
 	    void deleteImage(long id, bool force) throws ApiUsageException, ValidationException, SecurityViolation, ServerError;
 	    void deleteImages(LongList ids, bool force) throws ApiUsageException, ValidationException, SecurityViolation, ServerError;
 	    void deleteImagesByDataset(long datasetId, bool force) throws ApiUsageException, ValidationException, SecurityViolation, ServerError;
-        void deleteSettings(long imageId) throws ServerError;
+            void deleteSettings(long imageId) throws ServerError;
+            void deletePlate(long plateId) throws ServerError;
 	};
 
 	/*
