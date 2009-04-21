@@ -10,83 +10,6 @@ import os, signal, subprocess, sys, threading, tempfile, time, traceback
 from omero_model_OriginalFileI import OriginalFileI
 from omero.rtypes import *
 
-CONFIG="""
-Ice.ACM.Client=0
-Ice.MonitorConnections=60
-Ice.RetryIntervals=-1
-Ice.Warn.Connections=1
-Ice.ImplicitContext=Shared
-Ice.GC.Interval=60
-"""
-
-class Resources:
-    """
-    Container class for storing resources which should be
-    cleaned up on close.
-    """
-    def __init__(self):
-        self.stuff = []
-    def add(self, object, cleanupMethod = "cleanup"):
-        lock = threading.RLock()
-        lock.acquire()
-        try:
-            self.stuff.append((object,cleanupMethod))
-        finally:
-            lock.release()
-    def cleanupNext(self):
-        lock = threading.RLock()
-        lock.acquire()
-        try:
-            try:
-                if len(self.stuff) > 0:
-                    m = self.stuff.pop(0)
-                    method = getattr(m[0],m[1])
-                    method()
-                    return len(self.stuff) > 0
-                else:
-                    return False
-            except:
-                print "Error cleaning resource:",m
-                traceback.print_exc()
-        finally:
-            lock.release()
-
-class Environment:
-    """
-    Simple class for creating an executable environment
-    """
-
-    def __init__(self,*args):
-        """
-        Takes an number of environment variable names which
-        should be copied to the target environment if present
-        in the current execution environment.
-        """
-        self.env = {}
-        for arg in args:
-            if os.environ.has_key(arg):
-                self.env[arg] = os.environ[arg]
-    def __call__(self):
-        """
-        Returns the environment map when called.
-        """
-        return self.env
-
-    def set(self, key, value):
-        """
-        Manually sets a value in the target environment.
-        """
-        self.env[key] = value
-
-    def append(self, key, addition):
-        """
-        Manually adds a value to the environment string
-        """
-        if self.env.has_key(key):
-            self.env[key] = os.pathsep.join([self.env[key], addition])
-        else:
-            self.set(key, addition)
-
 class ProcessI(omero.grid.Process):
     """
     Wrapper around a subprocess.Popen instance. Returned by ProcessorI
@@ -100,7 +23,7 @@ class ProcessI(omero.grid.Process):
     ICE_CONFIG=./config interpreter ./script >out 2>err &
 
     The properties argument is used to generate the ./config file.
-    
+
     The params argument may be null in which case this process
     is being used solely to calculate the parameters for the script
     ("omero.scripts.parse=true")
@@ -122,7 +45,7 @@ class ProcessI(omero.grid.Process):
         self.config_name = os.path.join(self.dir, "config")
         self.stdout_name = os.path.join(self.dir, "out")
         self.stderr_name = os.path.join(self.dir, "err")
-        self.env = Environment("PATH","PYTHONPATH","DYLD_LIBRARY_PATH","LD_LIBRARY_PATH","MLABRAW_CMD_STR")
+        self.env = omero.util.Environment("PATH","PYTHONPATH","DYLD_LIBRARY_PATH","LD_LIBRARY_PATH","MLABRAW_CMD_STR")
         self.env.set("ICE_CONFIG", self.config_name)
         # WORKAROUND
         # Currently duplicating the logic here as in the PYTHONPATH
@@ -226,7 +149,6 @@ class ProcessI(omero.grid.Process):
         """
         config_file = open(self.config_name, "w")
         try:
-            config_file.write(CONFIG)
             for key in self.properties.iterkeys():
                 config_file.write("%s=%s\n"%(key, self.properties[key]))
         finally:
@@ -301,7 +223,7 @@ class ProcessorI(omero.grid.Processor):
         self.log = log
         self.cfg = os.path.join(os.curdir, "etc", "ice.config")
         self.cfg = os.path.abspath(self.cfg)
-        self.resources = Resources()
+        self.resources = omero.util.Resources()
 
     def parseJob(self, session, job, current = None):
         properties = {}
@@ -368,38 +290,6 @@ class ProcessorI(omero.grid.Processor):
         while self.resources.cleanupNext():
             pass
 
-class Server(Ice.Application):
-    """
-    Basic server implementation
-    """
-    def run(self,args):
-        self.shutdownOnInterrupt()
-        self.objectfactory = omero.ObjectFactory()
-        self.objectfactory.registerObjectFactory(self.communicator())
-        for of in ObjectFactories.values():
-            of.register(self.communicator())
-        self.adapter = self.communicator().createObjectAdapter("ProcessorAdapter")
-        self.p = ProcessorI(self.communicator().getLogger())
-        self.p.serverid = self.communicator().getProperties().getProperty("Ice.ServerId")
-
-        self.adapter.add(self.p, Ice.Identity("Processor",""))
-        self.adapter.activate()
-        self.communicator().waitForShutdown()
-        self.cleanup()
-
-    def cleanup(self):
-        """
-        Cleans up all resources that were created by this server.
-        Primarily the one ProcessorI instance.
-        """
-        if hasattr(self,"p"):
-            try:
-                self.p.cleanup()
-            finally:
-                self.p = None
-
 if __name__ == "__main__":
-    app=Server()
+    app = omero.util.Server(ProcessorI, "ProcessorAdapter", Ice.Identity("Processor",""))
     sys.exit(app.main(sys.argv))
-
-
