@@ -11,5 +11,20 @@ int main()
     // image1 pointer takes value of image2
     // image1's content is garbage collected
     image1 = image2;
+
+    //
+    // Careful with boolean contexts
+    //
+    if (image1 && image1 == 1) {
+        // Means non-null
+        // This object can be dereferenced
+    }
+
+    ImageIPtr nullImage; // No assignment
+    if ( !nullImage && nullImage == 0) {
+        // Dereferencing nullImage here would throw an exception:
+        // nullImage->getId(); // IceUtil::NullHandleException !
+    }
+
 }
 
