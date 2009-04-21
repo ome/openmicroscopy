@@ -27,6 +27,7 @@ import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import ome.util.Utils;
 import omero.ApiUsageException;
+import omero.InternalException;
 import omero.RType;
 import omero.ServerError;
 import omero.ValidationException;
@@ -487,6 +488,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         ScriptJobI job = buildJob(file.getId());
         InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10,
                 __current);
+        if (proc == null) {
+            throw new InternalException(null, null, "No processor acquired.");
+        }
         JobParams rv = proc.params();
         deleteTempJob(proc.getJob().getId().getValue());
         return rv;
