@@ -891,6 +891,8 @@ def safeCallWrap (self, attr, f): #pragma: no cover
             raise
         except Ice.MemoryLimitException:
             raise
+        except omero.ApiUsageException:
+            raise
         except Ice.Exception, x:
             # Failed
             logger.debug( "Ice.Exception (1) on safe call %s(%s,%s)" % (attr, str(args), str(kwargs)))
@@ -924,6 +926,9 @@ def safeCallWrap (self, attr, f): #pragma: no cover
             raise
         except omero.SecurityViolation:
             logger.debug("SecurityViolation, bailing out")
+            raise
+        except omero.ApiUsageException:
+            logger.debug("ApiUsageException, not much we can do, abort")
             raise
         except Ice.Exception:
             logger.debug("exception caught, first time we back off for 10 secs")
