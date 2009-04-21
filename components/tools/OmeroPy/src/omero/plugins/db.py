@@ -95,7 +95,7 @@ class DatabaseControl(BaseControl):
 
         script = "%s__%s.sql" % (db_vers, db_patch)
         if not location:
-            location = self.ctx.dir / script
+            location = path().getcwd() / script
 
         output = open(location, 'w')
         print "Saving to " + location
