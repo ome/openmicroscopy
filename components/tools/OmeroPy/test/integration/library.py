@@ -8,6 +8,8 @@
 
 """
 
+import Ice
+import sys
 import unittest
 import omero
 import tempfile
@@ -16,13 +18,15 @@ import exceptions
 from omero.rtypes import rstring
 from uuid import uuid4 as uuid
 
+
 class ITest(unittest.TestCase):
 
     def setUp(self):
         self.tmpfiles = []
-        # Create a client for lookup
-        lookup = omero.client({"Ice.Default.Locator":"tcp"})
-        rootpass = lookup.getProperty("omero.rootpass")
+
+        p = Ice.createProperties(sys.argv)
+        rootpass = p.getProperty("omero.rootpass")
+
         if rootpass:
             self.root = omero.client()
             self.root.createSession("root",rootpass)

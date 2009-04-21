@@ -9,6 +9,7 @@ import omero, Ice
 import os, signal, subprocess, sys, threading, tempfile, time, traceback
 from omero_model_OriginalFileI import OriginalFileI
 from omero.rtypes import *
+from path import path
 
 class ProcessI(omero.grid.Process):
     """
@@ -46,7 +47,6 @@ class ProcessI(omero.grid.Process):
         self.stdout_name = os.path.join(self.dir, "out")
         self.stderr_name = os.path.join(self.dir, "err")
         self.env = omero.util.Environment("PATH","PYTHONPATH","DYLD_LIBRARY_PATH","LD_LIBRARY_PATH","MLABRAW_CMD_STR")
-        self.env.set("ICE_CONFIG", self.config_name)
         # WORKAROUND
         # Currently duplicating the logic here as in the PYTHONPATH
         # setting of the grid application descriptor (see etc/grid/*.xml)
@@ -54,7 +54,8 @@ class ProcessI(omero.grid.Process):
         # by having setting PYTHONPATH to an absolute value. This is
         # not currently possible with IceGrid (without using icepatch --
         # see 39.17.2 "node.datadir).
-        self.env.append("PYTHONPATH", os.path.join(os.getcwd(), "lib"))
+        self.env.append("PYTHONPATH", str(path().getcwd() / "lib" / "python"))
+        self.env.set("ICE_CONFIG", self.config_name)
         self.make_config()
 
     def activate(self):
@@ -118,10 +119,16 @@ class ProcessI(omero.grid.Process):
         attached to the job.
         """
         if self.params:
+            out_format = self.params.stdoutFormat
+            err_format = self.params.stderrFormat
+        else:
+            out_format = "text/plain"
+            err_format = out_format
+        if True:
             client = omero.client(["--Ice.Config=%s" % self.config_name])
-            client.createSession()
-            self._upload(client, self.stdout_name, "stdout", self.params.stdoutFormat)
-            self._upload(client, self.stderr_name, "stderr", self.params.stderrFormat)
+            client.createSession().detachOnDestroy()
+            self._upload(client, self.stdout_name, "stdout", out_format)
+            self._upload(client, self.stderr_name, "stderr", err_format)
 
     def _upload(self, client, filename, name, format):
         if format:
@@ -228,14 +235,17 @@ class ProcessorI(omero.grid.Processor):
     def parseJob(self, session, job, current = None):
         properties = {}
         properties["omero.scripts.parse"] = "true"
-        process = self.process(session, job, current, None, properties)
-        process.wait()
+        # We need to use the client twice, so initializing here.
         client = omero.client(["--Ice.Config=%s" % (self.cfg)])
-        client.joinSession(session)
+        client.joinSession(session).detachOnDestroy()
+        process = self.process(session, job, current, None, properties, client)
+        process.wait()
         rv = client.getOutput("omero.scripts.parse")
         if rv != None:
             return rv.val
-        return None
+        else:
+            self.log.warning("No output found for omero.scripts.parse. Keys: %s" % client.getOutputKeys())
+            return None
 
     def processJob(self, session, job, current = None):
         """
@@ -243,9 +253,15 @@ class ProcessorI(omero.grid.Processor):
         params = self.parseJob(session, job, current)
         return self.process(session, job, current, params)
 
-    def process(self, session, job, current, params, properties = {}):
-        client = omero.client(["--Ice.Config=%s" % (self.cfg)])
-        sf = client.createSession(session, session)
+    def process(self, session, job, current, params, properties = {}, client = None):
+        """
+        session: session uuid, used primarily if client is None
+        client: an optional omero.client object which should be attached to a session
+        """
+        if not client:
+            client = omero.client(["--Ice.Config=%s" % (self.cfg)])
+            client.joinSession(session).detachOnDestroy()
+        sf = client.getSession()
         ec = sf.getAdminService().getEventContext()
 
         handle = sf.createJobHandle()

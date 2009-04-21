@@ -402,7 +402,8 @@ class client(object):
         return digest.hexdigest()
 
     def upload(self, filename, name = None, path = None,
-               type = None, ofile = None, block_size = 1024):
+               type = None, ofile = None, block_size = 1024,
+               permissions = None):
         """
         Utility method to upload a file to the server.
         """
@@ -450,6 +451,9 @@ class client(object):
                 else:
                     ofile.format = FormatI()
                     ofile.format.value = rstring(type)
+
+            if permissions:
+                ofile.details.permissions = permissions
 
             up = self.__sf.getUpdateService()
             ofile = up.saveAndReturnObject(ofile)

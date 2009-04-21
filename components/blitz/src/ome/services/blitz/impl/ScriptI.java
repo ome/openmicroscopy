@@ -18,6 +18,8 @@ import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
 import ome.model.enums.Format;
+import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Role;
 import ome.model.jobs.JobOriginalFileLink;
 import ome.parameters.Parameters;
 import ome.services.blitz.util.BlitzExecutor;
@@ -513,6 +515,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         tempFile.setFormat(getFormat(PYTHONSCRIPT));
         tempFile.setSize((long) script.getBytes().length);
         tempFile.setSha1(Utils.bufferToSha1(script.getBytes()));
+        // Make sure that the file is readable #1315
+        tempFile.getDetails().setPermissions(Permissions.PUBLIC);
         return updateFile(tempFile);
     }
 
@@ -531,6 +535,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 			@Transactional(readOnly=false)
                     public Object doWork(Session session, ServiceFactory sf) {
                         IUpdate update = sf.getUpdateService();
+                        file.getDetails().setUpdateEvent(null);
                         return update.saveAndReturnObject(file);
                     }
 

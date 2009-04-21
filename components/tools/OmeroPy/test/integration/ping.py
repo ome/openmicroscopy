@@ -17,6 +17,10 @@ from omero.rtypes import *
 PINGFILE = """
 #!/usr/bin/env python
 
+import sys
+from pprint import pprint
+pprint(sys.path)
+
 import os, uuid
 from omero_ext import pysys
 import omero, omero.scripts as s
@@ -54,14 +58,15 @@ for k,v in os.environ.items():
 
 #
 # Must use pysys because of a naming clash with
-# with the omero.sys package. 
+# with the omero.sys package.
 #
 pysys.stderr.write("Oh, and this is stderr.");
 
-
-
-
 """
+
+PUBLIC = omero.model.PermissionsI()
+PUBLIC.setGroupRead(True)
+PUBLIC.setWorldRead(True)
 
 class TestPing(lib.ITest):
 
@@ -70,7 +75,7 @@ class TestPing(lib.ITest):
         try:
             pingfile.write(PINGFILE)
             pingfile.flush()
-            file = self.root.upload(pingfile.name, type="text/x-python")
+            file = self.root.upload(pingfile.name, type="text/x-python", permissions = PUBLIC)
             j = omero.model.ScriptJobI()
             j.linkOriginalFile(file)
 
