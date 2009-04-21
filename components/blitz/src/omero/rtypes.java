@@ -748,7 +748,7 @@ public abstract class rtypes {
         public boolean equals(Object obj) {
             if (obj == this) {
                 return true;
-            } else if (!(obj instanceof omero.RString)) {
+            } else if (!(obj instanceof omero.RList)) {
                 return false;
             }
             omero.RList rval = (omero.RList) obj;
@@ -815,7 +815,7 @@ public abstract class rtypes {
         public boolean equals(Object obj) {
             if (obj == this) {
                 return true;
-            } else if (!(obj instanceof omero.RString)) {
+            } else if (!(obj instanceof omero.RSet)) {
                 return false;
             }
             omero.RSet rval = (omero.RSet) obj;

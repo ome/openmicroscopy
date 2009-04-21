@@ -109,6 +109,7 @@ public class Entry {
                     // But just in case, future code changes should introduce
                     // an exception (and to make findbugs happy) we'll add the
                     // try/finally
+                    instance.lock.unlock();
                 }
             }
         };

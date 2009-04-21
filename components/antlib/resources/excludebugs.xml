@@ -25,8 +25,19 @@
   <Match> <Package name="omero.grid"/> </Match>
   <Match> <Package name="omero.model"/> </Match>
   <Match> <Package name="omero.sys"/> </Match>
-  <Match> <Package name="ome.services.sharing.data"/> </Match>
-
+  <!--
+    The omero_client.jar contains all of Ice.jar and
+    so those need to be filtered as well.
+  -->
+  <Match> <Package name="Freeze"/> </Match>
+  <Match> <Package name="Glacier2"/> </Match>
+  <Match> <Package name="Ice"/> </Match>
+  <Match> <Package name="IceBox"/> </Match>
+  <Match> <Package name="IceGrid"/> </Match>
+  <Match> <Package name="IceInternal"/> </Match>
+  <Match> <Package name="IceSSL"/> </Match>
+  <Match> <Package name="IceStorm"/> </Match>
+  <Match> <Package name="IceUtilInternal"/> </Match>
 </FindBugsFilter>
 
 

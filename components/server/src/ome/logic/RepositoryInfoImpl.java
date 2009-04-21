@@ -324,7 +324,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
         }
 
         // cleanup any pixels
-        if (pixels != null & pixels.size() > 0) {
+        if (pixels != null && pixels.size() > 0) {
             log.info("Removing pixels: " + pixels);
             pixelsService.removePixels(pixels);
         }

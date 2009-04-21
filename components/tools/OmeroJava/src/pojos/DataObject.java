@@ -139,7 +139,7 @@ public abstract class DataObject {
             converted = new TextualAnnotationData((CommentAnnotation) obj);
         } else if (obj instanceof LongAnnotation) {
             LongAnnotation ann = (LongAnnotation) obj;
-            if (RatingAnnotationData.INSIGHT_RATING_NS.equals(ann.getNs())) {
+            if (RatingAnnotationData.INSIGHT_RATING_NS.equals(ann.getNs().getValue())) {
                 converted = new RatingAnnotationData(ann);
             } else {
                 converted = new LongAnnotationData(ann);

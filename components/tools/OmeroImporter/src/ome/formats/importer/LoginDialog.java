@@ -238,7 +238,7 @@ public class LoginDialog extends JDialog
 
             public void windowOpened(WindowEvent e)
             {
-                if (uname == null) uname.requestFocus();
+                if (uname != null) uname.requestFocus();
                 else
                     pswd.requestFocus();
             }
