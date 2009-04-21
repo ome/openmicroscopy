@@ -20,6 +20,7 @@ import omero.api.AMD_IDelete_deleteImage;
 import omero.api.AMD_IDelete_deleteImagesByDataset;
 import omero.api.AMD_IDelete_deleteImages;
 import omero.api.AMD_IDelete_deleteSettings;
+import omero.api.AMD_IDelete_deletePlate;
 import omero.api.AMD_IDelete_previewImageDelete;
 import omero.api._IDeleteOperations;
 import Ice.Current;
@@ -73,5 +74,10 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations {
     public void deleteSettings_async(AMD_IDelete_deleteSettings __cb,
             long imageId, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, imageId);
+    }
+
+    public void deletePlate_async(AMD_IDelete_deletePlate __cb,
+            long plateId, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, plateId);
     }
 }
