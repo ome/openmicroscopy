@@ -26,13 +26,15 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 
 from omeroweb.webadmin.models import Gateway
-from omeroweb.webclient.models import Advice, CategoryAdvice
+from omeroweb.webclient.models import Advice, CategoryAdvice, EmailToSend, EmailTemplate
 
 # make admin enable
 admin.autodiscover()
 admin.site.register(Gateway)
 admin.site.register(Advice)
 admin.site.register(CategoryAdvice)
+admin.site.register(EmailToSend)
+admin.site.register(EmailTemplate)
 
 # error handler
 handler404 = "omeroweb.feedback.views.handler404"

@@ -1,0 +1,807 @@
+/**
+ * Weblitz image viewport
+ *
+ * @depends: jquery-plugin-viewportImage.js
+ * @depends: weblitz.css
+ *
+ * Depends on jquery, gs_utils
+ *
+ * Author: C. Neves <carlos@glencoesoftware.com>
+ *
+ * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * 
+ * This software is distributed under the terms described by the LICENCE file
+ * you can find at the root of the distribution bundle, which states you are
+ * free to use it only for non commercial purposes.
+ * If the file is missing please request a copy by contacting
+ * jason@glencoesoftware.com.
+ *
+ */
+
+/* Public constructors */
+
+jQuery.fn.WeblitzViewport = function (server, options) {
+  return this.each
+  (
+   function () {
+     jQuery._WeblitzViewport (this, server, options);
+   });
+};
+
+jQuery.WeblitzViewport = function (elm, server, options) {
+  var container = jQuery(elm).get(0);
+  var rv = container.WeblitzViewport || (container.WeblitzViewport = new jQuery._WeblitzViewport(container, server, options));
+  return rv;
+};
+
+/* Helper objects */
+
+var Metadata = function () {
+  this._loaded = false;
+  this.current = {};
+  this.rdefs = {};
+  this._load = function (data) {
+    var cached = {};
+    if (!this._loaded) {
+      this._loaded = true;
+      cached.rdefs = this.rdefs;
+    }
+    for (i in data) {
+      this[i] = data[i];
+    }
+    for (i in cached) {
+      for (j in cached[i]) {
+        this[i][j] = cached[i][j];
+      }
+    }
+    this.current.z = parseInt(this.size.z / 2);
+    this.current.t = 0;
+    this.current.zoom = 100;
+  }
+  return true;
+}
+
+/* (make believe) Private constructor */
+
+/**
+ * _WeblitzViewport class created in the jQuery namespace holds all logic for interfacing with the weblitz
+ * viewport and ajax server.
+ *
+ * Own Events:
+ *  - imageLoad: initial load of image data, before the actual image object is fetched (once per image id).
+ *  - imageChange: image object loaded a specific image view.
+ *  - channelChange:
+ *  - modelChange:
+ * Events Proxied from jquery-plugin-viewportImage:
+ *
+ *
+ * @constructor 
+ */
+
+jQuery._WeblitzViewport = function (container, server, options) {
+  this.self = jQuery(container);
+  this.origHTML = this.self.html();
+  this.self.html("");
+  var _this = this;
+  var thisid = this.self.attr('id');
+  this.loadedImg = new Metadata();
+  var topid = thisid + '-top';
+  var zsliderid = thisid + '-zsl';
+  var viewportid = thisid + '-vp';
+  var viewportimgid = thisid + '-img';
+  var viewportmsgid = thisid + '-msg';
+  var bottomid = thisid + '-bot';
+  var tsliderid = thisid + '-tsl';
+  var opts = {};
+  var ajaxTimeout;
+  this.self.append('<div id="'+topid+'" id="'+topid+'" class="weblitz-viewport-top">');
+  this.top = jQuery('#'+topid);
+  this.top.append('<div id="'+zsliderid+'">');
+  this.zslider = jQuery('#'+zsliderid);
+  this.top.append('<div id="'+viewportid+'" class="weblitz-viewport-vp">');
+  this.viewport = jQuery('#'+viewportid);
+  this.viewport.append('<img id="'+viewportimgid+'">');
+  this.viewportimg = jQuery('#'+viewportimgid);
+  this.viewport.append('<div id="'+viewportmsgid+'" class="weblitz-viewport-msg"></div>');
+  this.viewportmsg = jQuery('#'+viewportmsgid);
+  this.self.append('<div id="'+bottomid+'" class="weblitz-viewport-bot">');
+  this.bottom = jQuery('#'+bottomid);
+  this.bottom.append('<div id="'+tsliderid+'">');
+  this.tslider = jQuery('#'+tsliderid);
+
+  var done_reload = function () {
+    return _this.viewportmsg.is(':hidden');
+  };
+
+  this.viewportimg.viewportImage(options);
+  this.viewportimg.bind('zoom', function (e,z) { _this.loadedImg.current.zoom = z; });
+  this.zslider.slider({ orientation: 'v', min:0, max:0, tooltip_prefix: 'Z=', repeatCallback: done_reload });
+  this.tslider.slider({ tooltip_prefix: 'T=', min:0, max:0, repeatCallback: done_reload });
+  this.viewportimg.css('overflow', 'hidden');
+  this.zslider.bind('change', function (e,pos) {
+	_this.loadedImg.current.z = pos-1;
+        _load();
+     });
+  this.tslider.bind('change', function (e,pos) {
+	_this.loadedImg.current.t = pos-1;
+        _load();
+     });
+
+  var after_img_load_cb = function (callback) {
+    hideLoading();
+    _this.viewportimg.show();
+    _this.zslider.get(0).pos = -1;
+    if (_this.loadedImg.rdefs.projection.toLowerCase().substring(3,0) == 'int') {
+      _this.zslider.get(0).setSliderRange(1, 1, _this.loadedImg.current.z+1, false);
+    } else {
+      _this.zslider.get(0).setSliderRange(1, _this.loadedImg.size.z, _this.loadedImg.current.z+1, false);
+    }
+    if (callback) {
+      callback();
+    }
+    if (_this.hasLinePlot()) {
+      _this.viewportimg.one('zoom', function () {_this.refreshPlot();});
+    }
+  }
+  
+  /**
+   * Initializes the data structures with the supplied data values.
+   * Gets called as callback from the json AJAX fetching of image metadata.
+   *
+   * @param {Dict} data The image data from the server as a dictionary with the following keys:
+   *                     {id, width, height, z_count, t_count, c_count,
+   *                      rdefs:{model,},
+   *                      channels:[{emissionWave,color,active},]}
+   */
+  var _reset = function (data, textStatus) {
+    clearTimeout(ajaxTimeout);
+    _this.loadedImg._load(data);
+    if (_this.loadedImg.current.query) {
+      _this.setQuery(_this.loadedImg.current.query);
+    }
+    _load(function () {
+      _this.refresh();
+      if (!_this.loadedImg.current.query.zm) {
+        var size = getSizeDict();
+        _this.viewportimg.get(0).setZoomToFit(true, size.width, size.height);
+      }
+      if (_this.loadedImg.current.query.lp) {
+        _this.refreshPlot();
+      }
+      _this.self.trigger('imageLoad', [_this]);
+    });
+    _this.tslider.get(0).setSliderRange(1, _this.loadedImg.size.t, _this.loadedImg.current.t+1, false);
+    channels_undo_stack = [];
+    channels_undo_stack_ptr = -1;
+    channels_bookmark = null;
+    _this.save_channels();
+  }
+
+
+
+  /**
+   * Request a particular view of the current image from the server.
+   * The definition of the view will be whatever is set in loadedImg at this point.
+   * 
+   */
+  var _load = function (callback) {
+    if (_this.loadedImg._loaded) {
+      var href;
+      if (_this.loadedImg.rdefs.projection.toLowerCase() != 'split') {
+        href = server + '/render_image/' + _this.getRelUrl();
+      } else {
+        href = server + '/render_split_channel/' + _this.getRelUrl();
+      }
+      var rcb = function () { after_img_load_cb(callback); _this.viewportimg.unbind('load', rcb); };
+      showLoading();
+      _this.viewportimg.load(rcb);
+      _this.viewportimg.attr('src', href);
+      _this.self.trigger('imageChange', [_this]);
+    }
+  }
+
+  /**
+   * @param {Integer} iid The image id on the database.
+   * @param {Integer} dsid The Dataset id this image belongs to, optional.
+   */
+  this.load = function(iid, dsid, query) {
+    //showLoading();
+    linePlot = null;
+    _this.refreshPlot();
+    _this.loadedImg.current.dataset_id = dsid;
+    _this.loadedImg.current.query = parseQuery(query);
+    //viewportimg.hide();
+    ajaxTimeout = setTimeout(function() {if (_this.origHTML) _this.self.replaceWith(_this.origHTML);}, 2500);
+    jQuery.getJSON(server+'/imgData/'+iid+'/?callback=?', _reset);
+  };
+
+  var loadingQ = 0;
+  var showLoading = function (msg, time) {
+    if (_this.viewportmsg.is(':hidden')) {
+      loadingQ = 0;
+    }
+    if (msg === undefined) {
+      msg = 'Loading...';
+    }
+    _this.viewportmsg.html(msg);
+    loadingQ++;
+    _this.viewportmsg.show();
+    if (time) {
+      setTimeout(function() {hideLoading();}, time*1000)
+    }
+  };
+
+  var hideLoading = function () {
+    if (loadingQ > 0) {
+      loadingQ--;
+    }
+    if (loadingQ < 1) {
+      _this.viewportmsg.hide();
+    }
+  };
+
+  /* Line Plot related funcs */
+
+  var LinePlot = function (pos, direction) {
+    this.position = parseInt(pos);
+    this._isHorizontal = direction.substring(0,1).toLowerCase() == 'h';
+    this.isHorizontal = function () {
+      return this._isHorizontal;
+    }
+    this.isVertical = function () {
+      return !this._isHorizontal;
+    }
+    this.getUrl = function () {
+      var append = this.position;//+'/'+parseInt(Math.max(1,100/_this.getZoom()*1.0));
+      return server+'/render_'+(this.isHorizontal()?'row':'col')+'_plot/' + _this.getRelUrl(append);
+    }
+  }
+
+  var linePlot = null;
+
+  this.hasLinePlot = function () {
+    return _this.loadedImg.rdefs.projection.toLowerCase().substring(0,6) == 'normal' && _this.viewportimg.get(0).overlayVisible();
+  }
+
+  this.getLinePlot = function () {
+    return linePlot;
+  }
+
+  this.prepareLinePlot = function (axis) {
+    if (!linePlot || (axis == 'v' != linePlot.isVertical())) {
+      linePlot = new LinePlot(0,axis,100, server, _this.getRelUrl);
+    }
+  }
+
+  var pickPosHandler = function (e) {
+    if (_this.getLinePlot()) {
+      var pos;
+      var targetpos = _this.viewportimg.offset();
+      if (_this.getLinePlot().isVertical()) {
+        pos = _this.loadedImg.size.width * (e.clientX - targetpos.left) / _this.viewportimg.width();
+      } else {
+        pos = _this.loadedImg.size.height * (e.clientY - targetpos.top) / _this.viewportimg.height();
+      }
+      _this.self.trigger('linePlotPos', [Math.round(pos)]);
+    }
+    //_this.viewportimg.removeClass('pick-pos');
+  };
+
+  this.startPickPos = function () {
+    this.viewportimg.bind('onclick', pickPosHandler);
+    this.viewportimg.parent().addClass('pick-pos');
+  }
+
+  this.stopPickPos = function () {
+    this.viewportimg.unbind('onclick', pickPosHandler);
+    this.viewportimg.parent().removeClass('pick-pos');
+  }
+
+  this.loadPlot = function(pos) {
+    linePlot.position = parseInt(pos);
+    this.refreshPlot();
+  }
+
+  /**
+   * Loads a line plot for row {{ y }} as an image overlay.
+   */
+  this.loadRowPlot = function(y) {
+    this.prepareLinePlot('h');
+    linePlot.position = parseInt(y);
+    this.refreshPlot();
+  }
+
+  /**
+   * Hide whatever overlay is showing.
+   */
+  this.hidePlot = function () {
+    _this.viewportimg.get(0).hideOverlay();
+  }
+
+  /**
+   * Request a refresh of the current plot.
+   */
+  this.refreshPlot = function (cb) {
+    if (linePlot && linePlot.position <= (linePlot.isHorizontal() ? this.loadedImg.size.height : this.loadedImg.size.width)) {
+      var _cb = function () { cb && cb(); hideLoading(); };
+      var _error_cb = function () { hideLoading(); showLoading('Error loading line plot!', 5); };
+      showLoading('Loading line plot...');
+      this.viewportimg.get(0).showOverlay(linePlot.getUrl(), _cb, _error_cb);
+    } else {
+      this.hidePlot();
+    }
+    this.self.trigger('linePlotChange', [linePlot != null]);
+  }
+
+  var remember_allow_resize;
+  /**
+   * Recalculate GUI, useful in response to interface changes, like window resize.
+   */
+  this.refresh = function (allow_resize) {
+    _this.viewportimg.get(0).refresh();
+    var sli = jQuery('.slider-line', _this.tslider);
+    var btn = jQuery('.slider-btn-up', _this.tslider);
+    
+    if (!(allow_resize || remember_allow_resize)) {
+      var a1 = _this.self.height();
+      var a2 = _this.self.width();
+      var b1 = _this.top.height();
+      var b2 = _this.viewport.width();
+      if (a1 <= b1) {
+        _this.top.css('height', _this.top.height()-_this.bottom.height());
+      }
+      if (a2 <= b2) {
+        _this.viewport.css('width', _this.viewport.width() - _this.viewport.position().left - 3);
+      }
+    } else {
+      remember_allow_resize = true;
+    }
+    _this.tslider.css('width', _this.viewport.width());
+    sli.css('width', _this.tslider.width() - (btn.width()*2) - _this.bottom.position().left);
+    sli = jQuery('.slider-line', _this.zslider);
+    btn = jQuery('.slider-btn-up', _this.zslider);
+    sli.css('height', _this.top.height() - (btn.height()*2));
+    _this.viewport.css('height', _this.top.height() -3);
+    _this.viewportimg.get(0).refresh();
+  };
+
+  /********************************************/
+  /* Attribute getters/setters/wrappers below */
+
+  this.getAuthor = function () {
+    return _this.loadedImg.meta.author;
+  }
+
+  this.getChannels = function () {
+    return _this.loadedImg.channels;
+  }
+
+  this.toggleChannel = function (idx) {
+    this.setChannelActive(idx, !_this.loadedImg.channels[idx].active);
+  }
+
+  this.getCCount = function () {
+    return _this.loadedImg.size.c;
+  }
+
+  this.setChannelActive = function (idx, act, noreload) {
+    if (this.isGreyModel()) {
+      /* Only allow activation of channels, and disable all other */
+      if (act) {
+	for (i in _this.loadedImg.channels) {
+          act = i == idx;
+          if (act != _this.loadedImg.channels[i].active) {
+	    _this.loadedImg.channels[i].active = act;
+	    _this.self.trigger('channelChange', [_this, i, _this.loadedImg.channels[i]]);
+	  }
+	}
+        if (!noreload) {
+	  _load();
+	}
+      }
+    } else {
+      if (_this.loadedImg.channels[idx].active != act) {
+	_this.loadedImg.channels[idx].active = act;
+	_this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+        if (!noreload) {
+	  _load();
+	}
+      }
+    }
+  }
+
+  this.setChannelColor = function (idx, color, noreload) {
+    _this.loadedImg.channels[idx].color = color;
+    _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+    if (!noreload) {
+      _load();
+    }
+  }
+
+  this.setChannelWindow = function (idx, start, end, noreload) {
+    var channel = _this.loadedImg.channels[idx];
+//    if (channel.window.min <= start) {
+      channel.window.start = start;
+//    }
+//    if (channel.window.max >= end) {
+      channel.window.end = end;
+//    }
+    _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+    if (!noreload) {
+      _load();
+    }
+  }
+
+  this.getMetadata = function () {
+    return _this.loadedImg.meta;
+  }
+
+  this.getProjection = function () {
+    return _this.loadedImg.rdefs.projection.toLowerCase();
+  }
+
+  var getSizeDict = function () {
+    var size;
+    if (_this.loadedImg.rdefs.projection.toLowerCase() == 'split') {
+      if (_this.isGreyModel()) {
+        size =  _this.loadedImg.split_channel.g;
+      } else {
+        size =  _this.loadedImg.split_channel.c;
+      }
+    } else {
+      size =  _this.loadedImg.size;
+    }
+    return size;
+  }
+
+  this.setProjection = function (p, noreload) {
+    p = p.toLowerCase();
+    if (_this.loadedImg.rdefs.projection.toLowerCase() != p) {
+      var doReset = _this.loadedImg.rdefs.projection.toLowerCase() == 'split' ||  p == 'split';
+      _this.loadedImg.rdefs.projection = p;
+      _this.self.trigger('projectionChange', [_this]);
+      if (!noreload) {
+        _load(function () {
+            if (doReset) {
+              var size = getSizeDict();
+              _this.viewportimg.get(0).setZoomToFit(true, size.width, size.height);
+            }
+          });
+      }
+    }
+  }
+
+  this.setModel = function (m, noreload) {
+    /* We only ever look at the first letter */
+    m = m.toLowerCase().substring(0,1);
+    if (_this.loadedImg.rdefs.model.toLowerCase().substring(0,1) != m) {
+      _this.loadedImg.rdefs.model = m;
+      var lmc = _this.loadedImg.current.lastModelChannels;
+      _this.loadedImg.current.lastModelChannels = new Array();
+      for (i in _this.loadedImg.channels) {
+	_this.loadedImg.current.lastModelChannels.push(_this.loadedImg.channels[i].active);
+      }
+      ///* This is the last model state retrieval logic */
+      //if (lmc) {
+      //  for (i in lmc) {
+      //    this.setChannelActive(i, lmc[i]);
+      //  }
+      //} else if (this.isGreyModel()) {
+      //  this.setChannelActive(0, true);
+      //}
+      /* Alternative to the last model state, leftmost color going grey, selected channel only going color */
+      if (this.isGreyModel()) {
+        var found = false;
+        for (i in _this.loadedImg.channels) {
+          if (_this.loadedImg.channels[i].active) {
+            this.setChannelActive(i, true, true);
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          this.setChannelActive(0, true, true);
+        }
+      }
+      if (!noreload) {
+        _load(function () {
+            if (_this.loadedImg.rdefs.projection.toLowerCase() == 'split') {
+              var size = getSizeDict();
+              _this.viewportimg.get(0).setZoomToFit(true, size.width, size.height);
+            }
+          });
+      }
+      _this.self.trigger('modelChange', [_this]);
+    }
+  }
+
+  this.getModel = function () {
+    return _this.loadedImg.rdefs.model ? _this.loadedImg.rdefs.model.toLowerCase().substring(0,1) : null;
+  }
+
+  this.isGreyModel = function () {
+    return _this.loadedImg.rdefs.model ? _this.loadedImg.rdefs.model.toLowerCase().substring(0,1) == 'g' : null;
+  }
+
+  this.getPixelSizes = function () {
+    return _this.loadedImg.pixel_size;
+  }
+
+  this.setQuality = function (q, noreload) {
+    q = parseFloat(q);
+    if (q != _this.loadedImg.current.quality) {
+      _this.loadedImg.current.quality = q;
+      if (!noreload) {
+	_load();
+      }
+    }
+  }
+
+  this.getQuality = function () {
+    return _this.loadedImg.current.quality;
+  }
+
+  this.getServer = function () {
+    return server;
+  }
+
+  this.getSizes = function () {
+    return _this.loadedImg.size;
+  }
+
+  this.getTCount = function () {
+    return _this.loadedImg.size.t;
+  }
+
+  this.getTPos = function () {
+    return _this.loadedImg.current.t + 1;
+  }
+
+  this.getZCount = function () {
+    return _this.loadedImg.size.z;
+  }
+
+  this.getZPos = function () {
+    return _this.loadedImg.current.z + 1;
+  }
+
+  this.setZoom = function (z) {
+    var size = getSizeDict();
+    _this.viewportimg.get(0).setZoom(z, size.width, size.height);
+  }
+
+  this.getZoom = function () {
+    return _this.loadedImg.current.zoom;
+  }
+
+  this.setZoomToFit = function (only_shrink) {
+    var size = getSizeDict();
+    _this.viewportimg.get(0).setZoomToFit(only_shrink, size.width,size.height);
+  }
+
+  /*                       */
+  /*************************/
+
+  /**
+   * Undo / Redo support
+   */
+
+  var channels_undo_stack = [];
+  var channels_undo_stack_ptr = -1;
+  var channels_bookmark = null;
+
+  var compare_stack_entries = function (e1, e2) {
+    for (i in e1) {
+      if (!(e1[i].active == e2[i].active &&
+            rgbToHex(e1[i].color) == rgbToHex(e2[i].color) &&
+            e1[i].windowStart == e2[i].windowStart &&
+            e1[i].windowEnd == e2[i].windowEnd)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  this.save_channels = function () {
+    /* Store all useful information */
+    var entry = [];
+    var channels = _this.loadedImg.channels;
+    for (i in channels) {
+      var channel = {active: channels[i].active,
+                     color: toRGB(channels[i].color),
+                     windowStart: channels[i].window.start,
+                     windowEnd: channels[i].window.end};
+      entry.push(channel);
+    }
+    /* Trim stack to current position to dump potential redo information */
+    if (channels_undo_stack_ptr == -1 || !compare_stack_entries(entry, channels_undo_stack[channels_undo_stack_ptr])) {
+    channels_undo_stack_ptr++;
+    channels_undo_stack.length = channels_undo_stack_ptr;
+      channels_undo_stack.push(entry);
+    }
+  }
+
+  this.undo_channels = function (redo) {
+    if (channels_undo_stack_ptr >= 0) {
+//      if (channels_undo_stack.length-1 == channels_undo_stack_ptr && !redo) {
+//        /* Currently at the tip of the stack */
+//        this.save_channels();
+//      }
+      channels_undo_stack_ptr--;
+      entry = channels_undo_stack[channels_undo_stack_ptr];
+      for (i in entry) {
+        this.setChannelWindow(i, entry[i].windowStart, entry[i].windowEnd, true);
+        this.setChannelColor(i, entry[i].color, true);
+        this.setChannelActive(i, entry[i].active, true);
+      }
+      _load();
+    }
+  }
+
+  this.has_channels_undo = function () {
+    return channels_undo_stack_ptr > 0;
+  }
+
+  this.redo_channels = function () {
+    if (channels_undo_stack_ptr > -1 && (channels_undo_stack.length-1 > channels_undo_stack_ptr)) {
+      channels_undo_stack_ptr+=2;
+      this.undo_channels(true);
+    }
+  }
+
+  this.has_channels_redo = function () {
+    return channels_undo_stack.length-1 > channels_undo_stack_ptr;
+  }
+
+  this.reset_channels = function () {
+    if (channels_undo_stack.length > 0) {
+      channels_undo_stack.length = 1;
+      channels_undo_stack_ptr = 1;
+      this.undo_channels(true);
+    }
+  }
+
+  this.bookmark_channels = function () {
+    channels_bookmark = channels_undo_stack_ptr+1;
+  }
+
+  this.back_to_bookmarked_channels = function () {
+    if (channels_bookmark != null) {
+      channels_undo_stack_ptr = channels_bookmark;
+      this.undo_channels(true);
+    }
+  }
+
+  this.forget_bookmark_channels = function () {
+    channels_bookmark = null;
+  }
+
+
+  /**
+   * @return {String} The current query with state information.
+   */
+  this.getQuery = function (include_slider_pos) {
+    var query = new Array();
+    /* Channels (verbose as IE7 does not support Array.filter */
+    var chs = new Array();
+    var channels = this.loadedImg.channels
+    for (i in channels) {
+      var ch = channels[i].active ? '' : '-';
+      ch += parseInt(i)+1;
+      ch += '|' + channels[i].window.start + ':' + channels[i].window.end;
+      ch += '$' + rgbToHex(channels[i].color);
+      chs.push(ch);
+    }
+    query.push('c=' + chs.join(','));
+    /* Rendering Model */
+    query.push('m=' + this.loadedImg.rdefs.model.toLowerCase().substring(0,1));
+    /* Projection */
+    query.push('p=' + this.loadedImg.rdefs.projection.toLowerCase());
+    /* Image Quality */
+    if (this.loadedImg.current.quality) {
+      query.push('q=' + this.loadedImg.current.quality);
+    }
+    /* Zoom */
+    query.push('zm=' + this.loadedImg.current.zoom);
+    /* Slider positions */
+    if (include_slider_pos) {
+      query.push('t=' + (this.loadedImg.current.t+1));
+      query.push('z=' + (this.loadedImg.current.z+1));
+    }
+    /* Image offset */
+    query.push('x=' + this.viewportimg.get(0).getXOffset());
+    query.push('y=' + this.viewportimg.get(0).getYOffset());
+    /* Line plot */
+    if (this.hasLinePlot()) {
+      query.push('lp=' + (linePlot.isHorizontal()?'h':'v') + linePlot.position);
+    }
+    if (this.loadedImg.current.query.debug != undefined) {
+      query.push('debug='+this.loadedImg.current.query.debug);
+    }
+    return query.join('&');
+  }
+
+  this.setQuery = function (query) {
+    if (query.c) {
+      var chs = query.c.split(',');
+      for (j in chs) {
+        var t = chs[j].split('|');
+        var idx;
+        if (t[0].substring(0,1) == '-') {
+          idx = parseInt(t[0].substring(1))-1;
+          this.setChannelActive(idx, false);
+        } else {
+          idx = parseInt(t[0])-1;
+          this.setChannelActive(idx, true);
+        }
+        if (t.length > 1) {
+          t = t[1].split('$');
+          var window = t[0].split(':');
+          if (window.length == 2) {
+            this.setChannelWindow(idx, parseInt(window[0]), parseInt(window[1]), true);
+          }
+        }
+        if (t.length > 1) {
+          this.setChannelColor(idx, t[1], true);
+        }
+      }
+    }
+    query.m && this.setModel(query.m, true);
+    query.q && this.setQuality(query.q, true);
+    query.p && this.setProjection(query.p, true);
+    query.zm && this.setZoom(parseInt(query.zm));
+    if (query.t) {
+      this.loadedImg.current.t = parseInt(query.t)-1;
+    }
+    if (query.z) {
+      this.loadedImg.current.z = parseInt(query.z)-1;
+    }
+    query.x && this.viewportimg.get(0).setXOffset(parseInt(query.x));
+    query.y && this.viewportimg.get(0).setYOffset(parseInt(query.y));
+    if (query.lp) {
+      this.prepareLinePlot(query.lp.substring(0,1));
+      linePlot.position = parseInt(query.lp.substring(1));
+    }
+  }
+
+  this.getRelUrl = function (append) {
+    append = append != null ? '/'+append : '';
+    return this.loadedImg.id + '/' + this.loadedImg.current.z + '/' + this.loadedImg.current.t + append + '/?' + this.getQuery();
+  }
+
+  this.getUrl = function (base) {
+    var rv = server + '/' + base + '/' + this.getCurrentImgUrlPath();
+    return rv + '?' + this.getQuery(true);
+  }
+
+  /**
+   * Returns the image and optional dataset part of the url.
+   */
+  this.getCurrentImgUrlPath = function () {
+    rv = this.loadedImg.id + '/';
+    if (this.loadedImg.current.dataset_id) {
+      rv += this.loadedImg.current.dataset_id + '/';
+    }
+    return rv;
+  }
+
+  /**
+   * Some events are handled by us, some are proxied to the viewport plugin.
+   */
+  this.bind = function (event, callback) {
+    if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' || event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange') {
+      _this.self.bind(event, callback);
+    } else {
+      _this.viewportimg.bind(event, callback);
+    }
+  }
+
+  this.self.mousedown(function () {
+    // Try to avoid selection on double click
+    return false;
+  });
+
+//  this.refresh();
+
+};
+

@@ -1,9 +1,41 @@
+#!/usr/bin/env python
+# 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# #                Django settings for OMERO.web project.               # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# 
+# 
+# Copyright (c) 2008 University of Dundee. 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# 
+# Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
+# 
+# Version: 1.0
+#
+
 import os.path
 import sys
 import datetime
+import logging
 
-# Django settings for OMERO.web project.
-DEBUG = False # if True handler404 and handler500 works only when False
+# Debuging mode. 
+# A boolean that turns on/off debug mode.
+# For logging configuration please change 'LEVEL = logging.INFO' below
+# 
+# NEVER DEPLOY a site into production with DEBUG turned on.
+DEBUG = False # handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
 
 # Database settings
@@ -46,7 +78,7 @@ EMAIL_SMTP_SERVER = 'smtp.domain'
 # although not all variations may be possible on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'Europe/London GB GB-Eire'
+TIME_ZONE = 'CET'
 FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 
 # Language code for this installation. All choices can be found here:
@@ -135,9 +167,13 @@ DEFAULT_IMG = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 
 DEFAULT_USER = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'personal32.png').replace('\\','/')
 
 # LOGS
-# to change the log place, please specify new path for LOGDIR.
-# LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
-LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
+# Configure logging and set place to store logs.
+# Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
+LEVEL = logging.DEBUG
+
+# LOGDIR path
+LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
+# LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
 
 if not os.path.isdir(LOGDIR):
     try:

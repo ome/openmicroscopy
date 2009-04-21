@@ -36,7 +36,21 @@ from django.conf import settings
 
 logger = logging.getLogger('sendemail')
 TIMEOUT = 600 #sec
-SLEEPTIME = 30
+SLEEPTIME = 10
+
+def prepareRecipientsAsString(recipients):
+    recps = list()
+    for m in recipients:
+        try:
+            e = hasattr(m.email, 'val') and m.email.val or m.email
+            if e is not None:
+                recps.append(e)
+        except:
+            logger.error(traceback.format_exc())
+    if recps is None or len(recps) == 0:
+        raise AttributeError("List of recipients cannot be None or empty")
+    return ",".join(recps)
+
 
 class SendEmail(threading.Thread):
 
@@ -80,40 +94,44 @@ class SendEmail(threading.Thread):
         logger.info("Starting sendemail thread...")
         while not (self.allow_thread_timeout): #isTimedout()
             try:
-                logger.info("%i emails in the queue." % (len(self.to_send)))
-                if len(self.to_send) > 0:
+                from omeroweb.webclient.models import EmailToSend
+                counter = EmailToSend.objects.count()
+                logger.info("%i emails is waiting..." % (counter))
+                if counter > 0:
                     #self.updateTimeout()
+                    email = None
                     try:
-                        email = self.to_send[0]
-                        logger.info("Sending...")
-                        try:
-                            smtp = smtplib.SMTP(self.smtp_server, self.smtp_port)
-                        except:
-                            logger.info("settings.EMAIL_SMTP_PORT was not set, connecting on default port...")
-                            smtp = smtplib.SMTP(self.smtp_server)
-                        try:
-                            if self.smtp_tls:
-                                smtp.starttls()
-                                logger.info("settings.EMAIL_SMTP_TLS set")
-                            else:
+                        details = EmailToSend.objects.all()[0]
+                        message = None
+                        message = getattr(self, str(details.template))(details)
+                        if message is not None:
+                            logger.info("Sending...")
+                            try:
+                                smtp = smtplib.SMTP(self.smtp_server, self.smtp_port)
+                            except:
+                                logger.info("settings.EMAIL_SMTP_PORT was not set, connecting on default port...")
+                                smtp = smtplib.SMTP(self.smtp_server)
+                            try:
+                                if self.smtp_tls:
+                                    smtp.starttls()
+                                    logger.info("settings.EMAIL_SMTP_TLS set")
+                                else:
+                                    logger.info("settings.EMAIL_SMTP_TLS was not set, connecting...")
+                            except:
                                 logger.info("settings.EMAIL_SMTP_TLS was not set, connecting...")
-                        except:
-                            logger.info("settings.EMAIL_SMTP_TLS was not set, connecting...")
-                        try:
-                            smtp.login(self.smtp_user, self.smtp_password)
-                        except:
-                            logger.info("settings.EMAIL_SMTP_USER and settings.EMAIL_SMTP_PASSWORD was not set, connecting without login details...")
-                        smtp.sendmail(email['sender'], email['recipients'], email['message'])
-                        smtp.quit()
-                        self.to_send.remove(email)
-                        logger.info("Email was sent.")
+                            try:
+                                smtp.login(self.smtp_user, self.smtp_password)
+                            except:
+                                logger.info("settings.EMAIL_SMTP_USER and settings.EMAIL_SMTP_PASSWORD was not set, connecting without login details...")
+                            smtp.sendmail(settings.EMAIL_SENDER_ADDRESS, details.recipients, message)
+                            smtp.quit()
+                            details.delete()
+                            logger.info("Email was sent.")
+                        else:
+                            logger.info("Message was not created.")
                     except:
                         logger.error("Email could not be sent. Please check settings.")
                         logger.error(traceback.format_exc())
-                        try:
-                            logger.error(email['message'])
-                        except:
-                            logger.error("Couldn't save the message")
                 logger.info("sleep...")
                 time.sleep(SLEEPTIME)
             except:
@@ -140,27 +158,23 @@ class SendEmail(threading.Thread):
         msgAlternative = MIMEMultipart('alternative')
         msgRoot.attach(msgAlternative)
         
-        email_txt = "%s/email_error.txt" % os.path.join(os.path.dirname(__file__), 'templatemail/').replace('\\','/')
-        email_html = "%s/email_error.html" % os.path.join(os.path.dirname(__file__), 'templatemail/').replace('\\','/')
-
-        contentAlternative = open(email_txt, 'r').read() % (error)
-        msgText = MIMEText(contentAlternative)
+        msgText = MIMEText(error)
         msgAlternative.attach(msgText)
-        content = open(email_html, 'r').read() % (error)
-        msgText = MIMEText(content, 'html')
+        
+        msgText = MIMEText(error, 'html')
         msgAlternative.attach(msgText)
         self.to_send.append({"message": msgRoot.as_string(), "sender": settings.EMAIL_SENDER_ADDRESS, "recipients": [settings.ADMINS[0][1]]})
     
-    def create_share_message(self, host, blitz_id, user, share_id, recipients):
+    def create_share(self, details):
         app = settings.WEBCLIENT_ROOT_BASE
         # Create the root message and fill in the from, to, and subject headers
         msgRoot = MIMEMultipart('related')
         try:
-            msgRoot['Subject'] = 'OMERO.%s - %s %s shared some data with you' % (app, user.firstName.val, user.lastName.val)
+            msgRoot['Subject'] = 'OMERO.%s - %s shared some data with you' % (app, details.sender)
         except:
             msgRoot['Subject'] = 'OMERO.%s - unknown person shared some data with you' % (app)
         try:
-            msgRoot['From'] = '%s %s <%s>' % (user.firstName.val, user.lastName.val, user.email.val)
+            msgRoot['From'] = '%s <%s>' % (details.sender, details.sender_email)
         except:
             msgRoot['From'] = 'Unknown'
         #msgRoot['To'] = self.recipients
@@ -168,13 +182,10 @@ class SendEmail(threading.Thread):
         msgAlternative = MIMEMultipart('alternative')
         msgRoot.attach(msgAlternative)
         
-        email_txt = "%s/email_share.txt" % os.path.join(os.path.dirname(__file__), 'templatemail/').replace('\\','/')
-        email_html = "%s/email_share.html" % os.path.join(os.path.dirname(__file__), 'templatemail/').replace('\\','/')
-
-        contentAlternative = open(email_txt, 'r').read() % (host, share_id, blitz_id, user.firstName.val, user.lastName.val)
+        contentAlternative = details.template.content_txt % (details.host, details.share, details.blitz.id, details.sender)
         msgText = MIMEText(contentAlternative)
         msgAlternative.attach(msgText)
-        content = open(email_html, 'r').read() % (host, share_id, blitz_id, host, share_id, blitz_id, user.firstName.val, user.lastName.val)
+        content = details.template.content_html % (details.host, details.share, details.blitz.id, details.host, details.share, details.blitz.id, details.sender)
         msgText = MIMEText(content, 'html')
         msgAlternative.attach(msgText)
 
@@ -184,9 +195,9 @@ class SendEmail(threading.Thread):
 
         msgImage.add_header('Content-ID', '<image1>')
         msgRoot.attach(msgImage)
-        self.to_send.append({"message": msgRoot.as_string(), "sender": settings.EMAIL_SENDER_ADDRESS, "recipients": recipients})
+        return msgRoot.as_string()
 
-    def create_sharecomment_message(self, host, blitz_id, share_id, recipients):
+    def add_comment_to_share(self, details):
         app = settings.WEBCLIENT_ROOT_BASE
         # Create the root message and fill in the from, to, and subject headers
         msgRoot = MIMEMultipart('related')
@@ -197,13 +208,11 @@ class SendEmail(threading.Thread):
         msgAlternative = MIMEMultipart('alternative')
         msgRoot.attach(msgAlternative)
         
-        email_txt = "%s/email_comment.txt" % os.path.join(os.path.dirname(__file__), 'templatemail/').replace('\\','/')
-        email_html = "%s/email_comment.html" % os.path.join(os.path.dirname(__file__), 'templatemail/').replace('\\','/')
-
-        contentAlternative = open(email_txt, 'r').read() % (host, share_id, blitz_id)
+        contentAlternative = details.template.content_txt % (details.host, details.share, details.blitz.id)
         msgText = MIMEText(contentAlternative)
         msgAlternative.attach(msgText)
-        content = open(email_html, 'r').read() % (host, share_id, blitz_id, host, share_id, blitz_id)
+        
+        content = details.template.content_html % (details.host, details.share, details.blitz.id, details.host, details.share, details.blitz.id)
         msgText = MIMEText(content, 'html')
         msgAlternative.attach(msgText)
 
@@ -213,5 +222,5 @@ class SendEmail(threading.Thread):
 
         msgImage.add_header('Content-ID', '<image1>')
         msgRoot.attach(msgImage)
-        self.to_send.append({"message": msgRoot.as_string(), "sender": settings.EMAIL_SENDER_ADDRESS, "recipients": recipients})
+        return msgRoot.as_string()
         

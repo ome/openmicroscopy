@@ -36,15 +36,15 @@ help_expire = '<span id="expire" title="Expire date - <small>This date defines w
 
 class CategoryAdvice(models.Model):
     category = models.CharField(max_length=100)
-    description = models.CharField(max_length=2000)
+    description = models.TextField()
 
     def __unicode__(self):
         c = "%s" % (self.category)
         return c
 
 class Advice(models.Model):
-    title = models.CharField(max_length=100)
-    description = models.TextField(max_length=2000)
+    title = models.CharField(max_length=250)
+    description = models.TextField()
     rating = models.PositiveIntegerField(default=0)
     category = models.ForeignKey(CategoryAdvice)
     
@@ -62,6 +62,31 @@ class Advice(models.Model):
             return "..." + desc[l - 50:]
         except:
             return self.description
+
+class EmailTemplate(models.Model):
+    template = models.CharField(max_length=100)
+    content_html = models.TextField()
+    content_txt = models.TextField()
+    
+    def __unicode__(self):
+        t = "%s" % (self.template)
+        return t
+
+class EmailToSend(models.Model):
+    host = models.CharField(max_length=100)
+    blitz = models.ForeignKey(Gateway)
+    share = models.PositiveIntegerField()
+    sender = models.CharField(max_length=100, blank=True, null=True)
+    sender_email = models.CharField(max_length=100, blank=True, null=True)
+    recipients = models.TextField()
+    template = models.ForeignKey(EmailTemplate)
+    
+    def __init__(self, *args, **kwargs):
+        super(EmailToSend, self).__init__(*args, **kwargs)
+        
+    def __unicode__(self):
+        e = "%s %s on %s" % (self.sender, self.template, self.blitz.host)
+        return e
 
 #################################################################
 # Non-model Form

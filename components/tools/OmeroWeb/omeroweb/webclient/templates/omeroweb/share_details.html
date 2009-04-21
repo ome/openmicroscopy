@@ -67,7 +67,7 @@
         {% for m in share.allInShare %}
             {{ m.getFullName }},
         {% endfor %} <br/>
-        {{ share.share.getShareOwner }} {% trans "would like to" %} {{ share.share.getShareType|lower }} {% trans "with you" %}:
+        {{ share.share.getShareOwnerFullName }} {% trans "would like to" %} {{ share.share.getShareType|lower }} {% trans "with you" %}:
     </h1>
     
     {% ifequal share.share.getShareType "Share" %}<div id="share_content"></div>{% endifequal %}
@@ -76,20 +76,20 @@
     {% if share.share.isOwned %}
         <div id="comment_wrapper">
         <div id="comment">
-            <div class="head">{{ share.share.getShareOwner }} {% trans "posted comment at" %} {{ share.share.getStartDate|date:"Y m d H:i:s" }}</div>
+            <div class="head">{{ share.share.getShareOwnerFullName }} {% trans "posted comment at" %} {{ share.share.getStartDate|date:"Y m d H:i:s" }}</div>
             <div class="body">{{ share.share.message|sharewikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
-        <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ share.share.owner.id.val }}/" alt="{{ share.share.getShareOwner }}" title="{{ share.share.getShareOwner }}" width="40" height="40" /></div>
+        <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ share.share.owner.id.val }}/" alt="{{ share.share.getShareOwnerFullName }}" title="{{ share.share.getShareOwnerFullName }}" width="40" height="40" /></div>
         </div>
     {% else %}
         <div id="comment_wrapper_rev">
         <div id="comment_rev">
-            <div class="head">{{ share.share.getShareOwner }} {% trans "posted comment at" %} {{ share.share.getStartDate|date:"Y m d H:i:s" }}</div>
+            <div class="head">{{ share.share.getShareOwnerFullName }} {% trans "posted comment at" %} {{ share.share.getStartDate|date:"Y m d H:i:s" }}</div>
             <div class="body">{{ share.share.message|sharewikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
-        <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ share.share.owner.id.val }}/" alt="{{ share.share.getShareOwner }}" title="{{ share.share.getShareOwner }}" width="40" height="40" /></div>
+        <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ share.share.owner.id.val }}/" alt="{{ share.share.getShareOwnerFullName }}" title="{{ share.share.getShareOwnerFullName }}" width="40" height="40" /></div>
         </div>
     {% endif %}
     <div class="clear"></div>
@@ -100,22 +100,22 @@
             {% if cm.isOwned %}
                 <div id="comment_wrapper">
                 <div id="comment">
-                    <div class="head">{{ cm.getOwner }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y m d H:i:s" }}</div>
+                    <div class="head">{{ cm.getOwnerFullName }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y m d H:i:s" }}</div>
                     <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                     <div class="footer"></div>
                 </div>
-                <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwner }}" title="{{ cm.getOwner }}" width="40" height="40" /></div>
+                <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwnerFullName }}" title="{{ cm.getOwnerFullName }}" width="40" height="40" /></div>
                 </div>
                 <div class="clear"></div>
                 <br/>
             {% else %}
                 <div id="comment_wrapper_rev">
                 <div id="comment_rev">
-                    <div class="head">{{ cm.getOwner }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y m d H:i:s" }}</div>
+                    <div class="head">{{ cm.getOwnerFullName }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y m d H:i:s" }}</div>
                     <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                     <div class="footer"></div>
                 </div>
-                <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwner }}" title="{{ cm.getOwner }}" width="40" height="40" /></div>
+                <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwnerFullName }}" title="{{ cm.getOwnerFullName }}" width="40" height="40" /></div>
                 </div>
                 <div class="clear"></div>
                 <br/>

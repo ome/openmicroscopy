@@ -131,8 +131,8 @@ class BaseExperimenter(BaseController):
         return formGroups
     
     def getMyDetails(self):
-        self.experimenter = self.conn.getExperimenter(self.conn.getUser().id.val)
-        self.ldapAuth = self.conn.lookupLdapAuthExperimenter(self.conn.getUser().id.val)
+        self.experimenter = self.conn._user
+        self.ldapAuth = self.conn.lookupLdapAuthExperimenter(self.conn._userid)
         self.defaultGroup = self.experimenter.copyGroupExperimenterMap()[0].parent.id.val
         self.otherGroups = list()
         for gem in self.experimenter.copyGroupExperimenterMap():
@@ -269,14 +269,6 @@ class BaseExperimenter(BaseController):
                     flag = True
             if not flag:
                 add_grs.append(ngr)
-                
-        #print
-        '''print "add"
-        for g in add_grs:
-            print g.id.val, g.name.val
-        print "remove" 
-        for g in rm_grs:
-            print g.id.val, g.name.val'''
         
         self.conn.updateExperimenter(up_exp, defaultGroup, add_grs, rm_grs, rstring(str(password)))
     

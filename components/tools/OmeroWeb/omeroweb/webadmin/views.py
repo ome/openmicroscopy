@@ -61,7 +61,9 @@ from models import Gateway, LoginForm, ForgottonPasswordForm, ExperimenterForm, 
                    ExperimenterLdapForm, GroupForm, ScriptForm, MyAccountForm, \
                    MyAccountLdapForm, ContainedExperimentersForm, UploadPhotoForm
 
-from extlib.gateway import BlitzGateway
+#from extlib.gateway import BlitzGateway
+
+from extlib.gateway import _session_logout, timeit, getBlitzConnection, _createConnection
 
 logger = logging.getLogger('views-admin')
 
@@ -69,144 +71,145 @@ connectors = {}
 
 logger.info("INIT '%s'" % os.getpid())
 
+try:
+    if settings.EMAIL_NOTIFICATION:
+        import omeroweb.extlib.notification.handlesender as sender
+        sender.handler()
+except:
+    logger.error(traceback.format_exc())
+
 ################################################################################
 # Blitz Gateway Connection
 
-def timeit (func):
-    def wrapped (*args, **kwargs):
-        logger.info("timing %s" % (func.func_name))
-        now = time()
-        rv = func(*args, **kwargs)
-        logger.info("timed %s : %f" % (func.func_name, time()-now))
-        return rv
-    return wrapped
-
 @timeit
-def getConnection (request):
-    session_key = None
-    server = None
-    
-    # gets Http session or create new one
-    session_key = request.session.session_key
-    
-    # gets host base
+def getConnection (request, force_key=None):
+#    session_key = None
+#    server = None
+#    
+#    # gets Http session or create new one
+#    session_key = request.session.session_key
+#    
+#    # gets host base
     try:
         server = request.session['server']
     except KeyError:
         return None
-    
-    # clean up connections
-    for k,v in connectors.items():
-        if v is None:
-            try:
-                v.seppuku()
-            except:
-                logger.info("Connection was already killed.")
-            del connectors[k]
-    
-    if len(connectors) > 75:
-        for k,v in connectors.items()[50:]:
-            v.seppuku()
-            del connectors[k]
-    
-    # builds connection key for current session
-    conn_key = None
-    if (server and session_key) is not None:
-        conn_key = 'S:' + str(request.session.session_key) + '#' + str(server)
-    else:
-        return None
-    
-    request.session.modified = True
-    
-    # gets connection for key if available
-    conn = connectors.get(conn_key)
-    
-    if conn is None:
-        # could not get connection for key
-        # retrives the connection from existing session
-        try:
-            if request.session['sessionUuid']: pass
-            if request.session['groupId']: pass
-        except KeyError:
-            # retrives the connection from login parameters
-            try:
-                if request.session['host']: pass
-                if request.session['port']: pass
-                if request.session['username']: pass
-                if request.session['password']: pass
-            except KeyError:
-                logger.error(traceback.format_exc())
-                raise sys.exc_info()[1]
-            else:
-                # login parameters found, create the connection
-                try:
-                    conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'])
-                    conn.connect()
-                    request.session['sessionUuid'] = conn.getEventContext().sessionUuid
-                    request.session['groupId'] = conn.getEventContext().groupId
-                except:
-                    logger.error(traceback.format_exc())
-                    raise sys.exc_info()[1]
-                else:
-                    # stores connection on connectors
-                    connectors[conn_key] = conn
-                    logger.info("Have connection, stored in connectors:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
-                    logger.info("Total connectors: %i." % (len(connectors)))
-        else:
-            # retrieves connection from sessionUuid, join to existing session
-            try:
-                conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'], request.session['sessionUuid'])
-                conn.connect()
-                request.session['sessionUuid'] = conn.getEventContext().sessionUuid
-                request.session['groupId'] = conn.getEventContext().groupId
-            except:
-                logger.error(traceback.format_exc())
-                raise sys.exc_info()[1]
-            else:
-                # stores connection on connectors
-                connectors[conn_key] = conn
-                logger.info("Retreived connection, will travel: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
-                logger.info("Total connectors: %i." % (len(connectors)))
-    else:
-        # gets connection
-        try:
-            request.session['sessionUuid'] = conn.getEventContext().sessionUuid
-        except:
-            # connection is no longer available, retrieves connection login parameters
-            connectors[conn_key] = None
-            logger.info("Connection '%s' is no longer available" % (conn_key))
-            try:
-                if request.session['host']: pass
-                if request.session['port']: pass
-                if request.session['username']: pass
-                if request.session['password']: pass
-            except KeyError:
-                logger.error(traceback.format_exc())
-                raise sys.exc_info()[1]
-            else:
-                try:
-                    conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'], request.session['sessionUuid'])
-                    conn.connect()
-                    request.session['sessionUuid'] = conn.getEventContext().sessionUuid
-                    request.session['groupId'] = conn.getEventContext().groupId
-                except:
-                    logger.error(traceback.format_exc())
-                    raise sys.exc_info()[1]
-                else:
-                    # stores connection on connectors
-                    connectors[conn_key] = conn
-                    logger.info("Retreived connection for:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
-                    logger.info("Total connectors: %i." % (len(connectors)))
-        else:
-            logger.info("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
-    return conn
+
+    return getBlitzConnection(request, server, with_session=True, skip_stored=True, force_key=force_key)
+
+#    
+#    # clean up connections
+#    for k,v in connectors.items():
+#        if v is None:
+#            try:
+#                v.seppuku()
+#            except:
+#                logger.info("Connection was already killed.")
+#            del connectors[k]
+#    
+#    if len(connectors) > 75:
+#        for k,v in connectors.items()[50:]:
+#            v.seppuku()
+#            del connectors[k]
+#    
+#    # builds connection key for current session
+#    conn_key = None
+#    if (server and session_key) is not None:
+#        conn_key = 'S:' + str(request.session.session_key) + '#' + str(server)
+#    else:
+#        return None
+#    
+#    request.session.modified = True
+#    
+#    # gets connection for key if available
+#    conn = connectors.get(conn_key)
+#    
+#    if conn is None:
+#        # could not get connection for key
+#        # retrives the connection from existing session
+#        try:
+#            if request.session['sessionUuid']: pass
+#            if request.session['groupId']: pass
+#        except KeyError:
+#            # retrives the connection from login parameters
+#            try:
+#                if request.session['host']: pass
+#                if request.session['port']: pass
+#                if request.session['username']: pass
+#                if request.session['password']: pass
+#            except KeyError:
+#                logger.error(traceback.format_exc())
+#                raise sys.exc_info()[1]
+#            else:
+#                # login parameters found, create the connection
+#                try:
+#                    conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'])
+#                    conn.connect()
+#                    request.session['sessionUuid'] = conn.getEventContext().sessionUuid
+#                    request.session['groupId'] = conn.getEventContext().groupId
+#                except:
+#                    logger.error(traceback.format_exc())
+#                    raise sys.exc_info()[1]
+#                else:
+#                    # stores connection on connectors
+#                    connectors[conn_key] = conn
+#                    logger.info("Have connection, stored in connectors:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
+#                    logger.info("Total connectors: %i." % (len(connectors)))
+#        else:
+#            # retrieves connection from sessionUuid, join to existing session
+#            try:
+#                conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'], request.session['sessionUuid'])
+#                conn.connect()
+#                request.session['sessionUuid'] = conn.getEventContext().sessionUuid
+#                request.session['groupId'] = conn.getEventContext().groupId
+#            except:
+#                logger.error(traceback.format_exc())
+#                raise sys.exc_info()[1]
+#            else:
+#                # stores connection on connectors
+#                connectors[conn_key] = conn
+#                logger.info("Retreived connection, will travel: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
+#                logger.info("Total connectors: %i." % (len(connectors)))
+#    else:
+#        # gets connection
+#        try:
+#            request.session['sessionUuid'] = conn.getEventContext().sessionUuid
+#        except:
+#            # connection is no longer available, retrieves connection login parameters
+#            connectors[conn_key] = None
+#            logger.info("Connection '%s' is no longer available" % (conn_key))
+#            try:
+#                if request.session['host']: pass
+#                if request.session['port']: pass
+#                if request.session['username']: pass
+#                if request.session['password']: pass
+#            except KeyError:
+#                logger.error(traceback.format_exc())
+#                raise sys.exc_info()[1]
+#            else:
+#                try:
+#                    conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'], request.session['sessionUuid'])
+#                    conn.connect()
+#                    request.session['sessionUuid'] = conn.getEventContext().sessionUuid
+#                    request.session['groupId'] = conn.getEventContext().groupId
+#                except:
+#                    logger.error(traceback.format_exc())
+#                    raise sys.exc_info()[1]
+#                else:
+#                    # stores connection on connectors
+#                    connectors[conn_key] = conn
+#                    logger.info("Retreived connection for:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
+#                    logger.info("Total connectors: %i." % (len(connectors)))
+#        else:
+#            logger.info("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
+#    return conn
 
 def getGuestConnection(host, port):
     conn = None
     guest = ["guest", "guest"]
     try:
-        conn = BlitzGateway(host, port, guest[0], guest[1])
-        conn.connectAsGuest()
+        conn = _createConnection('', host=host, port=port, username=guest[0], passwd=guest[1], skip_stored=True)
+        #conn.connectAsGuest()
     except:
         logger.error(traceback.format_exc())
         raise sys.exc_info()[1]
@@ -302,6 +305,7 @@ def forgotten_password(request, **kwargs):
 def login(request):
     if request.method == 'POST' and request.REQUEST['server']:
         blitz = Gateway.objects.get(pk=request.REQUEST['server'])
+        _session_logout(request, blitz.id)
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
@@ -317,7 +321,7 @@ def login(request):
     try:
         conn = getConnection(request)
     except Exception, x:
-        #logger.error(traceback.format_exc())
+        logger.debug(traceback.format_exc())
         error = x.__class__.__name__
     
     if conn is not None:
@@ -360,18 +364,19 @@ def index(request, **kwargs):
         return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
 
 def logout(request):
-    try:
-        conn = getConnection(request)
-    except:
-        logger.error(traceback.format_exc())
-    else:
-        try:
-            session_key = "S:%s#%s" % (request.session.session_key,request.session['server'])
-            if connectors.has_key(session_key):
-                conn.seppuku()
-                del connectors[session_key]
-        except:
-            logger.error(traceback.format_exc())
+    _session_logout(request, request.session['server'])
+#    try:
+#        conn = getConnection(request)
+#    except:
+#        logger.error(traceback.format_exc())
+#    else:
+#        try:
+#            session_key = "S:%s#%s" % (request.session.session_key,request.session['server'])
+#            if connectors.has_key(session_key):
+#                conn.seppuku()
+#                del connectors[session_key]
+#        except:
+#            logger.error(traceback.format_exc())
     
     try:
         del request.session['server']
@@ -393,10 +398,10 @@ def logout(request):
         del request.session['password']
     except KeyError:
         logger.error(traceback.format_exc())
-    try:
-        del request.session['sessionUuid']
-    except KeyError:
-        logger.error(traceback.format_exc())
+#    try:
+#        del request.session['sessionUuid']
+#    except KeyError:
+#        logger.error(traceback.format_exc())
     
     request.session.set_expiry(1)
     return HttpResponseRedirect("/%s/" % (settings.WEBADMIN_ROOT_BASE))
@@ -514,8 +519,6 @@ def manage_experimenter(request, action, eid=None, **kwargs):
             otherGroups = request.POST.getlist('other_groups')
             try:
                 password = request.REQUEST['password'].encode('utf-8')
-                if len(password) == 0:
-                    password = None
             except:
                 password = None
             controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution, password)
@@ -727,8 +730,6 @@ def my_account(request, action=None, **kwargs):
             defaultGroup = request.REQUEST['default_group']
             try:
                 password = request.REQUEST['password'].encode('utf-8')
-                if len(password) == 0:
-                    password = None
             except:
                 password = None
             myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)

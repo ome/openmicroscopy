@@ -23,21 +23,6 @@
 #
 
 import sys
-
-
-#
-# Ice handling: When manage.py is called by icegridnode
-# an extra argument "--Ice.Config=..." is added. For now,
-# it must be stripped out.
-#
-while True:
-    for i in range(0, len(sys.argv)):
-        if sys.argv[i].startswith("--Ice.Config"):
-            sys.argv.pop(i)
-        continue
-    break
-
-
 from django.core.management import execute_manager
 
 try:
@@ -55,8 +40,13 @@ try:
 except:
     LOGDIR = os.path.dirname(__file__).replace('\\','/')
 
+try:
+    level = settings.LEVEL
+except:
+    level = logging.DEBUG
+
 LOGFILE = ('OMEROweb.log')
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=level,
                 format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                 datefmt='%a, %d %b %Y %H:%M:%S',
                 filename=os.path.join(LOGDIR, LOGFILE),
@@ -71,7 +61,7 @@ try:
 except:
     fileLog.doRollover()
 
-fileLog.setLevel(logging.INFO)
+fileLog.setLevel(level)
 formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(message)s')
 fileLog.setFormatter(formatter)
 logging.getLogger().addHandler(fileLog)

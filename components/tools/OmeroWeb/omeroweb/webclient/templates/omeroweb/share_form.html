@@ -102,22 +102,22 @@
                 {% if cm.isOwned %}
                     <div id="comment_wrapper">
                     <div id="comment">
-                        <div class="head">{{ cm.getOwner }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y m d H:i:s" }} {% if cm.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ cm.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
+                        <div class="head">{{ cm.getOwnerFullName }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y m d H:i:s" }} {% if cm.canWrite %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ cm.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
                         <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                         <div class="footer"></div>
                     </div>
-                    <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwner }}" title="{{ cm.getOwner }}" width="40" height="40" /></div>
+                    <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwnerFullName }}" title="{{ cm.getOwnerFullName }}" width="40" height="40" /></div>
                     </div>
                     <div class="clear"></div>
                     <br/>
                 {% else %}
                     <div id="comment_wrapper_rev">
                     <div id="comment_rev">
-                        <div class="head">{{ cm.getOwner }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y m d H:i:s" }} {% if cm.isEditable %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ cm.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
+                        <div class="head">{{ cm.getOwnerFullName }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y m d H:i:s" }} {% if cm.canWrite %}<a href="{% get_webclient_root_url %}/action/edit/comment/{{ cm.id }}/?url={{ url }}"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</div>
                         <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                         <div class="footer"></div>
                     </div>
-                    <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwner }}" title="{{ cm.getOwner }}" width="40" height="40" /></div>
+                    <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwnerFullName }}" title="{{ cm.getOwnerFullName }}" width="40" height="40" /></div>
                     </div>
                     <div class="clear"></div>
                     <br/>

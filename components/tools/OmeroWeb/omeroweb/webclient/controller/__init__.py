@@ -71,7 +71,7 @@ class BaseController(object):
     def __init__(self, conn, **kw):
         self.conn = conn
         self.eContext['context'] = self.conn.getEventContext()
-        self.eContext['user'] = self.conn.getUserWrapped()
+        self.eContext['user'] = self.conn.getUser()
         
         grs = list(self.conn.getGroupsMemberOf())
         self.eContext['memberOfGroups'] = self.sortByAttr(grs, "name")

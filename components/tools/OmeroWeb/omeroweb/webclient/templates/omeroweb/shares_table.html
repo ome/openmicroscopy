@@ -184,7 +184,7 @@
         {% endifequal %} 
         </td> 
         <td>{% if c.active %}<a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{{ c.shortMessage }}</a>{% else %}{{ c.shortMessage }}{% endif %} {% if c.annotation_counter %}<img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% get_webclient_static_url %}/images/kuser16.png" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}</td> 
-        <td>{{ c.getShareOwner }}</td> 
+        <td>{{ c.getShareOwnerFullName }}</td> 
         <td>{% if c.active %}<a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/"><img src="{% get_webclient_static_url %}/images/kview16.png" alt="v" title="view"/></a>{% endif %}</td>
         <td>{{ c.getStartDate|date:"Y m d H:i:s" }} - {% if c.getExpirationDate %}{{ c.getExpirationDate|date:"Y m d H:i:s" }}{% else %}never{% endif %}</td>
     </tr>

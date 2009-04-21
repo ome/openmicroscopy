@@ -89,7 +89,7 @@
     <center>
         <p><a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/details/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></p>
     
-        <p>by {{ manager.image.getOwner }}</p>
+        <p>by {{ manager.image.getOwnerFullName }}</p>
         <!---<p><a href="">Send this image to someone else.</a></p>-->
     </center>
     

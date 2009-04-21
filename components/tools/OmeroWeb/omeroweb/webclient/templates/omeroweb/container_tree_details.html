@@ -7,12 +7,12 @@
     {% if manager.image %}
     <div>
         <h1>{{ manager.image.splitedName }} (ID: {{ manager.image.id }})</h1>
-        <p>{% if not manager.image.isEditable %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.image.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ manager.image.countAnnotations }}]{% endif %}</p>
+        <p>{% if not manager.image.canWrite %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.image.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ manager.image.countAnnotations }}]{% endif %}</p>
         {{ manager.image.shortDescription|default_if_none:"no description"|wikify|safe|linebreaks }}
     </div>
     <div>
         <p><a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/200/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></p>
-        <p>by {{ manager.image.getOwner }} ({{ manager.image.details.group.name.val }} {{ manager.image.details.permissions }})</p>
+        <p>by {{ manager.image.getOwnerFullName }} ({{ manager.image.details.group.name.val }} {{ manager.image.details.permissions }})</p>
         <p><a href="{% get_webclient_root_url %}/{{ nav.whos }}/image/{{ manager.image.id }}/" target="_blank">{% trans "More details in new tab" %}...</a></p>
     </div>
     
@@ -20,7 +20,7 @@
     {% if manager.dataset %}
     <div>
         <h1>{{ manager.dataset.splitedName }} (ID: {{ manager.dataset.id }})</h1>
-        <p><img src="{% get_webclient_static_url %}/images/image12.png" title="image" alt="image"/>[{{ manager.dataset.countChild }}] {% if not manager.dataset.isEditable %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.dataset.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ manager.dataset.countAnnotations }}]{% endif %}</p>
+        <p><img src="{% get_webclient_static_url %}/images/image12.png" title="image" alt="image"/>[{{ manager.dataset.countChild }}] {% if not manager.dataset.canWrite %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.dataset.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ manager.dataset.countAnnotations }}]{% endif %}</p>
         {{ manager.dataset.shortDescription|default_if_none:"no description"|wikify|safe|linebreaks }}
     </div>
     <div>
@@ -30,7 +30,7 @@
     {% if manager.project %}
     <div>
         <h1>{{ manager.project.splitedName }} (ID: {{ manager.project.id }})</h1>
-        <p><img src="{% get_webclient_static_url %}/images/folder_image16.png" title="image" alt="image"/>[{{ manager.project.countChild }}]{% if not manager.project.isEditable %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.project.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ manager.project.countAnnotations }}]{% endif %}</p>
+        <p><img src="{% get_webclient_static_url %}/images/folder_image16.png" title="image" alt="image"/>[{{ manager.project.countChild }}]{% if not manager.project.canWrite %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.project.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ manager.project.countAnnotations }}]{% endif %}</p>
         {{ manager.project.shortDescription|default_if_none:"no description"|wikify|safe|linebreaks }}
     </div>
     <div>

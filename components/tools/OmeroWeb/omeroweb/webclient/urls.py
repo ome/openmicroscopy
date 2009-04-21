@@ -91,6 +91,7 @@ urlpatterns = patterns('',
     ( r'(?i)^autocompletetags/$', views.autocomplete_tags ),
     
     ( r'(?i)^render_thumbnail/(?P<iid>[0-9]+)/$', views.render_thumbnail ),
+    ( r'(?i)^render_thumbnail/(?P<iid>[0-9]+)/(?P<share_id>[0-9]+)/$', views.render_thumbnail ),
     ( r'(?i)^render_thumbnail/details/(?P<iid>[0-9]+)/$', views.render_thumbnail_details ),
     ( r'(?i)^render_thumbnail/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/$', views.render_thumbnail_resize ),
     ( r'(?i)^render_thumbnail/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/(?P<share_id>[0-9]+)/$', views.render_thumbnail_resize ),
