@@ -46,16 +46,9 @@ class DatabaseControl(BaseControl):
                 self.ctx.die(1, "No value entered")
 
     def _get_password_hash(self, root_pass = None):
-        while not root_pass or len(root_pass) < 1:
-            root_pass = self.ctx.input("Please enter password for new OMERO root user: ", hidden = True)
-            if root_pass == None or root_pass == "":
-                self.ctx.err("Password cannot be empty")
-                continue
-            confirm = self.ctx.input("Please re-enter password for new OMERO root user: ", hidden = True)
-            if root_pass != confirm:
-                self.ctx.err("Passwords don't match")
-                continue
-            break
+
+        root_pass = self._ask_for_password(" for new OMERO user", root_pass)
+
         server_jar = self.ctx.dir / "lib" / "server" / "server.jar"
         p = omero.java.popen(["-cp",str(server_jar),"ome.security.PasswordUtil",root_pass])
         rc = p.wait()

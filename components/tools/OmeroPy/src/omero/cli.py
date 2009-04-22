@@ -471,6 +471,19 @@ class BaseControl:
                     self.ctx.die(3, "Could not find file: "+cfg + "\nDid you specify the proper node?")
         return self._props.getPropertiesForPrefix(prefix)
 
+    def _ask_for_password(self, reason = "", root_pass = None):
+        while not root_pass or len(root_pass) < 1:
+            root_pass = self.ctx.input("Please enter password%s: "%reason, hidden = True)
+            if root_pass == None or root_pass == "":
+                self.ctx.err("Password cannot be empty")
+                continue
+            confirm = self.ctx.input("Please re-enter password%s: "%reason, hidden = True)
+            if root_pass != confirm:
+                self.ctx.err("Passwords don't match")
+                continue
+            break
+        return root_pass
+
     ###############################################
     #
     # Methods likely to be implemented by subclasses

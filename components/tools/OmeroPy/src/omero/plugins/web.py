@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 """
-   Plugin for our managing the OMERO database.
+   Plugin for our configuring the OMERO.web installation
 
-   Plugin read by omero.cli.Cli during initialization. The method(s)
-   defined here will be added to the Cli class for later use.
-
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009 University of Dundee. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -24,34 +21,25 @@ OMERO.web tools:
      syncdb     - Local database synchronisation
 
 """
-class DatabaseControl(BaseControl):
+class WebControl(BaseControl):
 
     def help(self, args = None):
         self.ctx.out(HELP)
-    
+
     def _get_password_hash(self, root_pass=None):
-        while not root_pass or len(root_pass) < 1:
-            root_pass = self.ctx.input("Please enter password for OMERO.web administrator: ", hidden = True)
-            if root_pass == None or root_pass == "":
-                self.ctx.err("Password cannot be empty")
-                continue
-            confirm = self.ctx.input("Please re-enter password for new OMERO root user: ", hidden = True)
-            if root_pass != confirm:
-                self.ctx.err("Passwords don't match")
-                root_pass = None
-                continue
-            break
-        
+
+        root_pass = self._ask_for_password(" for OMERO.web administrator")
+
         import sha, random
         algo = 'sha1'
         salt = sha.new(str(random.random())).hexdigest()[:5]
         hsh = sha.new(salt+root_pass).hexdigest()
         value = '%s$%s$%s' % (algo, salt, hsh)
         return value.strip()
-    
+
     def _get_username_and_email(self, username=None, email=None):
         while not username or len(username) < 1:
-            username = self.ctx.input("Please enter Username for OMERO.web superuser: ")
+            username = self.ctx.input("Please enter Username for OMERO.web administrator: ")
             if username == None or username == "":
                 self.ctx.err("Username cannot be empty")
                 continue
@@ -63,7 +51,7 @@ class DatabaseControl(BaseControl):
                 continue
             break
         return {"username":username, "email":email}
-    
+
     def _create_superuser(self, username, email, passwd):
         location = self.ctx.dir / "lib" / "python" / "omeroweb" / "initial_data.json"
         output = open(location, 'w')
@@ -72,20 +60,20 @@ class DatabaseControl(BaseControl):
         try:
             output.write("""[
   {
-    "pk": 1, 
-    "model": "auth.user", 
+    "pk": 1,
+    "model": "auth.user",
     "fields": {
-      "username": "%s", 
-      "first_name": "", 
-      "last_name": "", 
-      "is_active": true, 
-      "is_superuser": true, 
-      "is_staff": true, 
-      "last_login": "%s", 
-      "groups": [], 
-      "user_permissions": [], 
-      "password": "%s", 
-      "email": "%s", 
+      "username": "%s",
+      "first_name": "",
+      "last_name": "",
+      "is_active": true,
+      "is_superuser": true,
+      "is_staff": true,
+      "last_login": "%s",
+      "groups": [],
+      "user_permissions": [],
+      "password": "%s",
+      "email": "%s",
       "date_joined": "%s"
     }
   }
@@ -93,25 +81,28 @@ class DatabaseControl(BaseControl):
         finally:
             output.flush()
             output.close()
-    
+
     def superuser(self, *args):
         details = dict()
         details["user"] = self._get_username_and_email()
         details["passwd"] = self._get_password_hash()
         self._create_superuser(details["user"]["username"], details["user"]["email"], details["passwd"])
-    
-    
-    def _setup_email_server(self, email_server=None, app_host=None):
+
+    def _setup_server(self, location, email_server=None, app_host=None):
         settings = dict()
-        
+
+        if location.exists():
+            self.ctx.out("Reconfiguring OMERO.web...")
+        else:
+            self.ctx.out("You just installed OMERO, which means you didn't have settings configured in OMERO.web.")
         while not app_host or len(app_host) < 1:
-            app_host = self.ctx.input("You just installed OMERO, which means you didn't have settings configured in OMERO.web.\nPlease enter the domain you want to run the OMERO.web (http://www.domain.com:8000/): ")
+            app_host = self.ctx.input("Please enter the domain you want to run OMERO.web on (http://www.domain.com:8000/):")
             if app_host == None or app_host == "":
                 self.ctx.err("Domain cannot be empty")
                 continue
             settings["APPLICATION_HOST"] = app_host
             break
-        
+
         while not email_server or len(email_server) < 1 or email_server != "yes" or email_server != "no":
             email_server = self.ctx.input("Would you like to set up email server? (yes/no): ")
             if email_server != "yes" and email_server != "no":
@@ -121,7 +112,7 @@ class DatabaseControl(BaseControl):
                 notification = True
                 sender_address = None
                 smtp_server = None
-                
+
                 smtp_port = None
                 smtp_user = None
                 smtp_password = None
@@ -135,7 +126,7 @@ class DatabaseControl(BaseControl):
                     if smtp_server == None or smtp_server == "":
                         self.ctx.err("SMTP server host cannot be empty")
                         continue
-                    
+
                     smtp_port = self.ctx.input("Optional: please enter the SMTP server port (default 25): ")
                     smtp_user = self.ctx.input("Optional: Please enter the SMTP server username: ")
                     smtp_password = self.ctx.input("Optional: Password: ", hidden=True)
@@ -145,11 +136,11 @@ class DatabaseControl(BaseControl):
                     else:
                         smtp_tls = False
                     break
-                
+
                 settings["NOTIFICATION"] = notification
                 settings["SENDER_ADDRESS"] = sender_address
                 settings["SMTP_SERVER"] = smtp_server
-                
+
                 if smtp_port:
                     settings["SMTP_PORT"] = smtp_port
                 if smtp_user:
@@ -158,12 +149,11 @@ class DatabaseControl(BaseControl):
                     settings["SMTP_PASSWORD"] = smtp_password
                 if smtp_tls:
                     settings["SMTP_TLS"] = smtp_tls
-            
+
             break
         return settings
-    
-    def _update_settings(self, settings=None):
-        location = self.ctx.dir / "lib" / "python" / "omeroweb" / "custom_settings.py"
+
+    def _update_settings(self, location, settings=None):
         output = open(location, 'w')
         print "Saving to " + location
 
@@ -226,11 +216,11 @@ APPLICATION_HOST='%s'
         finally:
             output.flush()
             output.close()
-    
+
     def settings(self, *args):
-        details = dict()
-        settings = self._setup_email_server()
-        self._update_settings(settings)
+        location = self.ctx.dir / "lib" / "python" / "omeroweb" / "custom_settings.py"
+        settings = self._setup_server(location)
+        self._update_settings(location, settings)
 
     def syncdb(self, *args):
         sys.stderr.write("Database synchronization... \n")
@@ -239,6 +229,6 @@ APPLICATION_HOST='%s'
         sys.stderr.write("OMERO.web was prepared. Please start the application.\n")
 
 try:
-    register("web", DatabaseControl)
+    register("web", WebControl)
 except NameError:
-    DatabaseControl()._main()
+    WebControl()._main()
