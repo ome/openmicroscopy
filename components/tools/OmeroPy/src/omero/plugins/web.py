@@ -21,6 +21,7 @@ OMERO.web tools:
 
      superuser  - Creates a superuser for managing OMERO.web local database
      settings   - Configuration for web
+     syncdb     - Local database synchronisation
 
 """
 class DatabaseControl(BaseControl):
@@ -230,6 +231,12 @@ APPLICATION_HOST='%s'
         details = dict()
         settings = self._setup_email_server()
         self._update_settings(settings)
+
+    def syncdb(self, *args):
+        sys.stderr.write("Database synchronization... \n")
+        omero_web = self.ctx.dir / "lib" / "python" / "omeroweb"
+        subprocess.call(["python","manage.py","syncdb","--noinput"], cwd=str(omero_web), env = os.environ)
+        sys.stderr.write("OMERO.web was prepared. Please start the application.\n")
 
 try:
     register("web", DatabaseControl)
