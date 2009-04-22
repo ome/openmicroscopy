@@ -47,6 +47,7 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+
 //Third-party libraries
 import i5d.Image5D;
 import ij.IJ;
@@ -65,7 +66,7 @@ import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
- * 
+ * Displays the {@link Browser}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

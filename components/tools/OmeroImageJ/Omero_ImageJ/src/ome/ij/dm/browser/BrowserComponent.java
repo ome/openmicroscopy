@@ -40,6 +40,7 @@ import ome.ij.data.DSOutOfServiceException;
 import ome.ij.data.DataService;
 import ome.ij.data.ServicesFactory;
 import ome.ij.dm.TreeViewerTranslator;
+
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -47,7 +48,12 @@ import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
- * 
+ * Implements the {@link Browser} interface to provide the functionality
+ * required of the tree viewer component.
+ * This class is the component hub and embeds the component's MVC triad.
+ * It manages the component's state machine and fires state change 
+ * notifications as appropriate, but delegates actual functionality to the
+ * MVC sub-components.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

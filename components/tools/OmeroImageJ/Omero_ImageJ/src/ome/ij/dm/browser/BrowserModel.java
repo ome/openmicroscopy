@@ -34,17 +34,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import ome.ij.data.DataService;
-import ome.ij.data.ServicesFactory;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.DataObject;
-import pojos.DatasetData;
 
 /** 
- * 
+ * The Model component in the <code>Browser</code> MVC triad.
+ * This class tracks the <code>Browser</code>'s state and knows how to
+ * initiate data retrievals. It also knows how to store and manipulate
+ * the results. However, this class doesn't know the actual hierarchy
+ * the <code>Browser</code> is for.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

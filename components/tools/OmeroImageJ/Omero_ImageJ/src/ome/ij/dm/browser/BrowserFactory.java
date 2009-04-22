@@ -22,19 +22,16 @@
  */
 package ome.ij.dm.browser;
 
-import ome.ij.data.ServicesFactory;
-import pojos.ExperimenterData;
-
-
-
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.ij.data.ServicesFactory;
+import pojos.ExperimenterData;
 
 /** 
- * 
+ * Factory to create {@link Browser} objects.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -47,7 +47,6 @@ import omero.api.IPixelsPrx;
 import omero.api.IQueryPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
-import omero.model.Dataset;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.Project;

@@ -46,7 +46,7 @@ import pojos.ExperimenterData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * The Browser's Controller.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

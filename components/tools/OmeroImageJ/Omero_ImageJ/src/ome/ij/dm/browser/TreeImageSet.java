@@ -32,7 +32,7 @@ import java.util.Iterator;
 //Application-internal dependencies
 
 /** 
- * 
+ * Node used for smart folders.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -29,7 +29,7 @@ package ome.ij.data;
 //Application-internal dependencies
 
 /** 
- * 
+ * Reports an error occured while trying to pull out data from the server.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -22,6 +22,7 @@
  */
 package ome.ij.dm.browser;
 
+
 //Java imports
 
 //Third-party libraries
@@ -29,7 +30,27 @@ package ome.ij.dm.browser;
 //Application-internal dependencies
 
 /** 
- * 
+ * Defines an interface for operations that have to be performed on a 
+ * visualization tree.
+ * <p>This interface allows you to define arbitrary operations that can then 
+ * be applied to the tree by calling the 
+ * {@link TreeImageDisplay#accept(TreeImageDisplayVisitor) accept} method of 
+ * {@link TreeImageDisplay}, usually on the root node.  
+ * or by calling the
+ * {@link TreeImageDisplay#accept(TreeImageDisplayVisitor, int) accept} method
+ * of {@link TreeImageDisplay}.
+ * When a node is visited, the corresponding <code>visit</code> method is
+ * called, passing a reference to the node. That is, if an {@link TreeImageNode}
+ * is being visited, then the {@link #visit(TreeImageNode)} method is called. 
+ * Otherwise the {@link #visit(TreeImageSet)} is called for {@link TreeImageSet}
+ * nodes.
+ * </p>
+ * <p>As an example think of highlighting all images that have been annotated.
+ * You would define a class that implements this interface to perform the
+ * highlight operation and then pass an instance to the <code>accept</code>
+ * method of the root node.  The {@link #visit(TreeImageSet)} method would have
+ * a no-op implementation and the {@link #visit(TreeImageNode)} method would be
+ * implemented along the lines of (pseudo code):</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

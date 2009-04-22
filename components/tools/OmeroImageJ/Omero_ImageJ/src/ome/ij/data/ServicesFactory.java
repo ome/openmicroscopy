@@ -52,6 +52,7 @@ import Ice.DNSException;
 public class ServicesFactory 
 {
 
+	/** Bound property indicating to disconnect. */
 	public static final String	DISCONNECT_PROPERTY = "disconnect";
 	
 	/** 

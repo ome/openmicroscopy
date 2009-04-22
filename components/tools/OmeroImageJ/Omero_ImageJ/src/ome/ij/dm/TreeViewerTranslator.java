@@ -45,7 +45,9 @@ import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * This class contains a collection of utility static methods that transform
+ * an hierarchy of {@link DataObject}s into a visualisation tree.
+ * The tree is then displayed in the Browser.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

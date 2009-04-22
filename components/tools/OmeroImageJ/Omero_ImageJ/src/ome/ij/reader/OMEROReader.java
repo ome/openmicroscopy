@@ -1,5 +1,5 @@
 /*
- * ome.ij.dm.browser.CollapseVisitor 
+ * ome.ij.reader.OMEROReader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -20,18 +20,16 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.ij.dm.browser;
-
+package ome.ij.reader;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.ExperimenterData;
 
 /** 
- * Collapses all the expended nodes.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -43,42 +41,6 @@ import pojos.ExperimenterData;
  * </small>
  * @since 3.0-Beta4
  */
-public class CollapseVisitor 
-	implements TreeImageDisplayVisitor
-{
+public class OMEROReader {
 
-	/** Reference to the browser. */
-	private Browser browser;
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param browser Reference to the browser. Mustn't be <code>null</code>.
-	 */
-	public CollapseVisitor(Browser browser)
-	{
-		if (browser == null)
-			throw new IllegalArgumentException("No Browser.");
-		this.browser = browser;
-	}
-
-	/**
-	 * Collapses the node.
-	 * @see TreeImageDisplayVisitor#visit(TreeImageSet)
-	 */
-	public void visit(TreeImageSet node)
-	{
-		if (node.getParentDisplay() != null) {
-			if (!(node.getUserObject() instanceof ExperimenterData))
-				browser.collapse(node);
-		}
-	}
-	
-	/**
-	 * Required by the {@link TreeImageDisplayVisitor} I/F but 
-	 * no-op implementation in our case.
-	 * @see TreeImageDisplayVisitor#visit(TreeImageNode)
-	 */
-	public void visit(TreeImageNode node) {}
-	
 }

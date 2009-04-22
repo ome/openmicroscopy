@@ -35,7 +35,11 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 
 /** 
- * 
+ * Defines the interface provided by the browser component.
+ * The browser provides a <code>JComponent</code> to host and display one
+ * visualization tree. That is, one {@link TreeImageDisplay} top node.
+ * Use the {@link BrowserFactory} to create an object implementing this 
+ * interface.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -36,7 +36,6 @@ import ij.plugin.PlugIn;
 
 //Application-internal dependencies
 import ome.ij.data.ServicesFactory;
-
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 
 /** 
@@ -101,7 +100,6 @@ public class OmeroImageJ
 			return;
 		}
 		attachListeners();
-		ServicesFactory factory = ServicesFactory.getInstance();
 		LoginScreenManager manager = new LoginScreenManager();
 		manager.start();
 	}

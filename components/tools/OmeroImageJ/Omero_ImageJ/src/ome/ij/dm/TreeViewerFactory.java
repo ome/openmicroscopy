@@ -24,19 +24,19 @@ package ome.ij.dm;
 
 
 //Java imports
-import ij.IJ;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import ome.ij.data.ServicesFactory;
+
 
 //Third-party libraries
+import ij.IJ;
 
 //Application-internal dependencies
+import ome.ij.data.ServicesFactory;
 
 /** 
- * 
+ * Recycles or creates a new {@link Viewer}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

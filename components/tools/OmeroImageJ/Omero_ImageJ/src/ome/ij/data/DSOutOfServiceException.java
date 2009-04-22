@@ -29,7 +29,9 @@ package ome.ij.data;
 //Application-internal dependencies
 
 /** 
- * 
+ * Reports an error occured while trying to access the OMEDS service.
+ * Such an error can posted in the following case:
+ * <i>broken connection</i>, <i>expired session</i> or <i>not logged in</i>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

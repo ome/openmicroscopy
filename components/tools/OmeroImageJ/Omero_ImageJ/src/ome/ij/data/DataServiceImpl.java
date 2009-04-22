@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -37,7 +38,7 @@ import pojos.ExperimenterData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Implementation of the {@link DataService} I/F.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

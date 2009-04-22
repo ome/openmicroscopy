@@ -52,7 +52,8 @@ import pojos.PixelsData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Helper methods to convert {@link IObject}s into their corresponding
+ * {@link DataObject}s.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

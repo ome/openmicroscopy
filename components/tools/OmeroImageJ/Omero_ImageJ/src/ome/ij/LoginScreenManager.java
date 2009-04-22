@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
 
 /** 
- * 
+ * Handles the log in sequence.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -72,7 +72,7 @@ class LoginScreenManager
 	private static final String VERSION = "v1.0";
 	
 	/** The default port value. */
-	private static final String PORT = "+4063";
+	private static final String PORT = ""+4063;
 	
 	/** The title of the dialog if we cannot connect. */
 	private static final String CONNECTION = "Connection";
@@ -240,4 +240,5 @@ class LoginScreenManager
 	 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
 	 */
 	public void windowGainedFocus(WindowEvent e) {}
+	
 }

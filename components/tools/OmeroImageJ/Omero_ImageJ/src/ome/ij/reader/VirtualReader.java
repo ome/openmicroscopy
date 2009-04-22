@@ -1,5 +1,5 @@
 /*
- * ome.ij.dm.browser.CollapseVisitor 
+ * ome.ij.reader.VirtualReader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -20,18 +20,21 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.ij.dm.browser;
+package ome.ij.reader;
 
 
 //Java imports
 
 //Third-party libraries
+import java.io.IOException;
+
+import loci.formats.DimensionSwapper;
+import loci.formats.IFormatReader;
 
 //Application-internal dependencies
-import pojos.ExperimenterData;
 
 /** 
- * Collapses all the expended nodes.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -43,42 +46,43 @@ import pojos.ExperimenterData;
  * </small>
  * @since 3.0-Beta4
  */
-public class CollapseVisitor 
-	implements TreeImageDisplayVisitor
+public class VirtualReader
+	extends DimensionSwapper
 {
 
-	/** Reference to the browser. */
-	private Browser browser;
-	
+	/** Count the number of ref. */
+	private int refCount;
+
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param browser Reference to the browser. Mustn't be <code>null</code>.
+	 * @param reader The reader to wrap.
 	 */
-	public CollapseVisitor(Browser browser)
+	public VirtualReader(IFormatReader reader)
 	{
-		if (browser == null)
-			throw new IllegalArgumentException("No Browser.");
-		this.browser = browser;
+		super(reader);
+		refCount = 0;
 	}
 
 	/**
-	 * Collapses the node.
-	 * @see TreeImageDisplayVisitor#visit(TreeImageSet)
+	 * Sets the {@link #refCount}.
+	 * 
+	 * @param refCount The value to set.
 	 */
-	public void visit(TreeImageSet node)
+	public void setRefCount(int refCount)
 	{
-		if (node.getParentDisplay() != null) {
-			if (!(node.getUserObject() instanceof ExperimenterData))
-				browser.collapse(node);
-		}
+		this.refCount = refCount;
 	}
-	
+
 	/**
-	 * Required by the {@link TreeImageDisplayVisitor} I/F but 
-	 * no-op implementation in our case.
-	 * @see TreeImageDisplayVisitor#visit(TreeImageNode)
+	 * Overridden to decrease {@link #refCount}.
+	 * @see DimensionSwapper#close()
 	 */
-	public void visit(TreeImageNode node) {}
+	public void close() 
+		throws IOException 
+	{
+		if (refCount > 0) refCount--;
+		if (refCount == 0) super.close();
+	}
 	
 }

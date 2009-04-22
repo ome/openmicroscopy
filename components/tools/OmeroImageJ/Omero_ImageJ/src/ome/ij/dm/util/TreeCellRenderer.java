@@ -46,7 +46,7 @@ import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Determines and sets the icon corresponding to a data object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
