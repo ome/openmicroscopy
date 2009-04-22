@@ -149,7 +149,8 @@ class WebControl(BaseControl):
                     settings["SMTP_PASSWORD"] = smtp_password
                 if smtp_tls:
                     settings["SMTP_TLS"] = smtp_tls
-
+            else:
+                settings["NOTIFICATION"] = False
             break
         return settings
 
@@ -195,9 +196,11 @@ ERROR2EMAIL_NOTIFICATION = %s
 # Notification
 # Application allows to notify user about new shares
 EMAIL_NOTIFICATION = %s
-EMAIL_SENDER_ADDRESS = '%s'
-EMAIL_SMTP_SERVER = '%s'
-""" % ('False', str(settings["NOTIFICATION"]), str(settings["SENDER_ADDRESS"]), str(settings["SMTP_SERVER"]) ))
+""" % ('False', str(settings["NOTIFICATION"])))
+            if settings.has_key('SENDER_ADDRESS'):
+                output.write("""EMAIL_SENDER_ADDRESS = '%s'""" % settings["SENDER_ADDRESS"])
+            if settings.has_key('SMTP_SERVER'):
+                output.write("""EMAIL_SMTP_SERVER = '%s'""" % settings["SMTP_SERVER"])
             if settings.has_key('SMTP_PORT'):
                 output.write("""EMAIL_SMTP_PORT = %s""" % settings["SMTP_PORT"])
             if settings.has_key('SMTP_USER'):

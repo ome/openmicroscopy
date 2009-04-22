@@ -171,8 +171,14 @@ ERROR2EMAIL_NOTIFICATION = custom_settings.ERROR2EMAIL_NOTIFICATION
 # Notification
 # Application allows to notify user about new shares
 EMAIL_NOTIFICATION = custom_settings.EMAIL_NOTIFICATION
-EMAIL_SENDER_ADDRESS = custom_settings.EMAIL_SENDER_ADDRESS
-EMAIL_SMTP_SERVER = custom_settings.EMAIL_SMTP_SERVER
+try:
+    EMAIL_SENDER_ADDRESS = custom_settings.EMAIL_SENDER_ADDRESS
+except:
+    pass
+try:
+    EMAIL_SMTP_SERVER = custom_settings.EMAIL_SMTP_SERVER
+except:
+    pass
 try:
     EMAIL_SMTP_PORT = custom_settings.EMAIL_SMTP_PORT
 except:
@@ -195,3 +201,26 @@ try:
     APPLICATION_HOST=custom_settings.APPLICATION_HOST
 except:
     pass
+
+# DEVELOPMENT
+# ADMIN notification
+# If you wish to help us catching errors, please set the Error notifier to True (please
+# be sure you turned on EMAIL_NOTIFICATION and set ADMIN details).
+# That mechanism sent to the administrator every errors.
+# We are very appreciative if you can deliver them to:
+#   Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>
+# ERROR2EMAIL_NOTIFICATION = False
+
+# Notification
+# Application allows to notify user about new shares
+# EMAIL_NOTIFICATION = False
+# EMAIL_SENDER_ADDRESS = 'sender@domain' # email address
+# EMAIL_SMTP_SERVER = 'smtp.domain'
+# EMAIL_SMTP_PORT = 25
+# EMAIL_SMTP_USER = 'login'
+# EMAIL_SMTP_PASSWORD = 'password'
+# EMAIL_SMTP_TLS = True
+
+# HOST CONFIG
+# That option is required by share notification sendere.
+# APPLICATION_HOST='http://www.domain.com:80'

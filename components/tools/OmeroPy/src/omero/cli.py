@@ -479,6 +479,7 @@ class BaseControl:
                 continue
             confirm = self.ctx.input("Please re-enter password%s: "%reason, hidden = True)
             if root_pass != confirm:
+                root_pass = None
                 self.ctx.err("Passwords don't match")
                 continue
             break
