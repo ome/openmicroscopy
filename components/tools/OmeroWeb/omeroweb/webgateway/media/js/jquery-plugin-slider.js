@@ -1,15 +1,9 @@
 /**
- * Slider plugin for JQuery.
- *
- * Called on a container, creates a slider inside it
- *
- * Todo: better documentation and example usage.
+ * jquery-plugin-slider - Slider plugin for jQuery
  *
  * Depends on jquery, jquery.dimensions.js
  *
- * Author: C. Neves <carlos@glencoesoftware.com>
- *
- * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * Copyright (c) 2007, 2008, 2009 Glencoe Software, Inc. All rights reserved.
  * 
  * This software is distributed under the terms described by the LICENCE file
  * you can find at the root of the distribution bundle, which states you are
@@ -17,8 +11,8 @@
  * If the file is missing please request a copy by contacting
  * jason@glencoesoftware.com.
  *
+ * Author: Carlos Neves <carlos(at)glencoesoftware.com>
  */
-
 
 /*
  * TODO: Make css classes configurable to avoid clashes.

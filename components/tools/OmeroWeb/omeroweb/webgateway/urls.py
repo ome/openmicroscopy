@@ -1,17 +1,17 @@
 #
-# blitzcon/urls.py - django application url handling configuration
+# webgateway/urls.py - django application url handling configuration
 # 
-# Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+# Copyright (c) 2007, 2008, 2009 Glencoe Software, Inc. All rights reserved.
 # 
 # This software is distributed under the terms described by the LICENCE file
 # you can find at the root of the distribution bundle, which states you are
 # free to use it only for non commercial purposes.
 # If the file is missing please request a copy by contacting
 # jason@glencoesoftware.com.
+#
+# Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
 from django.conf.urls.defaults import *
-#import os
-#print os.getcwd()
 
 urlpatterns = patterns('',
     (r'^appmedia/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'webgateway/media'}),
