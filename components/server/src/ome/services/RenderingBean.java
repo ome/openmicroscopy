@@ -303,7 +303,17 @@ public class RenderingBean implements RenderingEngine, Serializable {
                         "No rendering definition exists with ID: "
                                 + renderingDefId);
             }
-            if (!sanityCheckPixels(pixelsObj, rendDefObj.getPixels())) {
+            // Need b/c rendDefObj.getPixels() is not loaded
+            // and we cannot check if the sets are compatible.
+            // See ticket #1327
+            if (rendDefObj.getPixels() == null) {
+            	 rendDefObj = null;
+                 throw new ValidationException("The rendering definition "
+                         + renderingDefId + " is not linked to a pixels set.");
+            }
+            	
+            Pixels pixels = retrievePixels(rendDefObj.getPixels().getId());
+            if (!sanityCheckPixels(pixelsObj, pixels)) {
                 rendDefObj = null;
                 throw new ValidationException("The rendering definition "
                         + renderingDefId + " is incompatible with pixels set "
