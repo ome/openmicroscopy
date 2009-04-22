@@ -47,6 +47,18 @@ Copyright notice added to all files:
 [$ALL]  */
 [$PYC] """
 
+#if($type.abstract)
+[$HDR]
+[$CPP]
+[$PYC]
+[$HDR] // File may be empty since type is abstract
+[$CPP] // File may be empty since type is abstract
+[$PYC] ## File may be empty since type is abstract
+[$HDR]
+[$CPP]
+[$PYC]
+#end
+
 CONSTANTS -- Don't change for whole file
 #set($Pojo  = "${type.shortname}")
 #set($PojoI = "${Pojo}I")
