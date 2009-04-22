@@ -9,14 +9,15 @@
     <dirname property="up-three" file="${basedir}"/>
     <dirname property="up-two" file="${up-three}"/>
     <dirname property="up-one" file="${up-two}"/>
-    <property name="import.dir"       value="${up-one}/antlib/resources"/>
+	<property name="import.dir" value="${up-one}/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="../../common.xml"/>
 
 	<target name="compress" depends="package" description="generate the distribution from Eclipse bin/ directory">
-		<copy flatten="true" todir="${pluginsDir}">
+		<copy flatten="true" todir="${pluginsDir}/OmeroJ">
 			<fileset dir="${target.dir}" includes="libs/*.jar,${ivy.module}.jar"/>
+			<!-- fileset dir="${target.dir}" includes="${ivy.module}.jar"/-->
 		</copy>
 	</target>
 
@@ -30,7 +31,6 @@
     <target name="test"/>
     <target name="integration"/>
     <target name="findbugs"/>
-
     <!-- LIFECYCLE OVERRIDE -->
     <target name="package" depends="lifecycle.package">
         <jar destfile="${target.dir}/${ivy.module}.jar" update="true">

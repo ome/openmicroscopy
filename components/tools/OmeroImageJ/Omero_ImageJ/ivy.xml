@@ -18,5 +18,10 @@
     <dependency org="gui" name="forms" rev="${versions.forms}"/>
     <dependency org="ij" name="ij" rev="${versions.ij}"/>
     <dependency org="i5d" name="Image_5D" rev="${versions.i5d}"/>
+     <!-- Gui -->
+     <dependency org="gui" name="swingx" rev="${versions.swingx}"/>
+     <dependency org="gui" name="TableLayout" rev="${versions.tablelayout}"/>
+     <dependency org="gui" name="omero-clients-util" rev="${omero.version}"/>
+      <!-- dependency org="gui" name="omero_client" rev="Beta4.0.0"/ -->
   </dependencies>
 </ivy-module>
