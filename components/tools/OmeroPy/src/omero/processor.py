@@ -5,11 +5,20 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-import omero, Ice
-import os, signal, subprocess, sys, threading, tempfile, time, traceback
-from omero_model_OriginalFileI import OriginalFileI
-from omero.rtypes import *
+import os
+import sys
+import time
+import signal
+import logging
+import tempfile
+import threading
+import traceback
+import subprocess
+import exceptions
 from path import path
+
+import omero, Ice
+from omero.rtypes import *
 
 class ProcessI(omero.grid.Process):
     """
@@ -29,15 +38,17 @@ class ProcessI(omero.grid.Process):
     is being used solely to calculate the parameters for the script
     ("omero.scripts.parse=true")
 
+    If kill is True, then on cleanup, this process will reap the
+    attached session completely.
     """
 
-    def __init__(self, interpreter, properties, params, log):
+    def __init__(self, interpreter, properties, params, kill = False):
         self.active = False
         self.dead = False
         self.interpreter = interpreter
         self.properties = properties
         self.params = params
-        self.log = log
+        self.kill = kill
         # Non arguments
         self.callbacks = []
         self.lock = threading.Lock()
@@ -57,6 +68,16 @@ class ProcessI(omero.grid.Process):
         self.env.append("PYTHONPATH", str(path().getcwd() / "lib" / "python"))
         self.env.set("ICE_CONFIG", self.config_name)
         self.make_config()
+        #
+        # Finally we create a client which will be kept alive by
+        # the processors omero.util.Resources() instance. On cleanup(),
+        # an attempt will be made to completely close the session.
+        #
+        self.client = omero.client(["--Ice.Config=%s" % self.config_name])
+        self.client.createSession().closeOnDestroy()
+        self.uuid = self.client.sf.ice_getIdentity().name
+        self.logger = logging.getLogger("Process")
+        self.logger.info("Created " + self.uuid)
 
     def activate(self):
         """
@@ -67,22 +88,51 @@ class ProcessI(omero.grid.Process):
         self.stderr = open(self.stderr_name, "w")
         self.popen = subprocess.Popen([self.interpreter, "./script"], cwd=self.dir, env=self.env(), stdout=self.stdout, stderr=self.stderr)
         self.active = True
+        self.logger.info("Activated " + self.uuid)
 
-    def __del__(self):
+    def check(self):
+        """
+        Called periodically to keep the session alive. Returns
+        False if this resource can be cleaned up. (Resources API)
+        """
+        if not self.client:
+            self.logger.warning("No client for " + self.uuid)
+            return False
+        try:
+            self.logger.debug("Checking " + self.uuid)
+            self.client.sf.keepAlive(None)
+            return True
+        except:
+            self.logger.error("Keep alive failed for %s" % self.uuid)
+            self.cleanup_session()
+            return False
+
+    def cleanup(self):
         """
         Cleans up the temporary directory used by the process, and terminates
-        the Popen process if running.
+        the Popen process if running. (Resources API)
         """
         try:
             self.lock.acquire()
             if not self.dead:
-                self.cleanup_popen()
-                self.cleanup_output()
-                self.upload_output()
-                self.cleanup_tmpdir()
+                try:
+                    self.logger.info("Checking " + self.uuid)
+                    self.cleanup_popen()
+                    self.cleanup_output()
+                    self.upload_output() # Important
+                    self.cleanup_tmpdir()
+                    if self.kill:
+                        self.cleanup_session()
+                except exceptions.Exception:
+                    self.logger.error("FAILED TO CLEANUP %s" % self.uuid, exc_info = True)
+            else:
+                self.logger.info("Already dead - " + self.uuid)
         finally:
             self.dead = True
             self.lock.release()
+
+    def __del__(self):
+        self.cleanup()
 
     def cleanup_popen(self):
         """
@@ -95,10 +145,10 @@ class ProcessI(omero.grid.Process):
             for i in range(5,0,-1):
                 time.sleep(6)
                 if None != self.popen.poll():
-                    self.log.warning("Process %s terminated cleanly." % str(self.popen.pid))
+                    self.logger.warning("Process %s terminated cleanly." % str(self.popen.pid))
                     break
                 else:
-                    self.log.warning("%s still active. Killing in %s seconds." % (str(self.popen.pid),6*(i-1)+1))
+                    self.logger.warning("%s still active. Killing in %s seconds." % (str(self.popen.pid),6*(i-1)+1))
             self.kill()
 
     def cleanup_output(self):
@@ -118,17 +168,23 @@ class ProcessI(omero.grid.Process):
         stdout or stderr are non-null, they they will be uploaded and
         attached to the job.
         """
+        if not self.client:
+            self.logger.error("No client: Cannot upload output for " + self.uuid)
+            return
+
         if self.params:
             out_format = self.params.stdoutFormat
             err_format = self.params.stderrFormat
+            upload = True
         else:
             out_format = "text/plain"
             err_format = out_format
-        if True:
-            client = omero.client(["--Ice.Config=%s" % self.config_name])
-            client.createSession().detachOnDestroy()
-            self._upload(client, self.stdout_name, "stdout", out_format)
-            self._upload(client, self.stderr_name, "stderr", err_format)
+            upload = False
+
+        if upload:
+            self._upload(self.client, self.stdout_name, "stdout", out_format)
+            self._upload(self.client, self.stderr_name, "stderr", err_format)
+            self.logger.info("Uploaded output " + self.uuid)
 
     def _upload(self, client, filename, name, format):
         if format:
@@ -150,6 +206,15 @@ class ProcessI(omero.grid.Process):
                 os.remove(path)
         os.removedirs(self.dir)
 
+    def cleanup_session(self):
+        """
+        Closes and nulls the self.client field.
+        """
+        self.logger.warning("SHOULD BE killing session " + self.uuid)
+        #self.client.killSession()
+        self.client.closeSession()
+        self.client = None
+
     def make_config(self):
         """
         Creates the ICE_CONFIG file used by the client.
@@ -164,6 +229,7 @@ class ProcessI(omero.grid.Process):
     def poll(self, current = None):
         rv = self.popen.poll()
         if None == rv:
+            self.logger.info("Poll is null " + self.uuid)
             return None
         rv = rint(rv)
         self.allcallbacks("processFinished", rv)
@@ -171,6 +237,7 @@ class ProcessI(omero.grid.Process):
         return rv
 
     def wait(self, current = None):
+        self.logger.info("Wait on " + self.uuid)
         rv = self.popen.wait()
         self.allcallbacks("processFinished",rv)
         self.__del__()
@@ -215,45 +282,60 @@ class ProcessI(omero.grid.Process):
     def allcallbacks(self, method, arg):
         self.lock.acquire()
         try:
-                for cb in self.callbacks:
-                    try:
-                        m = getattr(cb,method)
-                        m(arg)
-                    except:
-                        print "Error calling callback " + str(cb)
+            self.logger.info("Callback %s for %s" % (method, self.uuid))
+            for cb in self.callbacks:
+                try:
+                    m = getattr(cb,method)
+                    m(arg)
+                except:
+                    self.logger.error("Error calling callback %s on %s" % (cb, self.uuid))
         finally:
             self.lock.release()
 
+    def __str__(self):
+        if hasattr(self, "uuid"):
+            return "Process-%s" % self.uuid
+        else:
+            return "Process-uninitialized"
+
 class ProcessorI(omero.grid.Processor):
 
-    def __init__(self, log):
-        self.log = log
+    def __init__(self):
         self.cfg = os.path.join(os.curdir, "etc", "ice.config")
         self.cfg = os.path.abspath(self.cfg)
         self.resources = omero.util.Resources()
+        self.logger = logging.getLogger("ProcessorI")
+        self.logger.info("Initialized")
 
     def parseJob(self, session, job, current = None):
+        return self.parse(session, job, current, kill = True)
+
+    def parse(self, session, job, current, kill):
+        if not session or not job or not job.id:
+            raise omero.ApiUsageException("No null arguments")
+
+        self.logger.info("parseJob: Session = %s, JobId = %s" % (session, job.id.val))
         properties = {}
         properties["omero.scripts.parse"] = "true"
         # We need to use the client twice, so initializing here.
         client = omero.client(["--Ice.Config=%s" % (self.cfg)])
         client.joinSession(session).detachOnDestroy()
-        process = self.process(session, job, current, None, properties, client)
+        process = self.process(session, job, current, None, properties, client, kill)
         process.wait()
         rv = client.getOutput("omero.scripts.parse")
         if rv != None:
             return rv.val
         else:
-            self.log.warning("No output found for omero.scripts.parse. Keys: %s" % client.getOutputKeys())
+            self.logger.warning("No output found for omero.scripts.parse. Keys: %s" % client.getOutputKeys())
             return None
 
     def processJob(self, session, job, current = None):
         """
         """
-        params = self.parseJob(session, job, current)
-        return self.process(session, job, current, params)
+        params = self.parse(session, job, current, kill = False)
+        return self.process(session, job, current, params, kill = True)
 
-    def process(self, session, job, current, params, properties = {}, client = None):
+    def process(self, session, job, current, params, properties = {}, client = None, kill = True):
         """
         session: session uuid, used primarily if client is None
         client: an optional omero.client object which should be attached to a session
@@ -261,9 +343,8 @@ class ProcessorI(omero.grid.Processor):
         if not client:
             client = omero.client(["--Ice.Config=%s" % (self.cfg)])
             client.joinSession(session).detachOnDestroy()
-        sf = client.getSession()
-        ec = sf.getAdminService().getEventContext()
 
+        sf = client.getSession()
         handle = sf.createJobHandle()
         handle.attach(job.id.val)
         if handle.jobFinished():
@@ -290,9 +371,10 @@ class ProcessorI(omero.grid.Processor):
         properties["omero.pass"] = session
         properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
 
-        process = ProcessI("python", properties, params, self.log)
-        self.resources.add(process,"__del__")
+        process = ProcessI("python", properties, params, kill)
+        self.resources.add(process)
         client.download(file, process.script_name)
+        self.logger.info("Downloaded file: %s" % file.id.val)
         process.activate()
 
         prx = current.adapter.addWithUUID(process)
@@ -303,8 +385,8 @@ class ProcessorI(omero.grid.Processor):
         Cleanups all resoures created by this Processor, namely
         the Process instances.
         """
-        while self.resources.cleanupNext():
-            pass
+        self.logger.info("Cleaning up")
+        self.resources.cleanup()
 
 if __name__ == "__main__":
     app = omero.util.Server(ProcessorI, "ProcessorAdapter", Ice.Identity("Processor",""))

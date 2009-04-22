@@ -10,7 +10,7 @@
 
 """
 
-import exceptions, traceback, threading
+import exceptions, traceback, threading, logging
 import Ice, Glacier2
 import api
 import model
@@ -77,6 +77,10 @@ class client(object):
         self.__sf = None
         self.__uuid = None
         self.__lock = threading.RLock()
+
+        # Logging
+        self.__logger = logging.getLogger("omero.client")
+        logging.basicConfig() # Does nothing if already configured
 
         # Reassigning based on argument type
 
@@ -229,8 +233,7 @@ class client(object):
         try:
             self.closeSession()
         except exceptions.Exception, e:
-            print "Ignoring error in client.__del__:" + str(e.__class__)
-            traceback.print_exc()
+            self.__logging.warning("Ignoring error in client.__del__:" + str(e.__class__))
 
     def getCommunicator(self):
         """
@@ -333,7 +336,7 @@ class client(object):
             while retries < 3:
                 reason = None
                 if retries > 0:
-                    self.__ic.getLogger().warning(\
+                    self.__logger.warning(\
                     "%s - createSession retry: %s"% (reason, retries) )
                 try:
                     prx = self.getRouter(self.__ic).createSession(username, password)
@@ -523,7 +526,7 @@ class client(object):
                 try:
                     oldOa.deactivate()
                 except exceptions.Exception, e:
-                    oldIc.getLogger().warn("While deactivating adapter: " + str(e.message))
+                    self.__logger.warning("While deactivating adapter: " + str(e.message))
 
             self.__previous = Ice.InitializationData()
             self.__previous.properties = oldIc.getProperties().clone()
@@ -548,6 +551,35 @@ class client(object):
 
         finally:
             self.__lock.release()
+
+
+    def killSession(self):
+        """
+        Calls closeSession(omero.model.Session) until
+        the returned reference count is greater than zero.
+        """
+
+        sf = self.sf
+        if not sf:
+            raise omero.ClientError("No session avaliable")
+
+        s = omero.model.SessionI()
+        s.uuid = rstring(sf.ice_getIdentity().name)
+        svc = sf.getSessionService()
+        count = 0
+        try:
+            r = 1
+            while r > 0:
+                count += 1
+                r = svc.closeSession(s)
+        except omero.RemovedSessionException:
+            pass
+        except:
+            self.__logger.warning("Unknown exception while closing all references", exc_info = True)
+
+        # Now the server-side session is dead, call closeSession()
+        self.closeSession()
+        return count
 
     # Environment Methods
     # ===========================================================
@@ -674,10 +706,10 @@ class client(object):
         def execute(self, myCallable, action):
             try:
                 myCallable()
-                self.ic.getLogger().trace("ClientCallback", action + " run")
+                self.__logger.debug("ClientCallback", action + " run")
             except:
                 try:
-                    ic.getLogger().error("Error performing %s" % action)
+                    self.__logger.error("Error performing %s" % action)
                     import traceback
                     traceback.print_exc()
                 except:
