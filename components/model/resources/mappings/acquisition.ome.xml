@@ -35,7 +35,7 @@
 			<!-- Note: acquiredPixels is missing, and OMERO uses the pixels[0] as defaultPixels -->
 			<onemany name="pixels" type="ome.model.core.Pixels" inverse="image" ordered="true"/>
 			<zeromany name="wellSamples" type="ome.model.screen.WellSample" inverse="image"/>
-                        <manyzero name="rois" type="ome.model.roi.Roi" inverse="image"/>
+                        <zeromany name="rois" type="ome.model.roi.Roi" inverse="image"/>
 			<!-- Containers -->
 			<parent name="datasetLinks" type="ome.model.containers.DatasetImageLink" target="ome.model.containers.Dataset"/>
 		</properties>
