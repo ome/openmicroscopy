@@ -37,6 +37,7 @@ import ij.ImagePlus;
 import omero.model.Pixels;
 import omero.model.StatsInfo;
 import omerojava.util.GatewayUtils;
+import omerojava.util.Plane1D;
 
 /** 
  * Wrap image data.
@@ -152,47 +153,21 @@ public class ImageObject
 	public Object getMappedPlane(byte[] plane)
 	{
 		if (plane == null) return null;
-		switch (getBytesPerPixels()) {
-			case 1: return plane;
-			case 2: return asShort(plane); //Replace by GatewayUtils
-			case 4: return asInt(plane); //Replace by GatewayUtils
-		}
+		try {
+			Plane1D p1;
+			switch (getBytesPerPixels()) {
+				case 1: return plane;
+				case 2: 
+					p1 = GatewayUtils.getPlane1D(pixels, plane);
+					return p1.getPixelsArrayAsShort(); 
+				case 4: 
+					p1 = GatewayUtils.getPlane1D(pixels, plane);
+					return p1.getPixelsArrayAsInt();
+			}
+		} catch (Exception e) {}
 		return null;
 	}
 	
-	/**
-	 * Transforms a byte array into a 16-bit integer array.
-	 * @param plane Byte array to transform.
-	 * @return Copy of <code>plane</code> as a 16-bit integer array.
-	 */
-	private short[] asShort(byte[] plane)
-	{
-		int pixelCount = plane.length / 2;
-		short[] toReturn = new short[pixelCount];
-		ShortBuffer source = ByteBuffer.wrap(plane).asShortBuffer();
-		for (int i = 0; i < pixelCount; i++)
-		{
-			toReturn[i] = source.get(i);
-		}
-		return toReturn;
-	}
-	
-	/**
-	 * Transforms a byte array into a 32-bit integer array.
-	 * @param plane Byte array to transform.
-	 * @return Copy of <code>plane</code> as a 32-bit integer array.
-	 */
-	private int[] asInt(byte[] plane)
-	{
-		int pixelCount = plane.length / 4;
-		int[] toReturn = new int[pixelCount];
-		IntBuffer source = ByteBuffer.wrap(plane).asIntBuffer();
-		for (int i = 0; i < pixelCount; i++)
-		{
-			toReturn[i] = source.get(i);
-		}
-		return toReturn;
-	}
 
 	/**
 	 * Returns the number of z-sections.
