@@ -150,13 +150,17 @@ public class TreeViewer
 		viewButton.addActionListener(this);
 		viewButton.setActionCommand(""+VIEW);
 		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				firePropertyChange(CLOSE_MANAGER_PROPERTY, 
-						Boolean.valueOf(false), Boolean.valueOf(true));
-			}
+			public void windowClosing(WindowEvent e) { onWindowClosing(); }
 		});
 	}
 
+	/** Inovkes when closing the window. */
+	private void onWindowClosing()
+	{
+		firePropertyChange(CLOSE_MANAGER_PROPERTY, 
+				Boolean.valueOf(false), Boolean.valueOf(true));
+	}
+	
 	/**
 	 * Creates the tool bar hosting the controls.
 	 * 
@@ -336,6 +340,8 @@ public class TreeViewer
 			viewButton.setEnabled(da instanceof ImageData);
 		} else if (Browser.VIEW_DISPLAY_PROPERTY.equals(name)) {
 			viewImage();
+		} else if (Browser.ERROR_EXIT_PROPERTY.equals(name)) {
+			onWindowClosing();
 		}
-	}
+ 	}
 }

@@ -270,19 +270,20 @@ class  BrowserComponent
 				
 			}
 		} catch (DSAccessException e) {
-			e.printStackTrace();
 			IJ.showMessage("An error occured while loading data.");
 			view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			firePropertyChange(ERROR_EXIT_PROPERTY, Boolean.valueOf(false), 
+					Boolean.valueOf(true));
+			model.setState(READY);
 		} catch (DSOutOfServiceException ex) {
-			IJ.showMessage("Out of Service expcetion.\n" +
+			IJ.showMessage("Out of Service exception.\n" +
 					"The plugin will exit.");
-			ServicesFactory.getInstance().exitPlugin();
+			firePropertyChange(ERROR_EXIT_PROPERTY, Boolean.valueOf(false), 
+					Boolean.valueOf(true));
+			model.setState(READY);
 		}
 		IJ.showStatus("");
-		
-		
-        //if (n == null) model.fireExperimenterDataLoading((TreeImageSet) exp);
-        //else model.fireLeavesLoading(exp, n);
+
         fireStateChange();
     }
 
@@ -418,4 +419,5 @@ class  BrowserComponent
         if (node == null) return;
         view.collapsePath(node);
     }
+    
 }

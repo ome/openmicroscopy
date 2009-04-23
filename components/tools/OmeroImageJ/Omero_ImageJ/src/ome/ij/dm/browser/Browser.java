@@ -64,6 +64,12 @@ public interface Browser
 	 */
 	public static final String  	VIEW_DISPLAY_PROPERTY = "viewDisplay";
 	
+	/** 
+	 * Bound property indicating that an error occured while loading the
+	 * data and the plugin will exit.
+	 */
+	public static final String		ERROR_EXIT_PROPERTY = "errorExit";
+	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     	NEW = 10;
     

@@ -47,9 +47,11 @@ import omero.api.IPixelsPrx;
 import omero.api.IQueryPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
+import omero.model.Dataset;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.Project;
+import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.DatasetData;
@@ -341,7 +343,7 @@ class Gateway
 		if (ProjectData.class.equals(nodeType)) 
 			return Project.class.getName();
 		else if (DatasetData.class.equals(nodeType)) 
-			return "omero.model.Dataset";//Dataset.class.getName();
+			return Dataset.class.getName();
 		else if (ImageData.class.equals(nodeType)) 
 			return Image.class.getName();
 		throw new IllegalArgumentException("NodeType not supported");
@@ -351,7 +353,7 @@ class Gateway
 	void isSessionAlive()
 	{
 		try {
-			getAdminService().getEventContext();
+			EventContext ctx = getAdminService().getEventContext();
 		} catch (Exception e) {
 			Throwable cause = e.getCause();
 			int index = SERVER_OUT_OF_SERVICE;
@@ -413,13 +415,16 @@ class Gateway
 	{
 		connected = false;
 		try {
-			omeroClient.closeSession();
-			entry.destroy();
-			entry = null;
 			omeroClient = null;
 			pojosService = null;
 			adminService = null;
+			gService = null;
+			pixelsService = null;
+			queryService = null;
 			services.clear();
+			omeroClient.closeSession();
+			entry.destroy();
+			entry = null;
 		} catch (Exception e) {
 			//session already dead.
 		}
@@ -467,61 +472,6 @@ class Gateway
 				convertPojos(rootType), rootIDs, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot load hierarchy for " + rootType+".");
-		}
-		return new HashSet();
-	}
-	
-	/**
-	 * Retrieves hierarchy trees rooted by a given node.
-	 * i.e. the requested node as root and all of its descendants.
-	 * The annotation for the current user is also linked to the object.
-	 * Annotations are currently possible only for Image and Dataset.
-	 * Wraps the call to the 
-	 * {@link IPojos#loadContainerHierarchy(Class, List, Map)}
-	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
-	 * 
-	 * @param rootType  The top-most type which will be searched for 
-	 *                  Can be <code>Project</code>. 
-	 *                  Mustn't be <code>null</code>.
-	 * @param rootIDs   A set of the IDs of top-most containers. 
-	 *                  Passed <code>null</code> to retrieve all container
-	 *                  of the type specified by the rootNodetype parameter.
-	 * @param options   The Options to retrieve the data.
-	 * @return  A set of hierarchy trees.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 * @see IPojos#loadContainerHierarchy(Class, List, Map)
-	 */
-	Set loadImages(long datasetId)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		try {
-			
-			IQueryPrx service = getQueryService();
-			StringBuilder sb = new StringBuilder();
-			sb.append("select d from Dataset as d ");
-			sb.append("left outer join fetch d.imageLinks dil ");
-			sb.append("left outer join fetch dil.child img ");
-			sb.append("left outer join fetch "
-					+ "d.annotationLinksCountPerOwner this_a_c ");
-			sb.append("left outer join fetch "
-					+ "d.imageLinksCountPerOwner this_i_c ");
-			sb.append("left outer join fetch img.pixels as pix ");
-			sb.append("left outer join fetch pix.pixelsType as pt ");
-			sb.append("where d.id = :id");
-			ParametersI param = new ParametersI();
-			param.addLong("id", datasetId);
-			return PojoMapper.asDataObjects(
-					service.findAllByQuery(sb.toString(), param));
-			/*
-			IContainerPrx service = getPojosService();
-			return PojoMapper.asDataObjects(service.loadContainerHierarchy(
-				convertPojos(rootType), rootIDs, options));
-				*/
-		} catch (Exception t) {
-			handleException(t, "Cannot load hierarchy for "+".");
 		}
 		return new HashSet();
 	}

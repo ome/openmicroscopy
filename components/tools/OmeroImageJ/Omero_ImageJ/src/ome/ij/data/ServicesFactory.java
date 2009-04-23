@@ -25,16 +25,18 @@ package ome.ij.data;
 
 
 //Java imports
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 //Third-party libraries
 import ij.IJ;
+import Glacier2.PermissionDeniedException;
+import Ice.ConnectionRefusedException;
+import Ice.DNSException;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import pojos.ExperimenterData;
-import Glacier2.PermissionDeniedException;
-import Ice.ConnectionRefusedException;
-import Ice.DNSException;
 
 /** 
  *  A factory for the services.
@@ -106,6 +108,9 @@ public class ServicesFactory
 	/** The data service adapter. */
 	private DataService		dataService;
 	
+    /** Keeps the client's session alive. */
+	private ScheduledThreadPoolExecutor	executor;
+	
 	/**
 	 * Attempts to create a new instance.
      * 
@@ -162,9 +167,12 @@ public class ServicesFactory
 		try {
 			gateway.login(lc.getUserName(), lc.getPassword(), lc.getHostName(), 
 					lc.getPort());
+			
+			KeepClientAlive kca = new KeepClientAlive(gateway);
+	        executor = new ScheduledThreadPoolExecutor(1);
+	        executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
 			return SUCCESS_INDEX;
 		} catch (DSOutOfServiceException e) {
-			e.printStackTrace();
 			if (e != null) {
 				Throwable cause = e.getCause();
 	        	if (cause instanceof ConnectionRefusedException) {
@@ -196,12 +204,14 @@ public class ServicesFactory
 		IJ.showMessage("Connection Refused", message);
 		//Need to notify the window.
 		IJ.getInstance().firePropertyChange(DISCONNECT_PROPERTY, 0, 1);
-		exitPlugin();
+		return;
 	}
 	
 	/** Exits the plugin. */
 	public void exitPlugin()
 	{
+		if (executor != null) executor.shutdown();
+		executor = null;
 		gateway.logout();
 	}
 	

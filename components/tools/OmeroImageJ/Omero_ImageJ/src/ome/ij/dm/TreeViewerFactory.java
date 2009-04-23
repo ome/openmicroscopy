@@ -100,9 +100,9 @@ public class TreeViewerFactory
 		if (TreeViewer.CLOSE_MANAGER_PROPERTY.equals(name) ||
 			ServicesFactory.DISCONNECT_PROPERTY.equals(name)) {
 			if (viewer != null) {
-				ServicesFactory.getInstance().exitPlugin();
 				viewer.discard();
 				viewer = null;
+				ServicesFactory.getInstance().exitPlugin();
 			}
 		}
 	}
