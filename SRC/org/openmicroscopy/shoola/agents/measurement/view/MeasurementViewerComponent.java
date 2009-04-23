@@ -344,9 +344,9 @@ class MeasurementViewerComponent
      */
 	public void close()
 	{
-		if (model.getState() == DISCARDED) 
-			throw new IllegalStateException("This method shouldn't be " +
-					"invoked in the DISCARDED state:"+model.getState());
+		if (model.getState() == DISCARDED) {
+			return;
+		}
 		/*
 		if (!model.isDataSaved()) { 
 			String title = "Discard Changes";
