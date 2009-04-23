@@ -200,6 +200,7 @@ class OMEROGateway
 		SUPPORTED_SPECIAL_CHAR.add(new Character('!'));
 		SUPPORTED_SPECIAL_CHAR.add(new Character('{'));
 		SUPPORTED_SPECIAL_CHAR.add(new Character('}'));
+		SUPPORTED_SPECIAL_CHAR.add(new Character('^'));
 		WILD_CARDS = new ArrayList<String>();
 		WILD_CARDS.add("*");
 		WILD_CARDS.add("?");

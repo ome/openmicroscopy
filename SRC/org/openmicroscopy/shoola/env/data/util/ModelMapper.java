@@ -219,9 +219,9 @@ public class ModelMapper
         	if (!(child instanceof TagAnnotation))
                 throw new IllegalArgumentException("Child not valid.");
         	RString ns = ((TagAnnotation) parent).getNs();
-        	if (ns == null || !ns.getValue().equals(
-        			TagAnnotationData.INSIGHT_TAGSET_NS))
-        		throw new IllegalArgumentException("Parent not valid.");
+        	if (ns == null || !TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+        			ns.getValue()))
+        		return null;
         	return linkAnnotation(parent, (TagAnnotation) child);
         }
         return null;
