@@ -152,6 +152,8 @@ public class Factory
     	if (img == null) return createDefaultImageThumbnail(); 
     	int h = img.getIconHeight();
     	int w = img.getIconWidth();
+    	if (width == 0) width = THUMB_DEFAULT_WIDTH;
+    	if (height == 0) height = THUMB_DEFAULT_HEIGHT;
     	if (h == height && w == width)
     		return createDefaultImageThumbnail();
         BufferedImage thumbPix = new BufferedImage(width, height, 
@@ -566,6 +568,7 @@ public class Factory
     		double realSizeX, double realSizeY)
     {
     	double ratio = 0;
+    	int value = 0;
     	if (realSizeY != 0) ratio = realSizeX/realSizeY;
     	if (sizeX <= 0 && sizeY <= 0)
     		return new Dimension(THUMB_DEFAULT_WIDTH, THUMB_DEFAULT_HEIGHT);
@@ -573,9 +576,15 @@ public class Factory
     		return new Dimension(THUMB_DEFAULT_WIDTH, sizeY);
     	else if (sizeX > 0 && sizeY <= 0)
     		return new Dimension(sizeX, THUMB_DEFAULT_HEIGHT);
-    	if (ratio < 1) return new Dimension((int) (sizeX*ratio), sizeY);
-    	else if (ratio > 1 && ratio != 0) 
-    		return new Dimension(sizeX, (int) (sizeY*1/ratio));
+    	if (ratio < 1) {
+    		value = (int) (sizeX*ratio);
+    		if (value != 0) return new Dimension(value, sizeY);
+    		return new Dimension(THUMB_DEFAULT_WIDTH, sizeY); 
+    	} else if (ratio > 1 && ratio != 0) {
+    		value = (int) (sizeY*1/ratio);
+    		if (value != 0) return new Dimension(sizeX, value);
+    		return new Dimension(sizeX, THUMB_DEFAULT_HEIGHT);
+    	}
     	return new Dimension(sizeX, sizeY);
     }
     

@@ -291,6 +291,9 @@ class GraphPane
 	private LinePlot drawLineplot(String title,  List<String> channelNames, 
 			List<double[][]> data, List<Color> channelColours)
 	{
+		if (channelNames.size() == 0 || data.size() == 0 || 
+				channelColours.size() == 0)
+				return null;
 		LinePlot plot = new LinePlot(title, channelNames, data, 
 			channelColours, channelMinValue(), channelMaxValue());
 		plot.setYAxisName("Intensity");

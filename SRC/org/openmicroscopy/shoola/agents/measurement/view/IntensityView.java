@@ -151,13 +151,13 @@ class IntensityView
 	private static final String			NAME = "Intensity View";
 
 	/** The save button action command. */
-	private static final String			SAVEACTION = "SAVEACTION";
+	private static final int			SAVEACTION = 0;
 	
 	/** The show table action button. */
-	private static final String			SHOWTABLEACTION = "SHOWTABLEACTION";
+	private static final int			SHOWTABLEACTION = 1;
 	
 	/** The cannel selection action command. */
-	private static final String			CHANNELSELECTION = "CHANNELSELECTION";
+	private static final int			CHANNELSELECTION = 2;
 	
 	/** Reference to the model. */
 	private MeasurementViewerModel		model;
@@ -219,7 +219,7 @@ class IntensityView
 	private Map<Integer, Double> channelStdDev = new TreeMap<Integer, Double>();
 	
 	/** Map of the channel name to channel number .*/
-	Map<String, Integer> nameMap = new LinkedHashMap<String, Integer>();
+	private Map<String, Integer> nameMap = new LinkedHashMap<String, Integer>();
 	
 	/** The map of the shape stats to coord. */
 	private TreeMap<Coord3D, Map<StatsType, Map>> shapeStatsList;
@@ -285,13 +285,13 @@ class IntensityView
 	
 		showIntensityTable = new JButton("Intensity Values");
 		showIntensityTable.addActionListener(this);
-		showIntensityTable.setActionCommand(SHOWTABLEACTION);
+		showIntensityTable.setActionCommand(""+SHOWTABLEACTION);
 		channelSelection = new JComboBox();
 		channelSelection.addActionListener(this);
-		channelSelection.setActionCommand(CHANNELSELECTION);
-		saveButton = new JButton("Save Results");
+		channelSelection.setActionCommand(""+CHANNELSELECTION);
+		saveButton = new JButton("Export to Excel");
 		saveButton.addActionListener(this);
-		saveButton.setActionCommand(SAVEACTION);
+		saveButton.setActionCommand(""+SAVEACTION);
 		state = State.READY;
 
 		zSlider = new OneKnobSlider();
@@ -334,7 +334,8 @@ class IntensityView
 	{
 		JPanel scrollPanel = new JPanel();
 		JPanel containerPanel = new JPanel();
-		containerPanel.setLayout(new BoxLayout(containerPanel, BoxLayout.X_AXIS));
+		containerPanel.setLayout(new BoxLayout(containerPanel, 
+				BoxLayout.X_AXIS));
 		JPanel tPanel = tablePanel();
 		containerPanel.add(zSlider);
 		containerPanel.add(tPanel);
@@ -352,7 +353,7 @@ class IntensityView
 		this.setLayout(new BorderLayout());
 		this.add(scrollPanel, BorderLayout.CENTER);
 		intensityDialog = new IntensityValuesDialog(tableModel);	
-		}
+	}
 	
 	/**
 	 * Create the button panel to the right of the summary table.
@@ -363,11 +364,13 @@ class IntensityView
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
-		JPanel channelPanel = UIUtilities.buildComponentPanel(channelSelection);
+		JPanel channelPanel = 
+			UIUtilities.buildComponentPanel(channelSelection);
 		UIUtilities.setDefaultSize(channelPanel, new Dimension(175, 32));
 		panel.add(channelPanel);
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
-		JPanel intensityPanel = UIUtilities.buildComponentPanel(showIntensityTable);
+		JPanel intensityPanel = 
+			UIUtilities.buildComponentPanel(showIntensityTable);
 		UIUtilities.setDefaultSize(intensityPanel, new Dimension(175, 32));
 		panel.add(intensityPanel);
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
@@ -395,200 +398,35 @@ class IntensityView
 		return panel;
 	}
 	
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param view		 Reference to the View. Mustn't be <code>null</code>.
-	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
-	 */
-	IntensityView(MeasurementViewerUI view, MeasurementViewerModel model)
-	{
-		if (view == null)
-			throw new IllegalArgumentException("No view.");
-		if (model == null)
-			throw new IllegalArgumentException("No model.");
-		this.view = view;
-		this.model = model;
-		selectedChannelName = "";
-		initComponents();
-		buildGUI();
-	}
-	
-	/**
-	 * Returns the name of the component.
-	 * 
-	 * @return See above.
-	 */
-	String getComponentName() { return NAME; }
-	
-	/**
-	 * Returns the icon of the component.
-	 * 
-	 * @return See above.
-	 */
-	Icon getComponentIcon()
-	{
-		IconManager icons = IconManager.getInstance();
-		return icons.getIcon(IconManager.INTENSITYVIEW);
-	}
-	
-	/** 
-	 * clear the maps just incase the data is not being reassigned.
-	 */
+	/** Clears the maps just incase the data is not being reassigned. */
 	private void clearMaps()
 	{
-		if(shapeStatsList!=null)
+		if (shapeStatsList != null)
 			shapeStatsList.clear();
 		shapeStatsList = null;
-		if(pixelStats!=null)
+		if (pixelStats != null)
 			pixelStats.clear();
 		pixelStats = null;
-		if(shapeMap!=null)
+		if (shapeMap != null)
 			shapeMap.clear();
 		shapeMap = null;
-		if(maxStats!=null)
+		if (maxStats != null)
 			maxStats.clear();
 		maxStats = null;
-		if(meanStats!=null)
+		if (meanStats != null)
 			meanStats.clear();
 		meanStats = null;
-		if(minStats!=null)
+		if (minStats != null)
 			minStats.clear();
 		minStats = null;
-		if(sumStats!=null)
+		if (sumStats != null)
 			sumStats.clear();
 		sumStats = null;
-		if(stdDevStats!=null)
+		if (stdDevStats != null)
 			stdDevStats.clear();	
 		stdDevStats = null;
 	}
 
-	/**
-	 * Get the analysis results from the model and convert to the 
-	 * necessary array. data types using the ROIStats wrapper then
-	 * create the approriate table data and summary statistics.  
-	 */
-	public void displayAnalysisResults()
-	{
-		if (state == State.ANALYSING)
-			return;
-		this.ROIStats = model.getAnalysisResults();
-		if (ROIStats == null || ROIStats.size() == 0) 
-			return;
-		state = State.ANALYSING;
-		
-		clearMaps();
-		shapeStatsList = new TreeMap<Coord3D, Map<StatsType, Map>>(new Coord3D());
-		pixelStats = 
-			new TreeMap<Coord3D, Map<Integer, Map<Point, Double>>>(new Coord3D());
-		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
-		minStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
-		maxStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
-		meanStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
-		sumStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
-		stdDevStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
-		
-		Entry entry;
-		Iterator j  = ROIStats.entrySet().iterator();
-		channelName =  new TreeMap<Integer, String>();
-		nameMap = new LinkedHashMap<String, Integer>();
-
-		int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
-		int minT = Integer.MAX_VALUE, maxT = Integer.MIN_VALUE;
-		clearAllValues();
-		Coord3D c3D;
-		Map<StatsType, Map> shapeStats;
-		ChannelData channelData;
-		int channel;
-		Iterator<ChannelData> i;
-		List<ChannelData> metadata = model.getMetadata();
-		while (j.hasNext())
-		{
-			entry = (Entry) j.next();
-			shape = (ROIShape) entry.getKey();
-			c3D = shape.getCoord3D();
-			minT = Math.min(minT, c3D.getTimePoint());
-			maxT = Math.max(maxT, c3D.getTimePoint());
-			minZ = Math.min(minZ, c3D.getZSection());
-			maxZ = Math.max(maxZ, c3D.getZSection());
-			
-			shapeMap.put(c3D, shape);
-			if (shape.getFigure() instanceof MeasureTextFigure)
-			{
-				state = State.READY;
-				return;
-			}
-	
-			shapeStats = AnalysisStatsWrapper.convertStats(
-										(Map) entry.getValue());
-			shapeStatsList.put(c3D, shapeStats);
-
-			minStats.put(c3D, shapeStats.get(StatsType.MIN));
-			maxStats.put(c3D, shapeStats.get(StatsType.MAX));
-			meanStats.put(c3D, shapeStats.get(StatsType.MEAN));
-			sumStats.put(c3D, shapeStats.get(StatsType.SUM));
-			stdDevStats.put(c3D, shapeStats.get(StatsType.STDDEV));
-			pixelStats.put(c3D, shapeStats.get(StatsType.PIXEL_PLANEPOINT2D));
-			
-			/* really inefficient but hey.... quick hack just now till refactor */
-			channelName.clear();
-			nameMap.clear();
-			channelColour.clear();
-			
-			
-			i = metadata.iterator();
-			while (i.hasNext()) {
-				channelData = i.next();
-				channel = channelData.getIndex();
-				if (model.isChannelActive(channel)) 
-				{
-					channelName.put(channel, channelData.getChannelLabeling());
-					nameMap.put(channelName.get(channel), channel);
-					channelColour.put(channel, 
-						(Color) model.getActiveChannels().get(channel));
-				}
-			}
-		}
-		if (channelName.size() != channelColour.size() || nameMap.size() == 0)
-		{
-			createComboBox();
-			List<String> names = channelSummaryModel.getRowNames();
-			List<String> channelNames = new ArrayList<String>();
-			Double data[][] = new Double[channelName.size()][names.size()];
-			channelSummaryModel = new ChannelSummaryModel(names, channelNames, 
-					data);
-			channelSummaryTable.setModel(channelSummaryModel);
-			saveButton.setEnabled(false);
-			showIntensityTable.setEnabled(false);
-			if (intensityDialog != null) intensityDialog.setVisible(false);
-			state = State.READY;
-			return;
-		}
-		saveButton.setEnabled(true);
-		showIntensityTable.setEnabled(true);
-		maxZ = maxZ+1;
-		minZ = minZ+1;
-		maxT = maxT+1;
-		minT = minT+1;
-		
-		createComboBox();
-		Object[] nameColour = (Object[]) channelSelection.getSelectedItem();
-		String string = (String) nameColour[1];
-		selectedChannel = nameMap.get(string);
-		zSlider.setMaximum(maxZ);
-		zSlider.setMinimum(minZ);
-		tSlider.setMaximum(maxT);
-		tSlider.setMinimum(minT);
-		zSlider.setVisible((maxZ != minZ));
-		tSlider.setVisible((maxT != minT));
-		tSlider.setValue(model.getCurrentView().getTimePoint()+1);
-		zSlider.setValue(model.getCurrentView().getZSection()+1);
-		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
-		shape = shapeMap.get(coord);
-		populateData(coord, selectedChannel);	
-		state = State.READY;
-	}
 
 
 	/** Clear the combo box. */
@@ -719,10 +557,10 @@ class IntensityView
 	 * Add stats in the column for area figures.
 	 * @param fig the figure where the stats come from. 
 	 * @param data the data being populated.
-	 * @param channel the channel where the stats come from/.
 	 * @param count the column in the table being populated.
 	 */
-	private void addValuesForAreaFigure(ROIFigure fig, Double data[][], int channel, int count)
+	private void addValuesForAreaFigure(ROIFigure fig, Double data[][], 
+			int channel, int count)
 	{
 		data[count][6] = AnnotationKeys.AREA.get(fig.getROIShape());
 		data[count][7] = fig.getBounds().getX();
@@ -1044,7 +882,7 @@ class IntensityView
 		Coord3D end = shapeMap.lastKey();
 		Coord3D coord;
 		List<Integer> channels = new ArrayList<Integer>(channelName.keySet());
-		for(Integer c : channels)
+		for (Integer c : channels)
 		{
 			for (int z = start.getZSection() ; z<= end.getZSection(); z++)
 				for (int t = start.getTimePoint() ; t <= end.getTimePoint(); t++)
@@ -1158,77 +996,237 @@ class IntensityView
 				 intensityTableSize);
 	 }
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param view		 Reference to the View. Mustn't be <code>null</code>.
+	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
+	 */
+	IntensityView(MeasurementViewerUI view, MeasurementViewerModel model)
+	{
+		if (view == null)
+			throw new IllegalArgumentException("No view.");
+		if (model == null)
+			throw new IllegalArgumentException("No model.");
+		this.view = view;
+		this.model = model;
+		selectedChannelName = "";
+		initComponents();
+		buildGUI();
+	}
+	
+	/**
+	 * Returns the name of the component.
+	 * 
+	 * @return See above.
+	 */
+	String getComponentName() { return NAME; }
+	
+	/**
+	 * Returns the icon of the component.
+	 * 
+	 * @return See above.
+	 */
+	Icon getComponentIcon()
+	{
+		IconManager icons = IconManager.getInstance();
+		return icons.getIcon(IconManager.INTENSITYVIEW);
+	}
+	
+	
+	/**
+	 * Get the analysis results from the model and convert to the 
+	 * necessary array. data types using the ROIStats wrapper then
+	 * create the approriate table data and summary statistics.  
+	 */
+	void displayAnalysisResults()
+	{
+		if (state == State.ANALYSING)
+			return;
+		this.ROIStats = model.getAnalysisResults();
+		if (ROIStats == null || ROIStats.size() == 0) 
+			return;
+		state = State.ANALYSING;
+		
+		clearMaps();
+		shapeStatsList = new TreeMap<Coord3D, Map<StatsType, Map>>(new Coord3D());
+		pixelStats = 
+			new TreeMap<Coord3D, Map<Integer, Map<Point, Double>>>(new Coord3D());
+		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
+		minStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+		maxStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+		meanStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+		sumStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+		stdDevStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+		
+		Entry entry;
+		Iterator j  = ROIStats.entrySet().iterator();
+		channelName =  new TreeMap<Integer, String>();
+		nameMap = new LinkedHashMap<String, Integer>();
+
+		int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
+		int minT = Integer.MAX_VALUE, maxT = Integer.MIN_VALUE;
+		clearAllValues();
+		Coord3D c3D;
+		Map<StatsType, Map> shapeStats;
+		ChannelData channelData;
+		int channel;
+		Iterator<ChannelData> i;
+		List<ChannelData> metadata = model.getMetadata();
+		while (j.hasNext())
+		{
+			entry = (Entry) j.next();
+			shape = (ROIShape) entry.getKey();
+			c3D = shape.getCoord3D();
+			minT = Math.min(minT, c3D.getTimePoint());
+			maxT = Math.max(maxT, c3D.getTimePoint());
+			minZ = Math.min(minZ, c3D.getZSection());
+			maxZ = Math.max(maxZ, c3D.getZSection());
+			
+			shapeMap.put(c3D, shape);
+			if (shape.getFigure() instanceof MeasureTextFigure)
+			{
+				state = State.READY;
+				return;
+			}
+	
+			shapeStats = AnalysisStatsWrapper.convertStats(
+										(Map) entry.getValue());
+			shapeStatsList.put(c3D, shapeStats);
+
+			minStats.put(c3D, shapeStats.get(StatsType.MIN));
+			maxStats.put(c3D, shapeStats.get(StatsType.MAX));
+			meanStats.put(c3D, shapeStats.get(StatsType.MEAN));
+			sumStats.put(c3D, shapeStats.get(StatsType.SUM));
+			stdDevStats.put(c3D, shapeStats.get(StatsType.STDDEV));
+			pixelStats.put(c3D, shapeStats.get(StatsType.PIXEL_PLANEPOINT2D));
+			
+			/* really inefficient but hey.... quick hack just now till refactor */
+			channelName.clear();
+			nameMap.clear();
+			channelColour.clear();
+			
+			
+			i = metadata.iterator();
+			while (i.hasNext()) {
+				channelData = i.next();
+				channel = channelData.getIndex();
+				if (model.isChannelActive(channel)) 
+				{
+					channelName.put(channel, channelData.getChannelLabeling());
+					nameMap.put(channelName.get(channel), channel);
+					channelColour.put(channel, 
+						(Color) model.getActiveChannels().get(channel));
+				}
+			}
+		}
+		if (channelName.size() != channelColour.size() || nameMap.size() == 0)
+		{
+			createComboBox();
+			List<String> names = channelSummaryModel.getRowNames();
+			List<String> channelNames = new ArrayList<String>();
+			Double data[][] = new Double[channelName.size()][names.size()];
+			channelSummaryModel = new ChannelSummaryModel(names, channelNames, 
+					data);
+			channelSummaryTable.setModel(channelSummaryModel);
+			saveButton.setEnabled(false);
+			showIntensityTable.setEnabled(false);
+			if (intensityDialog != null) intensityDialog.setVisible(false);
+			state = State.READY;
+			return;
+		}
+		saveButton.setEnabled(true);
+		showIntensityTable.setEnabled(true);
+		maxZ = maxZ+1;
+		minZ = minZ+1;
+		maxT = maxT+1;
+		minT = minT+1;
+		
+		createComboBox();
+		Object[] nameColour = (Object[]) channelSelection.getSelectedItem();
+		String string = (String) nameColour[1];
+		selectedChannel = nameMap.get(string);
+		zSlider.setMaximum(maxZ);
+		zSlider.setMinimum(minZ);
+		tSlider.setMaximum(maxT);
+		tSlider.setMinimum(minT);
+		zSlider.setVisible((maxZ != minZ));
+		tSlider.setVisible((maxT != minT));
+		tSlider.setValue(model.getCurrentView().getTimePoint()+1);
+		zSlider.setValue(model.getCurrentView().getZSection()+1);
+		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
+		shape = shapeMap.get(coord);
+		populateData(coord, selectedChannel);	
+		state = State.READY;
+	}
+
 	/** 
-	 * 	Action called when the combo box changed. 
-	 *  @param e The event.
-	 **/
+	 * Reacts to the controls.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
 	 public void actionPerformed(ActionEvent e) 
 	 {
-		if (state==State.ANALYSING)
+		if (state == State.ANALYSING)
 			return;
-		if (e.getActionCommand().equals(CHANNELSELECTION))
-		{
-			JComboBox cb = (JComboBox)e.getSource();
-			Object[] nameColour = (Object[])cb.getSelectedItem();
-			String string = (String)nameColour[1];
-			if(!nameMap.containsKey(string))
-				return;
-			selectedChannelName = string;
-			int channel = nameMap.get(string);
-			if (channel!=-1)
-			{
-				Coord3D newCoord = new Coord3D(zSlider.getValue()-1, 
-						tSlider.getValue()-1);
-				populateData(newCoord, channel);
-				repaint();
-			}
-		 }
-		 if (e.getActionCommand().equals(SAVEACTION))
-		 {
-			 saveResults();
-		 }
-		 if(e.getActionCommand().equals(SHOWTABLEACTION))
-		 {
-			 showIntensityResults();
-		 }
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case CHANNELSELECTION:
+				JComboBox cb = (JComboBox)e.getSource();
+				Object[] nameColour = (Object[])cb.getSelectedItem();
+				String string = (String)nameColour[1];
+				if (!nameMap.containsKey(string))
+					return;
+				selectedChannelName = string;
+				int channel = nameMap.get(string);
+				if (channel != -1)
+				{
+					Coord3D newCoord = new Coord3D(zSlider.getValue()-1, 
+							tSlider.getValue()-1);
+					populateData(newCoord, channel);
+					repaint();
+				}
+				break;
 	
+			case SAVEACTION:
+				saveResults();
+				break;
+			case SHOWTABLEACTION:
+				showIntensityResults();
+		}
 	 }
 
-	/* (non-Javadoc)
-	 * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
+	/**
+	 * Reacts to slider moves.
+	 * @see ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
-		if(zSlider == null || tSlider == null )
+		if (zSlider == null || tSlider == null || coord == null || 
+				state != State.READY)
 			return;
-		if(coord==null)
-			return;
-		if(state!=State.READY)
-			return;
-		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
-		if(coord.equals(thisCoord))
-			return;
-		if(!pixelStats.containsKey(thisCoord))
-			return;
+		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, 
+				tSlider.getValue()-1);
+		if (coord.equals(thisCoord)) return;
+		if (!pixelStats.containsKey(thisCoord)) return;
 	
-		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
+		Object[] nameColour = (Object[]) channelSelection.getSelectedItem();
 		String string = (String)nameColour[1];
-		if(!nameMap.containsKey(string))
+		if (!nameMap.containsKey(string))
 		{
 			state=State.READY;
 			return;
 		}
 		selectedChannelName = string;
 		int channel = nameMap.get(string);
-		if(channel == -1)
+		if (channel == -1)
 			return;
-		if(!pixelStats.get(thisCoord).containsKey(channel))
+		if (!pixelStats.get(thisCoord).containsKey(channel))
 			return;
 		
 		state = State.ANALYSING;
 		populateData(thisCoord, channel);
 		repaint();
-		if(shape!=null)
+		if (shape!=null)
 			view.selectFigure(shape.getFigure());
 		state=State.READY;
 	}
@@ -1237,5 +1235,6 @@ class IntensityView
 	 * Overridden version of {@line TabPaneInterface#getIndex()}
 	 * @return the index.
 	 */
-	public int getIndex() {return INDEX; }
+	public int getIndex() { return INDEX; }
+	
 }
