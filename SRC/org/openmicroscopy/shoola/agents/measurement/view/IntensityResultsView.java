@@ -28,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -40,9 +41,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.Map.Entry;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -95,7 +93,7 @@ import pojos.ChannelData;
  */
 class IntensityResultsView
 	extends JPanel 
-	implements TabPaneInterface
+	implements ActionListener, TabPaneInterface
 {
 	
 	/** Index to identify tab */
@@ -103,24 +101,31 @@ class IntensityResultsView
 		MeasurementViewerUI.INTENSITYRESULTVIEW_INDEX;
 	
 	/** The add button name. */
-	private final static String ADDNAME = "Add";
+	private final static String ADD_NAME = "Add";
 	
 	/** Tooltip for the add button. */
-	private final static String ADDDESCRIPTION = "Add Intensities for " +
+	private final static String ADD_DESCRIPTION = "Add Intensities for " +
 							"selected ROI to results table.";
 	
 	/** The remove button name. */
-	private final static String REMOVENAME = "Remove";
+	private final static String REMOVE_NAME = "Remove";
 	
 	/** Tooltip for the remove button. */
-	private final static String REMOVEDESCRIPTION = "Remove Results in " +
+	private final static String REMOVE_DESCRIPTION = "Remove Results in " +
 			"selected row from table.";
 	
+	/** The remove button name. */
+	private final static String REMOVE_ALL_NAME = "Remove All";
+	
+	/** Tooltip for the remove button. */
+	private final static String REMOVE_ALL_DESCRIPTION = 
+		"Remove all the Results from table.";
+	
 	/** The save button name. */
-	private final static String SAVENAME = "Save";
+	private final static String SAVE_NAME = "Export to Excel";
 	
 	/** Tooltip for the save button. */
-	private final static String SAVEDESCRIPTION = "Save Intensities " +
+	private final static String SAVE_DESCRIPTION = "Save Intensities " +
 			"to Excel File.";
 	
 	/** Reference to the view. */
@@ -141,6 +146,9 @@ class IntensityResultsView
 	/** The add button. */
 	private JButton addButton;
 	
+	/** The add button. */
+	private JButton removeAllButton;
+	
 	/** The state of the Intensity View. */
 	static enum State 
 	{
@@ -158,6 +166,18 @@ class IntensityResultsView
 	
 	/** The name of the panel. */
 	private static final String			NAME = "Intensity Results View";
+	
+	/** Action command id indicating to remove the selected rows. */
+	private static final int			REMOVE = 0;
+	
+	/** Action command id indicating to add new row. */
+	private static final int			ADD = 1;
+	
+	/** Action command id indicating to remove all the rows. */
+	private static final int			REMOVE_ALL = 2;
+	
+	/** Action command id indicating to save the results. */
+	private static final int			SAVE = 3;
 	
 	/** Reference to the model. */
 	private MeasurementViewerModel		model;
@@ -186,33 +206,26 @@ class IntensityResultsView
 	/** Map of the channel std. dev., for each selected channel. */
 	private Map<Integer, Double> channelStdDev = new TreeMap<Integer, Double>();
 	
-	/** Map of the channel Intensities, for each selected channel. */
-	private Map<Integer, Map<PlanePoint2D, Double>> planePixels = 
-		new TreeMap<Integer, Map<PlanePoint2D, Double>>();
-	
 	/** Map of the channel name to channel number .*/
-	Map<String, Integer> nameMap = new HashMap<String, Integer>();
-	
-	/** Map of the pixel intensity values to coord. */
-	HashMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>> pixelStats;
-	
+	private Map<String, Integer> nameMap = new HashMap<String, Integer>();
+
 	/** Map of the min channel intensity values to coord. */
-	HashMap<Coord3D, Map<Integer, Double>> minStats;
+	private Map<Coord3D, Map<Integer, Double>> minStats;
 	
 	/** Map of the max channel intensity values to coord. */
-	HashMap<Coord3D, Map<Integer, Double>> maxStats;
+	private Map<Coord3D, Map<Integer, Double>> maxStats;
 	
 	/** Map of the mean channel intensity values to coord. */
-	HashMap<Coord3D, Map<Integer, Double>> meanStats;
+	private Map<Coord3D, Map<Integer, Double>> meanStats;
 	
 	/** Map of the std dev channel intensity values to coord. */
-	HashMap<Coord3D, Map<Integer, Double>> stdDevStats;
+	private Map<Coord3D, Map<Integer, Double>> stdDevStats;
 	
 	/** Map of the sum channel intensity values to coord. */
-	HashMap<Coord3D, Map<Integer, Double>> sumStats;
+	private Map<Coord3D, Map<Integer, Double>> sumStats;
 	
 	/** Map of the coord to a shape. */
-	HashMap<Coord3D, ROIShape> shapeMap;
+	private Map<Coord3D, ROIShape> shapeMap;
 	
 	/** The current coord of the ROI being depicted in the slider. */
 	Coord3D coord;
@@ -230,24 +243,37 @@ class IntensityResultsView
 	private void initComponents()
 	{
 		state = State.READY;
+		removeButton = new JButton(REMOVE_NAME);
+		removeButton.setToolTipText(
+				UIUtilities.formatToolTipText(REMOVE_DESCRIPTION));
+		removeButton.setActionCommand(""+REMOVE);
+		removeButton.addActionListener(this);
+		saveButton = new JButton(SAVE_NAME);
+		saveButton.setToolTipText(
+				UIUtilities.formatToolTipText(SAVE_DESCRIPTION));
+		saveButton.setActionCommand(""+SAVE);
+		saveButton.addActionListener(this);
+		setButtonsEnabled(false);
+		addButton = new JButton(ADD_NAME);
+		addButton.setToolTipText(
+				UIUtilities.formatToolTipText(ADD_DESCRIPTION));
+		addButton.setActionCommand(""+ADD);
+		addButton.addActionListener(this);
+		removeAllButton = new JButton(REMOVE_ALL_NAME);
+		removeAllButton.setToolTipText(
+				UIUtilities.formatToolTipText(REMOVE_ALL_DESCRIPTION));
+		removeAllButton.setActionCommand(""+REMOVE_ALL);
+		removeAllButton.addActionListener(this);
 	}
 	
 	/**
-	 * Creates a new instance.
+	 * Sets the <code>enabled</code> flag of the {@link #saveButton}.
 	 * 
-	 * @param view		 Reference to the View. Mustn't be <code>null</code>.
-	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
+	 * @param enabled The value to set.
 	 */
-	IntensityResultsView(MeasurementViewerUI view, MeasurementViewerModel model)
+	private void setButtonsEnabled(boolean enabled)
 	{
-		if (view == null)
-			throw new IllegalArgumentException("No view.");
-		if (model == null)
-			throw new IllegalArgumentException("No model.");
-		this.view = view;
-		this.model = model;
-		initComponents();
-		buildGUI();
+		saveButton.setEnabled(enabled);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -265,8 +291,6 @@ class IntensityResultsView
 		resultsModel.addColumn("Mean");
 		resultsModel.addColumn("stdDev");
 		results = new JTable(resultsModel);
-		
-		createButtons();
 		JPanel centrePanel = new JPanel();
 		centrePanel.setLayout(new BorderLayout());
 		JScrollPane scrollPane = new JScrollPane(results);
@@ -275,122 +299,15 @@ class IntensityResultsView
 		bottomPanel.setLayout(new FlowLayout());
 		bottomPanel.add(addButton);
 		bottomPanel.add(removeButton);
+		bottomPanel.add(removeAllButton);
 		bottomPanel.add(saveButton);
 		JPanel containerPanel = new JPanel();
 		containerPanel.setLayout(new BorderLayout());
 		containerPanel.add(centrePanel, BorderLayout.CENTER);
 		containerPanel.add(bottomPanel, BorderLayout.SOUTH);
 		
-		this.setLayout(new BorderLayout());
-		this.add(containerPanel, BorderLayout.CENTER);
-	}
-	
-	/**
-	 * Create the buttons to add, remove and save.
-	 *
-	 */
-	private void createButtons()
-	{
-		addButton = new JButton(new AddAction());
-		saveButton = new JButton(new SaveAction());
-		removeButton = new JButton(new RemoveAction());
-	}
-	/**
-	 * Returns the name of the component.
-	 * 
-	 * @return See above.
-	 */
-	String getComponentName() { return NAME; }
-	
-	/**
-	 * Returns the icon of the component.
-	 * 
-	 * @return See above.
-	 */
-	Icon getComponentIcon()
-	{
-		IconManager icons = IconManager.getInstance();
-		return icons.getIcon(IconManager.INTENSITYVIEW);
-	}
-	
-	/**
-	 * Get the analysis results from the model and convert to the 
-	 * necessary array. data types using the ROIStats wrapper then
-	 * create the approriate table data and summary statistics.  
-	 */
-	public void displayAnalysisResults()
-	{
-		this.ROIStats = model.getAnalysisResults();
-		if (ROIStats == null || ROIStats.size() == 0) return;
-		
-		pixelStats = 
-			new HashMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>>();
-		shapeMap = new HashMap<Coord3D, ROIShape>();
-		minStats = new HashMap<Coord3D, Map<Integer, Double>>();
-		maxStats = new HashMap<Coord3D, Map<Integer, Double>>();
-		meanStats = new HashMap<Coord3D, Map<Integer, Double>>();
-		sumStats = new HashMap<Coord3D, Map<Integer, Double>>();
-		stdDevStats = new HashMap<Coord3D, Map<Integer, Double>>();
-		
-		Entry entry;
-		Iterator j  = ROIStats.entrySet().iterator();
-		channelName = new TreeMap<Integer, String>();
-		nameMap = new HashMap<String, Integer>();
-		Map<StatsType, Map> shapeStats;
-		Coord3D c3D;
-		ChannelData channelData;
-		int channel;
-		List<ChannelData> metadata = model.getMetadata();
-		Iterator<ChannelData> i;
-		while (j.hasNext())
-		{
-			entry = (Entry) j.next();
-			shape = (ROIShape) entry.getKey();
-			shapeMap.put(shape.getCoord3D(), shape);
-			if (shape.getFigure() instanceof MeasureTextFigure)
-			{
-				state = State.READY;
-				return;
-			}
-			c3D = shape.getCoord3D();
-			shapeStats = AnalysisStatsWrapper.convertStats(
-					(Map) entry.getValue());
-				
-			minStats.put(c3D, shapeStats.get(StatsType.MIN));
-			maxStats.put(c3D, shapeStats.get(StatsType.MAX));
-			meanStats.put(c3D, shapeStats.get(StatsType.MEAN));
-			sumStats.put(c3D, shapeStats.get(StatsType.SUM));
-			stdDevStats.put(c3D, shapeStats.get(StatsType.STDDEV));
-			
-			channelName.clear();
-			nameMap.clear();
-			channelColour.clear();
-			
-			
-			i = metadata.iterator();
-			while (i.hasNext()) {
-				channelData = i.next();
-				channel = channelData.getIndex();
-				if (model.isChannelActive(channel)) 
-				{
-					channelName.put(channel, channelData.getChannelLabeling());
-					nameMap.put(channelName.get(channel), channel);
-					channelColour.put(channel, 
-						(Color) model.getActiveChannels().get(channel));
-				}
-			}
-			
-			if (channelName.size() == 0 || nameMap.size() == 0 || 
-				channelColour.size() == 0)
-			{
-				state = State.READY;
-				return;
-			}
-		
-			coord = c3D;
-			getResults(shape);
-		}
-		state = State.READY;
+		setLayout(new BorderLayout());
+		add(containerPanel, BorderLayout.CENTER);
 	}
 	
 	/** 
@@ -492,133 +409,204 @@ class IntensityResultsView
 	
 	}
 	
-	
-	/**
-	 * Remove the selected results from the table.
-	 */
+	/** Removes the selected results from the table. */
 	private void removeResults()
 	{
 		int [] rows = results.getSelectedRows();
-		for(int i = rows.length-1 ; i >=0 ; i--)
+		for (int i = rows.length-1 ; i >= 0 ; i--)
 			resultsModel.removeRow(rows[i]);
+		setButtonsEnabled(results.getRowCount() >0);
+	}
+	
+	/** Removes the results from the table. */
+	private void removeAllResults()
+	{
+		int count = results.getRowCount();
+		for (int i = count-1 ; i >= 0 ; i--)
+			resultsModel.removeRow(i);
+		setButtonsEnabled(results.getRowCount() >0);
 	}
 	
 	/**
-	 * Add the statistics from the selected ROI to the table.
-	 *
+	 * Adds the statistics from the selected ROI to the table.
 	 */
 	private void addResults()
 	{
 		Set<Figure> selectedFigures = view.getDrawingView().getSelectedFigures();
-		if(selectedFigures.size()==0)
-			return;
-		if(state == State.ANALYSING)
-			return;
+		if (selectedFigures.size() == 0 || state == State.ANALYSING) return;
 		state = State.ANALYSING;
-		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+		List<ROIShape> shapeList = new ArrayList<ROIShape>();
 		Iterator<Figure> iterator =  selectedFigures.iterator();
-		while(iterator.hasNext())
+		ROIFigure fig;
+		while (iterator.hasNext())
 		{
-			ROIFigure fig = (ROIFigure)iterator.next();
-			if(fig instanceof MeasureTextFigure)
+			fig = (ROIFigure) iterator.next();
+			if (fig instanceof MeasureTextFigure)
 				continue;
 			shapeList.add(fig.getROIShape());
 		}
 		view.calculateStats(shapeList);
-		state = state.READY;
+		state = State.READY;
+		setButtonsEnabled(true);
 	}
 	
 	/**
-	 * The save action, attached to the save button. 
+	 * Creates a new instance.
+	 * 
+	 * @param view		 Reference to the View. Mustn't be <code>null</code>.
+	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	class SaveAction
-	extends AbstractAction
+	IntensityResultsView(MeasurementViewerUI view, MeasurementViewerModel model)
 	{
-		
-		SaveAction()
-		{
-			putValue(Action.NAME, SAVENAME);
-			putValue(Action.SHORT_DESCRIPTION, 
-				UIUtilities.formatToolTipText(SAVEDESCRIPTION));
-			
-		}
-		
-		/* (non-Javadoc)
-		 * 	@see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		public void actionPerformed(ActionEvent e)
-		{
-			saveResults();
-		}
-		
+		if (view == null)
+			throw new IllegalArgumentException("No view.");
+		if (model == null)
+			throw new IllegalArgumentException("No model.");
+		this.view = view;
+		this.model = model;
+		initComponents();
+		buildGUI();
 	}
 	
 	/**
-	 * The add action, attached to the add button. 
+	 * Returns the name of the component.
+	 * 
+	 * @return See above.
 	 */
-	class AddAction
-	extends AbstractAction
+	String getComponentName() { return NAME; }
+	
+	/**
+	 * Returns the icon of the component.
+	 * 
+	 * @return See above.
+	 */
+	Icon getComponentIcon()
 	{
-		
-		AddAction()
-		{
-			putValue(Action.NAME, ADDNAME);
-			putValue(Action.SHORT_DESCRIPTION, UIUtilities
-				.formatToolTipText(ADDDESCRIPTION));
-			
-		}
-		
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		public void actionPerformed(ActionEvent e)
-		{
-			addResults();
-		}
-		
+		IconManager icons = IconManager.getInstance();
+		return icons.getIcon(IconManager.INTENSITYVIEW);
 	}
 	
 	/**
-	 * The remove action, attached to the remove button. 
+	 * Get the analysis results from the model and convert to the 
+	 * necessary array. data types using the ROIStats wrapper then
+	 * create the approriate table data and summary statistics.  
 	 */
-	class RemoveAction
-	extends AbstractAction
+	void displayAnalysisResults()
 	{
+		this.ROIStats = model.getAnalysisResults();
+		if (ROIStats == null || ROIStats.size() == 0) return;
 		
-		RemoveAction()
+		//pixelStats = 
+			//new HashMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>>();
+		shapeMap = new HashMap<Coord3D, ROIShape>();
+		minStats = new HashMap<Coord3D, Map<Integer, Double>>();
+		maxStats = new HashMap<Coord3D, Map<Integer, Double>>();
+		meanStats = new HashMap<Coord3D, Map<Integer, Double>>();
+		sumStats = new HashMap<Coord3D, Map<Integer, Double>>();
+		stdDevStats = new HashMap<Coord3D, Map<Integer, Double>>();
+		
+		Entry entry;
+		Iterator j  = ROIStats.entrySet().iterator();
+		channelName = new TreeMap<Integer, String>();
+		nameMap = new HashMap<String, Integer>();
+		Map<StatsType, Map> shapeStats;
+		Coord3D c3D;
+		ChannelData channelData;
+		int channel;
+		List<ChannelData> metadata = model.getMetadata();
+		Iterator<ChannelData> i;
+		
+		
+		
+		while (j.hasNext())
 		{
-			putValue(Action.NAME, REMOVENAME);
-			putValue(Action.SHORT_DESCRIPTION, UIUtilities
-				.formatToolTipText(REMOVEDESCRIPTION));
+			entry = (Entry) j.next();
+			shape = (ROIShape) entry.getKey();
+			shapeMap.put(shape.getCoord3D(), shape);
+			if (shape.getFigure() instanceof MeasureTextFigure)
+			{
+				state = State.READY;
+				return;
+			}
+			c3D = shape.getCoord3D();
+			shapeStats = AnalysisStatsWrapper.convertStats(
+					(Map) entry.getValue());
+				
+			minStats.put(c3D, shapeStats.get(StatsType.MIN));
+			maxStats.put(c3D, shapeStats.get(StatsType.MAX));
+			meanStats.put(c3D, shapeStats.get(StatsType.MEAN));
+			sumStats.put(c3D, shapeStats.get(StatsType.SUM));
+			stdDevStats.put(c3D, shapeStats.get(StatsType.STDDEV));
 			
-		}
+			channelName.clear();
+			nameMap.clear();
+			channelColour.clear();
+			
+			
+			i = metadata.iterator();
+			while (i.hasNext()) {
+				channelData = i.next();
+				channel = channelData.getIndex();
+				if (model.isChannelActive(channel)) 
+				{
+					channelName.put(channel, channelData.getChannelLabeling());
+					nameMap.put(channelName.get(channel), channel);
+					channelColour.put(channel, 
+						(Color) model.getActiveChannels().get(channel));
+				}
+			}
+			
+			if (channelName.size() == 0 || nameMap.size() == 0 || 
+				channelColour.size() == 0)
+			{
+				state = State.READY;
+				return;
+			}
 		
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		public void actionPerformed(ActionEvent e)
-		{
-			removeResults();
+			coord = c3D;
+			getResults(shape);
 		}
-		
+		state = State.READY;
 	}
+
+	/**
+	 * Listens to the controls.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 * 
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case ADD:
+				addResults();
+				break;
+			case SAVE:
+				saveResults();	
+				break;
+			case REMOVE:
+				removeResults();
+				break;
+			case REMOVE_ALL:
+				removeAllResults();
+		}
+	}
+
+
 	
 	/** 
 	 * The table model for the results table, only overridden to make it read 
 	 * only.
 	 */
 	class ResultsTableModel
-	extends DefaultTableModel
+		extends DefaultTableModel
 	{
-		public boolean isCellEditable(int row, int col)
-		{
-			return false;
-		}
+		
+		/**
+		 * Overriddent to make sure that the cell is not editable.
+		 * @see DefaultTableModel#isCellEditable(int, int)
+		 */
+		public boolean isCellEditable(int row, int col) { return false; }
 	}
-	
 }
 

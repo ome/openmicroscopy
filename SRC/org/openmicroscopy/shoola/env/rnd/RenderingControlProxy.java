@@ -550,6 +550,13 @@ class RenderingControlProxy
             cacheID = -1;
             imageSize = 1;
             this.compression = compression;
+            metadata = new ChannelData[m.size()];
+            Iterator j = m.iterator();
+            ChannelData cm;
+            while (j.hasNext()) {
+            	cm = (ChannelData) j.next();
+                metadata[cm.getIndex()] = cm;
+            }
             if (rndDef == null) {
             	this.rndDef = new RndProxyDef();
             	initialize();
@@ -562,17 +569,11 @@ class RenderingControlProxy
                     cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
                 }
             }
-           
+            
             //tmpSolutionForNoiseReduction();
-            metadata = new ChannelData[m.size()];
-            Iterator i = m.iterator();
-            ChannelData cm;
-            while (i.hasNext()) {
-            	cm = (ChannelData) i.next();
-                metadata[cm.getIndex()] = cm;
-            }
+            
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
     }
 

@@ -32,11 +32,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
+import java.util.Map.Entry;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -153,6 +156,35 @@ class MeasurementViewerModel
     /** The roi file previously saved if any. */
     private String					fileSaved;
     
+    /** 
+	 * Sorts the passed nodes by row.
+	 * 
+	 * @param nodes The nodes to sort.
+	 * @return See above.
+	 */
+	private List sortROIShape(Collection nodes)
+	{
+		List<Object> l = new ArrayList<Object>();
+		if (nodes == null) return l;
+		Iterator i = nodes.iterator();
+		while (i.hasNext()) {
+			l.add(i.next());
+		}
+		Comparator c = new Comparator() {
+            public int compare(Object o1, Object o2)
+            {
+            	long i1 = ((ROIShape) o1).getID();
+            	long i2 = ((ROIShape) o1).getID();
+                int v = 0;
+                if (i1 < i2) v = -1;
+                else if (i1 > i2) v = 1;
+                return v;
+            }
+        };
+        Collections.sort(l, c);
+		return l;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -365,11 +397,13 @@ class MeasurementViewerModel
 	}
 
 	/**
-	 * Set the attribute of all the ROI in the current plane to the key with value.
+	 * Sets the attribute of all the ROI in the current plane to the key with 
+	 * value.
+	 * 
 	 * @param key see above.
 	 * @param value see above.
 	 */
-	public void setAttributes(AttributeKey key, Object value)
+	void setAttributes(AttributeKey key, Object value)
 	{
 		List<Figure> figures =  getDrawing().getFigures();
 		for (Figure f : figures)
@@ -822,6 +856,29 @@ class MeasurementViewerModel
 	void setAnalysisResults(Map analysisResults)
 	{
 		this.analysisResults = analysisResults;
+		//sort the map.
+		if (analysisResults != null) {
+			
+			Iterator i = analysisResults.entrySet().iterator();
+			List l = new ArrayList(analysisResults.size());
+			Entry entry;
+			ROIShape shape;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				shape = (ROIShape) entry.getKey();
+				l.add(shape);
+			}
+			l = sortROIShape(l);
+			
+			LinkedHashMap m = new LinkedHashMap(analysisResults.size());
+			i = l.iterator();
+			while (i.hasNext()) {
+				shape = (ROIShape) i.next();
+				m.put(shape, analysisResults.get(shape));
+			}
+			this.analysisResults = m;
+		}
+		
 		state = MeasurementViewer.READY;
 	}
 	
