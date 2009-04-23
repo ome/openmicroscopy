@@ -89,7 +89,7 @@ class BrowserModel
             public int compare(Object o1, Object o2)
             {
                 Timestamp t1 = ((TreeImageDisplay) o1).getTime();
-                Timestamp t2 = ((TreeImageDisplay) o1).getTime();
+                Timestamp t2 = ((TreeImageDisplay) o2).getTime();
                 int v = 0;
                 int r = t1.compareTo(t2);
                 if (r < 0) v = -1;
