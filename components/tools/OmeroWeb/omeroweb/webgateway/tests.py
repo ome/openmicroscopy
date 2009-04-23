@@ -276,11 +276,30 @@ class RDefsTest (StoredConnectionModelTest):
         self.assert_(len(self.channels) == 2, 'bad channel count on image #%d' % self.TESTIMG_ID)
         self.assertEqual(self.channels[0].getColor().getHtml(), 'F0F000')
         self.assertEqual(self.channels[1].getColor().getHtml(), '000F0F')
+        #82 Changing default colors doesn't work correctly
+        # the customizations weren't global, each user had its own
+        self.doLogin(*ROOT)
+        self.image = getTestImage(self.gateway)
+        self.assertNotEqual(self.image, None, 'No test image found on database')
+        self.channels = self.image.getChannels()
+        self.assert_(len(self.channels) == 2, 'bad channel count on image #%d' % self.TESTIMG_ID)
+        self.assertEqual(self.channels[0].getColor().getHtml(), 'F0F000')
+        self.assertEqual(self.channels[1].getColor().getHtml(), '000F0F')
+        # so root sees the changes, but do root's changes get seen by author?
+        self.image.setActiveChannels([1, 2],[[292.0, 1631.0], [409.0, 5015.0]],[u'000F0F', u'F0F000'])
+        self.assert_(self.image.saveDefaults(), 'Failed saveDefaults')
+        self.doLogin(*AUTHOR)
+        self.image = getTestImage(self.gateway)
+        self.assertNotEqual(self.image, None, 'No test image found on database')
+        self.channels = self.image.getChannels()
+        self.assert_(len(self.channels) == 2, 'bad channel count on image #%d' % self.TESTIMG_ID)
+        self.assertEqual(self.channels[0].getColor().getHtml(), '000F0F')
+        self.assertEqual(self.channels[1].getColor().getHtml(), 'F0F000')
+        #82 ends, back to AUTHOR
         # Clean the customized default
         self.image.clearDefaults()
-        self.image._re = None
+        self.image = getTestImage(self.gateway)
         self.channels = self.image.getChannels()
-        self.image._re.resetDefaults()
         # Verify we got back to the original state
         self.assert_(len(self.channels) == 2, 'bad channel count on image #%d' % self.TESTIMG_ID)
         self.assertEqual(self.channels[0].getColor().getHtml(), self.c0color)

@@ -356,9 +356,6 @@ def _get_prepared_image (request, client_base, iid, with_session=True, saveDefs=
     if blitzcon is None or not blitzcon.isConnected():
         return None
     img = blitzcon.getImage(iid)
-    if saveDefs:
-        img._prepareRenderingEngine()
-        img._re.resetDefaults()
     if r.has_key('c'):
         logger.debug("c="+r['c'])
         channels, windows, colors =  _split_channel_info(r['c'])
@@ -371,7 +368,7 @@ def _get_prepared_image (request, client_base, iid, with_session=True, saveDefs=
     img.setProjection(r.get('p', None))
     compress_quality = r.get('q', None)
     if saveDefs:
-        img._re.saveCurrentSettings()
+        img.saveDefaults()
     return (img, compress_quality)
 
 @timeit
