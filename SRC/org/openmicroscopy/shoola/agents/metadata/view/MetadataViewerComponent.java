@@ -293,8 +293,11 @@ class MetadataViewerComponent
 	{
 		Browser browser = model.getBrowser();
 		if (node == null) {
-			model.getStructuredData().setParents((Collection) result);
-			browser.setParents(null, (Collection) result);
+			StructuredDataResults data = model.getStructuredData();
+			if (data != null) {
+				data.setParents((Collection) result);
+				browser.setParents(null, (Collection) result);
+			}
 		} else
 			browser.setParents((TreeBrowserSet) node, (Collection) result);
 		model.getEditor().setStatus(false);
