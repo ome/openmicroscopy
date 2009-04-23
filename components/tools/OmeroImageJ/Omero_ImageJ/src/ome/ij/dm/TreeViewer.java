@@ -246,23 +246,6 @@ public class TreeViewer
 	}
 	
 	/**
-	 * Transforms a byte array into a 16-bit integer array.
-	 * @param plane Byte array to transform.
-	 * @return Copy of <code>plane</code> as a 16-bit integer array.
-	 */
-	public short[] asShort(byte[] plane)
-	{
-		int pixelCount = plane.length / 2;
-		short[] toReturn = new short[pixelCount];
-		ShortBuffer source = ByteBuffer.wrap(plane).asShortBuffer();
-		for (int i = 0; i < pixelCount; i++)
-		{
-			toReturn[i] = source.get(i);
-		}
-		return toReturn;
-	}
-	
-	/**
 	 * Closes the viewer.
 	 * 
 	 * @param window The window to close.
