@@ -41,6 +41,7 @@ import ome.formats.model.InstanceProvider;
 import ome.formats.model.ModelProcessor;
 import ome.formats.model.PlateProcessor;
 import ome.formats.model.ReferenceProcessor;
+import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.util.LSID;
 import omero.RBool;
@@ -76,6 +77,7 @@ import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.DetectorType;
 import omero.model.DimensionOrder;
+import omero.model.Ellipse;
 import omero.model.Experiment;
 import omero.model.ExperimentType;
 import omero.model.Filament;
@@ -93,7 +95,9 @@ import omero.model.LaserMedium;
 import omero.model.LaserType;
 import omero.model.LightSettings;
 import omero.model.LightSource;
+import omero.model.Line;
 import omero.model.LogicalChannel;
+import omero.model.Mask;
 import omero.model.Medium;
 import omero.model.OTF;
 import omero.model.Objective;
@@ -104,10 +108,15 @@ import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
+import omero.model.Point;
+import omero.model.Polygon;
+import omero.model.Polyline;
 import omero.model.ProjectI;
 import omero.model.Project;
 import omero.model.Pulse;
 import omero.model.Reagent;
+import omero.model.Rect;
+import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenAcquisition;
 import omero.model.ScreenI;
@@ -157,6 +166,7 @@ public class OMEROMetadataStoreClient
     private IFormatReader reader;
     
     private List<Pixels> pixelsList;
+    private List<Roi> roiList;
     
     private client c;
     private ServiceFactoryPrx serviceFactory;
@@ -221,6 +231,7 @@ public class OMEROMetadataStoreClient
     	modelProcessors.add(new InstrumentProcessor());
     	modelProcessors.add(new TargetProcessor());
     	modelProcessors.add(new PlateProcessor());
+        modelProcessors.add(new ShapeProcessor());
     	modelProcessors.add(new ReferenceProcessor());
     	
     	// Start our keep alive executor
@@ -829,6 +840,7 @@ public class OMEROMetadataStoreClient
         
         for (LSID lsid : referenceCache.keySet())
         {
+            //FIXME: this will never successfully pass will it?
             Class containerClass = lsid.getJavaClass();
             if (containerClass.equals(source.getName()))
             {
@@ -1783,43 +1795,7 @@ public class OMEROMetadataStoreClient
     
     public void setPlateRefID(String id, int screenIndex, int plateRefIndex)
     {
-    }
-    
-    public void setROIID(String id, int imageIndex, int roiIndex)
-    {
-    }
-
-    public void setROIT0(Integer t0, int imageIndex, int roiIndex)
-    {
-    }
-
-    public void setROIT1(Integer t1, int imageIndex, int roiIndex)
-    {
-    }
-
-    public void setROIX0(Integer x0, int imageIndex, int roiIndex)
-    {
-    }
-
-    public void setROIX1(Integer x1, int imageIndex, int roiIndex)
-    {
-    }
-
-    public void setROIY0(Integer y0, int imageIndex, int roiIndex)
-    {
-    }
-
-    public void setROIY1(Integer y1, int imageIndex, int roiIndex)
-    {
-    }
-
-    public void setROIZ0(Integer z0, int imageIndex, int roiIndex)
-    {
-    }
-
-    public void setROIZ1(Integer z1, int imageIndex, int roiIndex)
-    {
-    }
+    }  
 
     public void setReagentDescription(String description, int screenIndex,
             int reagentIndex)
@@ -2827,41 +2803,6 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setCircleID(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setCircleCx(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setCircleCy(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setCircleR(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setCircleTransform(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
     public void setContactExperimenter(String arg0, int arg1)
     {
         // TODO Auto-generated method stub
@@ -2954,48 +2895,6 @@ public class OMEROMetadataStoreClient
     }
 
     public void setDisplayOptionsDisplay(String arg0, int arg1)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setEllipseID(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setEllipseCx(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setEllipseCy(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setEllipseRx(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setEllipseRy(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setEllipseTransform(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3270,49 +3169,6 @@ public class OMEROMetadataStoreClient
         //
 
     }
-
-    public void setLineID(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setLineTransform(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setLineX1(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setLineX2(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setLineY1(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setLineY2(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
     public void setLogicalChannelDetector(String arg0, int arg1, int arg2)
     {
         // TODO Auto-generated method stub
@@ -3344,93 +3200,6 @@ public class OMEROMetadataStoreClient
 
     public void setLogicalChannelSecondaryExcitationFilter(String arg0,
             int arg1, int arg2)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setMaskID(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setMaskPixelsBigEndian(Boolean arg0, int arg1, int arg2,
-            int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setMaskPixelsBinData(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setMaskPixelsExtendedPixelType(String arg0, int arg1, int arg2,
-            int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setMaskPixelsID(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setMaskPixelsSizeX(Integer arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setMaskPixelsSizeY(Integer arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setMaskHeight(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setMaskTransform(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setMaskWidth(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setMaskX(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-    
-
-    public void setMaskY(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3535,84 +3304,6 @@ public class OMEROMetadataStoreClient
         //
 
     }
-
-    public void setPointID(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setPointCx(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setPointCy(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setPointR(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setPointTransform(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setPolygonID(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setPolygonPoints(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setPolygonTransform(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setPolylineID(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setPolylinePoints(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setPolylineTransform(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
     public void setProjectDescription(String arg0, int arg1)
     {
         // TODO Auto-generated method stub
@@ -3656,55 +3347,6 @@ public class OMEROMetadataStoreClient
     }
 
     public void setPumpLightSource(String arg0, int arg1, int arg2)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setROIRefID(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setRectID(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setRectHeight(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setRectTransform(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setRectWidth(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setRectX(String arg0, int arg1, int arg2, int arg3)
-    {
-        // TODO Auto-generated method stub
-        //
-
-    }
-
-    public void setRectY(String arg0, int arg1, int arg2, int arg3)
     {
         // TODO Auto-generated method stub
         //
@@ -3814,5 +3456,379 @@ public class OMEROMetadataStoreClient
 
     }
     
-   /*-----------*/
+    /*-----ROI STUFF------*/
+    
+    public void setROIID(String id, int imageIndex, int roiIndex)
+    {
+    }
+    
+    public void setROIT0(Integer t0, int imageIndex, int roiIndex)
+    {
+    }
+
+    public void setROIT1(Integer t1, int imageIndex, int roiIndex)
+    {
+    }
+
+    public void setROIX0(Integer x0, int imageIndex, int roiIndex)
+    {
+    }
+
+    public void setROIX1(Integer x1, int imageIndex, int roiIndex)
+    {
+    }
+
+    public void setROIY0(Integer y0, int imageIndex, int roiIndex)
+    {
+    }
+
+    public void setROIY1(Integer y1, int imageIndex, int roiIndex)
+    {
+    }
+
+    public void setROIZ0(Integer z0, int imageIndex, int roiIndex)
+    {
+    }
+
+    public void setROIZ1(Integer z1, int imageIndex, int roiIndex)
+    {
+    }
+
+    public void setROIRefID(String arg0, int arg1, int arg2, int arg3)
+    {
+    }
+
+    /*-----*/
+
+    
+    public void setRectID(String id, int imageIndex, int roiIndex, int shapeIndex)
+    {
+
+    }
+    
+    private Rect getRect(int imageIndex, int roiIndex, int shapeIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("roiIndex", roiIndex);
+        indexes.put("shapeIndex", shapeIndex);
+        return getSourceObject(Rect.class, indexes);
+    }
+
+    public void setRectHeight(String height, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Rect r = getRect(imageIndex, roiIndex, shapeIndex);
+        r.setHeight(toRType(Double.parseDouble(height)));
+    }
+
+    public void setRectWidth(String width, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Rect r = getRect(imageIndex, roiIndex, shapeIndex);
+        r.setWidth(toRType(Double.parseDouble(width)));
+    }
+
+    public void setRectX(String x, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Rect r = getRect(imageIndex, roiIndex, shapeIndex);
+        r.setX(toRType(Double.parseDouble(x)));
+    }
+
+    public void setRectY(String y, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Rect r = getRect(imageIndex, roiIndex, shapeIndex);
+        r.setY(toRType(Double.parseDouble(y)));
+    }
+
+    public void setRectTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Rect r = getRect(imageIndex, roiIndex, shapeIndex);
+        r.setTransform(toRType(transform));
+    }
+
+
+    /*-----*/
+
+    public void setPointID(String id, int imageIndex, int roiIndex, int shapeIndex)
+    {
+    }
+
+    private Point getPoint(int imageIndex, int roiIndex, int shapeIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("roiIndex", roiIndex);
+        indexes.put("shapeIndex", shapeIndex);
+        return getSourceObject(Point.class, indexes);
+    }
+    
+    public void setPointCx(String cx, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Point p = getPoint(imageIndex, roiIndex, shapeIndex);
+        p.setCx(toRType(Double.parseDouble(cx)));
+    }
+
+    public void setPointCy(String cy, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Point p = getPoint(imageIndex, roiIndex, shapeIndex);
+        p.setCy(toRType(Double.parseDouble(cy)));
+    }
+
+    public void setPointR(String r, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        //Unimplemented in OMERO
+    }
+
+    public void setPointTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Point p = getPoint(imageIndex, roiIndex, shapeIndex);
+        p.setTransform(toRType(transform));
+    }
+
+    /*-----*/
+    
+    public void setPolygonID(String arg0, int arg1, int arg2, int arg3)
+    {
+    }
+    
+    private Polygon getPolygon(int imageIndex, int roiIndex, int shapeIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("roiIndex", roiIndex);
+        indexes.put("shapeIndex", shapeIndex);
+        return getSourceObject(Polygon.class, indexes);
+    }
+
+    public void setPolygonPoints(String points, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Polygon p = getPolygon(imageIndex, roiIndex, shapeIndex);
+        p.setPoints(toRType(points));
+    }
+
+    public void setPolygonTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Polygon p = getPolygon(imageIndex, roiIndex, shapeIndex);
+        p.setTransform(toRType(transform));
+    }
+
+    /*----*/
+    
+    public void setPolylineID(String arg0, int arg1, int arg2, int arg3)
+    {
+    }
+
+    private Polyline getPolyline(int imageIndex, int roiIndex, int shapeIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("roiIndex", roiIndex);
+        indexes.put("shapeIndex", shapeIndex);
+        return getSourceObject(Polyline.class, indexes);
+    }
+    
+    public void setPolylinePoints(String points, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Polyline p = getPolyline(imageIndex, roiIndex, shapeIndex);
+        p.setPoints(toRType(points));
+    }
+
+    public void setPolylineTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Polyline p = getPolyline(imageIndex, roiIndex, shapeIndex);
+        p.setTransform(toRType(transform));
+    }
+    
+    /*-----*/
+    
+    public void setEllipseID(String arg0, int arg1, int arg2, int arg3)
+    {
+    }
+
+    private Ellipse getEllipse(int imageIndex, int roiIndex, int shapeIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("roiIndex", roiIndex);
+        indexes.put("shapeIndex", shapeIndex);
+        return getSourceObject(Ellipse.class, indexes);
+    }
+    
+    public void setEllipseCx(String cx, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
+        e.setCx(toRType(Double.parseDouble(cx)));
+    }
+
+    public void setEllipseCy(String cy, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
+        e.setCy(toRType(Double.parseDouble(cy)));
+    }
+
+    public void setEllipseRx(String rx, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
+        e.setRx(toRType(Double.parseDouble(rx)));
+    }
+
+    public void setEllipseRy(String ry, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
+        e.setRy(toRType(Double.parseDouble(ry)));
+    }
+
+    public void setEllipseTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
+        e.setTransform(toRType(transform));
+    }
+    
+    /*-----*/
+    
+    public void setCircleID(String arg0, int arg1, int arg2, int arg3)
+    {
+    }
+
+    public void setCircleCx(String cx, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
+        e.setCx(toRType(Double.parseDouble(cx)));
+    }
+
+    public void setCircleCy(String cy, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
+        e.setCy(toRType(Double.parseDouble(cy)));
+    }
+
+    public void setCircleR(String r, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
+        e.setRx(toRType(Double.parseDouble(r)));
+        e.setRy(toRType(Double.parseDouble(r)));
+    }
+
+    public void setCircleTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
+        e.setTransform(toRType(transform));
+    }
+
+    /*-----*/
+   
+    public void setLineID(String arg0, int arg1, int arg2, int arg3)
+    {
+    }
+
+    private Line getLine(int imageIndex, int roiIndex, int shapeIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("roiIndex", roiIndex);
+        indexes.put("shapeIndex", shapeIndex);
+        return getSourceObject(Line.class, indexes);
+    }
+    
+    public void setLineTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Line l = getLine(imageIndex, roiIndex, shapeIndex);
+        l.setTransform(toRType(transform));
+    }
+
+    public void setLineX1(String x1, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Line l = getLine(imageIndex, roiIndex, shapeIndex);
+        l.setX1(toRType(Double.parseDouble(x1)));
+    }
+
+    public void setLineX2(String x2, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Line l = getLine(imageIndex, roiIndex, shapeIndex);
+        l.setX2(toRType(Double.parseDouble(x2)));
+    }
+
+
+    public void setLineY1(String y1, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Line l = getLine(imageIndex, roiIndex, shapeIndex);
+        l.setY1(toRType(Double.parseDouble(y1)));
+    }
+
+
+    public void setLineY2(String y2, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Line l = getLine(imageIndex, roiIndex, shapeIndex);
+        l.setY2(toRType(Double.parseDouble(y2)));
+    }
+    
+    /*-----*/
+    
+    public void setMaskID(String arg0, int arg1, int arg2, int arg3)
+    {
+    }
+
+    private Mask getMask(int imageIndex, int roiIndex, int shapeIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("roiIndex", roiIndex);
+        indexes.put("shapeIndex", shapeIndex);
+        return getSourceObject(Mask.class, indexes);
+    }
+
+    public void setMaskHeight(String height, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Mask m = getMask(imageIndex, roiIndex, shapeIndex);
+        m.setHeight(toRType(Double.parseDouble(height)));
+    }
+
+    public void setMaskTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Mask m = getMask(imageIndex, roiIndex, shapeIndex);
+        m.setTransform(toRType(transform));
+    }
+
+    public void setMaskWidth(String width, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Mask m = getMask(imageIndex, roiIndex, shapeIndex);
+        m.setWidth(toRType(Double.parseDouble(width)));
+    }
+
+    public void setMaskX(String x, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Mask m = getMask(imageIndex, roiIndex, shapeIndex);
+        m.setX(toRType(Double.parseDouble(x)));
+    }
+
+    public void setMaskY(String y, int imageIndex, int roiIndex, int shapeIndex)
+    {
+        Mask m = getMask(imageIndex, roiIndex, shapeIndex);
+        m.setY(toRType(Double.parseDouble(y)));
+    }
+
+    /*-----*/
+
+    public void setMaskPixelsID(String arg0, int arg1, int arg2, int arg3)
+    {
+    }
+
+    public void setMaskPixelsBigEndian(Boolean bigEndian, int imageIndex, int roiIndex, int shapeIndex)
+    {
+    }
+
+    public void setMaskPixelsBinData(String arg0, int arg1, int arg2, int arg3)
+    {
+    }
+
+    public void setMaskPixelsExtendedPixelType(String arg0, int arg1, int arg2, int arg3)
+    {
+    }
+    
+    public void setMaskPixelsSizeX(Integer pixelSizeX, int imageIndex, int roiIndex, int shapeIndex)
+    {
+    }
+
+    public void setMaskPixelsSizeY(Integer pixelSizeY, int imageIndex, int roiIndex, int shapeIndex)
+    {
+    }
 }

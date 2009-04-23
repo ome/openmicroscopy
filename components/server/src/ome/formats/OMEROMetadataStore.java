@@ -52,6 +52,13 @@ import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
 import ome.model.experiment.Experiment;
+import ome.model.roi.Ellipse;
+import ome.model.roi.Line;
+import ome.model.roi.Point;
+import ome.model.roi.Polygon;
+import ome.model.roi.Polyline;
+import ome.model.roi.Rect;
+import ome.model.roi.Roi;
 import ome.model.screen.Plate;
 import ome.model.screen.Screen;
 import ome.model.screen.Well;
@@ -105,6 +112,9 @@ public class OMEROMetadataStore
 
     /** A list of Wells that we have worked on ordered by first access. */
     private List<Well> wellList = new ArrayList<Well>();
+    
+    /** A 2d Array of ImageIndex and RoiIndex */    
+    private Map<Integer, List<Roi>> roiMap = new HashMap<Integer, List<Roi>>();
     
     /** A list of instrument objects */
     private List<Instrument> instrumentList = new ArrayList<Instrument>();
@@ -207,7 +217,32 @@ public class OMEROMetadataStore
     	{
     		handle(lsid, (Experiment) sourceObject, indexes); 
     	}
-    	else
+    	else if (sourceObject instanceof Rect)
+    	{
+    	    handle(lsid, (Rect) sourceObject, indexes);
+    	}
+        else if (sourceObject instanceof Point)
+        {
+            handle(lsid, (Point) sourceObject, indexes);
+        }
+        else if (sourceObject instanceof Polygon)
+        {
+            handle(lsid, (Polygon) sourceObject, indexes);
+        }
+        else if (sourceObject instanceof Polyline)
+        {
+            handle(lsid, (Polyline) sourceObject, indexes);
+        }
+        else if (sourceObject instanceof Ellipse)
+        {
+            handle(lsid, (Ellipse) sourceObject, indexes);
+        }
+        else if (sourceObject instanceof Line)
+        {
+            handle(lsid, (Line) sourceObject, indexes);
+        }
+    	
+        else
     	{
     		throw new ApiUsageException(
     			"Missing object handler for object type: "
@@ -565,6 +600,106 @@ public class OMEROMetadataStore
         Well w = getWell(plateIndex, wellIndex);
         w.addWellSample(sourceObject);
     }
+
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Rect sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        int imageIndex = indexes.get("imageIndex");
+        int roiIndex = indexes.get("roiIndex");
+        Roi r = getRoi(imageIndex, roiIndex);
+        r.addShape(sourceObject);
+    }
+    
+
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Point sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        int imageIndex = indexes.get("imageIndex");
+        int roiIndex = indexes.get("roiIndex");
+        Roi r = getRoi(imageIndex, roiIndex);
+        r.addShape(sourceObject);
+    }
+    
+
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Polygon sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        int imageIndex = indexes.get("imageIndex");
+        int roiIndex = indexes.get("roiIndex");
+        Roi r = getRoi(imageIndex, roiIndex);
+        r.addShape(sourceObject);
+    }
+    
+
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Polyline sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        int imageIndex = indexes.get("imageIndex");
+        int roiIndex = indexes.get("roiIndex");
+        Roi r = getRoi(imageIndex, roiIndex);
+        r.addShape(sourceObject);
+    }
+   
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Ellipse sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        int imageIndex = indexes.get("imageIndex");
+        int roiIndex = indexes.get("roiIndex");
+        Roi r = getRoi(imageIndex, roiIndex);
+        r.addShape(sourceObject);
+    }
+    
+
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Line sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        int imageIndex = indexes.get("imageIndex");
+        int roiIndex = indexes.get("roiIndex");
+        Roi r = getRoi(imageIndex, roiIndex);
+        r.addShape(sourceObject);
+    }
     
     /**
      * Handles inserting a specific type of model object into our object graph.
@@ -819,6 +954,37 @@ public class OMEROMetadataStore
         return wellList.get(wellIndex);
  
     }
+
+    /**
+     * Returns a Roi model object based on its indexes within the
+     * OMERO data model.
+     * @param plateIndex Plate index.
+     * @param wellIndex Well index
+     * @return See above.
+     */
+    
+    private Roi getRoi(int imageIndex, int roiIndex)
+    {
+        Image i = getImage(imageIndex);
+        List<Roi> rois = roiMap.get(imageIndex);
+        
+        if (rois == null)
+        {
+            rois = new ArrayList<Roi>();
+            roiMap.put(imageIndex, rois);
+        }
+        
+        if (rois.size() == roiIndex)
+        {
+            Roi roi = new Roi();
+            rois.add(roi);
+            i.addRoi(roi);
+            return roi;
+        }
+
+        return rois.get(roiIndex);
+    }
+    
     
     /**
      * Empty constructor for testing purposes.
