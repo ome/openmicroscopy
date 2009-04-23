@@ -58,6 +58,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -259,10 +261,7 @@ class DocComponent
 				downloadButton.setOpaque(false);
 				UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 				downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-				String defaultFolder = UIUtilities.getDefaultFolderAsString();
-				String toolTip = "Download the file in: \n";
-				toolTip += defaultFolder;
-				downloadButton.setToolTipText(toolTip);
+				downloadButton.setToolTipText("Download the selected file.");
 				downloadButton.setActionCommand(""+DOWNLOAD);
 				downloadButton.addActionListener(this);
 				
@@ -392,6 +391,19 @@ class DocComponent
 		UIUtilities.showOnScreen(d, popupPoint);
 	}
 	
+	/** 
+	 * Brings up a dialog so that the user can select where to 
+	 * download the file.
+	 */
+	private void download()
+	{
+		JFrame f =  EditorAgent.getRegistry().getTaskBar().getFrame();
+		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
+				"Download", "Select where to download the file.");
+		chooser.addPropertyChangeListener(this);
+		chooser.centerDialog();
+	}
+	
 	/**
 	 * Creates a new instance,
 	 * 
@@ -452,8 +464,7 @@ class DocComponent
 				editDescription();
 				break;
 			case DOWNLOAD:
-				UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
-				un.notifyDownload((FileAnnotationData) data);
+				download();
 				break;
 			case OPEN:
 				if (data instanceof FileAnnotationData) {
@@ -478,7 +489,13 @@ class DocComponent
 			label.setToolTipText(formatTootTip(tag));
 			label.setText(tag.getTagValue());
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
-		} 
+		} else if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+			File folder = (File) evt.getNewValue();
+			if (folder == null)
+				folder = UIUtilities.getDefaultFolder();
+			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+			un.notifyDownload((FileAnnotationData) data, folder);
+		}
 	}
 
 }

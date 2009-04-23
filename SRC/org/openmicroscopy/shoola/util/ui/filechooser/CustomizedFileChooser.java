@@ -355,7 +355,7 @@ class CustomizedFileChooser
 		if (model.getChooserType() == FileChooser.FOLDER_CHOOSER) {
 			//if (nameArea != null) {
 				//String name = nameArea.getText();
-				File f = getSelectedFile();
+				File f = getCurrentDirectory();//getSelectedFile();
 				//if (name != null) name = name.trim();
 				if (f != null) {
 					setSelectedFile(null);
