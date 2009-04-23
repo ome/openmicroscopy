@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -66,7 +67,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -495,9 +495,7 @@ class IntensityResultsView
 		this.ROIStats = model.getAnalysisResults();
 		if (ROIStats == null || ROIStats.size() == 0) return;
 		
-		//pixelStats = 
-			//new HashMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>>();
-		shapeMap = new HashMap<Coord3D, ROIShape>();
+		shapeMap = new LinkedHashMap<Coord3D, ROIShape>();
 		minStats = new HashMap<Coord3D, Map<Integer, Double>>();
 		maxStats = new HashMap<Coord3D, Map<Integer, Double>>();
 		meanStats = new HashMap<Coord3D, Map<Integer, Double>>();
