@@ -79,7 +79,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomCmd;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
@@ -1383,7 +1382,6 @@ class ImViewerUI
 		}
 		catch(Exception e)
 		{
-			System.err.println(e);
 			return null;
 		}
 	}
@@ -2032,16 +2030,6 @@ class ImViewerUI
 	 * 			otherwise.
 	 */
 	void enablePasteButton(boolean b) { toolBar.enablePasteButton(b); }
-
-	/**
-	 * Creates a collection of <code>ChannelButton</code>s.
-	 * 
-	 * @return See above.
-	 */
-	List<ChannelButton> createChannelButtons()
-	{
-		return controlPane.createChannelButtons();
-	}
 	
 	/** 
 	 * Shows the plane information.

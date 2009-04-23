@@ -169,7 +169,8 @@ class FileSaverUI
 		chooser.setApproveButtonToolTipText(approveButton.getToolTipText());
 		approveButton.addActionListener(this);
 		approveButton.setActionCommand(""+APPROVE);
-		approveButton.setEnabled(false);
+		approveButton.setEnabled(
+				model.getChooserType() == FileChooser.FOLDER_CHOOSER);
 		model.getRootPane().setDefaultButton(approveButton);
 	}
 
@@ -372,7 +373,8 @@ class FileSaverUI
 	 */
 	void setControlsEnabled(boolean b)
 	{
-		if (approveButton != null)
+		if (approveButton != null && 
+				model.getChooserType() != FileChooser.FOLDER_CHOOSER)
 			approveButton.setEnabled(b);
 	}
 

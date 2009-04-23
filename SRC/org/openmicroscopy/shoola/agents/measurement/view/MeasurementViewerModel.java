@@ -162,27 +162,21 @@ class MeasurementViewerModel
 	 * @param nodes The nodes to sort.
 	 * @return See above.
 	 */
-	private List sortROIShape(Collection nodes)
+	private List sortROIShape(List nodes)
 	{
-		List<Object> l = new ArrayList<Object>();
-		if (nodes == null) return l;
-		Iterator i = nodes.iterator();
-		while (i.hasNext()) {
-			l.add(i.next());
-		}
 		Comparator c = new Comparator() {
             public int compare(Object o1, Object o2)
             {
             	long i1 = ((ROIShape) o1).getID();
-            	long i2 = ((ROIShape) o1).getID();
+            	long i2 = ((ROIShape) o2).getID();
                 int v = 0;
                 if (i1 < i2) v = -1;
                 else if (i1 > i2) v = 1;
                 return v;
             }
         };
-        Collections.sort(l, c);
-		return l;
+        Collections.sort(nodes, c);
+		return nodes;
 	}
 	
 	/**
@@ -868,12 +862,13 @@ class MeasurementViewerModel
 				shape = (ROIShape) entry.getKey();
 				l.add(shape);
 			}
-			l = sortROIShape(l);
+			List newList = sortROIShape(l);
 			
 			LinkedHashMap m = new LinkedHashMap(analysisResults.size());
-			i = l.iterator();
+			i = newList.iterator();
 			while (i.hasNext()) {
 				shape = (ROIShape) i.next();
+				System.err.println(shape.getID());
 				m.put(shape, analysisResults.get(shape));
 			}
 			this.analysisResults = m;

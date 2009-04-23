@@ -52,12 +52,16 @@ import javax.swing.JButton;
 public class ColouredButton
 	extends JButton
 {
+	
 	/** UI for the colour button. */
 	private ColouredButtonUI colourButtonUI;
 	
 	/** The background color. */
 	private Color	color;
 
+	/** Flag indicating if the button is greyed out or not. */
+	private boolean greyedOut;
+	
 	/**
 	 * Sets the color of the button.
 	 * 
@@ -89,6 +93,7 @@ public class ColouredButton
 		setBorder(BorderFactory.createBevelBorder(3));
 		setBorderPainted(true);
 		this.color = color;
+		greyedOut = false;
 		setButtonColour(color);
 	}
 
@@ -110,6 +115,7 @@ public class ColouredButton
 	 */
 	public void setGrayedOut(boolean greyedOut)
 	{
+		this.greyedOut = greyedOut;
 		if (greyedOut) setButtonColour(Color.LIGHT_GRAY);
 		else setButtonColour(color);
 		repaint();
@@ -126,7 +132,8 @@ public class ColouredButton
 	{ 
 		if (color == null) return;
 		this.color = color;
-		setButtonColour(color);
+		setGrayedOut(greyedOut);
+		//setButtonColour(color);
 		repaint();
 	}
 
