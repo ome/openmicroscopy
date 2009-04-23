@@ -37,16 +37,16 @@ import omero.api.IAdminPrx;
 import omero.api.IAdminPrxHelper;
 import omero.api.IConfigPrx;
 import omero.api.IConfigPrxHelper;
+import omero.api.IContainerPrx;
+import omero.api.IContainerPrxHelper;
 import omero.api.IDeletePrx;
 import omero.api.IDeletePrxHelper;
 import omero.api.ILdapPrx;
 import omero.api.ILdapPrxHelper;
-import omero.api.IPixelsPrx;
-import omero.api.IPixelsPrxHelper;
-import omero.api.IContainerPrx;
-import omero.api.IContainerPrxHelper;
 import omero.api.IMetadataPrx;
 import omero.api.IMetadataPrxHelper;
+import omero.api.IPixelsPrx;
+import omero.api.IPixelsPrxHelper;
 import omero.api.IProjectionPrx;
 import omero.api.IProjectionPrxHelper;
 import omero.api.IQueryPrx;
@@ -55,6 +55,8 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.IRenderingSettingsPrxHelper;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.IRepositoryInfoPrxHelper;
+import omero.api.IRoiPrx;
+import omero.api.IRoiPrxHelper;
 import omero.api.IScriptPrx;
 import omero.api.IScriptPrxHelper;
 import omero.api.ISessionPrx;
@@ -101,6 +103,7 @@ import omero.constants.RAWPIXELSSTORE;
 import omero.constants.RENDERINGENGINE;
 import omero.constants.RENDERINGSETTINGS;
 import omero.constants.REPOSITORYINFO;
+import omero.constants.ROISERVICE;
 import omero.constants.SCRIPTSERVICE;
 import omero.constants.SEARCH;
 import omero.constants.SESSIONSERVICE;
@@ -278,6 +281,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 current));
     }
 
+    public IRoiPrx getRoiService(Ice.Current current) throws ServerError {
+        Ice.ObjectPrx prx = getByName(ROISERVICE.value, current);
+        return IRoiPrxHelper.uncheckedCast(prx);
+    }
+    
     public IScriptPrx getScriptService(Ice.Current current) throws ServerError {
         Ice.ObjectPrx prx = getByName(SCRIPTSERVICE.value, current);
         return IScriptPrxHelper.uncheckedCast(prx);

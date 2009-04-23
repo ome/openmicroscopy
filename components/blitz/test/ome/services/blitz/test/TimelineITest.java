@@ -63,10 +63,6 @@ public class TimelineITest extends AbstractServantTest {
         user_t.setSecuritySystem(ss);
         user_t.setServiceFactory(user_sf);
 
-        root = new ManagedContextFixture(ctx);
-        // root.setCurrentUserAndGroup("root", "system"); TODO AFTERMERGE
-        root_sf = root.createServiceFactoryI();
-
         root_t = new TimelineI(be);
         root_t.setServiceFactory(root_sf);
         root_t.setSessionManager(sm);

@@ -30,10 +30,12 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
+import ome.model.roi.Shape;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
+import ome.services.messages.ShapeChangeMessage;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.stats.PerSessionStats;
@@ -376,14 +378,26 @@ public class BasicSecuritySystem implements SecuritySystem,
         }
 
         boolean foundAdminType = false;
+        List<EventLog> foundShapes = new ArrayList<EventLog>();
         for (EventLog log : getLogs()) {
             String t = log.getEntityType();
+            String a = log.getAction();
             if (Experimenter.class.getName().equals(t)
                     || ExperimenterGroup.class.getName().equals(t)
                     || GroupExperimenterMap.class.getName().equals(t)) {
                 foundAdminType = true;
             }
+            try {
+                if (Shape.class.isAssignableFrom(Class.forName(t))) {
+                    if ("INSERT".equals(a) || "UPDATE".equals(a)) {
+                        foundShapes.add(log);
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                throw new InternalException("Shape != Class.forName: " + t);
+            }
         }
+        // publish message if administrative type is modified
         if (foundAdminType) {
             if (ctx == null) {
                 log.error("No context found for publishing");
@@ -391,6 +405,11 @@ public class BasicSecuritySystem implements SecuritySystem,
                 this.ctx.publishEvent(new UserGroupUpdateEvent(this));
             }
         }
+        // publish message if shape is created or updated
+        if (foundShapes.size() > 0) {
+            this.ctx.publishEvent(new ShapeChangeMessage(this, foundShapes));
+        }
+        
         cd.clearLogs();
     }
 

@@ -32,20 +32,20 @@ import ome.util.Filterable;
  */
 public class IceMap {
 
-	private final static Map<Class, Class> _ome2omero = new HashMap<Class, Class>();
-	private final static Map<Class, Class> _omero2ome = new HashMap<Class, Class>();
+        private final static Map<Class, Class> _ome2omero = new HashMap<Class, Class>();
+        private final static Map<Class, Class> _omero2ome = new HashMap<Class, Class>();
 
-	/**
-	 * Unmodifiable map of ome.model.* classes to omero.model.* classes.
-	 */
-	public final static Map<Class, Class> OMEtoOMERO;
+        /**
+         * Unmodifiable map of ome.model.* classes to omero.model.* classes.
+         */
+        public final static Map<Class, Class> OMEtoOMERO;
 
-	/**
-	 * Unmodifiable map of omero.model.* classes to ome.model.* classes.
-	 */
-	public final static Map<Class, Class> OMEROtoOME;
+        /**
+         * Unmodifiable map of omero.model.* classes to ome.model.* classes.
+         */
+        public final static Map<Class, Class> OMEROtoOME;
 
-	static {
+        static {
 #macro(put $longtype $shorttype)
 #if(!$type.abstract)
 
@@ -62,8 +62,25 @@ public class IceMap {
 #end
 #put("ome.model.internal.Details" "Details")
 #put("ome.model.internal.Permissions" "Permissions")
-		OMEtoOMERO = Collections.unmodifiableMap(_ome2omero);
-		OMEROtoOME = Collections.unmodifiableMap(_omero2ome);
-	}
+
+        //
+        // Overriding values. This is primarily a workaround and a more
+        // convenient way for specifying server-side implementation
+        // classes needs to be worked out.
+        //
+        _ome2omero.put(ome.model.roi.Ellipse.class, omero.model.SmartEllipseI.class);
+        _ome2omero.put(ome.model.roi.Line.class, omero.model.SmartLineI.class);
+        _ome2omero.put(ome.model.roi.Mask.class, omero.model.SmartMaskI.class);
+        _ome2omero.put(ome.model.roi.Path.class, omero.model.SmartPathI.class);
+        _ome2omero.put(ome.model.roi.Point.class, omero.model.SmartPointI.class);
+        _ome2omero.put(ome.model.roi.Polygon.class, omero.model.SmartPolygonI.class);
+        _ome2omero.put(ome.model.roi.Polyline.class, omero.model.SmartPolylineI.class);
+        _ome2omero.put(ome.model.roi.Rect.class, omero.model.SmartRectI.class);
+
+        // Sealing
+        OMEtoOMERO = Collections.unmodifiableMap(_ome2omero);
+        OMEROtoOME = Collections.unmodifiableMap(_omero2ome);
+    }
 
 }
+

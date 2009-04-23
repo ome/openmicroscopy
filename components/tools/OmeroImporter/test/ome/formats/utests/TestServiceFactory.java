@@ -30,6 +30,7 @@ import omero.api.IProjectionPrx;
 import omero.api.IQueryPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
+import omero.api.IRoiPrx;
 import omero.api.IScriptPrx;
 import omero.api.ISessionPrx;
 import omero.api.ISharePrx;
@@ -1007,6 +1008,16 @@ public class TestServiceFactory implements ServiceFactoryPrx
 
     public RawPixelsStorePrx createRawPixelsStore() throws ServerError
     {
+        return null;
+    }
+
+    public IRoiPrx getRoiService() throws ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public IRoiPrx getRoiService(Map<String, String> __ctx) throws ServerError {
+        // TODO Auto-generated method stub
         return null;
     }
     

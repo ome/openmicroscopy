@@ -44,25 +44,28 @@ public abstract class AbstractServantTest extends TestCase {
     protected UpdateI user_update;
     protected QueryI user_query;
     protected AdminI user_admin;
-    
-    protected class RV {
-        Exception ex;
-        Object rv;
-        Object assertPassed() throws Exception{
+
+    public class RV {
+        public Exception ex;
+        public Object rv;
+
+        public Object assertPassed() throws Exception {
             if (ex != null) {
                 throw ex;
             }
             return rv;
         }
     }
-    
+
     @Override
     protected void setUp() throws Exception {
 
         // Shared
         OmeroContext inner = OmeroContext.getManagedServerContext();
-        ctx = new OmeroContext(
-                new String[] { "classpath:omero/test2.xml" }, false);
+        ctx = new OmeroContext(new String[] { "classpath:omero/test2.xml",
+                "classpath:ome/services/blitz-servantDefinitions.xml", // geomTool
+                "classpath:ome/services/messaging.xml" // Notify geomTool
+        }, false);
         ctx.setParent(inner);
         ctx.afterPropertiesSet();
 
@@ -77,20 +80,23 @@ public abstract class AbstractServantTest extends TestCase {
                 .parse(new String[] { "ome.security.basic.BasicSecurityWiring" });
         HardWiredInterceptor.configure(cptors, ctx);
 
-        initializer = new AopContextInitializer(
-                new ServiceFactory(ctx), user.login.p);
+        initializer = new AopContextInitializer(new ServiceFactory(ctx),
+                user.login.p);
 
         sf = new ServiceFactory(ctx);
         user_update = new UpdateI(sf.getUpdateService(), be);
         user_query = new QueryI(sf.getQueryService(), be);
         user_admin = new AdminI(sf.getAdminService(), be);
-        
         configure(user_update);
         configure(user_query);
         configure(user_admin);
+
+        root = new ManagedContextFixture(ctx);
+        // root.setCurrentUserAndGroup("root", "system"); TODO AFTERMERGE
+        root_sf = root.createServiceFactoryI();
+
     }
-    
-    
+
     protected void configure(AbstractAmdServant servant) {
         servant.setApplicationContext(ctx);
         servant.applyHardWiredInterceptors(cptors, initializer);
@@ -151,21 +157,20 @@ public abstract class AbstractServantTest extends TestCase {
         return curr;
     }
 
-
     protected long makePixels() throws Exception, FileNotFoundException {
-        throw new RuntimeException("Unforunately MockedOMEROImportFixture is not supported here \n" +
-        		"Instead, the service factory must be registered with a communicator \n" +
-        		"and that proxy given to the OMEROImportFixture");
+        throw new RuntimeException(
+                "Unforunately MockedOMEROImportFixture is not supported here \n"
+                        + "Instead, the service factory must be registered with a communicator \n"
+                        + "and that proxy given to the OMEROImportFixture");
         /*
-        ServiceFactoryPrx sf = this.user.
-        ServiceFactory _sf = new InterceptingServiceFactory(this.sf, user.login);
-        
-        MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(_sf, "");
-        List<Pixels> list = fixture.fullImport(ResourceUtils
-                .getFile("classpath:tinyTest.d3d.dv"), "tinyTest");
-        long pixels = list.get(0).getId().getValue();
-        return pixels;
-        */
+         * ServiceFactoryPrx sf = this.user. ServiceFactory _sf = new
+         * InterceptingServiceFactory(this.sf, user.login);
+         * 
+         * MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(_sf,
+         * ""); List<Pixels> list = fixture.fullImport(ResourceUtils
+         * .getFile("classpath:tinyTest.d3d.dv"), "tinyTest"); long pixels =
+         * list.get(0).getId().getValue(); return pixels;
+         */
     }
 
 }

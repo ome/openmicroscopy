@@ -73,6 +73,7 @@ module omero {
     const string RAWFILESTORE     = "omero.api.RawFileStore";
     const string RAWPIXELSSTORE   = "omero.api.RawPixelsStore";
     const string RENDERINGENGINE  = "omero.api.RenderingEngine";
+    const string ROISERVICE       = "omero.api.IRoi";
     const string SCRIPTSERVICE    = "omero.api.IScript";
     const string SEARCH           = "omero.api.Search";
     const string THUMBNAILSTORE   = "omero.api.ThumbnailStore";

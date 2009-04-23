@@ -34,6 +34,7 @@ module omero {
         class Job;
         class JobStatus;
         class Laser;
+        class LogicalChannel;
         class Permissions;
         class Pixels;
         class PixelsType;
@@ -44,13 +45,13 @@ module omero {
         class QuantumDef;
         class RenderingDef;
         class RenderingModel;
+        class Roi;
         class Screen;
-        class Screen;
+        class Shape;
         class Session;
         class Share;
         class TextAnnotation;
         class Well;
-		class LogicalChannel;
 
 
     };

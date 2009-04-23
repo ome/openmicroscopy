@@ -338,6 +338,17 @@ module omero {
 	};
 
 	/*
+	 * Forward declaration; see omero/api/IRoi.ice
+	 *
+	 * If you receive a segfault or a bus error in Python, be sure to
+	 * also import the definition "import omero_api_IRoi_ice". For
+	 * more information see:
+	 *
+	 * http://www.zeroc.com/forums/bug-reports/3883-bus-error-under-mac-ox-10-4-icepy-3-3-0-a.html#post17120
+	 */
+        interface IRoi; //
+
+	/*
 	 * Forward declaration; see omero/api/IScript.ice
 	 *
 	 * If you receive a segfault or a bus error in Python, be sure to
@@ -904,13 +915,14 @@ module omero {
 	    IAdmin*          getAdminService() throws ServerError;
 	    IConfig*         getConfigService() throws ServerError;
 	    IContainer*      getContainerService() throws ServerError;
-        IDelete*         getDeleteService() throws ServerError;
-        ILdap*           getLdapService() throws ServerError;
+	    IDelete*         getDeleteService() throws ServerError;
+	    ILdap*           getLdapService() throws ServerError;
 	    IPixels*         getPixelsService() throws ServerError;
 	    IProjection*     getProjectionService() throws ServerError;
 	    IQuery*          getQueryService() throws ServerError;
 	    IRenderingSettings* getRenderingSettingsService() throws ServerError;
 	    IRepositoryInfo* getRepositoryInfoService() throws ServerError;
+	    IRoi*            getRoiService() throws ServerError;
 	    IScript*         getScriptService() throws ServerError;
 	    ISession*        getSessionService() throws ServerError;
 	    IShare*          getShareService() throws ServerError;

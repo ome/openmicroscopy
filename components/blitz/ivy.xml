@@ -16,6 +16,8 @@
     <dependency name="server" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <!-- Public -->
     <dependency org="omero" name="ice" rev="${versions.ice}" conf="build,client,server->default"/>
+    <dependency org="batik" name="batik" rev="${versions.batik}" conf="build,client,server->default"/>
+    <dependency org="jts" name="jts" rev="${versions.jts}" conf="build,server->default"/>
   </dependencies>
 </ivy-module>
 

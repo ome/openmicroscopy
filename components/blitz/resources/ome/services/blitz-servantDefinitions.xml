@@ -33,6 +33,20 @@
   manages its own statefulness. See documentation in blitz/resources/omero/API.ice
   -->
 
+  <bean id="omero.api.IRoi" class="omero.api._IRoiTie" singleton="false">
+    <constructor-arg>
+        <bean class="ome.services.blitz.impl.RoiI">
+            <constructor-arg ref="throttlingStrategy"/>
+            <constructor-arg ref="geomTool"/>
+        </bean>
+    </constructor-arg>
+  </bean>
+  <bean id="geomTool" class="ome.services.roi.GeomTool" lazy-init="false">
+      <constructor-arg ref="simpleJdbcTemplate"/>
+      <constructor-arg ref="omeroSessionFactory"/>
+  </bean>
+  
+
   <bean id="omero.api.IScript" class="omero.api._IScriptTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.ScriptI">
