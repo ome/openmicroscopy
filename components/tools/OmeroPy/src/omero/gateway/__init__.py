@@ -272,9 +272,10 @@ class _BlitzGateway (object):
             self._proxies['query'] = ProxyObjectWrapper(self, 'getQueryService')
             self._proxies['rendering'] = ProxyObjectWrapper(self, 'createRenderingEngine')
             #self._proxies['projection'] = ProxyObjectWrapper(self, 'getProjectionService')
-            self._proxies['pixels'] = ProxyObjectWrapper(self, 'createRawPixelsStore')
+            self._proxies['rawpixels'] = ProxyObjectWrapper(self, 'createRawPixelsStore')
             self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
             self._proxies['container'] = ProxyObjectWrapper(self, 'getContainerService')
+            self._proxies['pixel'] = ProxyObjectWrapper(self, 'getPixelsService')
     #            self._proxies['ldap'] = ProxyObjectWrapper(self, 'getLdapService')
             self._proxies['metadata'] = ProxyObjectWrapper(self, 'getMetadataService')
             self._proxies['rawfile'] = ProxyObjectWrapper(self, 'createRawFileStore')
@@ -552,6 +553,16 @@ class _BlitzGateway (object):
 
 
     ##
+    # Gets reference to the PixelsService from {@link #ProxyObjectWrapper}.
+    # 
+    # @return omero.gateway.ProxyObjectWrapper
+    
+    def getPixelsService (self):
+        """
+        """
+        return ProxyObjectWrapper(self, 'getPixelsService')
+
+    ##
     # Gets reference to the MetadataService from {@link #ProxyObjectWrapper}.
     # 
     # @return omero.gateway.ProxyObjectWrapper
@@ -629,7 +640,7 @@ class _BlitzGateway (object):
     # @return omero.gateway.ProxyObjectWrapper
     
     def createRawPixelsStore (self):
-        return self._proxies['pixels']
+        return self._proxies['rawpixels']
 
 
     ##
@@ -1924,6 +1935,10 @@ class _ImageWrapper (BlitzObjectWrapper):
                         # broken image
                         return False
                     self._re.lookupRenderingDef(pixels_id)
+                ps = self._conn.getPixelsService()
+                rdefs = ps.retrieveAllRndSettings(pixels_id, self.getDetails().getOwner().id)
+                if len(rdefs) > 0:
+                    self._re.loadRenderingDef(rdefs[0].id.val)
                 self._re.load()
         return True
 
@@ -2007,6 +2022,10 @@ class _ImageWrapper (BlitzObjectWrapper):
             if not tb.setPixelsId(pixels_id): #pragma: no cover
                 tb.resetDefaults()
                 tb.setPixelsId(pixels_id)
+            ps = self._conn.getPixelsService()
+            rdefs = ps.retrieveAllRndSettings(pixels_id, self.getDetails().getOwner().id)
+            if len(rdefs) > 0:
+                tb.setRenderingDefId(rdefs[0].id.val)
             if isinstance(size, IntType):
                 size = (size,)
             if len(size) == 1:
@@ -2395,23 +2414,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._conn.getDeleteService().deleteSettings(self.getId())
         return True
 
-    #@assert_re
-    #def saveDefaults (self):
-    #    """ Limited support for saving the current prepared image rendering defs.
-    #    Right now only channel colors are saved back. """
-    #    if not self.canWrite():
-    #        return False
-    #    #if not self.isGreyscaleRenderingModel():
-    #    #    for c in self.getChannels():
-    #    #        newcolor = c.getColor()
-    #    #        c.setRed(rint(newcolor.getRed()))
-    #    #        c.setGreen(rint(newcolor.getGreen()))
-    #    #        c.setBlue(rint(newcolor.getBlue()))
-    #    #        c.setAlpha(rint(newcolor.getAlpha()))
-    #    #        c.save()
-    #    self._conn.getDeleteService().deleteSettings(self.getId())
-    #    self._re.saveCurrentSettings()
-    #    return True
+    @assert_re
+    def saveDefaults (self):
+        """ Limited support for saving the current prepared image rendering defs.
+        Right now only channel colors are saved back. """
+        if not self.canWrite():
+            return False
+        self._re.saveCurrentSettings()
+        return True
 
 ImageWrapper = _ImageWrapper
 
