@@ -28,6 +28,7 @@ import ome.system.ServiceFactory;
 import omero.ApiUsageException;
 import omero.InternalException;
 import omero.ServerError;
+import omero.ShutdownInProgress;
 import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.ClientCallbackPrx;
 import omero.api.ClientCallbackPrxHelper;
@@ -910,6 +911,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         } catch (Exception e) {
             if (e instanceof omero.InternalException) {
                 throw (omero.InternalException) e;
+            } else if (e instanceof Ice.ObjectAdapterDeactivatedException) {
+                // ticket:1251
+                ShutdownInProgress sip = new ShutdownInProgress(null, null, "ObjectAdapter deactivated");
+                IceMapper.fillServerError(sip, e);
+                throw sip;
             } else {
                 omero.InternalException ie = new omero.InternalException();
                 IceMapper.fillServerError(ie, e);

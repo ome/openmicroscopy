@@ -36,11 +36,12 @@
  *   |   |_ QueryException
  *   |   \_ ValidationException (bad data)
  *   |
- *   |- SecurityViolation (some no-no)
+ *   |_ SecurityViolation (some no-no)
  *   |
  *   \_SessionException
- *      |_RemovedSessionException (accessing a non-extant session)
- *      \_SessionTimeoutException (session timed out; not yet removed)
+ *      |_ RemovedSessionException (accessing a non-extant session)
+ *      |_ SessionTimeoutException (session timed out; not yet removed)
+ *      \_ ShutdownInProgress      (session on this server will most likely be destroyed)
  *
  *
  * However, the Ice runtime also has its own hierarchy (which we subclass in
@@ -118,6 +119,15 @@ module omero
    * Session has timed out and will be removed.
    */
   exception SessionTimeoutException extends SessionException
+    {
+
+    };
+
+  /**
+   * Server is in the progress of shutting down which will
+   * typically lead to the current session being closed.
+   */
+  exception ShutdownInProgress extends SessionException
     {
 
     };
