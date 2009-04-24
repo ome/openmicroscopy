@@ -1935,10 +1935,33 @@ class _ImageWrapper (BlitzObjectWrapper):
                         # broken image
                         return False
                     self._re.lookupRenderingDef(pixels_id)
+                details = self.getDetails()
                 ps = self._conn.getPixelsService()
-                rdefs = ps.retrieveAllRndSettings(pixels_id, self.getDetails().getOwner().id)
+                rdefs = ps.retrieveAllRndSettings(pixels_id, details.getOwner().id)
                 if len(rdefs) > 0:
+                    logger.debug('loading rdef %i for pixels %i, img %i' % (rdefs[0].id.val, pixels_id, self.id))
                     self._re.loadRenderingDef(rdefs[0].id.val)
+                else:
+                    if self._conn.isAdmin():
+                        p = omero.sys.Principal()
+                        p.name = details.getOwner().omeName
+                        p.group = details.getGroup().name
+                        p.eventType = "User"
+                        newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
+                        newConn = self._conn.clone()
+                        newConn.connect(sUuid=newConnId.getUuid().val)
+
+                        tb = newConn.createThumbnailStore()
+                        if not tb.setPixelsId(pixels_id): #pragma: no cover
+                            tb.resetDefaults()
+                            tb.setPixelsId(pixels_id)
+                        newConn.seppuku()
+                        rdefs = ps.retrieveAllRndSettings(pixels_id, self.getDetails().getOwner().id)
+                    if len(rdefs) > 0:
+                        self._re.loadRenderingDef(rdefs[0].id.val)
+                        logger.debug('created and loaded rdef %i for pixels %i, img %i' % (rdefs[0].id.val, pixels_id, self.id))
+                    else:
+                        logger.debug('no author rdef for pixels %i, img %i' % (pixels_id, self.id))
                 self._re.load()
         return True
 
