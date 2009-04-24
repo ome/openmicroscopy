@@ -2414,7 +2414,7 @@ class OMEROGateway
 		List files = null;
 		try {
 			ParametersI param = new ParametersI();
-			param.map.put("childID", omero.rtypes.rlong(pixelsID));
+			param.map.put("id", omero.rtypes.rlong(pixelsID));
 			files = service.findAllByQuery(
 					"select ofile from OriginalFile as ofile left join " +
 					"ofile.pixelsFileMaps as pfm left join pfm.child as " +
