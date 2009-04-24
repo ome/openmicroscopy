@@ -202,6 +202,7 @@ class GeneralPaneUI
 		browserIndex = i;
 		content.add(browserTaskPane, "0, "+i);
 		getViewport().add(content);
+		getViewport().setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
     
 	/**
