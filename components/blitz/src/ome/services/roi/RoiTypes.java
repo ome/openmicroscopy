@@ -69,7 +69,7 @@ public abstract class RoiTypes {
     static {
         Map<Class, ObjectFactory> factories = new HashMap<Class, ObjectFactory>();
 
-        factories.put(Ellipse.class, new ObjectFactory(Ellipse.ice_staticId()) {
+        factories.put(SmartEllipseI.class, new ObjectFactory(Ellipse.ice_staticId()) {
 
             @Override
             public Ellipse shape() {
@@ -78,7 +78,7 @@ public abstract class RoiTypes {
 
         });
 
-        factories.put(Line.class, new ObjectFactory(Line.ice_staticId()) {
+        factories.put(SmartLineI.class, new ObjectFactory(Line.ice_staticId()) {
 
             @Override
             public Line shape() {
@@ -87,7 +87,7 @@ public abstract class RoiTypes {
 
         });
 
-        factories.put(Mask.class, new ObjectFactory(Mask.ice_staticId()) {
+        factories.put(SmartMaskI.class, new ObjectFactory(Mask.ice_staticId()) {
 
             @Override
             public Mask shape() {
@@ -96,7 +96,7 @@ public abstract class RoiTypes {
 
         });
 
-        factories.put(Path.class, new ObjectFactory(Path.ice_staticId()) {
+        factories.put(SmartPathI.class, new ObjectFactory(Path.ice_staticId()) {
 
             @Override
             public Path shape() {
@@ -105,7 +105,7 @@ public abstract class RoiTypes {
 
         });
 
-        factories.put(Point.class, new ObjectFactory(Point.ice_staticId()) {
+        factories.put(SmartPointI.class, new ObjectFactory(Point.ice_staticId()) {
 
             @Override
             public Point shape() {
@@ -114,7 +114,7 @@ public abstract class RoiTypes {
 
         });
 
-        factories.put(Polygon.class, new ObjectFactory(Polygon.ice_staticId()) {
+        factories.put(SmartPolygonI.class, new ObjectFactory(Polygon.ice_staticId()) {
 
             @Override
             public Polygon shape() {
@@ -123,7 +123,7 @@ public abstract class RoiTypes {
 
         });
 
-        factories.put(Polyline.class,
+        factories.put(SmartPolylineI.class,
                 new ObjectFactory(Polyline.ice_staticId()) {
 
                     @Override
@@ -133,7 +133,7 @@ public abstract class RoiTypes {
 
                 });
 
-        factories.put(Rect.class, new ObjectFactory(Rect.ice_staticId()) {
+        factories.put(SmartRectI.class, new ObjectFactory(Rect.ice_staticId()) {
 
             @Override
             public Rect shape() {

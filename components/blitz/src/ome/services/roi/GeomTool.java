@@ -10,10 +10,13 @@ package ome.services.roi;
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 
+import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import ome.model.meta.EventLog;
 import ome.services.messages.ShapeChangeMessage;
@@ -21,6 +24,8 @@ import ome.tools.hibernate.SessionFactory;
 import ome.util.ShallowCopy;
 import omero.RBool;
 import omero.RInt;
+import omero.api.ShapePoints;
+import omero.api.ShapeStats;
 import omero.model.Ellipse;
 import omero.model.Line;
 import omero.model.Point;
@@ -70,6 +75,10 @@ public class GeomTool implements ApplicationListener {
         }
     }
 
+    //
+    // geometry creation
+    //
+
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof ShapeChangeMessage) {
             ShapeChangeMessage scm = (ShapeChangeMessage) event;
@@ -89,6 +98,13 @@ public class GeomTool implements ApplicationListener {
 
     public void synchronizeShapeGeometry(long shapeId) {
         Session session = factory.getSession();
+        Shape s = shapeById(shapeId, session);
+        String path = dbPath(s);
+        jdbc.update(String.format("update shape set pg_geom = %s::polygon "
+                + "where id = ?", path), shapeId);
+    }
+
+    public Shape shapeById(long shapeId, Session session) {
         ome.model.roi.Shape shape = (ome.model.roi.Shape) session.get(
                 ome.model.roi.Shape.class, shapeId);
         Hibernate.initialize(shape);
@@ -96,14 +112,40 @@ public class GeomTool implements ApplicationListener {
         shape = new ShallowCopy().copy(shape);
         IceMapper mapper = new IceMapper();
         Shape s = (Shape) new IceMapper().map(shape);
-        String path = dbPath(s);
-        jdbc.update(String.format("update shape set pg_geom = %s::polygon "
-                + "where id = ?", path), shapeId);
+        return s;
     }
 
     //
     // Factory methods
     //
+
+    public List<Shape> random(int count) {
+        if (count < 1 || count > 100000) {
+            throw new RuntimeException("Count out of bounds: " + count);
+        }
+
+        Map<Class, RoiTypes.ObjectFactory> map = RoiTypes.ObjectFactories;
+        List<Class> types = new ArrayList<Class>(map.keySet());
+        List<Shape> shapes = new ArrayList<Shape>();
+        Random r = new Random();
+
+        try {
+            while (shapes.size() < count) {
+                int which = r.nextInt(types.size());
+                Class type = types.get(which);
+                Method m = type.getMethod("randomize", Random.class);
+                RoiTypes.ObjectFactory of = map.get(type);
+                SmartShape s = (SmartShape) of.create("");
+                m.invoke(s, r);
+                shapes.add((Shape) s);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failure on creating shape "
+                    + shapes.size(), e);
+        }
+
+        return shapes;
+    }
 
     public Line ln(double x1, double y1, double x2, double y2) {
         SmartLineI rect = new SmartLineI();
@@ -155,21 +197,17 @@ public class GeomTool implements ApplicationListener {
 
         if (shape == null) {
             return null;
-        } else if (!SmartShape.class.isAssignableFrom(shape.getClass())) {
-            throw new RuntimeException(
-                    "Internally only SmartShapes should be used! not "
-                            + shape.getClass());
         }
 
-        SmartShape ss = (SmartShape) shape;
-        List<Point> points = ss.asPath();
+        SmartShape ss = assertSmart(shape);
+        List<Point> points = ss.asPoints();
         StringBuilder sb = new StringBuilder();
         sb.append("'(");
         for (int i = 0; i < points.size(); i++) {
             if (i > 0) {
                 sb.append(",");
             }
-            appendPoint(sb, points.get(i));
+            SmartShape.Util.appendDbPoint(sb, points.get(i));
         }
         sb.append(")'");
         return sb.toString();
@@ -225,16 +263,57 @@ public class GeomTool implements ApplicationListener {
         return ids;
     }
 
+    public ShapePoints getPoints(Shape shape) {
+        SmartShape smart = assertSmart(shape);
+        int[][] pts = smart.areaPoints();
+        ShapePoints sp = new ShapePoints();
+        sp.x = pts[0];
+        sp.y = pts[1];
+        return sp;
+    }
+
+    // UNFINISHED
+    public Object getStats(Shape shape, ShapePoints points) {
+
+        int sz = points.x.length;
+        ShapeStats stats = new ShapeStats();
+        stats.pointsCount = sz;
+        double sumOfSquares = 0;
+
+        for (int i = 0; i < sz; i++) {
+            double value = 0.0; // EMPTY
+            stats.min = Math.min(value, stats.min);
+            stats.max = Math.max(value, stats.max);
+            stats.sum += value;
+            sumOfSquares += value * value;
+        }
+
+        stats.mean = stats.sum / stats.pointsCount;
+        if (stats.pointsCount > 1) {
+            double sigmaSquare = (sumOfSquares - stats.sum * stats.sum
+                    / stats.pointsCount)
+                    / (stats.pointsCount - 1);
+            if (sigmaSquare > 0) {
+                stats.stdDev = Math.sqrt(sigmaSquare);
+            }
+        }
+
+        return stats;
+    }
+
     //
-    // misc. helpers
+    // helpers
     //
 
-    private void appendPoint(StringBuilder sb, Point p) {
-        sb.append("(");
-        sb.append(p.getCx().getValue());
-        sb.append(",");
-        sb.append(p.getCy().getValue());
-        sb.append(")");
+    private SmartShape assertSmart(Shape shape) {
+        if (!SmartShape.class.isAssignableFrom(shape.getClass())) {
+            throw new RuntimeException(
+                    "Internally only SmartShapes should be used! not "
+                            + shape.getClass());
+        }
+
+        SmartShape ss = (SmartShape) shape;
+        return ss;
     }
 
 }

@@ -23,7 +23,6 @@ import org.testng.annotations.Test;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
-
 /**
  *<pre>
  * // REMAINING TESTS:
@@ -62,23 +61,23 @@ public class AbstractRoiITest extends AbstractServantTest {
     protected RoiResult assertFindIntersectingRois(long imageId, Shape shape,
             RoiOptions opts) throws Exception {
         final RV rv = new RV();
-        user_roisvc.findByIntersection_async(
-                new AMD_IRoi_findByIntersection() {
+        user_roisvc.findByIntersection_async(new AMD_IRoi_findByIntersection() {
 
-                    public void ice_exception(Exception ex) {
-                        rv.ex = ex;
-                    }
+            public void ice_exception(Exception ex) {
+                rv.ex = ex;
+            }
 
-                    public void ice_response(RoiResult __ret) {
-                        rv.rv = __ret;
-                    }
-                }, imageId, shape, opts, null);
+            public void ice_response(RoiResult __ret) {
+                rv.rv = __ret;
+            }
+        }, imageId, shape, opts, null);
 
         rv.assertPassed();
         return (RoiResult) rv.rv;
     }
-    
-    protected RoiResult assertIntersection(Roi roi, Shape test, int size) throws Exception {
+
+    protected RoiResult assertIntersection(Roi roi, Shape test, int size)
+            throws Exception {
         long imageId = roi.getImage().getId().getValue();
         RoiResult rr = assertFindIntersectingRois(imageId, test, null);
         assertNotNull(rr);
@@ -94,7 +93,11 @@ public class AbstractRoiITest extends AbstractServantTest {
         Image i = new ImageI();
         i.setAcquisitionDate(rtime(0));
         i.setName(rstring(name));
+        return createRoi(i, name, shapes);
+    }
 
+    protected Roi createRoi(Image i, String name, Shape... shapes)
+            throws Exception {
         Roi roi = new omero.model.RoiI();
         roi.setImage(i);
         roi.addAllShapeSet(Arrays.asList(shapes));

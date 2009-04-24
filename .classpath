@@ -100,7 +100,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/repository/mail-1.4.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/netcdf-4.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/ome-java-2007-Aug-07-r3052.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/omero-client-utils-unknown.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/PDFBox-0.7.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/persistence-api-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/poi-3.0-rc4-20070503.jar"/>
@@ -117,8 +116,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/repository/spring-sources-2.5.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/spring-test-2.5.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/spring-test-sources-2.5.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/swingx-2007_09_16.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/TableLayout-unknown.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/testng-5.2-jdk15.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/tyrex-1.0.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/velocity-1.4.jar"/>
@@ -132,5 +129,16 @@
 	<classpathentry exported="true" kind="lib" path="lib/repository/mdbtools-java-r5012.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/ome-xml-r5012.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/poi-loci-r5012.jar"/>
+	<classpathentry kind="lib" path="lib/repository/batik-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/repository/batik-parser-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/repository/batik-util-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/repository/forms-1.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/repository/Image_5D-1.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/repository/jarbundler-2.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/repository/jdepend-2.9.jar"/>
+	<classpathentry kind="lib" path="lib/repository/jts-1.10.jar"/>
+	<classpathentry kind="lib" path="lib/repository/omero-clients-util-Beta-4.1.0-DEV.jar"/>
+	<classpathentry kind="lib" path="lib/repository/swingx-0.9.4.jar"/>
+	<classpathentry kind="lib" path="lib/repository/TableLayout-2006-11-27.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>
