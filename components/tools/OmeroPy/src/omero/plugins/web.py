@@ -198,20 +198,27 @@ ERROR2EMAIL_NOTIFICATION = %s
 EMAIL_NOTIFICATION = %s
 """ % ('False', str(settings["NOTIFICATION"])))
             if settings.has_key('SENDER_ADDRESS'):
-                output.write("""EMAIL_SENDER_ADDRESS = '%s'""" % settings["SENDER_ADDRESS"])
+                output.write("""EMAIL_SENDER_ADDRESS = '%s'
+""" % settings["SENDER_ADDRESS"])
             if settings.has_key('SMTP_SERVER'):
-                output.write("""EMAIL_SMTP_SERVER = '%s'""" % settings["SMTP_SERVER"])
+                output.write("""EMAIL_SMTP_SERVER = '%s'
+""" % settings["SMTP_SERVER"])
             if settings.has_key('SMTP_PORT'):
-                output.write("""EMAIL_SMTP_PORT = %s""" % settings["SMTP_PORT"])
+                output.write("""EMAIL_SMTP_PORT = %s
+""" % settings["SMTP_PORT"])
             if settings.has_key('SMTP_USER'):
-                output.write("""EMAIL_SMTP_USER = '%s'""" % settings["SMTP_USER"])
+                output.write("""EMAIL_SMTP_USER = '%s'
+""" % settings["SMTP_USER"])
             if settings.has_key('SMTP_PASSWORD'):
-                output.write("""EMAIL_SMTP_PASSWORD = '%s'""" % settings["SMTP_PASSWORD"])
+                output.write("""EMAIL_SMTP_PASSWORD = '%s'
+""" % settings["SMTP_PASSWORD"])
             if settings.has_key('SMTP_TLS'):
                 if settings["SMTP_TLS"]:
-                    output.write("""EMAIL_SMTP_TLS = 'True'""")
+                    output.write("""EMAIL_SMTP_TLS = 'True'
+""")
                 else:
-                    output.write("""EMAIL_SMTP_TLS = 'False'""")
+                    output.write("""EMAIL_SMTP_TLS = 'False'
+""")
 
             output.write("""
 APPLICATION_HOST='%s' 
