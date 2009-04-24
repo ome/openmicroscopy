@@ -406,25 +406,45 @@ class MeasurementViewerModel
 	}
 	
 	/** 
-	 * Sets the ROI for the pixels set.
+	 * Sets the ROI for the pixels set. Returns <code>true</code>
+	 * if the ROI are compatible with the image, <code>false</code> otherwise.
 	 *  
-	 * @param input 		The value to set.
+	 * @param input	The value to set.
+	 * @return See above.
 	 * @throws ROICreationException If the ROI cannot be created.
 	 * @throws NoSuchROIException 	If the ROI does not exist.
 	 * @throws ParsingException		Thrown when an error occured
 	 * 								while parsing the stream.
 	 */
-	void setROI(InputStream input)
+	boolean setROI(InputStream input)
 		throws ROICreationException, NoSuchROIException, ParsingException
 	{
-		if (input != null) {
-			List<ROI> roiList = roiComponent.loadROI(input);
-			component.attachListeners(roiList);
-		}
+		List<ROI> roiList = roiComponent.loadROI(input);
+		if (roiList == null) return false;
+		Iterator<ROI> i = roiList.iterator();
+		ROI roi;
+		TreeMap<Coord3D, ROIShape> shapeList;
+		Iterator<ROIShape> shapeIterator;
+		ROIShape shape;
+		Coord3D c;
+		int sizeZ = pixels.getSizeZ();
+		int sizeT = pixels.getSizeT();
 		state = MeasurementViewer.READY;
+		while (i.hasNext()) {
+			roi = i.next();
+			shapeList = roi.getShapes();
+			shapeIterator = shapeList.values().iterator();
+			while (shapeIterator.hasNext()) {
+				shape = shapeIterator.next();
+				c = shape.getCoord3D();
+				if (c.getTimePoint() > sizeT) return false;
+				if (c.getZSection() > sizeZ) return false;
+			}
+		}
+		component.attachListeners(roiList);
+		return true;
 	}
 
-	
 	/**
 	 * Returns the ROI.
 	 * 

@@ -895,6 +895,7 @@ class ImViewerComponent
 			view.buildComponents();
 			view.setOnScreen();
 			view.toFront();
+			view.requestFocusInWindow();
 			if (ImViewerAgent.isFastConnection())
 				model.firePlaneInfoRetrieval();
 			

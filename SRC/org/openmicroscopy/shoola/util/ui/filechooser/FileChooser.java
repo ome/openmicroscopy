@@ -353,7 +353,9 @@ public class FileChooser
     { 
     	if (name == null || name.trim().length() == 0)
     		throw new IllegalArgumentException("File name not valid.");
-    	uiDelegate.setSelectedFile(new File(getPartialName(name)));
+    	String s = getPartialName(name);
+    	if (s == null || s.trim().length() == 0) s = name;
+    	uiDelegate.setSelectedFile(new File(s));
     }
     
     /**

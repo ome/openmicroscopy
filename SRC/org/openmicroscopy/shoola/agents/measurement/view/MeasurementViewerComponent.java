@@ -266,24 +266,34 @@ class MeasurementViewerComponent
      */
 	public void setROI(InputStream input)
 	{
-		if (model.getState() != LOADING_ROI) return;
+		if (model.getState() != LOADING_ROI || input == null) return;
+		Registry reg = MeasurementAgent.getRegistry();
+		Logger log = reg.getLogger();
 		try {
-			model.setROI(input);
+			boolean valid = model.setROI(input);
+			if (!valid) {
+				reg.getUserNotifier().notifyInfo("ROI", "The ROI are not " +
+						"compatible with the image.");
+				try {
+					input.close();
+				} catch (Exception io) {
+					log.warn(this, "Cannot close the stream "+io.getMessage());
+				}
+				fireStateChange();
+				return;
+			}
 		} catch (Exception e) {
-			//TODO register and notify user. close Input
-			Registry reg = MeasurementAgent.getRegistry();
-			Logger log = reg.getLogger();
+			
 			if (e instanceof ParsingException) {
 				log.error(this, "Cannot parse the ROI for "+model.getImageID());
 			} else {
 				
 			}
 			try {
-				if (input != null) input.close();
+				input.close();
 			} catch (Exception io) {
 				log.warn(this, "Cannot close the stream "+io.getMessage());
 			}
-			
 			return;
 		}
 		view.rebuildManagerTable();
@@ -382,7 +392,6 @@ class MeasurementViewerComponent
 	public void loadROI()
 	{
 		FileChooser chooser = createChooserDialog(FileChooser.LOAD);
-		
 		if (chooser.showDialog() != JFileChooser.APPROVE_OPTION) return;
 		File f = chooser.getSelectedFile();
 		if (f == null) return;
