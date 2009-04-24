@@ -286,6 +286,8 @@ class RDefsTest (StoredConnectionModelTest):
         self.assertEqual(self.channels[0].getColor().getHtml(), 'F0F000')
         self.assertEqual(self.channels[1].getColor().getHtml(), '000F0F')
         # so root sees the changes, but do root's changes get seen by author?
+        self.image.clearDefaults() # remove author's version to make sure root creates a new one as author
+        self.image = getTestImage(self.gateway)
         self.image.setActiveChannels([1, 2],[[292.0, 1631.0], [409.0, 5015.0]],[u'000F0F', u'F0F000'])
         self.assert_(self.image.saveDefaults(), 'Failed saveDefaults')
         self.doLogin(*AUTHOR)
