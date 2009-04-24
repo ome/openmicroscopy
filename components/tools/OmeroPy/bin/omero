@@ -82,7 +82,7 @@ try:
 except ImportError, ie:
     print "*"*80
     print """
-    ERROR: Could not import omero.cli!
+    ERROR: Could not import omero.cli! (%s)
 
     This means that your installation is incomplete. Contact
     the OME mailing lists for more information:
@@ -93,7 +93,7 @@ except ImportError, ie:
     as well as which version you are building from. If you
     downloaded a distribution, please provide which link you
     used.
-    """
+    """ % ie
     print "*"*80
     print """
     Debugging Info:
