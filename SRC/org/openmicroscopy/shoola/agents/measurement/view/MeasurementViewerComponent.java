@@ -375,49 +375,12 @@ class MeasurementViewerComponent
 		view.setVisible(b);
 	}
 
-
-	
-	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#loadROI()
      */
 	public void loadROI()
 	{
-		/*
-		List<FileFilter> filterList = new ArrayList<FileFilter>();
-		FileFilter filter = new XMLFilter();
-		filterList.add(filter);
-		FileChooser chooser=
-			new FileChooser(
-				view, FileChooser.LOAD, "Load the ROI File",
-				"Load the ROI data in the file associate with this image.",
-				filterList);
-		File f=UIUtilities.getDefaultFolder();
-		if (f!=null) chooser.setCurrentDirectory(f);
-		try
-		{
-			String savedFileString=
-					FileMap.getSavedFile(model.getServerName(), model
-						.getUserName(), model.getPixelsID());
-			if (savedFileString!=null)
-			{
-				File savedFile=new File(savedFileString);
-				chooser.setCurrentDirectory(savedFile);
-				chooser.setSelectedFile(savedFile);
-			}
-		}
-		catch (ParsingException e)
-		{
-			// Do nothing as we're really only looking to see if the default
-			// directory or filename should be set for loading.
-		}
-		int results=chooser.showDialog();
-		if (results!=JFileChooser.APPROVE_OPTION) return;
-		model.fireROILoading(chooser.getSelectedFile().getAbsolutePath());
-		fireStateChange();
-		view.updateDrawingArea();
-		*/
 		FileChooser chooser = createChooserDialog(FileChooser.LOAD);
 		
 		if (chooser.showDialog() != JFileChooser.APPROVE_OPTION) return;
@@ -434,53 +397,14 @@ class MeasurementViewerComponent
      */
 	public void saveROI()
 	{
-		/*
-		List<FileFilter> filterList = new ArrayList<FileFilter>();
-		filterList.add(new XMLFilter());
-		FileChooser chooser =
-				new FileChooser(
-					view, FileChooser.SAVE, "Save the ROI File",
-					"Save the ROI data in the file associate with this image.",
-					filterList);
-		File f = UIUtilities.getDefaultFolder();
-	    if (f != null) chooser.setCurrentDirectory(f);
-		try
-		{
-			String savedFileString = FileMap.getSavedFile(model.getServerName(), 
-							model.getUserName(), model.getPixelsID());
-			File savedFile;
-			if (savedFileString == null)
-			{
-				savedFileString = model.getImageName();
-				savedFile = new File(savedFileString);
-				chooser.setSelectedFile(savedFile.getName());
-			}
-			else
-			{
-				savedFile = new File(savedFileString);
-				chooser.setCurrentDirectory(savedFile);
-				chooser.setSelectedFile(savedFile);
-			}
-		}	
-		catch (ParsingException e)
-		{
-			// Do nothing as we're really only looking to see if the default 
-			// directory or filename should be set for loading.
-		}
-		int results = chooser.showDialog();
-		if (results != JFileChooser.APPROVE_OPTION) return;
-		File file = chooser.getSelectedFile();
-		if (!XMLFilter.XML.endsWith(file.getAbsolutePath())) {
-			String fileName = file.getAbsolutePath()+"."+XMLFilter.XML;
-			file = new File(fileName);
-		}
-		saveBackROI(file.getAbsolutePath());
-		*/
 		FileChooser chooser = createChooserDialog(FileChooser.SAVE);
 		if (chooser.showDialog() != JFileChooser.APPROVE_OPTION) return;
 		File file = chooser.getSelectedFile();
-		if (!XMLFilter.XML.endsWith(file.getAbsolutePath())) {
-			String fileName = file.getAbsolutePath()+"."+XMLFilter.XML;
+		if (file == null) return;
+		String s = file.getAbsolutePath();
+		if (s == null || s.trim().length() == 0) return;
+		if (!s.endsWith(XMLFilter.XML)) {
+			String fileName = s+"."+XMLFilter.XML;
 			file = new File(fileName);
 		}
 		saveBackROI(file.getAbsolutePath());

@@ -26,12 +26,12 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 
 //Third-party libraries
+import Ice.ConnectionLostException;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
-import Ice.ConnectionLostException;
 
 /** 
  * Keeps the services alive.

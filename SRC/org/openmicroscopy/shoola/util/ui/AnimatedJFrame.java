@@ -333,6 +333,10 @@ public class AnimatedJFrame
 	public void actionPerformed(ActionEvent e)
 	{
 		if (!animating) return;
+		if (sheet == null) {
+			if (timer != null) timer.stop();
+			return;
+		}
 		float percent = System.currentTimeMillis()-animationStart;
 		percent = percent/DURATION;
 		percent = Math.min(1.0f, percent);

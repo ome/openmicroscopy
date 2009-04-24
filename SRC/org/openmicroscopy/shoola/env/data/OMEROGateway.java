@@ -1394,8 +1394,7 @@ class OMEROGateway
 			*/
 			thumbnailService = null;
 			fileStore = null;
-			blitzClient.closeSession();
-			entry.destroy();
+			
 			entry = null;
 			blitzClient = null;
 			//metadataStore = null;
@@ -1411,6 +1410,8 @@ class OMEROGateway
 			pixelsService = null;
 			services.clear();
 			reServices.clear();
+			blitzClient.closeSession();
+			entry.destroy();
 		} catch (Exception e) {
 			//session already dead.
 		}

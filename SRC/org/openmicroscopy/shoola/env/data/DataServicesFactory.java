@@ -394,22 +394,8 @@ public class DataServicesFactory
 	/** Shuts the services down and exits the application. */
 	public void exitApplication()
 	{
-		//initTimer();
 		shutdown();
 		container.exit();
 	}
-	
-	 /** Helper inner class. */
-	class ExitTask 
-		extends TimerTask {
-    	
-		/** 
-		 * Sets the {@link #connAttempt} flag.
-		 * @see TimerTask#run()
-		 */
-    	public void run() {
-    		System.exit(0);
-    	}
-    }
-	
+
 }
