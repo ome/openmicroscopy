@@ -58,7 +58,7 @@ class WebControl(BaseControl):
         print "Saving to " + location
 
         try:
-			output.write("""[
+            output.write("""[
   {
     "pk": 1,
     "model": "auth.user",
