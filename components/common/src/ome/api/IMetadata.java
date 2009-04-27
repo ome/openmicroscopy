@@ -82,6 +82,13 @@ public interface IMetadata
     public static final String EDITOR_EXPERIMENT_NS = 
     	"openmicroscopy.org/omero/editor/experiment";
     
+    /** 
+     * The name space used to indicate that the <code>FileAnnotation</code> 
+     * is an <code>MPEG</code> file.
+     */
+    public static final String MOVIE_MPEG_NS = 
+    	"openmicroscopy.org/omero/movie/mpeg";
+    
 	/**
 	 * Loads the <code>logical channels</code> and the acquisition metadata 
 	 * related to them.
