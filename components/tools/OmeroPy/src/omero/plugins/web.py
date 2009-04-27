@@ -12,12 +12,12 @@ from omero.cli import Arguments, BaseControl, VERSION
 import omero.java
 import time
 
-HELP=""" omero web [superuser|settings]
+HELP=""" omero web [settings|superuser|syncdb]
 
 OMERO.web tools:
 
-     superuser  - Creates a superuser for managing OMERO.web local database
      settings   - Configuration for web
+	 superuser  - Creates a superuser for managing OMERO.web local database
      syncdb     - Local database synchronisation
 
 """
