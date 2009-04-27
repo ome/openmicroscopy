@@ -18,6 +18,8 @@ GUEST=('weblitz_test_user','foobar')
 GUEST_NAME=('User', 'Weblitz')
 AUTHOR=('weblitz_test_author','foobar')
 AUTHOR_NAME=('Author', 'Weblitz')
+EDITOR=('weblitz_test_editor','foobar')
+EDITOR_NAME=('Editor', 'Weblitz')
 
 PUBLIC_PREFIX='weblitz_test_pub'
 PRIVATE_PREFIX='weblitz_test_priv'
@@ -72,7 +74,7 @@ def createGroup (name):
     a.createGroup(g)
     return a.lookupGroup(name)
 
-def createUser (omename, firstname, lastname, passwd, groupname):
+def createUser (omename, firstname, lastname, passwd, groupname, system=False):
     a = client.getAdminService()
     try:
         a.lookupExperimenter(omename)
@@ -92,6 +94,9 @@ def createUser (omename, firstname, lastname, passwd, groupname):
     u.setFirstName(rstring(firstname))
     u.setLastName(rstring(lastname))
     a.createUser(u, g.getName().val)
+    if system:
+        u =a.lookupExperimenter(omename)
+        a.addGroups(u,(a.lookupGroup("system"),))
     a.changeUserPassword(u.getOmeName().val, rstring(passwd))
 
 def deleteGroup (groupname):
@@ -236,7 +241,8 @@ if __name__ == '__main__':
     loginAsRoot()
     print ".. logged in"
     createUser(GUEST[0], GUEST_NAME[0], GUEST_NAME[1], GUEST[1], '%s_group' % GUEST[0])
-    createUser(AUTHOR[0], AUTHOR_NAME[0], AUTHOR_NAME[1], AUTHOR[1], '%s_group' % AUTHOR[0])
+    createUser(AUTHOR[0], AUTHOR_NAME[0], AUTHOR_NAME[1], AUTHOR[1], '%s_group' % AUTHOR[0], system=True)
+    createUser(EDITOR[0], EDITOR_NAME[0], EDITOR_NAME[1], EDITOR[1], '%s_group' % EDITOR[0])
     print ".. users created"
     login(*AUTHOR)
     p,d = assertTestGraph(client, public=False)
