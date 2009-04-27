@@ -1,5 +1,0 @@
-INSERT INTO webclient_emailtemplate (template, content_html, content_txt) VALUES ('create_share', '<p><img src="cid:image1"/></p><hr/><p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%s/share/view/%i/?server=%i">%s/share/view/%i/?server=%i</a>.</p><p>-- %s</p>', 'Hi, I would like to share some of my data with you. Please find it on the %s/share/view/%i/?server=%i. /n -- %s');
-INSERT INTO webclient_emailtemplate (template, content_html, content_txt) VALUES ('update_share', 'test', 'tes');
-INSERT INTO webclient_emailtemplate (template, content_html, content_txt) VALUES ('add_member_to_share', 'tes', 'tes');
-INSERT INTO webclient_emailtemplate (template, content_html, content_txt) VALUES ('remove_member_from_share', 'tes', 'tes');
-INSERT INTO webclient_emailtemplate (template, content_html, content_txt) VALUES ('add_comment_to_share', '<p><img src="cid:image1"/></p><hr/><p>New comment is available on share <a href="%s/share/view/%i/?server=%i">%s/share/view/%i/?server=%i</a>.</p>', 'Hi, new comment is available on share %s/share/view/%i/?server=%i.');

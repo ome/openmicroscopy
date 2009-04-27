@@ -35,7 +35,7 @@ import logging
 # For logging configuration please change 'LEVEL = logging.INFO' below
 # 
 # NEVER DEPLOY a site into production with DEBUG turned on.
-DEBUG = True # handler404 and handler500 works only when False
+DEBUG = False # handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
 
 # Database settings
