@@ -98,6 +98,7 @@ module omero {
         const string NSINSIGHTRATING = "openmicroscopy.org/omero/insight/rating";
         const string NSEDITORPROTOCOL = "openmicroscopy.org/omero/editor/protocol";
         const string NSEDITOREXPERIMENT = "openmicroscopy.org/omero/editor/experiment";
+        const string NSMOVIEMPEG = "openmicroscopy.org/omero/movie/mpeg";
     };
 
     module jobs {
