@@ -1008,6 +1008,16 @@ class ProxyObjectWrapper (object):
 
 
     ##
+    # Closes the underlaying service, so next call to the proxy will create a new
+    # instance of it.
+    #
+    
+    def close (self):
+        if self._obj:
+            self._obj.close()
+        self._obj = None
+
+    ##
     # TODO: description.
     # 
     # @param conn Connection
@@ -2044,6 +2054,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             tb = self._conn.createThumbnailStore()
             if not tb.setPixelsId(pixels_id): #pragma: no cover
                 tb.resetDefaults()
+                tb.close()
                 tb.setPixelsId(pixels_id)
             ps = self._conn.getPixelsService()
             rdefs = ps.retrieveAllRndSettings(pixels_id, self.getDetails().getOwner().id)

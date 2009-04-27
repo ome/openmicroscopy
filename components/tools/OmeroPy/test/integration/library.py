@@ -32,7 +32,7 @@ class ITest(unittest.TestCase):
             self.root.createSession("root",rootpass)
             newuser = self.new_user()
             self.client = omero.client()
-            self.sf = self.client.createSession(newuser.omeName.val, "")
+            self.sf = self.client.createSession(newuser.omeName.val, "1")
         else:
             self.root = None
             self.client = omero.client()
