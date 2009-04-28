@@ -240,9 +240,9 @@ if __name__ == '__main__':
     print "Bootstrapping..."
     loginAsRoot()
     print ".. logged in"
-    createUser(GUEST[0], GUEST_NAME[0], GUEST_NAME[1], GUEST[1], '%s_group' % GUEST[0])
-    createUser(AUTHOR[0], AUTHOR_NAME[0], AUTHOR_NAME[1], AUTHOR[1], '%s_group' % AUTHOR[0], system=True)
-    createUser(EDITOR[0], EDITOR_NAME[0], EDITOR_NAME[1], EDITOR[1], '%s_group' % EDITOR[0])
+    createUser(GUEST[0], GUEST_NAME[0], GUEST_NAME[1], GUEST[1], '%s_group' % GUEST[0], system=False)
+    createUser(AUTHOR[0], AUTHOR_NAME[0], AUTHOR_NAME[1], AUTHOR[1], '%s_group' % AUTHOR[0], system=False)
+    createUser(EDITOR[0], EDITOR_NAME[0], EDITOR_NAME[1], EDITOR[1], '%s_group' % EDITOR[0], system=True)
     print ".. users created"
     login(*AUTHOR)
     p,d = assertTestGraph(client, public=False)

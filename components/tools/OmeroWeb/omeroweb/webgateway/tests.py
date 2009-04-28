@@ -575,6 +575,7 @@ class ImageTest (StoredConnectionModelTest):
         self.assert_(extrema[0] == extrema [1] and extrema[0] == extrema[2], 'Looks like a color image')
 
     def testSplitChannel (self):
+        self.image.setActiveChannels((1,2))
         cdims = self.image.splitChannelDims(border=4)
         # Verify border attribute works
         self.assert_(self.image.splitChannelDims(border=2)['c']['width']<cdims['c']['width'])
@@ -586,6 +587,13 @@ class ImageTest (StoredConnectionModelTest):
         img = Image.open(ifile)
         self.assertEqual(img.size[0], cdims['c']['width'])
         self.assertEqual(img.size[1], cdims['c']['height'])
+        #45 Now just the first channel
+        self.image.setActiveChannels((1,))
+        ifile = StringIO(self.image.renderSplitChannel(0,0,border=4))
+        img2 = Image.open(ifile)
+        self.assertEqual(img2.size[0], cdims['c']['width'])
+        self.assertEqual(img2.size[1], cdims['c']['height'])
+        self.assertNotEqual(img, img2)
         # Same dance in greyscale
         self.assertEqual(cdims['g']['gridx'], 2)
         self.assertEqual(cdims['g']['gridy'], 1)
