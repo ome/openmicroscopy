@@ -62,6 +62,8 @@ import org.openmicroscopy.shoola.util.ui.BrowserLauncher;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
+import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -100,6 +102,9 @@ public class TaskBarManager
 
 	/** The software update dialog. */
 	private SoftwareUpdateDialog	suDialog;
+	
+	/** The login dialog. */
+	private ScreenLogin				login;
 	
 	private Map<Agent, Integer> 	exitResponses;
 	
@@ -543,8 +548,13 @@ public class TaskBarManager
 	 */
 	public void eventFired(AgentEvent e) 
 	{
-		if (e instanceof ServiceActivationResponse)	synchConnectionButtons();
-        else if (e instanceof ExitApplication) 
+		if (e instanceof ServiceActivationResponse)	{
+			//login Screen.
+			
+			
+			
+			synchConnectionButtons();
+		} else if (e instanceof ExitApplication) 
         	doExit(((ExitApplication) e).isAskQuestion());
         else if (e instanceof SaveEventResponse) 
         	handleSaveEventResponse((SaveEventResponse) e);
@@ -567,7 +577,12 @@ public class TaskBarManager
 			Object exp = reg.lookup(LookupNames.CURRENT_USER_DETAILS);
 			if (exp == null) container.exit(); //not connected
 			else doExit(true);
-		}
+		} else if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
+			LoginCredentials lc = (LoginCredentials) evt.getNewValue();
+			//if (userCredentials != null  && lc != null) login(lc);
+		} else if (ScreenLogin.QUIT_PROPERTY.equals(name)) {
+		     login.close();
+		} 
 	}
 
 }

@@ -121,19 +121,16 @@ class SplashScreenManager
 	private void login(LoginCredentials lc)
 	{
 		try {
-			//view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			UserCredentials uc = new UserCredentials(lc.getUserName(), 
 					lc.getPassword(), lc.getHostName(), lc.getSpeedLevel());
 			uc.setPort(lc.getPort());
 			userCredentials.set(uc);
-			//view.setControlsEnabled(true);
 		} catch (Exception e) {
 			UserNotifier un = UIFactory.makeUserNotifier(container);
             un.notifyError("Login Incomplete", e.getMessage());
             view.setControlsEnabled(true);
             updateView();
  		}
-		//view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 	
 	/**

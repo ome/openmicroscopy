@@ -87,7 +87,7 @@ public class ServiceActivationRequest
 	{
 		if (whichService == DATA_SERVICES || whichService == IMAGE_SERVICES)
 			this.whichService = whichService;
-		else	whichService = NO_SERVICE;
+		else this.whichService = NO_SERVICE;
 	}
 	
 	/**
@@ -97,9 +97,6 @@ public class ServiceActivationRequest
 	 * 
 	 * @return	See above.
 	 */
-	public int getWhichService()
-	{
-		return whichService;
-	}
+	public int getWhichService() { return whichService; }
 
 }
