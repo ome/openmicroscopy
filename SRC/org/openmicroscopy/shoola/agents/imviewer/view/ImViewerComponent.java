@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.util.ui.MovieExportParameters;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
@@ -2661,6 +2662,17 @@ class ImViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		controller.showColorPicker(index);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#createMovie(MovieExportParameters)
+	 */
+	public void createMovie(MovieExportParameters parameters)
+	{
+		if (model.getState() == DISCARDED) return;
+		if (parameters == null) return;
+		model.createMovie(parameters);
 	}
 	
 }

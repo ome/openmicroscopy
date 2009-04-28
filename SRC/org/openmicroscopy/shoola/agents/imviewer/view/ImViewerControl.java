@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CompressionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CopyRndSettingsAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.CreateMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.HistoryAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MetadataAction;
@@ -309,6 +310,9 @@ class ImViewerControl
 	/** Identifies the <code>Metadata</code> action in the menu. */
 	static final Integer     METADATA = Integer.valueOf(67);    
 	
+	/** Identifies the <code>Create Movie</code> action in the menu. */
+	static final Integer     CREATE_MOVIE = Integer.valueOf(68); 
+	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -409,6 +413,7 @@ class ImViewerControl
 		actionsMap.put(COMPRESSION, new CompressionAction(model));
 		actionsMap.put(CLEAR_HISTORY, new ClearHistoryAction(model));
 		actionsMap.put(METADATA, new MetadataAction(model));
+		actionsMap.put(CREATE_MOVIE, new CreateMovieAction(model));
 	}
 
 	/** 

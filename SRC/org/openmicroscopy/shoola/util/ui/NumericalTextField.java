@@ -120,6 +120,7 @@ public class NumericalTextField
 	public NumericalTextField(double min, double max)
 	{
 		document = new NumericalPlainDocument(min, max);
+		setHorizontalAlignment(JTextField.RIGHT);
 		setDocument(document);
 		originalText = null;
 		editedColor = null;
@@ -179,6 +180,23 @@ public class NumericalTextField
 	public void setEditedColor(Color editedColor)
 	{ 
 		this.editedColor = editedColor;
+	}
+	
+	/**
+	 * Returns the value as a number.
+	 * 
+	 * @return See above.
+	 */
+	public Number getValueAsNumber()
+	{
+		String str = getText();
+		if (Integer.class.equals(numberType))
+			return Integer.parseInt(str);
+		else if (Double.class.equals(numberType))
+			return Double.parseDouble(str);
+		else if (Float.class.equals(numberType)) 
+			return Float.parseFloat(str);
+		return null;
 	}
 	
 	/**

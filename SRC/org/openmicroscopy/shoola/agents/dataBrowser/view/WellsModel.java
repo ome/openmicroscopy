@@ -257,17 +257,6 @@ class WellsModel
 			} else {
 				rMap.put(row, new ColourObject(createColor(data), type));
 			}
-			/*
-			if (!cMap.containsKey(column)) {
-				cMap.put(column, 
-						new ColourObject(createColor(data), data.getWellType()));
-			}
-			if (!rMap.containsKey(row)) {
-				rMap.put(row, 
-						new ColourObject(createColor(data), 
-								data.getWellType()));
-			}
-			*/
 			if (row > rows) rows = row;
 			if (column > columns) columns = column;
 			columSequence = "";
@@ -281,10 +270,8 @@ class WellsModel
 			else if (rowSequenceIndex == PlateData.ASCENDING_NUMBER)
 				rowSequence = ""+(row+1);
 			node.setCellDisplay(columSequence, rowSequence);
-			//node.setDescription(data.getWellType());
 			f = node.getNumberOfSamples();
 			if (fieldsNumber < f) fieldsNumber = f;
-			//if (selectedField >= f) selectedField = 0;
 			node.setSelectedWellSample(selectedField);
 			selected = node.getSelectedWellSample();
 			samples.add(selected);

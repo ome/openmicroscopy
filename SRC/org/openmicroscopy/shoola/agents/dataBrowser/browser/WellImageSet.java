@@ -87,12 +87,10 @@ public class WellImageSet
 		String txt = UIUtilities.formatToolTipText(buf.toString());
 		Iterator i = samples.iterator();
 		ImageNode n;
-		String title = "Well: "+rowDisplay+"-"+columnDisplay;
 		while (i.hasNext()) {
 			n = (ImageNode) i.next();
 			n.setToolTipText(txt);
 			n.setCanvasToolTip(txt);
-			n.setTitle(title+" "+n.getTitle());
 		}
 	}
 	

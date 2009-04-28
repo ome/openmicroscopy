@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ui.MovieExportParameters;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
@@ -1788,5 +1789,15 @@ class ImViewerModel
 	 * @param time The value to set.
 	 */
 	void setLastProjectionTime(int time) { lastProjTime = time; }
+	
+	/**
+	 * Creates a movie.
+	 * 
+	 * @param parameters The parameters used to create a movie.
+	 */
+	void createMovie(MovieExportParameters parameters)
+	{
+		//TODO: 
+	}
 	
 }

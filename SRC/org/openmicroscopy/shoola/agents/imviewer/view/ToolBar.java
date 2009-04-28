@@ -183,6 +183,9 @@ class ToolBar
         button = new JButton(controller.getAction(ImViewerControl.SAVE));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
+        button = new JButton(controller.getAction(ImViewerControl.CREATE_MOVIE));
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(button);
         UserAction a = (UserAction) controller.getAction(ImViewerControl.USER);
         button = new JButton(a);
         button.addMouseListener(a);

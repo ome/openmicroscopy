@@ -173,7 +173,8 @@ public class ImageNode
     	if (uo instanceof ImageData)
     		t = ((ImageData) uo).getAcquisitionDate();
     	else if (uo instanceof WellSampleData) {
-    		t = ((WellSampleData) uo).getImage().getAcquisitionDate();
+    		ImageData img = ((WellSampleData) uo).getImage();
+    		if (img != null) t = img.getAcquisitionDate();
     	}
     	if (t == null) t = new Timestamp(new Date().getTime());
     	return t;
@@ -189,7 +190,6 @@ public class ImageNode
     {
         return DateFormat.getDateInstance().format(getAcquisitionTime()); 
     }
-
     
     /** 
      * Sets the size of the {@link ThumbnailCanvas} and the preferred size of

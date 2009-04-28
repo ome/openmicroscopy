@@ -434,7 +434,7 @@ public class FileChooser
      */
     public int showDialog()
     {
-	    UIUtilities.setLocationRelativeToAndShow(this.getParent(), this);
+	    UIUtilities.setLocationRelativeToAndShow(getParent(), this);
 	    return option;
     }
 
