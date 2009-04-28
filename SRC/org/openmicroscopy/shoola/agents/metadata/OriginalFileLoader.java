@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
+import java.io.File;
 import java.util.Collection;
 
 //Third-party libraries
@@ -50,6 +51,9 @@ public class OriginalFileLoader
 	extends EditorLoader
 {
 
+	/** The folder where to save the file. */
+	private File folder;
+	
 	/** The pixels set. */
 	private long pixelsID;
 	
@@ -62,11 +66,15 @@ public class OriginalFileLoader
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param pixelsID	The ID of the pixels set to handle.
+     * @param folder	The folder where to save the files.
      */
-    public OriginalFileLoader(Editor viewer, long pixelsID)
+    public OriginalFileLoader(Editor viewer, long pixelsID, File folder)
     {
     	 super(viewer);
+    	 if (pixelsID < 0)
+    		 throw new IllegalArgumentException("Pixels set not valid");
     	 this.pixelsID = pixelsID;
+    	 this.folder = folder;
     }
     
 	/** 
@@ -92,7 +100,7 @@ public class OriginalFileLoader
     {
     	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
     	//viewer.setMetadata(refNode, result);
-    	viewer.setDownloadedFiles((Collection) result);
+    	viewer.setDownloadedFiles(folder, (Collection) result);
     } 
     
 }

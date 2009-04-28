@@ -28,6 +28,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -276,14 +277,14 @@ class EditorComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#setDownloadedFiles(Collection)
+	 * @see Editor#setDownloadedFiles(File, Collection)
 	 */
-	public void setDownloadedFiles(Collection files)
+	public void setDownloadedFiles(File folder, Collection files)
 	{
 		setStatus(false);
 		if (files == null || files.size() == 0) return;
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		un.notifyDownload(files);
+		un.notifyDownload(files, folder);
 	}
 
 	/** 
@@ -513,11 +514,11 @@ class EditorComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#download()
+	 * @see Editor#download(File)
 	 */
-	public void download()
+	public void download(File folder)
 	{
-		model.download();
+		model.download(folder);
 		setStatus(true);
 	}
 	

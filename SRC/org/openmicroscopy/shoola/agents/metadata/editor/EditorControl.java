@@ -45,6 +45,7 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -54,6 +55,7 @@ import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
@@ -183,6 +185,27 @@ class EditorControl
 	{
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
 		bus.post(new EditFileEvent(protocolID));
+	}
+	
+	/** Brings up the folder chooser. */
+	private void download()
+	{
+		JFrame f =  EditorAgent.getRegistry().getTaskBar().getFrame();
+		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
+				"Download", "Select where to download the file.");
+		chooser.addPropertyChangeListener(new PropertyChangeListener() {
+		
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+					File folder = (File) evt.getNewValue();
+					if (folder == null)
+						folder = UIUtilities.getDefaultFolder();
+					model.download(folder);
+				}
+			}
+		});
+		chooser.centerDialog();
 	}
 	
 	/**
@@ -320,7 +343,7 @@ class EditorControl
 				view.saveData();
 				break;
 			case DOWNLOAD:
-				model.download();
+				download();
 				break;
 			case ADD_TAGS:
 				loadExistingTags();

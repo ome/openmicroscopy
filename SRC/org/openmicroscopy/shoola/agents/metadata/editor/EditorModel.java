@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1141,12 +1142,16 @@ class EditorModel
 		return img.isArchived();
 	}
 
-	/** Starts an asynchronous loading. */
-	void download()
+	/** 
+	 * Starts an asynchronous loading. 
+	 * 
+	 * @param folder The folder to save the file into.
+	 */
+	void download(File folder)
 	{
 		PixelsData data = ((ImageData) refObject).getDefaultPixels();
 		OriginalFileLoader loader = new OriginalFileLoader(component, 
-											data.getId());
+											data.getId(), folder);
 		loader.load();
 		loaders.add(loader);
 	}

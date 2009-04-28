@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -162,9 +163,10 @@ public interface Editor
 	/**
 	 * Sets the collection of archived files.
 	 * 
+	 * @param folder The folder where to save the files.
 	 * @param files The collection of files to handle.
 	 */
-	public void setDownloadedFiles(Collection files);
+	public void setDownloadedFiles(File folder, Collection files);
 
 	/**
 	 * Sets the used and free disk space.
@@ -273,8 +275,12 @@ public interface Editor
 	/** Loads the existing attachments. */
 	public void loadExistingAttachments();
 
-	/** Downloads the archived images. */
-	public void download();
+	/** 
+	 * Downloads the archived images. 
+	 * 
+	 * @param folder The folder to save the file into.
+	 */
+	public void download(File folder);
 
 	/**
 	 * Sets the parent of the root object. This will be taken into account

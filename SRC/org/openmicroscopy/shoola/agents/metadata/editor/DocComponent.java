@@ -37,7 +37,6 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -405,7 +404,7 @@ class DocComponent
 	 */
 	private void download()
 	{
-		JFrame f =  EditorAgent.getRegistry().getTaskBar().getFrame();
+		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
 				"Download", "Select where to download the file.");
 		chooser.addPropertyChangeListener(this);
