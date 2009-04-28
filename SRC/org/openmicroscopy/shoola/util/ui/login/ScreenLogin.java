@@ -99,6 +99,9 @@ public class ScreenLogin
 	/** The font color for text. */
 	static final Color      		TEXT_COLOR = Color.WHITE;
 
+	/** The default size of the window. */
+	static final Dimension			DEFAULT_SIZE = new Dimension(551, 113);
+	
 	/** The property name for the user who connects to <i>OMERO</i>. */
 	private static final String  	OMERO_USER = "omeroUser";
 
@@ -285,6 +288,7 @@ public class ScreenLogin
 		login.setMnemonic('L');
 		login.setToolTipText("Login");
 		setButtonDefault(login);
+		login.setEnabled(true);
 		UIUtilities.enterPressesWhenFocused(login);
 		UIUtilities.opacityCheck(login);
 		cancel = new JButton("Quit");
@@ -304,6 +308,7 @@ public class ScreenLogin
 		configButton.setIcon(icons.getIcon(IconManager.CONFIG));
 		configButton.setPressedIcon(icons.getIcon(IconManager.CONFIG_PRESSED));
 		getRootPane().setDefaultButton(login);
+		enableControls();
 	}
 
 	/** 
@@ -422,11 +427,22 @@ public class ScreenLogin
 	 */
 	private void buildGUI(Icon logo, String version)
 	{
-		JLabel background = new JLabel(logo);
-		background.setBorder(BorderFactory.createEmptyBorder());
+		JLabel background;
+		
 		JLayeredPane layers = new JLayeredPane();  //Default is absolute layout.
-		int width = logo.getIconWidth();
-		int height = logo.getIconHeight();
+		
+		int width;
+		int height;
+		if (logo != null) {
+			background = new JLabel(logo);
+			width = logo.getIconWidth();
+			height = logo.getIconHeight();
+		} else {
+			background = new JLabel();
+			width = DEFAULT_SIZE.width;
+			height = DEFAULT_SIZE.height;
+		}
+		background.setBorder(BorderFactory.createEmptyBorder());
 		layers.setBounds(0, 0, width, height);
 		JPanel p = buildMainPanel(version);
 		background.setBounds(0, 0, width, height);
@@ -484,8 +500,21 @@ public class ScreenLogin
 		//serverText.repaint();
 		serverTextPane.validate();
 		serverTextPane.repaint();
+		enableControls();
 	}
 
+	/** Sets the enabled flag of the {@link #login} button.*/
+	private void enableControls()
+	{
+		String s = serverText.getText();
+		if (s == null) {
+			login.setEnabled(false);
+			return;
+		}
+		s = s.trim();
+		if (login != null) login.setEnabled(!DEFAULT_SERVER.equals(s));
+	}
+	
 	/**
 	 * Sets the connection speed used to connect to the server.
 	 * 
@@ -565,20 +594,21 @@ public class ScreenLogin
 		super();
 		selectedPort = -1;
 		setTitle(title);
-		if (logo == null)
-			throw new NullPointerException("No Frame icon.");
-		Dimension d = new Dimension(logo.getIconWidth(), logo.getIconHeight());
+		Dimension d;
+		if (logo != null)
+			d = new Dimension(logo.getIconWidth(), logo.getIconHeight());
+		else d = DEFAULT_SIZE;
 		setSize(d);
 		setPreferredSize(d);
 		editor = new ServerEditor(defaultPort);
 		editor.addPropertyChangeListener(ServerEditor.REMOVE_PROPERTY, this);
-		connectionSpeed = false;
 		speedIndex = retrieveConnectionSpeed();
 		initFields(getUserName());
 		initButtons();
 		initListeners();
 		buildGUI(logo, version);
 		setProperties(frameIcon);
+		showConnectionSpeed(false);
 		addMouseListener(new MouseAdapter() {
 
 			/**
