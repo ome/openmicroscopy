@@ -1517,8 +1517,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
         #send email if avtive
         if settings.EMAIL_NOTIFICATION:
-			if len(add_members) > 0:
-            	try:
+		if len(add_members) > 0:
+                    try:
 	                from omeroweb.extlib.notification.sendemail import prepareRecipientsAsString
 	                recipients = prepareRecipientsAsString(add_members)
 	            except Exception, x:
@@ -1533,8 +1533,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 	                e = EmailToSend(host=host, blitz=blitz, share=sid, sender=self.getUser().getFullName(), sender_email=self.getUser().email, recipients=recipients, template=t)
 	                e.save()
 			
-			if len(rm_members) > 0:
-            	try:
+                if len(rm_members) > 0:
+                    try:
 	                from omeroweb.extlib.notification.sendemail import prepareRecipientsAsString
 	                recipients = prepareRecipientsAsString(rm_members)
 	            except Exception, x:
@@ -1546,7 +1546,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 	                from omeroweb.webclient.models import EmailTemplate
 	                t = EmailTemplate.objects.get(template="remove_member_from_share")
 	                from omeroweb.webclient.models import EmailToSend
-					e = EmailToSend(host=host, blitz=blitz, share=sid, sender="", sender_email="", recipients=recipients, template=t)
+                        e = EmailToSend(host=host, blitz=blitz, share=sid, sender="", sender_email="", recipients=recipients, template=t)
 	                e.save()
     
     def setFile(self, buf):
