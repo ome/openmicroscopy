@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.util.ui.MovieExportParameters 
+ * org.openmicroscopy.shoola.env.data.model.MovieExportParam 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.util.ui;
+package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 
@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.agents.util.ui;
 //Application-internal dependencies
 
 /** 
- * Object hosting the parameters used to create a movie.
+ * Hosts the parameters needed for the creation of the movie.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -41,7 +41,7 @@ package org.openmicroscopy.shoola.agents.util.ui;
  * </small>
  * @since 3.0-Beta4
  */
-public class MovieExportParameters
+public class MovieExportParam
 {
 
 	/** Movie across z-section. */
@@ -57,7 +57,7 @@ public class MovieExportParameters
 	public static final int		MPEG = 0;
 	
 	/** The default number of frames per second. */
-	static final int 			DEFAULT_FPS  = 25;
+	public static final int 	DEFAULT_FPS  = 25;
 
 	/** The extension corresponding to the {@link #MPEG} movie. */
 	private static final String MPEG_EXTENSION = ".avi";
@@ -145,7 +145,7 @@ public class MovieExportParameters
 	 * 					if the scale bar is not visible.
 	 * @param type		Movie either across time or z-section.
 	 */
-	MovieExportParameters(String name, int fps, int format, int scaleBar, 
+	public MovieExportParam(String name, int fps, int format, int scaleBar, 
 			int type)
 	{
 		if (name == null || name.trim().length() == 0)
@@ -166,7 +166,7 @@ public class MovieExportParameters
 	 * @param startT The lower bound of the time interval.
 	 * @param endT	The upper bound of the time interval.
 	 */
-	void setTimeInterval(int startT, int endT)
+	public void setTimeInterval(int startT, int endT)
 	{
 		this.startT = startT;
 		this.endT = endT;
@@ -178,7 +178,7 @@ public class MovieExportParameters
 	 * @param startZ The lower bound of the time interval.
 	 * @param endZ	The upper bound of the time interval.
 	 */
-	void setZsectionInterval(int startZ, int endZ)
+	public void setZsectionInterval(int startZ, int endZ)
 	{
 		this.startZ = startZ;
 		this.endZ = endZ;
@@ -256,6 +256,5 @@ public class MovieExportParameters
 	 * @return See above.
 	 */
 	public int getType() { return type; }
-	
 	
 }

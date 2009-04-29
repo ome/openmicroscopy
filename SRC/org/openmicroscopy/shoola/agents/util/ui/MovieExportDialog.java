@@ -52,6 +52,7 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -100,7 +101,7 @@ public class MovieExportDialog
 	
 	static {
 		FORMATS = new String[1];
-		FORMATS[MovieExportParameters.MPEG] = "mpeg";
+		FORMATS[MovieExportParam.MPEG] = "mpeg";
 	}
 	
 	/** Button to close the dialog. */
@@ -140,7 +141,7 @@ public class MovieExportDialog
 	private int						option;
 	
 	/** The parameters to set. */
-	private MovieExportParameters 	param;
+	private MovieExportParam 	param;
 	
 	/** 
 	 * Creates the components composing the display. 
@@ -200,7 +201,7 @@ public class MovieExportDialog
 		scaleBar.setText(""+DEFAULT_SCALE);
 		
 		fps = new JSpinner();
-		fps.setValue(MovieExportParameters.DEFAULT_FPS);
+		fps.setValue(MovieExportParam.DEFAULT_FPS);
 		getRootPane().setDefaultButton(saveButton);
 		
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -299,12 +300,12 @@ public class MovieExportDialog
 			Number value = scaleBar.getValueAsNumber();
 			if (value != null) scale = value.intValue();
 		}
-		int type = MovieExportParameters.ZT_MOVIE;;
+		int type = MovieExportParam.ZT_MOVIE;;
 		if (!timeInterval.isSelected() && zInterval.isSelected()) 
-			type = MovieExportParameters.Z_MOVIE;
+			type = MovieExportParam.Z_MOVIE;
 		else if (timeInterval.isSelected() && !zInterval.isSelected()) 
-			type = MovieExportParameters.T_MOVIE;
-		param = new MovieExportParameters(name, f, format, scale, type);
+			type = MovieExportParam.T_MOVIE;
+		param = new MovieExportParam(name, f, format, scale, type);
 		param.setTimeInterval(timeRange.getStartValue()-1, 
 				timeRange.getEndValue()-1);
 		param.setZsectionInterval(zRange.getStartValue()-1, 
@@ -369,7 +370,7 @@ public class MovieExportDialog
      * 
      * @return See above.
      */
-    public MovieExportParameters getParameters() { return param; }
+    public MovieExportParam getParameters() { return param; }
     
 	/**
 	 * Closes or creates a movie.

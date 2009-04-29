@@ -33,6 +33,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataSaver;
@@ -42,6 +43,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.EnumerationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesImporter;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.MovieCreator;
 import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
@@ -287,6 +289,18 @@ class ImageDataViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ImagesLoader(imageID, userID);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#createMovie(long, long, MovieExportParam, 
+     * 	AgentEventListener)
+     */
+	public CallHandle createMovie(long imageID, List<Integer> channels,
+			MovieExportParam param, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new MovieCreator(imageID, channels, param);
 		return cmd.exec(observer);
 	}
 	

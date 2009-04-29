@@ -52,6 +52,7 @@ import omero.sys.Parameters;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -63,6 +64,7 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -583,6 +585,17 @@ class OmeroImageServiceImpl
 		}
 		gateway.monitor(directory, supportedExtensions, container);
 		return true;
+	}
+	
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#createMovie(long, List, MovieExportParam)
+	 */
+	public FileAnnotationData createMovie(long imageID, List<Integer> channels,
+			MovieExportParam param)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
 	}
 	
 }

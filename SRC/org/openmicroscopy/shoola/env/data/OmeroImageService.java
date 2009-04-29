@@ -38,12 +38,15 @@ import javax.swing.filechooser.FileSystemView;
 //Application-internal dependencies
 import omero.constants.projection.ProjectionType;
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
 import pojos.DataObject;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -411,6 +414,23 @@ public interface OmeroImageService
 	 * @return See above.
 	 */
 	public FileSystemView getFSFileSystemView();
+	
+	/**
+	 * Creates a movie. Returns the annotation hosting the movie.
+	 * 
+	 * @param imageID 	The id of the image.	
+     * @param channels 	The channels to map.
+     * @param param 	The parameters to create the movie.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public FileAnnotationData createMovie(long imageID, List<Integer> channels,
+			MovieExportParam param)
+		throws DSOutOfServiceException, DSAccessException;
+	
 	
 	public Object monitor(String path, DataObject container, 
 			long userID, long groupID);

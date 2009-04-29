@@ -40,8 +40,8 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
-import org.openmicroscopy.shoola.agents.util.ui.MovieExportParameters;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -983,6 +983,6 @@ public interface ImViewer
 	 * 
 	 * @param parameters The parameters used to create a movie.
 	 */
-	public void createMovie(MovieExportParameters parameters);
+	public void createMovie(MovieExportParam parameters);
 	
 }

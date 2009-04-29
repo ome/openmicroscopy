@@ -40,12 +40,15 @@ import javax.swing.filechooser.FileSystemView;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
 import pojos.DataObject;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -267,6 +270,10 @@ public class NullRenderingService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#getFSFileSystemView()
+     */
 	public FileSystemView getFSFileSystemView() {
 		// TODO Auto-generated method stub
 		return null;
@@ -274,6 +281,17 @@ public class NullRenderingService
 
 	public Object monitor(String path, DataObject container, 
 			long userID, long groupID) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#createMovie(long, List, MovieExportParam)
+     */
+	public FileAnnotationData createMovie(long imageID, List<Integer> channels,
+			MovieExportParam param) throws DSOutOfServiceException,
+			DSAccessException {
 		// TODO Auto-generated method stub
 		return null;
 	}

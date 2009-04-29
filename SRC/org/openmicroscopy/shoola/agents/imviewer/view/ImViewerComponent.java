@@ -65,9 +65,9 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.util.ui.MovieExportParameters;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -2666,13 +2666,13 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#createMovie(MovieExportParameters)
+	 * @see ImViewer#createMovie(MovieExportParam)
 	 */
-	public void createMovie(MovieExportParameters parameters)
+	public void createMovie(MovieExportParam parameters)
 	{
 		if (model.getState() == DISCARDED) return;
 		if (parameters == null) return;
 		model.createMovie(parameters);
 	}
-	
+
 }

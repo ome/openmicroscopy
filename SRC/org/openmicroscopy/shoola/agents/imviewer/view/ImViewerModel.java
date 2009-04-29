@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImageDataLoader;
+import org.openmicroscopy.shoola.agents.imviewer.MovieCreator;
 import org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
@@ -65,10 +66,10 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-import org.openmicroscopy.shoola.agents.util.ui.MovieExportParameters;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -1795,9 +1796,11 @@ class ImViewerModel
 	 * 
 	 * @param parameters The parameters used to create a movie.
 	 */
-	void createMovie(MovieExportParameters parameters)
+	void createMovie(MovieExportParam parameters)
 	{
-		//TODO: 
+		MovieCreator loader = new MovieCreator(component, parameters, 
+				getActiveChannels(), image);
+		loader.load();
 	}
 	
 }

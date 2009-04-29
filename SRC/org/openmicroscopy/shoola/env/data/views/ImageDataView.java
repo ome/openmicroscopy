@@ -33,6 +33,8 @@ import java.util.List;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -262,6 +264,26 @@ public interface ImageDataView
 	public CallHandle monitorDirectory(File directory, DataObject container, 
 			long userID, long groupID, AgentEventListener observer);
 	
+	/**
+	 * Loads the specified image.
+	 * 
+	 * @param imageID 	The id of the image to load.
+	 * @param userID	The id of the user.
+	 * @param observer	Callback handler.
+	 * @return See above.
+	 */
 	public CallHandle loadImage(long imageID, long userID, 
 			AgentEventListener observer);
+	
+	/**
+	 * Creates a movie.
+	 * 
+	 * @param imageID 	The id of the image.	
+     * @param channels 	The channels to map.
+     * @param param 	The parameters to create the movie.
+	 * @param observer	Callback handler.
+	 * @return See above.
+	 */
+	public CallHandle createMovie(long imageID, List<Integer> channels,
+			MovieExportParam param, AgentEventListener observer);
 }
