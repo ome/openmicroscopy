@@ -33,6 +33,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
@@ -52,6 +53,9 @@ import java.awt.image.Raster;
 import java.awt.image.RescaleOp;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
+import java.io.File;
+
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 
@@ -586,6 +590,31 @@ public class Factory
     		return new Dimension(sizeX, THUMB_DEFAULT_HEIGHT);
     	}
     	return new Dimension(sizeX, sizeY);
+    }
+    
+    /**
+     * Creates the splash screen logo and login
+     * 
+     * @param name The name of the image.
+     * @param path The path to the config file.
+     * @return See above.
+     */
+    public static Icon createIcon(String name, String path)
+    {
+    	StringBuffer buf;
+    	if (name == null || path == null) return null;
+    	buf = new StringBuffer(path);
+		buf.append(File.separatorChar);
+		buf.append(name);
+    	try {
+    		Image img = Toolkit.getDefaultToolkit().getImage(buf.toString());
+    		if (img == null) return null;
+    		Icon icon = new ImageIcon(img);
+    		if (icon.getIconHeight() <= 0 || icon.getIconWidth() <= 0)
+    			return null;
+    		return icon;
+    	} catch (Exception e) {}
+    	return null;
     }
     
 }

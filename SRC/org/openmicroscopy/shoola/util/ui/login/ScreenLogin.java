@@ -52,6 +52,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 import layout.TableLayout;
@@ -75,7 +77,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 */
 public class ScreenLogin 
 	extends JFrame
-	implements ActionListener, PropertyChangeListener
+	implements ActionListener, DocumentListener, PropertyChangeListener
 {
 	
 	/** Bounds property indicating this window is moved to the front. */
@@ -213,6 +215,8 @@ public class ScreenLogin
 	/** Adds listeners to the UI components. */
 	private void initListeners()
 	{
+		user.getDocument().addDocumentListener(this);
+		pass.getDocument().addDocumentListener(this);
 		login.addActionListener(this);
 		user.addActionListener(this);
 		pass.addActionListener(this);
@@ -288,7 +292,6 @@ public class ScreenLogin
 		login.setMnemonic('L');
 		login.setToolTipText("Login");
 		setButtonDefault(login);
-		login.setEnabled(true);
 		UIUtilities.enterPressesWhenFocused(login);
 		UIUtilities.opacityCheck(login);
 		cancel = new JButton("Quit");
@@ -507,12 +510,25 @@ public class ScreenLogin
 	private void enableControls()
 	{
 		String s = serverText.getText();
-		if (s == null) {
+		char[] name = pass.getPassword();
+		String usr = user.getText().trim();
+		if (s == null || usr == null || name == null) {
 			login.setEnabled(false);
 			return;
 		}
+		usr = usr.trim();
 		s = s.trim();
-		if (login != null) login.setEnabled(!DEFAULT_SERVER.equals(s));
+		if (login != null) {
+			if (DEFAULT_SERVER.equals(s)) {
+				login.setEnabled(false);
+				return;
+			}
+			if (usr.length() == 0 || name.length == 0) {
+				login.setEnabled(false);
+				return;
+			}
+			login.setEnabled(true);
+		}
 	}
 	
 	/**
@@ -686,7 +702,7 @@ public class ScreenLogin
 	{
 		user.setEnabled(b);
 		pass.setEnabled(b);
-		login.setEnabled(b);
+		enableControls();
 		login.requestFocus();
 		configButton.setEnabled(b);
 		if (b) {
@@ -814,6 +830,18 @@ public class ScreenLogin
 		}
 	}
 
+	/**
+	 * Enables the controls.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e) { enableControls(); }
+
+	/**
+	 * Enables the controls.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e) { enableControls(); }
+	
 	/** 
 	 * Handles action events fired by the login fields and button.
 	 * Once user name and password have been entered, the login fields and
@@ -821,5 +849,12 @@ public class ScreenLogin
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) { login(); }
-  
+
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
+
 }

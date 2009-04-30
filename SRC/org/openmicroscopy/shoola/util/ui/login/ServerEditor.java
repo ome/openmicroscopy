@@ -202,7 +202,15 @@ public class ServerEditor
 	/** Adds a new server to the list. */
 	private void addRow()
 	{
-		if (editing) return;
+		if (editing) {
+			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			if (model.getRowCount() == 0) {
+				editing = false;
+				addRow();
+			}
+				
+			return;
+		}
 		addButton.setEnabled(false);
 		DefaultTableModel model= ((DefaultTableModel) table.getModel());
 		//First check if we already have
@@ -699,9 +707,8 @@ public class ServerEditor
 		int n = 0;
 		Map<String, String> servers = getServers();
 		if (servers != null) n = servers.size();
-		if (n == 0) {
+		if (n == 0) 
 			requestFocusOnEditedCell(table.getRowCount()-1, 1);
-		}
 	}
 
 }
