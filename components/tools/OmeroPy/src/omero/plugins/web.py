@@ -81,7 +81,7 @@ class WebControl(BaseControl):
     "pk": 1,
     "model": "webclient.emailtemplate",
     "fields": {
-      "content_html": "<p><img src=\"cid:image1\"/></p><hr/><p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href=\"%%s/share/view/%%i/?server=%%i\">%%s/share/view/%%i/?server=%%i</a>.</p><p>-- %%s</p>",
+      "content_html": "<p><img src='cid:image1'/></p><hr/><p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href='%%s/share/view/%%i/?server=%%i'>%%s/share/view/%%i/?server=%%i</a>.</p><p>-- %%s</p>",
       "template": "create_share",
       "content_txt": "Hi, I would like to share some of my data with you. Please find it on the %%s/share/view/%%i/?server=%%i. /n -- %%s"
     }
@@ -90,7 +90,7 @@ class WebControl(BaseControl):
     "pk": 2,
     "model": "webclient.emailtemplate",
     "fields": {
-      "content_html": "<p><img src=\"cid:image1\"/></p><hr/><p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href=\"%%s/share/view/%%i/?server=%%i\">%%s/share/view/%%i/?server=%%i</a>.</p><p>-- %%s</p>",
+      "content_html": "<p><img src='cid:image1'/></p><hr/><p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href='%%s/share/view/%%i/?server=%%i'>%%s/share/view/%%i/?server=%%i</a>.</p><p>-- %%s</p>",
       "template": "add_member_to_share",
       "content_txt": "Hi, I would like to share some of my data with you. Please find it on the %%s/share/view/%%i/?server=%%i. /n -- %%s"
     }
@@ -99,7 +99,7 @@ class WebControl(BaseControl):
     "pk": 3,
     "model": "webclient.emailtemplate",
     "fields": {
-      "content_html": "<p><img src=\"cid:image1\"/></p><hr/><p>You were removed from the share <a href=\"%%s/share/view/%%i/?server=%%i\">%%s/share/view/%%i/?server=%%i</a>. This share is no longer available for you.</p>",
+      "content_html": "<p><img src='cid:image1'/></p><hr/><p>You were removed from the share <a href='%%s/share/view/%%i/?server=%%i'>%%s/share/view/%%i/?server=%%i</a>. This share is no longer available for you.</p>",
       "template": "remove_member_from_share",
       "content_txt": "You were removed from the share %%s/share/view/%%i/?server=%%i. This share is no longer available for you."
     }
@@ -108,7 +108,7 @@ class WebControl(BaseControl):
     "pk": 4,
     "model": "webclient.emailtemplate",
     "fields": {
-      "content_html": "<p><img src=\"cid:image1\"/></p><hr/><p>New comment is available on share <a href=\"%%s/share/view/%%i/?server=%%i\">%%s/share/view/%%i/?server=%%i</a>.</p>",
+      "content_html": "<p><img src='cid:image1'/></p><hr/><p>New comment is available on share <a href='%%s/share/view/%%i/?server=%%i'>%%s/share/view/%%i/?server=%%i</a>.</p>",
       "template": "add_comment_to_share",
       "content_txt": "New comment is available on share %%s/share/view/%%i/?server=%%i."
     }
