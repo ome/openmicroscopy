@@ -1154,7 +1154,7 @@ public class UIUtilities
     		return String.format("%.2f",value);
 		} catch (Exception e) { return ""; }
     }
-
+    
     /**
      * Returns the partial name of the image's name
      * 
@@ -1171,6 +1171,27 @@ public class UIUtilities
             l = originalName.split("\\\\", 0);
         } 
         return l;
+    }
+    
+    /** 
+     * Returns the separator or <code>null</code>.
+     * 
+     * @param originalName The original name.
+     * @return See above.
+     */
+    public static String getStringSeparator(String originalName)
+    {
+    	if (originalName == null) return null;
+    	String[] l = null;
+        if (Pattern.compile("/").matcher(originalName).find()) {
+            l = originalName.split("/", 0);
+            if (l.length > 0) return "/";
+            
+        } else if (Pattern.compile("\\\\").matcher(originalName).find()) {
+            l = originalName.split("\\\\", 0);
+            if (l.length > 0) return "\\";
+        } 
+        return null;
     }
     
 	/** 

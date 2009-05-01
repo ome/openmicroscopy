@@ -223,7 +223,6 @@ class DataBrowserComponent
 			n = (ImageDisplay) i.next();
 			if (n != node) others.add(n.getHierarchyObject());
 		}
-		
 		objects.add(others);
 		//Root node
 		if (node.equals(model.getBrowser().getUI())) {

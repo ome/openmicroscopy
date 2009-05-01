@@ -632,9 +632,9 @@ class BrowserModel
 
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#setNodesSelection(List)
+	 * @see Browser#setNodesSelection(Collection)
 	 */
-	public void setNodesSelection(List<ImageDisplay> nodes)
+	public void setNodesSelection(Collection<ImageDisplay> nodes)
 	{
 		if (nodes == null) return;
 		setNodesColor(nodes, getSelectedDisplays());

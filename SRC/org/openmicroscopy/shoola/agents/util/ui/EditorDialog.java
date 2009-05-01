@@ -317,7 +317,8 @@ public class EditorDialog
     /** Closes and disposes. */
     private void close()
     {
-    	firePropertyChange(CLOSE_EDITOR_DIALOG_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+    	firePropertyChange(CLOSE_EDITOR_DIALOG_PROPERTY, Boolean.FALSE, 
+    			Boolean.TRUE);
         setVisible(false);
         dispose();
     }

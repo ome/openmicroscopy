@@ -363,7 +363,7 @@ public interface Browser
 	 * 
 	 * @param nodes The selected nodes.
 	 */
-	public void setNodesSelection(List<ImageDisplay> nodes);
+	public void setNodesSelection(Collection<ImageDisplay> nodes);
 	
 	/** 
 	 * Removes the passed node from the selection.

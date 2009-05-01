@@ -695,15 +695,28 @@ public class EditorUtil
      */
     public static String getPartialName(String originalName)
     {
+    	if (originalName == null) return null;
     	String[] l = UIUtilities.splitString(originalName);
+    	String extension = null;
+    	if (originalName.endsWith("\\")) extension = "\\";
+    	else if (originalName.endsWith("/")) extension = "/";
+    	String sep = UIUtilities.getStringSeparator(originalName);
+    	if (sep == null) sep = "";
     	if (l != null) {
     		int n = l.length;
     		switch (n) {
 				case 0: return originalName;
-				case 1: return l[0];
-				case 2: return l[n-2]+"/"+l[n-1];
+				case 1: 
+					if (extension != null) return l[0]+extension;
+					return l[0];
+				case 2: 
+					if (extension != null) 
+						return l[n-2]+sep+l[n-1]+extension;
+					return l[n-2]+sep+l[n-1];
 				default: 
-					return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
+					if (extension != null) 
+						return UIUtilities.DOTS+l[n-2]+sep+l[n-1]+extension;
+					return UIUtilities.DOTS+l[n-2]+sep+l[n-1]; 
 			}
     	}
         return originalName;

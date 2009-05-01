@@ -748,13 +748,6 @@ class PropertiesUI
 		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 							Boolean.TRUE);
 	}
-	
-	/**
-	 * Required by the {@link DocumentListener} I/F but no-op implementation
-	 * in our case.
-	 * @see DocumentListener#changedUpdate(DocumentEvent)
-	 */
-	public void changedUpdate(DocumentEvent e) {}
 
 	/** 
 	 * Edits the components displaying the name and description
@@ -822,5 +815,12 @@ class PropertiesUI
 			}
 		}
 	}
-	
+
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
+
 }
