@@ -420,6 +420,8 @@ class MeasurementViewerModel
 	boolean setROI(InputStream input)
 		throws ROICreationException, NoSuchROIException, ParsingException
 	{
+		state = MeasurementViewer.READY;
+		if (input == null) return false;
 		List<ROI> roiList = roiComponent.loadROI(input);
 		if (roiList == null) return false;
 		Iterator<ROI> i = roiList.iterator();
@@ -430,7 +432,6 @@ class MeasurementViewerModel
 		Coord3D c;
 		int sizeZ = pixels.getSizeZ();
 		int sizeT = pixels.getSizeT();
-		state = MeasurementViewer.READY;
 		while (i.hasNext()) {
 			roi = i.next();
 			shapeList = roi.getShapes();
@@ -698,7 +699,8 @@ class MeasurementViewerModel
 				fileName = FileMap.getSavedFile(getServerName(), getUserName(), 
 												getPixelsID());
 			fileSaved = fileName;
-			stream = IOUtil.readFile(fileName);
+			if (fileSaved != null)
+				stream = IOUtil.readFile(fileName);
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot load the ROI "+e.getMessage());

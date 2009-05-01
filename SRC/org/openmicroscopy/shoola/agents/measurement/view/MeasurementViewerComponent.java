@@ -266,7 +266,21 @@ class MeasurementViewerComponent
      */
 	public void setROI(InputStream input)
 	{
-		if (model.getState() != LOADING_ROI || input == null) return;
+		if (model.getState() != LOADING_ROI) return;
+		if (input == null) {
+			try {
+				model.setROI(input);
+			} catch (Exception e) {}
+			
+			view.rebuildManagerTable();
+			view.updateDrawingArea();
+			view.setReadyStatus();
+			fireStateChange();
+			//Now we are ready to go. We can post an event to add component to
+			//Viewer
+			postEvent(MeasurementToolLoaded.ADD);
+			return;
+		}
 		Registry reg = MeasurementAgent.getRegistry();
 		Logger log = reg.getLogger();
 		try {
