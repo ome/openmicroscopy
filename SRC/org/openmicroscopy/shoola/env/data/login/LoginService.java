@@ -223,7 +223,7 @@ public interface LoginService
     public static final int		TIMEOUT = 2;
     
     /**
-     * Reuturns the current state of the Login Service.
+     * Returns the current state of the Login Service.
      * 
      * @return One of the state flags defined by this interface.
      */
@@ -271,11 +271,10 @@ public interface LoginService
      */
     public void eventFired(AgentEvent serviceActivationRequest);
     
-    /**
-     * Returns one of the index defined by this class.
-     * 
-     * @return See above.
-     */
-    public int getLoginFailureIndex();
+	/** Updates the view when failed to log in. */
+	public void notifyLoginFailure();
     
+	/** Updates the view when failed to log in. */
+	public void notifyLoginTimeout();
+	
 }

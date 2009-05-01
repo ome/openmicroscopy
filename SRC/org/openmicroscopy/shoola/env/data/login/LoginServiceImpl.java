@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data.login;
 import java.awt.Toolkit;
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.swing.JFrame;
 
 //Third-party libraries
 import Glacier2.PermissionDeniedException;
@@ -44,6 +45,9 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.NotificationDialog;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
@@ -72,7 +76,7 @@ public class LoginServiceImpl
      * interface to indicate the current state of the service. 
      */
     private int             state;
-    
+
     /** Reference to the runtime environment. */
     private Container       container;
     
@@ -87,7 +91,7 @@ public class LoginServiceImpl
     
     /** The index set if an error occured while trying to connect. */
     private int				failureIndex;
-    
+  
     /** Allows to easily access the service's configuration. */
     protected LoginConfig   config;
     
@@ -102,6 +106,8 @@ public class LoginServiceImpl
         } catch (InterruptedException e) {}
     }
 
+    
+    
     /**
      * Attempts to log onto <i>OMERO</i> using the current user's 
      * credentials.
@@ -189,9 +195,7 @@ public class LoginServiceImpl
      */
     protected void askForCredentials()
     {
-        //Registry reg = container.getRegistry();
-        //LoginOMEDS dialog = new LoginOMEDS(reg.getTaskBar().getFrame(), reg);
-        //UIUtilities.centerAndShow(dialog);
+    	
     }
     //NOTE: This method is protected so that subclasses can get rid of the
     //dependencies on Swing.  This is useful in test mode.
@@ -284,9 +288,47 @@ public class LoginServiceImpl
 
     /**
      * Implemented as specified by the {@link LoginService} interface.
-     * @see LoginService#getLoginFailureIndex()
+     * @see LoginService#notifyLoginFailure()
      */
-	public int getLoginFailureIndex() { return failureIndex; }
+    public void notifyLoginFailure()
+    {
+    	JFrame f = container.getRegistry().getTaskBar().getFrame();
+		String text = "";
+    	switch (failureIndex) {
+			case LoginService.DNS_INDEX:
+				text = "the server address\n";
+				break;
+			case LoginService.CONNECTION_INDEX:
+				text = "the port\n";
+				break;
+			case LoginService.PERMISSION_INDEX:
+				default:
+				text = "your user name\nand/or password ";
+		}
+    	NotificationDialog dialog = new NotificationDialog(
+                f, "Login Failure", "Failed to log onto OMERO.\n" +
+                "Please check "+text+"or try again later.", 
+                IconManager.getDefaultErrorIcon());
+		dialog.pack();  
+		UIUtilities.centerAndShow(dialog);
+	}
+
+    /**
+     * Implemented as specified by the {@link LoginService} interface.
+     * @see LoginService#notifyLoginTimeout()
+     */
+    public void notifyLoginTimeout()
+    { 
+    	JFrame f = container.getRegistry().getTaskBar().getFrame();
+    	//Need to do it that way to keep focus on login dialog
+    	NotificationDialog dialog = new NotificationDialog(
+                f, "Login Failure", "Failed to log onto OMERO.\n" +
+                "The server entered is not responding.\n"+
+                "Please check the server address or try again later.", 
+                IconManager.getDefaultErrorIcon());
+		dialog.pack();  
+		UIUtilities.centerAndShow(dialog);
+	}
 	
     /** Helper inner class. */
 	class LoginTask 
@@ -303,5 +345,5 @@ public class LoginServiceImpl
     		
     	}
     }
-
+	
 }

@@ -51,6 +51,7 @@ import Ice.ConnectionLostException;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -2596,9 +2597,10 @@ class OMEROGateway
 		if (file == null)
 			throw new IllegalArgumentException("No file to upload");
 		isSessionAlive();
-		RawFileStorePrx store = getRawFileService();
+		RawFileStorePrx store = null;
 		OriginalFile save = null;
 		try {
+			store = getRawFileService();
 			OriginalFile oFile;
 			if (originalFileID <= 0) {
 				Format f = (Format) getQueryService().findByString(
@@ -3509,6 +3511,7 @@ class OMEROGateway
 	/** Checks if the session is still alive. */
 	void isSessionAlive()
 	{
+		if (!connected) return;
 		try {
 			getAdminService().getEventContext();
 			//EventContext ctx = getAdminService().getEventContext();
@@ -4105,6 +4108,30 @@ class OMEROGateway
 		return new ArrayList<IObject>();
 	}
 	
+	/**
+	 * Creates a movie. Returns the id of the annotation hosting the movie.
+	 * 
+	 * @param imageID 	The id of the image.	
+     * @param channels 	The channels to map.
+     * @param param 	The parameters to create the movie.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	long createMovie(long imageID, List<Integer> channels,
+			MovieExportParam param)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			
+		} catch (Exception e) {
+			
+		}
+		return -1;
+	}
 	/**
 	 * Returns the fs file system view.
 	 * 

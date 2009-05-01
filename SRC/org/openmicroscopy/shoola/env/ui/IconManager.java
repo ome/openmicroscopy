@@ -278,15 +278,6 @@ public class IconManager
 		return createIcon(SPLASH_SCREEN);
 	}
 	
-	/**
-	 * Returns the image of the login button within the splash screen.
-	 * 
-	 * @return See above.
-	 */
-	static Icon getLoginBackground()
-	{
-		return createIcon(LOGIN_BACKGROUND);
-	}
 	
 	/**
 	 * Returns the image of the server icon withing the server dialog.
@@ -357,16 +348,6 @@ public class IconManager
 	{
 		return createIcon(MINUS);
 	}
-
-	/**
-	 * Returns the default error icon to use for notification dialogs.
-	 * 
-	 * @return See above.
-	 */
-	static Icon getDefaultErrorIcon()
-	{
-		return createIcon(DEFAULT_ERROR_ICON_PATH);
-	}
 	
 	/**
 	 * Returns the icon to use for the software update dialog.
@@ -393,6 +374,26 @@ public class IconManager
 	static Icon getDefaultInfoIcon()
 	{
 		return createIcon(DEFAULT_INFO_ICON_PATH);
+	}
+
+	/**
+	 * Returns the default error icon to use for notification dialogs.
+	 * 
+	 * @return See above.
+	 */
+	public static Icon getDefaultErrorIcon()
+	{
+		return createIcon(DEFAULT_ERROR_ICON_PATH);
+	}
+	
+	/**
+	 * Returns the image of the login button within the splash screen.
+	 * 
+	 * @return See above.
+	 */
+	public static Icon getLoginBackground()
+	{
+		return createIcon(LOGIN_BACKGROUND);
 	}
 	
     /**

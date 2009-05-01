@@ -68,6 +68,9 @@ import org.openmicroscopy.shoola.env.init.StartupException;
 public final class Container
 {
 
+	/** The title of the splash screens. */
+	public static final String		TITLE = "Open Microscopy Environment";
+	
 	/** 
 	 * Points to the configuration directory.
 	 * The path is relative to the installation directory.

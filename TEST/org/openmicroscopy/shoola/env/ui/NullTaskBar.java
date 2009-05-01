@@ -91,7 +91,7 @@ public class NullTaskBar
     public JMenu getWindowsMenu() { return null; }
 
     /**
-     * @see TaskBar#getWindowsMenu()
+     * @see TaskBar#getHelpMenu()
      */
     public JMenu getHelpMenu() { return null; }
     
@@ -99,5 +99,10 @@ public class NullTaskBar
      * @see TaskBar#getCopyMenuItem(int)
      */
 	public JMenuItem getCopyMenuItem(int index) { return null; }
+
+	/**
+	 * @see TaskBar#login()
+	 */
+	public boolean login() { return false; }
 
 }

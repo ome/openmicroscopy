@@ -110,12 +110,15 @@ public class LoginManager
     
     /**
      * Implemented as specified by the {@link LoginService} interface.
-     * @see LoginService#getLoginFailureIndex()
+     * @see LoginService#notifyLoginFailure()
      */
-	public int getLoginFailureIndex()
-	{
-		return service.getLoginFailureIndex();
-	}
+	public void notifyLoginFailure() { service.notifyLoginFailure(); }
+	
+	/**
+     * Implemented as specified by the {@link LoginService} interface.
+     * @see LoginService#notifyLoginTimeout()
+     */
+	public void notifyLoginTimeout() { service.notifyLoginTimeout(); }
 	
     //NOTE: We do need to acquire the lock here, even though this method is
     //only called within the UI thread.  The reason is that we need to make

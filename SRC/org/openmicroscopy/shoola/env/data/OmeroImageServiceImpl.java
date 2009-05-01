@@ -591,11 +591,18 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#createMovie(long, List, MovieExportParam)
 	 */
-	public FileAnnotationData createMovie(long imageID, List<Integer> channels,
+	public DataObject createMovie(long imageID, List<Integer> channels,
 			MovieExportParam param)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		return null;
+		if (imageID < 0)
+			throw new IllegalArgumentException("Image ID not valid.");
+		if (channels == null || channels.size() == 0)
+			throw new IllegalArgumentException("No channels specified.");
+		if (param == null)
+			throw new IllegalArgumentException("No parameters specified.");
+		long id = gateway.createMovie(imageID, channels, param);
+		return context.getMetadataService().loadAnnotation(id);
 	}
 	
 }

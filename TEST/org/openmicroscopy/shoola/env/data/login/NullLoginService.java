@@ -71,8 +71,18 @@ public class NullLoginService
     public void eventFired(AgentEvent serviceActivationRequest) {}
 
     /**
-     * @see LoginService#getLoginFailureIndex()
+     * @see LoginService#notifyLoginFailure()
      */
-	public int getLoginFailureIndex() { return 0; }
+	public void notifyLoginFailure() {}
+
+    /**
+     * @see LoginService#notifyLoginTimeout()
+     */
+	public void notifyLoginTimeout() {}
+
+    /**
+     * @see LoginService#isConnected()
+     */
+	public boolean isConnected() { return false; }
 
 }

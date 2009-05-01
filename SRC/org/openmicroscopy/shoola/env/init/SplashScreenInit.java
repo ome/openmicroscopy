@@ -167,12 +167,11 @@ public final class SplashScreenInit
 	                break;
 	
 				case LoginService.TIMEOUT:
-					splashScreen.notifyLoginTimeout();
+					loginSvc.notifyLoginTimeout();
 					break;
 				case LoginService.NOT_CONNECTED:
 					if (max != 0) {
-		        		splashScreen.notifyLoginFailure(
-		        				loginSvc.getLoginFailureIndex());
+						loginSvc.notifyLoginFailure();
 		        	} else if (max == 0) {
 		        		//Exit if we couldn't manage to log in.
 		        		 un.notifyError("Login Failure", 
@@ -181,7 +180,6 @@ public final class SplashScreenInit
 		                         "The application will exit.");
 		                 container.exit();
 		         	}
-					
 			}
         }
         //Now get rid of the Splash Screen.

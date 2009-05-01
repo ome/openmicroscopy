@@ -657,8 +657,8 @@ class TaskBarView
 
     /**
      * Implemented as specifed by {@link TaskBar}.
-     * @see TaskBar#iconify()
+     * @see TaskBar#login()
      */
-    //public void iconify() { setExtendedState(Frame.ICONIFIED); }
+	public boolean login() { return manager.login(); }
 
 }

@@ -33,9 +33,7 @@ import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -45,10 +43,8 @@ import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-import org.openmicroscopy.shoola.util.ui.NotificationDialog;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
@@ -82,9 +78,6 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
 class SplashScreenManager
 	implements PropertyChangeListener, WindowFocusListener, WindowStateListener
 {
-    
-	/** The title of the splash screens. */
-	private static final String	TITLE = "Open Microscopy Environment";
 	
 	/** The component's UI. */
 	private ScreenLogin			view;
@@ -168,7 +161,7 @@ class SplashScreenManager
     		(OMEROInfo) container.getRegistry().lookup(LookupNames.OMERODS);
         
     	String port = ""+omeroInfo.getPort();
-    	view = new ScreenLogin(TITLE, splashLogin, img, v, port);
+    	view = new ScreenLogin(Container.TITLE, splashLogin, img, v, port);
 		view.showConnectionSpeed(true);
 		Dimension d = viewTop.getExtendedSize();
 		Dimension dlogin = view.getPreferredSize();
@@ -177,35 +170,6 @@ class SplashScreenManager
 		view.addPropertyChangeListener(this);
 		view.addWindowStateListener(this);
 		view.addWindowFocusListener(this);
-    }
-    
-    /**
-     * Creates the splash screen logo and login
-     * 
-     * @param name The name of the image.
-     * @param path The path to the config file.
-     * @return See above.
-     */
-    private Icon createIcon(String name, String path)
-    {
-    	StringBuffer buf;
-    	if (name == null || path == null) return null;
-    	buf = new StringBuffer(path);
-		buf.append(File.separatorChar);
-		buf.append(name);
-    	try {
-    		Image img = Toolkit.getDefaultToolkit().getImage(buf.toString());
-    		if (img == null) return null;
-    		Icon icon = new ImageIcon(img);
-    		if (icon.getIconHeight() <= 0 || icon.getIconWidth() <= 0)
-    			return null;
-    		return icon;
-    	} catch (Exception e) {
-    		//log the exception
-    		container.getRegistry().getLogger().error(this, "Cannot create " +
-    				"the icon.");
-    	}
-    	return null;
     }
     
 	/**
@@ -224,7 +188,7 @@ class SplashScreenManager
 		String n = (String) reg.lookup(LookupNames.SPLASH_SCREEN_LOGO);
 		
 		String f = container.resolveConfigFile(null);
-		Icon splashScreen = createIcon(n, f);
+		Icon splashScreen = Factory.createIcon(n, f);
 		if (splashScreen == null) {
 			Boolean online = (Boolean) container.getRegistry().lookup(
 					LookupNames.SERVER_AVAILABLE);
@@ -233,12 +197,12 @@ class SplashScreenManager
 		}
 		n = (String) reg.lookup(LookupNames.SPLASH_SCREEN_LOGIN);
 		
-		splashLogin = createIcon(n, f);
+		splashLogin = Factory.createIcon(n, f);
 		if (splashLogin == null)
 			splashLogin = IconManager.getLoginBackground();
 		
-    	view = new ScreenLogin(TITLE, splashLogin, img);
-		viewTop = new ScreenLogo(TITLE, splashScreen, img);
+    	view = new ScreenLogin(Container.TITLE, splashLogin, img);
+		viewTop = new ScreenLogo(Container.TITLE, splashScreen, img);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension d = viewTop.getExtendedSize();
 		Dimension dlogin = view.getPreferredSize();
@@ -252,50 +216,6 @@ class SplashScreenManager
 		viewTop.addWindowFocusListener(this);
 		isOpen = false;
 		doneTasks = 0;
-	}
-
-	/** 
-	 * Updates the {@link ScreenLogin}. 
-	 * 
-	 * @param failureIndex The index of the failure. One of the constants 
-	 * 					   defined by the <code>LoginService</code>
-	 */
-    void nofityLoginFailure(int failureIndex)
-    { 
-    	//Need to do it that way to keep focus on login dialog
-    	String text = "";
-    	switch (failureIndex) {
-			case LoginService.DNS_INDEX:
-				text = "the server address\n";
-				break;
-			case LoginService.CONNECTION_INDEX:
-				text = "the port\n";
-				break;
-			case LoginService.PERMISSION_INDEX:
-				default:
-				text = "your user name\nand/or password ";
-		}
-    	NotificationDialog dialog = new NotificationDialog(
-                view, "Login Failure", "Failed to log onto OMERO.\n" +
-                "Please check "+text+"or try again later.", 
-                IconManager.getDefaultErrorIcon());
-		dialog.pack();  
-		UIUtilities.centerAndShow(dialog);
-    	updateView();
-	}
-    
-	/** Updates the {@link ScreenLogin}. */
-    void notifyLoginTimeout()
-    { 
-    	//Need to do it that way to keep focus on login dialog
-    	NotificationDialog dialog = new NotificationDialog(
-                view, "Login Failure", "Failed to log onto OMERO.\n" +
-                "The server entered is not responding.\n"+
-                "Please check the server address or try again later.", 
-                IconManager.getDefaultErrorIcon());
-		dialog.pack();  
-		UIUtilities.centerAndShow(dialog);
-    	updateView();
 	}
     
 	/**
@@ -379,9 +299,7 @@ class SplashScreenManager
     {
         userCredentials = future;
         if (view != null) view.setControlsEnabled(true);
-       
         if (!init) {
-            //view.setCursor(Cursor.getDefaultCursor());
         	if (view != null) view.cleanField(ScreenLogin.PASSWORD_FIELD);
             updateView();
         }
@@ -428,7 +346,9 @@ class SplashScreenManager
 	{
 		Object src = e.getSource();
 		int state = e.getNewState();
-		if (src instanceof ScreenLogo) setWindowState(view, state);
+		if (src instanceof ScreenLogo) {
+			//setWindowState(view, state);
+		}
 		else if (src instanceof ScreenLogin) setWindowState(viewTop, state);
 		if (view != null) view.setAlwaysOnTop(state == JFrame.NORMAL);
 		viewTop.setAlwaysOnTop(state == JFrame.NORMAL);

@@ -354,9 +354,12 @@ class EditorComponent
 	 */
 	public void saveFileServer(String fileName) 
 	{
-		model.setFileAnnotationData(null);
-		model.fireFileSaving(new File(fileName));
-		fireStateChange();
+		//Need to check if already log in.
+		if (EditorAgent.getRegistry().getTaskBar().login()) {
+			model.setFileAnnotationData(null);
+			model.fireFileSaving(new File(fileName));
+			fireStateChange();
+		}
 	}
 
 	/** 

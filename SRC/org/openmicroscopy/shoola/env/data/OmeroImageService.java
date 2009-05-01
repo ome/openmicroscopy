@@ -427,7 +427,7 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public FileAnnotationData createMovie(long imageID, List<Integer> channels,
+	public DataObject createMovie(long imageID, List<Integer> channels,
 			MovieExportParam param)
 		throws DSOutOfServiceException, DSAccessException;
 	

@@ -223,40 +223,4 @@ class SplashScreenProxy
 		return (UserCredentials) future.get(); 
 	}
 	
-	/**
-	 * Implemented as specified by {@link SplashScreen}.
-	 * @see SplashScreen#notifyLoginFailure(int)
-	 */
-	public void notifyLoginFailure(int failureIndex)
-	{
-		if (!isValid) return;  //Somebody's already called close().
-		final int index = failureIndex;
-
-		//Construct request of method execution.
-		Runnable doUpdate = new Runnable() {
-			public void run() { servant.nofityLoginFailure(index); }
-		};
-
-		//Schedule execution within Swing dispatching thread.
-		SwingUtilities.invokeLater(doUpdate);
-	}
-	
-	/**
-	 * Implemented as specified by {@link SplashScreen}.
-	 * @see SplashScreen#notifyLoginTimeout()
-	 */
-	public void notifyLoginTimeout()
-	{
-		if (!isValid) return;  //Somebody's already called close().
-		
-
-		//Construct request of method execution.
-		Runnable doUpdate = new Runnable() {
-			public void run() { servant.notifyLoginTimeout(); }
-		};
-
-		//Schedule execution within Swing dispatching thread.
-		SwingUtilities.invokeLater(doUpdate);
-	}
-	
 }

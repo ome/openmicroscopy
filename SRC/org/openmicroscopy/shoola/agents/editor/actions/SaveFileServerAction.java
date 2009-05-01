@@ -28,7 +28,6 @@ import java.awt.event.ActionEvent;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 
@@ -65,8 +64,8 @@ public class SaveFileServerAction
 		setEnabled(state == Editor.READY);
 		
 		// if server not available, disable
-		boolean serverAvailable = EditorAgent.isServerAvailable();
-		if (!serverAvailable) setEnabled(false);
+		//boolean serverAvailable = EditorAgent.isServerAvailable();
+		//if (!serverAvailable) setEnabled(false);
 	}
 	
 	/** 

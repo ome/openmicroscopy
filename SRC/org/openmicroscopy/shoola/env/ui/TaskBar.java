@@ -189,5 +189,13 @@ public interface TaskBar
      * @return See above.
      */
     public JMenuItem getCopyMenuItem(int index);
+    
+    /**
+     * Returns <code>true</code> if already connected,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean login();
 
 }

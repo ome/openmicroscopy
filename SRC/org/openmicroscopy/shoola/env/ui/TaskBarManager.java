@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -36,16 +37,23 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Map;
+import javax.swing.Icon;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 //Third-party libraries
+
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
+import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
@@ -53,20 +61,21 @@ import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.SaveEventResponse;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
+import org.openmicroscopy.shoola.env.data.login.LoginService;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.BrowserLauncher;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.openmicroscopy.shoola.util.ui.login.ScreenLoginDialog;
 
 /** 
  * Creates and manages the {@link TaskBarView}.
@@ -103,9 +112,12 @@ public class TaskBarManager
 	/** The software update dialog. */
 	private SoftwareUpdateDialog	suDialog;
 	
-	/** The login dialog. */
-	private ScreenLogin				login;
-	
+    /** Login dialog. */
+    private ScreenLoginDialog 		login;
+    
+    /** Flag indicating if the connection was successful or not. */
+    private boolean					success;
+    
 	private Map<Agent, Integer> 	exitResponses;
 	
 	/** 
@@ -510,6 +522,43 @@ public class TaskBarManager
      }
 
 	/**
+     * Collects the user credentials.
+     * 
+     * @param lc The value collected.
+     */
+    private void collectCredentials(LoginCredentials lc)
+    {
+    	UserCredentials uc = new UserCredentials(lc.getUserName(), 
+				lc.getPassword(), lc.getHostName(), lc.getSpeedLevel());
+		uc.setPort(lc.getPort());
+		LoginService svc = (LoginService) 
+			container.getRegistry().lookup(LookupNames.LOGIN);
+		switch (svc.login(uc)) {
+			case LoginService.CONNECTED:
+				//needed b/c need to retrieve user's details later.
+	            container.getRegistry().bind(LookupNames.USER_CREDENTIALS, uc);
+	            login.close();
+	            success = true;
+	            break;
+			case LoginService.TIMEOUT:
+				success = false;
+				svc.notifyLoginTimeout();
+				if (login != null) {
+					login.cleanField(ScreenLogin.PASSWORD_FIELD);
+					login.requestFocusOnField();
+				}
+				break;
+			case LoginService.NOT_CONNECTED:
+				success = false;
+				svc.notifyLoginFailure();
+				if (login != null) {
+					login.cleanField(ScreenLogin.PASSWORD_FIELD);
+					login.requestFocusOnField();
+				}
+		}
+    }
+    
+	/**
 	 * Creates this controller along with its view and registers the necessary
 	 * listeners with the view.
 	 *  
@@ -541,6 +590,55 @@ public class TaskBarManager
 	}
 	
 	/**
+	 * Returns <code>true</code> if already connected,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+	 */
+	boolean login()
+	{
+		try {
+			DataServicesFactory factory = 
+				DataServicesFactory.getInstance(container);
+			if (factory.isConnected()) return true;
+			if (login == null) {
+				Image img = IconManager.getOMEImageIcon();
+		    	Object version = container.getRegistry().lookup(
+		    			LookupNames.VERSION);
+		    	String v = "";
+		    	if (version != null && version instanceof String)
+		    		v = (String) version;
+		    	OMEROInfo omeroInfo = 
+		    		(OMEROInfo) container.getRegistry().lookup(
+		    				LookupNames.OMERODS);
+		        
+		    	String port = ""+omeroInfo.getPort();
+		    	String f = container.resolveConfigFile(null);
+
+				String n = (String) container.getRegistry().lookup(
+						LookupNames.SPLASH_SCREEN_LOGIN);
+				
+				Icon splashLogin = Factory.createIcon(n, f);
+				if (splashLogin == null)
+					splashLogin = IconManager.getLoginBackground();
+		    	
+		    	
+		    	login = new ScreenLoginDialog(Container.TITLE, splashLogin, 
+		    			img, v, port);
+		    	//login.setModal(true);
+				login.showConnectionSpeed(true);
+				login.addPropertyChangeListener(this);
+	    	}
+			
+			UIUtilities.centerAndShow(login);
+    		return success;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return success;
+	}
+	
+	/**
 	 * Intercepts {@link ServiceActivationResponse} events in order to keep
 	 * the connection-related buttons in synch with the actual state of the
 	 * connection.
@@ -549,10 +647,6 @@ public class TaskBarManager
 	public void eventFired(AgentEvent e) 
 	{
 		if (e instanceof ServiceActivationResponse)	{
-			//login Screen.
-			
-			
-			
 			synchConnectionButtons();
 		} else if (e instanceof ExitApplication) 
         	doExit(((ExitApplication) e).isAskQuestion());
@@ -579,10 +673,13 @@ public class TaskBarManager
 			else doExit(true);
 		} else if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
 			LoginCredentials lc = (LoginCredentials) evt.getNewValue();
-			//if (userCredentials != null  && lc != null) login(lc);
+			if (lc != null) {
+				collectCredentials(lc);
+			}
 		} else if (ScreenLogin.QUIT_PROPERTY.equals(name)) {
-		     login.close();
-		} 
+			login.close();
+			success = false;
+		}
 	}
 
 }
