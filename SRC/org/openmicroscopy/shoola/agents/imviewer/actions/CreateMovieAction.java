@@ -102,8 +102,10 @@ public class CreateMovieAction
     	String name = EditorUtil.getPartialName(model.getImageName());
     	MovieExportDialog dialog = new MovieExportDialog(model.getUI(), name, 
     			maxT, maxZ);
-    	if (dialog.showDialog() == MovieExportDialog.SAVE)
+    	if (dialog.showDialog() == MovieExportDialog.SAVE) {
+    		setEnabled(false);
     		model.createMovie(dialog.getParameters());
+    	}
     }
 
 }

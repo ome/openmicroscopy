@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /** 
@@ -984,5 +986,13 @@ public interface ImViewer
 	 * @param parameters The parameters used to create a movie.
 	 */
 	public void createMovie(MovieExportParam parameters);
+
+	/**
+	 * Uploads the movie.
+	 * 
+	 * @param data 	 The annotation hosting the movie.
+	 * @param folder The location where to save the movie.
+	 */
+	public void uploadMovie(FileAnnotationData data, File folder);
 	
 }

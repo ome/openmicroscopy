@@ -31,6 +31,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -84,6 +85,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /** 
@@ -2673,6 +2675,19 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED) return;
 		if (parameters == null) return;
 		model.createMovie(parameters);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#uploadMovie(FileAnnotationData, File)
+	 */
+	public void uploadMovie(FileAnnotationData data, File folder)
+	{
+		if (data == null) return;
+		if (folder == null) folder = UIUtilities.getDefaultFolder();
+		controller.getAction(ImViewerControl.CREATE_MOVIE).setEnabled(true);
+		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+		un.notifyDownload(data, folder);
 	}
 
 }

@@ -34,9 +34,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
@@ -133,10 +131,7 @@ public class MovieCreator
 					String name = evt.getPropertyName();
 					if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 						File folder = (File) evt.getNewValue();
-						if (folder == null)
-							folder = UIUtilities.getDefaultFolder();
-						UserNotifier un = registry.getUserNotifier();
-						un.notifyDownload(data, folder);
+						viewer.uploadMovie(data, folder);
 					}
 				}
 			});
