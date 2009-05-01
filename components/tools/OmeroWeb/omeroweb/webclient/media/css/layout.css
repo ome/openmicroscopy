@@ -3,16 +3,28 @@ html {
 }
 
 body {
-    background-color: #fff;
+    background-color: #eee;
     font-size: 13px;
     font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
     color: #555;
+    margin: 0;
+    padding: 0;
+    
+}
+#body {
     margin: 0 auto;
     padding: 0 10px;
-    width: 1000px;
+    width: 988px;
+}
+#bodyWrapper {
+    width: 100%;
+    background: url(/webclient/static/images/background.png) repeat-x top left ;
+    background-color: #fff;
+    padding-bottom: 50px;
 }
 body.zoom {
     width: 100%;
+    background: no-repeat;
 }
 
 .error {
@@ -100,10 +112,9 @@ li.breadcrumb, ol.breadcrumb {
     clear: both;
     font-size: 11px;
     text-align: center;
-    background-color: #eee;
-    margin-top: 50px;
-    height: 100px;
+    height: 50px;
     border-top: 1px solid #bbb;
+    padding: 10px;
 }
 
 img {

@@ -1,16 +1,17 @@
 #left_panel {
-    margin-right: 10px; 
-    width: 520px;
+    width: 500px;
     min-height: 600px;
     float: left;
-    border-right:1px solid #BBBBBB;
+    padding: 0 10px;
 }
 
 #right_panel {
     margin:0; 
-    width: 460px;
+    width: 440px;
     min-height: 600px;
     float: right;
+    border-left:1px solid #BBBBBB;
+    padding: 0 10px;
 }
 .loadData {
     font-size: 12px;

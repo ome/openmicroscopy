@@ -162,7 +162,10 @@ if not os.path.isdir(LOGDIR):
 try:
     import custom_settings
 except ImportError:
-    sys.stderr.write("Error: Can't find the file 'custom_settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run 'bin/omero web config', passing it your settings module.\n(If the file custom_settings.py does indeed exist, it's causing an ImportError somehow.)\n" % __file__)
+    sys.stderr.write("Error: Can't find the file 'custom_settings.py' in the directory containing %r." \
+        "It appears you've customized things.\nYou'll have to run 'bin/omero web [settings|superuser|syncdb]', " \
+        "passing it your settings module.\n(If the file custom_settings.py does indeed exist, " \
+        "it's causing an ImportError somehow.)\n" % __file__)
     sys.exit(1)
 
 # ADMIN notification

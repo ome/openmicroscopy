@@ -184,8 +184,8 @@ class TagFilterForm(forms.Form):
         self.fields.keyOrder = ['tag', 'tag2', 'tag3', 'tag4', 'tag5']
 
 class TagAnnotationForm(forms.Form):
-    tag = forms.CharField(widget=forms.TextInput(attrs={'size':45}))
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 7, 'cols': 42}), required=False)
+    tag = forms.CharField(widget=forms.TextInput(attrs={'size':55}))
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 7, 'cols': 52}), required=False)
 
 class TagListForm(forms.Form):
     

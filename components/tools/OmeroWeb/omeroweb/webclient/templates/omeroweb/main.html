@@ -23,6 +23,8 @@
 
 </head>
 <body id="{{ nav.menu }}">
+<div id="bodyWrapper">
+<div id="body">
     <div id="header">
         <div id="logo"> </div>
         <div id="menu"><ul id="navigation">
@@ -43,7 +45,23 @@
     <div id="center">{% block center %}{% endblock %}</div>
     <div class="clear"> </div>
     <!--<div id="advice">{% block advice %}{% endblock %}</div>-->
-    <div id="footer"><p>&copy;2009 University of Dundee & Open Microscopy Environment</p></div>
-
+</div>
+</div>
+<div id="footer">
+    <div>
+        <a href="{% get_webclient_root_url %}/" title="Home">{% trans "Home" %}</a> | 
+        <a href="{% get_webclient_root_url %}/mydata/?view=table" title="My Data">{% trans "My Data" %}</a> | 
+        <a href="{% get_webclient_root_url %}/userdata/?view=table" title="Collaboration">{% trans "Team" %}</a> | 
+        <a href="{% get_webclient_root_url %}/share/?view=table" title="Share">{% trans "Share" %}</a> | 
+        <a href="{% get_webclient_root_url %}/history/calendar/{% get_calendar_url %}" title="History">{% trans "History" %}</a> | 
+        <a href="{% get_webclient_root_url %}/search/?view=table" title="Search">{% trans "Search" %}</a> | 
+        <a href="{% get_webclient_root_url %}/impexp/image/" title="Import">{% trans "Import" %}</a> | 
+        <a href="{% get_webclient_root_url %}/myaccount/details/" title="Person">{% trans "Person" %}</a> | 
+        <a href="{% get_webclient_root_url %}/help/index/" title="Help">{% trans "Help" %}</a> | 
+        <a href="mailto:" title="Contact">{% trans "Contact" %}</a>        
+    </div>
+    <p>&copy;2009 University of Dundee & Open Microscopy Environment</p>
+    <div class="separate70"></div>
+</div>
 </body>
 </html>

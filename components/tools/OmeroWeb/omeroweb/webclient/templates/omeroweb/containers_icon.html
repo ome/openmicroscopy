@@ -123,7 +123,8 @@
         {% if manager.dataset.isOwned %}<!--| <a href="#" onclick="toBasket('dataset', '{{ manager.dataset.id }}'); return false;">{% trans "Select" %} <img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a>--> 
         | <a href="#" onclick="copyToClipboard('dataset', '{{ manager.dataset.id }}'); return false;">{% trans "Copy" %} <img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
         | <a href="#" onclick="pasteFromClipboard('dataset', '{{ manager.dataset.id }}', '{{ url }}'); return false;">{% trans "Paste" %} <img src="{% get_webclient_static_url %}/images/eclipse_paste_edit16.png" alt="p" title="paste"/></a> 
-        | <a href="{% get_webclient_root_url %}/action/edit/dataset/{{ manager.dataset.id }}/?url={{url}}">{% trans "Edit" %} <img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a> | {% endif %}
+        | <a href="{% get_webclient_root_url %}/action/edit/dataset/{{ manager.dataset.id }}/?url={{url}}">{% trans "Edit" %} <img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a> {% endif %}
+        | <a href="#annotation_form">{% trans "Annotate" %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotate"/></a> |
     </div>
     
     <div class="clear"></div>
@@ -134,8 +135,8 @@
     {% if manager.project %}
         <div class="toolbar">
             {% if manager.project.isOwned %}| <a href="#" onclick="pasteFromClipboard('project', '{{ manager.project.id }}', '{{ url }}'); return false;">{% trans "Paste" %} <img src="{% get_webclient_static_url %}/images/eclipse_paste_edit16.png" alt="p" title="paste"/></a> 
-            | <a href="{% get_webclient_root_url %}/action/edit/project/{{ manager.project.id }}/?url={{url}}">{% trans "Edit" %} <img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a> |
-            {% endif %}
+            | <a href="{% get_webclient_root_url %}/action/edit/project/{{ manager.project.id }}/?url={{url}}">{% trans "Edit" %} <img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a> {% endif %}
+            | <a href="#annotation_form">{% trans "Annotate" %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotate"/></a> |
         </div>
         
         <div class="clear"></div>
@@ -189,7 +190,7 @@
         {% if manager.project and manager.project.isOwned %}
             {% trans "New" %} <a href="{% get_webclient_root_url %}/action/new/project/{{ manager.project.id }}/?url={{url}}"><img src="{% get_webclient_static_url %}/images/window_new16.jpg" alt="new" title="new" /></a> | 
         {% else %}
-            {% if manager.project.isOwned %}{% trans "New" %} <a href="{% get_webclient_root_url %}/action/new/?url={{url}}"><img src="{% get_webclient_static_url %}/images/window_new16.jpg" alt="new" title="new" /></a> | {% endif %}
+            {% trans "New" %} <a href="{% get_webclient_root_url %}/action/new/?url={{url}}"><img src="{% get_webclient_static_url %}/images/window_new16.jpg" alt="new" title="new" /></a> | 
         {% endif %}
     {% endif %}
 {% endif %}

@@ -1911,12 +1911,12 @@ class OmeroWebObjectWrapper (object):
         try:
             name = self._obj.name.val
             l = len(name)
-            if l <= 65:
+            if l <= 60:
                 return name
-            elif l > 65:
+            elif l > 60:
                 splited = []
-                for v in range(0,len(name),65):
-                    splited.append(name[v:v+65]+"\n")
+                for v in range(0,len(name),60):
+                    splited.append(name[v:v+60]+"\n")
                 return "".join(splited)
         except:
             logger.info(traceback.format_exc())

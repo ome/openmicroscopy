@@ -83,18 +83,18 @@ div#view, div#view2  {
 }
 
 .project {
-    width: 720px;
+    width: 610px;
     float:left;
 }
 .dataset {
-    width: 720px;
+    width: 610px;
     float:left;
 }
 .tag {
     width: 100%;
 }
 .image {
-    width: 720px;
+    width: 610px;
     float:left;
 }
 .toolbar {

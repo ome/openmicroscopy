@@ -1,11 +1,20 @@
-body.share {
-    width: 800px;
+#shareBodyWrapper {
+    width: 100%;
+    background-color: #fff;
+    padding-bottom: 50px;
+}
+#share {
+    padding-bottom: 50px;
+    width: 750px;
     margin: 0 auto;
 }
-
-#cart {
-    
+#share_menu {
+    margin: 0;
+    padding: 0 10px;
+    border-bottom:1px solid #BBBBBB;
 }
+
+
 .project {
     float:left;
     max-width: 1000px;
@@ -27,13 +36,6 @@ body.share {
     padding: 10px;
     float:left;
     width: 800px;
-}
-
-
-#shared_menu {
-    margin: 0;
-    padding: 0 10px;
-    border-bottom:1px solid #BBBBBB;
 }
 
 /* comment display page */

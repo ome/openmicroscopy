@@ -13,12 +13,12 @@
         
         <div id="comments_tab">
             <p>{% trans "Create a new comment or choose one or more of the listed below." %}<br/>
-            <small>{% trans "If you would like to include an OMERO image or container in the below field, simply get the id of the item from the URL and type" %}: <b>[image:157], </b><b>[dataset:64], </b><b>[project:76].</b></small></p>
+            <!--<small>{% trans "If you would like to include an OMERO image or container in the below field, simply get the id of the item from the URL and type" %}: <b>[image:157], </b><b>[dataset:64], </b><b>[project:76].</b></small></p>-->
             
             {% if form_comment %}
             <div class="comment">
                 <h1>{% trans "Add new comment" %}:</h1>
-                <form action="" method="post"><input type="hidden" name="action" value="comment" />
+                <form action="#comments_tab" method="post"><input type="hidden" name="action" value="comment" />
                 <table>
                     {% for field in form_comment %}
                         <tr>
@@ -40,7 +40,7 @@
             
             <div class="excomment">
                 <h1>{% trans "Use existing comment" %}:</h1>
-                <form action="" method="post"><input type="hidden" name="action" value="usecomment" />
+                <form action="#comments_tab" method="post"><input type="hidden" name="action" value="usecomment" />
                 <table>
                 {% for field in form_comments %}
                     <tr>
@@ -61,7 +61,7 @@
             
             <div class="extags">
                 <h1>{% trans "Use existing tag" %}:</h1>
-                <form action="" method="post"><input type="hidden" name="action" value="usetag" />
+                <form action="#tags_tab" method="post"><input type="hidden" name="action" value="usetag" />
                 <table>
                 {% for field in form_tags %}
                     <tr>
@@ -79,7 +79,7 @@
             {% if form_tag %}
             <div class="tags">
                 <h1>{% trans "Add new tag" %}:</h1>
-                <form action="" method="post"><input type="hidden" name="action" value="tag" />
+                <form action="#tags_tab" method="post"><input type="hidden" name="action" value="tag" />
                 <table>
                     {% for field in form_tag %}
                         <tr>
@@ -102,7 +102,7 @@
             {% if form_uri %}
             <div class="urls">
                 <h1>{% trans "Add new url" %}:</h1>
-                <form action="" method="post"><input type="hidden" name="action" value="url" />
+                <form action="#urls_tab" method="post"><input type="hidden" name="action" value="url" />
                 <table>
                     {% for field in form_uri %}
                         <tr>
@@ -121,7 +121,7 @@
             <div class="exurls">
                 <h1>{% trans "Use existing URL" %}:</h1>
                 <p>{% trans "To add existing url please select one or more of the listed urls." %}</p>
-                <form action="" method="post"><input type="hidden" name="action" value="useurl" />
+                <form action="#urls_tab" method="post"><input type="hidden" name="action" value="useurl" />
                 <table>
                 {% for field in form_urls %}
                     <tr>
@@ -142,7 +142,7 @@
             
             <div class="exfile">
                 <h1>{% trans "Attache existing file" %}:</h1>
-                <form action="" method="post"><input type="hidden" name="action" value="usefile" />
+                <form action="#files_tab" method="post"><input type="hidden" name="action" value="usefile" />
                 <table>
                 {% for field in form_files %}
                     <tr>
@@ -160,7 +160,7 @@
             {% if form_file %}
             <div class="file">
                 <h1>{% trans "Upload a new file" %}:</h1>
-                <form enctype="multipart/form-data" method="post"><input type="hidden" name="action" value="file" />
+                <form action="#files_tab" enctype="multipart/form-data" method="post"><input type="hidden" name="action" value="file" />
                 <table>
                 {% for field in form_file %}
                     <tr>

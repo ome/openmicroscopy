@@ -23,13 +23,30 @@
     {% block script %}{% endblock %}
 
 </head>
-<body class="share">
-    <div id="shared_menu">
+<body>
+<div id="shareBodyWrapper">
+<div id="share">
+    <div id="share_menu">
         <h1>{% trans "Go back to" %} <a href="{% get_webclient_root_url %}/share/">{% trans "Webclient" %}</a>{% if share.share.isOwned %} {% trans "or Edit" %} <a href="{% get_webclient_root_url %}/share/edit/{{ share.share.id }}/"><img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}</h1>
     </div>
     <div id="content">{% block center %}{% endblock %}</div>
-    
-    <div id="footer"><p>&copy;2009 University of Dundee & Open Microscopy Environment</p></div>
-
+</div>
+</div>
+<div id="footer">
+    <div>
+        <a href="{% get_webclient_root_url %}/" title="Home">{% trans "Home" %}</a> | 
+        <a href="{% get_webclient_root_url %}/mydata/?view=table" title="My Data">{% trans "My Data" %}</a> | 
+        <a href="{% get_webclient_root_url %}/userdata/?view=table" title="Collaboration">{% trans "Team" %}</a> | 
+        <a href="{% get_webclient_root_url %}/share/?view=table" title="Share">{% trans "Share" %}</a> | 
+        <a href="{% get_webclient_root_url %}/history/calendar/{% get_calendar_url %}" title="History">{% trans "History" %}</a> | 
+        <a href="{% get_webclient_root_url %}/search/?view=table" title="Search">{% trans "Search" %}</a> | 
+        <a href="{% get_webclient_root_url %}/impexp/image/" title="Import">{% trans "Import" %}</a> | 
+        <a href="{% get_webclient_root_url %}/myaccount/details/" title="Person">{% trans "Person" %}</a> | 
+        <a href="{% get_webclient_root_url %}/help/index/" title="Help">{% trans "Help" %}</a> | 
+        <a href="mailto:" title="Contact">{% trans "Contact" %}</a>        
+    </div>
+    <p>&copy;2009 University of Dundee & Open Microscopy Environment</p>
+    <div class="separate70"></div>
+</div>
 </body>
 </html>
