@@ -897,8 +897,6 @@ class ImViewerComponent
 			colorModel = model.getColorModel();
 			view.buildComponents();
 			view.setOnScreen();
-			view.toFront();
-			view.requestFocusInWindow();
 			if (ImViewerAgent.isFastConnection())
 				model.firePlaneInfoRetrieval();
 			

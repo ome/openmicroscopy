@@ -2211,6 +2211,8 @@ class ImViewerUI
 			packWindow();
 			UIUtilities.incrementRelativeToAndShow(null, this);
 		}
+		toFront();
+		requestFocusInWindow();
 	}
 
 }

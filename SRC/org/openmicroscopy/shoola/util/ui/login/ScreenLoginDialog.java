@@ -143,14 +143,22 @@ public class ScreenLoginDialog
 	 * 					{@link ScreenLogin#PASSWORD_FIELD}.
 	 * @see ScreenLogin#cleanField(int)
 	 */
-	public void cleanField(int fieldID) { view.cleanField(fieldID); }
+	public void cleanField(int fieldID)
+	{ 
+		view.cleanField(fieldID); 
+		setCursor(view.getCursor());
+	}
 
 	/**
 	 * Forwards the call to the <code>ScreenLogin</code>.
 	 * 
 	 * @see ScreenLogin#requestFocusOnField()
 	 */
-	public void requestFocusOnField() { view.requestFocusOnField(); }
+	public void requestFocusOnField()
+	{ 
+		view.requestFocusOnField(); 
+		setCursor(view.getCursor());
+	}
 
 	/**
 	 * Forwards the call to the <code>ScreenLogin</code>.
@@ -169,8 +177,10 @@ public class ScreenLoginDialog
 	 */
 	public void propertyChange(PropertyChangeEvent evt)
 	{
-		firePropertyChange(evt.getPropertyName(), evt.getOldValue(), 
-				evt.getNewValue());
+		String name = evt.getPropertyName();
+		if (ScreenLogin.LOGIN_PROPERTY.equals(name))
+			setCursor(view.getCursor());
+		firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 	}
 
 }

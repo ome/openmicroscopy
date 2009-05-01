@@ -208,13 +208,10 @@ public class ServerEditor
 				editing = false;
 				addRow();
 			}
-				
 			return;
 		}
 		addButton.setEnabled(false);
 		DefaultTableModel model= ((DefaultTableModel) table.getModel());
-		//First check if we already have
-		//finishButton.setEnabled(true);
 		int m = model.getRowCount();
 		Object[] newRow = new Object[3];
 		newRow[0] = icons.getIcon(IconManager.SERVER_22);
