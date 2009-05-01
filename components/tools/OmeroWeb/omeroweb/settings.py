@@ -60,7 +60,7 @@ MANAGERS = ADMINS
 # although not all variations may be possible on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'CET'
+TIME_ZONE = 'Europe/London'
 FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 
 # Language code for this installation. All choices can be found here:
