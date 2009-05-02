@@ -657,8 +657,13 @@ class ControlPane
         p.add(Box.createRigidArea(VBOX));
         channelButtons = createChannelButtons();
         Iterator<ChannelButton> i = channelButtons.iterator();
+        Dimension d;
+        int w = 0, h = 0;
         while (i.hasNext()) {
 			button = i.next();
+			d = button.getPreferredSize();
+			if (d.width > w) w = d.width;
+        	if (d.height > h) h = d.height;
 			button.addPropertyChangeListener(controller);
 			p.add(button);
             p.add(Box.createRigidArea(VBOX));
@@ -674,9 +679,12 @@ class ControlPane
         int k = 1;
         controls.add(buildToolBar(), "0, "+k+", c, c");
         k++;
-        if (channelButtons.size() > ImViewer.MAX_CHANNELS) 
-        	controls.add(new JScrollPane(p), "0, "+k);
-        else controls.add(p, "0, "+k);
+        if (channelButtons.size() > ImViewer.MAX_CHANNELS) {
+        	JScrollPane sp = new JScrollPane(p);
+        	d = new Dimension(2*w, h*ImViewer.MAX_CHANNELS);
+        	sp.setPreferredSize(d);
+        	controls.add(sp, "0, "+k+", r, c");
+        } else controls.add(p, "0, "+k);
         k++;
         controls.add(ratioSlider, "0, "+k+", c, c");
         return UIUtilities.buildComponentPanel(controls);
@@ -798,8 +806,13 @@ class ControlPane
         buttons.add(Box.createRigidArea(VBOX));
         channelButtonsGrid = createChannelButtons();
         Iterator<ChannelButton> i = channelButtonsGrid.iterator();
+        Dimension d;
+        int w = 0, h = 0;
         while (i.hasNext()) {
         	button = i.next();
+        	d = button.getPreferredSize();
+        	if (d.width > w) w = d.width;
+        	if (d.height > h) h = d.height;
         	buttons.add(button);
             buttons.add(Box.createRigidArea(VBOX));
             button.addPropertyChangeListener(controller);
@@ -816,9 +829,12 @@ class ControlPane
         bar.add(Box.createRigidArea(VBOX));
         controls.add(bar, "0, 1, c, c");
         controls.add(buildGridBar(textVisibleButton), "0, 2, c, c");
-        if (channelButtonsGrid.size() > ImViewer.MAX_CHANNELS) 
-        	controls.add(new JScrollPane(buttons), "0, 3");
-        else controls.add(buttons, "0, 3");
+        if (channelButtonsGrid.size() > ImViewer.MAX_CHANNELS) {
+        	JScrollPane sp = new JScrollPane(buttons);
+        	d = new Dimension(2*w, h*ImViewer.MAX_CHANNELS);
+        	sp.setPreferredSize(d);
+        	controls.add(sp, "0, 3, r, c");
+        } else controls.add(buttons, "0, 3");
         controls.add(gridRatioSlider, "0, 4, c, c");
         
         JPanel content = new JPanel();
@@ -863,12 +879,16 @@ class ControlPane
         buttons.add(Box.createRigidArea(VBOX));
         channelButtonsProjection = createChannelButtons();
         Iterator<ChannelButton> i = channelButtonsProjection.iterator();
+        int w = 0, h = 0;
+        Dimension d;
         while (i.hasNext()) {
         	button = i.next();
+        	d = button.getPreferredSize();
+        	if (d.width > w) w = d.width;
+        	if (d.height > h) h = d.height;
         	buttons.add(button);
             buttons.add(Box.createRigidArea(VBOX));
             button.addPropertyChangeListener(controller);
-            
 		}
         JPanel controls = new JPanel();
         double size[][] = {{TableLayout.PREFERRED}, 
@@ -880,9 +900,12 @@ class ControlPane
         int k = 1;
         controls.add(buildProjectionBar(), "0, "+k+", c, c");
         k++;
-        if (channelButtonsProjection.size() > ImViewer.MAX_CHANNELS) 
-        	controls.add(new JScrollPane(buttons), "0, "+k+", c, c");
-        else controls.add(buttons, "0, "+k+", c, c");
+        if (channelButtonsProjection.size() > ImViewer.MAX_CHANNELS) {
+        	JScrollPane sp = new JScrollPane(buttons);
+        	d = new Dimension(2*w, h*ImViewer.MAX_CHANNELS);
+        	sp.setPreferredSize(d);
+        	controls.add(sp, "0, "+k+", r, c");
+        } else controls.add(buttons, "0, "+k+", c, c");
         k++;
         controls.add(projectionRatioSlider, "0, "+k+", c, c");
         
