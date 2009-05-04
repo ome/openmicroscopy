@@ -39,12 +39,15 @@ import traceback
 import time
 import array
 
-import Image, ImageDraw, ImageFont
+logger = logging.getLogger('blitz_gateway')
+
+try:
+    import Image, ImageDraw, ImageFont
+except:
+    logger.error('No PIL installed, line plots and split channel will fail!')
 from cStringIO import StringIO
 from math import sqrt
 from omero.rtypes import rstring, rint, rlong, rbool, rtime
-
-logger = logging.getLogger('blitz_gateway')
 
 # TODO: what is this for?
 SLEEPTIME = 30
