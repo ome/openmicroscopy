@@ -23,7 +23,7 @@
 # Set up the python include paths
 import logging
 import os,sys
-#p = os.path.dirname(os.path.abspath(__file__))
+THISPATH = os.path.dirname(os.path.abspath(__file__))
 #sys.path.append(os.path.join(p,'icepy'))
 #sys.path.append(os.path.join(p,'lib'))
 
@@ -108,7 +108,7 @@ class _BlitzGateway (object):
     ICE_CONFIG = None#os.path.join(p,'etc/ice.config')
 #    def __init__ (self, username, passwd, server, port, client_obj=None, group=None, clone=False):
     
-    def __init__ (self, username, passwd, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=[]):
+    def __init__ (self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=[]):
         """
         TODO: Constructor
         
@@ -157,6 +157,8 @@ class _BlitzGateway (object):
         self._userid = None
         self._proxies = NoProxies()
 
+    def getProperty(self, k):
+        return self.c.getProperty(k)
 
     def clone (self):
         return self.__class__(self._ic_props[omero.constants.USERNAME],
@@ -290,7 +292,7 @@ class _BlitzGateway (object):
             self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
             self._proxies['types'] = ProxyObjectWrapper(self, 'getTypesService')
     #            self._proxies['update'] = ProxyObjectWrapper(self, 'getUpdateService')
-            self._proxies['config'] = self.c.sf.getConfigService()
+            self._proxies['config'] = ProxyObjectWrapper(self, 'getConfigService')
         self._ctx = self._proxies['admin'].getEventContext()
         self._userid = self._ctx.userId
         self._user = self.getExperimenter(self._userid)
@@ -327,6 +329,8 @@ class _BlitzGateway (object):
                 r = 1
                 while r:
                     r = self.c.sf.getSessionService().closeSession(s)
+            except Ice.ObjectNotExistException:
+                pass
             except omero.RemovedSessionException:
                 pass
             except ValueError:
@@ -2342,7 +2346,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         else: #pragma: no cover
             fsize = 0
         if fsize > 0:
-            font = ImageFont.load('pilfonts/B%0.2d.pil' % fsize) 
+            font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize) )
 
 
         for i in range(c):
