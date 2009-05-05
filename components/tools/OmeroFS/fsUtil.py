@@ -63,7 +63,11 @@ def monitorPackage():
             try:
                 # pyinotify versions have slightly different APIs
                 # so the version needs to be determined.
-                import pyinotify
+                try:
+                    from pyinotify import pyinotify
+                except:
+                    import pyinotify
+
                 try:
                     # 0.8.x has a __version__ attribute.
                     version = pyinotify.__version__.split('.')

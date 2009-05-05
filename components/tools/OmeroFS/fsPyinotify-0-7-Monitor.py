@@ -7,7 +7,10 @@ import logging
 import fsLogger
 log = logging.getLogger("fs."+__name__)
 
-import pyinotify
+try:
+    from pyinotify import pyinotify
+except:
+    import pyinotify
 
 import threading
 import sys, traceback
