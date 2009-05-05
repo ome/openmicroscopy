@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -95,6 +96,9 @@ public class ProjSavingDialog
 	/** Bound property indicating to project the image. */
 	public static final String 	PROJECTION_PROPERTY = "projection";
 	
+	/** Bound property indicating to load all the datasets. */
+	public static final String	LOAD_ALL_PROPERTY = "loadAll";
+	
 	/** The title of the dialog. */
 	private static final String	TITLE = "Projection";
 	
@@ -110,6 +114,9 @@ public class ProjSavingDialog
 	/** Action id to create a new folder. */
 	private static final int 	NEWFOLDER = 2;
 	
+	/** Action id to load all the available datasets. */
+	private static final int 	OTHER = 3;
+	
 	/** The text field hosting the name of the file. */
 	private JTextField 					nameField;
 
@@ -121,6 +128,9 @@ public class ProjSavingDialog
 	
 	/** Button to create a new dataset. */
 	private JButton		 				newFolderButton;
+	
+	/** Button to load the other containers. */
+	private JButton		 				otherButton;
 	
 	/** The component hosting the datasets containing the image. */
 	private JPanel						selectionPane;
@@ -145,6 +155,9 @@ public class ProjSavingDialog
 	
 	/** The selected projection algorithm. */
 	private int							algorithm;
+	
+	/** Used to sort the containers. */
+	private ViewerSorter 				sorter;
 	
 	/** Sets the properties of the dialog. */
 	private void setProperties()
@@ -204,6 +217,12 @@ public class ProjSavingDialog
 		selectionPane =  new JPanel();
 		selectionPane.setLayout(new BoxLayout(selectionPane, BoxLayout.Y_AXIS));
     	
+		otherButton = new JButton("All datasets");
+		otherButton.setToolTipText(UIUtilities.formatToolTipText(
+				"Load all the datasets available."));
+		otherButton.setActionCommand(""+OTHER);
+		otherButton.addActionListener(this);
+		
 		closeButton = new JButton("Cancel");
 		closeButton.setToolTipText(UIUtilities.formatToolTipText(
 				"Close the window."));
@@ -226,10 +245,8 @@ public class ProjSavingDialog
 		nameField.setText(s);
 		nameField.getDocument().addDocumentListener(this);
 		//Display datasets
-		selection = new HashMap<JCheckBox, DatasetData>();
+		selection = new LinkedHashMap<JCheckBox, DatasetData>();
 		if (datasets != null && datasets.size() > 0) {
-			
-			ViewerSorter sorter = new ViewerSorter();
 			List l = sorter.sort(datasets);
 			Iterator j = l.iterator();
 			JCheckBox box;
@@ -306,6 +323,21 @@ public class ProjSavingDialog
 	}
 	
 	/**
+	 * Builds the controls.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildControls()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(otherButton);
+		p.add(Box.createHorizontalStrut(5));
+		p.add(newFolderButton);
+		return p;
+	}
+	
+	/**
 	 * Builds the main component.
 	 * 
 	 * @return See above.
@@ -327,7 +359,7 @@ public class ProjSavingDialog
         content.add(new JLabel(), "0, 2, 1, 2");
         content.add(UIUtilities.setTextFont("Save in "), "0, 3, l, c");
         content.add(UIUtilities.setTextFont("datasets "), "0, 4, l, c");
-        content.add(UIUtilities.buildComponentPanel(newFolderButton), 
+        content.add(UIUtilities.buildComponentPanel(buildControls()), 
         		"0, 5, l, c");
     	content.add(new JScrollPane(selectionPane), "1, 3, 1, 6");
         if (selection != null) {
@@ -461,6 +493,7 @@ public class ProjSavingDialog
 	{
 		super(owner);
 		setProperties();
+		sorter = new ViewerSorter();
 	}
 	
 	/**
@@ -485,6 +518,39 @@ public class ProjSavingDialog
 		buildGUI();
 	}
 	
+	/** 
+	 * Sets the available datasets.
+	 * 
+	 * @param datasets The value to set.
+	 */
+	public void setContainers(Collection datasets)
+	{
+		if (datasets == null) return;
+		if (selection == null)
+			selection = new LinkedHashMap<JCheckBox, DatasetData>();
+		else selection.clear();
+		if (datasets != null && datasets.size() > 0) {
+			List l = sorter.sort(datasets);
+			Iterator j = l.iterator();
+			JCheckBox box;
+			DatasetData d;
+			int index = 0;
+			while (j.hasNext()) {
+				d = (DatasetData) j.next();
+				box = new JCheckBox(d.getName());
+				selection.put(box, d);
+				if (index == 0) box.setSelected(true);
+				index++;
+			}
+			selectionPane.removeAll();
+			Iterator i = selection.keySet().iterator();
+        	while (i.hasNext()) 
+        		selectionPane.add((JComponent) i.next());
+        	selectionPane.validate();
+        	selectionPane.repaint();
+		}
+	}
+	
 	/**
 	 * Closes or projects the image.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -498,6 +564,10 @@ public class ProjSavingDialog
 				break;
 			case CLOSE:
 				close();
+				break;
+			case OTHER:
+				firePropertyChange(LOAD_ALL_PROPERTY, Boolean.valueOf(false), 
+						Boolean.valueOf(true));
 				break;
 			case NEWFOLDER:
 				CreateFolderDialog d = new CreateFolderDialog(this, 

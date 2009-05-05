@@ -150,20 +150,25 @@ class ImViewerComponent
     /** The color model used. */
     private String							colorModel;
     
+    /** The projection dialog. */
+    private ProjSavingDialog 				projDialog;
+    
 	/** 
 	 * Brings up the dialog used to set the parameters required for the
 	 * projection.
 	 */
 	private void showProjectionDialog()
 	{
-		ProjSavingDialog dialog = new ProjSavingDialog(view);
-		dialog.initialize(view.getProjectionType(), model.getMaxT()+1, 
-				model.getPixelsType(), model.getImageName(), 
-				model.getContainers(), model.getMaxZ()+1, 
-				view.getProjectionStartZ()+1, view.getProjectionEndZ()+1);
-		dialog.addPropertyChangeListener(controller);
-		dialog.pack();
-		UIUtilities.centerAndShow(dialog);
+		if (projDialog == null) {
+			projDialog = new ProjSavingDialog(view);
+			projDialog.initialize(view.getProjectionType(), model.getMaxT()+1, 
+					model.getPixelsType(), model.getImageName(), 
+					model.getContainers(), model.getMaxZ()+1, 
+					view.getProjectionStartZ()+1, view.getProjectionEndZ()+1);
+			projDialog.addPropertyChangeListener(controller);
+			projDialog.pack();
+		}
+		UIUtilities.centerAndShow(projDialog);
 	}
 
 	/**
@@ -2419,14 +2424,17 @@ class ImViewerComponent
 	 */
 	public void setContainers(Collection containers)
 	{
+		/*
 		if (model.getState() != LOADING_PROJECTION_DATA)
 			throw new IllegalArgumentException("This method can only be " +
 					"invoked in the LOADING_PROJECTION_DATA state.");
+					*/
 		//Create a modal dialog.	
 		if (model.getTabbedIndex() != PROJECTION_INDEX) return;
 		model.setContainers(containers);
 		fireStateChange();
-		showProjectionDialog();
+		if (projDialog == null) showProjectionDialog();
+		else projDialog.setContainers(model.getContainers());
 	}
 	
 	/** 
@@ -2686,6 +2694,16 @@ class ImViewerComponent
 		controller.getAction(ImViewerControl.CREATE_MOVIE).setEnabled(true);
 		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 		un.notifyDownload(data, folder);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#loadAllContainers()
+	 */
+	public void loadAllContainers()
+	{
+		if (model.getState() == DISCARDED) return;
+		model.loadAllContainers();
 	}
 
 }

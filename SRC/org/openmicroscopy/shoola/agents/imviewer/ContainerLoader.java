@@ -67,6 +67,17 @@ public class ContainerLoader
 		super(model);
 		this.imageID = imageID;
 	}
+
+	/**
+     * Creates a new instance.
+     * 
+     * @param model   Reference to the model.
+     */
+	public ContainerLoader(ImViewer model)
+	{
+		super(model);
+		this.imageID = -1;
+	}
 	
 	/**
      * Loads the container.
@@ -75,8 +86,7 @@ public class ContainerLoader
     public void load()
     {
         long userID = ImViewerAgent.getUserDetails().getId();
-        handle = mhView.loadContainers(ImageData.class, imageID, userID, 
-        		this);
+        handle = mhView.loadContainers(ImageData.class, imageID, userID, this);
     }
 
     /**

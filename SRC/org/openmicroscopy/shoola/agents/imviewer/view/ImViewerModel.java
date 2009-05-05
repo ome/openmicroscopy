@@ -1802,5 +1802,12 @@ class ImViewerModel
 				getActiveChannels(), image);
 		loader.load();
 	}
+
+	/** Loads all the available datasets. */
+	void loadAllContainers()
+	{
+		ContainerLoader loader = new ContainerLoader(component);
+		loader.load();
+	}
 	
 }

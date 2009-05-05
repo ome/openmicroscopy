@@ -64,7 +64,6 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -602,6 +601,7 @@ class OmeroImageServiceImpl
 		if (param == null)
 			throw new IllegalArgumentException("No parameters specified.");
 		long id = gateway.createMovie(imageID, channels, param);
+		if (id < 0) return null;
 		return context.getMetadataService().loadAnnotation(id);
 	}
 	

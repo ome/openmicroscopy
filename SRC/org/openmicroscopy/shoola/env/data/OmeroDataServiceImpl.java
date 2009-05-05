@@ -330,8 +330,9 @@ class OmeroDataServiceImpl
 	
 	/**
 	 * Removed the annotations links.
+	 * 
 	 * @param object
-	 * @return
+	 * @return See above.
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
@@ -1136,6 +1137,8 @@ class OmeroDataServiceImpl
 			Set<DataObject> nodes = new HashSet<DataObject>();
 			IObject object, parent = null;
 			DataObject data;
+			List<Long> ids = new ArrayList<Long>();
+			long parentId;
 			while (i.hasNext()) {
 				if (parentClass.equals(Project.class))
 					parent = ((ProjectDatasetLink) i.next()).getParent();
@@ -1145,18 +1148,23 @@ class OmeroDataServiceImpl
 					parent = ((ScreenPlateLink) i.next()).getParent();
 				else if (parentClass.equals(TagAnnotation.class)) 
 					parent = ((AnnotationAnnotationLink) i.next()).getParent();
-				object = gateway.findIObject(parent.getClass().getName(), 
-						parent.getId().getValue());
-				data = PojoMapper.asDataObject(object);
-				if (parentClass.equals(TagAnnotation.class)) {
-					if (data instanceof TagAnnotationData) {
-						TagAnnotationData tag = (TagAnnotationData) data;
-						if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
-								tag.getNameSpace())) {
-							nodes.add(data);
+				parentId = parent.getId().getValue();
+				if (!ids.contains(parentId)) {
+					object = gateway.findIObject(parent.getClass().getName(), 
+							parent.getId().getValue());
+					data = PojoMapper.asDataObject(object);
+					if (TagAnnotation.class.equals(parentClass)) {
+						if (data instanceof TagAnnotationData) {
+							TagAnnotationData tag = (TagAnnotationData) data;
+							if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+									tag.getNameSpace())) {
+								nodes.add(data);
+							}
 						}
-					}
-				} else nodes.add(data);
+					} else nodes.add(data);
+					ids.add(parentId);
+				}
+				
 			}
 			return nodes;
 		} catch (Exception e) {

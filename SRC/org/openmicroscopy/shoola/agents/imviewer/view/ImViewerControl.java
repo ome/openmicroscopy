@@ -834,8 +834,13 @@ class ImViewerControl
 			model.projectImage((ProjectionRef) pce.getNewValue());
 		} else if (PlaneInfoComponent.PLANE_INFO_PROPERTY.equals(pName)) {
 			view.showPlaneInfoDetails((PlaneInfoComponent) pce.getNewValue());
-		} else if (TinyDialog.CLOSED_PROPERTY.equals(pName))
+		} else if (TinyDialog.CLOSED_PROPERTY.equals(pName)) {
 			view.hidePlaneInfoDetails();
+		} else if (ProjSavingDialog.LOAD_ALL_PROPERTY.equals(pName)) {
+			model.loadAllContainers();
+		}
+		
+		
 	}
 
 	/**

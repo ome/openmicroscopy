@@ -75,6 +75,7 @@ import omero.api.IProjectionPrx;
 import omero.api.IQueryPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
+import omero.api.IScriptPrx;
 import omero.api.ISessionPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
@@ -259,8 +260,11 @@ class OMEROGateway
 	/** The update service. */
 	private IUpdatePrx								updateService;
 	
-	/** The update service. */
+	/** The metadata service. */
 	private IMetadataPrx							metadataService;
+	
+	/** The scripting service. */
+	private IScriptPrx								scriptService;
 	
 	/** Tells whether we're currently connected and logged into <i>OMERO</i>. */
 	private boolean                 				connected;
@@ -611,6 +615,29 @@ class OMEROGateway
 		return null;
 	}
 
+	/**
+	 * Returns the {@link IScriptPrx} service.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private IScriptPrx getScripService()
+		throws DSAccessException, DSOutOfServiceException
+	{ 
+		try {
+			if (scriptService == null) {
+				scriptService = entry.getScriptService();
+				services.add(pojosService);
+			}
+			return scriptService; 
+		} catch (Throwable e) {
+			handleException(e, "Cannot access the script service.");
+		}
+		return null;
+	}
+	
 	/**
 	 * Returns the {@link IContainerPrx} service.
 	 * 
@@ -2280,19 +2307,23 @@ class OMEROGateway
 			String table = getTableForLink(parentClass);
 			if (table == null) return null;
 			ParametersI param = new ParametersI();
-			param.map.put("childID", omero.rtypes.rlong(childID));
+			param.map.put("id", omero.rtypes.rlong(childID));
 			StringBuffer sb = new StringBuffer();
 			sb.append("select link from "+table+" as link ");
 			sb.append("left outer join fetch link.child as child ");
 			sb.append("left outer join fetch link.parent parent ");
-			sb.append("where link.child.id = :id");
 			if (childID >= 0) {
+				sb.append("where link.child.id = :id");
 				param.addId(childID);
-			}
-			
-			if (userID >= 0) {
-				sb.append(" and link.details.owner.id = :userID");
-				param.map.put("userID", omero.rtypes.rlong(userID));
+				if (userID >= 0) {
+					sb.append(" and link.details.owner.id = :userID");
+					param.map.put("userID", omero.rtypes.rlong(userID));
+				}
+			} else {
+				if (userID >= 0) {
+					sb.append("where link.details.owner.id = :userID");
+					param.map.put("userID", omero.rtypes.rlong(userID));
+				}
 			}
 			return getQueryService().findAllByQuery(sb.toString(), param);
 		} catch (Throwable t) {
@@ -4126,9 +4157,14 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			
+			IScriptPrx svc = getScripService();
+			//TODO: retrieve the script
+			//naming convention for script??
+			long id = svc.getScriptID("");
+			Map<String, RType> parameters = null;
+			svc.runScript(id, parameters);
 		} catch (Exception e) {
-			
+			handleException(e, "Cannot create a movie for image: "+imageID);
 		}
 		return -1;
 	}

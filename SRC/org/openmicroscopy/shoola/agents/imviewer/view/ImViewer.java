@@ -994,5 +994,8 @@ public interface ImViewer
 	 * @param folder The location where to save the movie.
 	 */
 	public void uploadMovie(FileAnnotationData data, File folder);
+
+	/** Loads all the datasets available. */
+	public void loadAllContainers();
 	
 }
