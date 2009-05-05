@@ -2076,5 +2076,15 @@ class TreeViewerComponent
 		if (model.getState() == DISCARDED) return;
 		model.getMetadataViewer().showTagWizard();
 	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setInspectorVisibility()
+	 */
+	public void setInspectorVisibility()
+	{
+		if (model.getState() == DISCARDED) return;
+		view.setInspectorVisibility();
+	}
 	
 }

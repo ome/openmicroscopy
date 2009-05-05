@@ -2215,4 +2215,17 @@ class ImViewerUI
 		requestFocusInWindow();
 	}
 
+	/**
+	 * Overridden to request the focus.
+	 * @see TopWindow#setVisible(boolean)
+	 */
+	public void setVisible(boolean visible)
+	{
+		super.setVisible(visible);
+		if (visible) {
+			toFront();
+			requestFocusInWindow();
+		}
+	}
+	
 }

@@ -81,6 +81,12 @@ class ToolBar
     	bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
+        JToggleButton button = new JToggleButton(
+        		controller.getAction(TreeViewerControl.INSPECTOR));
+        //UIUtilities.unifiedButtonLookAndFeel(button);
+        button.setSelected(true);
+        bar.add(button);
+        
         JButton b = new JButton(controller.getAction(TreeViewerControl.BROWSE));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);

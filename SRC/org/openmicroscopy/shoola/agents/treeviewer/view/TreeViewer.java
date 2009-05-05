@@ -771,5 +771,8 @@ public interface TreeViewer
 	 * @param node The selected field.
 	 */
 	public void setSelectedField(Object node);
+
+	/** Shows or hides the Tree Viewer. */
+	public void setInspectorVisibility();
 	
 }

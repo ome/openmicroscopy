@@ -839,8 +839,6 @@ class ImViewerControl
 		} else if (ProjSavingDialog.LOAD_ALL_PROPERTY.equals(pName)) {
 			model.loadAllContainers();
 		}
-		
-		
 	}
 
 	/**

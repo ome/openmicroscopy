@@ -122,6 +122,12 @@ class TreeViewerWin
 	/** The scrollPane hosting the advanced finder. */
 	private JScrollPane			finderScrollPane;
 	
+	/** The component that has been removed. */
+	private Component			leftComponent;
+	
+	/** The location of the divider. */
+	private int					dividerLocation;
+	
     /**
      * Checks if the specified {@link Browser} is already visible.
      * 
@@ -353,7 +359,6 @@ class TreeViewerWin
         //splitPane.setRightComponent(workingPane);
         splitPane.setRightComponent(rightPane);
         splitPane.setResizeWeight(0.1);
-        //splitPane.setDividerLocation(DIVIDER_LOCATION);
         Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
         c.add(toolBar, BorderLayout.NORTH);
@@ -535,8 +540,6 @@ class TreeViewerWin
     	splitPane.setDividerLocation(splitPane.getDividerLocation());
     	if (finderScrollPane == null) {
     		AdvancedFinder finder = model.getAdvancedFinder();
-    		
-    		
     		finder.addPropertyChangeListener(controller);
     		finderScrollPane = new JScrollPane(finder);
     	}
@@ -643,6 +646,20 @@ class TreeViewerWin
 		}
     }
     
+    /** Shows or hides the Tree Viewer. */
+	void setInspectorVisibility()
+	{
+		if (leftComponent == null) {
+			leftComponent = splitPane.getLeftComponent();
+			dividerLocation = splitPane.getDividerLocation();
+			splitPane.remove(leftComponent);
+		} else {
+			splitPane.add(leftComponent);
+			splitPane.setDividerLocation(dividerLocation);
+			leftComponent = null;
+		}
+	}
+	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {

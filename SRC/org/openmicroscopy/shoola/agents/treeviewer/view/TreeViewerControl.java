@@ -67,6 +67,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.InspectorVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
@@ -251,6 +252,9 @@ class TreeViewerControl
 	/** Identifies the <code>Launch Editor</code> in the menu. */
 	static final Integer    EDITOR_NEW_WITH_SELECTION = Integer.valueOf(49);
 	
+	/** Identifies the <code>Show/hide inspector</code> in the menu. */
+	static final Integer    INSPECTOR = Integer.valueOf(50);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -332,6 +336,7 @@ class TreeViewerControl
 		actionsMap.put(TAGGING, new TaggingAction(model));
 		actionsMap.put(EDITOR_NEW_WITH_SELECTION, new EditorAction(model, 
 				EditorAction.NEW_WITH_SELECTION));
+		actionsMap.put(INSPECTOR, new InspectorVisibilityAction(model));
 	}
 
 	/** 
