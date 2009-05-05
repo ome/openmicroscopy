@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
@@ -696,7 +695,9 @@ class TreeViewerControl
 			model.showTagWizard();
 		} else if (DataBrowser.CREATE_NEW_EXPERIMENT_PROPERTY.equals(name)) {
 			model.openEditorFile(TreeViewer.NEW_WITH_SELECTION);
-		} 
+		} else if (DataBrowser.FIELD_SELECTED_PROPERTY.equals(name)) {
+			model.setSelectedField(pce.getNewValue());
+		}
 	}
 
 	/**

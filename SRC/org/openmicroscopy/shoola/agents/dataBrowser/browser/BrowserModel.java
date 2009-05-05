@@ -688,15 +688,21 @@ class BrowserModel
 
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#refresh(Collection)
+	 * @see Browser#refresh(Collection, List)
 	 */
-	public void refresh(Collection<ImageDisplay> nodes)
+	public void refresh(Collection<ImageDisplay> nodes, 
+			List<ImageDisplay> selected)
 	{
 		rootDisplay.removeAllChildrenDisplay();
 		if (nodes == null) return;
 		Iterator<ImageDisplay> i = nodes.iterator();
 		while (i.hasNext()) 
 			rootDisplay.addChildDisplay(i.next());
+		if (selected == null) return;
+		boolean b = selected.size() > 1;
+		i = selected.iterator();
+		while (i.hasNext()) 
+			setSelectedDisplay(i.next(), b, true);
 	}
 
 	/**

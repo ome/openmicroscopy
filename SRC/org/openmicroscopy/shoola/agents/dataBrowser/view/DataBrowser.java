@@ -137,10 +137,13 @@ public interface DataBrowser
 										"setOriginalRndSettings";
 	
 	/** 
-	 * Bound property indicating to that some rendering settings can be copied. 
+	 * Bound property indicating that some rendering settings can be copied. 
 	 */
 	public static final String		RND_SETTINGS_TO_COPY_PROPERTY = 
 										"rndSettingToCopy";
+	
+	/** Bound property indicating that a new field has been selected. */
+	public static final String		FIELD_SELECTED_PROPERTY = "fieldSelected";
 	
 	/** 
 	 * Bound property indicating to that some data can be copied. 

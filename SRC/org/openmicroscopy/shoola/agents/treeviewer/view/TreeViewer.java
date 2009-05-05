@@ -765,4 +765,11 @@ public interface TreeViewer
 	/** Displays the tag wizard. */
 	public void showTagWizard();
 	
+	/** 
+	 * Sets the selected field of a well.
+	 * 
+	 * @param node The selected field.
+	 */
+	public void setSelectedField(Object node);
+	
 }

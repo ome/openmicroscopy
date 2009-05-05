@@ -656,6 +656,42 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setSelectedField(Object)
+	 */
+	public void setSelectedField(Object object)
+	{
+		if (object == null) return;
+		if (!(object instanceof List)) return;
+		List l = (List) object;
+		int n = l.size();
+		if (n != 2) return;
+		Object selected = l.get(0);
+		Object parent = l.get(1);
+		if (selected instanceof WellSampleData) {
+			WellSampleData ws = (WellSampleData) selected;
+			if (ws.getId() < 0) {
+				UserNotifier un = 
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Well Not valid", 
+						"The selected well is not valid.");
+				return;
+			}
+		}
+		MetadataViewer mv = model.getMetadataViewer();
+		if (hasDataToSave()) {
+			MessageBox dialog = new MessageBox(view, "Save data", 
+					"Do you want to save the modified \n" +
+					"data before selecting a new item?");
+			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
+			else mv.clearDataToSave();
+		}
+		mv.setSelectionMode(true);
+		mv.setRootObject(selected);
+		mv.setParentRootObject(parent);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#onDataObjectSave(DataObject, int)
 	 */
 	public void onDataObjectSave(DataObject data, int operation)

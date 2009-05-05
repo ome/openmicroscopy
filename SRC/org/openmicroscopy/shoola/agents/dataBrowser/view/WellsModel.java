@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -335,9 +336,9 @@ class WellsModel
 	int getSelectedField() { return selectedField; }
 	
 	/**
-	 * Views the selected field.
+	 * Views the selected field. 
 	 * 
-	 * @param index The index of the field to view.
+	 * @param index 	The index of the field to view.
 	 */
 	void viewField(int index)
 	{
@@ -347,13 +348,36 @@ class WellsModel
 		List l = getNodes();
 		Iterator i = l.iterator();
 		WellImageSet well;
+		int row = -1;
+		int col = -1;
+		Collection c = browser.getSelectedDisplays(); 
+		Map<Integer, Integer> location = new HashMap<Integer, Integer>();
+		WellSampleNode selected;
+		if (c != null && c.size() > 0) {
+			Iterator j = c.iterator();
+			Object object;
+			while (j.hasNext()) {
+				object = j.next();
+				if (object instanceof WellSampleNode) {
+					selected = (WellSampleNode) object;
+					location.put(selected.getRow(), selected.getColumn());
+				}
+			}
+		}
+		List<ImageDisplay> nodes = new ArrayList<ImageDisplay>();
 		while (i.hasNext()) {
 			well = (WellImageSet) i.next();
 			well.setSelectedWellSample(index);
-			samples.add(well.getSelectedWellSample());
+			selected = (WellSampleNode) well.getSelectedWellSample();
+			row = selected.getRow();
+			if (location.containsKey(row)) {
+				col = location.get(row);
+				if (selected.getColumn() == col) nodes.add(selected);
+			}
+			samples.add(selected);
 		}
 		samples.addAll(cells);
-		browser.refresh(samples);
+		browser.refresh(samples, nodes);
 		layoutBrowser(LayoutFactory.PLATE_LAYOUT);
 		//quietly save the field.
 		PlateData plate = (PlateData) parent;

@@ -48,7 +48,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
@@ -212,6 +211,7 @@ class DataBrowserComponent
 	public void setSelectedDisplay(ImageDisplay node)
 	{
 		if (node == null) return;
+		System.err.println(node);
 		Object object = node.getHierarchyObject();
 		List<Object> objects = new ArrayList<Object>();
 		List<Object> others = new ArrayList<Object>(); 
@@ -806,14 +806,6 @@ class DataBrowserComponent
 		((WellsModel) model).viewField(selectedIndex);
 		view.repaint();
 		model.loadData(false, null); 
-		ImageDisplay node = model.getBrowser().getLastSelectedDisplay();
-		if (node != null) {
-			if (node instanceof WellSampleNode) {
-				WellSampleNode wsn = (WellSampleNode) node;
-				WellImageSet parent = wsn.getParentWell();
-				setSelectedDisplay(parent.getSelectedWellSample());
-			}
-		}
 	}
 
 	/**

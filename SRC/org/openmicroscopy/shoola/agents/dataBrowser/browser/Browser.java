@@ -390,8 +390,10 @@ public interface Browser
 	 * Refreshes the collection of passed nodes.
 	 * 
 	 * @param nodes The nodes to refresh.
+	 * @param selected The nodes to select.
 	 */
-	public void refresh(Collection<ImageDisplay> nodes);
+	public void refresh(Collection<ImageDisplay> nodes, 
+			List<ImageDisplay> selected);
 
 	/**
 	 * Marks the nodes on which a given operation could not be performed
@@ -401,5 +403,5 @@ public interface Browser
 	 * @param ids  Collection of object's ids.
 	 */
 	public void markUnmodifiedNodes(Class type, Collection<Long> ids);
-	
+
 }
