@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.util.ui;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -93,7 +94,6 @@ public class MovieExportDialog
 	private static final String		TITLE = "Movie Creation";
 	
 	/** The default value for the scale bar. */
-	
 	private static final int		DEFAULT_SCALE = 5;
 	
 	/** The supported movie formats. */
@@ -222,7 +222,9 @@ public class MovieExportDialog
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(saveButton);
 		bar.add(Box.createHorizontalStrut(20));
-		return UIUtilities.buildComponentPanelRight(bar);
+		JPanel p = UIUtilities.buildComponentPanelRight(bar);
+		p.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+		return p;
 	}
 	
 	/** Builds and lays out the UI. */
@@ -278,7 +280,7 @@ public class MovieExportDialog
         i = i+2;
         content.add(showScaleBar, "0, "+i);
         content.add(scaleBar, "1, "+i);
-        //content.add(new JLabel("fps"), "2, "+i);
+        content.add(new JLabel("microns"), "2, "+i);
         return content;
 	}
 	

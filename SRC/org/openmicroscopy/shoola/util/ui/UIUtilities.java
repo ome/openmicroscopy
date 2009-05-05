@@ -1186,7 +1186,6 @@ public class UIUtilities
         if (Pattern.compile("/").matcher(originalName).find()) {
             l = originalName.split("/", 0);
             if (l.length > 0) return "/";
-            
         } else if (Pattern.compile("\\\\").matcher(originalName).find()) {
             l = originalName.split("\\\\", 0);
             if (l.length > 0) return "\\";
