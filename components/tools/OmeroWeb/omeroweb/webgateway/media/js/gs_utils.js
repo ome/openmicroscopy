@@ -15,30 +15,44 @@
 var gs_script_location_prefix='/appmedia/webgateway/js/3rdparty/';
 
 /**
+ * Given a string that may contain an RGB, RRGGBB or the previous with a # prefix,
+ * returns the #RRGGBB counterpart, or if the parse fails, the default value (or null if no default)
+ */
+function sanitizeHexColor (color, def) {
+  color = toRGB(color, def);
+  if (color === def || color === null) {
+    return color;
+  }
+  return '#' + rgbToHex(color);
+}
+
+/**
  * Converts a color into rgb(r,g,b) notation, right now only hex RGB or RRGGBB inputs.
  */
-function toRGB (color) {
+function toRGB (color, def) {
   if (color.substring(0,4) == 'rgb(') {
     return color;
   }
   if (color.substring(0,1) == '#') {
     color = color.substring(1);
   }
+  var r,g,b;
   if (color.length == 3) {
-    return 'rgb('+
-      parseInt(color.substring(0,1), 16) + ',' +
-      parseInt(color.substring(1,2), 16) + ',' +
-      parseInt(color.substring(2,3), 16) +
-      ')';
+    r = parseInt(color.substring(0,1), 16);
+    g = parseInt(color.substring(1,2), 16);
+    b = parseInt(color.substring(2,3), 16);
+    r += r*0x10;
+    g += g*0x10;
+    b += b*0x10;
   } else if (color.length == 6) {
-    return 'rgb('+
-      parseInt(color.substring(0,2), 16) + ',' +
-      parseInt(color.substring(2,4), 16) + ',' +
-      parseInt(color.substring(4,6), 16) +
-      ')';
-  } else {
-    return color;
+    r = parseInt(color.substring(0,2), 16);
+    g = parseInt(color.substring(2,4), 16);
+    b = parseInt(color.substring(4,6), 16);
   }
+  if (r === undefined || isNaN(r) || isNaN(g) || isNaN(b)) {
+    return def != undefined ? def : null;
+  }
+  return 'rgb('+r+','+g+','+b+')';
 }
 
 /**
