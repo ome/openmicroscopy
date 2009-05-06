@@ -23,13 +23,12 @@
 Project the image and create a new image from the projection.  
 
 params:
-	imageId: this id of the image to create the movie from
-	output: The name of the output file, sans the extension
-	zStart: The starting z-section to create the movie from
+	imageId: this id of the image to create the projection from
+	zStart: The starting z-section to create the projection from
 	zEnd: 	The final z-section
-	tStart:	The starting timepoint to create the movie
+	tStart:	The starting timepoint to create the projection
 	tEnd:	The final timepoint.
-	channels: The list of channels to use in the movie(index, from 0)
+	channels: The list of channels to use in the projection(index, from 0)
 	x0:		The start of the cropping area (x0,y0)
 	y0:		The start of the cropping area (x0,y0)
 	x1:		The end of the cropping area (x1,y1)
