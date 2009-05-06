@@ -36,7 +36,7 @@ params:
 	showTime: Show the average time of the aquisition of the channels in the frame.
 	fps:	The number of frames per second of the movie
 	scalebar: The scalebar size in microns, if <=0 will not show scale bar.
-	format:	The format of the movie to be created currently only supports 'video/mpeg'
+	format:	The format of the movie to be created currently supports 'video/mpeg', 'video/quicktime'
 	overlayColour: The colour of the overlays, scalebar, time, as int(RGB)
 	fileAnnotation: The fileAnnotation id of the uploaded movie.
 	
@@ -69,9 +69,12 @@ import omero_Constants_ice
 import ImageDraw
 
 MPEG = 'video/mpeg'
+QT = 'video/quicktime'
 MPEG_NS = omero_Constants_ice._M_omero.constants.metadata.NSMOVIEMPEG;
+QT_NS = omero_Constants_ice._M_omero.constants.metadata.NSMOVIEQT;
 
-formatExtensionMap = {MPEG:"avi"};
+formatNSMap = {MPEG:MPEG_NS, QT:QT_NS};
+formatExtensionMap = {MPEG:"avi", QT:"avi"};
 OVERLAYCOLOUR = "#666666";
 
 def getFormat(session, fmt):
@@ -86,29 +89,30 @@ def calcSha1(filename):
 	f.close()
 	return hash;
 
-def createFile(session, filename):
+def createFile(session, filename, format):
  	tempFile = omero.model.OriginalFileI();
 	tempFile.setName(omero.rtypes.rstring(filename));
 	tempFile.setPath(omero.rtypes.rstring(filename));
-	tempFile.setFormat(getFormat(session, MPEG));
+	tempFile.setFormat(getFormat(session, format));
 	tempFile.setSize(omero.rtypes.rlong(os.path.getsize(filename)));
 	tempFile.setSha1(omero.rtypes.rstring(calcSha1(filename)));
 	updateService = session.getUpdateService();
 	return updateService.saveAndReturnObject(tempFile);
 
-def attachMovieToImage(client, session, image, file):
+def attachMovieToImage(client, session, image, file, format):
 	updateService = session.getUpdateService();
 	fa = omero.model.FileAnnotationI();
 	fa.setFile(file);
-	fa.setNs(omero.rtypes.rstring(MPEG_NS))
+	fa.setNs(omero.rtypes.rstring(formatNSMap[format]))
 	l = omero.model.ImageAnnotationLinkI();
 	l.setParent(image);
 	l.setChild(fa);
 	l = updateService.saveAndReturnObject(l);
 	client.setOutput("fileAnnotation",l.getChild().getId());	
 
-def uploadMovie(client,session, image, filename):
-	file = createFile(session,filename);
+def uploadMovie(client,session, image, output, format):
+	filename = output+'.'+formatExtensionMap[format];	
+	file = createFile(session, filename, format);
 	rawFileStore = session.createRawFileStore();
 	rawFileStore.setFileId(file.getId().getValue());
 	fileSize = file.getSize().getValue();
@@ -126,7 +130,7 @@ def uploadMovie(client,session, image, filename):
 		block = fileHandle.read(blockSize);
 		rawFileStore.write(block, cnt, blockSize);
 		cnt = cnt+blockSize;
-	attachMovieToImage(client, session, image, file)	
+	attachMovieToImage(client, session, image, file, format)	
 
 def downloadPlane(gateway, pixels, pixelsId, x, y, z, c, t):
 	rawPlane = gateway.getPlane(pixelsId, z, c, t);
@@ -147,11 +151,16 @@ def macOSX():
 	else:
 		return 0;
 
-def buildAVI(sizeX, sizeY, filelist, fps, output, formatExtension):
-	#if(macOSX()):	
-		program = 'mencoder'
+def buildAVI(sizeX, sizeY, filelist, fps, output, format):
+	program = 'mencoder'
+	args = "";
+	print format
+	formatExtension = formatExtensionMap[format];
+	if(format==MPEG):
 		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mpeg4 -oac copy -o '+commandArgs["output"]+"."+formatExtension;
-		os.system(program+ args);
+	else:	
+		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o ' +commandArgs["output"]+"."+formatExtension;
+	os.system(program+ args);
 	
 def rangeToStr(range):
 	first = 1;
@@ -331,8 +340,8 @@ def writeMovie(commandArgs, session):
 			else:
 				filelist = filelist+','+filename
 			frameNo +=1;
-	buildAVI(sizeX, sizeY, filelist, commandArgs["fps"], commandArgs["output"], formatExtensionMap[commandArgs["format"]]);
-	uploadMovie(client, session, omeroImage, commandArgs["output"]+"."+formatExtensionMap[commandArgs["format"]])
+	buildAVI(sizeX, sizeY, filelist, commandArgs["fps"], commandArgs["output"], commandArgs["format"]);
+	uploadMovie(client, session, omeroImage, commandArgs["output"], commandArgs["format"])
 	
 client = scripts.client('MakeMovie','MakeMovie creates an mpeg movie of the image on the current z section and attaches it to the originating image.', \
 scripts.Long("imageId").inout(), scripts.String("output").inout(), scripts.Long("zStart").inout(),\

@@ -88,6 +88,13 @@ public interface IMetadata
      */
     public static final String MOVIE_MPEG_NS = 
     	"openmicroscopy.org/omero/movie/mpeg";
+
+    /** 
+     * The name space used to indicate that the <code>FileAnnotation</code> 
+     * is an <code>QT</code> file.
+     */
+    public static final String MOVIE_QT_NS = 
+    	"openmicroscopy.org/omero/movie/qt";
     
 	/**
 	 * Loads the <code>logical channels</code> and the acquisition metadata 

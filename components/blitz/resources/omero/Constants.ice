@@ -99,6 +99,7 @@ module omero {
         const string NSEDITORPROTOCOL = "openmicroscopy.org/omero/editor/protocol";
         const string NSEDITOREXPERIMENT = "openmicroscopy.org/omero/editor/experiment";
         const string NSMOVIEMPEG = "openmicroscopy.org/omero/movie/mpeg";
+        const string NSMOVIEQT = "openmicroscopy.org/omero/movie/qt";
     };
 
     module jobs {
