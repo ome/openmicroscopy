@@ -270,8 +270,7 @@ def validColourRange(colour):
 
 def RGBToPIL(RGB):
 	hexval = hex(int(RGB));
-	return '#'+hexval[2:];
-	
+	return '#'+(6-len(hexval[2:]))*'0'+hexval[2:];
 
 def writeMovie(commandArgs, session):
 	gateway = session.createGateway();
@@ -335,7 +334,13 @@ def writeMovie(commandArgs, session):
 	buildAVI(sizeX, sizeY, filelist, commandArgs["fps"], commandArgs["output"], formatExtensionMap[commandArgs["format"]]);
 	uploadMovie(client, session, omeroImage, commandArgs["output"]+"."+formatExtensionMap[commandArgs["format"]])
 	
-client = scripts.client('MakeMovie','MakeMovie creates an mpeg movie of the image on the current z section and attaches it to the originating image.', scripts.Long("imageId").inout(), scripts.String("output").inout(), scripts.Long("zStart").inout(), scripts.Long("zEnd").inout(), scripts.Long("tStart").inout(), scripts.Long("tEnd").inout(), scripts.Set("channels").inout(), scripts.Bool("splitView").inout(), scripts.Bool("showTime").inout(), scripts.Long("fps").inout(), scripts.Long("scalebar").inout(),scripts.Long("fileAnnotation").out(), scripts.String("format").inout(), scripts.Long("overlayColour").inout())
+client = scripts.client('MakeMovie','MakeMovie creates an mpeg movie of the image on the current z section and attaches it to the originating image.', \
+scripts.Long("imageId").inout(), scripts.String("output").inout(), scripts.Long("zStart").inout(),\
+ scripts.Long("zEnd").inout(), scripts.Long("tStart").inout(), scripts.Long("tEnd").inout(), \
+scripts.Set("channels").inout(), scripts.Bool("splitView").inout(), scripts.Bool("showTime").inout(), \
+scripts.Long("fps").inout(), scripts.Long("scalebar").inout(),scripts.Long("fileAnnotation").out(), \
+scripts.String("format").inout(), scripts.Long("overlayColour").inout())
+
 session = client.createSession();
 gateway = session.createGateway();
 commandArgs = {"image":client.getInput("imageId").getValue(), "output":client.getInput("output").getValue(), \
