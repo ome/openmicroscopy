@@ -1,3 +1,54 @@
+"""
+ components/tools/OmeroPy/scripts/Projection.py 
+
+-----------------------------------------------------------------------------
+  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+------------------------------------------------------------------------------
+
+Project the image and create a new image from the projection.  
+
+params:
+	imageId: this id of the image to create the movie from
+	output: The name of the output file, sans the extension
+	zStart: The starting z-section to create the movie from
+	zEnd: 	The final z-section
+	tStart:	The starting timepoint to create the movie
+	tEnd:	The final timepoint.
+	channels: The list of channels to use in the movie(index, from 0)
+	x0:		The start of the cropping area (x0,y0)
+	y0:		The start of the cropping area (x0,y0)
+	x1:		The end of the cropping area (x1,y1)
+	y1:		The end of the cropping area (x1,y1)
+	method: The projection method (sum, mean or max) 
+	newImageId: The id of the newly created image.
+
+@author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+@author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+@version 3.0
+<small>
+(<b>Internal version:</b> $Revision: $Date: $)
+</small>
+@since 3.0-Beta4.1
+
+"""
+
 import omero
 import getopt, sys
 import omero_api_Gateway_ice
