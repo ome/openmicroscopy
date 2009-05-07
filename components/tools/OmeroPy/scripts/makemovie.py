@@ -345,7 +345,7 @@ def writeMovie(commandArgs, session):
 	buildAVI(sizeX, sizeY, filelist, commandArgs["fps"], commandArgs["output"], commandArgs["format"]);
 	uploadMovie(client, session, omeroImage, commandArgs["output"], commandArgs["format"])
 	
-client = scripts.client('makemovie','MakeMovie creates an movie of the image and attaches it to the originating image.', \
+client = scripts.client('makemovie','MakeMovie creates a movie of the image and attaches it to the originating image.', \
 scripts.Long("imageId").inout(), scripts.String("output").inout(), scripts.Long("zStart").inout(),\
  scripts.Long("zEnd").inout(), scripts.Long("tStart").inout(), scripts.Long("tEnd").inout(), \
 scripts.Set("channels").inout(), scripts.Bool("splitView").inout(), scripts.Bool("showTime").inout(), \
