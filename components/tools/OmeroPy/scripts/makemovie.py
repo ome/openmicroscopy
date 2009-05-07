@@ -34,6 +34,7 @@ params:
 	channels: The list of channels to use in the movie(index, from 0)
 	splitView: should we show the split view in the movie(not available yet)
 	showTime: Show the average time of the aquisition of the channels in the frame.
+	showPlaneInfo: Show the time and z-section of the current frame.
 	fps:	The number of frames per second of the movie
 	scalebar: The scalebar size in microns, if <=0 will not show scale bar.
 	format:	The format of the movie to be created currently supports 'video/mpeg', 'video/quicktime'
@@ -207,13 +208,18 @@ def addScalebar(scalebar, image, pixels, commandArgs):
 	draw.text(((scaleBarX+scaleBarX2)/2, scaleBarTextY), str(scalebar), fill=commandArgs["overlayColour"])
 	return image;
 	
-def addTimePoints(time, image, pixels, commandArgs):
+def addTimePoints(time, z, t, image, pixels, commandArgs):
 	draw = ImageDraw.Draw(image)
 	textY = pixels.getSizeY().getValue()-45;
+	planeInfoTextY = pixels.getSizeY().getValue()-60;
 	textX = 20;
 	if(textY<=0 or textX > pixels.getSizeX().getValue() or textY>pixels.getSizeY().getValue()):
 		return image;
-	draw.text((textX, textY), str(time), fill=commandArgs["overlayColour"])
+	if(commandArgs["showTime"]==1):
+		draw.text((textX, textY), str(time), fill=commandArgs["overlayColour"])
+	if(commandArgs["showPlaneInfo"]==1):
+		planeCoord = "z:"+str(z+1)+" t:"+str(t+1);
+		draw.text((textX, planeInfoTextY), planeCoord, fill=commandArgs["overlayColour"])		
 	return image;
 
 def rmdir_recursive(dir):
@@ -333,9 +339,10 @@ def writeMovie(commandArgs, session):
 			filename = commandArgs["output"]+str(frameNo)+'.jpeg';
 			if(commandArgs["scalebar"]!=0):
 				image = addScalebar(commandArgs["scalebar"], image, pixels, commandArgs);
-			if(commandArgs["showTime"]==1):
-				time = timeMap["z:"+str(z)+"t:"+str(t)]
-				image = addTimePoints(time, image, pixels, commandArgs);
+			if(commandArgs["showTime"]==1 or commandArgs["showPlaneInfo"]==1):
+				planeInfo = "z:"+str(z)+"t:"+str(t);
+				time = timeMap[planeInfo]
+				image = addTimePoints(time, z, t, image, pixels, commandArgs);
 			image.save(filename,"JPEG")
 			if(frameNo==1):
 				filelist = filename
@@ -345,10 +352,10 @@ def writeMovie(commandArgs, session):
 	buildAVI(sizeX, sizeY, filelist, commandArgs["fps"], commandArgs["output"], commandArgs["format"]);
 	uploadMovie(client, session, omeroImage, commandArgs["output"], commandArgs["format"])
 	
-client = scripts.client('makemovie','MakeMovie creates a movie of the image and attaches it to the originating image.', \
+client = scripts.client('makemovie12337','MakeMovie creates a movie of the image and attaches it to the originating image.', \
 scripts.Long("imageId").inout(), scripts.String("output").inout(), scripts.Long("zStart").inout(),\
 scripts.Long("zEnd").inout(), scripts.Long("tStart").inout(), scripts.Long("tEnd").inout(), \
-scripts.Set("channels").inout(), scripts.Bool("splitView").inout(), scripts.Bool("showTime").inout(), \
+scripts.Set("channels").inout(), scripts.Bool("splitView").inout(), scripts.Bool("showTime").inout(),scripts.Bool("showPlaneInfo").inout(), \
 scripts.Long("fps").inout(), scripts.Long("scalebar").inout(),scripts.Long("fileAnnotation").out(), \
 scripts.String("format").inout(), scripts.Long("overlayColour").inout())
 
@@ -357,7 +364,7 @@ gateway = session.createGateway();
 commandArgs = {"image":client.getInput("imageId").getValue(), "output":client.getInput("output").getValue(), \
 "zStart":client.getInput("zStart").getValue(),"zEnd":client.getInput("zEnd").getValue(),"tStart":client.getInput("tStart").getValue(),\
 "tEnd":client.getInput("tEnd").getValue(),"channels":client.getInput("channels").getValue(), "fps":client.getInput("fps").getValue(),\
-"showTime":client.getInput("showTime").getValue(),"scalebar":client.getInput("scalebar").getValue(), "format":client.getInput("format").getValue()}
+"showTime":client.getInput("showTime").getValue(),"showPlaneInfo":client.getInput("showPlaneInfo").getValue(),"scalebar":client.getInput("scalebar").getValue(), "format":client.getInput("format").getValue()}
 
 inputKeys = client.getInputKeys();
 if(validColourRange(client.getInput("overlayColour").getValue())):
