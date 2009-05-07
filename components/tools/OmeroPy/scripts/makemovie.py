@@ -347,7 +347,7 @@ def writeMovie(commandArgs, session):
 	
 client = scripts.client('makemovie','MakeMovie creates a movie of the image and attaches it to the originating image.', \
 scripts.Long("imageId").inout(), scripts.String("output").inout(), scripts.Long("zStart").inout(),\
- scripts.Long("zEnd").inout(), scripts.Long("tStart").inout(), scripts.Long("tEnd").inout(), \
+scripts.Long("zEnd").inout(), scripts.Long("tStart").inout(), scripts.Long("tEnd").inout(), \
 scripts.Set("channels").inout(), scripts.Bool("splitView").inout(), scripts.Bool("showTime").inout(), \
 scripts.Long("fps").inout(), scripts.Long("scalebar").inout(),scripts.Long("fileAnnotation").out(), \
 scripts.String("format").inout(), scripts.Long("overlayColour").inout())
