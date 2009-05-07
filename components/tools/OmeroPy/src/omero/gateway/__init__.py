@@ -1173,6 +1173,17 @@ class BlitzObjectWrapper (object):
             c = childw(self._conn, link.child)
             c._setWorldReadRecursive(val)
 
+    def _moveLink (self, newParent):
+        """ moves this object from the current parent container to a new one """
+        p = self.listParents()
+        if type(p) == type(newParent):
+            link = self._conn.getQueryService().findAllByQuery("select l from %s as l where l.parent.id=%i and l.child.id=%i" % (p.LINK_CLASS, p.id, self.id), None)
+            if len(link):
+                link[0].parent = newParent._obj
+                self._conn.getUpdateService().saveObject(link[0])
+                return True
+        return False
+
     def getDetails (self):
         return DetailsWrapper (self._conn, self._obj.getDetails())
 
