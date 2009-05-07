@@ -143,11 +143,15 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     }
 
                     if (originalFileExists(params.name)) {
-                        deleteOriginalFile(tempFile);
-                        cb.ice_exception(new ApiUsageException(null, null,
-                                "A script with name " + params.name
-                                        + " already exists on server."));
-                        return; // EARLY EXIT
+                    	OriginalFile file = getOriginalFileOrNull(params.name);
+                    	if(file == null) {
+                            cb.ice_exception(new ApiUsageException(null, null,
+                            "Script error: cannot overwrite file."));
+                            return; // EARLY EXIT
+                    	}
+                    	writeContent(file, script);
+                    	deleteOriginalFile(tempFile);
+                        cb.ice_response(file.getId());
                     }
 
                     tempFile.setName(params.name);
