@@ -134,7 +134,7 @@ def uploadMovie(client,session, image, output, format):
 
 def downloadPlane(gateway, pixels, pixelsId, x, y, z, c, t):
 	rawPlane = gateway.getPlane(pixelsId, z, c, t);
-	convertType ='>'+str(x*y)+PixelsTypeToPython.toPython(pixels.getPixelsType().getValue().getValue());
+	convertType ='>'+str(x*y)+pixelstypetopython.toPython(pixels.getPixelsType().getValue().getValue());
 	convertedPlane = unpack(convertType, rawPlane);
 	remappedPlane = numpy.array(convertedPlane,dtype=(pixels.getPixelsType().getValue().getValue()));
 	remappedPlane.resize(x,y);
