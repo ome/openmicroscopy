@@ -126,7 +126,7 @@ public class MovieExportDialog
 	private JCheckBox				zInterval;
 	
 	/** Displays or not the real time. */
-	private JCheckBox				timeVisible;
+	private JCheckBox				labelVisible;
 	
 	/** The selected color for scale bar. */
 	private JComboBox				colorBox;
@@ -209,7 +209,7 @@ public class MovieExportDialog
 		fps = new JSpinner();
 		fps.setValue(MovieExportParam.DEFAULT_FPS);
 		
-		timeVisible = new JCheckBox("Show time value");
+		labelVisible = new JCheckBox("Show Labels");
 		getRootPane().setDefaultButton(saveButton);
 		
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -306,7 +306,7 @@ public class MovieExportDialog
         i = i+2;
         content.add(UIUtilities.buildComponentPanel(colorBox), "1, "+i);
         i = i+2;
-        content.add(timeVisible, "0, "+i);
+        content.add(labelVisible, "0, "+i);
         return content;
 	}
 	
@@ -339,7 +339,7 @@ public class MovieExportDialog
 				timeRange.getEndValue()-1);
 		param.setZsectionInterval(zRange.getStartValue()-1, 
 				zRange.getEndValue()-1);
-		param.setTimeVisible(timeVisible.isSelected());
+		param.setLabelVisible(labelVisible.isSelected());
 		
 		int index = colorBox.getSelectedIndex();
 		Entry entry;

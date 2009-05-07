@@ -842,6 +842,7 @@ class ImViewerControl
 		} else if (MetadataViewer.CREATING_MOVIE_PROPERTY.equals(pName)) {
 			boolean b = ((Boolean) pce.getNewValue()).booleanValue();
 			getAction(CREATE_MOVIE).setEnabled(!b);
+			view.setMovieStatus(b);
 		}
 	}
 

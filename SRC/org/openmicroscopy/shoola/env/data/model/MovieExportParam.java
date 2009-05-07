@@ -108,8 +108,8 @@ public class MovieExportParam
 	/** Movie either across time of z-section. */
 	private int		type;
 	
-	/** Flag indicating to display or not the real time. */
-	private boolean timeVisible;
+	/** Flag indicating to display or not the real time and or z-section. */
+	private boolean labelVisible;
 	
 	/** The color of the scale bar. */
 	private int		color;
@@ -189,7 +189,7 @@ public class MovieExportParam
 		this.format = format;
 		if (scaleBar < 0) scaleBar = 0;
 		this.scaleBar = scaleBar;
-		timeVisible = false;
+		labelVisible = false;
 		color = Color.LIGHT_GRAY.getRGB();
 		initialize();
 	}
@@ -312,17 +312,17 @@ public class MovieExportParam
 	 * 
 	 * @return See above.
 	 */
-	public boolean isTimeVisible() { return timeVisible; }
+	public boolean isLabelVisible() { return labelVisible; }
 	
 	/**
-	 * Sets the {@link #timeVisible} flag.
+	 * Sets the {@link #labelVisible} flag.
 	 * <code>false</code> otherwise.
 	 * 
-	 * @param timeVisible The value to set.
+	 * @param labelVisible The value to set.
 	 */
-	public void setTimeVisible(boolean timeVisible)
+	public void setLabelVisible(boolean labelVisible)
 	{ 
-		this.timeVisible = timeVisible; 
+		this.labelVisible = labelVisible; 
 	}
 	
 	/**

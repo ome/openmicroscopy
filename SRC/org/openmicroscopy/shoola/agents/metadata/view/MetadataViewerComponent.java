@@ -664,14 +664,15 @@ class MetadataViewerComponent
 	{
 		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 		if (data == null) {
-			un.notifyInfo("Movie Creation", "A problem occured while " +
+			if (folder == null) 
+				un.notifyInfo("Movie Creation", "A problem occured while " +
 					"creating the movie");
-			return;
+		} else {
+			if (folder == null) folder = UIUtilities.getDefaultFolder();
+			un.notifyDownload(data, folder);
 		}
-		if (folder == null) folder = UIUtilities.getDefaultFolder();
 		firePropertyChange(CREATING_MOVIE_PROPERTY, Boolean.valueOf(true), 
 				Boolean.valueOf(false));
-		un.notifyDownload(data, folder);
 	}
 	
 }

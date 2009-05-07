@@ -150,7 +150,6 @@ class AcquisitionDataUI
 		constraints.insets = new Insets(0, 2, 2, 0);
 		constraints.weightx = 1.0;
         container.add(imagePane, constraints);
-        
         add(container, BorderLayout.NORTH);
 	}
 	
@@ -164,7 +163,6 @@ class AcquisitionDataUI
 			if (comps[i] != imagePane)
 				container.remove(comps[i]);
 		}
-
 		constraints.gridy = 1;
         Iterator<JXTaskPane> i = channelAcquisitionPanes.keySet().iterator();
         while (i.hasNext()) {

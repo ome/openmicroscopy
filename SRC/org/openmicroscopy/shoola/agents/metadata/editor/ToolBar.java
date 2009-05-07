@@ -72,6 +72,9 @@ class ToolBar
 
 	/** Indicates the loading progress. */
 	private JXBusyLabel		busyLabel;
+	
+	/** Indicates the movie creationg. */
+	private JXBusyLabel		busyMovieLabel;
 
 	/** 
 	 * The component hosting the control only used when an <code>Image</code>
@@ -84,6 +87,7 @@ class ToolBar
 	
 	/** Reference to the Model. */
 	private EditorModel 	model;
+
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -130,9 +134,15 @@ class ToolBar
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 		UIUtilities.unifiedButtonLookAndFeel(createMovieButton);
 		
-    	busyLabel = new JXBusyLabel(new Dimension(w, h));
+		Dimension d = new Dimension(w, h);
+    	busyLabel = new JXBusyLabel(d);
     	busyLabel.setEnabled(true);
     	busyLabel.setVisible(false);
+    	
+    	busyMovieLabel = new JXBusyLabel(d);
+    	busyMovieLabel.setEnabled(true);
+    	//busyMovieLabel.setVisible(false);
+    	busyMovieLabel.setToolTipText("Creating movie. Please wait.");
 	}
     
     /** 
@@ -167,6 +177,7 @@ class ToolBar
     	bar.add(saveButton);
     	return bar;
     }
+    
     
     /** Builds and lays out the UI. */
     private void buildGUI()
@@ -235,7 +246,22 @@ class ToolBar
      * @param b Pass <code>true</code> if movie creation,
      * 			<code>false</code> when it is done.
      */
-    void createMovie(boolean b) { createMovieButton.setEnabled(!b);  }
+    void createMovie(boolean b)
+    { 
+    	if (imageBar != null) {
+    		busyMovieLabel.setBusy(b);
+    		if (!b) {
+    			imageBar.remove(busyMovieLabel);
+    			imageBar.add(createMovieButton, 0);
+        	} else {
+        		imageBar.remove(createMovieButton);
+    			imageBar.add(busyMovieLabel, 0);
+        	}
+    		imageBar.revalidate();
+    		imageBar.repaint();
+    	}
+    	createMovieButton.setEnabled(!b);  
+    }
     
     /**
      * Sets to <code>true</code> if loading data, to <code>false</code>

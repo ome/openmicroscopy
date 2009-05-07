@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Dimension;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -116,9 +117,18 @@ class ToolBar
     /** Button to paste the rendering settings. */
 	private JButton					pasteButton;
 	
+	 /** Button to paste the rendering settings. */
+	private JButton					movieButton;
+	
 	/** Indicates the loading progress. */
 	private JXBusyLabel				busyLabel;
+	
+	/** Indicates the movie creation. */
+	private JXBusyLabel				busyMovieLabel;
 
+	/** The index of the movie icon. */
+	private static final int		MOVIE_INDEX = 17;
+	
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
     {
@@ -148,11 +158,13 @@ class ToolBar
         //bar.add(historyButton);
         bar.add(Box.createRigidArea(H_SPACE));
         bar.add(new JSeparator(JSeparator.VERTICAL));
+
         bar.add(Box.createRigidArea(H_SPACE));
         JButton button = new JButton(
         			controller.getAction(ImViewerControl.COPY_RND_SETTINGS));
         UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);    
+
+        bar.add(button);  
         bar.add(pasteButton);    
         button = new JButton(
     			controller.getAction(ImViewerControl.RESET_RND_SETTINGS));
@@ -173,7 +185,7 @@ class ToolBar
         bar.add(button);    
         button =  new JButton(controller.getAction(ImViewerControl.LENS));
         UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);  
+        bar.add(button); 
         bar.add(new JSeparator(JSeparator.VERTICAL));
         button = new JButton(
         		controller.getAction(ImViewerControl.MEASUREMENT_TOOL));
@@ -183,18 +195,33 @@ class ToolBar
         button = new JButton(controller.getAction(ImViewerControl.SAVE));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
-        button = new JButton(controller.getAction(ImViewerControl.CREATE_MOVIE));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);
+        movieButton = new JButton(controller.getAction(
+        		ImViewerControl.CREATE_MOVIE));
+        int h = UIUtilities.DEFAULT_ICON_HEIGHT;
+		int w = UIUtilities.DEFAULT_ICON_WIDTH;
+		Icon icon = movieButton.getIcon();
+		if (icon != null) {
+			if (icon.getIconHeight() > h) h = icon.getIconHeight();
+			if (icon.getIconWidth() > w) w = icon.getIconWidth();
+		}
+		
+        UIUtilities.unifiedButtonLookAndFeel(movieButton);
+        bar.add(movieButton);
         UserAction a = (UserAction) controller.getAction(ImViewerControl.USER);
         button = new JButton(a);
         button.addMouseListener(a);
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
         
-        busyLabel = new JXBusyLabel();
+        Dimension d = new Dimension(w, h);
+        busyLabel = new JXBusyLabel(d);
     	busyLabel.setEnabled(true);
     	busyLabel.setVisible(false);
+    	
+    	busyMovieLabel = new JXBusyLabel(d);
+    	busyMovieLabel.setToolTipText("Creating movie. Please wait.");
+    	busyMovieLabel.setEnabled(true);
+    	busyMovieLabel.setVisible(true);
     }
     
     /** Initializes the components composing this tool bar. */
@@ -293,6 +320,31 @@ class ToolBar
     	busyLabel.setVisible(busy);
     }
     
+	/**
+	 * Replaces the component in the display either icon or busy label
+	 * depending on the passed parameter.
+	 * 
+	 * @param b Pass <code>true</code> to indicate the creation,
+	 * 			<code>false</code> to indicate that the creation is done.
+	 */
+	void setMovieStatus(boolean b)
+	{ 
+		if (bar != null) {
+    		busyMovieLabel.setBusy(b);
+    		if (!b) {
+    			bar.remove(busyMovieLabel);
+    			bar.add(movieButton, MOVIE_INDEX);
+        	} else {
+        		bar.remove(movieButton);
+        		bar.add(busyMovieLabel, MOVIE_INDEX);
+        	}
+    		bar.revalidate();
+    		bar.repaint();
+    	} 
+
+	}
+	
+	
     /**
      * Sets the enabled flag of the components.
      * 

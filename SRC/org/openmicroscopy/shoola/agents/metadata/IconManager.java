@@ -307,7 +307,7 @@ public class IconManager
         relPaths[TAG_SET] = "nuvola_knotesRedRed16.png";
         relPaths[DOWNLOAD_12] = "nuvola_download_manager11.png";
         relPaths[EDITOR_12] = "omeroEditorLink11.png";
-        relPaths[CREATE_MOVIE] = "nuvola_filenew16.png"; 
+        relPaths[CREATE_MOVIE] = "openOffice_stock_insert-video-plugin-16.png";
 	}
    
 	/** The sole instance. */

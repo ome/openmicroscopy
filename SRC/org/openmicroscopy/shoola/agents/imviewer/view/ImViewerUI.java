@@ -2156,6 +2156,15 @@ class ImViewerUI
 		*/
 	}
 	
+	/**
+	 * Replaces the component in the display either icon or busy label
+	 * depending on the passed parameter.
+	 * 
+	 * @param b Pass <code>true</code> to indicate the creation,
+	 * 			<code>false</code> to indicate that the creation is done.
+	 */
+	void setMovieStatus(boolean b) { toolBar.setMovieStatus(b); }
+	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
@@ -2205,5 +2214,6 @@ class ImViewerUI
 			requestFocusInWindow();
 		}
 	}
-	
+
+
 }

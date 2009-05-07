@@ -4189,8 +4189,10 @@ class OMEROGateway
 			parameters.map.put("tEnd", omero.rtypes.rlong(param.getEndT()));
 			parameters.map.put("channels", omero.rtypes.rset(set));
 			parameters.map.put("fps", omero.rtypes.rlong(param.getFps()));
+			parameters.map.put("showPlaneInfo", 
+					omero.rtypes.rbool(param.isLabelVisible()));
 			parameters.map.put("showTime", 
-					omero.rtypes.rbool(param.isTimeVisible()));
+					omero.rtypes.rbool(param.isLabelVisible()));
 			parameters.map.put("splitView", omero.rtypes.rbool(false));
 			parameters.map.put("scalebar", omero.rtypes.rlong(
 					param.getScaleBar()));

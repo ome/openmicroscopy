@@ -296,6 +296,7 @@ class AnnotationDataUI
 		content.add(viewedByPane, "2, "+i);
 		viewedByRow = i;
 
+		
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		setBackground(UIUtilities.BACKGROUND);
 		setBorder(new SeparatorOneLineBorder());

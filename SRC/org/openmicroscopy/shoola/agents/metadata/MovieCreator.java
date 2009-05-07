@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
@@ -145,12 +146,17 @@ public class MovieCreator
 					if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 						File folder = (File) evt.getNewValue();
 						viewer.uploadMovie(data, folder);
+					} else if (FileChooser.CANCEL_SELECTION_PROPERTY.equals(
+							name)) {
+						viewer.uploadMovie(null, 
+								UIUtilities.getDefaultFolder());
 					}
 				}
 			});
 			chooser.centerDialog();
+		} else {
+			viewer.uploadMovie(null, UIUtilities.getDefaultFolder());
 		}
     }
-    
-	
+
 }

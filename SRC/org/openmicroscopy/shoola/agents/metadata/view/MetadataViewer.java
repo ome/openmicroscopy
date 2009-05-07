@@ -311,7 +311,6 @@ public interface MetadataViewer
 	 */
 	public void makeMovie(int scaleBar, Color overlayColor);
 
-
 	/**
 	 * Uploads the movie.
 	 * 

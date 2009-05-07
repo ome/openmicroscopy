@@ -24,8 +24,13 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -43,6 +48,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 
@@ -776,17 +782,28 @@ class ChannelAcquisitionComponent
     private void buildGUI()
     {
     	setBackground(UIUtilities.BACKGROUND_COLOR);
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		parent.layoutFields(detectorPane, unsetDetector, fieldsDetector, 
 				unsetDetectorShown);
 		parent.layoutFields(lightPane, unsetLight, fieldsLight, 
 				unsetLightShown);
 		parent.layoutFields(generalPane, unsetGeneral, fieldsGeneral, 
 				unsetGeneralShown);
-    	add(generalPane);;
-    	add(detectorPane);
-    	add(lightPane);
-    	add(exposureTask);
+		
+		setLayout(new GridBagLayout());
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.anchor = GridBagConstraints.WEST;
+		constraints.insets = new Insets(0, 2, 2, 0);
+		constraints.weightx = 1.0;
+		constraints.gridy = 0;
+		add(generalPane, constraints);
+		++constraints.gridy;
+    	add(detectorPane, constraints);
+    	++constraints.gridy;
+    	add(lightPane, constraints);
+    	++constraints.gridy;
+    	constraints.fill = GridBagConstraints.HORIZONTAL;
+    	add(exposureTask, constraints);
     	parent.attachListener(fieldsGeneral);
     	parent.attachListener(fieldsDetector);
     	parent.attachListener(fieldsLight);
@@ -861,11 +878,19 @@ class ChannelAcquisitionComponent
 			info = (PlaneInfo) j.next();
 			details = EditorUtil.transformPlaneInfo(info);
 			values[0][i] = details.get(EditorUtil.EXPOSURE_TIME)+"s";
-			names[i] = "t "+(i+1);
+			names[i] = "t="+(i+1);
 			i++;
 		}
 		JTable table = new JTable(values, names);
-		exposureTask.add(table);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		table.setShowGrid(true);
+		table.setGridColor(Color.LIGHT_GRAY);
+		JScrollPane pane = new JScrollPane(table);
+		Dimension d = table.getPreferredSize();
+		Dimension de = exposureTask.getPreferredSize();
+		pane.setPreferredSize(
+			new Dimension(de.width-10, 4*d.height));
+		exposureTask.add(pane);
 	}
 	
 	/**
