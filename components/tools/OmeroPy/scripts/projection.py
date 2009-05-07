@@ -95,7 +95,7 @@ def projection(client, session, commandArgs):
 	newPixelsId = newPixelsId[0];
 	for t in tRange:
 		for c in cRange:
-			newPlane = numpy.zeros([sizeX, sizeY], dtype=PixelsTypeToPython.toArray(pixels.getPixelsType().getValue().getValue()));
+			newPlane = numpy.zeros([sizeX, sizeY], dtype=pixelstypetopython.toArray(pixels.getPixelsType().getValue().getValue()));
 			for z in zRange:
 
 				plane = downloadPlane(gateway, pixels, pixelsId, originalSizeX, originalSizeY, z, c, t);
@@ -114,9 +114,9 @@ def projection(client, session, commandArgs):
 	
 def downloadPlane(gateway, pixels, pixelsId, x, y, z, c, t):
 	rawPlane = gateway.getPlane(pixelsId, z, c, t);
-	convertType ='>'+str(x*y)+PixelsTypeToPython.toPython(pixels.getPixelsType().getValue().getValue());
+	convertType ='>'+str(x*y)+pixelstypetopython.toPython(pixels.getPixelsType().getValue().getValue());
 	convertedPlane = unpack(convertType, rawPlane);
-	remappedPlane = numpy.array(convertedPlane,dtype=PixelsTypeToPython.toArray(pixels.getPixelsType().getValue().getValue()));
+	remappedPlane = numpy.array(convertedPlane,dtype=pixelstypetopython.toArray(pixels.getPixelsType().getValue().getValue()));
 	remappedPlane.resize(x,y);
 	return remappedPlane;
 
