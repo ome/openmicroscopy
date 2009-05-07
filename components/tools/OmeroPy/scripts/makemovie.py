@@ -58,7 +58,6 @@ import omero
 import getopt, sys, os, subprocess
 import omero_api_Gateway_ice
 import omero_api_IScript_ice
-import omero.scripts as scripts
 import numpy;
 import pixelstypetopython;
 from struct import *
@@ -158,9 +157,9 @@ def buildAVI(sizeX, sizeY, filelist, fps, output, format):
 	print format
 	formatExtension = formatExtensionMap[format];
 	if(format==MPEG):
-		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mpeg4 -oac copy -o '+commandArgs["output"]+"."+formatExtension;
+		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=png -ovc lavc -lavcopts vcodec=mpeg4 -oac copy -o '+commandArgs["output"]+"."+formatExtension;
 	else:	
-		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o ' +commandArgs["output"]+"."+formatExtension;
+		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=png -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o ' +commandArgs["output"]+"."+formatExtension;
 	os.system(program+ args);
 	
 def rangeToStr(range):
@@ -336,14 +335,14 @@ def writeMovie(commandArgs, session):
 			planeImage = planeImage.byteswap();
 			planeImage = planeImage.reshape(sizeX, sizeY);
 			image = Image.frombuffer('RGBA',(sizeX,sizeY),planeImage.data,'raw','ARGB',0,1)
-			filename = commandArgs["output"]+str(frameNo)+'.jpeg';
+			filename = commandArgs["output"]+str(frameNo)+'.png';
 			if(commandArgs["scalebar"]!=0):
 				image = addScalebar(commandArgs["scalebar"], image, pixels, commandArgs);
 			if(commandArgs["showTime"]==1 or commandArgs["showPlaneInfo"]==1):
 				planeInfo = "z:"+str(z)+"t:"+str(t);
 				time = timeMap[planeInfo]
 				image = addTimePoints(time, z, t, image, pixels, commandArgs);
-			image.save(filename,"JPEG")
+			image.save(filename,"PNG")
 			if(frameNo==1):
 				filelist = filename
 			else:
@@ -352,7 +351,7 @@ def writeMovie(commandArgs, session):
 	buildAVI(sizeX, sizeY, filelist, commandArgs["fps"], commandArgs["output"], commandArgs["format"]);
 	uploadMovie(client, session, omeroImage, commandArgs["output"], commandArgs["format"])
 	
-client = scripts.client('makemovie','MakeMovie creates a movie of the image and attaches it to the originating image.', \
+client = scripts.client('makemovie123132323217','MakeMovie creates a movie of the image and attaches it to the originating image.', \
 scripts.Long("imageId").inout(), scripts.String("output").inout(), scripts.Long("zStart").inout(),\
 scripts.Long("zEnd").inout(), scripts.Long("tStart").inout(), scripts.Long("tEnd").inout(), \
 scripts.Set("channels").inout(), scripts.Bool("splitView").inout(), scripts.Bool("showTime").inout(),scripts.Bool("showPlaneInfo").inout(), \

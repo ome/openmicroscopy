@@ -30,6 +30,7 @@ import ome.system.ServiceFactory;
 import ome.util.Utils;
 import omero.ApiUsageException;
 import omero.InternalException;
+import omero.RMap;
 import omero.RType;
 import omero.ServerError;
 import omero.ValidationException;
@@ -343,6 +344,16 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 try {
 
                     Map<String, RType> params = getParams(id, __current);
+                    if(params==null) {
+                        cb
+                        .ice_exception(new ApiUsageException(
+                                null,
+                                null,
+                                "Script has returned no parameters this " +
+                                "indicates that the script may have crashed."));
+                        		return; // EARLY EXIT
+                 	
+                    }
                     for (Map.Entry<String, RType> entry : params.entrySet()) {
                         String paramName = entry.getKey();
                         RType scriptParamType = entry.getValue();
@@ -378,7 +389,18 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                             job, 10, __current);
                     omero.grid.ProcessPrx prx = proc.execute(rmap(map));
                     prx._wait();
-                    cb.ice_response(proc.getResults(prx).getValue());
+                    Map<String, RType> results = proc.getResults(prx).getValue();
+                    if(results==null) {
+                        cb
+                        .ice_exception(new ApiUsageException(
+                                null,
+                                null,
+                                "Script has returned null this indicates " +
+                                "that the script may have crashed."));
+                        		return; // EARLY EXIT
+                 	
+                    }
+                    cb.ice_response(results);
                 } catch (Exception e) {
                     cb.ice_exception(e);
                 }
@@ -467,6 +489,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             throws ServerError {
         OriginalFile file = getOriginalFileOrNull(id);
         JobParams params = getScriptParams(file, __current);
+        if(params==null) return null;
         Map<String, RType> temporary = new HashMap<String, RType>();
         for (String key : params.inputs.keySet()) {
             Param p = params.inputs.get(key);
