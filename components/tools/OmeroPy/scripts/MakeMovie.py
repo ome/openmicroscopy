@@ -267,6 +267,8 @@ def inRange(low, high, max):
 	return 1;
 
 def validChannels(set, sizeC):
+	if(len(set)==0):
+		return 0;
 	for val in set:
 		if(val < 0 or val > sizeC):
 			return 0;
