@@ -1158,6 +1158,9 @@ class BlitzObjectWrapper (object):
             self.__class__.PARENT_WRAPPER_CLASS = self.PARENT_WRAPPER_CLASS = g[self.PARENT_WRAPPER_CLASS]
         return self.PARENT_WRAPPER_CLASS
 
+    def __loadedHotSwap__ (self):
+        self._obj = self._conn.getContainerService().loadContainerHierarchy(self.OMERO_CLASS, (self._oid,), None)[0]
+
     def _setWorldReadRecursive (self, val): #pragma: no cover
         """ This is used only in testing """
         self.getDetails().permissions.setWorldRead(val)
@@ -1955,6 +1958,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         self.LINK_CLASS = None
         self.CHILD_WRAPPER_CLASS = None
         self.PARENT_WRAPPER_CLASS = 'DatasetWrapper'
+
 
     def __loadedHotSwap__ (self):
         self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None)[0]
