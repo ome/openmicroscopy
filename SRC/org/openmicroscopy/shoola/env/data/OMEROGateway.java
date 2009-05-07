@@ -2280,7 +2280,7 @@ class OMEROGateway
 			String table = getTableForLink(parentClass);
 			if (table == null) return null;
 			ParametersI param = new ParametersI();
-			param.map.put("childID", omero.rtypes.rlong(childID));
+			param.map.put("id", omero.rtypes.rlong(childID));
 			StringBuffer sb = new StringBuffer();
 			sb.append("select link from "+table+" as link ");
 			sb.append("left outer join fetch link.child as child ");
