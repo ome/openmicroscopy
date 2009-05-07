@@ -413,7 +413,7 @@ def debug (f):
     def wrap (request, *args, **kwargs):
         debug = request.REQUEST.getlist('debug')
         if 'slow' in debug:
-            time.sleep(15)
+            time.sleep(5)
         if 'fail' in debug:
             raise Http404
         if 'error' in debug:
