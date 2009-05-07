@@ -176,6 +176,9 @@ class GTest(unittest.TestCase):
     def _testDatasetName (self, public=False):
         return (public and PUBLIC_PREFIX or PRIVATE_PREFIX) + '_dataset'
 
+    def _testDataset2Name (self, public=False):
+        return self._testDatasetName(public) + '2'
+
     def _testImageName (self, public=False):
         return (public and PUBLIC_PREFIX or PRIVATE_PREFIX) + '_image'
 
@@ -189,14 +192,19 @@ class GTest(unittest.TestCase):
                 return p
         return None
 
-    def getTestDataset (self, project=None, public=False):
-        name = self._testDatasetName(public)
+    def _getTestDataset (self, name, project=None, public=False):
         if project is None:
             project = self.getTestProject(public=public)
         for d in project.listChildren():
             if d.getName() == name:
                 return d
         return None
+
+    def getTestDataset (self, project=None, public=False):
+        return self._getTestDataset(self._testDatasetName(), project, public)
+
+    def getTestDataset2 (self, project=None, public=False):
+        return self._getTestDataset(self._testDataset2Name(), project, public)
 
     def _getTestImage (self, name, dataset=None, public=False):
         if dataset is None:
@@ -227,6 +235,8 @@ class GTest(unittest.TestCase):
             p.setDescription(rstring(name))
             p = omero.gateway.ProjectWrapper(self.gateway, self.gateway.getUpdateService().saveAndReturnObject(p))
             print "created project #%i" % p.id
+        else:
+            p.__loadedHotSwap__()
         d = self.getTestDataset(p, public=public)
         if d is None:
             name = self._testDatasetName(public)
@@ -235,13 +245,23 @@ class GTest(unittest.TestCase):
             d.setDescription(rstring(name))
             p.linkDataset(d)
             p.save()
-            d = getTestDataset(self.gateway, p, public=public)
+            d = self.getTestDataset(p, public=public)
             print "created dataset #%i" % d.id
-        return (p,d)
+        d2 = self.getTestDataset2(p, public=public)
+        if d2 is None:
+            name = self._testDataset2Name(public)
+            d2 = omero.model.DatasetI(loaded=True)
+            d2.setName(rstring(name))
+            d2.setDescription(rstring(name))
+            p.linkDataset(d2)
+            p.save()
+            d2 = self.getTestDataset2(p, public=public)
+            print "created dataset2 #%i" % d2.id
+        return (p,d,d2)
 
     def _putTestImage (self, name, filename, dataset=None, public=False):
         if dataset is None:
-            project, dataset = self.assertTestGraph(public)
+            project, dataset, d2 = self.assertTestGraph(public)
         img = self._getTestImage(name, dataset, public=public)
         if img is None:
             fpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'testimgs', filename)
@@ -272,7 +292,7 @@ class GTest(unittest.TestCase):
 
     def putBadTestImage (self, dataset=None, public=False):
         if dataset is None:
-            project, dataset = self.assertTestGraph(public)
+            project, dataset, d2 = self.assertTestGraph(public)
         img = self.getBadTestImage(dataset, public=public)
         if img is None:
             name = self._testImageName(public) + '_bad'
@@ -294,10 +314,11 @@ class GTest(unittest.TestCase):
         self._createUser(AUTHOR[0], AUTHOR_NAME[0], AUTHOR_NAME[1], AUTHOR[1], '%s_group' % AUTHOR[0], system=False)
         self._createUser(EDITOR[0], EDITOR_NAME[0], EDITOR_NAME[1], EDITOR[1], '%s_group' % EDITOR[0], system=True)
         self.loginAsAuthor()
-        p,d = self.assertTestGraph(public=False)
+        p,d,d2 = self.assertTestGraph(public=False)
         self.putBadTestImage(dataset=d, public=False)
         self.putTestImage(dataset=d, public=False)
         self.putTinyTestImage(dataset=d, public=False)
         self.putTestImage2(dataset=d, public=False)
+        self.putTinyTestImage(dataset=d2, public=False)
         
         
