@@ -9,6 +9,7 @@ import java.text.RuleBasedCollator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2370,6 +2371,9 @@ public class OMEROMetadataStoreClient
     		{
     			projects.add((Project) object);
     		}
+    		
+    		Collections.sort(projects, new SortProjectsByName());
+    		
     		return projects;
     	}
     	catch (ServerError e)
@@ -2389,7 +2393,10 @@ public class OMEROMetadataStoreClient
     		if (objects.size() > 0)
     		{
     		    Project project = (Project) objects.get(0);
-    		    return project.linkedDatasetList();
+    		    
+    		    List<Dataset> datasets = project.linkedDatasetList();
+    		    Collections.sort(datasets, new SortDatasetsByName());
+    		    return datasets;
     		}
     		return null;
     	}
@@ -4035,4 +4042,19 @@ public class OMEROMetadataStoreClient
     }
     
    /*-----------*/
+    
+    public class SortProjectsByName implements Comparator<Project>{
+        public int compare(Project o1, Project o2)
+        {
+            return o1.getName().getValue().compareTo(o2.getName().getValue());
+        }
+     }
+    
+    
+    public class SortDatasetsByName implements Comparator<Dataset>{
+        public int compare(Dataset o1, Dataset o2)
+        {
+            return o1.getName().getValue().compareTo(o2.getName().getValue());
+        }
+     }
 }
