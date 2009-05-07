@@ -33,8 +33,6 @@ import javax.swing.event.ChangeEvent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -58,8 +56,8 @@ public class CreateMovieAction
 	private static final String NAME = "Create Movie...";
 	
     /** Description of the action. */
-    private static final String DESCRIPTION = "Bring up dialog to create " +
-    		"a movie.";
+    private static final String DESCRIPTION = "Create a movie from the " +
+    		"selected image.";
     
     /**
      * Disposes and closes the movie player when the {@link ImViewer} is
@@ -74,7 +72,7 @@ public class CreateMovieAction
         	setEnabled(maxZ > 1 || maxT > 1);
     	}
     }
-    
+
     /**
      * Creates a new instance.
      * 
@@ -88,24 +86,13 @@ public class CreateMovieAction
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.CREATE));
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.CREATE_MOVIE));
 	}
 	
 	/** 
      * Brings up the dialog. 
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    { 
-    	int maxT = model.getMaxT()+1;
-    	int maxZ = model.getMaxZ()+1;
-    	String name = EditorUtil.getPartialName(model.getImageName());
-    	MovieExportDialog dialog = new MovieExportDialog(model.getUI(), name, 
-    			maxT, maxZ);
-    	if (dialog.showDialog() == MovieExportDialog.SAVE) {
-    		setEnabled(false);
-    		model.createMovie(dialog.getParameters());
-    	}
-    }
+    public void actionPerformed(ActionEvent e) {  model.makeMovie(); }
 
 }

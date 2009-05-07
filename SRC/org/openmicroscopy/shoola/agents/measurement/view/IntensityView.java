@@ -77,6 +77,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.ui.ColorListRenderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
@@ -85,7 +86,6 @@ import org.openmicroscopy.shoola.agents.measurement.util.ChannelSummaryTable;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
-import org.openmicroscopy.shoola.agents.measurement.util.ui.ColourListRenderer;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -458,8 +458,7 @@ class IntensityView
 			//return;
 		
 		channelSelection.setModel(new DefaultComboBoxModel(channelCols));	
-		ColourListRenderer renderer =  new ColourListRenderer();
-		channelSelection.setRenderer(renderer);
+		channelSelection.setRenderer(new ColorListRenderer());
 		if (selectedChannelName != null)
 			if (nameMap.containsKey(selectedChannelName))
 				selectedChannel = nameMap.get(selectedChannelName);

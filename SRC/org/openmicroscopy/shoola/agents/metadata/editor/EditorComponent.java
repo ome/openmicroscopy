@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -520,6 +521,21 @@ class EditorComponent
 	{
 		model.download(folder);
 		setStatus(true);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setPlaneInfo(Collection, long, int)
+	 */
+	public void setPlaneInfo(Collection result, long pixelsID, int channel)
+	{
+		Object ref = model.getRefObject();
+		if (!(ref instanceof ImageData)) return;
+		ImageData img = (ImageData) ref;
+		if (pixelsID != img.getDefaultPixels().getId()) return;
+		model.setPlaneInfo(channel, result);
+		view.setPlaneInfo(channel);
+		view.setStatus(false);
 	}
 	
 }

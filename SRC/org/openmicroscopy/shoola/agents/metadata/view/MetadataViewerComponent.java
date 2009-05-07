@@ -24,28 +24,42 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Cursor;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -96,6 +110,19 @@ class MetadataViewerComponent
 		dialog.setNoText("Cancel");
 		dialog.setYesText("OK");
 		return dialog;
+	}
+	
+	/**
+	 * Creates the movie.
+	 * 
+	 * @param parameters The parameters used to create the movie.
+	 */
+	private void createMovie(MovieExportParam parameters)
+	{
+		if (parameters == null) return;
+		firePropertyChange(CREATING_MOVIE_PROPERTY, Boolean.valueOf(false),
+				Boolean.valueOf(true));
+		model.createMovie(parameters);
 	}
 	
 	/**
@@ -590,6 +617,61 @@ class MetadataViewerComponent
 	public String getObjectPath()
 	{
 		return model.getRefObjectPath();
+	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#makeMovie(int, Color)
+	 */
+	public void makeMovie(int scaleBar, Color overlayColor)
+	{
+		Object refObject = model.getRefObject();
+		if (!(refObject instanceof ImageData)) return;
+		PixelsData data = null;
+		ImageData img = (ImageData) refObject;
+    	try {
+    		data = ((ImageData) refObject).getDefaultPixels();
+		} catch (Exception e) {}
+		if (data == null) return;
+		int maxT = data.getSizeT();
+    	int maxZ = data.getSizeZ();
+    	String name = EditorUtil.getPartialName(img.getName());
+    	JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+    	MovieExportDialog dialog = new MovieExportDialog(f, name, 
+    			maxT, maxZ);
+    	dialog.setScaleBarDefault(scaleBar, overlayColor);
+    	dialog.addPropertyChangeListener(new PropertyChangeListener() {
+		
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (MovieExportDialog.CREATE_MOVIE_PROPERTY.equals(name)) {
+					Object src = evt.getSource();
+					if (src instanceof MovieExportDialog) {
+						MovieExportDialog d = (MovieExportDialog) src;
+						createMovie(d.getParameters());
+					}
+				}
+			}
+		});
+		dialog.centerDialog();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#uploadMovie(FileAnnotationData)
+	 */
+	public void uploadMovie(FileAnnotationData data, File folder)
+	{
+		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+		if (data == null) {
+			un.notifyInfo("Movie Creation", "A problem occured while " +
+					"creating the movie");
+			return;
+		}
+		if (folder == null) folder = UIUtilities.getDefaultFolder();
+		firePropertyChange(CREATING_MOVIE_PROPERTY, Boolean.valueOf(true), 
+				Boolean.valueOf(false));
+		un.notifyDownload(data, folder);
 	}
 	
 }

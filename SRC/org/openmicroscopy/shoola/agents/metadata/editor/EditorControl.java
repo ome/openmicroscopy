@@ -55,7 +55,6 @@ import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
@@ -112,6 +111,9 @@ class EditorControl
 	
 	/** Action id indicating to create a new experiment. */
 	static final int	CREATE_NEW_EXPERIMENT = 6;
+	
+	/** Action ID to create a movie. */
+	static final int	CREATE_MOVIE = 7;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -247,7 +249,6 @@ class EditorControl
 	
 	/** Loads the existing Tags. */
 	void loadExistingTags() { model.loadExistingTags(); }
-	
 
 	/**
 	 * Returns <code>true</code> if the display is for a single 
@@ -322,6 +323,9 @@ class EditorControl
 		} else if (PreviewPanel.OPEN_FILE_PROPERTY.equals(name)) {
 			Long id = (Long) evt.getNewValue();
 			if (id != null) viewProtocol(id.longValue());
+		} else if (MetadataViewer.CREATING_MOVIE_PROPERTY.equals(name)) {
+			boolean b = (Boolean) evt.getNewValue();
+			view.createMovie(b);
 		}
 	}
 
@@ -350,6 +354,9 @@ class EditorControl
 				break;
 			case CREATE_NEW_EXPERIMENT:
 				view.createNewExperiment();
+				break;
+			case CREATE_MOVIE:
+				view.makeMovie(-1, null);
 		}
 	}
 	

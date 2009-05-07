@@ -31,27 +31,29 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 
 
 //Third-party libraries
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import omero.model.AcquisitionMode;
 import omero.model.ContrastMethod;
 import omero.model.Illumination;
-
+import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -189,6 +191,9 @@ class ChannelAcquisitionComponent
 	/** Reference to the Model. */
 	private EditorModel							model;
 
+	/** The component hosting the exposure time. */
+	private JXTaskPane							exposureTask;
+	
 	/** Resets the various boxes with enumerations. */
 	private void resetBoxes()
 	{
@@ -316,6 +321,8 @@ class ChannelAcquisitionComponent
 		generalPane.setBorder(BorderFactory.createTitledBorder("Info"));
 		generalPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		generalPane.setLayout(new GridBagLayout());
+		exposureTask = EditorUtil.createTaskPane("Exposure Time");
+		exposureTask.addPropertyChangeListener(this);
 	}
 	
 	/** Handles the selection of the light source. */
@@ -779,7 +786,7 @@ class ChannelAcquisitionComponent
     	add(generalPane);;
     	add(detectorPane);
     	add(lightPane);
-
+    	add(exposureTask);
     	parent.attachListener(fieldsGeneral);
     	parent.attachListener(fieldsDetector);
     	parent.attachListener(fieldsLight);
@@ -835,6 +842,32 @@ class ChannelAcquisitionComponent
 		}
 	}
 
+	/**
+	 * Sets the plane info for the specified channel.
+	 * 
+	 * @param index  The index of the channel.
+	 */
+	void setPlaneInfo(int index)
+	{
+		if (channel.getIndex() != index) return;
+		Collection result = model.getChannelPlaneInfo(index);
+		String[][] values = new String[1][result.size()];
+		String[] names = new String[result.size()];
+		int i = 0;
+		Iterator j = result.iterator();
+		PlaneInfo info;
+		Map<String, Object> details;
+		while (j.hasNext()) {
+			info = (PlaneInfo) j.next();
+			details = EditorUtil.transformPlaneInfo(info);
+			values[0][i] = details.get(EditorUtil.EXPOSURE_TIME)+"s";
+			names[i] = "t "+(i+1);
+			i++;
+		}
+		JTable table = new JTable(values, names);
+		exposureTask.add(table);
+	}
+	
 	/**
 	 * Returns <code>true</code> if data to save, <code>false</code>
 	 * otherwise.
@@ -983,6 +1016,8 @@ class ChannelAcquisitionComponent
 				case DETECTOR:
 					displayUnsetDetectorFields();
 			}
+		} else if (UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE.equals(name)) {
+			parent.loadPlaneInfo(channel.getIndex());
 		}
 	}
 

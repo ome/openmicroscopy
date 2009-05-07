@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -289,5 +290,14 @@ public interface Editor
 	 * @param parentRefObject The parent of the root object.
 	 */
 	public void setParentRootObject(Object parentRefObject);
+
+	/**
+	 * Sets the plane info corresponding to the channel and the pixels set.
+	 * 
+	 * @param result	The collection of plane.
+	 * @param pixelsID	The id of the pixels set.
+	 * @param channel	The selected channel.
+	 */
+	public void setPlaneInfo(Collection result, long pixelsID, int channel);
 
 }

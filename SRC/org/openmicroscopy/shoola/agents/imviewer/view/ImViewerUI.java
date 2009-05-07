@@ -151,32 +151,10 @@ class ImViewerUI
 	/** Indicates the percentage of the screen to use to display the viewer. */
 	private static final double SCREEN_RATIO = 0.9;
 
-	/** Identifies the <code>Indigo</code> color. */
-	private static final Color  INDIGO = new Color(75, 0, 130);
-
-	/** Identifies the <code>Violet</code> color. */
-	private static final Color  VIOLET = new Color(238, 130, 238);
-
-	/** The available colors for the unit bar. */
-	private static Map<Color, String>	colors;
-
 	/** The available colors for the background color of the canvas. */
 	private static Map<Color, String>	backgrounds;
 
 	static {
-		colors = new LinkedHashMap<Color, String>();
-		colors.put(ImagePaintingFactory.UNIT_BAR_COLOR, 
-				ImagePaintingFactory.UNIT_BAR_COLOR_NAME);
-		colors.put(Color.ORANGE, "Orange");
-		colors.put(Color.YELLOW, "Yellow");
-		colors.put(Color.BLACK, "Black");
-		colors.put(INDIGO, "Indigo");
-		colors.put(VIOLET, "Violet");
-		colors.put(Color.RED, "Red");
-		colors.put(Color.GREEN, "Green");
-		colors.put(Color.BLUE, "Blue");
-		colors.put(Color.WHITE, "White");
-
 		backgrounds = new LinkedHashMap<Color, String>();
 		backgrounds.put(ImagePaintingFactory.DEFAULT_BACKGROUND, 
 				ImagePaintingFactory.DEFAULT_BACKGROUND_NAME);
@@ -426,7 +404,7 @@ class ImViewerUI
 	{
 		JMenu menu = new JMenu("Scale bar color");
 		ButtonGroup group = new ButtonGroup();
-		Iterator i = colors.keySet().iterator();
+		Iterator i = EditorUtil.COLORS_BAR.keySet().iterator();
 		ColorCheckBoxMenuItem item;
 		Color c;
 		Color refColor = ImagePaintingFactory.UNIT_BAR_COLOR;
@@ -436,7 +414,7 @@ class ImViewerUI
 		while (i.hasNext()) {
 			c = (Color) i.next();
 			item = new ColorCheckBoxMenuItem(c);
-			item.setText(colors.get(c)); 
+			item.setText(EditorUtil.COLORS_BAR.get(c)); 
 			item.setSelected(c.equals(refColor));
 			group.add(item);
 			menu.add(item);

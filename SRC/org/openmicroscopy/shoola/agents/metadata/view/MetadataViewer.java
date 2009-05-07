@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.awt.Color;
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import javax.swing.JComponent;
@@ -37,6 +39,7 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -80,6 +83,9 @@ public interface MetadataViewer
 	 */
 	public static final String	LOADING_PARENTS_PROPERTY = "loadingParents";
 
+	/** Bound property indicating to create a movie. */
+	public static final String	CREATING_MOVIE_PROPERTY = "creatingMovie";
+	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
 
@@ -294,5 +300,24 @@ public interface MetadataViewer
 	 * @param parent The parent of the root object.
 	 */
 	public void setParentRootObject(Object parent);
+
+	/**
+	 * Brings up the dialog to create a movie.
+	 * 
+	 * @param scaleBar 	   The value of the scale bar. 
+	 * 					   If not greater than <code>0</code>, the value is not 
+	 * 					   taken into account.
+	 * @param overlayColor The color of the scale bar and text. 
+	 */
+	public void makeMovie(int scaleBar, Color overlayColor);
+
+
+	/**
+	 * Uploads the movie.
+	 * 
+	 * @param data 	 The annotation hosting the movie.
+	 * @param folder The location where to save the movie.
+	 */
+	public void uploadMovie(FileAnnotationData data, File folder);
 	
 }

@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.agents.measurement.util.ui.ColourListRenderer
+ * org.openmicroscopy.shoola.util.ui.ColorListRenderer 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-
-package org.openmicroscopy.shoola.agents.measurement.util.ui;
+package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.Color;
@@ -43,17 +42,16 @@ import org.openmicroscopy.shoola.util.ui.ColourIcon;
  * box.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since 3.0-Beta4
  */
-
-public class ColourListRenderer
+public class ColorListRenderer 	
 	extends JLabel  
 	implements ListCellRenderer  
 {
@@ -62,7 +60,7 @@ public class ColourListRenderer
 	private static final int  GAP = 20;
 	
 	/** Create the icon which will hold the colours. */
-	private static ColourIcon icon;// = new ColourIcon(15, 15);
+	private static ColourIcon icon;
 	
 	/** Border colour of the cell when the icon is selected. */
 	private Border lineBorder;
@@ -73,7 +71,7 @@ public class ColourListRenderer
 	/**
 	 * Creates a new instance. Sets the background to opaque.
 	 */
-	public ColourListRenderer()
+	public ColorListRenderer()
 	{
 		setOpaque(true);
         setHorizontalAlignment(CENTER);
@@ -102,13 +100,10 @@ public class ColourListRenderer
 		setVerticalAlignment(SwingConstants.CENTER);
 		setIconTextGap(GAP);
 		setText((String) array[1]);
-		if (isSelected)
-		{
+		if (isSelected) {
 			setForeground(list.getSelectionForeground());
 			setBackground(list.getSelectionBackground());
-		}
-		else
-		{
+		} else {
 			setForeground(list.getForeground());
 			setBackground(list.getBackground());
 		}
@@ -117,5 +112,5 @@ public class ColourListRenderer
 		else setBorder(emptyBorder);
 		return this;
 	}
-
+	
 }

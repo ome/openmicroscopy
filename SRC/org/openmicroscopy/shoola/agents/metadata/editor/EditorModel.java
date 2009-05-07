@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.sql.Timestamp;
@@ -42,6 +43,7 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
@@ -52,6 +54,7 @@ import org.openmicroscopy.shoola.agents.metadata.EnumerationLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.OriginalFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
+import org.openmicroscopy.shoola.agents.metadata.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.metadata.TagsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
@@ -162,7 +165,10 @@ class EditorModel
 	private Map<String, List<EnumerationObject>>	imageEnumerations;
 	
 	/** The map hosting the channels acquisition data. */
-	private Map<Integer, ChannelAcquisitionData> 	channelAcquisitionDatMap;
+	private Map<Integer, ChannelAcquisitionData> 	channelAcquisitionDataMap;
+	
+	/** The map hosting the channels plane info. */
+	private Map<Integer, Collection> 	channelPlaneInfoMap;
 	
     /** 
      * Sorts the passed collection of annotations by date starting with the
@@ -190,6 +196,36 @@ class EditorModel
         Collections.sort(annotations, c);
     }
     
+    /** 
+	 * Sorts the passed nodes by row.
+	 * 
+	 * @param nodes The nodes to sort.
+	 * @return See above.
+	 */
+	private List sortPlane(Collection nodes)
+	{
+		List l = new ArrayList();
+		if (nodes == null) return l;
+		Iterator i = nodes.iterator();
+		while (i.hasNext()) {
+			l.add(i.next());
+		}
+		Comparator c = new Comparator() {
+            public int compare(Object o1, Object o2)
+            {
+                PlaneInfo i1 = (PlaneInfo) o1, i2 = (PlaneInfo) o2;
+                int t1 = i1.getTheT().getValue();
+                int t2 = i2.getTheT().getValue();
+                int v = 0;
+                if (t1 < t2) v = -1;
+                else if (t1 > t2) v = 1;
+                return v;
+            }
+        };
+        Collections.sort(l, c);
+		return l;
+	}
+	
     /** 
      * Sorts the passed collection of enumerations.
      * 
@@ -231,8 +267,6 @@ class EditorModel
 		this.thumbnailRequired = thumbnailRequired;
 		loaders = new ArrayList<EditorLoader>();
 		sorter = new ViewerSorter();
-		channelAcquisitionDatMap = 
-			new HashMap<Integer, ChannelAcquisitionData>();
 	}
 	
 	/**
@@ -808,7 +842,10 @@ class EditorModel
 	    if (emissionsWavelengths != null) 
 	    	emissionsWavelengths.clear();
 	    emissionsWavelengths = null;
-	    channelAcquisitionDatMap.clear();
+	    if (channelAcquisitionDataMap != null)
+	    	channelAcquisitionDataMap.clear();
+	    if (channelPlaneInfoMap != null)
+	    	channelPlaneInfoMap.clear();
 	    imageAcquisitionData = null;
 	    if (refObject instanceof ImageData) {
 	    	fireChannelEnumerationsLoading();
@@ -1335,8 +1372,12 @@ class EditorModel
      */
 	void setChannelAcquisitionData(int index, ChannelAcquisitionData data)
 	{
-		channelAcquisitionDatMap.put(index, data);
+		if (channelAcquisitionDataMap == null)
+			channelAcquisitionDataMap = new HashMap<Integer, 
+										ChannelAcquisitionData>();
+		channelAcquisitionDataMap.put(index, data);
 	}
+	
 	/**
 	 * Returns the channel acquisition data.
 	 * 
@@ -1345,7 +1386,33 @@ class EditorModel
 	 */
 	ChannelAcquisitionData getChannelAcquisitionData(int index)
 	{ 
-		return channelAcquisitionDatMap.get(index);
+		if (channelAcquisitionDataMap == null) return null;
+		return channelAcquisitionDataMap.get(index);
+	}
+	
+    /**
+     * Sets the collection of plane info for the specifed channel.
+     * 
+     * @param index The index of the channel.
+     * @param data  The value to set.
+     */
+	void setPlaneInfo(int index, Collection data)
+	{
+		if (channelPlaneInfoMap == null)
+			channelPlaneInfoMap = new HashMap<Integer, Collection>();
+		channelPlaneInfoMap.put(index, sortPlane(data));
+	}
+	
+	/**
+	 * Returns the channel acquisition data.
+	 * 
+	 * @param index The index of the channels.
+	 * @return See above.
+	 */
+	Collection getChannelPlaneInfo(int index)
+	{ 
+		if (channelPlaneInfoMap == null) return null;
+		return channelPlaneInfoMap.get(index);
 	}
 	
 	/**
@@ -1500,5 +1567,32 @@ class EditorModel
 	 * @return See above.
 	 */
 	String getObjectPath() { return parent.getObjectPath(); }
+	
+	/**
+	 * Starts asynchronous load of the plane info.
+	 * 
+	 * @param channel The selected channel.
+	 */
+	void fireLoadPlaneInfo(int channel)
+	{
+		if (!(refObject instanceof ImageData)) return;
+		ImageData img = (ImageData) refObject;
+		PlaneInfoLoader loader = new PlaneInfoLoader(component, 
+				img.getDefaultPixels().getId(), channel);
+		loader.load();
+	}
+
+	/**
+	 * Brings up the dialog to create a movie.
+	 * 
+	 * @param scaleBar 	   The value of the scale bar. 
+	 * 					   If not greater than <code>0</code>, the value is not 
+	 * 					   taken into account.
+	 * @param overlayColor The color of the scale bar and text. 
+	 */
+	void makeMovie(int scaleBar, Color overlayColor)
+	{
+		parent.makeMovie(scaleBar, overlayColor);
+	}
 	
 }

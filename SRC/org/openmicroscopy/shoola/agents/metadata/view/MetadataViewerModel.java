@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.metadata.DataSaver;
 import org.openmicroscopy.shoola.agents.metadata.ExperimenterEditor;
 import org.openmicroscopy.shoola.agents.metadata.MetadataLoader;
 import org.openmicroscopy.shoola.agents.metadata.ContainersLoader;
+import org.openmicroscopy.shoola.agents.metadata.MovieCreator;
 import org.openmicroscopy.shoola.agents.metadata.StructuredDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.BrowserFactory;
@@ -45,12 +46,14 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -474,6 +477,21 @@ class MetadataViewerModel
 	void loadParents(Class type, long id)
 	{
 		ContainersLoader loader = new ContainersLoader(component, type, id);
+		loader.load();
+	}
+
+	/**
+	 * Starts an asynchronous call to create a movie.
+	 * 
+	 * @param parameters The movie parameters.
+	 */
+	void createMovie(MovieExportParam parameters)
+	{
+		if (parameters == null) return;
+		if (!(refObject instanceof ImageData)) return;
+		ImageData img = (ImageData) refObject;
+		MovieCreator loader = new MovieCreator(component, parameters, 
+				null, img);
 		loader.load();
 	}
 	

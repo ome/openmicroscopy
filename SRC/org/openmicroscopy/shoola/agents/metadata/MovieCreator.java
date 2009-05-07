@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.MovieCreator 
+ * org.openmicroscopy.shoola.agents.metadata.MovieCreator 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -20,18 +20,22 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.imviewer;
+package org.openmicroscopy.shoola.agents.metadata;
+
 
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -40,9 +44,7 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /** 
- * Creates a movie of the image. 
- * This class calls the <code>createMovie</code> in the
- * <code>ImViewerView</code>. 
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,8 +56,8 @@ import pojos.ImageData;
  * </small>
  * @since 3.0-Beta4
  */
-public class MovieCreator
-	extends DataLoader
+public class MovieCreator 
+	extends MetadataLoader
 {
 
     /** Handle to the async call so that we can cancel it. */
@@ -82,7 +84,7 @@ public class MovieCreator
      * @param channels	The selected channels.
      * @param image		The image.
      */
-	public MovieCreator(ImViewer viewer, MovieExportParam param, 
+	public MovieCreator(MetadataViewer viewer, MovieExportParam param, 
 			List<Integer> channels, ImageData image)
 	{
 		super(viewer);
@@ -91,13 +93,15 @@ public class MovieCreator
 		if (param == null)
 			throw new IllegalArgumentException("Parameters cannot be null.");
 		this.param = param;
+		if (channels == null) 
+			channels = new ArrayList<Integer>();
 		this.channels = channels;
 		this.image = image;
 	}
 	
 	/**
      * Creates a movie of the selected image.
-     * @see DataLoader#load()
+     * @see MetadataLoader#load()
      */
     public void load()
     {
@@ -106,24 +110,33 @@ public class MovieCreator
 
     /**
      * Cancels the ongoing data retrieval.
-     * @see DataLoader#cancel()
+     * @see MetadataLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
+    /**
+     * Notifies the user that it wasn't possible to retrieve the data and
+     * and discards the {@link #viewer}.
+     */
+    public void handleNullResult() 
+    {
+    	viewer.uploadMovie(null, null);
+    }
+    
     /** 
      * Feeds the result back to the viewer. 
-     * @see DataLoader#handleResult(Object)
+     * @see MetadataLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
+        if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
         data = (FileAnnotationData) result;
         if (data == null) return;
-        MessageBox box = new MessageBox(viewer.getUI(), "Movie Created",
+        JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+        MessageBox box = new MessageBox(f, "Movie Created",
 		"The movie has been created. Do you want to download it?");
 		if (box.centerMsgBox() == MessageBox.YES_OPTION) {
-			FileChooser chooser = new FileChooser(viewer.getUI(), 
-					FileChooser.FOLDER_CHOOSER, 
+			FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
 					"Download", "Select where to download the file.");
 			chooser.addPropertyChangeListener(new PropertyChangeListener() {
 			
@@ -138,6 +151,6 @@ public class MovieCreator
 			chooser.centerDialog();
 		}
     }
-
+    
+	
 }
-

@@ -96,6 +96,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjSavingDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -838,6 +839,9 @@ class ImViewerControl
 			view.hidePlaneInfoDetails();
 		} else if (ProjSavingDialog.LOAD_ALL_PROPERTY.equals(pName)) {
 			model.loadAllContainers();
+		} else if (MetadataViewer.CREATING_MOVIE_PROPERTY.equals(pName)) {
+			boolean b = ((Boolean) pce.getNewValue()).booleanValue();
+			getAction(CREATE_MOVIE).setEnabled(!b);
 		}
 	}
 

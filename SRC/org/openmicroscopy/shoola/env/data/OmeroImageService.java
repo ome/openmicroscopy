@@ -373,14 +373,17 @@ public interface OmeroImageService
 	/**
 	 * Loads the plane info objects related to the passed pixels set.
 	 * 
-	 * @param pixelsID The id of the pixels set.
+	 * @param pixelsID 	The id of the pixels set.
+	 * @param z 		The selected z-section or <code>-1</code>.
+     * @param t 		The selected timepoint or <code>-1</code>.
+     * @param channel 	The selected timepoint or <code>-1</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection loadPlaneInfo(long pixelsID)
+	public Collection loadPlaneInfo(long pixelsID, int z, int t, int channel)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

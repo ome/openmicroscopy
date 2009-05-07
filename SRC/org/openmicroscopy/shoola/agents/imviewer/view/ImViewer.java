@@ -29,7 +29,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -42,14 +41,12 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /** 
@@ -980,22 +977,17 @@ public interface ImViewer
 	 */
 	public void showColorPicker(int index);
 
-	/**
-	 * Creates a movie.
-	 * 
-	 * @param parameters The parameters used to create a movie.
-	 */
-	public void createMovie(MovieExportParam parameters);
-
-	/**
-	 * Uploads the movie.
-	 * 
-	 * @param data 	 The annotation hosting the movie.
-	 * @param folder The location where to save the movie.
-	 */
-	public void uploadMovie(FileAnnotationData data, File folder);
-
 	/** Loads all the datasets available. */
 	public void loadAllContainers();
+	
+	/**
+	 * Returns the unit in microns.
+	 * 
+	 * @return See above.
+	 */
+	public double getUnitInMicrons();
+
+	/** Makes a movie. */
+	public void makeMovie();
 	
 }

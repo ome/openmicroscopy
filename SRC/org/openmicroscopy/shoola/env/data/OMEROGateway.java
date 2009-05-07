@@ -629,7 +629,7 @@ class OMEROGateway
 		try {
 			if (scriptService == null) {
 				scriptService = entry.getScriptService();
-				services.add(pojosService);
+				services.add(scriptService);
 			}
 			return scriptService; 
 		} catch (Throwable e) {
@@ -4006,14 +4006,17 @@ class OMEROGateway
 	 * Returns the collection of plane info object related to the specified
 	 * pixels set.
 	 * 
-	 * @param pixelsID The id of the pixels set.
+	 * @param pixelsID  The id of the pixels set.
+	 * @param z 		The selected z-section or <code>-1</code>.
+     * @param t 		The selected timepoint or <code>-1</code>.
+     * @param channel 	The selected timepoint or <code>-1</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List<IObject> loadPlaneInfo(long pixelsID)
+	List<IObject> loadPlaneInfo(long pixelsID, int z, int t, int channel)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -4025,9 +4028,22 @@ class OMEROGateway
 		sb.append("select info from PlaneInfo as info ");
         sb.append("where pixels.id = :id");
         param.addLong("id", pixelsID);
+        if (z >= 0) {
+        	 sb.append(" and info.theZ = :z");
+        	 param.map.put("z", omero.rtypes.rint(z));
+        }
+        if (t >= 0) {
+        	sb.append(" and info.theT = :t");
+        	 param.map.put("t", omero.rtypes.rint(t));
+        }
+        if (channel >= 0) {
+        	sb.append(" and info.theC = :c");
+        	param.map.put("c", omero.rtypes.rint(channel));
+        }
         try {
         	return service.findAllByQuery(sb.toString(), param);
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, 
 					"Cannot load the plane info for pixels: "+pixelsID);
 		}
@@ -4158,11 +4174,34 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IScriptPrx svc = getScripService();
-			//TODO: retrieve the script
-			//naming convention for script??
-			long id = svc.getScriptID("");
-			Map<String, RType> parameters = null;
-			svc.runScript(id, parameters);
+			Set<RType> set = new HashSet<RType>(channels.size());
+			Iterator<Integer> i = channels.iterator();
+			while (i.hasNext()) 
+				set.add(omero.rtypes.rlong(i.next()));
+			long id = svc.getScriptID("makemovie");
+			if (id <= 0) return -1;
+			ParametersI parameters = new ParametersI();
+			parameters.map.put("imageId", omero.rtypes.rlong(imageID));
+			parameters.map.put("output", omero.rtypes.rstring(param.getName()));
+			parameters.map.put("zStart", omero.rtypes.rlong(param.getStartZ()));
+			parameters.map.put("zEnd", omero.rtypes.rlong(param.getEndZ()));
+			parameters.map.put("tStart", omero.rtypes.rlong(param.getStartT()));
+			parameters.map.put("tEnd", omero.rtypes.rlong(param.getEndT()));
+			parameters.map.put("channels", omero.rtypes.rset(set));
+			parameters.map.put("fps", omero.rtypes.rlong(param.getFps()));
+			parameters.map.put("showTime", 
+					omero.rtypes.rbool(param.isTimeVisible()));
+			parameters.map.put("splitView", omero.rtypes.rbool(false));
+			parameters.map.put("scalebar", omero.rtypes.rlong(
+					param.getScaleBar()));
+			parameters.map.put("format", omero.rtypes.rstring(
+					param.getFormatAsString()));
+			parameters.map.put("overlayColour", omero.rtypes.rlong(
+					param.getColor()));
+			Map<String, RType> result = svc.runScript(id, parameters.map);
+			RLong type = (RLong) result.get("fileAnnotation");
+			if (type == null) return -1;
+			return type.getValue();
 		} catch (Exception e) {
 			handleException(e, "Cannot create a movie for image: "+imageID);
 		}

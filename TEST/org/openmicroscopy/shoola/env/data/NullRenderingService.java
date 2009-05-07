@@ -242,9 +242,9 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#loadPlaneInfo(long)
+     * @see OmeroImageService#loadPlaneInfo(long, int, int, int)
      */
-	public Collection loadPlaneInfo(long pixelsID) 
+	public Collection loadPlaneInfo(long pixelsID, int z, int t, int channel) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

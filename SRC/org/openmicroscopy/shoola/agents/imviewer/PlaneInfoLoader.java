@@ -105,7 +105,7 @@ public class PlaneInfoLoader
     public void load()
     {
     	if (defaultT < 0 || defaultZ < 0)
-    		handle = ivView.loadPlaneInfo(pixelsID, this);
+    		handle = ivView.loadPlaneInfo(pixelsID, -1, -1, -1, this);
     }
 
     /**

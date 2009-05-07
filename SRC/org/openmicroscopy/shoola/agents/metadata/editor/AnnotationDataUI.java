@@ -259,7 +259,7 @@ class AnnotationDataUI
 		content = new JPanel();
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-    	double[] columns = {TableLayout.PREFERRED, 5, DEFAULT_WIDTH};
+    	double[] columns = {TableLayout.PREFERRED, 5, TableLayout.PREFERRED};//DEFAULT_WIDTH};
     	TableLayout layout = new TableLayout();
     	content.setLayout(layout);
     	layout.setColumn(columns);

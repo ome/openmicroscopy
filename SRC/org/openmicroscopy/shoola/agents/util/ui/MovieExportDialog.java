@@ -32,8 +32,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -54,6 +58,7 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
+import org.openmicroscopy.shoola.util.ui.ColorListRenderer;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -96,14 +101,6 @@ public class MovieExportDialog
 	/** The default value for the scale bar. */
 	private static final int		DEFAULT_SCALE = 5;
 	
-	/** The supported movie formats. */
-	private static final String[] 	FORMATS;
-	
-	static {
-		FORMATS = new String[1];
-		FORMATS[MovieExportParam.MPEG] = "mpeg";
-	}
-	
 	/** Button to close the dialog. */
 	private JButton					closeButton;
 	
@@ -127,6 +124,12 @@ public class MovieExportDialog
 	
 	/** Creates a movie across z-section. */
 	private JCheckBox				zInterval;
+	
+	/** Displays or not the real time. */
+	private JCheckBox				timeVisible;
+	
+	/** The selected color for scale bar. */
+	private JComboBox				colorBox;
 	
 	/** To specify the movie playback rate in frames per second. */
 	private JSpinner            	fps;
@@ -170,7 +173,15 @@ public class MovieExportDialog
 			saveButton.setEnabled(true);
 		}
 		nameField.getDocument().addDocumentListener(this);
-		formats = new JComboBox(FORMATS);
+		Map<Integer, String> map = MovieExportParam.FORMATS;
+		String[] f = new String[map.size()];
+		Entry entry;
+		Iterator i = map.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			f[(Integer) entry.getKey()] = (String) entry.getValue();
+		}
+		formats = new JComboBox(f);
 		timeRange = new TextualTwoKnobsSlider(1, maxT, 1, maxT);
 		timeRange.layoutComponents();
 		timeRange.setEnabled(maxT > 1);
@@ -179,11 +190,6 @@ public class MovieExportDialog
 		zRange.layoutComponents();
 		zRange.setEnabled(maxZ > 1);
 		
-		boolean selected = false;
-		if (maxT > 1) {
-			selected = true;
-		}
-		if (maxZ > 1 && !selected)
 		timeInterval = new JCheckBox("Time Interval");
 		timeInterval.setFont(timeInterval.getFont().deriveFont(Font.BOLD));
 		
@@ -202,12 +208,28 @@ public class MovieExportDialog
 		
 		fps = new JSpinner();
 		fps.setValue(MovieExportParam.DEFAULT_FPS);
+		
+		timeVisible = new JCheckBox("Show time value");
 		getRootPane().setDefaultButton(saveButton);
 		
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) { close(); }
 		});
+		
+		colorBox = new JComboBox();
+		Map<Color, String> colors = EditorUtil.COLORS_BAR;
+		Object[][] cols = new Object[colors.size()][2];
+		
+		int index = 0;
+		i = colors.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			cols[index] = new Object[]{entry.getKey(), entry.getValue()};
+			index++;
+		}
+		colorBox.setModel(new DefaultComboBoxModel(cols));	
+		colorBox.setRenderer(new ColorListRenderer());
 	}
 	
 	/** 
@@ -253,8 +275,8 @@ public class MovieExportDialog
         			TableLayout.FILL}, //columns
         				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
         				TableLayout.PREFERRED, 5, TableLayout.PREFERRED,
-        				5, TableLayout.PREFERRED, 5, TableLayout.PREFERRED,
-        				10}}; //rows
+        				5, TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5,
+        				TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 10}}; //rows
         TableLayout layout = new TableLayout(tl);
         content.setLayout(layout);
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -281,12 +303,17 @@ public class MovieExportDialog
         content.add(showScaleBar, "0, "+i);
         content.add(scaleBar, "1, "+i);
         content.add(new JLabel("microns"), "2, "+i);
+        i = i+2;
+        content.add(UIUtilities.buildComponentPanel(colorBox), "1, "+i);
+        i = i+2;
+        content.add(timeVisible, "0, "+i);
         return content;
 	}
 	
 	/** Closes the dialog. */
 	private void close()
 	{
+		option = CLOSE;
 		setVisible(false);
 		dispose();
 	}
@@ -296,11 +323,11 @@ public class MovieExportDialog
 	{
 		String name = nameField.getText();
 		int format = formats.getSelectedIndex();
-		int scale = 0;
+		int scale = -1;
 		int f = (Integer) fps.getValue();
 		if (showScaleBar.isSelected()) {
-			Number value = scaleBar.getValueAsNumber();
-			if (value != null) scale = value.intValue();
+			Number n = scaleBar.getValueAsNumber();
+			if (n != null) scale = n.intValue();
 		}
 		int type = MovieExportParam.ZT_MOVIE;;
 		if (!timeInterval.isSelected() && zInterval.isSelected()) 
@@ -312,6 +339,21 @@ public class MovieExportDialog
 				timeRange.getEndValue()-1);
 		param.setZsectionInterval(zRange.getStartValue()-1, 
 				zRange.getEndValue()-1);
+		param.setTimeVisible(timeVisible.isSelected());
+		
+		int index = colorBox.getSelectedIndex();
+		Entry entry;
+		Map<Color, String> m = EditorUtil.COLORS_BAR;
+		Iterator i = m.entrySet().iterator();
+		int j = 0;
+		Color c = null;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			if (j == index) c = (Color) entry.getKey();
+			j++;
+		}
+		param.setColor(c);
+		option = SAVE;
 		firePropertyChange(CREATE_MOVIE_PROPERTY, null, param);
 		close();
 	}
@@ -327,6 +369,22 @@ public class MovieExportDialog
 	}
 	
 	/**
+	 * Returns <code>true</code> if the colors are the same, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param c1 The color to handle.
+	 * @param c2 The color to handle.
+	 * @return See above.
+	 */
+	private boolean isSameColor(Color c1, Color c2)
+	{
+		if (c1.getRed() != c2.getRed()) return false;
+		if (c1.getGreen() != c2.getGreen()) return false;
+		if (c1.getBlue() != c2.getBlue()) return false;
+		return true;
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param owner The owner of the frame.
@@ -336,11 +394,38 @@ public class MovieExportDialog
 	 */
 	public MovieExportDialog(JFrame owner, String name, int maxT, int maxZ)
 	{
-		super(owner);
+		super(owner, true);
 		param = null;
 		initComponents(name, maxT, maxZ);
 		buildGUI();
 		pack();
+	}
+
+	/**
+	 * Sets the default value of the scale bar.
+	 * 
+	 * @param value The numerical value.
+	 * @param color	The selected color.
+	 */
+	public void setScaleBarDefault(int value, Color color)
+	{
+		if (color != null) {
+			Map<Color, String> m = EditorUtil.COLORS_BAR;
+			int index = 0;
+			Entry entry;
+			Iterator i = m.entrySet().iterator();
+			Color c;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				c = (Color) entry.getKey();
+				if (isSameColor(c, color))
+					break;
+				index++;
+			}
+			colorBox.setSelectedIndex(index);
+		}
+		if (value > 0)
+			scaleBar.setText(""+value);
 	}
 
     /**

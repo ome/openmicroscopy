@@ -553,5 +553,11 @@ class BrowserComponent
 		view.clearGridImages();
 		viewSplitImages();
 	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Browser#getUnitInMicrons()
+	 */
+	public double getUnitInMicrons() { return model.getUnitInMicrons(); }
 	
 }

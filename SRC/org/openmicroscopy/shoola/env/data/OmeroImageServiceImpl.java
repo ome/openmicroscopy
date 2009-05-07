@@ -498,12 +498,12 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#loadPlaneInfo(long)
+	 * @see OmeroImageService#loadPlaneInfo(long, int z, int t, int channel)
 	 */
-	public Collection loadPlaneInfo(long pixelsID)
+	public Collection loadPlaneInfo(long pixelsID, int z, int t, int channel)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Collection planes = gateway.loadPlaneInfo(pixelsID);
+		Collection planes = gateway.loadPlaneInfo(pixelsID, z, t, channel);
 		return planes;
 	}
 
@@ -596,10 +596,10 @@ class OmeroImageServiceImpl
 	{
 		if (imageID < 0)
 			throw new IllegalArgumentException("Image ID not valid.");
-		if (channels == null || channels.size() == 0)
-			throw new IllegalArgumentException("No channels specified.");
 		if (param == null)
 			throw new IllegalArgumentException("No parameters specified.");
+		if (channels == null)
+			channels = new ArrayList<Integer>();
 		long id = gateway.createMovie(imageID, channels, param);
 		if (id < 0) return null;
 		return context.getMetadataService().loadAnnotation(id);

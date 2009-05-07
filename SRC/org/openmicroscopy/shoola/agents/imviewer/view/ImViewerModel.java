@@ -47,7 +47,6 @@ import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImageDataLoader;
-import org.openmicroscopy.shoola.agents.imviewer.MovieCreator;
 import org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
@@ -69,7 +68,6 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -707,6 +705,13 @@ class ImViewerModel
 	 */
 	Browser getBrowser() { return browser; }
 
+	/**
+	 * Returns the {@link MetadataViewer}.
+	 * 
+	 * @return See above.
+	 */
+	MetadataViewer getMetadataViewer() { return metadataViewer; }
+	
 	/**
 	 * Sets the zoom factor.
 	 * 
@@ -1605,7 +1610,8 @@ class ImViewerModel
 	 * @param indexes	The indexes of the projected channels.
 	 * @param image 	The projected image.
 	 */
-	void fireProjectedRndSettingsCreation(List<Integer> indexes, ImageData image)
+	void fireProjectedRndSettingsCreation(List<Integer> indexes, 
+			ImageData image)
 	{
 		RndProxyDef def = currentRndControl.getRndSettingsCopy();
 		RenderingSettingsCreator l = new RenderingSettingsCreator(component, 
@@ -1790,24 +1796,28 @@ class ImViewerModel
 	 * @param time The value to set.
 	 */
 	void setLastProjectionTime(int time) { lastProjTime = time; }
-	
-	/**
-	 * Creates a movie.
-	 * 
-	 * @param parameters The parameters used to create a movie.
-	 */
-	void createMovie(MovieExportParam parameters)
-	{
-		MovieCreator loader = new MovieCreator(component, parameters, 
-				getActiveChannels(), image);
-		loader.load();
-	}
 
+	/**
+	 * Returns the unit in microns.
+	 * 
+	 * @return See above.
+	 */
+	double getUnitInMicrons() { return browser.getUnitInMicrons(); }
+	
 	/** Loads all the available datasets. */
 	void loadAllContainers()
 	{
 		ContainerLoader loader = new ContainerLoader(component);
 		loader.load();
+	}
+
+	/** Makes a movie. */
+	void makeMovie()
+	{
+		if (metadataViewer == null) return;
+		metadataViewer.makeMovie((int) getUnitInMicrons(), 
+				getBrowser().getUnitBarColor());
+		
 	}
 	
 }

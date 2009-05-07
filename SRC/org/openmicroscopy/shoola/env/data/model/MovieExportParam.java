@@ -22,6 +22,10 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
+import java.awt.Color;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 //Java imports
 
 //Third-party libraries
@@ -56,12 +60,27 @@ public class MovieExportParam
 	/** Identify the <code>mpeg</code> format. */
 	public static final int		MPEG = 0;
 	
+	/** Identify the <code>Quick time</code> format. */
+	public static final int		QT = 1;
+	
+	/** The supported formats. */
+	public static final Map<Integer, String> FORMATS;
+	
 	/** The default number of frames per second. */
 	public static final int 	DEFAULT_FPS  = 25;
 
 	/** The extension corresponding to the {@link #MPEG} movie. */
 	private static final String MPEG_EXTENSION = ".avi";
 		
+	/** The extension corresponding to the {@link #QT} movie. */
+	private static final String QT_EXTENSION = ".avi";
+	
+	static {
+		FORMATS = new LinkedHashMap<Integer, String>(2);
+		FORMATS.put(MPEG, "mpeg");
+		FORMATS.put(QT, "quicktime");
+	}
+	
 	/** The name of the image. */
 	private String 	name;
 	
@@ -88,6 +107,12 @@ public class MovieExportParam
 	
 	/** Movie either across time of z-section. */
 	private int		type;
+	
+	/** Flag indicating to display or not the real time. */
+	private boolean timeVisible;
+	
+	/** The color of the scale bar. */
+	private int		color;
 	
 	/** 
 	 * Controls if the passed type is supported.
@@ -118,8 +143,14 @@ public class MovieExportParam
 	{
 		switch (value) {
 			case MPEG:
-				if (!name.endsWith(MPEG_EXTENSION))
-					name += MPEG_EXTENSION;
+				if (name.endsWith(MPEG_EXTENSION)) 
+					name = name.substring(0, 
+							name.length()-MPEG_EXTENSION.length());
+				return name;
+			case QT:
+				if (name.endsWith(QT_EXTENSION)) 
+					name = name.substring(0, 
+							name.length()-QT_EXTENSION.length());
 				return name;
 			default:
 				throw new IllegalArgumentException("Format not supported.");
@@ -153,10 +184,13 @@ public class MovieExportParam
 		checkType(type);
 		this.name = checkFormat(format, name);
 		this.type = type;
-		if (fps < 0) fps = DEFAULT_FPS;
+		if (fps <= 0) fps = DEFAULT_FPS;
+		this.fps = fps;
 		this.format = format;
 		if (scaleBar < 0) scaleBar = 0;
 		this.scaleBar = scaleBar;
+		timeVisible = false;
+		color = Color.LIGHT_GRAY.getRGB();
 		initialize();
 	}
 	
@@ -218,7 +252,7 @@ public class MovieExportParam
 	 * 
 	 * @return See above.
 	 */
-	public boolean isScaleBarVisible() { return scaleBar != 0; }
+	public boolean isScaleBarVisible() { return scaleBar <= 0; }
 
 	/**
 	 * Returns the lower bound of the time interval.
@@ -256,5 +290,57 @@ public class MovieExportParam
 	 * @return See above.
 	 */
 	public int getType() { return type; }
+	
+	/**
+	 * Returns the format as a string.
+	 * 
+	 * @return See above.
+	 */
+	public String getFormatAsString()
+	{
+		switch (format) {
+			case MPEG: return "video/mpeg";
+			case QT: return "video/quicktime";
+			default:
+				return "";
+		}
+	}
+	
+	/**
+	 * Returns <code>true</code> if the real time is displayed, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isTimeVisible() { return timeVisible; }
+	
+	/**
+	 * Sets the {@link #timeVisible} flag.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param timeVisible The value to set.
+	 */
+	public void setTimeVisible(boolean timeVisible)
+	{ 
+		this.timeVisible = timeVisible; 
+	}
+	
+	/**
+	 * Sets the color of the scale bar.
+	 * 
+	 * @param color The value to set.
+	 */
+	public void setColor(Color color)
+	{ 
+		if (color == null) return;
+		this.color = color.getRGB() & 0x00ffffff;
+	}
+	
+	/**
+	 * Returns the color of the scale bar.
+	 * 
+	 * @return See above.
+	 */
+	public int getColor() { return color; }
 	
 }

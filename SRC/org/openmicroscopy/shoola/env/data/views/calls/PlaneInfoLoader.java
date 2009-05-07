@@ -59,15 +59,19 @@ public class PlaneInfoLoader
      * Creates a {@link BatchCall} to load the plane information.
      * 
      * @param pixelsID  The id of the pixels set.
+     * @param z 		The selected z-section or <code>-1</code>.
+     * @param t 		The selected timepoint or <code>-1</code>.
+     * @param channel 	The selected timepoint or <code>-1</code>.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadPlaneInfo(final long pixelsID)
+    private BatchCall loadPlaneInfo(final long pixelsID, final int z, 
+    		final int t, final int channel)
     {
         return new BatchCall("Loading Plane Info for"+pixelsID) {
             public void doCall() throws Exception
             {
             	OmeroImageService os = context.getImageService();
-            	result = os.loadPlaneInfo(pixelsID);
+            	result = os.loadPlaneInfo(pixelsID, z, t, channel);
             }
         };
     }
@@ -87,11 +91,14 @@ public class PlaneInfoLoader
     /**
      * Creates a new instance.
      * 
-     * @param pixelsID The id of the pixels set.
+     * @param pixelsID 	The id of the pixels set.
+     * @param z 		The selected z-section or <code>-1</code>.
+     * @param t 		The selected timepoint or <code>-1</code>.
+     * @param channel 	The selected timepoint or <code>-1</code>.
      */
-    public PlaneInfoLoader(long pixelsID)
+    public PlaneInfoLoader(long pixelsID, int z, int t, int channel)
     {
-    	loadCall = loadPlaneInfo(pixelsID);
+    	loadCall = loadPlaneInfo(pixelsID, z, t, channel);
     }
     
 }

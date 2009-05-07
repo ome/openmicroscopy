@@ -187,6 +187,13 @@ public interface Browser
     public double getUnitBarSize();
     
     /**
+     * Returns the size in microns.
+     * 
+     * @return See above.
+     */
+    public double getUnitInMicrons();
+    
+    /**
      * Returns the color of the unit bar.
      * 
      * @return See above.

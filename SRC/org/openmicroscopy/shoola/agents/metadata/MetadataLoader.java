@@ -33,6 +33,7 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
+import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
@@ -77,14 +78,18 @@ public abstract class MetadataLoader
     /** Convenience reference for subclasses. */
     protected final DataManagerView     dmView;
     
+    /** Convenience reference for subclasses. */
+    protected final ImageDataView        ivView;
+    
     /**
-     * Checks if the specified type is supported.
+     * Creates a new instance.
      * 
-     * @param type	The value to control.
+     * @param viewer 	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
      */
-    protected void checkType(Class type)
+    public MetadataLoader(MetadataViewer viewer)
     {
-    	//TODO
+    	this(viewer, null);
     }
     
     /**
@@ -104,6 +109,8 @@ public abstract class MetadataLoader
          	registry.getDataServicesView(MetadataHandlerView.class);
          dmView = (DataManagerView) 
 			registry.getDataServicesView(DataManagerView.class);
+         ivView = (ImageDataView) 
+         	registry.getDataServicesView(ImageDataView.class);
     }
     
     /**

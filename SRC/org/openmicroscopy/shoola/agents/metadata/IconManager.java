@@ -235,11 +235,14 @@ public class IconManager
     /** The <code>Editor 12</code> icon. */
     public static final int           EDITOR_12= 60;
     
+    /** The <code>Create Movie</code> icon. */
+    public static final int           CREATE_MOVIE = 61;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 60;
+	private static final int          MAX_ID = 61;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -304,6 +307,7 @@ public class IconManager
         relPaths[TAG_SET] = "nuvola_knotesRedRed16.png";
         relPaths[DOWNLOAD_12] = "nuvola_download_manager11.png";
         relPaths[EDITOR_12] = "omeroEditorLink11.png";
+        relPaths[CREATE_MOVIE] = "nuvola_filenew16.png"; 
 	}
    
 	/** The sole instance. */

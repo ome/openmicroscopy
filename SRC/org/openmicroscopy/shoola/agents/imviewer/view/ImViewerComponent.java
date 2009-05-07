@@ -31,7 +31,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -68,7 +67,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -85,7 +83,6 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /** 
@@ -384,6 +381,8 @@ class ImViewerComponent
 		model.initialize(this);
 		controller.initialize(this, view);
 		view.initialize(controller, model);
+		if (model.getMetadataViewer() != null)
+			model.getMetadataViewer().addPropertyChangeListener(controller);
 	}
 
 	/**
@@ -2530,6 +2529,8 @@ class ImViewerComponent
 		model.setImageData(data);
 		view.setTitle(model.getImageTitle());
 		model.fireRenderingControlLoading(model.getPixelsID());
+		if (model.getMetadataViewer() != null)
+			model.getMetadataViewer().addPropertyChangeListener(controller);
 		fireStateChange();
 	}
 
@@ -2671,31 +2672,7 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED) return;
 		controller.showColorPicker(index);
 	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#createMovie(MovieExportParam)
-	 */
-	public void createMovie(MovieExportParam parameters)
-	{
-		if (model.getState() == DISCARDED) return;
-		if (parameters == null) return;
-		model.createMovie(parameters);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#uploadMovie(FileAnnotationData, File)
-	 */
-	public void uploadMovie(FileAnnotationData data, File folder)
-	{
-		if (data == null) return;
-		if (folder == null) folder = UIUtilities.getDefaultFolder();
-		controller.getAction(ImViewerControl.CREATE_MOVIE).setEnabled(true);
-		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-		un.notifyDownload(data, folder);
-	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#loadAllContainers()
@@ -2706,4 +2683,21 @@ class ImViewerComponent
 		model.loadAllContainers();
 	}
 
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getUnitInMicrons()
+	 */
+	public double getUnitInMicrons() { return model.getUnitInMicrons(); }
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#makeMovie()
+	 */
+	public void makeMovie()
+	{
+		if (model.getState() == DISCARDED) return;
+		model.makeMovie();
+		
+	}
+	
 }

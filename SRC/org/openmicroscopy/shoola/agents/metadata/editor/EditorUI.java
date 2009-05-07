@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.io.File;
 import java.util.Collection;
@@ -306,6 +307,14 @@ public class EditorUI
     /**
      * Enables the saving controls depending on the passed value.
      * 
+     * @param b Pass <code>true</code> if movie creation,
+     * 			<code>false</code> when it is done.
+     */
+    void createMovie(boolean b) { toolBar.createMovie(b); }
+    
+    /**
+     * Enables the saving controls depending on the passed value.
+     * 
      * @param b Pass <code>true</code> to save the data,
      * 			<code>false</code> otherwise.
      */
@@ -438,6 +447,16 @@ public class EditorUI
 	}
 
 	/**
+	 * Sets the plane info for the specified channel.
+	 * 
+	 * @param index  The index of the channel.
+	 */
+	void setPlaneInfo(int index)
+	{
+		acquisitionPane.setPlaneInfo(index);
+	}
+	
+	/**
 	 * Returns <code>true</code> if the display is for a single 
 	 * object, <code>false</code> otherwise.
 	 * 
@@ -467,6 +486,19 @@ public class EditorUI
 			}
 		}
 		
+	}
+
+	/**
+	 * Brings up the dialog to create a movie.
+	 * 
+	 * @param scaleBar 	   The value of the scale bar. 
+	 * 					   If not greater than <code>0</code>, the value is not 
+	 * 					   taken into account.
+	 * @param overlayColor The color of the scale bar and text. 
+	 */
+	void makeMovie(int scaleBar, Color overlayColor)
+	{
+		model.makeMovie(scaleBar, overlayColor);
 	}
 	
 }

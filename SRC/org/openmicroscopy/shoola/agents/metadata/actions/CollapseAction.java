@@ -54,6 +54,11 @@ public class CollapseAction
 	 /** Description of the action. */
     private static final String DESCRIPTION = "Collapse All.";
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     */
 	public CollapseAction(Browser model)
 	{
 		super(model);

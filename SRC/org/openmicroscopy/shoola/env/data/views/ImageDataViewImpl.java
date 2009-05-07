@@ -227,11 +227,12 @@ class ImageDataViewImpl
 	
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#loadPlaneInfo(long, AgentEventListener)
+     * @see ImageDataView#loadPlaneInfo(long, int, int, int, AgentEventListener)
      */
-	public CallHandle loadPlaneInfo(long pixelsID, AgentEventListener observer)
+	public CallHandle loadPlaneInfo(long pixelsID, int z, int t, int channel,
+			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new PlaneInfoLoader(pixelsID);
+		BatchCallTree cmd = new PlaneInfoLoader(pixelsID, z, t, channel);
 		return cmd.exec(observer);
 	}
 

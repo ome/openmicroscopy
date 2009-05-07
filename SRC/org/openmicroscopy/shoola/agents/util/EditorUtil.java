@@ -44,6 +44,8 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import omero.RDouble;
 import omero.model.PlaneInfo;
+
+import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
@@ -338,6 +340,15 @@ public class EditorUtil
 	/** The map identifying the pixels value and its description. */
 	public static final Map<String, String> PIXELS_TYPE;
 	
+	/** Identifies the <code>Indigo</code> color. */
+	private static final Color  			INDIGO = new Color(75, 0, 130);
+
+	/** Identifies the <code>Violet</code> color. */
+	private static final Color  			VIOLET = new Color(238, 130, 238);
+	
+	/** Colors available for the color bar. */
+	public static final Map<Color, String>	COLORS_BAR;
+	
 	static {
 		LETTERS = new HashMap<Integer, String>();
 		LETTERS.put(1, "A");
@@ -391,6 +402,19 @@ public class EditorUtil
 			entry = (Entry) i.next();
 			PIXELS_TYPE.put((String) entry.getValue(), (String) entry.getKey());
 		}
+		
+		COLORS_BAR = new LinkedHashMap<Color, String>();
+		COLORS_BAR.put(ImagePaintingFactory.UNIT_BAR_COLOR, 
+				ImagePaintingFactory.UNIT_BAR_COLOR_NAME);
+		COLORS_BAR.put(Color.ORANGE, "Orange");
+		COLORS_BAR.put(Color.YELLOW, "Yellow");
+		COLORS_BAR.put(Color.BLACK, "Black");
+		COLORS_BAR.put(INDIGO, "Indigo");
+		COLORS_BAR.put(VIOLET, "Violet");
+		COLORS_BAR.put(Color.RED, "Red");
+		COLORS_BAR.put(Color.GREEN, "Green");
+		COLORS_BAR.put(Color.BLUE, "Blue");
+		COLORS_BAR.put(Color.WHITE, "White");
 	}
 
 	/** The filter to determine if a file is an editor file or not. */
@@ -1499,5 +1523,5 @@ public class EditorUtil
 	{
 		return editorFilter.accept(fileName);
 	}
-	
+
 }

@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -365,6 +364,19 @@ class AcquisitionDataUI
 			i.next().setChannelAcquisitionData(index);
 	}
 	
+	/**
+	 * Sets the plane info for the specified channel.
+	 * 
+	 * @param index  The index of the channel.
+	 */
+	void setPlaneInfo(int index)
+	{
+		Iterator<ChannelAcquisitionComponent> i = channelComps.iterator();
+		while (i.hasNext()) 
+			i.next().setPlaneInfo(index);
+	}
+	
+	
 	/** 
 	 * Updates display when the new root node is set. 
 	 * Loads the acquisition data if the passed parameter is <code>true</code>
@@ -423,6 +435,19 @@ class AcquisitionDataUI
 				data.addAll(objects);
 		}
 		return data;
+	}
+	
+	/**
+	 * Loads the planes for the specified channel.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	void loadPlaneInfo(int index)
+	{
+		if (model.getChannelPlaneInfo(index) == null) {
+			model.fireLoadPlaneInfo(index);
+			view.setStatus(true);
+		}
 	}
 	
 	/**

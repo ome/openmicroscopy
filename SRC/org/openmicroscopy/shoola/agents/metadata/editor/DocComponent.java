@@ -255,6 +255,7 @@ class DocComponent
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData fa = (FileAnnotationData) data;
 			deleteButton.setToolTipText("Remove the attachment.");
+			
 			if (fa.getId() > 0) {
 				downloadButton = new JButton(icons.getIcon(
 						IconManager.DOWNLOAD_12));

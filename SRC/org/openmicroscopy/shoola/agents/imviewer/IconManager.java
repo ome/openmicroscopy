@@ -237,7 +237,7 @@ public class IconManager
     public static final int           PROJECTION_12 = 60;
     
     /** The <code>Create Movie</code> icon. */
-    public static final int           CREATE = 61;
+    public static final int           CREATE_MOVIE = 61;
     
     /** 
      * The maximum ID used for the icon IDs.
@@ -309,7 +309,7 @@ public class IconManager
         relPaths[PROJECTION] = "projBlack16.png";//"projection16.png";
         relPaths[PROJECTION_48] = "projBlack48.png"; 
         relPaths[PROJECTION_12] = "projection12.png"; 
-        relPaths[CREATE] = "nuvola_filenew16.png"; 
+        relPaths[CREATE_MOVIE] = "nuvola_filenew16.png"; 
     }
     
     /** The sole instance. */

@@ -36,7 +36,7 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Removes the selected nodes.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,7 +56,7 @@ public class RemoveAllAction
     private static final String NAME = "Remove";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Remove the selected element.";
+    private static final String DESCRIPTION = "Remove the selected elements.";
     
 	/**
 	 * Creates a new instance.
@@ -71,4 +71,5 @@ public class RemoveAllAction
 		IconManager icons = IconManager.getInstance();
 		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REFRESH));
 	}
+	
 }
