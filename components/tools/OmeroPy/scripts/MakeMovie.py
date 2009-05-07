@@ -20,7 +20,7 @@
 
 ------------------------------------------------------------------------------
 
-Make movie takes a number of parameters and creates an mpg movie from the 
+Make movie takes a number of parameters and creates an movie from the 
 image with imageId supplied. This movie is uploaded back to the server and
 attached to the original Image. 
 
@@ -343,7 +343,7 @@ def writeMovie(commandArgs, session):
 	buildAVI(sizeX, sizeY, filelist, commandArgs["fps"], commandArgs["output"], commandArgs["format"]);
 	uploadMovie(client, session, omeroImage, commandArgs["output"], commandArgs["format"])
 	
-client = scripts.client('MakeMovie','MakeMovie creates an mpeg movie of the image on the current z section and attaches it to the originating image.', \
+client = scripts.client('MakeMovie','MakeMovie creates an movie of the image and attaches it to the originating image.', \
 scripts.Long("imageId").inout(), scripts.String("output").inout(), scripts.Long("zStart").inout(),\
  scripts.Long("zEnd").inout(), scripts.Long("tStart").inout(), scripts.Long("tEnd").inout(), \
 scripts.Set("channels").inout(), scripts.Bool("splitView").inout(), scripts.Bool("showTime").inout(), \
