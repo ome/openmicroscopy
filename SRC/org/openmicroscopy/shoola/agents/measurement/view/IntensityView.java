@@ -918,7 +918,7 @@ class IntensityView
 			if (col == -1)
 				continue;
 			writer.writeElement(rowIndex, 3+y, 
-					channelSummaryTable.getValueAt(y, col));
+					new Double((String)channelSummaryTable.getValueAt(y, col)));
 		}
 	}
 	
