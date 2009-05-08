@@ -2198,8 +2198,6 @@ class ImViewerUI
 			packWindow();
 			UIUtilities.incrementRelativeToAndShow(null, this);
 		}
-		toFront();
-		requestFocusInWindow();
 	}
 
 	/**
@@ -2210,10 +2208,9 @@ class ImViewerUI
 	{
 		super.setVisible(visible);
 		if (visible) {
-			toFront();
-			requestFocusInWindow();
+			//toFront();
+			//requestFocusInWindow();
 		}
 	}
-
 
 }

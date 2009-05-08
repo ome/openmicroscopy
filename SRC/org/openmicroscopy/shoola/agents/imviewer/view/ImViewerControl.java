@@ -714,7 +714,7 @@ class ImViewerControl
 				historyState = state;
 				break;
 			case ImViewer.LOADING_RENDERING_CONTROL:
-				UIUtilities.centerAndShow(view.getLoadingWindow());
+				//UIUtilities.centerAndShow(view.getLoadingWindow());
 				historyState = state;
 				break;
 			case ImViewer.LOADING_IMAGE:
