@@ -480,7 +480,11 @@ class ImViewerComponent
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED state.");
 			default:
-				if (view != null) UIUtilities.centerOnScreen(view);
+				if (view != null) {
+					UIUtilities.centerOnScreen(view);
+					view.toFront();
+					view.requestFocusInWindow();
+				}
 		}
 	}
 
@@ -901,6 +905,8 @@ class ImViewerComponent
 			colorModel = model.getColorModel();
 			view.buildComponents();
 			view.setOnScreen();
+			view.toFront();
+			view.requestFocusInWindow();
 			if (ImViewerAgent.isFastConnection())
 				model.firePlaneInfoRetrieval();
 			

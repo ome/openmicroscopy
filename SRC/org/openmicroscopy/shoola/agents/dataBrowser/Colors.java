@@ -158,7 +158,7 @@ public class Colors
         if (c.equals(getColor(TITLE_BAR_HIGHLIGHT)) ||
         	c.equals(getColor(TITLE_BAR_UNMODIFIED)) ||
         	c.equals(getColor(TITLE_BAR_HIGHLIGHT_PRIMARY))) c = null;	
-        else c = c.brighter();
+        //else c = c.brighter();
         return c;
     }
     
@@ -178,7 +178,7 @@ public class Colors
         if (c == null || c.equals(getColor(TITLE_BAR_UNMODIFIED))) {
         	if (primary) c = getColor(TITLE_BAR_HIGHLIGHT_PRIMARY);
         	else c = getColor(TITLE_BAR_HIGHLIGHT);
-        } else return c.darker();
+        }// else return c.darker();
         return c;
     }
 

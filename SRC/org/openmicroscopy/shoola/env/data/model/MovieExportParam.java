@@ -22,11 +22,12 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
+
+
+//Java imports
 import java.awt.Color;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-//Java imports
 
 //Third-party libraries
 
@@ -77,8 +78,8 @@ public class MovieExportParam
 	
 	static {
 		FORMATS = new LinkedHashMap<Integer, String>(2);
-		FORMATS.put(MPEG, "mpeg");
-		FORMATS.put(QT, "quicktime");
+		FORMATS.put(MPEG, "MPEG");
+		FORMATS.put(QT, "QuickTime");
 	}
 	
 	/** The name of the image. */

@@ -452,11 +452,14 @@ public class IconManager
     /** A 22x22 version of the <code>image</code> icon. */
     public static final int IMAGE_22 = 128;
     
+    /** A 22x22 version of the <code>image</code> icon. */
+    public static final int MOVIE_48 = 129;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 128;
+    private static int      MAX_ID = 129;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -593,6 +596,7 @@ public class IconManager
         relPaths[QUIT_22] = "nuvola_exit22.png";
         relPaths[REFRESH_22] = "nuvola_reload22.png";
         relPaths[IMAGE_22] = "nuvola_indeximg22.png";
+        relPaths[MOVIE_48] = "openOffice_stock_insert-video-plugin-48.png";
     }
 	
 	/**

@@ -147,7 +147,9 @@ public class TreeCellRenderer
         						IconManager.FILE_PROTOCOL_EXPERIMENT);
         			} else icon = icons.getIcon(IconManager.FILE_EDITOR);
         		} else icon = icons.getIcon(IconManager.FILE_XML);
-        	} else icon = icons.getIcon(IconManager.FILE);
+        	} else if (data.isMovieFile()) {
+        		icon = icons.getIcon(IconManager.MOVIE);
+        	} else icon = icons.getIcon(IconManager.FILE_TEXT);
         } else if (node instanceof TreeImageTimeSet)
         	icon = icons.getIcon(IconManager.DATE);
         else if (node instanceof TreeFileSet) {

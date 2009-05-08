@@ -176,7 +176,7 @@ class DownloadsDialog
 		setTitle(TITLE);
 		initComponents();
 		buildGUI();
-		setSize(200, 300);
+		setSize(350, 250);
 	}
 	
 	/**
