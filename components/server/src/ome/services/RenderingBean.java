@@ -723,6 +723,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
                             pixMetaSrv.saveRndSettings(rendDefObj);
                             return pixMetaSrv.retrieveRndSettings(pixelsObj.getId());
                         }});
+            
+            // Unload the linked pixels set to avoid transactional headaches on
+            // the next save.
+            Pixels unloadedPixels = new Pixels(pixelsObj.getId(), false);
+            rendDefObj.setPixels(unloadedPixels);
  
             // The above save and reload step sets the rendDefObj instance
             // (for which the renderer hold a reference) unloaded, which *will*
