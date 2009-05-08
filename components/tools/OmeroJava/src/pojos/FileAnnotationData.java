@@ -58,6 +58,20 @@ public class FileAnnotationData extends AnnotationData {
     public static final String EDITOR_EXPERIMENT_NS = 
     	"openmicroscopy.org/omero/editor/experiment";
     
+    /** 
+     * The name space used to indicate that the <code>FileAnnotation</code> 
+     * is an <code>MPEG</code> file.
+     */
+    public static final String MOVIE_MPEG_NS = 
+    	"openmicroscopy.org/omero/movie/mpeg";
+    
+    /** 
+     * The name space used to indicate that the <code>FileAnnotation</code> 
+     * is an <code>MPEG</code> file.
+     */
+    public static final String MOVIE_QUICK_TIME_NS = 
+    	"openmicroscopy.org/omero/movie/quicktime";
+    
     /** Identifies the <code>PDF</code> file formats. */
     public static final String PDF = "pdf";
 
@@ -153,6 +167,17 @@ public class FileAnnotationData extends AnnotationData {
      */
     private static final String SERVER_OCTET_STREAM = "application/octet-stream";
 
+    /**
+     * The <code>MPEG</code> file format as defined by
+     * specification corresponding to the extension.
+     */
+    private static final String	SERVER_MPEG = "video/mpeg";
+    
+    /**
+     * The <code>QuickTime</code> file format as defined by
+     * specification corresponding to the extension.
+     */
+    private static final String	SERVER_QT = "video/quicktime";
     
     /** The file to upload to the server. */
     private File attachedFile;
@@ -196,6 +221,21 @@ public class FileAnnotationData extends AnnotationData {
     }
 
     /**
+     * Returns the format of the original file.
+     * 
+     * @return See above.
+     */
+    private String getOriginalFormat()
+    {
+    	OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
+        String unknown = UNKNOWN;
+        String format = f == null ? unknown : (f.getFormat() == null ? unknown
+                : (f.getFormat().getValue() == null ? unknown : f.getFormat()
+                        .getValue().getValue()));
+        return format;
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param file
@@ -216,7 +256,8 @@ public class FileAnnotationData extends AnnotationData {
      * @param annotation
      *            The annotation to wrap.
      */
-    public FileAnnotationData(FileAnnotation annotation) {
+    public FileAnnotationData(FileAnnotation annotation)
+    {
         super(annotation);
         format = null;
     }
@@ -285,6 +326,7 @@ public class FileAnnotationData extends AnnotationData {
         //throw new IllegalArgumentException("Format not supported.");
     }
 
+
     /**
      * Returns the format of the uploaded file.
      * 
@@ -294,11 +336,7 @@ public class FileAnnotationData extends AnnotationData {
         if (attachedFile != null) {
             return format;
         }
-        OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
-        String unknown = UNKNOWN;
-        String format = f == null ? unknown : (f.getFormat() == null ? unknown
-                : (f.getFormat().getValue() == null ? unknown : f.getFormat()
-                        .getValue().getValue()));
+        String format = getOriginalFormat();
         if (SERVER_PDF.equals(format)) {
             return PDF;
         } else if (SERVER_CSV.equals(format)) {
@@ -366,7 +404,8 @@ public class FileAnnotationData extends AnnotationData {
      * 
      * @return See above.
      */
-    public String getFileName() {
+    public String getFileName() 
+    {
         if (attachedFile != null) {
             return attachedFile.getName();
         }
@@ -384,7 +423,8 @@ public class FileAnnotationData extends AnnotationData {
      * 
      * @return See above.
      */
-    public String getFilePath() {
+    public String getFilePath()
+    {
         if (attachedFile != null) {
             return attachedFile.getAbsolutePath();
         }
@@ -402,14 +442,11 @@ public class FileAnnotationData extends AnnotationData {
      * 
      * @return See above.
      */
-    public long getFileSize() {
-        if (getId() < 0) {
-            return -1;
-        }
+    public long getFileSize()
+    {
+        if (getId() < 0)  return -1;
         OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
-        if (f == null || f.getSize() == null) {
-            return -1;
-        }
+        if (f == null || f.getSize() == null)  return -1;
         return f.getSize().getValue();
     }
 
@@ -418,14 +455,11 @@ public class FileAnnotationData extends AnnotationData {
      * 
      * @return See above.
      */
-    public long getFileID() {
-        if (getId() < 0) {
-            return -1;
-        }
+    public long getFileID()
+    {
+        if (getId() < 0)  return -1;
         OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
-        if (f == null || f.getId() == null) {
-            return -1;
-        }
+        if (f == null || f.getId() == null)  return -1;
         return f.getId().getValue();
     }
 
@@ -449,6 +483,21 @@ public class FileAnnotationData extends AnnotationData {
         return getFilePath();
     }
 
+    /**
+     * Returns <code>true</code> if it is a movie file.
+     * <code>false</code> othwerwise.
+     * 
+     * @return See above.
+     */
+    public boolean isMovieFile() 
+    {
+    	String ns = getNameSpace();
+    	if (MOVIE_MPEG_NS.equals(ns) || MOVIE_QUICK_TIME_NS.equals(ns))
+    		return true;
+    	String format = getOriginalFormat();
+    	return (SERVER_MPEG.equals(format) || SERVER_QT.equals(format));
+    }
+    
     /**
      * Sets the text annotation.
      * 
