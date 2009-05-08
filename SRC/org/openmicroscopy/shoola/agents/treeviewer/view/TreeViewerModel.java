@@ -223,13 +223,15 @@ class TreeViewerModel
 		for (int i = 0; i < nodes.length; i++) {
 			child = nodes[i];
 			parent = child.getParentDisplay();
-			po = parent.getUserObject();
-			children = (Set) map.get(po);
-			if (children == null) {
-				children = new HashSet<Object>();   
-				map.put(po, children);
+			if (parent != null) {
+				po = parent.getUserObject();
+				children = (Set) map.get(po);
+				if (children == null) {
+					children = new HashSet<Object>();   
+					map.put(po, children);
+				}
+				children.add(nodes[i].getUserObject());  
 			}
-			children.add(nodes[i].getUserObject());   
 		}
 		return map;
 	}

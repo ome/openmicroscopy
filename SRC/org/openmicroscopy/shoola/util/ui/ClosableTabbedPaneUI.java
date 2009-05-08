@@ -149,7 +149,7 @@ class ClosableTabbedPaneUI
 			
 			public void mousePressed(MouseEvent e)
 			{
-				super.mousePressed(e);
+				//super.mousePressed(e);
 				if (e.isPopupTrigger()) {
 					Object source = e.getSource();
 		    		if (source instanceof Component)
