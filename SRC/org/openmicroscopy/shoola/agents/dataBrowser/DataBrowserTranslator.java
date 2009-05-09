@@ -69,10 +69,7 @@ import pojos.WellSampleData;
  */
 public class DataBrowserTranslator 
 {
-
-	 /** Message for unclassified images. */
-    //private static final String UNCLASSIFIED = "Wild at heart and free images.";
-    
+	
     /** 
      * The left element displayed before the number of items contained in a 
      * given container. 

@@ -66,7 +66,7 @@ import pojos.ImageData;
  * </small>
  * @since OME3.0
  */
-public class BrowserControl     
+class BrowserControl     
 	implements MouseListener, ImageDisplayVisitor, PropertyChangeListener
 {
     
@@ -123,34 +123,6 @@ public class BrowserControl
     }
     
     /**
-     * Checks if the passed image has pixels set related to it.
-     * Returns <code>true</code> if some pixels set are linked, 
-     * <code>false</code> otherwise.
-     * 
-     * @param node The node to handle.
-     * @return See above.
-     */
-    boolean isSelectionValid(ImageDisplay node)
-    {
-    	if (!(node instanceof ImageNode)) return true;
-    	Object ho = node.getHierarchyObject();
-    	if (!(ho instanceof ImageData)) return true;
-    	ImageData img = (ImageData) ho;
-		try {
-			img.getDefaultPixels();
-			return true;
-		} catch (Exception e) {
-			UserNotifier un = 
-				DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Image Not valid", 
-					"The selected image is not valid");
-			node.setHighlight(
-					Colors.getInstance().getDeselectedHighLight(node));
-			return false;
-		}
-    }
-    
-    /**
      * Creates a new Controller for the specified <code>model</code> and
      * <code>view</code>.
      * You need to call the {@link #initialize() initialize} method after
@@ -179,6 +151,35 @@ public class BrowserControl
      */
     void initialize() { model.accept(this); }
 
+    
+    /**
+     * Checks if the passed image has pixels set related to it.
+     * Returns <code>true</code> if some pixels set are linked, 
+     * <code>false</code> otherwise.
+     * 
+     * @param node The node to handle.
+     * @return See above.
+     */
+    boolean isSelectionValid(ImageDisplay node)
+    {
+    	if (!(node instanceof ImageNode)) return true;
+    	Object ho = node.getHierarchyObject();
+    	if (!(ho instanceof ImageData)) return true;
+    	ImageData img = (ImageData) ho;
+		try {
+			img.getDefaultPixels();
+			return true;
+		} catch (Exception e) {
+			UserNotifier un = 
+				DataBrowserAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Image Not valid", 
+					"The selected image is not valid");
+			node.setHighlight(
+					Colors.getInstance().getDeselectedHighLight(node));
+			return false;
+		}
+    }
+    
     /**
      * Registers this object as mouse listeners with each node.
      * @see ImageDisplayVisitor#visit(ImageNode)

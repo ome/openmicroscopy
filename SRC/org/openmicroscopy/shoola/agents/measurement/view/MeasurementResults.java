@@ -518,14 +518,14 @@ class MeasurementResults
 	 */
 	void showResultsWizard()
 	{
-		ResultsWizard resultsWizard = new ResultsWizard(fields, allFields);
+		ResultsWizard resultsWizard = new ResultsWizard(view, fields, allFields);
 		resultsWizard.pack();
 		UIUtilities.setLocationRelativeToAndShow(this, resultsWizard);
 		columnNames.clear();
 		columnNames = new ArrayList<KeyDescription>();
-		columnNames.add(new KeyDescription(	AnnotationDescription.ROIID_STRING,
+		columnNames.add(new KeyDescription(AnnotationDescription.ROIID_STRING,
 											AnnotationDescription.ROIID_STRING));
-		columnNames.add(new KeyDescription( AnnotationDescription.TIME_STRING,
+		columnNames.add(new KeyDescription(AnnotationDescription.TIME_STRING,
 											AnnotationDescription.TIME_STRING));
 		columnNames.add(new KeyDescription( AnnotationDescription.ZSECTION_STRING,
 											AnnotationDescription.ZSECTION_STRING));

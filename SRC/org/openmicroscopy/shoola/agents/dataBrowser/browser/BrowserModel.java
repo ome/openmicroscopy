@@ -276,8 +276,6 @@ class BrowserModel
 	    		else title = "row: "+parent.getTitle();
 	    	} else if (parent instanceof WellImageSet) {
 	    		WellImageSet wiNode = (WellImageSet) parent;
-	    		//title = "Well: "+wiNode.getRowDisplay();
-	    		//title += "-"+wiNode.getColumnDisplay();
 	    		title = wiNode.getTitle();
 	    	} else {
 	    		title = parent.getTitle();

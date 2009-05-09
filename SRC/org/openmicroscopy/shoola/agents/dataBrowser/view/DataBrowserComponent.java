@@ -211,7 +211,6 @@ class DataBrowserComponent
 	public void setSelectedDisplay(ImageDisplay node)
 	{
 		if (node == null) return;
-		System.err.println(node);
 		Object object = node.getHierarchyObject();
 		List<Object> objects = new ArrayList<Object>();
 		List<Object> others = new ArrayList<Object>(); 

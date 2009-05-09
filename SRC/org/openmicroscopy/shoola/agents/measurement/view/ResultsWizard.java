@@ -35,6 +35,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -440,12 +441,14 @@ class ResultsWizard
 	/**
 	 * Creates a new instance. 
 	 * 
+	 * @param owner   The owner of the frame.
 	 * @param cFields The initial list of fields.
 	 * @param aFields The initial list of fields.
 	 */
-	ResultsWizard(List<AnnotationField> cFields, List<AnnotationField> aFields)
+	ResultsWizard(JFrame owner, List<AnnotationField> cFields, 
+			List<AnnotationField> aFields)
 	{
-		setModal(true);
+		super(owner, true);
 		currentFields = cFields;
 		allFields = aFields;
 		//setSize(500, 440);

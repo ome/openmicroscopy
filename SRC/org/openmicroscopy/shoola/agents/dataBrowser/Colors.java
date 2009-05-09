@@ -104,13 +104,13 @@ public class Colors
         c = (Color) registry.lookup("/resources/colors/TitleBarHighlight");
         if (c == null) c = COLOR_TITLE_BAR_HIGHLIGHT_BAR;
         colorsMap.put(TITLE_BAR_HIGHLIGHT, c);
-        //colorsMap.put(TITLE_BAR_HIGHLIGHT_PRIMARY, c.darker());
-        colorsMap.put(TITLE_BAR_HIGHLIGHT_PRIMARY, c);
+        colorsMap.put(TITLE_BAR_HIGHLIGHT_PRIMARY, c.darker());
+        //colorsMap.put(TITLE_BAR_HIGHLIGHT_PRIMARY, c);
         c = (Color) registry.lookup("/resources/colors/TitleBar");
         if (c == null) c = COLOR_TITLE_BAR;
         colorsMap.put(TITLE_BAR, c);
-        //colorsMap.put(TITLE_BAR_PRIMARY, c.darker());
-        colorsMap.put(TITLE_BAR_PRIMARY, c);
+        colorsMap.put(TITLE_BAR_PRIMARY, c.darker());
+        //colorsMap.put(TITLE_BAR_PRIMARY, c);
         c = (Color) registry.lookup("/resources/colors/TitleBarUnmodified");
         colorsMap.put(TITLE_BAR_UNMODIFIED, c);
     }
