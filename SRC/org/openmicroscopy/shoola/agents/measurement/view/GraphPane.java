@@ -376,7 +376,8 @@ class GraphPane
 			}
 		}
 		mainPanel.removeAll();
-		
+		if(channelData.size()==0)
+			return;
 		lineProfileChart = null;
 		histogramChart = null;
 		if (lineProfileFigure(shape))
