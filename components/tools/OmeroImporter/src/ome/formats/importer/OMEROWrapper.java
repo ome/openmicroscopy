@@ -1,6 +1,7 @@
 package ome.formats.importer;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -37,6 +38,12 @@ public class OMEROWrapper extends MinMaxCalculator
     {
         try
         {
+            // Set up static config file
+            String readersDirectory = System.getProperty("user.dir") + File.separator + "config";
+            String readersFile = readersDirectory + File.separator + "importer_readers.txt";
+            
+            System.err.println(readersFile);
+            
             iReader = new ImageReader(
                     new ClassList("importer_readers.txt", 
                             IFormatReader.class, OMEROWrapper.class));

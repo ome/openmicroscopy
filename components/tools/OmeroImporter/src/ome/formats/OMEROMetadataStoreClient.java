@@ -9,6 +9,7 @@ import java.text.RuleBasedCollator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,9 +40,7 @@ import ome.formats.model.InstrumentProcessor;
 import ome.formats.model.PixelsProcessor;
 import ome.formats.model.InstanceProvider;
 import ome.formats.model.ModelProcessor;
-import ome.formats.model.PlateProcessor;
 import ome.formats.model.ReferenceProcessor;
-import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.util.LSID;
 import omero.RBool;
@@ -77,7 +76,6 @@ import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.DetectorType;
 import omero.model.DimensionOrder;
-import omero.model.Ellipse;
 import omero.model.Experiment;
 import omero.model.ExperimentType;
 import omero.model.Filament;
@@ -95,9 +93,7 @@ import omero.model.LaserMedium;
 import omero.model.LaserType;
 import omero.model.LightSettings;
 import omero.model.LightSource;
-import omero.model.Line;
 import omero.model.LogicalChannel;
-import omero.model.Mask;
 import omero.model.Medium;
 import omero.model.OTF;
 import omero.model.Objective;
@@ -108,21 +104,17 @@ import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
-import omero.model.Point;
-import omero.model.Polygon;
-import omero.model.Polyline;
 import omero.model.ProjectI;
 import omero.model.Project;
 import omero.model.Pulse;
 import omero.model.Reagent;
-import omero.model.Rect;
-import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenAcquisition;
 import omero.model.ScreenI;
 import omero.model.StageLabel;
 import omero.model.Well;
 import omero.model.WellSample;
+
 
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
@@ -138,16 +130,16 @@ import loci.formats.meta.MetadataStore;
  * @author Chris Allan, callan at lifesci.dundee.ac.uk
  */
 public class OMEROMetadataStoreClient
-	implements MetadataStore, IMinMaxStore, IObjectContainerStore
+    implements MetadataStore, IMinMaxStore, IObjectContainerStore
 {
-	/** Logger for this class */
-	private Log log = LogFactory.getLog(OMEROMetadataStoreClient.class);
-	
+    /** Logger for this class */
+    private Log log = LogFactory.getLog(OMEROMetadataStoreClient.class);
+    
     private MetadataStorePrx delegate;
     
     /** Our IObject container cache. */
     private Map<LSID, IObjectContainer> containerCache = 
-    	new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
+        new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
     
     /** Our LSID reference cache. */
     private Map<LSID, LSID> referenceCache = new HashMap<LSID, LSID>();
@@ -160,13 +152,12 @@ public class OMEROMetadataStoreClient
 
     /** Our model processors. Will be called on saveToDB(). */
     private List<ModelProcessor> modelProcessors = 
-    	new ArrayList<ModelProcessor>();
+        new ArrayList<ModelProcessor>();
     
     /** Bio-Formats reader that's populating us. */
     private IFormatReader reader;
     
     private List<Pixels> pixelsList;
-    private List<Roi> roiList;
     
     private client c;
     private ServiceFactoryPrx serviceFactory;
@@ -209,32 +200,30 @@ public class OMEROMetadataStoreClient
     private ScheduledThreadPoolExecutor executor;
 
     private void initializeServices()
-    	throws ServerError
+        throws ServerError
     {
-    	// Blitz services
-    	iUpdate = serviceFactory.getUpdateService();
-    	iQuery = serviceFactory.getQueryService();
-    	iAdmin = serviceFactory.getAdminService();
-    	rawFileStore = serviceFactory.createRawFileStore();
-    	rawPixelStore = serviceFactory.createRawPixelsStore();
-    	iRepoInfo = serviceFactory.getRepositoryInfoService();
-    	iContainer = serviceFactory.getContainerService();
-    	delegate = MetadataStorePrxHelper.checkedCast(serviceFactory.getByName(METADATASTORE.value));
+        // Blitz services
+        iUpdate = serviceFactory.getUpdateService();
+        iQuery = serviceFactory.getQueryService();
+        iAdmin = serviceFactory.getAdminService();
+        rawFileStore = serviceFactory.createRawFileStore();
+        rawPixelStore = serviceFactory.createRawPixelsStore();
+        iRepoInfo = serviceFactory.getRepositoryInfoService();
+        iContainer = serviceFactory.getContainerService();
+        delegate = MetadataStorePrxHelper.checkedCast(serviceFactory.getByName(METADATASTORE.value));
 
-    	// Client side services
-    	enumProvider = new IQueryEnumProvider(iQuery);
-    	instanceProvider = new BlitzInstanceProvider(enumProvider);
-    	
-    	// Default model processors
+        // Client side services
+        enumProvider = new IQueryEnumProvider(iQuery);
+        instanceProvider = new BlitzInstanceProvider(enumProvider);
+        
+        // Default model processors
         modelProcessors.add(new PixelsProcessor());
-    	modelProcessors.add(new ChannelProcessor());
-    	modelProcessors.add(new InstrumentProcessor());
-    	modelProcessors.add(new TargetProcessor());
-    	modelProcessors.add(new PlateProcessor());
-        modelProcessors.add(new ShapeProcessor());
-    	modelProcessors.add(new ReferenceProcessor());
-    	
-    	// Start our keep alive executor
+        modelProcessors.add(new ChannelProcessor());
+        modelProcessors.add(new InstrumentProcessor());
+        modelProcessors.add(new TargetProcessor());
+        modelProcessors.add(new ReferenceProcessor());
+        
+        // Start our keep alive executor
         if (executor == null)
         {
             executor = new ScheduledThreadPoolExecutor(1);
@@ -254,12 +243,12 @@ public class OMEROMetadataStoreClient
      * @param serviceFactory The factory. Mustn't be <code>null</code>.
      */
     public void initialize(ServiceFactoryPrx serviceFactory)
-    	throws ServerError
+        throws ServerError
     {
-    	if (serviceFactory == null)
-    		throw new IllegalArgumentException("No factory.");
-    	this.serviceFactory = serviceFactory;
-    	initializeServices();
+        if (serviceFactory == null)
+            throw new IllegalArgumentException("No factory.");
+        this.serviceFactory = serviceFactory;
+        initializeServices();
     }
     
     /**
@@ -437,7 +426,7 @@ public class OMEROMetadataStoreClient
      */
     public Object getRoot()
     {
-    	return pixelsList;
+        return pixelsList;
     }
 
     /**
@@ -456,7 +445,7 @@ public class OMEROMetadataStoreClient
      */
     public IFormatReader getReader()
     {
-    	return reader;
+        return reader;
     }
     
     /* (non-Javadoc)
@@ -464,7 +453,7 @@ public class OMEROMetadataStoreClient
      */
     public void setReader(IFormatReader reader)
     {
-    	this.reader = reader;
+        this.reader = reader;
     }
 
     /* (non-Javadoc)
@@ -520,18 +509,18 @@ public class OMEROMetadataStoreClient
      */
     public Double[] getUserSpecifiedPhysicalPixelSizes()
     {
-    	return userSpecifiedPhysicalPixelSizes;
+        return userSpecifiedPhysicalPixelSizes;
     }
     
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedPhysicalPixelSizes(java.lang.Double, java.lang.Double, java.lang.Double)
      */
     public void setUserSpecifiedPhysicalPixelSizes(Double physicalSizeX,
-    		                                       Double physicalSizeY,
-    		                                       Double physicalSizeZ)
+                                                   Double physicalSizeY,
+                                                   Double physicalSizeZ)
     {
-    	userSpecifiedPhysicalPixelSizes = 
-    		new Double[] { physicalSizeX, physicalSizeY, physicalSizeZ };
+        userSpecifiedPhysicalPixelSizes = 
+            new Double[] { physicalSizeX, physicalSizeY, physicalSizeZ };
     }
     
     /**
@@ -541,7 +530,7 @@ public class OMEROMetadataStoreClient
      */
     public List<ModelProcessor> getModelProcessors()
     {
-    	return modelProcessors;
+        return modelProcessors;
     }
     
     /**
@@ -550,7 +539,7 @@ public class OMEROMetadataStoreClient
      */
     public void setModelProcessors(List<ModelProcessor> modelProcessors)
     {
-    	this.modelProcessors = modelProcessors;
+        this.modelProcessors = modelProcessors;
     }
     
     /**
@@ -559,7 +548,7 @@ public class OMEROMetadataStoreClient
      */
     public void removeModelProcessor(ModelProcessor processor)
     {
-    	modelProcessors.remove(processor);
+        modelProcessors.remove(processor);
     }
     
     /**
@@ -569,7 +558,7 @@ public class OMEROMetadataStoreClient
      */
     public boolean addModelProcessor(ModelProcessor processor)
     {
-    	return modelProcessors.add(processor);
+        return modelProcessors.add(processor);
     }
 
     /* (non-Javadoc)
@@ -577,7 +566,7 @@ public class OMEROMetadataStoreClient
      */
     public Map<LSID, IObjectContainer> getContainerCache()
     {
-    	return containerCache;
+        return containerCache;
     }
     
     /* (non-Javadoc)
@@ -585,7 +574,7 @@ public class OMEROMetadataStoreClient
      */
     public Map<LSID, LSID> getReferenceCache()
     {
-    	return referenceCache;
+        return referenceCache;
     }
     
     /* (non-Javadoc)
@@ -593,7 +582,7 @@ public class OMEROMetadataStoreClient
      */
     public Map<String, String> getReferenceStringCache()
     {
-    	return referenceStringCache;
+        return referenceStringCache;
     }
     
     /* (non-Javadoc)
@@ -601,7 +590,7 @@ public class OMEROMetadataStoreClient
      */
     public void setReferenceStringCache(Map<String, String> referenceStringCache)
     {
-    	this.referenceStringCache = referenceStringCache;
+        this.referenceStringCache = referenceStringCache;
     }
     
     /**
@@ -635,12 +624,12 @@ public class OMEROMetadataStoreClient
     public <T extends IObject> List<T> getSourceObjects(Class<T> klass)
     {
         List<IObjectContainer> containers = getIObjectContainers(klass);
-    	List<T> toReturn = new ArrayList<T>(containers.size());
-    	for (IObjectContainer container: containers)
-    	{
-    	    toReturn.add((T) container.sourceObject);
-    	}
-    	return toReturn;
+        List<T> toReturn = new ArrayList<T>(containers.size());
+        for (IObjectContainer container: containers)
+        {
+            toReturn.add((T) container.sourceObject);
+        }
+        return toReturn;
     }
     
     /* (non-Javadoc)
@@ -660,20 +649,20 @@ public class OMEROMetadataStoreClient
      * @see ome.formats.model.IObjectContainerStore#getIObjectContainer(java.lang.Class, java.util.LinkedHashMap)
      */
     public IObjectContainer getIObjectContainer(Class<? extends IObject> klass,
-    		                                    LinkedHashMap<String, Integer> indexes)
+                                                LinkedHashMap<String, Integer> indexes)
     {
-    	// Transform an integer collection into an integer array without using
-    	// wrapper objects.
-    	Collection<Integer> indexValues = indexes.values();
-    	int[] indexesArray = new int[indexValues.size()];
-    	int i = 0;
-    	for (Integer index : indexValues)
-    	{
-    		indexesArray[i] = index;
-    		i++;
-    	}
-    	
-    	// Create a new LSID.
+        // Transform an integer collection into an integer array without using
+        // wrapper objects.
+        Collection<Integer> indexValues = indexes.values();
+        int[] indexesArray = new int[indexValues.size()];
+        int i = 0;
+        for (Integer index : indexValues)
+        {
+            indexesArray[i] = index;
+            i++;
+        }
+        
+        // Create a new LSID.
         LSID lsid = new LSID(klass, indexesArray);
         
         // Because of the LightSource abstract type, here we need to handle
@@ -709,20 +698,20 @@ public class OMEROMetadataStoreClient
         // abstract type's class to give us LSID resolution and must handle 
         // that as well.
         if (klass.equals(LightSource.class)
-        	&& !containerCache.containsKey(lsid))
+            && !containerCache.containsKey(lsid))
         {
-        	Class[] concreteClasses = 
-        		new Class[] { Arc.class, Laser.class, Filament.class };
-        	for (Class concreteClass : concreteClasses)
-        	{
+            Class[] concreteClasses = 
+                new Class[] { Arc.class, Laser.class, Filament.class };
+            for (Class concreteClass : concreteClasses)
+            {
                 LSID lsLSID = new LSID(concreteClass,
                                        indexes.get("instrumentIndex"),
                                        indexes.get("lightSourceIndex"));
                 if (containerCache.containsKey(lsLSID))
                 {
-                	return containerCache.get(lsLSID);
+                    return containerCache.get(lsLSID);
                 }
-        	}
+            }
         }
         
         if (!containerCache.containsKey(lsid))
@@ -763,14 +752,14 @@ public class OMEROMetadataStoreClient
      */
     private <T extends IObject> T getSourceObjectInstance(Class<T> klass)
     {
-    	return instanceProvider.getInstance(klass);
+        return instanceProvider.getInstance(klass);
     }
         
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#countCachedContainers(java.lang.Class, int[])
      */
     public int countCachedContainers(Class<? extends IObject> klass,
-    		                         int... indexes)
+                                     int... indexes)
     {
         if (klass == null)
         {
@@ -780,20 +769,20 @@ public class OMEROMetadataStoreClient
         int count = 0;
         for (LSID lsid : containerCache.keySet())
         {
-        	Class<? extends IObject> lsidClass = lsid.getJavaClass();
+            Class<? extends IObject> lsidClass = lsid.getJavaClass();
             if (lsidClass != null && lsidClass.equals(klass))
             {
-            	if (indexes != null)
-            	{
-            		int[] lsidIndexes = lsid.getIndexes();
-            		for (int i = 0; i < indexes.length; i++)
-            		{
-            			if (lsidIndexes[i] != indexes[i])
-            			{
-            				continue;
-            			}
-            		}
-            	}
+                if (indexes != null)
+                {
+                    int[] lsidIndexes = lsid.getIndexes();
+                    for (int i = 0; i < indexes.length; i++)
+                    {
+                        if (lsidIndexes[i] != indexes[i])
+                        {
+                            continue;
+                        }
+                    }
+                }
                 count++;
             }
         }
@@ -840,7 +829,6 @@ public class OMEROMetadataStoreClient
         
         for (LSID lsid : referenceCache.keySet())
         {
-            //FIXME: this will never successfully pass will it?
             Class containerClass = lsid.getJavaClass();
             if (containerClass.equals(source.getName()))
             {
@@ -863,17 +851,17 @@ public class OMEROMetadataStoreClient
      */
     public void setArchive(boolean archive)
     {
-    	List<Image> images = getSourceObjects(Image.class);
+        List<Image> images = getSourceObjects(Image.class);
         String[] files = reader.getUsedFiles();
         
-    	if (archive)
-    	{
-    	    LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-    	    ImageReader imageReader = (ImageReader) reader;
+        if (archive)
+        {
+            LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+            ImageReader imageReader = (ImageReader) reader;
             String formatString = imageReader.getReader().getClass().toString();
             formatString = formatString.replace("class loci.formats.in.", "");
             formatString = formatString.replace("Reader", "");
-    	    
+            
             for (int i = 0; i < files.length; i ++)
             {
                 indexes.put("originaFileIndex", i);
@@ -887,22 +875,22 @@ public class OMEROMetadataStoreClient
                 o.setPath(toRType(file.getAbsolutePath()));
                 o.setSha1(toRType("Pending"));
             }
-    	}
-    	for (int i = 0; i < images.size(); i ++)
-    	{
-    	    Image image = images.get(i);
-    		image.setArchived(toRType(archive));
-    		
-    		if (archive)
-    		{
+        }
+        for (int i = 0; i < images.size(); i ++)
+        {
+            Image image = images.get(i);
+            image.setArchived(toRType(archive));
+            
+            if (archive)
+            {
                 LSID key = new LSID(Pixels.class, i, 0);
                 
                 for (int j = 0; j < files.length; j++)
                 {
                     referenceCache.put(key, new LSID(OriginalFile.class, j));           
                 }
-    		}
-    	}
+            }
+        }
     }
 
     /* (non-Javadoc)
@@ -1763,39 +1751,51 @@ public class OMEROMetadataStoreClient
         o.setName(toRType(name));
     }
 
+    public void setPlateRefID(String id, int screenIndex, int plateRefIndex)
+    {
+    }
+
     public void setPlateStatus(String status, int plateIndex)
     {
         Plate o = getPlate(plateIndex);
         o.setStatus(toRType(status));
     }
 
-    public void setPlateColumnNamingConvention(String theColumnNamingConvention, int plateIndex)
+    public void setROIID(String id, int imageIndex, int roiIndex)
     {
-        Plate o = getPlate(plateIndex);
-        o.setColumnNamingConvention(toRType(theColumnNamingConvention));
     }
 
-    public void setPlateRowNamingConvention(String theRowNamingConvention, int plateIndex)
+    public void setROIT0(Integer t0, int imageIndex, int roiIndex)
     {
-        Plate o = getPlate(plateIndex);
-        o.setRowNamingConvention(toRType(theRowNamingConvention));
     }
 
-    public void setPlateWellOriginX(Double theWellOriginX, int plateIndex)
+    public void setROIT1(Integer t1, int imageIndex, int roiIndex)
     {
-        Plate o = getPlate(plateIndex);
-        o.setWellOriginX(toRType(theWellOriginX));
     }
 
-    public void setPlateWellOriginY(Double theWellOriginY, int plateIndex)
+    public void setROIX0(Integer x0, int imageIndex, int roiIndex)
     {
-        Plate o = getPlate(plateIndex);
-        o.setWellOriginY(toRType(theWellOriginY));
     }
-    
-    public void setPlateRefID(String id, int screenIndex, int plateRefIndex)
+
+    public void setROIX1(Integer x1, int imageIndex, int roiIndex)
     {
-    }  
+    }
+
+    public void setROIY0(Integer y0, int imageIndex, int roiIndex)
+    {
+    }
+
+    public void setROIY1(Integer y1, int imageIndex, int roiIndex)
+    {
+    }
+
+    public void setROIZ0(Integer z0, int imageIndex, int roiIndex)
+    {
+    }
+
+    public void setROIZ1(Integer z1, int imageIndex, int roiIndex)
+    {
+    }
 
     public void setReagentDescription(String description, int screenIndex,
             int reagentIndex)
@@ -1977,22 +1977,22 @@ public class OMEROMetadataStoreClient
     public void setStagePositionPositionX(Float positionX, int imageIndex,
             int pixelsIndex, int planeIndex)
     {    
-    	PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-    	o.setPositionX(toRType(positionX));
+        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
+        o.setPositionX(toRType(positionX));
     }
 
     public void setStagePositionPositionY(Float positionY, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
-    	PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-    	o.setPositionY(toRType(positionY));
+        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
+        o.setPositionY(toRType(positionY));
     }
 
     public void setStagePositionPositionZ(Float positionZ, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
-    	PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-    	o.setPositionZ(toRType(positionZ));
+        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
+        o.setPositionZ(toRType(positionZ));
     }
 
     public void setTiffDataFileName(String fileName, int imageIndex,
@@ -2130,26 +2130,6 @@ public class OMEROMetadataStoreClient
         o.setType(toRType(type));
     }
     
-
-    public void setWellReagent(String reagent, int plateIndex, int wellIndex)
-    {
-        LSID key = new LSID(Well.class, plateIndex, wellIndex);
-        referenceCache.put(key, new LSID(reagent));
-    }
-
-    public void setWellSampleImageRef(String image, int plateIndex, 
-            int wellIndex, int wellSampleIndex)
-    {
-        LSID key = new LSID(WellSample.class, plateIndex, wellIndex, wellSampleIndex);
-        referenceCache.put(key, new LSID(image));
-    }
-
-    public void setWellSampleRefID(String arg0, int arg1, int arg2, int arg3)
-    {
-
-    }
-
- 
     public long getExperimenterID()
     {
         try
@@ -2169,63 +2149,63 @@ public class OMEROMetadataStoreClient
      */
     public void writeFilesToFileStore(File[] files, Pixels pixels)
     {
-    	// Populate a hash map of filename --> original file
-    	List<OriginalFile> originalFileList = pixels.linkedOriginalFileList();
-    	Map<String, OriginalFile> originalFileMap =
-    		new HashMap<String, OriginalFile>(originalFileList.size());
-    	for (OriginalFile originalFile: originalFileList)
-    	{
-    		String fileName = originalFile.getName().getValue();
-    		originalFileMap.put(fileName, originalFile);
-    	}
-    	
-    	// Lookup each source file in our hash map and write it to the
-    	// correct original file object server side.
-    	byte[] buf = new byte[1048576];  // 1 MB buffer
-    	for (File file : files)
-    	{
-    		OriginalFile originalFile = originalFileMap.get(file.getName());
-    		if (originalFile == null)
-    		{
-    			log.warn("Cannot lookup original file with name: "
-    					 + file.getAbsolutePath());
-    			continue;
-    		}
+        // Populate a hash map of filename --> original file
+        List<OriginalFile> originalFileList = pixels.linkedOriginalFileList();
+        Map<String, OriginalFile> originalFileMap =
+            new HashMap<String, OriginalFile>(originalFileList.size());
+        for (OriginalFile originalFile: originalFileList)
+        {
+            String fileName = originalFile.getName().getValue();
+            originalFileMap.put(fileName, originalFile);
+        }
+        
+        // Lookup each source file in our hash map and write it to the
+        // correct original file object server side.
+        byte[] buf = new byte[1048576];  // 1 MB buffer
+        for (File file : files)
+        {
+            OriginalFile originalFile = originalFileMap.get(file.getName());
+            if (originalFile == null)
+            {
+                log.warn("Cannot lookup original file with name: "
+                         + file.getAbsolutePath());
+                continue;
+            }
 
-    		FileInputStream stream = null;
-    		try
-    		{    		
-    			stream = new FileInputStream(file);
-        		rawFileStore.setFileId(originalFile.getId().getValue());
-    			int rlen = 0;
-    			int offset = 0;
-    			while (stream.available() != 0)
-    			{
-    				rlen = stream.read(buf);
-    				rawFileStore.write(buf, offset, rlen);
-    				offset += rlen;
-    			}
-    		}
-    		catch (Exception e)
-    		{
-    			log.error("I/O or server error populating file store.", e);
-    			break;
-    		}
-    		finally
-    		{
-    			if (stream != null)
-    			{
-    				try
-    				{
-    					stream.close();
-    				}
-    				catch (Exception e)
-    				{
-    					log.error("I/O error closing stream.", e);
-    				}
-    			}
-    		}
-    	}
+            FileInputStream stream = null;
+            try
+            {           
+                stream = new FileInputStream(file);
+                rawFileStore.setFileId(originalFile.getId().getValue());
+                int rlen = 0;
+                int offset = 0;
+                while (stream.available() != 0)
+                {
+                    rlen = stream.read(buf);
+                    rawFileStore.write(buf, offset, rlen);
+                    offset += rlen;
+                }
+            }
+            catch (Exception e)
+            {
+                log.error("I/O or server error populating file store.", e);
+                break;
+            }
+            finally
+            {
+                if (stream != null)
+                {
+                    try
+                    {
+                        stream.close();
+                    }
+                    catch (Exception e)
+                    {
+                        log.error("I/O error closing stream.", e);
+                    }
+                }
+            }
+        }
     }
     
     public long getRepositorySpace()
@@ -2245,11 +2225,11 @@ public class OMEROMetadataStoreClient
      */
     public void postProcess()
     {
-		// Perform model processing
-		for (ModelProcessor processor : modelProcessors)
-		{
-			processor.process(this);
-		}
+        // Perform model processing
+        for (ModelProcessor processor : modelProcessors)
+        {
+            processor.process(this);
+        }
     }
 
     /**
@@ -2259,54 +2239,54 @@ public class OMEROMetadataStoreClient
      */
     public List<Pixels> saveToDB()
     {
-    	try
-    	{
-        	Collection<IObjectContainer> containers = containerCache.values();
-        	IObjectContainer[] containerArray = 
-        		containers.toArray(new IObjectContainer[containers.size()]);
+        try
+        {
+            Collection<IObjectContainer> containers = containerCache.values();
+            IObjectContainer[] containerArray = 
+                containers.toArray(new IObjectContainer[containers.size()]);
             
-        	if (log.isDebugEnabled())
-        	{
-        		for (LSID key : containerCache.keySet())
-        		{
-        			String s = String.format("%s == %s,%s", 
-        					key, containerCache.get(key).sourceObject,
-        					containerCache.get(key).LSID);
-        			log.debug(s);
-        		}
-        	}
+            if (log.isDebugEnabled())
+            {
+                for (LSID key : containerCache.keySet())
+                {
+                    String s = String.format("%s == %s,%s", 
+                            key, containerCache.get(key).sourceObject,
+                            containerCache.get(key).LSID);
+                    log.debug(s);
+                }
+            }
             
-        	log.debug("Starting references....");
+            log.debug("Starting references....");
 
-        	if (log.isDebugEnabled())
-        	{
-        		for (String key : referenceStringCache.keySet())
-        		{
-        			String s = String.format("%s == %s", key,
-        					                 referenceStringCache.get(key));
-        			log.debug(s);
-        		}
-        		
-        		log.debug("containerCache contains " + containerCache.size()
-        				  + " entries.");
-        		log.debug("referenceCache contains " + referenceCache.size()
-        				  + " entries.");
-        	}
+            if (log.isDebugEnabled())
+            {
+                for (String key : referenceStringCache.keySet())
+                {
+                    String s = String.format("%s == %s", key,
+                                             referenceStringCache.get(key));
+                    log.debug(s);
+                }
+                
+                log.debug("containerCache contains " + containerCache.size()
+                          + " entries.");
+                log.debug("referenceCache contains " + referenceCache.size()
+                          + " entries.");
+            }
             
-        	delegate.updateObjects(containerArray);
-        	delegate.updateReferences(referenceStringCache);
-        	pixelsList = delegate.saveToDB();
-        	
-        	if (log.isDebugEnabled())
-        	{
-        		long pixelsId;
-        		for (Pixels pixels : pixelsList)
-        		{
-        			pixelsId = pixels.getId().getValue();
-        			log.debug("Saving pixels id: "  + pixelsId);
-        		}
-        	}
-        	return pixelsList;
+            delegate.updateObjects(containerArray);
+            delegate.updateReferences(referenceStringCache);
+            pixelsList = delegate.saveToDB();
+            
+            if (log.isDebugEnabled())
+            {
+                long pixelsId;
+                for (Pixels pixels : pixelsList)
+                {
+                    pixelsId = pixels.getId().getValue();
+                    log.debug("Saving pixels id: "  + pixelsId);
+                }
+            }
+            return pixelsList;
         }
         catch (ServerError e)
         {
@@ -2327,7 +2307,7 @@ public class OMEROMetadataStoreClient
     }
 
     @SuppressWarnings("unchecked")
-	public <T extends IObject> T getTarget(Class<T> klass, long id)
+    public <T extends IObject> T getTarget(Class<T> klass, long id)
     {
         try
         {
@@ -2382,42 +2362,48 @@ public class OMEROMetadataStoreClient
     
     public List<Project> getProjects()
     {
-    	try
-    	{
-    		List<IObject> objects = 
-    			iContainer.loadContainerHierarchy(Project.class.getName(), null, null);
-    		List<Project> projects = new ArrayList<Project>(objects.size());
-    		for (IObject object : objects)
-    		{
-    			projects.add((Project) object);
-    		}
-    		return projects;
-    	}
-    	catch (ServerError e)
-    	{
-    		throw new RuntimeException(e);
-    	}
+        try
+        {
+            List<IObject> objects = 
+                iContainer.loadContainerHierarchy(Project.class.getName(), null, null);
+            List<Project> projects = new ArrayList<Project>(objects.size());
+            for (IObject object : objects)
+            {
+                projects.add((Project) object);
+            }
+            
+            Collections.sort(projects, new SortProjectsByName());
+            
+            return projects;
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     public List<Dataset> getDatasets(Project p)
     {
-    	try
-    	{
-    		List<Long> ids = new ArrayList<Long>(1);
-    		ids.add(p.getId().getValue());
-    		List<IObject> objects = 
-    			iContainer.loadContainerHierarchy(Project.class.getName(), ids, null);
-    		if (objects.size() > 0)
-    		{
-    		    Project project = (Project) objects.get(0);
-    		    return project.linkedDatasetList();
-    		}
-    		return null;
-    	}
-    	catch (ServerError e)
-    	{
-    		throw new RuntimeException(e);
-    	}
+        try
+        {
+            List<Long> ids = new ArrayList<Long>(1);
+            ids.add(p.getId().getValue());
+            List<IObject> objects = 
+                iContainer.loadContainerHierarchy(Project.class.getName(), ids, null);
+            if (objects.size() > 0)
+            {
+                Project project = (Project) objects.get(0);
+                
+                List<Dataset> datasets = project.linkedDatasetList();
+                Collections.sort(datasets, new SortDatasetsByName());
+                return datasets;
+            }
+            return null;
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     public Project addProject(String projectName, String projectDescription)
@@ -2460,27 +2446,27 @@ public class OMEROMetadataStoreClient
      */
     public void preparePixelsStore(List<Long> pixelsIds)
     {
-    	try
-    	{
-			rawPixelStore.prepare(pixelsIds);
-		}
-    	catch (ServerError e)
-    	{
-    		throw new RuntimeException(e);
-		}
+        try
+        {
+            rawPixelStore.prepare(pixelsIds);
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setPlane(Long pixId, byte[] arrayBuf, int z, int c, int t)
-    	throws ServerError
+        throws ServerError
     {
-    	if (currentPixId != pixId)
-    	{
-    		//rawPixelStore.close();
-    		//rawPixelStore = serviceFactory.createRawPixelsStore();
-    		rawPixelStore.setPixelsId(pixId, true);
-    		currentPixId = pixId;
-    	}
-    	rawPixelStore.setPlane(arrayBuf, z, c, t);
+        if (currentPixId != pixId)
+        {
+            //rawPixelStore.close();
+            //rawPixelStore = serviceFactory.createRawPixelsStore();
+            rawPixelStore.setPixelsId(pixId, true);
+            currentPixId = pixId;
+        }
+        rawPixelStore.setPlane(arrayBuf, z, c, t);
     }
 
     /* (non-Javadoc)
@@ -2489,27 +2475,27 @@ public class OMEROMetadataStoreClient
     public void setChannelGlobalMinMax(int channel, double minimum,
             double maximum, int series)
     {
-    	Pixels pixels = 
-    		(Pixels) getSourceObject(new LSID(Pixels.class, series, 0));
-    	if (imageChannelGlobalMinMax == null)
-    	{
-    		int imageCount = countCachedContainers(Image.class);
-    		imageChannelGlobalMinMax = new double[imageCount][][];
-    	}
-    	double[][] channelGlobalMinMax = imageChannelGlobalMinMax[series];
-    	if (channelGlobalMinMax == null)
-    	{
-    		imageChannelGlobalMinMax[series] = channelGlobalMinMax =
-    			new double[pixels.getSizeC().getValue()][];
-    	}
-    	double[] globalMinMax = channelGlobalMinMax[channel];
-    	if (globalMinMax == null)
-    	{
-    		imageChannelGlobalMinMax[series][channel] = globalMinMax =
-    			new double[2];
-    	}
-    	globalMinMax[0] = minimum;
-    	globalMinMax[1] = maximum;
+        Pixels pixels = 
+            (Pixels) getSourceObject(new LSID(Pixels.class, series, 0));
+        if (imageChannelGlobalMinMax == null)
+        {
+            int imageCount = countCachedContainers(Image.class);
+            imageChannelGlobalMinMax = new double[imageCount][][];
+        }
+        double[][] channelGlobalMinMax = imageChannelGlobalMinMax[series];
+        if (channelGlobalMinMax == null)
+        {
+            imageChannelGlobalMinMax[series] = channelGlobalMinMax =
+                new double[pixels.getSizeC().getValue()][];
+        }
+        double[] globalMinMax = channelGlobalMinMax[channel];
+        if (globalMinMax == null)
+        {
+            imageChannelGlobalMinMax[series][channel] = globalMinMax =
+                new double[2];
+        }
+        globalMinMax[0] = minimum;
+        globalMinMax[1] = maximum;
     }
 
     /**
@@ -2520,17 +2506,17 @@ public class OMEROMetadataStoreClient
     {
         try
         {
-        	List<IObject> objectList = new ArrayList<IObject>(pixelsList.size());
-        	Image unloadedImage;
-        	for (Pixels pixels : pixelsList)
-        	{
-        		pixels.unloadCollections();
-        		pixels.unloadDetails();
-        		unloadedImage = new ImageI(pixels.getImage().getId(), false);
-        		pixels.setImage(unloadedImage);
-        		objectList.add(pixels);
-        	}
-        	iUpdate.saveArray(objectList);
+            List<IObject> objectList = new ArrayList<IObject>(pixelsList.size());
+            Image unloadedImage;
+            for (Pixels pixels : pixelsList)
+            {
+                pixels.unloadCollections();
+                pixels.unloadDetails();
+                unloadedImage = new ImageI(pixels.getImage().getId(), false);
+                pixels.setImage(unloadedImage);
+                objectList.add(pixels);
+            }
+            iUpdate.saveArray(objectList);
         }
         catch (ServerError e)
         {
@@ -2715,433 +2701,510 @@ public class OMEROMetadataStoreClient
      */
     public class OMEXMLModelComparator implements Comparator<LSID>
     {
-    	/** 
-    	 * The collator that we use to alphabetically sort by class name
-    	 * within a given level of the OME-XML hierarchy.
-    	 */
-    	private RuleBasedCollator stringComparator = 
-    		(RuleBasedCollator) Collator.getInstance(Locale.ENGLISH);
-    	
-		public int compare(LSID x, LSID y)
-		{
-			// Handle identical LSIDs
-			if (x.equals(y))
-			{
-				return 0;
-			}
-			
-			// Parse the LSID for hierarchical equivalence tests.
-			Class<? extends IObject> xClass = x.getJavaClass();
-			Class<? extends IObject> yClass = y.getJavaClass();
-			int[] xIndexes = x.getIndexes();
-			int[] yIndexes = y.getIndexes();
-			
-			// Handle the null class (one or more unparsable internal 
-			// references) case.
-			if (xClass == null || yClass == null)
-			{
-				return stringComparator.compare(x.toString(), y.toString()); 
-			}
+        /** 
+         * The collator that we use to alphabetically sort by class name
+         * within a given level of the OME-XML hierarchy.
+         */
+        private RuleBasedCollator stringComparator = 
+            (RuleBasedCollator) Collator.getInstance(Locale.ENGLISH);
+        
+        public int compare(LSID x, LSID y)
+        {
+            // Handle identical LSIDs
+            if (x.equals(y))
+            {
+                return 0;
+            }
+            
+            // Parse the LSID for hierarchical equivalence tests.
+            Class<? extends IObject> xClass = x.getJavaClass();
+            Class<? extends IObject> yClass = y.getJavaClass();
+            int[] xIndexes = x.getIndexes();
+            int[] yIndexes = y.getIndexes();
+            
+            // Handle the null class (one or more unparsable internal 
+            // references) case.
+            if (xClass == null || yClass == null)
+            {
+                return stringComparator.compare(x.toString(), y.toString()); 
+            }
 
-			// Assign values to the classes
-			int xVal = getValue(xClass, xIndexes.length);
-			int yVal = getValue(yClass, yIndexes.length);
-			
-			int retval = xVal - yVal;
-			if (retval == 0)
-			{
-				// Handle different classes at the same level in the hierarchy
-				// by string difference. They need to still be different.
-				if (!xClass.equals(yClass))
-				{
-					return stringComparator.compare(x.toString(), y.toString());
-				}
-				for (int i = 0; i < xIndexes.length; i++)
-				{
-					int difference = xIndexes[i] - yIndexes[i];
-					if (difference != 0)
-					{
-						return difference;
-					}
-				}
-				return 0;
-			}
-			return retval;
-		}
-		
-		/**
-		 * Assigns a value to a particular class based on its location in the
-		 * OME-XML hierarchy.
-		 * @param klass Class to assign a value to.
-		 * @param indexed Number of class indexes that were present in its LSID.
-		 * @return The value.
-		 */
-		public int getValue(Class<? extends IObject> klass, int indexes)
-		{
-			// Top-level (Pixels is a special case due to Channel and
-			// LogicalChannel containership weirdness).
-			if (klass.equals(Pixels.class))
-			{
-				return 1;
-			}
-			
-			if (klass.equals(DetectorSettings.class) 
-			    || klass.equals(LightSettings.class))
-			{
-			    return 3;
-			}
-			
-			return indexes;
-		}
+            // Assign values to the classes
+            int xVal = getValue(xClass, xIndexes.length);
+            int yVal = getValue(yClass, yIndexes.length);
+            
+            int retval = xVal - yVal;
+            if (retval == 0)
+            {
+                // Handle different classes at the same level in the hierarchy
+                // by string difference. They need to still be different.
+                if (!xClass.equals(yClass))
+                {
+                    return stringComparator.compare(x.toString(), y.toString());
+                }
+                for (int i = 0; i < xIndexes.length; i++)
+                {
+                    int difference = xIndexes[i] - yIndexes[i];
+                    if (difference != 0)
+                    {
+                        return difference;
+                    }
+                }
+                return 0;
+            }
+            return retval;
+        }
+        
+        /**
+         * Assigns a value to a particular class based on its location in the
+         * OME-XML hierarchy.
+         * @param klass Class to assign a value to.
+         * @param indexed Number of class indexes that were present in its LSID.
+         * @return The value.
+         */
+        public int getValue(Class<? extends IObject> klass, int indexes)
+        {
+            // Top-level (Pixels is a special case due to Channel and
+            // LogicalChannel containership weirdness).
+            if (klass.equals(Pixels.class))
+            {
+                return 1;
+            }
+            
+            if (klass.equals(DetectorSettings.class) 
+                || klass.equals(LightSettings.class))
+            {
+                return 3;
+            }
+            
+            return indexes;
+        }
     }
 
     public void setChannelComponentPixels(String arg0, int arg1, int arg2,
             int arg3)
     {
-        // TODO Auto-generated method stub
+
+        //
+
+    }
+
+    public void setCircleID(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setCircleCx(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setCircleCy(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setCircleR(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setCircleTransform(String arg0, int arg1, int arg2, int arg3)
+    {
+
         //
 
     }
 
     public void setContactExperimenter(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setDatasetDescription(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setDatasetExperimenterRef(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setDatasetGroupRef(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setDatasetID(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setDatasetLocked(Boolean arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setDatasetName(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setDatasetRefID(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setDetectorAmplificationGain(Float arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setDetectorZoom(Float arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setDichroicLotNumber(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setDichroicManufacturer(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setDichroicModel(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setDisplayOptionsDisplay(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
+        //
+
+    }
+
+    public void setEllipseID(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setEllipseCx(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setEllipseCy(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setEllipseRx(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setEllipseRy(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setEllipseTransform(String arg0, int arg1, int arg2, int arg3)
+    {
+
         //
 
     }
 
     public void setEmFilterLotNumber(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setEmFilterManufacturer(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setEmFilterModel(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setEmFilterType(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setExFilterLotNumber(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setExFilterManufacturer(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setExFilterModel(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setExFilterType(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setExperimentExperimenterRef(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setExperimenterOMEName(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setFilterFilterWheel(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setFilterLotNumber(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setFilterManufacturer(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setFilterModel(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setFilterSetDichroic(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setFilterSetEmFilter(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setFilterSetExFilter(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setFilterSetLotNumber(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setFilterSetManufacturer(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setFilterSetModel(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setFilterType(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setGreyChannelBlackLevel(Float arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setGreyChannelChannelNumber(Integer arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setGreyChannelGamma(Float arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setGreyChannelMapColorMap(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setGreyChannelWhiteLevel(Float arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setGreyChannelisOn(Boolean arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setGroupName(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setImageAcquiredPixels(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setImageExperimentRef(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setImageExperimenterRef(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setImageGroupRef(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setImageObjective(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setLaserPockelCell(Boolean arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setLaserRepetitionRate(Boolean arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
@@ -3149,7 +3212,7 @@ public class OMEROMetadataStoreClient
     public void setLightSourceRefAttenuation(Float arg0, int arg1, int arg2,
             int arg3)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
@@ -3157,7 +3220,7 @@ public class OMEROMetadataStoreClient
     public void setLightSourceRefLightSource(String arg0, int arg1, int arg2,
             int arg3)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
@@ -3165,27 +3228,70 @@ public class OMEROMetadataStoreClient
     public void setLightSourceRefWavelength(Integer arg0, int arg1, int arg2,
             int arg3)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
+
+    public void setLineID(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setLineTransform(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setLineX1(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setLineX2(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setLineY1(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setLineY2(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
     public void setLogicalChannelDetector(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setLogicalChannelFilterSet(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setLogicalChannelLightSource(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
@@ -3193,7 +3299,7 @@ public class OMEROMetadataStoreClient
     public void setLogicalChannelSecondaryEmissionFilter(String arg0, int arg1,
             int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
@@ -3201,7 +3307,94 @@ public class OMEROMetadataStoreClient
     public void setLogicalChannelSecondaryExcitationFilter(String arg0,
             int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
+        //
+
+    }
+
+    public void setMaskID(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setMaskPixelsBigEndian(Boolean arg0, int arg1, int arg2,
+            int arg3)
+    {
+
+        //
+
+    }
+
+    public void setMaskPixelsBinData(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setMaskPixelsExtendedPixelType(String arg0, int arg1, int arg2,
+            int arg3)
+    {
+
+        //
+
+    }
+
+    public void setMaskPixelsID(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setMaskPixelsSizeX(Integer arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setMaskPixelsSizeY(Integer arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setMaskHeight(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setMaskTransform(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setMaskWidth(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setMaskX(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+    
+
+    public void setMaskY(String arg0, int arg1, int arg2, int arg3)
+    {
+
         //
 
     }
@@ -3209,181 +3402,308 @@ public class OMEROMetadataStoreClient
     public void setMicrobeamManipulationExperimenterRef(String arg0, int arg1,
             int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setMicrobeamManipulationID(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setMicrobeamManipulationRefID(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setMicrobeamManipulationType(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setMicroscopeID(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setMicroscopeManufacturer(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setMicroscopeModel(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setMicroscopeSerialNumber(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setMicroscopeType(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setOTFBinaryFile(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setPlaneHashSHA1(String arg0, int arg1, int arg2, int arg3)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setPlaneID(String arg0, int arg1, int arg2, int arg3)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setPlateRefSample(Integer arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setPlateRefWell(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
+
+    public void setPointID(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setPointCx(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setPointCy(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setPointR(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setPointTransform(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setPolygonID(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setPolygonPoints(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setPolygonTransform(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setPolylineID(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setPolylinePoints(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setPolylineTransform(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
     public void setProjectDescription(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setProjectExperimenterRef(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setProjectGroupRef(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setProjectID(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setProjectName(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setProjectRefID(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setPumpLightSource(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
+        //
+
+    }
+
+    public void setROIRefID(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setRectID(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setRectHeight(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setRectTransform(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setRectWidth(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setRectX(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setRectY(String arg0, int arg1, int arg2, int arg3)
+    {
+
         //
 
     }
 
     public void setRegionID(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setRegionName(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setRegionTag(String arg0, int arg1, int arg2)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setScreenDescription(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
 
     public void setScreenExtern(String arg0, int arg1)
     {
-        // TODO Auto-generated method stub
+
         //
 
     }
@@ -3455,380 +3775,286 @@ public class OMEROMetadataStoreClient
     {
 
     }
-    
-    /*-----ROI STUFF------*/
-    
-    public void setROIID(String id, int imageIndex, int roiIndex)
+
+    public void setWellReagent(String reagent, int plateIndex, int wellIndex)
     {
-    }
-    
-    public void setROIT0(Integer t0, int imageIndex, int roiIndex)
-    {
+        LSID key = new LSID(Well.class, plateIndex, wellIndex);
+        referenceCache.put(key, new LSID(reagent));
     }
 
-    public void setROIT1(Integer t1, int imageIndex, int roiIndex)
+    public void setWellSampleImageRef(String image, int plateIndex, 
+            int wellIndex, int wellSampleIndex)
     {
+        LSID key = new LSID(WellSample.class, plateIndex, wellIndex, wellSampleIndex);
+        referenceCache.put(key, new LSID(image));
     }
 
-    public void setROIX0(Integer x0, int imageIndex, int roiIndex)
-    {
-    }
-
-    public void setROIX1(Integer x1, int imageIndex, int roiIndex)
-    {
-    }
-
-    public void setROIY0(Integer y0, int imageIndex, int roiIndex)
-    {
-    }
-
-    public void setROIY1(Integer y1, int imageIndex, int roiIndex)
-    {
-    }
-
-    public void setROIZ0(Integer z0, int imageIndex, int roiIndex)
-    {
-    }
-
-    public void setROIZ1(Integer z1, int imageIndex, int roiIndex)
-    {
-    }
-
-    public void setROIRefID(String arg0, int arg1, int arg2, int arg3)
-    {
-    }
-
-    /*-----*/
-
-    
-    public void setRectID(String id, int imageIndex, int roiIndex, int shapeIndex)
+    public void setWellSampleRefID(String arg0, int arg1, int arg2, int arg3)
     {
 
     }
-    
-    private Rect getRect(int imageIndex, int roiIndex, int shapeIndex)
+
+    public void setPlateColumnNamingConvention(String arg0, int arg1)
     {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("roiIndex", roiIndex);
-        indexes.put("shapeIndex", shapeIndex);
-        return getSourceObject(Rect.class, indexes);
+
     }
 
-    public void setRectHeight(String height, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Rect r = getRect(imageIndex, roiIndex, shapeIndex);
-        r.setHeight(toRType(Double.parseDouble(height)));
-    }
-
-    public void setRectWidth(String width, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Rect r = getRect(imageIndex, roiIndex, shapeIndex);
-        r.setWidth(toRType(Double.parseDouble(width)));
-    }
-
-    public void setRectX(String x, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Rect r = getRect(imageIndex, roiIndex, shapeIndex);
-        r.setX(toRType(Double.parseDouble(x)));
-    }
-
-    public void setRectY(String y, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Rect r = getRect(imageIndex, roiIndex, shapeIndex);
-        r.setY(toRType(Double.parseDouble(y)));
-    }
-
-    public void setRectTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Rect r = getRect(imageIndex, roiIndex, shapeIndex);
-        r.setTransform(toRType(transform));
-    }
-
-
-    /*-----*/
-
-    public void setPointID(String id, int imageIndex, int roiIndex, int shapeIndex)
+    public void setPlateRowNamingConvention(String arg0, int arg1)
     {
     }
 
-    private Point getPoint(int imageIndex, int roiIndex, int shapeIndex)
+    public void setPlateWellOriginX(Double arg0, int arg1)
     {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("roiIndex", roiIndex);
-        indexes.put("shapeIndex", shapeIndex);
-        return getSourceObject(Point.class, indexes);
-    }
-    
-    public void setPointCx(String cx, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Point p = getPoint(imageIndex, roiIndex, shapeIndex);
-        p.setCx(toRType(Double.parseDouble(cx)));
+
     }
 
-    public void setPointCy(String cy, int imageIndex, int roiIndex, int shapeIndex)
+    public void setPlateWellOriginY(Double arg0, int arg1)
     {
-        Point p = getPoint(imageIndex, roiIndex, shapeIndex);
-        p.setCy(toRType(Double.parseDouble(cy)));
+
     }
 
-    public void setPointR(String r, int imageIndex, int roiIndex, int shapeIndex)
+    public void setPathD(String arg0, int arg1, int arg2, int arg3)
     {
-        //Unimplemented in OMERO
+
+        //
+
     }
 
-    public void setPointTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
+    public void setPathID(String arg0, int arg1, int arg2, int arg3)
     {
-        Point p = getPoint(imageIndex, roiIndex, shapeIndex);
-        p.setTransform(toRType(transform));
+
+        //
+
     }
 
-    /*-----*/
-    
-    public void setPolygonID(String arg0, int arg1, int arg2, int arg3)
+    public void setShapeBaselineShift(String arg0, int arg1, int arg2, int arg3)
     {
-    }
-    
-    private Polygon getPolygon(int imageIndex, int roiIndex, int shapeIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("roiIndex", roiIndex);
-        indexes.put("shapeIndex", shapeIndex);
-        return getSourceObject(Polygon.class, indexes);
+
+        //
+
     }
 
-    public void setPolygonPoints(String points, int imageIndex, int roiIndex, int shapeIndex)
+    public void setShapeDirection(String arg0, int arg1, int arg2, int arg3)
     {
-        Polygon p = getPolygon(imageIndex, roiIndex, shapeIndex);
-        p.setPoints(toRType(points));
+
+        //
+
     }
 
-    public void setPolygonTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
+    public void setShapeFillColor(String arg0, int arg1, int arg2, int arg3)
     {
-        Polygon p = getPolygon(imageIndex, roiIndex, shapeIndex);
-        p.setTransform(toRType(transform));
+
+        //
+
     }
 
-    /*----*/
-    
-    public void setPolylineID(String arg0, int arg1, int arg2, int arg3)
+    public void setShapeFillOpacity(String arg0, int arg1, int arg2, int arg3)
     {
+
+        //
+
     }
 
-    private Polyline getPolyline(int imageIndex, int roiIndex, int shapeIndex)
+    public void setShapeFillRule(String arg0, int arg1, int arg2, int arg3)
     {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("roiIndex", roiIndex);
-        indexes.put("shapeIndex", shapeIndex);
-        return getSourceObject(Polyline.class, indexes);
-    }
-    
-    public void setPolylinePoints(String points, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Polyline p = getPolyline(imageIndex, roiIndex, shapeIndex);
-        p.setPoints(toRType(points));
+
+        //
+
     }
 
-    public void setPolylineTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
+    public void setShapeFontFamily(String arg0, int arg1, int arg2, int arg3)
     {
-        Polyline p = getPolyline(imageIndex, roiIndex, shapeIndex);
-        p.setTransform(toRType(transform));
-    }
-    
-    /*-----*/
-    
-    public void setEllipseID(String arg0, int arg1, int arg2, int arg3)
-    {
+
+        //
+
     }
 
-    private Ellipse getEllipse(int imageIndex, int roiIndex, int shapeIndex)
+    public void setShapeFontSize(Integer arg0, int arg1, int arg2, int arg3)
     {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("roiIndex", roiIndex);
-        indexes.put("shapeIndex", shapeIndex);
-        return getSourceObject(Ellipse.class, indexes);
-    }
-    
-    public void setEllipseCx(String cx, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
-        e.setCx(toRType(Double.parseDouble(cx)));
+
+        //
+
     }
 
-    public void setEllipseCy(String cy, int imageIndex, int roiIndex, int shapeIndex)
+    public void setShapeFontStretch(String arg0, int arg1, int arg2, int arg3)
     {
-        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
-        e.setCy(toRType(Double.parseDouble(cy)));
+
+        //
+
     }
 
-    public void setEllipseRx(String rx, int imageIndex, int roiIndex, int shapeIndex)
+    public void setShapeFontStyle(String arg0, int arg1, int arg2, int arg3)
     {
-        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
-        e.setRx(toRType(Double.parseDouble(rx)));
+
+        //
+
     }
 
-    public void setEllipseRy(String ry, int imageIndex, int roiIndex, int shapeIndex)
+    public void setShapeFontVariant(String arg0, int arg1, int arg2, int arg3)
     {
-        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
-        e.setRy(toRType(Double.parseDouble(ry)));
+
+        //
+
     }
 
-    public void setEllipseTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
+    public void setShapeFontWeight(String arg0, int arg1, int arg2, int arg3)
     {
-        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
-        e.setTransform(toRType(transform));
-    }
-    
-    /*-----*/
-    
-    public void setCircleID(String arg0, int arg1, int arg2, int arg3)
-    {
+
+        //
+
     }
 
-    public void setCircleCx(String cx, int imageIndex, int roiIndex, int shapeIndex)
+    public void setShapeG(String arg0, int arg1, int arg2, int arg3)
     {
-        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
-        e.setCx(toRType(Double.parseDouble(cx)));
+
+        //
+
     }
 
-    public void setCircleCy(String cy, int imageIndex, int roiIndex, int shapeIndex)
+    public void setShapeGlyphOrientationVertical(Integer arg0, int arg1,
+            int arg2, int arg3)
     {
-        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
-        e.setCy(toRType(Double.parseDouble(cy)));
+
+        //
+
     }
 
-    public void setCircleR(String r, int imageIndex, int roiIndex, int shapeIndex)
+    public void setShapeLocked(Boolean arg0, int arg1, int arg2, int arg3)
     {
-        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
-        e.setRx(toRType(Double.parseDouble(r)));
-        e.setRy(toRType(Double.parseDouble(r)));
+
+        //
+
     }
 
-    public void setCircleTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
+    public void setShapeStrokeAttribute(String arg0, int arg1, int arg2,
+            int arg3)
     {
-        Ellipse e = getEllipse(imageIndex, roiIndex, shapeIndex);
-        e.setTransform(toRType(transform));
+
+        //
+
     }
 
-    /*-----*/
-   
-    public void setLineID(String arg0, int arg1, int arg2, int arg3)
+    public void setShapeStrokeColor(String arg0, int arg1, int arg2, int arg3)
     {
+
+        //
+
     }
 
-    private Line getLine(int imageIndex, int roiIndex, int shapeIndex)
+    public void setShapeStrokeDashArray(String arg0, int arg1, int arg2,
+            int arg3)
     {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("roiIndex", roiIndex);
-        indexes.put("shapeIndex", shapeIndex);
-        return getSourceObject(Line.class, indexes);
+
+        //
+
+    }
+
+    public void setShapeStrokeLineCap(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setShapeStrokeLineJoin(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setShapeStrokeMiterLimit(Integer arg0, int arg1, int arg2,
+            int arg3)
+    {
+
+        //
+
+    }
+
+    public void setShapeStrokeOpacity(Float arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setShapeStrokeWidth(Integer arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setShapeText(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setShapeTextAnchor(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setShapeTextDecoration(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setShapeTextFill(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setShapeTextStroke(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setShapeVectorEffect(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setShapeVisibility(Boolean arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
+    }
+
+    public void setShapeWritingMode(String arg0, int arg1, int arg2, int arg3)
+    {
+
+        //
+
     }
     
-    public void setLineTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Line l = getLine(imageIndex, roiIndex, shapeIndex);
-        l.setTransform(toRType(transform));
-    }
-
-    public void setLineX1(String x1, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Line l = getLine(imageIndex, roiIndex, shapeIndex);
-        l.setX1(toRType(Double.parseDouble(x1)));
-    }
-
-    public void setLineX2(String x2, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Line l = getLine(imageIndex, roiIndex, shapeIndex);
-        l.setX2(toRType(Double.parseDouble(x2)));
-    }
-
-
-    public void setLineY1(String y1, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Line l = getLine(imageIndex, roiIndex, shapeIndex);
-        l.setY1(toRType(Double.parseDouble(y1)));
-    }
-
-
-    public void setLineY2(String y2, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Line l = getLine(imageIndex, roiIndex, shapeIndex);
-        l.setY2(toRType(Double.parseDouble(y2)));
-    }
+   /*-----------*/
     
-    /*-----*/
+    public class SortProjectsByName implements Comparator<Project>{
+        public int compare(Project o1, Project o2)
+        {
+            return o1.getName().getValue().compareTo(o2.getName().getValue());
+        }
+     }
     
-    public void setMaskID(String arg0, int arg1, int arg2, int arg3)
-    {
-    }
-
-    private Mask getMask(int imageIndex, int roiIndex, int shapeIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("roiIndex", roiIndex);
-        indexes.put("shapeIndex", shapeIndex);
-        return getSourceObject(Mask.class, indexes);
-    }
-
-    public void setMaskHeight(String height, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Mask m = getMask(imageIndex, roiIndex, shapeIndex);
-        m.setHeight(toRType(Double.parseDouble(height)));
-    }
-
-    public void setMaskTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Mask m = getMask(imageIndex, roiIndex, shapeIndex);
-        m.setTransform(toRType(transform));
-    }
-
-    public void setMaskWidth(String width, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Mask m = getMask(imageIndex, roiIndex, shapeIndex);
-        m.setWidth(toRType(Double.parseDouble(width)));
-    }
-
-    public void setMaskX(String x, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Mask m = getMask(imageIndex, roiIndex, shapeIndex);
-        m.setX(toRType(Double.parseDouble(x)));
-    }
-
-    public void setMaskY(String y, int imageIndex, int roiIndex, int shapeIndex)
-    {
-        Mask m = getMask(imageIndex, roiIndex, shapeIndex);
-        m.setY(toRType(Double.parseDouble(y)));
-    }
-
-    /*-----*/
-
-    public void setMaskPixelsID(String arg0, int arg1, int arg2, int arg3)
-    {
-    }
-
-    public void setMaskPixelsBigEndian(Boolean bigEndian, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    }
-
-    public void setMaskPixelsBinData(String arg0, int arg1, int arg2, int arg3)
-    {
-    }
-
-    public void setMaskPixelsExtendedPixelType(String arg0, int arg1, int arg2, int arg3)
-    {
-    }
     
-    public void setMaskPixelsSizeX(Integer pixelSizeX, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    }
-
-    public void setMaskPixelsSizeY(Integer pixelSizeY, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    }
+    public class SortDatasetsByName implements Comparator<Dataset>{
+        public int compare(Dataset o1, Dataset o2)
+        {
+            return o1.getName().getValue().compareTo(o2.getName().getValue());
+        }
+     }
 }
