@@ -371,14 +371,27 @@ public class ImportLibrary implements IObservable
         }
         if (archive)
         {
-            notifyObservers(Actions.IMPORT_ARCHIVING, args);
         	String[] fileNameList = reader.getUsedFiles();
+            notifyObservers(Actions.IMPORT_ARCHIVING, args);
         	File[] files = new File[fileNameList.length];
         	for (int i = 0; i < fileNameList.length; i++) 
         	{
         		files[i] = new File(fileNameList[i]); 
         	}
         	store.writeFilesToFileStore(files, pixList.get(0));   
+        } else {
+            String[] fileNameList = reader.getUsedFiles(true);
+            if (fileNameList != null)
+            {
+                notifyObservers(Actions.IMPORT_ARCHIVING, args);
+                File[] files = new File[fileNameList.length];
+                for (int i = 0; i < fileNameList.length; i++)
+                {
+                    files[i] = new File(fileNameList[i]);
+                }
+                store.writeFilesToFileStore(files, pixList.get(0));
+            }
+            
         }
         if (saveSha1)
         {
