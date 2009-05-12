@@ -22,6 +22,7 @@
  */
 package org.openmicroscopy.shoola.agents.editor.model;
 
+import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextBoxParam;
@@ -72,8 +73,7 @@ public class TextBoxStep
 		if (textValue != null) {
 			p.setAttribute(TextParam.PARAM_VALUE, textValue);
 		}
-		addContent(p);
-		
+		super.addContent(p);
 	}
 	
 	/**
@@ -95,6 +95,49 @@ public class TextBoxStep
 		}
 		return null;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link IField} interface.
+	 * Don't allow adding of parameters
+	 */
+	public void addContent(IFieldContent param) {
+		if ((param != null) && (! (param instanceof AbstractParam)))
+			super.addContent(param);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IField} interface.
+	 * Don't allow adding of parameters
+	 */
+	public void addContent(int index, IFieldContent param) 
+	{
+		if ((param != null) && (! (param instanceof AbstractParam)))
+			super.addContent(index, param);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IField} interface.
+	 * Won't remove TextBoxParam
+	 */
+	public int removeContent(IFieldContent param) 
+	{
+		if (param instanceof TextBoxParam) {
+			return 0;
+		}
+		return super.removeContent(param);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IField} interface.
+	 * Won't remove TextBoxParam 
+	 */
+	public void removeContent(int index) 
+	{
+		if (! (getContentAt(index) instanceof TextBoxParam)) {
+			super.removeContent(index);
+		}
+	}
+	
 
 	/**
 	 * Overridden to return "Comment Step";

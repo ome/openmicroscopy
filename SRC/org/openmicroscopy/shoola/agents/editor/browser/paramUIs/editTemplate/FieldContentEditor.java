@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -129,6 +130,11 @@ public class FieldContentEditor
 			
 			nameEditor.setVisible(false);
 		}
+		
+		/**
+		 * Overridden to disable the "Split-Step" triggered by hitting 'Enter' 
+		 */
+		public void keyReleased(KeyEvent e) {}
 		
 		/**
 		 * Overridden to disable the display of parameter editing dialog.
