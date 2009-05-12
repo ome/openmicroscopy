@@ -25,11 +25,14 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 //Java imports
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
@@ -47,6 +50,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamToolBar;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomComboBox;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.DropDownMenu;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -74,7 +78,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class ParamEditor 
 	extends AbstractParamEditor
-	implements PropertyChangeListener
+	implements PropertyChangeListener, ActionListener
 {
 	
 	/**
@@ -88,7 +92,7 @@ public class ParamEditor
 	 * A drop-down menu for changing the type of parameter. E.g. from 
 	 * boolean to text-line. 
 	 */
-	private DropDownMenu 			paramTypeChooser; 
+	private JComboBox	 			paramTypeChooser; 
 	
 	/**
 	 * The property associated with changing the type of parameter. 
@@ -108,9 +112,8 @@ public class ParamEditor
 	private void initialise()
 	{
 		String[] options = FieldParamsFactory.getUiParamTypes();
-		paramTypeChooser = new DropDownMenu(options);
-		// listen for selection changes
-		paramTypeChooser.addPropertyChangeListener(DropDownMenu.SELECTION, this);
+		paramTypeChooser = new CustomComboBox(options);
+		// ActionListener (this) is added after UI is built
 	}
 	
 	/**
@@ -167,6 +170,9 @@ public class ParamEditor
 			defaultEdit.addPropertyChangeListener
 				(FieldPanel.UPDATE_EDITING_PROPERTY, this);
 		}
+		
+		// listen for selection changes
+		paramTypeChooser.addActionListener(this);
 	}
 	
 	/**
@@ -202,13 +208,6 @@ public class ParamEditor
 		if (FieldPanel.UPDATE_EDITING_PROPERTY.equals(evt.getPropertyName())) {
 			// don't need this??
 		}
-		
-		if (DropDownMenu.SELECTION.equals(evt.getPropertyName())) {
-			int selectedIndex = paramTypeChooser.getSelectedIndex();
-			 String newType = FieldParamsFactory.getParamTypes()[selectedIndex];
-			 
-			 firePropertyChange(PARAM_TYPE, null, newType);
-		}
 	}
 	
 	/**
@@ -221,5 +220,16 @@ public class ParamEditor
 
 	public String getEditDisplayName() {
 		return "Edit Parameter Type";
+	}
+
+	/**
+	 * Implemented as specified by the {@link ActionListener} interface.
+	 * Handles selections from the {@link #paramTypeChooser} combo-box. 
+	 */
+	public void actionPerformed(ActionEvent e) {
+		int selectedIndex = paramTypeChooser.getSelectedIndex();
+		 String newType = FieldParamsFactory.getParamTypes()[selectedIndex];
+		 
+		 firePropertyChange(PARAM_TYPE, null, newType);
 	}
 }
