@@ -238,8 +238,6 @@ public class CPEsummaryExport {
 		}
 		if (output != null) {
 			String s = output.toString();
-			// System.out.println("CPEsummaryExport " + s.length());
-			// System.out.print(s);
 			return s;
 		}
 		return null;

@@ -97,10 +97,7 @@ public class XMLMethods
                        public void warning(SAXParseException err)
                        throws SAXParseException
                        {
-                         System.out.println("** Warning"
-                            + ", line " + err.getLineNumber()
-                            + ", uri " + err.getSystemId());
-                         System.out.println("   " + err.getMessage());
+                         
                        }
                    }
                  ); 

@@ -86,7 +86,6 @@ public class OntologyLookUp {
 					String key = (String) i.next();
 					if(qs.isObsolete(key, ontologyID)) {
 						obsoleteTermIds.add(key);
-						//System.out.println("OLS term isObsolete " + key);
 					}
 				}
 				for(String termId: obsoleteTermIds) {
@@ -119,12 +118,6 @@ public class OntologyLookUp {
 			QueryService locator = new QueryServiceLocator();
 			Query qs = locator.getOntologyQuery();
 			metaDataMap = qs.getTermMetadata(termID, ontologyID);
-			
-			/*
-			for (Iterator i = metaDataMap.keySet().iterator(); i.hasNext();){
-				String key = (String) i.next();
-				System.out.println(key + " - "+ metaDataMap.get(key));
-			} */
 			
 		}catch (Exception e) {
 			e.printStackTrace();

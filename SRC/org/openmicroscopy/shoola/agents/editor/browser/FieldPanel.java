@@ -646,9 +646,6 @@ public class FieldPanel
 				String attrName = src.getAttributeName();
 				String displayName = src.getEditDisplayName();
 				
-				//System.out.println("FieldPanel propChanged: "+ attrName + 
-				//		" " + evt.getNewValue());
-				
 				String newValue;
 				Object newVal = evt.getNewValue();
 				if ((newVal instanceof String) || (newVal == null)){

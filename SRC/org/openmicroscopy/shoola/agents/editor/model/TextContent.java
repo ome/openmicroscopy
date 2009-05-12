@@ -124,8 +124,6 @@ public class TextContent
 	 */
 	public void setAttribute(String name, String value) 
 	{
-		//System.out.println("AbstractParam setAttribute() " + 
-		//	name + " = " + value);
 		valueAttributesMap.put(name, value);
 	}
 }
