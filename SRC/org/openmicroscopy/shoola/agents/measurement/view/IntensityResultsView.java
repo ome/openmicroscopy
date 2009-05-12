@@ -629,7 +629,6 @@ class IntensityResultsView
 	public void actionPerformed(ActionEvent e)
 	{
 		int index = Integer.parseInt(e.getActionCommand());
-		System.err.println(index);
 		switch (index) {
 			case ADD:
 				addResults();
