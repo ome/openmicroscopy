@@ -849,10 +849,10 @@ public class OMEROMetadataStoreClient
      * @param archive Whether or not the user requested the original files to
      * be archived.
      */
-    public void setArchive(boolean archive)
+    public void setArchive(boolean archive, boolean companionOnly)
     {
         List<Image> images = getSourceObjects(Image.class);
-        String[] files = reader.getUsedFiles();
+        String[] files = reader.getUsedFiles(companionOnly);
         
         if (archive)
         {
