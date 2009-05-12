@@ -794,13 +794,18 @@ public class FieldTextArea
      */
     private class ParamMouseListener extends MouseAdapter
     {
+    	/**
+    	 * Try saving even when the user clicks or starts selecting text. 
+    	 */
+    	public void mousePressed(MouseEvent e) {
+    		// if any changes have been made to the document, save changes.
+    		saveContent();
+    	}
+    	
     	public void mouseClicked(MouseEvent e) 
     	{
     		Point mouseLoc = e.getPoint();
     		int c = contentEditor.viewToModel(mouseLoc);
-    		
-    		// if any changes have been made to the document, save changes.
-    		saveContent();
     		
     		// if click is on a parameter...
     		if (contentEditor.isOffsetWithinTag(c, FieldTextArea.PARAM_TAG)) {
