@@ -105,6 +105,13 @@ class IntensityResultsView
 	/** Tooltip for the add button. */
 	private final static String ADD_DESCRIPTION = "Add Intensities for " +
 							"selected ROI to results table.";
+
+	/** The addAll button name. */
+	private final static String ADDALL_NAME = "Add All";
+	
+	/** Tooltip for the add button. */
+	private final static String ADDALL_DESCRIPTION = "Add Intensities for " +
+							"all ROIShapes of the selected ROI to results table.";
 	
 	/** The remove button name. */
 	private final static String REMOVE_NAME = "Remove";
@@ -144,6 +151,9 @@ class IntensityResultsView
 	
 	/** The add button. */
 	private JButton addButton;
+
+	/** The addAll button. */
+	private JButton addAllButton;
 	
 	/** The add button. */
 	private JButton removeAllButton;
@@ -171,6 +181,9 @@ class IntensityResultsView
 	
 	/** Action command id indicating to add new row. */
 	private static final int			ADD = 1;
+
+	/** Action command id indicating to add new row. */
+	private static final int			ADDALL = 4;
 	
 	/** Action command id indicating to remove all the rows. */
 	private static final int			REMOVE_ALL = 2;
@@ -258,6 +271,11 @@ class IntensityResultsView
 				UIUtilities.formatToolTipText(ADD_DESCRIPTION));
 		addButton.setActionCommand(""+ADD);
 		addButton.addActionListener(this);
+		addAllButton = new JButton(ADDALL_NAME);
+		addAllButton.setToolTipText(
+				UIUtilities.formatToolTipText(ADDALL_DESCRIPTION));
+		addAllButton.setActionCommand(""+ADDALL);
+		addAllButton.addActionListener(this);
 		removeAllButton = new JButton(REMOVE_ALL_NAME);
 		removeAllButton.setToolTipText(
 				UIUtilities.formatToolTipText(REMOVE_ALL_DESCRIPTION));
@@ -297,6 +315,7 @@ class IntensityResultsView
 		JPanel bottomPanel = new JPanel();
 		bottomPanel.setLayout(new FlowLayout());
 		bottomPanel.add(addButton);
+		bottomPanel.add(addAllButton);
 		bottomPanel.add(removeButton);
 		bottomPanel.add(removeAllButton);
 		bottomPanel.add(saveButton);
@@ -450,6 +469,37 @@ class IntensityResultsView
 	}
 	
 	/**
+	 * Adds the statistics from the ROIShapes of the select ROI to the table.
+	 */
+	private void addAllResults()
+	{
+		Set<Figure> selectedFigures = view.getDrawingView().getSelectedFigures();
+		if (selectedFigures.size() == 0 || state == State.ANALYSING) return;
+		state = State.ANALYSING;
+		List<ROIShape> shapeList = new ArrayList<ROIShape>();
+		if(selectedFigures.size() != 1)
+			return;
+		Iterator<Figure> iterator =  selectedFigures.iterator();
+		ROIFigure fig;
+		fig = (ROIFigure) iterator.next();
+		if (fig instanceof MeasureTextFigure)
+			return;
+		TreeMap<Coord3D, ROIShape> shapeMap = fig.getROI().getShapes();
+		Iterator<Coord3D> shapeCoordIterator = shapeMap.keySet().iterator();
+		while(shapeCoordIterator.hasNext())
+		{
+			ROIShape shape = shapeMap.get(shapeCoordIterator.next());
+			shapeList.add(shape);		
+		}
+		if(shapeList.size()==0)
+			return;
+		view.calculateStats(shapeList);
+		state = State.READY;
+		setButtonsEnabled(true);
+	}
+	
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param view		 Reference to the View. Mustn't be <code>null</code>.
@@ -495,12 +545,12 @@ class IntensityResultsView
 		this.ROIStats = model.getAnalysisResults();
 		if (ROIStats == null || ROIStats.size() == 0) return;
 		
-		shapeMap = new LinkedHashMap<Coord3D, ROIShape>();
-		minStats = new HashMap<Coord3D, Map<Integer, Double>>();
-		maxStats = new HashMap<Coord3D, Map<Integer, Double>>();
-		meanStats = new HashMap<Coord3D, Map<Integer, Double>>();
-		sumStats = new HashMap<Coord3D, Map<Integer, Double>>();
-		stdDevStats = new HashMap<Coord3D, Map<Integer, Double>>();
+		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
+		minStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+		maxStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+		meanStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+		sumStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+		stdDevStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
 		
 		Entry entry;
 		Iterator j  = ROIStats.entrySet().iterator();
@@ -560,8 +610,14 @@ class IntensityResultsView
 			}
 		
 			coord = c3D;
+		}
+		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+		while(shapeIterator.hasNext())
+		{
+			ROIShape shape = shapeMap.get(shapeIterator.next());
 			getResults(shape);
 		}
+
 		state = State.READY;
 	}
 
@@ -573,9 +629,13 @@ class IntensityResultsView
 	public void actionPerformed(ActionEvent e)
 	{
 		int index = Integer.parseInt(e.getActionCommand());
+		System.err.println(index);
 		switch (index) {
 			case ADD:
 				addResults();
+				break;
+			case ADDALL:
+				addAllResults();
 				break;
 			case SAVE:
 				saveResults();	
