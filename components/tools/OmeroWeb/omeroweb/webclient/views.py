@@ -707,7 +707,7 @@ def manage_my_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, 
     form_stageLabel = None
     if o1_type =='image' or o2_type == 'image' or o3_type == 'image':
         form_environment = MetadataEnvironmentForm(initial={'image': manager.image})
-        form_objective = MetadataObjectiveForm(initial={'image': manager.image, 'mediums': conn.getEnumerationEntries("MediumI"), 'immersions': conn.getEnumerationEntries("ImmersionI"), 'corrections': conn.getEnumerationEntries("CorrectionI") })
+        form_objective = MetadataObjectiveForm(initial={'image': manager.image, 'mediums': list(conn.getEnumerationEntries("MediumI")), 'immersions': list(conn.getEnumerationEntries("ImmersionI")), 'corrections': list(conn.getEnumerationEntries("CorrectionI")) })
         form_stageLabel = MetadataStageLabelForm(initial={'image': manager.image })
 
     template = None
@@ -3176,8 +3176,8 @@ def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
     if img is None:
         logger.error("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
-        
-    jpeg_data = img.getThumbnail((int(size),int(size)))
+    
+    jpeg_data = img.getThumbnail(size=int(size))
     return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 @isUserConnected

@@ -86,10 +86,7 @@ class MetadataQuerySetIterator(object):
         if self.empty_label is not None:
             yield (u"", self.empty_label)
         for obj in self.queryset:
-            if hasattr(obj.id, 'val'):
-                yield (obj.value.val, smart_unicode(obj.value.val))
-            else:
-                yield (obj.value, smart_unicode(obj.value))
+            yield (obj.value, smart_unicode(obj.value))
         # Clear the QuerySet cache if required.
         #if not self.cache_choices:
             #self.queryset._result_cache = None
@@ -124,12 +121,8 @@ class MetadataModelChoiceField(ModelChoiceField):
             return None
         res = False
         for q in self.queryset:
-            if hasattr(q.id, 'val'):
-                if long(value) == q.id.val:
-                    res = True
-            else:
-                if long(value) == q.id:
-                    res = True
+            if long(value) == q.id:
+                res = True
         if not res:
             raise ValidationError(self.error_messages['invalid_choice'])
         return value
@@ -150,31 +143,21 @@ class AnnotationQuerySetIterator(object):
             from omero_model_TagAnnotationI import TagAnnotationI
             if isinstance(obj._obj, FileAnnotationI):
                 textValue = obj.file.name.val
-            else:
-                if hasattr(obj.textValue, 'val'):
-                    if isinstance(obj._obj, TagAnnotationI):
-                        textValue = "%s... (%s)" % ((obj.textValue.val[:39], obj.textValue.val)[ len(obj.textValue.val)<40 ], (obj.description.val[:18], obj.description.val)[ len(obj.description.val)<20 ])
+            elif isinstance(obj._obj, TagAnnotationI):
+                if obj.textValue is not None:
+                    if obj.description is not None and obj.description is not "":
+                        textValue = "%s (%s)" % ((obj.textValue[:45]+"...", obj.textValue)[ len(obj.textValue)<45 ], \
+                            (obj.description[:25]+"...", obj.description)[ len(obj.description)<25 ])
                     else:
-                        textValue = obj.textValue.val
-                else:
-                    if obj.textValue is not None:
-                        if isinstance(obj._obj, TagAnnotationI):
-                            if obj.description is not None:
-                                textValue = "%s... (%s)" % ((obj.textValue[:39], obj.textValue)[ len(obj.textValue)<40 ], (obj.description, obj.description[:18])[ len(obj.description)<20 ])
-                            else:
-                                textValue = obj.textValue
-                        else:
-                            textValue = obj.textValue
+                        textValue = obj.textValue
+            else:
+                textValue = obj.textValue
             
             l = len(textValue)
-            if l > 60:
-                textValue = "%s..." % textValue[:60]
+            if l > 80:
+                textValue = "%s..." % textValue[:80]
             
-            if hasattr(obj.id, 'val'):
-                oid = obj.id.val
-            else:
-                oid = obj.id
-            
+            oid = obj.id
             yield (oid, smart_unicode(textValue))
         # Clear the QuerySet cache if required.
         #if not self.cache_choices:
@@ -210,12 +193,8 @@ class AnnotationModelChoiceField(ModelChoiceField):
             return None
         res = False
         for q in self.queryset:
-            if hasattr(q.id, 'val'):
-                if long(value) == q.id.val:
-                    res = True
-            else:
-                if long(value) == q.id:
-                    res = True
+            if long(value) == q.id:
+                res = True
         if not res:
             raise ValidationError(self.error_messages['invalid_choice'])
         return value
@@ -251,12 +230,8 @@ class AnnotationModelMultipleChoiceField(AnnotationModelChoiceField):
             else:
                 res = False
                 for q in self.queryset:
-                    if hasattr(q.id, 'val'):
-                        if long(val) == q.id.val:
-                            res = True
-                    else:
-                        if long(val) == q.id:
-                            res = True
+                    if long(val) == q.id:
+                        res = True
                 if not res:
                     raise ValidationError(self.error_messages['invalid_choice'])
                 else:

@@ -1824,30 +1824,9 @@ class OmeroWebObjectWrapper (object):
             self.annotation_counter = kwargs['annotation_counter']
         except:
             pass
-
-    def listChildren (self):
-        """ return a generator yielding child objects """
-        if self.CHILD_WRAPPER_CLASS is not None:
-            try:
-                childnodes = [ x.child for x in getattr(self._obj, self.LINK_NAME)()]
-
-                child_ids = [child.id.val for child in childnodes]
-                child_counter = None
-                if len(child_ids) > 0:
-                    child_counter = self._conn.getCollectionCount(self.CHILD, (self.CHILD_WRAPPER_CLASS.LINK_NAME[4].lower()+self.CHILD_WRAPPER_CLASS.LINK_NAME[5:]), child_ids)
-                    child_annotation_counter = self._conn.getCollectionCount(self.CHILD, "annotationLinks", child_ids)
-                for child in childnodes:
-                    kwargs = dict()
-                    if child_counter:
-                        kwargs['child_counter'] = child_counter.get(child.id.val)
-                    if child_annotation_counter:
-                        kwargs['annotation_counter'] = child_annotation_counter.get(child.id.val)
-                    yield self.CHILD_WRAPPER_CLASS(self._conn, child, **kwargs)
-            except:
-                raise NotImplementedError
     
     def countChild (self):
-#        return len(list(self.listChildren()))
+        #return len(list(self.listChildren()))
         logger.debug(str(self)+'.countChild')
         if self.child_counter is not None:
             return self.child_counter
@@ -1859,7 +1838,7 @@ class OmeroWebObjectWrapper (object):
                 return self.child_counter
             else:
                 return 0
-
+    
     def listAnnotations (self):
         #container = self._conn.getContainerService()
         meta = self._conn.getMetadataService()
@@ -2100,7 +2079,16 @@ class ImageImagingEnvironmentWrapper (omero.gateway.BlitzObjectWrapper):
 class ImageObjectiveSettingsWrapper (omero.gateway.BlitzObjectWrapper):
     pass
 
+class ImageMediumWrapper (omero.gateway.BlitzObjectWrapper):
+    pass
+
 class ImageObjectiveWrapper (omero.gateway.BlitzObjectWrapper):
+    pass
+
+class ImageImmersionWrapper (omero.gateway.BlitzObjectWrapper):
+    pass
+
+class ImageCorrectionWrapper (omero.gateway.BlitzObjectWrapper):
     pass
 
 class ImageInstrumentWrapper (omero.gateway.BlitzObjectWrapper):
@@ -2151,11 +2139,29 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
         else:
             return ImageObjectiveSettingsWrapper(self._conn, self._obj.objectiveSettings)
     
+    def getMedium(self):
+        if self._obj.objectiveSettings.medium is None:
+            return None
+        else:
+            return ImageMediumWrapper(self._conn, self._obj.objectiveSettings.medium)
+
     def getObjective(self):
         if self._obj.objectiveSettings.objective is None:
             return None
         else:
             return ImageObjectiveWrapper(self._conn, self._obj.objectiveSettings.objective)
+    
+    def getImmersion(self):
+        if self._obj.objectiveSettings.objective.immersion is None:
+            return None
+        else:
+            return ImageImmersionWrapper(self._conn, self._obj.objectiveSettings.objective.immersion)
+    
+    def getCorrection(self):
+        if self._obj.objectiveSettings.objective.correction is None:
+            return None
+        else:
+            return ImageCorrectionWrapper(self._conn, self._obj.objectiveSettings.objective.correction)
     
     def getInstrument(self):
         if self._obj.objectiveSettings.objective.instrument is None:
@@ -2179,7 +2185,7 @@ class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
         if hasattr(self, '_oid'):
             return '<OmeroWeb%s id=%s>' % (self.__class__.__name__, str(self._oid))
         return super(DatasetWrapper, self).__repr__()
-
+    
 #    def getProject(self):
 #        try:
 #            q = "select p from Dataset ds join ds.projectLinks pl join pl.parent p where ds.id = %i"% self._obj.id.val
@@ -2203,6 +2209,28 @@ class ProjectDatasetLinkWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjec
 class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper):
     LINK_NAME = "copyDatasetLinks"
     CHILD = 'Dataset'
+    
+    def listChildren (self):
+        """ return a generator yielding child objects """
+        try:
+            childnodes = [ x.child for x in getattr(self._obj, self.LINK_NAME)()]
+
+            child_ids = [child.id.val for child in childnodes]
+            child_counter = None
+            if len(child_ids) > 0:
+                child_counter = self._conn.getCollectionCount(self.CHILD, \
+                    (DatasetWrapper.LINK_NAME[4].lower() + \
+                    DatasetWrapper.LINK_NAME[5:]), child_ids)
+                child_annotation_counter = self._conn.getCollectionCount(self.CHILD, "annotationLinks", child_ids)
+            for child in childnodes:
+                kwargs = dict()
+                if child_counter:
+                    kwargs['child_counter'] = child_counter.get(child.id.val)
+                if child_annotation_counter:
+                    kwargs['annotation_counter'] = child_annotation_counter.get(child.id.val)
+                yield DatasetWrapper(self._conn, child, **kwargs)
+        except:
+            raise NotImplementedError
 
 omero.gateway.ProjectWrapper = ProjectWrapper
 
