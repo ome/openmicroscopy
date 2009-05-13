@@ -44,6 +44,7 @@ import ome.model.acquisition.OTF;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
 import ome.model.annotations.Annotation;
+import ome.model.annotations.FileAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.core.Channel;
 import ome.model.core.Image;
@@ -344,7 +345,7 @@ public class OMEROMetadataStore
     		}
             else if (targetObject instanceof Pixels)
             {
-                if (referenceObject instanceof OriginalFile )
+                if (referenceObject instanceof OriginalFile)
                 {
                     handleReference((Pixels) targetObject,
                                     (OriginalFile) referenceObject);
@@ -363,6 +364,15 @@ public class OMEROMetadataStore
     						        (Screen) referenceObject);
     				continue;
     			}
+            }
+            else if (targetObject instanceof FileAnnotation)
+            {
+                if (referenceObject instanceof OriginalFile)
+                {
+                    handleReference((FileAnnotation) targetObject,
+                                    (OriginalFile) referenceObject);
+                    continue;
+                }
             }
     		
 			throw new ApiUsageException(String.format(
@@ -861,6 +871,16 @@ public class OMEROMetadataStore
         target.linkScreen(reference);
     }
     
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(FileAnnotation target, OriginalFile reference)
+    {
+        target.setFile(reference);
+    }
     /**
      * Retrieves an object from the internal object graph by LSID.
      * @param lsid LSID of the object.

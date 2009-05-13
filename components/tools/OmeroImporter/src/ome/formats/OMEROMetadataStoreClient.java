@@ -80,6 +80,7 @@ import omero.model.Experiment;
 import omero.model.ExperimentType;
 import omero.model.Filament;
 import omero.model.FilamentType;
+import omero.model.FileAnnotation;
 import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Illumination;
@@ -849,14 +850,25 @@ public class OMEROMetadataStoreClient
      * @param archive Whether or not the user requested the original files to
      * be archived.
      */
-    public void setArchive(boolean archive, boolean companionOnly)
+    public void setArchive(boolean archive)
     {
         List<Image> images = getSourceObjects(Image.class);
-        String[] files = reader.getUsedFiles(companionOnly);
+        String[] files = reader.getUsedFiles();
+        
+        String[] companionFileArray = reader.getUsedFiles(true);
+        
+        List<String> companionFiles = new ArrayList<String>();
+        
+        if (companionFileArray !=null)
+        {
+            for (String fileName : companionFiles)
+            {
+                companionFiles.add(fileName);
+            }
+        }
         
         if (archive)
         {
-            LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
             ImageReader imageReader = (ImageReader) reader;
             String formatString = imageReader.getReader().getClass().toString();
             formatString = formatString.replace("class loci.formats.in.", "");
@@ -864,7 +876,8 @@ public class OMEROMetadataStoreClient
             
             for (int i = 0; i < files.length; i ++)
             {
-                indexes.put("originaFileIndex", i);
+                LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+                indexes.put("originalFileIndex", i);
                 
                 OriginalFile o = (OriginalFile) getSourceObject(OriginalFile.class, indexes);
                 File file = new File(files[i]);
@@ -880,19 +893,94 @@ public class OMEROMetadataStoreClient
         {
             Image image = images.get(i);
             image.setArchived(toRType(archive));
+
+            String nameSpace = "openmicroscopy.org/omero/import/companionFile";
             
             if (archive)
             {
-                LSID key = new LSID(Pixels.class, i, 0);
+                LSID pixelsKey = new LSID(Pixels.class, i, 0);
+                LSID imageKey = new LSID(Image.class, i);
                 
                 for (int j = 0; j < files.length; j++)
                 {
-                    referenceCache.put(key, new LSID(OriginalFile.class, j));           
+                    
+                    referenceCache.put(pixelsKey, new LSID(OriginalFile.class, j));
+
+                    if (companionFiles.contains(files[j]))
+                    {
+                        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+                        indexes.put("imageIndex", i);
+                        indexes.put("originalFileIndex", j);
+
+                        FileAnnotation a = (FileAnnotation) getSourceObject(FileAnnotation.class, indexes);
+                        a.setNs(rstring(nameSpace));
+
+                        LSID annotationKey = new LSID(FileAnnotation.class, i, j);
+
+                        referenceCache.put(imageKey, annotationKey);  
+                        referenceCache.put(annotationKey, new LSID(OriginalFile.class, j)); 
+                    }
                 }
             }
         }
     }
 
+    /**
+     * Populates archive flags on all images currently processed. This method
+     * should only be called <b>after</b> a full Bio-Formats metadata parsing
+     * cycle. 
+     * @param archive Whether or not the user requested the original files to
+     * be archived.
+     */
+    public void setCompanionFiles()
+    {
+        List<Image> images = getSourceObjects(Image.class);
+        String[] files = reader.getUsedFiles(true);
+
+        String formatString = "appliation/octet-stream";
+        String nameSpace = "openmicroscopy.org/omero/import/companionFile";
+        
+        for (int i = 0; i < files.length; i ++)
+        {
+            LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+            indexes.put("originalFileIndex", i);
+                        
+            OriginalFile o = (OriginalFile) getSourceObject(OriginalFile.class, indexes);
+            File file = new File(files[i]);
+
+            o.setName(toRType(file.getName()));
+            o.setSize(toRType(file.length()));
+            o.setFormat((Format) getEnumeration(Format.class, formatString));
+            o.setPath(toRType(file.getAbsolutePath()));
+            o.setSha1(toRType("Pending"));
+        }
+
+        
+        for (int i = 0; i < images.size(); i ++)
+        {
+            
+            Image image = images.get(i);
+            image.setArchived(toRType(true));
+            
+            LSID imageKey = new LSID(Image.class, i);
+                           
+            for (int j = 0; j < files.length; j++)
+            {
+                LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+                indexes.put("imageIndex", i);
+                indexes.put("originalFileIndex", j);
+                
+                FileAnnotation a = (FileAnnotation) getSourceObject(FileAnnotation.class, indexes);
+                a.setNs(rstring(nameSpace));
+                
+                LSID annotationKey = new LSID(FileAnnotation.class, i, j);
+                
+                referenceCache.put(imageKey, annotationKey);  
+                referenceCache.put(annotationKey, new LSID(OriginalFile.class, j));       
+            }
+        }
+    }
+    
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setArcType(java.lang.String, int, int)
      */
