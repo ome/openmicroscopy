@@ -25,7 +25,9 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 //Java imports
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -44,7 +46,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
@@ -61,9 +62,9 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.Att
 import org.openmicroscopy.shoola.agents.editor.model.DataReference;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.ImagePreview;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.PopupMenuButton;
+import org.openmicroscopy.shoola.util.ui.BrowserLauncher;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
@@ -88,13 +89,24 @@ public class DataRefEditor
 	 */
 	public static final String 		DATA_REF_DELETED = "dataRefDeleted";
 	
+	/** Action Command for the Delete-Reference button */
+	public static final String 		DELETE_DATA_REF = "deleteDataRef";
+	
+	/** Action Command for the Link button */
+	public static final String 		GO_TO_LINK = "goToLink";
+	
 	/**
 	 * The parent UI that handles editing of name etc. 
 	 * Add this class as a propertyChangeListener to the name editor etc. 
 	 */
 	private PropertyChangeListener parent;
 	
-	private JLabel				linkLabel;
+	/**
+	 * The value of the data-reference.
+	 */
+	private String 				ref;
+	
+	private JButton				linkButton;
 
 	/**
 	 * The button that users click to choose a link. 
@@ -126,9 +138,13 @@ public class DataRefEditor
 		linkLocalIcon = imF.getIcon(IconManager.LINK_LOCAL_ICON);
 		
 		IAttributes dataRef = getParameter();
-		String ref = dataRef.getAttribute(DataReference.REFERENCE);
-		if (ref == null)	ref = "No link set";
-		linkLabel = new CustomLabel(ref);
+		ref = dataRef.getAttribute(DataReference.REFERENCE);
+		String linkText = (ref == null ? "No link set" : ref);
+		linkButton = new CustomButton(linkText);
+		linkButton.setActionCommand(GO_TO_LINK);
+		linkButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		linkButton.setForeground(Color.BLUE);
+		linkButton.addActionListener(this);
 		
 		String desc = dataRef.getAttribute(DataReference.DESCRIPTION);
 		String size = dataRef.getAttribute(DataReference.SIZE);
@@ -144,7 +160,7 @@ public class DataRefEditor
 			+ "Created: " + (creat == null ? "" : formatUTC(creat)) + "<br>"
 			+ "Mime type: " + (mime == null ? "" : mime) + "</html>";
 		
-		linkLabel.setToolTipText(toolTip);
+		linkButton.setToolTipText(toolTip);
 		
 		Action[] getLinkActions = new Action[] {
 				new GetURLAction(),
@@ -206,6 +222,7 @@ public class DataRefEditor
 		IconManager iM = IconManager.getInstance();
 		Icon delete = iM.getIcon(IconManager.DELETE_ICON_12);
 		JButton deleteButton = new CustomButton(delete);
+		deleteButton.setActionCommand(DELETE_DATA_REF);
 		deleteButton.addActionListener(this);
 		deleteButton.setToolTipText("Delete this data reference");
 		rightToolBar.add(deleteButton);
@@ -218,10 +235,11 @@ public class DataRefEditor
 		
 		add(titleToolBar, BorderLayout.NORTH);
 		
-		add(linkLabel, BorderLayout.CENTER);
-		
+		Box buttonsBox = Box.createHorizontalBox();
 		getLinkButton.setBorder(eb);
-		add(getLinkButton, BorderLayout.WEST);
+		buttonsBox.add(getLinkButton);
+		buttonsBox.add(linkButton);
+		add(buttonsBox, BorderLayout.WEST);
 		
 		if (imagePreview != null) {
 			imagePreview.setBorder(eb);
@@ -368,11 +386,33 @@ public class DataRefEditor
 
 	/**
 	 * Implemented as specified by the {@link ActionListener} interface.
-	 * Handles the delete-button.
+	 * Handles the delete-button and launching links. 
 	 */
 	public void actionPerformed(ActionEvent e) {
-		// this will be handled by the FieldParamEditor. 
-		firePropertyChange(DATA_REF_DELETED, false, true);
+		
+		String cmd = e.getActionCommand();
+		
+		if (DELETE_DATA_REF.equals(cmd)) {
+			// this will be handled by the FieldParamEditor. 
+			firePropertyChange(DATA_REF_DELETED, false, true);
+		} else if (GO_TO_LINK.equals(cmd)) {
+			
+			if (ref != null) {
+				try {
+					URL validUrl = new URL(ref);
+					
+					// if not, add the file extension...
+				} catch (MalformedURLException ex) {
+					 if (System.getProperty("os.name").startsWith("Mac OS")) {
+						 ref = "file://" + ref;
+				     } else {
+				    	 ref = "file:///" + ref;
+				    }
+				}
+				
+				new BrowserLauncher().openURL(ref);
+			}
+		}
 	}
 	
 }
