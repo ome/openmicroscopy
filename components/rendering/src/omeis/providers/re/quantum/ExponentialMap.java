@@ -31,7 +31,7 @@ package omeis.providers.re.quantum;
  *          2005/06/10 17:37:26 $) </small>
  * @since OME2.2
  */
-class ExponentialMap implements QuantumMap {
+public class ExponentialMap implements QuantumMap {
 
     /**
      * Implemented as specified in {@link QuantumMap}.

@@ -336,4 +336,14 @@ public class PixelData
     {
     	data.order(order);
     }
+    
+    /**
+     * Returns the pixel count of this block of pixel data.
+     * 
+     * @return See above.
+     */
+    public int size()
+    {
+    	return data.capacity() / bytesPerPixel();
+    }
 }

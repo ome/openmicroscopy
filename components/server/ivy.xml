@@ -15,6 +15,7 @@
     <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency name="romio" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency name="rendering" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
+    <dependency org="perf4j" name="perf4j" rev="${versions.perf4j}" conf="build->default"/>
     <!-- Ice -->
     <dependency org="omero" name="ice" rev="${versions.ice}"/>
     <dependency org="omero" name="ice-db" rev="${versions.ice}"/>

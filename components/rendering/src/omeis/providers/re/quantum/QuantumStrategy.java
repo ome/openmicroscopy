@@ -325,7 +325,7 @@ public abstract class QuantumStrategy {
      * 
      * @param qMap The value to set.
      */
-    void setMap(QuantumMap qMap) {
+    public void setMap(QuantumMap qMap) {
         valueMapper = qMap;
     }
 
@@ -334,7 +334,7 @@ public abstract class QuantumStrategy {
      * 
      * @return See above.
      */
-    Family getFamily() {
+    public Family getFamily() {
         return family;
     }
 
@@ -343,7 +343,7 @@ public abstract class QuantumStrategy {
      * 
      * @return See above.
      */
-    double getCurveCoefficient() {
+    public double getCurveCoefficient() {
         return curveCoefficient;
     }
 
@@ -353,7 +353,7 @@ public abstract class QuantumStrategy {
      * 
      * @return See above.
      */
-    boolean getNoiseReduction() {
+    public boolean getNoiseReduction() {
         return noiseReduction;
     }
 
@@ -362,7 +362,7 @@ public abstract class QuantumStrategy {
      * 
      * @return See above.
      */
-    double getGlobalMin() {
+    public double getGlobalMin() {
         // needed b/c of float value
         double d = globalMin - Math.floor(globalMin);
         if (d != 0) {
@@ -376,7 +376,7 @@ public abstract class QuantumStrategy {
      * 
      * @return See above.
      */
-    double getGlobalMax() {
+    public double getGlobalMax() {
         return globalMax;
     }
 

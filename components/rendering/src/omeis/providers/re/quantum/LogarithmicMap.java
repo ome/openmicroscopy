@@ -27,7 +27,7 @@ package omeis.providers.re.quantum;
  *          2005/06/10 17:37:26 $) </small>
  * @since OME2.2
  */
-class LogarithmicMap implements QuantumMap {
+public class LogarithmicMap implements QuantumMap {
 
     /**
      * Controls if the specified is supported by the {@link Math#log(double)}

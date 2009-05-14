@@ -105,6 +105,18 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         	if (e > max) lutMax = e;
         	else lutMax = max;
         }
+        int range = lutMax - lutMin;
+        if (range > 0x10000) 
+        {
+        	// We want to avoid *huge* memory allocations below so if we
+        	// couldn't initialize the value above and our lutMax and lutMin
+        	// have been assigned out of range values we want to choke, not
+        	// cause the server to throw a java.lang.OutOfMemory exception.
+        	// *** Ticket #1353 -- Chris Allan <callan@blackcat.ca> ***
+        	throw new IllegalArgumentException(String.format(
+        			"Lookup table of size %d greater than supported size %d",
+        			range, 0x10000));
+        }
         LUT = new byte[lutMax-lutMin+1];
     }
 
