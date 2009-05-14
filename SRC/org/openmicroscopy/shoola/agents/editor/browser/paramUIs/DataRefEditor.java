@@ -409,7 +409,7 @@ public class DataRefEditor
 				    	 ref = "file:///" + ref;
 				    }
 				}
-				
+				ref = ref.replace(" ", "%20");
 				new BrowserLauncher().openURL(ref);
 			}
 		}
