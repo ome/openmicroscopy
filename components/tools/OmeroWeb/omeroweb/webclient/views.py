@@ -364,6 +364,11 @@ def sessionHelper(request):
             pass
     except:
         request.session['imageInBasket'] = list()
+    #try:
+    #    if request.session['datasetInBasket']:
+    #        pass
+    #except:
+    #    request.session['datasetInBasket'] = list()
     try:
         if request.session['nav']:
             pass
@@ -1969,7 +1974,7 @@ def autocomplete_tags(request, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    json_data = simplejson.dumps(list(conn.getAllTags()))
+    json_data = simplejson.dumps(list(conn.lookupTags()))
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @isUserConnected
@@ -2689,9 +2694,15 @@ def empty_basket(request, **kwargs):
         del request.session['imageInBasket']
     except KeyError:
         logger.error(traceback.format_exc())
+    
+    #try:
+    #    del request.session['datasetInBasket']
+    #except KeyError:
+    #    logger.error(traceback.format_exc())
         
     request.session['nav']['basket'] = 0
     request.session['imageInBasket'] = list()
+    #request.session['datasetInBasket'] = list()
     return HttpResponseRedirect("/%s/basket/" % (settings.WEBCLIENT_ROOT_BASE))
 
 @isUserConnected
@@ -2713,7 +2724,13 @@ def update_basket(request, **kwargs):
                             rv = "Error: This object is already in the basket"
                             return HttpResponse(rv)
                     request.session['imageInBasket'].append(prod)
-                elif request.REQUEST['productType'] == 'share':
+                #elif ptype == 'dataset':
+                #    for item in request.session['datasetInBasket']:
+                #        if item == prod:
+                #            rv = "Error: This object is already in the basket"
+                #            return HttpResponse(rv)
+                #    request.session['datasetInBasket'].append(prod)
+                else:
                     rv = "Error: This action is not available"
                     return HttpResponse(rv)
             elif action == 'del':
@@ -2723,10 +2740,16 @@ def update_basket(request, **kwargs):
                     except:
                         rv = "Error: could not remove image from the basket."
                         return HttpResponse(rv)
-                elif request.REQUEST['productType'] == 'share':
+                #elif ptype == 'dataset':
+                #    try:
+                #        request.session['datasetInBasket'].remove(prod)
+                #    except:
+                #        rv = "Error: could not remove image from the basket."
+                #        return HttpResponse(rv)
+                else:
                     rv = "Error: This action is not available"
                     return HttpResponse(rv)
-        total = len(request.session['imageInBasket'])
+        total = len(request.session['imageInBasket'])#+len(request.session['datasetInBasket'])
         request.session['nav']['basket'] = total
         request.session.modified = True
         return HttpResponse(total)

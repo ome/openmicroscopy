@@ -13,8 +13,8 @@ body {
 }
 #body {
     margin: 0 auto;
-    padding: 0 10px;
-    width: 988px;
+    padding: 0 5px;
+    width: 998px;
 }
 #bodyWrapper {
     width: 100%;
@@ -69,21 +69,25 @@ body.zoom {
 #path {
     position: relative;
     background-color:#eee;
-    height:20px;
-    padding:1px 5px;
+    height:22px;
+    padding:0;
 }
 
 #logout {
     position: absolute;
-    margin: 2px 4px;
+    padding: 2px 0;
     top: 0;
     right: 0;
 }
 #basket {
     position: absolute;
-    margin: 2px 4px;
+    padding: 3px;
     top: 0;
     left: 0;
+    height: 16px;
+    border-left: 1px solid #bbb;
+    border-right: 1px solid #bbb;
+    background-color: #fff;
 }
 #logo {
     position: absolute;
@@ -92,19 +96,19 @@ body.zoom {
     width: 160px;
     background: url(/webclient/static/images/logo.png) no-repeat bottom left ;
     top: 0;
-    left: 5px;
+    left: 25px;
 }
 /* Breadcrumb */
 #breadcrumb{
     border-top: 1px solid #bbb;
     border-bottom: 1px solid #bbb;
-    padding: 4px;
+    padding: 4px 0;
 }
 
 li.breadcrumb, ol.breadcrumb {
     display: inline;
     list-style: none;
-    padding: 2px;
+    padding: 0;
     margin: 0;
 }
 

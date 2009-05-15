@@ -38,11 +38,23 @@
     font-weight: bold;
     width: 99%;
 }
+#products li.dataset{
+    text-align: left;
+    margin: 0px;
+    padding: 5px 0;
+    width: 99%;
+}
 #products li.clear{
     clear:both;
     width: 0;
 }
 
+#products li div.product {
+    border: 0px;
+    float: left;
+    text-align: center;
+    margin: 8px;
+}
 em {
     background-color: #fff;
     border: 1px solid #bbb;

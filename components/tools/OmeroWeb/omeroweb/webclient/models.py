@@ -294,7 +294,7 @@ class MetadataObjectiveForm(forms.Form):
         
         # Medium
         try:
-            if kwargs['initial']['image'].getMedium().value is not None:
+            if kwargs['initial']['image'].getObjectiveSettings().medium is not None:
                 self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['image'].getMedium().value, required=False) 
             else:
                 self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
@@ -400,7 +400,7 @@ class MetadataObjectiveForm(forms.Form):
         
         # Immersion
         try:
-            if kwargs['initial']['image'].getImmersion().value is not None:
+            if kwargs['initial']['image'].getObjective().immersion is not None:
                 self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['image'].getImmersion().value, required=False) 
             else:
                 self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), required=False) 
@@ -413,7 +413,7 @@ class MetadataObjectiveForm(forms.Form):
         
         # Correction
         try:
-            if kwargs['initial']['image'].getCorrection().value is not None:
+            if kwargs['initial']['image'].getObjective().correction is not None:
                 self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['image'].getCorrection().value, required=False) 
             else:
                 self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), required=False) 

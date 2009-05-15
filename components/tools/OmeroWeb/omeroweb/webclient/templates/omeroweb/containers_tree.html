@@ -96,18 +96,11 @@
 
 <div class="clear"></div>
 
-{% if manager.c_size or manager.c_mg_size %}
-    {% if manager.c_size %}
-        {% if manager.experimenter %}
-            <h1>{{ manager.experimenter.getFullName }}'s ({{ manager.c_size }} items):</h1>
-        {% else %}
-            <h1>{% trans "My data" %} ({{ manager.c_size }} {% trans "items" %}):</h1>
-        {% endif %}
-    {% endif %}
-    {% if manager.c_mg_size %}
-        {% if manager.myGroup %}
-            <h1>{{ manager.myGroup.name }}{% trans "'s data" %} ({{ manager.c_mg_size }} {% trans "items" %}):</h1>
-        {% endif %}
+{% if manager.c_size %}
+    {% if manager.experimenter %}
+        <h1>{{ manager.experimenter.getFullName }}'s ({{ manager.c_size }} items):</h1>
+    {% else %}
+        <h1>{% trans "My data" %} ({{ manager.c_size }} {% trans "items" %}):</h1>
     {% endif %}
 {% else %}
     {% ifequal nav.menu 'mydata' %}
@@ -122,13 +115,8 @@
         | {% trans "View" %} <a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="details" title="details"/></a> <a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> <a href="{% get_webclient_root_url %}/mydata/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.png" alt="tree" title="tree"/></a> |
 {% else %}
     {% ifequal nav.menu "collaboration" %}
-            {% ifequal nav.whos "share" %} | {% trans "View" %} <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> |
-            {% endifequal %}
             {% ifequal nav.whos "userdata" %} | {% trans "View" %} <a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="details" title="details"/></a> <a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> <a href="{% get_webclient_root_url %}/userdata/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.png" alt="tree" title="tree"/></a> |
             {% endifequal %}
-            {% ifequal nav.whos "groupdata" %} | {% trans "View" %} <a href="{% get_webclient_root_url %}/groupdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="details" title="details"/></a> <a href="{% get_webclient_root_url %}/groupdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset.id %}dataset/{{manager.dataset.id}}/{% endif %}?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> <a href="{% get_webclient_root_url %}/groupdata/?view=tree"><img src="{% get_webclient_static_url %}/images/view_tree16.png" alt="tree" title="tree"/></a> |
-            {% endifequal %}
-
     {% endifequal %}
 {% endifequal %}
 {% if not manager.image %}
@@ -145,10 +133,9 @@
 
 <div class="clear"> </div>
 
-{% if not manager.c_mg_size and not manager.c_size %}
+{% if not manager.c_size %}
     {% trans "No data." %}
 {% else %}
-    
     {% if manager.c_size %}
     <div id="tree">
     <ul class="simpleTree">
@@ -207,56 +194,6 @@
     </li></ul>
     </div>
     {% endif %}
-
-    {% if manager.c_mg_size %}
-    <div id="tree">
-    <ul class="simpleTree">
-    <li class="root" id='0'><span>{{ manager.myGroup.name }}@{{ nav.blitz }}</span>
-        <ul>
-            {% for c in manager.containersMyGroups.projects %}
-            <li id='pr-{{ c.id }}'><span>{{ c.shortName }} [{{ c.countChild }}]{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</span> 
-                <ul>
-                    {% if c.copyDatasetLinks %}
-                    {% for d in c.listChildren %}
-                        <li id='ds-{{ d.id }}' ><span>{{ d.shortName }} [{{ d.countChild }}]{% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ d.countAnnotations }}]{% endif %}</span> 
-                            <ul class="ajax">
-                                <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/groupdata/ajaxdataset/{{ d.id }}/?view=tree}</li>
-                            </ul>
-                        </li>
-                    {% endfor %}
-                    {% else %}
-                        <li class="line-last"/>
-                    {% endif %}
-                </ul>
-            </li>
-            {% endfor %}
-            {% for c in manager.containersMyGroups.datasets %}
-                <li id='ds-{{ c.id }}'><span>{{ c.shortName }} [{{ c.countChild }}]{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</span> 
-                    <ul class="ajax">
-                        <li id='{{ c.id }}'>{url:{% get_webclient_root_url %}/groupdata/ajaxdataset/{{ c.id }}/?view=tree}</li>
-                    </ul>
-                </li>
-            {% endfor %}
-            {% for d in manager.containersMyGroups.images %}
-                <li id='img-{{ d.id }}'><span>{{ d.shortName }} [{{ d.countChild }}]{% if not d.isOwned %} <img src="{% get_webclient_static_url %}/images/tree/kgpg12.gif" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ d.countAnnotations }}]{% endif %}</span></li>
-            {% endfor %}
-            
-            {% if not manager.project and not manager.dataset %}
-            {% ifequal nav.whos "groupdata" %}
-            {% if not manager.orphaned %}
-                <li id='orphan' ><span>{% trans "Orphaned images" %}</span>
-                    <ul class="ajax">
-                        <li id='{{ d.id.val }}'>{url:{% get_webclient_root_url %}/groupdata/ajaxorphaned/?view=tree}</li>
-                    </ul>
-                </li>
-            {% endif %}
-            {% endifequal %}
-            {% endif %}
-        </ul>
-    </li></ul>
-    </div>
-    {% endif %}
-
 {% endif %}
 
 <div id="context"> </div>
