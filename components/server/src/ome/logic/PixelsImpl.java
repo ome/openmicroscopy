@@ -268,8 +268,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		image.setName(name);
 		image.setDescription(description);
 		image.setAcquisitionDate(new Timestamp(new Date().getTime()));
-		image.addPixels(pixels);
-
+	
 		// Check that the channels in the list are valid. 
 		if (channelList == null || channelList.size() == 0)
 		{
@@ -292,7 +291,9 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		pixels.setDimensionOrder(getEnumeration(DimensionOrder.class, "XYZCT")); 
 		// Create channel data.
 		List<Channel> channels = createChannels(channelList);
-		pixels.addChannelSet(channels);
+		for(Channel channel : channels)
+			pixels.addChannel(channel);
+		image.addPixels(pixels);
 
 		// Save and return our newly created Image Id
 		image = iUpdate.saveAndReturnObject(image);
@@ -402,7 +403,12 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 			Channel channel = new Channel();
 			LogicalChannel lc = new LogicalChannel();
 			channel.setLogicalChannel(lc);
+			StatsInfo info = new StatsInfo();
+			info.setGlobalMin(0.0);
+			info.setGlobalMax(1.0);
+			channel.setStatsInfo(info);
 			lc.setEmissionWave(wavelength);
+			channels.add(channel);
 		}
 		return channels;
 	}
