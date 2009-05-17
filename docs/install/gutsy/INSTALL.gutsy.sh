@@ -37,9 +37,11 @@ sudo apt-get install sun-java6-jdk unzip python-zeroc-ice icegrid postgresql
 #
 # Add omero user as a database user, and create database
 #
-sudo su -c postgres -c "createuser omero"
+sudo su postgres <<EOF
 createuser omero
-createdb omero3
+createdb -O omero omero
+createlang plpgsql omero
+EOF
 
 #
 # Configure postgres to accept connections from a server running as omero
@@ -58,26 +60,27 @@ ln -s OMERO.server-build1013/bin/omero .
 #
 # Configuring the server.
 #
-cp local.properties OMERO.server*/etc
-cp omero.properties OMERO.server*/etc
-cp templates.xml OMERO.server*/etc/grid
 mkdir ~/OMERO
+./omero config set omero.data.dir `pwd`/OMERO
+
+#
+# Create the database
+#
+./omero db script
+psql -U omero omero < OMERO4__1.sql
+
 
 #
 # Starting the server for the first time
 #
-cd OMERO.server*
-java omero setup-db
-java omero update
-sudo /etc/init.d/omero-admin start
-sudo /etc/init.d/omero-admin deploy
+./omero admin start
 
 #
 # Optional:
 #
 sudo ln -s /home/omero/omero /etc/init.d/omero-admin
 sudo update-rc.d omero-admin defaults
-ln -s OMERO.server-build1013/var/log/master.out OmeroGrid.log
+ln -s OMERO.server-build1013/var/log/Blitz-0.log OmeroGrid.log
 
 
 
