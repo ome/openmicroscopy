@@ -46,13 +46,6 @@
                         <optional name="transform" type="string"/><!-- e.g. [cos(a) sin(a) -sin(a) cos(a) 0 0] -->
                         <optional name="vectorEffect" type="string"/><!-- non-scaling-stroke, none -->
                         <optional name="visibility" type="boolean"/>
-                        <!-- Font -->
-                        <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
-                        <optional name="fontSize" type="int"/>
-                        <optional name="fontStretch" type="string"/><!-- normal, wider, narrower, expanded, ultra-condensed, extra-condensed -->
-                        <optional name="fontStyle" type="string"/><!-- normal, italic, oblique -->
-                        <optional name="fontVariant" type="string"/><!-- normal, small-caps -->
-                        <optional name="fontWeight" type="string"/><!-- normal, bold, bolder, lighter, 100, 900 -->
                         <!-- Fill -->
                         <optional name="fillColor" type="string"/>
                         <optional name="fillOpacity" type="float"/>
@@ -66,17 +59,7 @@
                         <optional name="strokeMiterLimit" type="int"/>
                         <optional name="strokeOpacity" type="float"/>
                         <optional name="strokeWidth" type="int"/>
-                        <!-- Text -->
-                        <optional name="text" type="text"/>
-                        <optional name="textAnchor" type="string"/><!-- start, middle, end -->
-                        <optional name="textDecoration" type="string"/><!-- underline, overline, line-through -->
-                        <optional name="textFill" type="string"/><!-- red, green, blue, none -->
-                        <optional name="textStroke" type="string"/><!-- red, green, blue, none -->
-                        <optional name="baselineShift" type="string"/><!-- 70%, -70%, 7, sup, sub, normal -->
-                        <optional name="glyphOrientationVertical" type="int"/><!-- 0, 90, 180, 270 -->
-                        <optional name="direction" type="string"/><!-- ltr, rtl -->
-                        <optional name="writingMode" type="string"/><!-- r-tb | rl-tb | tb-rl | lr | rl | tb -->
-                        <!-- Marker
+                         <!-- Marker
                         To support something of the form:
                         <marker id="startArrow" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" orient="auto" markerWidth="5" markerHeight="4">
                             <polyline points="10,0 0,5 10,10 9,5" fill="darkblue" />
@@ -89,6 +72,24 @@
                         -->
                 </properties>
         </abstract>
+        <type id="ome.model.roi.Text" discriminator="text" superclass="ome.model.roi.Shape">
+                <properties>
+                        <optional name="textValue" type="text"/>
+                        <optional name="anchor" type="string"/><!-- start, middle, end -->
+                        <optional name="decoration" type="string"/><!-- underline, overline, line-through -->
+                        <optional name="baselineShift" type="string"/><!-- 70%, -70%, 7, sup, sub, normal -->
+                        <optional name="glyphOrientationVertical" type="int"/><!-- 0, 90, 180, 270 -->
+                        <optional name="direction" type="string"/><!-- ltr, rtl -->
+                        <optional name="writingMode" type="string"/><!-- r-tb | rl-tb | tb-rl | lr | rl | tb -->
+                        <!-- Font -->
+                        <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
+                        <optional name="fontSize" type="int"/>
+                        <optional name="fontStretch" type="string"/><!-- normal, wider, narrower, expanded, ultra-condensed, extra-condensed -->
+                        <optional name="fontStyle" type="string"/><!-- normal, italic, oblique -->
+                        <optional name="fontVariant" type="string"/><!-- normal, small-caps -->
+                        <optional name="fontWeight" type="string"/><!-- normal, bold, bolder, lighter, 100, 900 -->
+                </properties>
+        </type>
         <type id="ome.model.roi.Rect" discriminator="rect" superclass="ome.model.roi.Shape">
                 <properties>
                         <optional name="x" type="double"/>
