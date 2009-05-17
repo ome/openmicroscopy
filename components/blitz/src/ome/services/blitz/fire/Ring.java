@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 import ome.model.meta.Node;
-import ome.parameters.Filter;
-import ome.parameters.Parameters;
 import ome.services.blitz.redirect.Redirector;
 import ome.services.blitz.redirect.NullRedirector;
 import ome.services.blitz.util.BlitzConfiguration;
@@ -142,31 +140,42 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
         this.directProxy = directProxy;
 
         // Before we add our self we check the validity of the cluster.
-        Set<String> nodeUuids = checkClusterAndAddSelf();
+        Set<String> nodeUuids = checkCluster();
         if (nodeUuids == null) {
             log.warn("No clusters found. Aborting ring initialization");
-        } else {
+            return; // EARLY EXIT!
+        }
+        
+        try {
+            // Now our checking is done, add ourselves.
+            Ice.Identity clusterNode = this.communicator
+                    .stringToIdentity("ClusterNode/" + uuid);
+            this.adapter.add(this, clusterNode);
             addManager(uuid, directProxy);
+            registry.addObject(this.adapter.createDirectProxy(clusterNode));
             nodeUuids.add(uuid);
             redirector.chooseNextRedirect(this, nodeUuids);
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot register self as node: ", e);
         }
     }
 
     /**
      * Method called during initialization to get all the active uuids within
-     * the cluster, and remove any dead nodes. After this, we add this instance
-     * to the cluster. May return null if lookup fails.
+     * the cluster, and remove any dead nodes. May return null if lookup fails.
      */
-    protected Set<String> checkClusterAndAddSelf() {
-
+    public Set<String> checkCluster() {
+        
+        log.info("Checking cluster");
         ClusterNodePrx[] nodes = registry.lookupClusterNodes();
         if (nodes == null) {
             log.error("Could not lookup nodes. Skipping initialization...");
             return null; // EARLY EXIT
         }
 
-        // Contact each of the cluster. This instance has not been added, so
-        // this will not cause a callback.
+        // Contact each of the cluster. During init this, instance has not been
+        // added, so this will not cause a callback. On clusterCheckTrigger,
+        // however, it might.
         Set<String> nodeUuids = new HashSet<String>();
         for (int i = 0; i < nodes.length; i++) {
             ClusterNodePrx prx = nodes[i];
@@ -188,16 +197,6 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
         // Now any stale nodes (ones not found in the registry) are forcibly
         // removed, since it is assumed they didn't shut down cleanly.
         assertNodes(nodeUuids);
-
-        try {
-            // Now our checking is done, add ourselves.
-            Ice.Identity clusterNode = this.communicator
-                    .stringToIdentity("ClusterNode/" + uuid);
-            this.adapter.add(this, clusterNode);
-            registry.addObject(this.adapter.createDirectProxy(clusterNode));
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot register self as node: ", e);
-        }
 
         return nodeUuids;
     }
@@ -318,6 +317,8 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
             log.info("Removed " + count + " entries with value " + manager);
             setManagerDown(manager);
             log.info("Removed manager: " + manager);
+            redirector.handleRingShutdown(this, manager);
+            log.info("handleRingShutdown: " + manager);
         } catch (Exception e) {
             log.error("Failed to purge node " + manager, e);
         }

@@ -66,6 +66,15 @@
     <property name="cronExpression" value="0 0/3 * * * ?" />
     <property name="jobDetail" ref="requestHeartBeatsRun"/>
   </bean>
+  
+  <bean id="clusterCheckRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="ring" />
+    <property name="targetMethod" value="checkCluster" />
+  </bean>
+  <bean id="clusterCheckTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    <property name="cronExpression" value="13 0/30 * * * ?" />
+    <property name="jobDetail" ref="clusterCheckRun"/>
+  </bean>
 
   <!-- Lookups -->
   <bean id="Ice.Communicator" factory-bean="configuration" factory-method="getCommunicator"/>
