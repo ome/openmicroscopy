@@ -32,6 +32,9 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.PropertyValueException;
+import org.perf4j.LoggingStopWatch;
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -91,16 +94,19 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
         // Results and/or Exceptions
         Object o;
         StringBuilder finalOutput = new StringBuilder();
-        ;
 
+        StopWatch stopWatch = new CommonsLogStopWatch();
         try {
+
             o = arg0.proceed();
             finalOutput.append(" Rslt:\t");
             finalOutput.append(getResultsString(o));
+            stopWatch.stop("omero.call.success");
             return o;
         } catch (Throwable t) {
             finalOutput.append(" Excp:\t");
             finalOutput.append(t.toString());
+            stopWatch.stop("omero.call.exception");
             throw getAndLogException(t);
         } finally {
             if (log.isInfoEnabled()) {

@@ -34,6 +34,28 @@ system to be re-configured.
     </layout>
   </appender>
 
+  <appender name="perf4jJmxAppender" class="org.perf4j.log4j.JmxAttributeStatisticsAppender">
+    <param name="TagNamesToExpose" value="omero.call"/>
+  </appender>
+
+  <appender name="fileAppender" class="org.apache.log4j.FileAppender">
+    <param name="File" value="var/log/${omero.name}.stats"/>
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%m%n"/>
+    </layout>
+  </appender>
+
+  <appender name="CoalescingStatistics" class="org.perf4j.log4j.AsyncCoalescingStatisticsAppender">
+    <param name="TimeSlice" value="10000"/>
+    <appender-ref ref="fileAppender"/>
+    <appender-ref ref="perf4jJmxAppender"/>
+  </appender>
+
+  <logger name="org.perf4j.TimingLogger" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="CoalescingStatistics"/>
+  </logger>
+
   <!-- INTERNAL /////////////////////////////////////////////////////////////// -->
   <category name="ome"> <priority value="INFO"/> </category>
   <category name="ome.formats"> <priority value="INFO"/> </category>

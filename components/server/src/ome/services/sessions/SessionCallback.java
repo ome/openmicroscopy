@@ -18,4 +18,22 @@ public interface SessionCallback { // like new Element(key,object);
     // session name in context.
 
     void close();
+    
+    /**
+     * Assumes that only close() will be called.
+     */
+    public abstract static class SimpleCloseCallback implements SessionCallback {
+        
+        public String getName() {
+            throw new UnsupportedOperationException();
+        }
+        
+        public Object getObject() {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void join(String arg0) {
+            throw new UnsupportedOperationException();
+        }
+    }
 }

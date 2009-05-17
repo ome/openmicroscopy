@@ -101,6 +101,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/repository/netcdf-4.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/ome-java-2007-Aug-07-r3052.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/PDFBox-0.7.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/perf4j-0.9.10.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/persistence-api-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/poi-3.0-rc4-20070503.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/poi-contrib-3.0-rc4-20070503.jar"/>

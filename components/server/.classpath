@@ -74,6 +74,7 @@
 	<classpathentry kind="lib" path="target/libs/test/OmeroImporter.jar"/>
 	<classpathentry kind="lib" path="target/libs/test/PDFBox.jar"/>
 	<classpathentry kind="lib" path="target/libs/test/persistence-api.jar"/>
+	<classpathentry kind="lib" path="target/libs/test/perf4j-0.9.10.jar"/>
 	<classpathentry kind="lib" path="target/libs/test/poi-loci.jar"/>
 	<classpathentry kind="lib" path="target/libs/test/postgresql.jar"/>
 	<classpathentry kind="lib" path="target/libs/test/quaqua-filechooser-only.jar"/>

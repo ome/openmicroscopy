@@ -31,6 +31,7 @@
     <dependency org="net/sf/ehcache" name="jsr107cache" rev="${versions.jsr107cache}"/>
     <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
     <dependency org="jamon" name="jamon" rev="${versions.jamon}"/>
+    <dependency org="perf4j" name="perf4j" rev="${versions.perf4j}"/>
     <dependency org="quartz" name="quartz" rev="${versions.quartz}"/>
     <dependency org="xerces" name="xerces" rev="${versions.xerces}"/>
     <dependency org="xml-apis" name="xml-apis" rev="${versions.xml-apis}"/>
