@@ -112,6 +112,15 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
             if (log.isInfoEnabled()) {
                 log.info(finalOutput);
             }
+            
+            // Logging long invocations. Very long invocations are indicative
+            // of a server undergoing stress.
+            long time = stopWatch.getElapsedTime();
+            if (time > 10 * 1000L) {
+                log.error("Method invocation took " + time);
+            } else if (time > 2 * 1000L) {
+                log.warn("Method invocation took " + time);
+            }
             cleanup();
         }
 
@@ -217,16 +226,16 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
     }
 
     private Throwable wrapUnknown(Throwable t, String msg) {
-        
-        // If this is an Error, then we want to log a message 
+
+        // If this is an Error, then we want to log a message
         // since these are most likely: AssertionError (bad assumptions),
         // LinkageError (bad jar versions), ThreadDeath, or one of the
         // VirtualMachineErrors: OutOfMemory, InternalError, StackOverflowError,
         // UnknownError
         if (t instanceof Error) {
-            log.error("java.lang.Error: "+msg, t);
+            log.error("java.lang.Error: " + msg, t);
         }
-        
+
         // Wrap all other exceptions in InternalException
         InternalException re = new InternalException(msg);
         re.setStackTrace(t.getStackTrace());
@@ -282,7 +291,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
         if (o == null) {
             return "null";
         }
-        
+
         else if (o instanceof Collection) {
             int count = 0;
             StringBuilder sb = new StringBuilder(128);
