@@ -153,6 +153,7 @@ class Task(threading.Thread):
         self.logger.info("Stop called")
         self.exit = True
         if wait:
+            self.logger.info("Waiting on task")
             self.join()
 
 
