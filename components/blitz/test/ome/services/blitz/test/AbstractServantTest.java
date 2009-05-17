@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 import junit.framework.TestCase;
+import ome.formats.MockedOMEROImportFixture;
 import ome.logic.HardWiredInterceptor;
 import ome.security.SecuritySystem;
 import ome.services.blitz.fire.AopContextInitializer;
@@ -22,10 +23,13 @@ import ome.services.sessions.SessionManager;
 import ome.services.throttling.InThreadThrottlingStrategy;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
+import ome.testing.InterceptingServiceFactory;
 import omero.api.AMD_IQuery_findAllByQuery;
 import omero.api.AMD_IUpdate_saveAndReturnObject;
 import omero.model.IObject;
+import omero.model.Pixels;
 
+import org.springframework.util.ResourceUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
@@ -158,19 +162,19 @@ public abstract class AbstractServantTest extends TestCase {
     }
 
     protected long makePixels() throws Exception, FileNotFoundException {
-        throw new RuntimeException(
-                "Unforunately MockedOMEROImportFixture is not supported here \n"
-                        + "Instead, the service factory must be registered with a communicator \n"
-                        + "and that proxy given to the OMEROImportFixture");
-        /*
-         * ServiceFactoryPrx sf = this.user. ServiceFactory _sf = new
-         * InterceptingServiceFactory(this.sf, user.login);
-         * 
-         * MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(_sf,
-         * ""); List<Pixels> list = fixture.fullImport(ResourceUtils
-         * .getFile("classpath:tinyTest.d3d.dv"), "tinyTest"); long pixels =
-         * list.get(0).getId().getValue(); return pixels;
-         */
-    }
+        if (false) {
+            throw new RuntimeException(
+                    "Unforunately MockedOMEROImportFixture is not supported here \n"
+                            + "Instead, the service factory must be registered with a communicator \n"
+                            + "and that proxy given to the OMEROImportFixture");
+        }
+        ServiceFactory _sf = new InterceptingServiceFactory(this.sf, user.login);
 
+        MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(_sf, "");
+        List<Pixels> list = fixture.fullImport(ResourceUtils
+                .getFile("classpath:tinyTest.d3d.dv"), "tinyTest");
+        long pixels = list.get(0).getId().getValue();
+        return pixels;
+
+    }
 }

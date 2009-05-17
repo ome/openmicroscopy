@@ -102,6 +102,13 @@ public class AbstractRoiITest extends AbstractServantTest {
         roi.setImage(i);
         roi.addAllShapeSet(Arrays.asList(shapes));
         roi = assertSaveAndReturn(roi);
+        roi = (Roi) assertFindByQuery(
+                "select roi from Roi roi "
+                        + "join fetch roi.shapes shapes join fetch shapes.roi "
+                        + "join fetch roi.image image "
+                        + "left outer join fetch image.pixels " // OUTER
+                        + "where roi.id = " + roi.getId().getValue(), null)
+                .get(0);
         return roi;
     }
 

@@ -8,7 +8,10 @@ package ome.services.blitz.test.geom;
 import java.util.List;
 
 import junit.framework.TestCase;
+import ome.api.IPixels;
+import ome.io.nio.PixelsService;
 import ome.services.roi.GeomTool;
+import ome.services.roi.PixelData;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.SessionFactory;
 import omero.model.Ellipse;
@@ -26,6 +29,8 @@ public class GeomToolTest extends TestCase {
 
     protected OmeroContext ctx;
 
+    protected PixelData data;
+
     protected GeomTool geomTool;
 
     protected SessionFactory factory;
@@ -37,7 +42,9 @@ public class GeomToolTest extends TestCase {
         ctx = OmeroContext.getManagedServerContext();
         jdbc = (SimpleJdbcOperations) ctx.getBean("simpleJdbcTemplate");
         factory = (SessionFactory) ctx.getBean("omeroSessionFactory");
-        geomTool = new GeomTool(jdbc, factory);
+        data = new PixelData((PixelsService) ctx.getBean("/OMERO/Pixels"),
+                (IPixels) ctx.getBean("internal-ome.api.IPixels"));
+        geomTool = new GeomTool(data, jdbc, factory);
 
     }
 

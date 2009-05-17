@@ -6,6 +6,7 @@
  */
 package ome.server.itests;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.formats.MockedOMEROImportFixture;
 import ome.model.IObject;
+import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.internal.Permissions;
@@ -31,6 +33,7 @@ import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
+import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.security.basic.PrincipalHolder;
 import ome.services.sessions.SessionManager;
@@ -257,6 +260,44 @@ public class AbstractManagedContextTest extends
             } else {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    protected Image makeImage(boolean withDataset) throws Exception {
+        return makeImage("classpath:tinyTest.d3d.dv", withDataset);
+    }
+
+    protected Image makeImage(String path, boolean withDataset) throws Exception {
+        MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(
+                this.factory, "");
+        try {
+            File test = ResourceUtils.getFile(path);
+            List<omero.model.Pixels> pixs = fixture.fullImport(test, "test");
+            assertEquals(1, pixs.size());
+            omero.model.Pixels p = pixs.get(0);
+            assertNotNull(p);
+            Image i = new Image(p.getImage().getId().getValue(), false);
+
+            if (withDataset) {
+                Dataset d = new Dataset();
+                d.setName("test image");
+                d.linkImage(i);
+                iUpdate.saveObject(d);
+            }
+
+            i = this.factory.getQueryService().findByQuery(
+                    "select i from Image i "
+                            + "left outer join fetch i.datasetLinks dil "
+                            + "left outer join fetch dil.parent d "
+                            + "left outer join fetch d.imageLinks "
+                            + "left outer join fetch i.pixels p "
+                            + "where p.id = :id",
+                    new Parameters().addId(pixs.get(0).getId().getValue()));
+
+            assertNotNull(i);
+            return i;
+        } finally {
+            fixture.tearDown();
         }
     }
 

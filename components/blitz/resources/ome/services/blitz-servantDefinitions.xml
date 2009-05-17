@@ -42,10 +42,14 @@
     </constructor-arg>
   </bean>
   <bean id="geomTool" class="ome.services.roi.GeomTool" lazy-init="false">
+      <constructor-arg ref="roiPixData"/>
       <constructor-arg ref="simpleJdbcTemplate"/>
       <constructor-arg ref="omeroSessionFactory"/>
   </bean>
-  
+  <bean id="roiPixData" class="ome.services.roi.PixelData" lazy-init="false">
+      <constructor-arg ref="internal-ome.api.IPixels"/>
+      <constructor-arg ref="/OMERO/Pixels"/>
+  </bean>  
 
   <bean id="omero.api.IScript" class="omero.api._IScriptTie" singleton="false">
     <constructor-arg>

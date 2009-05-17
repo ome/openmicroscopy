@@ -54,14 +54,19 @@ module omero {
                 IntegerArray y;
             };
 
+        /**
+         *
+         * Contains arrays, one entry per channel, of the statistics
+         * for a given shape. All arrays are the same size.
+         **/
         class ShapeStats
             {
-                double min;
-                double max;
-                double sum;
-                double mean;
-                double stdDev;
-                double pointsCount;
+                DoubleArray  min;
+                DoubleArray  max;
+                DoubleArray  sum;
+                DoubleArray  mean;
+                DoubleArray  stdDev;
+                DoubleArray  pointsCount;
            };
 
 	["ami","amd"] interface IRoi extends ServiceInterface

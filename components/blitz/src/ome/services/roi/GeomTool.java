@@ -41,6 +41,7 @@ import omero.util.IceMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -64,7 +65,11 @@ public class GeomTool implements ApplicationListener {
 
     protected final SessionFactory factory;
 
-    public GeomTool(SimpleJdbcOperations jdbc, SessionFactory factory) {
+    protected final PixelData data;
+
+    public GeomTool(PixelData data, SimpleJdbcOperations jdbc,
+            SessionFactory factory) {
+        this.data = data;
         this.jdbc = jdbc;
         this.factory = factory;
         try {
@@ -105,11 +110,13 @@ public class GeomTool implements ApplicationListener {
     }
 
     public Shape shapeById(long shapeId, Session session) {
-        ome.model.roi.Shape shape = (ome.model.roi.Shape) session.get(
-                ome.model.roi.Shape.class, shapeId);
-        Hibernate.initialize(shape);
-        session.evict(shape);
-        shape = new ShallowCopy().copy(shape);
+        Query q = session.createQuery("select s from Shape s " +
+        		"join fetch s.roi roi " +
+        		"join fetch roi.image image " +
+        		"join fetch image.pixels " +
+        		"where s.id = "+shapeId);
+        ome.model.roi.Shape shape = (ome.model.roi.Shape) q.uniqueResult(); 
+        // This could be dangerous
         IceMapper mapper = new IceMapper();
         Shape s = (Shape) new IceMapper().map(shape);
         return s;
@@ -272,29 +279,46 @@ public class GeomTool implements ApplicationListener {
         return sp;
     }
 
-    // UNFINISHED
     public Object getStats(Shape shape, ShapePoints points) {
 
+        long pix = shape.getRoi().getImage().getPixels(0).getId().getValue();
+        int ch = shape.sizeOfChannels();
         int sz = points.x.length;
+
+        double[] sumOfSquares = new double[ch];
+
         ShapeStats stats = new ShapeStats();
-        stats.pointsCount = sz;
-        double sumOfSquares = 0;
+        stats.min = new double[ch];
+        stats.max = new double[ch];
+        stats.sum = new double[ch];
+        stats.stdDev = new double[ch];
+        stats.pointsCount = new double[ch];
 
-        for (int i = 0; i < sz; i++) {
-            double value = 0.0; // EMPTY
-            stats.min = Math.min(value, stats.min);
-            stats.max = Math.max(value, stats.max);
-            stats.sum += value;
-            sumOfSquares += value * value;
-        }
+        for (int w = 0; w < ch; w++) {
 
-        stats.mean = stats.sum / stats.pointsCount;
-        if (stats.pointsCount > 1) {
-            double sigmaSquare = (sumOfSquares - stats.sum * stats.sum
-                    / stats.pointsCount)
-                    / (stats.pointsCount - 1);
-            if (sigmaSquare > 0) {
-                stats.stdDev = Math.sqrt(sigmaSquare);
+            stats.pointsCount[w] = sz;
+
+            for (int i = 0; i < sz; i++) {
+                int x = points.x[i];
+                int y = points.y[i];
+                int z = shape.getTheZ().getValue();
+                int t = shape.getTheT().getValue();
+
+                double value = data.get(pix, x, y, z, w, t);
+                stats.min[w] = Math.min(value, stats.min[w]);
+                stats.max[w] = Math.max(value, stats.max[w]);
+                stats.sum[w] += value;
+                sumOfSquares[w] += value * value;
+            }
+
+            stats.mean[w] = stats.sum[w] / stats.pointsCount[w];
+            if (stats.pointsCount[w] > 1) {
+                double sigmaSquare = (sumOfSquares[w] - stats.sum[w]
+                        * stats.sum[w] / stats.pointsCount[w])
+                        / (stats.pointsCount[w] - 1);
+                if (sigmaSquare > 0) {
+                    stats.stdDev[w] = Math.sqrt(sigmaSquare);
+                }
             }
         }
 
