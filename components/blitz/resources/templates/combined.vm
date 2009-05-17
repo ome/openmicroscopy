@@ -1221,9 +1221,14 @@ remove single
 [$cpp]           target->set$Inverse( (${PojoI}Ptr)0 );
 [$cpp]       }
 
-remove multiple
+removeAll multiple
 
-[$jav]       public void remove${property.shortType}Set(Collection<${property.shortType}> targets) throws omero.UnloadedEntityException {
+[$Ice]       /*
+[$Ice]        * Removes all the members of the ${iceType} sequence from
+[$Ice]        * the ${fieldName} field.
+[$Ice]        */
+[$Ice]       void removeAll${property.shortType}Set(${iceType} targets);
+[$jav]       public void removeAll${property.shortType}Set($javaType<${property.shortType}> targets, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           for( ${property.shortType} elt : targets) {
@@ -1231,15 +1236,15 @@ remove multiple
 [$jav]               ${fieldName}.remove( elt );
 [$jav]           }
 [$jav]       }
-[$pyc]       def remove${property.shortType}Set(self, targets):
+[$pyc]       def removeAll${property.shortType}Set(self, targets, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           for elt in targets:
 [$pyc]               elt.set$Inverse( None )
 [$pyc]               self._${fieldName}.remove( elt )
 [$pyc]
-[$hdr]       virtual void remove${property.shortType}Set($cppType targets);
-[$cpp]       void ${PojoI}::remove${property.shortType}Set($cppType targets) {
+[$hdr]       virtual void removeAll${property.shortType}Set($cppType targets, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::removeAll${property.shortType}Set($cppType targets, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${cppType}::iterator end = ${fieldName}.end();
