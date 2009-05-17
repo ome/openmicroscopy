@@ -217,6 +217,16 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
     }
 
     private Throwable wrapUnknown(Throwable t, String msg) {
+        
+        // If this is an Error, then we want to log a message 
+        // since these are most likely: AssertionError (bad assumptions),
+        // LinkageError (bad jar versions), ThreadDeath, or one of the
+        // VirtualMachineErrors: OutOfMemory, InternalError, StackOverflowError,
+        // UnknownError
+        if (t instanceof Error) {
+            log.error("java.lang.Error: "+msg, t);
+        }
+        
         // Wrap all other exceptions in InternalException
         InternalException re = new InternalException(msg);
         re.setStackTrace(t.getStackTrace());
