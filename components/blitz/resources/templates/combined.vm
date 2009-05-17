@@ -1743,7 +1743,7 @@ Linked Lists
 
 [$pyc]       def linked${property.shortTarget}List(self, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: throwNullCollectionException("${PropertyName}")
+[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${PropertyName}")
 [$pyc]           linked = []
 [$pyc]           for link in self._${fieldName}:
 [$pyc]               linked.append( link.$other )
