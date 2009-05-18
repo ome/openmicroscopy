@@ -65,6 +65,7 @@ import omero.api.ServiceInterfacePrx;
 import omero.constants.METADATASTORE;
 import omero.metadatastore.IObjectContainer;
 import omero.model.AcquisitionMode;
+import omero.model.Annotation;
 import omero.model.Arc;
 import omero.model.ArcType;
 import omero.model.Binning;
@@ -843,144 +844,7 @@ public class OMEROMetadataStoreClient
         return count;
     }
     
-    /**
-     * Populates archive flags on all images currently processed. This method
-     * should only be called <b>after</b> a full Bio-Formats metadata parsing
-     * cycle. 
-     * @param archive Whether or not the user requested the original files to
-     * be archived.
-     */
-    public void setArchive(boolean archive)
-    {
-        List<Image> images = getSourceObjects(Image.class);
-        String[] files = reader.getUsedFiles();
-        
-        String[] companionFileArray = reader.getUsedFiles(true);
-        
-        List<String> companionFiles = new ArrayList<String>();
-        
-        if (companionFileArray !=null)
-        {
-            for (String fileName : companionFiles)
-            {
-                companionFiles.add(fileName);
-            }
-        }
-        
-        if (archive)
-        {
-            ImageReader imageReader = (ImageReader) reader;
-            String formatString = imageReader.getReader().getClass().toString();
-            formatString = formatString.replace("class loci.formats.in.", "");
-            formatString = formatString.replace("Reader", "");
-            
-            for (int i = 0; i < files.length; i ++)
-            {
-                LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-                indexes.put("originalFileIndex", i);
-                
-                OriginalFile o = (OriginalFile) getSourceObject(OriginalFile.class, indexes);
-                File file = new File(files[i]);
-                
-                o.setName(toRType(file.getName()));
-                o.setSize(toRType(file.length()));
-                o.setFormat((Format) getEnumeration(Format.class, formatString));
-                o.setPath(toRType(file.getAbsolutePath()));
-                o.setSha1(toRType("Pending"));
-            }
-        }
-        for (int i = 0; i < images.size(); i ++)
-        {
-            Image image = images.get(i);
-            image.setArchived(toRType(archive));
 
-            String nameSpace = "openmicroscopy.org/omero/import/companionFile";
-            
-            if (archive)
-            {
-                LSID pixelsKey = new LSID(Pixels.class, i, 0);
-                LSID imageKey = new LSID(Image.class, i);
-                
-                for (int j = 0; j < files.length; j++)
-                {
-                    
-                    referenceCache.put(pixelsKey, new LSID(OriginalFile.class, j));
-
-                    if (companionFiles.contains(files[j]))
-                    {
-                        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-                        indexes.put("imageIndex", i);
-                        indexes.put("originalFileIndex", j);
-
-                        FileAnnotation a = (FileAnnotation) getSourceObject(FileAnnotation.class, indexes);
-                        a.setNs(rstring(nameSpace));
-
-                        LSID annotationKey = new LSID(FileAnnotation.class, i, j);
-
-                        referenceCache.put(imageKey, annotationKey);  
-                        referenceCache.put(annotationKey, new LSID(OriginalFile.class, j)); 
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Populates archive flags on all images currently processed. This method
-     * should only be called <b>after</b> a full Bio-Formats metadata parsing
-     * cycle. 
-     * @param archive Whether or not the user requested the original files to
-     * be archived.
-     */
-    public void setCompanionFiles()
-    {
-        List<Image> images = getSourceObjects(Image.class);
-        String[] files = reader.getUsedFiles(true);
-
-        String formatString = "appliation/octet-stream";
-        String nameSpace = "openmicroscopy.org/omero/import/companionFile";
-        
-        for (int i = 0; i < files.length; i ++)
-        {
-            LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-            indexes.put("originalFileIndex", i);
-                        
-            OriginalFile o = (OriginalFile) getSourceObject(OriginalFile.class, indexes);
-            File file = new File(files[i]);
-
-            o.setName(toRType(file.getName()));
-            o.setSize(toRType(file.length()));
-            o.setFormat((Format) getEnumeration(Format.class, formatString));
-            o.setPath(toRType(file.getAbsolutePath()));
-            o.setSha1(toRType("Pending"));
-        }
-
-        
-        for (int i = 0; i < images.size(); i ++)
-        {
-            
-            Image image = images.get(i);
-            image.setArchived(toRType(true));
-            
-            LSID imageKey = new LSID(Image.class, i);
-                           
-            for (int j = 0; j < files.length; j++)
-            {
-                LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-                indexes.put("imageIndex", i);
-                indexes.put("originalFileIndex", j);
-                
-                FileAnnotation a = (FileAnnotation) getSourceObject(FileAnnotation.class, indexes);
-                a.setNs(rstring(nameSpace));
-                
-                LSID annotationKey = new LSID(FileAnnotation.class, i, j);
-                
-                referenceCache.put(imageKey, annotationKey);  
-                referenceCache.put(annotationKey, new LSID(OriginalFile.class, j));       
-            }
-        }
-    }
-    
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setArcType(java.lang.String, int, int)
      */
@@ -2231,6 +2095,145 @@ public class OMEROMetadataStoreClient
     }
 
     /**
+     * Populates archive flags on all images currently processed. This method
+     * should only be called <b>after</b> a full Bio-Formats metadata parsing
+     * cycle. 
+     * @param archive Whether or not the user requested the original files to
+     * be archived.
+     */
+    public void setArchive(boolean archive)
+    {
+        List<Image> images = getSourceObjects(Image.class);
+        String[] files = reader.getUsedFiles();
+        
+        String[] companionFileArray = reader.getUsedFiles(true);
+        
+        List<String> companionFiles = new ArrayList<String>();
+        
+        if (companionFileArray !=null)
+        {
+            for (String fileName : companionFiles)
+            {
+                companionFiles.add(fileName);
+            }
+        }
+        
+        if (archive)
+        {
+            ImageReader imageReader = (ImageReader) reader;
+            String formatString = imageReader.getReader().getClass().toString();
+            formatString = formatString.replace("class loci.formats.in.", "");
+            formatString = formatString.replace("Reader", "");
+            
+            for (int i = 0; i < files.length; i ++)
+            {
+                LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+                indexes.put("originalFileIndex", i);
+                
+                OriginalFile o = (OriginalFile) getSourceObject(OriginalFile.class, indexes);
+                File file = new File(files[i]);
+                
+                o.setName(toRType(file.getName()));
+                o.setSize(toRType(file.length()));
+                o.setFormat((Format) getEnumeration(Format.class, formatString));
+                o.setPath(toRType(file.getAbsolutePath()));
+                o.setSha1(toRType("Pending"));
+            }
+        }
+        for (int i = 0; i < images.size(); i ++)
+        {
+            Image image = images.get(i);
+            image.setArchived(toRType(archive));
+
+            String nameSpace = "openmicroscopy.org/omero/import/companionFile";
+            
+            if (archive)
+            {
+                LSID pixelsKey = new LSID(Pixels.class, i, 0);
+                LSID imageKey = new LSID(Image.class, i);
+                
+                for (int j = 0; j < files.length; j++)
+                {
+                    
+                    referenceCache.put(pixelsKey, new LSID(OriginalFile.class, j));
+
+                    if (companionFiles.contains(files[j]))
+                    {
+                        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+                        indexes.put("imageIndex", i);
+                        indexes.put("originalFileIndex", j);
+
+                        FileAnnotation a = (FileAnnotation) getSourceObject(FileAnnotation.class, indexes);
+                        a.setNs(rstring(nameSpace));
+
+                        LSID annotationKey = new LSID(FileAnnotation.class, i, j);
+
+                        referenceCache.put(imageKey, annotationKey);  
+                        referenceCache.put(annotationKey, new LSID(OriginalFile.class, j)); 
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Populates archive flags on all images currently processed. This method
+     * should only be called <b>after</b> a full Bio-Formats metadata parsing
+     * cycle. 
+     * @param archive Whether or not the user requested the original files to
+     * be archived.
+     */
+    public void setCompanionFiles()
+    {
+        List<Image> images = getSourceObjects(Image.class);
+        String[] files = reader.getUsedFiles(true);
+
+        String formatString = "appliation/octet-stream";
+        String nameSpace = "openmicroscopy.org/omero/import/companionFile";
+        
+        for (int i = 0; i < files.length; i ++)
+        {
+            LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+            indexes.put("originalFileIndex", i);
+                        
+            OriginalFile o = (OriginalFile) getSourceObject(OriginalFile.class, indexes);
+            File file = new File(files[i]);
+
+            o.setName(toRType(file.getName()));
+            o.setSize(toRType(file.length()));
+            o.setFormat((Format) getEnumeration(Format.class, formatString));
+            o.setPath(toRType(file.getAbsolutePath()));
+            o.setSha1(toRType("Pending"));
+        }
+
+        
+        for (int i = 0; i < images.size(); i ++)
+        {
+            
+            Image image = images.get(i);
+            image.setArchived(toRType(true));
+            
+            LSID imageKey = new LSID(Image.class, i);
+                           
+            for (int j = 0; j < files.length; j++)
+            {
+                LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+                indexes.put("imageIndex", i);
+                indexes.put("originalFileIndex", j);
+                
+                FileAnnotation a = (FileAnnotation) getSourceObject(FileAnnotation.class, indexes);
+                a.setNs(rstring(nameSpace));
+                
+                LSID annotationKey = new LSID(FileAnnotation.class, i, j);
+                
+                referenceCache.put(imageKey, annotationKey);
+                referenceCache.put(annotationKey, new LSID(OriginalFile.class, j));       
+            }
+        }
+    }
+    
+    
+    /**
      * Writes binary original file data to the OMERO server.
      * @param files Files to populate against an original file list.
      * @param pixels Original file list source.
@@ -2247,6 +2250,21 @@ public class OMEROMetadataStoreClient
             originalFileMap.put(fileName, originalFile);
         }
         
+        
+        List<Annotation> imageAnnotationList = pixels.getImage().linkedAnnotationList();
+        
+        
+        for (Annotation imageAnnotation : imageAnnotationList)
+        {
+            if (imageAnnotation instanceof FileAnnotation)
+            {
+                FileAnnotation fileAnnotation = (FileAnnotation) imageAnnotation;
+                OriginalFile o = fileAnnotation.getFile();
+                String fileName = o.getName().getValue();
+                originalFileMap.put(fileName, o);
+            }
+        }
+
         // Lookup each source file in our hash map and write it to the
         // correct original file object server side.
         byte[] buf = new byte[1048576];  // 1 MB buffer
