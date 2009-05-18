@@ -59,7 +59,7 @@ import getopt, sys, os, subprocess
 import omero_api_Gateway_ice
 import omero_api_IScript_ice
 import numpy;
-import pixelstypetopython;
+import omero.util.pixelstypetopython as pixelstypetopython
 from struct import *
 from omero.rtypes import *
 import PIL

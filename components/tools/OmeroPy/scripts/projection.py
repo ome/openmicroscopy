@@ -53,7 +53,7 @@ import omero.scripts as scripts
 import getopt, sys
 import omero_api_Gateway_ice
 import numpy;
-import pixelstypetopython;
+import omero.util.pixelstypetopython as pixelstypetopython
 from struct import *
 from omero.rtypes import *
 
@@ -140,11 +140,29 @@ def parseInputs(client, session):
 	commandArgs = {};
 	for key in inputKeys:
 		commandArgs[key]=client.getInput(key).getValue();
+	if("zStart" not in commandArgs):
+		commandArgs["zStart"] = 0;
+	if("zEnd" not in commandArgs):
+		commandArgs["zEnd"] = sizeZ;
+	if("tStart" not in commandArgs):
+		commandArgs["tStart"] = 0;
+	if("tEnd" not in commandArgs):
+		commandArgs["tEnd"] = sizeT;
+	if("x0" not in commandArgs):
+		commandArgs["x0"] = 0;
+	if("x1" not in commandArgs):
+		commandArgs["x1"] = sizeX;
+	if("y0" not in commandArgs):
+		commandArgs["y0"] = 0;
+	if("y1" not in commandArgs):
+		commandArgs["y1"] = sizeY;
+	if("channels" not in commandArgs):
+		commandArgs["channels"] = range(0,sizeC);
 	return commandArgs;	
 
 	
-client = scripts.client('projection', 'Project the image and create a new image from the projection.', scripts.Long("imageId").inout(), scripts.Long("newImageId").inout(), \
-scripts.String("method").inout(),scripts.Long("zStart").inout(), scripts.Long("zEnd").inout(), \
+client = scripts.client('projection', 'Project the image and create a new image from the projection.', scripts.Long("imageId").inout(), 
+scripts.Long("newImageId").inout(), scripts.String("method").inout(),scripts.Long("zStart").inout(), scripts.Long("zEnd").inout(), \
 scripts.Long("tStart").inout(), scripts.Long("tEnd").inout(), scripts.Long("x0").inout(), \
 scripts.Long("y0").inout(), scripts.Long("x1").inout(), scripts.Long("y1").inout(), scripts.Set("channels").inout());
 session = client.createSession();
