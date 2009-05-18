@@ -1243,8 +1243,8 @@ removeAll multiple
 [$pyc]               elt.set$Inverse( None )
 [$pyc]               self._${fieldName}.remove( elt )
 [$pyc]
-[$hdr]       virtual void removeAll${property.shortType}Set($cppType targets, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::removeAll${property.shortType}Set($cppType targets, $CPP_CURRENT) {
+[$hdr]       virtual void removeAll${property.shortType}Set(const ${cppType}& targets, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::removeAll${property.shortType}Set(const ${cppType}& targets, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${cppType}::iterator end = ${fieldName}.end();
