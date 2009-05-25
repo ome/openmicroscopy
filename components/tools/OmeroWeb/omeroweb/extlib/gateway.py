@@ -34,6 +34,7 @@ try:
 except:
     logger.error("You need to install the Python Imaging Library. Get it at http://www.pythonware.com/products/pil/")
     logger.error(traceback.format_exc())
+from StringIO import StringIO
 
 #import threading
 import time
@@ -1177,7 +1178,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     def hasExperimenterPhoto(self, oid=None):
         photo = None
-        #container = self.getContainerService()
         meta = self.getMetadataService()
         try:
             if oid is None:
@@ -1193,7 +1193,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     def getExperimenterPhoto(self, oid=None):
         photo = None
-        #container = self.getContainerService()
         meta = self.getMetadataService()
         try:
             if oid is None:
@@ -1209,6 +1208,60 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             photo = self.getExperimenterDefaultPhoto()
         return photo
     
+    def getExperimenterPhotoSize(self, oid=None):
+        photo = None
+        meta = self.getMetadataService()
+        try:
+            if oid is None:
+                ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])[0]
+            else:
+                ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
+            store = self.createRawFileStore()
+            store.setFileId(ann.file.id.val)
+            photo = store.read(0,long(ann.file.size.val))
+            try:
+                im = Image.open(StringIO(photo))
+            except IOError:
+                return None
+            else:
+                return (im.size, ann.file.size.val)
+        except:
+            return None
+    
+    def cropExperimenterPhoto(self, box, oid=None):
+        # TODO: crop method could be moved to the server side
+        photo = None
+        meta = self.getMetadataService()
+        ann = None
+        try:
+            if oid is None:
+                ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])[0]
+            else:
+                ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
+            store = self.createRawFileStore()
+            store.setFileId(ann.file.id.val)
+            photo = store.read(0,long(ann.file.size.val))
+        except:
+            raise IOError("Photo does not exist.")
+        region = None
+        try:
+            im = Image.open(StringIO(photo))
+            region = im.crop(box)
+        except IOError:
+            raise IOError("Cannot open that photo.")
+        else:
+            store = self.createRawFileStore()
+            store.setFileId(long(ann.file.id.val))
+            buf = 1048576
+            imdata=StringIO()
+            region.save(imdata, format=im.format)
+            size = len(imdata.getvalue())
+            store.write(imdata.getvalue(), 0, size)
+            
+            oFile = ann.file
+            oFile.setSize(rlong(size));
+            self.saveObject(oFile)
+            
     def getExperimenterDefaultPhoto(self):
         img = Image.open(settings.DEFAULT_USER)
         img.thumbnail((32,32), Image.ANTIALIAS)

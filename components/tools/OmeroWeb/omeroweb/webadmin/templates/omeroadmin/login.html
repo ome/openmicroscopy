@@ -24,12 +24,14 @@
 <div id="login">
 	<form action="{% get_webadmin_root_url %}/login/" method="post">
 		<table><tbody>
-		    {% if error %}<tr><th colspan="2"><ul class="errorlist"><li>{% trans "Error:" %} {{ error }}</li></ul></th><tr>{% endif %}
-		    <tr>
-		        <th>{% trans form.server.label_tag %}{% if form.server.field.required %}*{% endif %}</th>
-    				<td>{{ form.server.errors }}{{ form.server }}</td>
-		    </tr>
-		</tbody></table>
+            {% if error %}<tr><th colspan="2"><ul class="errorlist"><li>{% trans "Error:" %} {{ error }}</li></ul></th><tr>{% endif %}
+        </tbody></table>
+        <table><tbody>
+            <tr>
+                <th>{% trans form.server.label_tag %}{% if form.server.field.required %}*{% endif %}</th>
+                <td>{{ form.server }} {{ form.server.errors }}</td>
+            </tr>
+        </tbody></table>
 		<table><tbody>
 		    <tr>
 		        <th></th>

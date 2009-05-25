@@ -12,7 +12,7 @@
         <div class="clear"></div>
         
         <div id="comments_tab">
-            <p>{% trans "Create a new comment or choose one or more of the listed below." %}<br/>
+            <p>{% trans "Create a new comment or choose one or more from the listed below." %}<br/>
             <!--<small>{% trans "If you would like to include an OMERO image or container in the below field, simply get the id of the item from the URL and type" %}: <b>[image:157], </b><b>[dataset:64], </b><b>[project:76].</b></small></p>-->
             
             {% if form_comment %}
@@ -57,7 +57,7 @@
         </div>
         
         <div id="tags_tab">
-            <p>{% trans "Select one or more of the listed tags or create a new one." %}</p>
+            <p>{% trans "Select one or more from the listed tags or create a new one." %}</p>
             
             <div class="extags">
                 <h1>{% trans "Use existing tag" %}:</h1>
@@ -120,7 +120,7 @@
             
             <div class="exurls">
                 <h1>{% trans "Use existing URL" %}:</h1>
-                <p>{% trans "To add existing url please select one or more of the listed urls." %}</p>
+                <p>{% trans "To add existing url please select one or more from the listed urls." %}</p>
                 <form action="#urls_tab" method="post"><input type="hidden" name="action" value="useurl" />
                 <table>
                 {% for field in form_urls %}
@@ -138,7 +138,7 @@
         </div>
         
         <div id="files_tab">
-            <p>{% trans "Attache one or more of the listed files or upload a new one." %}</p>
+            <p>{% trans "Attache one or more from the listed files or upload a new one." %}</p>
             
             <div class="exfile">
                 <h1>{% trans "Attache existing file" %}:</h1>

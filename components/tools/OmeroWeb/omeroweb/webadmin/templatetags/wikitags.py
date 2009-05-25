@@ -32,9 +32,9 @@ register = Library()
 @register.filter
 def wikify(value):
     if value is not None:
-
-        WIKI_WORD = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-        wikifier = re.compile(r'\b(%s)\b' % WIKI_WORD)
+            
+        urlier = r'(http[s]?://|localhost|ftp|ftps)(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        wikifier = re.compile(r'\b(%s)\b' % urlier, re.IGNORECASE)
         value = wikifier.sub(r'<a href="\1" target="_blank">\1</a>', value)
 
         #imagier = re.compile(r'\[((?i)image):[\s]?( [0-9]+ )\]', re.VERBOSE)
@@ -46,8 +46,8 @@ def wikify(value):
         #projectier = re.compile(r'\[((?i)project):[\s]?( [0-9]+ )\]', re.VERBOSE)
         #value = projectier.sub(r'<a href="/%s/project/\2/" target="_blank"><img src="/%s/static/images/folder32.png" /></a>' % (settings.WEBCLIENT_ROOT_BASE, settings.WEBCLIENT_ROOT_BASE), value)
         
-        protocolier = re.compile(r'\[((?i)protocol):[\s]?([0-9]+)\]', re.VERBOSE)
-        value = protocolier.sub(r'<a href="/%s/annotation/download/\2/" target="_blank">protocol file</a>' % (settings.WEBCLIENT_ROOT_BASE), value)
+        #protocolier = re.compile(r'\[((?i)protocol):[\s]?([0-9]+)\]', re.VERBOSE)
+        #value = protocolier.sub(r'<a href="/%s/annotation/download/\2/" target="_blank">protocol file</a>' % (settings.WEBCLIENT_ROOT_BASE), value)
 
         # happy :) :-) 
         emot1 = re.compile(r'\:[\-]?\)', re.VERBOSE)

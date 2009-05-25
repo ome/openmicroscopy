@@ -31,5 +31,12 @@ def handler():
     global sender
 
     if sender is None:
-        sender = SendEmail()
+        from omeroweb.webclient.models import EmailToSend
+        counter = EmailToSend.objects.count()
+        if counter > 0:
+            sender = SendEmail()
+    else:
+        if sender.allow_thread_timeout:
+            sender = None
+            return handler()
     return sender

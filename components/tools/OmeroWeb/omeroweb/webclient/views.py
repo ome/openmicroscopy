@@ -74,10 +74,11 @@ from models import ShareForm, ShareCommentForm, ContainerForm, CommentAnnotation
                     HistoryTypeForm, MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
                     TagListForm, UrlListForm, CommentListForm, FileListForm, TagFilterForm
 from omeroweb.webadmin.models import MyAccountForm, MyAccountLdapForm, UploadPhotoForm
-
 from omeroweb.webadmin.models import Gateway, LoginForm
 
-from omeroweb.webadmin.views import getConnection, _session_logout
+from omeroweb.webadmin.views import isUserConnected
+from extlib.gateway import _session_logout, timeit, getBlitzConnection
+
 #from extlib.gateway import BlitzGateway
 
 logger = logging.getLogger('views-web')
@@ -98,6 +99,15 @@ except:
 ################################################################################
 # Blitz Gateway Connection
 
+@timeit
+def getConnection (request, force_key=None):
+    try:
+        server = request.session['server']
+    except KeyError:
+        return None
+
+    return getBlitzConnection(request, server, with_session=True, skip_stored=True, force_key=force_key)
+
 def getShareConnection (request, share_id):
     browsersession_key = request.session.session_key
     share_conn_key = "S:%s#%s#%s" % (browsersession_key, request.session.get('server'), share_id)
@@ -108,213 +118,8 @@ def getShareConnection (request, share_id):
     logger.debug('shared connection: %s : %s' % (share_id, share._sessionUuid))
     return share
 
-#def timeit (func):
-#    def wrapped (*args, **kwargs):
-#        logger.info("timing %s" % (func.func_name))
-#        now = time()
-#        rv = func(*args, **kwargs)
-#        logger.info("timed %s : %f" % (func.func_name, time()-now))
-#        return rv
-#    return wrapped
-#
-#@timeit
-#def getConnection (request):
-#
-#    session_key = None
-#    server = None
-#
-#    # gets Http session or create new one
-#    session_key = request.session.session_key
-#
-#    # gets host base
-#    try:
-#        server = request.session['server']
-#    except KeyError:
-#        return None
-#
-#    # clean up connections
-#    for k,v in connectors.items():
-#        if v is None:
-#            try:
-#                v.seppuku()
-#            except:
-#                logger.info("Connection was already killed.")
-#            del connectors[k]
-#
-#    if len(connectors) > 250:
-#        for k,v in connectors.items()[50:]:
-#            v.seppuku()
-#            del connectors[k]
-#
-#    # builds connection key for current session
-#    conn_key = None
-#    if (server and session_key) is not None:
-#        conn_key = 'S:' + str(request.session.session_key) + '#' + str(server)
-#    else:
-#        return None
-#
-#    request.session.modified = True
-#
-#    # gets connection for key if available
-#    conn = connectors.get(conn_key)
-#
-#    if conn is None:
-#        # could not get connection for key
-#        # try retrives the connection from existing session
-#        try:
-#            if request.session['sessionUuid']: pass
-#            if request.session['groupId']: pass
-#        except KeyError:
-#            # create the connection from login parameters
-#            try:
-#                if request.session['host']: pass
-#                if request.session['port']: pass
-#                if request.session['username']: pass
-#                if request.session['password']: pass
-#            except KeyError:
-#                pass
-#            else:
-#                # login parameters found, create new connection
-#                try:
-#                    conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'])
-#                    conn.connect()
-#                    request.session['sessionUuid'] = conn._sessionUuid
-#                    request.session['groupId'] = conn.getEventContext().groupId
-#                except:
-#                    logger.error(traceback.format_exc())
-#                    raise sys.exc_info()[1]
-#                else:
-#                    # stores connection on connectors
-#                    connectors[conn_key] = conn
-#                    logger.info("Have connection: %s uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
-#                    logger.info("Total connectors: %i." % (len(connectors)))
-#        else:
-#            # retrieves connection from sessionUuid, join to existing session
-#            try:
-#                conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'], request.session['sessionUuid'])
-#                conn.connect()
-#                #request.session['sessionUuid'] = conn.getEventContext().sessionUuid
-#                #request.session['groupId'] = conn.getEventContext().groupId
-#            except:
-#                logger.error(traceback.format_exc())
-#                raise sys.exc_info()[1]
-#            else:
-#                # stores connection on connectors
-#                connectors[conn_key] = conn
-#                logger.info("Retreived connection, will travel: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
-#                logger.info("Total connectors: %i." % (len(connectors)))
-#    else:
-#        # gets connection
-#        try: 
-#            request.session['sessionUuid'] = conn.getEventContext().sessionUuid
-#        except:
-#            # connection is no longer available, try again
-#            connectors[conn_key] = None
-#            logger.info("Connection '%s' is no longer available" % (conn_key))
-#            return getConnection(request)
-#        else:
-#            logger.info("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
-#    return conn
-
-#def getShareConnection (request, share_id=None):
-#
-#    session_key = None
-#    server = None
-#
-#    # gets Http session or create new one
-#    session_key = request.session.session_key
-#
-#    # gets host base
-#    try:
-#        server = request.session['server']
-#    except KeyError:
-#        return None
-#x
-#    # clean up connections
-#    for k,v in share_connectors.items():
-#        if v is None:
-#            try:
-#                v.seppuku()
-#            except:
-#                logger.info("Connection was already killed.")
-#                logger.error(traceback.format_exc())
-#            del share_connectors[k]
-#
-#    if len(share_connectors) > 150:
-#        for k,v in share_connectors.items()[150:]:
-#            v.seppuku()
-#            del share_connectors[k]
-#
-#    # builds connection key for current session
-#    conn_key = None
-#    if (server and session_key) is not None:
-#        conn_key = 'S:%s#%s#%s' % (str(request.session.session_key),str(server), str(share_id))
-#    else:
-#        return None
-#
-#    request.session.modified = True
-#
-#    # gets connection for key if available
-#    conn = share_connectors.get(conn_key)
-#    
-#    if conn is None:
-#        # could not get connection for key
-#        # try retrives the connection from existing session
-#        try:
-#            if request.session['shares'][share_id]: pass
-#        except KeyError:
-#            # create the connection from login parameters
-#            try:
-#                if request.session['host']: pass
-#                if request.session['port']: pass
-#                if request.session['username']: pass
-#                if request.session['password']: pass
-#            except:
-#                logger.error(traceback.format_exc())
-#                raise sys.exc_info()[1]
-#            else:
-#                # login parameters found, create the connection
-#                try:
-#                    conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'])
-#                    conn.connectAsShare(share_id)
-#                    request.session['shares'][str(share_id)] = conn._sessionUuid
-#                except:
-#                    logger.error(traceback.format_exc())
-#                    raise sys.exc_info()[1]
-#                else:
-#                    # stores connection on share_connectors
-#                    share_connectors[conn_key] = conn
-#                    logger.info("Have connection: %s uuid: '%s'" % (str(conn_key), str(request.session['shares'][str(share_id)] )))
-#        else:
-#            # retrieves connection from sessionUuid, join to existing session
-#            try:
-#                conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'], request.session['shares'][str(share_id)])
-#                conn.connectAsShare(share_id)
-#                #request.session['sessionUuid'] = conn.getEventContext().sessionUuid
-#                #request.session['groupId'] = conn.getEventContext().groupId
-#            except:
-#                logger.error(traceback.format_exc())
-#                raise sys.exc_info()[1]
-#            else:
-#                # stores connection on connectors
-#                share_connectors[conn_key] = conn
-#                logger.info("Retreived connection will travel: '%s', uuid: '%s'" % (str(conn_key), str(request.session['shares'][str(share_id)])))
-#                logger.info("Total share connectors: %i." % (len(share_connectors)))
-#    else:
-#        try:
-#            request.session['shares'][str(share_id)] = conn.getEventContext().sessionUuid
-#        except:
-#            # connection is no longer available, retrieves connection login parameters
-#            share_connectors[conn_key] = None
-#            logger.info("Share connection '%s' is no longer available" % conn_key)
-#            return getShareConnection(request, share_id)
-#        else:
-#            logger.info("Share connection '%s' exists, uuid: '%s'" % (str(conn_key), str(conn._sessionUuid)))
-#    return conn
-
 ################################################################################
 # decorators
-
 def isUserConnected (f):
     def wrapped (request, *args, **kwargs):
         try:
@@ -342,11 +147,20 @@ def isUserConnected (f):
             return HttpResponseRedirect("/%s/login/?url=%s" % (settings.WEBCLIENT_ROOT_BASE, url))
         
         sessionHelper(request)
+        notification()
         kwargs["conn"] = conn
         kwargs["url"] = url
         return f(request, *args, **kwargs)
     
     return wrapped
+
+def notification():
+    try:
+        if settings.EMAIL_NOTIFICATION:
+            import omeroweb.extlib.notification.handlesender as sender
+            sender.handler()
+    except:
+        logger.error(traceback.format_exc())
 
 def sessionHelper(request):
     try:
@@ -381,7 +195,6 @@ def sessionHelper(request):
 # views controll
 
 def login(request):
-    
     if request.method == 'POST' and request.REQUEST['server']:
         blitz = Gateway.objects.get(pk=request.REQUEST['server'])
         request.session['server'] = blitz.id
@@ -420,6 +233,8 @@ def login(request):
         else:
             return HttpResponseRedirect("/%s/" % (settings.WEBCLIENT_ROOT_BASE))
     else:
+        if request.method == 'POST' and request.REQUEST['server']:
+            error = "Connection not available, please chceck your user name and password."
         url = None
         try:
             url = request.REQUEST["url"]
@@ -2927,7 +2742,7 @@ def impexp(request, menu, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def myaccount(request, action, **kwargs):
+def myaccount(request, action=None, **kwargs):
     request.session['nav']['menu'] = 'person'
     template = "omeroweb/myaccount.html"
     request.session.modified = True
@@ -2961,9 +2776,10 @@ def myaccount(request, action, **kwargs):
                                 'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
                                 'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
                                 'default_group':controller.defaultGroup, 'groups':controller.otherGroups})
-    
+    photo_size = conn.getExperimenterPhotoSize()
     form_file = UploadPhotoForm()
-    
+
+    request.session['nav']['edit_mode'] = False    
     if action == "save":
         form = MyAccountForm(data=request.REQUEST.copy(), initial={'groups':controller.otherGroups})
         if form.is_valid():
@@ -2980,17 +2796,28 @@ def myaccount(request, action, **kwargs):
             except:
                 password = None
             controller.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
-            return HttpResponseRedirect("/%s/myaccount/details/" % (settings.WEBCLIENT_ROOT_BASE))
+            return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBCLIENT_ROOT_BASE))
     elif action == "upload":
         if request.method == 'POST':
             form_file = UploadPhotoForm(request.POST, request.FILES)
             if form_file.is_valid():
                 controller = BaseUploadFile(conn)
                 controller.attach_photo(request.FILES['photo'])
-                return HttpResponseRedirect("/%s/myaccount/details/" % (settings.WEBCLIENT_ROOT_BASE))
-    
+                return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBCLIENT_ROOT_BASE))
+    elif action == "crop": 
+        x1 = long(request.REQUEST['x1'].encode('utf-8'))
+        x2 = long(request.REQUEST['x2'].encode('utf-8'))
+        y1 = long(request.REQUEST['y1'].encode('utf-8'))
+        y2 = long(request.REQUEST['y2'].encode('utf-8'))
+        box = (x1,y1,x2,y2)
+        conn.cropExperimenterPhoto(box)
+        return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBCLIENT_ROOT_BASE))
+    elif action == "editphoto":
+        if photo_size is not None:
+            request.session['nav']['edit_mode'] = True
+
     form_active_group = ActiveGroupForm(initial={'activeGroup':eContext['context'].groupId, 'mygroups': eContext['allGroups']})
-    context = {'nav':request.session['nav'], 'eContext': eContext, 'form':form, 'ldapAuth': controller.ldapAuth, 'form_active_group':form_active_group, 'form_file':form_file}
+    context = {'nav':request.session['nav'], 'eContext': eContext, 'form':form, 'ldapAuth': controller.ldapAuth, 'form_active_group':form_active_group, 'form_file':form_file, 'photo_size':photo_size}
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))

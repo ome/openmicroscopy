@@ -83,126 +83,12 @@ except:
 
 @timeit
 def getConnection (request, force_key=None):
-#    session_key = None
-#    server = None
-#    
-#    # gets Http session or create new one
-#    session_key = request.session.session_key
-#    
-#    # gets host base
     try:
         server = request.session['server']
     except KeyError:
         return None
 
     return getBlitzConnection(request, server, with_session=True, skip_stored=True, force_key=force_key)
-
-#    
-#    # clean up connections
-#    for k,v in connectors.items():
-#        if v is None:
-#            try:
-#                v.seppuku()
-#            except:
-#                logger.info("Connection was already killed.")
-#            del connectors[k]
-#    
-#    if len(connectors) > 75:
-#        for k,v in connectors.items()[50:]:
-#            v.seppuku()
-#            del connectors[k]
-#    
-#    # builds connection key for current session
-#    conn_key = None
-#    if (server and session_key) is not None:
-#        conn_key = 'S:' + str(request.session.session_key) + '#' + str(server)
-#    else:
-#        return None
-#    
-#    request.session.modified = True
-#    
-#    # gets connection for key if available
-#    conn = connectors.get(conn_key)
-#    
-#    if conn is None:
-#        # could not get connection for key
-#        # retrives the connection from existing session
-#        try:
-#            if request.session['sessionUuid']: pass
-#            if request.session['groupId']: pass
-#        except KeyError:
-#            # retrives the connection from login parameters
-#            try:
-#                if request.session['host']: pass
-#                if request.session['port']: pass
-#                if request.session['username']: pass
-#                if request.session['password']: pass
-#            except KeyError:
-#                logger.error(traceback.format_exc())
-#                raise sys.exc_info()[1]
-#            else:
-#                # login parameters found, create the connection
-#                try:
-#                    conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'])
-#                    conn.connect()
-#                    request.session['sessionUuid'] = conn.getEventContext().sessionUuid
-#                    request.session['groupId'] = conn.getEventContext().groupId
-#                except:
-#                    logger.error(traceback.format_exc())
-#                    raise sys.exc_info()[1]
-#                else:
-#                    # stores connection on connectors
-#                    connectors[conn_key] = conn
-#                    logger.info("Have connection, stored in connectors:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
-#                    logger.info("Total connectors: %i." % (len(connectors)))
-#        else:
-#            # retrieves connection from sessionUuid, join to existing session
-#            try:
-#                conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'], request.session['sessionUuid'])
-#                conn.connect()
-#                request.session['sessionUuid'] = conn.getEventContext().sessionUuid
-#                request.session['groupId'] = conn.getEventContext().groupId
-#            except:
-#                logger.error(traceback.format_exc())
-#                raise sys.exc_info()[1]
-#            else:
-#                # stores connection on connectors
-#                connectors[conn_key] = conn
-#                logger.info("Retreived connection, will travel: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
-#                logger.info("Total connectors: %i." % (len(connectors)))
-#    else:
-#        # gets connection
-#        try:
-#            request.session['sessionUuid'] = conn.getEventContext().sessionUuid
-#        except:
-#            # connection is no longer available, retrieves connection login parameters
-#            connectors[conn_key] = None
-#            logger.info("Connection '%s' is no longer available" % (conn_key))
-#            try:
-#                if request.session['host']: pass
-#                if request.session['port']: pass
-#                if request.session['username']: pass
-#                if request.session['password']: pass
-#            except KeyError:
-#                logger.error(traceback.format_exc())
-#                raise sys.exc_info()[1]
-#            else:
-#                try:
-#                    conn = BlitzGateway(request.session['host'], request.session['port'], request.session['username'], request.session['password'], request.session['sessionUuid'])
-#                    conn.connect()
-#                    request.session['sessionUuid'] = conn.getEventContext().sessionUuid
-#                    request.session['groupId'] = conn.getEventContext().groupId
-#                except:
-#                    logger.error(traceback.format_exc())
-#                    raise sys.exc_info()[1]
-#                else:
-#                    # stores connection on connectors
-#                    connectors[conn_key] = conn
-#                    logger.info("Retreived connection for:'%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
-#                    logger.info("Total connectors: %i." % (len(connectors)))
-#        else:
-#            logger.info("Connection exists: '%s', uuid: '%s'" % (str(conn_key), str(request.session['sessionUuid'])))
-#    return conn
 
 def getGuestConnection(host, port):
     conn = None
@@ -241,17 +127,32 @@ def isAdminConnected (f):
 
 def isUserConnected (f):
     def wrapped (request, *args, **kwargs):
+        try:
+            request.session['server'] = request.REQUEST['server']
+        except:
+            pass
         #this check connection exist, if not it will redirect to login page
+        try:
+            url = request.REQUEST['url']
+        except:
+            if request.META['QUERY_STRING']:
+                url = '%s?%s' % (request.META['PATH_INFO'], request.META['QUERY_STRING'])
+            else:
+                url = '%s' % (request.META['PATH_INFO'])
+        
         conn = None
         try:
             conn = getConnection(request)
+        except KeyError:
+            return HttpResponseRedirect("/%s/login/?url=%s" % (settings.WEBADMIN_ROOT_BASE, url))
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect("/%s/login/?error=%s" % (settings.WEBADMIN_ROOT_BASE, x.__class__.__name__))
+            return HttpResponseRedirect("/%s/login/?error=%s&url=%s" % (settings.WEBADMIN_ROOT_BASE, x.__class__.__name__, url))
         if conn is None:
-            return HttpResponseRedirect("/%s/login/" % (settings.WEBADMIN_ROOT_BASE))
-        kwargs["conn"] = conn
+            return HttpResponseRedirect("/%s/login/?url=%s" % (settings.WEBADMIN_ROOT_BASE, url))   
         
+        kwargs["conn"] = conn
+        kwargs["url"] = url
         return f(request, *args, **kwargs)
     
     return wrapped
@@ -327,7 +228,8 @@ def login(request):
     if conn is not None:
         return HttpResponseRedirect("/%s/" % (settings.WEBADMIN_ROOT_BASE))
     else:
-        
+        if request.method == 'POST' and request.REQUEST['server']:
+            error = "Connection not available, please chceck your user name and password."
         try:
             request.session['server'] = request.REQUEST['server']
         except:
@@ -717,6 +619,8 @@ def my_account(request, action=None, **kwargs):
                                 'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                 'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
     
+    edit_mode = False
+    photo_size = conn.getExperimenterPhotoSize()
     form_file = UploadPhotoForm()
     
     if action == "save":
@@ -742,8 +646,19 @@ def my_account(request, action=None, **kwargs):
                 controller = BaseUploadFile(conn)
                 controller.attach_photo(request.FILES['photo'])
                 return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
+    elif action == "crop": 
+        x1 = long(request.REQUEST['x1'].encode('utf-8'))
+        x2 = long(request.REQUEST['x2'].encode('utf-8'))
+        y1 = long(request.REQUEST['y1'].encode('utf-8'))
+        y2 = long(request.REQUEST['y2'].encode('utf-8'))
+        box = (x1,y1,x2,y2)
+        conn.cropExperimenterPhoto(box)
+        return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
+    elif action == "editphoto":
+        if photo_size is not None:
+            edit_mode = True
     
-    context = {'info':info, 'eventContext':eventContext, 'form':form, 'form_file':form_file, 'ldapAuth': myaccount.ldapAuth}
+    context = {'info':info, 'eventContext':eventContext, 'form':form, 'form_file':form_file, 'ldapAuth': myaccount.ldapAuth, 'edit_mode':edit_mode, 'photo_size':photo_size}
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))

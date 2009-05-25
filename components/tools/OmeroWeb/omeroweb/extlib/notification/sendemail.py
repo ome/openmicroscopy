@@ -35,8 +35,7 @@ from email.MIMEImage import MIMEImage
 from django.conf import settings
 
 logger = logging.getLogger('sendemail')
-TIMEOUT = 600 #sec
-SLEEPTIME = 10
+SLEEPTIME = 30
 
 def prepareRecipientsAsString(recipients):
     recps = list()
@@ -77,72 +76,63 @@ class SendEmail(threading.Thread):
         except:
             pass
         self.allow_thread_timeout = False
-        #self.updateTimeout()
         self.to_send = list()
         self.start()
     
-    #def updateTimeout (self):
-    #    self._timeout = time.time() + TIMEOUT
-    
-    #def isTimedout (self):
-    #    if self._timeout < time.time():
-    #        return True
-    #    return False
-    
     def run (self):
         """ this thread lives forever, pinging whatever connection exists to keep it's services alive """
-        logger.info("Starting sendemail thread...")
-        while not (self.allow_thread_timeout): #isTimedout()
+        logger.debug("Starting sendemail thread...")
+        while not (self.allow_thread_timeout): 
             try:
                 from omeroweb.webclient.models import EmailToSend
                 counter = EmailToSend.objects.count()
                 logger.info("%i emails is waiting..." % (counter))
                 if counter > 0:
-                    #self.updateTimeout()
                     email = None
                     try:
                         details = EmailToSend.objects.all()[0]
                         message = None
                         message = getattr(self, str(details.template))(details)
                         if message is not None:
-                            logger.info("Sending...")
+                            logger.info("Sending notification...")
                             try:
                                 smtp = smtplib.SMTP(self.smtp_server, self.smtp_port)
                             except:
-                                logger.info("settings.EMAIL_SMTP_PORT was not set, connecting on default port...")
+                                logger.debug("settings.EMAIL_SMTP_PORT was not set, connecting on default port...")
                                 smtp = smtplib.SMTP(self.smtp_server)
                             try:
                                 if self.smtp_tls:
                                     smtp.starttls()
-                                    logger.info("settings.EMAIL_SMTP_TLS set")
+                                    logger.debug("settings.EMAIL_SMTP_TLS set")
                                 else:
-                                    logger.info("settings.EMAIL_SMTP_TLS was not set, connecting...")
+                                    logger.debug("settings.EMAIL_SMTP_TLS was not set, connecting...")
                             except:
-                                logger.info("settings.EMAIL_SMTP_TLS was not set, connecting...")
+                                logger.debug("settings.EMAIL_SMTP_TLS was not set, connecting...")
                             try:
                                 smtp.login(self.smtp_user, self.smtp_password)
                             except:
-                                logger.info("settings.EMAIL_SMTP_USER and settings.EMAIL_SMTP_PASSWORD was not set, connecting without login details...")
+                                logger.debug("settings.EMAIL_SMTP_USER and settings.EMAIL_SMTP_PASSWORD was not set, connecting without login details...")
                             smtp.sendmail(settings.EMAIL_SENDER_ADDRESS, details.recipients, message)
                             smtp.quit()
                             details.delete()
-                            logger.info("Email was sent.")
+                            logger.info("Email was sent successful.")
                         else:
-                            logger.info("Message was not created.")
+                            logger.debug("Message was not created.")
                     except:
                         logger.error("Email could not be sent. Please check settings.")
                         logger.error(traceback.format_exc())
-                logger.info("sleep...")
-                time.sleep(SLEEPTIME)
+                    logger.debug("sleep...")
+                    time.sleep(SLEEPTIME)
+                else:
+                    self.allow_thread_timeout = True
             except:
                 logger.error("!! something bad on the SENDER thread !!")
                 logger.error(traceback.format_exc())
         self.seppuku()
-        logger.info("Thread death")
+        logger.debug("Thread death")
 
     def seppuku (self):
         logger.info("Sendemail will be closed")
-        self._timeout = 0
         logger.info("Sendemail Deleted")
 
     def __del__ (self):

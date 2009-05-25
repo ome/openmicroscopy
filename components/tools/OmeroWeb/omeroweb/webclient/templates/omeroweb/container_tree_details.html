@@ -6,7 +6,7 @@
 {% if manager.project or manager.dataset or manager.image %}
     {% if manager.image %}
     <div>
-        <h1>{{ manager.image.splitedName }} (ID: {{ manager.image.id }})</h1>
+        <h1>{{ manager.image.splitedName }}</h1>
         <p>{% if not manager.image.canWrite %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.image.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ manager.image.countAnnotations }}]{% endif %}</p>
         {{ manager.image.shortDescription|default_if_none:"no description"|wikify|safe|linebreaks }}
     </div>
@@ -19,7 +19,7 @@
     {% endif %}
     {% if manager.dataset %}
     <div>
-        <h1>{{ manager.dataset.splitedName }} (ID: {{ manager.dataset.id }})</h1>
+        <h1>{{ manager.dataset.splitedName }}</h1>
         <p><img src="{% get_webclient_static_url %}/images/image12.png" title="image" alt="image"/>[{{ manager.dataset.countChild }}] {% if not manager.dataset.canWrite %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.dataset.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ manager.dataset.countAnnotations }}]{% endif %}</p>
         {{ manager.dataset.shortDescription|default_if_none:"no description"|wikify|safe|linebreaks }}
     </div>
@@ -29,7 +29,7 @@
     {% endif %}
     {% if manager.project %}
     <div>
-        <h1>{{ manager.project.splitedName }} (ID: {{ manager.project.id }})</h1>
+        <h1>{{ manager.project.splitedName }}</h1>
         <p><img src="{% get_webclient_static_url %}/images/folder_image16.png" title="image" alt="image"/>[{{ manager.project.countChild }}]{% if not manager.project.canWrite %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if manager.project.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ manager.project.countAnnotations }}]{% endif %}</p>
         {{ manager.project.shortDescription|default_if_none:"no description"|wikify|safe|linebreaks }}
     </div>
