@@ -47,7 +47,7 @@ class DatabaseControl(BaseControl):
 
     def _get_password_hash(self, root_pass = None):
 
-        root_pass = self._ask_for_password(" for new OMERO user", root_pass)
+        root_pass = self._ask_for_password(" for OMERO root user", root_pass)
 
         server_jar = self.ctx.dir / "lib" / "server" / "server.jar"
         p = omero.java.popen(["-cp",str(server_jar),"ome.security.PasswordUtil",root_pass])
