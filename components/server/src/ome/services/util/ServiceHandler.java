@@ -112,14 +112,17 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
             if (log.isInfoEnabled()) {
                 log.info(finalOutput);
             }
-            
+
             // Logging long invocations. Very long invocations are indicative
             // of a server undergoing stress.
             long time = stopWatch.getElapsedTime();
+            String msg = String.format("Method %s.%s invocation took %s",
+                                       arg0.getMethod().getDeclaringClass(),
+                                       arg0.getMethod().getName(), time);
             if (time > 10 * 1000L) {
-                log.error("Method invocation took " + time);
+                log.error(msg);
             } else if (time > 2 * 1000L) {
-                log.warn("Method invocation took " + time);
+                log.warn(msg);
             }
             cleanup();
         }

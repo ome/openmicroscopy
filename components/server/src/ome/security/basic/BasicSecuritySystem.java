@@ -310,8 +310,8 @@ public class BasicSecuritySystem implements SecuritySystem,
 
         if (!ec.getMemberOfGroupsList().contains(grp.getId())) {
             throw new SecurityViolation(String.format(
-                    "User %s is not a member of group %s", p.getName(), p
-                            .getGroup()));
+                    "User is not a member of group %s and cannot login"
+                            p.getGroup()));
         }
         tokenHolder.setToken(grp.getGraphHolder());
 
