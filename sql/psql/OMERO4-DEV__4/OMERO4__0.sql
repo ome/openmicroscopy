@@ -4,16 +4,23 @@
 --
 
 --
--- OMERO-Beta4.1 release.
+-- OMERO-Beta4.1 release
+--
+-- UNDERDEVELOPMENT DO NOT USE !!!
 --
 BEGIN;
 
--- Check that we are only applying this against OMERO4__0
+--
+-- OMERO-Beta4.1 release.
+--
+BEGIN;
 
 CREATE OR REPLACE FUNCTION omero_assert_omero4_0() RETURNS void AS '
 DECLARE
     rec RECORD;
 BEGIN
+
+    RAISE EXCEPTION ''UNDERDEVELOPMENT: If you want to test this script, comment this line. Aborting...'';
 
     SELECT INTO rec *
            FROM dbpatch
@@ -30,7 +37,7 @@ SELECT omero_assert_omero4_0();
 DROP FUNCTION omero_assert_omero4_0();
 
 INSERT into dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             values ('OMERO4',       1,              'OMERO4',            0);
+             values ('OMERO4-DEV',   4,              'OMERO4',            0);
 
 
 ALTER TABLE password add PRIMARY KEY (experimenter_id);
@@ -290,8 +297,8 @@ CREATE TRIGGER shape_roi_index_trigger
     FOR EACH ROW EXECUTE PROCEDURE shape_roi_index_move ();
 
 UPDATE dbpatch set message = 'Database updated.', finished = now()
- WHERE currentVersion  = 'OMERO4'     and
-          currentPatch    = 1         and
+ WHERE currentVersion  = 'OMERO4-DEV' and
+          currentPatch    = 4         and
           previousVersion = 'OMERO4'  and
           previousPatch   = 0;
 
