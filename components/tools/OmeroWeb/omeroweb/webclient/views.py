@@ -2789,11 +2789,8 @@ def myaccount(request, action=None, **kwargs):
             email = request.REQUEST['email'].encode('utf-8')
             institution = request.REQUEST['institution'].encode('utf-8')
             defaultGroup = request.REQUEST['default_group']
-            try:
-                password = str(request.REQUEST['password'].encode('utf-8'))
-                if len(password) == 0:
-                    password = None
-            except:
+            password = request.REQUEST['password'].encode('utf-8')
+            if len(password) == 0:
                 password = None
             controller.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
             return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBCLIENT_ROOT_BASE))

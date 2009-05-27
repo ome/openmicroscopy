@@ -201,7 +201,7 @@ class BaseExperimenter(BaseController):
                     pass
                 elif long(og) == g.id:
                     listOfGroups.add(g._obj)
-        self.conn.createExperimenter(new_exp, defaultGroup, list(listOfGroups), rstring(str(password)))
+        self.conn.createExperimenter(new_exp, defaultGroup, list(listOfGroups), password)
     
     def updateExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, middleName=None, institution=None, password=None):
         up_exp = self.experimenter._obj
@@ -270,7 +270,7 @@ class BaseExperimenter(BaseController):
             if not flag:
                 add_grs.append(ngr)
         
-        self.conn.updateExperimenter(up_exp, defaultGroup, add_grs, rm_grs, rstring(str(password)))
+        self.conn.updateExperimenter(up_exp, defaultGroup, add_grs, rm_grs, password)
     
     def deleteExperimenter(self):
         self.conn.deleteExperimenter(self.experimenter._obj)
