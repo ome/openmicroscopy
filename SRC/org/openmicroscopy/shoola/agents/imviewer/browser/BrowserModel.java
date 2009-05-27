@@ -31,8 +31,13 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import javax.swing.Icon;
 
 //Third-party libraries
@@ -77,6 +82,18 @@ class BrowserModel
 	
 	/** Channel prefix. */
 	private static final String PREFIX ="w=";
+	
+	/** Red Colour index. */
+	private static final Integer RED_INDEX = 0;
+	
+	/** Green Colour index. */
+	private static final Integer GREEN_INDEX = 1;
+	
+	/** Blue Colour index. */
+	private static final Integer BLUE_INDEX = 2;
+	
+	/** Non-Primary Colour index. */
+	private static final Integer NON_PRIMARY_INDEX = -1;
 	
 	/** Gap between the images. */
 	static final int 			GAP = 2;
@@ -217,6 +234,54 @@ class BrowserModel
 		return (n == rgb.size());
     }
     
+    /**
+     * map the colour channel R==RED_INDEX, B==BLUE_INDEX, G==GREEN_INDEX and
+     * non primary colours map to NON_PRIMARY_COLOUR.
+     * @param channel
+     * @return see above.
+     */
+    private Integer colourIndex(int channel)
+    {
+    	if(parent.isChannelBlue(channel))
+    		return BLUE_INDEX;
+    	if(parent.isChannelRed(channel))
+    		return RED_INDEX;
+    	if(parent.isChannelGreen(channel))
+    		return GREEN_INDEX;
+    	return NON_PRIMARY_INDEX;
+    }
+    
+    /**
+     * Returns <code>true</code> if the active channels are mapped
+     * to <code>Red</code>, <code>Green</code> or <code>Blue</code>,
+     * <code>false</code> only and exclusively, if the number of active
+     * channels is 0 or greater than 3.
+     * 
+     * @param channels The collection of channels to handle.
+     * @return See above.
+     */
+    private boolean isImageMappedRGB(List channels)
+    {
+    	if(!isImageRGB(channels)) return false;
+    	Set<Integer> rgb = new HashSet<Integer>();
+    	int cIndex;
+    	int index;
+		Iterator i = channels.iterator();
+    	while (i.hasNext()) {
+			index = (Integer) i.next();
+			cIndex = colourIndex(index);
+			if(cIndex != NON_PRIMARY_INDEX)
+			{
+				if(rgb.contains(cIndex))
+					return false;
+				else
+					rgb.add(cIndex);
+			}
+		}
+    	return true;
+    	
+    }
+    
     /** 
      * Creates the images composing the grid when the color model
      * is <code>GreyScale</code>.
@@ -236,7 +301,7 @@ class BrowserModel
 			case 1:
 			case 2:
 			case 3:
-				if (isImageRGB(l)) {
+				if (isImageMappedRGB(l)) {
 					BufferedImage  image = parent.getCombinedGridImage();
 					if (image == null) {
 						for (int i = 0; i < maxC; i++) 
@@ -324,7 +389,7 @@ class BrowserModel
         		gridImages.add(Factory.magnifyImage(gridRatio, 
         					(BufferedImage) i.next()));
     		}
-        	if (originalGridImages.size() == 0 && !isImageRGB(channels)) {
+        	if (originalGridImages.size() == 0 && !isImageMappedRGB(channels)) {
         		i = images.iterator();
 	        	while (i.hasNext()) {
 	        		originalGridImages.add((BufferedImage) i.next());
@@ -377,7 +442,7 @@ class BrowserModel
 			case 1:
 			case 2:
 			case 3:
-				if (isImageRGB(l)) {
+				if (isImageMappedRGB(l)) {
 					//if (combinedImage == null) 
 						combinedImage = Factory.magnifyImage(gridRatio, 
 								renderedImage);
@@ -974,7 +1039,7 @@ class BrowserModel
 			case 2:
 			case 3:
 				//TODO: Review that code.
-				if (isImageRGB(parent.getActiveChannels())) {
+				if (isImageMappedRGB(parent.getActiveChannels())) {
 					createGridImages(); 
 				} else {
 					combinedImage = Factory.magnifyImage(gridRatio, 
