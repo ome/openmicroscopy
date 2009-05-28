@@ -93,8 +93,8 @@ public abstract class AbstractTreeEditAction
 	 */
 	protected void refreshState() 
 	{
-		int state = model.getState();
-		if (state == Browser.TREE_DISPLAY) {
+		int state = model.getEditingMode();
+		if (model.isFileLocked() || state == Browser.EDIT_EXPERIMENT) {
 			setEnabled(false);
 		}
 		else {

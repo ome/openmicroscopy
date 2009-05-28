@@ -119,9 +119,8 @@ public class EditableTree
 	    TreeCellEditor editor = new DefaultTreeCellEditor(this, 
 	    		fieldRenderer, fieldEditor);
 	    setCellEditor(editor);
-		
-		setEditable(false);
 	}
+
 	
 	/**
 	 * Every selection change in the nav Tree is mimicked by this tree view,

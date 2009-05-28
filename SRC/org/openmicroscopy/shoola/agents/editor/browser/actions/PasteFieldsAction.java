@@ -80,8 +80,8 @@ public class PasteFieldsAction
 	{
 		setEnabled(true);
 		
-		int state = model.getState();
-		if (state == Browser.TREE_DISPLAY) {
+		int state = model.getEditingMode();
+		if (model.isFileLocked() || state == Browser.EDIT_EXPERIMENT) {
 			setEnabled(false);
 		}
 		if (treeUI == null) {

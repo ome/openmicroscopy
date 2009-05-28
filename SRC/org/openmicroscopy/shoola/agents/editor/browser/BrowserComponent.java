@@ -74,7 +74,8 @@ public class BrowserComponent
     {
     	this.model = model;
     	controller = new BrowserControl(this);
-        view = new BrowserUI();
+    	// Browser ref allows UI components to listen for changes to browser
+        view = new BrowserUI(this);		
     }
     
     /** 
@@ -126,8 +127,36 @@ public class BrowserComponent
 	{
 		model.setEdited(edited);
 		fireStateChange();
-		firePropertyChange(BROWSER_EDIT_PROPERTY, -1, model.getState());
+		firePropertyChange(BROWSER_EDIT_PROPERTY, -1, model.getSavedState());
 	}
+	
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setEditingMode(int)
+     */
+	public void setEditingMode(int editingMode) 
+	{
+		model.setEditingMode(editingMode);
+		fireStateChange();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+     * Allows the file to be locked to prevent editing. 
+     * @param locked
+     */
+    public void setFileLocked(boolean locked) 
+    {
+    	model.setFileLocked(locked);
+    	fireStateChange();	// update Actions etc. 
+    }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * Returns true if the file is locked. 
+     * @return	see above. 
+     */
+    public boolean isFileLocked()	{ return model.isFileLocked(); }
 	
 	/**
      * Implemented as specified by the {@link Browser} interface.
@@ -152,8 +181,14 @@ public class BrowserComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#getState()
+	 * @see Browser#getEditingMode()
 	 */
-	public int getState() { return model.getState(); }
+	public int getEditingMode() { return model.getEditingMode(); }
+	
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getEditingMode()
+	 */
+	public int getSavedState() { return model.getSavedState(); }
 	
 }

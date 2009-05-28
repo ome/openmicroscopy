@@ -39,6 +39,8 @@ import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -76,7 +78,8 @@ public class TextAreasView
 	extends JPanel 
 	implements Scrollable,
 	TreeModelListener,
-	TreeSelectionListener
+	TreeSelectionListener,
+	ChangeListener
 	{
 	
 	/**
@@ -94,6 +97,9 @@ public class TextAreasView
 	 * This class is a {@link TreeModelListener} of this treeModel. 
 	 */
 	private TreeModel 			treeModel;
+	
+	/** The Browser model. Add change listeners etc. */
+	private Browser 			model;
 	
 	/**
 	 * A collection of all the fields displayed, mapped to their path in the
@@ -191,7 +197,17 @@ public class TextAreasView
 		}
 	}
 	
-	
+	private void refreshEnabled()
+	{
+		Component comp;
+		for (int i=0; i<getComponentCount(); i++) {
+			comp = getComponent(i);
+			if (comp instanceof FieldTextArea) {
+				// refresh selection of all steps...
+				((FieldTextArea)comp).refreshEnabled();
+			}
+		}
+	}
 
 	/**
 	 * Creates an instance. 
@@ -199,11 +215,15 @@ public class TextAreasView
 	 * @param tree			Navigation tree for selection
 	 * @param controller	Controller for edits.
 	 */
-	TextAreasView(JTree tree, BrowserControl controller) 
+	TextAreasView(JTree tree, BrowserControl controller, Browser model) 
 	{
 		this.navTree = tree;
 		this.controller = controller;
+		this.model = model;
 		
+		if (model != null) {
+			model.addChangeListener(this);
+		}
 		textAreas = new HashMap<TreePath, FieldTextArea>();
 		
 		if (navTree != null) {
@@ -355,6 +375,15 @@ public class TextAreasView
 	 */
 	public void valueChanged(TreeSelectionEvent e) {
 		refreshSelection();
+	}
+
+	/**
+	 * Implemented as specified by the {@link ChangeListener} interface.
+	 * Allows this class to respond to changes from {@link Browser}. 
+	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 */
+	public void stateChanged(ChangeEvent e) {
+		refreshEnabled();
 	}
 
 }

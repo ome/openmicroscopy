@@ -477,7 +477,8 @@ class EditorModel
 	 */
 	boolean hasDataToSave() 
 	{
-		return (browser != null  &&  browser.getState() == Browser.TREE_EDITED);
+		return (browser != null  &&  
+				browser.getSavedState() == Browser.TREE_EDITED);
 	}
 
 	/**

@@ -58,16 +58,20 @@ public interface Browser
 	 * changed.
 	 */
 	public static final String BROWSER_EDIT_PROPERTY = "browserEdit";
+
+	/**
+	 * A Flag to denote the <i>Editing</i> mode.
+	 * Specifies that the protocol is editable (and Experimental values
+	 * may or may not be editable). 
+	 */
+	public static final int EDIT_PROTOCOL = 1;
 	
 	/**
-	 * A Flag to denote the <i>Display</i> state.
-	 * Specifies that the UI should be for tree display only,
-	 * not for editing.
-	 * Editing Actions will be disabled if this state is set.
-	 * However, the setting of this state is currently not implemented, 
-	 * since there is no reason to disable editing.
+	 * A Flag to denote the <i>Editing</i> mode.
+	 * Specifies that the experiment is editable (and Protocol 
+	 * should not be editable). 
 	 */
-	public static final int TREE_DISPLAY = 0;
+	public static final int EDIT_EXPERIMENT = 2;
 	
 	/**
 	 * A Flag to denote that the tree is editable, and is currently in 
@@ -75,13 +79,16 @@ public interface Browser
 	 * This specifies that the UI should be for tree editing, not
 	 * simply display.
 	 */
-	public static final int TREE_SAVED = 1;
+	public static final int TREE_SAVED = 3;
 	
 	/**
 	 * This state indicates that the tree has been edited.
 	 * E.g. users will be asked if they want to save before quitting. 
 	 */
-	public static final int TREE_EDITED = 2;
+	public static final int TREE_EDITED = 4;
+	
+	
+	
 	
     /**
      * Sets a new treeModel for the browser. 
@@ -121,6 +128,12 @@ public interface Browser
     public void setEdited(boolean editable);
     
     /**
+     * Sets the Editing mode of the Browser. Either
+	 * {@link #EDIT_EXPERIMENT} or {@link #EDIT_PROTOCOL}
+     */
+	public void setEditingMode(int editingMode);
+    
+    /**
      * Sets the ID of the original file (on server) that is currently being
      * displayed. Allows the Browser to display this ID. 
      * 
@@ -129,11 +142,20 @@ public interface Browser
     public void setId(long id);
     
     /**
-	 * Queries the current state.
+	 * Queries the current editing mode. Returns {@link #FILE_LOCKED}, 
+	 * {@link #EDIT_EXPERIMENT} or {@link #EDIT_PROTOCOL}
 	 * 
-	 * @return One of the state flags defined by this interface.
+	 * @return see above.
 	 */
-	public int getState();
+	public int getEditingMode();
+	
+	/**
+	 * Queries the current saved state. 
+	 * Either {@link #TREE_EDITED} or {@link #TREE_SAVED}
+	 * 
+	 * @return One of the flags above
+	 */
+	public int getSavedState();
 	
 	/**
 	 * Returns true if we are currently editing an Experiment, otherwise 
@@ -142,5 +164,17 @@ public interface Browser
 	 * @return		see above.
 	 */
 	public boolean isModelExperiment();
+	
+	/**
+     * Allows the file to be locked to prevent editing. 
+     * @param locked
+     */
+    public void setFileLocked(boolean locked);
+    
+    /**
+     * Returns true if the file is locked. 
+     * @return	see above. 
+     */
+    public boolean isFileLocked();
 
 }

@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.ClearValuesEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.TreeEdit;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.UndoableTreeEdit;
 
 /** 
  * This Action clears the values of parameters. 
@@ -103,5 +104,28 @@ implements TreeEdit
 	 */
 	protected boolean canDo() {
 		return true;
+	}
+	
+	/**
+	 * Refreshes the enabled state of the Action, based on the current 
+	 * state of the {@link Browser}, and the result of 
+	 * {@link UndoableTreeEdit#canDo()}, which is based on the current
+	 * JTree selection paths. 
+	 * 
+	 * @see UndoableTreeEdit#canDo()
+	 */
+	protected void refreshState() 
+	{
+		int state = model.getEditingMode();
+		if (model.isFileLocked() || state == Browser.EDIT_PROTOCOL) {
+			setEnabled(false);
+		}
+		else {
+			if (treeUI == null) {
+				setEnabled(false);
+			} else {
+				setEnabled(canDo());
+			}
+		}
 	}
 }

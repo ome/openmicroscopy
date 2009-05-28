@@ -49,8 +49,11 @@ import org.openmicroscopy.shoola.agents.editor.model.ExperimentInfo;
 class BrowserModel
 {
     
-	/** Holds one of the state flags defined by {@link Browser}. */
-	private int					state;
+	/** Is the file locked? */
+	private boolean				fileLocked;
+	
+	/** Either {@link Browser#TREE_EDITED} or {@link Browser#TREE_SAVED} */
+	private int					savedState;
 	
 	/**
 	 * If the file is saved to the server, this ID will be the ID of the
@@ -69,16 +72,19 @@ class BrowserModel
     /** The type of browser. */
     private int 				type;
     
+    
     /**
      * Creates an instance. 
      * 
-     * @param state	The editing state of the browser. 
-     * 				One of the flags defined by the {@link Browser} interface.
+     * @param state	The editing mode of the browser. 
+     * 				Either {@link Browser#EDIT_EXPERIMENT} or 
+     * 				{@link Browser#EDIT_PROTOCOL}
      * @param type 
      */
     BrowserModel(int state, int type) 
     {
-    	this.state = state;
+    	setEditingMode(state);
+    	this.savedState = Browser.TREE_SAVED;
     	this.type = type;
     }
     
@@ -105,14 +111,40 @@ class BrowserModel
     void setTreeModel(TreeModel model) 
     {
     	this.treeModel = model;
+    	// if the model is an experiment, file is locked by default. 
+    	if (isModelExperiment()) {
+    		setEditingMode(Browser.EDIT_EXPERIMENT);
+    		fileLocked = true;
+    	}
     }
     
     /**
-	 * Returns the current state.
+	 * Returns the current state. Either {@link Browser#EDIT_EXPERIMENT} or 
+     * {@link Browser#EDIT_PROTOCOL}. 
+     * If we are not currently editing an Experiment, this will return 
+     * {@link Browser#EDIT_PROTOCOL}. Otherwise, this method delegates to 
+     * the {@link ExperimentInfo}.
+	 * 
+	 * @return see above
+	 */
+	int getEditingMode() { 
+		
+		if (isModelExperiment()) {
+			if ("true".equals(ExperimentInfo.getExpInfo(treeModel).
+					getAttribute(ExperimentInfo.EDIT_PROTOCOL))) 
+					return Browser.EDIT_PROTOCOL;
+			else return Browser.EDIT_EXPERIMENT;
+		}
+			
+		return Browser.EDIT_PROTOCOL;
+	}
+	
+	/**
+	 * Returns the current saved state.
 	 * 
 	 * @return One of the flags defined by the {@link Browser} interface.  
 	 */
-	int getState() { return state; }  
+	int getSavedState() { return savedState; }  
 	
 	/**
      * Sets the Edited state of the Browser.
@@ -123,14 +155,47 @@ class BrowserModel
     void setEdited(boolean edited)
     {
     	
-    	if (edited)  state = Browser.TREE_EDITED;
-    	else state = Browser.TREE_SAVED;
+    	if (edited)  savedState = Browser.TREE_EDITED;
+    	else savedState = Browser.TREE_SAVED;
     	
     	// notify listeners of changes to the model 
     	// when file saved (eg Exp-Info last-saved date)
     	if (!edited) {
     		DefaultTreeModel d = ((DefaultTreeModel) treeModel);
     		d.nodeChanged((TreeNode) d.getRoot());
+    	}
+    }
+    
+    /**
+     * Allows the file to be locked to prevent editing. 
+     * @param locked
+     */
+    void setFileLocked(boolean locked) 
+    {
+    	fileLocked = locked;
+    }
+    
+    /**
+     * Returns true if the file is locked. 
+     * @return	see above. 
+     */
+    boolean isFileLocked()	{ return fileLocked; }
+    
+    /**
+     * Sets the editing mode. Either
+     * {@link Browser#EDIT_EXPERIMENT} or {@link Browser#EDIT_PROTOCOL}
+     * @param mode	see above
+     */
+    void setEditingMode(int mode) 
+    {
+    	if (isModelExperiment()) {
+    		if (mode == Browser.EDIT_PROTOCOL) {
+    			ExperimentInfo.getExpInfo(treeModel).setAttribute
+    				(ExperimentInfo.EDIT_PROTOCOL, "true");
+    		} else {
+    			ExperimentInfo.getExpInfo(treeModel).setAttribute
+					(ExperimentInfo.EDIT_PROTOCOL, "false");
+    		}
     	}
     }
     

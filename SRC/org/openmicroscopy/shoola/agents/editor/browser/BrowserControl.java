@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.agents.editor.browser.actions.AddTextBoxFieldAc
 import org.openmicroscopy.shoola.agents.editor.browser.actions.ClearValuesAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.CopyFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.DeleteFieldsAction;
-import org.openmicroscopy.shoola.agents.editor.browser.actions.EditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.IndentLeftAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.IndentRightAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.MoveDownAction;
@@ -105,9 +104,6 @@ public class BrowserControl
 	
 	public static final int 		TEXT_VIEW = 1;
 	
-
-	/** Identifies the <code>Edit</code> action. */
-	static final Integer    EDIT = Integer.valueOf(0);
 	
 	/** Identifies the <code>Undo</code> action. */
 	static final Integer    UNDO_ACTION = Integer.valueOf(1);
@@ -183,7 +179,7 @@ public class BrowserControl
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
-       actionsMap.put(EDIT, new EditAction(model));
+       // actionsMap.put(EDIT, new EditAction(model));
        actionsMap.put(UNDO_ACTION, new UndoEditAction(
     		   undoManager, undoSupport, model));
        actionsMap.put(REDO_ACTION, new RedoEditAction(
@@ -616,5 +612,42 @@ public class BrowserControl
 	 */
 	public void undoRedoPerformed() {
 		fileEdited();
+	}
+	
+	/**
+	 * Delegates to the {@link Browser} to set lock to prevent file editing.
+	 * @param locked
+	 */
+	void setFileLocked(boolean locked) {
+		model.setFileLocked(locked);
+	}
+	
+	/**
+	 * Delegates to the {@link Browser} to determine whether file is locked.
+	 * @return	true if file is locked. 
+	 */
+	boolean isFileLocked() 
+	{
+		return model.isFileLocked();
+	}
+	
+	/**
+	 * Sets the Editing mode of the Browser. Either
+	 * {@link #EDIT_EXPERIMENT} or {@link #EDIT_PROTOCOL}
+	 * @param editingMode	see above
+	 */
+	void setEditingMode(int editingMode) 
+	{
+		model.setEditingMode(editingMode);
+	}
+	
+	/**
+	 * Gets the Editing mode of the Browser. Either
+	 * {@link #EDIT_EXPERIMENT} or {@link #EDIT_PROTOCOL}
+	 * @return		see above. 
+	 */
+	int getEditingMode() 
+	{
+		return model.getEditingMode();
 	}
 }

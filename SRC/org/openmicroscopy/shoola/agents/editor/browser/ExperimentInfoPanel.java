@@ -42,6 +42,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -79,7 +80,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * A Panel to display experimental info (IF we're editing an experiment). 
- * Otherwise this panel is hidden. 
+ * Otherwise this panel is hidden, apart from a "File-locked" control. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -118,6 +119,10 @@ public class ExperimentInfoPanel
 	/** The Experiment Info object. Holds exp info. */
 	IAttributes					field;
 	
+	
+	private JPanel 				expInfoPanel;
+	
+	
 	/** A count of the number of unfilled parameters */
 	private int 				unfilledParams;
 	
@@ -141,6 +146,12 @@ public class ExperimentInfoPanel
 	
 	/** Label to display the last modified timestamp of the file. */
 	private JLabel				lastModifiedLabel;
+	
+	/** The UI for editing file-locked vv edit-protocol vv edit experiment */
+	private	EditingModeUI 		editingMode;
+	
+	/** Allows setting of the file-locked state */
+	private	JCheckBox 			fileLockedCheckBox;
 	
 	/**
 	 *  A list of the unfilled steps in the experiment. Allows user to 
@@ -180,6 +191,9 @@ public class ExperimentInfoPanel
 	 */
 	private void initialise() 
 	{
+		// the main panel for showing all experimental info. 
+		expInfoPanel = new JPanel();
+		
 		datePicker = UIUtilities.createDatePicker();
 		datePicker.setFont(new CustomFont());
 		datePicker.addActionListener(this);
@@ -221,13 +235,15 @@ public class ExperimentInfoPanel
 	private void buildUI() 
 	{
 		// only set to true if we have experimental info to display
-		setVisible(false);
+		expInfoPanel.setVisible(false);
 		
 		setLayout(new BorderLayout());
-		setBackground(LIGHT_YELLOW);
+		
+		expInfoPanel.setLayout(new BorderLayout());
+		expInfoPanel.setBackground(LIGHT_YELLOW);
 		Border lineBorder = BorderFactory.createMatteBorder(1, 1, 0, 1,
 	             UIUtilities.LIGHT_GREY.darker());
-		setBorder(lineBorder);
+		expInfoPanel.setBorder(lineBorder);
 		
 		Border eb = new EmptyBorder(5,5,5,5);
 		
@@ -258,11 +274,12 @@ public class ExperimentInfoPanel
 		Box titleToolBar = Box.createHorizontalBox();
 		experiment.setAlignmentY(Component.TOP_ALIGNMENT);
 		titleToolBar.add(experiment);
+		
 		titleToolBar.add(Box.createHorizontalGlue());
 		rightToolBar.setAlignmentY(Component.TOP_ALIGNMENT);
 		titleToolBar.add(rightToolBar);
 		
-		add(titleToolBar, BorderLayout.NORTH);
+		expInfoPanel.add(titleToolBar, BorderLayout.NORTH);
 		
 		
 		// left Panel
@@ -310,8 +327,18 @@ public class ExperimentInfoPanel
 		rightPanel.add(unfilledParamsLabel);
 		rightPanel.add(stepButtonsBox);
 		
-		add(leftPanel, BorderLayout.WEST);
-		add(rightPanel, BorderLayout.EAST);
+		editingMode = new EditingModeUI(controller);
+		editingMode.setAlignmentX(Component.LEFT_ALIGNMENT);
+		rightPanel.add(editingMode);
+		
+		expInfoPanel.add(leftPanel, BorderLayout.WEST);
+		expInfoPanel.add(rightPanel, BorderLayout.EAST);
+		
+		fileLockedCheckBox = new JCheckBox("File Locked");
+		fileLockedCheckBox.addActionListener(this);
+		
+		add(expInfoPanel, BorderLayout.CENTER);
+		add(fileLockedCheckBox, BorderLayout.SOUTH);
 	}
 
 	/**
@@ -328,7 +355,8 @@ public class ExperimentInfoPanel
 		Object userOb = node.getUserObject();
 		if (!(userOb instanceof ProtocolRootField)) return;
 		ProtocolRootField prf = (ProtocolRootField)userOb;
-		field = prf.getExpInfo();
+		
+		field = ExperimentInfo.getExpInfo(treeModel);
 		
 		// add details (name and date)
 		if (field != null) {
@@ -354,9 +382,9 @@ public class ExperimentInfoPanel
 				millis = new Long(lastModDate);
 				d.setTime(millis);
 				date = timeStamp.format(d);
-				lastModifiedLabel.setText("Last edited: " + date); 
+				lastModifiedLabel.setText("Last saved: " + date); 
 			} catch (NumberFormatException ex) {
-				lastModifiedLabel.setText("Last edited: " + date); 
+				lastModifiedLabel.setText("Last saved: " + date); 
 			}
 			
 			// nameEditor may not have been created yet. 
@@ -383,10 +411,14 @@ public class ExperimentInfoPanel
 			
 			selectCurrentStep();
 			
-			setVisible(true);
+			editingMode.refresh();
+			
+			refreshFileLocked();
+			
+			expInfoPanel.setVisible(true);
 		}
 		else 
-			setVisible(false);
+			expInfoPanel.setVisible(false);
 		
 		revalidate();
 		repaint();
@@ -531,6 +563,16 @@ public class ExperimentInfoPanel
 	}
 	
 	/**
+	 * Called by the {@link BrowserUI} when the model's locked status changes.
+	 */
+	void refreshFileLocked() 
+	{
+		fileLockedCheckBox.removeActionListener(this);
+		fileLockedCheckBox.setSelected(controller.isFileLocked());
+		fileLockedCheckBox.addActionListener(this);
+	}
+	
+	/**
 	 * Implemented as specified by the {@link TreeModelListener} interface.
 	 * Calls {@link #refreshPanel()} when the tree model changes. 
 	 * 
@@ -577,6 +619,11 @@ public class ExperimentInfoPanel
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) {
+		
+		if (fileLockedCheckBox.equals(e.getSource())) {
+			controller.setFileLocked(fileLockedCheckBox.isSelected());
+			return;
+		}
 		
 		String cmd = e.getActionCommand();
 		int stepCount = unfilledSteps.size();

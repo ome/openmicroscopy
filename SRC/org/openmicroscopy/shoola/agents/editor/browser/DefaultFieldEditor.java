@@ -84,6 +84,7 @@ public class DefaultFieldEditor
     /**
      * This will always return true.
      * Fields are always editable.
+     * This method will not get called if the tree is not editable. 
      * 
      * @see AbstractCellEditor#isCellEditable(EventObject)
      */

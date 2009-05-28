@@ -47,14 +47,14 @@ public class BrowserFactory
      * Creates a new {@link Browser}, with a UI either for disply or editing
      * of the Tree data. 
      * 
-     * @param viewingState Either {@link Browser#TREE_DISPLAY},
-     * 					{@link Browser#TREE_EDIT}, or {@link Browser#TREE_SAVED}.
+     * @param editingMode Either {@link Browser#FILE_LOCKED},
+     * 		{@link Browser#EDIT_EXPERIMENT}, or {@link Browser#EDIT_PROTOCOL}.
      * 
      * @return A browser component. 
      */
-    public static Browser createBrowser(int viewingState, int type)
+    public static Browser createBrowser(int editingMode, int type)
     {
-        BrowserModel model = new BrowserModel(viewingState, type);
+        BrowserModel model = new BrowserModel(editingMode, type);
         BrowserComponent component = new BrowserComponent(model);
         model.initialize(component);
         component.initialize();
@@ -70,7 +70,13 @@ public class BrowserFactory
      */
     public static Browser createBrowser(int type)
     {
-    	return createBrowser(Browser.TREE_SAVED, type);
+    	int editingMode;
+    	if (type == Browser.EXPERIMENT) 
+    		editingMode = Browser.EDIT_EXPERIMENT;
+    	else 
+    		editingMode = Browser.EDIT_PROTOCOL;
+    	
+    	return createBrowser(editingMode, type);
     }
     
 }

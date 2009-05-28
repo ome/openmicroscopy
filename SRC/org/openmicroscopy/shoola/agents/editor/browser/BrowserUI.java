@@ -62,7 +62,14 @@ class BrowserUI
 	extends JPanel
 	implements ChangeListener 
 {
-	
+	    /** The Controller. */
+    private BrowserControl  		controller;
+    
+    /** The model. */
+    private BrowserModel    		model;
+    
+    private Browser					browser;
+    
 	/** The title of the tree tabbed pane. */
 	private static final String 		TREE_VIEW = "Tree View";
 	
@@ -85,7 +92,7 @@ class BrowserUI
      * the selected field. 
      * The {@link #editorPanel} is not visible if Editing of the tree is
      * disabled (ie. if the {@link Browser} is in the 
-     * {@link Browser#TREE_DISPLAY} state.
+     * {@link Browser#FILE_LOCKED} state.
      */
     private FieldEditorDisplay 		editorPanel;
     
@@ -102,11 +109,7 @@ class BrowserUI
      */
     private JTabbedPane 			tabbedPane;
     
-    /** The Controller. */
-    private BrowserControl  		controller;
-    
-    /** The model. */
-    private BrowserModel    		model;
+
     
     /** A panel to display experimental info in the text tab-pane */
     private ExperimentInfoPanel		expInfoText;
@@ -132,13 +135,11 @@ class BrowserUI
     	navTree = new NavTree();
     	treeDisplay = new EditableTree(controller, navTree);
     	
-    	textView = new TextAreasView(navTree, controller);
+    	// passed a reference to Browser to listen for changes
+    	textView = new TextAreasView(navTree, controller, browser);
     	
     	metadataUI = new MetadataUI(this, model.getTreeModel(), controller);
     	
-    	int state = model.getState();
-    	if (state == Browser.TREE_SAVED)
-    		treeDisplay.setEditable(true);
     	
 		ToolTipManager.sharedInstance().registerComponent(treeDisplay);
 		ToolTipManager.sharedInstance().registerComponent(navTree);
@@ -243,8 +244,11 @@ class BrowserUI
      * The {@link #initialize(BrowserControl, BrowserModel) initialize} method
      * should be called straight after to link this View to the Controller.
      */
-    BrowserUI()
+    BrowserUI(Browser browser)
     {
+    	if (browser == null) throw new NullPointerException("No browser.");
+    	this.browser = browser;
+    	browser.addChangeListener(this);	// listen for change in locked
     }
     
     /**
@@ -330,13 +334,21 @@ class BrowserUI
 
     /**
      * Implemented as specified by the {@link ChangeListener} interface.
-     * Responds to changes in the tabbed pane.
-     * Calls {@link #updateViewingMode()}
+     * Responds to changes in the tabbed pane, and locked status.
      * 
      * @see ChangeListener#stateChanged(ChangeEvent)
      */
     public void stateChanged(ChangeEvent e) {
-    	updateViewingMode();
+    	if (e.getSource() == null)	return;
+    	
+    	if (e.getSource().equals(tabbedPane))
+    		updateViewingMode();
+    	
+    	else if (e.getSource().equals(browser)) {
+    		treeDisplay.setEditable(! browser.isFileLocked());
+    		expInfoTree.refreshFileLocked();
+    		expInfoText.refreshFileLocked();
+    	}
 	}
     
 }

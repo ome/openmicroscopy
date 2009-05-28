@@ -80,17 +80,13 @@ public class CopyFieldsAction
 	 * {@link #model} and the selection state of {@link #treeUI}
 	 */
 	private void refreshState() {
-		int state = model.getState();
-		if (state == Browser.TREE_DISPLAY) {
-			setEnabled(false);
-		}
-		else {
+		
 			if (treeUI != null) {
 				setEnabled(treeUI.getSelectionCount() > 0);
 			} else {
 				setEnabled(false);
 			}
-		}
+		
 	}
 
 	/**

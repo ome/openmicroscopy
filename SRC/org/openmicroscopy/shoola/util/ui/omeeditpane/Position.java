@@ -89,7 +89,7 @@ public class Position
 	 * @param p1 See above.
 	 * @return See above.
 	 */
-	boolean contains(int p0, int p1) { return (start <= p0 && end >= p1); }
+	public boolean contains(int p0, int p1) { return (start <= p0 && end >= p1); }
 
 	/**
 	 * Returns <code>true</code> if the position contains position

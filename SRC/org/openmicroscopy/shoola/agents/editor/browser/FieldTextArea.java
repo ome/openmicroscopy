@@ -248,7 +248,8 @@ public class FieldTextArea
 		
 		int indent = 5 + treeNode.getLevel() * 14;	// indent according to hierarchy
 		Border emptyBorder = new EmptyBorder(7,indent,7,7);
-		Border lb = BorderFactory.createLineBorder(org.openmicroscopy.shoola.util.ui.UIUtilities.LIGHT_GREY);
+		Border lb = BorderFactory.createLineBorder(
+				org.openmicroscopy.shoola.util.ui.UIUtilities.LIGHT_GREY);
 		selectedBorder = BorderFactory.createCompoundBorder(lb, emptyBorder);
 		lb = BorderFactory.createLineBorder(Color.white);
 		unselectedBorder = BorderFactory.createCompoundBorder(lb, emptyBorder);
@@ -260,6 +261,7 @@ public class FieldTextArea
 		// button for adding paramters. 
 		addParamButton = new CustomButton(addParamIcon);
 		addParamButton.setToolTipText(addParamToolTip);
+		addParamButton.setFocusable(false);
 		addParamButton.addActionListener(this);
 		
 		// merely indicates that this step has notes. No function yet. 
@@ -494,6 +496,29 @@ public class FieldTextArea
 				imagePanel.add(new ImagePreview(r));
 			}
 		}
+	}
+	
+	/**
+	 * Refreshes the enabled state of the button(s) depending on the selection
+	 * state and file-locked and protocol vv experiment editing etc. 
+	 */
+	private void refreshButtonEnabled()
+	{
+		// if editing is not allowed, disable button
+		if (controller.isFileLocked() || 
+				controller.getEditingMode() == Browser.EDIT_EXPERIMENT) {
+			addParamButton.setEnabled(false);
+			return;
+		}
+		// if not selected, disable
+		if (! isFieldSelected()) {
+			addParamButton.setEnabled(false);
+			return;
+		}
+		// otherwise depends on char position
+		int c = contentEditor.getCaretPosition();
+		boolean p = contentEditor.isOffsetWithinTag(c, FieldTextArea.PARAM_TAG);
+		addParamButton.setEnabled(! p);
 	}
 	
 	private String getNameHtml()
@@ -780,7 +805,6 @@ public class FieldTextArea
 				selected = false;
 			}
 		}
-		addParamButton.setEnabled(selected);
 	}
     
     /**
@@ -807,10 +831,9 @@ public class FieldTextArea
     		Point mouseLoc = e.getPoint();
     		int c = contentEditor.viewToModel(mouseLoc);
     		
-    		// if click is on a parameter...
-    		if (contentEditor.isOffsetWithinTag(c, FieldTextArea.PARAM_TAG)) {
-    			// disable add-param button
-    			addParamButton.setEnabled(false);
+    		// if click is on a parameter and we're editing an experiment...
+    		if (contentEditor.isOffsetWithinTag(c, FieldTextArea.PARAM_TAG) &&
+    				(controller.getEditingMode() == Browser.EDIT_EXPERIMENT)) {
     			
     			// show edit dialog
     			String id = contentEditor.getElementId(c);
@@ -828,10 +851,7 @@ public class FieldTextArea
     				showParamDialog(Integer.parseInt(id), paneLoc);
     			}
     		}
-    		else {
-    			// enable add-param button, unless root node
-    			addParamButton.setEnabled(! treeNode.isRoot());
-    		}
+    		refreshButtonEnabled();
     	}
     }
     
@@ -925,6 +945,23 @@ public class FieldTextArea
 		}
 		// add or removal of experiment-info will trigger refresh selection
 		refreshNotesVisibility(); 
+		
+		// button status also needs refreshing.
+		refreshButtonEnabled();
+	}
+	
+	/**
+	 * Refreshes the enabled state of the components of this UI depending on
+	 * selection, locked state and editing mode. 
+	 */
+	public void refreshEnabled()
+	{
+		boolean editProtocol = !(controller.isFileLocked() || 
+				(controller.getEditingMode() == Browser.EDIT_EXPERIMENT));
+		contentEditor.setEditable(editProtocol);
+		nameEditor.setEditable(editProtocol);
+		
+		refreshButtonEnabled();
 	}
 	
 	/**

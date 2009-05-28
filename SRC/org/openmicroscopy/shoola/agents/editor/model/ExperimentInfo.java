@@ -75,6 +75,12 @@ public class ExperimentInfo
 	public static final String 			INVESTIG_NAME = "investigator-name";
 
 	/**
+	 * Boolean attribute to allow editing of the Protocol part of the 
+	 * Experiment. If this is not set to 'true', Protocol will not be editable. 
+	 */
+	public static final String 			EDIT_PROTOCOL = "editProtocol";
+	
+	/**
 	 * Creates an instance. 
 	 */
 	public ExperimentInfo(String name, String utcDate) 
@@ -116,16 +122,25 @@ public class ExperimentInfo
 	 */
 	public static boolean isModelExperiment(TreeModel model)
 	{
-		if (model == null) return false;
+		IAttributes expInfo = getExpInfo(model);
+		return (expInfo != null);
+	}
+	
+	/** 
+	 * Gets the Experimental info for this tree-model. 
+	 * @param model
+	 * @return
+	 */
+	public static IAttributes getExpInfo(TreeModel model)
+	{
+		if (model == null) return null;
 		TreeNode tn = (TreeNode)model.getRoot();
-		if (!(tn instanceof DefaultMutableTreeNode)) return false;
+		if (!(tn instanceof DefaultMutableTreeNode)) return null;
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode)tn;
 		Object userOb = node.getUserObject();
-		if (!(userOb instanceof ProtocolRootField)) return false;
+		if (!(userOb instanceof ProtocolRootField)) return null;
 		ProtocolRootField prf = (ProtocolRootField)userOb;
-		IAttributes expInfo = prf.getExpInfo();
-	
-		return (expInfo != null);
+		return prf.getExpInfo();
 	}
 	
 	/**

@@ -74,9 +74,8 @@ public class RedoEditAction
 	 */
 	private void refreshStatus() {
 		boolean enabled;
-		
-		int state = model.getState();
-		if (state == Browser.TREE_DISPLAY) 
+	
+		if (model.isFileLocked())
 			enabled = false;
 		else
 			enabled = undoManager.canRedo();
