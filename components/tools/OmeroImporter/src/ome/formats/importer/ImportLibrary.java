@@ -233,10 +233,12 @@ public class ImportLibrary implements IObservable
     	log.debug("Post-processing metadata.");
 
     	store.setArchive(archive);
+    	/*
     	if (reader.getUsedFiles(true) != null && archive != true)
     	{
             store.setCompanionFiles();
     	}
+    	*/
     	store.setUserSpecifiedImageName(imageName);
     	store.setUserSpecifiedImageDescription(imageDescription);
     	if (userPixels != null)
@@ -383,7 +385,9 @@ public class ImportLibrary implements IObservable
         		files[i] = new File(fileNameList[i]); 
         	}
         	store.writeFilesToFileStore(files, pixList.get(0));   
-        } else {
+        } 
+        /*
+        else {
             String[] fileNameList = reader.getUsedFiles(true);
             if (fileNameList != null)
             {
@@ -395,8 +399,9 @@ public class ImportLibrary implements IObservable
                 }
                 store.writeFilesToFileStore(files, pixList.get(0));
             }
-            
         }
+        */
+        
         if (saveSha1)
         {
         	store.updatePixels(pixList);

@@ -6,8 +6,16 @@ import gnu.getopt.LongOpt;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.JEditorPane;
+import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,12 +27,16 @@ import Glacier2.PermissionDeniedException;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.util.HtmlMessenger;
 import omero.ServerError;
 import omero.model.Dataset;
 import omero.model.Project;
 
 public class TestEngine
 {   
+    /** return code for exit **/
+    static int exitCode = 0;
+    
 	/** Logger for this class */
 	private Log log = LogFactory.getLog(TestEngine.class);
 	
@@ -39,6 +51,10 @@ public class TestEngine
     private OMEROWrapper wrapper;
     
     private IniWritingInterceptor interceptor = new IniWritingInterceptor();
+    
+    // feedback code
+    String url = "http://users.openmicroscopy.org.uk/~brain/omero/bugcollector.php";
+    
     
     public TestEngine(TestEngineConfig config)
     	throws CannotCreateSessionException, PermissionDeniedException, ServerError
@@ -165,12 +181,25 @@ public class TestEngine
 				" missing but referenced in test_setup.ini");
 				continue;
 			}
-
+            
 			try
 			{
-				interceptor.setSourceFile(file);
+	             // record used files to log file
+                wrapper.getReader().setId(file.getAbsolutePath());
+                String[] usedFiles = wrapper.getReader().getUsedFiles();
+                String usedFileString = "Used Files: ";
+                for (String usedFile : usedFiles)
+                {
+                    usedFileString = usedFileString.concat(usedFile + " ");   
+                }
+                log.info(usedFileString);
+                System.err.println(usedFileString);
+                
+                // Do import
+				interceptor.setSourceFile(file); 
 				importLibrary.importImage(file, 0, 0, 1, fileList[j], null, false, null);
 				iniFile.flush();
+                store.createRoot();
 			}
 			catch (Throwable e)
 			{
@@ -182,9 +211,12 @@ public class TestEngine
 			    {
 			        log.error("Failed on flushing ini file" + e1);
 			    }
-				store.logout();
-				log.error("Failed on file:" + file.getName());
-				throw e;
+				//store.logout();
+			    
+				log.error("Failed on file: " + file.getAbsolutePath());
+				exitCode += 1;
+				sendRequest("", "TestEngine Error", e.toString(), file.getAbsolutePath());
+				//throw e;
 			}
 		}
     	return true;
@@ -218,6 +250,43 @@ public class TestEngine
                 "Report bugs to <ome-users@openmicroscopy.org.uk>",
                 APP_NAME, APP_NAME));
         System.exit(1);
+    }
+    
+    /**
+     * Sends error message to feedback system.
+     */
+    private void sendRequest(String email, String comment, String error, String extra)
+    {
+        Map <String, String>map = new HashMap<String, String>();
+
+        map.put("email", email);
+        map.put("comment", comment);
+        map.put("error", error);
+        map.put("extra", extra);
+        
+        map.put("type", "testEngine_bugs");
+        map.put("java_version", System.getProperty("java.version"));
+        map.put("java_class_path", System.getProperty("java.class.path"));
+        map.put("os_name", System.getProperty("os.name"));
+        map.put("os_arch", System.getProperty("os.arch"));
+        map.put("os_version", System.getProperty("os.version"));
+
+        try {
+            HtmlMessenger messenger = new HtmlMessenger(url, map);
+            String serverReply = messenger.executePost();
+            log.info("Feedback sent. Returned: " + serverReply);
+        }
+        catch( Exception e ) {
+            log.error("Error while sending debug information.", e);
+            //Get the full debug text
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            
+            String debugText = sw.toString();
+            
+            log.error("Feedback failed with: " + debugText);
+        }
     }
     
     /**
@@ -335,5 +404,7 @@ public class TestEngine
         
         TestEngine engine = new TestEngine(config);
         engine.run(path);
+        System.err.println("Number of errors: " + exitCode);
+        System.exit(exitCode);
     }
 }
