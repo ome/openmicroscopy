@@ -64,9 +64,15 @@ from struct import *
 from omero.rtypes import *
 import PIL
 from PIL import Image
-import hashlib
 import omero_Constants_ice
 import ImageDraw
+
+try: 
+	import hashlib 
+ 	hash_sha1 = hashlib.sha1 
+except: 
+	import sha 
+    hash_sha1 = sha.new 
 
 MPEG = 'video/mpeg'
 QT = 'video/quicktime'
@@ -82,12 +88,13 @@ def getFormat(session, fmt):
 	return queryService.findByQuery("from Format as f where f.value='"+fmt+"'", None)
 
 def calcSha1(filename):
-	f = open(filename)
-	h = hashlib.sha1()
-	h.update(f.read())
+	fileHandle = open(filename)
+	h = hash_sha1()
+	h.update(fileHandle.read())
 	hash = h.hexdigest()
-	f.close()
+	fileHandle.close()
 	return hash;
+	
 
 def createFile(session, filename, format):
  	tempFile = omero.model.OriginalFileI();

@@ -1,7 +1,6 @@
 import getopt, sys, os, subprocess
 import numpy;
 from struct import *
-import hashlib
 
 import PIL
 from PIL import Image
@@ -12,6 +11,12 @@ import omero_Constants_ice
 from omero.rtypes import *
 import omero.util.pixelstypetopython as pixelstopython;
 
+try: 
+	import hashlib 
+ 	hash_sha1 = hashlib.sha1 
+except: 
+	import sha 
+    hash_sha1 = sha.new 
 
 def drawTextOverlay(draw, x, y, text, colour='0xffffff'):
 	draw.text((x, y), text, fill=colour)
@@ -53,7 +58,7 @@ def rmdir_recursive(dir):
 
 def calcSha1(filename):
 	fileHandle = open(filename)
-	h = hashlib.sha1()
+	h = hash_sha1()
 	h.update(fileHandle.read())
 	hash = h.hexdigest()
 	fileHandle.close()
