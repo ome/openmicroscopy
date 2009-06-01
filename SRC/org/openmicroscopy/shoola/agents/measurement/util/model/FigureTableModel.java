@@ -32,6 +32,7 @@ import javax.swing.table.AbstractTableModel;
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Figure;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 
 //Application-internal dependencies
 
@@ -197,7 +198,19 @@ public 	class FigureTableModel
 			if(value instanceof Double)
 				figure.setAttribute(keys.get(row), (Double)value);
 			if(value instanceof String)
-				figure.setAttribute(keys.get(row), new Double((String)value));
+			{
+				try
+				{
+					figure.setAttribute(keys.get(row), new Double((String)value));
+				}
+				catch(Exception e)
+				{
+					MeasurementAgent.getRegistry().getUserNotifier().
+					notifyInfo("Value for field invalid", "The value of "+
+							value + " is invalid for " + key.toString());
+					return;
+				}
+			}
 		}
 		else  
 			figure.setAttribute(keys.get(row), value);
