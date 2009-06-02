@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
 
+import java.util.Date;
+
 import javax.swing.JComponent;
 import javax.swing.tree.TreeModel;
 
@@ -165,6 +167,15 @@ public class BrowserComponent
 	public boolean isModelExperiment()
 	{
 		return model.isModelExperiment();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @return	Date the file was last saved. (or null if not). 
+	 */
+	public Date getLastSavedDate()
+	{
+		return model.getLastSavedDate();
 	}
 	
 	/**

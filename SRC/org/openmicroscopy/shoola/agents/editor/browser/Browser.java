@@ -23,6 +23,8 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
+import java.util.Date;
+
 import javax.swing.JComponent;
 import javax.swing.tree.TreeModel;
 
@@ -164,6 +166,12 @@ public interface Browser
 	 * @return		see above.
 	 */
 	public boolean isModelExperiment();
+	
+	/**
+	 * Date the file was last saved. (or null if not). 
+	 * @return	see above.
+	 */
+	public Date getLastSavedDate();
 	
 	/**
      * Allows the file to be locked to prevent editing. 

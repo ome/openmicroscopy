@@ -24,11 +24,16 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
 
+import java.util.Date;
+
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
+import org.openmicroscopy.shoola.agents.editor.model.CPEimport;
 import org.openmicroscopy.shoola.agents.editor.model.ExperimentInfo;
+import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 
 //Third-party libraries
 
@@ -211,6 +216,25 @@ class BrowserModel
     boolean isModelExperiment() 
     {
     	return ExperimentInfo.isModelExperiment(treeModel);
+    }
+    
+    /**
+     * Gets the Date that the file was last saved (archive date). 
+     * @return		see above. 
+     */
+    Date getLastSavedDate() 
+    {
+    	DefaultMutableTreeNode root = (DefaultMutableTreeNode)
+    														treeModel.getRoot();
+    	IAttributes rootField = ((IAttributes)root.getUserObject());
+    	String archiveUTC = rootField.getAttribute(CPEimport.ARCHIVE_DATE);
+    	try {
+    		long millis = new Long(archiveUTC);
+    		Date d = new Date(millis);
+    		return d;
+    	} catch (NumberFormatException nfe) {
+    		return null;
+    	}
     }
     
     /**

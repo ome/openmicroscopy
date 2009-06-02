@@ -25,6 +25,10 @@ package org.openmicroscopy.shoola.agents.editor.view;
 //Java imports
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 //Third-party libraries
 
@@ -296,8 +300,9 @@ class EditorComponent
 	public boolean saveCurrentFile()
 	{
 		String savedNamespace = model.getNameSpace();
+		boolean fileIsExperiment = model.getBrowser().isModelExperiment();
 		if (FileAnnotationData.EDITOR_PROTOCOL_NS.equals(savedNamespace)
-				&& model.getBrowser().isModelExperiment()) {
+				&& fileIsExperiment) {
 			
 			MessageBox msg = new MessageBox(view, "Save Experiment?", 
 			"Overwrite 'Protocol' with 'Experiment'?\n \n"+
@@ -305,6 +310,30 @@ class EditorComponent
 			
 			int option = msg.centerMsgBox();
 			if (option != MessageBox.YES_OPTION) return false;
+			
+		// if we're saving an experiment over an existing experiment...
+		} else if (fileIsExperiment && model.getFileToEdit() != null) {
+			Date lastSaved = model.getBrowser().getLastSavedDate();
+			if (lastSaved != null) {
+				Calendar saved = new GregorianCalendar();
+				saved.setTime(lastSaved);
+				Calendar midnight = new GregorianCalendar();
+				midnight.set(Calendar.HOUR_OF_DAY, 0);
+				SimpleDateFormat sdf = new SimpleDateFormat
+												("d MMM yyyy 'at' HH:mm:ss");
+				String savedDate = sdf.format(lastSaved);
+				// ... and it was last saved yesterday...
+				if (saved.before(midnight)) {
+					MessageBox msg = new MessageBox(view, 
+							"Update Experiment?", 
+							"This Experiment was last saved on " 
+							+ savedDate + ".\n" +
+							"Do you want to overwrite with the current file?");
+					// check if user really wants to overwrite. 		
+					int option = msg.centerMsgBox();
+					if (option != MessageBox.YES_OPTION) return false;
+				}
+			}
 		}
 		
 		long fileID = model.getFileID();
