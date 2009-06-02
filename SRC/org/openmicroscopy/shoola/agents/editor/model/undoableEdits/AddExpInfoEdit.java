@@ -135,7 +135,8 @@ public class AddExpInfoEdit
 	/**
 	 * This notifies all listeners to the TreeModel of a change to the node
 	 * in which the attribute has been edited. 
-	 * This will update any JTrees that are currently displaying the model. 
+	 * This will update any JTrees that are currently displaying the model,
+	 * including the Enabled status of the Editable Tree (main display).  
 	 */
 	private void notifyNodeChanged() 
 	{

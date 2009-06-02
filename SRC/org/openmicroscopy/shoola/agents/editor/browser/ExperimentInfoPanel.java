@@ -79,8 +79,8 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * A Panel to display experimental info (IF we're editing an experiment). 
- * Otherwise this panel is hidden, apart from a "File-locked" control. 
+ * A Panel to display experimental info (IF we're editing an experiment)
+ * OR Protocol info (if we're editing a protocol!). 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -122,6 +122,7 @@ public class ExperimentInfoPanel
 	
 	private JPanel 				expInfoPanel;
 	
+	private JPanel 				protocolInfoPanel;
 	
 	/** A count of the number of unfilled parameters */
 	private int 				unfilledParams;
@@ -171,6 +172,9 @@ public class ExperimentInfoPanel
 	/** Button for moving to the first unfilled step */
 	private JButton				goToFirstStep;
 	
+	/** Action command for the Add Experiment Info button */
+	public static final String	ADD_EXP_INFO = "addExpInfo";
+	
 	/** Action command for the Next Step button */
 	public static final String	NEXT_STEP = "nextStep";
 	
@@ -193,6 +197,8 @@ public class ExperimentInfoPanel
 	{
 		// the main panel for showing all experimental info. 
 		expInfoPanel = new JPanel();
+		// panel for showing messages when Protocol
+		protocolInfoPanel = new JPanel();
 		
 		datePicker = UIUtilities.createDatePicker();
 		datePicker.setFont(new CustomFont());
@@ -201,6 +207,7 @@ public class ExperimentInfoPanel
 		unfilledParamsLabel = new CustomLabel();
 		unfilledStepsLabel = new CustomLabel();
 		unfilledStepsLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
+		unfilledSteps = new ArrayList<TreePath>();
 		
 		IconManager iM = IconManager.getInstance();
 		Icon rightIcon = iM.getIcon(IconManager.ARROW_RIGHT_ICON_12);
@@ -244,6 +251,10 @@ public class ExperimentInfoPanel
 		Border lineBorder = BorderFactory.createMatteBorder(1, 1, 0, 1,
 	             UIUtilities.LIGHT_GREY.darker());
 		expInfoPanel.setBorder(lineBorder);
+		
+		protocolInfoPanel.setLayout(new BorderLayout());
+		protocolInfoPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		protocolInfoPanel.setBorder(lineBorder);
 		
 		Border eb = new EmptyBorder(5,5,5,5);
 		
@@ -337,8 +348,25 @@ public class ExperimentInfoPanel
 		fileLockedCheckBox = new JCheckBox("File Locked");
 		fileLockedCheckBox.addActionListener(this);
 		
+		// Protocol Panel
+		JLabel protocolTitle = new CustomLabel("Editing Protocol:");
+		protocolTitle.setBorder(eb);
+		protocolTitle.setFont(CustomFont.getFontBySize(14));
+		protocolInfoPanel.add(protocolTitle, BorderLayout.WEST);
+		
+		protocolInfoPanel.add(
+			new CustomLabel("Create Experiment to edit Experimental Values"),
+			BorderLayout.CENTER);
+		JButton addExpInfo = new CustomButton(
+										iM.getIcon(IconManager.EXP_NEW_ICON));
+		addExpInfo.addActionListener(this);
+		addExpInfo.setToolTipText("Create an Experiment from this Protocol");
+		addExpInfo.setActionCommand(ADD_EXP_INFO);
+		protocolInfoPanel.add(addExpInfo, BorderLayout.EAST);
+		
 		add(expInfoPanel, BorderLayout.CENTER);
-		add(fileLockedCheckBox, BorderLayout.SOUTH);
+		add(protocolInfoPanel, BorderLayout.SOUTH);
+		//add(fileLockedCheckBox, BorderLayout.SOUTH);
 	}
 
 	/**
@@ -416,9 +444,12 @@ public class ExperimentInfoPanel
 			refreshFileLocked();
 			
 			expInfoPanel.setVisible(true);
+			protocolInfoPanel.setVisible(false);
 		}
-		else 
+		else {
 			expInfoPanel.setVisible(false);
+			protocolInfoPanel.setVisible(true);
+		}
 		
 		revalidate();
 		repaint();
@@ -626,8 +657,13 @@ public class ExperimentInfoPanel
 		}
 		
 		String cmd = e.getActionCommand();
-		int stepCount = unfilledSteps.size();
 		
+		if (ADD_EXP_INFO.equals(cmd)) {
+			controller.addExperimentalInfo(navTree);
+			return;
+		}
+		
+		int stepCount = unfilledSteps.size();
 		if (NEXT_STEP.equals(cmd)) {
 			if (currentStepIndex < stepCount-1) {
 				currentStepIndex++;

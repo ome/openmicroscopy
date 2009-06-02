@@ -110,6 +110,13 @@ public interface IField
 	public List<IParam> getAtomicParams();
 	
 	/**
+	 * Returns a list of the parameters for this field.
+	 * 
+	 * @return 		see above
+	 */
+	public List<IParam> getParams();
+	
+	/**
 	 * Adds a note to this Field/Step
 	 * Notes are added to a 'protocol' to create an annotated 'experiment'
 	 * 

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.editor.browser.FieldTextArea 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
@@ -28,12 +29,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.IllegalComponentStateException;
-import java.awt.KeyboardFocusManager;
 import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -45,7 +41,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,13 +53,12 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTML.Tag;
@@ -80,6 +74,7 @@ import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamEditorDialog;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TextBoxEditor;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.AddParamActions;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.FieldContentEditor;
 import org.openmicroscopy.shoola.agents.editor.model.DataReference;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
@@ -92,6 +87,7 @@ import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.ImagePreview;
@@ -99,7 +95,7 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.ImagePreview;
 /** 
  * This Text Area is represents a Field/Step (or a node) of the data model tree,
  * when it is displayed in the "Text Document" view (rather than a JTree view).
- * The text is displayed using a {@link HtmlContentEditor}, but the editing
+ * The text is displayed using a {@link EditorTextComponent}, but the editing
  * is managed by this class. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
@@ -118,17 +114,17 @@ public class FieldTextArea
 	KeyListener
 {
 	/**  The text area that displays and allows users to edit the text */
-	protected HtmlContentEditor		contentEditor;
+	protected EditorTextComponent		contentEditor;
 	
 	/**  The text area that displays and allows users to edit the name */
-	protected HtmlContentEditor		nameEditor;
+	protected HtmlContentEditor			nameEditor;
 	
 	
-	private static String 			addParamToolTip = 
+	private static String 				addParamToolTip = 
 									"Add a parameter to this step";
 	
 	/** The field that is represented by this UI component */
-	private IField 					field;
+	private IField 						field;
 
 	/** 
 	 * The JTree that is coordinates selection of fields etc.
@@ -136,7 +132,7 @@ public class FieldTextArea
 	 * a reference to this JTree, so that they can select the correct node
 	 * when undo is performed. 
 	 */
-	private JTree	 				navTree;
+	private JTree	 					navTree;
 	
 	/** 
 	 * The treeNode that this Text Area represents. 
@@ -144,12 +140,12 @@ public class FieldTextArea
 	 * a reference to this node, so that they can select the correct node
 	 * when undo is performed. 
 	 */
-	private DefaultMutableTreeNode 	treeNode;
+	private DefaultMutableTreeNode 		treeNode;
 	
 	/**
 	 * Controller for editing actions etc. 
 	 */
-	protected BrowserControl 		controller;
+	protected BrowserControl 			controller;
 	
 	/**
 	 * A dialog for displaying a pop-up edit of a parameter.
@@ -225,10 +221,11 @@ public class FieldTextArea
 	private void initialise()
 	{
 		// make a content Editor and set a document filter
-		contentEditor = new HtmlContentEditor();
+		contentEditor = new EditorTextComponent();
 		contentEditor.addFocusListener(this);
 		contentEditor.addKeyListener(this);
 		contentEditor.addMouseListener(new ParamMouseListener());
+		contentEditor.addPropertyChangeListener(this);
 		Document d = contentEditor.getDocument();
 		AbstractDocument doc;
 		if (d instanceof AbstractDocument) {
@@ -259,10 +256,11 @@ public class FieldTextArea
 		blankIcon = iM.getIcon(IconManager.SPACER);
 		
 		// button for adding paramters. 
-		addParamButton = new CustomButton(addParamIcon);
+		addParamButton = new AddParamActions();
 		addParamButton.setToolTipText(addParamToolTip);
 		addParamButton.setFocusable(false);
-		addParamButton.addActionListener(this);
+		addParamButton.addPropertyChangeListener(
+									AddParamActions.PARAM_ADDED_PROPERTY, this);
 		
 		// merely indicates that this step has notes. No function yet. 
 		Icon notesIcon = iM.getIcon(IconManager.STEP_NOTE_ICON);
@@ -346,13 +344,12 @@ public class FieldTextArea
      * {@link IFieldContent}, including a new parameter object, which will be
      * added wherever a parameter tag has id="new"
      * 
-     * 
      * <code>newParam</code> can be null if not adding a new parameter. 
      * 
      * @param	
      * @return		a list of {@link IFieldContent} to represent the content
      */
-    private List<IFieldContent> getNewContent(IFieldContent newParam, 
+    private List<IFieldContent> getNewContent(IFieldContent newP, 
     		int start, int end) 
     {
     	List<IFieldContent> contentList = new ArrayList<IFieldContent>();
@@ -363,12 +360,15 @@ public class FieldTextArea
     	int docEnd = end;	
     	
     	// Get the parameter tokens, iterate through them...
-    	List<TextToken> tags = contentEditor.getElementsByTag
-    											(FieldTextArea.PARAM_TAG);
+    	List<TextToken> tags = contentEditor.getParamTokens();
     	
     	String description;
-    	int id;
     	int tagStart;
+    	
+    	List<IParam> oldParams = field.getParams();
+    	// index of the last parameter we processed from the above list
+    	boolean paramExists;	
+    	String tokenText;
     	
     	try {
     		for (TextToken param : tags) {
@@ -393,23 +393,32 @@ public class FieldTextArea
 					// without trimming. 
 					contentList.add(new TextContent(description));
 				}
-				String tagId = param.getId();
-				// if the text references a "new" parameter, use newParam
-				if (("new".equals(tagId)) && (newParam != null)) {
-					contentList.add(newParam);
+				
+				paramExists = false;
+				// try to match the paramToken with old parameter
+				tokenText = param.getText();
+				tokenText = tokenText.replace("[", "");
+				tokenText = tokenText.replace("]", "");
+				String paramText;
+				IParam oldParam = null;
+				for (IParam p : oldParams) {
+					paramText = getParamDisplayText(p);
+					if (tokenText.equals(paramText)) {
+						paramExists = true;
+						oldParam = p;
+						break;
+					}
 				}
-				else {
-				try {
-					// now process the parameter. This should exist in the
-					// field already, since text editing can only edit text 
-					// content, or DELETE parameters.
-					id = Integer.parseInt(param.getId());
-					// Simply copy a reference into the new list
-					if (id < field.getContentCount())
-						contentList.add(field.getContentAt(id));
-				} catch (NumberFormatException ex) {
-					// ignore elements that do not have a valid (integer) id
-				}
+				if (paramExists) {
+					contentList.add(oldParam);
+					oldParams.remove(oldParam);
+				} else {
+					if (newP == null) {
+						newP = FieldParamsFactory.getFieldParam(
+													TextParam.TEXT_LINE_PARAM);
+					}
+					newP.setAttribute(TextParam.PARAM_NAME, tokenText);
+					contentList.add(newP);
 				}
 				
 				lastChar = param.getEnd();	// update the end of last element
@@ -442,19 +451,17 @@ public class FieldTextArea
 	 * @param index		The index of the Parameter in the {@link #field}
 	 * @param point		The screen location to show the dialog
 	 */
-	protected void showParamDialog(int index, Point point) 
+	protected void showParamDialog(IParam content, Point point) 
 	{
 		if ((paramEditDialog != null) && (paramEditDialog.isVisible())) {
 			paramEditDialog.setVisible(false);
 			paramEditDialog.dispose();
 		}
 			
-		IFieldContent content = field.getContentAt(index);
-		if (content instanceof IParam) {
-			IParam param = (IParam)content;
-			paramEditDialog = new ParamEditorDialog(param, point, this);
-			paramEditDialog.setVisible(true);
-		}
+		IParam param = (IParam)content;
+		paramEditDialog = new ParamEditorDialog(param, point, this);
+		paramEditDialog.setVisible(true);
+		
 	}
 	
 	/**
@@ -517,7 +524,7 @@ public class FieldTextArea
 		}
 		// otherwise depends on char position
 		int c = contentEditor.getCaretPosition();
-		boolean p = contentEditor.isOffsetWithinTag(c, FieldTextArea.PARAM_TAG);
+		boolean p = contentEditor.offsetParamIndex(c) > -1;
 		addParamButton.setEnabled(! p);
 	}
 	
@@ -542,9 +549,9 @@ public class FieldTextArea
 	 * @param field
 	 * @return
 	 */
-	private String getContentHtml()
+	private String getContentText()
 	{
-		String html = "";
+		String text = "";
 		
 		String contentText;
 		String contentString;
@@ -552,46 +559,37 @@ public class FieldTextArea
 		
 		// if no content, put a place-holder so users can enter text
 		if (field.getContentCount() == 0) {
-			contentText = "<"+ FieldTextArea.TEXT_TAG +" " +
-			HTML.Attribute.ID + 
-			"='0'> </"+ FieldTextArea.TEXT_TAG + ">";
-			return html + contentText;
+			return "";
 		}
 		
 		// flag used to insert space between parameter objects, so user can
 		// start typing and insert text between parameters. 
 		boolean includeSpacer = false;	
 		
-		// html for the field contents. 
+		// text for the field contents. 
 		for (int i=0; i<field.getContentCount(); i++) {
 			content = field.getContentAt(i);
 			if (content instanceof IParam) {
-				contentString = content.toString();
+				contentString = getParamDisplayText((IParam)content);
 				if (contentString.length() == 0)
 					contentString = "param";
-				
 				contentString = "[" + contentString + "]";
 				// id attribute allows parameters to be linked to model
 				// eg for editing parameters. 
 				contentText = (includeSpacer ? TEXT_SPACER : "") + // space before param
-						"<"+ FieldTextArea.PARAM_TAG + " href='#' " +
-				 		HTML.Attribute.ID + "='" + i + "'>" + 
-				 		contentString + 
-				 		"</"+ FieldTextArea.PARAM_TAG + ">";
+				 		contentString;
 				includeSpacer = true;
 			} else {
 				// don't need this ID attribute, but might be useful in future?
-				contentText = "<"+ FieldTextArea.TEXT_TAG +" " +
-				HTML.Attribute.ID + "='" + i + "'>" + 
-				content.toString() 
-				+ "</"+ FieldTextArea.TEXT_TAG + ">";
+				contentText = content.toString(); 
 				if (content.toString().length() > 0)
 					includeSpacer = false;		// don't need a space after text
 			}
 			// add each component. 
-			html = html + contentText;
+			text = text + contentText;
 		}
-		return html;
+		
+		return text;
 	}
 	
 	/**
@@ -674,20 +672,37 @@ public class FieldTextArea
     	// can't split root field
     	if (treeNode.isRoot()) return;
     	
-    	String fieldName = getEditedName();
-		
-		int start = 0;
-    	int end = contentEditor.getDocument().getLength();
+    	Document doc = contentEditor.getDocument();
+    	String text = "";
+    	try {
+    		// Try and get the text 
+    		int start = splitChar-3;
+    		int end = splitChar+3;
+    		start = Math.max(start, 0);
+    		end = Math.min(end, doc.getLength());
+			text = doc.getText(start, end-start);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
     	
-    	List<IFieldContent> content1 = getNewContent(null, start, splitChar-1);
-    	List<IFieldContent> content2 = getNewContent(null, splitChar, end);
-    	
-    	controller.splitField(field, fieldName, content1, content2, navTree, treeNode);
-    	
-    	// reset this flag
-		contentEditor.dataSaved();
+		// Three line breaks indicate MORE than a paragraph split = split-STEP
+		String s = "\n\n\n";
+		if (text.contains(s)) {
+			
+	    	String fieldName = getEditedName();
+			
+			int start = 0;
+	    	int end = contentEditor.getDocument().getLength();
+	    	
+	    	List<IFieldContent> content1 = getNewContent(null, start, splitChar-1);
+	    	List<IFieldContent> content2 = getNewContent(null, splitChar, end);
+	    	
+	    	controller.splitField(field, fieldName, content1, content2, navTree, treeNode);
+	    	
+	    	//reset this flag
+			contentEditor.dataSaved();
+		}
     }
-    
  
     
     /**
@@ -705,13 +720,6 @@ public class FieldTextArea
 		Document d = contentEditor.getDocument();
 		
 		// edit the document text, inserting tags around the currently-selected
-		// text (or inserting the tag into the caret position, if no text
-		// is selected). 
-		MutableAttributeSet aAttributes = new SimpleAttributeSet();
-		aAttributes.addAttribute(HTML.Attribute.ID, "new");
-		
-		MutableAttributeSet tagAttributes = new SimpleAttributeSet();
-		tagAttributes.addAttribute(FieldTextArea.PARAM_TAG, aAttributes);
 		
 		if ((selectedText == null) || (selectedText.length() == 0)) {
 			// need to insert something!
@@ -722,21 +730,15 @@ public class FieldTextArea
 			// replace the selected text with the parameter 
 			d.remove(start, end - start);
 			
-			// if textEditor doesn't have focus, char = 0. 
-			if (start == 0) start++;	// to avoid adding into header! 
-			
-			d.insertString(start, selectedText, tagAttributes);
+			d.insertString(start, "[" + selectedText + "]", null);
 		} catch (BadLocationException e1) {
 			e1.printStackTrace();
 		}
 		
-		// create a new parameter
-		IParam param = FieldParamsFactory.getFieldParam(paramType);
-		param.setAttribute(TextParam.PARAM_NAME, selectedText);
-		
 		// and use it to build a new content list. This method links the 
 		// newly inserted tag (id=new) with the parameter argument
-		List<IFieldContent> newContent = getNewContent(param);
+		IParam newP = FieldParamsFactory.getFieldParam(paramType);
+		List<IFieldContent> newContent = getNewContent(newP);
 		
 		// get the new name, just in case it changed...
 		String fieldName = getEditedName();
@@ -808,6 +810,32 @@ public class FieldTextArea
 	}
     
     /**
+     * Handy method for getting the display text for a parameter, depending on 
+     * the current display mode. E.g. if editing Protocol, display parameter
+     * name, but if editing Experiment, show value of parameter. 
+     * 
+     * @param param		The parameter to display
+     */
+    private String getParamDisplayText(IParam param)
+    {
+    	// if we're editing experiment, show 'Name: 
+    	if (controller.getEditingMode() == Browser.EDIT_EXPERIMENT) {
+    		String name = param.getAttribute(AbstractParam.PARAM_NAME);
+    		name = (name == null ? "" : name + ": ");
+    		String value = param.getParamValue();
+    		String units = param.getAttribute(NumberParam.PARAM_UNITS);
+    		if (value == null) {
+    			return name + "NO VALUE";
+    		}
+    		return value + (units == null ? "" : " "+ units );
+    	}
+    	
+    	// if editing protocol, simply return name. 
+    	String name = param.getAttribute(AbstractParam.PARAM_NAME);
+    	return (name == null ? "param" : name);
+    }
+    
+    /**
      * A {@link MouseListener} added to the editor component. 
      * Used to launch the parameter edit dialog if the user clicks on a 
      * parameter element. 
@@ -832,12 +860,14 @@ public class FieldTextArea
     		int c = contentEditor.viewToModel(mouseLoc);
     		
     		// if click is on a parameter and we're editing an experiment...
-    		if (contentEditor.isOffsetWithinTag(c, FieldTextArea.PARAM_TAG) &&
-    				(controller.getEditingMode() == Browser.EDIT_EXPERIMENT)) {
+    		int paramIndex = contentEditor.offsetParamIndex(c);
+    		if (paramIndex >-1 &&
+    				(controller.getEditingMode() == Browser.EDIT_EXPERIMENT)
+    				&& ! controller.isFileLocked()) {
     			
     			// show edit dialog
-    			String id = contentEditor.getElementId(c);
-    			if ((id != null) && (isShowing())) { 
+    			if ((paramIndex < field.getParams().size()) && (isShowing())) {
+    				IParam param = field.getParams().get(paramIndex);
     				Point paneLoc = null;
     				try { 
     					paneLoc = getLocationOnScreen();
@@ -848,7 +878,7 @@ public class FieldTextArea
     				} catch (IllegalComponentStateException ex){
     					ex.printStackTrace();
     				}
-    				showParamDialog(Integer.parseInt(id), paneLoc);
+    				showParamDialog(param, paneLoc);
     			}
     		}
     		refreshButtonEnabled();
@@ -909,9 +939,8 @@ public class FieldTextArea
 		nameEditor.setText(html);
 		
 		// set content html
-		content = getContentHtml();
-		html = "<html><body> " + content + " </body> </html>";
-		contentEditor.setText(html);
+		content = getContentText();
+		contentEditor.setText(content.trim());
 		
 		contentEditor.dataSaved();
 		
@@ -989,12 +1018,11 @@ public class FieldTextArea
 	 */
 	public void focusLost(FocusEvent e) {
 		Object source = e.getSource();
-		if (source instanceof HtmlContentEditor) {
-			if (source.equals(contentEditor)) {
-				saveContent();
-			} else if (source.equals(nameEditor)) {
-				saveName();
-			}
+		
+		if (source.equals(contentEditor)) {
+			saveContent();
+		} else if (source.equals(nameEditor)) {
+			saveName();
 		}
 	}
 	
@@ -1036,7 +1064,41 @@ public class FieldTextArea
 							navTree, treeNode);
 				}
 			}
-		}
+		} else if (EditorTextComponent.PARAM_CREATED.equals(propName) || 
+					EditorTextComponent.PARAM_DELETED.equals(propName)) {
+			SwingUtilities.invokeLater(new Runnable() {
+		        public void run() { saveContent(); }
+		        
+		    });
+		} else if (EditorTextComponent.PARAM_EDITED.equals(propName)) {
+			
+			String newName = evt.getNewValue().toString();
+			int charIndex = contentEditor.getCaretPosition();
+			int paramIndex = contentEditor.offsetParamIndex(charIndex);
+			// if the index of the parameter is invalid, save content. 
+			if (paramIndex <0 || paramIndex >= field.getParams().size()) {
+				SwingUtilities.invokeLater(new Runnable() {
+			        public void run() { saveContent(); }
+			        });
+				return;
+			}
+			IFieldContent p = field.getParams().get(paramIndex);
+			
+			p.setAttribute(AbstractParam.PARAM_NAME, newName);
+			// would be nicer to update UI (as below) but this refreshes the
+			// contentEditor, and causes crash. Needs to use 'invokeLater'
+			// controller.editAttribute(p, AbstractParam.PARAM_NAME,
+								// newName, "Parameter Name", navTree, treeNode);
+		} else if (AddParamActions.PARAM_ADDED_PROPERTY.equals(propName)) {
+			// get the type of new param to add...
+			String paramType = evt.getNewValue().toString();
+			if (AddParamActions.ADD_DATA_REF.equals(paramType)) {
+				controller.addDataRefToField(field, navTree, treeNode);
+			} else {
+				insertParam(paramType);
+			}
+			
+		} 
 	}
 
 	/**
@@ -1047,9 +1109,7 @@ public class FieldTextArea
 	 */
 	public void actionPerformed(ActionEvent e) 
 	{
-		if (e.getSource().equals(addParamButton)) {
-			insertParam(TextParam.TEXT_LINE_PARAM);
-		}
+		
 	}
 
 	/**
@@ -1072,7 +1132,7 @@ public class FieldTextArea
 				int splitChar = contentEditor.getCaretPosition();
 				splitField(splitChar);
 			} else if (e.getSource().equals(nameEditor)) {
-				contentEditor.setCaretPosition(1);
+				contentEditor.setCaretPosition(0);
 				contentEditor.requestFocusInWindow();
 			}
 		}

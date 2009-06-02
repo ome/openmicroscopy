@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.editor.uiComponents;
 
+// Java imports
+
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -58,6 +60,18 @@ public class PopupMenuButton
 	private JPopupMenu popupMenu;
 
 	/**
+	 * Creates an instance with no Actions. 
+	 * Need to call {@link #addAction(Action)} to add actions to pop-up menu. 
+	 * 
+	 * @param toolTipText
+	 * @param icon
+	 */
+	public PopupMenuButton(String toolTipText, Icon icon)
+	{
+		this(toolTipText, icon, null);
+	}
+	
+	/**
 	 * Creates an instance and builds the UI (links button to popup menu)
 	 * 
 	 * @param toolTipText   A tool-tip-text for the Button	
@@ -71,10 +85,10 @@ public class PopupMenuButton
 		
 		popupMenu = new JPopupMenu();
 		
-		
-		for (int i=0; i<actions.length; i++) {
-			JMenuItem menuItem = new JMenuItem(actions[i]);
-			popupMenu.add(menuItem);
+		if (actions != null) {
+			for (int i=0; i<actions.length; i++) {
+				addAction(actions[i]);
+			}
 		}
 		
 		
@@ -92,5 +106,16 @@ public class PopupMenuButton
 			public void mouseEntered(MouseEvent e) {}
 			public void mouseExited(MouseEvent e) {}
 		});
+	}
+	
+	/**
+	 * Allows actions to be added after creating this class. 
+	 * 
+	 * @param newAction
+	 */
+	public void addAction(Action newAction) 
+	{
+		JMenuItem menuItem = new JMenuItem(newAction);
+		popupMenu.add(menuItem);
 	}
 }

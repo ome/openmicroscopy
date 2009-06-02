@@ -30,18 +30,12 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JTree;
-import javax.swing.tree.TreeNode;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
-import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
-import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.params.BooleanParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.EditorLinkParam;
@@ -53,19 +47,10 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.PopupMenuButton;
 
 
 /** 
- * This class consists of a button with a pop-up menu that allows users to 
+ * This class is a button with a pop-up menu that allows users to 
  * add a parameter to a field. 
- * Multiple parameters allow fields to specify 2 or more variables. 
- * eg Incubate at 4'C for 10 minutes. 
- * The only parameter types allowed by this UI are Text-Line, Number and
- * CheckBox(boolean). These are "atomic" parameters, which may be combined
- * in a field to describe a protocol step etc. 
- * But it doesn't make sense to allow Eg. multiple date-time parameters per
- * field. Use multiple Date-Time fields instead. 
- * Get the button using getButton();
  * Button should be displayed in the template-editing panel (FieldEditorPanel).
- * Following the addition of a parameter to the field, the UI display of 
- * the field will need to be refreshed. This is indicated by the 
+ * Choosing of an Action from the pop-up list is indicated by the 
  * button firing a propertyChangeEvent with property named
  * <code>PARAM_ADDED_PROPERTY</code>. Listeners need to listen for changes in 
  * this property of the button.
@@ -79,41 +64,18 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.PopupMenuButton;
  * @since OME3.0
  */
 public class AddParamActions 
+	extends PopupMenuButton
 {
-	
-	/**
-	 * The field that is being edited. Parameter objects will be added to 
-	 * this field. 
-	 */
-	private IField 			field;
-	
-	/**
-	 * The tree in which the field we are editing appears. 
-	 * Need a reference to this in order to refresh, highlight etc.
-	 */
-	private JTree 			tree;
-	
-	/**
-	 * The Node of the Tree that contains the field we are editing. 
-	 * Need a reference to this in order to refresh, highlight etc.
-	 */
-	private TreeNode 		node;
-	
-	/**
-	 * The controller for managing the undo/redo etc. 
-	 */
-	private BrowserControl 	controller;
-	
-	/**
-	 * The button that launches the pop-up menu. 
-	 */
-	private JButton 		addParamButton;
 	
 	/**
 	 * A bound property (of the button). 
 	 * Change indicates that a parameter has been added to the field. 
+	 * The type of new parameter to add is passed as the new value. 
 	 */
 	public static final String PARAM_ADDED_PROPERTY = "paramAddedProperty";
+	
+	/** The new value of the param-added-property when adding a data-ref */
+	public static final String ADD_DATA_REF = "addDataReference";
 	
 	/**
 	 * IconManager for icons. 
@@ -136,9 +98,20 @@ public class AddParamActions
 				new AddOntologyParamAction(),
 				new AddDataRefAction()};
 		
-		Icon addIcon = iM.getIcon(IconManager.ADD_NUMBER);
+
+		for (int i=0; i< actions.length; i++) {
+			addAction(actions[i]);
+		}
+	}
+	
+	/**
+	 * Called by all the Actions. 
+	 * 
+	 * @param paramType		The type of the parameter selected.  
+	 */
+	private void addParameter(String paramType) {
 		
-		addParamButton = new PopupMenuButton("Add parameter", addIcon, actions);
+		firePropertyChange(PARAM_ADDED_PROPERTY, null, paramType);
 	}
 	
 	/**
@@ -151,23 +124,14 @@ public class AddParamActions
 	 * @param node		The node that contains the field in the tree
 	 * @param controller	The controller for undo/redo etc.
 	 */
-	public AddParamActions(IField field, JTree tree, TreeNode node, 
-			BrowserControl controller) 
+	public AddParamActions() 
 	{
-		this.field = field;
-		this.tree = tree;
-		this.node = node;
-		this.controller = controller;
+		super("Add parameter", 
+				IconManager.getInstance().getIcon(IconManager.ADD_NUMBER));
 		
 		initialise();
 	}
 	
-	/**
-	 * Returns the button that launches the pop-up menu. 
-	 * 
-	 * @return		the button that launches the pop-up menu. 
-	 */
-	public JButton getButton() { return addParamButton; }
 	
 	/**
 	 * Action for adding a Text-Line Parameter
@@ -198,8 +162,7 @@ public class AddParamActions
 	     */
 		public void actionPerformed(ActionEvent e) 
 		{
-			controller.addParamToField(field, TextParam.TEXT_LINE_PARAM, 
-					tree, node);
+			addParameter(TextParam.TEXT_LINE_PARAM);
 		}	
 	}
 	
@@ -229,8 +192,7 @@ public class AddParamActions
 	     */
 		public void actionPerformed(ActionEvent e) 
 		{
-			controller.addParamToField(field, EnumParam.ENUM_PARAM, 
-					tree, node);
+			addParameter(EnumParam.ENUM_PARAM);
 		}
 	}
 	
@@ -262,8 +224,7 @@ public class AddParamActions
 	     */
 		public void actionPerformed(ActionEvent e) 
 		{
-			controller.addParamToField(field, NumberParam.NUMBER_PARAM, 
-					tree, node);
+			addParameter(NumberParam.NUMBER_PARAM);
 		}
 	}
 	
@@ -293,8 +254,7 @@ public class AddParamActions
 	     */
 		public void actionPerformed(ActionEvent e) 
 		{
-			controller.addParamToField(field, BooleanParam.BOOLEAN_PARAM, 
-					tree, node);
+			addParameter(BooleanParam.BOOLEAN_PARAM);
 		}
 	}
 
@@ -324,8 +284,7 @@ public class AddParamActions
 	     */
 		public void actionPerformed(ActionEvent e) 
 		{
-			controller.addParamToField(field, DateTimeParam.DATE_TIME_PARAM, 
-					tree, node);
+			addParameter(DateTimeParam.DATE_TIME_PARAM);
 		}
 	}
 	
@@ -355,7 +314,7 @@ public class AddParamActions
 	     */
 		public void actionPerformed(ActionEvent e) 
 		{
-			controller.addDataRefToField(field, tree, node);
+			addParameter(ADD_DATA_REF);
 		}
 	}
 	
@@ -385,8 +344,7 @@ public class AddParamActions
 	     */
 		public void actionPerformed(ActionEvent e) 
 		{
-			controller.addParamToField(field, 
-					OntologyTermParam.ONTOLOGY_TERM_PARAM, tree, node);
+			addParameter(OntologyTermParam.ONTOLOGY_TERM_PARAM);
 		}
 	}
 	
@@ -416,8 +374,7 @@ public class AddParamActions
 	     */
 		public void actionPerformed(ActionEvent e) 
 		{
-			controller.addParamToField(field, 
-					EditorLinkParam.EDITOR_LINK_PARAM, tree, node);
+			addParameter(EditorLinkParam.EDITOR_LINK_PARAM);
 		}
 	}
 }

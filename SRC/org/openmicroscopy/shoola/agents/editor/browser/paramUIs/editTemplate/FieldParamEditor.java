@@ -339,8 +339,8 @@ public class FieldParamEditor
 		addStepNote.addActionListener(this);
 		paramToolBar.add(addStepNote);
 		
-		JButton addParamsButton = new AddParamActions(field, tree, 
-				treeNode, controller).getButton();
+		JButton addParamsButton = new AddParamActions();
+		addParamsButton.setToolTipText("Add Parameter to END of Step");
 		// don't allow addition of parameters or notes to root. 
 		if(treeNode.isRoot()) {
 			addParamsButton.setEnabled(false);
@@ -429,18 +429,17 @@ public class FieldParamEditor
 		}
 	}
 	
-	
-	
 	/**
-	 * If the size of a sub-component of this panel changes, 
-	 * the JTree in which it is contained must be required to 
-	 * re-draw the panel. 
+	 * Implemented as specified by the {@link PropertyChangeListener} interface
+	 * Handles changing of parameter types, parameter values, adding and 
+	 * deleting parameters and deleting notes or data-references. 
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		
 		
 		String propName = evt.getPropertyName();
 		
+		// handles changing of the parameter type
 		if (ParamEditor.PARAM_TYPE.equals(propName)) { 
 			if (evt.getSource() instanceof ITreeEditComp) {
 				// Source wil
@@ -488,8 +487,13 @@ public class FieldParamEditor
 				
 			}
 		} else if (AddParamActions.PARAM_ADDED_PROPERTY.equals(propName)) {
-			updateEditingOfTreeNode();
-			rebuildEditorPanel();
+			// get the type of new param to add...
+			String paramType = evt.getNewValue().toString();
+			if (AddParamActions.ADD_DATA_REF.equals(paramType)) {
+				controller.addDataRefToField(field, tree, treeNode);
+			} else {
+				controller.addParamToField(field, paramType, tree, treeNode);
+			}
 			
 		} else if (NoteEditor.NOTE_DELETED.equals(propName)) {
 			NoteEditor ne = (NoteEditor)evt.getSource();

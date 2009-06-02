@@ -205,6 +205,7 @@ public class TextAreasView
 			if (comp instanceof FieldTextArea) {
 				// refresh selection of all steps...
 				((FieldTextArea)comp).refreshEnabled();
+				((FieldTextArea)comp).refreshText();
 			}
 		}
 	}
@@ -320,6 +321,7 @@ public class TextAreasView
 			// experimental info, which requires that all steps refresh their
 			// step icons, which can be achieved by refreshing selection.
 			refreshSelection();
+			refreshEnabled();
 			return;
 		}
 		
@@ -379,7 +381,8 @@ public class TextAreasView
 
 	/**
 	 * Implemented as specified by the {@link ChangeListener} interface.
-	 * Allows this class to respond to changes from {@link Browser}. 
+	 * Allows this class to respond to changes from {@link Browser}, such as 
+	 * changes in the Editing Mode or Locked status. 
 	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */
 	public void stateChanged(ChangeEvent e) {

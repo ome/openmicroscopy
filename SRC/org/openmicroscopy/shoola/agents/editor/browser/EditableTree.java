@@ -64,10 +64,14 @@ public class EditableTree
 	 */
 	private JTree 			navTree;
 	
+	/** Controller, for determining the editing mode etc. */
+	private BrowserControl 	controller;
+	
 	public EditableTree(BrowserControl controller, JTree navTree) 
 	{
 		super();
 		
+		this.controller = controller;
 		this.navTree = navTree;
 		if (navTree != null) {
 			navTree.addTreeSelectionListener(this);
@@ -101,7 +105,7 @@ public class EditableTree
 	 * 
 	 * @param controller		The controller 
 	 */
-	public void configureTree(BrowserControl controller) 
+	private void configureTree(BrowserControl controller) 
 	{
 		setUI(new MyBasicTreeUI());
 		
@@ -119,6 +123,21 @@ public class EditableTree
 	    TreeCellEditor editor = new DefaultTreeCellEditor(this, 
 	    		fieldRenderer, fieldEditor);
 	    setCellEditor(editor);
+	    
+	}
+	
+	/**
+	 * Overrides this method of JTree, in order to respond to the 
+	 */
+	public boolean isEditable()
+	{
+		if (controller == null)		
+			return false;
+		
+		// editable if file is not locked and we are editing Experiment. 
+		boolean editable = ((! controller.isFileLocked()) 
+				&& (controller.getEditingMode() == Browser.EDIT_EXPERIMENT));
+		return editable;
 	}
 
 	
@@ -193,6 +212,14 @@ public class EditableTree
 		
 		setSelectionPaths(selPaths);
 		addTreeSelectionListener(this);
+		
+		// if the root node has changed (children == null), update Editable
+		// (root node change is posted when Experimental info added/removed). 
+		if (e.getChildren() == null) {
+			boolean editable = ((! controller.isFileLocked()) 
+				&& (controller.getEditingMode() == Browser.EDIT_EXPERIMENT));
+			setEditable(editable);
+		}
 	}
 
 	/**

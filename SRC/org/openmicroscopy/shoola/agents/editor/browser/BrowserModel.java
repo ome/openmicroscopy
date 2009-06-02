@@ -114,7 +114,7 @@ class BrowserModel
     	// if the model is an experiment, file is locked by default. 
     	if (isModelExperiment()) {
     		setEditingMode(Browser.EDIT_EXPERIMENT);
-    		fileLocked = true;
+    		// fileLocked = true;
     	}
     }
     
@@ -177,6 +177,8 @@ class BrowserModel
     
     /**
      * Returns true if the file is locked. 
+     * NB This functionality is not currently used. 
+     * 
      * @return	see above. 
      */
     boolean isFileLocked()	{ return fileLocked; }

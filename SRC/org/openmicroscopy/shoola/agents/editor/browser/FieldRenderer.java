@@ -36,7 +36,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 

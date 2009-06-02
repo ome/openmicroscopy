@@ -54,10 +54,10 @@ public class OMEWikiConstants
 	static  final String NUMBERREGEX = "[0-9]+";
 	
 	/** Regex expression for text. */
-	static final String TEXTREGEX = "[-a-zA-Z0-9+&@#/%?~_|!:,.;\\\\]*";
+	public static final String TEXTREGEX = "[-a-zA-Z0-9+&@#/%?~_|!:,.;\\\\]*";
 	
 	/** Regex for a sentence. */
-	static final String SENTENCEREGEX = "[-a-zA-Z0-9+&@#/%?~_|!:,. ;]*";
+	public static final String SENTENCEREGEX = "[-a-zA-Z0-9+&@#/%?~_|!:,. ;]*";
 	
 	/** Regex for a sequence of characters. */
 	static final String CHARACTERREGEX = "[a-zA-Z]+[a-zA-Z0-9]+";

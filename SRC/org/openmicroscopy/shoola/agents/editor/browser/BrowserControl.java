@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 import org.openmicroscopy.shoola.agents.editor.model.Note;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddDataRefEdit;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddExpInfoEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddFieldTableEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddParamEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddStepNoteEdit;
@@ -273,6 +274,44 @@ public class BrowserControl
      */
     int getViewingMode() { return editingView; }
     
+
+	/**
+	 * Delegates to the {@link Browser} to set lock to prevent file editing.
+	 * @param locked
+	 */
+	void setFileLocked(boolean locked) {
+		model.setFileLocked(locked);
+	}
+	
+	/**
+	 * Delegates to the {@link Browser} to determine whether file is locked.
+	 * @return	true if file is locked. 
+	 */
+	boolean isFileLocked() 
+	{
+		return model.isFileLocked();
+	}
+	
+	/**
+	 * Sets the Editing mode of the Browser. Either
+	 * {@link #EDIT_EXPERIMENT} or {@link #EDIT_PROTOCOL}
+	 * @param editingMode	see above
+	 */
+	void setEditingMode(int editingMode) 
+	{
+		model.setEditingMode(editingMode);
+	}
+	
+	/**
+	 * Gets the Editing mode of the Browser. Either
+	 * {@link #EDIT_EXPERIMENT} or {@link #EDIT_PROTOCOL}
+	 * @return		see above. 
+	 */
+	int getEditingMode() 
+	{
+		return model.getEditingMode();
+	}
+    
     /**
      * Returns the action corresponding to the specified id.
      * 
@@ -302,6 +341,19 @@ public class BrowserControl
     public boolean isModelExperiment() 
     { 
     	return model.isModelExperiment();
+    }
+    
+    /**
+     * Adds Experimental-Info to a Protocol, to create an Experiment. 
+     * 
+     * @param treeUI	The JTree source of TreeModel to edit. 
+     */
+    public void addExperimentalInfo(JTree treeUI)
+    {
+    	AddExpInfoEdit edit = new AddExpInfoEdit(treeUI);
+		edit.doEdit();
+		
+		undoSupport.postEdit(edit);
     }
     
     /**
@@ -614,40 +666,4 @@ public class BrowserControl
 		fileEdited();
 	}
 	
-	/**
-	 * Delegates to the {@link Browser} to set lock to prevent file editing.
-	 * @param locked
-	 */
-	void setFileLocked(boolean locked) {
-		model.setFileLocked(locked);
-	}
-	
-	/**
-	 * Delegates to the {@link Browser} to determine whether file is locked.
-	 * @return	true if file is locked. 
-	 */
-	boolean isFileLocked() 
-	{
-		return model.isFileLocked();
-	}
-	
-	/**
-	 * Sets the Editing mode of the Browser. Either
-	 * {@link #EDIT_EXPERIMENT} or {@link #EDIT_PROTOCOL}
-	 * @param editingMode	see above
-	 */
-	void setEditingMode(int editingMode) 
-	{
-		model.setEditingMode(editingMode);
-	}
-	
-	/**
-	 * Gets the Editing mode of the Browser. Either
-	 * {@link #EDIT_EXPERIMENT} or {@link #EDIT_PROTOCOL}
-	 * @return		see above. 
-	 */
-	int getEditingMode() 
-	{
-		return model.getEditingMode();
-	}
 }

@@ -363,6 +363,24 @@ public class Field
 	
 	/**
 	 * Implemented as specified by the {@link IField} interface.
+	 * 
+	 * @see IField#getParams()
+	 */
+	public List<IParam> getParams() 
+	{
+		List<IParam> params = new ArrayList<IParam>();
+		
+		for (IFieldContent content : fieldParams) {
+			if (content instanceof AbstractParam) {
+				params.add((IParam)content);
+			}
+		}
+		
+		return params;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link IField} interface.
 	 * @see {@link IField#addNote(Note)}
 	 */
 	public void addNote(Note note) { stepNotes.add(note); }

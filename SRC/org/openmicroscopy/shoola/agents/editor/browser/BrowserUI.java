@@ -334,7 +334,7 @@ class BrowserUI
 
     /**
      * Implemented as specified by the {@link ChangeListener} interface.
-     * Responds to changes in the tabbed pane, and locked status.
+     * Responds to changes in the tabbed pane, and locked/editing mode.
      * 
      * @see ChangeListener#stateChanged(ChangeEvent)
      */
@@ -345,7 +345,10 @@ class BrowserUI
     		updateViewingMode();
     	
     	else if (e.getSource().equals(browser)) {
-    		treeDisplay.setEditable(! browser.isFileLocked());
+    		// edit tree if file not locked and we are editing experiment
+    		boolean editable = ((! browser.isFileLocked()) 
+    				&& (browser.getEditingMode() == Browser.EDIT_EXPERIMENT));
+    		treeDisplay.setEditable(editable);
     		expInfoTree.refreshFileLocked();
     		expInfoText.refreshFileLocked();
     	}

@@ -87,12 +87,16 @@ public class ChemicalSymbolsEditer
 	public ChemicalSymbolsEditer(SimpleAttributeSet plainText) {
 		this.plainText = plainText;
 		
+		// punctuation or space must follow a regex pattern
+		// NB: this single character is not replaced.
+		String p = "[!:,.;)+&@#/%?~_| ]";
+		
 		symbols = new HashMap<String, String>();
-		symbols.put(" ul", " µl");
-		symbols.put(" ug", " µg");
-		symbols.put(" uM", " µM");
-		symbols.put(" 'C", " ¼C");
-		symbols.put(" oC", " ¼C");
+		symbols.put(" ul" + p, " µl");
+		symbols.put(" ug" + p, " µg");
+		symbols.put(" uM" + p, " µM");
+		symbols.put(" 'C" + p, " ¼C");
+		symbols.put(" oC" + p, " ¼C");
 	}
 	
 	/**
@@ -171,7 +175,9 @@ public class ChemicalSymbolsEditer
 								(! p.contains(characterIndex, characterIndex)))
 									continue;
 							start = p.getStart();
-							end = p.getEnd();
+							// don't remove the punctuation/space that forms the 
+							// last character of the regex. 
+							end = p.getEnd()-1; 
 							
 							doc.remove(start, end-start);
 							doc.insertString(start, replacement, plainText);

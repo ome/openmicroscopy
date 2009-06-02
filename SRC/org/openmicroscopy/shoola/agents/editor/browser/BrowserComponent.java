@@ -126,7 +126,7 @@ public class BrowserComponent
 	public void setEdited(boolean edited) 
 	{
 		model.setEdited(edited);
-		fireStateChange();
+		// fireStateChange();
 		firePropertyChange(BROWSER_EDIT_PROPERTY, -1, model.getSavedState());
 	}
 	
