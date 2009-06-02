@@ -215,6 +215,9 @@ public class FieldTextArea
 	public static final String 		TEXT_SPACER = "<"+ TEXT_TAG +
 													"> </"+ TEXT_TAG + ">";
 	
+	/** A bound property of this class, indicating this field was selected */
+	public static final String 		FIELD_SELECTED = "fieldSelected";
+	
 	/**
 	 * Initialises UI components. 
 	 */
@@ -995,8 +998,9 @@ public class FieldTextArea
 	
 	/**
 	 * Implemented as specified by the {@link FocusListener} interface.
-	 * Attempts to select the corresponding
-	 * path in the navigation {@link JTree} (if not already selected)
+	 * Fires propertyChange for the {@link #FIELD_SELECTED} property when 
+	 * focus is gained. 
+	 * 
 	 * @see FocusListener#focusGained(FocusEvent)
 	 */
 	public void focusGained(FocusEvent e) {
@@ -1005,7 +1009,7 @@ public class FieldTextArea
 		TreePath path = new TreePath(treeNode.getPath());
 		if (navTree != null) {
 			if (! navTree.isPathSelected(path)) {
-				navTree.setSelectionPath(path);
+				firePropertyChange(FIELD_SELECTED, null, path);
 			}
 		}
 	}

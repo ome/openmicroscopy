@@ -29,6 +29,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -79,7 +81,8 @@ public class TextAreasView
 	implements Scrollable,
 	TreeModelListener,
 	TreeSelectionListener,
-	ChangeListener
+	ChangeListener,
+	PropertyChangeListener
 	{
 	
 	/**
@@ -144,6 +147,8 @@ public class TextAreasView
 				if (f != null) {
 					tc = new FieldTextArea(f, navTree, node, controller);
 					textAreas.put(path, tc);
+					tc.addPropertyChangeListener(
+											FieldTextArea.FIELD_SELECTED, this);
 					add(tc);
 				}
 			}
@@ -387,6 +392,22 @@ public class TextAreasView
 	 */
 	public void stateChanged(ChangeEvent e) {
 		refreshEnabled();
+	}
+
+	/**
+	 * Implemented as specified by the {@link PropertyChangeListener} interface
+	 * Handles selection of the fields displayed by this class.
+	 */
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (FieldTextArea.FIELD_SELECTED.equals(evt.getPropertyName())) {
+			Object p = evt.getNewValue();
+			if (p instanceof TreePath) {
+				// don't want to be notified of selection change! 
+				navTree.removeTreeSelectionListener(this);
+				navTree.setSelectionPath((TreePath) p);
+				navTree.addTreeSelectionListener(this);
+			}
+		}
 	}
 
 }
