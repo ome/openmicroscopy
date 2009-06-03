@@ -581,8 +581,10 @@ public class DataBrowserTranslator
     {
         PermissionData permissions = ho.getPermissions();
         long objectOwnerID = ho.getOwner().getId();
-       
-        if (userID == objectOwnerID) return permissions.isUserRead();
+       // TODO: fix when perimssions are back.
+        return true;
+       // if (userID == objectOwnerID) return permissions.isUserRead();
+        
         /*
         Set groups = ho.getOwner().getGroups();
         Iterator i = groups.iterator();
@@ -597,7 +599,7 @@ public class DataBrowserTranslator
         }
         if (groupRead) 
         */
-        return permissions.isGroupRead();
+       // return permissions.isGroupRead();
        // return permissions.isWorldRead();
     }
     
