@@ -326,8 +326,8 @@ class EditorComponent
 				if (saved.before(midnight)) {
 					MessageBox msg = new MessageBox(view, 
 							"Update Experiment?", 
-							"This Experiment was last saved on " 
-							+ savedDate + ".\n" +
+							"This Experiment was last saved on \n" 
+							+ savedDate + ".\n \n" +
 							"Do you want to overwrite with the current file?");
 					// check if user really wants to overwrite. 		
 					int option = msg.centerMsgBox();
