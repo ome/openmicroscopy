@@ -81,7 +81,7 @@ public class EditorTextComponent
 	
 	/** 
 	 * Formatter for editing text to appropriate chemical symbols.
-	 * E.g. 'C becomes ¼C
+	 * E.g. 'C 
 	 */
 	private ChemicalSymbolsEditer	chemicalSymbolEditer;
 	
@@ -94,7 +94,7 @@ public class EditorTextComponent
 	/** List of the positions of parameters */
 	private	List<Position> 				paramPositionList;
 	
-	/** Flag to enable on/off of auto-editing of Eg ul to µl. */
+	/** Flag to enable on/off of auto-editing of Eg ul . */
 	private boolean 					toggleSymbolEdit = true;
 	
 	/**  Set to true by document listener, set to false when saved to model. */
