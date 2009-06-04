@@ -28,19 +28,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * This class is designed to format Chemical Names E.g H2O so that the 
+ * numbers are subscript, within a {@link StyledDocument} passed to the 
+ * {@link #parseRegex(StyledDocument, boolean)} method. 
+ * Chemicals are identified from a list using regex matching. 
+ * Add chemicals to the list using the {@link #addFormula(String)} method.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -50,7 +54,7 @@ import javax.swing.text.StyledDocument;
  * </small>
  * @since 3.0-Beta4
  */
-public class ChemicalNameFormatter implements DocumentListener {
+public class ChemicalNameFormatter {
 	
 	/** The Doc to parse  */
 	StyledDocument doc;
@@ -65,18 +69,21 @@ public class ChemicalNameFormatter implements DocumentListener {
 	
 	/** The Style of the subscript */
 	private SimpleAttributeSet					subscript;
-
-	/**
-	 * Called by the update edits. 
-	 * Delegates to {@link #parseRegex(StyledDocument)}
-	 * 
-	 * @param e		The DocumentEvent
+	
+	/** 
+	 * Looks up a list of chemicals from editor.xml and adds them to the 
+	 * formulas list. 
+	 * List of formulas found here 
+	 * http://openwetware.org/wiki/Materials
 	 */
-	private void parseRegex(DocumentEvent e) {
-		if (e.getDocument() instanceof StyledDocument) {
-			parseRegex((StyledDocument)e.getDocument(), true);
-		} else {
-			return;
+	private void populateChemicalList()
+	{
+		String list = (String)EditorAgent.getRegistry().lookup
+														("/model/chemicals");
+		String[] chemicals = list.split(",");
+
+		for (int i = 0; i < chemicals.length; i++) {
+			formulas.add(chemicals[i].trim());
 		}
 	}
 
@@ -87,21 +94,7 @@ public class ChemicalNameFormatter implements DocumentListener {
 	public ChemicalNameFormatter() {
 		formulas = new ArrayList<String>();
 		
-		// chemical names from http://openwetware.org/wiki/Materials
-		formulas.add("H2O");
-		formulas.add("MgCl2");
-		formulas.add("Na3VO4");
-		formulas.add("H2SO4");
-		formulas.add("C8H18N2O4S"); // HEPES buffer
-		formulas.add("NaN3");
-		formulas.add("Na2HPO4");
-		formulas.add("NaH2PO4");
-		formulas.add("KH2PO4");
-		formulas.add("CaCl2");
-		formulas.add("Na2EDTA");
-		formulas.add("C4H11NO3");	// Tris
-		formulas.add("NH4OH");
-		formulas.add("CH3COONa");
+		populateChemicalList();
 		
 		plainText = new SimpleAttributeSet();
 		StyleConstants.setFontFamily(plainText, "SansSerif");
@@ -131,37 +124,13 @@ public class ChemicalNameFormatter implements DocumentListener {
 	}
 	
 	/**
-	 * Implemented as specified by the {@link DocumentListener} interface.
-	 * Null implementation here, since Formula matching should not be affected
-	 * by changes to fonts etc. Also avoids recursive calling when applying
-	 * subscripts. 
-	 */
-	public void changedUpdate(DocumentEvent e) {
-		// parseRegex(e);
-	}
-
-	/**
-	 * Implemented as specified by the {@link DocumentListener} interface.
-	 * Calls {@link #parseRegex(DocumentEvent)}
-	 */
-	public void insertUpdate(DocumentEvent e) {
-		parseRegex(e);
-	}
-
-	/**
-	 * Implemented as specified by the {@link DocumentListener} interface.
-	 * Calls {@link #parseRegex(DocumentEvent)}
-	 */
-	public void removeUpdate(DocumentEvent e) {
-		parseRegex(e);
-	}
-	
-	/**
 	 * Parse the document, find the regex matches and apply the appropriate 
 	 * Style to each. The Source of the Edit Event should be a 
 	 * StyledDocument in order that the styles are applied. 
 	 * Method is public so that it can be called to apply styles before any
 	 * editing occurs. 
+	 * Editing occurs on a new thread, so that concurrent editing does not 
+	 * occur when this method is called from a Document Listener.
 	 * 
 	 * @param e		The Edit Event. 
 	 */

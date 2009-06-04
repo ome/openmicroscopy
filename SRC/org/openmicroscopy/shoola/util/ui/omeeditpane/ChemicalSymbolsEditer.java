@@ -31,19 +31,25 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyledDocument;
+
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Class for replacing 'fake' chemical symbols E.g. ul or 'C with the correct
+ * chemical symbol. 
+ * A number of symbols are added when the class is created. More can be
+ * added using {@link #addSymbol(String, String)}.
+ * Simply call the {@link #parseRegex(Document, int)} method to parse the
+ * document at the given point and replace the pre-defined matches. 
+ * The editing is done on a separate thread, so that this method can be called
+ * from a Document Listener (won't conflict on concurrent editing). 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -53,8 +59,7 @@ import javax.swing.text.StyledDocument;
  * </small>
  * @since 3.0-Beta4
  */
-public class ChemicalSymbolsEditer 
-	implements DocumentListener 
+public class ChemicalSymbolsEditer
 {
 	
 	/** The Doc to parse  */
@@ -70,15 +75,33 @@ public class ChemicalSymbolsEditer
 	/** The index at which the editing occurs */
 	private int 						characterIndex;
 	
-
 	/**
-	 * Called by the update edits. 
-	 * Delegates to {@link #parseRegex(StyledDocument)}
-	 * 
-	 * @param e		The DocumentEvent
+	 * Punctuation or space must follow a regex pattern
+	 * NB: this single character is not replaced.
 	 */
-	private void parseRegex(DocumentEvent e) {
-		parseRegex(e.getDocument(), e.getOffset());
+	public static final String PUNCTUATION = "[!:,.;)+&@#/%?~_| ]";
+
+	
+	/**
+	 * Populates the map of symbols to recognise and replace, using 
+	 * values from the editor.xml file. 
+	 */
+	private void populateSymbolsList()
+	{
+		String list = (String)EditorAgent.getRegistry().lookup("/model/symbols");
+		String[] chemicals = list.split(",");
+
+		String find, replace;
+		String[] colonSplit;
+		// each find:replace pair is joined with a colon:
+		for (int i = 0; i < chemicals.length; i++) {
+			colonSplit = chemicals[i].split(":");
+			find = " " + colonSplit[0].trim();
+			if (colonSplit.length > 1) {
+				replace = " " + colonSplit[1].trim();
+				addSymbol(find, replace);
+			}
+		}
 	}
 
 	/**
@@ -87,16 +110,8 @@ public class ChemicalSymbolsEditer
 	public ChemicalSymbolsEditer(SimpleAttributeSet plainText) {
 		this.plainText = plainText;
 		
-		// punctuation or space must follow a regex pattern
-		// NB: this single character is not replaced.
-		String p = "[!:,.;)+&@#/%?~_| ]";
-		
 		symbols = new HashMap<String, String>();
-		symbols.put(" ul" + p, " µl");
-		symbols.put(" ug" + p, " µg");
-		symbols.put(" uM" + p, " µM");
-		symbols.put(" 'C" + p, " ¼C");
-		symbols.put(" oC" + p, " ¼C");
+		populateSymbolsList();
 	}
 	
 	/**
@@ -106,32 +121,8 @@ public class ChemicalSymbolsEditer
 	 * @param style		The Style to apply to matching text. 
 	 */
 	public void addSymbol(String regex, String replacement) {
-		symbols.put(regex, replacement);
-	}
-	
-	/**
-	 * Implemented as specified by the {@link DocumentListener} interface.
-	 * Null implementation here, since Regex matching should not be affected
-	 * by changes to fonts etc. 
-	 */
-	public void changedUpdate(DocumentEvent e) {
-		// parseRegex(e);
-	}
-
-	/**
-	 * Implemented as specified by the {@link DocumentListener} interface.
-	 * Calls {@link #parseRegex(DocumentEvent)}
-	 */
-	public void insertUpdate(DocumentEvent e) {
-		parseRegex(e);
-	}
-
-	/**
-	 * Implemented as specified by the {@link DocumentListener} interface.
-	 * Calls {@link #parseRegex(DocumentEvent)}
-	 */
-	public void removeUpdate(DocumentEvent e) {
-		parseRegex(e);
+		// every regex must be followed by punctuation or space
+		symbols.put(regex + PUNCTUATION, replacement);
 	}
 	
 	/**
