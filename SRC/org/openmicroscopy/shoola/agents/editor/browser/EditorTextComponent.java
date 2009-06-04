@@ -41,6 +41,7 @@ import javax.swing.text.StyledDocument;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.ChemicalNameFormatter;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.ChemicalSymbolsEditer;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMERegexFormatter;
@@ -122,7 +123,45 @@ public class EditorTextComponent
 		
 		WikiView.findExpressions(text, PARAM_REGEX, paramPositionList);
 	}
+	
+	/**
+	 * Populates the map of symbols to recognise and replace, using 
+	 * values from the editor.xml file. 
+	 */
+	private void populateSymbolsList()
+	{
+		String list = (String)EditorAgent.getRegistry().lookup("/model/symbols");
+		String[] chemicals = list.split(",");
 
+		String find, replace;
+		String[] colonSplit;
+		// each find:replace pair is joined with a colon:
+		for (int i = 0; i < chemicals.length; i++) {
+			colonSplit = chemicals[i].split(":");
+			find = " " + colonSplit[0].trim();
+			if (colonSplit.length > 1) {
+				replace = " " + colonSplit[1].trim();
+				chemicalSymbolEditer.addSymbol(find, replace);
+			}
+		}
+	}
+
+	/** 
+	 * Looks up a list of chemicals from editor.xml and adds them to the 
+	 * formulas list. 
+	 * List of formulas found here 
+	 * http://openwetware.org/wiki/Materials
+	 */
+	private void populateChemicalList()
+	{
+		String list = (String)EditorAgent.getRegistry().lookup
+														("/model/chemicals");
+		String[] chemicals = list.split(",");
+
+		for (int i = 0; i < chemicals.length; i++) {
+			chemicalNameFormatter.addFormula(chemicals[i].trim());
+		}
+	}
 
 	/**
 	 * Called whenever the document is edited
@@ -239,7 +278,9 @@ public class EditorTextComponent
         
         // make formatters for chemical names and symbols. 
         chemicalNameFormatter = new ChemicalNameFormatter(plainText);
-        chemicalSymbolEditer = new ChemicalSymbolsEditer(plainText);        
+        populateChemicalList();
+        chemicalSymbolEditer = new ChemicalSymbolsEditer(plainText);   
+        populateSymbolsList();
         
         getDocument().addDocumentListener(this);
 	}

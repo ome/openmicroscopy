@@ -35,8 +35,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -81,28 +79,6 @@ public class ChemicalSymbolsEditer
 	 */
 	public static final String PUNCTUATION = "[!:,.;)+&@#/%?~_| ]";
 
-	
-	/**
-	 * Populates the map of symbols to recognise and replace, using 
-	 * values from the editor.xml file. 
-	 */
-	private void populateSymbolsList()
-	{
-		String list = (String)EditorAgent.getRegistry().lookup("/model/symbols");
-		String[] chemicals = list.split(",");
-
-		String find, replace;
-		String[] colonSplit;
-		// each find:replace pair is joined with a colon:
-		for (int i = 0; i < chemicals.length; i++) {
-			colonSplit = chemicals[i].split(":");
-			find = " " + colonSplit[0].trim();
-			if (colonSplit.length > 1) {
-				replace = " " + colonSplit[1].trim();
-				addSymbol(find, replace);
-			}
-		}
-	}
 
 	/**
 	 * Creates an instance. 
@@ -111,7 +87,6 @@ public class ChemicalSymbolsEditer
 		this.plainText = plainText;
 		
 		symbols = new HashMap<String, String>();
-		populateSymbolsList();
 	}
 	
 	/**

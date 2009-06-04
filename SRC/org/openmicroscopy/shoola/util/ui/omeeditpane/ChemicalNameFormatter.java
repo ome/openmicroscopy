@@ -33,8 +33,6 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -70,22 +68,6 @@ public class ChemicalNameFormatter {
 	/** The Style of the subscript */
 	private SimpleAttributeSet					subscript;
 	
-	/** 
-	 * Looks up a list of chemicals from editor.xml and adds them to the 
-	 * formulas list. 
-	 * List of formulas found here 
-	 * http://openwetware.org/wiki/Materials
-	 */
-	private void populateChemicalList()
-	{
-		String list = (String)EditorAgent.getRegistry().lookup
-														("/model/chemicals");
-		String[] chemicals = list.split(",");
-
-		for (int i = 0; i < chemicals.length; i++) {
-			formulas.add(chemicals[i].trim());
-		}
-	}
 
 	/**
 	 * Creates an instance. 
@@ -93,8 +75,6 @@ public class ChemicalNameFormatter {
 	 */
 	public ChemicalNameFormatter() {
 		formulas = new ArrayList<String>();
-		
-		populateChemicalList();
 		
 		plainText = new SimpleAttributeSet();
 		StyleConstants.setFontFamily(plainText, "SansSerif");
