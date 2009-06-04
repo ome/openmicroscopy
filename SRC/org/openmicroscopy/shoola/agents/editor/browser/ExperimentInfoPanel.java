@@ -439,7 +439,7 @@ public class ExperimentInfoPanel
 			
 			selectCurrentStep();
 			
-			editingMode.refresh();
+			refreshEditingMode();
 			
 			refreshFileLocked();
 			
@@ -601,6 +601,14 @@ public class ExperimentInfoPanel
 		fileLockedCheckBox.removeActionListener(this);
 		fileLockedCheckBox.setSelected(controller.isFileLocked());
 		fileLockedCheckBox.addActionListener(this);
+	}
+	
+	/**
+	 * Called by the {@link BrowserUI} when the model's editing mode changes.
+	 */
+	void refreshEditingMode()
+	{
+		editingMode.refresh();
 	}
 	
 	/**

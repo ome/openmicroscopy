@@ -349,8 +349,8 @@ class BrowserUI
     		boolean editable = ((! browser.isFileLocked()) 
     				&& (browser.getEditingMode() == Browser.EDIT_EXPERIMENT));
     		treeDisplay.setEditable(editable);
-    		expInfoTree.refreshFileLocked();
-    		expInfoText.refreshFileLocked();
+    		expInfoTree.refreshEditingMode();
+    		expInfoText.refreshEditingMode();
     	}
 	}
     

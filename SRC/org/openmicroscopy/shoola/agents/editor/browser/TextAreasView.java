@@ -180,23 +180,31 @@ public class TextAreasView
 				((FieldTextArea)comp).refreshSelection();
 			}
 			
-			// ... and if a step is selected, scroll to it! 
-			if (navTree.getSelectionCount() == 0)	return;
 			
-			TreePath path = navTree.getSelectionPath();
-			JPanel selectedField = textAreas.get(path);
-			if (selectedField != null) {
-				Rectangle rect = selectedField.getBounds();
-				int y = (int)rect.getY();
-				
-				if (getParent() instanceof JViewport) {
-					JViewport scroller = (JViewport)getParent();
-					// if the selected field is not wholly visible..
-					// scroll to show it.
-					//scroller.scrollRectToVisible() doesn't work up the page!
-					if (! scroller.getViewRect().contains(rect)) {
-						scroller.setViewPosition(new Point(0, y));
-					}
+		}
+	}
+	
+	/**
+	 * Scrolls the view port to the selected field. 
+	 */
+	private void scrollToSelectedStep() 
+	{
+		// if a step is selected, scroll to it! 
+		if (navTree.getSelectionCount() == 0)	return;
+		
+		TreePath path = navTree.getSelectionPath();
+		JPanel selectedField = textAreas.get(path);
+		if (selectedField != null) {
+			Rectangle rect = selectedField.getBounds();
+			int y = (int)rect.getY();
+			
+			if (getParent() instanceof JViewport) {
+				JViewport scroller = (JViewport)getParent();
+				// if the selected field is not wholly visible..
+				// scroll to show it.
+				//scroller.scrollRectToVisible() doesn't work up the page!
+				if (! scroller.getViewRect().contains(rect)) {
+					scroller.setViewPosition(new Point(0, y));
 				}
 			}
 		}
@@ -382,6 +390,7 @@ public class TextAreasView
 	 */
 	public void valueChanged(TreeSelectionEvent e) {
 		refreshSelection();
+		scrollToSelectedStep();
 	}
 
 	/**
@@ -405,9 +414,9 @@ public class TextAreasView
 				// don't want to be notified of selection change! 
 				navTree.removeTreeSelectionListener(this);
 				navTree.setSelectionPath((TreePath) p);
+				refreshSelection();
 				navTree.addTreeSelectionListener(this);
 			}
 		}
 	}
-
 }
