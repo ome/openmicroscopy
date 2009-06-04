@@ -103,6 +103,12 @@ public class ROITableModel
 		if(nodeObject instanceof ROINode)
 		{
 			ROINode node = (ROINode)nodeObject;
+			if(column==ANNOTATION_COLUMN+1)
+				if(value == null)
+					value = new String("");
+				else
+					if(value.equals(""))
+						value = " ";
 			node.setValueAt(value, column);
 			TreePath path;
 			modelSupport.fireNewRoot();

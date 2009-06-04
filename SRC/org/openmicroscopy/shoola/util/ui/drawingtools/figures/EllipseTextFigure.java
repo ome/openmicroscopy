@@ -239,7 +239,7 @@ public class EllipseTextFigure
 	{
 		if (!(MeasurementAttributes.SHOWTEXT.get(this))) return;
 		String text = getText();
-		if (text != null || isEditable()) 
+		if (text != null && isEditable()) 
 		{	
 			if(text!=null)
 				text = text.trim();

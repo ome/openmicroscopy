@@ -346,7 +346,10 @@ public class ROINode
 					{
 						AnnotationKeys.TEXT.set(roiShape, (String)value);
 						MeasurementAttributes.TEXT.set(figure, (String)value);
-						MeasurementAttributes.SHOWTEXT.set(figure, true);
+						if(((String)value).equals(""))
+							MeasurementAttributes.SHOWTEXT.set(figure, false);
+						else
+							MeasurementAttributes.SHOWTEXT.set(figure, true);
 					}
 					break;
 				case VISIBLE_COLUMN+1:

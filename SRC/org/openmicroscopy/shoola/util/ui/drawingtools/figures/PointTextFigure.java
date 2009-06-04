@@ -131,7 +131,7 @@ public class PointTextFigure
 	{
 		if (DrawingAttributes.SHOWTEXT.get(this)) {
 			String text = getText();
-			if (text != null || isEditable()) 
+			if (text != null  && isEditable()) 
 			{	
 				if(text!=null)
 					text = text.trim();
