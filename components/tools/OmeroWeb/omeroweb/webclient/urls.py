@@ -118,7 +118,6 @@ urlpatterns = patterns('',
     ( r'(?i)^myaccount/$', views.myaccount ),
     ( r'(?i)^myaccount/(?P<action>[a-zA-Z]+)/$', views.myaccount ),
     ( r'(?i)^help/(.*)/$', views.help ),
-    ( r'(?i)^static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media').replace('\\','/') } ),
     
     (r'(?i)^myphoto/$', views.myphoto),
     (r'(?i)^userphoto/(?P<oid>[0-9]+)/$', views.load_photo),
@@ -132,11 +131,10 @@ urlpatterns = patterns('',
     
     #(r'(?i)^feeds/(?P<url>.*)/$', 'django.contrib.syndication.views.feed',{'feed_dict': feeds}),
     
-    #( r'(?i)^image/(?P<image_id>[0-9]+)/$', views.manage_image ),
+    #test ROI
+    (r'(?i)^test/$', views.test), 
+    (r'(?i)^histogram/(?P<oid>[0-9]+)/$', views.histogram), 
     
-    #( r'(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/$', views.manage_container_data ),
-    #( r'(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/$', views.manage_container_data ),
+    ( r'(?i)^static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media').replace('\\','/') } ),
     
-    
-
 )

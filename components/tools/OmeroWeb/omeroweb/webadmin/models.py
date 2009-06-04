@@ -66,7 +66,20 @@ class OmeNameField(forms.Field):
 
 class LoginForm(forms.Form):
     
-    server = forms.ModelChoiceField(Gateway.objects.all(), empty_label=u"---------")
+    def __init__(self, *args, **kwargs):
+        super(LoginForm, self).__init__(*args, **kwargs)
+        g = Gateway.objects.all()
+        try:
+            if len(g) > 1:
+                self.fields['server'] = forms.ModelChoiceField(g, empty_label=u"---------")
+            else:
+                self.fields['server'] = forms.ModelChoiceField(g, empty_label=None)
+        except:
+            self.fields['server'] = forms.ModelChoiceField(g, empty_label=u"---------")
+        
+        self.fields.keyOrder = ['server', 'username', 'password']
+            
+    #server = forms.ModelChoiceField(Gateway.objects.all(), empty_label=u"---------")
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22}))
 

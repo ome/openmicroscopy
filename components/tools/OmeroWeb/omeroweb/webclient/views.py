@@ -219,7 +219,6 @@ def login(request):
     try:
         conn = getConnection(request)
     except Exception, x:
-        #logger.error(traceback.format_exc())
         error = x.__class__.__name__
     
     if conn is not None:
@@ -262,6 +261,11 @@ def login(request):
                 except:
                     initial = {'server': unicode(blitz[0].id)}
                     form = LoginForm(initial=initial)
+                if blitz:
+                    initial = {'server': unicode(blitz[0].id)}
+                    form = LoginForm(initial=initial)
+                else:
+                    form = LoginForm()
             except:
                 form = LoginForm()
         if url is not None:
@@ -2789,8 +2793,11 @@ def myaccount(request, action=None, **kwargs):
             email = request.REQUEST['email'].encode('utf-8')
             institution = request.REQUEST['institution'].encode('utf-8')
             defaultGroup = request.REQUEST['default_group']
-            password = request.REQUEST['password'].encode('utf-8')
-            if len(password) == 0:
+            try:
+                password = request.REQUEST['password'].encode('utf-8')
+                if len(password) == 0:
+                    password = None
+            except:
                 password = None
             controller.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
             return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBCLIENT_ROOT_BASE))
@@ -3286,3 +3293,91 @@ def spellchecker(request):
         con.close()
         return HttpResponse(r_text, mimetype='text/javascript')
 
+@isUserConnected
+def test(request, **kwargs):
+    template = "omeroweb/testROIs/test.html"
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    r = request.REQUEST
+    rv = {}
+    for k in ('x1', 'x2', 'y1', 'y2', 'w', 'h', 'shape'):
+        if r.has_key(k):
+           rv[k] = r[k]
+    
+    photo_size = conn.getExperimenterPhotoSize()
+    
+    context = {'photo_size':photo_size, 'params':rv}
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
+
+@isUserConnected
+def histogram(request, oid, **kwargs):
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+        
+    import matplotlib
+    matplotlib.use('Agg')
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    from matplotlib.figure import Figure
+    from cStringIO import StringIO
+
+    import Image
+    
+    from PIL import Image, ImageOps, ImageDraw
+    
+    valsR = conn.downloadPlane(oid, 5,0,1)
+    valsG = conn.downloadPlane(oid, 5,1,1)
+    valsB = conn.downloadPlane(oid, 5,2,1)
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import matplotlib.mlab as mlab
+    
+    import pylab
+
+    # plt.figure creates a matplotlib.figure.Figure instance
+    #fig = plt.figure()
+    #canvas = FigureCanvas(fig)
+    #ax = fig.add_subplot(111)
+    #ax.set_title("title")
+    #ax.set_xlabel("Score")
+    #ax.set_ylabel("Frequency")
+    fig = pylab.figure()
+    binsR = valsR[0]
+    binsG = valsG[0]
+    binsB = valsB[0]
+
+    # the histogram of the data with histtype='step'
+    #nR, binsR, patchesR = ax.hist(binsR, bins=max(binsR), facecolor='red', edgecolor='red')
+    #nG, binsG, patchesG = ax.hist(binsG, bins=max(binsG), facecolor='green', edgecolor='green')
+    #nB, binsB, patchesB = ax.hist(binsB, bins=max(binsB), facecolor='blue', edgecolor='blue')
+
+    nR, binsR, patchesR = pylab.hist(binsR, max(binsR), normed=1, histtype='bar', edgecolor='red')
+    pylab.setp(patchesR, 'facecolor', 'r', 'alpha', 0.75)
+    nG, binsG, patchesG = pylab.hist(binsG, bins=max(binsG), normed=1, histtype='bar', edgecolor='green')
+    pylab.setp(patchesG, 'facecolor', 'g', 'alpha', 0.75)
+    nB, binsB, patchesB = pylab.hist(binsB, bins=max(binsB), normed=1, histtype='bar', edgecolor='blue')
+    pylab.setp(patchesB, 'facecolor', 'b', 'alpha', 0.75)
+    
+    #for label in ax.xaxis.get_ticklabels():
+    #    label.set_color('red')
+    #    label.set_rotation(90)
+    
+    canvas = FigureCanvas(fig)
+    
+    imdata = StringIO()
+    canvas.print_figure(imdata)
+    return HttpResponse(imdata.getvalue(), mimetype='image/png')
+    

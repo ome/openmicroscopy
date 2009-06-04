@@ -1747,6 +1747,15 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             for e in search.results():
                 yield ProjectWrapper(self, e)
     
+    def downloadPlane(self, oid, z, c, t):
+        p = ParametersI().leaves()        
+        image = self.getContainerService().getImages('Image', [long(oid)], p)[0]
+        pixels = image.getPrimaryPixels()
+        rp = self.createRawPixelsStore()
+        rp.setPixelsId(pixels.getId().val, True)
+        from omero.util.script_utils import downloadPlane
+    	return downloadPlane(rp, pixels, z,c,t-1);
+    
     ##############################################
     ##  helpers                                 ##
     
