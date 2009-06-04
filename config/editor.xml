@@ -35,6 +35,12 @@
 	<!-- A comma-delimited list of common units -->
 	<entry name="/model/units">ml, M, ng, pH, µg, µg/ml, µl, µM, ºC, days, hours, minutes, seconds</entry>
 
+	<!-- List of chemical formula to format (subscript the numbers) -->
+	<entry name="/model/chemicals">H2O, MgCl2, Na3VO4, H2SO4, C8H18N2O4S, NaN3, Na2HPO4, NaH2PO4, KH2PO4, CaCl2, Na2EDTA, C4H11NO3, NH4OH, CH3COONa</entry>
+
+	<!-- Pairs of symbols to recognise and replace in text editor -->
+	<entry name="/model/symbols">'C:ºC, ul:µl, ug:µg, uM:µM, oC:ºC</entry>
+
 	<!-- The maximum width or height of thumbnails (Data-Reference image links) -->
 	<entry name="/ui/thumbnail">175</entry>
 	
