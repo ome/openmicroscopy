@@ -100,7 +100,9 @@ public class PopupMenuButton
 				maybeShowPopup(e);
 			}
 			private void maybeShowPopup(MouseEvent e) {
-				popupMenu.show(e.getComponent(), e.getX(), e.getY());
+				if (e.getComponent().isVisible()) {
+					popupMenu.show(e.getComponent(), e.getX(), e.getY());
+				}
 			}
 			public void mouseClicked(MouseEvent e) {}
 			public void mouseEntered(MouseEvent e) {}
