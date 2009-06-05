@@ -891,7 +891,6 @@ class MeasurementViewerModel
 			i = newList.iterator();
 			while (i.hasNext()) {
 				shape = (ROIShape) i.next();
-				System.err.println(shape.getID());
 				m.put(shape, analysisResults.get(shape));
 			}
 			this.analysisResults = m;
