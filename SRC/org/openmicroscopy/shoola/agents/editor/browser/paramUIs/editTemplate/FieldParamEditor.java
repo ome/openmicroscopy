@@ -98,12 +98,6 @@ public class FieldParamEditor
 	Scrollable,
 	ActionListener
 {
-	/**
-	 * A bound property of this panel. 
-	 * Changes in this property indicate that the panel needs to be rebuilt
-	 * from the data model. 
-	 */
-	public static final String PANEL_CHANGED_PROPERTY = "panelChanged";
 	
 	/**
 	 * The field that this UI component edits.

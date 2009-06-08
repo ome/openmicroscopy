@@ -40,6 +40,7 @@ import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -47,6 +48,7 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.plaf.ViewportUI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
@@ -110,6 +112,9 @@ public class TextAreasView
 	 */
 	private Map<TreePath, FieldTextArea> textAreas;
 	 
+	int y = 0;
+	JViewport scroller = null;
+	
 	/**
 	 * Refreshes the contents of this UI. 
 	 * Removes all the text components and rebuilds the UI with new 
@@ -179,8 +184,6 @@ public class TextAreasView
 				// refresh selection of all steps...
 				((FieldTextArea)comp).refreshSelection();
 			}
-			
-			
 		}
 	}
 	
@@ -210,8 +213,19 @@ public class TextAreasView
 		}
 	}
 	
-	private void refreshEnabled()
+	/**
+	 * This refreshes the text in ALL the text fields.
+	 */
+	private void refreshAllFields()
 	{
+		// must remember the current viewport position (will be lost when
+		// we refresh the text). 
+		if (getParent() instanceof JViewport) {
+			scroller = (JViewport)getParent();
+			y = (int)scroller.getViewPosition().getY();
+			scroller.setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
+		}
+		
 		Component comp;
 		for (int i=0; i<getComponentCount(); i++) {
 			comp = getComponent(i);
@@ -220,6 +234,15 @@ public class TextAreasView
 				((FieldTextArea)comp).refreshEnabled();
 				((FieldTextArea)comp).refreshText();
 			}
+		}
+		
+		// scroll to the previous y position AFTER the UI has rendered. 
+		if (scroller != null) {
+			SwingUtilities.invokeLater(new Runnable() {
+		        public void run() {
+		        	scroller.setViewPosition(new Point(0, y));
+		        }
+			});
 		}
 	}
 
@@ -328,13 +351,14 @@ public class TextAreasView
 								(DefaultMutableTreeNode)treeModel.getRoot();
 			path = new TreePath(root.getPath());
 			ta = textAreas.get(path);
-			ta.refreshText();
+			if (ta != null)
+				ta.refreshText();
 			
 			// if the root has changed, this could be Add/Removal of 
 			// experimental info, which requires that all steps refresh their
 			// step icons, which can be achieved by refreshing selection.
 			refreshSelection();
-			refreshEnabled();
+			refreshAllFields();
 			return;
 		}
 		
@@ -400,7 +424,7 @@ public class TextAreasView
 	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */
 	public void stateChanged(ChangeEvent e) {
-		refreshEnabled();
+		refreshAllFields();
 	}
 
 	/**

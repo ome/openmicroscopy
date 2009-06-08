@@ -28,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -37,6 +38,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeModelEvent;
@@ -70,8 +72,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class FieldEditorDisplay 
 	extends JPanel 
 	implements TreeSelectionListener,
-	TreeModelListener,
-	PropertyChangeListener
+	TreeModelListener
 { 
 	
 	/**
@@ -92,9 +93,7 @@ public class FieldEditorDisplay
 	private JScrollPane 				scrollPane;
 	
 	/**
-	 * The currently displayed panel. Keep a reference to this so that
-	 * when it is replaced (eg selection change), this class can be removed as a 
-	 * {@link PropertyChangeListener}
+	 * The currently displayed panel. 
 	 */
 	private JComponent 					currentDisplay;
 	
@@ -105,36 +104,9 @@ public class FieldEditorDisplay
 	private long 						id;
 	
 	/**
-	 * Sets the content of this panel with a blank {@link JPanel}.
-	 * Calls {@link #setPanel(JComponent)}
-	 * 
-	 * @see #setPanel(JComponent)
+	 * The Y position of the scroll bar. 
 	 */
-	private void setPanel() {
-		setPanel(new JPanel());
-	}
-
-	/**
-	 * Sets the content of this UI with the specified panel, replacing the 
-	 * current component.
-	 * 
-	 * @param panel		The new panel to display
-	 */
-	private void setPanel(JComponent panel) 
-	{	
-		if (currentDisplay != null) {
-			currentDisplay.removePropertyChangeListener
-				(FieldContentEditor.PANEL_CHANGED_PROPERTY, this);
-		}
-		
-		currentDisplay = panel;
-		currentDisplay.addPropertyChangeListener
-		(FieldContentEditor.PANEL_CHANGED_PROPERTY, this);
-		
-		scrollPane.setViewportView(currentDisplay);
-		validate();
-		repaint();
-	}
+	private int 						yScrollPosition;
 	
 	/**
 	 * Builds the UI
@@ -149,33 +121,14 @@ public class FieldEditorDisplay
 		
 		add(scrollPane, BorderLayout.CENTER);
 	}
-
+	
 	/**
-	 * Creates an instance.
+	 * Returns the current panel that should be displayed, based on the 
+	 * selection path and the current Viewing Mode. 
 	 * 
-	 * @param tree			The JTree that contains the Field we're editing.
-	 * 				Listen to selection changes and display the current field
-	 * @param controller	A reference to the BrowserControl, for editing etc
+	 * @return		see above. 
 	 */
-	public FieldEditorDisplay(JTree tree, BrowserControl controller) 
-	{
-		this.controller = controller;
-		this.tree = tree;
-		
-		tree.addTreeSelectionListener(this);
-		
-		buildUI();
-		
-		setPanel();
-	}
-
-	/**
-	 * Refreshes the content of this panel, based on the currently selected
-	 * node of the {@link #tree}, and the current editing mode/view.
-	 * If {@link BrowserControl#TREE_VIEW}, show a panel that includes a
-	 * description editor, otherwise just show parameters editor. 
-	 */
-	void refreshEditorDisplay() 
+	private JComponent getCurrentPanel()
 	{
 		int editView = controller.getViewingMode();
 		
@@ -193,12 +146,74 @@ public class FieldEditorDisplay
 				fe = new FieldParamEditor(field, tree, node, controller);
 			}
 			fe.setId(id);
-			setPanel(fe);
+			return fe;
 		}
-		else {
-			setPanel();
-		}
+		return new JPanel();
 	}
+
+	/**
+	 * Creates an instance.
+	 * 
+	 * @param tree			The JTree that contains the Field we're editing.
+	 * 				Listen to selection changes and display the current field
+	 * @param controller	A reference to the BrowserControl, for editing etc
+	 */
+	public FieldEditorDisplay(JTree tree, BrowserControl controller) 
+	{
+		this.controller = controller;
+		this.tree = tree;
+		
+		tree.addTreeSelectionListener(this);
+		
+		buildUI();
+	}
+
+	/**
+	 * Refreshes the content of this panel, based on the currently selected
+	 * node of the {@link #tree}, and the current editing mode/view.
+	 * If {@link BrowserControl#TREE_VIEW}, show a panel that includes a
+	 * description editor, otherwise just show parameters editor. 
+	 */
+	void refreshEditorDisplay() 
+	{
+		setPanel(getCurrentPanel(), 0);
+	}
+	
+	/**
+	 * When a node has changed, the panel updates the display of that node.
+	 * Since we are still looking at the same view, it is important that 
+	 * the scroll position is the same (don't want to refresh to a different
+	 * position). 
+	 */
+	private void updateEditorDisplay()
+	{
+		int y = (int)scrollPane.getViewport().getViewPosition().getY();
+		setPanel(getCurrentPanel(), y);
+	}
+	
+	/**
+	 * Displays the given panel and scrolls the y axis to the y coordinate. 
+	 * @param panel		The component to display
+	 * @param y			The Y coordinate to scroll to (after UI is rendered). 
+	 */
+	private void setPanel(JComponent panel, int y)
+	{
+		yScrollPosition = y;
+		currentDisplay = panel;
+		scrollPane.setViewportView(currentDisplay);
+		
+		// needs to be called after UI has rendered. 
+		SwingUtilities.invokeLater(new Runnable() {
+	        public void run() {
+	        	scrollPane.getViewport().setViewPosition
+	        								(new Point(0, yScrollPosition));
+	        }
+		});
+		
+		validate();
+		repaint();
+	}
+
 	
 	/**
 	 * Sets the ID to display. If ID = 0, nothing is displayed. 
@@ -228,23 +243,6 @@ public class FieldEditorDisplay
 	}
 
 	/**
-	 * Listens for changes in the displayed {@link FieldEditorPanel}.
-	 * If the {@link FieldEditorPanel#PANEL_CHANGED_PROPERTY} property
-	 * changes, the panel needs to be refreshed and
-	 * {@link #refreshEditorDisplay()} is called.
-	 * 
-	 * Implemented as specified by the {@link PropertyChangeListener} interface
-	 * 
-	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-	 */
-	public void propertyChange(PropertyChangeEvent evt) {
-		if (FieldContentEditor.PANEL_CHANGED_PROPERTY
-				.equals(evt.getPropertyName())) {
-			refreshEditorDisplay();
-		}
-	}
-
-	/**
 	 * Implemented as specified by the {@link TreeModelListener} interface.
 	 * Calls {@link #refreshEditorDisplay()} to update the node, even if 
 	 * there is no change in node selection.
@@ -253,7 +251,7 @@ public class FieldEditorDisplay
 	 */
 	public void treeNodesChanged(TreeModelEvent e) 
 	{
-		refreshEditorDisplay();
+		updateEditorDisplay();
 	}
 
 	/**
