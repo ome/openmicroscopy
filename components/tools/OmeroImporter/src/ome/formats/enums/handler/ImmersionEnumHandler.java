@@ -36,36 +36,41 @@ import omero.model.Immersion;
  */
 class ImmersionEnumHandler implements EnumerationHandler
 {
-	/** Class we're a handler for. */
-	static final Class<? extends IObject> HANDLER_FOR = Immersion.class;
-	
-	/** Array of enumeration patterns this handler uses for searching. */ 
-	private static final PatternSet[] searchPatterns = new PatternSet[]
+    /** Class we're a handler for. */
+    static final Class<? extends IObject> HANDLER_FOR = Immersion.class;
+    
+    /** Array of enumeration patterns this handler uses for searching. */ 
+    private static final PatternSet[] searchPatterns = new PatternSet[]
         {
-			new PatternSet("^\\s*oil.*$", "Oil")
-	    };
-	
-	/* (non-Javadoc)
-	 * @see ome.formats.enums.handler.EnumerationHandler#findEnumeration(java.util.HashMap, java.lang.String)
-	 */
-	public IObject findEnumeration(HashMap<String, IObject> enumerations,
-			                     String value)
-	{
-		for (PatternSet x : searchPatterns)
-		{
-			if (x.pattern.matcher(value).matches())
-			{
-				IObject enumeration = enumerations.get(x.value);
-				if (enumeration == null)
-				{
-					throw new EnumerationException(String.format(
-							"Matched value %s with regex %s. Could not " +
-							"find resulting value in enumerations.",
-							x.pattern.pattern(), x.value), HANDLER_FOR, value);
-				}
-				return enumeration;
-			}
-		}
-		return null;
-	}
+            new PatternSet("^\\s*oil.*$", "Oil"),
+            new PatternSet("^\\s*OI.*$", "Oil"),
+            new PatternSet("^\\s*W", "Water"),
+            new PatternSet("^\\s*UV", "Unknown"),
+            new PatternSet("^\\s*Plan.*$", "Unknown"), // TODO: Remove when .nd2 bug which puts correction into immersion is fixed
+            new PatternSet("^\\s*DRY", "Air") //TODO: This needs to be changed to "Air" when immersion enum bug is fixed in 4.1
+        };
+    
+    /* (non-Javadoc)
+     * @see ome.formats.enums.handler.EnumerationHandler#findEnumeration(java.util.HashMap, java.lang.String)
+     */
+    public IObject findEnumeration(HashMap<String, IObject> enumerations,
+                                 String value)
+    {
+        for (PatternSet x : searchPatterns)
+        {
+            if (x.pattern.matcher(value).matches())
+            {
+                IObject enumeration = enumerations.get(x.value);
+                if (enumeration == null)
+                {
+                    throw new EnumerationException(String.format(
+                            "Matched value %s with regex %s. Could not " +
+                            "find resulting value in enumerations.",
+                            x.pattern.pattern(), x.value), HANDLER_FOR, value);
+                }
+                return enumeration;
+            }
+        }
+        return null;
+    }
 }

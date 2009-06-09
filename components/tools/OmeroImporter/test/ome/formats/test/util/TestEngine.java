@@ -6,16 +6,12 @@ import gnu.getopt.LongOpt;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.JEditorPane;
-import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -143,8 +139,9 @@ public class TestEngine
 			{
 				for (String fileType : fileTypes)
 				{
-					if (datasetFile.isFile() 
-						&& datasetFile.getName().endsWith("." + fileType))
+                    if (datasetFile.isFile() 
+                            && datasetFile.getName().endsWith("." + fileType)
+                            && !datasetFile.getName().startsWith("."))
 					{
 						iniFile.addFile(datasetFile.getName());
 					}

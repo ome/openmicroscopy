@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,6 +56,7 @@ import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
 import omero.api.IRepositoryInfoPrx;
+import omero.api.ITypesPrx;
 import omero.api.IUpdatePrx;
 import omero.api.MetadataStorePrx;
 import omero.api.MetadataStorePrxHelper;
@@ -89,6 +91,7 @@ import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.ImagingEnvironment;
 import omero.model.Immersion;
+import omero.model.ImmersionI;
 import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.LaserMedium;
@@ -224,6 +227,9 @@ public class OMEROMetadataStoreClient
         modelProcessors.add(new InstrumentProcessor());
         modelProcessors.add(new TargetProcessor());
         modelProcessors.add(new ReferenceProcessor());
+        
+        // Fix check for broken 4.0 immersions table
+        checkImmersions();
         
         // Start our keep alive executor
         if (executor == null)
@@ -4163,4 +4169,63 @@ public class OMEROMetadataStoreClient
             return o1.getName().getValue().compareTo(o2.getName().getValue());
         }
      }
+    
+
+    /**
+     * Based on immmersion table bug in 4.0 this is a hack to fix in code those enums missing/broken
+     * 
+     *  replace l1[0:3] (['Gly', 'Hl', 'Oel']) l2[0:3] (['Air', 'Glycerol', 'Multi'])
+     *  insert l1[4:4] ([]) l2[4:5] (['Other'])
+     *   delete l1[5:6] (['Wasser']) l2[6:6] ([])
+     *  replace l1[7:8] (['Wl']) l2[7:8] (['WaterDipping'])
+     */
+    private void checkImmersions()
+    {   
+        String[] immersionAddStrings = {"Air", "Glycerol", "Multi", "WaterDrippings", "Other"};
+        List<String> immersionAdds = Arrays.asList(immersionAddStrings);
+        
+        String[] immersionDeleteStrings = {"Gly", "Hl", "Oel", "Wasser", "Wl"};
+        List<String> immersionDeletes = Arrays.asList(immersionDeleteStrings);
+        
+        try
+        {
+            ITypesPrx types = serviceFactory.getTypesService();
+            List<IObject> immersionList = types.allEnumerations("omero.model.Immersion");
+            List<String> immersionStrings = new ArrayList<String>();
+            
+            for (IObject immersion: immersionList)
+            {
+                Immersion immersion2 = (Immersion) immersion;
+                immersionStrings.add(immersion2.getValue().getValue());
+                log.info("Found immersion: " + immersion2.getValue().getValue());
+            }
+            
+            for (String i: immersionAdds)
+            {
+                if (!immersionStrings.contains(i))
+                {
+                    Immersion immersion  = new ImmersionI();
+                    immersion.setValue(rstring(i));
+                    //types.createEnumeration(immersion);
+                    log.info("Adding missing immersion: " + i);
+                }
+
+            }
+            
+            for (String i: immersionDeletes)
+            {
+                int index = immersionStrings.indexOf(i);
+                
+                if (index != -1)
+                {
+                    //types.deleteEnumeration(immersionList.get(index));
+                    log.info("Deleting bad immersion: " + i);
+                }
+            }
+            
+        } catch (ServerError e)
+        {
+            log.error("checkImmersions() failure", e);
+        }
+    }
 }

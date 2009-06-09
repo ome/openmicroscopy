@@ -68,7 +68,7 @@ public class IQueryEnumProvider implements EnumerationProvider
      */
     public IQueryEnumProvider(IQueryPrx iQuery)
     {
-    	this.iQuery = iQuery;
+        this.iQuery = iQuery;
     }
     
     /**
@@ -116,7 +116,7 @@ public class IQueryEnumProvider implements EnumerationProvider
      * @see ome.formats.enums.EnumerationProvider#getEnumeration(java.lang.Class, java.lang.String, boolean)
      */
     public <T extends IObject> T getEnumeration(Class<T> klass, String value,
-    		                                    boolean loaded)
+                                                boolean loaded)
     {
         if (klass == null)
             throw new NullPointerException("Expecting not-null klass.");
@@ -124,7 +124,7 @@ public class IQueryEnumProvider implements EnumerationProvider
         {
             log.warn("Enumeration " + klass + " with value of null.");
         }
-		else if (value.length() == 0)
+        else if (value.length() == 0)
         {
             log.warn("Enumeration " + klass + " with value of zero length.");
         }
@@ -132,43 +132,54 @@ public class IQueryEnumProvider implements EnumerationProvider
         HashMap<String, T> enumerations = getEnumerations(klass);
         EnumerationHandler handler = enumHandlerFactory.getHandler(klass);
         IObject otherEnumeration = enumerations.get("Other");
+        IObject unknownEnumeration = enumerations.get("Unknown");
         // Step 1, check if we've got an exact match for our enumeration value.
         if (enumerations.containsKey(value))
         {
-        	if (!loaded)
-        	{
-        		return (T) copyEnumeration(enumerations.get(value));
-        	}
-        	return enumerations.get(value);
+            if (!loaded)
+            {
+                return (T) copyEnumeration(enumerations.get(value));
+            }
+            return enumerations.get(value);
         }
         // Step 2, check if our enumeration handler can find a match.
         IObject enumeration = handler.findEnumeration((HashMap<String, IObject>) enumerations, value);
         if (enumeration != null)
         {
-        	if (!loaded)
-        	{
-        		return (T) copyEnumeration(enumeration);
-        	}
-        	return (T) enumeration;
+            if (!loaded)
+            {
+                return (T) copyEnumeration(enumeration);
+            }
+            return (T) enumeration;
         }
         // Step 3, fall through to an "Other" enumeration if we have one.
         if (otherEnumeration != null)
         {
             log.warn("Enumeration '" + value + "' does not exist in '" 
-            		 + klass + "' setting to 'Other'");
+                     + klass + "' setting to 'Other'");
             return (T) otherEnumeration;
+        } 
+        
+        /* 
+         else if (unknownEnumeration != null)
+        {
+            log.warn("Enumeration '" + value + "' does not exist in '" 
+                    + klass + "' setting to 'Unknown'");
+           return (T) unknownEnumeration;
         }
+        */
+        
         // Step 4, warn we have no enumeration to return.
         log.warn("Enumeration '" + value + "' does not exist in '" 
                 + klass + "' returning 'null'");
         return (T) enumeration;
     }
-    
-	/* (non-Javadoc)
-	 * @see ome.formats.enums.EnumerationProvider#getEnumerations(java.lang.Class)
-	 */
-	public <T extends IObject> HashMap<String, T> getEnumerations(Class<T> klass)
-	{
+
+    /* (non-Javadoc)
+     * @see ome.formats.enums.EnumerationProvider#getEnumerations(java.lang.Class)
+     */
+    public <T extends IObject> HashMap<String, T> getEnumerations(Class<T> klass)
+    {
         if (!enumCache.containsKey(klass))
         {
             List<IObject> enumerationList;
@@ -186,13 +197,13 @@ public class IQueryEnumProvider implements EnumerationProvider
                                                klass, null);
             
             HashMap<String, IObject> enumerations = 
-            	new HashMap<String, IObject>();
+                new HashMap<String, IObject>();
             for (IObject enumeration : enumerationList)
             {
-            	enumerations.put(getValue(enumeration), enumeration);
+                enumerations.put(getValue(enumeration), enumeration);
             }
             enumCache.put(klass, enumerations);
         }
         return (HashMap<String, T>) enumCache.get(klass);
-	}
+    }
 }
