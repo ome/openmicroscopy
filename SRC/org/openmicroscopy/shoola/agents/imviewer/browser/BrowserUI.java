@@ -70,7 +70,7 @@ class BrowserUI
      * The Layered pane hosting the {@link BrowserCanvas} and any other 
      * UI components added on top of it.
      */
-    private JLayeredPane        layeredPane;
+    private JLayeredPane        	layeredPane;
 
     /** The canvas hosting the image. */
     private BrowserCanvas       	browserCanvas;

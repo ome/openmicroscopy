@@ -75,6 +75,13 @@ class TinyPaneTitle
     }
 
     /**
+     * Derives the default font of the painter.
+     * 
+     * @param style The new style to set.
+     */
+    void setFontStyle(int style) { titlePainter.setFontStyle(style); }
+    
+    /**
      * Registers this component with the Model.
      * @see TinyObserver#attach()
      */

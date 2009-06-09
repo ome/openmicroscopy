@@ -28,5 +28,8 @@
 	<classpathentry kind="lib" path="LIB/poi-3.5-beta4-20081128.jar"/>
 	<classpathentry kind="lib" path="LIB/monitors.jar"/>
 	<classpathentry kind="lib" path="LIB/omero_client-Beta-4.1.0.jar"/>
+	<classpathentry kind="lib" path="LIB/OmeroImporter-Beta-4.1.0-DEV.jar"/>
+	<classpathentry kind="lib" path="LIB/loci-common.jar"/>
+	<classpathentry kind="lib" path="LIB/bio-formats.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -44,7 +43,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -1030,7 +1028,7 @@ class ChannelAcquisitionComponent
 	{
 		String name = evt.getPropertyName();
 		if (JLabelButton.SELECTED_PROPERTY.equals(name)) {
-			int id = ((Integer) evt.getNewValue()).intValue();
+			int id = ((Long) evt.getNewValue()).intValue();
 			switch (id) {
 				case GENERAL:
 					displayUnsetGeneralFields();

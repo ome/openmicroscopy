@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 
-
-
 //Java imports
 
 //Third-party libraries
@@ -49,7 +47,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 public class TreeImageNode
     extends TreeImageDisplay
 {
-
+	
     /**
      * Implemented as specified by superclass.
      * @see TreeImageDisplay#doAccept(TreeImageDisplayVisitor)
@@ -71,7 +69,7 @@ public class TreeImageNode
     {
         super(hierarchyObject);
     }
-    
+  
     /**
      * Spits out a runtime exception because it's not possible to add a
      * child to a leaf node.
@@ -116,6 +114,7 @@ public class TreeImageNode
         copy.setHighLight(this.getHighLight());
         copy.setToolTip(this.getToolTip());
         copy.setExpanded(this.isExpanded());
+        copy.setSelectable(this.isSelectable());
         return copy;
     }
     

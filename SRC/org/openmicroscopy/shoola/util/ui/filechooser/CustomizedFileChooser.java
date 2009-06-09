@@ -78,9 +78,15 @@ class CustomizedFileChooser
 	/** User defined file filter. */
 	private 	RegExFileFilter filter;
 	
-	/** Initiliazes the components composing the display. */
-	private void initComponents()
+	/** 
+	 * Initiliazes the components composing the display. 
+	 * 
+	 * @param accept Determines whether the all files filter is turned
+     * 				 on or off. Default value is <code>false</code>.
+	 */
+	private void initComponents(boolean accept)
 	{
+		setAcceptAllFileFilterUsed(accept);
 		nameArea = (JTextField) 
 					UIUtilities.findComponent(this, JTextField.class);
 		if (nameArea != null) {
@@ -94,16 +100,16 @@ class CustomizedFileChooser
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
 	{
-		setAcceptAllFileFilterUsed(false);
 		setControlButtonsAreShown(nameArea == null);
-		
 		JLabel label;
 		List<FileFilter> filters = model.getFilters();
 		if (filters != null) {
 			for (FileFilter filter : filters)
 				addChoosableFileFilter(filter);
-			setFileFilter(filters.get(0));
+			if (!isAcceptAllFileFilterUsed()) setFileFilter(filters.get(0));
 		}
+		if (isAcceptAllFileFilterUsed())
+			setFileFilter(getAcceptAllFileFilter());
 		File f = UIUtilities.getDefaultFolder();
 		if (f != null) setCurrentDirectory(f);
 		switch (model.getChooserType()) {
@@ -232,14 +238,16 @@ class CustomizedFileChooser
 	 * 
 	 * @param model Reference to the model. Mustn't be <code>null</code>.
 	 * @param view 	Reference to the view. Mustn't be <code>null</code>.
+	 * @param accept Determines whether the all files filter is turned
+     * 				 on or off. Default value is <code>false</code>.
 	 */
-	CustomizedFileChooser(FileChooser model, FileSaverUI view)
+	CustomizedFileChooser(FileChooser model, FileSaverUI view, boolean accept)
 	{
 		if (model == null) throw new IllegalArgumentException("No model.");
 		if (view == null) throw new IllegalArgumentException("No view.");
 		this.model = model;
 		this.view = view;
-		initComponents();
+		initComponents(accept);
 		buildGUI();
 	}
 		

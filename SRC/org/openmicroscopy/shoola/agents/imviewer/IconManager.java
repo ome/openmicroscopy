@@ -77,10 +77,10 @@ public class IconManager
     /** The tiny <code>Info</code> icon. */
     public  static final int          TINY_INFO = 5;
     
-    /** The tiny <code>Info</code> icon. */
+    /** The  <code>domain</code> icon. */
     public  static final int          DOMAIN = 6;
     
-    /** The tiny <code>Info</code> icon. */
+    /** The  <code>codomain</code> icon. */
     public  static final int          CODOMAIN = 7;
     
     /** The <code>Contrast Stretching</code> icon. */
@@ -144,7 +144,7 @@ public class IconManager
     public static  final int          MINUS = 27;
     
     /** The <code>Histogram</code> icon. */
-    public static final int 			TEMPORARY_HISTOGRAM = 28;
+    public static final int 		  TEMPORARY_HISTOGRAM = 28;
 
     /** The <code>Color Picker</code> icon. */
     public static final int           COLOR_PICKER = 29;

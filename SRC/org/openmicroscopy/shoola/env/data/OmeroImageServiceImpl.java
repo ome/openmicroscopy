@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data;
 //Java import
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,7 +38,10 @@ import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 
+
 //Third-party libraries
+import loci.formats.ImageReader;
+import loci.formats.gui.FormatFileFilter;
 
 //Application-internal dependencies
 import omero.api.RenderingEnginePrx;
@@ -52,8 +56,10 @@ import omero.sys.Parameters;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -96,7 +102,7 @@ class OmeroImageServiceImpl
 
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
-
+	
 	/**
 	 * Creates a <code>BufferedImage</code> from the passed array of bytes.
 	 * 
@@ -509,14 +515,36 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#importImages(DataObject, List, long, long)
+	 * @see OmeroImageService#importImage(DataObject, File, long, long)
 	 */
-	public Object importImages(DataObject container, List<Object> images, 
+	public Object importImage(DataObject container, File file, 
 			long userID, long groupID) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		// TODO Auto-generated method stub
-		return new ArrayList();
+		if (file == null)
+			throw new IllegalArgumentException("No images to import.");
+		Object object = gateway.importImage(file);
+		if (!(object instanceof ImageData)) return object;
+		
+		ImageData image = (ImageData) object;
+		if (image != null) {
+			try {
+				PixelsData pix = image.getDefaultPixels();
+				BufferedImage img = createImage(
+						gateway.getThumbnailByLongestSide(pix.getId(), 24));
+				ThumbnailData data = new ThumbnailData(image.getId(), img, 
+						userID, true);
+				data.setImage(image);
+				return data;
+			} catch (Exception e) {
+				DeletableObject d = new DeletableObject(image);
+				List<DeletableObject> l = new ArrayList<DeletableObject>(1);
+				l.add(d);
+				context.getDataService().delete(l);
+				return "failed";
+			}
+		}
+		return image;
 	}
 
 	/** 
@@ -529,15 +557,17 @@ class OmeroImageServiceImpl
 		//Retrieve values from bio-formats
 		filters = new ArrayList<FileFilter>();
 		//improve that code.
-		/*
 		ImageReader reader = new ImageReader();
 		FileFilter[] array = loci.formats.gui.GUITools.buildFileFilters(reader);
 		if (array != null) {
+			FileFilter f;
 			for (int i = 0; i < array.length; i++) {
-				filters.add(array[i]);
-			}	
+				f = array[i];
+				if ((f instanceof FormatFileFilter) && 
+						!f.toString().contains(OmeroImageService.ZIP_EXTENSION))
+					filters.add(f);
+			}
 		}
-		*/
 		return filters;
 	}
 	

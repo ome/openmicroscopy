@@ -76,8 +76,11 @@ public interface OmeroMetadataService
 	/** Identifies that the file is of type experiment. */
 	public static final int		EDITOR_EXPERIMENT = 1;
 	
+	/** Identifies that the file is of type movie. */
+	public static final int		MOVIE = 2;
+	
 	/** Identifies that the file is of type other. */
-	public static final int		OTHER = 2;
+	public static final int		OTHER = 3;
 	
 	/** Indicates to retrieve the tags. */
 	public static final int LEVEL_TAG = 0;
@@ -182,7 +185,7 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public StructuredDataResults loadStructuredData(DataObject object, 
+	public StructuredDataResults loadStructuredData(Object object, 
 													long userID, boolean viewed)
 		throws DSOutOfServiceException, DSAccessException;
 

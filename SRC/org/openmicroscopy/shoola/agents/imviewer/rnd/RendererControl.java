@@ -48,10 +48,9 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlaneSlicingAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ReverseIntensityAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RndAction;
-import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
-import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.cdm.CodomainMapContextDialog;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 
 /** 
  * The Renderer's controller.
@@ -247,10 +246,7 @@ class RendererControl
             Integer newValue = (Integer) evt.getNewValue();
             if (newValue.equals(oldValue)) return;
             model.setBitResolution(newValue.intValue());
-        } else if (ChannelToggleButton.CHANNEL_PICKED_PROPERTY.equals(name)) {
-            //int v = ((Integer) evt.getNewValue()).intValue();
-            //model.setSelectedChannel(v, false);
-        } else if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(name)) {
+        } if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(name)) {
             Map map = (Map) evt.getNewValue();
 			if (map == null) return;
 			if (map.size() != 1) return;

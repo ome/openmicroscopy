@@ -356,14 +356,29 @@ public class IconManager
     /** A version of the <code>Inspector</code> icon. */
     public static final int           INSPECTOR = 100;
     
-    /** A version of the <code>Inspector</code> icon. */
+    /** A version of the <code>Movie</code> icon. */
     public static final int           MOVIE = 101;
+    
+    /** The <code>Directory</code> icon. */
+    public static final int           DIRECTORY = 102;
+    
+    /** The <code>Import</code> icon. */
+    public static final int           IMPORTED_FILE = 103;
+    
+    /** The <code>File System</code> icon. */
+    public static final int           FILE_SYSTEM_EXPLORER = 104;
+    
+    /** The <code>Info</code> icon. */
+    public static final int           INFO = 105;
+    
+    /** The <code>Movie folder</code> icon. */
+    public static final int           MOVIE_FOLDER = 106;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 101;
+    private static final int          MAX_ID = 106;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -474,6 +489,11 @@ public class IconManager
         relPaths[FILE_PROTOCOL_EXPERIMENT] = "expNew.png";
         relPaths[INSPECTOR] = "nuvola_view_tree16.png";
         relPaths[MOVIE] = "openOffice_stock_insert-video-plugin-16.png";
+        relPaths[DIRECTORY] = "nuvola_folder_grey16.png";
+        relPaths[IMPORTED_FILE] = "openOffice_stock_insert-video-plugin-16.png";
+        relPaths[FILE_SYSTEM_EXPLORER] = "nuvola_fsview16.png";
+        relPaths[INFO] = "nuvola_messagebox_info16.png";
+        relPaths[MOVIE_FOLDER] = "nuvola_folder_video16.png";
     }
     
     /** The sole instance. */

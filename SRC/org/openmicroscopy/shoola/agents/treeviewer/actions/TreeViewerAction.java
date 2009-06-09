@@ -155,7 +155,8 @@ public abstract class TreeViewerAction
     public void actionPerformed(ActionEvent e) {}
 
     /**
-     * Reacts to property changes {@link Browser#SELECTED_TREE_NODE_DISPLAY_PROPERTY}
+     * Reacts to property changes 
+     * {@link Browser#SELECTED_TREE_NODE_DISPLAY_PROPERTY}
      * event fired by the {@link Browser} and to
      * the {@link TreeViewer#SELECTED_BROWSER_PROPERTY} event.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -163,10 +164,10 @@ public abstract class TreeViewerAction
     public void propertyChange(PropertyChangeEvent evt)
     {
         String name = evt.getPropertyName();
-        if (name.equals(TreeViewer.SELECTED_BROWSER_PROPERTY)) {
+        if (TreeViewer.SELECTED_BROWSER_PROPERTY.equals(name)) {
             onBrowserSelection((Browser) evt.getNewValue());
             return;
-        } else if (name.equals(TreeViewer.DISPLAY_MODE_PROPERTY)) {
+        } else if (TreeViewer.DISPLAY_MODE_PROPERTY.equals(name)) {
         	int displayMode = ((Integer) evt.getNewValue()).intValue();
         	switch (displayMode) {
 				case TreeViewer.SEARCH_MODE:
@@ -182,13 +183,15 @@ public abstract class TreeViewerAction
 			}
         	onDisplayMode();
         	return;
-        } else if (name.equals(
-        		TreeViewer.ON_COMPONENT_STATE_CHANGED_PROPERTY)) {
+        } else if (TreeViewer.ON_COMPONENT_STATE_CHANGED_PROPERTY.equals(
+        		name)) {
             Browser browser = model.getSelectedBrowser();
             TreeImageDisplay v = null;
             if (browser != null) v = browser.getLastSelectedDisplay();
             onDisplayChange(v);
             return;
+        } else if (TreeViewer.IMPORT_PROPERTY.equals(name)) {
+        	return;
         }
             
         Object newValue = evt.getNewValue();

@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -90,6 +91,34 @@ public class DMLoader
     }
     
     /**
+     * Creates a {@link BatchCall} to retrieve a Container tree, either
+     * Project, Dataset, CategoryGroup or Category.
+     * 
+     * @param rootNodeType  The type of the root node.
+     * @param rootNodeIDs   A set of the IDs of top-most containers.
+     * @param withLeaves    Passes <code>true</code> to retrieve the leaves
+     *                      nodes, <code>false</code> otherwise.
+     * @param userID		The Id of the user.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeBatchCall(final long userID)
+    {
+        return new BatchCall("Loading container tree: ") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                results = new HashSet();
+                Set r  = os.loadContainerHierarchy(ProjectData.class, 
+                		null, false, userID);
+                results.addAll(r);
+                r = os.loadContainerHierarchy(ScreenData.class, 
+                		null, false, userID);
+                results.addAll(r);
+            }
+        };
+    }
+    
+    /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
@@ -118,13 +147,13 @@ public class DMLoader
     public DMLoader(Class rootNodeType, List<Long> rootNodeIDs, 
     				boolean withLeaves, long userID)
     {
-        if (rootNodeType == null) 
-            throw new IllegalArgumentException("No root node type.");
         if (userID < 0) 
             throw new IllegalArgumentException("No root ID not valid.");
-        if (rootNodeType.equals(ProjectData.class) ||
-                rootNodeType.equals(DatasetData.class) 
-                || rootNodeType.equals(ScreenData.class))
+        if (rootNodeType == null) {
+        	loadCall = makeBatchCall(userID);
+        } else if (ProjectData.class.equals(rootNodeType) ||
+        		DatasetData.class.equals(rootNodeType) 
+                || ScreenData.class.equals(rootNodeType))
                 loadCall = makeBatchCall(rootNodeType, rootNodeIDs, withLeaves,
                         				userID);
         else 

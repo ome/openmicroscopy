@@ -367,6 +367,13 @@ public class TinyDialogUI
     }
     
     /**
+     * Derives the default font of the title bar.
+     * 
+     * @param style The new style to set.
+     */
+    void setFontStyle(int style) { titleBar.setFontStyle(style); }
+    
+    /**
      * Attaches the <code>controller</code> to the buttons of the titleBar.
      * 
      * @param controller An instance of {@link DialogControl}.

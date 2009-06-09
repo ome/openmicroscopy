@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.env.data.model;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import pojos.ImageData;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -62,6 +64,9 @@ public class ThumbnailData
 
     /** Falg indicating if the image is a default image or not. */
     private boolean			validImage;
+    
+    /** Used to store the image. */
+    private ImageData		image;
     
     /**
      * Creates a new instance.
@@ -103,6 +108,13 @@ public class ThumbnailData
         this(imageID, thumbnail, -1, validImage);
     }
     
+    /** 
+     * Sets the image.
+     * 
+     * @param image The image to set.
+     */
+    public void setImage(ImageData image) { this.image = image; }
+    
     /**
      * Clones this object.
      * This is a deep-copy, the thumbnail pixels are cloned too.
@@ -117,7 +129,10 @@ public class ThumbnailData
                                         thumbnail.getType());
         Graphics2D g2D = pixClone.createGraphics();
         g2D.drawImage(thumbnail, null, 0, 0); 
-        return new ThumbnailData(imageID, pixClone, this.validImage);
+        ThumbnailData data = new ThumbnailData(imageID, pixClone, 
+        		this.validImage);
+        data.setImage(this.image);
+        return data;
     }
 
     /**
@@ -148,5 +163,12 @@ public class ThumbnailData
      * @return See above.
      */
     public BufferedImage getThumbnail() { return thumbnail; }
+    
+    /**
+     * Returns the image.
+     * 
+     * @return See above.
+     */
+    public ImageData getImage() { return image; }
     
 }

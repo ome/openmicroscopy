@@ -74,7 +74,7 @@ public class ShowViewAction
 		IconManager icons = IconManager.getInstance();
 		switch (value) {
 			case VIEW:
-				putValue(Action.NAME, "View");
+				putValue(Action.NAME, "Image");
 				putValue(Action.SMALL_ICON, 
 						icons.getIcon(IconManager.VIEWER));
 				break;
@@ -123,9 +123,6 @@ public class ShowViewAction
      * Adds the selected view to the display.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    {
-    	model.showView(index);
-    }
+    public void actionPerformed(ActionEvent e) { model.showView(index); }
     
 }

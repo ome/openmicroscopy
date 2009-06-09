@@ -137,6 +137,7 @@ public class ManagerAction
     public void mouseReleased(MouseEvent me)
     {
         Object source = me.getSource();
+        if (point == null) point = me.getPoint();
         if (source instanceof Component && isEnabled())
             model.showMenu(TreeViewer.MANAGER_MENU, (Component) source, point);
     }

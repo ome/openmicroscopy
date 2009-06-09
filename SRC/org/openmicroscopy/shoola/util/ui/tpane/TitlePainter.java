@@ -49,7 +49,7 @@ import java.awt.geom.Rectangle2D;
  * </small>
  * @since OME2.2
  */
-public class TitlePainter
+class TitlePainter
     extends Painter
 {
 
@@ -143,7 +143,7 @@ public class TitlePainter
      * @param fontProto The font prototype to derive the a suitable font for
      *                  painting.  Mustn't be <code>null</code>.
      */
-    public TitlePainter(Font fontProto)
+    TitlePainter(Font fontProto)
     {
         if (fontProto == null) throw new NullPointerException("No font proto.");
         font = fontProto;
@@ -156,11 +156,18 @@ public class TitlePainter
      * @param t The string to paint. If <code>null</code>, nothing will
      *          be painted.
      */
-    public void setTitle(String t) 
+    void setTitle(String t) 
     { 
         if (t == null) t = "";
         title = t;
     }
+    
+    /**
+     * Derives the default font of the painter.
+     * 
+     * @param style The new style to set.
+     */
+    void setFontStyle(int style) { font = font.deriveFont(style); }
     
     /**
      * Paints the title string on <code>area</code>.

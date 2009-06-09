@@ -133,10 +133,15 @@ class FileSaverUI
 	/** The title pane. */
 	private TitlePanel 					titlePane;
 	
-	/** Initializes the component composing the display. */
-	private void initComponents()
+	/** 
+	 * Initializes the component composing the display. 
+	 * 
+	 * @param accept Determines whether the all files filter is turned
+     * 				 on or off. Default value is <code>false</code>.
+	 */
+	private void initComponents(boolean accept)
 	{
-		chooser = new CustomizedFileChooser(model, this);
+		chooser = new CustomizedFileChooser(model, this, accept);
 		settings = new JCheckBox();
 		settings.setText("Set the current directory as default.");
 		settings.setSelected(true);
@@ -297,14 +302,15 @@ class FileSaverUI
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param save is this a save dialog.
-	 * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 * @param model 	Reference to the Model. Mustn't be <code>null</code>.
+	 * @param accept	Determines whether the all files filter is turned
+     * 					on or off. Default value is <code>false</code>. 
 	 */
-	FileSaverUI(FileChooser model)
+	FileSaverUI(FileChooser model, boolean accept)
 	{ 
 		if (model == null) throw new IllegalArgumentException("No model.");
 		this.model = model;
-		initComponents();
+		initComponents(accept);
 		buildGUI();
 	}
 

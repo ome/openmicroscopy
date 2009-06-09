@@ -142,6 +142,12 @@ class PropertiesUI
     /** Indicates if the <code>DataObject</code> is only visible by owner. */
     private JRadioButton 		privateBox;
     
+    /** 
+     * Indicates if the <code>DataObject</code> is only visible by members
+     * of the group the user belongs to. 
+     */
+    private JRadioButton 		groupBox;
+    
     /** The area displaying the channels information. */
 	private JLabel				channelsArea;
 
@@ -154,15 +160,21 @@ class PropertiesUI
 	/** Reference to the control. */
 	private EditorControl		controller;
 	
-	 /** Initializes the components composing this display. */
+	/** The text associated to the data object. */
+	private String				text;
+	
+	/** Initializes the components composing this display. */
     private void initComponents()
     {
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(UIUtilities.BACKGROUND_COLOR);
         Font f;
-    	publicBox =  new JRadioButton(EditorUtil.PUBLIC);
+        groupBox = new JRadioButton(EditorUtil.GROUP_VISIBLE);
+        groupBox.setBackground(UIUtilities.BACKGROUND_COLOR);
+        groupBox.setToolTipText(EditorUtil.GROUP_DESCRIPTION);
+        groupBox.setEnabled(false);
+    	publicBox = new JRadioButton(EditorUtil.PUBLIC);
     	publicBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	publicBox.setToolTipText(EditorUtil.PUBLIC_DESCRIPTION);
     	publicBox.setEnabled(false);
     	f = publicBox.getFont();
         privateBox =  new JRadioButton(EditorUtil.PRIVATE);
@@ -173,6 +185,7 @@ class PropertiesUI
         privateBox.setEnabled(false);
     	ButtonGroup group = new ButtonGroup();
        	group.add(privateBox);
+       	group.add(groupBox);
        	group.add(publicBox);
        	
        	idLabel = UIUtilities.setTextFont("");
@@ -180,7 +193,7 @@ class PropertiesUI
     	namePane.addMouseListener(new MouseAdapter() {
     		public void mousePressed(MouseEvent e) {
     			if (e.getClickCount() == 2)
-    				editField(namePanel, namePane, true);
+    				editField(namePanel, namePane, editName, true);
     		}
 		});
     	namePane.setEditable(false);
@@ -191,7 +204,8 @@ class PropertiesUI
     	descriptionPane.addMouseListener(new MouseAdapter() {
     		public void mousePressed(MouseEvent e) {
     			if (e.getClickCount() == 2)
-    				editField(descriptionPanel, descriptionPane, true);
+    				editField(descriptionPanel, descriptionPane, 
+    						editDescription, true);
     		}
 		});
     	descriptionPane.addPropertyChangeListener(controller);
@@ -387,6 +401,7 @@ class PropertiesUI
         	(refObject instanceof ProjectData) || 
         	(refObject instanceof TagAnnotationData) ||
         	(refObject instanceof WellSampleData)) {
+        	//|| (refObject instanceof FolderData)) {
         	 p.add(Box.createVerticalStrut(5));
         	 descriptionPanel = layoutEditablefield(editDescription, 
         			 			descriptionPane);
@@ -443,12 +458,18 @@ class PropertiesUI
 	 * 
 	 * @param panel     The panel to handle.
 	 * @param field		The field to handle.
+	 * @param button	The editable button.
 	 * @param editable	Pass <code>true</code> if <code>editable</code>,
 	 * 					<code>false</code> otherwise.
 	 */
-	private void editField(JPanel panel, JTextArea field, boolean editable)
+	private void editField(JPanel panel, JTextArea field, JButton button, 
+			boolean editable)
 	{
+		//if ((model.getRefObject() instanceof FolderData) && 
+		//		(button == editName)) editable = false;
+		
 		field.setEditable(editable);
+		button.setEnabled(editable);
 		if (editable) {
 			panel.setBorder(EDIT_BORDER);
 			field.requestFocus();
@@ -476,9 +497,7 @@ class PropertiesUI
 	private void handleNameChanged(Document document)
 	{
 		Document d = namePane.getDocument();
-		if (d == document) {
-			modifiedName = namePane.getText();
-		}
+		if (d == document) modifiedName = namePane.getText();
 	}
 	
     /**
@@ -516,30 +535,38 @@ class PropertiesUI
 		namePane.setText(originalDisplayedName);
 		namePane.setToolTipText(originalName);
 		Object refObject = model.getRefObject();
-		String text = "";
+		text = "";
+		editName.setEnabled(true);
         if (refObject instanceof ImageData) text = "Image ";
-        else if (refObject instanceof DatasetData) text = "Dataset ";
-        else if (refObject instanceof ProjectData) text = "Project ";
-        else if (refObject instanceof ScreenData) text = "Screen ";
-        else if (refObject instanceof PlateData) text = "Plate ";
+        else if (refObject instanceof DatasetData) text = "Dataset";
+        else if (refObject instanceof ProjectData) text = "Project";
+        else if (refObject instanceof ScreenData) text = "Screen";
+        else if (refObject instanceof PlateData) text = "Plate";
         else if (refObject instanceof FileAnnotationData) {
         	FileAnnotationData fa = (FileAnnotationData) refObject;
         	String ns = fa.getNameSpace();
         	if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns))
-        		text = "Experiment ";
+        		text = "Experiment";
         	else if (FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns))
-        		text = "Protocol ";
-        	else text = "File ";
-        }
-        else if (refObject instanceof WellSampleData) text = "Field ";
+        		text = "Protocol";
+        	else text = "File";
+        } else if (refObject instanceof WellSampleData) text = "Field";
         else if (refObject instanceof TagAnnotationData) {
         	TagAnnotationData tag = (TagAnnotationData) refObject;
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
-        		text = "Tag Set ";
-        	else text = "Tag ";
+        		text = "Tag Set";
+        	else text = "Tag";
+        } 
+        /*
+        if (refObject instanceof FolderData) {
+        	editName.setEnabled(false);
+        	text = "Folder";
         }
-		text += ID_TEXT+model.getRefObjectID();
-		idLabel.setText(text);
+        */
+        String t = text;
+        if (model.getRefObjectID() > 0)
+        	t += " "+ID_TEXT+model.getRefObjectID();
+		idLabel.setText(t);
 		originalDescription = model.getRefObjectDescription();
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
@@ -548,8 +575,11 @@ class PropertiesUI
         if (refObject instanceof WellSampleData) b = false;
         namePane.setEnabled(b);
         descriptionPane.setEnabled(b);
+        //if (refObject instanceof FolderData)
+    	//	namePane.setEnabled(false);
         if (b) {
-        	namePane.getDocument().addDocumentListener(this);
+        	//if (!(refObject instanceof FolderData))
+        	//	namePane.getDocument().addDocumentListener(this);
         	descriptionPane.getDocument().addDocumentListener(this);
         }
         buildGUI();
@@ -613,7 +643,13 @@ class PropertiesUI
 			ImageData img = well.getImage();
 			if (name.length() > 0) img.setName(name);
 			img.setDescription(desc);
+		} 
+		/*
+		else if (object instanceof FolderData) {
+			FolderData folder = (FolderData) object;
+			folder.setDescription(desc);
 		}
+		*/
 	}
 	
 	/**
@@ -649,6 +685,13 @@ class PropertiesUI
 		channelsArea.revalidate();
 		channelsArea.repaint();
 	}
+	
+	/**
+	 * Returns the text.
+	 * 
+	 * @return See above.
+	 */
+	String getText() { return text; }
 	
 	/**
 	 * Overridden to set the title of the component.
@@ -758,10 +801,11 @@ class PropertiesUI
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case EDIT_NAME:
-				editField(namePanel, namePane, true);
+				editField(namePanel, namePane, editName, true);
 				break;
 			case EDIT_DESC:
-				editField(descriptionPanel, descriptionPane, true);
+				editField(descriptionPanel, descriptionPane, editDescription,
+						true);
 		}
 	}
 	
@@ -774,7 +818,7 @@ class PropertiesUI
 	{
 		Object src = e.getSource();
 		if (src == namePane) {
-			editField(namePanel, namePane, false);
+			editField(namePanel, namePane, editName, false);
 			String text = namePane.getText();
 			if (text == null || text.trim().length() == 0) {
 				namePane.getDocument().removeDocumentListener(this);
@@ -782,7 +826,9 @@ class PropertiesUI
 				namePane.getDocument().addDocumentListener(this);
 			}
 		} else if (src == descriptionPane) {
-			editField(descriptionPanel, descriptionPane, false);
+			editField(descriptionPanel, descriptionPane, editDescription, 
+					false);
+			editDescription.setEnabled(true);
 			String text = descriptionPane.getText();
 			if (text == null || text.trim().length() == 0) {
 				descriptionPane.getDocument().removeDocumentListener(this);

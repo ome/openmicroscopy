@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -261,9 +262,9 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#importImages(DataObject, List, long, long)
+     * @see OmeroImageService#importImages(DataObject, File, long, long)
      */
-	public Object importImages(DataObject container, List<Object> images, 
+	public Object importImage(DataObject container, File image, 
 			long userID, long groupID) 
 		throws DSOutOfServiceException, DSAccessException
 	{

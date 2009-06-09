@@ -46,6 +46,7 @@ import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -149,6 +150,9 @@ class AnnotationDataUI
 	/** Collection of tags documents objects. */
 	private List<DocComponent>				filesDocList;
 	
+	/** Indicates if the image has been published or not. */
+	private JCheckBox						publishedBox;
+	
 	/**
 	 * Creates the selection menu.
 	 * 
@@ -232,6 +236,8 @@ class AnnotationDataUI
 		viewedByPane.setLayout(new BoxLayout(viewedByPane, BoxLayout.Y_AXIS));
 		viewedByPane.setOpaque(false);
 		viewedByPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		publishedBox = new JCheckBox();
+		publishedBox.setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 	
 	/**
@@ -259,12 +265,20 @@ class AnnotationDataUI
 		content = new JPanel();
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-    	double[] columns = {TableLayout.PREFERRED, 5, TableLayout.PREFERRED};//DEFAULT_WIDTH};
+    	double[] columns = {TableLayout.PREFERRED, 5,
+    			TableLayout.PREFERRED, 5, TableLayout.PREFERRED};//DEFAULT_WIDTH};
     	TableLayout layout = new TableLayout();
     	content.setLayout(layout);
     	layout.setColumn(columns);
 		int i = 0;
-		JPanel p = UIUtilities.buildComponentPanel(rating, 0, 0);
+		JPanel p = UIUtilities.buildComponentPanel(publishedBox, 0, 0);
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		layout.insertRow(i, TableLayout.PREFERRED);
+		content.add(UIUtilities.setTextFont("published", Font.BOLD, size), 
+				"0, "+i);
+		content.add(p, "2, "+i);
+		i++;
+		p = UIUtilities.buildComponentPanel(rating, 0, 0);
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		layout.insertRow(i, TableLayout.PREFERRED);
 		content.add(UIUtilities.setTextFont("rate", Font.BOLD, size), "0, "+i);

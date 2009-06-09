@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -527,6 +528,8 @@ class BrowserComponent
             	return im.getIcon(IconManager.SCREENS_EXPLORER);
             case FILES_EXPLORER:
                 return im.getIcon(IconManager.FILES_EXPLORER);
+            case FILE_SYSTEM_EXPLORER:
+                return im.getIcon(IconManager.FILE_SYSTEM_EXPLORER);
         }
         return null;
     }
@@ -915,13 +918,19 @@ class BrowserComponent
         	throw new IllegalArgumentException("Experimenter node not valid.");
         Object uo = expNode.getUserObject();
         if (!(uo instanceof ExperimenterData))
-    	throw new IllegalArgumentException("Experimenter node not valid.");
+        	throw new IllegalArgumentException("Experimenter node not valid.");
         ExperimenterData exp = (ExperimenterData) uo;
-        //depending on the type of browser, present data 
-        Set convertedNodes = TreeViewerTranslator.transformHierarchy(nodes, 
-					exp.getId(), -1);//exp.getDefaultGroup().getId());
-        view.setExperimenterData(convertedNodes, expNode);
-        model.setState(READY);
+        if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
+        	model.setImportedImages(nodes);
+        	view.loadFileSystem(false);
+        } else {
+        	//depending on the type of browser, present data 
+            Set convertedNodes = TreeViewerTranslator.transformHierarchy(nodes, 
+    					exp.getId(), -1);//exp.getDefaultGroup().getId());
+            view.setExperimenterData(convertedNodes, expNode);
+            model.setState(READY);
+        }
+        
         countItems(null);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
@@ -965,6 +974,10 @@ class BrowserComponent
 	        case DISCARDED:
 	        	//ignore
         	return;
+		}
+		if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
+			view.loadFileSystem(true);
+			return;
 		}
 		TreeImageDisplay display = model.getLastSelectedDisplay();
 		if (display == null) return;
@@ -1031,6 +1044,10 @@ class BrowserComponent
 	        	return;
     	}
 
+    	if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
+    		view.loadFileSystem(true);
+    		return;
+    	}
 	    TreeImageDisplay root = view.getTreeRoot();
 	    TreeImageSet expNode;
 	    RefreshExperimenterDef def;
@@ -1270,6 +1287,52 @@ class BrowserComponent
 	public void setTimeIntervalImages(Set set, TreeImageTimeSet node)
 	{
 		model.getParentModel().browseTimeInterval(node, set);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Browser#onImportFinished(List)
+	 */
+	public void onImportFinished(List<TreeImageDisplay> nodes)
+	{
+		if (model.getState() == DISCARDED) return;
+		if (nodes == null) return;
+		if (model.getBrowserType() != FILE_SYSTEM_EXPLORER) return;
+		Iterator<TreeImageDisplay> i = nodes.iterator();
+		while (i.hasNext()) 
+			view.loadFile(i.next());
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Browser#setImportedFile(ImageData)
+	 */
+	public void setImportedFile(ImageData image)
+	{
+		if (model.getState() == DISCARDED) return;
+		if (image == null) return;
+		model.addImportedImage(image);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Browser#isFileImported(String)
+	 */
+	public boolean isFileImported(String path)
+	{
+		if (model.getState() == DISCARDED) return false;
+		return model.isFileImported(path);
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Browser#showSupportedFiles()
+	 */
+	public void showSupportedFiles()
+	{
+		if (model.getState() == DISCARDED) return;
+		firePropertyChange(FILE_FORMATS_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 	
 }

@@ -157,12 +157,13 @@ class ObjectInspector
 	}
 	
 	/**
-	 * Set the range of values the stroke attribute may take. 
+	 * Sets the range of values the stroke attribute may take. 
+	 * 
 	 * @return see above.
 	 */
-	ArrayList<Double> strokeRange()
+	private List<Double> strokeRange()
 	{
-		ArrayList<Double> sRange = new ArrayList<Double>();
+		List<Double> sRange = new ArrayList<Double>();
 		sRange.add(new Double(0.5));
 		sRange.add(new Double(0.75));
 		sRange.add(new Double(1));
@@ -174,11 +175,12 @@ class ObjectInspector
 	
 	/**
 	 * Set the range of values the font attribute may take. 
+	 * 
 	 * @return see above.
 	 */
-	ArrayList<Double> fontRange()
+	private List<Double> fontRange()
 	{
-		ArrayList<Double> fRange = new ArrayList<Double>();
+		List<Double> fRange = new ArrayList<Double>();
 		fRange.add(new Double(4));
 		fRange.add(new Double(8));
 		fRange.add(new Double(10));
@@ -277,7 +279,6 @@ class ObjectInspector
 		FigureTableModel tableModel = (FigureTableModel) fieldTable.getModel();
 		Iterator<ROIShape> i = l.iterator();
 		//Register error and notify user.
-		ROI roi;
 		ROIShape shape;
 		try {
 			while (i.hasNext()) {
@@ -290,7 +291,6 @@ class ObjectInspector
 			MeasurementAgent.getRegistry().getLogger().info(this, 
 													"Figures selection"+e);;
 		}
-		
 	}
 	
 }

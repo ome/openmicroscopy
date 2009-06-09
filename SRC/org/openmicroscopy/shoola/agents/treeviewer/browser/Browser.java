@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * Defines the interface provided by the browser component.
@@ -128,9 +129,16 @@ public interface Browser
     
     /** 
      * Indicates that the browser corresponds to a <code>Files</code>
-     * explorer.
+     * (saved on server) explorer.
      */
     public static final int     	FILES_EXPLORER = 104;
+    
+    /** 
+     * Indicates that the browser corresponds to a <code>Files</code>
+     * explorer.
+     */
+    public static final int     	FILE_SYSTEM_EXPLORER = 105;
+    
     
     /** Indicates to sort the nodes by date. */
     public static final int         SORT_NODES_BY_DATE = 300;
@@ -144,9 +152,7 @@ public interface Browser
     /** Bound property indicating that the data have been refreshed. */
     public static final String		DATA_REFRESHED_PROPERTY = "dataRefreshed";
     
-    /** 
-     * Bound property name indicating a new node is selected. 
-     */
+    /** Bound property name indicating a new node is selected. */
     public static final String  	SELECTED_TREE_NODE_DISPLAY_PROPERTY = 
         								"selectedTreeNodeDisplay";
     
@@ -157,11 +163,17 @@ public interface Browser
     
     /** Bound property name indicating to bring up the popup menu.  */
     public static final String  	POPUP_MENU_PROPERTY = "popupMenu";
+    
+    /** 
+     * Bound property name indicating to display the list of supported file
+     * formats.  
+     */
+    public static final String  	FILE_FORMATS_PROPERTY = "fileFormats";
   
     /** 
      * The browser's title corresponding to {@link #PROJECT_EXPLORER} type.
      */
-    public static final String     HIERARCHY_TITLE = "Projects";
+    public static final String     HIERARCHY_TITLE = "Hierarchies";//"Projects";
 
     /** 
      * The browser's title corresponding to {@link #IMAGES_EXPLORER} type.
@@ -182,6 +194,11 @@ public interface Browser
      * The browser's title corresponding to {@link #FILES_EXPLORER} type.
      */
     public static final String     FILES_TITLE = "Attachments";
+    
+    /** 
+     * The browser's title corresponding to {@link #FILE_SYSTEM_EXPLORER} type.
+     */
+    public static final String     FILE_SYSTEM_TITLE = "File System";
     
     /**
      * Sets the selected {@link TreeImageDisplay node}.
@@ -568,10 +585,10 @@ public interface Browser
 	public void onOrphanDataObjectCreated(DataObject data);
 
 	/**
+	 * Sets the images imported during a given period of time.
 	 * 
-	 * @param set
-	 * @param node
-	 * @param b
+	 * @param set	The collection of images.
+	 * @param node	The node hosting the time information.
 	 */
 	public void setTimeIntervalImages(Set set, TreeImageTimeSet node);
 	
@@ -579,11 +596,37 @@ public interface Browser
      * Callback used by a data loader to set the wells contained in the 
      * currently selected plate.
      * 
-     * @param wells    The collection of wells.
+     * @param wells		The collection of wells.
      * @param parent    The parent of the well.
      * @throws IllegalStateException If the current state is not 
      *                               {@link #LOADING_LEAVES}.
      */
     public void setWells(Set wells, TreeImageSet parent);
+
+    /** 
+	 * Notifies the users that the imports is finished. 
+	 * 
+	 * @param nodes The collection of nodes to reload.
+	 */
+	void onImportFinished(List<TreeImageDisplay> nodes);
+	
+	/**
+	 * Sets the imported image.
+	 * 
+	 * @param image The imported image.
+	 */
+	void setImportedFile(ImageData image);
+	
+	/**
+	 * Returns <code>true</code> if the file has already been imported,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param path The path to the file.
+	 * @return See above.
+	 */
+	boolean isFileImported(String path);
+
+	/** Displays the list of supported file formats. */
+	void showSupportedFiles();
 
 }

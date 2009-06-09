@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -205,6 +206,9 @@ public interface TreeViewer
 	
 	/** Bound property indicating that the mode. */
 	public static final String		DISPLAY_MODE_PROPERTY = "searchMode";
+	
+	/** Bound property indicating to import data. */
+	public static final String		IMPORT_PROPERTY = "import";
 	
 	/** 
 	 * The title displayed in the {@link LoadingWindow} during the saving 
@@ -774,5 +778,41 @@ public interface TreeViewer
 
 	/** Shows or hides the Tree Viewer. */
 	public void setInspectorVisibility();
+
+	/** Imports the selected files. */
+	void importFiles();
+	
+	/**
+	 * Sets the imported file.
+	 * 
+	 * @param key   The imported file.
+	 * @param value The corresponding internal object.
+	 * @param nodes The nodes to refresh.
+	 */
+	void setFileImported(File key, Object value, List<TreeImageDisplay> nodes);
+
+	/**
+	 * Returns <code>true</code> if there is an on-going import.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isImporting();
+
+	/** 
+	 * Shows or hides the Importer. Returns <code>true</code> if the importer
+	 * is visible, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean setImporterVisibility();
+	
+	/**
+	 * Returns all the images currently displayed in the 
+	 * <code>data browser</code>.
+	 * 
+	 * @return See above.
+	 */
+	public Collection getDisplayedImages();
 	
 }

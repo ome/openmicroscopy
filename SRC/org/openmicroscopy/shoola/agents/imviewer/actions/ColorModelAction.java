@@ -58,7 +58,6 @@ public class ColorModelAction
     extends ViewerAction
 {
     
-    
     /** 
      * The description of the action if the index is {@link #RGB_MODEL}
      * or  {@link #HSB_MODEL}.

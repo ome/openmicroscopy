@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.DataObjectRemover;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ExperimenterImagesCounter;
+import org.openmicroscopy.shoola.env.data.views.calls.FilesChecker;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlateWellsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
@@ -287,6 +289,17 @@ class DataManagerViewImpl
 	public CallHandle delete(DeletableObject value, AgentEventListener observer) 
 	{
 		BatchCallTree cmd = new DataObjectRemover(value);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#checkFileFormat(List, AgentEventListener)
+	 */
+	public CallHandle checkFileFormat(List<File> list,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new FilesChecker(list);
 		return cmd.exec(observer);
 	}
   

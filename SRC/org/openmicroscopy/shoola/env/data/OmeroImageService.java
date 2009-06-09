@@ -26,10 +26,10 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 
@@ -38,15 +38,12 @@ import javax.swing.filechooser.FileSystemView;
 //Application-internal dependencies
 import omero.constants.projection.ProjectionType;
 import omero.romio.PlaneDef;
-
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
 import pojos.DataObject;
-import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -66,6 +63,9 @@ import pojos.PixelsData;
 public interface OmeroImageService
 {
   
+	/** The extension causing a problem in bf lib. TMP solution. */
+	public static final String ZIP_EXTENSION = ".zip";
+	
 	/** Identifies the <code>Maximum intensity</code> projection. */
 	public static final int	MAX_INTENSITY = 
 									ProjectionType.MAXIMUMINTENSITY.value();
@@ -400,7 +400,7 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object importImages(DataObject container, List<Object> images, 
+	public Object importImage(DataObject container, File image, 
 			long userID, long groupID)
 		throws DSOutOfServiceException, DSAccessException;
 	

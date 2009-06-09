@@ -175,13 +175,14 @@ public class Factory
     public static BufferedImage createDefaultImageThumbnail()
     {
     	IconManager icons = IconManager.getInstance();
-    	ImageIcon img = icons.getImageIcon(IconManager.BROKEN_FILE_96);
-    	if (img == null) return createDefaultImageThumbnail(); 
+    	ImageIcon img = null;//icons.getImageIcon(IconManager.BROKEN_FILE_96);
+    	if (img == null) return createDefaultThumbnail(96, 96, null); 
     	int h = img.getIconHeight();
     	int w = img.getIconWidth();
         BufferedImage thumbPix = new BufferedImage(w, h, 
                                 BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) thumbPix.getGraphics();
+        g.setBackground(Color.black);
         g.drawImage(img.getImage(), 0, 0, null);
         return thumbPix;
     }

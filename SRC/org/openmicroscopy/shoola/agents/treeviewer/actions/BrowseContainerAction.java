@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.io.File;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -96,6 +98,12 @@ public class BrowseContainerAction
     private static final String DESCRIPTION_PLATE = "Browse the selected " +
     		"Plate.";
     
+    /** 
+     * Description of the action if the <code>Object</code> is a folder. 
+     */
+    private static final String DESCRIPTION_FOLDER = "Browse the selected " +
+    		"Folder.";
+    
     /** Convenience reference to the icon manager. */
     private static IconManager	icons = IconManager.getInstance();;
     
@@ -148,9 +156,20 @@ public class BrowseContainerAction
             
             return;
         }
-        if (ho == null || !(ho instanceof DataObject) ||
+        if (ho == null||
         	ho instanceof ExperimenterData || ho instanceof ImageData ||
         	ho instanceof FileAnnotationData || ho instanceof DatasetData) {
+        	putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_DEFAULT));
+        	setEnabled(false);
+        } else if (ho instanceof File) {
+        	File f = (File) ho;
+        	if (f.isDirectory() && !f.isHidden()) {
+        		putValue(Action.SHORT_DESCRIPTION, 
+                        UIUtilities.formatToolTipText(DESCRIPTION_FOLDER));
+            	setEnabled(true);
+        	}
+        } else if (!(ho instanceof DataObject)) {
         	putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DEFAULT));
         	setEnabled(false);

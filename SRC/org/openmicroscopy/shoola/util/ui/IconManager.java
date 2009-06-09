@@ -455,11 +455,14 @@ public class IconManager
     /** A 22x22 version of the <code>image</code> icon. */
     public static final int MOVIE_48 = 129;
     
+    /** The <code>Color Picker</code> icon. */
+    public static final int COLOR_PICKER = 130;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 129;
+    private static int      MAX_ID = 130;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -581,7 +584,7 @@ public class IconManager
         relPaths[TAG_SET_48] = "nuvola_knotes_red48.png";
         relPaths[PROJECT_48] = "nuvola_folder_blue_open48.png";
         relPaths[DATASET_48] = "nuvola_folder_image48.png";
-        relPaths[SCREEN_48] = "nuvola_knotes48.png";
+        relPaths[SCREEN_48] = "nuvola_folder_blue_open_modified_screen48.png";
         relPaths[CREATE_48] = "nuvola_filenew48.png";
         relPaths[EDIT] = "nuvola_ksig16.png";
         relPaths[EDITOR_EXPERIMENT] = "expNew.png";
@@ -597,6 +600,7 @@ public class IconManager
         relPaths[REFRESH_22] = "nuvola_reload22.png";
         relPaths[IMAGE_22] = "nuvola_indeximg22.png";
         relPaths[MOVIE_48] = "openOffice_stock_insert-video-plugin-48.png";
+        relPaths[COLOR_PICKER] = "nuvola_colorpicker16.png";
     }
 	
 	/**

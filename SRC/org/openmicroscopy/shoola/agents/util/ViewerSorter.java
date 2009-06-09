@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.agents.util;
 
 //Java imports
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -209,15 +210,32 @@ public class ViewerSorter
     		return compareNumbers(((WellData) o1).getRow(), 
     				((WellData) o2).getRow());
     	}
-        if (!byDate) {
+    	return compareObjects(o1, o2, true);
+    }
+
+    /**
+     * Compares the passed objects.
+     * 
+     * @param o1 			The first object to compare.
+     * @param o2 			The second object to compare.
+     * @param dataObject 	Pass <code>true</code> to compare data object
+     * 						<code>false</code> otherwise.
+     * @return See above.
+     */
+    private int compareObjects(Object o1, Object o2, boolean dataObject)
+    {
+    	if (!byDate) {
         	int r = compareStrings(getNameFor(o1), getNameFor(o2));
-        	if (r == 0) //equals so checks id.
-        		return compareLongs(o1.getId(), o2.getId());
+        	if (r == 0) {
+        		if (dataObject)
+        			return compareLongs(((DataObject) o1).getId(),
+        					((DataObject) o2).getId());
+        	}
         	return r;
         }
         return compareTimestamps(getTimeFor(o1), getTimeFor(o2));
     }
-
+    
     /**
      * Compares two {@link TreeImageDisplay}s.
      * 
@@ -230,9 +248,17 @@ public class ViewerSorter
     {
         Object ob1 = o1.getUserObject();
         Object ob2 = o2.getUserObject();
-        if (!(ob1 instanceof DataObject)) return -1;
-        if (!(ob2 instanceof DataObject)) return 1;
-        return compareDataObjects((DataObject) ob1, (DataObject) ob2);
+        if ((ob1 instanceof DataObject) && (ob2 instanceof DataObject)) {
+        	return compareDataObjects((DataObject) ob1, (DataObject) ob2);
+        }
+        if ((ob1 instanceof DataObject) && (ob2 instanceof File)) {
+        	return compareObjects(o1, o2);
+        } else if ((ob2 instanceof DataObject) && (ob1 instanceof File)) {
+        	return compareObjects(o1, o2);
+        } else if ((ob1 instanceof File) && (ob2 instanceof File)) {
+        	return compareObjects(o1, o2);
+        }
+        return -1;
     }
     
     /**
@@ -257,7 +283,7 @@ public class ViewerSorter
      * @param o The data object to control.
      * @return See above.
      */
-    private Timestamp getTimeFor(DataObject o)
+    private Timestamp getTimeFor(Object o)
     {
         Timestamp t = null;
         if (o instanceof ImageData) {
@@ -266,7 +292,12 @@ public class ViewerSorter
             } catch (Exception e) {}
         } else {
         	try {
-                t = o.getCreated();
+        		if (o instanceof DataObject) {
+        			t = ((DataObject) o).getCreated();
+        		} else if (o instanceof File) {
+        			t = new Timestamp(((File) o).lastModified());
+        		}
+                
             } catch (Exception e) {} 
         }
         if (t == null) t = new Timestamp(new Date().getTime());
@@ -321,22 +352,23 @@ public class ViewerSorter
         if (o1 instanceof Number || o1 instanceof Integer || 
                 o1 instanceof Double || o1 instanceof Float)
             result = compareNumbers((Number) o1, (Number) o2);
-        else if (o1 instanceof Date) 
+        else if ((o1 instanceof Date) && (o2 instanceof Date))
             result = compareDates((Date) o1, (Date) o2);
-        else if (o1 instanceof String)
+        else if ((o1 instanceof String) && (o2 instanceof String))
             result = compareStrings((String) o1, (String) o2);
-        else if (o1 instanceof Boolean)
+        else if ((o1 instanceof Boolean) && (o2 instanceof Boolean))
             result = compareBooleans((Boolean) o1, (Boolean) o2);    
-        else if (o1 instanceof DataObject)
+        else if ((o1 instanceof DataObject) && (o2 instanceof DataObject))
             result = compareDataObjects((DataObject) o1, (DataObject) o2);
-        else if (o1 instanceof TreeImageDisplay)
+        else if ((o1 instanceof TreeImageDisplay) && 
+        		(o2 instanceof TreeImageDisplay))
             result = compareTreeImageDisplays((TreeImageDisplay) o1, 
                     (TreeImageDisplay) o2);
-        else if (o1 instanceof ImageDisplay)
+        else if ((o1 instanceof ImageDisplay) && (o2 instanceof ImageDisplay))
             result = compareImageDisplays((ImageDisplay) o1, (ImageDisplay) o2);
-        else if (o1 instanceof Timestamp)
+        else if ((o1 instanceof Timestamp) && (o2 instanceof Timestamp))
         	result = compareTimestamps((Timestamp) o1, (Timestamp) o2);
-        else if (o1 instanceof FileFilter)
+        else if ((o1 instanceof FileFilter) && (o2 instanceof FileFilter))
         	result = compareStrings(((FileFilter) o1).getDescription(), 
         			((FileFilter) o2).getDescription());
         else  

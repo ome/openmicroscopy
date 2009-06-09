@@ -114,8 +114,26 @@ class OmeroMetadataServiceImpl
 
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
-
-
+	
+	/** Reference to the dummy folder wrapping a file on the file system. */
+	//private FolderData				folder;
+	
+	/**
+	 * Creates ro recycles the folder wrapping the passed file.
+	 * 
+	 * @param file The file to wrap.
+	 * @return See above.
+	 */
+	private DataObject createFolder(File file)
+	{
+		/*
+		if (folder == null) folder = new FolderData();
+		folder.setFile(file);
+		return folder;
+		*/
+		return null;
+	}
+	
 	/**
 	 * Removes the specified annotation from the object.
 	 * Returns the updated object.
@@ -751,15 +769,31 @@ class OmeroMetadataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#loadStructuredData(DataObject, long, boolean)
 	 */
-	public StructuredDataResults loadStructuredData(DataObject object, 
+	public StructuredDataResults loadStructuredData(Object object, 
 			                                        long userID, boolean viewed) 
 	    throws DSOutOfServiceException, DSAccessException 
 	{
 		if (object == null)
 			throw new IllegalArgumentException("Object not valid.");
-		StructuredDataResults results = new StructuredDataResults(object);
+		StructuredDataResults results = null;
+		DataObject r = null;
+		if (object instanceof File) {
+			File f = (File) object;
+			DataObject fd = gateway.loadFolder(f.getAbsolutePath());
+			if (fd == null)
+				fd = createFolder(f);
+			//load the data object if any.
+			results = new StructuredDataResults(fd);
+			return results;
+		} else if (object instanceof DataObject) {
+			r = (DataObject) object;
+			results = new StructuredDataResults(r);
+		}
+		if (r == null)
+			throw new IllegalArgumentException("Data Object not initialized.");
+		
 		Collection annotations = loadStructuredAnnotations(object.getClass(),
-													object.getId(), userID);
+													r.getId(), userID);
 		if (annotations != null && annotations.size() > 0) {
 			List<AnnotationData> texts = new ArrayList<AnnotationData>();
 			List<AnnotationData> tags = new ArrayList<AnnotationData>();
@@ -1865,10 +1899,16 @@ class OmeroMetadataServiceImpl
 			case EDITOR_EXPERIMENT:
 				include.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 				break;
+			case MOVIE:
+				include.add(FileAnnotationData.MOVIE_MPEG_NS);
+				include.add(FileAnnotationData.MOVIE_QUICK_TIME_NS);
+				break;
 			case OTHER:
 			default:
 				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
 				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
+				exclude.add(FileAnnotationData.MOVIE_MPEG_NS);
+				exclude.add(FileAnnotationData.MOVIE_QUICK_TIME_NS);
 		}
 		ParametersI po = new ParametersI();
 		long userID = getUserDetails().getId();
@@ -1893,8 +1933,14 @@ class OmeroMetadataServiceImpl
 			case EDITOR_EXPERIMENT:
 				include.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 				break;
+			case MOVIE:
+				include.add(FileAnnotationData.MOVIE_MPEG_NS);
+				include.add(FileAnnotationData.MOVIE_QUICK_TIME_NS);
+				break;
 			case OTHER:
 			default:
+				exclude.add(FileAnnotationData.MOVIE_MPEG_NS);
+				exclude.add(FileAnnotationData.MOVIE_QUICK_TIME_NS);
 				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
 				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 		}

@@ -68,6 +68,9 @@ public interface MetadataHandlerView
 	public static final int		EDITOR_EXPERIMENT = 
 		OmeroMetadataService.EDITOR_EXPERIMENT;
 	
+	/** Identifies that the file is of type movie. */
+	public static final int		MOVIE = OmeroMetadataService.MOVIE;
+	
 	/** Identifies that the file is of type other. */
 	public static final int		OTHER = OmeroMetadataService.OTHER;
 	
@@ -123,7 +126,7 @@ public interface MetadataHandlerView
 	 * @param observer  	Callback handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadStructuredData(DataObject dataObject, long userID,
+	public CallHandle loadStructuredData(Object dataObject, long userID,
 										AgentEventListener observer);
 	
 	/**

@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -44,11 +46,14 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImageLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImagesCounter;
+import org.openmicroscopy.shoola.agents.treeviewer.FilesChecker;
+import org.openmicroscopy.shoola.agents.treeviewer.ImageDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.ScreenPlateLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -80,52 +85,55 @@ class BrowserModel
 {
     
     /** The type of Browser. */
-    private int                 browserType;
+    private int                 	browserType;
     
     /** The collection of selected nodes in the visualization tree. */
-    private Set                selectedNodes;
+    private Set<TreeImageDisplay>	selectedNodes;
     
     /** Holds one of the state flags defined by {@link Browser}. */
-    private int                 state;
+    private int                 	state;
      
     /** The point where the mouse clicked event occured. */
-    private Point               clickPoint;
+    private Point               	clickPoint;
     
     /** 
      * Will either be a hierarchy loader or 
      * <code>null</code> depending on the current state. 
      */
-    private DataBrowserLoader	currentLoader;
+    private DataBrowserLoader		currentLoader;
     
     /** 
 	 * Will either be a data loader or
 	 * <code>null</code> depending on the current state. 
 	 */
-	private DataBrowserLoader	numberLoader;
+	private DataBrowserLoader		numberLoader;
 	
     /** List of founds nodes. */
-    private List				foundNodes;
+    private List					foundNodes;
     
     /** The index of the currently selected found node. */
-    private int					foundNodeIndex;
+    private int						foundNodeIndex;
     
     /** 
      * Maps an container id to the list of number of items providers for that 
      * container.
      */
-    private ContainersManager	containersManager;
+    private ContainersManager		containersManager;
     
     /** Indicates if the browser is currently selected. */
-    private boolean				selected;
+    private boolean					selected;
     
     /** Indicates if the browser is visible or not. */
-    private boolean             displayed;
+    private boolean             	displayed;
+    
+    /** The collection of previously imported images. */
+    private Map<String, Object>		importedImages;
     
     /** Reference to the parent. */
-    private TreeViewer          parent;
+    private TreeViewer          	parent;
     
     /** Reference to the component that embeds this model. */
-    protected Browser           component; 
+    protected Browser           	component; 
     
     /** 
      * Checks if the specified browser is valid.
@@ -140,6 +148,7 @@ class BrowserModel
             case Browser.TAGS_EXPLORER:  
             case Browser.SCREENS_EXPLORER: 
             case Browser.FILES_EXPLORER:
+            case Browser.FILE_SYSTEM_EXPLORER:
                 break;
             default:
                 throw new IllegalArgumentException("Browser type not valid.");
@@ -162,7 +171,7 @@ class BrowserModel
         this.browserType = browserType;
         clickPoint = null;
         foundNodeIndex = -1;
-        selectedNodes = new HashSet();
+        selectedNodes = new HashSet<TreeImageDisplay>();
         displayed = true;
     }
 
@@ -510,9 +519,15 @@ class BrowserModel
 	        state = Browser.LOADING_DATA;
 			return;
 		}
+		if (browserType == Browser.FILE_SYSTEM_EXPLORER) {
+			currentLoader = new ImageDataLoader(component, expNode);
+			currentLoader.load();
+			state = Browser.LOADING_DATA;
+			return;
+		}
 		switch (browserType) {
 			case Browser.PROJECT_EXPLORER:
-				index = ExperimenterDataLoader.PROJECT;
+				index = ExperimenterDataLoader.ALL;//ExperimenterDataLoader.PROJECT;
 				break;
 			case Browser.IMAGES_EXPLORER:
 				index = ExperimenterDataLoader.IMAGE;
@@ -570,7 +585,7 @@ class BrowserModel
 	{
 		List<TreeImageSet> n = expNode.getChildrenDisplay();
 		Iterator i = n.iterator();
-		Set indexes = new HashSet();
+		Set<Integer> indexes = new HashSet<Integer>();
 		switch (getBrowserType()) {
 			case Browser.IMAGES_EXPLORER:
 				TreeImageTimeSet node;
@@ -673,6 +688,92 @@ class BrowserModel
 		FileAnnotationData data = (FileAnnotationData) node.getUserObject();
 		EditFileEvent evt = new EditFileEvent(data);
 		TreeViewerAgent.getRegistry().getEventBus().post(evt);
+	}
+
+	/**
+	 * Sets the collection of images already imported.
+	 * 
+	 * @param nodes The collection to handle.
+	 */
+	void setImportedImages(Collection nodes)
+	{
+		if (nodes == null) return;
+		state = Browser.READY;
+		Iterator i = nodes.iterator();
+		ImageData img;
+		importedImages = new HashMap<String, Object>();
+		while (i.hasNext()) {
+			img = (ImageData) i.next();
+			importedImages.put(EditorUtil.getObjectName(img.getName()), img);
+		}
+	}
+	
+	/**
+	 * Adds the passed images to the collection of imported images.
+	 * 
+	 * @param nodes The collection to handle.
+	 */
+	void addImportedImages(List nodes)
+	{
+		Iterator i = nodes.iterator();
+		ImageData img;
+		while (i.hasNext()) {
+			img = (ImageData) i.next();
+			importedImages.put(EditorUtil.getObjectName(img.getName()), img);
+		}
+	}
+	
+	/**
+	 * Adds the passed image to the collection of imported images.
+	 * 
+	 * @param image The collection to handle.
+	 */
+	void addImportedImage(ImageData image)
+	{
+		importedImages.put(EditorUtil.getObjectName(image.getName()), image);
+	}
+	
+	/**
+	 * Returns the image corresponding to the passed file name.
+	 * 
+	 * @param fileName The name of the file.
+	 * @return See above.
+	 */
+	ImageData getImportedImage(String fileName)
+	{
+		if (importedImages == null) return null;
+		String name = EditorUtil.getObjectName(fileName);
+		Object ho = importedImages.get(name);
+		if (ho instanceof ImageData)
+			return (ImageData) ho;
+		return null;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the file has already been imported,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param path The path to the file.
+	 * @return See above.
+	 */
+	boolean isFileImported(String path)
+	{
+		if (importedImages == null) return false;
+		String name = EditorUtil.getObjectName(path);
+		return importedImages.get(name) != null;
+	}
+
+	/**
+	 * Starts an asynchronous call to check if the files hosted by the 
+	 * passed nodes can be imported.
+	 * 
+	 * @param nodes The nodes to handle.
+	 */
+	void fireFilesCheck(List<TreeImageNode> nodes)
+	{
+		if (nodes == null || nodes.size() == 0) return;
+		FilesChecker loader = new FilesChecker(component, nodes);
+		loader.load();
 	}
 	
 }

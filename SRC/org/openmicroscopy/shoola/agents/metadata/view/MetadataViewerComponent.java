@@ -204,7 +204,13 @@ class MetadataViewerComponent
 				model.fireStructuredDataLoading(node);
 				fireStateChange();
 			}
-		} 
+		} else if (userObject instanceof File) {
+			File f = (File) userObject;
+			if (f.isDirectory() && model.isSingleMode()) {
+				model.fireStructuredDataLoading(node);
+				fireStateChange();
+			}
+		}
 	}
 
 	/** 
@@ -673,6 +679,51 @@ class MetadataViewerComponent
 		}
 		firePropertyChange(CREATING_MOVIE_PROPERTY, Boolean.valueOf(true), 
 				Boolean.valueOf(false));
+	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getRndIndex()
+	 */
+	public int getRndIndex()
+	{
+		if (model.getState() == MetadataViewer.DISCARDED) return -1;
+		return model.getIndex();
+	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#renderPlane(long)
+	 */
+	public void renderPlane(long imageID)
+	{
+		if (!(model.getRefObject() instanceof ImageData)) return;
+		switch (getRndIndex()) {
+			case RND_GENERAL:
+				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
+				break;
+			case RND_SPECIFIC:
+			break;
+		}
+	}
+	
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#applyToAll(ImageData)
+	 */
+	public void applyToAll(ImageData image)
+	{
+		firePropertyChange(APPLY_SETTINGS_PROPERTY, null, image);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#onSettingsApplied()
+	 */
+	public void onSettingsApplied()
+	{
+		firePropertyChange(SETTINGS_APPLIED_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 	
 }

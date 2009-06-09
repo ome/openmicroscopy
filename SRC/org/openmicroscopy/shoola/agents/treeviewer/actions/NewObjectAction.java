@@ -155,6 +155,7 @@ public class NewObjectAction
     public void mouseReleased(MouseEvent me)
     {
         Object source = me.getSource();
+        if (point == null) point = me.getPoint();
         if (source instanceof Component && isEnabled()) {
         	switch (index) {
 				case NEW_TAGS:

@@ -84,7 +84,7 @@ public class TitlePanel
     	String s = subTitle;
     	if (text != null) s += "\n "+text;
     	setDescription(s);
-    	setIcon(icon);
+    	if (icon != null) setIcon(icon);
     	Color translucent = new Color(BG_COLOR.getRed(), BG_COLOR.getGreen(), 
     			BG_COLOR.getBlue(), 0);
     	setForeground(Color.LIGHT_GRAY);

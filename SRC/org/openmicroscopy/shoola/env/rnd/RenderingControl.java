@@ -688,5 +688,5 @@ public interface RenderingControl
 	 * @return See above.
 	 */
     public boolean isSameSettings(RndProxyDef def, boolean checkPlane);
-    
+	
 }

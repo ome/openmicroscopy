@@ -25,11 +25,16 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
@@ -43,6 +48,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataObjectUpdater;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsSaver;
+import org.openmicroscopy.shoola.agents.treeviewer.ImagesImporter;
 import org.openmicroscopy.shoola.agents.treeviewer.PlateWellsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ProjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RndSettingsSaver;
@@ -59,6 +65,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import pojos.DataObject;
@@ -257,6 +264,10 @@ class TreeViewerModel
 		browser = BrowserFactory.createBrowser(Browser.FILES_EXPLORER,
 				component, experimenter, true);
 		browsers.put(Browser.FILES_EXPLORER, browser);
+		
+		browser = BrowserFactory.createBrowser(Browser.FILE_SYSTEM_EXPLORER,
+				component, experimenter, true);
+		browsers.put(Browser.FILE_SYSTEM_EXPLORER, browser);
 	}
 
 	/** Initializes. */
@@ -617,7 +628,15 @@ class TreeViewerModel
 	void firePasteRenderingSettings(List<Long> ids, Class klass)
 	{
 		state = TreeViewer.SETTINGS_RND;
-		currentLoader = new RndSettingsSaver(component, klass, ids, 
+		long id = refImage.getId();
+		List<Long> toKeep = new ArrayList<Long>();
+		Iterator<Long> i = ids.iterator();
+		long id1;
+		while (i.hasNext()) {
+			id1 = i.next();
+			if (id1 != id) toKeep.add(id1);
+		}
+		currentLoader = new RndSettingsSaver(component, klass, toKeep, 
 								refImage.getDefaultPixels().getId());
 		currentLoader.load();
 	}
@@ -841,5 +860,60 @@ class TreeViewerModel
 	 * @return See above.
 	 */
 	DataBrowser getDataViewer() { return dataViewer; }
+
+	/**
+	 * Fires an asynchronous call to import the specified files.
+	 * 
+	 * @param nodes The nodes to reload.
+	 * @param files The files to import.
+	 */
+	void importFiles(List<TreeImageDisplay> nodes, List<Object> files)
+	{
+		ImagesImporter loader = new ImagesImporter(component, nodes, files);
+		loader.load();
+	}
 	
+	/**
+	 * Returns <code>true</code> if the file can be imported,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param f The file to handle.
+	 * @return See above.
+	 */
+	boolean isFileImportable(File f)
+	{
+		if (f.isDirectory()) return false;
+		if (f.isHidden()) return false;
+		if (!f.canRead()) return false;
+		if (!f.exists()) return false;
+		
+		Browser b = getBrowser(Browser.FILE_SYSTEM_EXPLORER);
+		//already imported
+		if (b.isFileImported(f.getAbsolutePath()))
+			return false;
+		String path = f.getAbsolutePath();
+    	path = path.toLowerCase();
+    	if (path.endsWith(OmeroImageService.ZIP_EXTENSION)) return true;
+    	
+		List<FileFilter> filters = getSupportedFormats();
+		Iterator<FileFilter> i = filters.iterator();
+		FileFilter filter;
+		while (i.hasNext()) {
+			filter = i.next();
+			if (filter.accept(f)) return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns the list of the supported file formats.
+	 * 
+	 * @return See above.
+	 */
+	List<FileFilter> getSupportedFormats()
+	{
+		OmeroImageService svc = TreeViewerAgent.getRegistry().getImageService();
+		return svc.getSupportedFileFilters();
+	}
+
 }

@@ -42,6 +42,7 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
@@ -67,8 +68,26 @@ class ToolBar
     /** Size of the horizontal box. */
     private static final Dimension HBOX = new Dimension(100, 16);
     
+    /** The size of the wheel. */
+    private static final Dimension	SIZE = new Dimension(16, 16);
+    
     /** Reference to the control. */
     private TreeViewerControl   controller;
+    
+    /** The component indicating the status of the import. */
+    private JXBusyLabel			importLabel;
+    
+    /** The import bar. */
+    private JToolBar			importBar;
+    
+    /** Initializes the components. */
+    private void initComponents()
+    {
+    	importLabel = new JXBusyLabel();//new JXBusyLabel(SIZE);
+    	importLabel.setEnabled(true);
+    	importLabel.setVisible(false);
+    	importLabel.setHorizontalTextPosition(JXBusyLabel.LEFT);
+    }
     
     /**
      * Helper method to create the tool bar hosting the management items.
@@ -141,6 +160,25 @@ class ToolBar
         return bar;
     }
     
+    /**
+     * Returns the toolbar indicating the status of the import.
+     * 
+     * @return See above.
+     */
+    private JToolBar createImportBar()
+    {
+    	JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+        bar.setRollover(true);
+        bar.setBorder(null);
+        bar.add(importLabel);
+        JButton b = new JButton(controller.getAction(
+        		TreeViewerControl.IMPORTER));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
+        return bar;
+    }
+    
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
@@ -154,14 +192,31 @@ class ToolBar
         outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.X_AXIS));
         outerPanel.add(bars);
         outerPanel.add(Box.createRigidArea(HBOX));
-        outerPanel.add(Box.createRigidArea(HBOX));
         outerPanel.add(Box.createHorizontalGlue());  
         
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-       
         add(UIUtilities.buildComponentPanel(outerPanel));
     }
 
+    /**
+     * Sets the status of the import.
+     * 
+     * @param perc  The text do display
+     * @param show  Pass <code>true</code> to show the wheel, <code>false</code>
+     * 				to hide it.
+     */
+    void setImportStatus(String perc, boolean show)
+    {
+    	if (importBar == null) {
+    		importBar = createImportBar();
+    		add(UIUtilities.buildComponentPanelRight(importBar));
+    	}
+    	importLabel.setBusy(true);
+    	importLabel.setText(perc);
+    	importLabel.setVisible(show);
+    	
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -172,6 +227,7 @@ class ToolBar
     {
         if (controller == null) 
             throw new NullPointerException("No controller.");
+        initComponents();
         this.controller = controller;
         buildGUI();
     }
@@ -186,8 +242,9 @@ class ToolBar
      */
     void showManagementMenu(Component c, Point p)
     {
+    	if (p == null) return;
         if (c == null) throw new IllegalArgumentException("No component.");
-        if (p == null) throw new IllegalArgumentException("No point.");
+        //if (p == null) throw new IllegalArgumentException("No point.");
         ManagePopupMenu managePopupMenu = new ManagePopupMenu(controller);
         managePopupMenu.show(c, p.x, p.y);
     }

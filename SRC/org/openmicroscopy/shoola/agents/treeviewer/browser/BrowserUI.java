@@ -34,6 +34,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -54,6 +55,7 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -67,6 +69,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.util.ui.filechooser.OMEFileChooser;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -134,6 +137,9 @@ class BrowserUI
     /** Button indicating if the partial name is displayed or not. */
     private JToggleButton			partialButton;
     
+    /** The file chooser used to handle the file system. */
+    private OMEFileChooser			chooser;
+    
     /**
      * Handles the mouse pressed and released.
      * 
@@ -194,6 +200,12 @@ class BrowserUI
         menuBar.setRollover(true);
         menuBar.setFloatable(false);
        
+        JButton button;
+        if (model.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
+        	button = new JButton(controller.getAction(BrowserControl.INFO));
+            button.setBorderPainted(false);
+            menuBar.add(button);
+        }
         ButtonGroup group = new ButtonGroup();
         JToggleButton b = new JToggleButton();
         group.add(b);
@@ -213,8 +225,7 @@ class BrowserUI
         partialButton.setBorderPainted(true);
         menuBar.add(partialButton);
         menuBar.add(new JSeparator(JSeparator.VERTICAL));
-        JButton button = new JButton(
-        			controller.getAction(BrowserControl.COLLAPSE));
+        button = new JButton(controller.getAction(BrowserControl.COLLAPSE));
         button.setBorderPainted(false);
         menuBar.add(button);
     }
@@ -344,7 +355,7 @@ class BrowserUI
     {
     	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
     	int[] values = {TreeFileSet.PROTOCOL, TreeFileSet.EXPERIMENT, 
-    			TreeFileSet.OTHER};
+    			TreeFileSet.MOVIE, TreeFileSet.OTHER};
     	TreeFileSet node;
     	for (int i = 0; i < values.length; i++) {
     		node = new TreeFileSet(values[i]);
@@ -397,6 +408,92 @@ class BrowserUI
     	tm.insertNodeInto(date, parent, parent.getChildCount());
     	parent.setChildrenLoaded(true);
     	return date;
+    }
+    
+    /**
+     * Transforms the file contained in the passed directory.
+     * Returns the collection of <code>TreeImageNode</code> to check.
+     * 
+     * @param dirSet The directory to transform.
+     * @return See above.
+     */
+    private List<TreeImageNode> transformDirectory(TreeImageSet dirSet)
+    {
+    	List<TreeImageNode> leaves = new ArrayList<TreeImageNode>();
+    	FileSystemView fs = chooser.getFileSystemView();
+    	File dir = (File) dirSet.getUserObject();
+    	File[] files = fs.getFiles(dir, false);
+    	if (files != null && files.length > 0) {
+    		File file;
+    		TreeImageDisplay display;
+    		for (int i = 0; i < files.length; i++) {
+    			file = files[i];
+    			if (file.isDirectory()) {
+        			if (!file.isHidden()) {
+        				display = new TreeImageSet(file);
+        				buildEmptyNode(display);
+        				dirSet.addChildDisplay(display);
+        			}
+        		} else {
+        			if (file.isFile() && !file.isHidden()) {
+        				ImageData img = model.getImportedImage(file.getName());
+        				if (img != null) 
+        					dirSet.addChildDisplay(new TreeImageNode(img));
+        				else {
+        					display = new TreeImageNode(file);
+        					leaves.add((TreeImageNode) display);
+        					//if (!model.isFormatSupported(file))
+        						//display.setSelectable(false);
+        					dirSet.addChildDisplay(display);
+        				}
+        			}
+        		}
+			}
+    	}
+    	return leaves;
+    }
+    
+    /**
+     * Creates the file system view.
+     * 
+     * @return See above.
+     */
+    private Set<TreeImageDisplay> createFileSystemExplorer()
+    {
+    	FileSystemView fs = chooser.getFileSystemView();
+    	File[] files = fs.getRoots();
+    	Set<TreeImageDisplay> results = new HashSet<TreeImageDisplay>();
+    	File file;
+    	TreeImageSet display;
+    	for (int i = 0; i < files.length; i++) {
+    		file = files[i];
+    		if (file.isDirectory()) {
+    			if (!file.isHidden()) {
+    				display = new TreeImageSet(file);
+    				display.setChildrenLoaded(true);
+    				transformDirectory(display);
+    				results.add(display);
+    			}
+    		} else {
+    			if (file.isFile() && !file.isHidden()) {
+    				ImageData img = model.getImportedImage(file.getName());
+    				if (img != null)
+    					results.add(new TreeImageNode(img));
+    				else results.add(new TreeImageNode(file));
+    			}
+    		}
+    	}
+    	
+    	display = new TreeImageSet(chooser.getCurrentDirectory());
+    	display.setSystem(true);
+    	buildEmptyNode(display);
+    	results.add(display);
+    	display = new TreeImageSet(chooser.getVolumeFolder());
+    	display.setSystem(true);
+    	buildEmptyNode(display);
+    	results.add(display);
+    	
+    	return results;
     }
     
     /** 
@@ -524,11 +621,6 @@ class BrowserUI
                     				display, display.getChildCount());
                 		}
                 	}
-                		/*
-                	if (!(display.getUserObject() instanceof PlateData))
-                    	tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
-                        				display, display.getChildCount());
-                        				*/
                 }  
             }
         } 
@@ -642,34 +734,121 @@ class BrowserUI
      */
     private List prepareSortedList(List sorted)
     {
-    	List top = new ArrayList();
-		List bottom = new ArrayList();
+    	List<TreeImageDisplay> top = new ArrayList<TreeImageDisplay>();
+		List<TreeImageDisplay> bottom = new ArrayList<TreeImageDisplay>();
+		
+		List<TreeImageDisplay> top2 = new ArrayList<TreeImageDisplay>();
+		List<TreeImageDisplay> bottom2 = new ArrayList<TreeImageDisplay>();
+		
 		Iterator j = sorted.iterator();
 		TreeImageDisplay object;
 		Object uo;
 		while (j.hasNext()) {
 			object = (TreeImageDisplay) j.next();
 			uo = object.getUserObject();
-			if ((uo instanceof ProjectData) ||
-					(uo instanceof ScreenData))
-				top.add(object);
-			else if ((uo instanceof DatasetData) ||
-					(uo instanceof PlateData))
-				bottom.add(object);
+			if (uo instanceof ProjectData) top.add(object);
+			else if (uo instanceof ScreenData) top2.add(object);
+			else if (uo instanceof DatasetData) bottom.add(object);
+			else if (uo instanceof PlateData) bottom2.add(object);
 			else if (uo instanceof TagAnnotationData) {
 				if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
 					((TagAnnotationData) uo).getNameSpace()))
 					top.add(object);
 				else bottom.add(object);
+			} else if (uo instanceof File) {
+				File f = (File) uo;
+				if (f.isDirectory()) {
+					if (((TreeImageSet) object).isSystem())
+						top.add(object);
+					else bottom.add(object);
+				} else top.add(object);
+			} else if (uo instanceof ImageData) {
+				top.add(object);
 			}
 		}
-		List all = new ArrayList();
+		List<TreeImageDisplay> all = new ArrayList<TreeImageDisplay>();
 		
 		if (top.size() > 0) all.addAll(top);
 		if (bottom.size() > 0) all.addAll(bottom);
+		if (top2.size() > 0) all.addAll(top2);
+		if (bottom2.size() > 0) all.addAll(bottom2);
 		return all;
     }
     
+
+	/**
+	 * Refreshes the folder hosting the file.
+	 * 
+	 * @param expNode	The experimenter node to refresh.
+	 * @param r			The data to display.
+	 */
+	private void refreshFileFolder(TreeImageDisplay expNode, Map<Integer, Set> r)
+	{
+		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+		expNode.setChildrenLoaded(Boolean.TRUE);
+		expNode.setExpanded(true);
+		if (r == null || r.size() == 0) return;
+		Iterator i = r.keySet().iterator();
+		int index;
+		int n = expNode.getChildCount();
+		TreeFileSet node;
+		dtm.reload();
+		while (i.hasNext()) {
+			index = (Integer) i.next();
+			for (int j = 0; j < n; j++) {
+				node = (TreeFileSet) expNode.getChildAt(j);
+				if (node.getType() == index) 
+					refreshFolderNode(node, r.get(index));
+			}
+		}
+		setExpandedParent(expNode, true);
+	}
+	
+	/**
+	 * Refreshes the folder hosting the time.
+	 * 
+	 * @param expNode	The experimenter node to refresh.
+	 * @param r			The data to display.
+	 */
+	private void refreshTimeFolder(TreeImageDisplay expNode, Map<Integer, Set> r)
+	{
+		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+		expNode.setChildrenLoaded(Boolean.TRUE);
+		expNode.setExpanded(true);
+		if (r == null || r.size() == 0) return;
+		Iterator i = r.keySet().iterator();
+		int index;
+		int n = expNode.getChildCount();
+		TreeImageTimeSet node, child;
+		dtm.reload();
+		int nodeType;
+		List children;
+		Iterator s;
+		while (i.hasNext()) {
+			index = (Integer) i.next();
+			for (int j = 0; j < n; j++) {
+				node = (TreeImageTimeSet) expNode.getChildAt(j);
+				nodeType = node.getType();
+				switch (nodeType) {
+					case TreeImageTimeSet.YEAR:
+					case TreeImageTimeSet.YEAR_BEFORE:
+						children = node.getChildrenDisplay();
+						s = children.iterator();
+						while (s.hasNext()) {
+							child = (TreeImageTimeSet) s.next();
+							if (child.getIndex() == index) 
+								refreshFolderNode(child, r.get(index));
+						}
+					default:
+						if (node.getIndex() == index) 
+							refreshFolderNode(node, r.get(index));
+						break;
+				}
+			}
+		}
+		setExpandedParent(expNode, true);
+	}
+	
     /**
      * Creates a new instance.
      * The {@link #initialize(BrowserControl, BrowserModel) initialize} method
@@ -781,6 +960,8 @@ class BrowserUI
             	return Browser.SCREENS_TITLE;
             case Browser.FILES_EXPLORER:
                 return Browser.FILES_TITLE;
+            case Browser.FILE_SYSTEM_EXPLORER:
+                return Browser.FILE_SYSTEM_TITLE;
         }
         return "";
     }
@@ -1000,6 +1181,20 @@ class BrowserUI
     	TreeImageDisplay root = getTreeRoot();
     	TreeImageDisplay child = (TreeImageDisplay) root.getFirstChild();
         treeDisplay.expandPath(new TreePath(child.getPath()));
+        
+        /*
+    	if (model.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
+      		if (chooser == null) chooser = new JFileChooser();
+    		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+            TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
+    		Set nodes = createFileSystemExplorer();
+    		setExperimenterData(nodes, root);
+    	} else {
+    		TreeImageDisplay root = getTreeRoot();
+        	TreeImageDisplay child = (TreeImageDisplay) root.getFirstChild();
+            treeDisplay.expandPath(new TreePath(child.getPath()));
+    	}
+    	*/
     }
 
     /** 
@@ -1165,79 +1360,6 @@ class BrowserUI
 	}
 	
 	/**
-	 * Refreshes the folder hosting the file.
-	 * 
-	 * @param expNode	The experimenter node to refresh.
-	 * @param r			The data to display.
-	 */
-	private void refreshFileFolder(TreeImageDisplay expNode, Map<Integer, Set> r)
-	{
-		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-		expNode.setChildrenLoaded(Boolean.TRUE);
-		expNode.setExpanded(true);
-		if (r == null || r.size() == 0) return;
-		Iterator i = r.keySet().iterator();
-		int index;
-		int n = expNode.getChildCount();
-		TreeFileSet node;
-		dtm.reload();
-		while (i.hasNext()) {
-			index = (Integer) i.next();
-			for (int j = 0; j < n; j++) {
-				node = (TreeFileSet) expNode.getChildAt(j);
-				if (node.getType() == index) 
-					refreshFolderNode(node, r.get(index));
-			}
-		}
-		setExpandedParent(expNode, true);
-	}
-	
-	/**
-	 * Refreshes the folder hosting the time.
-	 * 
-	 * @param expNode	The experimenter node to refresh.
-	 * @param r			The data to display.
-	 */
-	private void refreshTimeFolder(TreeImageDisplay expNode, Map<Integer, Set> r)
-	{
-		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-		expNode.setChildrenLoaded(Boolean.TRUE);
-		expNode.setExpanded(true);
-		if (r == null || r.size() == 0) return;
-		Iterator i = r.keySet().iterator();
-		int index;
-		int n = expNode.getChildCount();
-		TreeImageTimeSet node, child;
-		dtm.reload();
-		int nodeType;
-		List children;
-		Iterator s;
-		while (i.hasNext()) {
-			index = (Integer) i.next();
-			for (int j = 0; j < n; j++) {
-				node = (TreeImageTimeSet) expNode.getChildAt(j);
-				nodeType = node.getType();
-				switch (nodeType) {
-					case TreeImageTimeSet.YEAR:
-					case TreeImageTimeSet.YEAR_BEFORE:
-						children = node.getChildrenDisplay();
-						s = children.iterator();
-						while (s.hasNext()) {
-							child = (TreeImageTimeSet) s.next();
-							if (child.getIndex() == index) 
-								refreshFolderNode(child, r.get(index));
-						}
-					default:
-						if (node.getIndex() == index) 
-							refreshFolderNode(node, r.get(index));
-						break;
-				}
-			}
-		}
-		setExpandedParent(expNode, true);
-	}
-	
-	/**
      * Adds the specifies nodes to the currently selected
      * {@link TreeImageDisplay}.
      * 
@@ -1356,4 +1478,47 @@ class BrowserUI
 		treeDisplay.addTreeSelectionListener(selectionListener);
 	}
     
+	/**
+	 * Loads the files contained in the passed folder.
+	 * 
+	 * @param display The directory.
+	 */
+	void loadFile(TreeImageDisplay display)
+	{
+		//if ((uo instanceof File) && (display instanceof TreeImageSet)) {
+		display.removeAllChildren();
+		display.removeAllChildrenDisplay();
+		display.setChildrenLoaded(Boolean.TRUE);
+		display.setExpanded(true);
+		List<TreeImageNode> leaves = transformDirectory((TreeImageSet) display);
+		buildTreeNode(display, prepareSortedList(sorter.sort(
+				display.getChildrenDisplay())), 
+				(DefaultTreeModel) treeDisplay.getModel());
+
+		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+		tm.reload(display);
+		model.fireFilesCheck(leaves);
+	}
+	
+	/** 
+	 * Loads the file system. 
+	 * 
+	 * @param refresh Pass <code>true</code> to rebuild the file system view.
+	 * 				  <code>false</code> otherwise.
+	 */
+	void loadFileSystem(boolean refresh)
+	{
+		if (model.getBrowserType() != Browser.FILE_SYSTEM_EXPLORER) 
+			return;
+		if (refresh) chooser = null;
+		if (chooser == null) {
+			chooser = new OMEFileChooser();
+			//createTrees(TreeViewerAgent.getUserDetails());
+		}
+		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
+		Set nodes = createFileSystemExplorer();
+		setExperimenterData(nodes, root);
+	}
+	
 }

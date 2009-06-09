@@ -219,7 +219,17 @@ class TitleBar
         titlePainter.setTitle(t);
         repaint();
     }
-
+    /**
+     * Derives the default font of the title.
+     * 
+     * @param style The new style to set.
+     */
+    void setFontStyle(int style)
+    {
+    	titlePainter.setFontStyle(style);
+    	repaint();
+    }
+    
     /** 
      * Overridden to do custom painting required for this component. 
      * @see JComponent#paintComponent(Graphics)

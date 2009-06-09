@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -46,9 +45,11 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -60,6 +61,7 @@ import pojos.ChannelData;
 import pojos.FileAnnotationData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
+import pojos.PixelsData;
 import pojos.TagAnnotationData;
 import pojos.URLAnnotationData;
 import pojos.WellSampleData;
@@ -536,6 +538,52 @@ class EditorComponent
 		model.setPlaneInfo(channel, result);
 		view.setPlaneInfo(channel);
 		view.setStatus(false);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setRenderingControl(RenderingControl)
+	 */
+	public void setRenderingControl(RenderingControl rndControl)
+	{
+		model.setRenderingControl(rndControl);
+		view.setRenderer();
+		model.getRenderer().addPropertyChangeListener(controller);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#renderPlane()
+	 */
+	public void renderPlane()
+	{
+		model.renderPlane();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#loadRenderingControl()
+	 */
+	public void loadRenderingControl()
+	{
+		Object ref = model.getRefObject();
+		if (ref instanceof ImageData) {
+			ImageData image = (ImageData) ref;
+			PixelsData pixels = image.getDefaultPixels();
+			if  (pixels == null) {
+				UserNotifier un = 
+					MetadataViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Renderer", "The selected image is not valid.");
+				return;
+			}
+			model.fireRenderingControlLoading(pixels.getId(), 
+					RenderingControlLoader.LOAD);
+		} 
+	}
+
+	public void onSettingsApplied() {
+		//modelo
+		
 	}
 	
 }

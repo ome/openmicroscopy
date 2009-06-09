@@ -276,6 +276,13 @@ class TinyPaneUI
     void clearDefaultButtons() { titleBar.clearDefaultButtons(); }
     
     /**
+     * Derives the default font of the title bar.
+     * 
+     * @param style The new style to set.
+     */
+    void setFontStyle(int style) { titleBar.setFontStyle(style); }
+    
+    /**
      * Monitors frame's state changes and updates the UI accordingly.
      * 
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

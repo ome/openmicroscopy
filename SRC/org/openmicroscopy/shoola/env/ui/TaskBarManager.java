@@ -35,7 +35,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.Iterator;
 import java.util.Map;
 import javax.swing.Icon;
 import javax.xml.parsers.DocumentBuilder;
@@ -198,7 +197,6 @@ public class TaskBarManager
 	        msg.print(message);
 	        msg.print(e);
 	        logger.error(this, msg);
-			
 		}
 		return message;
 	}
@@ -240,11 +238,6 @@ public class TaskBarManager
 	
 	private void handleSaveEventResponse(SaveEventResponse e)
 	{
-		Iterator j = exitResponses.keySet().iterator();
-		while (j.hasNext()) {
-			System.err.println(j.next());
-			
-		}
 		if (e == null) return;
 		Agent a = e.getAgent();
 		Integer r = exitResponses.get(a);

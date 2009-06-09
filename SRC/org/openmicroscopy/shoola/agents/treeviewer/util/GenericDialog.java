@@ -191,7 +191,6 @@ public class GenericDialog
 					firePropertyChange(SAVE_GENERIC_PROPERTY, null, parent);
 					cancel();
 		}
-		
 	}
 	
 }

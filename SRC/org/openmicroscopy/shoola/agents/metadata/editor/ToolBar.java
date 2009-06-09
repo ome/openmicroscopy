@@ -70,6 +70,9 @@ class ToolBar
 	/** Button to download the original image. */
 	private JButton			downloadButton;
 
+	/** Button to load the rendering control for the primary select. */
+	private JButton			rndButton;
+	
 	/** Indicates the loading progress. */
 	private JXBusyLabel		busyLabel;
 	
@@ -88,7 +91,6 @@ class ToolBar
 	/** Reference to the Model. */
 	private EditorModel 	model;
 
-	
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -107,6 +109,7 @@ class ToolBar
 		saveButton.addActionListener(controller);
 		saveButton.setActionCommand(""+EditorControl.SAVE);
 		saveButton.setEnabled(false);
+		
 		icon = icons.getIcon(IconManager.DOWNLOAD);
 		if (icon != null) {
 			if (icon.getIconHeight() > h) h = icon.getIconHeight();
@@ -118,6 +121,17 @@ class ToolBar
 		downloadButton.setActionCommand(""+EditorControl.DOWNLOAD);
 		downloadButton.setEnabled(false);
 		
+		icon = icons.getIcon(IconManager.RENDERER);
+		if (icon != null) {
+			if (icon.getIconHeight() > h) h = icon.getIconHeight();
+			if (icon.getIconWidth() > w) w = icon.getIconWidth();
+		}
+		rndButton = new JButton(icon);
+		rndButton.setToolTipText("Rendeing control for the primary selected " +
+				"image.");
+		rndButton.addActionListener(controller);
+		rndButton.setActionCommand(""+EditorControl.RENDERER);
+		rndButton.setEnabled(false);
 		icon = icons.getIcon(IconManager.CREATE_MOVIE);
 		if (icon != null) {
 			if (icon.getIconHeight() > h) h = icon.getIconHeight();
@@ -133,6 +147,7 @@ class ToolBar
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 		UIUtilities.unifiedButtonLookAndFeel(createMovieButton);
+		UIUtilities.unifiedButtonLookAndFeel(rndButton);
 		
 		Dimension d = new Dimension(w, h);
     	busyLabel = new JXBusyLabel(d);
@@ -141,7 +156,6 @@ class ToolBar
     	
     	busyMovieLabel = new JXBusyLabel(d);
     	busyMovieLabel.setEnabled(true);
-    	//busyMovieLabel.setVisible(false);
     	busyMovieLabel.setToolTipText("Creating movie. Please wait.");
 	}
     
@@ -175,9 +189,10 @@ class ToolBar
     	bar.setRollover(true);
     	bar.setBorder(null);
     	bar.add(saveButton);
+    	bar.add(Box.createHorizontalStrut(5));
+    	bar.add(rndButton);
     	return bar;
     }
-    
     
     /** Builds and lays out the UI. */
     private void buildGUI()
@@ -281,9 +296,14 @@ class ToolBar
      */
     void buildUI()
     {
-    	if ((model.getRefObject() instanceof ImageData))
+    	Object refObject = model.getRefObject();
+    	if (refObject instanceof ImageData) {
+    		rndButton.setEnabled(!model.isRendererLoaded());
     		imageBar.setVisible(!model.isMultiSelection());
-    	else imageBar.setVisible(false);
+    	} else {
+    		rndButton.setEnabled(false);
+    		imageBar.setVisible(false);
+    	}
     	revalidate();
     	repaint();
     }

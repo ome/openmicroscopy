@@ -693,7 +693,7 @@ class ImageAcquisitionComponent
 	{
 		String name = evt.getPropertyName();
 		if (JLabelButton.SELECTED_PROPERTY.equals(name)) {
-			int id = ((Integer) evt.getNewValue()).intValue();
+			int id = ((Long) evt.getNewValue()).intValue();
 			switch (id) {
 				case OBJECTIVE:
 					displayUnsetObjectiveFields();

@@ -53,7 +53,7 @@ public class StructuredDataLoader
 {
 
 	/** The object the data are related to. */
-	private DataObject	dataObject;
+	private Object		dataObject;
 
 	
 	/** Handle to the async call so that we can cancel it. */
@@ -69,7 +69,7 @@ public class StructuredDataLoader
 	 * 						Mustn't be <code>null</code>.
 	 */
 	public StructuredDataLoader(MetadataViewer viewer, TreeBrowserDisplay node,
-								DataObject dataObject)
+								Object dataObject)
 	{
 		super(viewer, node);
 		if (dataObject == null)

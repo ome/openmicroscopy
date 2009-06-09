@@ -51,6 +51,9 @@ public class WordFilter
     /** Possible file extension. */
     public static final String  WORD = "doc";
     
+    /** Possible file extension. */
+    public static final String  WORD_X = "docx";
+    
 	/** The possible extensions. */
     public static final String[]	extensions;
 	
@@ -58,8 +61,9 @@ public class WordFilter
 	private static final String		description;
 		
 	static {
-		extensions = new String[1];
+		extensions = new String[2];
 		extensions[0] = WORD;
+		extensions[1] = WORD_X;
 		
 		String s = "Microsoft Word (";
 		for (int i = 0; i < extensions.length; i++) {

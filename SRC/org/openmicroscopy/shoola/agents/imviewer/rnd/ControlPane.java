@@ -32,7 +32,6 @@ import javax.swing.Icon;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 
 /** 

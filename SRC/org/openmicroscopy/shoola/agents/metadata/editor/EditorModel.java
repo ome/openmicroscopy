@@ -55,9 +55,12 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.OriginalFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
 import org.openmicroscopy.shoola.agents.metadata.PlaneInfoLoader;
+import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.TagsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -65,6 +68,7 @@ import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
@@ -169,6 +173,9 @@ class EditorModel
 	
 	/** The map hosting the channels plane info. */
 	private Map<Integer, Collection> 	channelPlaneInfoMap;
+	
+	/** Reference to the renderer. */
+	private Renderer 					renderer;
 	
     /** 
      * Sorts the passed collection of annotations by date starting with the
@@ -314,9 +321,10 @@ class EditorModel
      */
 	boolean isPermissionsShowable()
 	{
-		if (refObject == null) return false;
-    	return ((refObject instanceof ProjectData) || 
-    			(refObject instanceof DatasetData));
+		Object ref = getRefObject();
+		if (ref == null) return false;
+    	return ((ref instanceof ProjectData) || 
+    			(ref instanceof DatasetData));
 	}
 
 	/**
@@ -328,8 +336,9 @@ class EditorModel
      */
 	PermissionData getRefObjectPermissions()
 	{
-		if (refObject instanceof DataObject)
-			return ((DataObject) refObject).getPermissions();
+		Object ref = getRefObject();
+		if (ref instanceof DataObject)
+			return ((DataObject) ref).getPermissions();
 		return null;
 	}
 	
@@ -341,25 +350,27 @@ class EditorModel
 	String getRefObjectName() 
 	{
 		String name = "";
-		if (refObject instanceof ImageData)
-			name = ((ImageData) refObject).getName();
-		else if (refObject instanceof DatasetData)
-			name = ((DatasetData) refObject).getName();
-		else if (refObject instanceof ProjectData)
-			name = ((ProjectData) refObject).getName();
-		else if (refObject instanceof TagAnnotationData)
-			name = ((TagAnnotationData) refObject).getTagValue();
-		else if (refObject instanceof ScreenData)
-			name = ((ScreenData) refObject).getName();
-		else if (refObject instanceof PlateData)
-			name = ((PlateData) refObject).getName();
-		else if (refObject instanceof FileAnnotationData)
-			name = ((FileAnnotationData) refObject).getFileName();
-		else if (refObject instanceof WellSampleData) {
-			WellSampleData ws = (WellSampleData) refObject;
+		Object ref = getRefObject();
+		if (ref instanceof ImageData)
+			name = ((ImageData) ref).getName();
+		else if (ref instanceof DatasetData)
+			name = ((DatasetData) ref).getName();
+		else if (ref instanceof ProjectData)
+			name = ((ProjectData) ref).getName();
+		else if (ref instanceof TagAnnotationData)
+			name = ((TagAnnotationData) ref).getTagValue();
+		else if (ref instanceof ScreenData)
+			name = ((ScreenData) ref).getName();
+		else if (ref instanceof PlateData)
+			name = ((PlateData) ref).getName();
+		else if (ref instanceof FileAnnotationData)
+			name = ((FileAnnotationData) ref).getFileName();
+		else if (ref instanceof WellSampleData) {
+			WellSampleData ws = (WellSampleData) ref;
 			ImageData img = ws.getImage();
 			if (img != null && img.getId() >= 0) name = img.getName();
-		}
+		} //else if (ref instanceof FolderData)
+			name = null;//((FolderData) ref).getName();
 		if (name == null) return "";
 		return name.trim();
 	}
@@ -372,24 +383,26 @@ class EditorModel
 	String getRefObjectDescription() 
 	{
 		String description = "";
-		if (refObject instanceof ImageData)
-			description = ((ImageData) refObject).getDescription();
-		else if (refObject instanceof DatasetData)
-			description = ((DatasetData) refObject).getDescription();
-		else if (refObject instanceof ProjectData)
-			description = ((ProjectData) refObject).getDescription();
-		else if (refObject instanceof ScreenData)
-			description = ((ScreenData) refObject).getDescription();
-		else if (refObject instanceof PlateData)
-			description = ((PlateData) refObject).getDescription();
-		else if (refObject instanceof TagAnnotationData) {
-			description = ((TagAnnotationData) refObject).getTagDescription();
-		} else if (refObject instanceof WellSampleData) {
+		Object ref = getRefObject();
+		if (ref instanceof ImageData)
+			description = ((ImageData) ref).getDescription();
+		else if (ref instanceof DatasetData)
+			description = ((DatasetData) ref).getDescription();
+		else if (ref instanceof ProjectData)
+			description = ((ProjectData) ref).getDescription();
+		else if (ref instanceof ScreenData)
+			description = ((ScreenData) ref).getDescription();
+		else if (ref instanceof PlateData)
+			description = ((PlateData) ref).getDescription();
+		else if (ref instanceof TagAnnotationData) {
+			description = ((TagAnnotationData) ref).getTagDescription();
+		} else if (ref instanceof WellSampleData) {
 			if (parentRefObject instanceof WellData) {
 				WellData ws = (WellData) parentRefObject;
 				description = ws.getWellType();
 			}
-		}
+		} //else if (ref instanceof FolderData) 
+			description = null;//((FolderData) ref).getDescription();
 		if (description == null) return "";
 		return description.trim();
 	}
@@ -402,8 +415,9 @@ class EditorModel
 	 */
 	long getRefObjectID()
 	{
-		if (refObject instanceof DataObject)
-			return ((DataObject) refObject).getId();
+		Object ref = getRefObject();
+		if (ref instanceof DataObject)
+			return ((DataObject) ref).getId();
 		return -1;
 	}
 	
@@ -412,7 +426,14 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	Object getRefObject() { return refObject; }
+	Object getRefObject()
+	{ 
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return refObject;
+		Object o = data.getRelatedObject();
+		//if (o != null && o instanceof FolderData) return o;
+		return refObject; 
+	}
 	
 	/**
 	 * Returns <code>true</code> if the object is readable,
@@ -871,8 +892,9 @@ class EditorModel
 	 */
 	ExperimenterData getRefObjectOwner()
 	{
-		if (refObject instanceof DataObject)
-			return getOwner((DataObject) refObject);
+		Object ref = getRefObject();
+		if (ref instanceof DataObject)
+			return getOwner((DataObject) ref);
 		return null;
 	}
 	
@@ -922,7 +944,7 @@ class EditorModel
 			ids.add(def.getExperimenter().getId());
 		}
 		ThumbnailLoader loader = new ThumbnailLoader(component, 
-								(ImageData) refObject, ids);
+								(ImageData) getRefObject(), ids);
 		loader.load();
 		loaders.add(loader);
 	}
@@ -946,11 +968,12 @@ class EditorModel
 	/** Loads the thumbnail for the currently logged in user. */
 	void loadUserThumbnail()
 	{
-		if ((refObject instanceof ImageData) && thumbnailRequired) {
+		Object ref = getRefObject();
+		if ((ref instanceof ImageData) && thumbnailRequired) {
 			Set<Long> l = new HashSet<Long>();
 			l.add(MetadataViewerAgent.getUserDetails().getId());
 			ThumbnailLoader loader = new ThumbnailLoader(component, 
-					(ImageData) refObject, l, true);
+					(ImageData) ref, l, true);
 			loader.load();
 			loaders.add(loader);
 		}
@@ -1152,8 +1175,9 @@ class EditorModel
 	void fireAnnotationSaving(List<AnnotationData> toAdd,
 			List<AnnotationData> toRemove, List<Object> metadata)
 	{
-		if (refObject instanceof DataObject)
-			parent.saveData(toAdd, toRemove, metadata, (DataObject) refObject);
+		Object ref = getRefObject();
+		if (ref instanceof DataObject)
+			parent.saveData(toAdd, toRemove, metadata, (DataObject) ref);
 	}
 	
 	/**
@@ -1174,8 +1198,9 @@ class EditorModel
 	 */
 	boolean isArchived()
 	{ 
-		if (!(refObject instanceof ImageData)) return false;
-		ImageData img = (ImageData) refObject;
+		Object ref = getRefObject();
+		if (!(ref instanceof ImageData)) return false;
+		ImageData img = (ImageData) ref;
 		return img.isArchived();
 	}
 
@@ -1186,7 +1211,9 @@ class EditorModel
 	 */
 	void download(File folder)
 	{
-		PixelsData data = ((ImageData) refObject).getDefaultPixels();
+		Object ref = getRefObject();
+		if (!(ref instanceof ImageData)) return;
+		PixelsData data = ((ImageData) ref).getDefaultPixels();
 		OriginalFileLoader loader = new OriginalFileLoader(component, 
 											data.getId(), folder);
 		loader.load();
@@ -1241,8 +1268,9 @@ class EditorModel
 	 */
 	boolean hasTagsAsChildren()
 	{
-		if (!(refObject instanceof TagAnnotationData)) return false;
-		TagAnnotationData tag = (TagAnnotationData) refObject;
+		Object ref = getRefObject();
+		if (!(ref instanceof TagAnnotationData)) return false;
+		TagAnnotationData tag = (TagAnnotationData) ref;
 		Set tags = tag.getTags();
 		if (tags != null && tags.size() > 0) return true;
 		return false;
@@ -1575,8 +1603,9 @@ class EditorModel
 	 */
 	void fireLoadPlaneInfo(int channel)
 	{
-		if (!(refObject instanceof ImageData)) return;
-		ImageData img = (ImageData) refObject;
+		Object ref = getRefObject();
+		if (!(ref instanceof ImageData)) return;
+		ImageData img = (ImageData) ref;
 		PlaneInfoLoader loader = new PlaneInfoLoader(component, 
 				img.getDefaultPixels().getId(), channel);
 		loader.load();
@@ -1593,6 +1622,76 @@ class EditorModel
 	void makeMovie(int scaleBar, Color overlayColor)
 	{
 		parent.makeMovie(scaleBar, overlayColor);
+	}
+
+	/**
+	 * Returns <code>true</code> if the renderer has been loaded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isRendererLoaded() { return renderer != null; }
+	
+	/** 
+	 * Starts an asynchronous call to load the rendering control. 
+	 * 
+	 * @param pixelsID The id of the pixels set.
+	 * @param index One of the constants defined by the RenderingControlLoader
+	 * class
+	 */
+	void fireRenderingControlLoading(long pixelsID, int index)
+	{
+		RenderingControlLoader loader = new RenderingControlLoader(component, 
+				pixelsID, index);
+		loader.load();
+	}
+	
+	/**
+	 * Sets the rendering control.
+	 * 
+	 * @param rndControl The value to set.
+	 */
+	void setRenderingControl(RenderingControl rndControl)
+	{
+		renderer = RendererFactory.createRenderer(rndControl, getRndIndex());
+	}
+	
+	/**
+	 * Returns the renderer.
+	 * 
+	 * @return See above.
+	 */
+	Renderer getRenderer() { return renderer; }
+	
+	/**
+	 * Returns the rnd constants. 
+	 * 
+	 * @return See above.
+	 */
+	int getRndIndex() { return parent.getRndIndex(); }
+
+	/** Indicates to render a plane. */
+	void renderPlane() { parent.renderPlane(getRefObjectID()); }
+	
+	/** Applies the rendering settings to the selected or displayed images. */
+	void applyToAll()
+	{ 
+		Object ref = getRefObject();
+		if (!(ref instanceof ImageData)) return;
+		parent.applyToAll((ImageData) ref); 
+	}
+	
+	/**
+	 * Returns <code>true </code> if the object e.g. image has been published,
+	 * <code>false</code> otherwese.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasBeenPublished()
+	{
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return false;
+		return data.hasBeenPublished();
 	}
 	
 }

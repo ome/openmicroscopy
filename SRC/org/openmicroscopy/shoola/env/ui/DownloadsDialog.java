@@ -34,7 +34,6 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -77,6 +76,9 @@ class DownloadsDialog
 	/** The title of the dialog. */
 	private static final String TITLE = "Downloads";
 	
+	/** The columns for the layout of the {@link #entries}. */
+	private static final double[] COLUMNS = {TableLayout.FILL};
+	
 	/** Convenience reference to the icons manager. */
 	private IconManager 					icons;
 	
@@ -95,7 +97,6 @@ class DownloadsDialog
 		components = new ArrayList<FileLoadingComponent>();
 		entries = new JPanel();
 		entries.setBackground(UIUtilities.BACKGROUND);
-		entries.setLayout(new BoxLayout(entries, BoxLayout.Y_AXIS));
 		cleanupButton = new JButton("Clean Up");
 		getRootPane().setDefaultButton(cleanupButton);
 		cleanupButton.addActionListener(new ActionListener() {
@@ -142,9 +143,8 @@ class DownloadsDialog
 	private void layoutEntries()
 	{
 		entries.removeAll();
-		double[] columns = {TableLayout.FILL};
 		TableLayout layout = new TableLayout();
-		layout.setColumn(columns);
+		layout.setColumn(COLUMNS);
 		entries.setLayout(layout);
 		int index = 0;
 		Iterator i = components.iterator();

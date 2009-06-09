@@ -148,12 +148,6 @@ public class ThumbnailLoader
                 status = (percDone == 100) ? "Done" :  //Else
                                            ""; //Description wasn't available.   
             viewer.setStatus(status, percDone);
-           
-            /**
-            ThumbnailData td = (ThumbnailData) fe.getPartialResult();
-            if (td != null)  //Last fe has null object.
-                viewer.setThumbnail(td.getImageID(), td.getThumbnail(), max);
-                */
             List l = (List) fe.getPartialResult();
             if (l != null) {
             	Iterator i = l.iterator();
@@ -190,6 +184,7 @@ public class ThumbnailLoader
      * Does nothing as the async call returns <code>null</code>.
      * The actual payload (thumbnails) is delivered progressively
      * during the updates.
+     * @see DataBrowserLoader#handleNullResult()
      */
     public void handleNullResult() {}
     

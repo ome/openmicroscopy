@@ -238,11 +238,38 @@ public class IconManager
     /** The <code>Create Movie</code> icon. */
     public static final int           CREATE_MOVIE = 61;
     
+    /** The <code>Histogram</code> image. */
+    public static final int 		  TEMPORARY_HISTOGRAM = 62;
+    
+    /** The <code>Histogram</code> icon. */
+    public static  final int          HISTOGRAM = 63;
+   
+    /** The <code>Contrast Stretching</code> icon. */
+    public static  final int          CONTRAST_STRETCHING = 64;
+    
+    /** The <code>Plane slicing</code> icon. */
+    public static  final int          PLANE_SLICING = 65;
+    
+    /** The  <code>codomain</code> icon. */
+    public  static final int          CODOMAIN = 66;
+    
+    /** The  <code>domain</code> icon. */
+    public  static final int          DOMAIN = 67;
+    
+    /** The <code>Renderer</code> icon. */
+    public  static final int          RENDERER = 68;
+    
+    /** The <code>GreyScale</code> icon. */
+    public static  final int          GRAYSCALE = 69;
+    
+    /** The <code>RGB</code> icon. */
+    public static  final int          RGB = 70;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 61;
+	private static final int          MAX_ID = 70;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -308,6 +335,15 @@ public class IconManager
         relPaths[DOWNLOAD_12] = "nuvola_download_manager11.png";
         relPaths[EDITOR_12] = "omeroEditorLink11.png";
         relPaths[CREATE_MOVIE] = "openOffice_stock_insert-video-plugin-16.png";
+        relPaths[TEMPORARY_HISTOGRAM] = "histogram_temporary.png";
+        relPaths[HISTOGRAM] = "histogram16.png";
+        relPaths[CONTRAST_STRETCHING] = "openOffice_stock_new-drawing-16.png";
+        relPaths[PLANE_SLICING] = "openOffice_stock_new-labels-16.png";
+        relPaths[DOMAIN] = "nuvola_kmplot16.png";
+        relPaths[CODOMAIN] = "codomain16.png";
+        relPaths[RENDERER] = "render16.png";
+        relPaths[GRAYSCALE] = "grayscale16.png";
+        relPaths[RGB] = "rgb16.png";
 	}
    
 	/** The sole instance. */

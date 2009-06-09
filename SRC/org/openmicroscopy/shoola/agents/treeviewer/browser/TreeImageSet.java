@@ -64,6 +64,9 @@ public class TreeImageSet
     /** Flag to indicate if the children were loaded for that node. */
     private Boolean     childrenLoaded;
 
+    /** Flag indicating that the node hosting the folder is marked. */
+    private boolean		system;
+    
     /**
      * Implemented as specified by superclass.
      * @see TreeImageDisplay#doAccept(TreeImageDisplayVisitor)
@@ -72,6 +75,22 @@ public class TreeImageSet
     {
         visitor.visit(this);
     }
+    
+    /**
+     * Marks the node.
+     * 
+     * @param system Pass <code>true</code> to mark the node, 
+     * 				 <code>false</code> otherwise.
+     */
+    void setSystem(boolean system) { this.system = system; }
+    
+    /**
+     * Returns <code>true</code> if the node is marked, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isSystem() { return system; }
     
     /**
      * Creates a new container node.
@@ -85,6 +104,7 @@ public class TreeImageSet
     {
         super(hierarchyObject);
         childrenLoaded = null;
+        system = false;
     }
 
     /**

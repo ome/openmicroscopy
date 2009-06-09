@@ -53,8 +53,6 @@ import javax.swing.event.DocumentListener;
 import layout.TableLayout;
 
 //Application-internal dependencies
-//import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-//import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
@@ -131,8 +129,11 @@ public class EditorDialog
     /** The objec to create. */
     private DataObject			data;
     
-    /** Box used to indicate that the new object will have group visibility. */
+    /** Box used to indicate that the new object will have public visibility. */
     private JRadioButton		publicBox;
+    
+    /** Box used to indicate that the new object will have group visibility. */
+    private JRadioButton		groupBox;
     
     /** Box used to indicate that the new object will be private. */
     private JRadioButton		privateBox;
@@ -165,6 +166,7 @@ public class EditorDialog
     {
         JPanel content = new JPanel();
     	content.add(privateBox);
+    	content.add(groupBox);
        	content.add(publicBox);
         return content;
     }
@@ -172,9 +174,10 @@ public class EditorDialog
     /** Initializes the components composing this display. */
     private void initComponents()
     {
-    	publicBox =  new JRadioButton(EditorUtil.PUBLIC);
-    	publicBox.setToolTipText(EditorUtil.PUBLIC_DESCRIPTION);
+    	publicBox = new JRadioButton(EditorUtil.PUBLIC);
     	publicBox.setEnabled(false);
+    	groupBox = new JRadioButton(EditorUtil.GROUP_VISIBLE);
+    	groupBox.setEnabled(false);
         privateBox =  new JRadioButton(EditorUtil.PRIVATE);
         privateBox.setSelected(true);
         privateBox.setEnabled(false);

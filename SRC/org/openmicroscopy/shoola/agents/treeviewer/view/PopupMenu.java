@@ -243,6 +243,10 @@ class PopupMenu
 						TreeViewerControl.CREATE_TOP_DATASET);
 				createDataset = new JMenuItem(a);
 				initMenuItem(createDataset, a.getActionName());
+				a = controller.getAction(
+						TreeViewerControl.CREATE_TOP_SCREEN);
+				createScreen = new JMenuItem(a);
+				initMenuItem(createScreen, a.getActionName());
 				break;
 			case TreeViewer.CREATE_MENU_TAGS:
 				a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG);
@@ -312,6 +316,7 @@ class PopupMenu
 			case TreeViewer.CREATE_MENU_CONTAINERS:
 				add(createProject);
 				add(createDataset);
+				add(createScreen);
 				break;
 			case TreeViewer.CREATE_MENU_TAGS:
 				add(createTagSet);

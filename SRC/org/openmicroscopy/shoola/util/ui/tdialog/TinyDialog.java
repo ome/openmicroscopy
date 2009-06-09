@@ -397,6 +397,16 @@ public class TinyDialog
     public void closeWindow() { uiDelegate.updateClosedState(); }
     
     /** 
+     * Modifies the style of the font of the title.
+     * 
+     * @param style The style to set.
+     */
+    public void setFontTitleStyle(int style)
+    { 
+    	uiDelegate.setFontStyle(style);
+    }
+    
+    /** 
      * Overrides the method. 
      * If the specified flag is <code>true</code>, we attach a 
      * {@link BorderListener}.

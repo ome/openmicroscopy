@@ -170,6 +170,13 @@ class TitlePainter
         title = t;
     }
     
+    /**
+     * Derives the default font of the painter.
+     * 
+     * @param style The new style to set.
+     */
+    void setFontStyle(int style) { font = font.deriveFont(style); }
+    
     /** 
      * Paints the background on <code>area</code>. 
      * 

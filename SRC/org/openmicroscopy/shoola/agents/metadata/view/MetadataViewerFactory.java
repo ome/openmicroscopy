@@ -64,7 +64,8 @@ public class MetadataViewerFactory
 	{
 		if (data == null || data.size() == 0)
 			throw new IllegalArgumentException("No data to edit");
-		MetadataViewerModel model = new MetadataViewerModel(data);
+		MetadataViewerModel model = new MetadataViewerModel(data, 
+				MetadataViewer.RND_GENERAL);
 		model.setDataType(type);
 		return singleton.createViewer(model, false);
 	}
@@ -80,7 +81,25 @@ public class MetadataViewerFactory
 	public static MetadataViewer getViewer(Object refObject, boolean
 									thumbnailRequired)
 	{
-		MetadataViewerModel model = new MetadataViewerModel(refObject);
+		return getViewer(refObject, thumbnailRequired, 
+				MetadataViewer.RND_GENERAL);
+	}
+	
+	/**
+	 * Returns the {@link MetadataViewer}.
+	 * 
+	 * @param refObject			The object viewed as the root of the browser.
+	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
+	 * 							thumbnail, <code>false</code> otherwise.
+	 * @param index 			One of the following constants: 
+	 * 							{@link MetadataViewer#RND_GENERAL} or
+	 * 							{@link MetadataViewer#RND_SPECIFIC}.
+	 * @return See above.
+	 */
+	public static MetadataViewer getViewer(Object refObject, boolean
+									thumbnailRequired, int index)
+	{
+		MetadataViewerModel model = new MetadataViewerModel(refObject, index);
 		return singleton.createViewer(model, thumbnailRequired);
 	}
 	

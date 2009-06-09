@@ -30,6 +30,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,7 +53,9 @@ import javax.swing.event.MenuListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.ImportManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
@@ -67,6 +70,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ImporterVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.InspectorVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
@@ -95,6 +99,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -255,6 +260,14 @@ class TreeViewerControl
 	/** Identifies the <code>Show/hide inspector</code> in the menu. */
 	static final Integer    INSPECTOR = Integer.valueOf(50);
 	
+	/** Identifies the <code>Show/hide importer</code> in the menu. */
+	static final Integer    IMPORTER = Integer.valueOf(51);
+	
+	/** 
+	 * Identifies the <code>File System Explorer</code> action in the View menu.
+	 */
+	static final Integer    FILE_SYSTEM_EXPLORER = Integer.valueOf(52);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -291,6 +304,8 @@ class TreeViewerControl
 				new BrowserSelectionAction(model, Browser.IMAGES_EXPLORER));
 		actionsMap.put(FILES_EXPLORER, 
 				new BrowserSelectionAction(model, Browser.FILES_EXPLORER));
+		actionsMap.put(FILE_SYSTEM_EXPLORER, new BrowserSelectionAction(model, 
+						Browser.FILE_SYSTEM_EXPLORER));
 		actionsMap.put(FIND,  new FinderAction(model));
 		actionsMap.put(CLEAR, new ClearAction(model));
 		actionsMap.put(EXIT, new ExitApplicationAction(model));
@@ -337,6 +352,7 @@ class TreeViewerControl
 		actionsMap.put(EDITOR_NEW_WITH_SELECTION, new EditorAction(model, 
 				EditorAction.NEW_WITH_SELECTION));
 		actionsMap.put(INSPECTOR, new InspectorVisibilityAction(model));
+		actionsMap.put(IMPORTER, new ImporterVisibilityAction(model));
 	}
 
 	/** 
@@ -702,6 +718,41 @@ class TreeViewerControl
 			model.openEditorFile(TreeViewer.NEW_WITH_SELECTION);
 		} else if (DataBrowser.FIELD_SELECTED_PROPERTY.equals(name)) {
 			model.setSelectedField(pce.getNewValue());
+		} else if (ImportManager.VIEW_IMAGE_PROPERTY.equals(name)) {
+			ImageData image = (ImageData) pce.getNewValue();
+			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+			ViewImage evt = new ViewImage(image, view.getBounds());
+			bus.post(evt);
+		} else if (Browser.FILE_FORMATS_PROPERTY.equals(name)) {
+			view.showSupportedFileFormats();
+		} else if (MetadataViewer.RENDER_THUMBNAIL_PROPERTY.equals(name)) {
+			long imageID = ((Long) pce.getNewValue()).longValue();
+			List<Long> ids = new ArrayList<Long>(1);
+			ids.add(imageID);
+			view.reloadThumbnails(ids);
+		} else if (MetadataViewer.APPLY_SETTINGS_PROPERTY.equals(name)) {
+			ImageData image = (ImageData) pce.getNewValue();
+			model.copyRndSettings(image);
+			List l = model.getSelectedBrowser().getSelectedDataObjects();
+			PasteRndSettingsCmd cmd = null;
+			Collection toUpdate;
+			if (l.size() > 1) toUpdate = l;
+			else toUpdate = model.getDisplayedImages();
+			if (toUpdate != null) {
+				/*
+				Iterator i = toUpdate.iterator();
+				DataObject ho;
+				List<DataObject> toKeep = new ArrayList<DataObject>();
+				while (i.hasNext()) {
+					ho = (DataObject) i.next();
+					if (ho.getClass().equals(ImageData.class) && 
+							ho.getId() != image.getId()) toKeep.add(ho);
+				}
+				*/
+				cmd = new PasteRndSettingsCmd(model, 
+						PasteRndSettingsCmd.PASTE, toUpdate);
+				cmd.execute();
+			}
 		}
 	}
 
@@ -745,8 +796,6 @@ class TreeViewerControl
 				break;  
 			case TreeViewer.SETTINGS_RND:
 				UIUtilities.centerAndShow(loadingWindow);
-				break;
-			
 		}
 	}
 

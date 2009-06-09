@@ -24,7 +24,10 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -57,27 +60,36 @@ public class ImagesImporter
     /** Loads the specified tree. */
     private BatchCall   loadCall;
     
-    /**
-     * Creates a a {@link BatchCall} to import the images.
-     * 
-     * @param container The container where to import the images into or 
-	 * 					<code>null</code>.
-	 * @param images	The images to import. Mustn't be <code>null</code>.
-	 * @param userID	The id of the user.
-	 * @param groupID	The id of the group.
-     * @return The {@link BatchCall}.
+    /** Collection of objects to import. */
+    private List<Object> images;
+    
+    /** The id of the user currently logged in. */
+    private long 		 userID;
+    
+    /** The id of the group is logged as. */
+    private long 		 groupID;
+    
+    /** 
+     * Map of result, key is the file to import, value is an object or a
+     * string. 
      */
-    private BatchCall makeBatchCall(final DataObject container, 
-    						final List<Object> images, final long userID, 
-    						final long groupID)
+    private Map<File, Object> partialResult;
+    
+    /** 
+     * Imports the file.
+     * 
+     * @param f The file to import.
+     */
+    private void importFile(File f)
     {
-        return new BatchCall("Importing images: ") {
-            public void doCall() throws Exception
-            {
-                OmeroImageService os = context.getImageService();
-				results = os.importImages(container, images, userID, groupID);
-            }
-        };
+    	partialResult = new HashMap<File, Object>();
+    	OmeroImageService os = context.getImageService();
+    	try {
+    		Object ho = os.importImage(null, f, userID, groupID);
+    		partialResult.put(f, ho);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
     }
     
     /**
@@ -109,14 +121,46 @@ public class ImagesImporter
      * 
      * @see BatchCallTree#buildTree()
      */
-    protected void buildTree() { add(loadCall); }
+    protected void buildTree()
+    { 
+    	if (loadCall != null) {
+    		add(loadCall); 
+    	} else {
+    		Iterator i = images.iterator();
+    		Object ho;
+    		while (i.hasNext()) {
+				ho = i.next();
+				if (ho instanceof File) {
+					final File f = (File) ho;
+					add(new BatchCall("Importing file") {
+	            		public void doCall() { importFile(f); }
+	            	}); 
+				}
+			}
+    	}
+    }
 
+    /**
+     * Returns the lastly retrieved thumbnail.
+     * This will be packed by the framework into a feedback event and
+     * sent to the provided call observer, if any.
+     * 
+     * @return  A Map whose key is the file to import and the value the 
+     * 			imported object.
+     */
+    protected Object getPartialResult() { return partialResult; }
+    
     /**
      * Returns the root node of the requested tree.
      * 
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return results; }
+    protected Object getResult()
+    { 
+    	
+    	if (loadCall != null) return results; 
+    	return null;
+    }
     
     /**
      * Creates a new instance. If bad arguments are passed, we throw a runtime
@@ -133,7 +177,10 @@ public class ImagesImporter
     {
     	if (images == null || images.size() == 0)
     		throw new IllegalArgumentException("No images to import.");
-    	loadCall = makeBatchCall(container, images, userID, groupID);
+    	this.userID = userID;
+    	this.groupID = groupID;
+    	this.images = images;
+    	//loadCall = makeBatchCall(container, images, userID, groupID);
     }
     
     /**

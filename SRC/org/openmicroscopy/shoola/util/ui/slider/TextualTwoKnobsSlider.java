@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.ui.slider;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -34,6 +35,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -41,9 +43,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
-import layout.TableLayout;
-
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
@@ -70,16 +71,22 @@ public class TextualTwoKnobsSlider
 {
 
 	/** Indicates to layout all the components. */
-	public static final int	LAYOUT_ALL = 0;
+	public static final int		LAYOUT_ALL = 0;
 	
 	/** Indicates to layout all the fields only. */
-	public static final int	LAYOUT_FIELDS = 1;
+	public static final int		LAYOUT_FIELDS = 1;
+	
+	/** Indicates to layout the slider only. */
+	public static final int		LAYOUT_SLIDER = 2;
+	
+	/** Indicates to layout the slider and label only. */
+	public static final int		LAYOUT_SLIDER_AND_LABEL = 3;
 	
 	/** The id of the action linked to the {@link #startField}. */
-	private static final int 	START = 0;
+	public static final int 	START = 0;
 	
 	/** The id of the action linked to the {@link #startField}. */
-	private static final int 	END = 1;
+	public static final int 	END = 1;
 	
 	/** The name of the property used to identify the text field. */
 	private static final String NAME_DOC = "name";
@@ -108,12 +115,32 @@ public class TextualTwoKnobsSlider
 	/** The end value. */
 	private int					end;
 	
-	/** Attaches listeners to the components. */
+	/** Attaches the listeners to the components. */
 	private void attachListeners()
 	{
+		attachSliderListeners();
+		installFieldListeners(startField, START);
+		installFieldListeners(endField, END);
+	}
+	
+	/** Removes the listeners from the components. */
+	private void removeListeners()
+	{
+		removeSliderListeners();
+		uninstallFieldListeners(startField);
+		uninstallFieldListeners(endField);
+	}
+	
+	/** Attaches the listeners to the slider. */
+	private void attachSliderListeners()
+	{
 		slider.addPropertyChangeListener(this);
-		installFieldListener(startField, START);
-		installFieldListener(endField, END);
+	}
+	
+	/** Removes the listener attached to the slider. */
+	private void removeSliderListeners()
+	{
+		slider.removePropertyChangeListener(this);
 	}
 	
 	/**
@@ -122,7 +149,7 @@ public class TextualTwoKnobsSlider
 	 * @param field	The text field to handle.
 	 * @param id	The id of the action command
 	 */
-	private void installFieldListener(JTextField field, int id)
+	private void installFieldListeners(JTextField field, int id)
 	{
 		field.setActionCommand(""+id);  
         field.addActionListener(this);
@@ -137,7 +164,7 @@ public class TextualTwoKnobsSlider
 	 * 
 	 * @param field The component to handle.
 	 */
-	private void uninstallFieldListener(JTextField field)
+	private void uninstallFieldListeners(JTextField field)
 	{
 		field.removeActionListener(this);
 		field.removeFocusListener(this);
@@ -147,22 +174,25 @@ public class TextualTwoKnobsSlider
 	/**
 	 * Initialises the components.
 	 * 
-	 * @param min   The minimum value.
-	 * @param max   The maximum value.
-	 * @param start The start value.
-	 * @param end   The end value.
+	 * @param absMin The absolute minimum value.
+	 * @param absMax The absolute maximum value.
+	 * @param min    The minimum value.
+	 * @param max    The maximum value.
+	 * @param start  The start value.
+	 * @param end    The end value.
 	 */
-	private void initComponents(int min, int max, int start, int end)
+	private void initComponents(int absMin, int absMax, int min, int max, 
+			int start, int end)
 	{
 		sliderLabel = new JLabel();
 		startLabel = new JLabel("Start");
 		endLabel = new JLabel("End");
-		slider = new TwoKnobsSlider(min, max, start, end);
+		slider = new TwoKnobsSlider(absMin, absMax, min, max, start, end);
 		setSliderPaintingDefault(false);
 		int length = (""+max).length(); 
-		startField = new NumericalTextField(start, end);
+		startField = new NumericalTextField(absMin, absMax);
 		startField.setColumns(length);
-		endField = new NumericalTextField(start, end);
+		endField = new NumericalTextField(absMin, absMax);
 		endField.setColumns(length);
 		startField.setText(""+start);
 		endField.setText(""+end);
@@ -186,7 +216,12 @@ public class TextualTwoKnobsSlider
         }
         start = val;
         endField.setMinimum(start);
+        removeSliderListeners();
+        int old = slider.getStartValue();
         slider.setStartValue(start);
+       
+        firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, start);
+        attachSliderListeners();
 	}
 	
 	/** Sets the end value. */
@@ -201,11 +236,14 @@ public class TextualTwoKnobsSlider
         if (!valid) {
             endField.selectAll();
             return;
-            
         }
         end = val;
+        removeSliderListeners();
         startField.setMaximum(end);
+        int old = slider.getEndValue();
         slider.setEndValue(end);
+        firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, end);
+        attachSliderListeners();
 	}
 	
 	/**
@@ -217,10 +255,10 @@ public class TextualTwoKnobsSlider
 	private void synchStartValue(int value)
 	{
 		start = value;
-		uninstallFieldListener(startField);
+		uninstallFieldListeners(startField);
 		startField.setText(""+start);
 		endField.setMinimum(start);
-		installFieldListener(startField, START);
+		installFieldListeners(startField, START);
 	}
 	
 	/**
@@ -232,10 +270,10 @@ public class TextualTwoKnobsSlider
 	private void synchEndValue(int value)
 	{
 		end = value;
-		uninstallFieldListener(endField);
+		uninstallFieldListeners(endField);
 		endField.setText(""+end);
 		startField.setMaximum(end);
-		installFieldListener(endField, END);
+		installFieldListeners(endField, END);
 	}
 	
 	/**
@@ -333,7 +371,23 @@ public class TextualTwoKnobsSlider
 	 */
 	public TextualTwoKnobsSlider(int min, int max, int start, int end)
 	{
-		initComponents(min, max, start, end);
+		this(min, max, min, max, start, end);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param absMin The absolute minimum value of the slider.
+	 * @param absMax The absolute maximum value of the slider.
+	 * @param min    The minimum value.
+	 * @param max    The maximum value.
+	 * @param start  The start value.
+	 * @param end    The end value.
+	 */
+	public TextualTwoKnobsSlider(int absMin, int absMax, int min, int max, 
+			int start, int end)
+	{
+		initComponents(absMin, absMax, min, max, start, end);
 		attachListeners();
 	}
 	
@@ -395,17 +449,30 @@ public class TextualTwoKnobsSlider
 			case LAYOUT_FIELDS:
 				add(buildFieldsPane());
 				break;
-			case LAYOUT_ALL:
-			default:
+			case LAYOUT_SLIDER:
+				add(slider);
+				break;
+			case LAYOUT_SLIDER_AND_LABEL:
 				double size[][] =
 		        {{TableLayout.PREFERRED, TableLayout.PREFERRED},  // Columns
-		         {TableLayout.PREFERRED, TableLayout.PREFERRED}}; // Rows
+		         {TableLayout.PREFERRED}}; // Rows
 				JPanel content = new JPanel();
 				content.setLayout(new TableLayout(size));
 				content.add(sliderLabel, "0, 0");
 				content.add(UIUtilities.buildComponentPanel(slider), "1, 0");
-				content.add(buildFieldsPane(), "1, 1");
 				add(content);
+				break;
+			case LAYOUT_ALL:
+			default:
+				double size1[][] =
+		        {{TableLayout.PREFERRED, TableLayout.PREFERRED},  // Columns
+		         {TableLayout.PREFERRED, TableLayout.PREFERRED}}; // Rows
+				JPanel content1 = new JPanel();
+				content1.setLayout(new TableLayout(size1));
+				content1.add(sliderLabel, "0, 0");
+				content1.add(UIUtilities.buildComponentPanel(slider), "1, 0");
+				content1.add(buildFieldsPane(), "1, 1");
+				add(content1);
 		}
 	}
 	
@@ -423,6 +490,44 @@ public class TextualTwoKnobsSlider
 	}
 
 	/**
+	 * Returns the slider hosted by this component.
+	 * 
+	 * @return See above.
+	 */
+	public TwoKnobsSlider getSlider() { return slider; }
+	
+	/**
+	 * Returns the text field corresponding to the passed index.
+	 * 
+	 * @param index The index identifying the component.
+	 * @return See above.
+	 */
+	public JComponent getFieldComponent(int index)
+	{
+		switch (index) {
+			case START: return startField;
+			case END: return endField;
+		}
+		return null;
+	}
+	
+	/**
+	 * Sets the value of the slider and the text field.
+	 * 
+	 * @param s The start value to set.
+	 * @param e The end value to set.
+	 */
+	public void setInterval(int s, int e)
+	{
+		removeListeners();
+		endField.setText(""+e);
+		startField.setText(""+s);
+		slider.setStartValue(s);
+		slider.setEndValue(e);
+		attachListeners();
+	}
+	
+	/**
 	 * Overridden to set the text fields and the slider enabled.
 	 * @see JPanel#setEnabled(boolean)
 	 */
@@ -432,6 +537,18 @@ public class TextualTwoKnobsSlider
 		slider.setEnabled(enabled);
 		endField.setEnabled(enabled);
 		startField.setEnabled(enabled);
+	}
+	
+	/**
+	 * Overridden to set the background color.
+	 * @see JPanel#setBackground(Color c)
+	 */
+	public void setBackground(Color c)
+	{
+		super.setBackground(c);
+		if (slider != null) slider.setBackground(c);
+		if (endField != null) endField.setBackground(c);
+		if (startField != null) startField.setBackground(c);
 	}
 	
 	/**
@@ -448,6 +565,7 @@ public class TextualTwoKnobsSlider
 			Integer value = (Integer) evt.getNewValue();
 			synchEndValue(value);
 		}
+		firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 	}
 	
 	/**

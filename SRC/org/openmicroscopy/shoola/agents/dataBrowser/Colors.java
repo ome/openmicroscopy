@@ -104,13 +104,11 @@ public class Colors
         c = (Color) registry.lookup("/resources/colors/TitleBarHighlight");
         if (c == null) c = COLOR_TITLE_BAR_HIGHLIGHT_BAR;
         colorsMap.put(TITLE_BAR_HIGHLIGHT, c);
-        colorsMap.put(TITLE_BAR_HIGHLIGHT_PRIMARY, c.darker());
-        //colorsMap.put(TITLE_BAR_HIGHLIGHT_PRIMARY, c);
+        colorsMap.put(TITLE_BAR_HIGHLIGHT_PRIMARY, c.darker().darker());
         c = (Color) registry.lookup("/resources/colors/TitleBar");
         if (c == null) c = COLOR_TITLE_BAR;
         colorsMap.put(TITLE_BAR, c);
-        colorsMap.put(TITLE_BAR_PRIMARY, c.darker());
-        //colorsMap.put(TITLE_BAR_PRIMARY, c);
+        colorsMap.put(TITLE_BAR_PRIMARY, c.darker().darker());
         c = (Color) registry.lookup("/resources/colors/TitleBarUnmodified");
         colorsMap.put(TITLE_BAR_UNMODIFIED, c);
     }
@@ -175,10 +173,12 @@ public class Colors
     	if (node == null) return getColor(TITLE_BAR); 
         if (node.getParentDisplay() == null) return getColor(TITLE_BAR);
         Color c = node.getHighlight();
-        if (c == null || c.equals(getColor(TITLE_BAR_UNMODIFIED))) {
+        if (c == null || c.equals(getColor(TITLE_BAR_UNMODIFIED)) ||
+        		c.equals(getColor(TITLE_BAR_HIGHLIGHT_PRIMARY)) ||
+        		c.equals(getColor(TITLE_BAR_HIGHLIGHT))) {
         	if (primary) c = getColor(TITLE_BAR_HIGHLIGHT_PRIMARY);
         	else c = getColor(TITLE_BAR_HIGHLIGHT);
-        }// else return c.darker();
+        }
         return c;
     }
 

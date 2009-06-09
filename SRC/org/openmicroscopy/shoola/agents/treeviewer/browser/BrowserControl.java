@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 
 //Java imports
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,6 +41,7 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserInfoAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CollapseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ShowNameAction;
@@ -83,6 +85,9 @@ class BrowserControl
     
     /** Identifies the <code>Partial Name</code> action.*/
     static final Integer    PARTIAL_NAME = Integer.valueOf(4);
+    
+    /** Identifies the <code>Info</code> action. */
+	static final Integer    INFO = Integer.valueOf(5);
    
     /** 
      * Reference to the {@link Browser} component, which, in this context,
@@ -104,6 +109,7 @@ class BrowserControl
         actionsMap.put(SORT, new SortAction(model));
         actionsMap.put(SORT_DATE, new SortByDateAction(model));
         actionsMap.put(PARTIAL_NAME, new ShowNameAction(model));
+        actionsMap.put(INFO, new BrowserInfoAction(model));
     }
     
     /**
@@ -167,6 +173,16 @@ class BrowserControl
      */
     void onNodeNavigation(TreeImageDisplay display, boolean expanded)
     {
+    	Object ho = display.getUserObject();
+    	if (model.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
+    		if (ho instanceof File) {
+    			File f = (File) ho;
+        		if (f.isDirectory() && !display.isChildrenLoaded()) {
+        			view.loadFile(display);
+        		}
+        		return;
+    		}
+    	}
     	if (!expanded) {
     		model.cancel();
     		return;
@@ -176,8 +192,6 @@ class BrowserControl
              (state == Browser.LOADING_LEAVES)) 
              //|| (state == Browser.COUNTING_ITEMS)) 
              return;
-        
-        Object ho = display.getUserObject();
         model.setSelectedDisplay(display); 
         int browserType = model.getBrowserType();
         if ((browserType == Browser.IMAGES_EXPLORER || 
@@ -235,12 +249,18 @@ class BrowserControl
         if (paths == null) return;
         TreeImageDisplay node;
         TreePath path;
+        List<TreePath> toRemove = new ArrayList<TreePath>();
         if (paths.length == 1) {
         	Object p = paths[0].getLastPathComponent();
         	if (!(p instanceof TreeImageDisplay))
         		return;
         	node = (TreeImageDisplay) p;
-        	model.setSelectedDisplay(node);
+        	if (node.isSelectable())
+        		model.setSelectedDisplay(node);
+        	else {
+        		toRemove.add(paths[0]);
+        		view.removeTreePaths(toRemove);
+        	}
     		return;
         }
      	//more than one node selected.
@@ -249,7 +269,7 @@ class BrowserControl
     	Class ref = ho.getClass();
     	
     	List<TreeImageDisplay> l = new ArrayList<TreeImageDisplay>();
-    	List<TreePath> toRemove = new ArrayList<TreePath>();
+    	
     	TagAnnotationData tag;
     	String ns = null;
     	if (TagAnnotationData.class.equals(ref)) {
@@ -263,7 +283,7 @@ class BrowserControl
     			path = i.next();
     			node = (TreeImageDisplay) path.getLastPathComponent();
     			nho = node.getUserObject();
-    			if (nho.getClass().equals(ref)) {
+    			if (nho.getClass().equals(ref) && node.isSelectable()) {
     				if (nho.getClass().equals(TagAnnotationData.class)) {
     					nsNode = ((TagAnnotationData) nho).getNameSpace();
     					if (ns == null && nsNode == null) l.add(node);
@@ -277,7 +297,6 @@ class BrowserControl
     					}
     				} else l.add(node);
     			}
-    				
     			else toRemove.add(path);
     		}
     	}
@@ -292,8 +311,8 @@ class BrowserControl
         		if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
         				tag.getNameSpace())) text = "Tag Sets.";
         		else text = "Tags.";
-        	}
-        	else if (FileAnnotationData.class.equals(ref)) text = "Files.";
+        	} else if (FileAnnotationData.class.equals(ref)) text = "Files.";
+        	else if (File.class.equals(ref)) text = "Files.";
         	UserNotifier un = 
         		TreeViewerAgent.getRegistry().getUserNotifier();
         	un.notifyInfo("Tree selection", "You can only select "+text);

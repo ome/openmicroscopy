@@ -387,7 +387,6 @@ class ImViewerUI
 						controller.setPreferences();
 						model.getBrowser().setBackgroundColor(src.getColor());
 					}
-						
 				}
 			});
 		}
@@ -522,21 +521,6 @@ class ImViewerUI
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
 		menu.add(createBackgroundColorSubMenu(pref));
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
-		return menu;
-	}
-
-	/**
-	 * Helper method to create the help menu.
-	 * 
-	 * @return The controls submenu.
-	 */
-	private JMenu createHelpMenu()
-	{
-		JMenu menu = new JMenu("Help");
-		menu.setMnemonic(KeyEvent.VK_H);
-		TaskBar bar = ImViewerAgent.getRegistry().getTaskBar();
-		JMenuItem item = bar.getCopyMenuItem(TaskBar.COMMENT);
-		if (item != null) menu.add(item);
 		return menu;
 	}
 
@@ -753,7 +737,6 @@ class ImViewerUI
 		browser.setComponentsSize(sizeX, sizeY);
 		tabs = new ClosableTabbedPane(JTabbedPane.TOP, 
 									JTabbedPane.WRAP_TAB_LAYOUT);
-		//new JTabbedPane;
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 
 		viewPanel = new ClosableTabbedPaneComponent(ImViewer.VIEW_INDEX, 
@@ -778,8 +761,6 @@ class ImViewerUI
 		gridViewPanel.add(browser.getGridView(), "1, 0");
 		gridViewPanel.add(controlPane.getTimeSliderPane(ImViewer.GRID_INDEX), 
 						"1, 1");
-
-		
 		tabs.insertTab(browser.getGridViewTitle(), browser.getGridViewIcon(), 
 						gridViewPanel, "", ImViewer.GRID_INDEX);
 		
@@ -804,14 +785,14 @@ class ImViewerUI
 					projectionViewPanel, "", ImViewer.PROJECTION_INDEX);
 		}
 		
-		
+		tabs.addChangeListener(controller);	
 		mainComponent = tabs;
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
 		container.add(toolBar, BorderLayout.NORTH);
 		container.add(mainComponent, BorderLayout.CENTER);
 		container.add(statusBar, BorderLayout.SOUTH);
-		tabs.addChangeListener(controller);		
+			
 		//attach listener to the frame border
 		boundsAdapter = new HierarchyBoundsAdapter() {
 
@@ -1065,7 +1046,7 @@ class ImViewerUI
 		while (i.hasNext()) {
 			d = i.next();
 			index = d.getIndex();
-			comp = new PlaneInfoComponent(index, model.getChannelColor(index));
+			comp = new PlaneInfoComponent(model.getChannelColor(index));
 			comp.addPropertyChangeListener(
 					PlaneInfoComponent.PLANE_INFO_PROPERTY, controller);
 			planes.put(index, comp);

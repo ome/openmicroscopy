@@ -73,6 +73,7 @@ public final class LoggerInit
 	/** 
 	 * Carries out this task.
 	 * @see InitializationTask#execute()
+	 * @throws StartupException If an error occurred during the init sequence.
 	 */
 	void execute() 
 		throws StartupException

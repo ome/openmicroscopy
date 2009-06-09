@@ -285,9 +285,10 @@ public interface Renderer
 	/**
 	 * Indicates that a channel has been selected using the channel button.
 	 * 
-	 * @param index	
-	 * @param booleanValue
+	 * @param index	The index of the channel.
+	 * @param value Pass <code>true</code> if the channel is selected,
+	 * 			    <code>false</code> otherwise.
 	 */
-	void setChannelSelection(int index, boolean booleanValue);
+	void setChannelSelection(int index, boolean value);
 	
 }

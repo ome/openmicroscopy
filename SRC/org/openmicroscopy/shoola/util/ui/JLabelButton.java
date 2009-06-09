@@ -53,7 +53,7 @@ public class JLabelButton
 	public static final String SELECTED_PROPERTY = "selected";
 	
 	/** The action id associated to the label. */
-	private int actionID;
+	private long actionID;
 	
 	/** Installs the default listeners. */
 	private void installDefaultListeners()
@@ -90,7 +90,7 @@ public class JLabelButton
 	 * 
 	 * @param actionID The value to set.
 	 */
-	public void setActionID(int actionID)
+	public void setActionID(long actionID)
 	{
 		this.actionID = actionID;
 	}

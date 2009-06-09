@@ -667,6 +667,16 @@ public class TinyPane
     /** Removes all buttons, added by default, from the tool bar. */
     public void clearDefaultButtons() { uiDelegate.clearDefaultButtons(); }
      
+    /** 
+     * Modifies the style of the font of the title.
+     * 
+     * @param style The style to set.
+     */
+    public void setFontTitleStyle(int style)
+    { 
+    	uiDelegate.setFontStyle(style);
+    }
+    
     /**
      * Overridden to return the title of the frame.
      * @see JPanel#toString()

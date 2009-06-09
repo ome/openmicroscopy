@@ -91,6 +91,11 @@ public class BrowserSelectionAction
                 putValue(Action.SMALL_ICON,
                         im.getIcon(IconManager.FILES_EXPLORER));
                 break;
+            case Browser.FILE_SYSTEM_EXPLORER:
+                putValue(Action.NAME, Browser.FILE_SYSTEM_TITLE);
+                putValue(Action.SMALL_ICON,
+                        im.getIcon(IconManager.FILE_SYSTEM_EXPLORER));
+                break;
             default:
                 throw new IllegalArgumentException("Browser type not " +
                         "supported: "+type);

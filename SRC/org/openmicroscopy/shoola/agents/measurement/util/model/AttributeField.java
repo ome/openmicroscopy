@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.util.model;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -57,7 +58,7 @@ public class AttributeField
 	private boolean 		editable;
 	
 	/** Value range of objects */
-	private ArrayList		valueRange;
+	private List		valueRange;
 	
 	/** The type of value stored in the value range. */
 	private ValueType		valueType;
@@ -72,7 +73,8 @@ public class AttributeField
 	 * @param range The range of values this attribute can take.
 	 * @param type 		 the Type of value avail;abel to object, enum, or range
 	 */
-	public AttributeField(AttributeKey key, String name, boolean editable, ArrayList range, ValueType type)
+	public AttributeField(AttributeKey key, String name, boolean editable, 
+			List range, ValueType type)
 	{
 		this.key = key;
 		this.name = name;
@@ -119,15 +121,14 @@ public class AttributeField
 	
 	/** 
 	 * Gets the value range the object can take.
+	 * 
 	 * @return value range.
 	 */
-	public ArrayList getValueRange()
-	{
-		return valueRange;
-	}
+	public List getValueRange() { return valueRange; }
 	
 	/** 
 	 * Gets the value type the object can take.
+	 * 
 	 * @return value type.
 	 */
 	public ValueType getValueType()

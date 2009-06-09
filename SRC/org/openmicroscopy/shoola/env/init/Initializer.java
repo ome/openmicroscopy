@@ -164,12 +164,9 @@ public class Initializer
     private void notifyStart()
     {
         int size = processingQueue.size()-2;
-        Iterator i = initListeners.iterator();
-        InitializationListener subscriber;
-        while (i.hasNext()) {
-            subscriber = (InitializationListener) i.next();
-            subscriber.onStart(size);
-        }
+        Iterator<InitializationListener> i = initListeners.iterator();
+        while (i.hasNext())
+            i.next().onStart(size);
     }
     
     /**
@@ -179,12 +176,9 @@ public class Initializer
     private void notifyExecute()
     {
         String name = currentTask.getName();
-        Iterator i = initListeners.iterator();
-        InitializationListener subscriber;
-        while (i.hasNext()) {
-            subscriber = (InitializationListener) i.next();
-            subscriber.onExecute(name);
-        }
+        Iterator<InitializationListener> i = initListeners.iterator();
+        while (i.hasNext()) 
+            i.next().onExecute(name);
     }
     
     /**
@@ -193,12 +187,9 @@ public class Initializer
      */
     private void notifyEnd()
     {
-        Iterator i = initListeners.iterator();
-        InitializationListener subscriber;
-        while (i.hasNext()) {
-            subscriber = (InitializationListener) i.next();
-            subscriber.onEnd();
-        }
+        Iterator<InitializationListener> i = initListeners.iterator();
+        while (i.hasNext())
+            i.next().onEnd();
     }
     
     /**
@@ -286,12 +277,9 @@ public class Initializer
 	 */
 	public void rollback()
 	{
-		Iterator i = doneTasks.iterator();
-        InitializationTask task;
-		while (i.hasNext()) {
-			task = (InitializationTask) i.next();
-			task.rollback();
-		}
+		Iterator<InitializationTask> i = doneTasks.iterator();
+		while (i.hasNext())
+			i.next().rollback();
 	}
 	
 	/**

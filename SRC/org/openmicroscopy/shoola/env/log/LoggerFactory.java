@@ -97,12 +97,6 @@ public class LoggerFactory
 			if (logDir.isDirectory()) logFile = new File(logDir, logFileName);
 			else logFile = new File(c.getHomeDir(), logFileName);
 		}
-		/*
-		File logDir = new File(c.getHomeDir(), logDirName), logFile;
-		logDir.mkdir();
-		if (logDir.isDirectory()) logFile = new File(logDir, logFileName);
-		else logFile = new File(c.getHomeDir(), logFileName);
-		*/
 		return new LoggerImpl(config, logFile.getAbsolutePath());
 	}
 	

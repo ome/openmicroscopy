@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
+import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import pojos.ExperimenterData;
 
@@ -77,6 +78,9 @@ public abstract class DataTreeViewerLoader
 	
     /** Convenience reference for subclasses. */
     protected final HierarchyBrowsingView 	hiBrwView;
+    
+    /** Convenience reference for subclasses. */
+    protected final ImageDataView        	ivView;
 
 	/**
 	 * Converts the UI rootLevel into its corresponding class.
@@ -112,6 +116,8 @@ public abstract class DataTreeViewerLoader
 		registry.getDataServicesView(DataHandlerView.class);
 		hiBrwView = (HierarchyBrowsingView) registry.
 		getDataServicesView(HierarchyBrowsingView.class);
+		ivView = (ImageDataView) 
+		registry.getDataServicesView(ImageDataView.class);
 	}
 
 	/** Notifies the {@link #viewer} that the data retrieval is finished. */

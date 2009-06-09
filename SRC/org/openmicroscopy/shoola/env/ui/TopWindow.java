@@ -29,7 +29,6 @@ import java.awt.Frame;
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
 //Third-party libraries

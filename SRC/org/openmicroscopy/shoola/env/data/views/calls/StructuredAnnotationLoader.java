@@ -119,7 +119,7 @@ public class StructuredAnnotationLoader
      * 					<code>-1</code> if the user is not specified.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadStructuredData(final DataObject object, 
+    private BatchCall loadStructuredData(final Object object, 
     									final long userID)
     {
         return new BatchCall("Loading Ratings") {
@@ -261,7 +261,7 @@ public class StructuredAnnotationLoader
      * @param userID	The id of the user or <code>-1</code> if the id 
      * 					is not specified.
      */
-    public StructuredAnnotationLoader(int index, DataObject object, 
+    public StructuredAnnotationLoader(int index, Object object, 
     									long userID)
     {
 
@@ -272,8 +272,12 @@ public class StructuredAnnotationLoader
     			loadCall = loadStructuredData(object, userID);
     			break;
 			case RATING:
-				loadCall = loadRatings(object.getClass(), object.getId(), 
-										userID);
+				if (object instanceof DataObject) {
+					DataObject ho = (DataObject) object;
+					loadCall = loadRatings(object.getClass(), ho.getId(), 
+							userID);
+				}
+				
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");

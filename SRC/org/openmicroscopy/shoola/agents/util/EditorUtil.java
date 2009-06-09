@@ -124,8 +124,11 @@ public class EditorUtil
     /** Text describing the <code>Public</code> permission. */
     public static final String	PUBLIC = "public";
     
-    /** Text describing the <code>Public</code> permission. */
-    public static final String	PUBLIC_DESCRIPTION = 
+    /** Text describing the <code>Group</code> permission. */
+    public static final String	GROUP_VISIBLE = "public";
+    
+    /** Text describing the <code>Group</code> permission. */
+    public static final String	GROUP_DESCRIPTION = 
     								"Visible to Group members only.";
     
     /** Text describing the <code>Private</code> permission. */
@@ -747,6 +750,23 @@ public class EditorUtil
     }
 
     /**
+     * Returns the last portion of the file name.
+     * 
+     * @param originalName The original name.
+     * @return See above.
+     */
+    public static final String getObjectName(String originalName)
+    {
+    	if (originalName == null) return null;
+    	String[] l = UIUtilities.splitString(originalName);
+    	if (l != null) {
+    		int n = l.length;
+    		if (n > 0) return l[n-1];
+    	}
+        return originalName;
+    }
+    
+    /**
      * Returns <code>true</code> if the specified data object is readable,
      * <code>false</code> otherwise, depending on the permission.
      * 
@@ -940,7 +960,11 @@ public class EditorUtil
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(FLUOR);
         details.put(FLUOR, s);
-        s = data.getIllumination();
+        try {
+        	 s = data.getIllumination(); //Check how this can be null.
+		} catch (Exception e) {
+			s = null;
+		}
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(ILLUMINATION);
         details.put(ILLUMINATION, s);

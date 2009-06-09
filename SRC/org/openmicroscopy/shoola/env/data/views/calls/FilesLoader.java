@@ -105,7 +105,7 @@ public class FilesLoader
     }
     
     /**
-     * Creates a {@link BatchCall} to loads the files identified by
+     * Creates a {@link BatchCall} to load the files identified by
      * the passed type.
      * 
      * @param type 		The type of files to load.

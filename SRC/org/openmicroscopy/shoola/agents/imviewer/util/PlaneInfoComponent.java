@@ -61,10 +61,6 @@ public class PlaneInfoComponent
 	/** The dimension of the icon. */
 	private static final Dimension ICON_DIMENSION = new Dimension(12, 12);
 	
-	
-	/** The index of the channel the info are related to. */
-	private int 		channelIndex;
-	
 	/** The icon displaying the channel color. */
 	private ColourIcon 	icon;
 	
@@ -83,13 +79,11 @@ public class PlaneInfoComponent
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param channelIndex 	The index of the channel.
 	 * @param color			The color associated to the channel.
 	 */
-	public PlaneInfoComponent(int channelIndex, Color color)
+	public PlaneInfoComponent(Color color)
 	{
 		content = new JLabel();
-		this.channelIndex = channelIndex;
 		icon = new ColourIcon(ICON_DIMENSION, color);
 		setIcon(icon);
 		addMouseListener(new MouseAdapter() {

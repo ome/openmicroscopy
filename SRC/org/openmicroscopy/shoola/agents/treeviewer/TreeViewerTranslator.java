@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
 
@@ -121,6 +124,8 @@ public class TreeViewerTranslator
         	toolTip = UIUtilities.formatToolTipText(
         		((WellData) node.getUserObject()).getExternalDescription());
         	node.setToolTip(toolTip);
+        } else if (uo instanceof File) {
+        	
         }
     }
     
@@ -781,7 +786,6 @@ public class TreeViewerTranslator
         Iterator j;
         DataObject ho;
         Set<TreeImageDisplay> converted;
-        TreeImageTimeSet time;
         while (i.hasNext()) {
         	entry = (Entry) i.next();
             node = (TreeImageDisplay) entry.getKey();
@@ -811,6 +815,40 @@ public class TreeViewerTranslator
         }
         return r;
 	}
+    
+    /**
+     * Transforms the directory.
+     * 
+     * @param dir The directory to transform.
+     * @return See above.
+     */
+    private static TreeImageSet transformDirectory(FileSystemView fs, File dir)
+    {
+    	TreeImageSet dirSet = new TreeImageSet(dir);
+    	File[] files = fs.getFiles(dir, false);
+    	if (files != null && files.length > 0) {
+    		File file;
+    		TreeImageDisplay display;
+    		for (int i = 0; i < files.length; i++) {
+    			file = files[i];
+    			if (file.isDirectory()) {
+        			if (!file.isHidden()) {
+        				//dirSet.addChildDisplay(transformDirectory(fs, file));
+        				
+        				dirSet.addChildDisplay(new TreeImageSet(file));
+        			}
+        				
+        		} else {
+        			/*
+        			display = transformFile(file);
+        			if (display != null) 
+        				dirSet.addChildDisplay(display);
+        				*/
+        		}
+			}
+    	}
+    	return dirSet;
+    }
     
 }
     

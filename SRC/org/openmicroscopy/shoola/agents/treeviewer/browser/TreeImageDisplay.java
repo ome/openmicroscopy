@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.Font;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -145,6 +146,9 @@ public abstract class TreeImageDisplay
     
     /** Indicates to display a truncated name. */
     private boolean						partialName;
+
+    /** Flag indicating if the node is selectable. */
+    protected boolean					selectable;
     
     /** The number of items. */
     protected long						numberItems;
@@ -182,6 +186,7 @@ public abstract class TreeImageDisplay
         if (hierarchyObject == null) 
             throw new NullPointerException("No hierarchy object.");
         setUserObject(hierarchyObject);
+        selectable = true;
         childrenDisplay = new ArrayList<TreeImageDisplay>();
         numberItems = -1;
         partialName = true;
@@ -396,6 +401,25 @@ public abstract class TreeImageDisplay
     public String getToolTip() { return tooltip; }
     
     /**
+     * Returns <code>true</code> if the node is selectable,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isSelectable() { return selectable; }
+    
+    /**
+     * Returns <code>true</code> if the node is selectable,
+     * <code>false</code> otherwise.
+     * 
+     * @param selectable The value to set.
+     */
+    public void setSelectable(boolean selectable)
+    { 
+    	this.selectable = selectable; 
+    }
+    
+    /**
      * Returns the name of the node.
      * 
      * @return See above.
@@ -419,6 +443,8 @@ public abstract class TreeImageDisplay
         	return ((PlateData) obj).getName();
         else if (obj instanceof FileAnnotationData)
         	return ((FileAnnotationData) obj).getFileName();
+        else if (obj instanceof File)
+        	return ((File) obj).getName();
         else if (obj instanceof String) return (String) obj;
         return "";
     }
@@ -442,6 +468,8 @@ public abstract class TreeImageDisplay
         	return getNodeName();
         else if (uo instanceof FileAnnotationData)
         	return getNodeName();
+        else if (uo instanceof File)
+        	return getNodeName(); 
         else if (uo instanceof String && numberItems < 0) 
         	return name;
         if (numberItems < 0) return (name+SPACE+"[...]");

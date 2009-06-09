@@ -51,8 +51,11 @@ public class TreeFileSet
 	/** Indicates that the node should host editor file for experiments. */
 	public static final int EXPERIMENT = 1;
 	
-	/** Indicates that the node should host editor file for experiments. */
-	public static final int OTHER = 2;
+	/** Indicates that the node should host movie files. */
+	public static final int MOVIE = 2;
+	
+	/** Indicates that the node should host all the other types of files. */
+	public static final int OTHER = 3;
 
 	/**
 	 * Returns the value corresponding to the passed index.
@@ -66,6 +69,7 @@ public class TreeFileSet
 			case PROTOCOL: 
 				return "Protocols";
 			case EXPERIMENT: return "Experiments";
+			case MOVIE: return "Movies";
 			case OTHER:
 			default:
 				return "Other files";
@@ -86,6 +90,7 @@ public class TreeFileSet
 		switch (type) {
 			case PROTOCOL: 
 			case EXPERIMENT: 
+			case MOVIE:
 				this.type = type;
 				break;
 			case OTHER:

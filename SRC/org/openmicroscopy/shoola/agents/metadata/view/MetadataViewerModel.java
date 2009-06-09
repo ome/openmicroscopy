@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,7 +54,6 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
-import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -115,14 +115,30 @@ class MetadataViewerModel
 	/** Collection of nodes related to the node of reference. */
 	private Collection								relatedNodes;
 	
+	/** 
+	 * One of the rnd constants defined by the <code>MetadataViewer</code>
+	 * I/F.
+	 */
+	private int										index;
+	
 	/**
 	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
 	 * 
 	 * @param refObject	The reference object.
+	 * @param index		One of the rnd constants defined by the 
+	 * 					<code>MetadataViewer</code> I/F.
 	 */
-	MetadataViewerModel(Object refObject)
+	MetadataViewerModel(Object refObject, int index)
 	{
 		state = MetadataViewer.NEW;
+		switch (index) {
+			case MetadataViewer.RND_GENERAL:
+			case MetadataViewer.RND_SPECIFIC:
+				this.index = index;
+				break;
+			default:
+				this.index = MetadataViewer.RND_GENERAL;
+		}
 		this.refObject = refObject;
 		loaders = new HashMap<TreeBrowserDisplay, MetadataLoader>();
 		data = null;
@@ -206,7 +222,13 @@ class MetadataViewerModel
 	 * 
 	 * @return See above.
 	 */
-	Object getRefObject() { return refObject; }
+	Object getRefObject()
+	{ 
+		if (data == null) return refObject;
+		Object o = data.getRelatedObject();
+		//if (o != null && o instanceof FolderData) return o;
+		return refObject; 
+	}
 	
 	/**
 	 * Returns the <code>Browser</code> displaying the metadata.
@@ -279,15 +301,17 @@ class MetadataViewerModel
 	void fireStructuredDataLoading(TreeBrowserDisplay refNode)
 	{
 		Object uo = refNode.getUserObject();
-		if (!(uo instanceof DataObject)) return;
+		//if (!(uo instanceof DataObject)) return;
 		
 		if (uo instanceof ExperimenterData) return;
-		cancel(refNode);
-		StructuredDataLoader loader = new StructuredDataLoader(component, 
-								refNode, (DataObject) uo);
-		loaders.put(refNode, loader);
-		loader.load();
-		state = MetadataViewer.LOADING_METADATA;
+		if ((uo instanceof DataObject) || (uo instanceof File)) {
+			cancel(refNode);
+			StructuredDataLoader loader = new StructuredDataLoader(component, 
+									refNode, uo);
+			loaders.put(refNode, loader);
+			loader.load();
+			state = MetadataViewer.LOADING_METADATA;
+		}
 	}
 	
 	/**
@@ -332,16 +356,17 @@ class MetadataViewerModel
 	 */
 	String getRefObjectName() 
 	{
-		if (refObject instanceof ImageData)
-			return ((ImageData) refObject).getName();
-		else if (refObject instanceof DatasetData)
-			return ((DatasetData) refObject).getName();
-		else if (refObject instanceof ProjectData)
-			return ((ProjectData) refObject).getName();
-		else if (refObject instanceof PlateData)
-			return ((PlateData) refObject).getName();
-		else if (refObject instanceof ScreenData)
-			return ((ScreenData) refObject).getName();
+		Object ref = getRefObject();
+		if (ref instanceof ImageData)
+			return ((ImageData) ref).getName();
+		else if (ref instanceof DatasetData)
+			return ((DatasetData) ref).getName();
+		else if (ref instanceof ProjectData)
+			return ((ProjectData) ref).getName();
+		else if (ref instanceof PlateData)
+			return ((PlateData) ref).getName();
+		else if (ref instanceof ScreenData)
+			return ((ScreenData) ref).getName();
 		return "";
 	}
 
@@ -494,5 +519,12 @@ class MetadataViewerModel
 				null, img);
 		loader.load();
 	}
+	
+	/**
+	 * Returns the rnd index.
+	 * 
+	 * @return See above.
+	 */
+	int getIndex() { return index; }
 	
 }

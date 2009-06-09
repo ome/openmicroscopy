@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.io.File;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -40,6 +42,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -95,8 +98,8 @@ public class CreateAction
     /** 
      * Description of the action if the selected node is a <code>Image</code>.
      */
-    private static final String DESCRIPTION_IMAGE = "Import image into the " +
-    												"selected Dataset.";
+    private static final String DESCRIPTION_IMAGE = 
+    	"Import the selected image.";
     
     /** Default Description of the action. */
     private static final String DESCRIPTION = "Create a new element.";
@@ -181,7 +184,21 @@ public class CreateAction
                 name = NAME;
                 putValue(Action.SHORT_DESCRIPTION, 
                         UIUtilities.formatToolTipText(DESCRIPTION));
-        	}
+        	} 
+        } else if (ho instanceof File) {
+        	setEnabled(!model.isImporting());
+        	nodeType = CreateCmd.IMAGE;
+            putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
+            name = NAME_IMAGE;
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
+        } else if (ho instanceof ImageData) {
+        	setEnabled(false);
+        	nodeType = CreateCmd.IMAGE;
+            putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
+            name = NAME_IMAGE;
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
         } else {
             setEnabled(false);
             name = NAME;

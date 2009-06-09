@@ -190,8 +190,8 @@ public class TwoKnobsSlider
 	private void release()
 	{
 		if (!model.isEnabled()) return;
-		firePropertyChange(KNOB_RELEASED_PROPERTY, new Integer(INITIAL), 
-				new Integer(knobControl));
+		firePropertyChange(KNOB_RELEASED_PROPERTY, Integer.valueOf(INITIAL), 
+				Integer.valueOf(knobControl));
 		knobControl = INITIAL;
 	}
 
@@ -454,8 +454,8 @@ public class TwoKnobsSlider
 	{
 		int old = model.getStartValue();
 		model.setStartValue(v);
-		firePropertyChange(START_VALUE_PROPERTY, new Integer(old), 
-				new Integer(v));
+		firePropertyChange(START_VALUE_PROPERTY, Integer.valueOf(old), 
+				Integer.valueOf(v));
 		repaint();
 	}
 
@@ -472,8 +472,8 @@ public class TwoKnobsSlider
 		if (v <= getStartValue()) return;
 		int old = model.getEndValue();
 		model.setEndValue(v);
-		firePropertyChange(END_VALUE_PROPERTY, new Integer(old), 
-				new Integer(v));
+		firePropertyChange(END_VALUE_PROPERTY, Integer.valueOf(old), 
+				Integer.valueOf(v));
 		repaint();
 	}
 

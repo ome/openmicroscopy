@@ -38,18 +38,18 @@ import javax.swing.JPanel;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 
 /**
-* Component displaying the plane histogram.
-* 
-* @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
-*         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
-*         href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
-* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
-*         href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
-*          </small>
-* @since OME2.2
-*/
+ * Component displaying the plane histogram.
+ * 
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
+ *          </small>
+ * @since OME2.2
+ */
 class GraphicsPaneUI 
 	extends JPanel 
 {

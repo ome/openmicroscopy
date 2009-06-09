@@ -78,6 +78,9 @@ public class StructuredDataResults
 	/** The ratings of the objects. */
 	private Collection					ratings;
 
+	/** Flag indicating if tha object has been published e.g. image. */
+	private boolean						published;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -204,5 +207,13 @@ public class StructuredDataResults
 	 * @return See above.
 	 */
 	public Collection getViewedBy() { return viewedBy; }
+	
+	/**
+	 * Returns <code>true </code> if the object e.g. image has been published,
+	 * <code>false</code> otherwese.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasBeenPublished() { return published; }
 	
 }

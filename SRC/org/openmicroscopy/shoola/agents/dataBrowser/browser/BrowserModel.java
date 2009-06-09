@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 //Java imports
 import java.awt.Cursor;
 import java.awt.Point;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -146,25 +147,56 @@ class BrowserModel
     {
     	//paint the nodes
         Colors colors = Colors.getInstance();
-        Iterator i = toSelect.iterator();
+        Iterator i;
         ImageDisplay node;
-        int index = 0;
         ImageDisplay primary = null;
-        if (selectedDisplays != null && selectedDisplays.size() > 0)
-        	primary = selectedDisplays.get(0);
+        if (selectedDisplays.size() > 0) primary = selectedDisplays.get(0);
+
+        if (toDeselect != null) {
+        	i = toDeselect.iterator();
+            while (i.hasNext()) {
+            	node = (ImageDisplay) i.next();
+                if (node != null && !toSelect.contains(node))
+                	node.setHighlight(colors.getDeselectedHighLight(node));
+            }
+        }
+        
+        i = toSelect.iterator();
         while (i.hasNext()) {
 			node = (ImageDisplay) i.next();
-			node.setHighlight(colors.getSelectedHighLight(node, true));
-			index++;
+			node.setHighlight(colors.getSelectedHighLight(node, 
+					isSameNode(node, primary)));
 		}
-        if (toDeselect == null) return;
-        i = toDeselect.iterator();
-        while (i.hasNext()) {
-        	node = (ImageDisplay) i.next();
-            if (node != null && !toSelect.contains(node))
-            	node.setHighlight(colors.getDeselectedHighLight(node));
-        }
+
     }
+	
+	/**
+	 * Returns <code>true</code> if the passed nodes are the same, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param n1 One of the nodes to handle.
+	 * @param n2 One of the nodes to handle.
+	 * @return See above.
+	 */
+	private boolean isSameNode(ImageDisplay n1, ImageDisplay n2)
+	{
+		if (n1 == null && n2 == null) return false;
+		if (n1 == null && n2 != null) return false;
+		if (n1 != null && n2 == null) return false;
+		Object o1 = n1.getHierarchyObject();
+		Object o2 = n2.getHierarchyObject();
+		if (!o1.getClass().equals(o2.getClass())) return false;
+		if ((o1 instanceof DataObject) && (o2 instanceof DataObject)) {
+			long id1 = ((DataObject) o1).getId();
+			long id2 = ((DataObject) o2).getId();
+			return id1 == id2;
+		} else if ((o1 instanceof File) && (o2 instanceof File)) {
+			String s1 = ((File) o1).getAbsolutePath();
+			String s2 = ((File) o2).getAbsolutePath();
+			return s1.equals(s2);
+		}
+		return false;
+	}
 	
 	/**
 	 * Creates a new instance.

@@ -74,6 +74,9 @@ class GeneralPaneUI
 	extends JScrollPane
 {
 
+	/** The default text. */
+	private static final String			DETAILS = "'s details";
+	
 	/** Reference to the controller. */
 	private EditorControl				controller;
 	
@@ -95,6 +98,12 @@ class GeneralPaneUI
 	/** The component hosting the {@link #browser}. */
 	private JXTaskPane 					browserTaskPane;
 
+	/** The component hosting the {@link #propertiesUI}. */
+	private JXTaskPane 					propertiesTaskPane;
+	
+	/** The component hosting the {@link #annotationUI}. */
+	private JXTaskPane 					annotationTaskPane;
+	
 	/** Collection of annotations UI components. */
 	private List<AnnotationUI>			components;
 	
@@ -170,6 +179,19 @@ class GeneralPaneUI
 		previews = new ArrayList<PreviewPanel>();
 		panes = new HashMap<JXTaskPane, Integer>(); 
 		indexes = new HashMap<Integer, Double>(); 
+		propertiesTaskPane = EditorUtil.createTaskPane("");
+		propertiesTaskPane.setCollapsed(false);
+		propertiesTaskPane.add(propertiesUI);
+		annotationTaskPane = EditorUtil.createTaskPane("Annotations");
+		annotationTaskPane.setCollapsed(false);
+		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.BACKGROUND);
+		double[][]	size = {{TableLayout.FILL}, 
+			{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}};
+		p.setLayout(new TableLayout(size));
+		p.add(annotationUI, "0, 0");
+		p.add(textualAnnotationsUI, "0, 2");
+		annotationTaskPane.add(p);
 	}
 	
 	/** Builds and lays out the components. */
@@ -183,16 +205,16 @@ class GeneralPaneUI
 		int i = 0;
 		content.setLayout(new TableLayout(size));
 
-		content.add(propertiesUI, "0, "+i);
+		content.add(propertiesTaskPane, "0, "+i);
 		i++;
 		i++;
 		annotationLayoutIndex = i;
-		content.add(annotationUI, "0, "+i);
+		content.add(annotationTaskPane, "0, "+i);
 		i++;
 		i++;
-		textualAnnotationsLayoutIndex = i;
-		content.add(textualAnnotationsUI, "0, "+i);
-		i++;
+		//textualAnnotationsLayoutIndex = i;
+		//content.add(textualAnnotationsUI, "0, "+i);
+		//i++;
 		protocolsIndex = i;
 		content.add(protocolComponent, "0, "+i);
 		i++;
@@ -303,6 +325,7 @@ class GeneralPaneUI
 		propertiesUI.buildUI();
 		annotationUI.buildUI();
 		textualAnnotationsUI.buildUI();
+		propertiesTaskPane.setTitle(propertiesUI.getText()+DETAILS);
 		TableLayout layout = (TableLayout) content.getLayout();
 		double h = 0;
 		String s = "";
@@ -331,9 +354,7 @@ class GeneralPaneUI
 				controller.loadChannelData();
 			}
 		} else if (refObject instanceof WellSampleData) {
-			if (!multi) {
-				controller.loadChannelData();
-			}
+			if (!multi) controller.loadChannelData();
 		} else if ((refObject instanceof ProjectData) || 
 				(refObject instanceof ScreenData) ||
 				(refObject instanceof WellSampleData)) {
@@ -342,20 +363,14 @@ class GeneralPaneUI
 		browserTaskPane.setTitle(s);
 		content.remove(browserTaskPane);
 		
-		if (h != 0.0) {
-			//layout.setRow(browserIndex, h);
+		if (h != 0.0) 
 			content.add(browserTaskPane, "0, "+browserIndex);
-		}
 		int n = buildProtocolTaskPanes();
 		double hp = 0;
-		if (n > 0) {
-			//defaultProtocolHeight = n;
-			hp = TableLayout.PREFERRED;
-		}
+		if (n > 0) hp = TableLayout.PREFERRED;
 		layout.setRow(protocolsIndex, hp);
-		if (h != 0.0 && !browserTaskPane.isCollapsed()) {
+		if (h != 0.0 && !browserTaskPane.isCollapsed()) 
 			loadParents(true);
-		}
 	}
 	
 	/** 
@@ -409,11 +424,11 @@ class GeneralPaneUI
     	TableLayout layout = (TableLayout) content.getLayout();
     	if (uo instanceof AnnotationData) { //hide everything
     		layout.setRow(annotationLayoutIndex, 0);
-    		layout.setRow(textualAnnotationsLayoutIndex, 0);
+    		//layout.setRow(textualAnnotationsLayoutIndex, 0);
     		layout.setRow(browserIndex, 0);
     	} else {
     		layout.setRow(annotationLayoutIndex, TableLayout.PREFERRED);
-    		layout.setRow(textualAnnotationsLayoutIndex, TableLayout.PREFERRED);
+    		//layout.setRow(textualAnnotationsLayoutIndex, TableLayout.PREFERRED);
     		if (model.isMultiSelection()) layout.setRow(browserIndex, 0);
     		else layout.setRow(browserIndex, TableLayout.PREFERRED);
     	}
@@ -472,8 +487,7 @@ class GeneralPaneUI
 		PreviewPanel pp;
 		while (p.hasNext()) {
 			pp = p.next();
-			if (pp.hasDataToSave())
-				return true;
+			if (pp.hasDataToSave()) return true;
 		}
 		return false;
 	}

@@ -28,6 +28,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -54,6 +55,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.ImportManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -71,6 +73,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -126,6 +129,9 @@ class TreeViewerComponent
 	/** The dialog presenting the list of available users. */
 	private UserManagerDialog	switchUserDialog;
 
+	/** The component managing the import. */
+	private ImportManager 		importManager;
+	
 	/** 
 	 * Displays the user groups.
 	 * 
@@ -1295,6 +1301,7 @@ class TreeViewerComponent
 		fireStateChange();
 	}
 
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#pasteRndSettings(TimeRefObject)
@@ -1435,9 +1442,19 @@ class TreeViewerComponent
 					parentObject, leaves);
 		db.addPropertyChangeListener(controller);
 		db.activate();
-		
 		view.addComponent(db.getUI());
 		model.setDataViewer(db);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#getDisplayedImages()
+	 */
+	public Collection getDisplayedImages()
+	{
+		DataBrowser db = model.getDataViewer();
+		if (db == null) return null;
+		return db.getBrowser().getImages();
 	}
 	
 	/**
@@ -1873,6 +1890,25 @@ class TreeViewerComponent
 			model.browseTimeInterval((TreeImageTimeSet) node);
 		} else if (uo instanceof PlateData) {
 			model.browsePlate(node);
+		} else if (uo instanceof File) {
+			File f = (File) uo;
+			if (f.isDirectory() && !f.isHidden()) {
+				List l = node.getChildrenDisplay();
+				if (l != null && l.size() > 0) {
+					Set leaves = new HashSet();
+					Iterator i = l.iterator();
+					Object object;
+					TreeImageDisplay child;
+					while (i.hasNext()) {
+						child = (TreeImageDisplay) i.next();
+						object = child.getUserObject();
+						if (object instanceof ImageData) 
+							leaves.add(object);
+					}
+					if (leaves.size() > 0)
+						setLeaves((TreeImageSet) node, leaves);
+				}
+			}
 		}
 		fireStateChange();
 	}
@@ -2085,6 +2121,117 @@ class TreeViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		view.setInspectorVisibility();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#importFiles()
+	 */
+	public void importFiles()
+	{
+		if (model.getState() == DISCARDED) return;
+		Browser browser = model.getSelectedBrowser();
+		if (browser.getBrowserType() != Browser.FILE_SYSTEM_EXPLORER)
+			return;
+		TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+		if (nodes == null) return;
+		List<Object> l = new ArrayList<Object>();
+		List<TreeImageDisplay> parents = new ArrayList<TreeImageDisplay>();
+		Object ho;
+		TreeImageDisplay n, parent;
+		File f, child;
+		File[] list;
+		int total = nodes.length;
+		for (int i = 0; i < nodes.length; i++) {
+			n = nodes[i];
+			parent = n.getParentDisplay();
+			if (parent != null && !parents.contains(parent))
+				parents.add(parent);
+			ho = n.getUserObject();
+			if (ho instanceof File) {
+				f = (File) ho;
+				if (f.isFile() && model.isFileImportable(f)) {
+					l.add(f);
+				} else if (f.isDirectory() && !f.isHidden()) {
+					list = f.listFiles();
+					total += list.length;
+					for (int k = 0; k < list.length; k++) {
+						child = list[k];
+						if (child.isFile() && model.isFileImportable(child))
+							l.add(child);
+					}
+				}
+			}
+		}
+		
+		if (l.size() == 0) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			String s = " is ";
+			if (total > 1) s = "s are ";
+			un.notifyInfo("Import", "The selected file"+s+"not supported.");
+			return;
+		}
+		
+		if (importManager == null) {
+			importManager = new ImportManager();
+			importManager.addPropertyChangeListener(controller);
+		}
+		importManager.initialize(l);
+		
+		if (!view.isImporterVisible())
+			view.setImporterVisibility(importManager.getUIDelegate(), true);
+		view.setImportStatus("Importing...", true);
+		model.importFiles(parents, l);
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setFileImported(File, Object, List)
+	 */
+	public void setFileImported(File key, Object value,
+			List<TreeImageDisplay> nodes)
+	{
+		if (model.getState() == DISCARDED) return;
+		if (importManager == null) return;
+		Browser browser = model.getBrowser(Browser.FILE_SYSTEM_EXPLORER);
+		ImageData img;
+		if (value == null || value instanceof String) {
+			importManager.setStatus(key, value);
+		} else if (value instanceof ImageData) {
+			img = (ImageData) value;
+			browser.setImportedFile(img);
+			importManager.setStatus(key, img);
+		} else if (value instanceof ThumbnailData) {
+			ThumbnailData thumb = (ThumbnailData) value;
+			img = thumb.getImage();
+			browser.setImportedFile(img);
+			importManager.setStatus(key, thumb);
+		}
+		boolean b = importManager.hasFilesToImport();
+		view.setImportStatus("Done", b);
+		if (nodes != null && !b) 
+			browser.onImportFinished(nodes);
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#isImporting()
+	 */
+	public boolean isImporting()
+	{
+		if (importManager == null) return false;
+		return importManager.hasFilesToImport();
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setImporterVisibility()
+	 */
+	public boolean setImporterVisibility()
+	{
+		if (model.getState() == DISCARDED) return false;
+		if (importManager == null) return false;
+		return view.setImporterVisibility(importManager.getUIDelegate(), false);
 	}
 	
 }

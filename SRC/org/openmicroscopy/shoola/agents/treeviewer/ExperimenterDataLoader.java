@@ -85,6 +85,9 @@ public class ExperimenterDataLoader
     /** Indicates that the root node is of type <code>File</code>. */
     public static final int FILE = 5;
     
+    /** Indicates that the root node is of type <code>File</code>. */
+    public static final int ALL = 6;
+    
     /** 
      * Flag to indicate if the images are also retrieved.
      * Value set to <code>true</code> to retrieve the images,
@@ -124,6 +127,7 @@ public class ExperimenterDataLoader
             case TAG: return TagAnnotationData.class;
             case TAG_SET: return TagAnnotationData.class;
             case FILE: return FileAnnotationData.class;
+            case ALL: return null;
         }
         return null;
     }
@@ -162,8 +166,8 @@ public class ExperimenterDataLoader
         this.parent = parent;
         this.expNode = expNode;
         rootNodeType = getClassType(containerType);
-        if (rootNodeType == null)
-            throw new IllegalArgumentException("Type not supported");
+        //if (rootNodeType == null)
+          //  throw new IllegalArgumentException("Type not supported");
         if (parent != null)  withImages = true;
         if (type == TAG_SET) withImages = false;
     } 

@@ -34,12 +34,18 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -48,10 +54,12 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
@@ -60,6 +68,7 @@ import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
 /**
  * The {@link TreeViewer}'s View. Embeds the different <code>Browser</code>'s UI
@@ -128,6 +137,9 @@ class TreeViewerWin
 	/** The location of the divider. */
 	private int					dividerLocation;
 	
+	/** Dialog displaying the supported file formats. */
+	private TinyDialog			formatDialog;
+	
     /**
      * Checks if the specified {@link Browser} is already visible.
      * 
@@ -157,14 +169,20 @@ class TreeViewerWin
         Browser browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+        /*
+        browser = (Browser) browsers.get(Browser.FILE_SYSTEM_EXPLORER);
+        if (browser.isDisplayed())
+            tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+         */
         browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
        
+        /*
         browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-       
+       */
         browser = (Browser) browsers.get(Browser.TAGS_EXPLORER);
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
@@ -248,12 +266,27 @@ class TreeViewerWin
         item.setAction(
                 controller.getAction(TreeViewerControl.HIERARCHY_EXPLORER));
         menu.add(item);
+        /*
+        item = new JCheckBoxMenuItem();
+        browser = (Browser) browsers.get(Browser.FILE_SYSTEM_EXPLORER);
+        item.setSelected(browser.isDisplayed());
+        item.setAction(controller.getAction(
+        		TreeViewerControl.FILE_SYSTEM_EXPLORER));
+        menu.add(item);
+        */
+        item = new JCheckBoxMenuItem();
+        browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
+        item.setSelected(browser.isDisplayed());
+        item.setAction(controller.getAction(TreeViewerControl.FILES_EXPLORER));
+        menu.add(item);
+        /*
         item = new JCheckBoxMenuItem();
         browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(
         		TreeViewerControl.SCREENS_EXPLORER));
         menu.add(item);
+        */
         item = new JCheckBoxMenuItem();
         browser = (Browser) browsers.get(Browser.TAGS_EXPLORER);
         item.setSelected(browser.isDisplayed());
@@ -263,11 +296,6 @@ class TreeViewerWin
         browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(TreeViewerControl.IMAGES_EXPLORER));
-        menu.add(item);
-        item = new JCheckBoxMenuItem();
-        browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
-        item.setSelected(browser.isDisplayed());
-        item.setAction(controller.getAction(TreeViewerControl.FILES_EXPLORER));
         menu.add(item);
         return menu;
     }
@@ -660,6 +688,113 @@ class TreeViewerWin
 		}
 	}
 	
+	/** 
+	 * Shows the importer or the metadata. 
+	 * Returns <code>true</code> if the importer is visible, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param importUI  The UI representation of the importer.
+	 * @param init		Pass <code>true</code> to indicate that it is a
+	 * 					call at the beginning of the import, <code>false</code>
+	 * 					otherwise.
+	 * @return See above.
+	 */
+	boolean setImporterVisibility(JComponent importUI, boolean init)
+	{
+		if (init) {
+			//model.importFiles(parents, l);
+			Icon icon = IconManager.getInstance().getIcon(
+					IconManager.BACKWARD_NAV);
+			controller.getAction(TreeViewerControl.IMPORTER).putValue(
+					Action.SMALL_ICON, icon);
+			
+		}
+		JComponent r = (JComponent) rightPane.getRightComponent();
+		rightPane.remove(r);
+		int div = rightPane.getDividerLocation();
+		boolean visible = false;
+		if (r == importUI) 
+			rightPane.setRightComponent(
+					model.getMetadataViewer().getEditorUI());
+		else {
+			visible = true;
+			rightPane.setRightComponent(importUI);
+		}
+		rightPane.setDividerLocation(div);
+		return visible;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the importer is visible,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isImporterVisible()
+	{
+		JComponent r = (JComponent) rightPane.getRightComponent();
+		return !(r == model.getMetadataViewer().getEditorUI());
+	}
+	
+    /**
+     * Sets the status of the import.
+     * 
+     * @param perc  The text do display.
+     * @param show  Pass <code>true</code> to show the wheel, <code>false</code>
+     * 				to hide it.
+     */
+	void setImportStatus(String perc, boolean show)
+	{
+		toolBar.setImportStatus(perc, show);
+	}
+
+	/** Shows the supported file formats. */
+	void showSupportedFileFormats()
+	{
+		if (formatDialog == null) {
+			List<FileFilter> filters = model.getSupportedFormats();
+			if (filters == null || filters.size() == 0) return;
+			String[] array = new String[filters.size()];
+			
+			Iterator<FileFilter> i = filters.iterator();
+			FileFilter filter;
+			int index = 0;
+			while (i.hasNext()) {
+				filter = i.next();
+				array[index] = filter.getDescription();
+				index++;
+			}
+			JList list = new JList(array);
+			formatDialog = new TinyDialog(this, new JScrollPane(list), 
+					TinyDialog.CLOSE_ONLY);
+			formatDialog.setFontTitleStyle(Font.BOLD);
+			formatDialog.setTitle("Supported Formats");
+			formatDialog.addPropertyChangeListener(TinyDialog.CLOSED_PROPERTY, 
+					new PropertyChangeListener() {
+					
+						public void propertyChange(PropertyChangeEvent evt) {
+							hideAnimation();
+							formatDialog = null;
+						}
+					});
+			formatDialog.pack();
+		}
+		
+		Point p = new Point(0, 2*statusBar.getPreferredSize().height);
+		//setCloseAfter(true);
+		showJDialogAsSheet(formatDialog, p, DOWN);
+	}
+	
+	/**
+	 * Reloads the specified thumbnails.
+	 * 
+	 * @param ids The collection of images' ids to reload.
+	 */
+	void reloadThumbnails(List<Long> ids)
+	{
+		model.getDataViewer().reloadThumbnails(ids);
+	}
+	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {
@@ -668,5 +803,7 @@ class TreeViewerWin
         UIUtilities.incrementRelativeToAndShow(invokerBounds, this);
         invokerBounds = null;
     }
+
+
 
 }

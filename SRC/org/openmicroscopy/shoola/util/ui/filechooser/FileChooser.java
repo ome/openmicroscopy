@@ -192,10 +192,13 @@ public class FileChooser
      * @param dialogType	One of the constants defined by this class.
      * @param title 		Title of the dialog.
      * @param message 		Message of the dialog.
-     * @param filters 	The list of filters.
+     * @param filters 		The list of filters.
+     * @param accept		Determines whether the all files filter is turned
+     * 						on or off. Default value is <code>false</code>.
      */
     public FileChooser(JFrame owner, int dialogType, String title, 
-    					String message, List<FileFilter> filters)
+    					String message, List<FileFilter> filters, boolean
+    					accept)
     {
         super(owner);
         checkType(dialogType);
@@ -205,8 +208,24 @@ public class FileChooser
         this.filters = filters;
         setProperties();
         folderPath = null;
-       	uiDelegate = new FileSaverUI(this);
+       	uiDelegate = new FileSaverUI(this, accept);
         pack();
+    }
+    /**
+     * Creates a new instance.
+     * 
+     * @param owner 		The owner of this dialog.
+     * @param dialogType	One of the constants defined by this class.
+     * @param title 		Title of the dialog.
+     * @param message 		Message of the dialog.
+     * @param filters 		The list of filters.
+     * @param accept		Determines whether the all files filter is turned
+     * 						on or off.
+     */
+    public FileChooser(JFrame owner, int dialogType, String title, 
+    					String message, List<FileFilter> filters)
+    {
+    	this(owner, dialogType, title, message, filters, false);
     }
     
     /**
@@ -220,7 +239,7 @@ public class FileChooser
     public FileChooser(JFrame owner, int dialogType, String title, 
     					String message)
     {
-        this(owner, dialogType, title, message, null);
+        this(owner, dialogType, title, message, null, false);
     }
     
     /** 

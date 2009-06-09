@@ -84,8 +84,11 @@ public class EditorUI
 	/** Identifies the general component of the tabbed pane. */
 	private static final int			GENERAL_INDEX = 0;
 	
-	/** Indetifies the acquisition component of the tabbed pane. */
+	/** Identifies the acquisition component of the tabbed pane. */
 	private static final int			ACQUISITION_INDEX = 1;
+	
+	/** Identifies the rendering component of the tabbed pane. */
+	private static final int			RND_INDEX = 2;
 	
 	/** Reference to the controller. */
 	private EditorControl				controller;
@@ -184,7 +187,7 @@ public class EditorUI
     		toolBar.buildUI();
     		userUI.buildUI();
     		userUI.repaint();
-    		component = userTabbedPane;
+    		component = userTabbedPane; 
     	} else if (!(uo instanceof DataObject)) {	
     		toolBar.buildUI();
     		component = defaultPane;
@@ -485,7 +488,6 @@ public class EditorUI
 				bus.post(event);
 			}
 		}
-		
 	}
 
 	/**
@@ -499,6 +501,26 @@ public class EditorUI
 	void makeMovie(int scaleBar, Color overlayColor)
 	{
 		model.makeMovie(scaleBar, overlayColor);
+	}
+	
+	/** Sets the renderer.
+	 */
+	void setRenderer()
+	{
+		if (tabbedPane.getComponentCount() == 2) {
+			tabbedPane.addTab("Renderer", null, 
+					new JScrollPane(model.getRenderer().getUI()), 
+			"Rendering Control.");
+		}
+		tabbedPane.setSelectedIndex(RND_INDEX);
+	}
+	
+	/** Applies the rendering settings to the selected or displayed images. */
+	void applyToAll() { model.applyToAll(); }
+
+	void onSettingsApplied()
+	{
+		model.getRenderer().onSettingsApplied();
 	}
 	
 }

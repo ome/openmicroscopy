@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.ColouredButton
+ * org.openmicroscopy.shoola.agents.util.ui.ChannelButton 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,9 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-
-package org.openmicroscopy.shoola.agents.imviewer.util;
-
+package org.openmicroscopy.shoola.agents.util.ui;
 
 //Java imports
 import java.awt.Color;
@@ -36,7 +34,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.BorderFactory;
 
 //Third-party libraries
@@ -49,17 +46,17 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * Customized button used to select the rendered channel.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since 3.0-Beta4
  */
-public class ChannelButton
-    extends ColouredButton 
+public class ChannelButton     
+	extends ColouredButton 
     implements ActionListener
 {
     

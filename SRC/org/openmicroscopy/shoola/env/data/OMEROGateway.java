@@ -46,6 +46,8 @@ import java.util.Set;
 
 import javax.swing.filechooser.FileSystemView;
 
+import loci.formats.FormatException;
+
 //Third-party libraries
 import Ice.ConnectionLostException;
 
@@ -57,6 +59,9 @@ import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 //import Ice.Communicator;
 import ome.conditions.ResourceError;
+import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportLibrary;
+import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
 import omero.AuthenticationException;
 import omero.InternalException;
@@ -149,7 +154,6 @@ import pojos.TimeAnnotationData;
 import pojos.URLAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
-
 
 /** 
 * Unified access point to the various <i>OMERO</i> services.
@@ -306,6 +310,9 @@ class OMEROGateway
 	/** Collection of monitors to end if any.*/
 	private List<String>							monitorIDs;
 	
+	/** The service to import files. */
+	private OMEROMetadataStoreClient				importStore;
+	
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
 	 * Methods in this class are required to fill in a meaningful context
@@ -338,6 +345,28 @@ class OMEROGateway
 		throw new DSAccessException("Cannot access data. \n"+message, t);
 	}
 	
+	/**
+	 * Returns the message corresponding to the error thrown while importing the
+	 * files.
+	 * 
+	 * @param e The exception to handle.
+	 * @return See above.
+	 */
+	private String getImportFailureMessage(Exception e)
+	{
+		String message;
+		if (e instanceof FormatException) {
+			message = e.getMessage();
+			e.printStackTrace();
+			if (message == null) return null;
+			if (message.contains("ome-xml.jar"))
+				return "Missing ome-xml.jar required to read OME-TIFF files";
+			String[] s = message.split(":");
+			if (s.length > 0) return s[0];
+		}
+		return null;
+	}
+
 	/**
 	 * Utility method to print the error message
 	 * 
@@ -592,6 +621,20 @@ class OMEROGateway
 		return null;
 	}
 
+	private OMEROMetadataStoreClient getImportStore()
+		throws DSAccessException, DSOutOfServiceException
+	{
+		try {
+			if (importStore == null) {
+				importStore = new OMEROMetadataStoreClient();
+				importStore.initialize(entry);
+			}
+			return importStore;
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Import service.");
+		}
+		return null;
+	}
 	/**
 	 * Returns the {@link IRepositoryInfoPrx} service.
 	 * 
@@ -2016,6 +2059,7 @@ class OMEROGateway
 			return service.getThumbnailByLongestSide(
 					omero.rtypes.rint(maxLength));
 		} catch (Throwable t) {
+			t.printStackTrace();
 			if (thumbnailService != null) {
 				try {
 					thumbnailService.close();
@@ -2627,6 +2671,8 @@ class OMEROGateway
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file to upload");
+		if (format == null)
+			format = "application/octet-stream"; //to be modified
 		isSessionAlive();
 		RawFileStorePrx store = null;
 		OriginalFile save = null;
@@ -4117,8 +4163,10 @@ class OMEROGateway
 	 * 
 	 * @param object The image to delete.
 	 * @return See above.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	Object deleteImage(Image object)
 		throws DSOutOfServiceException, DSAccessException
@@ -4139,8 +4187,10 @@ class OMEROGateway
 	 * 
 	 * @param object The object to handle.
 	 * @return See above.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	List<IObject> checkImage(Image object)
 		throws DSOutOfServiceException, DSAccessException
@@ -4178,7 +4228,7 @@ class OMEROGateway
 			Iterator<Integer> i = channels.iterator();
 			while (i.hasNext()) 
 				set.add(omero.rtypes.rlong(i.next()));
-			long id = svc.getScriptID("makemovie");
+			long id = svc.getScriptID("makemovie2");
 			if (id <= 0) return -1;
 			ParametersI parameters = new ParametersI();
 			parameters.map.put("imageId", omero.rtypes.rlong(imageID));
@@ -4205,10 +4255,44 @@ class OMEROGateway
 			if (type == null) return -1;
 			return type.getValue();
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot create a movie for image: "+imageID);
 		}
 		return -1;
 	}
+	
+	/**
+	 * Imports the specified file. Returns the image.
+	 * 
+	 * @param file The file to import.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Object importImage(File file)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		ImportLibrary importLibrary = new ImportLibrary(getImportStore(), 
+				new OMEROWrapper());
+		try {
+			List<Pixels> pixels = 
+				importLibrary.importImage(file, 0, 0, 1, file.getName(), null, 
+					false, null);
+			if (pixels != null && pixels.size() > 0) {
+				Pixels p = pixels.get(0);
+				long id = p.getImage().getId().getValue();
+				return getImage(id, new Parameters());
+			}
+		} catch (Exception e) {
+			String message = getImportFailureMessage(e);
+			if (message != null) return message;
+			return null;
+		}
+		return null;
+	}
+	
 	/**
 	 * Returns the fs file system view.
 	 * 
@@ -4270,6 +4354,28 @@ class OMEROGateway
 	void removeREService(long pixelsID)
 	{
 		reServices.remove(pixelsID);
+	}
+
+	/**
+	 * Loads the folder identified by its absolute path.
+	 * 
+	 * @param absolutePath The absolute path.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	DataObject loadFolder(String absolutePath) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			
+		} catch (Exception e) {
+			handleException(e, "Cannot find the folder with path: "
+					+absolutePath);
+		}
+		return null;
 	}
 	
 	//tmp

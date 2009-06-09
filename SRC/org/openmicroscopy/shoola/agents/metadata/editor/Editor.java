@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -37,6 +36,7 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -300,4 +300,19 @@ public interface Editor
 	 */
 	public void setPlaneInfo(Collection result, long pixelsID, int channel);
 
+	/**
+	 * Sets the rendering control
+	 * 
+	 * @param rndControl The value to set.
+	 */
+	public void setRenderingControl(RenderingControl rndControl);
+
+	/** Loads the rendering control for the first selected image. */
+	public void loadRenderingControl();
+	
+	/** Indicates to render a plane. */
+	public void renderPlane();
+
+	public void onSettingsApplied();
+	
 }

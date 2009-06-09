@@ -624,7 +624,6 @@ class MeasurementViewerModel
 	{
 		return roiComponent.addROI(figure, getCurrentView());
 	}
-	
 
 	/**
 	 * Returns the ROIComponent to create a <code>ROI</code> from 
@@ -675,7 +674,7 @@ class MeasurementViewerModel
 													ROIFigure figure)
 	{
 
-		if (attribute.getKey().equals(MeasurementAttributes.TEXT.getKey())) 
+		if (MeasurementAttributes.TEXT.getKey().equals(attribute.getKey())) 
 		{
 			ROIShape shape = figure.getROIShape();
 			AnnotationKeys.TEXT.set(shape, 

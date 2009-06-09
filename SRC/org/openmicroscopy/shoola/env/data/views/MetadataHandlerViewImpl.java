@@ -95,7 +95,7 @@ class MetadataHandlerViewImpl
 	 * @see MetadataHandlerView#loadStructuredData(DataObject, long, 
 	 * 											AgentEventListener)
 	 */
-	public CallHandle loadStructuredData(DataObject dataObject, 
+	public CallHandle loadStructuredData(Object dataObject, 
 								long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationLoader(

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -296,6 +297,16 @@ public interface DataManagerView
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle delete(DeletableObject value, 
+			AgentEventListener observer);
+
+	/**
+	 * Controls if the passed files can be imported.
+	 * 
+	 * @param list 		The collection of files to handle.
+	 * @param observer	Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle checkFileFormat(List<File> list, 
 			AgentEventListener observer);
 	
 }

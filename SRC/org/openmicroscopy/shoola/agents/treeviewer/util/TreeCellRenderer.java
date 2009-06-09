@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.io.File;
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -37,12 +38,10 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
@@ -71,7 +70,10 @@ import pojos.TagAnnotationData;
 public class TreeCellRenderer
     extends DefaultTreeCellRenderer
 {
-    
+ 
+	/** The dimension of the busy label. */
+	private static final Dimension SIZE = new Dimension(16, 16);
+	
     /** Reference to the {@link IconManager}. */
     private IconManager         icons;
     
@@ -79,21 +81,20 @@ public class TreeCellRenderer
     private boolean             numberChildrenVisible;
     
     /** The ID of the current user. */
-    private long				userID;
+    //private long				userID;
 
     /** Filter to identify protocol file. */
     private EditorFileFilter 	filter;
     
     /**
      * Sets the icon and the text corresponding to the user's object.
-     * If an icon is passed, the passed icon is set
      * 
      * @param node The node to handle.
      */
     private void setIcon(TreeImageDisplay node)
     {
     	Object usrObject = node.getUserObject();
-        Icon icon = icons.getIcon(IconManager.OWNER);
+        Icon icon = icons.getIcon(IconManager.FILE_TEXT);
         if (usrObject instanceof ProjectData) {
         	if (EditorUtil.isAnnotated(usrObject))
         		icon = icons.getIcon(IconManager.PROJECT_ANNOTATED);
@@ -149,7 +150,11 @@ public class TreeCellRenderer
         		} else icon = icons.getIcon(IconManager.FILE_XML);
         	} else if (data.isMovieFile()) {
         		icon = icons.getIcon(IconManager.MOVIE);
-        	} else icon = icons.getIcon(IconManager.FILE_TEXT);
+        	} else icon = icons.getIcon(IconManager.FILE_TEXT); 
+        } else if (usrObject instanceof File) {
+        	File f = (File) usrObject;
+        	if (f.isDirectory()) icon = icons.getIcon(IconManager.DIRECTORY);
+        	else icon = icons.getIcon(IconManager.FILE_TEXT);
         } else if (node instanceof TreeImageTimeSet)
         	icon = icons.getIcon(IconManager.DATE);
         else if (node instanceof TreeFileSet) {
@@ -161,12 +166,17 @@ public class TreeCellRenderer
 				case TreeFileSet.PROTOCOL:
 					icon = icons.getIcon(IconManager.EDITOR_EXPERIMENT);
 					break;
+				case TreeFileSet.MOVIE:
+					icon = icons.getIcon(IconManager.MOVIE_FOLDER);
+					break;
 				default:
 					icon = icons.getIcon(IconManager.ROOT);
 			}
         	
         } else if (usrObject instanceof String)
         	icon = icons.getIcon(IconManager.ROOT);
+        else if (usrObject instanceof ExperimenterData)
+        	icon = icons.getIcon(IconManager.OWNER);
         setIcon(icon);
     }
 
@@ -194,10 +204,6 @@ public class TreeCellRenderer
     {
         numberChildrenVisible = b;
         icons = IconManager.getInstance();
-        ExperimenterData exp = 
-        	(ExperimenterData) TreeViewerAgent.getRegistry().lookup(
-        			LookupNames.CURRENT_USER_DETAILS);
-        userID = exp.getId();
         filter = new EditorFileFilter();
     }
     
@@ -215,13 +221,15 @@ public class TreeCellRenderer
     {
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
                                                 row, hasFocus);
-        
+        setIcon(icons.getIcon(IconManager.FILE_TEXT));
         if (!(value instanceof TreeImageDisplay)) return this;
         TreeImageDisplay  node = (TreeImageDisplay) value;
+        
         int w = 0;
         FontMetrics fm = getFontMetrics(getFont());
-        if (node.getLevel() == 0) {
-        	if (node.getUserObject() instanceof ExperimenterData)
+        Object ho = node.getUserObject();
+        if (node.getLevel() == 0 && !(ho instanceof File)) {
+        	if (ho instanceof ExperimenterData)
         		setIcon(icons.getIcon(IconManager.OWNER));
         	else setIcon(icons.getIcon(IconManager.ROOT));
             if (getIcon() != null) w += getIcon().getIconWidth();
@@ -231,24 +239,27 @@ public class TreeCellRenderer
             if (sel) setTextColor(getBackgroundSelectionColor());
             return this;
         }
+        setIcon(node);
+    	
         if (numberChildrenVisible) setText(node.getNodeText());
         else setText(node.getNodeName());
         setToolTipText(node.getToolTip());
-        setIcon(node);
         Color c = node.getHighLight();
         if (c == null) c = tree.getForeground();
         setForeground(c);
         if (!sel) setBorderSelectionColor(getBackground());
         else setTextColor(getBackgroundSelectionColor());
-       
+        
         if (getIcon() != null) w += getIcon().getIconWidth();
+        else w += SIZE.width;
         w += getIconTextGap();
-        if (node.getUserObject() instanceof ImageData)
+        if (ho instanceof ImageData)
         	w += fm.stringWidth(node.getNodeName());
         else if (node instanceof TreeFileSet)
         	w +=  fm.stringWidth(getText())+40; //TODO: figure why I  have to do that.
         else w += fm.stringWidth(getText());
         setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
+        setEnabled(node.isSelectable());
         return this;
     }
   

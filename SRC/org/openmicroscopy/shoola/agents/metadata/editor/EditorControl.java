@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -109,11 +110,17 @@ class EditorControl
 	/** Action ID to display the acquisition metadata. */
 	static final int	ACQUISITION_METADATA = 5;
 	
-	/** Action id indicating to create a new experiment. */
+	/** Action ID indicating to create a new experiment. */
 	static final int	CREATE_NEW_EXPERIMENT = 6;
 	
 	/** Action ID to create a movie. */
 	static final int	CREATE_MOVIE = 7;
+	
+	/** 
+	 * Action ID indicating to load the renderer for the primary selected
+	 * image. 
+	 */
+	static final int	RENDERER = 8;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -147,7 +154,7 @@ class EditorControl
 		JFrame owner = 
 			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(owner, FileChooser.LOAD, 
-				"Choose File", "Select the file to attach.", filters);
+				"Choose File", "Select the file to attach.", filters, true);
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.ATTACHMENT_48));
 		chooser.setApproveButtonText("Attach");
@@ -326,6 +333,12 @@ class EditorControl
 		} else if (MetadataViewer.CREATING_MOVIE_PROPERTY.equals(name)) {
 			boolean b = (Boolean) evt.getNewValue();
 			view.createMovie(b);
+		} else if (Renderer.RENDER_PLANE_PROPERTY.equals(name)) {
+			model.renderPlane();
+		} else if (Renderer.APPLY_TO_ALL_PROPERTY.equals(name)) {
+			view.applyToAll();
+		} else if (MetadataViewer.SETTINGS_APPLIED_PROPERTY.equals(name)) {
+			view.onSettingsApplied();
 		}
 	}
 
@@ -357,6 +370,9 @@ class EditorControl
 				break;
 			case CREATE_MOVIE:
 				view.makeMovie(-1, null);
+				break;
+			case RENDERER:
+				model.loadRenderingControl();
 		}
 	}
 	

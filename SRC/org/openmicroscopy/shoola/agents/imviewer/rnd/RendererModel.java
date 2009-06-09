@@ -172,7 +172,7 @@ class RendererModel
 	 */
 	Color getChannelColor(int index)
 	{
-		return parentModel.getChannelColor(index);
+		return rndControl.getRGBA(index);
 	}
 
 	/**

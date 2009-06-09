@@ -40,6 +40,7 @@ import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.ImageData;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -64,6 +65,12 @@ public interface MetadataViewer
 	extends ObservableComponent
 {
 	
+	/** Indicates that the renderer is for general purpose. */
+	public static final int 	RND_GENERAL = 0;
+	
+	/** Indicates that the renderer is for specific purpose. */
+	public static final int 	RND_SPECIFIC = 1;
+	
 	/** Bound property indicating that the data have been saved. */
 	public static final String	ON_DATA_SAVE_PROPERTY = "onDataSave";
 	
@@ -85,6 +92,21 @@ public interface MetadataViewer
 
 	/** Bound property indicating to create a movie. */
 	public static final String	CREATING_MOVIE_PROPERTY = "creatingMovie";
+	
+	/** Bound property indicating to render a plane. */
+	public static final String	RENDER_PLANE_PROPERTY = "renderPlane";
+	
+	/** Bound property indicating to generate a thumbnail. */
+	public static final String	RENDER_THUMBNAIL_PROPERTY = "renderThumbnail";
+	
+	/** 
+	 * Bound property indicating to apply settings to all the
+	 * displayed or selected images. 
+	 */
+	public static final String	APPLY_SETTINGS_PROPERTY = "applySettings";
+	
+	/** Bound property indicating that the settings have been applied. */
+	public static final String	SETTINGS_APPLIED_PROPERTY = "settingsApplied";
 	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
@@ -318,5 +340,29 @@ public interface MetadataViewer
 	 * @param folder The location where to save the movie.
 	 */
 	public void uploadMovie(FileAnnotationData data, File folder);
+	
+	/**
+	 * Returns one of the rnd constants defined by this class.
+	 * 
+	 * @return See above.
+	 */
+	public int getRndIndex();
+
+	/** 
+	 * Indicates to render a plane. 
+	 * 
+	 * @param imageID The id of the image to render.
+	 */
+	public void renderPlane(long imageID);
+	
+	/** 
+	 * Applies the rendering settings to the selected or displayed images. 
+	 * 
+	 * @param image The image of reference.
+	 */
+	void applyToAll(ImageData image);
+	
+	/** Notifies that the settings have been applied. */
+	void onSettingsApplied();
 	
 }
