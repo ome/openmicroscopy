@@ -34,6 +34,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
@@ -496,6 +497,18 @@ public class BrowserControl
 	public void deleteExperimentInfo(JTree tree) 
 	{
 		UndoableEdit edit = new RemoveExpInfo(tree);
+		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Deletes the Experiment Info from the tree model. 
+	 * Will Also remove Step Notes. 
+	 * 
+	 * @param tree
+	 */
+	public void deleteExperimentInfo(TreeModel treeModel) 
+	{
+		UndoableEdit edit = new RemoveExpInfo(treeModel);
 		undoSupport.postEdit(edit);
 	}
 	

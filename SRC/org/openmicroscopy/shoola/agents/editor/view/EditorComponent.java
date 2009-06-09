@@ -443,4 +443,16 @@ class EditorComponent
 		return browser.isModelExperiment();
 	}
 	
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * Deletes the Experiment Info of the file in the Browser.
+	 * @see Editor#deleteExperimentInfo()
+	 */
+	public void deleteExperimentInfo()
+	{
+		Browser browser = model.getBrowser();
+		if (browser == null) return;
+		browser.deleteExperimentInfo();
+	}
+	
 }

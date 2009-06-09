@@ -100,6 +100,7 @@ class EditorUI
 		addMenuItem(EditorControl.SAVE_FILE, menu, KeyEvent.VK_S);
 		addMenuItem(EditorControl.SAVE_FILE_LOCALLY, menu, 0);
 		addMenuItem(EditorControl.SAVE_FILE_SERVER, menu, 0);
+		addMenuItem(EditorControl.SAVE_AS_PROTOCOL, menu, 0);
 		addMenuItem(EditorControl.NEW_BLANK_FILE, menu, KeyEvent.VK_N);
 		addMenuItem(EditorControl.CLOSE_EDITOR, menu, KeyEvent.VK_W);
 		

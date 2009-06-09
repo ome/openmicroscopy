@@ -33,7 +33,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import javax.swing.Box;
-import javax.swing.JCheckBox;
 
 //Third-party libraries
 
@@ -41,9 +40,6 @@ import org.jdesktop.swingx.JXDatePicker;
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.browser.FieldPanel;
-import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
@@ -53,9 +49,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 /** 
  * This is the UI component for editing a DateTime experimental value. 
  * It includes a Date-Picker for picking a specific date.
- * Alternatively, users can use a comboBox to choose a "relative" date 
- * (eg 3 days after a previous date in the experiment).
- * Finally, a checkBox allows you to "Set Time", in which case, a 
+ * A checkBox allows you to "Set Time", in which case, a 
  * time field is shown. 
  * 
  * The Date-Picker and ComboBox are mutually exclusive: Only one can show a value.
@@ -98,7 +92,7 @@ public class DateTimeField
 	 */
 	private void initialise() 
 	{
-		IAttributes param = getParameter();
+		IParam param = (IParam)getParameter();
 		
 		long UTCMillisecs;
 		// display a date-picker 
@@ -108,8 +102,8 @@ public class DateTimeField
 		int hrs = 0;
 		int mins = 0;
 	
-		// set the date according to the value of DATE_ATTRIBUTE
-		String millisecs = param.getAttribute(TextParam.PARAM_VALUE);
+		// set the date according to the 'param value'
+		String millisecs = param.getParamValue();
 		if (millisecs != null) {
 			UTCMillisecs = new Long(millisecs);
 			Date date = new Date(UTCMillisecs);

@@ -213,4 +213,9 @@ public interface Editor
      */
     public boolean isExperiment();
     
+    /**
+	 * Deletes the Experiment Info of the file in the Browser.
+	 */
+	public void deleteExperimentInfo();
+    
 }

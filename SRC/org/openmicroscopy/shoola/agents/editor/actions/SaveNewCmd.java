@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.editor.actions;
 
-
-
 //Java imports
 import javax.swing.JFrame;
 
@@ -35,7 +33,9 @@ import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 
 /** 
- * 
+ * This command has functionality for Choosing where to save a new file, 
+ * and calling the Save command, E.g. Save to server (if available) or
+ * save locally. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>

@@ -184,5 +184,11 @@ public interface Browser
      * @return	see above. 
      */
     public boolean isFileLocked();
+    
+    /**
+	 * Deletes the ExperimentInfo and any Step Notes. 
+	 * Adds this edit to the undo/redo queue. 
+	 */
+	public void deleteExperimentInfo();
 
 }

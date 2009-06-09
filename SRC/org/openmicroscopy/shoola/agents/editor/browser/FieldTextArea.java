@@ -85,6 +85,7 @@ import org.openmicroscopy.shoola.agents.editor.model.TextBoxStep;
 import org.openmicroscopy.shoola.agents.editor.model.TextContent;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
@@ -821,7 +822,7 @@ public class FieldTextArea
      */
     private String getParamDisplayText(IParam param)
     {
-    	// if we're editing experiment, show 'Name: 
+    	// if we're editing experiment, show 'Name: NO VALUE' or 'value units'
     	if (controller.getEditingMode() == Browser.EDIT_EXPERIMENT) {
     		String name = param.getAttribute(AbstractParam.PARAM_NAME);
     		name = (name == null ? "" : name + ": ");
@@ -830,6 +831,9 @@ public class FieldTextArea
     		if (value == null) {
     			return name + "NO VALUE";
     		}
+    		if (param instanceof DateTimeParam) {
+    			value = DateTimeParam.formatDate(value);
+			}
     		return value + (units == null ? "" : " "+ units );
     	}
     	

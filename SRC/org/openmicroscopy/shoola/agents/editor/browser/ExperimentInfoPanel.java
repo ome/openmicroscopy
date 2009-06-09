@@ -263,7 +263,11 @@ public class ExperimentInfoPanel
 		experiment.setBorder(eb);
 		experiment.setFont(CustomFont.getFontBySize(14));
 		
+		IconManager iM = IconManager.getInstance();
+		
 		//  tool bar, only holds the delete button 
+		// Delete functionality not needed now, but may need toolbar later...?
+		/*
 		JToolBar rightToolBar = new JToolBar();
 		rightToolBar.setBackground(null);
 		rightToolBar.setFloatable(false);
@@ -271,8 +275,8 @@ public class ExperimentInfoPanel
                 UIUtilities.LIGHT_GREY);
 		rightToolBar.setBorder(bottomLeft);
 		
+		
 		// Delete note button
-		IconManager iM = IconManager.getInstance();
 		Icon delete = iM.getIcon(IconManager.DELETE_ICON_12);
 		JButton deleteButton = new CustomButton(delete);
 		deleteButton.setFocusable(false);
@@ -281,14 +285,15 @@ public class ExperimentInfoPanel
 		deleteButton.setToolTipText("<html>Remove Experiment Info:<br>This " +
 				"will also remove any experiment notes from each step.</html>");
 		rightToolBar.add(deleteButton);
+		*/
 		
 		Box titleToolBar = Box.createHorizontalBox();
 		experiment.setAlignmentY(Component.TOP_ALIGNMENT);
 		titleToolBar.add(experiment);
 		
 		titleToolBar.add(Box.createHorizontalGlue());
-		rightToolBar.setAlignmentY(Component.TOP_ALIGNMENT);
-		titleToolBar.add(rightToolBar);
+		//rightToolBar.setAlignmentY(Component.TOP_ALIGNMENT);
+		//titleToolBar.add(rightToolBar);
 		
 		expInfoPanel.add(titleToolBar, BorderLayout.NORTH);
 		

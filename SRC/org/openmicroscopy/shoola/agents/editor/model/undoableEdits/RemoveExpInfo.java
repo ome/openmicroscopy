@@ -32,6 +32,7 @@ import java.util.List;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.undo.AbstractUndoableEdit;
 
@@ -135,12 +136,20 @@ public class RemoveExpInfo
 	/**
 	 * Creates an instance and performs the add.
 	 * 
-	 * @param field		The field/step to add the data-reference to.
-	 * @param tree		The tree that contains the field. Needed to notify edits
-	 * @param node		The node in the tree that contains the field to edit.
+	 * @param tree		The tree that holds the model to edit
 	 */
 	public RemoveExpInfo(JTree tree) {
 		setTree(tree);
+		doEdit();
+	}
+	
+	/**
+	 * Creates an instance and performs the add.
+	 * 
+	 * @param tree		The model to edit
+	 */
+	public RemoveExpInfo(TreeModel treeModel) {
+		this.treeModel = (DefaultTreeModel)treeModel;
 		doEdit();
 	}
 	

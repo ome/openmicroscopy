@@ -202,4 +202,15 @@ public class BrowserComponent
 	 */
 	public int getSavedState() { return model.getSavedState(); }
 	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * Deletes the ExperimentInfo and any Step Notes. 
+	 * Adds this edit to the undo/redo queue. 
+	 * @see Browser#deleteExperimentInfo()
+	 */
+	public void deleteExperimentInfo() 
+	{
+		controller.deleteExperimentInfo(model.getTreeModel());
+	}
+	
 }

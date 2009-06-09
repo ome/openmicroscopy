@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.editor.actions.NewBlankFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.OpenLocalFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.OpenWwwFileAction;
+import org.openmicroscopy.shoola.agents.editor.actions.SaveAsProtocolAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveFileLocallyAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveFileAction;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveFileServerAction;
@@ -86,6 +87,9 @@ class EditorControl
 	/** Identifies the <code>SaveFileServer</code> Action. */
 	static final Integer	SAVE_FILE_SERVER = Integer.valueOf(7);
 	
+	/** Identifies the <code>SaveFileAsProtocol</code> Action. */
+	static final Integer	SAVE_AS_PROTOCOL = Integer.valueOf(8);
+	
 	/** 
 	 * Reference to the {@link Editor} component, which, in this context,
 	 * is regarded as the Model.
@@ -108,6 +112,7 @@ class EditorControl
 		actionsMap.put(SAVE_FILE, new SaveFileAction(model));
 		actionsMap.put(OPEN_WWW_FILE, new OpenWwwFileAction(model));
 		actionsMap.put(SAVE_FILE_SERVER, new SaveFileServerAction(model));
+		actionsMap.put(SAVE_AS_PROTOCOL, new SaveAsProtocolAction(model));
 	}
 	
 	/** 
