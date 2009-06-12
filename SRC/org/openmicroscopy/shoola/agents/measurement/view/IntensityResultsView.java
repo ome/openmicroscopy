@@ -446,11 +446,26 @@ class IntensityResultsView
 	}
 	
 	/**
+	 * Check to see if the selected figure contains textFigure
+	 * @param selectedFigures see above.
+	 * @return see above.
+	 */
+	private boolean validFigures(Set<Figure> selectedFigures)
+	{
+		for(Figure figure : selectedFigures)
+			if(figure instanceof MeasureTextFigure)
+				return false;
+		return true;
+	}
+	
+	/**
 	 * Adds the statistics from the selected ROI to the table.
 	 */
 	private void addResults()
 	{
 		Set<Figure> selectedFigures = view.getDrawingView().getSelectedFigures();
+		if(!validFigures(selectedFigures))
+				return;
 		if (selectedFigures.size() == 0 || state == State.ANALYSING) return;
 		state = State.ANALYSING;
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
@@ -474,6 +489,8 @@ class IntensityResultsView
 	private void addAllResults()
 	{
 		Set<Figure> selectedFigures = view.getDrawingView().getSelectedFigures();
+		if(!validFigures(selectedFigures))
+				return;
 		if (selectedFigures.size() == 0 || state == State.ANALYSING) return;
 		state = State.ANALYSING;
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();

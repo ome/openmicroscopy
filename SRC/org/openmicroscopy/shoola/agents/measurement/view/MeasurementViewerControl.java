@@ -357,7 +357,11 @@ class MeasurementViewerControl
 				TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
 				Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
 				while (shapeIterator.hasNext())
-					shapeList.add(shapeMap.get(shapeIterator.next()));
+				{
+					ROIShape currentShape = shapeMap.get(shapeIterator.next());
+					if(!(currentShape.getFigure() instanceof MeasureTextFigure))
+						shapeList.add(currentShape);
+				}
 				if (shapeList.size() != 0) model.analyseShapeList(shapeList);
 			}
 		}

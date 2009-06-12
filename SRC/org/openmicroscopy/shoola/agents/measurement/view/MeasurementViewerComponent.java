@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -624,6 +625,9 @@ class MeasurementViewerComponent
 			case ANALYSE_SHAPE:
 				return;
 		}
+		if(!validShapeList(shapeList))
+			return;
+		
 		if (model.getActiveChannels().size() == 0) {
 			//view.displayAnalysisResults();
 			view.displayAnalysisResults();
@@ -634,6 +638,19 @@ class MeasurementViewerComponent
 		
 	}
 
+	/**
+	 * Check to see if the selected figure contains textFigure
+	 * @param shapeList see above.
+	 * @return see above.
+	 */
+	private boolean validShapeList(List<ROIShape> shapeList)
+	{
+		for(ROIShape shape : shapeList)
+			if(shape.getFigure() instanceof MeasureTextFigure)
+				return false;
+		return true;
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
 	 * @see MeasurementViewer#getSelectedFigures()
