@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * The TreeViewer agent. This agent manages and presents the
@@ -115,7 +116,9 @@ public class TreeViewerAgent
     	if (!env.isServerAvailable()) return;
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
-    	long id = exp.getDefaultGroup().getId();
+    	GroupData gp = exp.getDefaultGroup();
+    	long id = -1;
+    	if (gp != null) id = gp.getId();
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
         if (viewer != null) viewer.activate();
     }
