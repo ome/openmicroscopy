@@ -562,18 +562,22 @@ class AnnotationDataUI
 	{
 		List<FileAnnotationData> list = getCurrentAttachmentsSelection();
 		DocComponent doc;
-		File f;
 		boolean exist = false;
 		Object data;
 		if (filesDocList.size() > 0) {
 			Iterator<DocComponent> i = filesDocList.iterator();
+			FileAnnotationData fa;
 			while (i.hasNext()) {
 				doc = i.next();
 				data = doc.getData();
-				if (data instanceof File) {
-					f = (File) doc.getData();
-					if (f.equals(file)) exist = true;
-				} 
+				if (data instanceof FileAnnotationData) {
+					fa = (FileAnnotationData) data;
+					if (fa.getId() <= 0) {
+						if (fa.getFilePath().equals(file.getAbsolutePath()))
+							exist = true;
+						list.add(fa);
+					}
+				}
 			}
 		}
 		if (!exist) {
@@ -605,6 +609,21 @@ class AnnotationDataUI
 			data = i.next();
 			if (data.getId() != fData.getId())
 				toKeep.add(data);
+		}
+		if (filesDocList.size() > 0) {
+			Iterator<DocComponent> j = filesDocList.iterator();
+			DocComponent doc;
+			Object fa;
+			while (j.hasNext()) {
+				doc = j.next();
+				fa = doc.getData();
+				if (fa instanceof FileAnnotationData) {
+					data = (FileAnnotationData) fa;
+					if (data.getId() <= 0 && !data.equals(file)) {
+						toKeep.add(data);
+					}
+				}
+			}
 		}
 		handleObjectsSelection(FileAnnotationData.class, toKeep);
 	}
