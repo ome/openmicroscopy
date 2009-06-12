@@ -32,8 +32,10 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
 import javax.swing.border.Border;
 
 //Third-party libraries
@@ -74,7 +76,7 @@ class NoFileOpenUI
 	 * @param container
 	 * @param icon
 	 */
-	private void addButton(Action action, JPanel container, Icon icon) 
+	private void addButton(Action action, JComponent container, Icon icon) 
 	{
 		JButton b = new CustomButton(action);
 		b.setIcon(icon);
@@ -123,7 +125,10 @@ class NoFileOpenUI
 		
 		
 		// A container for the buttons
-		JPanel buttonContainer = new JPanel(); 
+		//JPanel buttonContainer = new JPanel(); 
+		JToolBar buttonContainer = new JToolBar();
+		buttonContainer.setFloatable(false);
+		buttonContainer.setOrientation(JToolBar.VERTICAL);
 		Border lineBorder = BorderFactory.createMatteBorder(1, 1, 1, 1,
                 UIUtilities.LIGHT_GREY);
 		Border cb = BorderFactory.createCompoundBorder(lineBorder, 

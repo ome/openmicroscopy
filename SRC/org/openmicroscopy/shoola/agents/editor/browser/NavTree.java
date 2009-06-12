@@ -24,14 +24,9 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
 import javax.swing.JTree;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
@@ -73,9 +68,9 @@ public class NavTree
 	 */
 	private void initialise() 
 	{
-		setUI(new MyBasicTreeUI());
 		setCellRenderer(new TreeOutlineCellRenderer());
 		setSelectionModel(new ContiguousChildSelectionModel());
+		setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 	
 }

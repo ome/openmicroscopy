@@ -25,22 +25,14 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 //Java imports
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Point;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -54,7 +46,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.FieldContentEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.FieldParamEditor;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -115,6 +106,7 @@ public class FieldEditorDisplay
 	{
 		setLayout(new BorderLayout());
 		scrollPane = new JScrollPane();
+		scrollPane.getViewport().setBackground(UIUtilities.BACKGROUND_COLOR);
 		scrollPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		setMinimumSize(new Dimension(220, 220));
 		scrollPane.setPreferredSize(new Dimension(250, 250));

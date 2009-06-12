@@ -45,7 +45,6 @@ import javax.swing.border.EmptyBorder;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 
@@ -236,17 +235,6 @@ class EditorUI
     	setTitle(model.getFileName());
     	validate();
     	repaint();
-    }
-    
-    /**
-     * This method allows the {@link EditorComponent} to 
-     * 
-     * @param title
-     * @param message
-     */
-    void notifyMessage(String title, String message) 
-    {
-    	UIUtilities.showMessageDialog(title, message);
     }
     
     /** 

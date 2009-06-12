@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
 import java.awt.BorderLayout;
+
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -42,6 +43,7 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The UI for the Browser (the View of the Browser MVC).
@@ -75,6 +77,8 @@ class BrowserUI
 	
 	/** The title of the text tabbed pane. */
 	private static final String 		TEXT_VIEW = "Text View";
+	
+	private int 						DIVIDER_WIDTH = 6;
 
 	/** The tree hosting the display. */
     private JTree           		treeDisplay;
@@ -151,27 +155,35 @@ class BrowserUI
     private void buildUI() 
     {
     	setLayout(new BorderLayout(0, 0));
+    	setBackground(UIUtilities.BACKGROUND_COLOR);
 
     	//Box previewContainer = Box.createVerticalBox();
     	//previewContainer.add(metadataUI);
         JPanel previewPanel = new ScrollablePanel();
         previewPanel.setLayout(new BorderLayout());
-        previewPanel.setBackground(null);
+        previewPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
         previewPanel.add(metadataUI, BorderLayout.NORTH);
-        previewPanel.add(navTree, BorderLayout.WEST);
+        previewPanel.add(navTree, BorderLayout.CENTER);
          
     	JSplitPane leftSplitPane = new JSplitPane();
     	leftSplitPane.setOneTouchExpandable(true);
     	leftSplitPane.setDividerLocation(220);
+    	leftSplitPane.setDividerSize(DIVIDER_WIDTH);
     	leftSplitPane.setResizeWeight(0.3);
     	leftSplitPane.setBorder(null);
-    	leftSplitPane.setLeftComponent(new JScrollPane(previewPanel));
+    	leftSplitPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	JScrollPane previewScroll = new JScrollPane(previewPanel);
+    	previewScroll.setOpaque(true);
+    	previewScroll.getViewport().setBackground(UIUtilities.BACKGROUND_COLOR);
+    	previewScroll.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	leftSplitPane.setLeftComponent(previewScroll);
         
         rightSplitPane = new JSplitPane();
         rightSplitPane.setOneTouchExpandable(true);
         rightSplitPane.setBorder(null);
+        //rightSplitPane.setBackground(UIUtilities.BACKGROUND_COLOR);
         rightSplitPane.setResizeWeight(0.75);
-        rightSplitPane.setDividerSize(9);
+        rightSplitPane.setDividerSize(DIVIDER_WIDTH);
         
         // The central component (tab pane)...
         // TODO: Need to split this out into it's own class, that has a
@@ -180,14 +192,18 @@ class BrowserUI
         tabbedPane = new JTabbedPane();
         
         JPanel textTabPane = new JPanel(new BorderLayout());
-        textTabPane.setBackground(null);
-        textTabPane.add(new JScrollPane(textView), BorderLayout.CENTER);
+        textTabPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+        JScrollPane textScroller = new JScrollPane(textView);
+        textScroller.getViewport().setBackground(UIUtilities.BACKGROUND_COLOR);
+        textTabPane.add(textScroller, BorderLayout.CENTER);
         expInfoText = new ExperimentInfoPanel(navTree, controller);
         textTabPane.add(expInfoText, BorderLayout.NORTH);
         
         JPanel treeTabPane = new JPanel(new BorderLayout());
-        treeTabPane.setBackground(null);
-        treeTabPane.add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
+        treeTabPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+        JScrollPane treeScroller = new JScrollPane(treeDisplay);
+        treeScroller.setBackground(UIUtilities.BACKGROUND_COLOR);
+        treeTabPane.add(treeScroller, BorderLayout.CENTER);
         expInfoTree = new ExperimentInfoPanel(navTree, controller);
         treeTabPane.add(expInfoTree, BorderLayout.NORTH);
         
@@ -199,6 +215,7 @@ class BrowserUI
         rightSplitPane.setLeftComponent(tabbedPane);
         
         editorPanel = new FieldEditorDisplay(navTree, controller);
+        editorPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
         rightSplitPane.setRightComponent(editorPanel);
         
         leftSplitPane.setRightComponent(rightSplitPane);
