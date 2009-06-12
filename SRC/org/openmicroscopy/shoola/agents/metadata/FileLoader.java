@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.env.ui.FileDownloader 
+ * org.openmicroscopy.shoola.agents.metadata.FileLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,21 +20,24 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.ui;
+package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
 import java.io.File;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.Registry;
+import omero.model.FileAnnotation;
+import omero.model.OriginalFile;
+import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
+import pojos.FileAnnotationData;
 
 /** 
- * Hosts information about the file to load i.e. absolute path, size, etc.
+ * Loads images like png, TIFF etc linked to a given object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -44,79 +47,71 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-class FileLoader 
-	extends UserNotifierLoader
+public class FileLoader 
+	extends EditorLoader
 {
 
-	/** The id of the file to download. */
-	private long 		fileID;
-	
 	/** The absolute of the new file. */
-	private File 		file;
+	private File 				file;
 	
-	/** The size of the file. */
-	private long		size;
-	
+    /** The object the thumbnails are for. */
+    private FileAnnotationData 	data;
+    
+    /** The component where to feed the results back to. */
+    private Object 				uiView;
+    
     /** Handle to the async call so that we can cancel it. */
-    private CallHandle	handle;
+    private CallHandle  		handle;
     
-    /**
-     * Creates a new instance.
-     * 
-     * @param viewer Reference to the parent.
-     * @param reg    Reference to the registry.
-     * @param path	 The absolute path to the file.
-     * @param fileID The file ID.
-     * @param size   The size of the file.
-     */
-	FileLoader(UserNotifier viewer, Registry reg, String path, long fileID, 
-			long size)
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param viewer 	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+	 * @param data		The annotation hosting the file to load.
+	 * @param uiView 	The object to handle.
+	 */
+	public FileLoader(Editor viewer, FileAnnotationData data, Object uiView)
 	{
-		super(viewer, reg);
-		file = new File(path);
-		this.fileID = fileID;
-		this.size = size;
+		super(viewer);
+		if (data == null)
+			throw new IllegalArgumentException("No data set.");
+		this.data = data;
+		this.uiView = uiView;
+		file = new File(MetadataViewerAgent.getOmeroHome()
+				+File.separator+data.getFileName());
 	}
 	
-	/** 
-	 * Downloads the file. 
-	 * @see UserNotifierLoader#cancel()
-	 */
-	public void load()
-	{
-		handle = mhView.loadFile(file, fileID, size, this);
-	}
-    
 	/** 
 	 * Cancels the data loading. 
-	 * @see UserNotifierLoader#cancel()
+	 * @see EditorLoader#cancel()
 	 */
 	public void cancel()
 	{ 
 		handle.cancel();
 		file.delete();
 	}
-	
+
 	/** 
-	 * Notifies the user that the data retrieval has been cancelled.
-	 * @see UserNotifierLoader#handleResult(Object)
+	 * Downloads the file. 
+	 * @see EditorLoader#cancel()
 	 */
-    public void handleCancellation() 
-    {
-        String info = "The data retrieval has been cancelled.";
-        registry.getLogger().info(this, info);
-        viewer.setLoadingStatus(-1, fileID, file.getAbsolutePath());
-    }
-    
+	public void load()
+	{
+		OriginalFile f = ((FileAnnotation) data.asAnnotation()).getFile();
+		handle = mhView.loadFile(file, f.getId().getValue(), 
+				f.getSize().getValue(), this);
+	}
+
 	/**
      * Feeds the result back to the viewer.
-     * @see UserNotifierLoader#handleResult(Object)
+     * @see EditorLoader#handleResult(Object)
      */
     public void handleResult(Object result) 
     {
-    	viewer.setLoadingStatus(0, fileID, file.getAbsolutePath());
+    	viewer.setLoadedFile(data, file, uiView);
     }
     
 }

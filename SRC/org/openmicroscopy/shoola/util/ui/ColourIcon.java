@@ -166,9 +166,13 @@ public class ColourIcon
 		Graphics2D g2D = (Graphics2D) g;
 		if (colour != null) {
 			g2D.setColor(colour);
+			g2D.fillRect(x, y, x+width, y+height);
+			g2D.drawRect(x, y, x+width, y+height);
+			/*
 			g2D.fillRect(4, 4, width-3, height-3);
 			g2D.setColor(colour.darker());
 			g2D.drawRect(4, 4, width-3, height-3);
+			*/
 		}
 	}
 

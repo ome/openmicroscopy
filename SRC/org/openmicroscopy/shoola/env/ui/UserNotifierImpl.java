@@ -56,7 +56,6 @@ import pojos.FileAnnotationData;
  * </small>
  * @since OME2.2
  */
-
 public class UserNotifierImpl 
     implements UserNotifier
 {

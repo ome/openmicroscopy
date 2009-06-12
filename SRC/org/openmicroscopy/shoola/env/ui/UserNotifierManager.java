@@ -272,7 +272,6 @@ class UserNotifierManager
         log.debug(this, "name: "+name);
         
         String path = dirPath+name;
-        
         log.debug(this, "name and path: "+path);
 		FileLoader loader = new FileLoader(component, 
 									container.getRegistry(), 
@@ -281,7 +280,6 @@ class UserNotifierManager
 		loader.load();
 		download.addDowloadEntry(dirPath, name, file.getId().getValue());
 		loaders.put(path, loader);
-		
 		if (!download.isVisible())
 			UIUtilities.centerAndShow(download);
 		

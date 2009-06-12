@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
+import pojos.FileAnnotationData;
 import pojos.ImageAcquisitionData;
 
 /** 
@@ -313,6 +314,17 @@ public interface Editor
 	/** Indicates to render a plane. */
 	public void renderPlane();
 
+	/** Updates the view when the settings have been applied. */
 	public void onSettingsApplied();
+
+	/**
+	 * Sets the result back to the viewer.
+	 * 
+	 * @param data The annotation hosted the file to load.
+	 * @param file The local copy.
+	 * @param uiView The object handle the result.
+	 */
+	public void setLoadedFile(FileAnnotationData data, File file, 
+			Object uiView);
 	
 }

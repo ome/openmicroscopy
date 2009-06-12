@@ -34,6 +34,8 @@ import omero.RString;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
+import omero.model.BooleanAnnotation;
+import omero.model.BooleanAnnotationI;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -74,6 +76,7 @@ import omero.model.Well;
 import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
 import pojos.AnnotationData;
+import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -409,6 +412,12 @@ public class ModelMapper
     		if (ns != null && ns.length() > 0) {
     			annotation.setNs(omero.rtypes.rstring(ns));
     		}
+    	} else if (data instanceof BooleanAnnotationData) {
+    		annotation = new BooleanAnnotationI();
+    		annotation.setNs(omero.rtypes.rstring(
+    				BooleanAnnotationData.INSIGHT_PUBLISHED_NS));
+    		((BooleanAnnotation) annotation).setBoolValue(omero.rtypes.rbool(
+    				((BooleanAnnotationData) data).getValue()));
     	}
     	return annotation;
     }

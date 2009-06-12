@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.agents.metadata.EnumerationLoader;
+import org.openmicroscopy.shoola.agents.metadata.FileLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.OriginalFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
@@ -72,6 +73,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
+import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -688,6 +690,28 @@ class EditorModel
 			rate = (RatingAnnotationData) i.next();
 			if (rate.getOwner().getId() == id)
 				return rate;
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the published annotation.
+	 * 
+	 * @return See above.
+	 */
+	BooleanAnnotationData getPublishedAnnotation()
+	{
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return null;
+		Collection c = data.getPublished();
+		if (c == null || c.size() == 0) return null;
+		Iterator i = c.iterator();
+		BooleanAnnotationData b;
+		long id = MetadataViewerAgent.getUserDetails().getId();
+		while (i.hasNext()) {
+			b = (BooleanAnnotationData) i.next();
+			if (b.getOwner().getId() == id)
+				return b;
 		}
 		return null;
 	}
@@ -1345,7 +1369,7 @@ class EditorModel
 	}
 	
 	/** Loads the image acquisition data. */
-	void  fireImagAcquisitionDataLoading()
+	void fireImagAcquisitionDataLoading()
 	{
 		Object ref = getRefObject();
 		ImageData data = null;
@@ -1691,7 +1715,14 @@ class EditorModel
 	{
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return false;
-		return data.hasBeenPublished();
+		return getPublishedAnnotation() != null;
+	}
+
+	void loadFile(FileAnnotationData data, Object uiView)
+	{
+		FileLoader loader = new FileLoader(component, data, uiView);
+		loader.load();
+		
 	}
 	
 }

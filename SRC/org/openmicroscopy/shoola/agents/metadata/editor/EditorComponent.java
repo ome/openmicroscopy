@@ -35,7 +35,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -581,9 +580,29 @@ class EditorComponent
 		} 
 	}
 
-	public void onSettingsApplied() {
-		//modelo
-		
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#onSettingsApplied()
+	 */
+	public void onSettingsApplied()
+	{
+		view.onSettingsApplied();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setLoadedFile(FileAnnotationData, File, Object)
+	 */
+	public void setLoadedFile(FileAnnotationData data, File file, Object uiView)
+	{
+		if (file == null) return;
+		if (uiView instanceof DocComponent) {
+			DocComponent doc = (DocComponent) uiView;
+			if (doc.getData() == data) {
+				doc.setThumbnail(file.getAbsolutePath());
+				file.delete();
+			}
+		}
 	}
 	
 }

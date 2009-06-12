@@ -104,6 +104,9 @@ public class ScreenLogin
 	/** The default size of the window. */
 	static final Dimension			DEFAULT_SIZE = new Dimension(551, 113);
 	
+	/** The default color for the foreground. */
+	private final static Color		FOREGROUND_COLOR = Color.DARK_GRAY;
+	
 	/** The property name for the user who connects to <i>OMERO</i>. */
 	private static final String  	OMERO_USER = "omeroUser";
 
@@ -173,6 +176,9 @@ public class ScreenLogin
 	
 	/** Indicates to show or hide the connection speed option. */
 	private boolean				connectionSpeed;
+	
+	/** The default foreground color. */
+	private Color				defaultForeground;
 	
 	/** Quits the application. */
 	private void quit()
@@ -289,6 +295,7 @@ public class ScreenLogin
 	private void initButtons()
 	{
 		login = new JButton("Login");
+		defaultForeground = login.getForeground();
 		login.setMnemonic('L');
 		login.setToolTipText("Login");
 		setButtonDefault(login);
@@ -313,7 +320,7 @@ public class ScreenLogin
 		getRootPane().setDefaultButton(login);
 		enableControls();
 	}
-
+	
 	/** 
 	 * Creates and initializes the login fields. 
 	 * 
@@ -431,9 +438,7 @@ public class ScreenLogin
 	private void buildGUI(Icon logo, String version)
 	{
 		JLabel background;
-		
 		JLayeredPane layers = new JLayeredPane();  //Default is absolute layout.
-		
 		int width;
 		int height;
 		if (logo != null) {
@@ -509,25 +514,47 @@ public class ScreenLogin
 	/** Sets the enabled flag of the {@link #login} button.*/
 	private void enableControls()
 	{
+		boolean enabled = true;
 		String s = serverText.getText();
 		char[] name = pass.getPassword();
 		String usr = user.getText().trim();
 		if (s == null || usr == null || name == null) {
-			login.setEnabled(false);
-			return;
+			//login.setEnabled(false);
+			//return;
+			enabled = false;
+		} else {
+			usr = usr.trim();
+			s = s.trim();
+			if (login != null) {
+				if (DEFAULT_SERVER.equals(s)) {
+					//login.setEnabled(false);
+					//return;
+					enabled = false;
+				} else {
+					if (usr.length() == 0 || name.length == 0) {
+						//login.setEnabled(false);
+						//return;
+						enabled = false;
+					}
+				}
+			}
 		}
-		usr = usr.trim();
-		s = s.trim();
-		if (login != null) {
-			if (DEFAULT_SERVER.equals(s)) {
-				login.setEnabled(false);
-				return;
+		if (enabled) {
+			ActionListener[] listeners = login.getActionListeners();
+			if (listeners != null) {
+				boolean set = false;
+				for (int i = 0; i < listeners.length; i++) {
+					if (listeners[i] == this) {
+						set = true;
+						break;
+					}
+				}
+				if (!set) login.addActionListener(this);
 			}
-			if (usr.length() == 0 || name.length == 0) {
-				login.setEnabled(false);
-				return;
-			}
-			login.setEnabled(true);
+			login.setForeground(defaultForeground);
+		} else {
+			login.removeActionListener(this);
+			login.setForeground(FOREGROUND_COLOR);
 		}
 	}
 	

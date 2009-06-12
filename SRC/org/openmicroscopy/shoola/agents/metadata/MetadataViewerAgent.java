@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import pojos.ExperimenterData;
@@ -76,6 +78,20 @@ public class MetadataViewerAgent
 								LookupNames.CURRENT_USER_DETAILS);
 	}
 	
+	/** 
+	 * Returns the path of the 'omero home' directory e.g. user/omero.
+	 * 
+	 * @return See above. 
+	 */ 
+	public static String getOmeroHome() 
+	{ 
+		Environment env = (Environment) registry.lookup(LookupNames.ENV); 
+		String omeroDir = env.getOmeroHome(); 
+		File home = new File(omeroDir); 
+		if (!home.exists()) home.mkdir(); 
+		return omeroDir; 
+	}
+ 	
 	/**
 	 * Returns the experimenter corresponding to the passed id.
 	 * 

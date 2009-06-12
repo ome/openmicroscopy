@@ -79,7 +79,7 @@ public class StructuredDataResults
 	private Collection					ratings;
 
 	/** Flag indicating if tha object has been published e.g. image. */
-	private boolean						published;
+	private Collection					published;
 	
 	/**
 	 * Creates a new instance.
@@ -202,6 +202,16 @@ public class StructuredDataResults
 	}
 	
 	/**
+	 * Sets the collection of objects.
+	 * 
+	 * @param published The value to set.
+	 */
+	public void setPublished(Collection published)
+	{ 
+		this.published = published;
+	}
+	
+	/**
 	 * Returns the collection of {@link ViewedByDef} objects.
 	 * 
 	 * @return See above.
@@ -209,11 +219,10 @@ public class StructuredDataResults
 	public Collection getViewedBy() { return viewedBy; }
 	
 	/**
-	 * Returns <code>true </code> if the object e.g. image has been published,
-	 * <code>false</code> otherwese.
+	 * Returns the collection of published annotations.
 	 * 
 	 * @return See above.
 	 */
-	public boolean hasBeenPublished() { return published; }
+	public Collection getPublished() { return published; }
 	
 }

@@ -77,6 +77,7 @@ import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.AnnotationData;
+import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -800,9 +801,10 @@ class OmeroMetadataServiceImpl
 			List<AnnotationData> urls = new ArrayList<AnnotationData>();
 			List<AnnotationData> attachments = new ArrayList<AnnotationData>();
 			List<AnnotationData> ratings = new ArrayList<AnnotationData>();
+			List<AnnotationData> published = new ArrayList<AnnotationData>();
 			Iterator i = annotations.iterator();
 			AnnotationData data;
-			
+			BooleanAnnotationData b;
 			while (i.hasNext()) {
 				data = (AnnotationData) i.next();
 				if (data instanceof URLAnnotationData)
@@ -823,6 +825,11 @@ class OmeroMetadataServiceImpl
 					ratings.add(data);
 				else if (data instanceof FileAnnotationData) {
 					attachments.add(data);
+				} else if (data instanceof BooleanAnnotationData) {
+					b = (BooleanAnnotationData) data;
+					if (BooleanAnnotationData.INSIGHT_PUBLISHED_NS.equals(
+							b.getNameSpace()))
+						published.add(data);
 				}
 			}
 			/*
@@ -848,6 +855,7 @@ class OmeroMetadataServiceImpl
 			results.setTags(tags);
 			results.setRatings(ratings);
 			results.setAttachments(attachments);
+			results.setPublished(published);
 		}
 	
 		/*

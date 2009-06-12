@@ -28,7 +28,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
@@ -56,7 +55,7 @@ public class PlaneInfoComponent
 {
 
 	/** Bound property indicating the plane information. */
-	public static final String PLANE_INFO_PROPERTY = "planeInfo";
+	public static final String 		PLANE_INFO_PROPERTY = "planeInfo";
 	
 	/** The dimension of the icon. */
 	private static final Dimension ICON_DIMENSION = new Dimension(12, 12);
@@ -79,13 +78,15 @@ public class PlaneInfoComponent
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param color			The color associated to the channel.
+	 * @param color	The color associated to the channel.
 	 */
 	public PlaneInfoComponent(Color color)
 	{
 		content = new JLabel();
 		icon = new ColourIcon(ICON_DIMENSION, color);
 		setIcon(icon);
+		setVerticalTextPosition(JLabel.CENTER);
+		setHorizontalTextPosition(JLabel.RIGHT);
 		addMouseListener(new MouseAdapter() {
 		
 			/**

@@ -142,6 +142,28 @@ public class Factory
             };
 
     /**
+     * Resizes an image using a Graphics2D object.
+     * 
+     * @param src 	The image to scale.
+     * @param width The desired width.
+     * @param height The desired height.
+     * @return See above.
+     */
+    private static Image scaleImage(Image src, int width, int height)
+    {
+    	BufferedImage img = new BufferedImage(width, height, 
+    			BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = img.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 
+        		RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.setColor(Color.white);
+        g2.fillRect(0, 0, width, height);
+        g2.drawImage(src, 0, 0, width, height, null);
+        g2.dispose();
+        return img;
+    }
+    
+    /**
      * Creates a default thumbnail image.
      * 
      * @param width 	The required width of the thumbnail.
@@ -164,6 +186,7 @@ public class Factory
                                 BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) thumbPix.getGraphics();
         g.drawImage(img.getImage(), 0, 0, width, height, null);
+        g.dispose();
         return thumbPix;
     }
     
@@ -184,6 +207,7 @@ public class Factory
         Graphics2D g = (Graphics2D) thumbPix.getGraphics();
         g.setBackground(Color.black);
         g.drawImage(img.getImage(), 0, 0, null);
+        g.dispose();
         return thumbPix;
     }
     
@@ -210,6 +234,7 @@ public class Factory
             g.setColor(Color.WHITE);
             g.setFont(g.getFont().deriveFont(Font.BOLD));
             g.drawString(text, xTxt, yTxt);
+            g.dispose();
         }
         return thumbPix;
     }
@@ -564,7 +589,7 @@ public class Factory
      * Determines the size of the thumbnail.
      * 
      * @param sizeX     The thumbnail's size along the X-axis.
-     * @param sizeY     The thumbnail's size along the X-axis.
+     * @param sizeY     The thumbnail's size along the Y-axis.
      * @param realSizeX	The real size along the X-axis.
      * @param realSizeY	The real size along the Y-axis.
      * @return See above.
@@ -611,8 +636,75 @@ public class Factory
     		Image img = Toolkit.getDefaultToolkit().getImage(buf.toString());
     		if (img == null) return null;
     		Icon icon = new ImageIcon(img);
+    		System.err.println(icon.getIconHeight()+" "+icon.getIconWidth());
     		if (icon.getIconHeight() <= 0 || icon.getIconWidth() <= 0)
     			return null;
+    		return icon;
+    	} catch (Exception e) {}
+    	return null;
+    }
+    
+    /**
+     * Creates the splash screen logo and login
+     * 
+     * @param absolutePath The path to the file.
+     * @return See above.
+     */
+    public static Icon createIcon(String absolutePath)
+    {
+    	StringBuffer buf;
+    	if (absolutePath == null) return null;
+    	buf = new StringBuffer(absolutePath);
+    	try {
+    		Image img = Toolkit.getDefaultToolkit().getImage(buf.toString());
+    		if (img == null) return null;
+    		Icon icon = new ImageIcon(img);
+    		if (icon.getIconHeight() <= 0 || icon.getIconWidth() <= 0)
+    			return null;
+    		return icon;
+    	} catch (Exception e) {}
+    	return null;
+    }
+    
+    /**
+     * Creates the splash screen logo and login
+     * 
+     * @param absolutePath 	The path to the file.
+     * @param width			The width of the icon.
+     * @param height		The height of the icon.
+     * @return See above.
+     */
+    public static Icon createIcon(String absolutePath, int width, int height)
+    {
+    	StringBuffer buf;
+    	if (absolutePath == null) return null;
+    	buf = new StringBuffer(absolutePath);
+    	try {
+    		Image img = Toolkit.getDefaultToolkit().getImage(buf.toString());
+    		if (img == null) return null;
+    		
+    		//if (width > 0 && height > 0)
+    			//img = scaleImage(img, width, height);
+    		Icon icon = new ImageIcon(img);
+    		int w = icon.getIconWidth();
+    		int h = icon.getIconHeight();
+    		if (w <= 0 || h <= 0) return null;
+    		if (w > width && h > height)
+    			return new ImageIcon(scaleImage(img, width, height));
+    		if (w > width && h <= height) {
+    			double r = ((double) w)/h;
+    			int value = (int) (w*r);
+    			if (value != 0) 
+    				return new ImageIcon(scaleImage(img, value, height)); 
+    			return new ImageIcon(scaleImage(img, width, height)); 
+    		}
+    		if (w <= width && h >  height) {
+    			double r = ((double) w)/h;
+    			int value = (int) (h*1/r);
+    			if (value != 0) 
+    				return new ImageIcon(scaleImage(img, width, value)); 
+    			return new ImageIcon(scaleImage(img, width, height)); 
+    		}
     		return icon;
     	} catch (Exception e) {}
     	return null;

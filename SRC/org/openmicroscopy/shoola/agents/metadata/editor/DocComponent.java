@@ -34,8 +34,10 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -57,6 +59,12 @@ import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
+import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
+import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
+import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
+import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
@@ -85,6 +93,12 @@ class DocComponent
 	implements ActionListener, PropertyChangeListener
 {
 
+	/** Flag indicates to load the image from the server. */
+	static final int		LOAD_FROM_SERVER = 0;
+	
+	/** Flag indicates to load the image from the local machine. */
+	static final int		LOAD_FROM_LOCAL = 1;
+	
 	/** Action id to delete the annotation. */
 	private static final int DELETE = 0;
 	
@@ -96,6 +110,17 @@ class DocComponent
 	
 	/** Action id to edit the annotation. */
 	private static final int OPEN = 3;
+	
+	/** Collection of filters supported. */
+	private static final List<CustomizedFileFilter> FILTERS;
+		
+	static {
+		FILTERS = new ArrayList<CustomizedFileFilter>();
+		FILTERS.add(new TIFFFilter());
+		FILTERS.add(new JPEGFilter());
+		FILTERS.add(new PNGFilter());
+		FILTERS.add(new BMPFilter());
+	}
 	
 	/** The annotation hosted by this component. */
 	private Object		data;
@@ -126,6 +151,18 @@ class DocComponent
 	
 	/** The original description of the tag. */
 	private String		originalName;
+	
+	/** 
+	 * Index indicating that the attachment is an image that
+	 * can be displayed as a thumbnail e.g. Tiff, jpeg, png etc.
+	 */
+	private int 		imageToLoad;
+	
+	/** 
+	 * The thumbnail corresponding to the attachment, <code>null</code>
+	 * if the attachment is not a supported image.
+	 */
+	private Icon 		thumbnail;
 	
 	/**
 	 * Formats the passed annotation.
@@ -312,12 +349,12 @@ class DocComponent
 			
 		deleteButton.addActionListener(this);
 		deleteButton.setActionCommand(""+DELETE);
-		
 	}
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		imageToLoad = -1;
 		if (model.isCurrentUserOwner(data)) initButton();
 		label = new JLabel();
 		label.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
@@ -326,13 +363,34 @@ class DocComponent
 		} else {
 			if (data instanceof FileAnnotationData) {
 				FileAnnotationData f = (FileAnnotationData) data;
+				String fileName = f.getFileName();
 				label.setToolTipText(formatTootTip(f));
-				label.setText(EditorUtil.getPartialName(
-						f.getFileName()));
+				label.setText(EditorUtil.getPartialName(fileName));
+				Iterator<CustomizedFileFilter> i = FILTERS.iterator();
+				CustomizedFileFilter filter;
+				long id = f.getId();
+				while (i.hasNext()) {
+					filter = i.next();
+					if (filter.accept(fileName)) {
+						if (id > 0) imageToLoad = LOAD_FROM_SERVER;
+						else  imageToLoad = LOAD_FROM_LOCAL;
+						break;
+					}
+				}
 				initButton();
-				if (f.getId() < 0)
+				if (id < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
+				switch (imageToLoad) {
+					case LOAD_FROM_LOCAL:
+						if (thumbnail == null) setThumbnail(f.getFilePath());
+						break;
+					case LOAD_FROM_SERVER:
+						if (thumbnail == null) {
+							//Load the file, copy locally and delete it.
+							model.loadFile((FileAnnotationData) data, this);
+						}
+				}
 			} else if (data instanceof File) {
 				initButton();
 				File f = (File) data;
@@ -456,6 +514,34 @@ class DocComponent
 		return false;
 	}
 	
+	/**
+	 * Returns <code>true</code> if the image has been loaded, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isImageLoaded() { return thumbnail != null; }
+	
+	/**
+	 * Sets the image representing the file.
+	 * 
+	 * @param path The path to the file.
+	 */
+	void setThumbnail(String path)
+	{
+		if (path == null) return;
+		this.thumbnail = Factory.createIcon(path, 
+				Factory.THUMB_DEFAULT_WIDTH/2, 
+				Factory.THUMB_DEFAULT_HEIGHT/2);
+		if (thumbnail != null) {
+			label.setText("");
+			label.setIcon(thumbnail);
+			label.repaint();
+			revalidate();
+			repaint();
+		}
+	}
+	
 	/** 
 	 * Deletes or edits the annotation.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -480,7 +566,6 @@ class DocComponent
 						MetadataViewerAgent.getRegistry().getEventBus();
 					bus.post(new EditFileEvent((FileAnnotationData) data));
 				}
-				
 		}
 	}
 

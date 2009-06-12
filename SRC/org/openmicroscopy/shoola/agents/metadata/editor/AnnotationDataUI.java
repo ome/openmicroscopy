@@ -28,6 +28,8 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -42,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -63,6 +64,7 @@ import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
 import pojos.AnnotationData;
+import pojos.BooleanAnnotationData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.RatingAnnotationData;
@@ -110,6 +112,9 @@ class AnnotationDataUI
 	
 	/** The index of the tag row. */
 	private int								tagRow;
+	
+	/** The index of the published row. */
+	private int								publishedRow;
 	
 	/** The UI component hosting the various annotations. */
 	private JPanel							content;
@@ -238,6 +243,13 @@ class AnnotationDataUI
 		viewedByPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		publishedBox = new JCheckBox();
 		publishedBox.setBackground(UIUtilities.BACKGROUND_COLOR);
+		publishedBox.addItemListener(new ItemListener() {
+		
+			public void itemStateChanged(ItemEvent e) {
+				firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+									Boolean.TRUE);
+			}
+		});
 	}
 	
 	/**
@@ -277,6 +289,7 @@ class AnnotationDataUI
 		content.add(UIUtilities.setTextFont("published", Font.BOLD, size), 
 				"0, "+i);
 		content.add(p, "2, "+i);
+		publishedRow = i;
 		i++;
 		p = UIUtilities.buildComponentPanel(rating, 0, 0);
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -510,8 +523,8 @@ class AnnotationDataUI
 		initialValue = selectedValue;
 		rating.setValue(selectedValue);
 
-		//tags
-
+		
+		publishedBox.setSelected(model.hasBeenPublished());
 		//Add attachments
 		layoutAttachments(model.getAttachments());
 		
@@ -520,6 +533,7 @@ class AnnotationDataUI
 		TableLayout layout = (TableLayout) content.getLayout();
 		double h = 0;
 		double hTag = 0;
+		double hPublished = 0;
 		if (!model.isMultiSelection()) {
 			if (refObject instanceof ImageData) {
 				if (layoutViewedBy()) h = TableLayout.PREFERRED;
@@ -527,12 +541,16 @@ class AnnotationDataUI
 			layoutTags(model.getTags());
 			hTag = TableLayout.PREFERRED;
 		}
+		if (refObject instanceof ImageData) hPublished = TableLayout.PREFERRED;
+		layout.setRow(publishedRow, hPublished);
 		layout.setRow(viewedByRow, h);
 		layout.setRow(tagRow, hTag);
 		content.revalidate();
 		content.repaint();
 		revalidate();
 		repaint();
+		
+		//
 	}
 	
 	/**
@@ -795,6 +813,12 @@ class AnnotationDataUI
 					l.add(fa);
 			}
 		}
+		if (model.hasBeenPublished()) {
+			if (!publishedBox.isSelected()) {
+				BooleanAnnotationData b = model.getPublishedAnnotation();
+				if (b.getValue().booleanValue()) l.add(b);
+			}
+		}
 		return l; 
 	}
 
@@ -861,6 +885,14 @@ class AnnotationDataUI
 		}
 		if (selectedValue != initialValue)
 			l.add(new RatingAnnotationData(selectedValue));
+		
+		if (!model.hasBeenPublished()) {
+			if (publishedBox.isSelected()) {
+				BooleanAnnotationData data = new BooleanAnnotationData(true);
+				data.setNameSpace(BooleanAnnotationData.INSIGHT_PUBLISHED_NS);
+				l.add(data);
+			}
+		}
 		return l;
 	}
 	
@@ -874,6 +906,11 @@ class AnnotationDataUI
 		Iterator<DocComponent> i = tagsDocList.iterator();
 		while (i.hasNext()) {
 			if (i.next().hasBeenModified()) return true;
+		}
+		if (model.hasBeenPublished()) {
+			if (!publishedBox.isSelected()) return true;
+		} else {
+			if (publishedBox.isSelected()) return true;
 		}
 		return (selectedValue != initialValue);
 	}
@@ -895,6 +932,7 @@ class AnnotationDataUI
 		rating.setValue(selectedValue);
 		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
 		
+		publishedBox.setSelected(false);
 		tagsPane.removeAll();
 		tagsDocList.clear();
 		DocComponent doc = new DocComponent(null, model);

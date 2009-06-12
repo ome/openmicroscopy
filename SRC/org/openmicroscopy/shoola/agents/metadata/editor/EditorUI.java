@@ -518,6 +518,7 @@ public class EditorUI
 	/** Applies the rendering settings to the selected or displayed images. */
 	void applyToAll() { model.applyToAll(); }
 
+	/** Updates the view when the rendering settings have been applied. */
 	void onSettingsApplied()
 	{
 		model.getRenderer().onSettingsApplied();
