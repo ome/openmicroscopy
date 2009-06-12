@@ -145,6 +145,9 @@ public class EditorUtil
     public static final String	EMAIL = "E-mail";
     
     /** String to represent the micron symbol. */
+    public static final String 	MICRONS_NO_BRACKET = "\u00B5m";
+    
+    /** String to represent the micron symbol. */
     public static final String 	MICRONS = "(\u00B5m)";
     
     /** String to represent the celcius symbol. */

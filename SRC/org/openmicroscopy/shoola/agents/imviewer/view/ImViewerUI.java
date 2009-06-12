@@ -1173,12 +1173,19 @@ class ImViewerUI
 	void setLeftStatus()
 	{
 		String text = "";
+		int n;
+		double d = model.getPixelsSizeZ();
 		if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) {
-			text += "Z range:"+(getProjectionStartZ()+1);
+			n = getProjectionStartZ();
+			int m = getProjectionEndZ();
+			text += "Z range:"+(n+1);
 			text += "-"+(getProjectionEndZ()+1);
+			text += " ("+n*d+"-"+m*d+" "+EditorUtil.MICRONS_NO_BRACKET+")";
 			text += "/"+(model.getMaxZ()+1);
 		} else {
-			text += "Z="+(model.getDefaultZ()+1)+"/"+(model.getMaxZ()+1);
+			n = model.getDefaultZ();
+			text += "Z="+(n+1)+" ("+n*d+EditorUtil.MICRONS_NO_BRACKET+")/";
+			text += (model.getMaxZ()+1);
 		}
 		text += " T="+(model.getDefaultT()+1)+"/"+(model.getMaxT()+1);
 		setLeftStatus(text);

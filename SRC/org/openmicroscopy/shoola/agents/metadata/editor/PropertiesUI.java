@@ -579,7 +579,7 @@ class PropertiesUI
     	//	namePane.setEnabled(false);
         if (b) {
         	//if (!(refObject instanceof FolderData))
-        	//	namePane.getDocument().addDocumentListener(this);
+        	namePane.getDocument().addDocumentListener(this);
         	descriptionPane.getDocument().addDocumentListener(this);
         }
         buildGUI();

@@ -372,7 +372,7 @@ class EditorModel
 			ImageData img = ws.getImage();
 			if (img != null && img.getId() >= 0) name = img.getName();
 		} //else if (ref instanceof FolderData)
-			name = null;//((FolderData) ref).getName();
+			//name = ((FolderData) ref).getName();
 		if (name == null) return "";
 		return name.trim();
 	}
