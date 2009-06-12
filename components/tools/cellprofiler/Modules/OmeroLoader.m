@@ -56,34 +56,34 @@ Hostname = char(handles.Settings.VariableValues{CurrentModuleNum,4});
 ImageName{1} = char(handles.Settings.VariableValues{CurrentModuleNum,5});
 
 %textVAR06 = What channel position are these in the group?
-%defaultVAR06 = /
+%defaultVAR06 = Do not use
 TextToFind{1} = char(handles.Settings.VariableValues{CurrentModuleNum,6});
 
 %textVAR07 = What do you want to call these images within CellProfiler?
-%defaultVAR07 = /
+%defaultVAR07 = Do not use
 %infotypeVAR07 = imagegroup indep
 ImageName{2} = char(handles.Settings.VariableValues{CurrentModuleNum,7});
 
 %textVAR08 = What channel position are these in the group?
-%defaultVAR08 = /
+%defaultVAR08 = Do not use
 TextToFind{2} = char(handles.Settings.VariableValues{CurrentModuleNum,8});
 
 %textVAR09 = What do you want to call these images within CellProfiler?
-%defaultVAR09 = /
+%defaultVAR09 = Do not use
 %infotypeVAR09 = imagegroup indep
 ImageName{3} = char(handles.Settings.VariableValues{CurrentModuleNum,9});
 
 %textVAR10 = What channel position are these in the group?
-%defaultVAR10 = /
+%defaultVAR10 = Do not use
 TextToFind{3} = char(handles.Settings.VariableValues{CurrentModuleNum,10});
 
 %textVAR11 = What do you want to call these images within CellProfiler?
-%defaultVAR11 = /
+%defaultVAR11 = Do not use
 %infotypeVAR11 = imagegroup indep
 ImageName{4} = char(handles.Settings.VariableValues{CurrentModuleNum,11});
 
 %textVAR12 = What channel position are these in the group?
-%defaultVAR12 = /
+%defaultVAR12 = Do not use
 TextToFind{4} = char(handles.Settings.VariableValues{CurrentModuleNum,12});
 
 %%%VariableRevisionNumber = 2
@@ -101,48 +101,54 @@ SetBeingAnalyzed = handles.Current.SetBeingAnalyzed;
 %%% FIRST CYCLE FILE HANDLING %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 drawnow
+    
+%%% TODO: check what the pathname should be!
+Pathname=['dataset: ',DatasetID];
 
+%%% CREATE OMERO GATEWAY. Note: DO NOT FORGET TO CLOSE IT!
+client = omero.client(java.lang.String(Hostname), 4063)
+session = client.createSession(UserName, Password)
+omeroService = session.createGateway()
+    
 %%% Extracting the list of files to be analyzed occurs only the first time
 %%% through this module.
 if SetBeingAnalyzed == 1
-    iceConfigPath = strcat(Pathname,'/ice.config');
-    omeroService = createOmeroJavaService(Hostname,UserName, Password);
+    %iceConfigPath = strcat(Pathname,'/ice.config');
+    %omeroService = createOmeroJavaService(Hostname,UserName, Password);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Check that the Project, Dataset and images exist in Dataset. %
     %%% TODO:                                                        %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    % Get all filenames in the specified directory wich contains the specified extension (e.g., .avi or .stk).
-    % Note that there is no check that the extensions actually is the last part of the filename.
     datasetAsNum = [str2num(DatasetID)];
     dataset = getDataset(omeroService, datasetAsNum, 1);
-    list = getImagesFromDataset(omeroService, dataset);
-
+    list = omerojava.util.GatewayUtils.getImagesFromDataset(dataset);
+    
     fileIds=[];
     cnt = 0;
     for i = 1:list.size()
-        pixelsList = getPixelsFromImage(omeroService, list.get(i-1).id.val);
+        pixelsList = getPixelsFromImage(omeroService, list.get(i-1).getId.getValue);
         if(~isempty(pixelsList))
             for j = 0:pixelsList.size-1;
                 pixels = pixelsList.get(j);
-                if(isempty(pixels.relatedTo))
+                %if(isempty(pixels.RELATEDTO))
                     cnt = cnt +1;
-                    fileIds(cnt)= pixels.id.val;
-                end;
+                    fileIds(cnt)= pixels.getId.getValue;
+                %end;
             end
         end
     end
     %%% Checks whether any files have been found
     if isempty(fileIds)
-        error(['Image processing was canceled in the ', ModuleName, ' module because there are no movie files in the chosen directory (or subdirectories, if you requested them to be analyzed as well).'])
+        error(['Image processing was canceled in the ', ModuleName, ' module because there are no files in the chosen dataset.'])
     end
     imagesPerSet = numImages(ImageName);
     handles.Pipeline.('imagesPerSet') = imagesPerSet;
     NumberOfImageSets = 0;
     for i = 1:length(fileIds),
         pixels = getPixels(omeroService, fileIds(i));
-        for z  = 0:pixels.sizeZ.val-1,
-            for t = 0:pixels.sizeT.val-1,
+        for z  = 0:pixels.getSizeZ.getValue-1,
+            for t = 0:pixels.getSizeT.getValue-1,
                 fieldName =  strcat('FileCnt',num2str(NumberOfImageSets+1));
                 handles.Pipeline.(fieldName) = strcat('FileId',num2str(fileIds(i)),'z',num2str(z),'t',num2str(t));
                 NumberOfImageSets = NumberOfImageSets + 1;
@@ -154,9 +160,9 @@ if SetBeingAnalyzed == 1
     clear fileIds
     clear pixels
     clear fieldName
-    if (~omeroService.isClosed())
-        omeroService.close();
-    end
+%    if (~omeroService.isClosed())
+%        omeroService.close();
+%    end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -167,7 +173,7 @@ drawnow
 handles.Pipeline.('Hostname') = Hostname;
 handles.Pipeline.('UserName') = UserName;
 handles.Pipeline.('Password') = Password;
-omeroService = createOmeroJavaService(Hostname,UserName, Password);
+%omeroService = createOmeroJavaService(Hostname,UserName, Password);
 
 for n = 1:handles.Pipeline.imagesPerSet
         %%% This try/catch will catch any problems in the load images module.
@@ -186,9 +192,9 @@ for n = 1:handles.Pipeline.imagesPerSet
             fieldname = strcat('Filename', ImageName{n});
             handles.Pipeline.(ImageName{n}) = LoadedImage;
             pixels = getPixels(omeroService, pixelsId);
-            imageId = pixels.image.id.val;
-            [path, fname, ext, v] = fileparts(getFileName(omeroService, imageId));
-            
+            imageId = pixels.getImage.getId.getValue;
+            [path, fname, ext, v] = fileparts(char(omeroService.getImage(imageId).getName.getValue));
+
             fName = strcat(fname, 'z', num2str(z), 't', num2str(t),'c',TextToFind{n},ext);
             handles.Pipeline.(fieldname)(SetBeingAnalyzed) = {fName};
         catch ErrorMessage = lasterr;
@@ -197,11 +203,12 @@ for n = 1:handles.Pipeline.imagesPerSet
         end % Goes with: catch
     
         % Create a cell array with the filenames
-       FileNames{n} = {strcat(getFileName(omeroService, imageId), ':', num2str(z), ':', num2str(t))};
+       FileNames{n} = {char(omeroService.getImage(imageId).getName.getValue), ':', num2str(z), ':', num2str(t)};
 end
-if (~omeroService.isClosed())
+%if (~omeroService.isClosed())
     omeroService.close();
-end
+%end
+client.closeSession()
 %%%%%%%%%%%%%%%%%%%%%%%
 %%% DISPLAY RESULTS %%%
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -266,6 +273,23 @@ end
 
 %%% Write to the handles.Measurements.Image structure
 handles.Measurements.Image.FileNamesText                   = FileNamesText;
-handles.Measurements.Image.FileNames(SetBeingAnalyzed)         = {FileNames};
+%handles.Measurements.Image.FileNames(SetBeingAnalyzed)         = {FileNames};
 handles.Measurements.Image.PathNamesText                   = PathNamesText;
-handles.Measurements.Image.PathNames(SetBeingAnalyzed)         = {PathNames};
+%handles.Measurements.Image.PathNames(SetBeingAnalyzed)         = {PathNames};
+
+for n = 1:handles.Pipeline.imagesPerSet
+    FileNames{n} = strcat(FileNames{n}{:});
+end
+
+handles.Measurements.Image.FileNames(SetBeingAnalyzed) = FileNames;
+handles.Measurements.Image.PathNames(SetBeingAnalyzed) = PathNames;
+
+%%%CPwritemeasurements.m, which is used by the ExportToExcel module,
+%%%requires that the first field of handles.Measure holds as many elements
+%%%as there are images.
+if handles.Current.SetBeingAnalyzed == handles.Current.NumberOfImageSets
+    fields = fieldnames(handles.Measurements.Image);
+    if strcmp(fields{1}, 'FileNamesText'), %%% ONLY modify when we're sure FileNamesText is the first field
+        handles.Measurements.Image.FileNamesText=handles.Measurements.Image.FileNames;
+    end
+end
