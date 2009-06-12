@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.util.FileDownload;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
@@ -144,7 +145,9 @@ public class UrlChooser
 				} else
 				newFileName = newFileName + fileNameIncrementer++;
 			}
-			File downloadedFile = FileDownload.downloadFile(url, newFileName);
+			String dirName = EditorAgent.getEditorHome();
+			String filePath = dirName + newFileName;
+			File downloadedFile = FileDownload.downloadFile(url, filePath);
 			model.openLocalFile(downloadedFile);
 			// set to edited, so that Save button is activated. 
 			model.setEdited(true);

@@ -98,6 +98,35 @@ public class EditorAgent
 	}
 	
 	/**
+	 * Returns the path of the 'omero home' directory. E.g. user/omero
+	 * @return		see above.
+	 */
+	public static String getOmeroHome()
+	{
+		Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	String omeroDir = env.getOmeroHome();
+    	// make sure dir exists. 
+    	File home = new File(omeroDir);
+		if (!home.exists()) home.mkdir();
+		return omeroDir;
+	}
+	
+	/**
+	 * Returns the path of the 'editor home' directory. E.g. user/omero/editor
+	 * Folder will be created if it doesn't exist. 
+	 * @return		see above.
+	 */
+	public static String getEditorHome()
+	{
+		String editorDir = (String) registry.lookup("/services/editor/home");
+		editorDir = getOmeroHome() + File.separator + editorDir;
+		// make sure dir exists. 
+		File home = new File(editorDir);
+		if (!home.exists()) home.mkdir();
+		return editorDir;
+	}
+	
+	/**
 	 * Static method to open a local file. 
 	 * Creates or recycles an Editor to display the file. 
 	 * 

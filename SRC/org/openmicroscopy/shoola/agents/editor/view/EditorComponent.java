@@ -36,6 +36,7 @@ import java.util.GregorianCalendar;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -351,8 +352,9 @@ class EditorComponent
 	
 		//This assumes that we are editing an existing file.
 		File toEdit = model.getFileToEdit();
-		if (toEdit == null) {
-			String fileName = model.getFileName();
+		if (toEdit == null) {		// if not...
+			String fileName = EditorAgent.getEditorHome() + 
+				File.separator + model.getFileName();
 			toEdit = new File(fileName);
 		} 
 		model.fireFileSaving(toEdit);
@@ -386,6 +388,8 @@ class EditorComponent
 		//Need to check if already log in.
 		if (EditorAgent.getRegistry().getTaskBar().login()) {
 			model.setFileAnnotationData(null);
+			String dirName = EditorAgent.getEditorHome();
+			fileName = dirName + File.separator + fileName;
 			model.fireFileSaving(new File(fileName));
 			fireStateChange();
 		}

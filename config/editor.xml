@@ -22,6 +22,9 @@
        </structuredEntry>
      </fonts>
      
+     <!-- The name of the Editor folder within the user/omero/ folder -->
+     <entry name="/services/editor/home">editor</entry>
+     
      <!-- This entry is the location of the cpe.dtd for validation of cpe.xml
      files. This location is written into the header of saved cpe.xml files -->
      <entry name="/xml/cpe.dtd">http://genome.tugraz.at/iLAP/cpe/cpe.dtd</entry>

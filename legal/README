@@ -263,4 +263,11 @@
   License: Apache License, Version 2.0
   License File: apache-v2.0.txt
   
+  Project: Nano XML.
+  Used for reading and writing XML files.
+  Web Site: http://devkix.com/nanoxml.php
+  Artifacts: net.n3.nanoxml package 
+  License: Open Source Initiative OSI - The zlib/libpng License
+  License File: zlib-libpng.txt
+  
   
