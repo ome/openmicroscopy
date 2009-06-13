@@ -28,6 +28,8 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
@@ -128,6 +130,9 @@ class AnnotationDataUI
 	/** Button to add documents. */
 	private JButton							addDocsButton;
 	
+	/** Button to unrate the object. */
+	private JButton							unrateButton;
+	
 	/** Reference to the control. */
 	private EditorControl					controller;
 	
@@ -225,6 +230,13 @@ class AnnotationDataUI
 		rating.setOpaque(false);
 		rating.setBackground(UIUtilities.BACKGROUND_COLOR);
 		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
+		unrateButton = new JButton(icons.getIcon(IconManager.MINUS_12));
+		UIUtilities.unifiedButtonLookAndFeel(unrateButton);
+		unrateButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+		unrateButton.setToolTipText("Unrate.");
+		unrateButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) { rating.setValue(0); }
+		});
 		tagsPane = new JPanel();
 		tagsPane.setLayout(new BoxLayout(tagsPane, BoxLayout.Y_AXIS));
 		tagsPane.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -291,10 +303,16 @@ class AnnotationDataUI
 		content.add(p, "2, "+i);
 		publishedRow = i;
 		i++;
+		
+		layout.insertRow(i, TableLayout.PREFERRED);
+		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(UIUtilities.setTextFont("rate", Font.BOLD, size));
+		p.add(createBar(unrateButton));
+		
+		content.add(p, "0, "+i);
 		p = UIUtilities.buildComponentPanel(rating, 0, 0);
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		layout.insertRow(i, TableLayout.PREFERRED);
-		content.add(UIUtilities.setTextFont("rate", Font.BOLD, size), "0, "+i);
 		content.add(p, "2, "+i);
 		i++;
 		layout.insertRow(i, TableLayout.PREFERRED);
@@ -522,8 +540,6 @@ class AnnotationDataUI
 		    selectedValue = model.getUserRating();
 		initialValue = selectedValue;
 		rating.setValue(selectedValue);
-
-		
 		publishedBox.setSelected(model.hasBeenPublished());
 		//Add attachments
 		layoutAttachments(model.getAttachments());
