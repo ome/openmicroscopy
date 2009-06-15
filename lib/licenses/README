@@ -85,8 +85,7 @@
 
 
   Artifacts:    batik-*.jar
-  Project:      The Apache Batik SVG Toolkit.  We don't use this software directly,
-  		but it is required by the FOP library.
+  Project:      The Apache Batik SVG Toolkit.
   Web Site:     http://xml.apache.org/batik/
   License:      Apache Software License, Version 1.1
   License File: apache-v1.1.txt
