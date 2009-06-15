@@ -324,6 +324,8 @@ public class EditorTextComponent
 	 * order to preserve the current location of the caret position. 
 	 * After delegating to the superclass {@link #setText(String)} method, the
 	 * caret position is reset. 
+	 * Setting caret has no effect if this panel does not have focus, BUT  
+ 	 * setText() is often called by editing and clicking within the editor. 
 	 * 
 	 * @see JEditorPane#setText(String)
 	 */
@@ -335,7 +337,7 @@ public class EditorTextComponent
 		try {
 			setCaretPosition(caret);
 		} catch (IllegalArgumentException ex) {
-			setCaretPosition(1);
+			setCaretPosition(0);	// if there is no text, this must be 0 
 		}
 		
 		// update the Map of paramLocations

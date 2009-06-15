@@ -76,8 +76,16 @@ public class BooleanParam
 		return text;
 	}
 	
+	/** 
+ 	 * Overridden to set the value as a boolean. 
+ 	 * @see AbstractParam#setValueAt(int, Object) 
+ 	 */ 
 	public void setValueAt(int index, Object value) 
 	{
+		if (value == null) { 
+		 	super.setValueAt(index, null); 
+		 	return; 
+		} 
 		Boolean b = Boolean.valueOf(value.toString());
 		super.setValueAt(index, b);
 	}
