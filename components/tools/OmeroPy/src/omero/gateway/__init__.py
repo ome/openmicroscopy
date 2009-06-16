@@ -903,9 +903,9 @@ def safeCallWrap (self, attr, f): #pragma: no cover
             raise
         except omero.SecurityViolation:
             raise
-        except Ice.MemoryLimitException:
-            raise
         except omero.ApiUsageException:
+            raise
+        except Ice.MemoryLimitException:
             raise
         except Ice.Exception, x:
             # Failed
@@ -942,7 +942,7 @@ def safeCallWrap (self, attr, f): #pragma: no cover
             logger.debug("SecurityViolation, bailing out")
             raise
         except omero.ApiUsageException:
-            logger.debug("ApiUsageException, not much we can do, abort")
+            logger.debug("ApiUsageException, bailing out")
             raise
         except Ice.Exception:
             logger.debug("exception caught, first time we back off for 10 secs")
@@ -1719,32 +1719,6 @@ class DetailsWrapper (BlitzObjectWrapper):
     def getGroup (self):
         return self._group
 
-#class ColorWrapper (BlitzObjectWrapper):
-#    RED = 'Red'
-#    GREEN = 'Green'
-#    BLUE = 'Blue'
-#    DEFAULT_ALPHA = rint(255)
-#    @classmethod
-#    def new (klass, conn, colorname=None):
-#        color = klass(conn, omero.model.ColorI())
-#        if colorname is not None:
-#            color.setAlpha(klass.DEFAULT_ALPHA)
-#            for cname in (klass.RED, klass.GREEN, klass.BLUE):
-#                getattr(color, 'set'+cname)(cname == colorname and rint(255) or rint(0))
-#        return color
-#
-#    def getHtml (self):
-#        """ Return the html usable color. Dumps the alpha information. """
-#        return "%0.2X%0.2X%0.2X" % (self.red,self.green,self.blue)
-#
-#    def getCss (self):
-#        """ Return rgba(r,g,b,a) for this color """
-#        return "rgba(%i,%i,%i,%0.3f)" % (self.red,self.green,self.blue, self.alpha/255.0)
-#
-#    def getRGB (self):
-#        """ Return a list of (r,g,b) values """
-#        return (self.red, self.green, self.blue)
-
 class ColorHolder (object):
     """
     Stores color internally as (R,G,B,A) and allows setting and getting in multiple formats
@@ -1765,15 +1739,6 @@ class ColorHolder (object):
         rv.setBlue(b)
         rv.setAlpha(a)
         return rv
-
-    #@classmethod
-    #def fromChannel(klass,c):
-    #    rv = klass()
-    #    rv.setRed(c.getRed())
-    #    rv.setGreen(c.getGreen())
-    #    rv.setBlue(c.getBlue())
-    #    rv.setAlpha(c.getAlpha())
-    #    return rv
 
     def getRed (self):
         return self._color['red']
@@ -1882,13 +1847,6 @@ class ChannelWrapper (BlitzObjectWrapper):
 
     def getColor (self):
         return ColorHolder.fromRGBA(*self._re.getRGBA(self._idx))
-        #r,g,b,a = self._re.getRGBA(self._idx)
-        #color = omero.model.ColorI()
-        #color.setRed(rint(r))
-        #color.setGreen(rint(g))
-        #color.setBlue(rint(b))
-        #color.setAlpha(rint(a))
-        #return ColorWrapper(self._conn, color)
 
     def getWindowStart (self):
         return int(self._re.getChannelWindowStart(self._idx))
@@ -1946,13 +1904,6 @@ class _ImageWrapper (BlitzObjectWrapper):
     
     PLANEDEF = omero.romio.XY
 
-    #def _setWorldReadRecursive (self, val):
-    #    self.getDetails().permissions.setWorldRead(val)
-    #    self.save()
-    #    for c in self.getChannels():
-    #        c.getDetails().permissions.setWorldRead(val)
-    #        c.save()
-
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Image'
         self.LINK_CLASS = None
@@ -1968,6 +1919,20 @@ class _ImageWrapper (BlitzObjectWrapper):
             self.__loadedHotSwap__()
         return self._obj.sizeOfPixels() > 0
 
+    def _prepareRE (self):
+        re = self._conn.createRenderingEngine()
+        pixels_id = self._obj.getPrimaryPixels().id.val
+        re.lookupPixels(pixels_id)
+        if re.lookupRenderingDef(pixels_id) == False: #pragma: no cover
+            try:
+                re.resetDefaults()
+            except omero.ResourceError:
+                # broken image
+                return False
+            re.lookupRenderingDef(pixels_id)
+        re.load()
+        return re
+
     def _prepareRenderingEngine (self):
         self._loadPixels()
         if self._re is None:
@@ -1975,46 +1940,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                 return False
             if self._pd is None:
                 self._pd = omero.romio.PlaneDef(self.PLANEDEF)
-            if self._re is None:
-                self._re = self._conn.createRenderingEngine()
-                pixels_id = self._obj.getPrimaryPixels().id.val
-                self._re.lookupPixels(pixels_id)
-                if self._re.lookupRenderingDef(pixels_id) == False: #pragma: no cover
-                    try:
-                        self._re.resetDefaults()
-                    except omero.ResourceError:
-                        # broken image
-                        return False
-                    self._re.lookupRenderingDef(pixels_id)
-                details = self.getDetails()
-                ps = self._conn.getPixelsService()
-                rdefs = ps.retrieveAllRndSettings(pixels_id, details.getOwner().id)
-                if len(rdefs) > 0:
-                    logger.debug('loading rdef %i for pixels %i, img %i' % (rdefs[0].id.val, pixels_id, self.id))
-                    self._re.loadRenderingDef(rdefs[0].id.val)
-                else:
-                    if self._conn.isAdmin():
-                        p = omero.sys.Principal()
-                        p.name = details.getOwner().omeName
-                        p.group = details.getGroup().name
-                        p.eventType = "User"
-                        newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
-                        newConn = self._conn.clone()
-                        newConn.connect(sUuid=newConnId.getUuid().val)
-
-                        tb = newConn.createThumbnailStore()
-                        if not tb.setPixelsId(pixels_id): #pragma: no cover
-                            tb.resetDefaults()
-                            tb.setPixelsId(pixels_id)
-                        newConn.seppuku()
-                        rdefs = ps.retrieveAllRndSettings(pixels_id, self.getDetails().getOwner().id)
-                    if len(rdefs) > 0:
-                        self._re.loadRenderingDef(rdefs[0].id.val)
-                        logger.debug('created and loaded rdef %i for pixels %i, img %i' % (rdefs[0].id.val, pixels_id, self.id))
-                    else:
-                        logger.debug('no author rdef for pixels %i, img %i' % (pixels_id, self.id))
-                self._re.load()
-        return True
+            self._re = self._prepareRE()
+        return self._re is not None
 
     def simpleMarshal (self, xtra=None, parents=False):
         rv = super(_ImageWrapper, self).simpleMarshal(xtra=xtra, parents=parents)
@@ -2087,20 +2014,22 @@ class _ImageWrapper (BlitzObjectWrapper):
 #            self._date = "Today"
 #            return "Today"
 
+    def _prepareTB (self):
+        if not self._loadPixels():
+            return None
+        pixels_id = self._obj.getPrimaryPixels().getId().val
+        tb = self._conn.createThumbnailStore()
+        if not tb.setPixelsId(pixels_id): #pragma: no cover
+            tb.resetDefaults()
+            tb.close()
+            tb.setPixelsId(pixels_id)
+        return tb
+
     def getThumbnail (self, size=(64,64)):
         try:
-            if not self._loadPixels():
+            tb = self._prepareTB()
+            if tb is None:
                 return None
-            pixels_id = self._obj.getPrimaryPixels().getId().val
-            tb = self._conn.createThumbnailStore()
-            if not tb.setPixelsId(pixels_id): #pragma: no cover
-                tb.resetDefaults()
-                tb.close()
-                tb.setPixelsId(pixels_id)
-            ps = self._conn.getPixelsService()
-            rdefs = ps.retrieveAllRndSettings(pixels_id, self.getDetails().getOwner().id)
-            if len(rdefs) > 0:
-                tb.setRenderingDefId(rdefs[0].id.val)
             if isinstance(size, IntType):
                 size = (size,)
             if len(size) == 1:
@@ -2210,13 +2139,6 @@ class _ImageWrapper (BlitzObjectWrapper):
     @assert_re
     def getRenderingModel (self):
         return BlitzObjectWrapper(self._conn, self._re.getModel())
-
-#    @assert_re
-#    def setRenderingModel (self, model_idx):
-#        models = self.getRenderingModels()
-#        if model_idx < len(models):
-#            self._re.setModel(models[model_idx]._obj)
-#        return True
 
     def setGreyscaleRenderingModel (self):
         """
