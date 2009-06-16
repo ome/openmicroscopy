@@ -133,8 +133,7 @@ public class EditorUtil
     
     /** Text describing the <code>Private</code> permission. */
     public static final String	PRIVATE = "private";
-    
-    
+
 	/** Text displayed before the list of existing groups. */
 	public static final String	GROUPS = "Belongs to the following groups: ";
     
@@ -196,7 +195,7 @@ public class EditorUtil
     public static final String  EX_WAVE = "Excitation";
     
     /** Identifies the <code>Pin hole size</code> field. */
-    public static final String  PIN_HOLE_SIZE = "Pin hole size "+MICRONS;
+    public static final String  PIN_HOLE_SIZE = "Pinhole size "+MICRONS;
     
     /** Identifies the <code>ND filter</code> field. */
     public static final String  ND_FILTER = "ND Filter "+PERCENT;
@@ -957,7 +956,7 @@ public class EditorUtil
     	if (f < 0) {
     		f = 0;
         	notSet.add(PIN_HOLE_SIZE);
-    	}
+    	} else f = UIUtilities.roundTwoDecimals(f);
         details.put(PIN_HOLE_SIZE, f);
         s = data.getFluor();
 		if (s == null || s.trim().length() == 0) 
@@ -1438,10 +1437,12 @@ public class EditorUtil
     	if (plane != null) {
     		RDouble o = plane.getDeltaT();
     		if (o != null) 
-    			details.put(DELTA_T, o.getValue());	
+    			details.put(DELTA_T, 
+    					UIUtilities.roundTwoDecimals(o.getValue()));	
     		o = plane.getExposureTime();
     		if (o != null) 
-    			details.put(EXPOSURE_TIME, o.getValue());
+    			details.put(EXPOSURE_TIME, 
+    					UIUtilities.roundTwoDecimals(o.getValue()));
     		o = plane.getPositionX();
     		if (o != null) 
     			details.put(POSITION_X, o.getValue());

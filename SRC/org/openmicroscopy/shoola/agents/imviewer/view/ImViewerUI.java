@@ -1180,12 +1180,18 @@ class ImViewerUI
 			int m = getProjectionEndZ();
 			text += "Z range:"+(n+1);
 			text += "-"+(getProjectionEndZ()+1);
-			text += " ("+n*d+"-"+m*d+" "+EditorUtil.MICRONS_NO_BRACKET+")";
+			if (d > 0)
+				text += " ("+UIUtilities.roundTwoDecimals(n*d)+"-"+
+				UIUtilities.roundTwoDecimals(m*d)+" "+
+				EditorUtil.MICRONS_NO_BRACKET+")";
 			text += "/"+(model.getMaxZ()+1);
 		} else {
 			n = model.getDefaultZ();
-			text += "Z="+(n+1)+" ("+n*d+EditorUtil.MICRONS_NO_BRACKET+")/";
-			text += (model.getMaxZ()+1);
+			text += "Z="+(n+1);
+			if (d> 0) 
+				text += " ("+UIUtilities.roundTwoDecimals(n*d)+
+					EditorUtil.MICRONS_NO_BRACKET+")";
+			text += "/"+(model.getMaxZ()+1);
 		}
 		text += " T="+(model.getDefaultT()+1)+"/"+(model.getMaxT()+1);
 		setLeftStatus(text);

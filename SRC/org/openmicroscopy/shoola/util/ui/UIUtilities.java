@@ -1156,6 +1156,32 @@ public class UIUtilities
     }
     
     /**
+     * Rounds the passed value to two decimals after decimal point.
+     * 
+     * @param value 	The value to round.
+     * @return The rounded value.
+     */
+    public static double roundTwoDecimals(double value)
+    {
+    	return round(value, 2);
+    }
+    
+    /**
+     * Rounds the passed value to the specifed number of decimals.
+     * 
+     * @param value 	The value to round.
+     * @param decimal 	The number of figures after decimal point.
+     * @return The rounded value.
+     */
+    public static double round(double value, int decimal)
+    {
+    	if (decimal <= 0) return value;
+    	double p = Math.pow(10, decimal);
+    	value = value*p;
+    	return Math.round(value)/p;
+    }
+    
+    /**
      * Returns the partial name of the image's name
      * 
      * @param originalName The original name.
