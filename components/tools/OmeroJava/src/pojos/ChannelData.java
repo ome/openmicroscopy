@@ -121,7 +121,9 @@ public class ChannelData
     	if (value != null && value.trim().length() != 0) return value;
     	value = getFluor(); 
     	if (value != null && value.trim().length() != 0) return value;
-    	return ""+getEmissionWavelength();
+    	int v = getEmissionWavelength();
+    	if (v > 0) return ""+v;
+    	return ""+index;
     }
     // Immutables
 
@@ -162,7 +164,7 @@ public class ChannelData
     	if (lc == null) return index;
     	RInt value  = lc.getEmissionWave();
 		if (value != null) return value.getValue();
-		return index;
+		return -1;//index;
     }
     
     /**
@@ -176,7 +178,7 @@ public class ChannelData
     	if (lc == null) return getEmissionWavelength();
     	RInt value = lc.getExcitationWave();
     	if (value != null) return value.getValue();
-    	return getEmissionWavelength();
+    	return -1;//getEmissionWavelength();
     }
     
     /**

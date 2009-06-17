@@ -319,10 +319,11 @@ public class FileAnnotationData extends AnnotationData {
         if (format.equals(MS_EXCEL)) {
             return SERVER_MS_EXCEL;
         }
-        if (format.equals(MS_POWER_POINT) || format.equals(MS_POWER_POINT_SHOW)) {
+        if (format.equals(MS_POWER_POINT) || 
+        		format.equals(MS_POWER_POINT_SHOW)) {
             return SERVER_MS_POWERPOINT;
         }
-        return null;
+        return SERVER_OCTET_STREAM;
         //throw new IllegalArgumentException("Format not supported.");
     }
 

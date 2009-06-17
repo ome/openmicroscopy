@@ -40,6 +40,14 @@ import omero.model.BooleanAnnotationI;
  */
 public class BooleanAnnotationData extends AnnotationData {
 
+	
+	/**
+     * The name space used to indicate that the tag is used a tag set.
+     */
+    public static final String INSIGHT_PUBLISHED_NS = 
+    	"openmicroscopy.org/omero/insight/published";
+    
+    
     /** Creates a new instance. */
     public BooleanAnnotationData() {
         super(BooleanAnnotationI.class);
