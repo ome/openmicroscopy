@@ -231,10 +231,10 @@ class XmlReport(object):
 		# check the xml is valid aginst it's schema
 		self.validateAgainstSchema()
 		
-		if len(self.unresolvedList) is not 0 :
+		if len(self.unresolvedList) != 0 :
 			self.hasUnresolvableIds = True
 		
-		if self.isXsdValid is True and len(self.errorList) is 0 :
+		if self.isXsdValid is True and len(self.errorList) == 0 :
 			self.isOmeXml = True
 	
 	def validateAgainstSchema(self):
@@ -775,17 +775,21 @@ class NamespaceSearcher(sax.ContentHandler):
 ### Test code below this line ###
 
 if __name__ == '__main__':
-	for aFilename in ["samples/completesamplenopre.xml","samples/completesample.xml","samples/completesamplenoenc.xml",
- 			"samples/sdub.ome", "samples/sdub-fix.ome", "samples/sdub-fix-pre.ome", 
- 			"samples/tiny.ome", "samples/broke.ome",
-			"samples/tiny2008-02-V1.ome", "samples/tiny2008-09-V1.ome"]:
-			print "============ XML file %s ============ " % aFilename
-			print XmlReport.validateFile(aFilename)
+##	for aFilename in ["samples/completesamplenopre.xml","samples/completesample.xml","samples/completesamplenoenc.xml",
+##			"samples/sdub.ome", "samples/sdub-fix.ome", "samples/sdub-fix-pre.ome", 
+##			"samples/tiny.ome", "samples/broke.ome",
+##			"samples/tiny2008-02-V1.ome", "samples/tiny2008-09-V1.ome"]:
+##			print "============ XML file %s ============ " % aFilename
+##			print XmlReport.validateFile(aFilename)
 	
 	
-	for aFilename in ["samples/4d2wOME.tif", "samples/4d2wOME-fixed.tif",
-	 	"samples/4d2wOME-fixed-updated.tif", "samples/blank.tif",
-		"samples/ome.xsd", "samples/4d2wOME-EdExtra.tif"]:
+##	for aFilename in ["samples/4d2wOME.tif", "samples/4d2wOME-fixed.tif",
+##		"samples/4d2wOME-fixed-updated.tif", "samples/blank.tif",
+##		"samples/ome.xsd", "samples/4d2wOME-EdExtra.tif"]:
+##		print "============ XML file %s ============ " % aFilename
+##		print XmlReport.validateTiff(aFilename)
+
+	for aFilename in ["samples/bad-volFig5B.ome.tiff"]:
 		print "============ XML file %s ============ " % aFilename
 		print XmlReport.validateTiff(aFilename)
 	
