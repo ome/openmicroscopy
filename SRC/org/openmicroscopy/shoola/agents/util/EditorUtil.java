@@ -935,13 +935,13 @@ public class EditorUtil
 			notSet.add(NAME);
         details.put(NAME, s);
         int i = data.getEmissionWavelength();
-        if (i < 0) {
+        if (i <= 0) {
         	i = 0;
         	notSet.add(EM_WAVE);
-        }
-    	details.put(EM_WAVE, i);
+        } 
+        details.put(EM_WAVE, i);
     	i = data.getExcitationWavelength();
-        if (i < 0) {
+        if (i <= 0) {
         	i = 0;
         	notSet.add(EX_WAVE);
         }
