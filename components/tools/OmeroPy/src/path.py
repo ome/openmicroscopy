@@ -13,6 +13,19 @@ This module requires Python 2.2 or later.
 URL:     http://www.jorendorff.com/articles/python/path
 Author:  Jason Orendorff <jason.orendorff\x40gmail\x2ecom> (and others - see the url!)
 Date:    9 Mar 2007
+
++------------------------------------------------------------------------------------+
+Added by Colin Blackburn 17 Jun 2009
+
+The above url is dead and development of path.py has ceased. This copy of path.py 
+is  now maintained by the OMERO developers.
+
+Fo reference, the original package is now available from:
+http://pypi.python.org/pypi/path.py/2.2
+
+Notes:
+The functionality of the method read_md5() has been removed from this copy. 
+This is due to the changes in the hash libraries between Python 2.4 and 2.5.
 """
 
 
