@@ -231,10 +231,10 @@ class XmlReport(object):
 		# check the xml is valid aginst it's schema
 		self.validateAgainstSchema()
 		
-		if len(self.unresolvedList) is not 0 :
+		if len(self.unresolvedList) != 0 :
 			self.hasUnresolvableIds = True
 		
-		if self.isXsdValid is True and len(self.errorList) is 0 :
+		if self.isXsdValid is True and len(self.errorList) == 0 :
 			self.isOmeXml = True
 	
 	def validateAgainstSchema(self):
