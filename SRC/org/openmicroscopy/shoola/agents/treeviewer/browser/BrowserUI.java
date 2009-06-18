@@ -1520,5 +1520,23 @@ class BrowserUI
 		Set nodes = createFileSystemExplorer();
 		setExperimenterData(nodes, root);
 	}
+
+	/**
+	 * Reloads the specified node.
+	 * 
+	 * @param node The node to reload.
+	 */
+	void reloadContainer(TreeImageDisplay node)
+	{
+		if (node == null) return;
+		node.removeAllChildren();
+		node.removeAllChildrenDisplay();
+		node.setChildrenLoaded(Boolean.FALSE);
+		buildEmptyNode(node);
+		treeDisplay.collapsePath(new TreePath(node.getPath()));
+        treeDisplay.expandPath(new TreePath(node.getPath()));
+		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+		tm.reload(node);
+	}
 	
 }

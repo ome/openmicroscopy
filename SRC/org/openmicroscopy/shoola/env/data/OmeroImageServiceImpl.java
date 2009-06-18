@@ -523,7 +523,7 @@ class OmeroImageServiceImpl
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No images to import.");
-		Object object = gateway.importImage(file);
+		Object object = gateway.importImage(container, file);
 		if (!(object instanceof ImageData)) return object;
 		
 		ImageData image = (ImageData) object;

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JFrame;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
@@ -779,17 +780,24 @@ public interface TreeViewer
 	/** Shows or hides the Tree Viewer. */
 	public void setInspectorVisibility();
 
-	/** Imports the selected files. */
-	void importFiles();
+	/** 
+	 * Imports the selected files. 
+	 * 
+	 * @param files The files to import.
+	 */
+	void importFiles(File[] files);
 	
 	/**
 	 * Sets the imported file.
 	 * 
-	 * @param key   The imported file.
-	 * @param value The corresponding internal object.
-	 * @param nodes The nodes to refresh.
+	 * @param key   	The imported file.
+	 * @param value 	The corresponding internal object.
+	 * @param nodes 	The nodes to refresh.
+	 * @param container The container where the files are linked to or 
+	 * 					<code>null</code>.
 	 */
-	void setFileImported(File key, Object value, List<TreeImageDisplay> nodes);
+	void setFilesImported(File key, Object value, List<TreeImageDisplay> nodes,
+			DataObject container);
 
 	/**
 	 * Returns <code>true</code> if there is an on-going import.
@@ -814,5 +822,11 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public Collection getDisplayedImages();
-	
+
+	/**
+	 * Returns the list of the supported file formats.
+	 * 
+	 * @return See above.
+	 */
+	public List<FileFilter> getSupportedFormats();
 }

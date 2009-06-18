@@ -29,11 +29,15 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.fsimporter.LoadFSImporter;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+
+import javax.swing.JFileChooser;
+
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -91,6 +95,9 @@ public class CreateCmd
     /** Flag indicating if the node to create has a parent. */
     private boolean		withParent;
     
+    /** Flag indicating to bring up or not a filer chooser. */
+    private boolean		chooser;
+    
     /**
      * Checks that the specified type is currently supported
      * and returns the corresponding <code>DataObject</code>.
@@ -118,12 +125,15 @@ public class CreateCmd
      * 
      * @param model     Reference to the model. Mustn't be <code>null</code>.
      * @param type      One of the constants defined by this class.
+     * @param chooser	Pass <code>true</code> to bring up a file chooser.
+     * 					<code>false</code> otherwise.
      */
-    public CreateCmd(TreeViewer model, int type)
+    public CreateCmd(TreeViewer model, int type, boolean chooser)
     {
         if (model == null) throw new IllegalArgumentException("No model.");
         userObject = checkNodeType(type);
         this.model = model;
+        this.chooser = chooser;
         withParent = true;
     }
     
@@ -152,10 +162,27 @@ public class CreateCmd
             	bus.post(new LoadFSImporter((DatasetData) object));
         	}
         	*/
-        	model.importFiles();
+        	if (chooser) {
+        		FileChooser chooser = new FileChooser(model.getUI(),
+        				FileChooser.IMPORT, "Import images",
+        			"Select the images to import", model.getSupportedFormats(), 
+        			true);
+        		int option = chooser.centerDialog();
+        		if (option == JFileChooser.APPROVE_OPTION) {
+        			File[] files = new File[1];
+        			files[0] = chooser.getSelectedFile();
+        			System.err.println(chooser.getSelectedFiles().length);
+        			model.importFiles(files);
+        			chooser.setVisible(false);
+        			//chooser.dispose();
+        		}
+        	} else {
+        		model.importFiles(null);
+        	}
+        	
         } else {
         	model.createDataObject(userObject, withParent);
         }	
     }
-    
+
 }

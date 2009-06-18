@@ -874,6 +874,18 @@ class TreeViewerModel
 	}
 	
 	/**
+	 * Fires an asynchronous call to import the specified files.
+	 * 
+	 * @param node The node hosting the container to import the image into.
+	 * @param files The files to import.
+	 */
+	void importFiles(TreeImageDisplay node, List<Object> files)
+	{
+		ImagesImporter loader = new ImagesImporter(component, node, files);
+		loader.load();
+	}
+	
+	/**
 	 * Returns <code>true</code> if the file can be imported,
 	 * <code>false</code> otherwise.
 	 * 
@@ -886,11 +898,17 @@ class TreeViewerModel
 		if (f.isHidden()) return false;
 		if (!f.canRead()) return false;
 		if (!f.exists()) return false;
-		
+		Browser b = getSelectedBrowser();
+		/*
 		Browser b = getBrowser(Browser.FILE_SYSTEM_EXPLORER);
 		//already imported
 		if (b.isFileImported(f.getAbsolutePath()))
 			return false;
+			*/
+		if (b != null && b.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER
+				&& b.isFileImported(f.getAbsolutePath()))
+			return false;
+		
 		String path = f.getAbsolutePath();
     	path = path.toLowerCase();
     	if (path.endsWith(OmeroImageService.ZIP_EXTENSION)) return true;

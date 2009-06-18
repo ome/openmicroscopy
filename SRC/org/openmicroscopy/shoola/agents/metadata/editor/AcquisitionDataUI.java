@@ -114,6 +114,9 @@ class AcquisitionDataUI
 	/** The component hosting the image info. */
 	private JXTaskPane 							imagePane;
 	
+	/** The component hosting the instrument info. */
+	private JXTaskPane 							instrumentPane;
+	
 	/** Collection of components hosting the channel. */
 	private List<ChannelAcquisitionComponent> 	channelComps;
 	
@@ -135,6 +138,7 @@ class AcquisitionDataUI
 		imagePane.add(imageAcquisition);
 		imagePane.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
+		instrumentPane = EditorUtil.createTaskPane("Instrument");
 	}
 	
 	/** Builds and lays out the components. */
@@ -145,10 +149,13 @@ class AcquisitionDataUI
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new BorderLayout(0, 0));
 		constraints = new GridBagConstraints();
+		constraints.gridy = 0;
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.anchor = GridBagConstraints.WEST;
 		constraints.insets = new Insets(0, 2, 2, 0);
 		constraints.weightx = 1.0;
+        container.add(instrumentPane, constraints);
+        constraints.gridy++;
         container.add(imagePane, constraints);
         add(container, BorderLayout.NORTH);
 	}
@@ -160,10 +167,10 @@ class AcquisitionDataUI
 		if (n == 0) return;
 		Component[] comps = container.getComponents();
 		for (int i = 0; i < comps.length; i++) {
-			if (comps[i] != imagePane)
+			if (comps[i] != imagePane && comps[i] != instrumentPane)
 				container.remove(comps[i]);
 		}
-		constraints.gridy = 1;
+		constraints.gridy = 2;
         Iterator<JXTaskPane> i = channelAcquisitionPanes.keySet().iterator();
         while (i.hasNext()) {
             ++constraints.gridy;

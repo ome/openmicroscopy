@@ -69,6 +69,9 @@ public class ImagesImporter
     /** The id of the group is logged as. */
     private long 		 groupID;
     
+    /** The container the images have to be downloaded into. */
+    private DataObject	container;
+    
     /** 
      * Map of result, key is the file to import, value is an object or a
      * string. 
@@ -85,7 +88,7 @@ public class ImagesImporter
     	partialResult = new HashMap<File, Object>();
     	OmeroImageService os = context.getImageService();
     	try {
-    		Object ho = os.importImage(null, f, userID, groupID);
+    		Object ho = os.importImage(container, f, userID, groupID);
     		partialResult.put(f, ho);
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -180,6 +183,7 @@ public class ImagesImporter
     	this.userID = userID;
     	this.groupID = groupID;
     	this.images = images;
+    	this.container = container;
     	//loadCall = makeBatchCall(container, images, userID, groupID);
     }
     

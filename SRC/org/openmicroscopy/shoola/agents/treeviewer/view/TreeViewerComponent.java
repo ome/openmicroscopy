@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
@@ -2123,46 +2124,70 @@ class TreeViewerComponent
 		view.setInspectorVisibility();
 	}
 	
+	private void prepareFile(List<Object> l, File f, int total)
+	{
+		File child;
+		File[] list;
+		if (f.isFile() && model.isFileImportable(f)) {
+			l.add(f);
+		} else if (f.isDirectory() && !f.isHidden()) {
+			list = f.listFiles();
+			total += list.length;
+			for (int k = 0; k < list.length; k++) {
+				child = list[k];
+				if (child.isFile() && model.isFileImportable(child))
+					l.add(child);
+			}
+		}
+	}
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#importFiles()
+	 * @see TreeViewer#importFiles(File[])
 	 */
-	public void importFiles()
+	public void importFiles(File[] files)
 	{
 		if (model.getState() == DISCARDED) return;
 		Browser browser = model.getSelectedBrowser();
-		if (browser.getBrowserType() != Browser.FILE_SYSTEM_EXPLORER)
-			return;
-		TreeImageDisplay[] nodes = browser.getSelectedDisplays();
-		if (nodes == null) return;
+		int type = browser.getBrowserType();
 		List<Object> l = new ArrayList<Object>();
+		int total = 0;
+
 		List<TreeImageDisplay> parents = new ArrayList<TreeImageDisplay>();
-		Object ho;
-		TreeImageDisplay n, parent;
-		File f, child;
-		File[] list;
-		int total = nodes.length;
-		for (int i = 0; i < nodes.length; i++) {
-			n = nodes[i];
-			parent = n.getParentDisplay();
-			if (parent != null && !parents.contains(parent))
-				parents.add(parent);
-			ho = n.getUserObject();
-			if (ho instanceof File) {
-				f = (File) ho;
-				if (f.isFile() && model.isFileImportable(f)) {
-					l.add(f);
-				} else if (f.isDirectory() && !f.isHidden()) {
-					list = f.listFiles();
-					total += list.length;
-					for (int k = 0; k < list.length; k++) {
-						child = list[k];
-						if (child.isFile() && model.isFileImportable(child))
-							l.add(child);
-					}
+		TreeImageDisplay node = null;
+		if (type == Browser.PROJECT_EXPLORER || 
+				type == Browser.SCREENS_EXPLORER) {
+			//File chooser import.
+			node = browser.getLastSelectedDisplay();
+			if (files != null) {
+				total = files.length;
+				for (int i = 0; i < files.length; i++) {
+					prepareFile(l, files[i], total);
 				}
 			}
-		}
+		} else if (type == Browser.FILE_SYSTEM_EXPLORER) {
+			TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+			if (nodes == null) return;
+			
+			Object ho;
+			TreeImageDisplay n, parent;
+			File f;
+			total = nodes.length;
+			for (int i = 0; i < nodes.length; i++) {
+				n = nodes[i];
+				parent = n.getParentDisplay();
+				if (parent != null && !parents.contains(parent))
+					parents.add(parent);
+				ho = n.getUserObject();
+				if (ho instanceof File) {
+					f = (File) ho;
+					prepareFile(l, f, total);
+				}
+			}
+			
+		} else return;
+		
+		
 		
 		if (l.size() == 0) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
@@ -2181,15 +2206,17 @@ class TreeViewerComponent
 		if (!view.isImporterVisible())
 			view.setImporterVisibility(importManager.getUIDelegate(), true);
 		view.setImportStatus("Importing...", true);
-		model.importFiles(parents, l);
+		if (node == null)
+			model.importFiles(parents, l);
+		else model.importFiles(node, l);
 	}
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setFileImported(File, Object, List)
+	 * @see TreeViewer#setFilesImported(File, Object, List, DataObject)
 	 */
-	public void setFileImported(File key, Object value,
-			List<TreeImageDisplay> nodes)
+	public void setFilesImported(File key, Object value,
+			List<TreeImageDisplay> nodes, DataObject container)
 	{
 		if (model.getState() == DISCARDED) return;
 		if (importManager == null) return;
@@ -2209,7 +2236,16 @@ class TreeViewerComponent
 		}
 		boolean b = importManager.hasFilesToImport();
 		view.setImportStatus("Done", b);
-		if (nodes != null && !b) 
+		Browser selectedBrowser = model.getSelectedBrowser();
+		if (container instanceof DatasetData) {
+			
+			if (selectedBrowser != null && 
+					selectedBrowser.getBrowserType() == 
+						Browser.PROJECT_EXPLORER) {
+				browser = selectedBrowser;
+			} else browser = null;
+		}
+		if (browser != null && nodes != null && !b) 
 			browser.onImportFinished(nodes);
 	}
 
@@ -2232,6 +2268,16 @@ class TreeViewerComponent
 		if (model.getState() == DISCARDED) return false;
 		if (importManager == null) return false;
 		return view.setImporterVisibility(importManager.getUIDelegate(), false);
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#getSupportedFormats()
+	 */
+	public List<FileFilter> getSupportedFormats()
+	{
+		if (model.getState() == DISCARDED) return null;
+		return model.getSupportedFormats();
 	}
 	
 }

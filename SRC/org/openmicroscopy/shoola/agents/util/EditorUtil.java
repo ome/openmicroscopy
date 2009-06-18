@@ -102,6 +102,9 @@ public class EditorUtil
     
     /** Identifies the <code>First name</code> field. */
 	public static final String	FIRST_NAME = "First Name";
+	
+	 /** Identifies the <code>Middle name</code> field. */
+	public static final String	MIDDLE_NAME = "Middle Name";
 
     /** Identifies the <code>Last name</code> field. */
 	public static final String	INSTITUTION = "Institution";
@@ -136,9 +139,6 @@ public class EditorUtil
 
 	/** Text displayed before the list of existing groups. */
 	public static final String	GROUPS = "Belongs to the following groups: ";
-    
-    /** Identifies the <code>Wavelengths</code> field. */
-	public static final String	WAVELENGTHS = "Emissions wavelengths";
     
 	 /** Identifies the <code>Email</code> field. */
     public static final String	EMAIL = "E-mail";
@@ -189,16 +189,16 @@ public class EditorUtil
     public static final String  ACQUISITION_DATE = "Acquisition date";
     
     /** Identifies the <code>Emission wavelength</code> field. */
-    public static final String  EM_WAVE = "Emission";
+    public static final String  EMISSION_WAVELENGTH = "Emission";
     
     /** Identifies the <code>Excitation wavelength</code> field. */
-    public static final String  EX_WAVE = "Excitation";
+    public static final String  EXCITATION_WAVELENGTH = "Excitation";
     
     /** Identifies the <code>Pin hole size</code> field. */
     public static final String  PIN_HOLE_SIZE = "Pinhole size "+MICRONS;
     
     /** Identifies the <code>ND filter</code> field. */
-    public static final String  ND_FILTER = "ND Filter "+PERCENT;
+    public static final String  ND_FILTER = "NDFilter "+PERCENT;
     
     /** Identifies the <code>Fluor</code> field. */
     public static final String 	FLUOR = "Fluor";
@@ -265,6 +265,9 @@ public class EditorUtil
 	
 	/** Identifies the <code>Serial number</code> field. */
 	public static final String	SERIAL_NUMBER = "Serial Number";
+	
+	/** Identifies the <code>Lot number</code> field. */
+	public static final String	LOT_NUMBER = "Lot Number";
 	
 	/** Identifies the Stage label <code>Position X</code> field. */
 	public static final String	POSITION_X = "Position X";
@@ -493,7 +496,7 @@ public class EditorUtil
                 details.put(PIXEL_TYPE, ""); 
             }
         }
-        details.put(WAVELENGTHS, "");  
+        details.put(EMISSION_WAVELENGTH+" "+WAVELENGTH+"s", "");  
         return details;
     }
       
@@ -518,7 +521,7 @@ public class EditorUtil
             details.put(PIXEL_SIZE_Y, "");
             details.put(PIXEL_SIZE_Z, "");
             details.put(PIXEL_TYPE, "");  
-            details.put(WAVELENGTHS, "");
+            details.put(EMISSION_WAVELENGTH+" "+WAVELENGTH+"s", "");
             details.put(ACQUISITION_DATE, DATE_NOT_AVAILABLE);
             return details;
         }
@@ -552,7 +555,7 @@ public class EditorUtil
                 details.put(PIXEL_TYPE, ""); 
             }
         }
-        details.put(WAVELENGTHS, ""); 
+        details.put(EMISSION_WAVELENGTH+" "+WAVELENGTH+"s", ""); 
         Timestamp date = getAcquisitionTime(image);
         if (date == null) 
         	details.put(ACQUISITION_DATE, DATE_NOT_AVAILABLE);
@@ -907,8 +910,8 @@ public class EditorUtil
         		details = new LinkedHashMap<String, Object>(10);
         List<String> notSet = new ArrayList<String>();
         details.put(NAME, "");
-        details.put(EM_WAVE, Integer.valueOf(0));
-        details.put(EX_WAVE, Integer.valueOf(0));
+        details.put(EMISSION_WAVELENGTH, Integer.valueOf(0));
+        details.put(EXCITATION_WAVELENGTH, Integer.valueOf(0));
         details.put(ND_FILTER, Float.valueOf(0));
         details.put(PIN_HOLE_SIZE, Float.valueOf(0));
         details.put(FLUOR, "");
@@ -918,8 +921,8 @@ public class EditorUtil
         details.put(POCKEL_CELL_SETTINGS, Integer.valueOf(0));
         if (data == null) {
         	notSet.add(NAME);
-        	notSet.add(EM_WAVE);
-        	notSet.add(EX_WAVE);
+        	notSet.add(EMISSION_WAVELENGTH);
+        	notSet.add(EXCITATION_WAVELENGTH);
         	notSet.add(ND_FILTER);
         	notSet.add(PIN_HOLE_SIZE);
         	notSet.add(FLUOR);
@@ -935,17 +938,17 @@ public class EditorUtil
 			notSet.add(NAME);
         details.put(NAME, s);
         int i = data.getEmissionWavelength();
-        if (i <= 0) {
+        if (i <= 100) {
         	i = 0;
-        	notSet.add(EM_WAVE);
+        	notSet.add(EMISSION_WAVELENGTH);
         } 
-        details.put(EM_WAVE, i);
+        details.put(EMISSION_WAVELENGTH, i);
     	i = data.getExcitationWavelength();
-        if (i <= 0) {
+        if (i <= 100) {
         	i = 0;
-        	notSet.add(EX_WAVE);
+        	notSet.add(EXCITATION_WAVELENGTH);
         }
-    	details.put(EX_WAVE, i);
+    	details.put(EXCITATION_WAVELENGTH, i);
     	double f = data.getNDFilter();
     	if (f < 0) {
     		f = 0;
@@ -1008,6 +1011,7 @@ public class EditorUtil
     	details.put(MODEL, "");
     	details.put(MANUFACTURER, "");
     	details.put(SERIAL_NUMBER, "");
+    	details.put(LOT_NUMBER, "");
     	details.put(NOMINAL_MAGNIFICATION, Integer.valueOf(0));
     	details.put(CALIBRATED_MAGNIFICATION,Float.valueOf(0));
         details.put(LENSNA, new Float(0));
@@ -1022,6 +1026,7 @@ public class EditorUtil
         	notSet.add(MODEL);
         	notSet.add(MANUFACTURER);
         	notSet.add(SERIAL_NUMBER);
+        	notSet.add(LOT_NUMBER);
         	notSet.add(NOMINAL_MAGNIFICATION);
         	notSet.add(CALIBRATED_MAGNIFICATION);
         	notSet.add(LENSNA);
@@ -1052,6 +1057,11 @@ public class EditorUtil
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(SERIAL_NUMBER);
 		details.put(SERIAL_NUMBER, s);
+		
+		s = data.getSerialNumber(); //TODO
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(LOT_NUMBER);
+		details.put(LOT_NUMBER, s);
 		int i = data.getNominalMagnification();
 		if (i < 0) {
 			i = 0;
@@ -1224,6 +1234,7 @@ public class EditorUtil
     	details.put(MODEL, "");
     	details.put(MANUFACTURER, "");
     	details.put(SERIAL_NUMBER, "");
+    	details.put(LOT_NUMBER, "");
     	details.put(LIGHT_TYPE, "");
     	details.put(POWER, new Double(0));
     	details.put(TYPE, "");
@@ -1232,6 +1243,7 @@ public class EditorUtil
     		notSet.add(MODEL);
     		notSet.add(MANUFACTURER);
     		notSet.add(SERIAL_NUMBER);
+    		notSet.add(LOT_NUMBER);
     		notSet.add(LIGHT_TYPE);
     		notSet.add(POWER);
     		notSet.add(TYPE);
@@ -1251,6 +1263,11 @@ public class EditorUtil
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(SERIAL_NUMBER);
 		details.put(SERIAL_NUMBER, s);
+		s = data.getLightSourceSerialNumber();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(LOT_NUMBER);
+		details.put(LOT_NUMBER, s);
+		
     	s = data.getLightSourceKind();
     	details.put(LIGHT_TYPE, s);
     	double f = data.getLightSourcePower();
@@ -1325,6 +1342,7 @@ public class EditorUtil
     	details.put(MODEL, "");
     	details.put(MANUFACTURER, "");
     	details.put(SERIAL_NUMBER, "");
+    	details.put(LOT_NUMBER, "");
     	details.put(GAIN, new Double(0));
     	details.put(VOLTAGE, new Double(0));
         details.put(OFFSET, new Double(0));
@@ -1337,6 +1355,7 @@ public class EditorUtil
         	notSet.add(MODEL);
         	notSet.add(MANUFACTURER);
         	notSet.add(SERIAL_NUMBER);
+        	notSet.add(LOT_NUMBER);
         	notSet.add(GAIN);
         	notSet.add(VOLTAGE);
         	notSet.add(READ_OUT_RATE);
@@ -1359,6 +1378,11 @@ public class EditorUtil
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(SERIAL_NUMBER);
 		details.put(SERIAL_NUMBER, s);
+		s = data.getDetectorSerialNumber();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(LOT_NUMBER);
+		details.put(LOT_NUMBER, s);
+		
 		double f = data.getDetectorSettingsGain();
     	if (f > 0)  details.put(GAIN, f);
     	else {
@@ -1441,8 +1465,7 @@ public class EditorUtil
     					UIUtilities.roundTwoDecimals(o.getValue()));	
     		o = plane.getExposureTime();
     		if (o != null) 
-    			details.put(EXPOSURE_TIME, 
-    					UIUtilities.roundTwoDecimals(o.getValue()));
+    			details.put(EXPOSURE_TIME, o.getValue());
     		o = plane.getPositionX();
     		if (o != null) 
     			details.put(POSITION_X, o.getValue());

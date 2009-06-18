@@ -1297,10 +1297,35 @@ class BrowserComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		if (nodes == null) return;
+		//reload the node.
+		
+		Iterator<TreeImageDisplay> i = nodes.iterator();
+		TreeImageDisplay n;
+		Object ho;
+		
+		switch (model.getBrowserType()) {
+			case PROJECT_EXPLORER:
+				while (i.hasNext()) {
+					n = i.next();
+					ho = n.getUserObject();
+					if (ho instanceof DatasetData) {
+						view.reloadContainer(n);
+					}
+				}
+				break;
+	
+			default:
+				break;
+		}
+		
+			
+		
+		/*
 		if (model.getBrowserType() != FILE_SYSTEM_EXPLORER) return;
 		Iterator<TreeImageDisplay> i = nodes.iterator();
 		while (i.hasNext()) 
 			view.loadFile(i.next());
+			*/
 	}
 	
 	/**

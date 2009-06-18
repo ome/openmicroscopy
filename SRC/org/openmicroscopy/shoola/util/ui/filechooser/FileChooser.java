@@ -72,14 +72,17 @@ public class FileChooser
 	 */
 	public static final String	LOCATION_PROPERTY = "location";
 	
-	/** The user has selected to see the load dialog. */
+	/** Identifies the <code>Load</code> dialog. */
 	public static final int 	LOAD = 0;
 	
-	/** The user has selected to see the save dialog. */
+	/** Identifies the <code>Save</code> dialog. */
 	public static final int 	SAVE = 1;
 	
-	/** The user has selected to see the load dialog. */
+	/** Identifies the <code>Folder Chooser</code> dialog. */
 	public static final int 	FOLDER_CHOOSER = 2;
+	
+	/** Identifies the <code>Import</code> dialog. */
+	public static final int 	IMPORT = 3;
 	
 	/** Indicates to add the button to the left of the controls. */
 	public static final int 	LEFT = 100;
@@ -151,6 +154,7 @@ public class FileChooser
 			case SAVE:
 			case LOAD:
 			case FOLDER_CHOOSER:
+			case IMPORT:
 				return;
 			default:
 				throw new IllegalArgumentException("Type not supported");
@@ -211,6 +215,7 @@ public class FileChooser
        	uiDelegate = new FileSaverUI(this, accept);
         pack();
     }
+    
     /**
      * Creates a new instance.
      * 
@@ -423,6 +428,16 @@ public class FileChooser
     	return uiDelegate.getSelectedFile();
     }
 
+	/**
+	 * Returns the selected files.
+	 * 
+	 * @return See above.
+	 */
+	public File[] getSelectedFiles()
+	{
+		return uiDelegate.getSelectedFiles();
+	}
+    
     /**
      * Returns the selected file with the file format extension added 
      * to it e.g. myfile.csv if the CVS filter is selected.

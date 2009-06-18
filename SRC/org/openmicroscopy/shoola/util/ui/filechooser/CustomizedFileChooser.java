@@ -117,6 +117,11 @@ class CustomizedFileChooser
 				setDialogType(SAVE_DIALOG);
 				setFileSelectionMode(FILES_ONLY);
 				break;
+			case FileChooser.IMPORT:
+				setDialogType(SAVE_DIALOG);
+				setFileSelectionMode(FILES_AND_DIRECTORIES);
+				setMultiSelectionEnabled(true);
+				break;
 			case FileChooser.LOAD:
 				label = (JLabel) UIUtilities.findComponent(this, JLabel.class);
 				if (label != null)

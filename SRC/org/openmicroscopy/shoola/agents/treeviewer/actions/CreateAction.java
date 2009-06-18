@@ -71,9 +71,6 @@ public class CreateAction
     /** The name of the action for the creation of a <code>Tag</code>. */
     private static final String NAME_TAG = "New Tag...";
     
-    /** The name of the action for the creation of a <code>Plate</code>. */
-    private static final String NAME_PLATE = "New Plate...";
-    
    /** The name of the action for the creation of a <code>Image</code>. */
     private static final String NAME_IMAGE = "Import...";
     
@@ -88,13 +85,7 @@ public class CreateAction
      */
     private static final String DESCRIPTION_DATASET = "Create a new Dataset " +
     		"and add it to the selected Project.";
- 
-    /** 
-     * Description of the action if the selected node is a <code>Screen</code>.
-     */
-    private static final String DESCRIPTION_PLATE = "Create a new Plate " +
-    		"and add it to the selected Screen.";
-    
+
     /** 
      * Description of the action if the selected node is a <code>Image</code>.
      */
@@ -106,6 +97,12 @@ public class CreateAction
     
     /** The type of node to create. */
     private int nodeType;
+    
+    /** 
+     * Flag indicating to bring a file chooser, <code>false</code>
+     * otherwise.
+     */
+    private boolean chooser;
     
     /** 
      * Sets the action enabled dependong on the state of the {@link Browser}.
@@ -133,6 +130,7 @@ public class CreateAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+    	chooser = true;
         IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
         if (selectedDisplay == null) {
@@ -156,15 +154,31 @@ public class CreateAction
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
         } else if (ho instanceof ScreenData) {
+        	/*
         	 setEnabled(model.isObjectWritable(ho));
              name = NAME_PLATE; 
              nodeType = CreateCmd.PLATE;
             
              putValue(Action.SHORT_DESCRIPTION, 
                      UIUtilities.formatToolTipText(DESCRIPTION_PLATE));
+                     */
+        	TreeImageDisplay[] nodes = 
+        		model.getSelectedBrowser().getSelectedDisplays();
+        	if (nodes != null && nodes.length == 1)
+        		setEnabled(model.isObjectWritable(ho) && !model.isImporting());
+        	else setEnabled(false);
+            nodeType = CreateCmd.IMAGE;
+            putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
+            name = NAME_IMAGE;
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
         } else if (ho instanceof DatasetData) {
-            //setEnabled(model.isObjectWritable(ho));
-            setEnabled(false);
+        	TreeImageDisplay[] nodes = 
+        		model.getSelectedBrowser().getSelectedDisplays();
+        	if (nodes != null && nodes.length == 1)
+        		setEnabled(model.isObjectWritable(ho)
+        				&& !model.isImporting());
+        	else setEnabled(false);
             nodeType = CreateCmd.IMAGE;
             putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
             name = NAME_IMAGE;
@@ -186,6 +200,7 @@ public class CreateAction
                         UIUtilities.formatToolTipText(DESCRIPTION));
         	} 
         } else if (ho instanceof File) {
+        	chooser = false;
         	setEnabled(!model.isImporting());
         	nodeType = CreateCmd.IMAGE;
             putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
@@ -230,7 +245,7 @@ public class CreateAction
      */
     public void actionPerformed(ActionEvent e)
     {
-       CreateCmd cmd = new CreateCmd(model, nodeType);
+       CreateCmd cmd = new CreateCmd(model, nodeType, chooser);
        cmd.execute();
     }
 

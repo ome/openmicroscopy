@@ -82,6 +82,10 @@ class FileSaverUI
 	static final String 			DOWNLOAD = "Download the current file in" +
 											" the selected folder."; 
 	
+	/** The tool tip of the <code>Approve</code> button. */
+	static final String 			IMPORT = "Import the selected files or " +
+			"folders."; 
+	
 	/** 
 	 * The size of the invisible components used to separate buttons
 	 * horizontally.
@@ -169,6 +173,12 @@ class FileSaverUI
 				approveButton.setText("Download");
 				approveButton.setToolTipText(
 						UIUtilities.formatToolTipText(DOWNLOAD));
+				break;
+			case FileChooser.IMPORT:
+				approveButton.setText("Import");
+				approveButton.setToolTipText(
+						UIUtilities.formatToolTipText(IMPORT));
+				
 		}
 		chooser.setApproveButtonText(approveButton.getText());
 		chooser.setApproveButtonToolTipText(approveButton.getToolTipText());
@@ -230,7 +240,8 @@ class FileSaverUI
 		fillControlButtonsPanel(null, -1);
 		JPanel controls = new JPanel();
     	controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-    	if (model.getChooserType() != FileChooser.LOAD) {
+    	int type = model.getChooserType();
+    	if (type != FileChooser.LOAD && type != FileChooser.IMPORT) {
     		controls.add(Box.createRigidArea(new Dimension(20, 5)));
         	controls.add(newFolderButton);
     	}
@@ -281,6 +292,9 @@ class FileSaverUI
 				break;
 			case FileChooser.FOLDER_CHOOSER:
 				icon = im.getIcon(IconManager.DOWNLOAD_48);
+				break;
+			case FileChooser.IMPORT:
+				icon = im.getIcon(IconManager.IMPORT_48);
 				break;
 			default:
 				icon = im.getIcon(IconManager.SAVE_48);
@@ -353,6 +367,16 @@ class FileSaverUI
 		return chooser.getSelectedFile(); 
 	}
 
+	/**
+	 * Returns the pathname of the selected files.
+	 * 
+	 * @return See above.
+	 */
+	File[] getSelectedFiles()
+	{
+		return chooser.getSelectedFiles();
+	}
+	
 	/**
 	 * Returns the pathname of the current file.
 	 *

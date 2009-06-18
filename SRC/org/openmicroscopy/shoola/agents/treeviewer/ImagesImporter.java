@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.DataObject;
 
 /** 
  * Imports the specified files.
@@ -65,10 +68,37 @@ public class ImagesImporter
     /** The collection of files to import. */
     private List<Object>			files;
     
+    /** Container to download the image into or <code>null</code>. */
+    private DataObject				container;
+    
     /**
      * Creates a new instance.
      * 
-     * @param viewer	The Editor this data loader is for.
+     * @param viewer The Viewer this data loader is for.
+     * 				 Mustn't be <code>null</code>.
+     * @param node	 The node hosting the container.
+     * @param files	 The collection of files to import.
+     */
+    public ImagesImporter(TreeViewer viewer, TreeImageDisplay node,
+			List<Object> files)
+	{
+		super(viewer);
+		if (files == null || files.size() == 0)
+			throw new IllegalArgumentException("No images to import.");
+		this.files = files;
+		if (node != null) {
+			nodes = new ArrayList<TreeImageDisplay>(1); 
+			nodes.add(node);
+			Object ho = node.getUserObject();
+			if (ho instanceof DataObject)
+				container = (DataObject) ho;
+		}
+	}
+	
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer	The Viewer this data loader is for.
      * 					Mustn't be <code>null</code>.
      * @param nodes		The collection of nodes to reload.
      * @param files		The collection of files to import.
@@ -81,6 +111,7 @@ public class ImagesImporter
 			throw new IllegalArgumentException("No images to import.");
 		this.files = files;
 		this.nodes = nodes;
+		container = null;
 	}
 	
 	/** 
@@ -89,7 +120,8 @@ public class ImagesImporter
      */
     public void load()
     {
-    	handle = ivView.importImages(null, files, getCurrentUserID(), -1, this);
+    	handle = ivView.importImages(container, files, getCurrentUserID(), -1, 
+    			this);
     }
 
     /**
@@ -111,8 +143,8 @@ public class ImagesImporter
         	Iterator i = m.entrySet().iterator();
         	while (i.hasNext()) {
 				entry = (Entry) i.next();
-				viewer.setFileImported((File) entry.getKey(), entry.getValue(), 
-						nodes);
+				viewer.setFilesImported((File) entry.getKey(), entry.getValue(), 
+						nodes, container);
 			}
         }
     }

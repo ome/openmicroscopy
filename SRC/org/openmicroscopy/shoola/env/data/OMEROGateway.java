@@ -4264,6 +4264,7 @@ class OMEROGateway
 	/**
 	 * Imports the specified file. Returns the image.
 	 * 
+	 * @param container The container where to download the images into.
 	 * @param file The file to import.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -4271,12 +4272,13 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Object importImage(File file)
+	Object importImage(DataObject container, File file)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		ImportLibrary importLibrary = new ImportLibrary(getImportStore(), 
 				new OMEROWrapper());
 		try {
+			importLibrary.setTarget(container.asIObject());
 			List<Pixels> pixels = 
 				importLibrary.importImage(file, 0, 0, 1, file.getName(), null, 
 					false, null);

@@ -730,7 +730,9 @@ class BrowserModel
 	 */
 	void addImportedImage(ImageData image)
 	{
-		importedImages.put(EditorUtil.getObjectName(image.getName()), image);
+		if (importedImages != null)
+			importedImages.put(EditorUtil.getObjectName(image.getName()), 
+					image);
 	}
 	
 	/**
