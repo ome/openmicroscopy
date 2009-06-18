@@ -56,8 +56,9 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
 import ome.formats.importer.util.GuiCommonElements;
-import ome.formats.importer.util.TitlePanel;
-import ome.formats.importer.util.UIUtilities;
+
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 

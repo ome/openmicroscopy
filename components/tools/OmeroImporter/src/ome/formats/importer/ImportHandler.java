@@ -14,6 +14,7 @@
 
 package ome.formats.importer;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -66,6 +67,7 @@ public class ImportHandler
     {
         this.importContainer = importContainer;
         db = HistoryDB.getHistoryDB();
+        final String[] files = reader.getUsedFiles();
         
         if (runState == true)
         {
@@ -91,8 +93,8 @@ public class ImportHandler
                         importImages();
                     }
                     catch (Throwable e)
-                    {
-                        new DebugMessenger(null, "OMERO.importer Error Dialog", true, e);
+                    {                       
+                        new DebugMessenger(null, "OMERO.importer Error Dialog", true, e, files);
                     }
                 }
             };
@@ -309,7 +311,10 @@ public class ImportHandler
                 	log.error("Generic error while importing image.", e);
                 	qTable.setProgressFailed(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
-                    new DebugMessenger(null, "OMERO.importer Error Dialog", true, e);
+                    
+                    String[] files = store.getReader().getUsedFiles();
+                    
+                    new DebugMessenger(null, "OMERO.importer Error Dialog", true, e, files);
                     if (importStatus < 0)   importStatus = -3;
                     else                    importStatus = -2;
                     

@@ -1,5 +1,6 @@
 package ome.formats.importer;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -30,6 +31,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -115,19 +117,19 @@ public class HistoryTable
     public static HistoryDB db = null;
     long experimenterID;
     private OMEROMetadataStoreClient store;
-    JOutlookBar outlookBar = new JOutlookBar();
+    HistoryTaskBar historyTaskBar = new HistoryTaskBar();
 
-    JList todayList = new JList(outlookBar.today);
-    JList yesterdayList = new JList(outlookBar.yesterday);
-    JList thisWeekList = new JList(outlookBar.thisWeek);
-    JList lastWeekList = new JList(outlookBar.lastWeek);
-    JList thisMonthList = new JList(outlookBar.thisMonth);
+    JList todayList = new JList(historyTaskBar.today);
+    JList yesterdayList = new JList(historyTaskBar.yesterday);
+    JList thisWeekList = new JList(historyTaskBar.thisWeek);
+    JList lastWeekList = new JList(historyTaskBar.lastWeek);
+    JList thisMonthList = new JList(historyTaskBar.thisMonth);
     private boolean unknownProjectDatasetFlag;
 
     HistoryTable()
     {   
         try {
-            outlookBar.addPropertyChangeListener(this);
+            historyTaskBar.addPropertyChangeListener(this);
         } catch (Exception ex) {
         	log.error("Exception adding property change listener.", ex);
         }
@@ -184,16 +186,26 @@ public class HistoryTable
         {{TableLayout.FILL}, // columns
         {TableLayout.FILL}}; // rows 
         
-        outlookBar.addBar( "Today", outlookBar.getListPanel(todayList));
-        outlookBar.addBar( "Yesterday", outlookBar.getListPanel(yesterdayList));
-        outlookBar.addBar( "This Week", outlookBar.getListPanel(thisWeekList));
-        outlookBar.addBar( "Last Week", outlookBar.getListPanel(lastWeekList));
-        outlookBar.addBar( "This Month", outlookBar.getListPanel(thisMonthList));
-        outlookBar.setVisibleBar(0);
+        historyTaskBar.addTaskPane( "Today", historyTaskBar.getList(todayList));
+        historyTaskBar.addTaskPane( "Yesterday", historyTaskBar.getList(yesterdayList));
+        historyTaskBar.addTaskPane( "This Week", historyTaskBar.getList(thisWeekList));
+        historyTaskBar.addTaskPane( "Last Week", historyTaskBar.getList(lastWeekList));
+        historyTaskBar.addTaskPane( "This Month", historyTaskBar.getList(thisMonthList));
         
         bottomSidePanel = gui.addBorderedPanel(mainPanel, bottomSideTable, " Quick Date ", debug);
+
+        /*
+        JPanel taskPanel = new JPanel( new BorderLayout() );
+        JScrollPane taskScrollPane = new JScrollPane();
+        taskScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        taskScrollPane.getViewport().add(historyTaskBar);
+        taskPanel.add(taskScrollPane);
         
-        bottomSidePanel.add(outlookBar, "f,f");       
+        bottomSidePanel.add(taskPanel, "f,f");
+        taskPanel.validate();
+        */
+        
+        bottomSidePanel.add(historyTaskBar, "f,f");       
         
         clearBtn = gui.addIconButton(mainPanel, "Wipe History", clearIcon, 
                 130, 32, (int)'S', "Click here to clear your history log.", "0,5,c,c", debug);   
@@ -507,20 +519,20 @@ public class HistoryTable
         int dayOfMonth = newCal.get( Calendar.DAY_OF_MONTH);
         
         DefaultListModel today = db.getImportListByDate(db.getDaysBefore(new Date(), 1), new Date());
-        outlookBar.updatePanelList(todayList, outlookBar.today, today);
+        historyTaskBar.updateList(todayList, historyTaskBar.today, today);
 
         DefaultListModel yesterday = db.getImportListByDate(new Date(), db.getYesterday());
-        outlookBar.updatePanelList(yesterdayList, outlookBar.yesterday, yesterday);
+        historyTaskBar.updateList(yesterdayList, historyTaskBar.yesterday, yesterday);
 
         DefaultListModel thisWeek = db.getImportListByDate(db.getDaysBefore(new Date(), 1), db.getDaysBefore(new Date(), -(dayOfWeek)));
-        outlookBar.updatePanelList(thisWeekList, outlookBar.thisWeek, thisWeek);
+        historyTaskBar.updateList(thisWeekList, historyTaskBar.thisWeek, thisWeek);
 
         DefaultListModel lastWeek = db.getImportListByDate(db.getDaysBefore(new Date(), -(dayOfWeek)), 
                 db.getDaysBefore(new Date(), -(dayOfWeek+7)));
-        outlookBar.updatePanelList(lastWeekList, outlookBar.lastWeek, lastWeek);
+        historyTaskBar.updateList(lastWeekList, historyTaskBar.lastWeek, lastWeek);
         
         DefaultListModel thisMonth = db.getImportListByDate(db.getDaysBefore(new Date(), 1), db.getDaysBefore(new Date(), -(dayOfMonth)));
-        outlookBar.updatePanelList(thisMonthList, outlookBar.thisMonth, thisMonth);
+        historyTaskBar.updateList(thisMonthList, historyTaskBar.thisMonth, thisMonth);
     }
 
     private void getQuickHistory(Integer importKey)

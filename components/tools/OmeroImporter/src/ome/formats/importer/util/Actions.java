@@ -44,5 +44,11 @@ public class Actions
     public static final String IMPORT_DONE = "import_done";
     public static final String HISTORYREIMPORT = "history_reimport";
     public static final String IO_EXCEPTION = "java.io.IOException";
-    public static final Object IMPORT_ARCHIVING = "import_archiving";    
+    public static final Object IMPORT_ARCHIVING = "import_archiving"; 
+    public static final String FILE_UPLOAD_STARTED = "file_upload_started";
+    public static final String FILE_UPLOAD_COMPLETE = "file_upload_complete";
+    public static final String FILE_UPLOAD_FAILED = "file_upload_failed";
+    public static final Object FILE_UPLOAD_ERROR = "file_upload_error";
+    protected static final Object FILE_UPLOAD_BYTES = "file_upload_bytes";
+    public static final Object FILE_UPLOAD_FINSIHED = "file_upload_finished";
 }
