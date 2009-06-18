@@ -427,56 +427,56 @@
   Project:      JavaScript library
   Web Site:     http://jquery.com/
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: jquery.txt, gpl.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/ui/*
   Project:      jQuery UI - open source library of interface components.
   Web Site:     http://jqueryui.com/
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: jquery.txt, gpl.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.ajaxQueue.js
   Project:      jQuery Ajax Queue Plugin.
   Web Site:     http://jquery.com/plugins/project/ajaxqueue
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: jquery.txt, gpl.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.autocomplete.js
   Project:      jQuery Autocomplete Plugin.
   Web Site:     http://dyve.net/jquery/?autocomplete
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: jquery.txt, gpl.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.bgiframe.js
   Project:      jQuery Bgiframe Plugin.
   Web Site:     http://plugins.jquery.com/project/bgiframe
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: jquery.txt, gpl.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.delegate.js
   Project:      jQuery Delegate Plugin.
   Web Site:     http://plugins.jquery.com/project/delegate
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: jquery.txt, gpl.txt
   
   
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.dimensions.js
   Project:      jQuery Dimensions Plugin.
   Web Site:     http://docs.jquery.com/Plugins/dimensions
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: jquery.txt, gpl.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.drawinglibrary.js
   Project:      jQuery simple drawing plugin.
   Web Site:     http://www.openstudio.fr/Library-for-simple-drawing-with.html?lang=en
   License:      GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: gpl.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.form.js
@@ -490,28 +490,28 @@
   Project:      jQuery Google spell checker Plugin.
   Web Site:     http://orangoo.com/labs/GoogieSpell/
   License:      GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: gpl.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.imgareaselect.js
   Project:      jQuery Image Area Select Plugin.
   Web Site:     http://odyniec.net/projects/imgareaselect/
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: jquery.txt, gpl.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.multiselects.js
   Project:      jQuery Multiple Selects Plugin.
   Web Site:     http://code.google.com/p/jqmultiselects/
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: jquery.txt, gpl.txt
   
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.quicksearch.js
   Project:      jQuery Quick Search Plugin.
   Web Site:     http://rikrikrik.com/jquery/quicksearch/
   License:      GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: jquery.txt, gpl.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.simple.tree.js
@@ -532,14 +532,14 @@
   Project:      jQuery SVG Plugin.
   Web Site:     http://keith-wood.name/svg.html, http://plugins.jquery.com/project/svg
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: jquery.txt, gpl.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.tablesorter.js
   Project:      jQuery Table Sorter Plugin.
   Web Site:     http://tablesorter.com/docs/
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: jquery.txt, gpl.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/thickbox/thickbox.js
@@ -553,7 +553,7 @@
   Project:      jQuery Tooltip Plugin.
   Web Site:     http://bassistance.de/jquery-plugins/jquery-plugin-tooltip/, http://docs.jquery.com/Plugins/Tooltip
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt
+  License File: jquery.txt, gpl.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.tooltip.js
