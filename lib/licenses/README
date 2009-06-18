@@ -430,7 +430,7 @@
   License File: jquery.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/ui/
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/ui/*
   Project:      jQuery UI - open source library of interface components.
   Web Site:     http://jqueryui.com/
   License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
@@ -559,6 +559,6 @@
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery.tooltip.js
   Project:      Crystal Clear.
   Web Site:     http://www.everaldo.com/crystal/
-  License:      GNU GENERAL PUBLIC LICENSE Version 2.
+  License:      Lesser General Public License
   License File: crystalclear.txt
   
