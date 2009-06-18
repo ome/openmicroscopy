@@ -13,8 +13,11 @@ import javax.swing.DefaultListSelectionModel;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.UIManager;
+
+import layout.TableLayout;
 
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTaskPane;
@@ -35,17 +38,33 @@ public class HistoryTaskBar extends JXPanel implements ActionListener
     
     public HistoryTaskBar() 
     {
+        
+        double table[][] =
+        {{170}, // columns
+        { TableLayout.FILL}}; // rows
+        
+        TableLayout layout = new TableLayout(table);
+       
+        this.setLayout(layout);
+        
         tpContainer.setBorder(null);
         tpContainer.setLayout(new VerticalLayout(0));                   
-        this.add(tpContainer, BorderLayout.CENTER);
+        this.add(tpContainer, "0,0");
     }
     
     public void addTaskPane( String name, JList list )
     {
         JXTaskPane taskPane = new JXTaskPane();
+        
+        taskPane.getContentPane().setLayout(new BorderLayout());
+        
         taskPane.setTitle(name);
         
-        taskPane.add(getList(list), BorderLayout.CENTER);
+        javax.swing.JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setViewportView(list);
+        taskPane.getContentPane().add(scrollPane, BorderLayout.LINE_START);
+        
+        //taskPane.add(getList(list), BorderLayout.CENTER);
         taskPane.setScrollOnExpand(true);
         taskPane.setCollapsed(true);
         

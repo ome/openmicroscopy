@@ -1,6 +1,5 @@
 package ome.formats.importer;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -31,7 +30,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -205,7 +203,7 @@ public class HistoryTable
         taskPanel.validate();
         */
         
-        bottomSidePanel.add(historyTaskBar, "f,f");       
+        bottomSidePanel.add(historyTaskBar, "f,f");  
         
         clearBtn = gui.addIconButton(mainPanel, "Wipe History", clearIcon, 
                 130, 32, (int)'S', "Click here to clear your history log.", "0,5,c,c", debug);   
