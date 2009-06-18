@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 
 import layout.TableLayout;
@@ -41,7 +42,7 @@ public class HistoryTaskBar extends JXPanel implements ActionListener
         
         double table[][] =
         {{170}, // columns
-        { TableLayout.FILL}}; // rows
+        { TableLayout.PREFERRED}}; // rows
         
         TableLayout layout = new TableLayout(table);
        
@@ -56,16 +57,21 @@ public class HistoryTaskBar extends JXPanel implements ActionListener
     {
         JXTaskPane taskPane = new JXTaskPane();
         
-        taskPane.getContentPane().setLayout(new BorderLayout());
+        double table[][] =
+        {{150}, // columns
+        { TableLayout.PREFERRED}}; // rows
+                
+        TableLayout layout = new TableLayout(table);
+        
+        taskPane.setLayout(layout);
         
         taskPane.setTitle(name);
-        
-        javax.swing.JScrollPane scrollPane = new JScrollPane();
+       
+        JScrollPane scrollPane = new JScrollPane();
         scrollPane.setViewportView(list);
-        taskPane.getContentPane().add(scrollPane, BorderLayout.LINE_START);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        taskPane.getContentPane().add(scrollPane, BorderLayout.CENTER);
         
-        //taskPane.add(getList(list), BorderLayout.CENTER);
-        taskPane.setScrollOnExpand(true);
         taskPane.setCollapsed(true);
         
         tpContainer.add(taskPane);
