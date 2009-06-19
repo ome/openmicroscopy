@@ -67,7 +67,6 @@ public class ImportHandler
     {
         this.importContainer = importContainer;
         db = HistoryDB.getHistoryDB();
-        final String[] files = reader.getUsedFiles();
         
         if (runState == true)
         {
@@ -94,7 +93,7 @@ public class ImportHandler
                     }
                     catch (Throwable e)
                     {                       
-                        new DebugMessenger(null, "OMERO.importer Error Dialog", true, e, files);
+                        new DebugMessenger(null, "OMERO.importer Error Dialog", true, e, null);
                     }
                 }
             };

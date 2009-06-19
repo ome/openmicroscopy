@@ -4181,7 +4181,7 @@ public class OMEROMetadataStoreClient
      */
     private void checkImmersions()
     {   
-        String[] immersionAddStrings = {"Air", "Glycerol", "Multi", "WaterDrippings", "Other"};
+        String[] immersionAddStrings = {"Air", "Glycerol", "Multi", "WaterDripping", "Other"};
         List<String> immersionAdds = Arrays.asList(immersionAddStrings);
         
         String[] immersionDeleteStrings = {"Gly", "Hl", "Oel", "Wasser", "Wl"};

@@ -151,6 +151,11 @@ public class DebugMessenger extends JDialog implements ActionListener
         sendWithFilesBtn = gui.addButton(mainPanel, "Send With Files", 'S',
                 "Send your comment and your files to the development team", "7, 1, f, c", debug);
         sendWithFilesBtn.addActionListener(this);
+        
+        if (files == null)
+        {
+            sendWithFilesBtn.setEnabled(false);
+        }
 
         this.getRootPane().setDefaultButton(sendBtn);
         gui.enterPressesWhenFocused(sendBtn);
@@ -199,7 +204,7 @@ public class DebugMessenger extends JDialog implements ActionListener
         commentTextArea = gui.addTextArea(commentPanel, "What you were doing when you crashed?", 
                 "", 'W', "0, 2, 2, 2", debug);
         
-        String message2 = "\nIf you choose, you may also upload the files causing this error " +
+        String message2 = "\nIf you choose, you may also upload any files causing this error " +
         		"to our testing team. Once fixed, your files will then be added to our testing " +
         		"suite for regular testing. " +
         		"\n\n" +
