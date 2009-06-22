@@ -235,6 +235,11 @@ public class EditorUI
 				if (uo instanceof ImageData) {
 					load = true;
 					tabbedPane.setEnabledAt(ACQUISITION_INDEX, true);
+					if (tabbedPane.getComponentCount() > 2) {
+						boolean b = tabbedPane.getSelectedIndex() == RND_INDEX;
+						tabbedPane.remove(RND_INDEX);
+						if (b) tabbedPane.setSelectedIndex(GENERAL_INDEX);
+					}
 				} else if (uo instanceof WellSampleData) {
 					ImageData img = ((WellSampleData) uo).getImage();
 					if (img != null && img.getId() >= 0) {
@@ -503,8 +508,7 @@ public class EditorUI
 		model.makeMovie(scaleBar, overlayColor);
 	}
 	
-	/** Sets the renderer.
-	 */
+	/** Sets the renderer. */
 	void setRenderer()
 	{
 		if (tabbedPane.getComponentCount() == 2) {

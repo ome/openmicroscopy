@@ -213,7 +213,7 @@ class EditorModel
 	 */
 	private List sortPlane(Collection nodes)
 	{
-		List l = new ArrayList();
+		List<Object> l = new ArrayList<Object>();
 		if (nodes == null) return l;
 		Iterator i = nodes.iterator();
 		while (i.hasNext()) {
@@ -896,7 +896,11 @@ class EditorModel
 	    	fireChannelEnumerationsLoading();
 	    	fireImageEnumerationsLoading();
 	    }
-	}
+	    if (renderer != null) {
+	    	renderer.discard();
+	    	renderer = null;
+	    }
+	} 
 
 	/**
 	 * Sets the parent of the object of reference.

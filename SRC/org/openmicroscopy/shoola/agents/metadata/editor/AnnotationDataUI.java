@@ -179,7 +179,8 @@ class AnnotationDataUI
 		item.setActionCommand(""+EditorControl.ADD_LOCAL_DOCS);
 		docSelectionMenu.add(item);
 		item = new JMenuItem("Uploaded document...");
-		item.setToolTipText("Attach a document already uploaded.");
+		item.setToolTipText("Attach a document already uploaded " +
+				"to the server.");
 		item.addActionListener(controller);
 		item.setActionCommand(""+EditorControl.ADD_UPLOADED_DOCS);
 		docSelectionMenu.add(item);

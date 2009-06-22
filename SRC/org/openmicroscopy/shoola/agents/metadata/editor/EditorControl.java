@@ -59,9 +59,12 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
+import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PDFFilter;
+import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PowerPointFilter;
 import org.openmicroscopy.shoola.util.filter.file.TEXTFilter;
+import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.filter.file.WordFilter;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -136,13 +139,16 @@ class EditorControl
 	{
 		filters = new ArrayList<FileFilter>();
 		filters.add(new PDFFilter());
-		filters.add(new TEXTFilter());
-		filters.add(new XMLFilter());
+		filters.add(new PNGFilter());
 		filters.add(new HTMLFilter());
-		filters.add(new PowerPointFilter());
+		filters.add(new JPEGFilter());
 		filters.add(new ExcelFilter());
 		filters.add(new WordFilter());
+		filters.add(new PowerPointFilter());
 		filters.add(new EditorFileFilter());
+		filters.add(new XMLFilter());
+		filters.add(new TIFFFilter());
+		filters.add(new TEXTFilter());
 	}
 
 	/** 
