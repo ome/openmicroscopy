@@ -207,6 +207,7 @@ public class Main extends JFrame
         login.setActionCommand("login");
         login.addActionListener(this);        
         fileMenu.add(login);
+        /*
         if (gui.getIsMac())
         {
             options = new JMenuItem("Options...", gui.getImageIcon(CONFIG_ICON));
@@ -214,6 +215,7 @@ public class Main extends JFrame
             options.addActionListener(this);        
             fileMenu.add(options);
         }
+        */
         fileQuit = new JMenuItem("Quit", gui.getImageIcon(QUIT_ICON));
         fileQuit.setActionCommand("quit");
         fileQuit.addActionListener(this);

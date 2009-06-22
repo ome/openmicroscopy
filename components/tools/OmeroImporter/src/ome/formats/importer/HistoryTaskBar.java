@@ -17,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
+import javax.swing.ViewportLayout;
 
 import layout.TableLayout;
 
@@ -41,7 +42,7 @@ public class HistoryTaskBar extends JXPanel implements ActionListener
     {
         
         double table[][] =
-        {{170}, // columns
+        {{158}, // columns
         { TableLayout.PREFERRED}}; // rows
         
         TableLayout layout = new TableLayout(table);
@@ -55,22 +56,12 @@ public class HistoryTaskBar extends JXPanel implements ActionListener
     
     public void addTaskPane( String name, JList list )
     {
-        JXTaskPane taskPane = new JXTaskPane();
-        
-        double table[][] =
-        {{150}, // columns
-        { TableLayout.PREFERRED}}; // rows
-                
-        TableLayout layout = new TableLayout(table);
-        
-        taskPane.setLayout(layout);
-        
+        JXTaskPane taskPane = new JXTaskPane();       
         taskPane.setTitle(name);
        
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setViewportView(list);
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        taskPane.getContentPane().add(scrollPane, BorderLayout.CENTER);
+        taskPane.getContentPane().getParent().add(scrollPane);
         
         taskPane.setCollapsed(true);
         
@@ -80,8 +71,8 @@ public class HistoryTaskBar extends JXPanel implements ActionListener
     public JList getList(JList list)
     {
         list.setCellRenderer(new ImportCellRenderer());
-        list.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
-
+        //list.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+        
         // Add a listener for mouse clicks
         list.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
@@ -136,6 +127,7 @@ class ImportCellRenderer extends JLabel implements ListCellRenderer {
             setBackground(UIManager.getColor("Table.selectionBackground"));
             setForeground(Color.black);
         } else {
+            setBackground(Color.white);
             setForeground(Color.black);
         }
         return this;
