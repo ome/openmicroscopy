@@ -326,7 +326,7 @@ def unrollPlaneMap(planeMap):
 	
 def calculateRanges(sizeZ, sizeT, commandArgs):
 	planeMap = [];
-	if(commandArgs["planeChannelMap"]==[]):
+	if(commandArgs["planeMap"]==[]):
 		if(commandArgs["zStart"]==commandArgs["zEnd"]):
 			commandArgs["zEnd"] = commandArgs["zEnd"]+1;
 		if(commandArgs["tStart"]==commandArgs["tEnd"]):
@@ -404,7 +404,7 @@ scripts.Long("imageId").inout(), scripts.String("output").inout(), scripts.Long(
 scripts.Long("zEnd").inout(), scripts.Long("tStart").inout(), scripts.Long("tEnd").inout(), \
 scripts.Set("channels").inout(), scripts.Bool("splitView").inout(), scripts.Bool("showTime").inout(),scripts.Bool("showPlaneInfo").inout(), \
 scripts.Long("fps").inout(), scripts.Long("scalebar").inout(),scripts.Long("fileAnnotation").out(), \
-scripts.String("format").inout(), scripts.Long("overlayColour").inout(), scripts.Map("planeChannelMap").inout())
+scripts.String("format").inout(), scripts.Long("overlayColour").inout(), scripts.Map("planeMap").inout())
 
 session = client.createSession();
 gateway = session.createGateway();
