@@ -196,16 +196,6 @@ public class FieldTextArea
 	public static final String			NAME_ID = "fieldname";
 
 	/**
-	 * The HTML tag name to use for displaying the Field Text contents
-	 */
-	public static final Tag			TEXT_TAG = Tag.SPAN;
-
-	/**
-	 * The HTML tag name to use for displaying the Field Parameters
-	 */
-	public static final Tag			PARAM_TAG = Tag.A;
-
-	/**
 	 * The HTML tag name to use for displaying the Field Name.
 	 */
 	public static final Tag			NAME_TAG = Tag.SPAN;
@@ -213,8 +203,7 @@ public class FieldTextArea
 	/**
 	 * A useful bit of HTML for adding space between tags etc. 
 	 */
-	public static final String 		TEXT_SPACER = "<"+ TEXT_TAG +
-													"> </"+ TEXT_TAG + ">";
+	public static final String 		TEXT_SPACER = " ";
 	
 	/** A bound property of this class, indicating this field was selected */
 	public static final String 		FIELD_SELECTED = "fieldSelected";
