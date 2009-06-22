@@ -72,7 +72,7 @@ try:
  	hash_sha1 = hashlib.sha1 
 except: 
 	import sha 
-    hash_sha1 = sha.new 
+	hash_sha1 = sha.new 
 
 MPEG = 'video/mpeg'
 QT = 'video/quicktime'
@@ -94,7 +94,6 @@ def calcSha1(filename):
 	hash = h.hexdigest()
 	fileHandle.close()
 	return hash;
-	
 
 def createFile(session, filename, format):
  	tempFile = omero.model.OriginalFileI();
@@ -180,9 +179,18 @@ def rangeToStr(range):
 			string = string + ','+str(value)
 	return string;
 
-
-def calculateAquisitionTime(session, pixelsId, cRange, zRange, tRange):
+def rangeFromList(list, index):
+	minValue = list[0][index];
+	minValue = list[0][index];
+	for i in list:
+		minValue = min(minValue, list[i][index]);
+		maxValue = max(maxValue, list[i][index]);
+	return range(minValue, maxValue+1);
+	
+def calculateAquisitionTime(session, pixelsId, cRange, tzList):
 	queryService = session.getQueryService()
+	tRange = rangeFromList(tzList, 0);
+	zRange = rangeFromList(tzList, 1)
 	query = "from PlaneInfo as Info where Info.theZ in ("+rangeToStr(zRange)+") and Info.theT in ("+rangeToStr(tRange)+") and Info.theC in ("+rangeToStr(cRange)+") and pixels.id='"+str(pixelsId)+"'"
 	infoList = queryService.findAllByQuery(query,None)
 
@@ -295,6 +303,47 @@ def RGBToPIL(RGB):
 	hexval = hex(int(RGB));
 	return '#'+(6-len(hexval[2:]))*'0'+hexval[2:];
 
+
+def buildPlaneMapFromRanges(zRange, tRange):
+	planeMap = [];
+	for t in tRange:
+		for z in zRange:
+			planeMap.append([t,z]);
+			
+def strToRange(key):
+	splitKey = key.split('-');
+	if(len(splitKey)==1):
+		return range(splitKey[0],splitKey[0]+1)
+	return range(splitKey[0], splitKey[1]+1);
+
+def unrollPlaneMap(planeMap):
+	unrolledPlaneMap = [];
+	for tSet in planeMap:
+		zValue = planeMap(tSet);
+		for t in strToRange(tSet):
+			for z in strToRange(zValue):
+				unrolledPlaneMap.append([t,z]);
+	
+def calculateRanges(sizeZ, sizeT, commandArgs):
+	planeMap = [];
+	if(commandArgs["planeChannelMap"]==[]):
+		if(commandArgs["zStart"]==commandArgs["zEnd"]):
+			commandArgs["zEnd"] = commandArgs["zEnd"]+1;
+		if(commandArgs["tStart"]==commandArgs["tEnd"]):
+			commandArgs["tEnd"] = commandArgs["tEnd"]+1;
+		if(inRange(commandArgs["zStart"], commandArgs["zEnd"], sizeZ+1)):
+			zRange = range(commandArgs["zStart"],commandArgs["zEnd"]);
+		else:
+			zRange = range(0, sizeZ)
+		if(inRange(commandArgs["tStart"], commandArgs["tEnd"], sizeT+1)):
+			tRange = range(commandArgs["tStart"],commandArgs["tEnd"]);
+		else:
+			tRange = range(0, sizeT)
+		planeMap = buildPlaneMapFromRanges(zRange, tRange);
+	else:
+		planeMap = unrollPlaneMap(commandArgs["planeMap"]);
+	return planeMap;
+		
 def writeMovie(commandArgs, session):
 	gateway = session.createGateway();
 	scriptService = session.getScriptService();
@@ -311,23 +360,13 @@ def writeMovie(commandArgs, session):
 
 	xRange = range(0,sizeX);
 	yRange = range(0,sizeY);
-	if(commandArgs["zStart"]==commandArgs["zEnd"]):
-		commandArgs["zEnd"] = commandArgs["zEnd"]+1;
-	if(commandArgs["tStart"]==commandArgs["tEnd"]):
-		commandArgs["tEnd"] = commandArgs["tEnd"]+1;
-	if(inRange(commandArgs["zStart"], commandArgs["zEnd"], sizeZ+1)):
-		zRange = range(commandArgs["zStart"],commandArgs["zEnd"]);
-	else:
-		zRange = range(0, sizeZ)
-	if(inRange(commandArgs["tStart"], commandArgs["tEnd"], sizeT+1)):
-		tRange = range(commandArgs["tStart"],commandArgs["tEnd"]);
-	else:
-		tRange = range(0, sizeT)
 	cRange = commandArgs["channels"]
 	if(validChannels(cRange, sizeC)==0):
-		cRange = range(0, sizeC)
-	
-	timeMap = calculateAquisitionTime(session, pixelsId, cRange, zRange, tRange)
+		cRange = range(0, sizeC);
+
+	tzList = calculateRanges(sizeZ, sizeT, sizeC, commandArgs);
+
+	timeMap = calculateAquisitionTime(session, pixelsId, cRange, tzList)
 
 	pixelTypeString = pixels.getPixelsType().getValue().getValue();
 	frameNo = 1;
@@ -335,26 +374,28 @@ def writeMovie(commandArgs, session):
 	os.mkdir(commandArgs["output"])
 	os.chdir(commandArgs["output"])
 	renderingEngine = getRenderingEngine(session, pixelsId, sizeC, cRange)
-	for t in tRange:
-		for z in zRange:
-			plane = getPlane(renderingEngine, z, t)
-			planeImage = numpy.array(plane, dtype='uint32')
-			planeImage = planeImage.byteswap();
-			planeImage = planeImage.reshape(sizeX, sizeY);
-			image = Image.frombuffer('RGBA',(sizeX,sizeY),planeImage.data,'raw','ARGB',0,1)
-			filename = commandArgs["output"]+str(frameNo)+'.png';
-			if(commandArgs["scalebar"]!=0):
-				image = addScalebar(commandArgs["scalebar"], image, pixels, commandArgs);
-			if(commandArgs["showTime"]==1 or commandArgs["showPlaneInfo"]==1):
-				planeInfo = "z:"+str(z)+"t:"+str(t);
-				time = timeMap[planeInfo]
-				image = addTimePoints(time, z, t, image, pixels, commandArgs);
-			image.save(filename,"PNG")
-			if(frameNo==1):
-				filelist = filename
-			else:
-				filelist = filelist+','+filename
-			frameNo +=1;
+	
+	for tz in tzList:
+		t = tz[0];
+		z = tz[1];
+		plane = getPlane(renderingEngine, z, t)
+		planeImage = numpy.array(plane, dtype='uint32')
+		planeImage = planeImage.byteswap();
+		planeImage = planeImage.reshape(sizeX, sizeY);
+		image = Image.frombuffer('RGBA',(sizeX,sizeY),planeImage.data,'raw','ARGB',0,1)
+		filename = commandArgs["output"]+str(frameNo)+'.png';
+		if(commandArgs["scalebar"]!=0):
+			image = addScalebar(commandArgs["scalebar"], image, pixels, commandArgs);
+		if(commandArgs["showTime"]==1 or commandArgs["showPlaneInfo"]==1):
+			planeInfo = "z:"+str(z)+"t:"+str(t);
+			time = timeMap[planeInfo]
+			image = addTimePoints(time, z, t, image, pixels, commandArgs);
+		image.save(filename,"PNG")
+		if(frameNo==1):
+			filelist = filename
+		else:
+			filelist = filelist+','+filename
+		frameNo +=1;
 	buildAVI(sizeX, sizeY, filelist, commandArgs["fps"], commandArgs["output"], commandArgs["format"]);
 	uploadMovie(client, session, omeroImage, commandArgs["output"], commandArgs["format"])
 	
@@ -363,14 +404,16 @@ scripts.Long("imageId").inout(), scripts.String("output").inout(), scripts.Long(
 scripts.Long("zEnd").inout(), scripts.Long("tStart").inout(), scripts.Long("tEnd").inout(), \
 scripts.Set("channels").inout(), scripts.Bool("splitView").inout(), scripts.Bool("showTime").inout(),scripts.Bool("showPlaneInfo").inout(), \
 scripts.Long("fps").inout(), scripts.Long("scalebar").inout(),scripts.Long("fileAnnotation").out(), \
-scripts.String("format").inout(), scripts.Long("overlayColour").inout())
+scripts.String("format").inout(), scripts.Long("overlayColour").inout(), scripts.Map("planeChannelMap").inout())
 
 session = client.createSession();
 gateway = session.createGateway();
 commandArgs = {"image":client.getInput("imageId").getValue(), "output":client.getInput("output").getValue(), \
 "zStart":client.getInput("zStart").getValue(),"zEnd":client.getInput("zEnd").getValue(),"tStart":client.getInput("tStart").getValue(),\
 "tEnd":client.getInput("tEnd").getValue(),"channels":client.getInput("channels").getValue(), "fps":client.getInput("fps").getValue(),\
-"showTime":client.getInput("showTime").getValue(),"showPlaneInfo":client.getInput("showPlaneInfo").getValue(),"scalebar":client.getInput("scalebar").getValue(), "format":client.getInput("format").getValue()}
+"showTime":client.getInput("showTime").getValue(),"showPlaneInfo":client.getInput("showPlaneInfo").getValue(), \
+"scalebar":client.getInput("scalebar").getValue(), "format":client.getInput("format").getValue(), \
+"planeMap":client.getInput("planeMap").getValue()}
 
 inputKeys = client.getInputKeys();
 if(validColourRange(client.getInput("overlayColour").getValue())):
