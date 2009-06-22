@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -53,7 +51,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
@@ -478,22 +475,6 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#showManufacturer(JComponent, Point)
-	 */
-	public void showManufacturer(JComponent comp, Point p)
-	{
-		TinyDialog d = new TinyDialog(
-				MetadataViewerAgent.getRegistry().getTaskBar().getFrame(), comp,
-				TinyDialog.CLOSE_ONLY);
-		d.pack();
-		Dimension dim = d.getSize();
-		d.setLocation(p.x-dim.width/2, p.y-dim.height-5);
-		d.setVisible(true);
-		
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Editor#setChannelAcquisitionData(int, ChannelAcquisitionData)
 	 */
 	public void setChannelAcquisitionData(int index, 
@@ -578,15 +559,6 @@ class EditorComponent
 			model.fireRenderingControlLoading(pixels.getId(), 
 					RenderingControlLoader.LOAD);
 		} 
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#onSettingsApplied()
-	 */
-	public void onSettingsApplied()
-	{
-		view.onSettingsApplied();
 	}
 
 	/** 

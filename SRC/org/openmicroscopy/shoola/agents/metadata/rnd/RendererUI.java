@@ -267,6 +267,7 @@ class RendererUI
 		pane.setTimepoint(t); 
 	}
 
+	/** Updates the UI when the rendering settings have been applied. */
 	void onSettingsApplied()
 	{
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);

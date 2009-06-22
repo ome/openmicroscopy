@@ -267,7 +267,6 @@ class DataBrowserUI
 			case COLUMNS_VIEW:
 				ImageTableView v = model.getTableView();
 				if (v != null) v.refreshTable();
-				break;
     	}
     }
     
@@ -311,7 +310,6 @@ class DataBrowserUI
 				//}
 				if (existed == null) v.addPropertyChangeListener(controller);
 				add(v, BorderLayout.CENTER);
-				break;
 		}
     	add(statusBar, BorderLayout.SOUTH);
     	toolBar.setSelectedViewIndex(selectedView);

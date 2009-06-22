@@ -134,6 +134,30 @@ class TreeViewerComponent
 	private ImportManager 		importManager;
 	
 	/** 
+	 * Prepares the file to import.
+	 * 
+	 * @param l 	The collection hosting the file to import.
+	 * @param f 	The file to handle.
+	 * @param total The number of files.
+	 */
+	private void prepareFile(List<Object> l, File f, int total)
+	{
+		File child;
+		File[] list;
+		if (f.isFile() && model.isFileImportable(f)) {
+			l.add(f);
+		} else if (f.isDirectory() && !f.isHidden()) {
+			list = f.listFiles();
+			total += list.length;
+			for (int k = 0; k < list.length; k++) {
+				child = list[k];
+				if (child.isFile() && model.isFileImportable(child))
+					l.add(child);
+			}
+		}
+	}
+	
+	/** 
 	 * Displays the user groups.
 	 * 
 	 * @param map 	The map whose key is a <code>GroupData</code>s
@@ -1374,6 +1398,8 @@ class TreeViewerComponent
 			if (db != null) 
 				db.markUnmodifiedNodes(ImageData.class, failure);
 		}
+		MetadataViewer mv = model.getMetadataViewer();
+		if (mv != null) mv.onSettingsApplied();
 		model.setState(READY);
 		fireStateChange();
 	}
@@ -2124,22 +2150,6 @@ class TreeViewerComponent
 		view.setInspectorVisibility();
 	}
 	
-	private void prepareFile(List<Object> l, File f, int total)
-	{
-		File child;
-		File[] list;
-		if (f.isFile() && model.isFileImportable(f)) {
-			l.add(f);
-		} else if (f.isDirectory() && !f.isHidden()) {
-			list = f.listFiles();
-			total += list.length;
-			for (int k = 0; k < list.length; k++) {
-				child = list[k];
-				if (child.isFile() && model.isFileImportable(child))
-					l.add(child);
-			}
-		}
-	}
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.

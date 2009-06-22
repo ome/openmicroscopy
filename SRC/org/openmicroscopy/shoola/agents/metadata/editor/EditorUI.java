@@ -42,6 +42,7 @@ import javax.swing.JTabbedPane;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -525,7 +526,8 @@ public class EditorUI
 	/** Updates the view when the rendering settings have been applied. */
 	void onSettingsApplied()
 	{
-		model.getRenderer().onSettingsApplied();
+		Renderer rnd = model.getRenderer();
+		if (rnd != null) rnd.onSettingsApplied();
 	}
 	
 }

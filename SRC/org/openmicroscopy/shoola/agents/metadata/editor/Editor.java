@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
@@ -251,14 +250,6 @@ public interface Editor
 	public void setChannelEnumerations(Map map);
 
 	/**
-	 * Indicates to bring up on screen the manufacturer details.
-	 * 
-	 * @param comp	The component to display.
-	 * @param point	The onscreen location of the mouse pressed.
-	 */
-	public void showManufacturer(JComponent comp, Point point);
-
-	/**
 	 * Sets the acquisition data for the specified channel.
 	 * 
 	 * @param index The index of the channel.
@@ -313,10 +304,7 @@ public interface Editor
 	
 	/** Indicates to render a plane. */
 	public void renderPlane();
-
-	/** Updates the view when the settings have been applied. */
-	public void onSettingsApplied();
-
+	
 	/**
 	 * Sets the result back to the viewer.
 	 * 

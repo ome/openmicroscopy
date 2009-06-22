@@ -859,10 +859,7 @@ public class DomainPane
     void setZSection(int z) { updateSlider(zSlider, z); }
     
     /** Updates the display when the settings have been updated. */
-	void onSettingsApplied()
-	{
-		graphicsPane.onSettingsApplied();
-	}
+	void onSettingsApplied() { graphicsPane.onSettingsApplied(); }
 	
     /**
      * Depending on the source of the event. Sets the gamma value or

@@ -29,7 +29,6 @@ import java.awt.BorderLayout;
 import java.awt.Point;
 import java.util.Collection;
 import java.util.List;
-
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -39,7 +38,6 @@ import javax.swing.JScrollPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-
 import pojos.DataObject;
 
 /** 

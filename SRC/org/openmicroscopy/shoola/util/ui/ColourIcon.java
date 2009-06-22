@@ -81,13 +81,7 @@ public class ColourIcon
 	 */
 	public ColourIcon(Dimension d)
 	{
-		if (d == null) {
-			width = DEFAULT_WIDTH;
-			height = DEFAULT_HEIGHT;
-		} else {
-			width = d.width;
-			height = d.height;
-		}
+		this(d, null);
 	}
 	
 	/**
@@ -98,10 +92,7 @@ public class ColourIcon
 	 */
 	public ColourIcon(int width, int height)
 	{
-		if (width <= 0) width = DEFAULT_WIDTH;
-		if (height <= 0) height = DEFAULT_HEIGHT;
-		this.width = width;
-		this.height = height;
+		this(new Dimension(width, height), null);
 	}
 
 	/**
@@ -113,11 +104,7 @@ public class ColourIcon
 	 */
 	public ColourIcon(int width, int height, Color color)
 	{
-		if (width <= 0) width = DEFAULT_WIDTH;
-		if (height <= 0) height = DEFAULT_HEIGHT;
-		this.width = width;
-		this.height = height;
-		setColour(color);
+		this(new Dimension(width, height), color);
 	}
 	
 	/**
@@ -135,6 +122,8 @@ public class ColourIcon
 			width = d.width;
 			height = d.height;
 		}
+		if (width <= 0) width = DEFAULT_WIDTH;
+		if (height <= 0) height = DEFAULT_HEIGHT;
 		setColour(color);
 	}
 	
@@ -166,8 +155,8 @@ public class ColourIcon
 		Graphics2D g2D = (Graphics2D) g;
 		if (colour != null) {
 			g2D.setColor(colour);
-			g2D.fillRect(x, y, x+width, y+height);
-			g2D.drawRect(x, y, x+width, y+height);
+			g2D.fillRect(4, 4, width-2, height-2);
+			g2D.drawRect(4, 4, width-2, height-2);
 			/*
 			g2D.fillRect(4, 4, width-3, height-3);
 			g2D.setColor(colour.darker());

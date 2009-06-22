@@ -520,9 +520,6 @@ class RendererComponent
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#onSettingsApplied()
      */
-	public void onSettingsApplied()
-	{
-		view.onSettingsApplied();
-	}
+	public void onSettingsApplied() { view.onSettingsApplied(); }
 
 }

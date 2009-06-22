@@ -138,7 +138,6 @@ class ImageTable
 						display.getInternalDesktop().getComponents()));
 			}
 		}
-		
 	}
 	
 	/** Reacts to nodes selection in the tree. */
@@ -336,7 +335,6 @@ class ImageTable
 		nodes.clear();
 		repaint();
         addTreeSelectionListener(selectionListener);
-		
 	}
 	
 	/**
@@ -355,7 +353,8 @@ class ImageTable
 	protected void onMouseReleased(MouseEvent e)
 	{
 		int count = e.getClickCount();
-		if (count == 2) { view.viewSelectedNode();
+		if (count == 2) { 
+			view.viewSelectedNode();
 		} else {
 			if (e.isPopupTrigger()) view.showMenu(e.getPoint());
 		}

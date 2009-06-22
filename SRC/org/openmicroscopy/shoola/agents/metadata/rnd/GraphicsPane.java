@@ -413,9 +413,10 @@ class GraphicsPane
 		if (applyButton != null) applyButton.setEnabled(b);
 	}
 	
+	/** Updates the UI when the rendering settings have been applied. */
 	void onSettingsApplied()
 	{
-		applyButton.setEnabled(true);
+		if (applyButton != null) applyButton.setEnabled(true);
 	}
 	
     /**
