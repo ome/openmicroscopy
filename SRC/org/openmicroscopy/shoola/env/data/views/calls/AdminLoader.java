@@ -74,9 +74,9 @@ public class AdminLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                List l = new ArrayList();
-                l.add(os.getSpace(OmeroDataService.FREE));
-                l.add(os.getSpace(OmeroDataService.USED));
+                List<Long> l = new ArrayList<Long>();
+                l.add(os.getSpace(OmeroDataService.FREE, userID));
+                l.add(os.getSpace(OmeroDataService.USED, userID));
                 result = l;
             }
         };

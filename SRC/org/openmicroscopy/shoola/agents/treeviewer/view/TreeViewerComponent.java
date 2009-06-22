@@ -2187,8 +2187,6 @@ class TreeViewerComponent
 			
 		} else return;
 		
-		
-		
 		if (l.size() == 0) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			String s = " is ";

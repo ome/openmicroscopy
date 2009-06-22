@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata;
 
-
-
 //Java imports
 import java.util.List;
 
@@ -34,7 +32,8 @@ import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * 
+ * Loads the space used and the space available on the server for the
+ * specified user.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -65,16 +64,14 @@ public class DiskSpaceLoader
 	public DiskSpaceLoader(Editor viewer, long userID)
 	{
 		super(viewer);
+		this.userID = userID;
 	}
 	
     /** 
      * Loads the used and free space.
      * @see EditorLoader#load()
      */
-    public void load()
-    {
-        handle = dmView.getDiskSpace(userID, this);
-    }
+    public void load() { handle = dmView.getDiskSpace(userID, this); }
     
     /** 
      * Cancels the data loading. 

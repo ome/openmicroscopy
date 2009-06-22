@@ -67,10 +67,7 @@ class ToolBar
     
     /** Size of the horizontal box. */
     private static final Dimension HBOX = new Dimension(100, 16);
-    
-    /** The size of the wheel. */
-    private static final Dimension	SIZE = new Dimension(16, 16);
-    
+
     /** Reference to the control. */
     private TreeViewerControl   controller;
     
@@ -136,6 +133,9 @@ class ToolBar
         //bar.add(b);
         b = new JButton(controller.getAction(
         		TreeViewerControl.EDITOR_NO_SELECTION));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
+        b = new JButton(controller.getAction(TreeViewerControl.IMPORT));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
         bar.add(new JSeparator(JSeparator.VERTICAL));

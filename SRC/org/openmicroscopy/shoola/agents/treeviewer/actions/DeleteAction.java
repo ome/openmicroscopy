@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -112,10 +110,16 @@ public class DeleteAction
         } 
         Object ho = selectedDisplay.getUserObject(); 
         if ((ho instanceof DatasetData) || (ho instanceof ProjectData) ||
-        	(ho instanceof ImageData) || (ho instanceof FileAnnotationData) ||
+        	(ho instanceof FileAnnotationData) ||
         	(ho instanceof TagAnnotationData)) {
         	TreeImageDisplay[] selected = browser.getSelectedDisplays();
         	if (selected.length > 1) setEnabled(false);
+        	else {
+        		setEnabled(model.isObjectWritable(ho));
+        	}
+        } else if (ho instanceof ImageData) {
+        	TreeImageDisplay[] selected = browser.getSelectedDisplays();
+        	if (selected.length > 1) setEnabled(true);
         	else {
         		setEnabled(model.isObjectWritable(ho));
         	}

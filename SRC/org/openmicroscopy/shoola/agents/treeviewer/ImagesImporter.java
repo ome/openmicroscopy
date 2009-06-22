@@ -41,6 +41,8 @@ import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ScreenData;
 
 /** 
  * Imports the specified files.
@@ -90,7 +92,7 @@ public class ImagesImporter
 			nodes = new ArrayList<TreeImageDisplay>(1); 
 			nodes.add(node);
 			Object ho = node.getUserObject();
-			if (ho instanceof DataObject)
+			if (ho instanceof DatasetData || ho instanceof ScreenData)
 				container = (DataObject) ho;
 		}
 	}

@@ -1174,13 +1174,14 @@ class ImViewerUI
 	{
 		String text = "";
 		int n;
+		int max = model.getMaxZ();
 		double d = model.getPixelsSizeZ();
 		if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) {
 			n = getProjectionStartZ();
 			int m = getProjectionEndZ();
 			text += "Z range:"+(n+1);
 			text += "-"+(getProjectionEndZ()+1);
-			if (d > 0)
+			if (d > 0 && max > 0)
 				text += " ("+UIUtilities.roundTwoDecimals(n*d)+"-"+
 				UIUtilities.roundTwoDecimals(m*d)+" "+
 				EditorUtil.MICRONS_NO_BRACKET+")";
@@ -1188,7 +1189,7 @@ class ImViewerUI
 		} else {
 			n = model.getDefaultZ();
 			text += "Z="+(n+1);
-			if (d> 0) 
+			if (d > 0 && max > 0) 
 				text += " ("+UIUtilities.roundTwoDecimals(n*d)+
 					EditorUtil.MICRONS_NO_BRACKET+")";
 			text += "/"+(model.getMaxZ()+1);

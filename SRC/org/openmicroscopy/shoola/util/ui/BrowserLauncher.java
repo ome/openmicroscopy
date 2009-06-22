@@ -95,13 +95,12 @@ public class BrowserLauncher
 	{
 		String osName = System.getProperty("os.name");
 		try {
-			if (osName.startsWith("Mac OS")) {
+			if (osName.contains("Mac")) {
 				Class fileMgr = Class.forName("com.apple.eio.FileManager");
 				Method openURL = fileMgr.getDeclaredMethod("openURL",
 											new Class[] {String.class});
 				openURL.invoke(null, new Object[] {url});
-			}
-			else if (osName.startsWith("Windows"))
+			} else if (osName.contains("Windows"))
 				Runtime.getRuntime().exec(
 						"rundll32 url.dll,FileProtocolHandler "+url);
 			else { //assume Unix or Linux

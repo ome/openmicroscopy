@@ -70,6 +70,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ImportAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ImporterVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.InspectorVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
@@ -268,6 +269,9 @@ class TreeViewerControl
 	 */
 	static final Integer    FILE_SYSTEM_EXPLORER = Integer.valueOf(52);
 	
+	/** Identifies the <code>Import</code> in the menu. */
+	static final Integer    IMPORT = Integer.valueOf(53);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -353,6 +357,7 @@ class TreeViewerControl
 				EditorAction.NEW_WITH_SELECTION));
 		actionsMap.put(INSPECTOR, new InspectorVisibilityAction(model));
 		actionsMap.put(IMPORTER, new ImporterVisibilityAction(model));
+		actionsMap.put(IMPORT, new ImportAction(model));
 	}
 
 	/** 

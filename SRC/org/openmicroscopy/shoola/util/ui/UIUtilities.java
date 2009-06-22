@@ -1279,9 +1279,10 @@ public class UIUtilities
 	public static String formatFileSize(long v)
 	{
 		if (v < 0) return "";
-		if (v < 1000) 
-			return NumberFormat.getInstance().format(v)+" b";
-		long value = v/1000;
+
+		//if (v < 1000) 
+		//	return NumberFormat.getInstance().format(v)+" b";
+		long value = v;///1000;
 		if (value <= 1000) 
 			return NumberFormat.getInstance().format(value)+" Kb";
 		value = value/1000;

@@ -90,7 +90,7 @@ public class CreateAction
      * Description of the action if the selected node is a <code>Image</code>.
      */
     private static final String DESCRIPTION_IMAGE = 
-    	"Import the selected image.";
+    	"Import the selected images.";
     
     /** Default Description of the action. */
     private static final String DESCRIPTION = "Create a new element.";

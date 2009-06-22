@@ -604,7 +604,7 @@ public class IconManager
         relPaths[IMAGE_22] = "nuvola_indeximg22.png";
         relPaths[MOVIE_48] = "openOffice_stock_insert-video-plugin-48.png";
         relPaths[COLOR_PICKER] = "nuvola_colorpicker16.png";
-        relPaths[IMPORT_48] = "openOffice_stock_insert-video-plugin-48.png";
+        relPaths[IMPORT_48] = "omeroImporterLink48.png";
     }
 	
 	/**

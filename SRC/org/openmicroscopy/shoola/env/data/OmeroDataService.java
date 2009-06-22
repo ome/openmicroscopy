@@ -347,13 +347,14 @@ public interface OmeroDataService
 	 * 
 	 * @param index One of the following constants: {@link #USED} or 
 	 * 				{@link #FREE}.
+	 * @param userID The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public long getSpace(int index)
+	public long getSpace(int index, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

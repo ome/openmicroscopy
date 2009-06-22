@@ -113,9 +113,6 @@ class GeneralPaneUI
 	/** The layout index of the {@link annotationUI}. */
 	private int							annotationLayoutIndex;
 	
-	/** The layout index of the {@link textualAnnotationsUI}. */
-	private int							textualAnnotationsLayoutIndex;
-	
 	/** The layout index of the {@link browserTaskPane}. */
 	private int							browserIndex;
 	

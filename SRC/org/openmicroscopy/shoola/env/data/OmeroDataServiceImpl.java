@@ -985,16 +985,14 @@ class OmeroDataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getSpace(int)
+	 * @see OmeroDataService#getSpace(int, long)
 	 */
-	public long getSpace(int index)
+	public long getSpace(int index, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		switch (index) {
-		case OmeroDataService.USED:
-			return gateway.getUsedSpace();
-		case OmeroDataService.FREE:
-			return gateway.getFreeSpace();
+			case OmeroDataService.USED: return gateway.getUsedSpace();
+			case OmeroDataService.FREE: return gateway.getFreeSpace();
 		}
 		return -1;
 	}

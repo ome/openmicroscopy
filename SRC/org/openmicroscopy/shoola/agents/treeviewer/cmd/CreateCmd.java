@@ -171,7 +171,6 @@ public class CreateCmd
         		if (option == JFileChooser.APPROVE_OPTION) {
         			File[] files = new File[1];
         			files[0] = chooser.getSelectedFile();
-        			System.err.println(chooser.getSelectedFiles().length);
         			model.importFiles(files);
         			chooser.setVisible(false);
         			//chooser.dispose();
