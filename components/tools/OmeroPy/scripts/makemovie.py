@@ -180,15 +180,18 @@ def rangeToStr(range):
 	return string;
 
 def rangeFromList(list, index):
+	print list
+	print index
 	minValue = list[0][index];
-	minValue = list[0][index];
+	maxValue = list[0][index];
 	for i in list:
-		minValue = min(minValue, list[i][index]);
-		maxValue = max(maxValue, list[i][index]);
+		minValue = min(minValue, i[index]);
+		maxValue = max(maxValue, i[index]);
 	return range(minValue, maxValue+1);
 	
 def calculateAquisitionTime(session, pixelsId, cRange, tzList):
 	queryService = session.getQueryService()
+	print tzList
 	tRange = rangeFromList(tzList, 0);
 	zRange = rangeFromList(tzList, 1)
 	query = "from PlaneInfo as Info where Info.theZ in ("+rangeToStr(zRange)+") and Info.theT in ("+rangeToStr(tRange)+") and Info.theC in ("+rangeToStr(cRange)+") and pixels.id='"+str(pixelsId)+"'"
@@ -313,20 +316,21 @@ def buildPlaneMapFromRanges(zRange, tRange):
 def strToRange(key):
 	splitKey = key.split('-');
 	if(len(splitKey)==1):
-		return range(splitKey[0],splitKey[0]+1)
-	return range(splitKey[0], splitKey[1]+1);
+		return range(int(splitKey[0]), int(splitKey[0])+1)
+	return range(int(splitKey[0]), int(splitKey[1])+1);
 
 def unrollPlaneMap(planeMap):
 	unrolledPlaneMap = [];
 	for tSet in planeMap:
-		zValue = planeMap(tSet);
+		zValue = planeMap[tSet];
 		for t in strToRange(tSet):
-			for z in strToRange(zValue):
-				unrolledPlaneMap.append([t,z]);
+			for z in strToRange(zValue.getValue()):
+				unrolledPlaneMap.append([int(t),int(z)]);
+	return unrolledPlaneMap
 	
 def calculateRanges(sizeZ, sizeT, commandArgs):
-	planeMap = [];
-	if(commandArgs["planeMap"]==[]):
+	planeMap = {};
+	if(commandArgs["planeMap"]=={}):
 		if(commandArgs["zStart"]==commandArgs["zEnd"]):
 			commandArgs["zEnd"] = commandArgs["zEnd"]+1;
 		if(commandArgs["tStart"]==commandArgs["tEnd"]):
@@ -341,7 +345,9 @@ def calculateRanges(sizeZ, sizeT, commandArgs):
 			tRange = range(0, sizeT)
 		planeMap = buildPlaneMapFromRanges(zRange, tRange);
 	else:
-		planeMap = unrollPlaneMap(commandArgs["planeMap"]);
+		map = commandArgs["planeMap"];
+		print map
+		planeMap = unrollPlaneMap(map);
 	return planeMap;
 		
 def writeMovie(commandArgs, session):
@@ -364,7 +370,7 @@ def writeMovie(commandArgs, session):
 	if(validChannels(cRange, sizeC)==0):
 		cRange = range(0, sizeC);
 
-	tzList = calculateRanges(sizeZ, sizeT, sizeC, commandArgs);
+	tzList = calculateRanges(sizeZ, sizeT, commandArgs);
 
 	timeMap = calculateAquisitionTime(session, pixelsId, cRange, tzList)
 
