@@ -44,8 +44,9 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import ome.formats.importer.util.FileUploadContainer;
 import ome.formats.importer.util.GuiCommonElements;
-import ome.formats.importer.util.HtmlFileUploader;
+import ome.formats.importer.util.FileUploader;
 import ome.formats.importer.util.HtmlMessenger;
 import ome.formats.importer.util.IniFileLoader;
 
@@ -77,7 +78,8 @@ public class DebugMessenger extends JDialog implements ActionListener
     boolean debug = false;
 
     String url = "http://users.openmicroscopy.org.uk/~brain/omero/bugcollector.php";   
-    String uploaderUrl = "http://mage.openmicroscopy.org.uk:8080/qa/processing/";
+    String tokenUrl = "http://mage.openmicroscopy.org.uk/qa/token/"; 
+    String uploaderUrl = "http://mage.openmicroscopy.org.uk/qa/processing/";
     
     private String[] files = null;
     
@@ -110,6 +112,7 @@ public class DebugMessenger extends JDialog implements ActionListener
     {
         super(owner);
         gui = new GuiCommonElements();
+        this.files = files;
         
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
@@ -152,7 +155,7 @@ public class DebugMessenger extends JDialog implements ActionListener
                 "Send your comment and your files to the development team", "7, 1, f, c", debug);
         sendWithFilesBtn.addActionListener(this);
         
-        if (files == null)
+        if (this.files == null)
         {
             sendWithFilesBtn.setEnabled(false);
         }
@@ -354,33 +357,31 @@ public class DebugMessenger extends JDialog implements ActionListener
     
     private void sendFileRequest(String email, String comment, String error, String extra)
     {
-        Map <String, String>map = new HashMap<String, String>();
-        extra = "(" + ini.getVersionNumber() + ") " + extra;
+        FileUploadContainer upload = new FileUploadContainer();
         
-        map.put("email",email);
-        map.put("comment", comment);
-        map.put("error", error);
-        map.put("extra", extra);
-        
-        map.put("type", "importer_bugs");
-        map.put("java_version", System.getProperty("java.version"));
-        map.put("java_class_path", System.getProperty("java.class.path"));
-        map.put("os_name", System.getProperty("os.name"));
-        map.put("os_arch", System.getProperty("os.arch"));
-        map.put("os_version", System.getProperty("os.version"));
+        upload.setEmail(email);
+        upload.setComment(comment);
+        upload.setError(error);
+        upload.setExtra(extra);
+        upload.setCommentType("2");
+        upload.setJavaVersion(System.getProperty("java.version"));
+        upload.setJavaClasspath(System.getProperty("java.class.path"));
+        upload.setOSName(System.getProperty("os.name"));
+        upload.setOSArch(System.getProperty("os.arch"));
+        upload.setOSVersion(System.getProperty("os.version"));
+        upload.setAppVersion(ini.getVersionNumber());
+        upload.setFiles(files);
 
         try {
-            HtmlMessenger messenger = new HtmlMessenger(url, map);
-            String messengerReply = messenger.executePost();
-            JEditorPane reply = new JEditorPane("text/html", messengerReply);
-            reply.setEditable(false);
-            reply.setOpaque(false);
-            JOptionPane.showMessageDialog(this, reply);
+            Map <String, String>map = new HashMap<String, String>();
+            HtmlMessenger messenger = new HtmlMessenger(tokenUrl, map);
+            String tokenReply = messenger.executePost();
             
-            HtmlFileUploader fileUploader = new HtmlFileUploader();
-            fileUploader.uploadFiles(uploaderUrl, 5000, null, files);
+            upload.setSessionId(tokenReply);
+            System.err.println(tokenReply);
             
-            this.dispose();
+            FileUploader fileUploader = new FileUploader();
+            fileUploader.uploadFiles(uploaderUrl, 5000, upload);
         }
         catch( Exception e ) {
             log.error("Error while sending debug information.", e);

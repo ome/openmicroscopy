@@ -97,7 +97,7 @@ public class Main extends JFrame
    
     // -- Constants --
     private final static boolean useSplashScreenAbout   = false;
-    static boolean USE_QUAQUA = true;
+    static boolean USE_QUAQUA = false;
     
     
     public final static String TITLE            = "OMERO.importer";

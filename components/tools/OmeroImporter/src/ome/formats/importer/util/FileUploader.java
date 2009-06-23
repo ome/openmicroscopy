@@ -11,44 +11,55 @@ import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
-import ome.formats.importer.util.CountingRequestEntity.ProgressListener;
+import ome.formats.importer.util.FileUploadCounter.ProgressListener;
 
 
-public class HtmlFileUploader implements IObservable
-{
+public class FileUploader implements IObservable
+{   
+
+    private static Log         log = LogFactory.getLog(FileUploader.class);
 
     private String url;
     private String[] files;
-    private String sessionId;
+
+    private String session_id;
+
 
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
 
     public void setSessionId(String sessionId)
     {
         if (sessionId != null)
-            this.sessionId = sessionId;
+            this.session_id = sessionId;
         else
-            this.sessionId = java.util.UUID.randomUUID().toString().replace("-", "");
-        
-        System.err.println(sessionId);
+        {
+            this.session_id = java.util.UUID.randomUUID().toString().replace("-", "");
+            log.warn("FileUploadContainer has not set session_id, autogenerating session id of: " + session_id);
+        }
+
+
+        System.err.println(session_id);
     }
 
     public String getSessionId()
     {
-        return this.sessionId;
+        return this.session_id;
     }
 
-    public void uploadFiles(String url, int timeout, String sessionId, String[] files)
+    public void uploadFiles(String url, int timeout, FileUploadContainer upload)
     {
         this.url = url;
-        this.files = files;
-        setSessionId(sessionId);
+        this.files = upload.getFiles();
+        System.err.println(files.length);
+        setSessionId(upload.getSessionId());
 
         PostMethod method = null;
-        
+
         // observer arguements passed to any observers
         // [0] is filename
         // [1] is file index from files
@@ -59,13 +70,15 @@ public class HtmlFileUploader implements IObservable
         final Object[] observerArgs;
         observerArgs = new Object[6];
         int fileCount = 0;
-        
+
         for (String f : files)
         {
             fileCount++;
-            
+
+            System.err.println(f);
+
             File file = new File(f);
-            
+
             observerArgs[0] = file.getName();
             observerArgs[1] = fileCount;
             observerArgs[2] = files.length;
@@ -81,12 +94,24 @@ public class HtmlFileUploader implements IObservable
                 params.setConnectionManagerTimeout(timeout);
                 client.setParams(params);
 
-
                 method = new PostMethod(url);
 
                 Part[] parts = {
-                        new StringPart("sid", sessionId),
-                        new StringPart("sessionid", sessionId),
+                        new StringPart("java_version", upload.getJavaVersion()),
+                        new StringPart("java_classpath", upload.getJavaClasspath()),
+                        new StringPart("app_version", upload.getAppVersion()),
+                        new StringPart("app_name", upload.getCommentType()),
+                        new StringPart("os_name", upload.getOSName()),
+                        new StringPart("os_arch", upload.getOSArch()),
+                        new StringPart("os_version", upload.getOSVersion()),
+                        new StringPart("extra", upload.getExtra()),
+                        new StringPart("error", upload.getError()),
+                        new StringPart("comment", upload.getComment()),
+                        new StringPart("email", upload.getEmail()),
+                        new StringPart("token", upload.getSessionId()),
+                        new StringPart("selected_file", upload.getSelectedFile()),
+                        new StringPart("file_type", upload.getFileType()),
+                        new StringPart("sessionid", upload.getSessionId()),
                         new FilePart("Filedata", file)
                 };
 
@@ -97,47 +122,42 @@ public class HtmlFileUploader implements IObservable
 
                 ProgressListener listener = new ProgressListener(){
 
-                    private long megaBytes = -1;
+                    private long parts = -1;
 
-                    public void update(long pBytesRead, long pContentLength) {
-                        long mBytes = pBytesRead / (pContentLength/10);
-                        if (megaBytes == mBytes) {
+                    public void update(long bytesRead)
+                    {
+                        long partsDone = bytesRead / (fileLength/10);
+                        if (parts == partsDone) {
                             return;
                         }
-                        megaBytes = mBytes;
+                        parts = partsDone;
 
                         notifyObservers(Actions.FILE_UPLOAD_STARTED, observerArgs);
 
                         System.out.println("We are currently reading item " + observerArgs[1] + " of " + observerArgs[2]);
 
-                        long uploadedBytes = pBytesRead/2;
-                        if (pContentLength == -1) {
+                        long uploadedBytes = bytesRead/2;
+                        if (fileLength == -1) {
 
                             observerArgs[3] = uploadedBytes;
                             notifyObservers(Actions.FILE_UPLOAD_BYTES, observerArgs);
 
-                            System.out.println("So far, " + uploadedBytes + " have been read.");
+                            System.out.println("So far, " + uploadedBytes + " have been sent.");
 
 
                         } else {
 
                             observerArgs[3] = uploadedBytes;
-                            observerArgs[4] = pContentLength;
+                            observerArgs[4] = fileLength;
                             notifyObservers(Actions.FILE_UPLOAD_BYTES, observerArgs);
 
-                            System.out.println("So far, " + uploadedBytes + " of " + pContentLength
-                                    + " have been read.");
+                            System.out.println("So far, " + uploadedBytes + " of " + fileLength
+                                    + " have been sent.");
                         }
-                    }
-
-
-                    public void transferred(long num)
-                    {
-                        update(num, fileLength);
                     }
                 };
 
-                CountingRequestEntity hfre = new CountingRequestEntity(mpre, listener);
+                FileUploadCounter hfre = new FileUploadCounter(mpre, listener);
 
                 method.setRequestEntity(hfre);
 
@@ -145,22 +165,23 @@ public class HtmlFileUploader implements IObservable
 
                 if (status == HttpStatus.SC_OK) {            
                     notifyObservers(Actions.FILE_UPLOAD_COMPLETE, observerArgs);
-                    
+
                     System.err.println("Upload complete");
-                    
+
                 } else {
                     notifyObservers(Actions.FILE_UPLOAD_FAILED, observerArgs);
                 }
             } catch (Exception ex) {
                 observerArgs[5] = ex.getMessage();
                 notifyObservers(Actions.FILE_UPLOAD_ERROR, observerArgs);
+                ex.printStackTrace();
             } finally {
                 method.releaseConnection();
             }
         }
-        
+
         notifyObservers(Actions.FILE_UPLOAD_FINSIHED, observerArgs);
-        System.err.println("Upload finished");
+        System.err.println("Upload finished. Token: " + upload.getSessionId());
     }
 
     // Observable methods
@@ -182,16 +203,18 @@ public class HtmlFileUploader implements IObservable
             observer.update(this, message, args);
         }
     }
-    
-    
+
+
     public static void main(String[] args)
     {
 
-        String url = "http://mage.openmicroscopy.org.uk:8080/qa/processing/";
+        String url = "http://mage.openmicroscopy.org.uk/qa/processing/";
         String dvPath = "/Users/TheBrain/test_images_shortrun/dv/";
         String[] files = {dvPath + "CFPNEAT01_R3D.dv", dvPath + "IAGFP-Noc01_R3D.dv"};
-        
-        HtmlFileUploader uploader = new HtmlFileUploader();
-        uploader.uploadFiles(url, 5000, "brian", files);
+
+        FileUploader uploader = new FileUploader();
+        FileUploadContainer upload = new FileUploadContainer();
+        upload.setFiles(files);
+        uploader.uploadFiles(url, 5000, upload);
     }
 }

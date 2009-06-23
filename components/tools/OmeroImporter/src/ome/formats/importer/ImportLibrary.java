@@ -135,6 +135,11 @@ public class ImportLibrary implements IObservable
     {
         this.target = target;
     }
+    
+    public String[] getUsedFiles()
+    {
+        return reader.getUsedFiles();
+    }
 
     
     // ~ Getters
