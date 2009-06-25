@@ -626,7 +626,10 @@ def my_account(request, action=None, **kwargs):
     form_file = UploadPhotoForm()
     
     if action == "save":
-        form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups})
+        if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
+            form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups})
+        else:
+            form = MyAccountLdapForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups})
         if form.is_valid():
             firstName = request.REQUEST['first_name'].encode('utf-8')
             middleName = request.REQUEST['middle_name'].encode('utf-8')

@@ -131,6 +131,9 @@ urlpatterns = patterns('',
     
     #(r'(?i)^feeds/(?P<url>.*)/$', 'django.contrib.syndication.views.feed',{'feed_dict': feeds}),
     
+    #test Import
+    (r'(?i)^importing/$', views.flash_importing), 
+
     #test ROI
     (r'(?i)^test/$', views.test), 
     (r'(?i)^histogram/(?P<oid>[0-9]+)/$', views.histogram), 

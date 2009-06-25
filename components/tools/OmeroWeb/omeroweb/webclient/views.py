@@ -2724,6 +2724,7 @@ def search(request, **kwargs):
 
 @isUserConnected
 def impexp(request, menu, **kwargs):
+    print request.session.session_key
     request.session['nav']['menu'] = 'import'
     template = "omeroweb/impexp.html"
     
@@ -2740,10 +2741,48 @@ def impexp(request, menu, **kwargs):
 
     form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
     
-    context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
+    context = {'sid':request.session['server'], 'uuid':conn._sessionUuid, 'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))
+
+def load_session_from_request(handler):
+    """Read the session key from the GET/POST vars instead of the cookie.
+
+    Centipedes, in my request headers?
+    Yes! We sometimes receive the session key in the POST, because the
+    multiple-file-uploader uses Flash to send the request, and the best Flash
+    can do is grab our cookies from javascript and send them in the POST.
+    """
+    def func(request, *args, **kwargs):
+        session_key = request.REQUEST.get(settings.SESSION_COOKIE_NAME, None)
+        if not session_key:
+            # TODO(rnk): Do something more sane like ask the user if their
+            #            session is expired or some other weirdness.
+            raise Http404()
+        # This is how SessionMiddleware does it.
+        session_engine = __import__(settings.SESSION_ENGINE, {}, {}, [''])
+        try:
+            request.session = session_engine.SessionStore(session_key)
+        except Exception, e:
+            return html_error(e)
+        return handler(request, *args, **kwargs)
+    return func
+
+@load_session_from_request
+@isUserConnected
+def flash_importing(request, **kwargs):
+    print request.session.session_key
+    print request.POST
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    print conn._user
+    
+    return HttpResponse()
 
 @isUserConnected
 def myaccount(request, action=None, **kwargs):
@@ -2785,7 +2824,10 @@ def myaccount(request, action=None, **kwargs):
 
     request.session['nav']['edit_mode'] = False    
     if action == "save":
-        form = MyAccountForm(data=request.REQUEST.copy(), initial={'groups':controller.otherGroups})
+        if controller.ldapAuth == "" or controller.ldapAuth is None:
+            form = MyAccountForm(data=request.POST.copy(), initial={'groups':controller.otherGroups})
+        else:
+            form = MyAccountLdapForm(data=request.POST.copy(), initial={'groups':controller.otherGroups})
         if form.is_valid():
             firstName = request.REQUEST['first_name'].encode('utf-8')
             middleName = request.REQUEST['middle_name'].encode('utf-8')
