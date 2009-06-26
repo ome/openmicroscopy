@@ -255,129 +255,131 @@ public class OMEROMetadataStore
      * Updates our object graph references.
      * @param referenceCache Client side LSID reference cache.
      */
-    public void updateReferences(Map<String, String> referenceCache)
+    public void updateReferences(Map<String, String[]> referenceCache)
     {
     	for (String target : referenceCache.keySet())
     	{
-    		LSID targetLSID = new LSID(target);
-    		IObject targetObject = lsidMap.get(targetLSID);
-    		String reference = referenceCache.get(target);
-    		LSID referenceLSID = new LSID(reference);
-    		IObject referenceObject = lsidMap.get(referenceLSID);
-    		if (targetObject instanceof DetectorSettings)
+    		for (String reference : referenceCache.get(target))
     		{
-    			if (referenceObject instanceof Detector)
+    			LSID targetLSID = new LSID(target);
+    			IObject targetObject = lsidMap.get(targetLSID);
+    			LSID referenceLSID = new LSID(reference);
+    			IObject referenceObject = lsidMap.get(referenceLSID);
+    			if (targetObject instanceof DetectorSettings)
     			{
-    				handleReference((DetectorSettings) targetObject,
-    						        (Detector) referenceObject);
-    				continue;
+    				if (referenceObject instanceof Detector)
+    				{
+    					handleReference((DetectorSettings) targetObject,
+    							(Detector) referenceObject);
+    					continue;
+    				}
     			}
+    			else if (targetObject instanceof Image)
+    			{
+    				if (referenceObject instanceof Instrument)
+    				{
+    					handleReference((Image) targetObject,
+    							(Instrument) referenceObject);
+    					continue;
+    				}
+    				if (referenceObject instanceof Annotation)
+    				{
+    					handleReference((Image) targetObject,
+    							(Annotation) referenceObject);
+    					continue;
+    				}
+    				if (referenceLSID.toString().contains("DatasetI"))
+    				{
+    					int colonIndex = reference.indexOf(":");
+    					long datasetId = Long.parseLong(
+    							reference.substring(colonIndex + 1));
+    					referenceObject = new Dataset(datasetId, false);
+    					handleReference((Image) targetObject,
+    							(Dataset) referenceObject);
+    					continue;
+    				}
+    			}
+    			else if (targetObject instanceof LightSettings)
+    			{
+    				if (referenceObject instanceof LightSource)
+    				{
+    					handleReference((LightSettings) targetObject,
+    							(LightSource) referenceObject);
+    					continue;
+    				}
+    			}
+    			else if (targetObject instanceof LogicalChannel)
+    			{
+    				if (referenceObject instanceof OTF)
+    				{
+    					handleReference((LogicalChannel) targetObject,
+    							(OTF) referenceObject);
+    					continue;
+    				}
+    			}
+    			else if (targetObject instanceof OTF)
+    			{
+    				if (referenceObject instanceof Objective)
+    				{
+    					handleReference((OTF) targetObject,
+    							(Objective) referenceObject);
+    					continue;
+    				}
+    			}
+    			else if (targetObject instanceof ObjectiveSettings)
+    			{
+    				if (referenceObject instanceof Objective)
+    				{
+    					handleReference((ObjectiveSettings) targetObject,
+    							(Objective) referenceObject);
+    					continue;
+    				}
+    			}
+    			else if (targetObject instanceof WellSample)
+    			{
+    				if (referenceObject instanceof Image)
+    				{
+    					handleReference((WellSample) targetObject,
+    							(Image) referenceObject);
+    					continue;
+    				}
+    			}
+    			else if (targetObject instanceof Pixels)
+    			{
+    				if (referenceObject instanceof OriginalFile)
+    				{
+    					handleReference((Pixels) targetObject,
+    							(OriginalFile) referenceObject);
+    					continue;
+    				}
+    			}
+    			else if (targetObject instanceof Plate)
+    			{
+    				if (referenceLSID.toString().contains("ScreenI"))
+    				{
+    					int colonIndex = reference.indexOf(":");
+    					long screenId = Long.parseLong(
+    							reference.substring(colonIndex + 1));
+    					referenceObject = new Screen(screenId, false);
+    					handleReference((Plate) targetObject,
+    							(Screen) referenceObject);
+    					continue;
+    				}
+    			}
+    			else if (targetObject instanceof FileAnnotation)
+    			{
+    				if (referenceObject instanceof OriginalFile)
+    				{
+    					handleReference((FileAnnotation) targetObject,
+    							(OriginalFile) referenceObject);
+    					continue;
+    				}
+    			}
+
+    			throw new ApiUsageException(String.format(
+    					"Missing reference handler for %s(%s) --> %s(%s) reference.",
+    					reference, referenceObject, target, targetObject));
     		}
-    		else if (targetObject instanceof Image)
-    		{
-    			if (referenceObject instanceof Instrument)
-    			{
-    				handleReference((Image) targetObject,
-    						        (Instrument) referenceObject);
-    				continue;
-    			}
-    			if (referenceObject instanceof Annotation)
-    			{
-    				handleReference((Image) targetObject,
-					                (Annotation) referenceObject);
-    				continue;
-    			}
-    			if (referenceLSID.toString().contains("DatasetI"))
-    			{
-    				int colonIndex = reference.indexOf(":");
-    				long datasetId = Long.parseLong(
-    						reference.substring(colonIndex + 1));
-    				referenceObject = new Dataset(datasetId, false);
-    				handleReference((Image) targetObject,
-    						        (Dataset) referenceObject);
-    				continue;
-    			}
-    		}
-    		else if (targetObject instanceof LightSettings)
-    		{
-    			if (referenceObject instanceof LightSource)
-    			{
-    				handleReference((LightSettings) targetObject,
-    						        (LightSource) referenceObject);
-    				continue;
-    			}
-    		}
-    		else if (targetObject instanceof LogicalChannel)
-    		{
-    			if (referenceObject instanceof OTF)
-    			{
-    				handleReference((LogicalChannel) targetObject,
-    						        (OTF) referenceObject);
-    				continue;
-    			}
-    		}
-    		else if (targetObject instanceof OTF)
-    		{
-    			if (referenceObject instanceof Objective)
-    			{
-    				handleReference((OTF) targetObject,
-    						        (Objective) referenceObject);
-    				continue;
-    			}
-    		}
-    		else if (targetObject instanceof ObjectiveSettings)
-    		{
-    			if (referenceObject instanceof Objective)
-    			{
-    				handleReference((ObjectiveSettings) targetObject,
-    						        (Objective) referenceObject);
-    				continue;
-    			}
-    		}
-    		else if (targetObject instanceof WellSample)
-    		{
-    		    if (referenceObject instanceof Image)
-    		    {
-    		        handleReference((WellSample) targetObject,
-    		                        (Image) referenceObject);
-    		        continue;
-    		    }
-    		}
-            else if (targetObject instanceof Pixels)
-            {
-                if (referenceObject instanceof OriginalFile)
-                {
-                    handleReference((Pixels) targetObject,
-                                    (OriginalFile) referenceObject);
-                    continue;
-                }
-            }
-            else if (targetObject instanceof Plate)
-            {
-    			if (referenceLSID.toString().contains("ScreenI"))
-    			{
-    				int colonIndex = reference.indexOf(":");
-    				long screenId = Long.parseLong(
-    						reference.substring(colonIndex + 1));
-    				referenceObject = new Screen(screenId, false);
-    				handleReference((Plate) targetObject,
-    						        (Screen) referenceObject);
-    				continue;
-    			}
-            }
-            else if (targetObject instanceof FileAnnotation)
-            {
-                if (referenceObject instanceof OriginalFile)
-                {
-                    handleReference((FileAnnotation) targetObject,
-                                    (OriginalFile) referenceObject);
-                    continue;
-                }
-            }
-    		
-			throw new ApiUsageException(String.format(
-					"Missing reference handler for %s(%s) --> %s(%s) reference.",
-					reference, referenceObject, target, targetObject));
     	}
     }
     

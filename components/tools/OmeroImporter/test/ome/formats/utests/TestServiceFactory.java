@@ -470,9 +470,7 @@ public class TestServiceFactory implements ServiceFactoryPrx
 
     public ITypesPrx getTypesService() throws ServerError
     {
-        // TODO Auto-generated method stub
-        //return null;
-        throw new RuntimeException("Not implemented yet.");
+    	return null;
     }
 
     public ITypesPrx getTypesService(Map<String, String> arg0)

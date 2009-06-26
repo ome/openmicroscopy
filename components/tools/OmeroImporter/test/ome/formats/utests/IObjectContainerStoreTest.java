@@ -52,7 +52,7 @@ public class IObjectContainerStoreTest extends TestCase
 	
 	public void testSetReferenceStringCache()
 	{
-		Map<String, String> a = new HashMap<String, String>();
+		Map<String, String[]> a = new HashMap<String, String[]>();
 		store.setReferenceStringCache(a);
 		assertEquals(a, store.getReferenceStringCache());
 	}

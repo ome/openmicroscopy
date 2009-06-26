@@ -73,8 +73,8 @@ public class DetectorSettingsTest extends TestCase
 	        LSID lsid = new LSID(Pixels.class, i, PIXELS_INDEX);
 	        assertNotNull(store.getSourceObject(lsid));
 	    }
-	    assertNotNull(store.getSourceObject(new LSID("Instrument:0")));
-	    assertNotNull(store.getSourceObject(new LSID("Detector:0")));
+	    assertNotNull(store.getSourceObject(new LSID(Instrument.class, 0)));
+	    assertNotNull(store.getSourceObject(new LSID(Detector.class, 0, 0)));
 	}
 	
 	public void testDetectorModelPreserved()

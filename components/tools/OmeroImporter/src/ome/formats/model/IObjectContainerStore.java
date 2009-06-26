@@ -126,21 +126,28 @@ public interface IObjectContainerStore
      * Returns the current reference cache.
      * @return See above.
      */
-    Map<LSID, LSID> getReferenceCache();
+    Map<LSID, List<LSID>> getReferenceCache();
+    
+    /**
+     * Adds a reference to the reference cache.
+     * @param source Source LSID to add.
+     * @param target Target LSID to add.
+     */
+    void addReference(LSID source, LSID target);
     
     /**
      * Returns the current string based reference cache. This is usually 
      * populated by a ReferenceProcessor instance.
      * @return See above.
      */
-    Map<String, String> getReferenceStringCache();
+    Map<String, String[]> getReferenceStringCache();
     
     /**
      * Sets the string based reference cache for this container store. This is
      * usually called by a ReferenceProcessor instance.
      * @param referenceStringCache String based reference cache to use.
      */
-    void setReferenceStringCache(Map<String, String> referenceStringCache);
+    void setReferenceStringCache(Map<String, String[]> referenceStringCache);
     
     /**
      * Retrieves an OMERO Blitz source object for a given LSID.

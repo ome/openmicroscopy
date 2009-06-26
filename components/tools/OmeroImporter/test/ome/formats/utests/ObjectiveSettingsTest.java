@@ -64,7 +64,8 @@ public class ObjectiveSettingsTest extends TestCase
 	public void testObjectiveCorrectionExists()
 	{
 		Objective o =
-			(Objective) store.getSourceObject(new LSID("Objective:0"));
+			(Objective) store.getSourceObject(new LSID(Objective.class, 0, 0));
+		assertNotNull(o);
 		assertNotNull(o.getCorrection());
 	}
 	
@@ -72,7 +73,8 @@ public class ObjectiveSettingsTest extends TestCase
 	{
 		store.setObjectiveCorrection("", INSTRUMENT_INDEX, OBJECTIVE_INDEX);
 		Objective o =
-			(Objective) store.getSourceObject(new LSID("Objective:0"));
+			(Objective) store.getSourceObject(new LSID(Objective.class, 0, 0));
+		assertNotNull(o);
 		// Test enumeration provider always returns "Unknown", in reality this
 		// should be "Other".
 		assertEquals("Unknown", o.getCorrection().getValue().getValue());
@@ -82,7 +84,8 @@ public class ObjectiveSettingsTest extends TestCase
 	{
 		store.setObjectiveCorrection(null, INSTRUMENT_INDEX, OBJECTIVE_INDEX);
 		Objective o =
-			(Objective) store.getSourceObject(new LSID("Objective:0"));
+			(Objective) store.getSourceObject(new LSID(Objective.class, 0, 0));
+		assertNotNull(o);
 		// Test enumeration provider always returns "Unknown", in reality this
 		// should be "Other".
 		assertEquals("Unknown", o.getCorrection().getValue().getValue());
@@ -95,8 +98,8 @@ public class ObjectiveSettingsTest extends TestCase
 	        LSID lsid = new LSID(Pixels.class, i, PIXELS_INDEX);
 	        assertNotNull(store.getSourceObject(lsid));
 	    }
-	    assertNotNull(store.getSourceObject(new LSID("Instrument:0")));
-	    assertNotNull(store.getSourceObject(new LSID("Objective:0")));
+	    assertNotNull(store.getSourceObject(new LSID(Instrument.class, 0)));
+	    assertNotNull(store.getSourceObject(new LSID(Objective.class, 0, 0)));
 	}
 	
 	public void testObjectiveModelPreserved()

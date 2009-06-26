@@ -132,6 +132,7 @@ module omero {
         sequence<int> IntegerArray;
         sequence<long> LongArray;
         sequence<double> DoubleArray;
+        sequence<string> StringArray;
         sequence<ByteArray> ByteArrayArray;
         sequence<ShortArray> ShortArrayArray;
         sequence<IntegerArray> IntegerArrayArray;
@@ -139,6 +140,7 @@ module omero {
         sequence<LongArray> LongArrayArray;
         sequence<DoubleArray> DoubleArrayArray;
         sequence<DoubleArrayArray> DoubleArrayArrayArray;
+        sequence<StringArray> StringArrayArray;
 
         // Dictionaries
 
@@ -148,6 +150,7 @@ module omero {
         dictionary<string, omero::RType>               StringRTypeMap;
         dictionary<string, omero::model::Experimenter> UserMap;
         dictionary<string, string>                     StringStringMap;
+        dictionary<string, StringArray>                StringStringArrayMap;
         dictionary<string, long>                       StringLongMap;
         dictionary<string, int>                        StringIntMap;
 

@@ -147,13 +147,14 @@ public class OMEROMetadataStoreClient
         new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
     
     /** Our LSID reference cache. */
-    private Map<LSID, LSID> referenceCache = new HashMap<LSID, LSID>();
+    private Map<LSID, List<LSID>> referenceCache = 
+    	new HashMap<LSID, List<LSID>>();
     
     /** 
      * Our string based reference cache. This will be populated after all
      * model population has been completed by a ReferenceProcessor. 
      */
-    private Map<String, String> referenceStringCache;
+    private Map<String, String[]> referenceStringCache;
 
     /** Our model processors. Will be called on saveToDB(). */
     private List<ModelProcessor> modelProcessors = 
@@ -229,7 +230,7 @@ public class OMEROMetadataStoreClient
         modelProcessors.add(new ReferenceProcessor());
         
         // Fix check for broken 4.0 immersions table
-        checkImmersions();
+        //checkImmersions();
         
         // Start our keep alive executor
         if (executor == null)
@@ -414,7 +415,7 @@ public class OMEROMetadataStoreClient
             log.debug("Creating root!");
             containerCache = 
                 new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
-            referenceCache = new HashMap<LSID, LSID>();
+            referenceCache = new HashMap<LSID, List<LSID>>();
             referenceStringCache = null;
             imageChannelGlobalMinMax = null;
             userSpecifiedImageName = null;
@@ -580,23 +581,43 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#getReferenceCache()
      */
-    public Map<LSID, LSID> getReferenceCache()
+    public Map<LSID, List<LSID>> getReferenceCache()
     {
         return referenceCache;
+    }
+    
+    /**
+     * Adds a reference to the reference cache.
+     * @param source Source LSID to add.
+     * @param target Target LSID to add.
+     */
+    public void addReference(LSID source, LSID target)
+    {
+    	List<LSID> targets = null;
+    	if (referenceCache.containsKey(source))
+    	{
+    		referenceCache.get(source);
+    	}
+    	else
+    	{
+    		targets = new ArrayList<LSID>();
+    		referenceCache.put(source, targets);
+    	}
+    	targets.add(target);
     }
     
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#getReferenceStringCache()
      */
-    public Map<String, String> getReferenceStringCache()
+    public Map<String, String[]> getReferenceStringCache()
     {
         return referenceStringCache;
     }
     
     /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#setReferenceStringCache(java.util.Map)
+     * @see ome.formats.model.IObjectContainerStore#setReferenceStringCache(Map<String, String[]>)
      */
-    public void setReferenceStringCache(Map<String, String> referenceStringCache)
+    public void setReferenceStringCache(Map<String, String[]> referenceStringCache)
     {
         this.referenceStringCache = referenceStringCache;
     }
@@ -646,7 +667,7 @@ public class OMEROMetadataStoreClient
     public boolean hasReference(LSID source, LSID target)
     {
         if (!referenceCache.containsKey(source)
-            || !referenceCache.containsValue(target))
+            || !referenceCache.get(source).contains(target))
         {
             return false;
         }
@@ -805,7 +826,12 @@ public class OMEROMetadataStoreClient
     {
         if (source == null && target == null)
         {
-            return referenceCache.size();
+        	int count = 0;
+        	for (LSID key : referenceCache.keySet())
+        	{
+        		count += referenceCache.get(key).size();
+        	}
+        	return count;
         }
         
         int count = 0;
@@ -824,27 +850,33 @@ public class OMEROMetadataStoreClient
         
         if (source == null)
         {
-            for (LSID lsid : referenceCache.values())
-            {
-                Class containerClass = lsid.getJavaClass();
-                if (containerClass.equals(target))
-                {
-                    count++;
-                }
-            }
+        	for (LSID sourceLSID : referenceCache.keySet())
+        	{
+        		for (LSID targetLSID : referenceCache.get(sourceLSID))
+        		{
+        			Class containerClass = targetLSID.getJavaClass();
+        			if (containerClass.equals(target))
+        			{
+        				count++;
+        			}
+        		}
+        	}
             return count;
         }
         
-        for (LSID lsid : referenceCache.keySet())
+        for (LSID sourceLSID : referenceCache.keySet())
         {
-            Class containerClass = lsid.getJavaClass();
-            if (containerClass.equals(source.getName()))
+            Class sourceClass = sourceLSID.getJavaClass();
+            if (sourceClass.equals(source.getName()))
             {
-                Class targetClass = referenceCache.get(lsid).getJavaClass();
-                if (targetClass.equals(target.getName()))
-                {
-                    count++;
-                }
+            	for (LSID targetLSID : referenceCache.get(sourceLSID))
+            	{
+            		Class targetClass = targetLSID.getJavaClass();
+            		if (targetClass.equals(target.getName()))
+            		{
+            			count++;
+            		}
+            	}
             }
         }
         return count;
@@ -947,7 +979,7 @@ public class OMEROMetadataStoreClient
             int logicalChannelIndex)
     {
         LSID key = new LSID(DetectorSettings.class, imageIndex, logicalChannelIndex);
-        referenceCache.put(key, new LSID(detector));
+        addReference(key, new LSID(detector));
     }
 
     private DetectorSettings getDetectorSettings(int imageIndex,
@@ -1157,7 +1189,7 @@ public class OMEROMetadataStoreClient
     public void setImageInstrumentRef(String instrumentRef, int imageIndex)
     {
         LSID key = new LSID(Image.class, imageIndex);
-        referenceCache.put(key, new LSID(instrumentRef));
+        addReference(key, new LSID(instrumentRef));
     }
 
     public void setImageName(String name, int imageIndex)
@@ -1324,7 +1356,7 @@ public class OMEROMetadataStoreClient
             int imageIndex, int logicalChannelIndex)
     {
         LSID key = new LSID(LightSettings.class, imageIndex, logicalChannelIndex);
-        referenceCache.put(key, new LSID(lightSource));
+        addReference(key, new LSID(lightSource));
     }
 
     public void setLightSourceSettingsWavelength(Integer wavelength,
@@ -2160,22 +2192,23 @@ public class OMEROMetadataStoreClient
                 
                 for (int j = 0; j < files.length; j++)
                 {
-                    
-                    referenceCache.put(pixelsKey, new LSID(OriginalFile.class, j));
-
+                    addReference(pixelsKey, new LSID(OriginalFile.class, j));
                     if (companionFiles.contains(files[j]))
                     {
-                        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+                        LinkedHashMap<String, Integer> indexes = 
+                        	new LinkedHashMap<String, Integer>();
                         indexes.put("imageIndex", i);
                         indexes.put("originalFileIndex", j);
 
-                        FileAnnotation a = (FileAnnotation) getSourceObject(FileAnnotation.class, indexes);
+                        FileAnnotation a = (FileAnnotation) 
+                        	getSourceObject(FileAnnotation.class, indexes);
                         a.setNs(rstring(nameSpace));
 
                         LSID annotationKey = new LSID(FileAnnotation.class, i, j);
 
-                        referenceCache.put(imageKey, annotationKey);  
-                        referenceCache.put(annotationKey, new LSID(OriginalFile.class, j)); 
+                        addReference(imageKey, annotationKey);
+                        addReference(annotationKey,
+                        		     new LSID(OriginalFile.class, j));
                     }
                 }
             }
@@ -2227,13 +2260,14 @@ public class OMEROMetadataStoreClient
                 indexes.put("imageIndex", i);
                 indexes.put("originalFileIndex", j);
                 
-                FileAnnotation a = (FileAnnotation) getSourceObject(FileAnnotation.class, indexes);
+                FileAnnotation a = (FileAnnotation) 
+                	getSourceObject(FileAnnotation.class, indexes);
                 a.setNs(rstring(nameSpace));
                 
                 LSID annotationKey = new LSID(FileAnnotation.class, i, j);
                 
-                referenceCache.put(imageKey, annotationKey);
-                referenceCache.put(annotationKey, new LSID(OriginalFile.class, j));       
+                addReference(imageKey, annotationKey);
+                addReference(annotationKey, new LSID(OriginalFile.class, j));       
             }
         }
     }
@@ -2374,14 +2408,17 @@ public class OMEROMetadataStoreClient
             {
                 for (String key : referenceStringCache.keySet())
                 {
-                    String s = String.format("%s == %s", key,
-                                             referenceStringCache.get(key));
-                    log.debug(s);
+                	for (String value : referenceStringCache.get(key))
+                	{
+                		String s = String.format("%s == %s", key, value);
+                		log.debug(s);
+                	}
                 }
                 
                 log.debug("containerCache contains " + containerCache.size()
                           + " entries.");
-                log.debug("referenceCache contains " + referenceCache.size()
+                log.debug("referenceCache contains " 
+                		  + countCachedReferences(null, null)
                           + " entries.");
             }
             
@@ -2723,14 +2760,14 @@ public class OMEROMetadataStoreClient
             int logicalChannelIndex)
     {
         LSID key = new LSID(LogicalChannel.class, imageIndex, logicalChannelIndex);
-        referenceCache.put(key, new LSID(otf));
+        addReference(key, new LSID(otf));
     }
 
     public void setOTFObjective(String objective, int instrumentIndex,
             int otfIndex)
     {
         LSID key = new LSID(OTF.class, instrumentIndex, otfIndex);
-        referenceCache.put(key, new LSID(objective));
+        addReference(key, new LSID(objective));
     }
 
     /* ---- Objective Settings ---- */
@@ -2758,7 +2795,7 @@ public class OMEROMetadataStoreClient
     public void setObjectiveSettingsObjective(String objective, int imageIndex)
     {
         LSID key = new LSID(ObjectiveSettings.class, imageIndex);
-        referenceCache.put(key, new LSID(objective));
+        addReference(key, new LSID(objective));
     }
 
     public void setObjectiveSettingsRefractiveIndex(Float refractiveIndex,
@@ -3891,14 +3928,14 @@ public class OMEROMetadataStoreClient
     public void setWellReagent(String reagent, int plateIndex, int wellIndex)
     {
         LSID key = new LSID(Well.class, plateIndex, wellIndex);
-        referenceCache.put(key, new LSID(reagent));
+        addReference(key, new LSID(reagent));
     }
 
     public void setWellSampleImageRef(String image, int plateIndex, 
             int wellIndex, int wellSampleIndex)
     {
         LSID key = new LSID(WellSample.class, plateIndex, wellIndex, wellSampleIndex);
-        referenceCache.put(key, new LSID(image));
+        addReference(key, new LSID(image));
     }
 
     public void setWellSampleRefID(String arg0, int arg1, int arg2, int arg3)

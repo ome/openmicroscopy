@@ -63,7 +63,6 @@ public class TargetProcessor implements ModelProcessor
     		return;
     	}
     	
-    	Map<LSID, LSID> referenceCache = store.getReferenceCache();
 		List<IObjectContainer> containers = null;
     	if (target instanceof Dataset)
     	{
@@ -83,7 +82,7 @@ public class TargetProcessor implements ModelProcessor
 			LSID referenceLSID = 
 				new LSID(String.format("%s:%d", target.getClass().getName(),
 						               target.getId().getValue()));
-			referenceCache.put(targetLSID, referenceLSID);
+			store.addReference(targetLSID, referenceLSID);
 		}
      }
 }

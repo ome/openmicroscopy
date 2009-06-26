@@ -149,7 +149,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
     }
 
     public void updateReferences_async(AMD_MetadataStore_updateReferences __cb,
-            final Map<String, String> references, Current __current)
+            final Map<String, String[]> references, Current __current)
             throws ServerError {
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,

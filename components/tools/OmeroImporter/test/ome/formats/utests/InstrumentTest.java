@@ -65,7 +65,7 @@ public class InstrumentTest extends TestCase
 	    LSID lsid = new LSID(LightSource.class, 
 	                           INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 	    assertNotNull(store.getSourceObject(lsid));
-	    assertNotNull(store.getSourceObject(new LSID("Instrument:0")));
+	    assertNotNull(store.getSourceObject(new LSID(Instrument.class, 0)));
 	}
 	
 	public void testImageInstrumentLightSourceModelPreserved()
