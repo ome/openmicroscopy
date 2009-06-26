@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.svc.proxy.MessengerReply 
+ * org.openmicroscopy.shoola.env.data.ImportException 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,21 +20,16 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.svc.proxy;
-
-
+package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 
 //Third-party libraries
-import org.apache.commons.httpclient.HttpMethod;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.svc.transport.HttpChannel;
-import org.openmicroscopy.shoola.svc.transport.TransportException;
 
 /** 
- * Reply to a messenger request.
+ * Reports an error occured while importing an image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -44,34 +39,31 @@ import org.openmicroscopy.shoola.svc.transport.TransportException;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-class MessengerReply 
-	extends Reply
+public class ImportException 
+	extends Exception
 {
-	
-	/** The reply to send to the user. */
-	private StringBuilder reply;
-	
+
 	/**
-	 * Creates a new instance.
+	 * Constructs a new exception with the specified detail message.
 	 * 
-	 * @param reply	The reply to send to user.
+	 * @param message	Short explanation of the problem.
 	 */
-	MessengerReply(StringBuilder reply)
+	public ImportException(String message)
 	{
-		this.reply = reply;
+		super(message);
 	}
 	
 	/**
-	 * Checks the http status.
-	 * @see Reply#unmarshal(HttpMethod, HttpChannel)
+	 * Constructs a new exception with the specified detail message and cause.
+	 * 
+	 * @param message	Short explanation of the problem.
+	 * @param cause		The exception that caused this one to be risen.
 	 */
-	public void unmarshal(HttpMethod response, HttpChannel context) 
-		throws TransportException
+	public ImportException(String message, Throwable cause) 
 	{
-		if (reply != null)
-			reply.append(checkStatusCode(response));
+		super(message, cause);
 	}
 	
 }

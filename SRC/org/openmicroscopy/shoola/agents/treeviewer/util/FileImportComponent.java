@@ -34,6 +34,7 @@ import java.io.File;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -44,7 +45,11 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.ImportManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+
 import pojos.ImageData;
 
 /** 
@@ -76,25 +81,28 @@ public class FileImportComponent
 	private static final String		FAILURE_TEXT = "failed";
 	
 	/** The file to import. */
-	private File 		file;
+	private File 			file;
 	
 	/** The component indicating the progress of the import. */
-	private JXBusyLabel busyLabel;
+	private JXBusyLabel 	busyLabel;
 	
 	/** The component displaying the file name. */
-	private JPanel		nameLabel;
+	private JPanel			nameLabel;
 
 	/** The component allowing to launch the viewer. */
-	private JLabel		thumbLabel;
+	private JLabel			thumbLabel;
 	
 	/** The default control. */
-	private JComponent	control;
+	private JComponent		control;
 	
 	/** The manager. */
 	private ImportManager	parent;
 	
 	/** The imported image. */
 	private Object			image;
+	
+	/** Button to notify bug. */
+	private JButton			errorButton;
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -125,6 +133,20 @@ public class FileImportComponent
 			}
 		});
 		control = busyLabel;
+		errorButton = new JButton("Submit");
+		errorButton.setOpaque(false);
+		errorButton.setToolTipText("Submit error.");
+		errorButton.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) {
+				UserNotifier un = 
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				if (image instanceof ImportException) {
+					ImportException ie = (ImportException) image;
+					un.notifyError("Import failure", ie.getMessage(), ie, file);
+				}
+			}
+		});
 	}
 	
 	/** Builds and lays out the UI. */
@@ -132,6 +154,21 @@ public class FileImportComponent
 	{
 		removeAll();
 		add(control);
+		if (image instanceof ImportException)
+			add(errorButton);
+	}
+	
+	/**
+	 * Sets the text of the {@link #thumbLabel}.
+	 * 
+	 * @param text The string to set.
+	 */
+	private void setStatusText(String text)
+	{
+		if (text == null) text = "";
+		text = text.trim();
+		if (text.length() == 0) thumbLabel.setText(FAILURE_TEXT);
+		else thumbLabel.setText(text);
 	}
 	
 	/**
@@ -188,10 +225,10 @@ public class FileImportComponent
 				thumbLabel.setEnabled(false);
 				if (image == null) thumbLabel.setText(FAILURE_TEXT);
 				else if (image instanceof String) {
-					String s = (String) image;
-					s = s.trim();
-					if (s.length() == 0) thumbLabel.setText(FAILURE_TEXT);
-					else thumbLabel.setText(s);
+					setStatusText((String) image);
+				} else if (image instanceof ImportException) {
+					ImportException ie = (ImportException) image;
+					setStatusText(ie.getMessage());
 				}
 				control = thumbLabel;
 			} else control = busyLabel;

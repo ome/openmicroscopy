@@ -56,6 +56,9 @@ public class MessengerDetails
 	/** The error message. */
 	private String error;
 	
+	/** The object to submit. */
+	private Object toSubmit;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -82,7 +85,21 @@ public class MessengerDetails
 	 * @param error The value to set.
 	 */
 	public void setError(String error) { this.error = error; }
+	
+	/**
+	 * Sets the object to submit to the dev team.
+	 * 
+	 * @param toSubmit The value to set.
+	 */
+	public void setObjectToSubmit(Object toSubmit) { this.toSubmit = toSubmit; }
 
+	/** 
+	 * Returns the object to submit.
+	 * 
+	 * @return See above.
+	 */
+	public Object getObjectToSubmit() { return toSubmit; }
+	
 	/**
 	 * Returns the comment to send.
 	 * 

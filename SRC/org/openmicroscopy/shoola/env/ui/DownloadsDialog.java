@@ -73,8 +73,17 @@ class DownloadsDialog
 	 */
 	static final String 		CANCEL_LOADING_PROPERTY = "cancelLoading";
 	
-	/** The title of the dialog. */
-	private static final String TITLE = "Downloads";
+	/** Indicates that the dialog is a download dialog. */
+	private static final int	DOWNLOAD = 0;
+	
+	/** Indicates that the dialog is a upload dialog. */
+	private static final int	UPLOAD = 1;
+	
+	/** The title of the dialog if it is a download dialog. */
+	private static final String TITLE_DOWNLOAD = "Downloads";
+	
+	/** The title of the dialog if it is a upload dialog. */
+	private static final String TITLE_UPLOAD = "Uploads";
 	
 	/** The columns for the layout of the {@link #entries}. */
 	private static final double[] COLUMNS = {TableLayout.FILL};
@@ -90,6 +99,9 @@ class DownloadsDialog
 	
 	/** Collection of the entries. */
 	private List<FileLoadingComponent>		components;
+	
+	/** The index of the dialog. */
+	private int								dialogIndex;
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -163,6 +175,44 @@ class DownloadsDialog
 		repaint();
 	}
 	
+	/** 
+	 * Sets the index.
+	 * 
+	 * @param value The value to set.
+	 */
+	private void setDialogIndex(int value)
+	{
+		switch (value) {
+			case DOWNLOAD:
+			default:
+				dialogIndex = DOWNLOAD;
+				setTitle(TITLE_DOWNLOAD);
+				break;
+			case UPLOAD:
+				dialogIndex = value;
+				setTitle(TITLE_UPLOAD);
+		}
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param owner	The owner of the dialog.
+	 * @param icons	Reference to the icons manager.
+	 * @param index	One of the constants defined by this class.
+	 */
+	DownloadsDialog(JFrame owner, IconManager icons, int index)
+	{
+		super(owner);
+		if (icons == null)
+			throw new IllegalArgumentException("No icons manager specified.");
+		setDialogIndex(index);
+		this.icons = icons;
+		initComponents();
+		buildGUI();
+		setSize(350, 250);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -171,12 +221,7 @@ class DownloadsDialog
 	 */
 	DownloadsDialog(JFrame owner, IconManager icons)
 	{
-		super(owner);
-		this.icons = icons;
-		setTitle(TITLE);
-		initComponents();
-		buildGUI();
-		setSize(350, 250);
+		this(owner, icons, DOWNLOAD);
 	}
 	
 	/**

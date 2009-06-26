@@ -29,11 +29,10 @@ import java.io.File;
 import java.util.Collection;
 import javax.swing.Icon;
 
-import pojos.FileAnnotationData;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.FileAnnotationData;
 
 /** 
  * Implements the {@link UserNotifier} interface to be a Null Object, that is
@@ -59,12 +58,24 @@ public class NullUserNotifier
      * @see UserNotifier#notifyError(String, String, Throwable)
      */
     public void notifyError(String title, String summary, Throwable detail) {}
+    
+    /**
+     * @see UserNotifier#notifyError(String, String, Throwable, Object)
+     */
+    public void notifyError(String title, String summary, Throwable detail, 
+    		Object toSubmit) {}
 
     /**
      * @see UserNotifier#notifyError(String, String, String)
      */
     public void notifyError(String title, String summary, String detail) {}
 
+    /**
+     * @see UserNotifier#notifyError(String, String, String, Object)
+     */
+    public void notifyError(String title, String summary, String detail, 
+    		Object toSubmit) {}
+    
     /**
      * @see UserNotifier#notifyError(String, String)
      */

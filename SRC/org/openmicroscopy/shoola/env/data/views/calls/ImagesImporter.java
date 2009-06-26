@@ -91,7 +91,7 @@ public class ImagesImporter
     		Object ho = os.importImage(container, f, userID, groupID);
     		partialResult.put(f, ho);
 		} catch (Exception e) {
-			// TODO: handle exception
+			partialResult.put(f, e);
 		}
     }
     

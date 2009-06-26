@@ -65,10 +65,11 @@ public class CommunicatorProxy
 
 	/**
 	 * Implemented as specified by the {@link Communicator} interface.
-	 * @see Communicator#submitComment(String, String, String, String, String)
+	 * @see Communicator#submitComment(String, String, String, String, 
+	 * 									StringBuilder)
 	 */
 	public void submitComment(String invoker, String email, String comment, 
-							String extra, String reply) 
+							String extra, StringBuilder reply) 
 		throws TransportException 
 	{
 		MessengerRequest out = new MessengerRequest(email, comment, extra, 
@@ -85,10 +86,11 @@ public class CommunicatorProxy
 
 	/**
 	 * Implemented as specified by the {@link Communicator} interface.
-	 * @see Communicator#submitError(String, String, String, String, String)
+	 * @see Communicator#submitError(String, String, String, String, 
+	 * 								StringBuilder)
 	 */
 	public void submitError(String invoker, String email, String comment, 
-							String extra, String error, String reply) 
+							String extra, String error, StringBuilder reply) 
 		throws TransportException
 	{
 		MessengerRequest out = new MessengerRequest(email, comment, extra, 
@@ -101,6 +103,25 @@ public class CommunicatorProxy
             throw new TransportException(
                     "Couldn't communicate with server (I/O error).", ioe);
         }
+	}
+
+	/**
+	 * Implemented as specified by the {@link Communicator} interface.
+	 * @see Communicator#submitBasicRequest(String, String)
+	 */
+	public void submitBasicRequest(String invoker, StringBuilder reply)
+			throws TransportException
+	{
+		MessengerRequest out = new MessengerRequest(null, null, null, null, 
+				invoker);
+		MessengerReply in = new MessengerReply(reply);
+		
+		try {
+			channel.exchange(out, in);
+		} catch (IOException ioe) {
+			throw new TransportException(
+					"Couldn't communicate with server (I/O error).", ioe);
+		}
 	}
 	
 }

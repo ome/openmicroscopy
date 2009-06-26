@@ -64,6 +64,19 @@ public interface UserNotifier
     public void notifyError(String title, String summary, Throwable detail);
     
     /**
+ 	 * Brings up a modal dialog to notify the user of an error.
+ 	 * The dialog will just show the error summary.  However the user can press
+ 	 * a <i>details</i> button to have the dialog show the error detail.
+ 	 * 
+ 	 * @param title		The title of the dialog.
+ 	 * @param summary	A brief description of the error.
+ 	 * @param detail	The cause of the error.
+ 	 * @param toSubmit	The objects to submit to the dev team.
+ 	 */
+    public void notifyError(String title, String summary, Throwable detail, 
+    		Object toSubmit);
+    
+    /**
      * Brings up a modal dialog to notify the user of an error.
  	 * The dialog will just show the error summary.  However the user can press
  	 * a <i>details</i> button to have the dialog show the error detail.
@@ -74,6 +87,19 @@ public interface UserNotifier
      */
 	public void notifyError(String title, String summary, String detail);
     
+    /**
+     * Brings up a modal dialog to notify the user of an error.
+ 	 * The dialog will just show the error summary.  However the user can press
+ 	 * a <i>details</i> button to have the dialog show the error detail.
+ 	 * 
+     * @param title		The title of the dialog.
+ 	 * @param summary	A brief description of the error.
+ 	 * @param detail	A more detailed description of the cause of the error.
+ 	 * @param toSubmit	The objects to submit to the dev team.
+     */
+	public void notifyError(String title, String summary, String detail, 
+			Object toSubmit);
+	
 	/**
 	 * Brings up a modal dialog to notify the user of an error.
  	 * The dialog will just show the error summary.

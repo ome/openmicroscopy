@@ -4273,7 +4273,7 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Object importImage(DataObject container, File file)
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException, ImportException
 	{
 		ImportLibrary importLibrary = new ImportLibrary(getImportStore(), 
 				new OMEROWrapper());
@@ -4289,8 +4289,7 @@ class OMEROGateway
 			}
 		} catch (Exception e) {
 			String message = getImportFailureMessage(e);
-			if (message != null) return message;
-			return null;
+			throw new ImportException(message, e);
 		}
 		return null;
 	}

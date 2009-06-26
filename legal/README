@@ -270,4 +270,7 @@
   License: Open Source Initiative OSI - The zlib/libpng License
   License File: zlib-libpng.txt
   
-  
+  Project: TableLayout Project is layout manager
+  Artifacts: The TableLayout-* file under LIB/
+  License: Sun Microsystems
+  License File: SunMicrosystems.LICENSE

@@ -61,7 +61,7 @@ public interface Communicator
 	 * 								to submit the error.
 	 */
 	public void submitError(String invoker, String email, String comment,
-							String extra, String error, String reply)
+							String extra, String error, StringBuilder reply)
 		throws TransportException;
 	
 	/**
@@ -77,7 +77,18 @@ public interface Communicator
 	 * 								to submit the error.
 	 */
 	public void submitComment(String invoker, String email, String comment, 
-							String extra, String reply)
+							String extra, StringBuilder reply)
+		throws TransportException;
+	
+	/**
+	 * Sends a basic post.
+	 * 
+	 * @param invoker 	The client posting the message.
+	 * @param reply 	The result of the post.
+	 * @throws TransportException 	Thrown if an error occured while trying 
+	 * 								to submit the error.
+	 */
+	public void submitBasicRequest(String invoker, StringBuilder reply)
 		throws TransportException;
 	
 }

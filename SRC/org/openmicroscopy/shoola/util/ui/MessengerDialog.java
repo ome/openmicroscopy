@@ -89,7 +89,7 @@ import layout.TableLayout;
  */
 public class MessengerDialog 
 	extends JDialog
-	implements DocumentListener
+	implements ActionListener, DocumentListener
 {
 
 	/** Identifies the error dialog type. */
@@ -101,8 +101,29 @@ public class MessengerDialog
 	/** Bound property indicating to send the message. */
 	public static final String		SEND_PROPERTY = "send";
 	
+	/** Bound property indicating to send a message and quit the application. */
+	public static final String		SEND_AND_QUIT_PROPERTY = "sendAndQuit";
+	
+	/** Bound property indicating to submit a file. */
+	public static final String		SUBMIT_PROPERTY = "submit";
+	
 	/** Bound property indicating to close the window. */
 	public static final String		CLOSE_MESSENGER_PROPERTY = "closeMessenger";
+	
+	/** Action ID to close the dialog. */
+	private static final int		CANCEL = 0;
+	
+	/** Action ID to send comment and close the dialog. */
+	private static final int		SEND = 1;
+	
+	/** Action ID to submit file close the dialog. */
+	private static final int		SUBMIT = 2;
+	
+	/** Action ID to send comment and quit the application. */
+	private static final int		QUIT = 3;
+	
+	/** Action ID to copy on the clipboard. */
+	private static final int		COPY = 4;
 	
 	/** The default size of the window. */
 	private static final Dimension 	DEFAULT_SIZE = new Dimension(700, 400);
@@ -113,6 +134,14 @@ public class MessengerDialog
 	/** The tooltip of the {@link #sendButton}. */
 	private static final String		SEND_TOOLTIP = "Send the information to " +
 										"the development team";
+	
+	/** The tooltip of the {@link #quitButton}. */
+	private static final String		QUIT_TOOLTIP = "Send the information to " +
+					"the development team and Quit the application.";
+	
+	/** The tooltip of the {@link #submitButton}. */
+	private static final String		SUBMIT_TOOLTIP = "Send file to " +
+					"the development team and Close the dialog.";
 	
 	/** The tooltip of the {@link #copyButton}. */
 	private static final String		COPY_TOOLTIP = "Copy the Exception " +
@@ -172,6 +201,12 @@ public class MessengerDialog
 	/** Button to post the message. */
 	private JButton			sendButton;
 	
+	/** Button to quit the application. */
+	private JButton			quitButton;
+	
+	/** Button to quit the application. */
+	private JButton			submitButton;
+	
 	/** The area displaying the <code>e-mail address</code>. */
 	private JTextField		emailArea;
 	
@@ -196,18 +231,25 @@ public class MessengerDialog
 	/** A brief description of the error. */
 	private String			errorDescription;
 	
+	/** The object to submit to dev team. */
+	private Object			toSubmit;
+	
 	/**
 	 * Formats the specified button.
 	 * 
 	 * @param b			The button to format.
 	 * @param mnemonic	The keycode that indicates a mnemonic key.
 	 * @param tooltip	The button's tooltip.
+	 * @param actionID	The action id associadet to the passed button.
 	 */
-	private void formatButton(JButton b, int mnemonic, String tooltip)
+	private void formatButton(JButton b, int mnemonic, String tooltip, int
+			actionID)
 	{
 		b.setMnemonic(mnemonic);
         b.setOpaque(false);
         b.setToolTipText(tooltip);
+        b.addActionListener(this);
+        b.setActionCommand(""+actionID);
 	}
     
     /** Hides the window and disposes. */
@@ -228,45 +270,23 @@ public class MessengerDialog
 		}
 	}
 	
-	/**
-	 * Controls if the passed string is a valid e-mail address.
+	/** 
+	 * Sends the message. 
 	 * 
-	 * @param email	The e-mail address to control.
-	 * @return See above.
+	 * @param propertyName The name of the property to fire.
 	 */
-	private boolean checkValidEmail(String email)
-	{
-		if (email == null || email.length() == 0) return true;
-		String[] array = email.split("@");
-		if (array == null || array.length != 2) return false;
-		return array[1].contains(".");
-	}
-	
-	/** Sends the message. */
-	private void send()
+	private void send(String propertyName)
 	{
 		String email = emailArea.getText().trim();
 		String comment = commentArea.getText().trim();
-		/*
-		if (!checkValidEmail(email)) {
-			IconManager icons = IconManager.getInstance();
-			MessageBox box = new MessageBox(this, "Unvalid email", 
-											EMAIL_MESSAGE,
-					icons.getIcon(IconManager.INFORMATION_MESSAGE_48));
-			box.hideNoButton();
-			box.setYesText("OK");
-			box.centerMsgBox();
-			return;
-		}
-		*/
 		String error = null;
 		if (debugArea != null)  error = debugArea.getText().trim();
 		MessengerDetails details = new MessengerDetails(email, comment);
 		details.setExtra(version);
 		details.setError(error); 
-		firePropertyChange(SEND_PROPERTY, null, details);
+		details.setObjectToSubmit(toSubmit);
+		firePropertyChange(propertyName, null, details);
 		close();
-		
 	}
 	
 	/** Initializes the various components. */
@@ -277,17 +297,17 @@ public class MessengerDialog
 			public void windowClosing(WindowEvent e) { close(); }
 		});
 		cancelButton = new JButton("Cancel");
-		formatButton(cancelButton, 'C', CANCEL_TOOLTIP);
-		cancelButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { close(); }
-		});
+		formatButton(cancelButton, 'C', CANCEL_TOOLTIP, CANCEL);
+		
 		sendButton = new JButton("Send");
-		formatButton(sendButton, 'S', SEND_TOOLTIP);
-		sendButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { send(); }
-		});
+		formatButton(sendButton, 'S', SEND_TOOLTIP, SEND);
 		
+		quitButton = new JButton("Send And Quit");
+		formatButton(quitButton, 'Q', QUIT_TOOLTIP, QUIT);
 		
+		submitButton = new JButton("Submit Files");
+		formatButton(submitButton, 'F', SUBMIT_TOOLTIP, SUBMIT);
+		submitButton.setVisible(false);
         emailArea = new JTextField(20);
         emailArea.setToolTipText(EMAIL_TOOLTIP);
         emailArea.setText(emailAddress);
@@ -300,12 +320,9 @@ public class MessengerDialog
         if (exception != null) {
         	debugArea = buildExceptionArea();
         	copyButton = new JButton("Copy to Clipboard");
-        	formatButton(copyButton, 'C', COPY_TOOLTIP);
-        	copyButton.addActionListener(new ActionListener() {	
-    			public void actionPerformed(ActionEvent e) { copy(); }
-    		});
+        	formatButton(copyButton, 'C', COPY_TOOLTIP, COPY);
         }
-        getRootPane().setDefaultButton(sendButton);
+        //getRootPane().setDefaultButton(sendButton);
         setAlwaysOnTop(true);
         if (dialogType == COMMENT_TYPE) {
 			sendButton.setEnabled(false);
@@ -522,7 +539,7 @@ public class MessengerDialog
      * 
      * @return See above.
      */
-    public JPanel buildToolBar()
+    private JPanel buildToolBar()
     {
     	JPanel bar = new JPanel();
     	bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
@@ -530,9 +547,19 @@ public class MessengerDialog
     	bar.add(cancelButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(sendButton);
-    	bar.add(Box.createHorizontalStrut(10));
+    	bar.add(Box.createHorizontalStrut(5));
+    	bar.add(submitButton);
     	JPanel p = UIUtilities.buildComponentPanelRight(bar);
     	p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+    	if (dialogType == ERROR_TYPE) {
+    		JPanel controls = new JPanel();
+    		controls.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+        	controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
+        	controls.add(Box.createHorizontalStrut(10));
+        	controls.add(quitButton);
+        	controls.add(p);
+        	return controls;
+    	}
     	return p;
     }
     
@@ -628,6 +655,17 @@ public class MessengerDialog
 	 */
 	public void setVersion(String version) { this.version = version; }
 	
+	/** 
+	 * Sets the object to submit.
+	 * 
+	 * @param toSubmit The object to submit.
+	 */
+	public void setObjecToSubmit(Object toSubmit)
+	{ 
+		this.toSubmit = toSubmit; 
+		submitButton.setVisible(toSubmit != null);
+	}
+	
 	/**
 	 * Returns the type associated to this widget. 
 	 * 
@@ -636,8 +674,33 @@ public class MessengerDialog
 	public int getDialogType() { return dialogType; }
 
 	/**
-	 * Required by the {@link DocumentListener} I/F but no-op implementation
-	 * in our case.
+	 * Reacts to click on controls.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case QUIT:
+				send(SEND_AND_QUIT_PROPERTY);
+				break;
+			case CANCEL:
+				close();
+				break;
+			case SEND:
+				send(SEND_PROPERTY);
+				break;
+			case SUBMIT:
+				send(SUBMIT_PROPERTY);
+				break;
+			case COPY:
+				copy();
+		}
+	}
+	
+	/**
+	 * Sets the enabled flag of the {@link #sendButton} depending on the 
+	 * type of dialog we handle.
 	 * @see DocumentListener#insertUpdate(DocumentEvent)
 	 */
 	public void insertUpdate(DocumentEvent e)
@@ -649,8 +712,8 @@ public class MessengerDialog
 	}
 
 	/**
-	 * Required by the {@link DocumentListener} I/F but no-op implementation
-	 * in our case.
+	 * Sets the enabled flag of the {@link #sendButton} depending on the 
+	 * type of dialog we handle.
 	 * @see DocumentListener#removeUpdate(DocumentEvent)
 	 */
 	public void removeUpdate(DocumentEvent e)

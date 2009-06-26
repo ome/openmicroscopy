@@ -391,7 +391,7 @@ public interface OmeroImageService
 	 *  
 	 * @param container The container where to import the images into or 
 	 * 					<code>null</code>.
-	 * @param images	The images to import. Mustn't be <code>null</code>.
+	 * @param image		The image to import. Mustn't be <code>null</code>.
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
 	 * @return See above.
@@ -399,10 +399,11 @@ public interface OmeroImageService
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws ImportException        	If an error occured while importing.                            
 	 */
 	public Object importImage(DataObject container, File image, 
 			long userID, long groupID)
-		throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException, ImportException;
 	
 	/**
 	 * Returns the collection of file filters supported.

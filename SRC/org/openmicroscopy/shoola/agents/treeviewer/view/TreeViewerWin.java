@@ -210,6 +210,7 @@ class TreeViewerWin
 			existingMenus[i] = bar.getMenu(i);
 
 		bar.removeAll();
+		
 		for (int j = 0; j < menus.length; j++) 
 			bar.add(menus[j]);
 		for (int i = 0; i < existingMenus.length; i++) 
@@ -235,10 +236,12 @@ class TreeViewerWin
     	item = new JMenuItem(a);
     	item.setText(a.getActionName());
     	menu.add(item);
+    	menu.add(new JSeparator());
     	a = controller.getAction(TreeViewerControl.CREATE_TOP_SCREEN);
     	item = new JMenuItem(a);
     	item.setText(a.getActionName());
-    	//menu.add(item);
+    	menu.add(item);
+    	menu.add(new JSeparator());
     	a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG_SET);
     	item = new JMenuItem(a);
     	item.setText(a.getActionName());

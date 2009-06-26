@@ -2230,7 +2230,8 @@ class TreeViewerComponent
 		if (importManager == null) return;
 		Browser browser = model.getBrowser(Browser.FILE_SYSTEM_EXPLORER);
 		ImageData img;
-		if (value == null || value instanceof String) {
+		if (value == null || value instanceof String || value instanceof
+				Exception) {
 			importManager.setStatus(key, value);
 		} else if (value instanceof ImageData) {
 			img = (ImageData) value;

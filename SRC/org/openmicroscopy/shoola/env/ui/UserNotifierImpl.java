@@ -115,18 +115,20 @@ public class UserNotifierImpl
     /**
      * Brings up a messenger dialog.
      * 
-     * @param title     		The dialog title.
-     * @param summary   		The dialog message.
-     * @param detail			The detailed error message.
-     * @param softwareVersion 	The version of the software.
+     * @param title		The dialog title.
+     * @param summary	The dialog message.
+     * @param detail	The detailed error message.
+     * @param toSubmit 	The version of the software.
      */
-    private void showErrorDialog(String title, String summary, String detail)
+    private void showErrorDialog(String title, String summary, String detail, 
+    		Object toSubmit)
     {
     	Exception e;
     	if (detail == null) e = new Exception(summary);
     	else e = new Exception(detail);
     	if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
     	MessengerDialog d = new MessengerDialog(SHARED_FRAME, title, "", e); 
+    	d.setObjecToSubmit(toSubmit);
     	d.setVersion(manager.getVersionNumber());
     	d.addPropertyChangeListener(manager);
     	d.setModal(true);
@@ -163,19 +165,40 @@ public class UserNotifierImpl
      */       
     public void notifyError(String title, String summary, Throwable detail)
     {
-    	
 		notifyError(title, summary, 
 						detail == null ? null : printErrorText(detail));
     }
     
 	/** 
      * Implemented as specified by {@link UserNotifier}. 
+     * @see UserNotifier#notifyError(String, String, Throwable, Object)
+     */       
+    public void notifyError(String title, String summary, Throwable detail, 
+    		Object toSubmit)
+    {
+		notifyError(title, summary, 
+				detail == null ? null : printErrorText(detail), toSubmit);
+    }
+
+	/** 
+     * Implemented as specified by {@link UserNotifier}. 
+     * @see UserNotifier#notifyError(String, String, String, Object)
+     */     
+	public void notifyError(String title, String summary, String detail,
+			Object toSubmit)
+	{
+		if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
+		showErrorDialog(title, summary, detail, toSubmit);
+	}
+    
+	
+	/** 
+     * Implemented as specified by {@link UserNotifier}. 
      * @see UserNotifier#notifyError(String, String, String)
      */     
 	public void notifyError(String title, String summary, String detail)
 	{
-		if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
-		showErrorDialog(title, summary, detail);
+		notifyError(title, summary, detail, null);
 	}
     
 	/**
@@ -198,7 +221,7 @@ public class UserNotifierImpl
 	{
 		if (title == null || title.length() == 0)
 			title = DEFAULT_WARNING_TITLE;
-		showErrorDialog(title, summary, detail);
+		showErrorDialog(title, summary, detail, null);
 	}
 
 	/** 

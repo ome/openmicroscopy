@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -383,6 +384,7 @@ public class DataServicesFactory
     /** Shuts down the connection. */
 	public void shutdown()
     { 
+		CacheServiceFactory.shutdown(container);
         ((OmeroImageServiceImpl) is).shutDown();
         omeroGateway.logout(); 
         if (executor != null) executor.shutdown();

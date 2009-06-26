@@ -198,6 +198,13 @@ public class LookupNames
     /** Field to access the url of the server where to post error messages. */
     public static final String DEBUG_URL_BUG = "/services/DEBUGGER/hostnameBug";
     
+    /** Field to access the url of the server where obtain an token. */
+    public static final String TOKEN_URL = "/services/DEBUGGER/hostnameToken";
+    
+    /** Field to access the url of the server where to submit the files. */
+    public static final String PROCESSING_URL = 
+    	"/services/DEBUGGER/hostnameProcessing";
+    
     /** Field to access the e-mail address used to collect comments. */
     public static final String DEBUG_EMAIL = "/services/DEBUGGER/email";
     

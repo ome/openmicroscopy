@@ -180,6 +180,8 @@ class FileLoadingComponent
 	FileLoadingComponent(String directory, String fileName, 
 						long fileID, IconManager icons)
 	{
+		if (icons == null)
+			throw new IllegalArgumentException("No icons manager specified.");
 		this.fileName = fileName;
 		this.directory = directory;
 		this.fileID = fileID;

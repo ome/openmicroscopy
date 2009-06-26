@@ -519,7 +519,7 @@ class OmeroImageServiceImpl
 	 */
 	public Object importImage(DataObject container, File file, 
 			long userID, long groupID) 
-		throws DSOutOfServiceException, DSAccessException 
+		throws DSOutOfServiceException, DSAccessException, ImportException
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No images to import.");
@@ -541,7 +541,7 @@ class OmeroImageServiceImpl
 				List<DeletableObject> l = new ArrayList<DeletableObject>(1);
 				l.add(d);
 				context.getDataService().delete(l);
-				return "failed";
+				throw new ImportException("Failed to create thumbnail", e);
 			}
 		}
 		return image;

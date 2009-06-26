@@ -62,7 +62,7 @@ public abstract class Reply
     	throws TransportException
 	{
 	    int status = response.getStatusCode();
-	    if (status != HttpStatus.SC_OK) {
+	    if (status != -1) {//HttpStatus.SC_OK) {
 	    	Reader reader = null;
 	    	try {
 	    		reader = new InputStreamReader(
@@ -92,6 +92,6 @@ public abstract class Reply
      * @throws TransportException If an error occured while transferring data.
      */
     public abstract void unmarshal(HttpMethod response, HttpChannel context)
-        throws TransportException;
+        throws TransportException;  
     
 }

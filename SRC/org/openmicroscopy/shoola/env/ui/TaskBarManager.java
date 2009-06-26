@@ -46,12 +46,10 @@ import org.w3c.dom.NodeList;
 //Third-party libraries
 
 
-
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -378,7 +376,6 @@ public class TaskBarManager
         
 		if (option == MessageBox.YES_OPTION) {
 			try {
-				CacheServiceFactory.shutdown(container);
 				DataServicesFactory f = 
 					DataServicesFactory.getInstance(container);
 				f.exitApplication();
