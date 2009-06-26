@@ -743,12 +743,17 @@ class ImViewerUI
 							browser.getTitle(), browser.getIcon(), "");
 		
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, 
-				{TableLayout.FILL, TableLayout.PREFERRED}};
+				{TableLayout.FILL, TableLayout.PREFERRED, 
+			TableLayout.PREFERRED}};
 		viewPanel.setLayout(new TableLayout(tl));
 		viewPanel.add(controlPane, "0, 0");
 		viewPanel.add(browser.getUI(), "1, 0");
 		viewPanel.add(controlPane.getTimeSliderPane(ImViewer.VIEW_INDEX), 
 						"1, 1");
+		if (model.isLifetime()) {
+			viewPanel.add(controlPane.getLifetimeSliderPane(ImViewer.VIEW_INDEX), 
+			"1, 2");
+		}
 		tabbedIconHeight = browser.getIcon().getIconHeight()+ICON_EXTRA;
 		
 		tabs.insertTab(browser.getTitle(), browser.getIcon(), viewPanel, "", 
@@ -761,8 +766,11 @@ class ImViewerUI
 		gridViewPanel.add(browser.getGridView(), "1, 0");
 		gridViewPanel.add(controlPane.getTimeSliderPane(ImViewer.GRID_INDEX), 
 						"1, 1");
-		tabs.insertTab(browser.getGridViewTitle(), browser.getGridViewIcon(), 
-						gridViewPanel, "", ImViewer.GRID_INDEX);
+		if (!model.isLifetime()) {
+			tabs.insertTab(browser.getGridViewTitle(), 
+					browser.getGridViewIcon(), gridViewPanel, "", 
+					ImViewer.GRID_INDEX);
+		}
 		
 		double[][] tl2 = {{TableLayout.PREFERRED, TableLayout.FILL}, 
 				{TableLayout.PREFERRED, TableLayout.FILL, TableLayout.PREFERRED}};
@@ -1195,6 +1203,10 @@ class ImViewerUI
 			text += "/"+(model.getMaxZ()+1);
 		}
 		text += " T="+(model.getDefaultT()+1)+"/"+(model.getMaxT()+1);
+		if (model.isLifetime()) {
+			text += " Lifetime="+(model.getSelectedBin()+1);
+			text += "/"+(model.getMaxLifetimeBin());
+		}
 		setLeftStatus(text);
 	}
 	

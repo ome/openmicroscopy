@@ -105,6 +105,10 @@ class ControlPane
     private static final String 	T_SLIDER_DESCRIPTION = 
     								"Select a timepoint.";
     
+    /** The description of a timepoint selection slider. */
+    private static final String 	LITEIME_SLIDER_DESCRIPTION = 
+    								"Select .";
+    
     /** The description of a magnification selection slider. */
     private static final String 	RATIO_SLIDER_DESCRIPTION = "Select the " +
                             "magnification factor of an image composing " +
@@ -123,6 +127,9 @@ class ControlPane
 
     /** The tipString of the {@link #tSlider}. */
     private static final String 	T_SLIDER_TIPSTRING = "T";
+    
+    /** The tipString of the {@link #lifetimeSlider}. */
+    private static final String 	LIFETIME_SLIDER_TIPSTRING = "L";
     
     /** The maximum height of a magnification slider. */
     private static final int		SLIDER_HEIGHT = 100;
@@ -161,6 +168,9 @@ class ControlPane
     
     /** Reference to the View. */
     private ImViewerUI      		view;
+    
+    /** Slider to select the lifetime bin. */
+    private OneKnobSlider			lifetimeSlider;
     
     /** Slider to select the z-section. */
     private OneKnobSlider			zSlider;
@@ -219,6 +229,9 @@ class ControlPane
     /** Button to play movie across T. */
     private JButton					playTMovie;
     
+    /** Button to play mvoie across lifetime bin. */
+    private JButton					playLifetimeMovie;
+    
     /** Button to play movie across T displayed in the split view. */
     private JButton					playTMovieGrid;
     
@@ -243,6 +256,20 @@ class ControlPane
     /** Helper reference. */
     private IconManager     		icons;
     
+
+    /**
+     * Sets the selected plane.
+     * 
+     * @param z The selected z-section.
+     * @param t The selected timepoint.
+     */
+    private void setSelectedXYPlane(int z, int t)
+    {
+    	int bin = -1;
+    	if (model.isLifetime()) bin = lifetimeSlider.getValue();
+    	controller.setSelectedXYPlane(z, t, bin);
+    }
+    
     /**
      * Handles the event when the wheel is moved over the {@link #zSlider}
      * or {@link #zSliderGrid}.
@@ -257,10 +284,10 @@ class ControlPane
             int v = model.getDefaultZ()-e.getWheelRotation();
             if (up) {
                 if (v <= model.getMaxZ())
-                    controller.setSelectedXYPlane(v,  model.getDefaultT());
+                    setSelectedXYPlane(v,  model.getDefaultT());
             } else { //moving down
                 if (v >= 0)
-                    controller.setSelectedXYPlane(v,  model.getDefaultT());
+                    setSelectedXYPlane(v,  model.getDefaultT());
             }
         } else {
      
@@ -281,10 +308,36 @@ class ControlPane
             int v = model.getDefaultT()-e.getWheelRotation();
             if (up) {
                 if (v <= model.getMaxT())
-                    controller.setSelectedXYPlane(model.getDefaultZ(), v);
+                    setSelectedXYPlane(model.getDefaultZ(), v);
             } else { //moving down
                 if (v >= 0)
-                    controller.setSelectedXYPlane(model.getDefaultZ(), v);
+                    setSelectedXYPlane(model.getDefaultZ(), v);
+            }
+        } else {
+            
+        }
+    }
+    
+    /**
+     * Handles the event when the wheel is moved over the {@link #tSlider}
+     * or {@link #tSliderGrid}.
+     * 
+     * @param e The event to handle.
+     */
+    private void mouseWheelMovedLifetime(MouseWheelEvent e)
+    {
+        boolean up = true;
+        if (e.getWheelRotation() > 0) up = false;
+        if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+            int v = model.getDefaultT()-e.getWheelRotation();
+            if (up) {
+                if (v <= model.getMaxLifetimeBin())
+                    setSelectedXYPlane(model.getDefaultZ(), 
+                    		model.getDefaultT());
+            } else { //moving down
+                if (v >= 0)
+                    setSelectedXYPlane(model.getDefaultZ(), 
+                    		model.getDefaultT());
             }
         } else {
             
@@ -344,6 +397,8 @@ class ControlPane
         tSliderProjection = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 
         		0);
         tSliderProjection.setEnabled(false);
+        lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
+        lifetimeSlider.setEnabled(false);
         
         IconManager icons = IconManager.getInstance();
         gridRatioSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 1, 10, 5);
@@ -408,6 +463,7 @@ class ControlPane
         playZMovie = new JButton(
     			controller.getAction(ImViewerControl.PLAY_MOVIE_Z));
 	    UIUtilities.unifiedButtonLookAndFeel(playZMovie);
+	    
 	    playZMovieGrid = new JButton(
 				controller.getAction(ImViewerControl.PLAY_MOVIE_Z));
 	    UIUtilities.unifiedButtonLookAndFeel(playZMovieGrid);
@@ -442,6 +498,10 @@ class ControlPane
         projectionTypesBox.setToolTipText(PROJECTION_DESCRIPTION);
         projectionTypesBox.setActionCommand(""+TYPE);
         projectionTypesBox.addActionListener(this);
+        
+        playLifetimeMovie = new JButton(
+    			controller.getAction(ImViewerControl.PLAY_LIFETIME_MOVIE));
+	    UIUtilities.unifiedButtonLookAndFeel(playLifetimeMovie);
     }
     
     /**
@@ -521,6 +581,12 @@ class ControlPane
         	(SpinnerNumberModel) projectionFrequency.getModel();
         m.setMaximum(view.getMaxZ()+1);
 		projectionFrequency.addChangeListener(this);
+		
+		//Lifetime for now
+		int maxBin = model.getMaxLifetimeBin()-1;
+		initSlider(lifetimeSlider, maxBin, model.getSelectedBin(), 
+     			LITEIME_SLIDER_DESCRIPTION, LIFETIME_SLIDER_TIPSTRING);
+		lifetimeSlider.setPaintTicks(false);
     }
     
     /**
@@ -604,10 +670,17 @@ class ControlPane
         bar.setRollover(true);
         bar.setBorder(null);
         bar.add(colorModelButton);
-        bar.add(Box.createRigidArea(VBOX));
-        bar.add(channelMovieButton);
-        bar.add(Box.createRigidArea(VBOX));
-        bar.add(colorPickerButton);
+        if (!model.isLifetime()) {
+        	bar.add(Box.createRigidArea(VBOX));
+            bar.add(channelMovieButton);
+            bar.add(Box.createRigidArea(VBOX));
+            bar.add(colorPickerButton);
+        } else {
+        	bar.add(Box.createRigidArea(VBOX));
+            bar.add(Box.createRigidArea(VBOX));
+            bar.add(Box.createRigidArea(VBOX));
+        }
+        
         return bar;
     }
     
@@ -652,21 +725,22 @@ class ControlPane
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         ChannelButton button;
-        p.add(Box.createRigidArea(VBOX));
-        channelButtons = createChannelButtons();
-        Iterator<ChannelButton> i = channelButtons.iterator();
         Dimension d;
         int w = 0, h = 0;
-        while (i.hasNext()) {
-			button = i.next();
-			d = button.getPreferredSize();
-			if (d.width > w) w = d.width;
-        	if (d.height > h) h = d.height;
-			button.addPropertyChangeListener(controller);
-			p.add(button);
-            p.add(Box.createRigidArea(VBOX));
-		}
-       
+        if (!model.isLifetime()) {
+        	p.add(Box.createRigidArea(VBOX));
+            channelButtons = createChannelButtons();
+            Iterator<ChannelButton> i = channelButtons.iterator();
+            while (i.hasNext()) {
+    			button = i.next();
+    			d = button.getPreferredSize();
+    			if (d.width > w) w = d.width;
+            	if (d.height > h) h = d.height;
+    			button.addPropertyChangeListener(controller);
+    			p.add(button);
+                p.add(Box.createRigidArea(VBOX));
+    		}
+        }
         JPanel controls = new JPanel();
         double size[][] = {{TableLayout.PREFERRED}, 
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,
@@ -797,6 +871,7 @@ class ControlPane
      */
     JPanel buildGridComponent()
     {
+    	if (model.isLifetime()) return new JPanel();
     	JPanel p = createZGridSliderPane();
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
@@ -870,6 +945,7 @@ class ControlPane
      */
     JPanel buildProjectionComponent()
     {
+    	if (model.isLifetime()) return new JPanel();
     	JPanel p = layoutSlider(projectionRange);
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
@@ -1191,6 +1267,26 @@ class ControlPane
     }
     
     /**
+     * Builds and returns a UI component hosting the time slider 
+     * corresponding to the passed index.
+     * 
+     * @param index The index used to identify the slider.
+     * @return See above.
+     */
+    JPanel getLifetimeSliderPane(int index) 
+    {
+    	switch (index) {
+			case ImViewer.VIEW_INDEX:
+			default:
+				JPanel pane = new JPanel();
+	        	pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
+	        	//pane.add(createMovieButtonBar(playLifetimeMovie));
+	        	pane.add(lifetimeSlider);
+	        	return pane;
+		}
+    }
+    
+    /**
      * Sets the <code>enable</code> flag of the slider used to select
      * the current z-section and timepoint.
      * 
@@ -1201,6 +1297,8 @@ class ControlPane
     {
     	enableZSliders(b);
     	enableTSliders(b);
+    	if (b) lifetimeSlider.setEnabled(model.getMaxLifetimeBin() != 0);
+    	else lifetimeSlider.setEnabled(b);
 	}
     
     /**
@@ -1423,7 +1521,7 @@ class ControlPane
     	}
         controller.setProjectionRange(true);
     }
-
+    
     /**
      * Reacts to selection of a new plane.
      * @see ChangeListener#stateChanged(ChangeEvent)
@@ -1441,22 +1539,21 @@ class ControlPane
         	} else if (object == projectionRatioSlider) {
         		controller.setZoomFactor(projectionRatioSlider.getValue());
         	}
-        	if (object == zSlider || object == tSlider)
-        		controller.setSelectedXYPlane(zSlider.getValue(), 
-                    tSlider.getValue());
+        	if (object == zSlider || object == tSlider || 
+        			object == lifetimeSlider)
+        		setSelectedXYPlane(zSlider.getValue(), tSlider.getValue());
         	else if (object == zSliderGrid || object == tSliderGrid)
-        		controller.setSelectedXYPlane(zSliderGrid.getValue(), 
+        		setSelectedXYPlane(zSliderGrid.getValue(), 
                         tSliderGrid.getValue());
         	else if (object == tSliderProjection) {
         		//Only if knob is released.
         		if (!tSliderProjection.getValueIsAdjusting()) {
         			try {
-        				model.setSelectedXYPlane(-1, 
-            					tSliderProjection.getValue()-1);
+        				setSelectedXYPlane(-1, tSliderProjection.getValue()-1);
         				controller.setProjectionRange(true);
 					} catch (Exception ex) {}
         		}
-        	}
+        	} 
         } else if (object == projectionFrequency)
 			controller.setProjectionRange(true);
     }
@@ -1476,6 +1573,8 @@ class ControlPane
         	mouseWheelMovedZ(e);
         else if (source == tSliderGrid && tSliderGrid.isEnabled())
             mouseWheelMovedT(e);
+        else if (source == lifetimeSlider && lifetimeSlider.isEnabled())
+            mouseWheelMovedLifetime(e);
     }
 
     /**

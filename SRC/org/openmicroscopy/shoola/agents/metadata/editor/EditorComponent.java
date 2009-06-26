@@ -320,6 +320,7 @@ class EditorComponent
 	 */
 	public void loadChannelData()
 	{
+		if (model.isLifetime()) return;
 		if (model.getChannelData() == null) model.loadChannelData();
 		else view.showChannelData();
 	}

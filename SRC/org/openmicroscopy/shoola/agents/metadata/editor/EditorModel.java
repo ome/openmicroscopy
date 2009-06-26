@@ -1729,4 +1729,17 @@ class EditorModel
 		
 	}
 	
+	/**
+	 * Returns <code>true</code> if the image is a lifetime image,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLifetime()
+	{
+		Object object = getRefObject();
+		if (object == null || !(object instanceof ImageData)) return false;
+		return ((ImageData) object).isLifetime();
+	}
+	
 }

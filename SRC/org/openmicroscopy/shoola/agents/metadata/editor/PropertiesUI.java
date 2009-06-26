@@ -305,9 +305,12 @@ class PropertiesUI
     	index++;
     	layout.insertRow(index, TableLayout.PREFERRED);
     	
-    	label = UIUtilities.setTextFont("Channels", Font.BOLD, size);
-    	content.add(label, "0, "+index);
-    	content.add(channelsArea, "2, "+index);
+    	if (!model.isLifetime()) {
+    		label = UIUtilities.setTextFont("Channels", Font.BOLD, size);
+        	content.add(label, "0, "+index);
+        	content.add(channelsArea, "2, "+index);
+    	}
+    	
     	
     	JPanel p = UIUtilities.buildComponentPanel(content);
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);

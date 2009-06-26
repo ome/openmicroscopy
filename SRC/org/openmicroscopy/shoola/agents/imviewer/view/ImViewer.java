@@ -297,6 +297,15 @@ public interface ImViewer
 	public void setSelectedXYPlane(int z, int t);
 
 	/**
+	 * Sets the selected XY-plane. A new plane is then rendered.
+	 * 
+	 * @param z The selected z-section.
+	 * @param t The selected timepoint.
+	 * @param bin The selected bin, only used for lifetime.
+	 */
+	public void setSelectedXYPlane(int z, int t, int bin);
+	
+	/**
 	 * Sets the image to display.
 	 * 
 	 * @param image The image to display.
@@ -989,5 +998,13 @@ public interface ImViewer
 
 	/** Makes a movie. */
 	public void makeMovie();
+	
+	/**
+	 * Returns <code>true</code> if it is a lifetime image,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLifeTime();
 	
 }

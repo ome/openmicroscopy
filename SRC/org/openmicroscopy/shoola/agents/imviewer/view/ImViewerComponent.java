@@ -663,9 +663,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setSelectedXYPlane(int, int)
+	 * @see ImViewer#setSelectedXYPlane(int, int, int)
 	 */
-	public void setSelectedXYPlane(int z, int t)
+	public void setSelectedXYPlane(int z, int t, int bin)
 	{
 		switch (model.getState()) {
 			case NEW:
@@ -673,27 +673,45 @@ class ImViewerComponent
 			case DISCARDED:
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED, NEW " +
-						"or LOADING_RENDERING_CONTROL state.");
+				"or LOADING_RENDERING_CONTROL state.");
 		}
 		int defaultZ = model.getDefaultZ();
 		int defaultT = model.getDefaultT();
-
-		if (defaultZ == z && defaultT == t) return;
-		try {
-			if (defaultZ != z) {
-				firePropertyChange(ImViewer.Z_SELECTED_PROPERTY, 
-						Integer.valueOf(defaultZ), Integer.valueOf(z));
+		if (bin >= 0) { //lifetime
+			try {
+				model.setSelectedBin(bin);
+				renderXYPlane();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			if (defaultT != t) {
-				firePropertyChange(ImViewer.T_SELECTED_PROPERTY, 
-						Integer.valueOf(defaultT), Integer.valueOf(t));
+			
+		} else {
+			if (defaultZ == z && defaultT == t) return;
+			try {
+				if (defaultZ != z) {
+					firePropertyChange(ImViewer.Z_SELECTED_PROPERTY, 
+							Integer.valueOf(defaultZ), Integer.valueOf(z));
+				}
+				if (defaultT != t) {
+					firePropertyChange(ImViewer.T_SELECTED_PROPERTY, 
+							Integer.valueOf(defaultT), Integer.valueOf(t));
+				}
+				newPlane = true;
+				model.setSelectedXYPlane(z, t);
+				renderXYPlane();
+			} catch (Exception ex) {
+				handleException(ex);
 			}
-			newPlane = true;
-			model.setSelectedXYPlane(z, t);
-			renderXYPlane();
-		} catch (Exception ex) {
-			handleException(ex);
 		}
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setSelectedXYPlane(int, int)
+	 */
+	public void setSelectedXYPlane(int z, int t)
+	{
+		setSelectedXYPlane(z, t, -1);
 	}
 
 	/** 
@@ -901,6 +919,13 @@ class ImViewerComponent
 		model.setRenderingControl(result);
 		//Register the renderer
 		model.getRenderer().addPropertyChangeListener(controller);
+		if (model.isLifetime()) {
+			try {
+				model.setForLifetime();
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		} 
 		if (rnd == null) { //initial 
 			colorModel = model.getColorModel();
 			view.buildComponents();
@@ -2702,7 +2727,12 @@ class ImViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		model.makeMovie();
-		
 	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#isLifeTime()
+	 */
+	public boolean isLifeTime() { return model.isLifetime(); }
 	
 }

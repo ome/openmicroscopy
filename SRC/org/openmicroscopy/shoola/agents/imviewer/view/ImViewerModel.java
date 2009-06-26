@@ -694,7 +694,7 @@ class ImViewerModel
 				alternativeSettings = null;
 			} catch (Exception e) {}
 		} else {
-			renderer.setRenderingControl(rndControl);
+			renderer.setRenderingControl(currentRndControl);
 		}
 	} 
 
@@ -847,6 +847,25 @@ class ImViewerModel
 		currentRndControl.setActive(index, b);
 	}  
 
+	/**
+	 * Returns the number of bins per timeinterval
+	 * 
+	 * @return See above
+	 */
+	int getMaxLifetimeBin()
+	{
+		if (isLifetime()) return getMaxC();
+		return 0;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the image is a lifetime image,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLifetime() { return image.isLifetime(); }
+	
 	/**
 	 * Returns the number of channels.
 	 * 
@@ -1819,7 +1838,66 @@ class ImViewerModel
 		if (metadataViewer == null) return;
 		metadataViewer.makeMovie((int) getUnitInMicrons(), 
 				getBrowser().getUnitBarColor());
-		
+	}
+	
+	/**
+	 * Sets the selected lifetime bin.
+	 * 
+	 * @param bin The selected bin.
+	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 * 
+	 */
+	void setSelectedBin(int bin)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		List<ChannelData> channels = getChannelData();
+		ChannelData channel;
+		Iterator<ChannelData> i = channels.iterator();
+		int index;
+		while (i.hasNext()) {
+			channel = i.next();
+			index = channel.getIndex();
+			currentRndControl.setActive(index, index == bin);
+		}
+	}
+	
+	/**
+	 * Sets the rendering engine to handle lifetime image.
+	 * 
+	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	void setForLifetime()
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (!isLifetime()) return;
+		setColorModel(ImViewer.GREY_SCALE_MODEL);
+		List<ChannelData> channels = getChannelData();
+		ChannelData channel;
+		Iterator<ChannelData> i = channels.iterator();
+		int index;
+		while (i.hasNext()) {
+			channel = i.next();
+			index = channel.getIndex();
+			currentRndControl.setChannelWindow(index, channel.getGlobalMin(), 
+					channel.getGlobalMax());
+			currentRndControl.setActive(index, index == 0);
+		}
+	}
+	
+	/**
+	 * Returns the selected bin.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedBin()
+	{
+		List<Integer> active = getActiveChannels();
+		if (active == null || active.size() != 1) return 0;
+		return active.get(0);
 	}
 	
 }

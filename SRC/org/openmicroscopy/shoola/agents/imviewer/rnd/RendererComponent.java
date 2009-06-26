@@ -474,5 +474,11 @@ class RendererComponent
 	{
 		if (view != null) view.setPaneIndex(index);
 	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#isLifeTime()
+     */
+	public boolean isLifeTime() { return model.isLifeTime(); }
     
 }

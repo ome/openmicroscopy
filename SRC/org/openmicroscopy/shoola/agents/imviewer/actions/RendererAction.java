@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
@@ -60,6 +61,16 @@ public class RendererAction
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Display rendering controls.";
+    
+    /**
+     * Disposes and closes the movie player when the {@link ImViewer} is
+     * discarded.
+     * @see ViewerAction#onStateChange(ChangeEvent)
+     */
+    protected void onStateChange(ChangeEvent e)
+    {
+    	if (model.isLifeTime()) setEnabled(false);
+    }
     
     /**
      * Creates a new instance.

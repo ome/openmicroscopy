@@ -314,6 +314,9 @@ class ImViewerControl
 	/** Identifies the <code>Create Movie</code> action in the menu. */
 	static final Integer     CREATE_MOVIE = Integer.valueOf(68); 
 	
+	/** Identifies the <code>Play movie across life time bin</code> action. */
+	static final Integer     PLAY_LIFETIME_MOVIE = Integer.valueOf(69);
+	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -414,7 +417,9 @@ class ImViewerControl
 		actionsMap.put(COMPRESSION, new CompressionAction(model));
 		actionsMap.put(CLEAR_HISTORY, new ClearHistoryAction(model));
 		actionsMap.put(METADATA, new MetadataAction(model));
-		actionsMap.put(CREATE_MOVIE, new CreateMovieAction(model));
+		//TO be modified.
+		actionsMap.put(PLAY_LIFETIME_MOVIE, new PlayMovieAction(model, 
+				PlayMovieAction.ACROSS_T));
 	}
 
 	/** 
@@ -537,10 +542,14 @@ class ImViewerControl
 	/**
 	 * Renders the specified XY-Plane.
 	 * 
-	 * @param z The selected z-section.
-	 * @param t The selected timepoint.
+	 * @param z   The selected z-section.
+	 * @param t   The selected timepoint.
+	 * @param bin The selected bin, only used for lifetime.
 	 */
-	void setSelectedXYPlane(int z, int t) { model.setSelectedXYPlane(z, t); }
+	void setSelectedXYPlane(int z, int t, int bin)
+	{ 
+		model.setSelectedXYPlane(z, t, bin); 
+	}
 
 	/**
 	 * Returns the previous state.

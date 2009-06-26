@@ -290,5 +290,13 @@ public interface Renderer
 	 * 			    <code>false</code> otherwise.
 	 */
 	void setChannelSelection(int index, boolean value);
+
+	/**
+	 * Returns <code>true</code> if it is a lifetime image,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLifeTime();
 	
 }

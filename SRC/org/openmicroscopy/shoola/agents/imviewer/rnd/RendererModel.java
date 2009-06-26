@@ -608,5 +608,13 @@ class RendererModel
 	 * @param index The index of the channel.
 	 */
 	void showColorPicker(int index) { parentModel.showColorPicker(index); }
+
+	/**
+	 * Returns <code>true</code> if it is a lifetime image,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLifeTime() { return parentModel.isLifeTime(); }
 	
 }
