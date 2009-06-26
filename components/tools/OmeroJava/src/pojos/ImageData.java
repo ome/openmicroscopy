@@ -385,4 +385,16 @@ public class ImageData extends DataObject {
         annotations = new HashSet<AnnotationData>(m.result());
     }
 
+	/**
+	 * Returns <code>true</code> if the image is a lifetime image,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+    public boolean isLifetime()
+    {
+    	String name = getName();
+    	return (name != null && name.endsWith(".sdt"));
+    }
+    
 }
