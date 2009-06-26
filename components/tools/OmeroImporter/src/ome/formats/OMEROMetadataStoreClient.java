@@ -596,7 +596,7 @@ public class OMEROMetadataStoreClient
     	List<LSID> targets = null;
     	if (referenceCache.containsKey(source))
     	{
-    		referenceCache.get(source);
+    		targets = referenceCache.get(source);
     	}
     	else
     	{
