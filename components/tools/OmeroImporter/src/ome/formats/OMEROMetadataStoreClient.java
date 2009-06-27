@@ -2228,52 +2228,45 @@ public class OMEROMetadataStoreClient
     {
         List<Image> images = getSourceObjects(Image.class);
         String[] files = reader.getUsedFiles(true);
-
-        String formatString = "appliation/octet-stream";
+        String formatString = "application/octet-stream";
         String nameSpace = "openmicroscopy.org/omero/import/companionFile";
-        
         for (int i = 0; i < files.length; i ++)
         {
-            LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+            LinkedHashMap<String, Integer> indexes = 
+            	new LinkedHashMap<String, Integer>();
             indexes.put("originalFileIndex", i);
-                        
-            OriginalFile o = (OriginalFile) getSourceObject(OriginalFile.class, indexes);
+            OriginalFile o = (OriginalFile) 
+            	getSourceObject(OriginalFile.class, indexes);
             File file = new File(files[i]);
-
+            Format format = (Format) getEnumeration(Format.class, formatString);
             o.setName(toRType(file.getName()));
             o.setSize(toRType(file.length()));
-            o.setFormat((Format) getEnumeration(Format.class, formatString));
+            o.setFormat(format);
             o.setPath(toRType(file.getAbsolutePath()));
             o.setSha1(toRType("Pending"));
         }
-
         
         for (int i = 0; i < images.size(); i ++)
         {
-            
             Image image = images.get(i);
             image.setArchived(toRType(true));
-            
             LSID imageKey = new LSID(Image.class, i);
-                           
             for (int j = 0; j < files.length; j++)
             {
-                LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+                LinkedHashMap<String, Integer> indexes = 
+                	new LinkedHashMap<String, Integer>();
                 indexes.put("imageIndex", i);
                 indexes.put("originalFileIndex", j);
-                
                 FileAnnotation a = (FileAnnotation) 
                 	getSourceObject(FileAnnotation.class, indexes);
                 a.setNs(rstring(nameSpace));
                 
                 LSID annotationKey = new LSID(FileAnnotation.class, i, j);
-                
                 addReference(imageKey, annotationKey);
                 addReference(annotationKey, new LSID(OriginalFile.class, j));       
             }
         }
     }
-    
     
     /**
      * Writes binary original file data to the OMERO server.

@@ -238,12 +238,10 @@ public class ImportLibrary implements IObservable
     	log.debug("Post-processing metadata.");
 
     	store.setArchive(archive);
-    	/*
     	if (reader.getUsedFiles(true) != null && archive != true)
     	{
             store.setCompanionFiles();
     	}
-    	*/
     	store.setUserSpecifiedImageName(imageName);
     	store.setUserSpecifiedImageDescription(imageDescription);
     	if (userPixels != null)
@@ -251,7 +249,6 @@ public class ImportLibrary implements IObservable
     	store.setUserSpecifiedTarget(target);
         store.postProcess();
 
-    	
         log.debug("Saving pixels to DB.");
         List<Pixels> pixelsList = store.saveToDB();
         return pixelsList;
