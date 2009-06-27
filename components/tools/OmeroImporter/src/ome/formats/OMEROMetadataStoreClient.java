@@ -78,12 +78,15 @@ import omero.model.DatasetI;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.DetectorType;
+import omero.model.Dichroic;
 import omero.model.DimensionOrder;
 import omero.model.Experiment;
 import omero.model.ExperimentType;
 import omero.model.Filament;
 import omero.model.FilamentType;
 import omero.model.FileAnnotation;
+import omero.model.Filter;
+import omero.model.FilterSet;
 import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Illumination;
@@ -4265,4 +4268,36 @@ public class OMEROMetadataStoreClient
             log.error("checkImmersions() failure", e);
         }
     }
+
+	public void setDichroicID(String id, int instrumentIndex, int dichroicIndex)
+	{
+        LinkedHashMap<String, Integer> indexes = 
+        	new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("dichroicIndex", dichroicIndex);
+        IObjectContainer o = getIObjectContainer(Dichroic.class, indexes);
+        o.LSID = id;
+	}
+
+	public void setFilterID(String id, int instrumentIndex, int filterIndex)
+	{
+        LinkedHashMap<String, Integer> indexes = 
+        	new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("filterIndex", filterIndex);
+        IObjectContainer o = getIObjectContainer(Filter.class, indexes);
+        o.LSID = id;
+	}
+
+	public void setFilterSetID(String id, int instrumentIndex,
+			                   int filterSetIndex)
+	{
+        LinkedHashMap<String, Integer> indexes = 
+        	new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("filterSetIndex", filterSetIndex);
+        IObjectContainer o = getIObjectContainer(FilterSet.class, indexes);
+        o.LSID = id;
+		
+	}
 }
