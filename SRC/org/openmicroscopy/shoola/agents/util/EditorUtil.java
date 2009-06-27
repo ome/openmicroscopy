@@ -56,6 +56,7 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FilterData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.PermissionData;
@@ -188,11 +189,11 @@ public class EditorUtil
     /** Identifies the <code>Acquisition date</code> field. */
     public static final String  ACQUISITION_DATE = "Acquisition date";
     
-    /** Identifies the <code>Emission wavelength</code> field. */
-    public static final String  EMISSION_WAVELENGTH = "Emission";
+    /** Identifies the <code>Emission</code> field. */
+    public static final String  EMISSION = "Emission";
     
-    /** Identifies the <code>Excitation wavelength</code> field. */
-    public static final String  EXCITATION_WAVELENGTH = "Excitation";
+    /** Identifies the <code>Excitation</code> field. */
+    public static final String  EXCITATION = "Excitation";
     
     /** Identifies the <code>Pin hole size</code> field. */
     public static final String  PIN_HOLE_SIZE = "Pinhole size "+MICRONS;
@@ -348,11 +349,36 @@ public class EditorUtil
 	/** The map identifying the pixels value and its description. */
 	public static final Map<String, String> PIXELS_TYPE;
 	
+	/** Identifies a filter. */
+	public static final String	FILTER = "Filter";
+	
+	/** Identifies a filter wheel. */
+	public static final String	FILTER_WHEEL = "FilterWheel";
+	
+	/** Identifies a transmittance. */
+	public static final String	TRANSMITTANCE = "Transmittance";
+	
+	/** Identifies a cut in. */
+	public static final String	CUT_IN = "Cut In";
+	
+	/** Identifies a cut in tolerance. */
+	public static final String	CUT_IN_TOLERANCE = "Cut In Tolerance";
+	
+	/** Identifies a cut out. */
+	public static final String	CUT_OUT = "Cut Out";
+	
+	/** Identifies a cut out tolerance. */
+	public static final String	CUT_OUT_TOLERANCE = "Cut Out Tolerance";
+	
+	
+	
+	
+	
 	/** Identifies the <code>Indigo</code> color. */
-	private static final Color  			INDIGO = new Color(75, 0, 130);
+	private static final Color  INDIGO = new Color(75, 0, 130);
 
 	/** Identifies the <code>Violet</code> color. */
-	private static final Color  			VIOLET = new Color(238, 130, 238);
+	private static final Color  VIOLET = new Color(238, 130, 238);
 	
 	/** Colors available for the color bar. */
 	public static final Map<Color, String>	COLORS_BAR;
@@ -496,7 +522,7 @@ public class EditorUtil
                 details.put(PIXEL_TYPE, ""); 
             }
         }
-        details.put(EMISSION_WAVELENGTH+" "+WAVELENGTH+"s", "");  
+        details.put(EMISSION+" "+WAVELENGTH+"s", "");  
         return details;
     }
       
@@ -521,7 +547,7 @@ public class EditorUtil
             details.put(PIXEL_SIZE_Y, "");
             details.put(PIXEL_SIZE_Z, "");
             details.put(PIXEL_TYPE, "");  
-            details.put(EMISSION_WAVELENGTH+" "+WAVELENGTH+"s", "");
+            details.put(EMISSION+" "+WAVELENGTH+"s", "");
             details.put(ACQUISITION_DATE, DATE_NOT_AVAILABLE);
             return details;
         }
@@ -555,7 +581,7 @@ public class EditorUtil
                 details.put(PIXEL_TYPE, ""); 
             }
         }
-        details.put(EMISSION_WAVELENGTH+" "+WAVELENGTH+"s", ""); 
+        details.put(EMISSION+" "+WAVELENGTH+"s", ""); 
         Timestamp date = getAcquisitionTime(image);
         if (date == null) 
         	details.put(ACQUISITION_DATE, DATE_NOT_AVAILABLE);
@@ -910,8 +936,8 @@ public class EditorUtil
         		details = new LinkedHashMap<String, Object>(10);
         List<String> notSet = new ArrayList<String>();
         details.put(NAME, "");
-        details.put(EMISSION_WAVELENGTH, Integer.valueOf(0));
-        details.put(EXCITATION_WAVELENGTH, Integer.valueOf(0));
+        details.put(EMISSION, Integer.valueOf(0));
+        details.put(EXCITATION, Integer.valueOf(0));
         details.put(ND_FILTER, Float.valueOf(0));
         details.put(PIN_HOLE_SIZE, Float.valueOf(0));
         details.put(FLUOR, "");
@@ -921,8 +947,8 @@ public class EditorUtil
         details.put(POCKEL_CELL_SETTINGS, Integer.valueOf(0));
         if (data == null) {
         	notSet.add(NAME);
-        	notSet.add(EMISSION_WAVELENGTH);
-        	notSet.add(EXCITATION_WAVELENGTH);
+        	notSet.add(EMISSION);
+        	notSet.add(EXCITATION);
         	notSet.add(ND_FILTER);
         	notSet.add(PIN_HOLE_SIZE);
         	notSet.add(FLUOR);
@@ -940,15 +966,15 @@ public class EditorUtil
         int i = data.getEmissionWavelength();
         if (i <= 100) {
         	i = 0;
-        	notSet.add(EMISSION_WAVELENGTH);
+        	notSet.add(EMISSION);
         } 
-        details.put(EMISSION_WAVELENGTH, i);
+        details.put(EMISSION, i);
     	i = data.getExcitationWavelength();
         if (i <= 100) {
         	i = 0;
-        	notSet.add(EXCITATION_WAVELENGTH);
+        	notSet.add(EXCITATION);
         }
-    	details.put(EXCITATION_WAVELENGTH, i);
+    	details.put(EXCITATION, i);
     	double f = data.getNDFilter();
     	if (f < 0) {
     		f = 0;
@@ -991,11 +1017,12 @@ public class EditorUtil
         	i = 0;
         	notSet.add(POCKEL_CELL_SETTINGS);
         }
+
         details.put(POCKEL_CELL_SETTINGS, i);
         details.put(NOT_SET, notSet);
         return details;
     }
-    
+
     /**
      * Transforms the passed objective.
      * 
@@ -1223,8 +1250,7 @@ public class EditorUtil
      * @param data	The value to convert.
      * @return See above.
      */
-    public static Map<String, Object> transformFilter(
-    		ChannelAcquisitionData data)
+    public static Map<String, Object> transformFilter(FilterData data)
     {
     	LinkedHashMap<String, Object> 
 			details = new LinkedHashMap<String, Object>();
@@ -1234,6 +1260,70 @@ public class EditorUtil
 		details.put(MANUFACTURER, "");
 		details.put(SERIAL_NUMBER, "");
 		details.put(LOT_NUMBER, "");
+		details.put(TYPE, "");
+		details.put(FILTER_WHEEL, "");
+		details.put(CUT_IN, "");
+		details.put(CUT_OUT, "");
+		details.put(CUT_IN_TOLERANCE, "");
+		details.put(CUT_OUT_TOLERANCE, "");
+		details.put(TRANSMITTANCE, "");
+		if (data == null) {
+    		notSet.add(MODEL);
+    		notSet.add(MANUFACTURER);
+    		notSet.add(SERIAL_NUMBER);
+    		notSet.add(LOT_NUMBER);
+    		notSet.add(TYPE);
+    		notSet.add(FILTER_WHEEL);
+    		notSet.add(CUT_IN);
+    		notSet.add(CUT_OUT);
+    		notSet.add(CUT_IN_TOLERANCE);
+    		notSet.add(CUT_OUT_TOLERANCE);
+    		notSet.add(TRANSMITTANCE);
+    		details.put(NOT_SET, notSet);
+        	return details;
+    	}
+		String s = data.getModel();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(MODEL);
+		details.put(MODEL, s);
+		s = data.getManufacturer();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(MANUFACTURER);
+		details.put(MANUFACTURER, s);
+		s = data.getSerialNumber();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(SERIAL_NUMBER);
+		details.put(SERIAL_NUMBER, s);
+		s = data.getLotNumber();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(LOT_NUMBER);
+		details.put(LOT_NUMBER, s);
+		s = data.getType();
+        if (s == null || s.trim().length() == 0) 
+			notSet.add(TYPE);
+        details.put(TYPE, s); 
+        s = data.getFilterWheel();
+        if (s == null || s.trim().length() == 0) 
+			notSet.add(FILTER_WHEEL);
+        details.put(FILTER_WHEEL, s);
+        int i = data.getCutIn();
+        if (i <= 0) notSet.add(CUT_IN);
+        details.put(CUT_IN, i);
+        i = data.getCutOut();
+        if (i <= 0) notSet.add(CUT_OUT);
+        details.put(CUT_OUT, i);
+        i = data.getCutInTolerance();
+        if (i <= 0)
+        	notSet.add(CUT_IN_TOLERANCE);
+        details.put(CUT_IN_TOLERANCE, i);
+        i = data.getCutOutTolerance();
+        if (i <= 0)
+        	notSet.add(CUT_OUT_TOLERANCE);
+        details.put(CUT_OUT_TOLERANCE, i);
+        double d = data.getTransmittance();
+        if (d <= 0)
+        	notSet.add(TRANSMITTANCE);
+        details.put(TRANSMITTANCE, d);
 		return details;
     }
     
@@ -1269,7 +1359,6 @@ public class EditorUtil
     		notSet.add(TYPE);
     		details.put(NOT_SET, notSet);
         	return details;
-    		
     	}
     	String s = data.getLightSourceModel();
 		if (s == null || s.trim().length() == 0) 
@@ -1283,7 +1372,7 @@ public class EditorUtil
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(SERIAL_NUMBER);
 		details.put(SERIAL_NUMBER, s);
-		s = data.getLightSourceSerialNumber();
+		s = data.getLightSourceLotNumber();
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(LOT_NUMBER);
 		details.put(LOT_NUMBER, s);
@@ -1398,7 +1487,7 @@ public class EditorUtil
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(SERIAL_NUMBER);
 		details.put(SERIAL_NUMBER, s);
-		s = data.getDetectorSerialNumber();
+		s = data.getDetectorLotNumber();
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(LOT_NUMBER);
 		details.put(LOT_NUMBER, s);

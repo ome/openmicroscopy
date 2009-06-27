@@ -477,12 +477,12 @@ class ChannelAcquisitionComponent
 								Integer.class);
 						if (number != null)
 							channel.setPockelCell((Integer) value);
-					} else if (EditorUtil.EMISSION_WAVELENGTH.equals(key)) {
+					} else if (EditorUtil.EMISSION.equals(key)) {
 						number = UIUtilities.extractNumber((String) value, 
 								Integer.class);
 						if (number != null)
 							channel.setEmissionWavelength((Integer) number);
-					} else if (EditorUtil.EXCITATION_WAVELENGTH.equals(key)) {
+					} else if (EditorUtil.EXCITATION.equals(key)) {
 						number = UIUtilities.extractNumber((String) value, 
 								Integer.class);
 						if (number != null)

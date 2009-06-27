@@ -263,6 +263,7 @@ class DomainPane
         JPanel p = new JPanel();
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        if (model.isLifeTime()) return p;
         List<ChannelData> data = model.getChannelData();
         boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
         ChannelData d;

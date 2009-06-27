@@ -299,6 +299,7 @@ class ToolBar
     	Object refObject = model.getRefObject();
     	if (refObject instanceof ImageData) {
     		rndButton.setEnabled(!model.isRendererLoaded());
+    		if (model.isLifetime()) rndButton.setEnabled(false);
     		imageBar.setVisible(!model.isMultiSelection());
     	} else {
     		rndButton.setEnabled(false);
