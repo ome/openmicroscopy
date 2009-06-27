@@ -395,15 +395,11 @@ public interface OmeroImageService
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
 	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 * @throws ImportException        	If an error occured while importing.                            
+	 * @throws ImportException If an error occured while importing.                            
 	 */
 	public Object importImage(DataObject container, File image, 
 			long userID, long groupID)
-		throws DSOutOfServiceException, DSAccessException, ImportException;
+		throws ImportException;
 	
 	/**
 	 * Returns the collection of file filters supported.

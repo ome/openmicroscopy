@@ -349,15 +349,16 @@ class OMEROGateway
 	 * Returns the message corresponding to the error thrown while importing the
 	 * files.
 	 * 
-	 * @param e The exception to handle.
+	 * @param t The exception to handle.
 	 * @return See above.
 	 */
-	private String getImportFailureMessage(Exception e)
+	private String getImportFailureMessage(Throwable t)
 	{
 		String message;
-		if (e instanceof FormatException) {
-			message = e.getMessage();
-			e.printStackTrace();
+		Throwable cause = t.getCause();
+		if (cause instanceof FormatException) {
+			message = cause.getMessage();
+			cause.printStackTrace();
 			if (message == null) return null;
 			if (message.contains("ome-xml.jar"))
 				return "Missing ome-xml.jar required to read OME-TIFF files";
@@ -4267,17 +4268,14 @@ class OMEROGateway
 	 * @param container The container where to download the images into.
 	 * @param file The file to import.
 	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
+	 * @throws ImportException If an error occured while importing.
 	 */
 	Object importImage(DataObject container, File file)
-		throws DSOutOfServiceException, DSAccessException, ImportException
+		throws ImportException
 	{
-		ImportLibrary importLibrary = new ImportLibrary(getImportStore(), 
-				new OMEROWrapper());
 		try {
+			ImportLibrary importLibrary = new ImportLibrary(getImportStore(), 
+					new OMEROWrapper());
 			importLibrary.setTarget(container.asIObject());
 			List<Pixels> pixels = 
 				importLibrary.importImage(file, 0, 0, 1, file.getName(), null, 
@@ -4287,7 +4285,7 @@ class OMEROGateway
 				long id = p.getImage().getId().getValue();
 				return getImage(id, new Parameters());
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String message = getImportFailureMessage(e);
 			throw new ImportException(message, e);
 		}

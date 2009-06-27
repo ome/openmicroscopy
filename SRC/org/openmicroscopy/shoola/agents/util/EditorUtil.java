@@ -1218,6 +1218,26 @@ public class EditorUtil
     }
     
     /**
+     * Transforms the filter.
+     * 
+     * @param data	The value to convert.
+     * @return See above.
+     */
+    public static Map<String, Object> transformFilter(
+    		ChannelAcquisitionData data)
+    {
+    	LinkedHashMap<String, Object> 
+			details = new LinkedHashMap<String, Object>();
+	
+		List<String> notSet = new ArrayList<String>();
+		details.put(MODEL, "");
+		details.put(MANUFACTURER, "");
+		details.put(SERIAL_NUMBER, "");
+		details.put(LOT_NUMBER, "");
+		return details;
+    }
+    
+    /**
      * Transforms the detector and its settings.
      * 
      * @param kind 	The kind of light source or <code>null</code>.

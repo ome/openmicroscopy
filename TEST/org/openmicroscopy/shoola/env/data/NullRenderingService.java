@@ -266,7 +266,7 @@ public class NullRenderingService
      */
 	public Object importImage(DataObject container, File image, 
 			long userID, long groupID) 
-		throws DSOutOfServiceException, DSAccessException
+		throws ImportException
 	{
 		return null;
 	}
