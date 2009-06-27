@@ -54,6 +54,7 @@ import omero.model.LightSettingsI;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.Pulse;
+import omero.model.TransmittanceRange;
 
 /** 
  * Object hosting the acquisition related to a logical channel.
@@ -526,6 +527,156 @@ public class ChannelAcquisitionData
 	}
 	
 	/**
+	 * Returns the cut in value or <code>-1</code>.
+	 * 
+	 * @return See above.
+	 */
+	public int getSecondaryEmFilterCutIn()
+	{
+		if (secondaryEmFilter == null) return -1;
+		TransmittanceRange range = secondaryEmFilter.getTransmittanceRange();
+		if (range == null) return -1;
+		RInt value = range.getCutIn();
+		if (value == null) return -1;
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the cut in tolerance value or <code>-1</code>.
+	 * 
+	 * @return See above.
+	 */
+	public int getSecondaryEmFilterCutInTolerance()
+	{
+		if (secondaryEmFilter == null) return -1;
+		TransmittanceRange range = secondaryEmFilter.getTransmittanceRange();
+		if (range == null) return -1;
+		RInt value = range.getCutInTolerance();
+		if (value == null) return -1;
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the cut out value or <code>-1</code>.
+	 * 
+	 * @return See above.
+	 */
+	public int getSecondaryEmFilterCutOut()
+	{
+		if (secondaryEmFilter == null) return -1;
+		TransmittanceRange range = secondaryEmFilter.getTransmittanceRange();
+		if (range == null) return -1;
+		RInt value = range.getCutOut();
+		if (value == null) return -1;
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the cut out tolerance value or <code>-1</code>.
+	 * 
+	 * @return See above.
+	 */
+	public int getSecondaryEmFilterCutOutTolerance()
+	{
+		if (secondaryEmFilter == null) return -1;
+		TransmittanceRange range = secondaryEmFilter.getTransmittanceRange();
+		if (range == null) return -1;
+		RInt value = range.getCutOutTolerance();
+		if (value == null) return -1;
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the cut out tolerance value or <code>-1</code>.
+	 * 
+	 * @return See above.
+	 */
+	public double getSecondaryEmFilterTransmittance()
+	{
+		if (secondaryEmFilter == null) return -1;
+		TransmittanceRange range = secondaryEmFilter.getTransmittanceRange();
+		if (range == null) return -1;
+		RDouble value = range.getTransmittance();
+		if (value == null) return -1;
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the cut in value or <code>-1</code>.
+	 * 
+	 * @return See above.
+	 */
+	public int getSecondaryExFilterCutIn()
+	{
+		if (secondaryExFilter == null) return -1;
+		TransmittanceRange range = secondaryExFilter.getTransmittanceRange();
+		if (range == null) return -1;
+		RInt value = range.getCutIn();
+		if (value == null) return -1;
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the cut in tolerance value or <code>-1</code>.
+	 * 
+	 * @return See above.
+	 */
+	public int getSecondaryExFilterCutInTolerance()
+	{
+		if (secondaryExFilter == null) return -1;
+		TransmittanceRange range = secondaryExFilter.getTransmittanceRange();
+		if (range == null) return -1;
+		RInt value = range.getCutInTolerance();
+		if (value == null) return -1;
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the cut out value or <code>-1</code>.
+	 * 
+	 * @return See above.
+	 */
+	public int getSecondaryExFilterCutOut()
+	{
+		if (secondaryExFilter == null) return -1;
+		TransmittanceRange range = secondaryExFilter.getTransmittanceRange();
+		if (range == null) return -1;
+		RInt value = range.getCutOut();
+		if (value == null) return -1;
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the cut out tolerance value or <code>-1</code>.
+	 * 
+	 * @return See above.
+	 */
+	public int getSecondaryExFilterCutOutTolerance()
+	{
+		if (secondaryExFilter == null) return -1;
+		TransmittanceRange range = secondaryExFilter.getTransmittanceRange();
+		if (range == null) return -1;
+		RInt value = range.getCutOutTolerance();
+		if (value == null) return -1;
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the cut out tolerance value or <code>-1</code>.
+	 * 
+	 * @return See above.
+	 */
+	public double getSecondaryExFilterTransmittance()
+	{
+		if (secondaryExFilter == null) return -1;
+		TransmittanceRange range = secondaryExFilter.getTransmittanceRange();
+		if (range == null) return -1;
+		RDouble value = range.getTransmittance();
+		if (value == null) return -1;
+		return value.getValue();
+	}
+	
+	/**
 	 * Returns the manufacturer of the light source.
 	 * 
 	 * @return See above.
@@ -665,6 +816,39 @@ public class ChannelAcquisitionData
 		return "";
 	}
 
+	/**
+	 * Returns <code>true</code> if there is an emission filter for that 
+	 * channel, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasEmissionFilter()
+	{
+		return secondaryEmFilter != null;
+	}
+	
+	/**
+	 * Returns <code>true</code> if there is an excitation filter for that 
+	 * channel, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasExcitationFilter()
+	{
+		return secondaryExFilter != null;
+	}
+	
+	/**
+	 * Returns <code>true</code> if there is an filter for that channel, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasFilter()
+	{
+		return filterSet != null;
+	}
+	
 	/**
 	 * Returns <code>true</code> if there is a detector for that channel,
 	 * <code>false</code> otherwise.
