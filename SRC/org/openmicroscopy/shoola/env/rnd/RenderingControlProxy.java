@@ -1330,7 +1330,7 @@ class RenderingControlProxy
 		DataServicesFactory.isSessionAlive(context);
     	try {
     		 servant.resetDefaultsNoSave();
-    		 setModel(RGB);
+    		 if (getPixelsDimensionsC() > 1) setModel(RGB);
     		 List list = servant.getAvailableFamilies();
     		 ChannelData m;
     		 Iterator j;

@@ -169,7 +169,7 @@ class ToolBar
         button = new JButton(
     			controller.getAction(ImViewerControl.RESET_RND_SETTINGS));
         UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);
+        //bar.add(button);
         button = new JButton(controller.getAction(
         					ImViewerControl.SET_ORIGINAL_RND_SETTINGS));
         UIUtilities.unifiedButtonLookAndFeel(button);

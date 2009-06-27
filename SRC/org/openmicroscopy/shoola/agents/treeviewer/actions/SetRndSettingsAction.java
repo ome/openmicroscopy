@@ -115,8 +115,9 @@ public class SetRndSettingsAction
 		name = NAME;
 		putValue(Action.SHORT_DESCRIPTION, 
 				UIUtilities.formatToolTipText(DESCRIPTION));
+		//SET_RND_SETTINGS
 		IconManager im = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, im.getIcon(IconManager.SET_RND_SETTINGS));
+		putValue(Action.SMALL_ICON, im.getIcon(IconManager.REDO));
 	}
 
 	/** 

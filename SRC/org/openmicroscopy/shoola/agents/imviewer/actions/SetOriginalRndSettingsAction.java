@@ -87,8 +87,9 @@ public class SetOriginalRndSettingsAction
 		super(model);
 		name = NAME;
     	IconManager icons = IconManager.getInstance();
+    	//SET_RND_SETTINGS;
     	putValue(Action.SMALL_ICON, icons.getIcon(
-    							IconManager.SET_RND_SETTINGS));
+    							IconManager.RESET_SETTINGS));
     	putValue(Action.SHORT_DESCRIPTION, 
     			UIUtilities.formatToolTipText(DESCRIPTION));
 	}
