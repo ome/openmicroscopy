@@ -37,6 +37,7 @@ import omero.metadatastore.IObjectContainer;
 import omero.model.DetectorSettings;
 import omero.model.LightSettings;
 import omero.model.ObjectiveSettings;
+import omero.model.WellSample;
 
 /**
  * Processes the references of an IObjectContainerStore and ensures
@@ -102,6 +103,16 @@ public class ReferenceProcessor implements ModelProcessor
             			else if (targetClass.equals(ObjectiveSettings.class))
             			{
             				indexes.put("imageIndex", indexArray[0]);
+            			}
+            			else if (targetClass.equals(WellSample.class))
+            			{
+            				// A WellSample has been used to link an Image to
+            				// a Well and there was no acquisition specific
+            				// metadata to record about the WellSample. We now
+            				// need to create it.
+            				indexes.put("plateIndex", indexArray[0]);
+            				indexes.put("wellIndex", indexArray[1]);
+            				indexes.put("wellSample", indexArray[2]);
             			}
             			else
             			{
