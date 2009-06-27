@@ -34,7 +34,10 @@ import ome.model.IObject;
 import ome.model.acquisition.Arc;
 import ome.model.acquisition.Detector;
 import ome.model.acquisition.DetectorSettings;
+import ome.model.acquisition.Dichroic;
 import ome.model.acquisition.Filament;
+import ome.model.acquisition.Filter;
+import ome.model.acquisition.FilterSet;
 import ome.model.acquisition.ImagingEnvironment;
 import ome.model.acquisition.Instrument;
 import ome.model.acquisition.Laser;
@@ -165,6 +168,18 @@ public class OMEROMetadataStore
     	else if (sourceObject instanceof Detector)
     	{
     		handle(lsid, (Detector) sourceObject, indexes);
+    	}
+    	else if (sourceObject instanceof Dichroic)
+    	{
+    		handle(lsid, (Dichroic) sourceObject, indexes);
+    	}
+    	else if (sourceObject instanceof Filter)
+    	{
+    		handle(lsid, (Filter) sourceObject, indexes);
+    	}
+    	else if (sourceObject instanceof FilterSet)
+    	{
+    		handle(lsid, (FilterSet) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof Laser)
     	{
@@ -508,6 +523,48 @@ public class OMEROMetadataStore
     {
     	Instrument i = instrumentList.get(indexes.get("instrumentIndex"));
     	i.addLightSource(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Dichroic sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	Instrument i = instrumentList.get(indexes.get("instrumentIndex"));
+    	i.addDichroic(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Filter sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	Instrument i = instrumentList.get(indexes.get("instrumentIndex"));
+    	i.addFilter(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, FilterSet sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	Instrument i = instrumentList.get(indexes.get("instrumentIndex"));
+    	i.addFilterSet(sourceObject);
     }
     
     /**
