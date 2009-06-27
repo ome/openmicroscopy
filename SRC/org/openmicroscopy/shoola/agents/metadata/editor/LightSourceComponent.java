@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelAcquisitionData;
+import pojos.LightSourceData;
 
 /** 
  * Component displaying information about the light source i.e.
@@ -145,13 +146,13 @@ class LightSourceComponent
 	private void transformLightSource(String kind, Map<String, Object> details)
 	{
 		String title = "Light Source";
-		if (ChannelAcquisitionData.LASER.equals(kind))
+		if (LightSourceData.LASER.equals(kind))
 			title = LASER_TYPE;
-		else if (ChannelAcquisitionData.ARC.equals(kind))
+		else if (LightSourceData.ARC.equals(kind))
 			title = ARC_TYPE;
-		else if (ChannelAcquisitionData.FILAMENT.equals(kind))
+		else if (LightSourceData.FILAMENT.equals(kind))
 			title = FILAMENT_TYPE;
-		else if (ChannelAcquisitionData.LIGHT_EMITTING_DIODE.equals(kind))
+		else if (LightSourceData.LIGHT_EMITTING_DIODE.equals(kind))
 			title = EMITTING_DIODE_TYPE;
 		setBorder(BorderFactory.createTitledBorder(title));
 		
@@ -182,7 +183,7 @@ class LightSourceComponent
             value = entry.getValue();
             label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
-            if (ChannelAcquisitionData.LASER.equals(kind)) {
+            if (LightSourceData.LASER.equals(kind)) {
             	if (EditorUtil.TYPE.equals(key)) {
             		selected = model.getChannelEnumerationSelected(
                 			Editor.LASER_TYPE, (String) value);
@@ -255,7 +256,7 @@ class LightSourceComponent
             		laserPockelCellBox.setEditedColor(UIUtilities.EDITED_COLOR);
             		area = laserPockelCellBox;
             	} 
-            } else if (ChannelAcquisitionData.ARC.equals(kind)) {
+            } else if (LightSourceData.ARC.equals(kind)) {
             	if (EditorUtil.TYPE.equals(key)) {
             		selected = model.getChannelEnumerationSelected(
             				Editor.ARC_TYPE, (String) value);
@@ -268,7 +269,7 @@ class LightSourceComponent
                 	arcTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
                 	area = arcTypeBox;
             	}
-            } else if (ChannelAcquisitionData.FILAMENT.equals(kind)) {
+            } else if (LightSourceData.FILAMENT.equals(kind)) {
             	if (EditorUtil.TYPE.equals(key)) {
             		selected = model.getChannelEnumerationSelected(
                 			Editor.FILAMENT_TYPE, (String) value);
@@ -281,7 +282,7 @@ class LightSourceComponent
                 	filamentTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
                 	area = filamentTypeBox;
             	}
-            } else if (ChannelAcquisitionData.LIGHT_EMITTING_DIODE.equals(
+            } else if (LightSourceData.LIGHT_EMITTING_DIODE.equals(
             		kind)) {
             	if (EditorUtil.TYPE.equals(key)) {
             		
@@ -372,16 +373,17 @@ class LightSourceComponent
 		String selected = (String) lightTypeBox.getSelectedItem();
 		String kind = "";
 		if (LASER_TYPE.equals(selected))
-			kind = ChannelAcquisitionData.LASER;
+			kind = LightSourceData.LASER;
 		else if (FILAMENT_TYPE.equals(selected))
-			kind = ChannelAcquisitionData.FILAMENT;
+			kind = LightSourceData.FILAMENT;
 		else if (ARC_TYPE.equals(selected))
-			kind = ChannelAcquisitionData.ARC;
+			kind = LightSourceData.ARC;
 		else if (EMITTING_DIODE_TYPE.equals(selected))
-			kind = ChannelAcquisitionData.LIGHT_EMITTING_DIODE;
+			kind = LightSourceData.LIGHT_EMITTING_DIODE;
 		
 		fieldsLight.clear();
-		Map<String, Object> d = EditorUtil.transformLightSource(kind, data);
+		Map<String, Object> d = EditorUtil.transformLightSource(
+				data.getLightSource());
 		d.remove(EditorUtil.LIGHT_TYPE);
 		transformLightSource(kind, d);
 		parent.layoutFields(this, unsetLight, fieldsLight, 

@@ -376,8 +376,8 @@ class ChannelAcquisitionComponent
 	    			channel.getIndex());
 			detectorPane.displayDetector(EditorUtil.transformDetector(data));
 			
-			Map<String, Object> details = EditorUtil.transformLightSource(null, 
-					data);
+			Map<String, Object> details = EditorUtil.transformLightSource(
+					data.getLightSource());
 			String kind = (String) details.get(EditorUtil.LIGHT_TYPE);
 			details.remove(EditorUtil.LIGHT_TYPE);
 			lightPane.displayLightSource(kind, details);

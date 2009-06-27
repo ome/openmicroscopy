@@ -59,6 +59,7 @@ import pojos.ExperimenterData;
 import pojos.FilterData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
+import pojos.LightSourceData;
 import pojos.PermissionData;
 import pojos.PixelsData;
 import pojos.PlateData;
@@ -1328,14 +1329,12 @@ public class EditorUtil
     }
     
     /**
-     * Transforms the detector and its settings.
+     * Transforms the passed source of light.
      * 
-     * @param kind 	The kind of light source or <code>null</code>.
      * @param data	The value to convert.
      * @return See above.
      */
-    public static Map<String, Object> transformLightSource(String kind, 
-    		ChannelAcquisitionData data)
+    public static Map<String, Object> transformLightSource(LightSourceData data)
     {
     	LinkedHashMap<String, Object> 
 			details = new LinkedHashMap<String, Object>();
@@ -1364,34 +1363,33 @@ public class EditorUtil
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(MODEL);
 		details.put(MODEL, s);
-		s = data.getLightSourceManufacturer();
+		s = data.getManufacturer();
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(MANUFACTURER);
 		details.put(MANUFACTURER, s);
-		s = data.getLightSourceSerialNumber();
+		s = data.getSerialNumber();
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(SERIAL_NUMBER);
 		details.put(SERIAL_NUMBER, s);
-		s = data.getLightSourceLotNumber();
+		s = data.getLotNumber();
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(LOT_NUMBER);
 		details.put(LOT_NUMBER, s);
 		
-    	s = data.getLightSourceKind();
+    	s = data.getKind();
     	details.put(LIGHT_TYPE, s);
-    	double f = data.getLightSourcePower();
+    	double f = data.getPower();
     	if (f < 0) {
     		notSet.add(POWER);
     		f = 0;
     	}
     	details.put(POWER, f);
-    	s = data.getLightType();
+    	s = data.getType();
     	if (s == null || s.trim().length() == 0) 
 			notSet.add(TYPE);
         details.put(TYPE, s); 
-        if (kind == null) s = data.getLightSourceKind();
-        else s = kind;
-        if (ChannelAcquisitionData.LASER.equals(s)) {
+        s = data.getKind();
+        if (LightSourceData.LASER.equals(s)) {
         	s = data.getLaserMedium();
         	if (s == null || s.trim().length() == 0) 
     			notSet.add(MEDIUM);
