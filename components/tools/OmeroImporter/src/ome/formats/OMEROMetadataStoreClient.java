@@ -870,12 +870,12 @@ public class OMEROMetadataStoreClient
         for (LSID sourceLSID : referenceCache.keySet())
         {
             Class sourceClass = sourceLSID.getJavaClass();
-            if (sourceClass.equals(source.getName()))
+            if (sourceClass.equals(source))
             {
             	for (LSID targetLSID : referenceCache.get(sourceLSID))
             	{
             		Class targetClass = targetLSID.getJavaClass();
-            		if (targetClass.equals(target.getName()))
+            		if (targetClass.equals(target))
             		{
             			count++;
             		}
@@ -884,7 +884,6 @@ public class OMEROMetadataStoreClient
         }
         return count;
     }
-    
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setArcType(java.lang.String, int, int)

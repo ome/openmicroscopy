@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+
+import urllib
+
+# Handle Python 2.5 built-in ElementTree
+try:
+        from xml.etree.ElementTree import XML, ElementTree, tostring
+except ImportError:
+        from elementtree.ElementTree import XML, ElementTree, tostring
+
+# JARs to ignore from download
+ignore = ["loci_tools.jar"]
+
+url = urllib.urlopen("http://hudson.openmicroscopy.org.uk/job/LOCI/lastBuild/api/xml")
+hudson_xml = url.read()
+url.close()
+
+root = XML(hudson_xml)
+
+revision = root.find("./changeSet/revision/revision").text
+artifacts = root.findall("./artifact")
+
+print "Updaing Bio-Formats JARs from revision: %s" % revision
+base_url = "http://hudson.openmicroscopy.org.uk/job/LOCI/lastBuild/artifact/"
+for artifact in artifacts:
+    filename = artifact.find("fileName").text
+    if filename in ignore:
+        continue
+    filename = "%s-r%s.jar" % (filename[:-4], revision)
+    jar_url = base_url + artifact.find("relativePath").text
+    print "Downloading %s from URL %s" % (filename, jar_url)
+    urllib.urlretrieve(jar_url, filename)
