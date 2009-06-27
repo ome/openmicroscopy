@@ -42,8 +42,13 @@ class CorrectionEnumHandler implements EnumerationHandler
 	/** Array of enumeration patterns this handler uses for searching. */ 
 	private static final PatternSet[] searchPatterns = new PatternSet[]
         {
-	    
-			new PatternSet("^\\s*Pl.*Apo.*$", "PlanApo")
+			new PatternSet("^\\s*Pl.*Apo.*$", "PlanApo"),
+			new PatternSet("^\\s*Pl.*Flu.*$", "PlanFluor"),
+			new PatternSet("^\\s*Sup.*Flu.*$", "SuperFluor"),
+			new PatternSet("^\\s*Vio.*Corr.*$", "VioletCorrected"),
+			new PatternSet("^\\s*Achr.*Flu.*$", "Achromat"),
+			new PatternSet("^\\s*Neo.*flu.*$", "Neofluar"),
+			new PatternSet("^\\s*Apo.*$", "Apo"),
 	    };
 	
 	/* (non-Javadoc)
