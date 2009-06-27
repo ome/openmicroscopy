@@ -105,8 +105,8 @@ public class DetectorSettingsDetectorTest extends TestCase
 	
 	public void testAddDetectorSettingsDetectorReference()
 	{
-	    Map<String, String> referenceCache = new HashMap<String, String>();
-	    referenceCache.put("DetectorSettings:0", "Detector:0");
+	    Map<String, String[]> referenceCache = new HashMap<String, String[]>();
+	    referenceCache.put("DetectorSettings:0", new String[] { "Detector:0" });
 	    store.updateReferences(referenceCache);
 	    DetectorSettings detectorSettings = (DetectorSettings)
 	    	store.getObjectByLSID(new LSID("DetectorSettings:0"));
@@ -115,8 +115,9 @@ public class DetectorSettingsDetectorTest extends TestCase
 	
 	public void testAddObjectiveSettingsObjectiveReference()
 	{
-	    Map<String, String> referenceCache = new HashMap<String, String>();
-	    referenceCache.put("ObjectiveSettings:0", "Objective:0");
+	    Map<String, String[]> referenceCache = new HashMap<String, String[]>();
+	    referenceCache.put("ObjectiveSettings:0",
+	    		           new String[] { "Objective:0" });
 	    store.updateReferences(referenceCache);
 	    ObjectiveSettings objectiveSettings = (ObjectiveSettings)
 	    	store.getObjectByLSID(new LSID("ObjectiveSettings:0"));
@@ -125,14 +126,15 @@ public class DetectorSettingsDetectorTest extends TestCase
 	
 	public void testAddDetectorAndObjectiveSettingsReferences()
 	{
-	    Map<String, String> referenceCache = new HashMap<String, String>();
+	    Map<String, String[]> referenceCache = new HashMap<String, String[]>();
 	    
-	    referenceCache.put("DetectorSettings:0", "Detector:0");
+	    referenceCache.put("DetectorSettings:0", new String[] { "Detector:0"});
 	    store.updateReferences(referenceCache);
 	    DetectorSettings detectorSettings = (DetectorSettings)
 	    	store.getObjectByLSID(new LSID("DetectorSettings:0"));
 	    
-	    referenceCache.put("ObjectiveSettings:0", "Objective:0");
+	    referenceCache.put("ObjectiveSettings:0",
+	    		           new String[] { "Objective:0"});
 	    store.updateReferences(referenceCache);
 	    ObjectiveSettings objectiveSettings = (ObjectiveSettings)
 	    	store.getObjectByLSID(new LSID("ObjectiveSettings:0"));

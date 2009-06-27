@@ -39,8 +39,8 @@ public class GenericReferenceTest extends TestCase
 	
 	public void testAddReference()
 	{
-	    Map<String, String> referenceCache = new HashMap<String, String>();
-	    referenceCache.put("Image:0", "Instrument:0");
+	    Map<String, String[]> referenceCache = new HashMap<String, String[]>();
+	    referenceCache.put("Image:0", new String[] { "Instrument:0"});
 	    store.updateReferences(referenceCache);
 	}
 }
