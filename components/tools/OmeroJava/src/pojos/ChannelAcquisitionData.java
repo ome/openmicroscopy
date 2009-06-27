@@ -353,11 +353,25 @@ public class ChannelAcquisitionData
 	}
 	
 	/**
-	 * Returns the manufacturer of the detector.
+	 * Returns the serial number of the detector.
 	 * 
 	 * @return See above.
 	 */
 	public String getDetectorSerialNumber()
+	{
+		Detector detector = getDetector();
+		if (detector == null) return "";
+		RString value = detector.getSerialNumber();
+		if (value == null) return "";
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the lot number of the detector.
+	 * 
+	 * @return See above.
+	 */
+	public String getDetectorLotNumber()
 	{
 		Detector detector = getDetector();
 		if (detector == null) return "";
@@ -440,11 +454,25 @@ public class ChannelAcquisitionData
 	}
 	
 	/**
-	 * Returns the manufacturer of the light source.
+	 * Returns the serial number of the light source.
 	 * 
 	 * @return See above.
 	 */
 	public String getLightSourceSerialNumber()
+	{
+		LightSource light = getLightSource();
+		if (light == null) return "";
+		RString value = light.getSerialNumber();
+		if (value == null) return "";
+		return value.getValue();
+	}
+	
+	/**
+	 * Returns the manufacturer of the light source.
+	 * 
+	 * @return See above.
+	 */
+	public String getLightSourceLotNumber()
 	{
 		LightSource light = getLightSource();
 		if (light == null) return "";
@@ -549,28 +577,6 @@ public class ChannelAcquisitionData
 		if (light instanceof Arc) return ARC;
 		if (light instanceof LightEmittingDiode) return LIGHT_EMITTING_DIODE;
 		return "";
-	}
-
-	/**
-	 * Returns <code>true</code> if there is an emission filter for that 
-	 * channel, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasEmissionFilter()
-	{
-		return secondaryEmFilter != null;
-	}
-	
-	/**
-	 * Returns <code>true</code> if there is an excitation filter for that 
-	 * channel, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasExcitationFilter()
-	{
-		return secondaryExFilter != null;
 	}
 	
 	/**

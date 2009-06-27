@@ -178,6 +178,19 @@ public class FilterData
 	}
 	
 	/**
+	 * Returns the serial number.
+	 * 
+	 * @return See above.
+	 */
+	public String getSerialNumber()
+	{
+		Filter f = (Filter) asIObject();
+		RString value = f.getLotNumber();
+		if (value == null) return "";
+		return value.getValue();
+	}
+	
+	/**
 	 * Returns the type. One out of a predefined list.
 	 * 
 	 * @return See above.
