@@ -54,7 +54,6 @@ import omero.model.LightSettingsI;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.Pulse;
-import omero.model.TransmittanceRange;
 
 /** 
  * Object hosting the acquisition related to a logical channel.
@@ -99,10 +98,10 @@ public class ChannelAcquisitionData
 	private FilterSet			filterSet;
 	
 	/** The filter used for the emission wavelength. */
-	private Filter				secondaryEmFilter;
+	private FilterData			secondaryEmFilter;
 	
 	/** The filter used for the excitation wavelength. */
-	private Filter				secondaryExFilter;
+	private FilterData			secondaryExFilter;
 	
 	/** The light source. */
 	private LightSource			ligthSource;
@@ -168,8 +167,10 @@ public class ChannelAcquisitionData
         detectorSettings = channel.getDetectorSettings();
         lightSettings = channel.getLightSourceSettings();
         filterSet = channel.getFilterSet();
-        secondaryEmFilter = channel.getSecondaryEmissionFilter();
-        secondaryExFilter = channel.getSecondaryExcitationFilter();
+        Filter f = channel.getSecondaryEmissionFilter();
+        if (f != null) secondaryEmFilter = new FilterData(f);
+        f = channel.getSecondaryExcitationFilter();
+        if (f != null) secondaryExFilter = new FilterData(f);
 	}
 	
 	/**
@@ -391,290 +392,24 @@ public class ChannelAcquisitionData
 		if (value == null) return -1;
 		return value.getValue();
 	}
-	
+
 	/**
-	 * Returns the manufacturer of the secondary excitation filter.
+	 * Returns the secondary emission filter.
 	 * 
 	 * @return See above.
 	 */
-	public String getSecondaryExFilterManufacturer()
-	{
-		if (secondaryExFilter == null) return "";
-		RString value = secondaryExFilter.getManufacturer();
-		if (value == null) return "";
-		return value.getValue();
-	}
+	public FilterData getSecondaryEmissionFilter() { return secondaryEmFilter; }
 	
 	/**
-	 * Returns the model of the secondary excitation filter.
+	 * Returns the secondary excitation filter.
 	 * 
 	 * @return See above.
 	 */
-	public String getSecondaryExFilterModel()
+	public FilterData getSecondaryExcitationFilter()
 	{
-		if (secondaryExFilter == null) return "";
-		RString value = secondaryExFilter.getModel();
-		if (value == null) return "";
-		return value.getValue();
+		return secondaryExFilter;
 	}
 	
-	/**
-	 * Returns the model of the secondary excitation filter.
-	 * 
-	 * @return See above.
-	 */
-	public String getSecondaryExFilterLotNumber()
-	{
-		if (secondaryExFilter == null) return "";
-		RString value = secondaryEmFilter.getLotNumber();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the type of the secondary excitation filter. One of a predefined
-	 * list.
-	 * 
-	 * @return See above.
-	 */
-	public String getSecondaryExFilterType()
-	{
-		if (secondaryExFilter == null) return "";
-		RString value = secondaryExFilter.getLotNumber();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the type of the secondary excitation filter. One of a predefined
-	 * list.
-	 * 
-	 * @return See above.
-	 */
-	public String getSecondaryExFilterFilterWheel()
-	{
-		if (secondaryExFilter == null) return "";
-		RString value = secondaryExFilter.getFilterWheel();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the manufacturer of the secondary emission filter.
-	 * 
-	 * @return See above.
-	 */
-	public String getSecondaryEmFilterManufacturer()
-	{
-		if (secondaryEmFilter == null) return "";
-		RString value = secondaryEmFilter.getManufacturer();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the model of the secondary emission filter.
-	 * 
-	 * @return See above.
-	 */
-	public String getSecondaryEmFilterModel()
-	{
-		if (secondaryEmFilter == null) return "";
-		RString value = secondaryEmFilter.getModel();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the model of the secondary emission filter.
-	 * 
-	 * @return See above.
-	 */
-	public String getSecondaryEmFilterLotNumber()
-	{
-		if (secondaryEmFilter == null) return "";
-		RString value = secondaryEmFilter.getLotNumber();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the type of the secondary emission filter. One of a predefined
-	 * list.
-	 * 
-	 * @return See above.
-	 */
-	public String getSecondaryEmFilterType()
-	{
-		if (secondaryEmFilter == null) return "";
-		RString value = secondaryEmFilter.getLotNumber();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the type of the secondary emission filter. One of a predefined
-	 * list.
-	 * 
-	 * @return See above.
-	 */
-	public String getSecondaryEmFilterFilterWheel()
-	{
-		if (secondaryEmFilter == null) return "";
-		RString value = secondaryEmFilter.getFilterWheel();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the cut in value or <code>-1</code>.
-	 * 
-	 * @return See above.
-	 */
-	public int getSecondaryEmFilterCutIn()
-	{
-		if (secondaryEmFilter == null) return -1;
-		TransmittanceRange range = secondaryEmFilter.getTransmittanceRange();
-		if (range == null) return -1;
-		RInt value = range.getCutIn();
-		if (value == null) return -1;
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the cut in tolerance value or <code>-1</code>.
-	 * 
-	 * @return See above.
-	 */
-	public int getSecondaryEmFilterCutInTolerance()
-	{
-		if (secondaryEmFilter == null) return -1;
-		TransmittanceRange range = secondaryEmFilter.getTransmittanceRange();
-		if (range == null) return -1;
-		RInt value = range.getCutInTolerance();
-		if (value == null) return -1;
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the cut out value or <code>-1</code>.
-	 * 
-	 * @return See above.
-	 */
-	public int getSecondaryEmFilterCutOut()
-	{
-		if (secondaryEmFilter == null) return -1;
-		TransmittanceRange range = secondaryEmFilter.getTransmittanceRange();
-		if (range == null) return -1;
-		RInt value = range.getCutOut();
-		if (value == null) return -1;
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the cut out tolerance value or <code>-1</code>.
-	 * 
-	 * @return See above.
-	 */
-	public int getSecondaryEmFilterCutOutTolerance()
-	{
-		if (secondaryEmFilter == null) return -1;
-		TransmittanceRange range = secondaryEmFilter.getTransmittanceRange();
-		if (range == null) return -1;
-		RInt value = range.getCutOutTolerance();
-		if (value == null) return -1;
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the cut out tolerance value or <code>-1</code>.
-	 * 
-	 * @return See above.
-	 */
-	public double getSecondaryEmFilterTransmittance()
-	{
-		if (secondaryEmFilter == null) return -1;
-		TransmittanceRange range = secondaryEmFilter.getTransmittanceRange();
-		if (range == null) return -1;
-		RDouble value = range.getTransmittance();
-		if (value == null) return -1;
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the cut in value or <code>-1</code>.
-	 * 
-	 * @return See above.
-	 */
-	public int getSecondaryExFilterCutIn()
-	{
-		if (secondaryExFilter == null) return -1;
-		TransmittanceRange range = secondaryExFilter.getTransmittanceRange();
-		if (range == null) return -1;
-		RInt value = range.getCutIn();
-		if (value == null) return -1;
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the cut in tolerance value or <code>-1</code>.
-	 * 
-	 * @return See above.
-	 */
-	public int getSecondaryExFilterCutInTolerance()
-	{
-		if (secondaryExFilter == null) return -1;
-		TransmittanceRange range = secondaryExFilter.getTransmittanceRange();
-		if (range == null) return -1;
-		RInt value = range.getCutInTolerance();
-		if (value == null) return -1;
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the cut out value or <code>-1</code>.
-	 * 
-	 * @return See above.
-	 */
-	public int getSecondaryExFilterCutOut()
-	{
-		if (secondaryExFilter == null) return -1;
-		TransmittanceRange range = secondaryExFilter.getTransmittanceRange();
-		if (range == null) return -1;
-		RInt value = range.getCutOut();
-		if (value == null) return -1;
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the cut out tolerance value or <code>-1</code>.
-	 * 
-	 * @return See above.
-	 */
-	public int getSecondaryExFilterCutOutTolerance()
-	{
-		if (secondaryExFilter == null) return -1;
-		TransmittanceRange range = secondaryExFilter.getTransmittanceRange();
-		if (range == null) return -1;
-		RInt value = range.getCutOutTolerance();
-		if (value == null) return -1;
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the cut out tolerance value or <code>-1</code>.
-	 * 
-	 * @return See above.
-	 */
-	public double getSecondaryExFilterTransmittance()
-	{
-		if (secondaryExFilter == null) return -1;
-		TransmittanceRange range = secondaryExFilter.getTransmittanceRange();
-		if (range == null) return -1;
-		RDouble value = range.getTransmittance();
-		if (value == null) return -1;
-		return value.getValue();
-	}
 	
 	/**
 	 * Returns the manufacturer of the light source.
