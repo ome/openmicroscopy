@@ -84,6 +84,7 @@ loci.formats.in.FlexReader            # flex
 #loci.formats.in.SVSReader             # svs
 
 # TIFF-based readers with slow isThisType
+loci.formats.in.MIASReader            # tif 
 loci.formats.in.LeicaReader           # lei, tif
 #loci.formats.in.NikonReader           # nef, tif
 #loci.formats.in.FluoviewReader        # tif
