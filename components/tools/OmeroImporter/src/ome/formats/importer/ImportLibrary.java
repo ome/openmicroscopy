@@ -388,8 +388,8 @@ public class ImportLibrary implements IObservable
         	}
         	store.writeFilesToFileStore(files, pixList.get(0));   
         } 
-        /*
-        else {
+        else
+        {
             String[] fileNameList = reader.getUsedFiles(true);
             if (fileNameList != null)
             {
@@ -402,7 +402,6 @@ public class ImportLibrary implements IObservable
                 store.writeFilesToFileStore(files, pixList.get(0));
             }
         }
-        */
         
         if (saveSha1)
         {

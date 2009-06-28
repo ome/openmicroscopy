@@ -2285,10 +2285,9 @@ public class OMEROMetadataStoreClient
             originalFileMap.put(fileName, originalFile);
         }
         
-        
-        List<Annotation> imageAnnotationList = pixels.getImage().linkedAnnotationList();
-        
-        
+        // Companion files
+        List<Annotation> imageAnnotationList = 
+        	pixels.getImage().linkedAnnotationList();
         for (Annotation imageAnnotation : imageAnnotationList)
         {
             if (imageAnnotation instanceof FileAnnotation)
