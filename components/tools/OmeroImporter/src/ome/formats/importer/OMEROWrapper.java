@@ -16,6 +16,7 @@ import loci.formats.MinMaxCalculator;
 import loci.formats.in.FlexReader;
 import loci.formats.in.InCellReader;
 import loci.formats.in.LeicaReader;
+import loci.formats.in.MIASReader;
 import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.model.Channel;
@@ -108,8 +109,9 @@ public class OMEROWrapper extends MinMaxCalculator
     {
         try
         {
-            if (iReader.getReader(string) instanceof InCellReader ||
-                    iReader.getReader(string) instanceof FlexReader)
+            if (iReader.getReader(string) instanceof InCellReader
+                || iReader.getReader(string) instanceof FlexReader
+                || iReader.getReader(string) instanceof MIASReader)
                 return true;
             else
                 return false;
