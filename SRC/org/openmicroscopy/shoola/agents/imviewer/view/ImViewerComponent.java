@@ -2792,5 +2792,20 @@ class ImViewerComponent
 		view.setChannelsSelection(uiIndex);
 		postActiveChannelSelection(ChannelSelection.CHANNEL_SELECTION);
 	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#allowSplitView()
+	 */
+	public boolean allowSplitView()
+	{
+		switch (model.getState()) {
+			case DISCARDED:
+			case NEW:
+				throw new IllegalArgumentException("This method cannot be " +
+				"invoked in the DISCARDED or NEW state.");
+			}
+		return model.allowSplitView();
+	}
 	
 }

@@ -884,6 +884,20 @@ class ImViewerModel
 	boolean isLifetime() { return image.isLifetime(); }
 	
 	/**
+	 * Returns <code>true</code> if the split view is allowed i.e. if the 
+	 * image is not too big, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean allowSplitView()
+	{
+		if (getMaxC() < 1) return false;
+		if (isLifetime()) return false;
+		if (getMaxX() >= 2*IMAGE_MAX_WIDTH) return false;
+		if (getMaxY() >= 2*IMAGE_MAX_HEIGHT) return false;
+		return true;
+	}
+	/**
 	 * Returns the number of channels.
 	 * 
 	 * @return See above.

@@ -1023,5 +1023,13 @@ public interface ImViewer
 	 * @param index The index of the channel.
 	 */
 	void onChannelSelection(int index);
+
+	/**
+	 * Returns <code>true</code> if the split view is allowed,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean allowSplitView();
 	
 }

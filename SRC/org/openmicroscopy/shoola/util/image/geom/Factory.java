@@ -174,14 +174,21 @@ public class Factory
     														int height)
     {
     	IconManager icons = IconManager.getInstance();
-    	ImageIcon img = icons.getImageIcon(IconManager.BROKEN_FILE_96);
-    	if (img == null) return createDefaultImageThumbnail(); 
+    	ImageIcon img = null;//icons.getImageIcon(IconManager.BROKEN_FILE_96);
+    	if (img == null) {
+    		if (width == 0) width = THUMB_DEFAULT_WIDTH;
+        	if (height == 0) height = THUMB_DEFAULT_HEIGHT;
+    		return createDefaultThumbnail(width, height, null); 
+    		
+    		//return createDefaultImageThumbnail(); 
+    	}
     	int h = img.getIconHeight();
     	int w = img.getIconWidth();
     	if (width == 0) width = THUMB_DEFAULT_WIDTH;
     	if (height == 0) height = THUMB_DEFAULT_HEIGHT;
-    	if (h == height && w == width)
-    		return createDefaultImageThumbnail();
+    	//if (h == height && w == width)
+    	//	return createDefaultImageThumbnail();
+    	
         BufferedImage thumbPix = new BufferedImage(width, height, 
                                 BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) thumbPix.getGraphics();

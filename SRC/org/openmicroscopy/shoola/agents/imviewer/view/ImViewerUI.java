@@ -766,7 +766,7 @@ class ImViewerUI
 		gridViewPanel.add(browser.getGridView(), "1, 0");
 		gridViewPanel.add(controlPane.getTimeSliderPane(ImViewer.GRID_INDEX), 
 						"1, 1");
-		if (!model.isLifetime()) {
+		if (model.allowSplitView()) {
 			tabs.insertTab(browser.getGridViewTitle(), 
 					browser.getGridViewIcon(), gridViewPanel, "", 
 					ImViewer.GRID_INDEX);

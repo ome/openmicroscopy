@@ -102,9 +102,15 @@ public class ShowViewAction
      */
     protected void onStateChange(ChangeEvent e)
     {
-    	if (index != PROJECTION) return;
-    	if (model.getState() == ImViewer.READY)
-    		setEnabled(model.getMaxZ() > 1);
+    	switch (index) {
+			case PROJECTION:
+				if (model.getState() == ImViewer.READY) 
+		    		setEnabled(model.getMaxZ() > 1);
+				break;
+			case SPLIT:
+				if (model.getState() == ImViewer.READY) 
+		    		setEnabled(model.allowSplitView());
+		}	
     }
     
 	/**
