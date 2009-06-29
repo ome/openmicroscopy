@@ -634,7 +634,8 @@ class OmeroDataServiceImpl
 		if (withLeaves) param.leaves();
 		else param.noLeaves();
 		if (rootNodeIDs == null || rootNodeIDs.size() == 0) {
-			if (ProjectData.class.equals(rootNodeType))
+			if (ProjectData.class.equals(rootNodeType) || 
+					ScreenData.class.equals(rootNodeType))
 				param.orphan();
 		}
 		Set parents = gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,

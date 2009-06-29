@@ -771,7 +771,7 @@ class TreeViewerComponent
 					(data instanceof DatasetData))
 					browser = model.getBrowser(Browser.PROJECT_EXPLORER);
 				 else if (data instanceof ScreenData)
-					browser = model.getBrowser(Browser.SCREENS_EXPLORER);
+					browser = model.getBrowser(Browser.PROJECT_EXPLORER);//model.getBrowser(Browser.SCREENS_EXPLORER);
 				else if (data instanceof TagAnnotationData)
 					browser = model.getBrowser(Browser.TAGS_EXPLORER);
 			}
