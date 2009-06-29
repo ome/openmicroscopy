@@ -759,9 +759,9 @@ class MetadataViewerComponent
 	 */
 	public Renderer getRenderer()
 	{
-		if (getRndIndex() == RND_SPECIFIC)
+		//if (getRndIndex() == RND_SPECIFIC)
 			return model.getEditor().getRenderer();
-		return null;
+		//return null;
 	}
 
 	/**

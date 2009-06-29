@@ -129,9 +129,6 @@ class ImViewerComponent
 	/** The View sub-component. */
 	private ImViewerUI          			view;
 
-	/** List of active channels before switching between color mode. */
-	private List                			historyActiveChannels;
-
 	/** Collection of events to display. */
 	private Map<String, SaveRelatedData>	events;
 	
@@ -868,7 +865,6 @@ class ImViewerComponent
 								l.add(i);
 						}
 					}
-					historyActiveChannels = l;
 					view.setChannelsSelection(l);
 				} else if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) 
 				{

@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.JPanel;
 
+import layout.TableLayout;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -93,7 +95,9 @@ class RendererUI
 	{
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
 		//add(new JScrollPane(pane));
-		add(pane);
+		double[][] size = {{TableLayout.FILL}, {TableLayout.PREFERRED}};
+		setLayout(new TableLayout(size));
+		add(pane, "0, 0");
 		/*setAlignmentX(LEFT_ALIGNMENT);
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
 		insertTab(pane.getPaneName(), null, new JScrollPane(pane), 
