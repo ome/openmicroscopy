@@ -43,7 +43,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.JMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
@@ -63,7 +62,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CompressionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CopyRndSettingsAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.CreateMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.HistoryAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MetadataAction;
@@ -87,7 +85,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
-import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent;
 import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
@@ -722,10 +719,6 @@ class ImViewerControl
 				view.dispose();
 				historyState = state;
 				break;
-			case ImViewer.LOADING_RENDERING_CONTROL:
-				//UIUtilities.centerAndShow(view.getLoadingWindow());
-				historyState = state;
-				break;
 			case ImViewer.LOADING_IMAGE:
 				if (historyState == ImViewer.LOADING_METADATA)
 					view.getLoadingWindow().setVisible(false);
@@ -781,6 +774,12 @@ class ImViewerControl
 			}
 		} else if (LoadingWindow.CLOSED_PROPERTY.equals(pName)) {
 			model.discard();
+		} else if (MetadataViewer.RENDER_PLANE_PROPERTY.equals(pName)) {
+			model.renderXYPlane();
+		} else if (MetadataViewer.RND_LOADED_PROPERTY.equals(pName)) {
+			boolean b = (Boolean) pce.getNewValue();
+			model.onRndLoaded(b);
+		/*
 		} else if (Renderer.RENDER_PLANE_PROPERTY.equals(pName)) {
 			model.renderXYPlane();
 		} else if (Renderer.SELECTED_CHANNEL_PROPERTY.equals(pName)) {
@@ -797,6 +796,7 @@ class ImViewerControl
 				model.setChannelSelection(index.intValue(), 
 						(Boolean) entry.getValue());
 			}
+			*/
 		} else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(pName) ||
 				ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
 			model.showColorPicker(((Integer) pce.getNewValue()).intValue());
@@ -852,6 +852,9 @@ class ImViewerControl
 			boolean b = ((Boolean) pce.getNewValue()).booleanValue();
 			getAction(CREATE_MOVIE).setEnabled(!b);
 			view.setMovieStatus(b);
+		} else if (MetadataViewer.SELECTED_CHANNEL_PROPERTY.equals(pName)) {
+			int index = (Integer) pce.getNewValue();
+			model.onChannelSelection(index);
 		}
 	}
 

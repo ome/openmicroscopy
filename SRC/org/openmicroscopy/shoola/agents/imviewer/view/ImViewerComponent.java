@@ -221,10 +221,7 @@ class ImViewerComponent
 	{
 		if (saveBeforeCopy) {
 			try {
-				//RndProxyDef def = model.getOriginalDef();
-				//model.resetMappingSettings(def, false);
 				model.saveRndSettings(false);
-				//model.setLastRndDef(def);
 			} catch (Exception e) {
 				LogMessage logMsg = new LogMessage();
 				logMsg.println("Cannot save rendering settings. ");
@@ -471,9 +468,13 @@ class ImViewerComponent
 		switch (state) {
 			case NEW:
 				model.setAlternativeSettings(settings, userID);
+				/*
 				if (model.isImageLoaded())
 					model.fireRenderingControlLoading(model.getPixelsID());
 				else model.fireImageLoading();
+				*/
+				if (!model.isImageLoaded())
+					model.fireImageLoading();
 				fireStateChange();
 				break;
 			case DISCARDED:
@@ -496,10 +497,6 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			//case DISCARDED:
-			case LOADING_RENDERING_CONTROL:
-				model.discard();
-				fireStateChange();
-				break;
 			default:
 				controller.setPreferences();
 				if (!saveOnClose()) return;
@@ -578,87 +575,101 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED, " +
 						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
-		try {
-			List active = model.getActiveChannels();
-			Iterator i;
-			int index;
-			switch (key) {
-				case ColorModelAction.GREY_SCALE_MODEL:
-					historyActiveChannels = model.getActiveChannels();
-					model.setColorModel(GREY_SCALE_MODEL);
-					if (active != null && active.size() >= 1) {
-						List<ChannelData> channels = model.getChannelData();
-						ChannelData channel;
-						i = channels.iterator();
-						boolean set = false;
-						while (i.hasNext()) {
-							channel = (ChannelData) i.next();
-							index = channel.getIndex();
-							if (active.contains(index)) {
-								if (set) 
-									setChannelActive(index, false);
-								else {
-									setChannelActive(index, true);
-									set = true;
-								}
+		/*
+		List active = model.getActiveChannels();
+		Iterator i;
+		int index;
+		switch (key) {
+			case ColorModelAction.GREY_SCALE_MODEL:
+				historyActiveChannels = model.getActiveChannels();
+				//model.setColorModel(GREY_SCALE_MODEL);
+				if (active != null && active.size() >= 1) {
+					List<ChannelData> channels = model.getChannelData();
+					ChannelData channel;
+					i = channels.iterator();
+					boolean set = false;
+					while (i.hasNext()) {
+						channel = (ChannelData) i.next();
+						index = channel.getIndex();
+						if (active.contains(index)) {
+							if (set) 
+								setChannelActive(index, false);
+							else {
+								setChannelActive(index, true);
+								set = true;
 							}
 						}
-					} else if (active == null || active.size() == 0) {
-						//no channel so no active channel
+					}
+				} else if (active == null || active.size() == 0) {
+					//no channel so no active channel
+					setChannelActive(0, true);
+				}
+				
+				if (active != null) {
+					i = active.iterator();
+					while (i.hasNext()) {
+						index = ((Integer) i.next()).intValue();
+						view.setChannelActive(index, 
+								ImViewerUI.GRID_ONLY);
+					}
+				}
+				model.setColorModel(GREY_SCALE_MODEL);
+				break;
+			case ColorModelAction.RGB_MODEL:
+				//model.setColorModel(RGB_MODEL);
+				if (historyActiveChannels != null && 
+						historyActiveChannels.size() > 0) {
+					i = historyActiveChannels.iterator();
+					while (i.hasNext()) {
+						index = ((Integer) i.next()).intValue();
+						setChannelActive(index, true);
+					}
+				} else {
+					if (active == null || active.size() == 0) {
+						//no channel so one will be active.
 						setChannelActive(0, true);
-					}
-					if (active != null) {
+					} else {
 						i = active.iterator();
-						while (i.hasNext()) {
-							index = ((Integer) i.next()).intValue();
-							view.setChannelActive(index, 
-									ImViewerUI.GRID_ONLY);
-						}
-					}
-					break;
-				case ColorModelAction.RGB_MODEL:
-					model.setColorModel(RGB_MODEL);
-					if (historyActiveChannels != null && 
-							historyActiveChannels.size() > 0) {
-						i = historyActiveChannels.iterator();
 						while (i.hasNext()) {
 							index = ((Integer) i.next()).intValue();
 							setChannelActive(index, true);
 						}
-					} else {
-						if (active == null || active.size() == 0) {
-							//no channel so one will be active.
-							setChannelActive(0, true);
-						} else {
-							i = active.iterator();
-							while (i.hasNext()) {
-								index = ((Integer) i.next()).intValue();
-								setChannelActive(index, true);
-							}
-						}
 					}
-					break;
-				default:
-					throw new IllegalArgumentException("Color model not " +
-					"supported");
-			}
-			//need
-			firePropertyChange(COLOR_MODEL_CHANGED_PROPERTY, 
-					Integer.valueOf(1), Integer.valueOf(-1));
-			view.setColorModel(key);
-			if (model.getTabbedIndex() != GRID_INDEX) {
-				colorModel = model.getColorModel();
-				renderXYPlane();
-			}
-		} catch (Exception ex) {
-			handleException(ex);
+				}
+				model.setColorModel(RGB_MODEL);
+				break;
+			default:
+				throw new IllegalArgumentException("Color model not " +
+				"supported");
 		}
+		//need
+		firePropertyChange(COLOR_MODEL_CHANGED_PROPERTY, 
+				Integer.valueOf(1), Integer.valueOf(-1));
+		view.setColorModel(key);
+		if (model.getTabbedIndex() != GRID_INDEX) {
+			colorModel = model.getColorModel();
+			renderXYPlane();
+		}*/
+		switch (key) {
+			case ColorModelAction.GREY_SCALE_MODEL:
+				model.setColorModel(GREY_SCALE_MODEL);
+				break;
+			case ColorModelAction.RGB_MODEL:
+				model.setColorModel(RGB_MODEL);
+				break;
+			default:
+				throw new IllegalArgumentException("ColorModel not supported");	
+				
+		}
+		
+		firePropertyChange(COLOR_MODEL_CHANGED_PROPERTY, 
+				Integer.valueOf(1), Integer.valueOf(-1));
+		view.setColorModel(key);
 	}
 
 	/** 
@@ -669,7 +680,6 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED, NEW " +
@@ -768,7 +778,6 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED, NEW " +
@@ -797,7 +806,6 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED, " +
@@ -839,11 +847,10 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, " +
-						"NEW or LOADING_RENDERING_CONTROL state.");
+						"This method can't be invoked in the DISCARDED or " +
+						"NEW state.");
 		}
 		//depends on model
 		model.setLastSettingsRef();
@@ -887,17 +894,16 @@ class ImViewerComponent
 									Integer.valueOf(index));
 					}
 					uiIndex = ImViewerUI.VIEW_ONLY;
-					//view.setChannelsSelection();
 				}
 			} else {
 				uiIndex = ImViewerUI.ALL_VIEW;
 				model.setChannelActive(index, b);
 				firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
 						Integer.valueOf(index-1), Integer.valueOf(index));
-				//view.setChannelsSelection();
 			}
 			view.setChannelsSelection(uiIndex);
-			//view.setChannelsSelection();
+			//TODO: Notify rnd
+			model.setSelectedChannel(index);
 			renderXYPlane();
 			postActiveChannelSelection(ChannelSelection.CHANNEL_SELECTION);
 		} catch (Exception ex) {
@@ -911,6 +917,7 @@ class ImViewerComponent
 	 */
 	public void setRenderingControl(RenderingControl result)
 	{
+		/*
 		if (model.getState() != LOADING_RENDERING_CONTROL)
 			throw new IllegalStateException(
 					"This method can't be invoked in the " +
@@ -945,6 +952,7 @@ class ImViewerComponent
 		
 		renderXYPlane();
 		fireStateChange();
+		*/
 	}
 	
 	/** 
@@ -991,7 +999,6 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED, NEW or" +
@@ -1015,7 +1022,6 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED, NEW or" +
@@ -1033,7 +1039,6 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				throw new IllegalStateException(
 						"This method can't be invoked in the DISCARDED, " +
@@ -1050,7 +1055,6 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				throw new IllegalStateException(
 					"This method can't be invoked in the DISCARDED, NEW or" +
@@ -1067,7 +1071,6 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				throw new IllegalStateException(
 					"This method can't be invoked in the DISCARDED, NEW or" +
@@ -1095,12 +1098,11 @@ class ImViewerComponent
 	public String getColorModel()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED or NEW"
+						+" state.");
 		}
 		return model.getColorModel();
 	}
@@ -1152,12 +1154,11 @@ class ImViewerComponent
 	public int getDefaultZ()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or " +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED or NEW"+
+				" state.");
 		}
 		return model.getDefaultZ();
 	}
@@ -1170,11 +1171,10 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 		case NEW:
-		case LOADING_RENDERING_CONTROL:
 		case DISCARDED:
 			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or " +
-			"LOADING_RENDERING_CONTROL state.");
+					"This method can't be invoked in the DISCARDED or NEW"+
+			" state.");
 		}
 		return model.getDefaultT();
 	}
@@ -1186,12 +1186,11 @@ class ImViewerComponent
 	public List getImageComponents(String colorModel)
 	{
 		switch (model.getState()) {
-			case NEW:
-			case LOADING_RENDERING_CONTROL:
-			case DISCARDED:
-				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, NEW or" +
-				"LOADING_RENDERING_CONTROL state.");
+		case NEW:
+		case DISCARDED:
+			throw new IllegalStateException(
+					"This method can't be invoked in the DISCARDED or NEW"+
+			" state.");
 		}
 		if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
 		List l = model.getActiveChannels();
@@ -1247,12 +1246,11 @@ class ImViewerComponent
 	public List getGridImages()
 	{
 		switch (model.getState()) {
-			case NEW:
-			case LOADING_RENDERING_CONTROL:
-			case DISCARDED:
-				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, " +
-						"NEW or LOADING_RENDERING_CONTROL state.");
+		case NEW:
+		case DISCARDED:
+			throw new IllegalStateException(
+					"This method can't be invoked in the DISCARDED or NEW"+
+			" state.");
 		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		//if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
@@ -1365,12 +1363,11 @@ class ImViewerComponent
 	public BufferedImage getCombinedGridImage()
 	{
 		switch (model.getState()) {
-			case NEW:
-			case LOADING_RENDERING_CONTROL:
-			case DISCARDED:
-				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, " +
-						"NEW or LOADING_RENDERING_CONTROL state.");
+		case NEW:
+		case DISCARDED:
+			throw new IllegalStateException(
+					"This method can't be invoked in the DISCARDED or NEW"+
+			" state.");
 		}
 		//view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		if (!model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
@@ -1452,10 +1449,8 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, NEW " +
-						"or LOADING_RENDERING_CONTROL state.");
+						"This method can't be invoked in the NEW state.");
 			case DISCARDED:
 				return null;
 		}
@@ -1470,10 +1465,8 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 				throw new IllegalStateException(
-						"This method can't be invoked in the NEW " +
-						"or LOADING_RENDERING_CONTROL state.");
+						"This method can't be invoked in the NEW state.");
 			case DISCARDED:
 				return -1;
 		}
@@ -1488,10 +1481,8 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 				throw new IllegalStateException(
-						"This method can't be invoked in the NEW " +
-						"or LOADING_RENDERING_CONTROL state.");
+						"This method can't be invoked in the NEW state.");
 			case DISCARDED:
 				return -1;
 		}
@@ -1506,10 +1497,8 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 				throw new IllegalStateException(
-						"This method can't be invoked in the NEW " +
-						"or LOADING_RENDERING_CONTROL state.");
+						"This method can't be invoked in the NEW state.");
 			case DISCARDED:
 				return -1;
 		}
@@ -1546,11 +1535,10 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, NEW " +
-						"or LOADING_RENDERING_CONTROL state.");
+						"This method can't be invoked in the DISCARDED or NEW "+
+						"state.");
 		}
 		return model.getActiveChannels();
 	}
@@ -1719,12 +1707,10 @@ class ImViewerComponent
 	 */
 	public void setRenderingControlReloaded(boolean updateView)
 	{
-		if (model.getState() != LOADING_RENDERING_CONTROL)
-			throw new IllegalStateException("The method can only be invoked " +
-			"in the LOADING_RENDERING_CONTROL state.");
+		//TODO: Code to be moved to the renderer
 		if (updateView) {
-			model.getRenderer().resetRndSettings();
-			view.resetDefaults();
+			//model.getRenderer().resetRndSettings();
+			//view.resetDefaults();
 		}
 		renderXYPlane();
 	}
@@ -1791,11 +1777,10 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED," +
-						" NEW or LOADING_RENDERING_CONTROL state.");
+						"This method can't be invoked in the DISCARDED or" +
+						" NEW state.");
 		}
 		return model.getMaxX();
 	}
@@ -1807,12 +1792,11 @@ class ImViewerComponent
 	public int getMaxY() 
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED or NEW" +
+				"state.");
 		}
 		return model.getMaxY();
 	}
@@ -1832,7 +1816,6 @@ class ImViewerComponent
 		switch (model.getState()) {
 			case NEW:
 			case LOADING_METADATA:
-			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				return;
 		}
@@ -1932,12 +1915,11 @@ class ImViewerComponent
 		if (!view.hasLensImage()) return null;
 		if (model.getTabbedIndex() != ImViewer.VIEW_INDEX) return null;
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, " +
-			"NEW or LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED or " +
+				"NEW state.");
 		}
 		if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
 		List l = model.getActiveChannels();
@@ -2202,7 +2184,6 @@ class ImViewerComponent
     		//addHistoryItem();
     		model.resetDefaultRndSettings();
     		view.resetDefaults();
-    		model.getRenderer().resetRndSettings();
 			renderXYPlane();
 		} catch (Exception ex) {
 			handleException(ex);
@@ -2359,11 +2340,10 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-					"LOADING_RENDERING_CONTROL state.");
+					"This method can't be invoked in the DISCARDED or" +
+					"NEW state.");
 		}
 		if (index == RENDERER_INDEX || index == METADATA_INDEX) {
 			view.showRenderer(false, index);
@@ -2397,7 +2377,6 @@ class ImViewerComponent
     	try {
     		model.setOriginalRndSettings();
     		view.resetDefaults();
-    		model.getRenderer().resetRndSettings();
 			renderXYPlane();
 		} catch (Exception ex) {
 			handleException(ex);
@@ -2608,7 +2587,6 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case DISCARDED:
-			case LOADING_RENDERING_CONTROL:
 			case PROJECTION_PREVIEW:
 				throw new IllegalArgumentException("This method cannot be " +
 				"invoked in the DISCARDED or PROJECTION_PREVIEW state.");
@@ -2628,11 +2606,9 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case DISCARDED:
-			case LOADING_RENDERING_CONTROL:
 			case PROJECTION_PREVIEW:
 				throw new IllegalArgumentException("This method cannot be " +
-				"invoked in the DISCARDED, PROJECTION_PREVIEW or " +
-				"LOADING_RENDERING_CONTROL state.");
+				"invoked in the DISCARDED or PROJECTION_PREVIEW state.");
 		}
 		model.clearHistory();
 		view.clearHistory();
@@ -2648,9 +2624,8 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case DISCARDED:
-			case LOADING_RENDERING_CONTROL:
 				throw new IllegalArgumentException("This method cannot be " +
-				"invoked in the DISCARDED or LOADING_RENDERING_CONTROL state.");
+				"invoked in the DISCARDED state.");
 		}
 		return model.isOriginalSettings();
 	}
@@ -2665,7 +2640,7 @@ class ImViewerComponent
 			throw new IllegalArgumentException("This method should be " +
 					"invoked in the PASTING state.");
 		try {
-			model.resetMappingSettings(rndProxyDef, true);
+			model.resetMappingSettings(rndProxyDef);
 			view.resetDefaults();
 			renderXYPlane();
 		} catch (Exception e) {
@@ -2734,5 +2709,88 @@ class ImViewerComponent
 	 * @see ImViewer#isLifeTime()
 	 */
 	public boolean isLifeTime() { return model.isLifetime(); }
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#onRndLoaded(boolean)
+	 */
+	public void onRndLoaded(boolean reload)
+	{
+		if (model.isLifetime()) {
+			try {
+				model.setForLifetime();
+			} catch (Exception e) {
+			}
+		} 
+		model.onRndLoaded();
+		if (!reload) {
+			colorModel = model.getColorModel();
+			view.buildComponents();
+			view.setOnScreen();
+			view.toFront();
+			view.requestFocusInWindow();
+			if (ImViewerAgent.isFastConnection())
+				model.firePlaneInfoRetrieval();
+			
+			view.setLeftStatus();
+		} else {
+			//TODO
+			//clean history, reset UI element
+			model.resetHistory();
+			view.switchRndControl();
+		}
+		
+		renderXYPlane();
+		fireStateChange();
+		/*
+		if (model.getState() != LOADING_RENDERING_CONTROL)
+			throw new IllegalStateException(
+					"This method can't be invoked in the " +
+					"LOADING_RENDERING_CONTROL.");
+		Object rnd = model.getRenderer();
+		model.setRenderingControl(result);
+		//Register the renderer
+		model.getRenderer().addPropertyChangeListener(controller);
+		if (model.isLifetime()) {
+			try {
+				model.setForLifetime();
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		} 
+		if (rnd == null) { //initial 
+			colorModel = model.getColorModel();
+			view.buildComponents();
+			view.setOnScreen();
+			view.toFront();
+			view.requestFocusInWindow();
+			if (ImViewerAgent.isFastConnection())
+				model.firePlaneInfoRetrieval();
+			
+			view.setLeftStatus();
+		} else {
+			//TODO
+			//clean history, reset UI element
+			model.resetHistory();
+			view.switchRndControl();
+		}
+		
+		renderXYPlane();
+		fireStateChange();
+		*/
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#onChannelSelection(int)
+	 */
+	public void onChannelSelection(int index)
+	{
+		int uiIndex = ImViewerUI.ALL_VIEW;
+		firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
+				Integer.valueOf(index-1), Integer.valueOf(index));
+		view.setChannelsSelection(uiIndex);
+		postActiveChannelSelection(ChannelSelection.CHANNEL_SELECTION);
+	}
 	
 }

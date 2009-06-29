@@ -880,14 +880,14 @@ class ImViewerUI
 		
 		switch (displayMode) {
 			case RENDERER:
-				rightComponent = model.getRenderer().getUI();
+				rightComponent = model.getMetadataViewer().getEditorUI();//model.getRenderer().getUI();
 				container.remove(mainComponent);
 				addComponents(rendererSplit, tabs, rightComponent);
 				mainComponent = rendererSplit;
 				container.add(mainComponent, BorderLayout.CENTER);
 				container.validate();
 				container.repaint();
-				d = rightComponent.getPreferredSize();
+				d = rightComponent.getSize();//getPreferredSize();
 				height = restoreSize.height;
 				diff = d.height-restoreSize.height;
 				if (diff > 0) height += diff;
@@ -895,8 +895,8 @@ class ImViewerUI
 				addition = rendererSplit.getDividerSize()+
 							2*(refInsets.left+refInsets.right);
 				
-				width = restoreSize.width+(3*d.width);
-				width += addition;
+				width = restoreSize.width+(d.width);
+				//width += addition;
 				break;
 			case HISTORY:
 				container.remove(mainComponent);
@@ -919,7 +919,7 @@ class ImViewerUI
 				historySplit.setResizeWeight(0.49);
 				container.remove(mainComponent);
 				historyUI.doGridLayout();
-				rightComponent = model.getRenderer().getUI();
+				rightComponent = model.getMetadataViewer().getEditorUI();//model.getRenderer().getUI();
 				addComponents(rendererSplit, tabs, rightComponent);
 				addComponents(historySplit, rendererSplit, historyUI);
 				mainComponent = historySplit;
@@ -1171,7 +1171,8 @@ class ImViewerUI
 	 */
 	void onStateChange(boolean b)
 	{ 
-		model.getRenderer().onStateChange(b);
+		//TODO
+		//model.getRenderer().onStateChange(b);
 		enableSliders(b);
 		controlPane.onStateChange(b); 
 		toolBar.onStateChange(b); 
@@ -1562,7 +1563,7 @@ class ImViewerUI
 					d = i.next();
 					index = d.getIndex();
 					item = new ChannelColorMenuItem(
-							"Wavelength "+d.getEmissionWavelength(), 
+							d.getChannelLabeling(), 
 							model.getChannelColor(index), index);
 					menu.add(item);
 					item.addPropertyChangeListener(controller);
@@ -1812,8 +1813,7 @@ class ImViewerUI
 		rndItem.setSelected(isRendererShown());
 		toolBar.displayRenderer();
 		layoutComponents(fromPreferences);
-		if (show) 
-			model.getRenderer().setPaneIndex(index);
+		if (show) model.selectRenderer();
 	}
 	
 	/**

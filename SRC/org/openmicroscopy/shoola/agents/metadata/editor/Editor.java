@@ -34,6 +34,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -301,10 +302,7 @@ public interface Editor
 
 	/** Loads the rendering control for the first selected image. */
 	public void loadRenderingControl();
-	
-	/** Indicates to render a plane. */
-	public void renderPlane();
-	
+
 	/**
 	 * Sets the result back to the viewer.
 	 * 
@@ -314,5 +312,19 @@ public interface Editor
 	 */
 	public void setLoadedFile(FileAnnotationData data, File file, 
 			Object uiView);
+
+	/**
+	 * Selects the renderer view. This will only be applied if the 
+	 * type of the component is {@link #RND_SPECIFIC}.
+	 */
+	public void selectRenderer();
+
+	/**
+	 * Returns the renderer. This method will always return 
+	 * <code>null</code> if the type is not {@link MetadataViewer#RND_SPECIFIC}.
+	 * 
+	 * @return See above.
+	 */
+	public Renderer getRenderer();
 	
 }

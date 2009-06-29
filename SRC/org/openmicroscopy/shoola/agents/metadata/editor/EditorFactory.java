@@ -31,7 +31,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 
 /** 
- * 
+ * Factory to create {@link Editor} component.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,8 +52,6 @@ public class EditorFactory
      * @param parent			Reference to the parent. 
      * 							Must't be <code>null</code>.
      * @param refObject   		The object of reference.
-     * @param thumbnailRequired Pass <code>true</code> to indicate to load the
-	 * 							thumbnail, <code>false</code> otherwise.
 	 * @param multiSelection	Pass <code>true</code> to indicate that the
 	 *                          editor is for a multi selection, 
 	 *                          <code>false</code> otherwise.
@@ -61,11 +59,9 @@ public class EditorFactory
      * @return See above.
      */
     public static Editor createEditor(MetadataViewer parent, 
-    									Object refObject, boolean
-    									thumbnailRequired, Browser browser)
+    									Object refObject, Browser browser)
     {
-    	EditorModel model = new EditorModel(refObject, parent, 
-    			                          thumbnailRequired);
+    	EditorModel model = new EditorModel(refObject, parent);
     	model.setBrowser(browser);
     	EditorComponent component = new EditorComponent(model);
     	model.initialize(component);

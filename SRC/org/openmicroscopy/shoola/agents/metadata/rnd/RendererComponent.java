@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JComponent;
@@ -32,10 +33,11 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import omero.romio.PlaneDef;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.ChannelData;
+import pojos.PixelsData;
 
 /** 
  * Implements the {@link RendererComponent} interface to provide the 
@@ -185,15 +187,6 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#resetRndSettings()
-     */
-	public void resetRndSettings()
-	{
-		
-	}
-
-    /** 
-     * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setBitResolution(int)
      */
 	public void setBitResolution(int v)
@@ -221,6 +214,7 @@ class RendererComponent
 	public void setChannelSelection(int index, boolean selected)
 	{
 		int selectedIndex = index;
+		boolean render = true;
 		try {
 			if (GREY_SCALE_MODEL.equals(model.getColorModel())) {
 				if (model.isChannelActive(index)) return;
@@ -231,24 +225,32 @@ class RendererComponent
 					model.setChannelActive(i, c);  
 				}
 			} else {
-				model.setChannelActive(index, selected);
-				List<Integer> active = model.getActiveChannels();
-				if (!active.contains(index) && active.size() > 0) {
-					int oldSelected = model.getSelectedChannel();
-					if (active.contains(oldSelected)) 
-						selectedIndex = oldSelected;
-					else {
-						int setIndex = model.createSelectedChannel();
-						if (setIndex >= 0) selectedIndex = setIndex;
+				if (!selected && model.isChannelActive(index) &&
+						model.getSelectedChannel() != index) {
+					selectedIndex = index;
+					render = false;
+				} else {
+					model.setChannelActive(index, selected);
+					List<Integer> active = model.getActiveChannels();
+					if (!active.contains(index) && active.size() > 0) {
+						int oldSelected = model.getSelectedChannel();
+						if (active.contains(oldSelected)) 
+							selectedIndex = oldSelected;
+						else {
+							int setIndex = model.createSelectedChannel();
+							if (setIndex >= 0) selectedIndex = setIndex;
+						}
 					}
-				}	
+				}
 			}
 				
 			model.setSelectedChannel(selectedIndex);
 			view.setSelectedChannel();
         	if (model.isGeneralIndex()) model.saveRndSettings();
-        	firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
-        			Boolean.TRUE);
+        	if (render)
+        		firePropertyChange(RENDER_PLANE_PROPERTY, 
+        				Boolean.valueOf(false), Boolean.valueOf(true));
+        	firePropertyChange(SELECTED_CHANNEL_PROPERTY, -1, selectedIndex);
 		} catch (Exception ex) {
 			handleException(ex);
 		}
@@ -312,18 +314,9 @@ class RendererComponent
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setInputInterval(double, double)
      */
-	public void setInputInterval(double s, double e)
+	public void setInputInterval(double start, double end)
 	{
-		try {
-        	model.setInputInterval(s, e);
-        	if (model.isGeneralIndex()) model.saveRndSettings();
-        	firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
-           		 			Boolean.TRUE);
-        	firePropertyChange(INPUT_INTERVAL_PROPERTY, Boolean.FALSE, 
-                    Boolean.TRUE);
-		} catch (Exception ex) {
-			handleException(ex);
-		}
+		setChannelWindow(model.getSelectedChannel(), start, end);
 	}
 
     /** 
@@ -340,15 +333,6 @@ class RendererComponent
 		} catch (Exception ex) {
 			handleException(ex);
 		}
-	}
-
-    /** 
-     * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setRenderingControl(RenderingControl)
-     */
-	public void setRenderingControl(RenderingControl rndControl)
-	{
-		
 	}
 
     /** 
@@ -426,7 +410,7 @@ class RendererComponent
 					while (i.hasNext()) {
 						channel = (ChannelData) i.next();
 						j = channel.getIndex();
-						if (active.contains(index)) {
+						if (active.contains(j)) {
 							if (set) 
 								model.setChannelActive(j, false);
 							else {
@@ -521,5 +505,273 @@ class RendererComponent
      * @see Renderer#onSettingsApplied()
      */
 	public void onSettingsApplied() { view.onSettingsApplied(); }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getDefaultT()
+     */
+	public int getDefaultT() { return model.getDefaultT(); }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getDefaultZ()
+     */
+	public int getDefaultZ() { return model.getDefaultZ(); }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getPixelsDimensionsT()
+     */
+	public int getPixelsDimensionsT() { return model.getMaxT(); }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getPixelsDimensionsX()
+     */
+	public int getPixelsDimensionsX() { return model.getMaxX(); }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getPixelsDimensionsY()
+     */
+	public int getPixelsDimensionsY() { return model.getMaxY(); }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getPixelsDimensionsZ()
+     */
+	public int getPixelsDimensionsZ() { return model.getMaxZ(); }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getChannelData()
+     */
+	public List<ChannelData> getChannelData()
+	{
+		return model.getChannelData();
+	}
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getActiveChannels()
+     */
+	public List<Integer> getActiveChannels()
+	{
+		return model.getActiveChannels();
+	}
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getChannelColor(int)
+     */
+	public Color getChannelColor(int index)
+	{
+		return model.getChannelColor(index);
+	}
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getCompressionLevel()
+     */
+	public int getCompressionLevel() { return model.getCompressionLevel(); }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getPixelsDimensionsC()
+     */
+	public int getPixelsDimensionsC() { return model.getMaxC(); }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getPixelsSizeX()
+     */
+	public double getPixelsSizeX() { return model.getPixelsSizeX(); }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getPixelsSizeY()
+     */
+	public double getPixelsSizeY() { return model.getPixelsSizeY(); }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getPixelsSizeZ()
+     */
+	public double getPixelsSizeZ() { return model.getPixelsSizeZ(); }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getRndSettingsCopy()
+     */
+	public RndProxyDef getRndSettingsCopy()
+	{
+		return model.getRndSettingsCopy();
+	}
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#hasRGB()
+     */
+	public boolean[] hasRGB()
+	{
+		boolean[] rgb = new boolean[3];
+		rgb[0] = model.hasActiveChannel(0);
+		rgb[1] = model.hasActiveChannel(1);
+		rgb[2] = model.hasActiveChannel(2);
+		return rgb;
+	}
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#isChannelActive(int)
+     */
+	public boolean isChannelActive(int index)
+	{
+		return model.isChannelActive(index);
+	}
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#isColorComponent(int, int)
+     */
+	public boolean isColorComponent(int band, int index)
+	{
+		return model.isColorComponent(band, index);
+	}
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#isCompressed()
+     */
+	public boolean isCompressed() { return model.isCompressed(); }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#isSameSettings(RndProxyDef, boolean)
+     */
+	public boolean isSameSettings(RndProxyDef def, boolean b) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#resetSettings()
+     */
+	public void resetSettings()
+	{
+		try {
+			model.resetDefaults();
+			view.resetDefaultRndSettings();
+		} catch (Throwable e) {
+			handleException(e);
+		}
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#resetSettings(RndProxyDef)
+     */
+	public void resetSettings(RndProxyDef settings)
+	{
+		try {
+			model.resetSettings(settings);
+		} catch (Throwable e) {
+			handleException(e);
+		}
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#saveCurrentSettings()
+     */
+	public RndProxyDef saveCurrentSettings()
+	{
+		try {
+			return model.saveCurrentSettings();
+		} catch (Throwable e) {
+			handleException(e);
+		}
+		return null;
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#setActive(int, boolean)
+     */
+	public void setActive(int index, boolean active)
+	{
+		try {
+			model.setActive(index, active);
+		} catch (Throwable e) {
+			handleException(e);
+		}
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#setChannelWindow(int, double, double)
+     */
+	public void setChannelWindow(int index, double start, double end)
+	{
+		try {
+			model.setInputInterval(index, start, end);
+        	if (model.isGeneralIndex()) model.saveRndSettings();
+        	firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
+           		 			Boolean.TRUE);
+        	firePropertyChange(INPUT_INTERVAL_PROPERTY, Boolean.FALSE, 
+                    Boolean.TRUE);
+		} catch (Throwable e) {
+			handleException(e);
+		}
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#setCompression(int)
+     */
+	public void setCompression(int compression)
+	{
+		model.setCompression(compression);
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#setOriginalRndSettings()
+     */
+	public void setOriginalRndSettings()
+	{
+		try {
+			model.setOriginalRndSettings();
+			view.resetDefaultRndSettings();
+		} catch (Throwable e) {
+			handleException(e);
+		}
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#validatePixels(PixelsData)
+     */
+	public boolean validatePixels(PixelsData pixels)
+	{
+		if (pixels == null) return false;
+		return model.validatePixels(pixels);
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#renderPlane(PlaneDef)
+     */
+	public BufferedImage renderPlane(PlaneDef pDef)
+	{
+		if (pDef == null) return null;
+		try {
+			return model.renderPlane(pDef);
+		} catch (Throwable e) {
+			handleException(e);
+		}
+		return null;
+	}
 
 }

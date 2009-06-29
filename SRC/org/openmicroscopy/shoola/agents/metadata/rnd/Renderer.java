@@ -25,14 +25,20 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.util.List;
 
 import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+import pojos.ChannelData;
+import pojos.PixelsData;
 
 /** 
  * Defines the interface provided by the renderer component. 
@@ -234,19 +240,6 @@ public interface Renderer
      * @return See above.
      */
     public JComponent getUI();
-
-    /**
-     * Sets the specified rendering control.
-     * 
-     * @param rndControl The value to set.
-     */
-	public void setRenderingControl(RenderingControl rndControl);
-
-	/** 
-	 * Partially resets the rendering settings. Invoked when 
-	 * selecting an image from the history.
-	 */ 
-	public void resetRndSettings();
 	
 	/**
 	 * Invokes when the state of the viewer has changed.
@@ -259,10 +252,11 @@ public interface Renderer
 	/**
 	 * Indicates that a channel has been selected using the channel button.
 	 * 
-	 * @param index	
-	 * @param booleanValue
+	 * @param index	 The index of the channel.
+	 * @param active Pass <code>true</code> to indicate that the channel is
+	 * 				 active, <code>false</code> otherwise.
 	 */
-	void setChannelSelection(int index, boolean booleanValue);
+	void setChannelSelection(int index, boolean active);
 
 	/**
 	 * Sets the color of the specified channel depending on the current color
@@ -300,4 +294,221 @@ public interface Renderer
 	
 	/** Notifies that the rendering settings have been applied. */
 	void onSettingsApplied();
+	
+	/**
+	 * Returns the sizeX.
+	 * 
+	 * @return See above.
+	 */
+	int getPixelsDimensionsX();
+
+	/**
+	 * Returns the sizeY.
+	 * 
+	 * @return See above.
+	 */
+	int getPixelsDimensionsY();
+
+	/**
+	 * Returns the maximum number of z-sections.
+	 * 
+	 * @return See above.
+	 */
+	int getPixelsDimensionsZ();
+
+	/**
+	 * Returns the maximum number of timepoints.
+	 * 
+	 * @return See above.
+	 */
+	int getPixelsDimensionsT();
+	
+	/**
+	 * Returns the number of channels.
+	 * 
+	 * @return See above.
+	 */
+	int getPixelsDimensionsC();
+
+	/**
+	 * Returns the currently selected z-section.
+	 * 
+	 * @return See above.
+	 */
+	int getDefaultZ();
+
+	/**
+	 * Returns the currently selected timepoint.
+	 * 
+	 * @return See above.
+	 */
+	int getDefaultT();
+	
+	/**
+	 * Returns a sorted unmodifiable list of {@link ChannelData}s.
+	 * 
+	 * @return See above
+	 */
+	List<ChannelData> getChannelData();
+	
+	/**
+	 * Returns the color associated to a channel.
+	 * 
+	 * @param index The index of the channel.
+	 * @return See above.
+	 */
+	Color getChannelColor(int index);
+	
+	/**
+	 * Returns <code>true</code> if the channel is mapped, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param w	The channel's index.
+	 * @return See above.
+	 */
+	boolean isChannelActive(int w);
+	
+	/**
+	 * Returns a list of active channels.
+	 * 
+	 * @return See above.
+	 */
+	List<Integer> getActiveChannels();
+	
+	/**
+	 * Returns the size in microns of a pixel along the X-axis.
+	 * 
+	 * @return See above.
+	 */
+	double getPixelsSizeX();
+	/**
+	 * Returns the size in microns of a pixel along the Y-axis.
+	 * 
+	 * @return See above.
+	 */
+	double getPixelsSizeY();
+	/**
+	 * Returns the size in microns of a pixel along the Y-axis.
+	 * 
+	 * @return See above.
+	 */
+	double getPixelsSizeZ();
+	
+	/**
+	 * Returns a 3-dimensional array of boolean value, one per color band.
+	 * The first (resp. second, third) element is set to <code>true</code> 
+	 * if an active channel is mapped to <code>RED</code> (resp. 
+	 * <code>GREEN</code>, <code>BLUE</code>), to <code>false</code> otherwise.
+	 * 
+	 * @return See above
+	 */
+	boolean[] hasRGB();
+
+	/**
+	 * Returns <code>true</code> if the channel is mapped
+	 * to <code>Red</code> if the band is <code>0</code>, 
+	 * to <code>Green</code> if the band is <code>1</code>,
+	 * to <code>Blue</code> if the band is <code>2</code>,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param band  Index of the color band.
+	 * @param index The index of the channel.
+	 * @return See above.
+	 */
+	boolean isColorComponent(int band, int index);
+
+	/**
+	 * Returns a copy of the current rendering settings.
+	 * 
+	 * @return See above.
+	 */
+	RndProxyDef getRndSettingsCopy();
+
+	/**
+	 * Resets the rendering settings.
+	 * 
+	 * @param settings The settings to reset.
+	 */
+	void resetSettings(RndProxyDef settings);
+
+	/** Resets the default settings. */
+	void resetSettings();
+
+	/** Sets the original default settings. */
+	void setOriginalRndSettings();
+
+	/**
+	 * Returns <code>true</code> if the passed set of pixels is compatible
+	 * with the pixels set currently rendered.
+	 * 
+	 * @param pixels The pixels set to check.
+	 * @return See above.
+	 */
+	boolean validatePixels(PixelsData pixels);
+
+	/**
+	 * Returns <code>true</code> if the image is compressed, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isCompressed();
+	
+	/** 
+	 * Saves the rendering settings and returns the saved object.
+	 * 
+	 * @return See above
+	 */
+	RndProxyDef saveCurrentSettings();
+
+	/**
+	 * Sets the compressiong level.
+	 * 
+	 * @param compressionLevel 	One of the compression level defined by 
+	 * 							{@link RenderingControl} I/F.
+	 */
+	void setCompression(int compressionLevel);
+
+	/**
+	 * Returns the compression level.
+	 * 
+	 * @return See above.
+	 */
+	int getCompressionLevel();
+
+	/**
+	 * Returns <code>true</code> if the passed rendering settings are the same
+	 * that the current one, <code>false</code> otherwise.
+	 * 
+	 * @param def The settings to check.
+	 * @return See above.
+	 */
+	boolean isSameSettings(RndProxyDef def, boolean b);
+
+	/**
+	 * Turns on or off the specified channel.
+	 * 
+	 * @param index  The index of the channel
+	 * @param active Pass <code>true</code> to turn the channel on, 
+	 * 				 <code>false</code> to turn it off.
+	 */
+	void setActive(int index, boolean active);
+
+	/**
+	 * Sets the interval of the pixels intensity values to map.
+	 * 
+	 * @param index The index of the channel
+	 * @param start The lower bound of the interval.
+	 * @param end	The upper bound of the interval.
+	 */
+	void setChannelWindow(int index, double start, double end);
+	
+	/**
+	 * Renders the specified plane.
+	 * 
+	 * @param pDef The plane to render.
+	 * @return See above.
+	 */
+	BufferedImage renderPlane(PlaneDef pDef);
+	
 }

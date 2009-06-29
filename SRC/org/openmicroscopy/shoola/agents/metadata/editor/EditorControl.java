@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -339,13 +338,9 @@ class EditorControl
 		} else if (MetadataViewer.CREATING_MOVIE_PROPERTY.equals(name)) {
 			boolean b = (Boolean) evt.getNewValue();
 			view.createMovie(b);
-		} else if (Renderer.RENDER_PLANE_PROPERTY.equals(name)) {
-			model.renderPlane();
-		} else if (Renderer.APPLY_TO_ALL_PROPERTY.equals(name)) {
-			view.applyToAll();
 		} else if (MetadataViewer.SETTINGS_APPLIED_PROPERTY.equals(name)) {
 			view.onSettingsApplied();
-		}
+		} 
 	}
 
 	/**

@@ -40,6 +40,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -189,8 +190,10 @@ class ToolBar
     	bar.setRollover(true);
     	bar.setBorder(null);
     	bar.add(saveButton);
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(rndButton);
+    	if (model.getRndIndex() == MetadataViewer.RND_GENERAL) {
+    		bar.add(Box.createHorizontalStrut(5));
+        	bar.add(rndButton);
+    	}
     	return bar;
     }
     

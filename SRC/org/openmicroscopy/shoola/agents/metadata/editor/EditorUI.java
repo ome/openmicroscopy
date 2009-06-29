@@ -43,6 +43,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -77,19 +78,19 @@ public class EditorUI
 {
 	
 	/** Identifies the collection of data to add. */
-	static final int 					TO_ADD = 0;
+	static final int	TO_ADD = 0;
 	
 	/** Identifies the collection of data to remove. */
-	static final int 					TO_REMOVE = 1;
+	static final int 	TO_REMOVE = 1;
 	
 	/** Identifies the general component of the tabbed pane. */
-	private static final int			GENERAL_INDEX = 0;
+	static final int	GENERAL_INDEX = 0;
 	
 	/** Identifies the acquisition component of the tabbed pane. */
-	private static final int			ACQUISITION_INDEX = 1;
+	static final int	ACQUISITION_INDEX = 1;
 	
 	/** Identifies the rendering component of the tabbed pane. */
-	private static final int			RND_INDEX = 2;
+	static final int	RND_INDEX = 2;
 	
 	/** Reference to the controller. */
 	private EditorControl				controller;
@@ -126,6 +127,14 @@ public class EditorUI
     /** The default component. */
     private JPanel						defaultPane;
     
+    /** Adds the renderer to the tabbed pane. */
+	private void populateTabbedPane()
+	{
+		tabbedPane.addTab("General", null, generalPane, "General Information.");
+		tabbedPane.addTab("Acquisition", null, new JScrollPane(acquisitionPane), 
+			"Acquisition Metadata.");
+	}
+	
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
@@ -135,9 +144,7 @@ public class EditorUI
 		acquisitionPane = new AcquisitionDataUI(this, model, controller);
 		tabbedPane = new JTabbedPane();
 		tabbedPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		tabbedPane.addTab("General", null, generalPane, "General Information.");
-		tabbedPane.addTab("Acquisition", null, new JScrollPane(acquisitionPane), 
-			"Acquisition Metadata.");
+		populateTabbedPane();
 		tabbedPane.setEnabledAt(ACQUISITION_INDEX, false);
 		defaultPane = new JPanel();
 		defaultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -235,12 +242,16 @@ public class EditorUI
 			} else {
 				if (uo instanceof ImageData) {
 					load = true;
-					tabbedPane.setEnabledAt(ACQUISITION_INDEX, true);
-					if (tabbedPane.getComponentCount() > 2) {
-						boolean b = tabbedPane.getSelectedIndex() == RND_INDEX;
-						tabbedPane.remove(RND_INDEX);
-						if (b) tabbedPane.setSelectedIndex(GENERAL_INDEX);
+					if (model.getRndIndex() == MetadataViewer.RND_GENERAL) {
+						tabbedPane.setEnabledAt(ACQUISITION_INDEX, true);
+						if (tabbedPane.getComponentCount() > 2) {
+							boolean b = 
+								tabbedPane.getSelectedIndex() == RND_INDEX;
+							tabbedPane.remove(RND_INDEX);
+							if (b) tabbedPane.setSelectedIndex(GENERAL_INDEX);
+						}
 					}
+					
 				} else if (uo instanceof WellSampleData) {
 					ImageData img = ((WellSampleData) uo).getImage();
 					if (img != null && img.getId() >= 0) {
@@ -512,22 +523,43 @@ public class EditorUI
 	/** Sets the renderer. */
 	void setRenderer()
 	{
-		if (tabbedPane.getComponentCount() == 2) {
+		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC) {
+			tabbedPane.removeAll();
 			tabbedPane.addTab("Renderer", null, 
 					new JScrollPane(model.getRenderer().getUI()), 
 			"Rendering Control.");
+			populateTabbedPane();
+		} else {
+			if (tabbedPane.getComponentCount() == 2) {
+				tabbedPane.addTab("Renderer", null, 
+						new JScrollPane(model.getRenderer().getUI()), 
+				"Rendering Control.");
+			}
+			tabbedPane.setSelectedIndex(RND_INDEX);
 		}
-		tabbedPane.setSelectedIndex(RND_INDEX);
+		
 	}
-	
-	/** Applies the rendering settings to the selected or displayed images. */
-	void applyToAll() { model.applyToAll(); }
 
 	/** Updates the view when the rendering settings have been applied. */
 	void onSettingsApplied()
 	{
 		Renderer rnd = model.getRenderer();
 		if (rnd != null) rnd.onSettingsApplied();
+	}
+	
+	/**
+	 * Sets the selected tabbed.
+	 * 
+	 * @param index The index of the tabbed to select.
+	 */
+	void setSelectedTabbed(int index)
+	{
+		switch (index) {
+			case GENERAL_INDEX:
+			case ACQUISITION_INDEX:
+			case RND_INDEX:
+				tabbedPane.setSelectedIndex(index);
+		}
 	}
 	
 }

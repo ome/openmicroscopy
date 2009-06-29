@@ -694,6 +694,7 @@ public class DomainPane
         setSelectedChannel();
         setCodomainInterval();
         resetBitResolution();
+        /*
         ChannelButton btn;
         boolean gs = model.isGreyScale();
         for (int i = 0; i < channelList.size(); i++) {
@@ -701,6 +702,7 @@ public class DomainPane
             btn.setColor(model.getChannelColor(btn.getChannelIndex()));
             btn.setGrayedOut(gs);
         }  
+        */
         resetGamma(model.getCurveCoefficient());
     }
     
@@ -778,11 +780,14 @@ public class DomainPane
         List<Integer> active = model.getActiveChannels();
         int index;
         int c = model.getSelectedChannel();
+        boolean gs = model.isGreyScale();
         while (i.hasNext()) {
 			btn = i.next();
 			index = btn.getChannelIndex();
 			btn.setSelected(active.contains(index));
 			if (index == c) btn.setBorder(SELECTION_BORDER);
+			btn.setGrayedOut(gs);
+			btn.setColor(model.getChannelColor(index));
 		}
     }
     

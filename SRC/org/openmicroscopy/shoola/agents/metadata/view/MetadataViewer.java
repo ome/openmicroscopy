@@ -34,6 +34,7 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
@@ -71,6 +72,9 @@ public interface MetadataViewer
 	/** Indicates that the renderer is for specific purpose. */
 	public static final int 	RND_SPECIFIC = 1;
 	
+	/** Bound property indicating that the rendering control is loaded. */
+	public static final String  RND_LOADED_PROPERTY = "rndLoaded";
+	
 	/** Bound property indicating that the data have been saved. */
 	public static final String	ON_DATA_SAVE_PROPERTY = "onDataSave";
 	
@@ -99,6 +103,9 @@ public interface MetadataViewer
 	/** Bound property indicating to generate a thumbnail. */
 	public static final String	RENDER_THUMBNAIL_PROPERTY = "renderThumbnail";
 	
+	/** Bound property name indicating that a new channel is selected. */
+    public final static String  SELECTED_CHANNEL_PROPERTY = "selectedChannel";
+    
 	/** 
 	 * Bound property indicating to apply settings to all the
 	 * displayed or selected images. 
@@ -349,20 +356,48 @@ public interface MetadataViewer
 	public int getRndIndex();
 
 	/** 
-	 * Indicates to render a plane. 
-	 * 
-	 * @param imageID The id of the image to render.
+	 * Indicates to render a plane for the primary select object.
+	 * This method should only be invoked if the object is an image. 
 	 */
-	public void renderPlane(long imageID);
+	public void renderPlane();
 	
 	/** 
 	 * Applies the rendering settings to the selected or displayed images. 
-	 * 
-	 * @param image The image of reference.
+	 * The settings of the primary select will be taken into account.
 	 */
-	void applyToAll(ImageData image);
+	void applyToAll();
 	
 	/** Notifies that the settings have been applied. */
 	void onSettingsApplied();
+
+	/**
+	 * Selects the renderer view. This will only be applied if the 
+	 * type of the component is {@link #RND_SPECIFIC}.
+	 */
+	public void selectRenderer();
+	
+	/**
+	 * Returns the renderer. This method will always return 
+	 * <code>null</code> if the type is not {@link #RND_SPECIFIC}.
+	 * 
+	 * @return See above.
+	 */
+	public Renderer getRenderer();
+	
+	/** 
+	 * Notifies that the rendering control has been loaded. 
+	 * 
+	 * @param reload Pass <code>true</code> if the rendering control has been
+	 * 				 reloaded following an exception, <code>false</code> if 
+	 * 				 it is an initial load.
+	 */
+	public void onRndLoaded(boolean reload);
+	
+	/**
+	 * Notifies when a channel is selected or deselected.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	public void onChannelSelected(int index);
 	
 }

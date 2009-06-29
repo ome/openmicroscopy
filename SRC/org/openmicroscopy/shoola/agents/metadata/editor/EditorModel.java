@@ -155,9 +155,6 @@ class EditorModel
     /** Used to sort the various collection. */
     private ViewerSorter			sorter;
 
-	/** Flag indicating to load the thumbnail. */
-	private boolean					thumbnailRequired;
-	
 	/** Reference to the browser. */
 	private Browser					browser;
 	
@@ -261,19 +258,15 @@ class EditorModel
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param refObject			The object this editor is for.
-	 * @param parent			The parent of this browser.
-	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
-	 * 							thumbnail, <code>false</code> otherwise.
+	 * @param refObject	The object this editor is for.
+	 * @param parent	The parent of this browser.
 	 */
-	EditorModel(Object refObject, MetadataViewer parent,
-				boolean thumbnailRequired) 
+	EditorModel(Object refObject, MetadataViewer parent) 
 	{
 		if (refObject == null)
 			throw new IllegalArgumentException("No object set.");
 		this.parent = parent;
 		this.refObject = refObject;
-		this.thumbnailRequired = thumbnailRequired;
 		loaders = new ArrayList<EditorLoader>();
 		sorter = new ViewerSorter();
 	}
@@ -993,20 +986,6 @@ class EditorModel
 		loaders.addAll(toKeep);
 	}
 	
-	/** Loads the thumbnail for the currently logged in user. */
-	void loadUserThumbnail()
-	{
-		Object ref = getRefObject();
-		if ((ref instanceof ImageData) && thumbnailRequired) {
-			Set<Long> l = new HashSet<Long>();
-			l.add(MetadataViewerAgent.getUserDetails().getId());
-			ThumbnailLoader loader = new ThumbnailLoader(component, 
-					(ImageData) ref, l, true);
-			loader.load();
-			loaders.add(loader);
-		}
-	}
-	
 	/**
 	 * Returns the object hosting rendering settings set 
 	 * by the passed user, or <code>null</code> if any
@@ -1697,17 +1676,6 @@ class EditorModel
 	 * @return See above.
 	 */
 	int getRndIndex() { return parent.getRndIndex(); }
-
-	/** Indicates to render a plane. */
-	void renderPlane() { parent.renderPlane(getRefObjectID()); }
-	
-	/** Applies the rendering settings to the selected or displayed images. */
-	void applyToAll()
-	{ 
-		Object ref = getRefObject();
-		if (!(ref instanceof ImageData)) return;
-		parent.applyToAll((ImageData) ref); 
-	}
 	
 	/**
 	 * Returns <code>true </code> if the object e.g. image has been published,
@@ -1740,6 +1708,18 @@ class EditorModel
 		Object object = getRefObject();
 		if (object == null || !(object instanceof ImageData)) return false;
 		return ((ImageData) object).isLifetime();
+	}
+	
+	/** Notifies that the rendering control has been loaded. 
+	 * 
+	 * @param reload Pass <code>true</code> if the rendering control has been
+	 * 				 reloaded following an exception, <code>false</code> if 
+	 * 				 it is an initial load.
+	 */
+	void onRndLoaded(boolean reload)
+	{
+		if (renderer == null) return;
+		parent.onRndLoaded(reload);
 	}
 	
 }

@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.event.ChangeEvent;
@@ -40,9 +42,12 @@ import org.openmicroscopy.shoola.agents.metadata.actions.MetadataViewerAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.RemoveAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.RemoveAllAction;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ImageData;
 
 /** 
  * The MetadataViewer's Controller.
@@ -58,7 +63,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME3.0
  */
 class MetadataViewerControl
-	implements ChangeListener
+	implements ChangeListener, PropertyChangeListener
 {
 
 	/** Identifies the <code>Refresh</code> action. */
@@ -162,4 +167,20 @@ class MetadataViewerControl
 		}
 	}
 
+	/**
+	 * Reacts to property 
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (Renderer.RENDER_PLANE_PROPERTY.equals(name)) {
+			model.renderPlane();
+		} else if (Renderer.APPLY_TO_ALL_PROPERTY.equals(name)) {
+			model.applyToAll(); 
+		} else if (Renderer.SELECTED_CHANNEL_PROPERTY.equals(name)) {
+			model.onChannelSelected((Integer) evt.getNewValue());
+		}	
+	}
+	
 }

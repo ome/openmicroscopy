@@ -31,7 +31,6 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -49,14 +48,11 @@ import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImageDataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
-import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsCreator;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.browser.BrowserFactory;
-import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
-import org.openmicroscopy.shoola.agents.imviewer.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.ChannelPlayer;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.Player;
@@ -64,14 +60,11 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import pojos.ChannelData;
@@ -155,7 +148,7 @@ class ImViewerModel
 	private Browser             		browser;
 	
 	/** Reference to the {@link Renderer}. */
-	private Renderer            		renderer;
+	//private Renderer            		renderer;
 
 	/** Reference to the current player. */
 	private ChannelPlayer       		player;
@@ -212,7 +205,7 @@ class ImViewerModel
 	private long						currentPixelsID;
 	
 	/** Reference to the rendering control. */
-	private RenderingControl    		currentRndControl;
+	//private RenderingControl    		currentRndControl;
 
 	/** The rendering settings set by another user. */
 	private RndProxyDef					alternativeSettings;
@@ -274,9 +267,9 @@ class ImViewerModel
 	 */
     private Integer linearize(int z, int c, int t)
     {
-    	int sizeZ = currentRndControl.getPixelsDimensionsZ();
-		int sizeC = currentRndControl.getPixelsDimensionsC();
-		int sizeT = currentRndControl.getPixelsDimensionsT();
+    	int sizeZ = metadataViewer.getRenderer().getPixelsDimensionsZ();
+		int sizeC = metadataViewer.getRenderer().getPixelsDimensionsC();
+		int sizeT = metadataViewer.getRenderer().getPixelsDimensionsT();
 		if (z < 0 || sizeZ <= z) return -1;
 		if (c < 0 || sizeC <= c) return -1;
 		if (t < 0 || sizeT <= t) return -1;
@@ -345,6 +338,14 @@ class ImViewerModel
 		lastProjRef = null;
 	}
 	
+	/** Initializes the {@link #metadataViewer}. */
+	private void initializeMetadataViewer()
+	{
+		metadataViewer = MetadataViewerFactory.getViewer("", 
+				MetadataViewer.RND_SPECIFIC);
+		metadataViewer.setRootObject(image);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -369,7 +370,7 @@ class ImViewerModel
 	{
 		this.image = image;
 		initialize(bounds);
-		metadataViewer = MetadataViewerFactory.getViewer(image, false);
+		initializeMetadataViewer();
 		currentPixelsID = image.getDefaultPixels().getId();
 	}
 
@@ -480,7 +481,7 @@ class ImViewerModel
 			(loaders.get(index)).cancel();
 		}
 		
-		if (renderer != null) renderer.discard();
+		//if (renderer != null) renderer.discard();
 		if (player == null) return;
 		player.setPlayerState(Player.STOP);
 		player = null;
@@ -491,64 +492,73 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getMaxX() { return currentRndControl.getPixelsDimensionsX(); }
+	int getMaxX()
+	{ 
+		return metadataViewer.getRenderer().getPixelsDimensionsX(); 
+	}
 
 	/**
 	 * Returns the sizeY.
 	 * 
 	 * @return See above.
 	 */
-	int getMaxY() { return currentRndControl.getPixelsDimensionsY(); }
+	int getMaxY()
+	{ 
+		return metadataViewer.getRenderer().getPixelsDimensionsY();
+	}
 
 	/**
 	 * Returns the maximum number of z-sections.
 	 * 
 	 * @return See above.
 	 */
-	int getMaxZ() { return currentRndControl.getPixelsDimensionsZ()-1; }
+	int getMaxZ()
+	{ 
+		return metadataViewer.getRenderer().getPixelsDimensionsZ()-1; 
+	}
 
 	/**
 	 * Returns the maximum number of timepoints.
 	 * 
 	 * @return See above.
 	 */
-	int getMaxT() { return currentRndControl.getPixelsDimensionsT()-1; }
+	int getMaxT()
+	{ 
+		return metadataViewer.getRenderer().getPixelsDimensionsT()-1;
+	}
 
 	/**
 	 * Returns the currently selected z-section.
 	 * 
 	 * @return See above.
 	 */
-	int getDefaultZ() { return currentRndControl.getDefaultZ(); }
+	int getDefaultZ() { return metadataViewer.getRenderer().getDefaultZ(); }
 
 	/**
 	 * Returns the currently selected timepoint.
 	 * 
 	 * @return See above.
 	 */
-	int getDefaultT() { return currentRndControl.getDefaultT(); }
+	int getDefaultT() { return metadataViewer.getRenderer().getDefaultT(); }
 
 	/**
 	 * Returns the currently selected color model.
 	 * 
 	 * @return See above.
 	 */
-	String getColorModel() { return currentRndControl.getModel(); }
+	String getColorModel()
+	{ 
+		return metadataViewer.getRenderer().getColorModel();
+	}
 	
 	/**
-	 * Returns an array of <code>ChannelData</code> objects.
+	 * Returns a sorted list of <code>ChannelData</code> objects.
 	 * 
 	 * @return See above.
 	 */
 	List<ChannelData> getChannelData()
 	{ 
-		if (sortedChannels == null) {
-			ChannelData[] data = currentRndControl.getChannelData();
-			ViewerSorter sorter = new ViewerSorter();
-			List l = sorter.sort(data);
-			sortedChannels = Collections.unmodifiableList(l);
-		}
-		return sortedChannels;
+		return metadataViewer.getRenderer().getChannelData();
 	}
 
 	/**
@@ -560,16 +570,26 @@ class ImViewerModel
 	 */
 	ChannelData getChannelData(int index)
 	{ 
-		return currentRndControl.getChannelData(index);
+		List<ChannelData> list = getChannelData();
+		Iterator<ChannelData> i = list.iterator();
+		ChannelData channel;
+		while (i.hasNext()) {
+			channel = i.next();
+			if (channel.getIndex() == index) return channel;
+		}
+		return null;
 	}
 
 	/**
 	 * Returns the color associated to a channel.
 	 * 
-	 * @param w The OME index of the channel.
+	 * @param w The index of the channel.
 	 * @return See above.
 	 */
-	Color getChannelColor(int w) { return currentRndControl.getRGBA(w); }
+	Color getChannelColor(int w)
+	{ 
+		return metadataViewer.getRenderer().getChannelColor(w);
+	}
 
 	/**
 	 * Returns <code>true</code> if the channel is mapped, <code>false</code>
@@ -578,7 +598,10 @@ class ImViewerModel
 	 * @param w	The channel's index.
 	 * @return See above.
 	 */
-	boolean isChannelActive(int w) { return currentRndControl.isActive(w); }
+	boolean isChannelActive(int w)
+	{ 
+		return metadataViewer.getRenderer().isChannelActive(w);
+	}
 	
 	/** 
 	 * Fires an asynchronous retrieval of the rendering control. 
@@ -587,6 +610,8 @@ class ImViewerModel
 	 */
 	void fireRenderingControlLoading(long pixelsID)
 	{
+		
+		/*
 		currentPixelsID = pixelsID;
 		DataLoader loader = new RenderingControlLoader(component, pixelsID, 
 												RenderingControlLoader.LOAD);
@@ -595,11 +620,13 @@ class ImViewerModel
 			loaders.get(RND).cancel();
 		loaders.put(RND, loader);
 		state = ImViewer.LOADING_RENDERING_CONTROL;
+		*/
 	}
 
 	/** Fires an asynchronous retrieval of the rendering control. */
 	void fireRenderingControlReloading()
 	{
+		/*
 		DataLoader loader = new RenderingControlLoader(component, 
 									image.getDefaultPixels().getId(), 
 										RenderingControlLoader.RELOAD);
@@ -608,11 +635,13 @@ class ImViewerModel
 			loaders.get(RND).cancel();
 		loaders.put(RND, loader);
 		state = ImViewer.LOADING_RENDERING_CONTROL;
+		*/
 	}
 
 	/** Fires an asynchronous retrieval of the rendering control. */
 	void fireRenderingControlResetting()
 	{
+		/*
 		DataLoader loader = new RenderingControlLoader(component, 
 										image.getDefaultPixels().getId(), 
 										RenderingControlLoader.RESET);
@@ -621,6 +650,7 @@ class ImViewerModel
 			loaders.get(RND).cancel();
 		loaders.put(RND, loader);
 		state = ImViewer.LOADING_RENDERING_CONTROL;
+		*/
 	}
 	
 	/**
@@ -641,13 +671,7 @@ class ImViewerModel
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
-		//OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
-		try {
-			//component.setImage(os.renderImage(pixelsID, pDef));
-			component.setImage(currentRndControl.renderPlane(pDef));
-		} catch (Exception e) {
-			component.handleException(e);
-		}
+		component.setImage(metadataViewer.getRenderer().renderPlane(pDef));
 	}
 
 	/**
@@ -662,15 +686,23 @@ class ImViewerModel
 		pDef.t = getDefaultT();
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
-		//state = ImViewer.LOADING_IMAGE;
-		try {
-			return currentRndControl.renderPlane(pDef);
-		} catch (Exception e) {
-			component.handleException(e);
-		}
-		return null;
+		return metadataViewer.getRenderer().renderPlane(pDef);
 	}
 
+	/** Notifies that the rendering control has been loaded. */
+	void onRndLoaded()
+	{
+		state = ImViewer.READY;
+		double f = initZoomFactor();
+		if (f > 0)
+			browser.initializeMagnificationFactor(f);
+		try {
+			if (alternativeSettings != null)
+				metadataViewer.getRenderer().resetSettings(alternativeSettings);
+			alternativeSettings = null;
+		} catch (Exception e) {}
+	}
+	
 	/**
 	 * Sets the rendering control.
 	 * 
@@ -678,9 +710,7 @@ class ImViewerModel
 	 */
 	void setRenderingControl(RenderingControl rndControl)
 	{
-		loaders.remove(RND);
-		currentRndControl = rndControl;
-		originalDef = currentRndControl.getRndSettingsCopy();
+		/*
 		if (renderer == null) {
 			renderer = RendererFactory.createRenderer(component, rndControl, 
 					metadataViewer.getEditorUI());
@@ -696,6 +726,7 @@ class ImViewerModel
 		} else {
 			renderer.setRenderingControl(currentRndControl);
 		}
+		*/
 	} 
 
 	/**
@@ -791,13 +822,12 @@ class ImViewerModel
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void setColorModel(String colorModel)
-		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//oldColorModel = colorModel;
 		if (ImViewer.GREY_SCALE_MODEL.equals(colorModel))
-			currentRndControl.setModel(colorModel);
+			metadataViewer.getRenderer().setColorModel(colorModel);
 		else if (ImViewer.RGB_MODEL.equals(colorModel))
-			currentRndControl.setModel(ImViewer.RGB_MODEL);
+			metadataViewer.getRenderer().setColorModel(ImViewer.RGB_MODEL);
 	}
 
 	/**
@@ -805,15 +835,10 @@ class ImViewerModel
 	 * 
 	 * @param z The z-section to set.
 	 * @param t The timepoint to set.
-	 * @throws RenderingServiceException 	If an error occured while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void setSelectedXYPlane(int z, int t)
-		throws RenderingServiceException, DSOutOfServiceException
 	{
-		if (t >= 0 && t != getDefaultT()) currentRndControl.setDefaultT(t);
-		if (z >= 0 && z != getDefaultZ()) currentRndControl.setDefaultZ(z);
+		metadataViewer.getRenderer().setSelectedXYPlane(z, t);
 	}
 
 	/**
@@ -821,30 +846,22 @@ class ImViewerModel
 	 * 
 	 * @param index The channel's index.
 	 * @param c     The color to set.
-	 * @throws RenderingServiceException 	If an error occured while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void setChannelColor(int index, Color c)
-		throws RenderingServiceException, DSOutOfServiceException
 	{
-		currentRndControl.setRGBA(index, c);
+		metadataViewer.getRenderer().setChannelColor(index, c);
 	}
 
 	/**
 	 * Sets the channel active.
 	 * 
-	 * @param index The channel's index.
-	 * @param b     Pass <code>true</code> to select the channel,
-	 *              <code>false</code> otherwise.
-	 * @throws RenderingServiceException 	If an error occured while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 * @param index  The channel's index.
+	 * @param active Pass <code>true</code> to select the channel,
+	 *               <code>false</code> otherwise.
 	 */
-	void setChannelActive(int index, boolean b)
-		throws RenderingServiceException, DSOutOfServiceException
+	void setChannelActive(int index, boolean active)
 	{
-		currentRndControl.setActive(index, b);
+		metadataViewer.getRenderer().setActive(index, active);
 	}  
 
 	/**
@@ -871,7 +888,10 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getMaxC() { return currentRndControl.getPixelsDimensionsC(); }
+	int getMaxC()
+	{ 
+		return metadataViewer.getRenderer().getPixelsDimensionsC(); 
+	}
 
 	/** 
 	 * Returns the number of active channels.
@@ -887,7 +907,7 @@ class ImViewerModel
 	 */
 	List<Integer> getActiveChannels()
 	{
-		return currentRndControl.getActiveChannels();
+		return metadataViewer.getRenderer().getActiveChannels();
 	}
 
 	/** 
@@ -901,7 +921,6 @@ class ImViewerModel
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void playMovie(boolean play)
-		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (player != null && !play) {
 			player.setPlayerState(Player.STOP);
@@ -946,7 +965,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	Renderer getRenderer() { return renderer; }
+	//Renderer getRenderer() { return renderer; }
 
 	/**
 	 * Returns the displayed image.
@@ -983,7 +1002,7 @@ class ImViewerModel
 	 */
 	double getPixelsSizeX()
 	{ 
-		return currentRndControl.getPixelsPhysicalSizeX(); 
+		return metadataViewer.getRenderer().getPixelsSizeX(); 
 	}
 
 	/**
@@ -993,7 +1012,7 @@ class ImViewerModel
 	 */
 	double getPixelsSizeY()
 	{ 
-		return currentRndControl.getPixelsPhysicalSizeY(); 
+		return metadataViewer.getRenderer().getPixelsSizeY();  
 	}
 
 	/**
@@ -1001,7 +1020,10 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	double getPixelsSizeZ(){ return currentRndControl.getPixelsPhysicalSizeZ(); }
+	double getPixelsSizeZ()
+	{
+		return metadataViewer.getRenderer().getPixelsSizeZ(); 
+	}
 
 	/**
 	 * Returns <code>true</code> if the unit bar is painted on top of 
@@ -1057,11 +1079,14 @@ class ImViewerModel
 	 */
 	boolean[] hasRGB()
 	{
+		/*
 		boolean[] rgb = new boolean[3];
 		rgb[0] = currentRndControl.hasActiveChannelRed();
 		rgb[1] = currentRndControl.hasActiveChannelGreen();
 		rgb[2] = currentRndControl.hasActiveChannelBlue();
 		return rgb;
+		*/
+		return metadataViewer.getRenderer().hasRGB();
 	}
 
 	/**
@@ -1104,20 +1129,15 @@ class ImViewerModel
 	 * 
 	 * @param reset Pass <code>true</code> to reset the original settings,
 	 * 				<code>false</code> otherwise.
-	 * @throws RenderingServiceException 	If an error occured while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void saveRndSettings(boolean reset)
-		throws RenderingServiceException, DSOutOfServiceException
 	{
-		if (currentRndControl != null) {
-			RndProxyDef def = currentRndControl.saveCurrentSettings();
-			if (reset) {
-				originalDef = def;
-				if (def != null && renderingSettings != null) {
-					renderingSettings.put(ImViewerAgent.getUserDetails(), def);
-				}
+
+		RndProxyDef def = metadataViewer.getRenderer().saveCurrentSettings();
+		if (reset) {
+			originalDef = def;
+			if (def != null && renderingSettings != null) {
+				renderingSettings.put(ImViewerAgent.getUserDetails(), def);
 			}
 		}
 	}
@@ -1152,7 +1172,7 @@ class ImViewerModel
 	 */
 	boolean isChannelRed(int index)
 	{
-		return currentRndControl.isChannelRed(index);
+		return metadataViewer.getRenderer().isColorComponent(0, index);
 	}
 
 	/**
@@ -1164,7 +1184,7 @@ class ImViewerModel
 	 */
 	boolean isChannelGreen(int index)
 	{
-		return currentRndControl.isChannelGreen(index);
+		return metadataViewer.getRenderer().isColorComponent(1, index);
 	}
 
 	/**
@@ -1176,7 +1196,7 @@ class ImViewerModel
 	 */
 	boolean isChannelBlue(int index)
 	{
-		return currentRndControl.isChannelBlue(index);
+		return metadataViewer.getRenderer().isColorComponent(2, index);
 	}
 
 	/**
@@ -1202,7 +1222,7 @@ class ImViewerModel
 	void setLastSettingsRef()
 	{
 		if (getTabbedIndex() != ImViewer.GRID_INDEX) return;
-		lastMainDef = currentRndControl.getRndSettingsCopy();
+		lastMainDef = metadataViewer.getRenderer().getRndSettingsCopy();
 	}
 	
 	/** 
@@ -1218,7 +1238,7 @@ class ImViewerModel
 		BufferedImage img = null;
 		Color c = null;
 		//Make a smaller image
-		RndProxyDef def = currentRndControl.getRndSettingsCopy();
+		RndProxyDef def = metadataViewer.getRenderer().getRndSettingsCopy();
 		switch (getTabbedIndex()) {
 			case ImViewer.PROJECTION_INDEX:
 				title = ImViewer.TITLE_PROJECTION_INDEX;
@@ -1306,17 +1326,10 @@ class ImViewerModel
 	 * Partially resets the rendering settings.
 	 * 
 	 * @param settings  The value to set.
-	 * @param reset		Pass <code>true</code> to reset the controls, 
-	 * 					<code>false</code> otherwise.
-	 * @throws RenderingServiceException 	If an error occured while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	void resetMappingSettings(RndProxyDef settings, boolean reset) 
-		throws RenderingServiceException, DSOutOfServiceException
+	void resetMappingSettings(RndProxyDef settings) 
 	{
-		currentRndControl.resetSettings(settings);
-		if (reset) renderer.resetRndSettings();
+		metadataViewer.getRenderer().resetSettings(settings);
 	}
 
 	/**
@@ -1348,30 +1361,16 @@ class ImViewerModel
 		state = ImViewer.PASTING;
 	}
 
-	/** 
-	 * Resets the default settings. 
-	 * 
-	 * @throws RenderingServiceException 	If an error occured while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
-	 */
+	/** Resets the default settings. */
 	void resetDefaultRndSettings()
-		throws RenderingServiceException, DSOutOfServiceException
 	{ 
-		currentRndControl.resetDefaults(); 
+		metadataViewer.getRenderer().resetSettings(); 
 	}
 	
-	/** 
-	 * Sets the original default settings. 
-	 * 
-	 * @throws RenderingServiceException 	If an error occured while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
-	 */
+	/** Sets the original default settings. */
 	void setOriginalRndSettings()
-		throws RenderingServiceException, DSOutOfServiceException
 	{ 
-		currentRndControl.setOriginalRndSettings(); 
+		metadataViewer.getRenderer().setOriginalRndSettings(); 
 	}
 	
 	/**
@@ -1386,8 +1385,7 @@ class ImViewerModel
 		if (image == null) return false;
 		PixelsData pixels = image.getDefaultPixels();
 		if (pixels == null) return false;
-		if (currentRndControl == null) return false;
-		return currentRndControl.validatePixels(pixels);
+		return false;//metadataViewer.getRenderer().validatePixels(pixels);
 	}
 
 	/** Posts a {@link CopyRndSettings} event. */
@@ -1411,7 +1409,10 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isImageCompressed() { return currentRndControl.isCompressed(); }
+	boolean isImageCompressed()
+	{ 
+		return metadataViewer.getRenderer().isCompressed(); 
+	}
 	
 	/**
 	 * Sets the compressiong level.
@@ -1421,7 +1422,7 @@ class ImViewerModel
 	 */
 	void setCompressionLevel(int compressionLevel)
 	{
-		currentRndControl.setCompression(compressionLevel);
+		metadataViewer.getRenderer().setCompression(compressionLevel);
 	}
 
 	/**
@@ -1431,7 +1432,7 @@ class ImViewerModel
 	 */
 	int getCompressionLevel()
 	{
-		return currentRndControl.getCompressionLevel();
+		return metadataViewer.getRenderer().getCompressionLevel();
 	}
 	
 	/**
@@ -1472,15 +1473,11 @@ class ImViewerModel
 	 * Applies the settings set by the selected user.
 	 * 
 	 * @param exp	The user to handle.
-	 * @throws RenderingServiceException 	If an error occured while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void setUserSettings(ExperimenterData exp)
-		throws RenderingServiceException, DSOutOfServiceException
 	{
 		RndProxyDef rndDef = (RndProxyDef) renderingSettings.get(exp);
-		currentRndControl.resetSettings(rndDef);
+		metadataViewer.getRenderer().resetSettings(rndDef);
 	}
 	
 	/**
@@ -1634,7 +1631,7 @@ class ImViewerModel
 	void fireProjectedRndSettingsCreation(List<Integer> indexes, 
 			ImageData image)
 	{
-		RndProxyDef def = currentRndControl.getRndSettingsCopy();
+		RndProxyDef def = metadataViewer.getRenderer().getRndSettingsCopy();
 		RenderingSettingsCreator l = new RenderingSettingsCreator(component, 
 				image, def, indexes);
 		l.load();
@@ -1727,7 +1724,7 @@ class ImViewerModel
 	void setImageData(ImageData image)
 	{
 		this.image = image;
-		metadataViewer = MetadataViewerFactory.getViewer(image, false);
+		initializeMetadataViewer();
 		currentPixelsID = image.getDefaultPixels().getId();
 	}
 	
@@ -1748,8 +1745,7 @@ class ImViewerModel
 	 */
 	boolean isSameSettings(RndProxyDef def)
 	{
-		if (currentRndControl == null) return true;
-		return currentRndControl.isSameSettings(def, false);
+		return metadataViewer.getRenderer().isSameSettings(def, false);
 	}
     /**
      * Sets the projected image for preview.
@@ -1844,13 +1840,8 @@ class ImViewerModel
 	 * Sets the selected lifetime bin.
 	 * 
 	 * @param bin The selected bin.
-	 * @throws RenderingServiceException 	If an error occured while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
-	 * 
 	 */
 	void setSelectedBin(int bin)
-		throws RenderingServiceException, DSOutOfServiceException
 	{
 		List<ChannelData> channels = getChannelData();
 		ChannelData channel;
@@ -1859,19 +1850,12 @@ class ImViewerModel
 		while (i.hasNext()) {
 			channel = i.next();
 			index = channel.getIndex();
-			currentRndControl.setActive(index, index == bin);
+			metadataViewer.getRenderer().setActive(index, index == bin);
 		}
 	}
 	
-	/**
-	 * Sets the rendering engine to handle lifetime image.
-	 * 
-	 * @throws RenderingServiceException 	If an error occured while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
-	 */
+	/** Sets the rendering engine to handle lifetime image. */
 	void setForLifetime()
-		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!isLifetime()) return;
 		setColorModel(ImViewer.GREY_SCALE_MODEL);
@@ -1882,9 +1866,9 @@ class ImViewerModel
 		while (i.hasNext()) {
 			channel = i.next();
 			index = channel.getIndex();
-			currentRndControl.setChannelWindow(index, channel.getGlobalMin(), 
-					channel.getGlobalMax());
-			currentRndControl.setActive(index, index == 0);
+			metadataViewer.getRenderer().setChannelWindow(index, 
+					channel.getGlobalMin(), channel.getGlobalMax());
+			metadataViewer.getRenderer().setActive(index, index == 0);
 		}
 	}
 	
@@ -1898,6 +1882,19 @@ class ImViewerModel
 		List<Integer> active = getActiveChannels();
 		if (active == null || active.size() != 1) return 0;
 		return active.get(0);
+	}
+
+	/** Sets the renderer. */
+	void selectRenderer() { metadataViewer.selectRenderer(); }
+
+	/** 
+	 * Sets the selected channel.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	void setSelectedChannel(int index)
+	{
+		metadataViewer.getRenderer().setSelectedChannel(index);
 	}
 	
 }

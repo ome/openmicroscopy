@@ -80,7 +80,6 @@ public class MovieAction
 			case ImViewer.CHANNEL_MOVIE:
 				setEnabled(false);
 				break;
-			case ImViewer.RENDERING_CONTROL_LOADED:
 			case ImViewer.READY:
 				if (model.getSelectedIndex() == ImViewer.PROJECTION_INDEX) {
 					setEnabled(false);

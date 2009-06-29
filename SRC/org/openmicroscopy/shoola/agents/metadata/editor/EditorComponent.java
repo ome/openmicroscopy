@@ -44,6 +44,8 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -183,6 +185,8 @@ class EditorComponent
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setRootObject();
+		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
+			loadRenderingControl();
 	}
 
 	/** 
@@ -530,17 +534,9 @@ class EditorComponent
 		model.setRenderingControl(rndControl);
 		view.setRenderer();
 		model.getRenderer().addPropertyChangeListener(controller);
+		model.onRndLoaded(false);
 	}
 
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#renderPlane()
-	 */
-	public void renderPlane()
-	{
-		model.renderPlane();
-	}
-	
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Editor#loadRenderingControl()
@@ -576,6 +572,27 @@ class EditorComponent
 				file.delete();
 			}
 		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#selectRenderer()
+	 */
+	public void selectRenderer()
+	{
+		int index = EditorUI.RND_INDEX;
+		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
+			index = EditorUI.GENERAL_INDEX;
+		view.setSelectedTabbed(index);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#getRenderer()
+	 */
+	public Renderer getRenderer()
+	{
+		return model.getRenderer();
 	}
 	
 }

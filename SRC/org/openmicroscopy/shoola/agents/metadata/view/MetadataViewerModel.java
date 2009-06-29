@@ -150,16 +150,13 @@ class MetadataViewerModel
 	 * Called by the <code>MetadataViewer</code> after creation to allow this
 	 * object to store a back reference to the embedding component.
 	 * 
-	 * @param component 		The embedding component.
-	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
-	 * 							thumbnail, <code>false</code> otherwise.
+	 * @param component The embedding component.
 	 */
-	void initialize(MetadataViewer component, boolean thumbnailRequired)
+	void initialize(MetadataViewer component)
 	{ 
 		this.component = component;
 		browser = BrowserFactory.createBrowser(component, refObject);
-		editor = EditorFactory.createEditor(component, refObject,
-										thumbnailRequired, browser);
+		editor = EditorFactory.createEditor(component, refObject, browser);
 	}
 	
 	/**

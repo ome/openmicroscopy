@@ -108,16 +108,10 @@ public class ChannelButton
     {
     	boolean mask = (e.isControlDown() || e.isMetaDown());
     	if (e.getButton() == MouseEvent.BUTTON1 && !(mask) ) 
-    		singleClick();
+    		setChannelSelected();
     	else if ((e.getButton() == MouseEvent.BUTTON2 || mask)) 
         	onReleased(e);
     }
-   
-    /**
-     * Executed by the timer when the double click threshold has expired and
-     * we know we have a single click.
-     */
-    private void singleClick()   { setChannelSelected(); }
        
     /** 
      * Handles the mouse released event because Popup menus are triggered 
@@ -251,6 +245,6 @@ public class ChannelButton
      * Handles click performed on the channel button.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e) { singleClick(); }
+	public void actionPerformed(ActionEvent e) { setChannelSelected(); }
     
 }

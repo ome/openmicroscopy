@@ -102,7 +102,6 @@ public class PlayMovieAction
 			case ImViewer.CHANNEL_MOVIE:
 				setEnabled(false);
 				break;
-			case ImViewer.RENDERING_CONTROL_LOADED:
 			case ImViewer.READY:
 				if (model.isPlayingMovie()) {
 					setEnabled(model.getMovieIndex() == index);

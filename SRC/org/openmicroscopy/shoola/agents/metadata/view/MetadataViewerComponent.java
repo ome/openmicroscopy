@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -693,16 +694,19 @@ class MetadataViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#renderPlane(long)
+	 * @see MetadataViewer#renderPlane()
 	 */
-	public void renderPlane(long imageID)
+	public void renderPlane()
 	{
-		if (!(model.getRefObject() instanceof ImageData)) return;
+		Object obj = model.getRefObject();
+		if (!(obj instanceof ImageData)) return;
+		long imageID = ((ImageData) obj).getId();
 		switch (getRndIndex()) {
 			case RND_GENERAL:
 				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
 				break;
 			case RND_SPECIFIC:
+				firePropertyChange(RENDER_PLANE_PROPERTY, -1, imageID);
 			break;
 		}
 	}
@@ -711,9 +715,11 @@ class MetadataViewerComponent
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#applyToAll(ImageData)
 	 */
-	public void applyToAll(ImageData image)
+	public void applyToAll()
 	{
-		firePropertyChange(APPLY_SETTINGS_PROPERTY, null, image);
+		Object obj = model.getRefObject();
+		if (!(obj instanceof ImageData)) return;
+		firePropertyChange(APPLY_SETTINGS_PROPERTY, null, (ImageData) obj);
 	}
 	
 	/**
@@ -724,6 +730,48 @@ class MetadataViewerComponent
 	{
 		firePropertyChange(SETTINGS_APPLIED_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));
+	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#onRndLoaded(boolean)
+	 */
+	public void onRndLoaded(boolean reload)
+	{
+		getRenderer().addPropertyChangeListener(controller);
+		firePropertyChange(RND_LOADED_PROPERTY, Boolean.valueOf(!reload), 
+				Boolean.valueOf(reload));
+	}
+	
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#selectRenderer()
+	 */
+	public void selectRenderer()
+	{
+		if (getRndIndex() != RND_SPECIFIC) return;
+		model.getEditor().selectRenderer();
+	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getRenderer()
+	 */
+	public Renderer getRenderer()
+	{
+		if (getRndIndex() == RND_SPECIFIC)
+			return model.getEditor().getRenderer();
+		return null;
+	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#onChannelSelected(int)
+	 */
+	public void onChannelSelected(int index)
+	{
+		if (getRndIndex() != RND_SPECIFIC) return;
+		firePropertyChange(SELECTED_CHANNEL_PROPERTY, -1, index);
 	}
 	
 }

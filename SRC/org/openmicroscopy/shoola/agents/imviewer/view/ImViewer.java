@@ -109,7 +109,7 @@ public interface ImViewer
 	public static final int     NEW = 1;
 
 	/** Flag to denote the <i>Loading Rendering Settings</i> state. */
-	public static final int     LOADING_RENDERING_CONTROL = 2;
+	//public static final int     LOADING_RENDERING_CONTROL = 2;
 
 	/** Flag to denote the <i>Loading Image</i> state. */
 	public static final int     LOADING_IMAGE = 3;
@@ -130,7 +130,7 @@ public interface ImViewer
 	public static final int     CHANNEL_MOVIE = 8;
 
 	/** Flag to denote the <i>Rendering control loaded</i> state. */
-	public static final int     RENDERING_CONTROL_LOADED = 9;
+	//public static final int     RENDERING_CONTROL_LOADED = 9;
 	
 	/** Flag to denote the <i>Loading Image Data</i> state. */
 	public static final int     LOADING_IMAGE_DATA = 10;
@@ -336,6 +336,7 @@ public interface ImViewer
 	 * @param index    The index of the channel.
 	 * @param selected Pass <code>true</code> to select the channel,
 	 *                 <code>false</code> otherwise.
+	 * @param render   Pass <code>true</code>
 	 */
 	public void setChannelSelection(int index, boolean selected);
 
@@ -1006,5 +1007,21 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	boolean isLifeTime();
+
+	/**
+	 * Notifes the component that the rendering control is loaded.
+	 * 
+	 * @param reload Pass <code>true</code> if the rendering control has been
+	 * 				 reloaded following an exception, <code>false</code> if 
+	 * 				 it is an initial load.
+	 */
+	public void onRndLoaded(boolean reload);
+
+	/**
+	 * Invokes when a channel is selected.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	void onChannelSelection(int index);
 	
 }

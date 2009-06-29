@@ -67,7 +67,7 @@ public class MetadataViewerFactory
 		MetadataViewerModel model = new MetadataViewerModel(data, 
 				MetadataViewer.RND_GENERAL);
 		model.setDataType(type);
-		return singleton.createViewer(model, false);
+		return singleton.createViewer(model);
 	}
 	
 	/**
@@ -78,40 +78,24 @@ public class MetadataViewerFactory
 	 * 							thumbnail, <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	public static MetadataViewer getViewer(Object refObject, boolean
-									thumbnailRequired)
+	public static MetadataViewer getViewer(Object refObject)
 	{
-		return getViewer(refObject, thumbnailRequired, 
-				MetadataViewer.RND_GENERAL);
-	}
-	
-	/**
-	 * Returns the {@link MetadataViewer}.
-	 * 
-	 * @param refObject			The object viewed as the root of the browser.
-	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
-	 * 							thumbnail, <code>false</code> otherwise.
-	 * @param index 			One of the following constants: 
-	 * 							{@link MetadataViewer#RND_GENERAL} or
-	 * 							{@link MetadataViewer#RND_SPECIFIC}.
-	 * @return See above.
-	 */
-	public static MetadataViewer getViewer(Object refObject, boolean
-									thumbnailRequired, int index)
-	{
-		MetadataViewerModel model = new MetadataViewerModel(refObject, index);
-		return singleton.createViewer(model, thumbnailRequired);
+		return getViewer(refObject, MetadataViewer.RND_GENERAL);
 	}
 	
 	/**
 	 * Returns the {@link MetadataViewer}.
 	 * 
 	 * @param refObject	The object viewed as the root of the browser.
+	 * @param index 	One of the following constants: 
+	 * 					{@link MetadataViewer#RND_GENERAL} or
+	 * 					{@link MetadataViewer#RND_SPECIFIC}.
 	 * @return See above.
 	 */
-	public static MetadataViewer getViewer(Object refObject)
+	public static MetadataViewer getViewer(Object refObject, int index)
 	{
-		return MetadataViewerFactory.getViewer(refObject, true);
+		MetadataViewerModel model = new MetadataViewerModel(refObject, index);
+		return singleton.createViewer(model);
 	}
 	
 	/** Creates a new instance. */
@@ -120,16 +104,13 @@ public class MetadataViewerFactory
 	/**
 	 * Creates and returns a {@link MetadataViewer}.
 	 * 
-	 * @param model				The Model.
-	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
-	 * 							thumbnail, <code>false</code> otherwise.
+	 * @param model	The Model.
 	 * @return See above.
 	 */
-	private MetadataViewer createViewer(MetadataViewerModel model,
-										boolean thumbnailRequired)
+	private MetadataViewer createViewer(MetadataViewerModel model)
 	{
 		MetadataViewerComponent comp = new MetadataViewerComponent(model);
-		model.initialize(comp, thumbnailRequired);
+		model.initialize(comp);
 		comp.initialize();
 		return comp;
 	}

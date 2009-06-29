@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -33,12 +34,17 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.romio.PlaneDef;
+
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
 import pojos.ChannelData;
+import pojos.PixelsData;
 
 /** 
  * The Model component in the <code>Renderer</code> MVC triad.
@@ -112,12 +118,11 @@ class RendererModel
 
 	/** Flag to denote if the widget is visible or not. */
 	private boolean             visible;
-    
-    /** The collection of sorted channel data, sorted by emission wavelength. */
-    private List<ChannelData>	sortedChannels;
-    
+     
     /** The index of the rendering. */
     private int					rndIndex;
+    
+    private List<ChannelData>	sortedChannel;
     
 	/**
 	 * Creates a new instance.
@@ -201,19 +206,20 @@ class RendererModel
 	int getState() { return state; }
 
 	/**
-	 * Sets the pixels intensity interval for the
-	 * currently selected channel.
+	 * Sets the pixels intensity interval for the specified channel.
 	 * 
-	 * @param s	The lower bound of the interval.
-	 * @param e	The upper bound of the interval.
+	 * @param index The index of the channel.
+	 * @param start	The lower bound of the interval.
+	 * @param end	The upper bound of the interval.
 	 * @throws RenderingServiceException 	If an error occured while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	void setInputInterval(double s, double e)
+	void setInputInterval(int index, double start, double end)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		rndControl.setChannelWindow(selectedChannelIndex, s, e); 
+		if (rndControl == null) return;
+		rndControl.setChannelWindow(index, start, end); 
 	}
 
 	/**
@@ -221,14 +227,22 @@ class RendererModel
 	 * 
 	 * @return See above.
 	 */
-	int getCodomainEnd() { return rndControl.getCodomainEnd(); }
+	int getCodomainEnd()
+	{ 
+		if (rndControl == null) return -1;
+		return rndControl.getCodomainEnd();
+	}
 
 	/**
 	 * Returns the lower bound of the sub-interval of the device space.
 	 * 
 	 * @return See above.
 	 */
-	int getCodomainStart() { return rndControl.getCodomainStart(); }
+	int getCodomainStart()
+	{ 
+		if (rndControl == null) return -1;
+		return rndControl.getCodomainStart();
+	}
 
 	/**
 	 * Sets the sub-interval of the device space. 
@@ -242,6 +256,7 @@ class RendererModel
 	void setCodomainInterval(int s, int e)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		if (rndControl == null) return;
 		rndControl.setCodomainInterval(s, e);
 	}
 
@@ -254,8 +269,9 @@ class RendererModel
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void setBitResolution(int v)
-	throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException, DSOutOfServiceException
 	{
+		if (rndControl == null) return;
 		rndControl.setQuantumStrategy(v);
 	}
 
@@ -278,6 +294,7 @@ class RendererModel
 	void setFamily(String family)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		if (rndControl == null) return;
 		boolean b = rndControl.getChannelNoiseReduction(selectedChannelIndex);
 		double k = rndControl.getChannelCurveCoefficient(selectedChannelIndex);
 		rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
@@ -294,6 +311,7 @@ class RendererModel
 	void setCurveCoefficient(double k)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		if (rndControl == null) return;
 		boolean b = rndControl.getChannelNoiseReduction(selectedChannelIndex);
 		String family = rndControl.getChannelFamily(selectedChannelIndex);
 		rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
@@ -311,6 +329,7 @@ class RendererModel
 	void setNoiseReduction(boolean b)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		if (rndControl == null) return;
 		String family = rndControl.getChannelFamily(selectedChannelIndex);
 		double k = rndControl.getChannelCurveCoefficient(selectedChannelIndex);
 		rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
@@ -360,7 +379,11 @@ class RendererModel
 	 * 
 	 * @return See above.
 	 */
-	List getCodomainMaps() { return rndControl.getCodomainMaps(); }
+	List getCodomainMaps()
+	{ 
+		if (rndControl == null) return null;
+		return rndControl.getCodomainMaps();
+	}
 
 	/**
 	 * Removes the codomain map identified by the class from the chain of 
@@ -417,7 +440,11 @@ class RendererModel
 	 * 
 	 * @return See above.
 	 */
-	List getFamilies() { return rndControl.getFamilies(); }
+	List getFamilies()
+	{ 
+		if (rndControl == null) return null;
+		return rndControl.getFamilies();
+	}
 
 	/**
 	 * Returns the mapping family used for to map the selected channel.
@@ -426,6 +453,7 @@ class RendererModel
 	 */
 	String getFamily()
 	{
+		if (rndControl == null) return null;
 		return rndControl.getChannelFamily(selectedChannelIndex);
 	}
 
@@ -436,6 +464,7 @@ class RendererModel
 	 */
 	double getCurveCoefficient()
 	{
+		if (rndControl == null) return -1;
 		return rndControl.getChannelCurveCoefficient(selectedChannelIndex);
 	}
 
@@ -444,7 +473,11 @@ class RendererModel
 	 * 
 	 * @return See above.
 	 */
-	int getBitResolution() { return rndControl.getBitResolution(); }
+	int getBitResolution()
+	{ 
+		if (rndControl == null) return -1;
+		return rndControl.getBitResolution();
+	}
 
 	/**
 	 * Returns <code>true</code> if the noise reduction flag is turned on 
@@ -454,6 +487,7 @@ class RendererModel
 	 */
 	boolean isNoiseReduction()
 	{
+		if (rndControl == null) return false;
 		return rndControl.getChannelNoiseReduction(selectedChannelIndex);
 	}
 
@@ -464,13 +498,14 @@ class RendererModel
 	 */
 	List<ChannelData> getChannelData()
 	{
-		if (sortedChannels == null) {
+		if (rndControl == null) return null;
+		if (sortedChannel == null) {
 			ChannelData[] data = rndControl.getChannelData();
 			ViewerSorter sorter = new ViewerSorter();
 			List l = sorter.sort(data);
-			sortedChannels = Collections.unmodifiableList(l);
+			sortedChannel = Collections.unmodifiableList(l);
 		}
-		return sortedChannels;
+		return sortedChannel;
 	}
 
 	/**
@@ -480,6 +515,7 @@ class RendererModel
 	 */
 	double getGlobalMin()
 	{
+		if (rndControl == null) return -1;
 		return rndControl.getChannelData(selectedChannelIndex).getGlobalMin();
 	}
 
@@ -490,6 +526,7 @@ class RendererModel
 	 */
 	double getGlobalMax()
 	{
+		if (rndControl == null) return -1;
 		return rndControl.getChannelData(selectedChannelIndex).getGlobalMax();
 	}
 
@@ -500,6 +537,7 @@ class RendererModel
 	 */
 	double getLowestValue()
 	{
+		if (rndControl == null) return -1;
 		return rndControl.getPixelsTypeLowerBound(selectedChannelIndex);
 	}
 
@@ -510,6 +548,7 @@ class RendererModel
 	 */
 	double getHighestValue()
 	{
+		if (rndControl == null) return -1;
 		return rndControl.getPixelsTypeUpperBound(selectedChannelIndex);
 	}
 
@@ -521,6 +560,7 @@ class RendererModel
 	 */
 	double getWindowStart()
 	{
+		if (rndControl == null) return -1;
 		return rndControl.getChannelWindowStart(selectedChannelIndex);
 	}
 
@@ -532,6 +572,7 @@ class RendererModel
 	 */
 	double getWindowEnd()
 	{
+		if (rndControl == null) return -1;
 		return rndControl.getChannelWindowEnd(selectedChannelIndex);
 	}
 
@@ -543,6 +584,7 @@ class RendererModel
 	 */
 	boolean isGreyScale()
 	{
+		if (rndControl == null) return false;
 		return rndControl.getModel().equals(RenderingControl.GREY_SCALE);
 	}
 	
@@ -556,7 +598,8 @@ class RendererModel
 	void saveRndSettings()
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		if (rndControl != null) rndControl.saveCurrentSettings(); 
+		if (rndControl == null) return;
+		rndControl.saveCurrentSettings(); 
 	}
 
 	/**
@@ -566,7 +609,11 @@ class RendererModel
 	 * @param w	The channel's index.
 	 * @return See above.
 	 */
-	boolean isChannelActive(int w) { return rndControl.isActive(w); }
+	boolean isChannelActive(int w)
+	{ 
+		if (rndControl == null) return false;
+		return rndControl.isActive(w);
+	}
 
 	/**
 	 * Returns a list of active channels.
@@ -575,6 +622,7 @@ class RendererModel
 	 */
 	List<Integer> getActiveChannels()
 	{
+		if (rndControl == null) return null;
 		List<Integer> active = new ArrayList<Integer>();
 		for (int i = 0; i < getMaxC(); i++) {
 			if (rndControl.isActive(i)) active.add(Integer.valueOf(i));
@@ -588,16 +636,6 @@ class RendererModel
 	 * @return See above.
 	 */
 	int getMaxC() { return rndControl.getPixelsDimensionsC(); }
-
-	/**
-	 * Sets the specified value.
-	 * 
-	 * @param rndControl	The value to set.
-	 */
-	void setRenderingControl(RenderingControl rndControl)
-	{
-		this.rndControl = rndControl;
-	}
 	
 	/**
 	 * Returns the index associated to the renderer.
@@ -629,6 +667,7 @@ class RendererModel
 	void setChannelColor(int index, Color color)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		if (rndControl == null) return;
 		rndControl.setRGBA(index, color);
 	}
 
@@ -639,6 +678,7 @@ class RendererModel
 	 */
 	String getColorModel()
 	{
+		if (rndControl == null) return null;
 		return rndControl.getModel();
 	}
 	
@@ -653,36 +693,75 @@ class RendererModel
 	void setColorModel(String colorModel)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		if (rndControl == null) return;
 		rndControl.setModel(colorModel);
 	}
-
+	
+	/**
+	 * Returns the number of pixels along the X-axis.
+	 * 
+	 * @return See above.
+	 */
+	int getMaxX()
+	{ 
+		if (rndControl == null) return -1;
+		return rndControl.getPixelsDimensionsX(); 
+	}
+	
+	/**
+	 * Returns the number of pixels along the Y-axis.
+	 * 
+	 * @return See above.
+	 */
+	int getMaxY()
+	{ 
+		if (rndControl == null) return -1;
+		return rndControl.getPixelsDimensionsY(); 
+	}
+	
 	/**
 	 * Returns the maximum number of z-sections.
 	 * 
 	 * @return See above.
 	 */
-	int getMaxZ() { return rndControl.getPixelsDimensionsZ(); }
+	int getMaxZ()
+	{ 
+		if (rndControl == null) return -1;
+		return rndControl.getPixelsDimensionsZ();
+	}
 
 	/**
 	 * Returns the maximum number of timepoints.
 	 * 
 	 * @return See above.
 	 */
-	int getMaxT() { return rndControl.getPixelsDimensionsT(); }
+	int getMaxT()
+	{ 
+		if (rndControl == null) return -1;
+		return rndControl.getPixelsDimensionsT(); 
+	}
 	
 	/**
 	 * Returns the currently selected z-section.
 	 * 
 	 * @return See above.
 	 */
-	int getDefaultZ() { return rndControl.getDefaultZ(); }
+	int getDefaultZ()
+	{ 
+		if (rndControl == null) return -1;
+		return rndControl.getDefaultZ(); 
+	}
 
 	/**
 	 * Returns the currently selected timepoint.
 	 * 
 	 * @return See above.
 	 */
-	int getDefaultT() { return rndControl.getDefaultT(); }
+	int getDefaultT()
+	{ 
+		if (rndControl == null) return -1;
+		return rndControl.getDefaultT();
+	}
 	
 	/**
 	 * Sets the selected plane.
@@ -696,6 +775,7 @@ class RendererModel
 	void setSelectedXYPlane(int z, int t)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		if (rndControl == null) return;
 		if (t >= 0 && t != getDefaultT()) rndControl.setDefaultT(t);
 		if (z >= 0 && z != getDefaultZ()) rndControl.setDefaultZ(z);
 	}
@@ -713,7 +793,237 @@ class RendererModel
 	void setChannelActive(int index, boolean active)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		if (rndControl == null) return;
 		rndControl.setActive(index, active);
+	}
+
+	/**
+	 * Returns the compression level.
+	 * 
+	 * @return See above.
+	 */
+	int getCompressionLevel()
+	{ 
+		if (rndControl == null) return -1;
+		return rndControl.getCompressionLevel();
+	}
+
+	/**
+	 * Returns the physical size of a pixels along the Y-axis.
+	 * 
+	 * @return See above.
+	 */
+	double getPixelsSizeY()
+	{ 
+		if (rndControl == null) return -1;
+		return rndControl.getPixelsPhysicalSizeY(); 
+	}
+	
+	/**
+	 * Returns the physical size of a pixels along the X-axis.
+	 * 
+	 * @return See above.
+	 */
+	double getPixelsSizeX()
+	{ 
+		if (rndControl == null) return -1;
+		return rndControl.getPixelsPhysicalSizeX(); 
+	}
+	
+	/**
+	 * Returns the physical size of a pixels along the Z-axis.
+	 * 
+	 * @return See above.
+	 */
+	double getPixelsSizeZ()
+	{ 
+		if (rndControl == null) return -1;
+		return rndControl.getPixelsPhysicalSizeZ(); 
+	}
+
+    /**
+     * Returns a copy of the current rendering settings.
+     * 
+     * @return See above.
+     */
+	RndProxyDef getRndSettingsCopy()
+	{ 
+		if (rndControl == null) return null;
+		return rndControl.getRndSettingsCopy();
+	}
+
+	/**
+	 * Returns <code>true</code> if an active channel 
+	 * is mapped to <code>Red</code> if the band is <code>0</code>,
+	 * <code>Red</code> if the band is <code>0</code>, 
+	 * <code>Red</code> if the band is <code>0</code>,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param band Pass <code>0</code> for <code>Red</code>, 
+	 * 			   <code>1</code> for <code>Green</code>,
+	 * 			   <code>2</code> for <code>Blue</code>.
+	 * @return See above
+	 */
+	boolean hasActiveChannel(int band)
+	{
+		if (rndControl == null) return false;
+		switch (band) {
+			case 0: rndControl.hasActiveChannelRed();
+			case 1: rndControl.hasActiveChannelGreen();
+			case 2: rndControl.hasActiveChannelBlue();
+		}
+		return false;
+	}
+
+	/**
+	 * Returns <code>true</code> if the compression is turned on,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isCompressed()
+	{
+		if (rndControl == null) return false;
+		return rndControl.isCompressed();
+	}
+
+	/**
+	 * Returns <code>true</code> if the specified channel 
+	 * is mapped to <code>Red</code> if the band is <code>0</code>,
+	 * <code>Red</code> if the band is <code>0</code>, 
+	 * <code>Red</code> if the band is <code>0</code>,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param band Pass <code>0</code> for <code>Red</code>, 
+	 * 			   <code>1</code> for <code>Green</code>,
+	 * 			   <code>2</code> for <code>Blue</code>.
+	 * @param index The index of the channel.
+	 * @return See above
+	 */
+	boolean isColorComponent(int band, int index)
+	{
+		if (rndControl == null) return false;
+		switch (band) {
+			case 0: rndControl.isChannelRed(index);
+			case 1: rndControl.isChannelGreen(index);
+			case 2: rndControl.isChannelBlue(index);
+		}
+		return false;
+	}
+
+	/**
+	 * Resets the default settings.
+	 * 
+	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	void resetDefaults()
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (rndControl == null) return;
+		rndControl.resetDefaults();
+		
+	}
+
+	/**
+	 * Resets the passed rendering settings.
+	 * 
+	 * @param settings The rendering settings to reset.
+	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	void resetSettings(RndProxyDef settings)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (rndControl == null) return;
+		rndControl.resetSettings(settings);
+	}
+
+	/**
+	 * Saves the current settings.
+	 *  
+	 * @return See above.
+	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	RndProxyDef saveCurrentSettings()
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (rndControl == null) return null;
+		return rndControl.saveCurrentSettings();
+	}
+
+	/**
+	 * Turns on or off the specified channel.
+	 * 
+	 * @param index  The index of the channel
+	 * @param active Pass <code>true</code> to turn the channel on, 
+	 * 				 <code>false</code> to turn it off.
+	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	void setActive(int index, boolean active)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (rndControl == null) return;
+		rndControl.setActive(index, active);
+	}
+
+	/**
+	 * Sets the compression level.
+	 * 
+	 * @param compression  The compression level.
+	 */
+	void setCompression(int compression)
+	{
+		if (rndControl == null) return;
+		rndControl.setCompression(compression);
+	}
+
+	/**
+	 * Sets the original settings.
+	 * 
+	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	void setOriginalRndSettings()
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (rndControl == null) return;
+		rndControl.setOriginalRndSettings();
+	}
+
+	/**
+	 * Checks if the passed set of pixels is compatible.
+	 * Returns <code>true</code> if the pixels set is compatible,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param pixels The pixels to check.
+	 * @return See above.
+	 */
+	boolean validatePixels(PixelsData pixels)
+	{
+		return rndControl.validatePixels(pixels);
+	}
+
+	/**
+	 * Renders the specified plane.
+	 * 
+	 * @param pDef The plane to render.
+	 * @return See above.
+	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	BufferedImage renderPlane(PlaneDef pDef)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		return rndControl.renderPlane(pDef);
 	}
 	
 }
