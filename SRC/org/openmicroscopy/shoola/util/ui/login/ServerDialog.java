@@ -152,9 +152,11 @@ class ServerDialog
 	/** Fires a property indicating that a new server is selected. */
 	void apply()
 	{
+		//Check list of servers and remove empty from list
 		editor.stopEdition();
 		String server = editor.getSelectedServer();
-		if (server != null) {
+		editor.onApply();
+		if (server != null && server.length() > 0) {
 			String port = editor.getSelectedPort();
 			editor.handleServers(server, editor.getSelectedPort());
 			String value = server+ServerEditor.SERVER_PORT_SEPARATOR+port;
@@ -363,7 +365,7 @@ class ServerDialog
 		String name = evt.getPropertyName();
 		if (ServerEditor.EDIT_PROPERTY.equals(name)) {
 			Boolean value = (Boolean) evt.getNewValue();
-			finishButton.setEnabled(value.booleanValue());
+			finishButton.setEnabled(value);
 		} else if (ServerEditor.ADD_MESSAGE_PROPERTY.equals(name)) {
 			showMessagePanel(true, (JComponent) evt.getNewValue());
 		}  else if (ServerEditor.REMOVE_MESSAGE_PROPERTY.equals(name)) {

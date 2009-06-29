@@ -268,10 +268,12 @@ class BrowserUI
             	TreeImageDisplay d  = model.getLastSelectedDisplay();
                 if (d == null) return;
                 Object o = d.getUserObject();
-                if (o instanceof ImageData) {
-                	model.viewImage(d);
+                if ((o instanceof ImageData) || (o instanceof PlateData)) {
+                	model.browser(d);
                 } else if (o instanceof FileAnnotationData) {
                 	model.openFile(d);
+                } else if (o instanceof PlateData) {
+                	
                 }
             }
         }

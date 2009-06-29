@@ -325,8 +325,10 @@ class EditorComponent
 	public void loadChannelData()
 	{
 		if (model.isLifetime()) return;
-		if (model.getChannelData() == null) model.loadChannelData();
-		else view.showChannelData();
+		if (model.getRndIndex() == MetadataViewer.RND_GENERAL) {
+			if (model.getChannelData() == null) 
+				model.loadChannelData();
+		} else view.showChannelData();
 	}
 
 	/** 
@@ -533,6 +535,8 @@ class EditorComponent
 	{
 		model.setRenderingControl(rndControl);
 		view.setRenderer();
+		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
+			loadChannelData();
 		model.getRenderer().addPropertyChangeListener(controller);
 		model.onRndLoaded(false);
 	}

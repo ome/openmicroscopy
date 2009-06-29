@@ -48,6 +48,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 
@@ -204,10 +206,13 @@ public class ServerEditor
 	{
 		if (editing) {
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
-			if (model.getRowCount() == 0) {
+			TableCellEditor editor = table.getCellEditor();
+			if (editor != null) editor.stopCellEditing();
+			
+			//if (model.getRowCount() == 0) {
 				editing = false;
 				addRow();
-			}
+			//}
 			return;
 		}
 		addButton.setEnabled(false);
@@ -433,11 +438,12 @@ public class ServerEditor
 	{
 		if (col == 0) return;
 		if (table.getColumnCount() > 1) {
-			//editing = true;
+			editing = true;
 			TableCellEditor editor = table.getCellEditor();
 			if (editor != null) editor.stopCellEditing();
 			table.editCellAt(row, col);
 			table.changeSelection(row, col, false, false);
+			table.requestFocus();
 			editing = true;
 		}
 	}
@@ -457,7 +463,9 @@ public class ServerEditor
 		editing = false;
 		List<String> values = new ArrayList<String>();
 		for (int i = 0; i < table.getRowCount(); i++) {
-			if (i != previousRow) values.add((String) table.getValueAt(i, 1)); 
+			if (i != previousRow) {
+				values.add((String) table.getValueAt(i, 1)); 
+			}
 		}
 		if (activeServer != null && !values.contains(activeServer))
 			values.add(activeServer);
@@ -472,9 +480,9 @@ public class ServerEditor
 			}
 		}
 		handleServers(activeServer, activePort);
-		if (found || text == null) {
+		if (found || text == null || text.trim().length() == 0) {
 			removeRow(previousRow);
-			showMessagePanel(false);
+			//showMessagePanel(false);
 		}
 		TableCellEditor editor = table.getCellEditor();
 		if (editor != null) editor.stopCellEditing();
@@ -595,15 +603,17 @@ public class ServerEditor
         String[] values;
         for (index = 0; index < l.length; index++) {
         	server = l[index].trim();
-        	values = server.split(SERVER_PORT_SEPARATOR, 0);
-        	name = values[0];
-        	if (values.length > 1) {
-        		p = values[1];
-        		if (OLD_PORT.equals(p)) p = defaultPort;
+        	if (server.length() > 0) {
+        		values = server.split(SERVER_PORT_SEPARATOR, 0);
+            	name = values[0];
+            	if (values.length > 1) {
+            		p = values[1];
+            		if (OLD_PORT.equals(p)) p = defaultPort;
+            	}
+            	else p = defaultPort;
+            	if (!name.equals(activeServer))
+            		listOfServers.put(name, p);
         	}
-        	else p = defaultPort;
-        	if (!name.equals(activeServer))
-        		listOfServers.put(name, p);
         }	
         return listOfServers; 
 	}
@@ -618,9 +628,13 @@ public class ServerEditor
 	void handleServers(String serverName, String port)
 	{
 		Map<String, String> l = new LinkedHashMap<String, String>();
-		for (int i = 0; i < table.getRowCount(); i++) 
-			l.put((String) table.getValueAt(i, 1), 
-				(String) table.getValueAt(i, 2)); 
+		String v;
+		for (int i = 0; i < table.getRowCount(); i++) {
+			v = (String) table.getValueAt(i, 1);
+			if (v != null && v.trim().length() > 0)
+				l.put(v, (String) table.getValueAt(i, 2)); 
+		}
+			
 		if (activeServer != null && l.get(activeServer) == null) 
 			l.put(activeServer, activePort);
 		
@@ -708,4 +722,22 @@ public class ServerEditor
 			requestFocusOnEditedCell(table.getRowCount()-1, 1);
 	}
 
+	/** Makes sure to remove rows without server address.*/
+	void onApply()
+	{
+		DefaultTableModel model= ((DefaultTableModel) table.getModel());
+		int m = model.getRowCount();
+		String value;
+		List<Integer> rowToDelete = new ArrayList<Integer>();
+		for (int i = 0; i < m; i++) {
+			value = (String) model.getValueAt(i, 1);
+			if (value == null || value.trim().length() == 0)
+				rowToDelete.add(i);
+		}
+		Iterator<Integer> j = rowToDelete.iterator();
+		while (j.hasNext()) {
+			removeRow(j.next());
+		}
+	}
+	
 }

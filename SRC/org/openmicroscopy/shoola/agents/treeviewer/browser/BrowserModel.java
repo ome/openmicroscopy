@@ -649,32 +649,39 @@ class BrowserModel
 	 * 
 	 * @param node The node to handle
 	 */
-	void viewImage(TreeImageDisplay node)
+	void browser(TreeImageDisplay node)
 	{ 
 		if (node == null) return;
-		ImageData image = (ImageData) node.getUserObject();
-		TreeImageDisplay pNode = node.getParentDisplay();
-		DataObject pObject = null;
-		DataObject gpObject = null;
-		if (pNode != null) {
-			Object p = pNode.getUserObject();
-			if (p instanceof DataObject)
-				pObject = (DataObject) p;
-			TreeImageDisplay gpNode = pNode.getParentDisplay();
-			if (gpNode != null) {
-				p = gpNode.getUserObject();
-				if (p instanceof DataObject) {
-					if (!((p instanceof ExperimenterData) ||
-							(p instanceof GroupData)))
-						gpObject = (DataObject) p;
+		Object object = node.getUserObject();
+		if ((object instanceof ImageData) || (object instanceof PlateData)) {
+			/*
+			ImageData image = (ImageData) node.getUserObject();
+			TreeImageDisplay pNode = node.getParentDisplay();
+			DataObject pObject = null;
+			DataObject gpObject = null;
+			if (pNode != null) {
+				Object p = pNode.getUserObject();
+				if (p instanceof DataObject)
+					pObject = (DataObject) p;
+				TreeImageDisplay gpNode = pNode.getParentDisplay();
+				if (gpNode != null) {
+					p = gpNode.getUserObject();
+					if (p instanceof DataObject) {
+						if (!((p instanceof ExperimenterData) ||
+								(p instanceof GroupData)))
+							gpObject = (DataObject) p;
+					}
+						
 				}
-					
 			}
+			Rectangle r = parent.getUI().getBounds();
+			ViewImage evt = new ViewImage(image, r);
+	    	evt.setContext(pObject, gpObject);
+			TreeViewerAgent.getRegistry().getEventBus().post(evt);
+			*/
+			parent.browse(node);
 		}
-		Rectangle r = parent.getUI().getBounds();
-		ViewImage evt = new ViewImage(image, r);
-    	evt.setContext(pObject, gpObject);
-		TreeViewerAgent.getRegistry().getEventBus().post(evt);
+		
 	}
 	
 	/**

@@ -86,9 +86,11 @@ class ServerTable
 		boolean editing = parent.isEditing();
 		if (editor != null) editor.stopCellEditing();
 		if (editing) {
+			/*
 			if (getSelectedColumn() == 2)
 				parent.requestFocusOnEditedCell(getSelectedRow(), 
 						getSelectedColumn());
+						*/
 		}
 	}
 	
@@ -159,6 +161,7 @@ class ServerTable
 			 */
 			public void mousePressed(MouseEvent e) { handleClickCount(); }
 		});
+		
 		int width = rnd.getFontMetrics(rnd.getFont()).stringWidth(
 				""+ServerEditor.MAX_PORT);
 		width += width/2;
@@ -263,7 +266,8 @@ class ServerTable
 			handleTextModification((String) model.getValueAt(row, 1));
 		parent.changeSelection(row, previousRow, v);
 		previousRow = row;
-		if (parent.isEditing()) {//if (editCellAt(row, column)) {
+		//if (parent.isEditing()) {//if (editCellAt(row, column)) {
+		if (editCellAt(row, column)) {
 			Component comp = getEditorComponent();
 			if (comp != null) comp.requestFocusInWindow();
 		}

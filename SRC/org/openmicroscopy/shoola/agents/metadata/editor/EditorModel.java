@@ -1170,7 +1170,14 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	List getChannelData() { return emissionsWavelengths; }
+	List getChannelData()
+	{ 
+		if (getRndIndex() == MetadataViewer.RND_SPECIFIC) {
+			if (renderer != null)
+				return renderer.getChannelData();
+		}
+		return emissionsWavelengths; 
+	}
 
 	/**
 	 * Starts an asynchronous call to save the annotations.
