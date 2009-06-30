@@ -57,6 +57,7 @@ import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.WellSampleData;
 
 /** 
  * The Model component in the <code>MetadataViewer</code> MVC triad.
@@ -303,6 +304,10 @@ class MetadataViewerModel
 		if (uo instanceof ExperimenterData) return;
 		if ((uo instanceof DataObject) || (uo instanceof File)) {
 			cancel(refNode);
+			if (uo instanceof WellSampleData) {
+				WellSampleData wsd = (WellSampleData) uo;
+				uo = wsd.getImage();
+			}
 			StructuredDataLoader loader = new StructuredDataLoader(component, 
 									refNode, uo);
 			loaders.put(refNode, loader);
