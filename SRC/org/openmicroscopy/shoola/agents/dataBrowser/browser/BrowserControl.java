@@ -32,6 +32,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
@@ -188,7 +190,20 @@ class BrowserControl
     { 
     	node.addMouseListenerToComponents(this);
     	node.addPropertyChangeListener(this);
-        //node.addPropertyChangeListener(ImageNode.PIN_THUMBNAIL_PROPERTY, this);
+    	if (node instanceof WellSampleNode) {
+    		WellSampleNode sample = (WellSampleNode) node;
+    		WellImageSet well = sample.getParentWell();
+    		List<WellSampleNode> samples = well.getWellSamples();
+    		Iterator<WellSampleNode> i = samples.iterator();
+    		WellSampleNode wsn;
+    		while (i.hasNext()) {
+    			wsn = i.next();
+    			if (wsn != node) {
+    				wsn.addMouseListenerToComponents(this);
+    				wsn.addPropertyChangeListener(this);
+    			}
+			}
+    	}
     }
 
     /**

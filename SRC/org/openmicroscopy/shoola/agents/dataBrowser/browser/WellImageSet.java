@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 //Java imports
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -162,6 +163,16 @@ public class WellImageSet
 	 * @return See above.
 	 */
 	public ImageNode getSelectedWellSample() { return selectedWellSample; }
+	
+	/**
+     * Returns all the well samples linked to that well.
+     * 
+     * @return A <i>read-only</i> set containing all the child nodes.
+     */
+	public List<WellSampleNode> getWellSamples()
+	{
+		return Collections.unmodifiableList(samples);
+	}
 	
 	/**
 	 * Returns the image corresponding to the currently selected wellSample.
