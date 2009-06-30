@@ -207,6 +207,10 @@ public class OMEROMetadataStoreClient
     
     /** Executor that will run our keep alive task. */
     private ScheduledThreadPoolExecutor executor;
+    
+    /** Companion file namespace */
+    private static final String NS_COMPANION =
+    	"openmicroscopy.org/omero/import/companionFile";
 
     private void initializeServices()
         throws ServerError
@@ -2167,26 +2171,26 @@ public class OMEROMetadataStoreClient
             
             for (int i = 0; i < files.length; i ++)
             {
-                LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
+                LinkedHashMap<String, Integer> indexes = 
+                	new LinkedHashMap<String, Integer>();
                 indexes.put("originalFileIndex", i);
-                
-                OriginalFile o = (OriginalFile) getSourceObject(OriginalFile.class, indexes);
+                OriginalFile o = (OriginalFile) 
+                	getSourceObject(OriginalFile.class, indexes);
                 File file = new File(files[i]);
-                
+                Format format = (Format) 
+                	getEnumeration(Format.class, formatString);
                 o.setName(toRType(file.getName()));
                 o.setSize(toRType(file.length()));
-                o.setFormat((Format) getEnumeration(Format.class, formatString));
+                o.setFormat(format);
                 o.setPath(toRType(file.getAbsolutePath()));
                 o.setSha1(toRType("Pending"));
             }
         }
+        
         for (int i = 0; i < images.size(); i ++)
         {
             Image image = images.get(i);
             image.setArchived(toRType(archive));
-
-            String nameSpace = "openmicroscopy.org/omero/import/companionFile";
-            
             if (archive)
             {
                 LSID pixelsKey = new LSID(Pixels.class, i, 0);
@@ -2201,16 +2205,7 @@ public class OMEROMetadataStoreClient
                         	new LinkedHashMap<String, Integer>();
                         indexes.put("imageIndex", i);
                         indexes.put("originalFileIndex", j);
-
-                        FileAnnotation a = (FileAnnotation) 
-                        	getSourceObject(FileAnnotation.class, indexes);
-                        a.setNs(rstring(nameSpace));
-
-                        LSID annotationKey = new LSID(FileAnnotation.class, i, j);
-
-                        addReference(imageKey, annotationKey);
-                        addReference(annotationKey,
-                        		     new LSID(OriginalFile.class, j));
+                        addFileAnnotationTo(imageKey, indexes, j);
                     }
                 }
             }
@@ -2218,18 +2213,19 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * Populates archive flags on all images currently processed. This method
+     * Populates companion files for all images processed. This method
      * should only be called <b>after</b> a full Bio-Formats metadata parsing
      * cycle. 
-     * @param archive Whether or not the user requested the original files to
-     * be archived.
+     * @see setArchive()
      */
     public void setCompanionFiles()
     {
         List<Image> images = getSourceObjects(Image.class);
+        List<Plate> plates = getSourceObjects(Plate.class);
         String[] files = reader.getUsedFiles(true);
         String formatString = "application/octet-stream";
-        String nameSpace = "openmicroscopy.org/omero/import/companionFile";
+
+        // Create each of the OriginalFile source objects
         for (int i = 0; i < files.length; i ++)
         {
             LinkedHashMap<String, Integer> indexes = 
@@ -2246,6 +2242,8 @@ public class OMEROMetadataStoreClient
             o.setSha1(toRType("Pending"));
         }
         
+        // Link each of the Images in our object cache to the FileAnnotation
+        // and OriginalFile.
         for (int i = 0; i < images.size(); i ++)
         {
             Image image = images.get(i);
@@ -2257,15 +2255,54 @@ public class OMEROMetadataStoreClient
                 	new LinkedHashMap<String, Integer>();
                 indexes.put("imageIndex", i);
                 indexes.put("originalFileIndex", j);
-                FileAnnotation a = (FileAnnotation) 
-                	getSourceObject(FileAnnotation.class, indexes);
-                a.setNs(rstring(nameSpace));
-                
-                LSID annotationKey = new LSID(FileAnnotation.class, i, j);
-                addReference(imageKey, annotationKey);
-                addReference(annotationKey, new LSID(OriginalFile.class, j));       
+                addFileAnnotationTo(imageKey, indexes, j);     
             }
         }
+        
+        // Link each of the Plates in our object cache to the FileAnnotation
+        // and OriginalFile.
+        for (int i = 0; i < plates.size(); i++)
+        {
+        	LSID plateKey = new LSID(Plate.class, i);
+        	for (int j = 0; j < files.length; j++)
+        	{
+                LinkedHashMap<String, Integer> indexes = 
+                	new LinkedHashMap<String, Integer>();
+                indexes.put("plateIndex", i);
+                indexes.put("originalFileIndex", j);
+                addFileAnnotationTo(plateKey, indexes, j);
+        	}
+        }
+    }
+    
+    /**
+     * Adds a file annotation and original file reference linked to a given
+     * base LSID target.
+     * @param target LSID of the target object.
+     * @param indexes Indexes of the annotation.
+     * @param originalFileIndex Index of the original file.
+     */
+    private void addFileAnnotationTo(LSID target,
+    		                         LinkedHashMap<String, Integer> indexes,
+    		                         int originalFileIndex)
+    {
+    	FileAnnotation a = (FileAnnotation) 
+    	getSourceObject(FileAnnotation.class, indexes);
+    	a.setNs(rstring(NS_COMPANION));
+
+    	Collection<Integer> indexValues = indexes.values();
+    	Integer[] integerValues = indexValues.toArray(
+    			new Integer[indexValues.size()]);
+    	int[] values = new int[integerValues.length];
+    	for (int i = 0; i < integerValues.length; i++)
+    	{
+    		values[i] = integerValues[i].intValue();
+    	}
+    	LSID annotationKey = new LSID(FileAnnotation.class, values);
+    	LSID originalFileKey = new LSID(OriginalFile.class,
+    			originalFileIndex);
+    	addReference(target, annotationKey);
+    	addReference(annotationKey, originalFileKey);
     }
     
     /**

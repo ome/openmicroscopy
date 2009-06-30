@@ -380,6 +380,12 @@ public class OMEROMetadataStore
     							(Screen) referenceObject);
     					continue;
     				}
+    				if (referenceObject instanceof Annotation)
+    				{
+    					handleReference((Plate) targetObject,
+    							(Annotation) referenceObject);
+    					continue;
+    				}
     			}
     			else if (targetObject instanceof FileAnnotation)
     			{
@@ -915,6 +921,17 @@ public class OMEROMetadataStore
      * @param reference Reference model object.
      */
     private void handleReference(Image target, Annotation reference)
+    {
+        target.linkAnnotation(reference);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Plate target, Annotation reference)
     {
         target.linkAnnotation(reference);
     }
