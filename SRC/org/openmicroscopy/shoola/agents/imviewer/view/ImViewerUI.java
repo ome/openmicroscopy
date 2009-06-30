@@ -726,6 +726,7 @@ class ImViewerUI
 	{
 		Browser browser = model.getBrowser();
 		int sizeX = model.getMaxX();
+		
 		int sizeY = model.getMaxY();
 		double f = model.getZoomFactor();
 		if (f > 0) {
@@ -880,14 +881,14 @@ class ImViewerUI
 		
 		switch (displayMode) {
 			case RENDERER:
-				rightComponent = model.getMetadataViewer().getEditorUI();//model.getRenderer().getUI();
+				rightComponent = model.getMetadataViewer().getEditorUI();
 				container.remove(mainComponent);
 				addComponents(rendererSplit, tabs, rightComponent);
 				mainComponent = rendererSplit;
 				container.add(mainComponent, BorderLayout.CENTER);
 				container.validate();
 				container.repaint();
-				d = rightComponent.getSize();//getPreferredSize();
+				d = model.getMetadataViewer().getIdealRendererSize();
 				height = restoreSize.height;
 				diff = d.height-restoreSize.height;
 				if (diff > 0) height += diff;
@@ -895,8 +896,8 @@ class ImViewerUI
 				addition = rendererSplit.getDividerSize()+
 							2*(refInsets.left+refInsets.right);
 				
-				width = restoreSize.width+(d.width);
-				//width += addition;
+				width = restoreSize.width+d.width;
+				width += 4*addition;
 				break;
 			case HISTORY:
 				container.remove(mainComponent);
@@ -919,7 +920,7 @@ class ImViewerUI
 				historySplit.setResizeWeight(0.49);
 				container.remove(mainComponent);
 				historyUI.doGridLayout();
-				rightComponent = model.getMetadataViewer().getEditorUI();//model.getRenderer().getUI();
+				rightComponent = model.getMetadataViewer().getEditorUI();
 				addComponents(rendererSplit, tabs, rightComponent);
 				addComponents(historySplit, rendererSplit, historyUI);
 				mainComponent = historySplit;
@@ -927,7 +928,7 @@ class ImViewerUI
 				container.validate();
 				container.repaint();
 				
-				d = rightComponent.getPreferredSize();
+				d = model.getMetadataViewer().getIdealRendererSize();
 				height = restoreSize.height;
 				diff = d.height-restoreSize.height;
 				if (diff > 0) height += diff;
@@ -935,8 +936,8 @@ class ImViewerUI
 				addition = rendererSplit.getDividerSize()+
 							2*(refInsets.left+refInsets.right);
 				
-				width = restoreSize.width+(3*d.width);
-				width += addition;
+				width = restoreSize.width+d.width;
+				width += 4*addition;
 				d = historyUI.getPreferredSize();
 				addition = historySplit.getDividerSize()+
 					2*(refInsets.top+refInsets.bottom);
@@ -960,9 +961,12 @@ class ImViewerUI
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 		int w = (int) (screen.width*SCREEN_RATIO);
 		int h = (int) (screen.height*SCREEN_RATIO);
+		/* Need to review that code.
 		if (d.width > w || d.height > h) {
 			setSize(width, height);
 		} else setSize(d);
+		*/
+		setSize(d);
 		setPreferredSize(d);
 		pack();
 		container.addHierarchyBoundsListener(boundsAdapter);
@@ -976,8 +980,8 @@ class ImViewerUI
 		pack();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension size = getSize();
-		int width = 8*(screenSize.width/10);
-		int height = 8*(screenSize.height/10);
+		int width = (int) (screenSize.width*SCREEN_RATIO);
+		int height = (int) (screenSize.height*SCREEN_RATIO);
 		int w = size.width;
 		int h = size.height;
 		boolean reset = false;
@@ -992,6 +996,7 @@ class ImViewerUI
 		if (reset) {
 			setSize(w, h);
 			model.setZoomFactor(ZoomAction.ZOOM_FIT_FACTOR, false);
+			//restoreSize = tabs.getSize();
 		}
 	}
 	

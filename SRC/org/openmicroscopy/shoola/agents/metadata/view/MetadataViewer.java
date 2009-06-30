@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -41,7 +42,6 @@ import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
-import pojos.ImageData;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -399,5 +399,12 @@ public interface MetadataViewer
 	 * @param index The index of the channel.
 	 */
 	public void onChannelSelected(int index);
+	
+	/**
+	 * Returns the ideal size of the renderer.
+	 * 
+	 * @return See above.
+	 */
+	Dimension getIdealRendererSize();
 	
 }

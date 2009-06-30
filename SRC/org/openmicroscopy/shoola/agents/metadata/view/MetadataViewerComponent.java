@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 //Java imports
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -759,9 +760,8 @@ class MetadataViewerComponent
 	 */
 	public Renderer getRenderer()
 	{
-		//if (getRndIndex() == RND_SPECIFIC)
-			return model.getEditor().getRenderer();
-		//return null;
+		if (model.getEditor() == null) return null;
+		return model.getEditor().getRenderer();
 	}
 
 	/**
@@ -772,6 +772,17 @@ class MetadataViewerComponent
 	{
 		if (getRndIndex() != RND_SPECIFIC) return;
 		firePropertyChange(SELECTED_CHANNEL_PROPERTY, -1, index);
+	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getIdealRendererSize()
+	 */
+	public Dimension getIdealRendererSize()
+	{
+		Renderer rnd = getRenderer();
+		if (rnd == null) return new Dimension(0, 0);
+		return rnd.getUI().getPreferredSize();
 	}
 	
 }

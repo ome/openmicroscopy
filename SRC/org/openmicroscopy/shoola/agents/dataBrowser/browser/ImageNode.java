@@ -234,12 +234,10 @@ public class ImageNode
      * after collapsing the node, we can resize the node.
      * @see ImageDisplay#setSize(int, int)
      */
-    /*
     public void setSize(int w, int h)
     {
         super.setSize(w, h);
         setResizable(false);
     }
-    */
     
 }
