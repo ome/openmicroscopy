@@ -72,7 +72,7 @@ public interface IRenderingSettings extends ServiceInterface {
      * rendering engine intelligent <i>pretty good image (PG)</i> logic for
      * the pixels set linked to that set of rendering settings. <b>NOTE:</b> 
      * This method should only be used to reset a rendering definition that has
-     * been retrieved via {@link IPixels#§retrieveRenderingSettings(long)} as
+     * been retrieved via {@link IPixels#retrieveRenderingSettings(long)} as
      * it relies on certain objects being loaded. The rendering settings are
      * saved upon completion.
      * 
@@ -80,8 +80,6 @@ public interface IRenderingSettings extends ServiceInterface {
      * def.pixels will be <i>unloaded</i> and that the actual linked Pixels set
      * will be provided in the <code>pixels</code> argument.
      * @param pixels The Pixels set for <code>def</code>.
-     * @throws ValidationException if the image qualified by 
-     * <code>pixelsId</code> is unlocatable.
      */
     void resetDefaults(@NotNull RenderingDef def, @NotNull Pixels pixels);
     
@@ -99,8 +97,6 @@ public interface IRenderingSettings extends ServiceInterface {
      * will be provided in the <code>pixels</code> argument.
      * @param pixels The Pixels set for <code>def</code>.
      * @return <code>def</code> with the rendering settings reset.
-     * @throws ValidationException if the image qualified by 
-     * <code>pixelsId</code> is unlocatable.
      */
     RenderingDef resetDefaultsNoSave(@NotNull RenderingDef def,
                                      @NotNull Pixels pixels);
@@ -112,9 +108,20 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * 
 	 * @param imageId The Id of the <code>Image</code>.
 	 * @throws ValidationException if the image qualified by 
-	 * <code>pixelsId</code> is unlocatable.
+	 * <code>imageId</code> is unlocatable.
 	 */
 	void resetDefaultsInImage(@NotNull long imageId);
+	
+	/**
+	 * Resets a Pixels' default rendering settings back to those that are 
+	 * specified by the rendering engine intelligent <i>pretty good image 
+	 * (PG)</i> logic.
+	 * 
+	 * @param pixelsId The Id of the <code>Pixels</code>.
+	 * @throws ValidationException if the Pixels qualified by 
+	 * <code>pixelsId</code> is unlocatable.
+	 */
+	void resetDefaultsForPixels(@NotNull long pixelsId);
 
 	/**
 	 * Resets a dataset's rendering settings back to those that are specified
@@ -234,37 +241,52 @@ public interface IRenderingSettings extends ServiceInterface {
 	boolean applySettingsToPixels(@NotNull long from, @NotNull long to);
 
 	/**
-	 * Resets a dataset's rendering settings back to the original settings.
-	 * 
+	 * Resets a dataset's rendering settings back to channel global
+	 * minimum and maximum.
 	 * @param datasetId The id of the dataset to handle.
 	 * @return A {@link java.util.Set} of image IDs that have had their 
 	 * rendering settings reset. 
 	 * @throws ValidationException if the image qualified by 
-	 * <code>dataSetId</code> is unlocatable.
+	 * <code>datasetId</code> is unlocatable.
 	 */
 	Set<Long> setOriginalSettingsInDataset(@NotNull long datasetId);
 	
 	/**
-	 * Resets a rendering settings back to one or many containers that
+	 * Resets a rendering settings back to channel global minimum and maximum
+	 * for the specified containers. Supported container types are:
+	 * <ul>
+	 *   <li>{@link Image}</li>
+	 *   <li>{@link Dataset}</li>
+	 * </ul>
 	 * 
 	 * @param type The type of nodes to handle.
 	 * @param nodeIds Ids of the node type.
 	 * @return A {@link java.util.Set} of image IDs that have had their 
 	 * rendering settings reset. 
-	 * @throws ValidationException if the image qualified by 
+	 * @throws ValidationException if the image qualified by any of the
+	 * containers is unlocatable.
 	 */
 	<T extends IObject> Set<Long> setOriginalSettingsInSet(Class<T> type, 
 							@NotNull @Validate(Long.class) Set<Long> nodeIds);
 	
 	/**
-	 * Resets an image's default rendering settings back to those that are 
-	 * specified by the rendering engine intelligent <i>pretty good image 
-	 * (PG)</i> logic.
+	 * Resets an image's default rendering settings back to channel global
+	 * minimum and maximum.
 	 * 
 	 * @param imageId The Id of the <code>Image</code>.
 	 * @throws ValidationException if the image qualified by 
-	 * <code>pixelsId</code> is unlocatable.
+	 * <code>imageId</code> is unlocatable.
 	 */
 	void setOriginalSettingsInImage(@NotNull long imageId);
+	
+	/**
+	 * Resets an Pixels' default rendering settings back to channel global
+	 * minimum and maximum.
+	 * 
+	 * @param pixelsId The Id of the <code>Pixels</code> set.
+	 * @throws ValidationException if the image qualified by 
+	 * <code>pixelsId</code> is unlocatable.
+	 */
+	void setOriginalSettingsForPixels(@NotNull long pixelsId);
 	
 }

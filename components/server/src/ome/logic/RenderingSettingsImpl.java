@@ -46,6 +46,7 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
+import ome.model.screen.Plate;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
 import ome.services.OmeroOriginalFileMetadataProvider;
@@ -112,6 +113,14 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     private RenderingDef resetDefaults(RenderingDef settings, Pixels pixels,
                                        boolean save, boolean computeStats)
     {
+    	// Handle the case where we have no rendering settings so that we can
+    	// reset "pretty good image" or "original" (channel minimum and
+    	// maximum) when they don't exist.
+        if (settings == null)
+        {
+        	settings = createNewRenderingDef(pixels);
+        }
+        
         List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
         List<RenderingModel> renderingModels = 
             pixelsMetadata.getAllEnumerations(RenderingModel.class);
@@ -166,7 +175,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 	 * Performs the logic specified by {@link #resetDefaultsInDataset(long)}.
 	 * 
 	 * @param dataset The dataset to handle.
-	 * @return The collection of images linked to the dataset.
+	 * @return The collection of images linked to the dataset that had their
+	 * rendering settings reset.
 	 */
 	private Set<Long> resetDefaults(Dataset dataset)
 	{
@@ -176,6 +186,31 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			+ " left outer join fetch dil.parent d where d.id = :id";
 		List<Image> images = 
 			iQuery.findAllByQuery(sql, new Parameters().addId(dataset.getId()));
+		Set<Long> imageIds = new HashSet<Long>();
+		for (Image i : images)
+		{
+		    imageIds.add(i.getId());
+		}
+		return resetDefaultsInSet(Image.class, imageIds);
+	}
+	
+	/**
+	 * Performs the logic specified by {@link #resetDefaultsInSet()} for the
+	 * <code>Plate</code> type.
+	 * 
+	 * @param plate The plate to handle.
+	 * @return The collection of images linked to the plate that had their
+	 * rendering settings reset.
+	 */
+	private Set<Long> resetDefaults(Plate plate)
+	{
+		if (plate == null) return new HashSet<Long>();
+		String sql = "select i from Plate as p " +
+			"left outer join p.wells as w " +
+			"left outer join w.wellSamples as s " +
+			"left outer join s.image as i where p.id = :id";
+		List<Image> images = 
+			iQuery.findAllByQuery(sql, new Parameters().addId(plate.getId()));
 		Set<Long> imageIds = new HashSet<Long>();
 		for (Image i : images)
 		{
@@ -228,6 +263,31 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         {
             imageIds.add(image.getId());
         }
+		return setOriginalSettingsInSet(Image.class, imageIds);
+	}
+	
+	/**
+	 * Performs the logic specified by {@link #setOriginalSettingsInSet()} for 
+	 * the <code>Plate</code> type.
+	 * 
+	 * @param plate The plate to handle.
+	 * @return The collection of images linked to the plate that had their
+	 * rendering settings reset.
+	 */
+	private Set<Long> setOriginalSettings(Plate plate)
+	{
+		if (plate == null) return new HashSet<Long>();
+		String sql = "select i from Plate as p " +
+			"left outer join p.wells as w " +
+			"left outer join w.wellSamples as s " +
+			"left outer join s.image as i where p.id = :id";
+		List<Image> images = 
+			iQuery.findAllByQuery(sql, new Parameters().addId(plate.getId()));
+		Set<Long> imageIds = new HashSet<Long>();
+		for (Image i : images)
+		{
+		    imageIds.add(i.getId());
+		}
 		return setOriginalSettingsInSet(Image.class, imageIds);
 	}
 	
@@ -767,6 +827,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         Image image = iQuery.get(Image.class, to);
         resetDefaults(image);
     }
+    
+    /**
+     * Implemented as specified by the {@link IRenderingSettings} I/F.
+     * @see IRenderingSettings#resetDefaultsForPixels(long)
+     */
+    @RolesAllowed("user")
+    public void resetDefaultsForPixels(long pixelsId) {
+        Pixels pixels = iQuery.get(Pixels.class, pixelsId);
+        resetDefaults(pixels);
+    }
 
     /**
      * Implemented as specified by the {@link IRenderingSettings} I/F.
@@ -784,14 +854,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @see IRenderingSettings#resetDefaultsInSet(Class, Set)
      */
     @RolesAllowed("user")
-    public <T extends IObject> Set<Long> resetDefaultsInSet(Class<T> klass, Set<Long> nodeIds)
+    public <T extends IObject> Set<Long> resetDefaultsInSet(Class<T> klass,
+    		                                                Set<Long> nodeIds)
     {
         if (!Dataset.class.equals(klass)
-            && !Image.class.equals(klass))
+            && !Image.class.equals(klass)
+            && !Plate.class.equals(klass))
         {
             throw new IllegalArgumentException(
                     "Class parameter for resetDefaultsInSet() must be in "
-                            + "{Dataset, Image}, not " + klass);
+                            + "{Dataset, Image, Plate}, not " + klass);
         }
 
         List<IObject> objects = new ArrayList<IObject>();
@@ -807,6 +879,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                 if (object instanceof Dataset)
                 {
                     imageIds.addAll(resetDefaults((Dataset) object));
+                }
+                if (object instanceof Plate)
+                {
+                	imageIds.addAll(resetDefaults((Plate) object));
                 }
                 if (object instanceof Image)
                 {
@@ -834,6 +910,15 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     
     /**
      * Implemented as specified by the {@link IRenderingSettings} I/F.
+     * @see IRenderingSettings#setOriginalSettingsForPixels(long)
+     */
+    @RolesAllowed("user")
+    public void setOriginalSettingsForPixels(long pixelsId) {
+        setOriginalSettings(iQuery.get(Pixels.class, pixelsId));
+    }
+    
+    /**
+     * Implemented as specified by the {@link IRenderingSettings} I/F.
      * @see IRenderingSettings#setOriginalSettingsInDataset(long)
      */
     @RolesAllowed("user")
@@ -849,10 +934,14 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     public <T extends IObject> Set<Long> setOriginalSettingsInSet(
             Class<T> klass, Set<Long> nodeIds)
     {
-    	if (!Dataset.class.equals(klass) && !Image.class.equals(klass))
+    	if (!Dataset.class.equals(klass)
+    		&& !Image.class.equals(klass)
+    		&& !Plate.class.equals(klass))
+    	{
     		throw new IllegalArgumentException(
     				"Class parameter for resetDefaultsInSet() must be in "
-    				+ "{Dataset, Image}, not " + klass);
+    				+ "{Dataset, Image, Plate}, not " + klass);
+    	}
 
     	List<IObject> objects = new ArrayList<IObject>();
         for (Long nodeId : nodeIds)
@@ -862,17 +951,19 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	Set<Long> imageIds = new HashSet<Long>();
     	Image image;
     	for (IObject object : objects) {
-    	    try {
-    		if (object instanceof Dataset) {
-    			imageIds.addAll(setOriginalSettings((Dataset) object));
-    		} else if (object instanceof Image) {
-    			image = (Image) object;
-    			setOriginalSettings(image);
-    			imageIds.add(image.getId());
+    		try {
+    			if (object instanceof Dataset) {
+    				imageIds.addAll(setOriginalSettings((Dataset) object));
+    			} else if (object instanceof Plate) {
+    				imageIds.addAll(setOriginalSettings((Plate) object));
+    			} else if (object instanceof Image) {
+    				image = (Image) object;
+    				setOriginalSettings(image);
+    				imageIds.add(image.getId());
+    			}
+    		} catch (Throwable t) {
+    			log.error("Error while resetting original settings.", t);
     		}
-    	    } catch (Throwable t) {
-    	        log.error("Error while resetting original settings.", t);
-    	    }
     	}
     	return imageIds;
     }

@@ -24,11 +24,13 @@ import omero.api.AMD_IRenderingSettings_getRenderingSettings;
 import omero.api.AMD_IRenderingSettings_resetDefaults;
 import omero.api.AMD_IRenderingSettings_resetDefaultsInDataset;
 import omero.api.AMD_IRenderingSettings_resetDefaultsInImage;
+import omero.api.AMD_IRenderingSettings_resetDefaultsForPixels;
 import omero.api.AMD_IRenderingSettings_resetDefaultsInSet;
 import omero.api.AMD_IRenderingSettings_resetDefaultsNoSave;
 import omero.api.AMD_IRenderingSettings_sanityCheckPixels;
 import omero.api.AMD_IRenderingSettings_setOriginalSettingsInDataset;
 import omero.api.AMD_IRenderingSettings_setOriginalSettingsInImage;
+import omero.api.AMD_IRenderingSettings_setOriginalSettingsForPixels;
 import omero.api.AMD_IRenderingSettings_setOriginalSettingsInSet;
 import omero.api._IRenderingSettingsOperations;
 import omero.model.IObject;
@@ -123,6 +125,13 @@ public class RenderingSettingsI extends AbstractAmdServant implements
         callInvokerOnRawArgs(__cb, __current, imageId);
 
     }
+    
+    public void resetDefaultsForPixels_async(
+            AMD_IRenderingSettings_resetDefaultsForPixels __cb, long pixelsId,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, pixelsId);
+
+    }
 
     public void resetDefaultsInSet_async(
             AMD_IRenderingSettings_resetDefaultsInSet __cb, String type,
@@ -163,6 +172,13 @@ public class RenderingSettingsI extends AbstractAmdServant implements
             AMD_IRenderingSettings_setOriginalSettingsInImage __cb,
             long imageId, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, imageId);
+
+    }
+    
+    public void setOriginalSettingsForPixels_async(
+            AMD_IRenderingSettings_setOriginalSettingsForPixels __cb,
+            long pixelsId, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, pixelsId);
 
     }
 
