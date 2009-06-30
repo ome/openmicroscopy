@@ -548,6 +548,10 @@ class EditorComponent
 	public void loadRenderingControl()
 	{
 		Object ref = model.getRefObject();
+		if (ref instanceof WellSampleData) {
+			WellSampleData wsd = (WellSampleData) ref;
+			ref = wsd.getImage();
+		}
 		if (ref instanceof ImageData) {
 			ImageData image = (ImageData) ref;
 			PixelsData pixels = image.getDefaultPixels();

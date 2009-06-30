@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.WellSampleData;
 
 /** 
  * The tool bar of the editor.
@@ -300,7 +301,8 @@ class ToolBar
     void buildUI()
     {
     	Object refObject = model.getRefObject();
-    	if (refObject instanceof ImageData) {
+    	if ((refObject instanceof ImageData) || 
+    			(refObject instanceof WellSampleData)) {
     		rndButton.setEnabled(!model.isRendererLoaded());
     		if (model.isLifetime()) rndButton.setEnabled(false);
     		imageBar.setVisible(!model.isMultiSelection());

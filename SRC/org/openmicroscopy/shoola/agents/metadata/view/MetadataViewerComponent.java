@@ -719,8 +719,12 @@ class MetadataViewerComponent
 	public void applyToAll()
 	{
 		Object obj = model.getRefObject();
+		if (obj instanceof WellSampleData) {
+			WellSampleData wsd = (WellSampleData) obj;
+			obj = wsd.getImage();
+		}
 		if (!(obj instanceof ImageData)) return;
-		firePropertyChange(APPLY_SETTINGS_PROPERTY, null, (ImageData) obj);
+		firePropertyChange(APPLY_SETTINGS_PROPERTY, null, obj);
 	}
 	
 	/**

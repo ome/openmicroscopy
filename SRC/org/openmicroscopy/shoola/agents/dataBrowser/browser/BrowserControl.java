@@ -183,13 +183,24 @@ class BrowserControl
     }
     
     /**
+     * Attaches the listeners to the specified node.
+     * 
+     * @param node The node to handle.
+     */
+    private void attachListeners(ImageNode node)
+    {
+    	if (node == null) return;
+    	node.addMouseListenerToComponents(this);
+    	node.addPropertyChangeListener(this);
+    }
+    
+    /**
      * Registers this object as mouse listeners with each node.
      * @see ImageDisplayVisitor#visit(ImageNode)
      */
     public void visit(ImageNode node) 
     { 
-    	node.addMouseListenerToComponents(this);
-    	node.addPropertyChangeListener(this);
+    	attachListeners(node);
     	if (node instanceof WellSampleNode) {
     		WellSampleNode sample = (WellSampleNode) node;
     		WellImageSet well = sample.getParentWell();
@@ -198,10 +209,7 @@ class BrowserControl
     		WellSampleNode wsn;
     		while (i.hasNext()) {
     			wsn = i.next();
-    			if (wsn != node) {
-    				wsn.addMouseListenerToComponents(this);
-    				wsn.addPropertyChangeListener(this);
-    			}
+    			if (wsn != node) attachListeners(wsn);
 			}
     	}
     }

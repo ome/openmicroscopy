@@ -47,8 +47,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.ImageData;
-
 /** 
  * The MetadataViewer's Controller.
  *
