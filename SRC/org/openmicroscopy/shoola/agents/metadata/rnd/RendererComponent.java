@@ -34,7 +34,16 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.ChannelData;
 import pojos.PixelsData;
@@ -62,6 +71,10 @@ class RendererComponent
 	implements Renderer
 {
 
+    /** The default error message. */
+    private static final String ERROR = " An error occured while modifying  " +
+    		"the rendering settings.";
+    
     /** The Model sub-component. */
     private RendererModel   model;
     
@@ -85,7 +98,31 @@ class RendererComponent
 	 */
 	private void handleException(Throwable e)
 	{
-		
+		Logger logger = MetadataViewerAgent.getRegistry().getLogger();
+		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
+		if (e instanceof RenderingServiceException) {
+			RenderingServiceException rse = (RenderingServiceException) e;
+			LogMessage logMsg = new LogMessage();
+			logMsg.print("Rendering Exception:");
+			logMsg.println(rse.getExtendedMessage());
+			logMsg.print(rse);
+			logger.error(this, logMsg);
+			if (e.getCause() instanceof OutOfMemoryError) {
+				un.notifyInfo("Image", "Due to an out of Memory error, " +
+						"\nit is not possible to render the image.");
+			} else {
+				un.notifyError(ImViewerAgent.ERROR, logMsg.toString(), 
+						e.getCause());
+			}
+			//model.discard();
+			//fireStateChange();
+		} else if (e instanceof DSOutOfServiceException) {
+			logger.debug(this, "Reload rendering Engine.");
+			un.notifyError(ERROR, "Out of service.", e.getCause());
+			model.discard();
+			fireStateChange();
+		}
+		return;
 	}
 	
     /**
@@ -686,13 +723,9 @@ class RendererComponent
      * @see Renderer#saveCurrentSettings()
      */
 	public RndProxyDef saveCurrentSettings()
+		throws RenderingServiceException, DSOutOfServiceException
 	{
-		try {
-			return model.saveCurrentSettings();
-		} catch (Throwable e) {
-			handleException(e);
-		}
-		return null;
+		return model.saveCurrentSettings();
 	}
 
 	/** 

@@ -34,7 +34,10 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ChannelData;
@@ -411,7 +414,7 @@ public interface Renderer
 	 * to <code>Blue</code> if the band is <code>2</code>,
 	 * <code>false</code> otherwise.
 	 * 
-	 * @param band  Index of the color band.
+	 * @param band  The color band.
 	 * @param index The index of the channel.
 	 * @return See above.
 	 */
@@ -458,8 +461,12 @@ public interface Renderer
 	 * Saves the rendering settings and returns the saved object.
 	 * 
 	 * @return See above
+	 * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken. 
 	 */
-	RndProxyDef saveCurrentSettings();
+	RndProxyDef saveCurrentSettings()
+		throws RenderingServiceException, DSOutOfServiceException;
 
 	/**
 	 * Sets the compressiong level.

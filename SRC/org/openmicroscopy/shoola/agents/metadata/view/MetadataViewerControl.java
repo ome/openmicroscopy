@@ -180,7 +180,7 @@ class MetadataViewerControl
 			model.applyToAll(); 
 		} else if (Renderer.SELECTED_CHANNEL_PROPERTY.equals(name)) {
 			model.onChannelSelected((Integer) evt.getNewValue());
-		}	
+		}
 	}
 	
 }

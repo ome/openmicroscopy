@@ -576,17 +576,6 @@ public interface ImViewer
 	public void setRenderingControlReloaded(boolean updateView);
 
 	/**
-	 * Notifies the user than an error occured while trying to modify the 
-	 * rendering settings and dispose of the viewer 
-	 * if the passed exception is a <code>RenderingServiceException</code>
-	 * or reloads the rendering engine if it is an 
-	 * <code>DSOutOfServiceException</code>.
-	 * 
-	 * @param e The exception to handle.
-	 */
-	public void handleException(Throwable e);
-
-	/**
 	 * Returns the number of pixels along the X-axis.
 	 * 
 	 * @return See above.

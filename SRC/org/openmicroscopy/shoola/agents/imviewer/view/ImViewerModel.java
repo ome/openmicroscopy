@@ -57,14 +57,17 @@ import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.ChannelPlayer;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.Player;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import pojos.ChannelData;
@@ -494,7 +497,9 @@ class ImViewerModel
 	 */
 	int getMaxX()
 	{ 
-		return metadataViewer.getRenderer().getPixelsDimensionsX(); 
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return 0;
+		return rnd.getPixelsDimensionsX(); 
 	}
 
 	/**
@@ -504,7 +509,9 @@ class ImViewerModel
 	 */
 	int getMaxY()
 	{ 
-		return metadataViewer.getRenderer().getPixelsDimensionsY();
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return 0;
+		return rnd.getPixelsDimensionsY();
 	}
 
 	/**
@@ -514,7 +521,9 @@ class ImViewerModel
 	 */
 	int getMaxZ()
 	{ 
-		return metadataViewer.getRenderer().getPixelsDimensionsZ()-1; 
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return 0;
+		return rnd.getPixelsDimensionsZ()-1; 
 	}
 
 	/**
@@ -524,7 +533,9 @@ class ImViewerModel
 	 */
 	int getMaxT()
 	{ 
-		return metadataViewer.getRenderer().getPixelsDimensionsT()-1;
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return 0;
+		return rnd.getPixelsDimensionsT()-1;
 	}
 
 	/**
@@ -532,14 +543,24 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getDefaultZ() { return metadataViewer.getRenderer().getDefaultZ(); }
+	int getDefaultZ()
+	{ 
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return 0;
+		return rnd.getDefaultZ();
+	}
 
 	/**
 	 * Returns the currently selected timepoint.
 	 * 
 	 * @return See above.
 	 */
-	int getDefaultT() { return metadataViewer.getRenderer().getDefaultT(); }
+	int getDefaultT()
+	{ 
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return 0;
+		return rnd.getDefaultT(); 
+	}
 
 	/**
 	 * Returns the currently selected color model.
@@ -548,7 +569,9 @@ class ImViewerModel
 	 */
 	String getColorModel()
 	{ 
-		return metadataViewer.getRenderer().getColorModel();
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return Renderer.GREY_SCALE_MODEL;
+		return rnd.getColorModel();
 	}
 	
 	/**
@@ -558,7 +581,9 @@ class ImViewerModel
 	 */
 	List<ChannelData> getChannelData()
 	{ 
-		return metadataViewer.getRenderer().getChannelData();
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return new ArrayList<ChannelData>();
+		return rnd.getChannelData();
 	}
 
 	/**
@@ -588,7 +613,9 @@ class ImViewerModel
 	 */
 	Color getChannelColor(int w)
 	{ 
-		return metadataViewer.getRenderer().getChannelColor(w);
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return null;
+		return rnd.getChannelColor(w);
 	}
 
 	/**
@@ -600,7 +627,9 @@ class ImViewerModel
 	 */
 	boolean isChannelActive(int w)
 	{ 
-		return metadataViewer.getRenderer().isChannelActive(w);
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return false;
+		return rnd.isChannelActive(w);
 	}
 	
 	/** 
@@ -666,12 +695,14 @@ class ImViewerModel
 	/** Fires an asynchronous retrieval of the rendered image. */
 	void fireImageRetrieval()
 	{
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
 		PlaneDef pDef = new PlaneDef();
 		pDef.t = getDefaultT();
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
-		component.setImage(metadataViewer.getRenderer().renderPlane(pDef));
+		component.setImage(rnd.renderPlane(pDef));
 	}
 
 	/**
@@ -682,11 +713,13 @@ class ImViewerModel
 	 */
 	BufferedImage getSplitComponentImage()
 	{
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return null;
 		PlaneDef pDef = new PlaneDef();
 		pDef.t = getDefaultT();
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
-		return metadataViewer.getRenderer().renderPlane(pDef);
+		return rnd.renderPlane(pDef);
 	}
 
 	/** Notifies that the rendering control has been loaded. */
@@ -697,8 +730,10 @@ class ImViewerModel
 		if (f > 0)
 			browser.initializeMagnificationFactor(f);
 		try {
-			if (alternativeSettings != null)
-				metadataViewer.getRenderer().resetSettings(alternativeSettings);
+			if (alternativeSettings != null) {
+				Renderer rnd = metadataViewer.getRenderer();
+				if (rnd != null) rnd.resetSettings(alternativeSettings);
+			}
 			alternativeSettings = null;
 		} catch (Exception e) {}
 	}
@@ -823,11 +858,12 @@ class ImViewerModel
 	 */
 	void setColorModel(String colorModel)
 	{
-		//oldColorModel = colorModel;
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
 		if (ImViewer.GREY_SCALE_MODEL.equals(colorModel))
-			metadataViewer.getRenderer().setColorModel(colorModel);
+			rnd.setColorModel(colorModel);
 		else if (ImViewer.RGB_MODEL.equals(colorModel))
-			metadataViewer.getRenderer().setColorModel(ImViewer.RGB_MODEL);
+			rnd.setColorModel(ImViewer.RGB_MODEL);
 	}
 
 	/**
@@ -838,7 +874,9 @@ class ImViewerModel
 	 */
 	void setSelectedXYPlane(int z, int t)
 	{
-		metadataViewer.getRenderer().setSelectedXYPlane(z, t);
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		rnd.setSelectedXYPlane(z, t);
 	}
 
 	/**
@@ -849,7 +887,9 @@ class ImViewerModel
 	 */
 	void setChannelColor(int index, Color c)
 	{
-		metadataViewer.getRenderer().setChannelColor(index, c);
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		rnd.setChannelColor(index, c);
 	}
 
 	/**
@@ -861,7 +901,9 @@ class ImViewerModel
 	 */
 	void setChannelActive(int index, boolean active)
 	{
-		metadataViewer.getRenderer().setActive(index, active);
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		rnd.setActive(index, active);
 	}  
 
 	/**
@@ -904,7 +946,9 @@ class ImViewerModel
 	 */
 	int getMaxC()
 	{ 
-		return metadataViewer.getRenderer().getPixelsDimensionsC(); 
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return 0;
+		return rnd.getPixelsDimensionsC(); 
 	}
 
 	/** 
@@ -921,7 +965,9 @@ class ImViewerModel
 	 */
 	List<Integer> getActiveChannels()
 	{
-		return metadataViewer.getRenderer().getActiveChannels();
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return new ArrayList<Integer>();
+		return rnd.getActiveChannels();
 	}
 
 	/** 
@@ -973,13 +1019,6 @@ class ImViewerModel
 	 * @param state The value to set.
 	 */
 	void setState(int state) { this.state = state; };
-	
-	/**
-	 * Returns the {@link Renderer}.
-	 * 
-	 * @return See above.
-	 */
-	//Renderer getRenderer() { return renderer; }
 
 	/**
 	 * Returns the displayed image.
@@ -1016,7 +1055,9 @@ class ImViewerModel
 	 */
 	double getPixelsSizeX()
 	{ 
-		return metadataViewer.getRenderer().getPixelsSizeX(); 
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return -1;
+		return rnd.getPixelsSizeX(); 
 	}
 
 	/**
@@ -1026,7 +1067,9 @@ class ImViewerModel
 	 */
 	double getPixelsSizeY()
 	{ 
-		return metadataViewer.getRenderer().getPixelsSizeY();  
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return -1;
+		return rnd.getPixelsSizeY();  
 	}
 
 	/**
@@ -1036,7 +1079,9 @@ class ImViewerModel
 	 */
 	double getPixelsSizeZ()
 	{
-		return metadataViewer.getRenderer().getPixelsSizeZ(); 
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return -1;
+		return rnd.getPixelsSizeZ(); 
 	}
 
 	/**
@@ -1093,14 +1138,9 @@ class ImViewerModel
 	 */
 	boolean[] hasRGB()
 	{
-		/*
-		boolean[] rgb = new boolean[3];
-		rgb[0] = currentRndControl.hasActiveChannelRed();
-		rgb[1] = currentRndControl.hasActiveChannelGreen();
-		rgb[2] = currentRndControl.hasActiveChannelBlue();
-		return rgb;
-		*/
-		return metadataViewer.getRenderer().hasRGB();
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return null;
+		return rnd.hasRGB();
 	}
 
 	/**
@@ -1143,11 +1183,16 @@ class ImViewerModel
 	 * 
 	 * @param reset Pass <code>true</code> to reset the original settings,
 	 * 				<code>false</code> otherwise.
+	 * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken. 
 	 */
 	void saveRndSettings(boolean reset)
+		throws RenderingServiceException, DSOutOfServiceException
 	{
-
-		RndProxyDef def = metadataViewer.getRenderer().saveCurrentSettings();
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		RndProxyDef def = rnd.saveCurrentSettings();
 		if (reset) {
 			originalDef = def;
 			if (def != null && renderingSettings != null) {
@@ -1179,38 +1224,20 @@ class ImViewerModel
 
 	/**
 	 * Returns <code>true</code> if the channel is mapped
-	 * to <code>RED</code>, <code>false</code> otherwise.
+	 * to <code>Red</code> if the band is <code>0</code>, 
+	 * to <code>Green</code> if the band is <code>1</code>,
+	 * to <code>Blue</code> if the band is <code>2</code>,
+	 * <code>false</code> otherwise.
 	 * 
+	 * @param band  The color band.
 	 * @param index The index of the channel.
 	 * @return See above.
 	 */
-	boolean isChannelRed(int index)
+	boolean isColorComponent(int band, int index)
 	{
-		return metadataViewer.getRenderer().isColorComponent(0, index);
-	}
-
-	/**
-	 * Returns <code>true</code> if the channel is mapped
-	 * to <code>GREEN</code>, <code>false</code> otherwise.
-	 * 
-	 * @param index The index of the channel.
-	 * @return See above.
-	 */
-	boolean isChannelGreen(int index)
-	{
-		return metadataViewer.getRenderer().isColorComponent(1, index);
-	}
-
-	/**
-	 * Returns <code>true</code> if the channel is mapped
-	 * to <code>BLUE</code>, <code>false</code> otherwise.
-	 * 
-	 * @param index The index of the channel.
-	 * @return See above.
-	 */
-	boolean isChannelBlue(int index)
-	{
-		return metadataViewer.getRenderer().isColorComponent(2, index);
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return false;
+		return rnd.isColorComponent(band, index);
 	}
 
 	/**
@@ -1236,7 +1263,9 @@ class ImViewerModel
 	void setLastSettingsRef()
 	{
 		if (getTabbedIndex() != ImViewer.GRID_INDEX) return;
-		lastMainDef = metadataViewer.getRenderer().getRndSettingsCopy();
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		lastMainDef = rnd.getRndSettingsCopy();
 	}
 	
 	/** 
@@ -1248,11 +1277,13 @@ class ImViewerModel
 	 */
 	HistoryItem createHistoryItem()
 	{
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return null;
 		String title = null;
 		BufferedImage img = null;
 		Color c = null;
 		//Make a smaller image
-		RndProxyDef def = metadataViewer.getRenderer().getRndSettingsCopy();
+		RndProxyDef def = rnd.getRndSettingsCopy();
 		switch (getTabbedIndex()) {
 			case ImViewer.PROJECTION_INDEX:
 				title = ImViewer.TITLE_PROJECTION_INDEX;
@@ -1343,7 +1374,9 @@ class ImViewerModel
 	 */
 	void resetMappingSettings(RndProxyDef settings) 
 	{
-		metadataViewer.getRenderer().resetSettings(settings);
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		rnd.resetSettings(settings);
 	}
 
 	/**
@@ -1378,13 +1411,17 @@ class ImViewerModel
 	/** Resets the default settings. */
 	void resetDefaultRndSettings()
 	{ 
-		metadataViewer.getRenderer().resetSettings(); 
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		rnd.resetSettings(); 
 	}
 	
 	/** Sets the original default settings. */
 	void setOriginalRndSettings()
 	{ 
-		metadataViewer.getRenderer().setOriginalRndSettings(); 
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		rnd.setOriginalRndSettings(); 
 	}
 	
 	/**
@@ -1395,11 +1432,13 @@ class ImViewerModel
 	 */
 	boolean hasRndToPaste() 
 	{ 
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return false;
 		ImageData image = ImViewerFactory.getRefImage();
 		if (image == null) return false;
 		PixelsData pixels = image.getDefaultPixels();
 		if (pixels == null) return false;
-		return false;//metadataViewer.getRenderer().validatePixels(pixels);
+		return metadataViewer.getRenderer().validatePixels(pixels);
 	}
 
 	/** Posts a {@link CopyRndSettings} event. */
@@ -1425,7 +1464,9 @@ class ImViewerModel
 	 */
 	boolean isImageCompressed()
 	{ 
-		return metadataViewer.getRenderer().isCompressed(); 
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return false;
+		return rnd.isCompressed(); 
 	}
 	
 	/**
@@ -1436,7 +1477,9 @@ class ImViewerModel
 	 */
 	void setCompressionLevel(int compressionLevel)
 	{
-		metadataViewer.getRenderer().setCompression(compressionLevel);
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		rnd.setCompression(compressionLevel);
 	}
 
 	/**
@@ -1446,7 +1489,9 @@ class ImViewerModel
 	 */
 	int getCompressionLevel()
 	{
-		return metadataViewer.getRenderer().getCompressionLevel();
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return RenderingControl.UNCOMPRESSED;
+		return rnd.getCompressionLevel();
 	}
 	
 	/**
@@ -1490,8 +1535,10 @@ class ImViewerModel
 	 */
 	void setUserSettings(ExperimenterData exp)
 	{
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
 		RndProxyDef rndDef = (RndProxyDef) renderingSettings.get(exp);
-		metadataViewer.getRenderer().resetSettings(rndDef);
+		rnd.resetSettings(rndDef);
 	}
 	
 	/**
@@ -1645,7 +1692,9 @@ class ImViewerModel
 	void fireProjectedRndSettingsCreation(List<Integer> indexes, 
 			ImageData image)
 	{
-		RndProxyDef def = metadataViewer.getRenderer().getRndSettingsCopy();
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		RndProxyDef def = rnd.getRndSettingsCopy();
 		RenderingSettingsCreator l = new RenderingSettingsCreator(component, 
 				image, def, indexes);
 		l.load();
@@ -1759,7 +1808,9 @@ class ImViewerModel
 	 */
 	boolean isSameSettings(RndProxyDef def)
 	{
-		return metadataViewer.getRenderer().isSameSettings(def, false);
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return false;
+		return rnd.isSameSettings(def, false);
 	}
     /**
      * Sets the projected image for preview.
@@ -1857,6 +1908,8 @@ class ImViewerModel
 	 */
 	void setSelectedBin(int bin)
 	{
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
 		List<ChannelData> channels = getChannelData();
 		ChannelData channel;
 		Iterator<ChannelData> i = channels.iterator();
@@ -1864,7 +1917,7 @@ class ImViewerModel
 		while (i.hasNext()) {
 			channel = i.next();
 			index = channel.getIndex();
-			metadataViewer.getRenderer().setActive(index, index == bin);
+			rnd.setActive(index, index == bin);
 		}
 	}
 	
@@ -1872,17 +1925,18 @@ class ImViewerModel
 	void setForLifetime()
 	{
 		if (!isLifetime()) return;
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
 		setColorModel(ImViewer.GREY_SCALE_MODEL);
 		List<ChannelData> channels = getChannelData();
-		ChannelData channel;
+		ChannelData c;
 		Iterator<ChannelData> i = channels.iterator();
 		int index;
 		while (i.hasNext()) {
-			channel = i.next();
-			index = channel.getIndex();
-			metadataViewer.getRenderer().setChannelWindow(index, 
-					channel.getGlobalMin(), channel.getGlobalMax());
-			metadataViewer.getRenderer().setActive(index, index == 0);
+			c = i.next();
+			index = c.getIndex();
+			rnd.setChannelWindow(index, c.getGlobalMin(), c.getGlobalMax());
+			rnd.setActive(index, index == 0);
 		}
 	}
 	
@@ -1908,7 +1962,9 @@ class ImViewerModel
 	 */
 	void setSelectedChannel(int index)
 	{
-		metadataViewer.getRenderer().setSelectedChannel(index);
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		rnd.setSelectedChannel(index);
 	}
 	
 }
