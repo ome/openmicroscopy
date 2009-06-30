@@ -1,6 +1,5 @@
 package ome.formats.importer;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -27,13 +26,14 @@ public class OMEROWrapper extends MinMaxCalculator
     private ChannelSeparator separator;
     private ChannelFiller filler;
     public Boolean minMaxSet = null; 
-    private ImageReader iReader;
+
     /**
 	 * Reference copy of <i>reader</i> so that we can be compatible with the
 	 * IFormatReader/ReaderWrapper interface but still maintain functionality
 	 * that we require.
-	 * @param separator 
 	 */
+    private ImageReader iReader;
+
     
     public OMEROWrapper()
     {
@@ -50,7 +50,8 @@ public class OMEROWrapper extends MinMaxCalculator
                             IFormatReader.class, OMEROWrapper.class));
             
             filler = new ChannelFiller(iReader);
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             throw new RuntimeException("Unable to load readers.txt.");
         }
@@ -62,6 +63,7 @@ public class OMEROWrapper extends MinMaxCalculator
         filler.setMetadataFiltered(true);
         separator.setMetadataFiltered(true);
     };
+    
 	/**
 	 * Obtains an object which represents a given plane within the file.
 	 * @param id The path to the file.
@@ -92,7 +94,6 @@ public class OMEROWrapper extends MinMaxCalculator
             //System.err.println("Not RGB, using cached buffer.");
 			plane = ByteBuffer.wrap(openBytes(planeNumber, buf));
         }
-
 		return new Plane2D(plane, getPixelType(), isLittleEndian(),
 				           getSizeX(), getSizeY());
 	}
@@ -100,11 +101,22 @@ public class OMEROWrapper extends MinMaxCalculator
     public boolean isLeicaReader()
     {
         if (iReader.getReader() instanceof LeicaReader)
+        {
             return true;
+        }
         else
+        {
             return false;
+        }
     } 
     
+    /**
+     * Returns whether or not the reader for a given file is a screening format
+     * or not.
+     * @param string Absolute path to the image file to check.
+     * @return <code>true</code> if the reader is an <i>SPW</i> reader and
+     * <code>false</code> otherwise.
+     */
     public boolean isSPWReader(String string)
     {
         try
@@ -112,10 +124,15 @@ public class OMEROWrapper extends MinMaxCalculator
             if (iReader.getReader(string) instanceof InCellReader
                 || iReader.getReader(string) instanceof FlexReader
                 || iReader.getReader(string) instanceof MIASReader)
+            {
                 return true;
+            }
             else
+            {
                 return false;
-        } catch (Exception e)
+            }
+        }
+        catch (Exception e)
         {
             return false;
         }
@@ -140,39 +157,33 @@ public class OMEROWrapper extends MinMaxCalculator
         }
         return minMaxSet;
     }
-    
-     protected void updateMinMax(BufferedImage b, int ndx)
-        throws FormatException, IOException
-      {
-         if (isMinMaxSet() == false)
-              super.updateMinMax(b, ndx);
-      }
-     
-     protected void updateMinMax(byte[] b, int ndx)
-     throws FormatException, IOException
-   {
-         if (isMinMaxSet() == false)
-             super.updateMinMax(b, ndx);
-   }
-     
-     public void close() throws IOException
-     {
-         minMaxSet = null;
-         super.close();
-     }
-     
-     @Override
+
+    @Override
+    protected void updateMinMax(byte[] b, int ndx)
+    throws FormatException, IOException
+    {
+    	if (isMinMaxSet() == false)
+    		super.updateMinMax(b, ndx);
+    }
+
+    public void close() throws IOException
+    {
+    	minMaxSet = null;
+    	super.close();
+    }
+
+    @Override
     public OMEROMetadataStoreClient getMetadataStore()
     {
-    	 return (OMEROMetadataStoreClient) super.getMetadataStore();
+    	return (OMEROMetadataStoreClient) super.getMetadataStore();
     }
-     
+
     /**
      * Return the base image reader
-     * @return
+     * @return See above.
      */
     public ImageReader getImageReader()
-     {
-         return iReader;
-     }
+    {
+    	return iReader;
+    }
 }
