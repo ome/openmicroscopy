@@ -87,43 +87,43 @@ class GraphicsPane
     private static final int	APPLY = 1;
     
     /** Slider to select a sub-interval of [0, 255]. */
-    private TwoKnobsSlider      codomainSlider;
+    private TwoKnobsSlider      	codomainSlider;
     
     /** Slider to select the pixels intensity interval. */
     private TextualTwoKnobsSlider	domainSlider;
     
     /** The label displaying the global max. */
-    private JLabel              maxLabel;
+    private JLabel              	maxLabel;
     
     /** The label displaying the global min. */
-    private JLabel              minLabel;
+    private JLabel              	minLabel;
     
     /** Button to set the start and end value to the min and max. */
-    private JButton				rangeButton;
+    private JButton					rangeButton;
     
     /** The component displaying the plane histogram. */
-    private GraphicsPaneUI      uiDelegate;
+    private GraphicsPaneUI      	uiDelegate;
     
     /** Reference to the Model.*/
-    protected RendererModel     model;
+    protected RendererModel     	model;
     
     /** Reference to the Control.*/
-    protected RendererControl   controller;
+    protected RendererControl   	controller;
 
     /** Preview option for render settings */
-    private JCheckBox			preview;
+    private JCheckBox				preview;
 
     /** Flag indicating to paint a line when moving the sliders' knobs. */
-    private boolean 			paintLine;
+    private boolean 				paintLine;
     
     /** The equation the horizontal line. */
-    private int					horizontalLine = -1;
+    private int						horizontalLine = -1;
     
     /** The equation of the vertical line. */
-    private int					verticalLine = -1;
+    private int						verticalLine = -1;
 
     /** Button to apply the settings to all selected or displayed image. */
-    private JButton				applyButton;
+    private JButton					applyButton;
     
     /** Initializes the domain slider. */
     private void initDomainSlider()

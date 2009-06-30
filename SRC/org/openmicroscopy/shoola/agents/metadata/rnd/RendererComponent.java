@@ -43,7 +43,6 @@ import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.ChannelData;
 import pojos.PixelsData;
@@ -748,6 +747,9 @@ class RendererComponent
 	public void setChannelWindow(int index, double start, double end)
 	{
 		try {
+			double s = model.getWindowStart(index);
+			double e = model.getWindowEnd(index);
+			if (start == s && end == e) return;
 			model.setInputInterval(index, start, end);
         	if (model.isGeneralIndex()) model.saveRndSettings();
         	firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 

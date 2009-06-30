@@ -554,14 +554,39 @@ class RendererModel
 
 	/**
 	 * Returns the lower bound of the pixels intensity interval of the 
+	 * specified channel.
+	 * 
+	 * @param channel The index of the channel.
+	 * @return See above.
+	 */
+	double getWindowStart(int channel)
+	{
+		if (rndControl == null) return -1;
+		return rndControl.getChannelWindowStart(channel);
+	}
+
+	/**
+	 * Returns the upper bound of the pixels intensity interval of the 
+	 * specified channel.
+	 * 
+	 * @param channel The index of the channel.
+	 * @return See above.
+	 */
+	double getWindowEnd(int channel)
+	{
+		if (rndControl == null) return -1;
+		return rndControl.getChannelWindowEnd(channel);
+	}
+	
+	/**
+	 * Returns the lower bound of the pixels intensity interval of the 
 	 * currently selected channel.
 	 * 
 	 * @return See above.
 	 */
 	double getWindowStart()
 	{
-		if (rndControl == null) return -1;
-		return rndControl.getChannelWindowStart(selectedChannelIndex);
+		return getWindowStart(selectedChannelIndex);
 	}
 
 	/**
@@ -572,8 +597,7 @@ class RendererModel
 	 */
 	double getWindowEnd()
 	{
-		if (rndControl == null) return -1;
-		return rndControl.getChannelWindowEnd(selectedChannelIndex);
+		return getWindowEnd(selectedChannelIndex);
 	}
 
 	/**
