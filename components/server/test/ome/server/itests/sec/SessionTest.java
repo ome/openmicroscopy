@@ -74,4 +74,28 @@ public class SessionTest extends AbstractManagedContextTest {
         s.updateSession(session);
         
     }
+    
+    @Test(groups = "ticket:1385")
+    public void testUpdateDefaultGroupTwice() throws Exception {
+        
+        ISession s = this.factory.getSessionService();
+        IAdmin a = this.factory.getAdminService();
+
+        Experimenter e = loginNewUser();
+        ExperimenterGroup g1 = new ExperimenterGroup(uuid());
+        g1 = new ExperimenterGroup(a.createGroup(g1), false);
+        ExperimenterGroup g2 = new ExperimenterGroup(uuid());
+        g2 = new ExperimenterGroup(a.createGroup(g2), false);
+        
+        loginRoot();
+        a.addGroups(e, g1, g2);
+        
+        loginUser(e.getOmeName());
+        String uuid = a.getEventContext().getCurrentSessionUuid();
+        Session session = s.getSession(uuid);
+        session.getDetails().setGroup(g1);
+        s.updateSession(session);
+        session.getDetails().setGroup(g2);
+        s.updateSession(session);
+    }
 }
