@@ -97,5 +97,8 @@ public class SessionTest extends AbstractManagedContextTest {
         s.updateSession(session);
         session.getDetails().setGroup(g2);
         s.updateSession(session);
+        
+        // But now if we try to get the session again, boom.
+        s.getSession(uuid);
     }
 }

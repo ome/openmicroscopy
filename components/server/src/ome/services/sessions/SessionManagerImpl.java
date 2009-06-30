@@ -26,6 +26,7 @@ import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.enums.EventType;
+import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -259,6 +260,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         return (Share) createSession(principal, share);
     }
 
+    @SuppressWarnings("unchecked")
     private Session createSession(final Principal principal,
             final Session oldsession) {
         // If username exists as session, then return that
@@ -283,10 +285,10 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                     Principal p = checkPrincipalNameAndDefaultGroup(sf,
                             principal);
                     long userId = executeLookupUser(sf, p);
-                    // Not performed! Session s = executeUpdate(sf, oldsession, userId);
+                    // Not performed! Session s = executeUpdate(sf, oldsession,
+                    // userId);
                     Session s = oldsession;
-                    SessionContext ctx = currentDatabaseShapshot(sf, p, s);
-                    return Arrays.asList(s, ctx);
+                    return executeSessionContextLookup(sf, p, s);
                 }
             });
         } else {
@@ -299,35 +301,33 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                             principal);
                     long userId = executeLookupUser(sf, p);
                     Session s = executeUpdate(sf, oldsession, userId);
-                    SessionContext ctx = currentDatabaseShapshot(sf, p, s);
-                    return Arrays.asList(s, ctx);
+                    return executeSessionContextLookup(sf, p, s);
                 }
 
             });
         }
-        Session newsession = (Session) rv.get(0);
-        SessionContext newctx = (SessionContext) rv.get(1);
 
-        if (newctx == null) {
+        if (rv == null) {
             throw new RemovedSessionException("No info in database for "
                     + principal);
         }
+        SessionContext newctx = createSessionContext(rv);
 
         // This the publishEvent returns successfully, then we will have to
         // handle rolling back this addition our selves
-        cache.putSession(newsession.getUuid(), newctx);
+        String uuid = newctx.getCurrentSessionUuid();
+        cache.putSession(uuid, newctx);
         try {
-            context.publishEvent(new CreateSessionMessage(this, newsession
-                    .getUuid()));
+            context.publishEvent(new CreateSessionMessage(this, uuid));
         } catch (RuntimeException re) {
             log.warn("Session creation cancelled by event listener", re);
-            cache.removeSession(newsession.getUuid());
+            cache.removeSession(uuid);
             throw re;
         }
 
         // All successful, increment and return.
         newctx.increment();
-        return newsession;
+        return newctx.getSession();
     }
 
     public Session update(Session session) {
@@ -340,28 +340,29 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             throw new RemovedSessionException("Cannot update; No uuid.");
         }
 
-        final SessionContext oldctx = cache.getSessionContext(
-                session.getUuid(), true);
-        if (oldctx == null) {
+        final String uuid = session.getUuid();
+        final Details details = session.getDetails();
+        final SessionContext ctx = cache.getSessionContext(uuid, true);
+        if (ctx == null) {
             throw new RemovedSessionException(
-                    "Can't update; No session with uuid:" + session.getUuid());
+                    "Can't update; No session with uuid:" + uuid);
         }
-        final Session orig = oldctx.getSession();
 
+        final Session orig = ctx.getSession();
+        
         // TODO // FIXME
         // =====================================================
         // This needs to get smarter
 
-        return (Session) executor.execute(asroot, new Executor.SimpleWork(this,
-                "update") {
+        List list = (List) executor.execute(asroot, new Executor.SimpleWork(
+                this, "load_for_update") {
             @Transactional(readOnly = false)
             public Object doWork(org.hibernate.Session __s, ServiceFactory sf) {
 
                 // Allow user to change default group
                 String defaultGroup = null;
-                final ome.model.internal.Details d = session.getDetails();
-                if (d != null) {
-                    ExperimenterGroup group = d.getGroup();
+                if (details != null) {
+                    ExperimenterGroup group = details.getGroup();
                     if (group != null) {
                         try {
                             Long groupId = group.getId();
@@ -382,12 +383,11 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
                 // If still null, take the current
                 if (defaultGroup == null) {
-                    defaultGroup = oldctx.getCurrentGroupName();
+                    defaultGroup = ctx.getCurrentGroupName();
                 }
 
-                Principal principal = new Principal(
-                        oldctx.getCurrentUserName(), defaultGroup, oldctx
-                                .getCurrentEventType());
+                Principal principal = new Principal(ctx.getCurrentUserName(),
+                        defaultGroup, ctx.getCurrentEventType());
                 principal = checkPrincipalNameAndDefaultGroup(sf, principal);
 
                 // Unconditionally settable; these are open to the user for
@@ -401,41 +401,50 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 parseAndSetTimeouts(session.getTimeToLive(), session
                         .getTimeToIdle(), orig, trusted);
 
-                // Need to handle notifications
-
-                SessionContext newctx = currentDatabaseShapshot(sf, principal,
-                        orig);
-                if (newctx == null) {
-                    cache.removeSession(principal.getName());
-                    throw new RemovedSessionException(
-                            "Database contains no info for " + principal);
-                } else {
-                    Session copy = copy(orig);
-                    executeUpdate(sf, copy, newctx.getCurrentUserId());
-                    cache.putSession(orig.getUuid(), newctx);
-                    return copy(orig);
-                }
+                // TODO Need to handle notifications
+                return executeSessionContextLookup(sf, principal, orig);
 
             }
         });
 
+        if (list == null) {
+            cache.removeSession(uuid);
+            throw new RemovedSessionException("Database contains no info for "
+                    + uuid);
+        }
+        ;
+
+        final SessionContext newctx = createSessionContext(list);
+        final Session copy = copy(orig);
+        executor.execute(asroot, new Executor.SimpleWork(this, "update") {
+            @Transactional(readOnly = false)
+            public Object doWork(org.hibernate.Session __s, ServiceFactory sf) {
+                return executeUpdate(sf, copy, newctx.getCurrentUserId());
+            }
+        });
+        cache.putSession(uuid, newctx);
+        return copy(orig);
+
     }
 
+    /**
+     * Takes a snapshot as from
+     * {@link #executeSessionContextLookup(ServiceFactory, Principal)} and turns
+     * it into a {@link SessionContext} instance. List argument should never be
+     * null. Abort if
+     * {@link #executeSessionContextLookup(ServiceFactory, Principal)} returns
+     * null.
+     */
     @SuppressWarnings("unchecked")
-    protected SessionContext currentDatabaseShapshot(ServiceFactory sf,
-            Principal principal, Session session) {
-
-        // Do lookups
-        final List<?> list = executeSessionContextLookup(sf, principal);
-        if (list == null) {
-            return null; // EARLY EXIT when user no longer exists (on delete)
-        }
+    protected SessionContext createSessionContext(List<?> list) {
 
         final Experimenter exp = (Experimenter) list.get(0);
         final ExperimenterGroup grp = (ExperimenterGroup) list.get(1);
         final List<Long> memberOfGroupsIds = (List<Long>) list.get(2);
         final List<Long> leaderOfGroupsIds = (List<Long>) list.get(3);
         final List<String> userRoles = (List<String>) list.get(4);
+        final Principal principal = (Principal) list.get(5);
+        final Session session = (Session) list.get(6);
 
         parseAndSetDefaultType(principal.getEventType(), session);
         parseAndSetDefaultPermissions(principal.getUmask(), session);
@@ -819,17 +828,22 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      * Will be called in a synchronized block by {@link SessionCache} in order
      * to allow for an update.
      */
+    @SuppressWarnings("unchecked")
     public SessionContext reload(final SessionContext ctx) {
         final Principal p = new Principal(ctx.getCurrentUserName(), ctx
                 .getCurrentGroupName(), ctx.getCurrentEventType());
-        return (SessionContext) executor.execute(asroot,
-                new Executor.SimpleWork(this, "reload") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(org.hibernate.Session session,
-                            ServiceFactory sf) {
-                        return currentDatabaseShapshot(sf, p, ctx.getSession());
-                    }
-                });
+        List list = (List) executor.execute(asroot, new Executor.SimpleWork(
+                this, "reload") {
+            @Transactional(readOnly = true)
+            public Object doWork(org.hibernate.Session session,
+                    ServiceFactory sf) {
+                return executeSessionContextLookup(sf, p, ctx.getSession());
+            }
+        });
+        if (list == null) {
+            return null;
+        }
+        return createSessionContext(list);
     }
 
     // Executor methods
@@ -1055,7 +1069,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      */
     @SuppressWarnings("unchecked")
     private List<Object> executeSessionContextLookup(ServiceFactory sf,
-            Principal principal) {
+            Principal principal, Session session) {
         try {
             List<Object> list = new ArrayList<Object>();
             LocalAdmin admin = (LocalAdmin) sf.getAdminService();
@@ -1070,6 +1084,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             list.add(memberOfGroupsIds);
             list.add(leaderOfGroupsIds);
             list.add(userRoles);
+            list.add(principal);
+            list.add(session);
             return list;
         } catch (Exception e) {
             return null;
