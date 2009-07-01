@@ -87,7 +87,7 @@ public class DMRefreshLoader
         Iterator users = nodes.keySet().iterator();
         long userID;
         List containers;
-        results = new HashMap<Long, Object>(nodes.size());
+        
         Object result;
         Set set, children, newChildren, r;
         List<Long> ids, cIds;
@@ -106,6 +106,8 @@ public class DMRefreshLoader
         		if (results.containsKey(userID)) {
         			s = (Set) results.get(userID);
         			s.addAll((Set) result);
+        		} else {
+        			results.put(userID, result);
         		}
         	} else {
         		set = os.loadContainerHierarchy(rootNodeType, null, 
@@ -153,9 +155,9 @@ public class DMRefreshLoader
                 if (results.containsKey(userID)) {
         			Map map  = (Map) results.get(userID);
         			map.putAll((Map) result);
-        		}
+        		} else results.put(userID, result);
         	}
-        	results.put(userID, result);
+        	//results.put(userID, result);
 		}
     }
     
@@ -174,6 +176,7 @@ public class DMRefreshLoader
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
+            	results = new HashMap<Long, Object>(nodes.size());
                 retrieveData(ProjectData.class, nodes);
                 retrieveData(ScreenData.class, nodes);
             }
