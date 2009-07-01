@@ -319,7 +319,8 @@ public class TestEngine
     public static void main(String[] args) throws Throwable
     {
     	LongOpt[] longOptions = new LongOpt[] {
-    	    new LongOpt("feedback", LongOpt.OPTIONAL_ARGUMENT, null,'f'),
+    	    new LongOpt("error-on", LongOpt.REQUIRED_ARGUMENT, null, 'e'),
+    	    new LongOpt("feedback", LongOpt.REQUIRED_ARGUMENT, null,'f'),
     		new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h'),	
     		new LongOpt("no-recurse", LongOpt.OPTIONAL_ARGUMENT, null, 'r')
     	};
