@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.measurement.util.model;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.List;
 
 //Third-party libraries
@@ -71,7 +70,7 @@ public class AttributeField
 	 * @param editable	Pass <code>true</code> to edit the field, 
 	 * 					<code>false</code> otherwise.
 	 * @param range The range of values this attribute can take.
-	 * @param type 		 the Type of value avail;abel to object, enum, or range
+	 * @param type 		 the Type of value available to object, enum, or range
 	 */
 	public AttributeField(AttributeKey key, String name, boolean editable, 
 			List range, ValueType type)
@@ -90,16 +89,13 @@ public class AttributeField
 	 * @param name	The name of the field.
 	 * @param editable	Pass <code>true</code> to edit the field, 
 	 * 					<code>false</code> otherwise.
+	 * @param type The type of the value available.
 	 */
-	public AttributeField(AttributeKey key, String name, boolean editable, ValueType type)
+	public AttributeField(AttributeKey key, String name, boolean editable, 
+			ValueType type)
 	{
-		this.key = key;
-		this.name = name;
-		this.editable = editable;
-		valueType = type;
-		valueRange = null;
+		this(key, name, editable, null, type);
 	}
-	
 
 	/**
 	 * Creates a new instance.
@@ -111,14 +107,9 @@ public class AttributeField
 	 */
 	public AttributeField(AttributeKey key, String name, boolean editable)
 	{
-		this.key = key;
-		this.name = name;
-		this.editable = editable;
-		valueType = ValueType.DEFAULT;
-		valueRange = null;
+		this(key, name, editable, null,  ValueType.DEFAULT);
 	}
-	
-	
+
 	/** 
 	 * Gets the value range the object can take.
 	 * 

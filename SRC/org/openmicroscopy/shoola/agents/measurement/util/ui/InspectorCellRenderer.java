@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.util.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -59,10 +60,11 @@ import org.openmicroscopy.shoola.util.ui.PaintPot;
  * </small>
  * @since OME3.0
  */
-public 	class InspectorCellRenderer
-		extends 	JComponent 
-		implements 	TableCellRenderer
+public class InspectorCellRenderer
+	extends JComponent 
+	implements TableCellRenderer
 {
+	
 	/** The size of the font in this cell. */
 	private static final float 	FONTSIZE = 10;
 	
@@ -82,25 +84,25 @@ public 	class InspectorCellRenderer
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		FigureTable figureTable = (FigureTable)table;
-		Component thisComponent=new JLabel();
+		FigureTable figureTable = (FigureTable) table;
+		Component thisComponent = new JLabel();
 		AttributeField field = figureTable.getFieldAt(row);
-		if(column == 0)
+		if (column == 0)
 		{
-			JLabel label=new JLabel();
+			JLabel label = new JLabel();
 			label.setOpaque(true);
 			label.setText(value+"");
 			label.setFont(label.getFont().deriveFont(FONTSIZE));
 			thisComponent=label;
 		}
 		else
-		if(field.getValueType()== ValueType.DEFAULT)
+		if (field.getValueType() == ValueType.DEFAULT)
 		{
-			if ((value instanceof Double)||(value instanceof String)
-				||(value instanceof FigureType)||value instanceof Integer
-				||value instanceof Long)
+			if ((value instanceof Double) || (value instanceof String)
+				|| (value instanceof FigureType) || value instanceof Integer
+				|| value instanceof Long)
 			{
-			JTextField text=new JTextField();
+			JTextField text = new JTextField();
 			text.setOpaque(false);
 			text.setBorder(BorderFactory.createEmptyBorder());
 			text.setText(value+"");
@@ -109,14 +111,14 @@ public 	class InspectorCellRenderer
 			}
 			else if (value instanceof Color)
 			{
-				PaintPot paintPot=new PaintPot((Color) value);
-				thisComponent=paintPot;
+				PaintPot paintPot = new PaintPot((Color) value);
+				thisComponent = paintPot;
 			}
 			else if (value instanceof Boolean)
 			{
-				JCheckBox checkBox=new JCheckBox();
+				JCheckBox checkBox = new JCheckBox();
 				checkBox.setSelected((Boolean) value);
-				thisComponent=checkBox;
+				thisComponent = checkBox;
 			}
 			if (!(value instanceof Color))
 			{
@@ -124,19 +126,21 @@ public 	class InspectorCellRenderer
 				row);
 			}
 		}
-		else if(field.getValueType() == ValueType.ENUM)
+		else if (field.getValueType() == ValueType.ENUM)
 		{
 			JComboBox comboBox = new JComboBox();
-			ArrayList valueRange = (ArrayList) field.getValueRange();
-			int index =0;
-			for(int i = 0 ; i < valueRange.size(); i++)
-			{
-				comboBox.addItem(valueRange.get(i));
-				if(value.equals(valueRange.get(i)))
-					index = i;
-			}
 			comboBox.setFont(comboBox.getFont().deriveFont(FONTSIZE));
-			comboBox.setSelectedIndex(index);
+			List valueRange = field.getValueRange();
+			if (valueRange != null) {
+				int index = 0;
+				for (int i = 0 ; i < valueRange.size(); i++)
+				{
+					comboBox.addItem(valueRange.get(i));
+					if (value.equals(valueRange.get(i)))
+						index = i;
+				}
+				comboBox.setSelectedIndex(index);
+			}
 			thisComponent = comboBox;
 		}
 		return thisComponent;
