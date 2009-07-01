@@ -31,8 +31,17 @@ import java.util.prefs.BackingStoreException;
 import org.ini4j.IniPreferences;
 import org.ini4j.InvalidIniFormatException;
 
+import com.sleepycat.db.FeedbackHandler;
+
 public class TestEngineConfig extends IniPreferences
 {
+    
+    public static enum ErrorOn { 
+        never,
+        minimal,
+        any;
+    }
+    
 	/** Root node of the configuration file. */
 	public static final String CONFIG_ROOT = "main";
 	
@@ -57,8 +66,16 @@ public class TestEngineConfig extends IniPreferences
 	/** If we're performing a single directory test run */
 	public static final String CONFIG_RECURSE = "recurse";
 	
-	/** Target directory for the test engine to work with */
-	public static final String CONFIG_TARGET = "target_directory";
+    /** Target directory for the test engine to work with */
+    public static final String CONFIG_TARGET = "target_directory";
+    
+    /** Value for which an error (non-0 exitcode) will be signalled */
+    public static final String CONFIG_ERRORON = "error_on";
+    
+    /** Feedback url to be used */
+    public static final String CONFIG_FEEDBACK = "feedback_url";
+    
+    public static final String DEFAULT_FEEDBACK = "http://users.openmicroscopy.org.uk/~brain/omero/bugcollector.php";
 	
 	/**
 	 * Test engine configuration, backed by an initiation file.
@@ -200,24 +217,63 @@ public class TestEngineConfig extends IniPreferences
 		return node(CONFIG_ROOT).getBoolean(CONFIG_RECURSE, true);
 	}
 	
-	/**
-	 * Sets the target directory configuration property.
-	 * @param rescurse Value to set.
-	 */
-	public void setTarget(String target)
-	{
-		node(CONFIG_ROOT).put(CONFIG_TARGET, target);
-	}
-	
-	/**
-	 * Returns the target directory configuration property.
-	 * @return See above.
-	 */
-	public String getTarget()
-	{
-		return node(CONFIG_ROOT).get(CONFIG_TARGET, null);
-	}
-	
+    /**
+     * Sets the target directory configuration property.
+     * @param rescurse Value to set.
+     */
+    public void setTarget(String target)
+    {
+        node(CONFIG_ROOT).put(CONFIG_TARGET, target);
+    }
+    
+    /**
+     * Returns the target directory configuration property.
+     * @return See above.
+     */
+    public String getTarget()
+    {
+        return node(CONFIG_ROOT).get(CONFIG_TARGET, null);
+    }
+
+    /**
+     * Sets the feedback url configuration property.
+     */
+    public void setFeedbackUrl(String feedbackUrl)
+    {
+        node(CONFIG_ROOT).put(CONFIG_FEEDBACK, feedbackUrl);
+    }
+    
+    /**
+     * Returns the feedback url configuration property.
+     */
+    public String getFeedbackUrl()
+    {
+        return node(CONFIG_ROOT).get(CONFIG_FEEDBACK, DEFAULT_FEEDBACK);
+    }
+    
+    /**
+     * Sets the error-on configuration property. Does this by first lowercasing
+     * the string, and then checking for an equivalent enumeration in
+     * {@link ErrorOn}
+     */
+    public void setErrorOn(String errorOn)
+    {
+        if (errorOn == null) {
+            errorOn = "";
+        }
+        errorOn = errorOn.toLowerCase();
+        ErrorOn.valueOf(errorOn); // Throws if necessary.
+        node(CONFIG_ROOT).put(CONFIG_ERRORON, errorOn);
+    }
+    
+    /**
+     * Returns the feedback url configuration property.
+     */
+    public String getErrorOn()
+    {
+        return node(CONFIG_ROOT).get(CONFIG_ERRORON, "any");
+    }
+    
 	/**
 	 * Checks if we have the configuration properties available to perform an
 	 * OMERO server login.
@@ -233,4 +289,5 @@ public class TestEngineConfig extends IniPreferences
         }
         return true;
 	}
+
 }

@@ -24,40 +24,38 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.HtmlMessenger;
+import ome.formats.test.util.TestEngineConfig.ErrorOn;
 import omero.ServerError;
 import omero.model.Dataset;
 import omero.model.Project;
 
 public class TestEngine
 {   
-    /** return code for exit **/
-    static int exitCode = 0;
-    
-	/** Logger for this class */
-	private Log log = LogFactory.getLog(TestEngine.class);
-	
-	/** Our configuration. */
-	private TestEngineConfig config;
-	
+
     // usage() name
     private static final String APP_NAME = "import-tester";
+
+	/** Logger for this class */
+	private static final Log log = LogFactory.getLog(TestEngine.class);
+	
+	// Immutable state
+	
+	/** Our configuration. */
+	private final TestEngineConfig config;
+	    
+    private final OMEROMetadataStoreClient store;
+    private final ImportLibrary importLibrary;
+    private final OMEROWrapper wrapper;
+    private final IniWritingInterceptor interceptor = new IniWritingInterceptor();
     
-    private OMEROMetadataStoreClient store;
-    private ImportLibrary importLibrary;
-    private OMEROWrapper wrapper;
-    
-    private IniWritingInterceptor interceptor = new IniWritingInterceptor();
-    
-    // feedback code
-    String url = "http://users.openmicroscopy.org.uk/~brain/omero/bugcollector.php";
-    
+    // Mutable state
+    int errors = 0;
     
     public TestEngine(TestEngineConfig config)
     	throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
     	this.config = config;
-        store = new OMEROMetadataStoreClient();
-        ProxyFactory pf = new ProxyFactory(store);
+        ProxyFactory pf = new ProxyFactory(new OMEROMetadataStoreClient());
         pf.addAdvice(interceptor);
         pf.setProxyTargetClass(true);
         store = (OMEROMetadataStoreClient) pf.getProxy();
@@ -211,12 +209,32 @@ public class TestEngine
 				//store.logout();
 			    
 				log.error("Failed on file: " + file.getAbsolutePath());
-				exitCode += 1;
+				errors += 1;
 				sendRequest("", "TestEngine Error", e.toString(), file.getAbsolutePath());
 				//throw e;
 			}
 		}
     	return true;
+    }
+    
+    /**
+     * Exits the JVM by calculating the proper exit code based on the number
+     * (and eventually type) of errors and {@link TestEngineConfig#getErrorOn()}
+     */
+    public void exit()
+    {
+        ErrorOn err = ErrorOn.valueOf(config.getErrorOn());
+        int returnCode = 0;
+        switch (err) {
+            case never: {
+                break;
+            }
+            default: {
+                returnCode = errors;                
+            }
+        }
+        System.err.println("Number of errors: " + errors);
+        System.exit(returnCode);
     }
 
     /**
@@ -237,6 +255,8 @@ public class TestEngine
                 "  -w\tOMERO experimenter password\n" +
                 "  -k\tOMERO session key (can be used in place of -u and -w)\n" +
                 "  -p\tOMERO server port [defaults to 4063]\n" +
+                "  -e Raise error on given situation: any, minimal, never [defaults to any]" +
+                String.format("  -f\tOMERO feedback url [defaults to %s]", TestEngineConfig.DEFAULT_FEEDBACK) +
                 "  -c\tConfiguration file location (instead of any of the above arguments)\n" +
                 "  -x\tPopulate initiation files with metadata [defaults to False]\n" +
                 "  -h, --help\tDisplay this help and exit\n" +
@@ -269,7 +289,7 @@ public class TestEngine
         map.put("os_version", System.getProperty("os.version"));
 
         try {
-            HtmlMessenger messenger = new HtmlMessenger(url, map);
+            HtmlMessenger messenger = new HtmlMessenger(config.getFeedbackUrl(), map);
             String serverReply = messenger.executePost();
             log.info("Feedback sent. Returned: " + serverReply);
         }
@@ -299,6 +319,7 @@ public class TestEngine
     public static void main(String[] args) throws Throwable
     {
     	LongOpt[] longOptions = new LongOpt[] {
+    	    new LongOpt("feedback", LongOpt.OPTIONAL_ARGUMENT, null,'f'),
     		new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h'),	
     		new LongOpt("no-recurse", LongOpt.OPTIONAL_ARGUMENT, null, 'r')
     	};
@@ -370,6 +391,15 @@ public class TestEngine
                 	config.setRecurse(!config.getRecurse());
                 	break;
                 }
+                case 'e':
+                {
+                    config.setErrorOn(g.getOptarg());
+                }
+                case 'f':
+                {
+                    config.setFeedbackUrl(g.getOptarg());
+                    break;
+                }
                 case 'c':
                 {
                 	// Ignore, we've dealt with this already.
@@ -401,7 +431,6 @@ public class TestEngine
         
         TestEngine engine = new TestEngine(config);
         engine.run(path);
-        System.err.println("Number of errors: " + exitCode);
-        System.exit(exitCode);
+        engine.exit();
     }
 }
