@@ -74,6 +74,92 @@ public class DMRefreshLoader
     private BatchCall   loadCall;
     
     /**
+     * Retrieve the data.
+     * 
+     * @param rootNodeType The root node.
+     * @param nodes   	   The nodes to handle.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private void retrieveData(Class rootNodeType, Map<Long, List> nodes)
+    	throws Exception
+    {
+    	OmeroDataService os = context.getDataService();
+        Iterator users = nodes.keySet().iterator();
+        long userID;
+        List containers;
+        results = new HashMap<Long, Object>(nodes.size());
+        Object result;
+        Set set, children, newChildren, r;
+        List<Long> ids, cIds;
+        Iterator i, j, c, k;
+        Long id;
+        Class klass;
+        Map topNodes;
+        DataObject child, parent;
+        Set s;
+        while (users.hasNext()) {
+        	userID = (Long) users.next();
+        	containers = nodes.get(userID);
+        	if (containers == null || containers.size() == 0) {
+        		result = os.loadContainerHierarchy(rootNodeType, null, 
+                		false, userID);
+        		if (results.containsKey(userID)) {
+        			s = (Set) results.get(userID);
+        			s.addAll((Set) result);
+        		}
+        	} else {
+        		set = os.loadContainerHierarchy(rootNodeType, null, 
+                        false, userID);
+                i = containers.iterator();
+                ids = new ArrayList<Long>(containers.size());
+                while (i.hasNext()) {
+                    ids.add(new Long(((DataObject) i.next()).getId()));
+                }
+                j = set.iterator();
+                children = null;
+               
+                klass = null;
+                topNodes = new HashMap(set.size());
+                
+                while (j.hasNext()) {
+                    newChildren = new HashSet();
+                    parent = (DataObject) j.next();
+                    if (parent instanceof ProjectData) {
+                        children = ((ProjectData) parent).getDatasets();
+                        klass = DatasetData.class;
+                    } else if (parent instanceof DatasetData) {
+                    	children = new HashSet(1);
+                    	children.add(parent);
+                    	klass = DatasetData.class;
+                    } 
+                    topNodes.put(parent, newChildren);
+                    c = children.iterator();
+                    while (c.hasNext()) {
+                        child = (DataObject) c.next();
+                        id = new Long(child.getId());
+                        if (ids.contains(id)) {
+                            cIds = new ArrayList(1);
+                            cIds.add(id);
+                            r = os.loadContainerHierarchy(klass, cIds, 
+                                    true, userID);
+                            k = r.iterator();
+                            while (k.hasNext()) {
+                                newChildren.add(k.next());
+                            }
+                        } else newChildren.add(child);
+                    }
+                }
+                result = topNodes;
+                if (results.containsKey(userID)) {
+        			Map map  = (Map) results.get(userID);
+        			map.putAll((Map) result);
+        		}
+        	}
+        	results.put(userID, result);
+		}
+    }
+    
+    /**
      * Creates a {@link BatchCall} to retrieve a Container tree, either
      * Project or CategoryGroup.
      * 
@@ -88,71 +174,8 @@ public class DMRefreshLoader
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
-                OmeroDataService os = context.getDataService();
-                Iterator users = nodes.keySet().iterator();
-                long userID;
-                List containers;
-                results = new HashMap<Long, Object>(nodes.size());
-                Object result;
-                Set set, children, newChildren, r;
-                List<Long> ids, cIds;
-                Iterator i, j, c, k;
-                Long id;
-                Class klass;
-                Map topNodes;
-                DataObject child, parent;
-                while (users.hasNext()) {
-                	userID = (Long) users.next();
-                	containers = nodes.get(userID);
-                	if (containers == null || containers.size() == 0) {
-                		result = os.loadContainerHierarchy(rootNodeType, null, 
-                        		false, userID);
-                	} else {
-                		set = os.loadContainerHierarchy(rootNodeType, null, 
-                                false, userID);
-                        i = containers.iterator();
-                        ids = new ArrayList<Long>(containers.size());
-                        while (i.hasNext()) {
-                            ids.add(new Long(((DataObject) i.next()).getId()));
-                        }
-                        j = set.iterator();
-                        children = null;
-                       
-                        klass = null;
-                        topNodes = new HashMap(set.size());
-                        
-                        while (j.hasNext()) {
-                            newChildren = new HashSet();
-                            parent = (DataObject) j.next();
-                            if (parent instanceof ProjectData) {
-                                children = ((ProjectData) parent).getDatasets();
-                                klass = DatasetData.class;
-                            } else if (parent instanceof DatasetData) {
-                            	children = new HashSet(1);
-                            	children.add(parent);
-                            	klass = DatasetData.class;
-                            } 
-                            topNodes.put(parent, newChildren);
-                            c = children.iterator();
-                            while (c.hasNext()) {
-                                child = (DataObject) c.next();
-                                id = new Long(child.getId());
-                                if (ids.contains(id)) {
-                                    cIds = new ArrayList(1);
-                                    cIds.add(id);
-                                    r = os.loadContainerHierarchy(klass, cIds, 
-                                            true, userID);
-                                    k = r.iterator();
-                                    while (k.hasNext()) {
-                                        newChildren.add(k.next());
-                                    }
-                                } else newChildren.add(child);
-                            }
-                        }
-                        result = topNodes;
-                	}
-                	results.put(userID, result);
-				}
+                retrieveData(ProjectData.class, nodes);
+                retrieveData(ScreenData.class, nodes);
             }
         };
     }
@@ -279,8 +302,8 @@ public class DMRefreshLoader
             throw new IllegalArgumentException("No container with images.");
         if (ImageData.class.equals(rootNodeType)) 
         	loadCall = makeImagesBatchCall(nodes);
-        else if (ProjectData.class.equals(rootNodeType) ||
-        		ScreenData.class.equals(rootNodeType))
+        else if (ProjectData.class.equals(rootNodeType))// ||
+        		//ScreenData.class.equals(rootNodeType))
         	loadCall = makeBatchCall(rootNodeType, nodes);
         else if (FileAnnotationData.class.equals(rootNodeType)) {
         	loadCall = makeFilesBatchCall(nodes);

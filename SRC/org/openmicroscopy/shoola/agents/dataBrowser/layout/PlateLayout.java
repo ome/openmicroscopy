@@ -39,6 +39,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
+import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
+
 import pojos.WellSampleData;
 
 
@@ -121,10 +123,18 @@ public class PlateLayout
                 	maxDim = LayoutUtils.max(maxDim, child.getPreferredSize());
             }
     		 //First need to set width and height
-    		Dimension d = col.get(0).getPreferredSize();
-    		int height = d.height;
-    		d = row.get(0).getPreferredSize();
-    		int width = d.width+15;
+    		Dimension d;
+    		int height = 10;
+    		int width = 10;
+    		if (col.size() > 0){
+    			d = col.get(0).getPreferredSize();
+    			height = d.height;
+    		}
+    		if (row.size() > 0) {
+    			d = row.get(0).getPreferredSize();
+    			width = d.width+15;
+    		}
+    		
     		i = col.iterator();
     		while (i.hasNext()) {
     			cell = (CellDisplay) i.next();

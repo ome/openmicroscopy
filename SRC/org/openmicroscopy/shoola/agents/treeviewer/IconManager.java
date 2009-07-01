@@ -486,7 +486,7 @@ public class IconManager
         relPaths[SCREEN_48] = "nuvola_knotes48.png";
         relPaths[EDITOR_PROTOCOL] = "nuvola_folder_cyan_open16.png";
         relPaths[EDITOR_EXPERIMENT] = "nuvola_folder_cyan_open16.png";
-        relPaths[FILE_PROTOCOL_EXPERIMENT] = "expNew.png";
+        relPaths[FILE_PROTOCOL_EXPERIMENT] = "experimentNew16.png";
         relPaths[INSPECTOR] = "nuvola_view_tree16.png";
         relPaths[MOVIE] = "openOffice_stock_insert-video-plugin-16.png";
         relPaths[DIRECTORY] = "nuvola_folder_grey16.png";
