@@ -180,6 +180,7 @@ class DetectorComponent
             	else {
             		set = false;
             		binningBox.setSelectedIndex(binningBox.getItemCount()-1);
+            		notSet.add(key);
             	}
             	binningBox.setEditedColor(UIUtilities.EDITED_COLOR);
             	area = binningBox;
@@ -191,6 +192,7 @@ class DetectorComponent
             		detectorBox.setSelectedItem(selected);
             	} else {
             		set = false;
+            		notSet.add(key);
             		detectorBox.setSelectedIndex(detectorBox.getItemCount()-1);
             	}
             	detectorBox.setEditedColor(UIUtilities.EDITED_COLOR);

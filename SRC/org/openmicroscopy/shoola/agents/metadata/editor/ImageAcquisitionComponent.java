@@ -172,7 +172,7 @@ class ImageAcquisitionComponent
 		label = new JLabel();
 		Font font = label.getFont();
 		int sizeLabel = font.getSize()-2;
-		List<String> notSet = (List<String>) details.get(EditorUtil.NOT_SET);
+		List notSet = (List) details.get(EditorUtil.NOT_SET);
 		details.remove(EditorUtil.NOT_SET);
 		if (notSet.size() > 0 && unsetStage == null) {
 			unsetStage = parent.formatUnsetFieldsControl();
@@ -235,7 +235,7 @@ class ImageAcquisitionComponent
 		label = new JLabel();
 		Font font = label.getFont();
 		int sizeLabel = font.getSize()-2;
-		List<String> notSet = (List<String>) details.get(EditorUtil.NOT_SET);
+		List notSet = (List) details.get(EditorUtil.NOT_SET);
 		details.remove(EditorUtil.NOT_SET);
 		if (notSet.size() > 0 && unsetEnv == null) {
 			unsetEnv = parent.formatUnsetFieldsControl();

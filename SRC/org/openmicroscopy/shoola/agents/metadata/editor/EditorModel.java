@@ -1618,6 +1618,10 @@ class EditorModel
 	void fireLoadPlaneInfo(int channel)
 	{
 		Object ref = getRefObject();
+		if (ref instanceof WellSampleData) {
+			WellSampleData wsd = (WellSampleData) ref;
+			ref = wsd.getImage();
+		}
 		if (!(ref instanceof ImageData)) return;
 		ImageData img = (ImageData) ref;
 		PlaneInfoLoader loader = new PlaneInfoLoader(component, 

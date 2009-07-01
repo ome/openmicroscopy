@@ -120,7 +120,7 @@ public class NumericalTextField
 	public NumericalTextField(double min, double max)
 	{
 		document = new NumericalPlainDocument(min, max);
-		setHorizontalAlignment(JTextField.RIGHT);
+		setHorizontalAlignment(JTextField.LEFT);
 		setDocument(document);
 		originalText = null;
 		editedColor = null;
