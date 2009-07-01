@@ -64,6 +64,7 @@ import ome.model.roi.Polyline;
 import ome.model.roi.Rect;
 import ome.model.roi.Roi;
 import ome.model.screen.Plate;
+import ome.model.screen.Reagent;
 import ome.model.screen.Screen;
 import ome.model.screen.Well;
 import ome.model.screen.WellSample;
@@ -209,6 +210,10 @@ public class OMEROMetadataStore
     	{
     		handle(lsid, (ObjectiveSettings) sourceObject, indexes);
     	}
+    	else if (sourceObject instanceof Screen)
+    	{
+    	    handle(lsid, (Screen) sourceObject, indexes);
+    	}
     	else if (sourceObject instanceof Plate)
     	{
     	    handle(lsid, (Plate) sourceObject, indexes);
@@ -216,6 +221,10 @@ public class OMEROMetadataStore
     	else if (sourceObject instanceof Well)
     	{
     	    handle(lsid, (Well) sourceObject, indexes);
+    	}
+    	else if (sourceObject instanceof Reagent)
+    	{
+    	    handle(lsid, (Reagent) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof WellSample)
     	{
@@ -314,6 +323,15 @@ public class OMEROMetadataStore
     					continue;
     				}
     			}
+    			else if (targetObject instanceof LightSource)
+    			{
+    				if (referenceObject instanceof LightSource)
+    				{
+    					handleReference((LightSource) targetObject,
+    							(LightSource) referenceObject);
+    					continue;
+    				}
+    			}
     			else if (targetObject instanceof LightSettings)
     			{
     				if (referenceObject instanceof LightSource)
@@ -325,6 +343,12 @@ public class OMEROMetadataStore
     			}
     			else if (targetObject instanceof LogicalChannel)
     			{
+    				if (referenceObject instanceof FilterSet)
+    				{
+    					handleReference((LogicalChannel) targetObject,
+    							        (FilterSet) referenceObject);
+    					continue;
+    				}
     				if (referenceObject instanceof OTF)
     				{
     					handleReference((LogicalChannel) targetObject,
@@ -368,6 +392,15 @@ public class OMEROMetadataStore
     					continue;
     				}
     			}
+    			else if (targetObject instanceof FilterSet)
+    			{
+    				if (referenceObject instanceof Dichroic)
+    				{
+    					handleReference((FilterSet) targetObject,
+    							        (Dichroic) referenceObject);
+    					continue;
+    				}
+    			}
     			else if (targetObject instanceof Plate)
     			{
     				if (referenceLSID.toString().contains("ScreenI"))
@@ -384,6 +417,15 @@ public class OMEROMetadataStore
     				{
     					handleReference((Plate) targetObject,
     							(Annotation) referenceObject);
+    					continue;
+    				}
+    			}
+    			else if (targetObject instanceof Well)
+    			{
+    				if (referenceObject instanceof Reagent)
+    				{
+    					handleReference((Well) targetObject,
+    							        (Reagent) referenceObject);
     					continue;
     				}
     			}
@@ -659,6 +701,33 @@ public class OMEROMetadataStore
         getPlate(plateIndex).addWell(sourceObject);  
         wellList.add(sourceObject);
     }
+
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Screen sourceObject,
+                        Map<String, Integer> indexes)
+    {
+    	screenList.add(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Reagent sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        int screenIndex = indexes.get("screenIndex");
+        getScreen(screenIndex).addReagent(sourceObject);
+    }
     
     /**
      * Handles inserting a specific type of model object into our object graph.
@@ -847,6 +916,19 @@ public class OMEROMetadataStore
     {
     	target.linkDataset(reference);
     }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(LightSource target, LightSource reference)
+    {
+    	// The only possible linkage at this point is a Laser's pump.
+    	Laser laser = (Laser) target;
+    	laser.setPump(reference);
+    }
     
     /**
      * Handles linking a specific reference object to a target object in our
@@ -868,6 +950,17 @@ public class OMEROMetadataStore
     private void handleReference(LogicalChannel target, OTF reference)
     {
     	target.setOtf(reference);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(LogicalChannel target, FilterSet reference)
+    {
+    	target.setFilterSet(reference);
     }
     
     /**
@@ -920,6 +1013,17 @@ public class OMEROMetadataStore
      * @param target Target model object.
      * @param reference Reference model object.
      */
+    private void handleReference(FilterSet target, Dichroic reference)
+    {
+        target.setDichroic(reference);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
     private void handleReference(Image target, Annotation reference)
     {
         target.linkAnnotation(reference);
@@ -945,6 +1049,17 @@ public class OMEROMetadataStore
     private void handleReference(Plate target, Screen reference)
     {
         target.linkScreen(reference);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Well target, Reagent reference)
+    {
+        target.linkReagent(reference);
     }
     
     /**
@@ -1027,6 +1142,17 @@ public class OMEROMetadataStore
     	return getChannel(imageIndex, logicalChannelIndex).getLogicalChannel();
     }
 
+    /**
+     * Returns a Screen model object based on its indexes within the
+     * OMERO data model.
+     * @param screenIndex Screen index.
+     * @return See above.
+     */ 
+    private Screen getScreen(int screenIndex)
+    {
+        return screenList.get(screenIndex);
+    }
+    
     /**
      * Returns a Plate model object based on its indexes within the
      * OMERO data model.

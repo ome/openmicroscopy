@@ -87,6 +87,7 @@ import omero.model.FilamentType;
 import omero.model.FileAnnotation;
 import omero.model.Filter;
 import omero.model.FilterSet;
+import omero.model.FilterType;
 import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Illumination;
@@ -103,6 +104,9 @@ import omero.model.LightSettings;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.Medium;
+import omero.model.Microscope;
+import omero.model.MicroscopeI;
+import omero.model.MicroscopeType;
 import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
@@ -120,6 +124,8 @@ import omero.model.Screen;
 import omero.model.ScreenAcquisition;
 import omero.model.ScreenI;
 import omero.model.StageLabel;
+import omero.model.TransmittanceRange;
+import omero.model.TransmittanceRangeI;
 import omero.model.Well;
 import omero.model.WellSample;
 
@@ -1235,6 +1241,14 @@ public class OMEROMetadataStoreClient
     {
         ImagingEnvironment o = getImagingEnvironment(imageIndex);
         o.setTemperature(toRType(temperature));
+    }
+    
+    private Instrument getInstrument(int instrumentIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = 
+        	new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        return getSourceObject(Instrument.class, indexes);
     }
 
     public void setInstrumentID(String id, int instrumentIndex)
@@ -3060,39 +3074,52 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setDetectorAmplificationGain(Float arg0, int arg1, int arg2)
+    public void setDetectorAmplificationGain(Float amplificationGain,
+    		                                 int instrumentIndex,
+                                             int detectorIndex)
     {
-
-        //
-
+    	Detector o = getDetector(instrumentIndex, detectorIndex);
+    	o.setAmplificationGain(toRType(amplificationGain));
     }
 
-    public void setDetectorZoom(Float arg0, int arg1, int arg2)
+    public void setDetectorZoom(Float zoom, int instrumentIndex,
+    		                    int detectorIndex)
     {
-
-        //
-
+    	Detector o = getDetector(instrumentIndex, detectorIndex);
+    	o.setZoom(toRType(zoom));
     }
 
-    public void setDichroicLotNumber(String arg0, int arg1, int arg2)
+    private Dichroic getDichroic(int instrumentIndex, int dichroicIndex)
+	{
+	    LinkedHashMap<String, Integer> indexes = 
+	    	new LinkedHashMap<String, Integer>();
+	    indexes.put("instrumentIndex", instrumentIndex);
+	    indexes.put("dichroicIndex", dichroicIndex);
+	    return getSourceObject(Dichroic.class, indexes);
+	}
+
+	public void setDichroicLotNumber(String lotNumber,
+                                     int instrumentIndex,
+                                     int dichroicIndex)
     {
-
-        //
-
+    	Dichroic o = getDichroic(instrumentIndex, dichroicIndex);
+    	o.setLotNumber(toRType(lotNumber));
+    }
+    
+    public void setDichroicManufacturer(String manufacturer,
+    		                            int instrumentIndex,
+    		                            int dichroicIndex)
+    {
+    	Dichroic o = getDichroic(instrumentIndex, dichroicIndex);
+    	o.setManufacturer(toRType(manufacturer));
     }
 
-    public void setDichroicManufacturer(String arg0, int arg1, int arg2)
+    public void setDichroicModel(String model,
+                                 int instrumentIndex,
+                                 int dichroicIndex)
     {
-
-        //
-
-    }
-
-    public void setDichroicModel(String arg0, int arg1, int arg2)
-    {
-
-        //
-
+    	Dichroic o = getDichroic(instrumentIndex, dichroicIndex);
+    	o.setModel(toRType(model));
     }
 
     public void setDisplayOptionsDisplay(String arg0, int arg1)
@@ -3142,6 +3169,28 @@ public class OMEROMetadataStoreClient
 
         //
 
+    }
+    
+    private Filter getFilter(int instrumentIndex, int filterIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = 
+        	new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", instrumentIndex);
+        indexes.put("filterIndex", filterIndex);
+        return getSourceObject(Filter.class, indexes);
+    }
+    
+    private TransmittanceRange getTransmittanceRange(int instrumentIndex,
+    		                                         int filterIndex)
+    {
+    	Filter filter = getFilter(instrumentIndex, filterIndex);
+        TransmittanceRange range = filter.getTransmittanceRange();
+        if (range == null)
+        {
+        	range = new TransmittanceRangeI();
+        	filter.setTransmittanceRange(range);
+        }
+        return range;
     }
 
     public void setEmFilterLotNumber(String arg0, int arg1, int arg2)
@@ -3213,82 +3262,92 @@ public class OMEROMetadataStoreClient
         //
 
     }
-
-    public void setFilterFilterWheel(String arg0, int arg1, int arg2)
+    
+    public void setFilterFilterWheel(String filterWheel, int instrumentIndex,
+    		                         int filterIndex)
     {
-
-        //
-
+    	Filter o = getFilter(instrumentIndex, filterIndex);
+    	o.setFilterWheel(toRType(filterWheel));
     }
 
-    public void setFilterLotNumber(String arg0, int arg1, int arg2)
+    public void setFilterLotNumber(String lotNumber, int instrumentIndex,
+                                   int filterIndex)
     {
-
-        //
-
+    	Filter o = getFilter(instrumentIndex, filterIndex);
+    	o.setLotNumber(toRType(lotNumber));
     }
 
-    public void setFilterManufacturer(String arg0, int arg1, int arg2)
+    public void setFilterManufacturer(String lotNumber, int instrumentIndex,
+                                      int filterIndex)
     {
-
-        //
-
+    	Filter o = getFilter(instrumentIndex, filterIndex);
+    	o.setLotNumber(toRType(lotNumber));
     }
 
-    public void setFilterModel(String arg0, int arg1, int arg2)
+    public void setFilterModel(String model, int instrumentIndex,
+                               int filterIndex)
     {
-
-        //
-
+    	Filter o = getFilter(instrumentIndex, filterIndex);
+    	o.setModel(toRType(model));
+    }
+    
+    private FilterSet getFilterSet(int instrumentIndex,
+    		                       int filterSetIndex)
+    {
+    	LinkedHashMap<String, Integer> indexes = 
+    		new LinkedHashMap<String, Integer>();
+    	indexes.put("instrumentIndex", instrumentIndex);
+    	indexes.put("filterSetIndex", filterSetIndex);
+    	return getSourceObject(FilterSet.class, indexes);
     }
 
-    public void setFilterSetDichroic(String arg0, int arg1, int arg2)
+    public void setFilterSetDichroic(String dichroic, int instrumentIndex,
+    		                         int filterSetIndex)
     {
-
-        //
-
+        LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
+        addReference(key, new LSID(dichroic));
     }
 
-    public void setFilterSetEmFilter(String arg0, int arg1, int arg2)
+    public void setFilterSetEmFilter(String emFilter, int instrumentIndex,
+    		                         int filterSetIndex)
     {
-
-        //
-
+        LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
+        addReference(key, new LSID(emFilter));
     }
 
-    public void setFilterSetExFilter(String arg0, int arg1, int arg2)
+    public void setFilterSetExFilter(String exFilter, int instrumentIndex,
+    		                         int filterSetIndex)
     {
-
-        //
-
+        LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
+        addReference(key, new LSID(exFilter));
     }
 
-    public void setFilterSetLotNumber(String arg0, int arg1, int arg2)
+    public void setFilterSetLotNumber(String lotNumber, int instrumentIndex,
+    		                          int filterSetIndex)
     {
-
-        //
-
+    	FilterSet o = getFilterSet(instrumentIndex, filterSetIndex);
+    	o.setLotNumber(toRType(lotNumber));
     }
 
-    public void setFilterSetManufacturer(String arg0, int arg1, int arg2)
+    public void setFilterSetManufacturer(String manufacturer,
+    		                             int instrumentIndex,
+    		                             int filterSetIndex)
     {
-
-        //
-
+    	FilterSet o = getFilterSet(instrumentIndex, filterSetIndex);
+    	o.setManufacturer(toRType(manufacturer));
     }
 
-    public void setFilterSetModel(String arg0, int arg1, int arg2)
+    public void setFilterSetModel(String model, int instrumentIndex,
+    		                      int filterIndex)
     {
-
-        //
-
+    	Filter o = getFilter(instrumentIndex, filterIndex);
+    	o.setModel(toRType(model));
     }
 
-    public void setFilterType(String arg0, int arg1, int arg2)
+    public void setFilterType(String type, int instrumentIndex, int filterIndex)
     {
-
-        //
-
+    	Filter o = getFilter(instrumentIndex, filterIndex);
+    	o.setType((FilterType) getEnumeration(FilterType.class, type));
     }
 
     public void setGreyChannelBlackLevel(Float arg0, int arg1)
@@ -3375,42 +3434,61 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setLaserPockelCell(Boolean arg0, int arg1, int arg2)
+    public void setLaserPockelCell(Boolean pockelCell, int instrumentIndex,
+    		                       int lightSourceIndex)
     {
-
-        //
-
+    	Laser o = getLaser(instrumentIndex, lightSourceIndex);
+    	o.setPockelCell(toRType(pockelCell));
     }
 
-    public void setLaserRepetitionRate(Boolean arg0, int arg1, int arg2)
+    public void setLaserRepetitionRate(Boolean repetitionRate, 
+    		                           int instrumentIndex,
+    		                           int lightSourceIndex)
     {
-
-        //
-
+    	Laser o = getLaser(instrumentIndex, lightSourceIndex);
+    	//o.setRepetitionRate(toRType(repetitionRate));
+    }
+    
+    private LightSettings getLightSettings(int imageIndex,
+    		                               int microbeamManipulationIndex,
+    		                               int lightSourceRefIndex)
+    {
+        LinkedHashMap<String, Integer> indexes = 
+        	new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("microbeamManipulationIndex", microbeamManipulationIndex);
+        indexes.put("lightSourceRefIndex", lightSourceRefIndex);
+        return getSourceObject(LightSettings.class, indexes);
     }
 
-    public void setLightSourceRefAttenuation(Float arg0, int arg1, int arg2,
-            int arg3)
+    public void setLightSourceRefAttenuation(Float attenuation, int imageIndex,
+    		                                 int microbeamManipulationIndex,
+    		                                 int lightSourceRefIndex)
     {
-
-        //
-
+    	LightSettings o = getLightSettings(imageIndex,
+    			                           microbeamManipulationIndex,
+    			                           lightSourceRefIndex);
+    	o.setAttenuation(toRType(attenuation));
     }
 
-    public void setLightSourceRefLightSource(String arg0, int arg1, int arg2,
-            int arg3)
+    public void setLightSourceRefLightSource(String lightSource, int imageIndex,
+                                             int microbeamManipulationIndex,
+                                             int lightSourceRefIndex)
     {
-
-        //
-
+        LSID key = new LSID(LightSettings.class, imageIndex,
+                            microbeamManipulationIndex,
+                            lightSourceRefIndex);
+        addReference(key, new LSID(lightSource));
     }
 
-    public void setLightSourceRefWavelength(Integer arg0, int arg1, int arg2,
-            int arg3)
+    public void setLightSourceRefWavelength(Integer wavelength, int imageIndex,
+                                            int microbeamManipulationIndex,
+                                            int lightSourceRefIndex)
     {
-
-        //
-
+    	LightSettings o = getLightSettings(imageIndex,
+                                           microbeamManipulationIndex,
+                                           lightSourceRefIndex);
+    	o.setWavelength(toRType(wavelength));
     }
 
     public void setLineID(String arg0, int arg1, int arg2, int arg3)
@@ -3455,41 +3533,46 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setLogicalChannelDetector(String arg0, int arg1, int arg2)
+    public void setLogicalChannelDetector(
+    		String detector, int imageIndex, int logicalChannelIndex)
     {
-
-        //
-
+        LSID key = new LSID(LogicalChannel.class, imageIndex,
+                            logicalChannelIndex);
+        addReference(key, new LSID(detector));
     }
 
-    public void setLogicalChannelFilterSet(String arg0, int arg1, int arg2)
+    public void setLogicalChannelFilterSet(
+    		String filterSet, int imageIndex, int logicalChannelIndex)
     {
-
-        //
-
+        LSID key = new LSID(LogicalChannel.class, imageIndex,
+                            logicalChannelIndex);
+        addReference(key, new LSID(filterSet));
     }
 
-    public void setLogicalChannelLightSource(String arg0, int arg1, int arg2)
+    public void setLogicalChannelLightSource(
+    		String lightSource, int imageIndex, int logicalChannelIndex)
     {
-
-        //
-
+        LSID key = new LSID(LogicalChannel.class, imageIndex,
+                            logicalChannelIndex);
+        addReference(key, new LSID(lightSource));
     }
 
-    public void setLogicalChannelSecondaryEmissionFilter(String arg0, int arg1,
-            int arg2)
+    public void setLogicalChannelSecondaryEmissionFilter(
+    		String secondaryEmissionFilter, int imageIndex,
+    		int logicalChannelIndex)
     {
-
-        //
-
+        LSID key = new LSID(LogicalChannel.class, imageIndex,
+	                        logicalChannelIndex);
+        addReference(key, new LSID(secondaryEmissionFilter));
     }
 
-    public void setLogicalChannelSecondaryExcitationFilter(String arg0,
-            int arg1, int arg2)
+    public void setLogicalChannelSecondaryExcitationFilter(
+    		String secondaryExcitationFilter, int imageIndex,
+    		int logicalChannelIndex)
     {
-
-        //
-
+        LSID key = new LSID(LogicalChannel.class, imageIndex,
+        		            logicalChannelIndex);
+        addReference(key, new LSID(secondaryExcitationFilter));
     }
 
     public void setMaskID(String arg0, int arg1, int arg2, int arg3)
@@ -3607,40 +3690,48 @@ public class OMEROMetadataStoreClient
         //
 
     }
-
-    public void setMicroscopeID(String arg0, int arg1)
+    
+    private Microscope getMicroscope(int instrumentIndex)
     {
-
-        //
-
+    	Instrument instrument = getInstrument(instrumentIndex);
+    	Microscope microscope = instrument.getMicroscope();
+    	if (microscope == null)
+    	{
+    		microscope = new MicroscopeI();
+    		instrument.setMicroscope(microscope);
+    	}
+    	return microscope;
     }
 
-    public void setMicroscopeManufacturer(String arg0, int arg1)
+    public void setMicroscopeID(String id, int instrumentIndex)
     {
-
-        //
-
+    	// TODO: Not in model, etc.
     }
 
-    public void setMicroscopeModel(String arg0, int arg1)
+    public void setMicroscopeManufacturer(String manufacturer,
+    		                              int instrumentIndex)
     {
-
-        //
-
+    	Microscope o = getMicroscope(instrumentIndex);
+    	o.setManufacturer(toRType(manufacturer));
     }
 
-    public void setMicroscopeSerialNumber(String arg0, int arg1)
+    public void setMicroscopeModel(String model, int instrumentIndex)
     {
-
-        //
-
+    	Microscope o = getMicroscope(instrumentIndex);
+    	o.setModel(toRType(model));
     }
 
-    public void setMicroscopeType(String arg0, int arg1)
+    public void setMicroscopeSerialNumber(String serialNumber,
+    		                              int instrumentIndex)
     {
+    	Microscope o = getMicroscope(instrumentIndex);
+    	o.setSerialNumber(toRType(serialNumber));
+    }
 
-        //
-
+    public void setMicroscopeType(String type, int instrumentIndex)
+    {
+    	Microscope o = getMicroscope(instrumentIndex);
+    	o.setType((MicroscopeType) getEnumeration(MicroscopeType.class, type));
     }
 
     public void setOTFBinaryFile(String arg0, int arg1, int arg2)
@@ -3797,11 +3888,12 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setPumpLightSource(String arg0, int arg1, int arg2)
+    public void setPumpLightSource(String lightSource, int instrumentIndex,
+    		                       int lightSourceIndex)
     {
-
-        //
-
+        LSID key = new LSID(LightSource.class, instrumentIndex,
+        		            lightSourceIndex);
+        addReference(key, new LSID(lightSource));
     }
 
     public void setROIRefID(String arg0, int arg1, int arg2, int arg3)
@@ -3874,23 +3966,22 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setScreenDescription(String arg0, int arg1)
+    public void setScreenDescription(String description, int screenIndex)
     {
-
-        //
-
+    	Screen o = getScreen(screenIndex);
+    	o.setDescription(toRType(description));
     }
 
-    public void setScreenExtern(String arg0, int arg1)
+    public void setScreenExtern(String extern, int screenIndex)
     {
-
-        //
-
+    	//
     }
 
-    public void setScreenReagentSetIdentifier(String arg0, int arg1)
+    public void setScreenReagentSetIdentifier(String reagentSetIdentifier,
+    		                                  int screenIndex)
     {
-
+    	Screen o = getScreen(screenIndex);
+    	o.setReagentSetIdentifier(toRType(reagentSetIdentifier));
     }
 
     public void setScreenRefID(String arg0, int arg1, int arg2)
@@ -3928,32 +4019,49 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setTransmittanceRangeCutIn(Integer arg0, int arg1, int arg2)
+    public void setTransmittanceRangeCutIn(Integer cutIn, int instrumentIndex,
+    		                               int filterIndex)
     {
-
+    	TransmittanceRange o = getTransmittanceRange(instrumentIndex,
+                                                     filterIndex);
+        o.setCutIn(toRType(cutIn));
     }
 
-    public void setTransmittanceRangeCutInTolerance(Integer arg0, int arg1,
-            int arg2)
+    public void setTransmittanceRangeCutInTolerance(Integer cutInTolerance,
+    		                                        int instrumentIndex,
+    		                                        int filterIndex)
     {
-
+    	TransmittanceRange o = getTransmittanceRange(instrumentIndex,
+                                                     filterIndex);
+    	o.setCutInTolerance(toRType(cutInTolerance));
     }
 
-    public void setTransmittanceRangeCutOut(Integer arg0, int arg1, int arg2)
+    public void setTransmittanceRangeCutOut(Integer cutOut, 
+    		                                int instrumentIndex,
+    		                                int filterIndex)
     {
-
+    	TransmittanceRange o = getTransmittanceRange(instrumentIndex,
+                                                     filterIndex);
+    	o.setCutOut(toRType(cutOut));
     }
 
-    public void setTransmittanceRangeCutOutTolerance(Integer arg0, int arg1,
-            int arg2)
+    public void setTransmittanceRangeCutOutTolerance(Integer cutOutTolerance,
+    		                                         int instrumentIndex,
+    		                                         int filterIndex)
     {
-
+    	TransmittanceRange o = getTransmittanceRange(instrumentIndex,
+                                                     filterIndex);
+    	o.setCutOutTolerance(toRType(cutOutTolerance));
     }
 
-    public void setTransmittanceRangeTransmittance(Integer arg0, int arg1,
-            int arg2)
+    public void setTransmittanceRangeTransmittance(Integer transmittance,
+    		                                       int instrumentIndex,
+    		                                       int filterIndex)
     {
-
+    	TransmittanceRange o = getTransmittanceRange(instrumentIndex,
+    			                                     filterIndex);
+    	// TODO: Hack, model has integer, database has double
+    	o.setTransmittance(toRType(new Double(transmittance)));
     }
 
     public void setWellReagent(String reagent, int plateIndex, int wellIndex)
@@ -3965,32 +4073,40 @@ public class OMEROMetadataStoreClient
     public void setWellSampleImageRef(String image, int plateIndex, 
             int wellIndex, int wellSampleIndex)
     {
-        LSID key = new LSID(WellSample.class, plateIndex, wellIndex, wellSampleIndex);
+        LSID key = new LSID(WellSample.class, plateIndex,
+        		            wellIndex, wellSampleIndex);
         addReference(key, new LSID(image));
     }
 
     public void setWellSampleRefID(String arg0, int arg1, int arg2, int arg3)
     {
-
+    	//
     }
 
-    public void setPlateColumnNamingConvention(String arg0, int arg1)
+    public void setPlateColumnNamingConvention(String columnNamingConvention,
+    		                                   int plateIndex)
     {
-
+        Plate o = getPlate(plateIndex);
+        o.setColumnNamingConvention(toRType(columnNamingConvention));
     }
 
-    public void setPlateRowNamingConvention(String arg0, int arg1)
+    public void setPlateRowNamingConvention(String rowNamingConvention,
+    		                                int plateIndex)
     {
+        Plate o = getPlate(plateIndex);
+        o.setRowNamingConvention(toRType(rowNamingConvention));
     }
 
-    public void setPlateWellOriginX(Double arg0, int arg1)
+    public void setPlateWellOriginX(Double wellOriginX, int plateIndex)
     {
-
+        Plate o = getPlate(plateIndex);
+        o.setWellOriginX(toRType(wellOriginX));
     }
 
-    public void setPlateWellOriginY(Double arg0, int arg1)
+    public void setPlateWellOriginY(Double wellOriginY, int plateIndex)
     {
-
+        Plate o = getPlate(plateIndex);
+        o.setWellOriginX(toRType(wellOriginY));
     }
 
     public void setPathD(String arg0, int arg1, int arg2, int arg3)
