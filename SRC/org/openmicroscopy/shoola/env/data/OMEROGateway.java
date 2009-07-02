@@ -4276,7 +4276,7 @@ class OMEROGateway
 		try {
 			ImportLibrary importLibrary = new ImportLibrary(getImportStore(), 
 					new OMEROWrapper());
-			importLibrary.setTarget(container.asIObject());
+			if (container != null) importLibrary.setTarget(container.asIObject());
 			List<Pixels> pixels = 
 				importLibrary.importImage(file, 0, 0, 1, file.getName(), null, 
 					false, null);

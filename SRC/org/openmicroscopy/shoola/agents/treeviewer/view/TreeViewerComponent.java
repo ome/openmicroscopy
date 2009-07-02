@@ -85,7 +85,6 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
-import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -2217,7 +2216,9 @@ class TreeViewerComponent
 		view.setImportStatus("Importing...", true);
 		if (node == null)
 			model.importFiles(parents, l);
-		else model.importFiles(node, l);
+		else {
+			model.importFiles(node, l);
+		}
 	}
 
 	/**

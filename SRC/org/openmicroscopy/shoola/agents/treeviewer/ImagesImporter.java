@@ -90,10 +90,11 @@ public class ImagesImporter
 		this.files = files;
 		if (node != null) {
 			nodes = new ArrayList<TreeImageDisplay>(1); 
-			nodes.add(node);
 			Object ho = node.getUserObject();
-			if (ho instanceof DatasetData || ho instanceof ScreenData)
+			if (ho instanceof DatasetData || ho instanceof ScreenData) {
+				nodes.add(node);
 				container = (DataObject) ho;
+			}
 		}
 	}
 	
