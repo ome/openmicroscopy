@@ -422,13 +422,48 @@
   License:      Apache Software License, Version 1.1
   License File: apache-v1.1.txt
 
+  
+  Artifacts:    bufr-*.jar
+  Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/ 
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/jquery_1.2.6.js
-  Project:      JavaScript library
-  Web Site:     http://jquery.com/
-  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
-  License File: jquery.txt, gpl.txt
 
+  Artifacts:    forms-*.jar
+  Web Site:     http://www.jgoodies.com/freeware/forms/index.html
+  License:      BSD
+  License File: bsd.txt
+ 
+  
+  Artifacts:    mdbtools-java.jar
+  Web Site:     http://sourceforge.net/forum/message.php?msg_id=2550619  
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+
+
+  Artifacts:    jai_imageio-*.jar
+  Web Site:     http://jai-imageio.dev.java.net/ 
+  License:      BSD
+  License File: bsd.txt
+
+
+  Artifacts:    grib-*.jar 
+  Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+  
+  
+  Artifacts:    TableLayout-*.jar 
+  Web Site:     http://java.sun.com/products/jfc/tsc/articles/tablelayout/
+  License:      Sun License
+  License File: tablelayout.txt
+  
+  
+  Artifacts:    netcdf-*.jar 
+  Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/ 
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+  
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/ui/*
   Project:      jQuery UI - open source library of interface components.
@@ -561,4 +596,7 @@
   Web Site:     http://www.everaldo.com/crystal/
   License:      Lesser General Public License
   License File: crystalclear.txt
+    
+  
+  
   
