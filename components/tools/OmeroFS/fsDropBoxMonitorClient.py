@@ -5,7 +5,7 @@
 """
 import logging
 import fsLogger
-log = logging.getLogger("fs."+__name__)
+log = logging.getLogger("fsclient."+__name__)
 
 import string
 import subprocess as sp

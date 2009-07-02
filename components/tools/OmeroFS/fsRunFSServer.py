@@ -13,8 +13,11 @@ try:
     log.info('Trying to start OMERO.fs Server')   
     import fsServer
     app = fsServer.Server()
-    app.main(sys.argv)
 except:
-    log.exception("Failed to start Server. Reason: \n")
+    log.exception("Failed to start the server:\n")
+    log.info("Exiting with exit code: -1")
     sys.exit(-1)
 
+exitCode = app.main(sys.argv)
+log.info("Exiting with exit code: %d", exitCode)
+sys.exit(exitCode)

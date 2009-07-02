@@ -5,7 +5,7 @@
 """
 import logging
 import fsLogger
-log = logging.getLogger("fs."+__name__)
+log = logging.getLogger("fsserver."+__name__)
 
 import threading
 import os, sys, traceback

@@ -5,7 +5,7 @@
 """
 import logging
 import fsLogger
-log = logging.getLogger("fs."+__name__)
+log = logging.getLogger("fsclient."+__name__)
 
 import time, os
 import uuid
@@ -36,32 +36,32 @@ class DropBox(Ice.Application):
             root = omero.client(config.host, config.port)
         except:
             log.exception("Failed to get client: \n")
-            raise
+            return -1
           
         try:   
             sf = self.getOmeroServiceFactory()
         except:
             log.exception("Failed to get Session: \n")
-            raise
+            return -1
             
         try:
             configService = sf.getConfigService()
         except:
             log.exception("Failed to get configService: \n")
-            raise
+            return -1
         
         try:
             dropBoxBase = configService.getConfigValue("omero.data.dir")
             dropBoxBase += config.dropBoxDir
         except:
             log.exception("Failed to use a query service : \n")
-            raise
+            return -1
 
         try:
             sf.destroy()
         except:
             log.exception("Failed to get close session: \n")
-            raise
+            return -1
 
         try:
             fsServer = self.communicator().stringToProxy(config.serverIdString)
@@ -87,7 +87,7 @@ class DropBox(Ice.Application):
 
         except:
             log.exception("Failed to access proxy : \n")
-            raise
+            return -1
             
         log.info('Started OMERO.fs DropBox client')        
         self.communicator().waitForShutdown()
@@ -99,6 +99,7 @@ class DropBox(Ice.Application):
             log.info('Unable to contact FS Server, must have been stopped already.')
             
         log.info('Stopping OMERO.fs DropBox client')
+        return 0
 
 
     def getOmeroServiceFactory(self):
@@ -130,6 +131,7 @@ class DropBox(Ice.Application):
         if gotSession:
             return sf
         else:
-            raise Exception(excpt)
+            log.info("Reason: %s", str(excpt))
+            raise Exception
 
         

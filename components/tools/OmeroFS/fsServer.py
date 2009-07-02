@@ -9,7 +9,7 @@
 """
 import logging
 import fsLogger
-log = logging.getLogger("fs."+__name__)
+log = logging.getLogger("fsserver."+__name__)
 
 import sys
 import Ice
@@ -70,3 +70,4 @@ class Server(Ice.Application):
         # Wait for an interrupt.
         self.communicator().waitForShutdown()
         log.info('Stopping OMERO.fs Server')
+        return 0
