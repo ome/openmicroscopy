@@ -129,6 +129,9 @@ public class EnumerationLoader
             	results.put(OmeroMetadataService.FILAMENT_TYPE, 
             			service.getEnumeration(
             					OmeroMetadataService.FILAMENT_TYPE));
+            	results.put(OmeroMetadataService.FILTER_TYPE, 
+            			service.getEnumeration(
+            					OmeroMetadataService.FILTER_TYPE));
             }
         };
     }

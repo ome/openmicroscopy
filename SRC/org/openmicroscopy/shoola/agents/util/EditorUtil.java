@@ -1336,6 +1336,7 @@ public class EditorUtil
         if (d <= 0)
         	notSet.add(TRANSMITTANCE);
         details.put(TRANSMITTANCE, d);
+        details.put(NOT_SET, notSet);
 		return details;
     }
     

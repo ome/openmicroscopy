@@ -1514,13 +1514,18 @@ class EditorModel
 	 */
 	Object getChannelEnumerationSelected(String name, String value)
 	{
+		if (value == null) return null;
 		List<EnumerationObject> l = getChannelEnumerations(name);
 		if (l.size() == 0) return null;
 		EnumerationObject o;
 		Iterator i = l.iterator();
+		value = value.trim();
+		String v;
 		while (i.hasNext()) {
 			o = (EnumerationObject) i.next();
-			if (o.getValue().equals(value)) return o;
+			v = o.getValue();
+			v = v.trim();
+			if (v.equals(value)) return o;
 		}
 		return null;
 	}

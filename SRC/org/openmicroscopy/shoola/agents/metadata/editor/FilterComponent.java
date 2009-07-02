@@ -45,8 +45,10 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
+import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -68,6 +70,9 @@ class FilterComponent
 	implements PropertyChangeListener
 {
 
+	/** The component displaying the filter options. */
+	private OMEComboBox							filterBox;
+	
 	/** The fields displaying the metadata. */
 	private Map<String, DataComponent> 			fieldsFilter;
 	
@@ -83,10 +88,31 @@ class FilterComponent
 	/** Reference to the Model. */
 	private EditorModel			model;
 	
+	/** Resets the various boxes with enumerations. */
+	private void resetBoxes()
+	{
+		List<EnumerationObject> l; 
+		EnumerationObject[] array;
+		Iterator<EnumerationObject> j;
+		int i = 0;
+		l = model.getChannelEnumerations(Editor.FILTER_TYPE);
+		array = new EnumerationObject[l.size()+1];
+		j = l.iterator();
+		i = 0;
+		while (j.hasNext()) {
+			array[i] = j.next();
+			i++;
+		}
+		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		
+		filterBox = EditorUtil.createComboBox(array);
+	}
+	
+	
 	/** Initiliases the components. */
 	private void initComponents()
 	{
-		//resetBoxes();
+		resetBoxes();
 		fieldsFilter = new LinkedHashMap<String, DataComponent>();
 		
 		unsetFilter = null;
@@ -129,6 +155,7 @@ class FilterComponent
 		Entry entry;
 		Iterator i = entrySet.iterator();
 		boolean set;
+		Object selected;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
             key = (String) entry.getKey();
@@ -146,6 +173,18 @@ class FilterComponent
             	((NumericalTextField) area).setText(""+value);
             	((NumericalTextField) area).setEditedColor(
             			UIUtilities.EDITED_COLOR);
+            } else if (EditorUtil.TYPE.equals(key)) {
+            	selected = model.getChannelEnumerationSelected(
+            			Editor.FILTER_TYPE, (String) value);
+            	if (selected != null) {
+            		filterBox.setSelectedItem(selected);
+            	} else {
+            		set = false;
+            		notSet.add(key);
+            		filterBox.setSelectedIndex(filterBox.getItemCount()-1);
+            	}
+            	filterBox.setEditedColor(UIUtilities.EDITED_COLOR);
+            	area = filterBox;
             } else {
             	area = UIUtilities.createComponent(OMETextArea.class, null);
             	if (value == null || value.equals("")) 
@@ -189,6 +228,35 @@ class FilterComponent
 			title = "Filter";
 		initComponents();
 		buildGUI(title);
+	}
+	
+	/**
+	 * Transforms the filter metadata.
+	 * 
+	 * @param details The value to transform.
+	 */
+	void displayFilter(Map<String, Object> details)
+	{
+		resetBoxes();
+		fieldsFilter.clear();
+		transformFilterSource(details);
+		parent.layoutFields(this, unsetFilter, fieldsFilter, 
+				unsetFilterShown);
+    	parent.attachListener(fieldsFilter);
+	}
+	
+	/**
+	 * Returns <code>true</code> if data to save, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasDataToSave() { return parent.hasDataToSave(fieldsFilter); }
+	
+	/** Prepares the data to save. */
+	void prepareDataToSave()
+	{
+		
 	}
 	
 	/**

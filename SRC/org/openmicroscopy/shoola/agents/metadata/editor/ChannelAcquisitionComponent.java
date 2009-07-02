@@ -403,6 +403,11 @@ class ChannelAcquisitionComponent
 			String kind = (String) details.get(EditorUtil.LIGHT_TYPE);
 			details.remove(EditorUtil.LIGHT_TYPE);
 			lightPane.displayLightSource(kind, details);
+		
+			excitationFilterPane.displayFilter(EditorUtil.transformFilter(
+					data.getSecondaryExcitationFilter()));
+			emissionFilterPane.displayFilter(EditorUtil.transformFilter(
+					data.getSecondaryEmissionFilter()));
 			buildGUI();
 		}
 	}

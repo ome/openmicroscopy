@@ -74,6 +74,10 @@ public interface Editor
 	public static final String DETECTOR_TYPE = 
 					OmeroMetadataService.DETECTOR_TYPE;
 	
+	/** Identified the <code>Detector type</code> enumeration. */
+	public static final String FILTER_TYPE = 
+					OmeroMetadataService.FILTER_TYPE;
+	
 	/** Identified the <code>Laser medium</code> enumeration. */
 	public static final String LASER_MEDIUM = 
 					OmeroMetadataService.LASER_MEDIUM;

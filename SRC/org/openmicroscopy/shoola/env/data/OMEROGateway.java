@@ -4124,6 +4124,7 @@ class OMEROGateway
 		getEnumerations(OmeroMetadataService.LASER_PULSE);
 		getEnumerations(OmeroMetadataService.ARC_TYPE);
 		getEnumerations(OmeroMetadataService.FILAMENT_TYPE);
+		getEnumerations(OmeroMetadataService.FILTER_TYPE);
 	}
 
 	/**

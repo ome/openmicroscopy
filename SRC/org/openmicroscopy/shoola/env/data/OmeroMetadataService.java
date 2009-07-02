@@ -40,6 +40,7 @@ import omero.model.ContrastMethod;
 import omero.model.Correction;
 import omero.model.DetectorType;
 import omero.model.FilamentType;
+import omero.model.FilterType;
 import omero.model.Illumination;
 import omero.model.Immersion;
 import omero.model.LaserMedium;
@@ -102,6 +103,9 @@ public interface OmeroMetadataService
 	
 	/** Identified the <code>Detector type</code> enumeration. */
 	public static final String DETECTOR_TYPE = DetectorType.class.getName();
+	
+	/** Identified the <code>Filter type</code> enumeration. */
+	public static final String FILTER_TYPE = FilterType.class.getName();
 	
 	/** Identified the <code>Binning</code> enumeration. */
 	public static final String BINNING = Binning.class.getName();

@@ -36,6 +36,7 @@ import omero.model.ContrastMethod;
 import omero.model.Correction;
 import omero.model.DetectorType;
 import omero.model.FilamentType;
+import omero.model.FilterType;
 import omero.model.Illumination;
 import omero.model.Immersion;
 import omero.model.LaserMedium;
@@ -118,6 +119,8 @@ public class EnumerationObject
 			value = ((ArcType) object).getValue();
 		else if (object instanceof FilamentType)
 			value = ((FilamentType) object).getValue();
+		else if (object instanceof FilterType)
+			value = ((FilterType) object).getValue();
 		else if (object instanceof String) return (String) object;
 		if (value != null) return value.getValue();
 		return "";
