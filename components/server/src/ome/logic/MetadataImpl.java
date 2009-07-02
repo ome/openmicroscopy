@@ -275,6 +275,8 @@ public class MetadataImpl
         sb.append("left outer join fetch channel.secondaryExcitationFilter as exfilter ");
         sb.append("left outer join fetch exfilter.transmittanceRange as exfilterTrans ");
         sb.append("left outer join fetch emfilter.transmittanceRange as emfilterTrans ");
+        sb.append("left outer join fetch emfilter.type as emt ");
+        sb.append("left outer join fetch exfilter.type as ext ");
         sb.append("left outer join fetch ds.detector as detector ");
         sb.append("left outer join fetch detector.type as dt ");
         sb.append("left outer join fetch ds.binning as binning ");
