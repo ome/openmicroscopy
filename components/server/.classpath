@@ -49,7 +49,6 @@
 	<classpathentry kind="lib" path="target/libs/test/hsqldb.jar"/>
 	<classpathentry kind="lib" path="target/libs/test/ice-db.jar"/>
 	<classpathentry kind="lib" path="target/libs/test/ice.jar"/>
-	<classpathentry kind="lib" path="target/libs/test/ij.jar"/>
 	<classpathentry kind="lib" path="target/libs/test/ini4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/test/jakarta-oro.jar"/>
 	<classpathentry kind="lib" path="target/libs/test/jamon.jar"/>
