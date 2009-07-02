@@ -22,15 +22,16 @@
  */
 package pojos;
 
-import omero.RDouble;
-import omero.model.WellSample;
-import omero.model.WellSampleI;
+
 
 // Java imports
 
 // Third-party libraries
 
 // Application-internal dependencies
+import omero.RDouble;
+import omero.model.WellSample;
+import omero.model.WellSampleI;
 
 /**
  * The data that makes up an <i>OME</i> WellSample along with links to its

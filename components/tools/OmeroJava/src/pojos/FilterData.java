@@ -32,6 +32,7 @@ import omero.RDouble;
 import omero.RInt;
 import omero.RString;
 import omero.model.Filter;
+import omero.model.FilterType;
 import omero.model.TransmittanceRange;
 
 /** 
@@ -198,9 +199,9 @@ public class FilterData
 	public String getType()
 	{
 		Filter f = (Filter) asIObject();
-		RString value = f.getLotNumber();
-		if (value == null) return "";
-		return value.getValue();
+		FilterType type = f.getType();
+		if (type == null) return "";
+		return type.getValue().getValue();
 	}
 	
 	/**

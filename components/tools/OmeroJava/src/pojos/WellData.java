@@ -22,10 +22,16 @@
  */
 package pojos;
 
+
+
+//Java imports
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import static omero.rtypes.*;
 import omero.model.Well;
 import omero.model.WellI;
