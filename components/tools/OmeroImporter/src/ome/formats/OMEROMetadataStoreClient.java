@@ -3561,6 +3561,11 @@ public class OMEROMetadataStoreClient
     		String secondaryEmissionFilter, int imageIndex,
     		int logicalChannelIndex)
     {
+    	// XXX: Using this suffix is kind of a gross hack but the reference
+    	// processing logic does not easily handle multiple A --> B or B --> A 
+    	// linkages of the same type so we'll compromise.
+    	// Thu Jul  2 12:08:19 BST 2009 -- Chris Allan <callan@blackcat.ca>
+    	secondaryEmissionFilter += ":SECONDARY_EMISSION_FILTER";
         LSID key = new LSID(LogicalChannel.class, imageIndex,
 	                        logicalChannelIndex);
         addReference(key, new LSID(secondaryEmissionFilter));
@@ -3570,6 +3575,11 @@ public class OMEROMetadataStoreClient
     		String secondaryExcitationFilter, int imageIndex,
     		int logicalChannelIndex)
     {
+    	// XXX: Using this suffix is kind of a gross hack but the reference
+    	// processing logic does not easily handle multiple A --> B or B --> A 
+    	// linkages of the same type so we'll compromise.
+    	// Thu Jul  2 12:08:19 BST 2009 -- Chris Allan <callan@blackcat.ca>
+    	secondaryExcitationFilter += ":SECONDARY_EXCITATION_FILTER";
         LSID key = new LSID(LogicalChannel.class, imageIndex,
         		            logicalChannelIndex);
         addReference(key, new LSID(secondaryExcitationFilter));

@@ -288,7 +288,8 @@ public class OMEROMetadataStore
     			LSID targetLSID = new LSID(target);
     			IObject targetObject = lsidMap.get(targetLSID);
     			LSID referenceLSID = new LSID(reference);
-    			IObject referenceObject = lsidMap.get(referenceLSID);
+    			IObject referenceObject = lsidMap.get(
+    					new LSID(stripCustomSuffix(reference)));
     			if (targetObject instanceof DetectorSettings)
     			{
     				if (referenceObject instanceof Detector)
@@ -343,6 +344,13 @@ public class OMEROMetadataStore
     			}
     			else if (targetObject instanceof LogicalChannel)
     			{
+    				if (referenceObject instanceof Filter)
+    				{
+    					handleReference((LogicalChannel) targetObject,
+						                (Filter) referenceObject,
+						                referenceLSID);
+    					continue;
+    				}
     				if (referenceObject instanceof FilterSet)
     				{
     					handleReference((LogicalChannel) targetObject,
@@ -444,6 +452,22 @@ public class OMEROMetadataStore
     					reference, referenceObject, target, targetObject));
     		}
     	}
+    }
+    
+    /**
+     * Strips custom, reference only suffixes from LSID so that the object
+     * may be correctly looked up.
+     * @param LSID The LSID string to strip the suffix from.
+     * @return A new LSID string with the suffix stripped or <code>LSID</code>.
+     */
+    private String stripCustomSuffix(String LSID)
+    {
+    	if (LSID.endsWith("SECONDARY_EMISSION_FILTER")
+    		|| LSID.endsWith("SECONDARY_EXCITATION_FILTER"))
+    	{
+    		return LSID.substring(0, LSID.lastIndexOf(':'));
+    	}
+    	return LSID;
     }
     
     /**
@@ -961,6 +985,34 @@ public class OMEROMetadataStore
     private void handleReference(LogicalChannel target, FilterSet reference)
     {
     	target.setFilterSet(reference);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph. This method handles <b>secondary</b> excitation and 
+     * emission filters so requires the LSID be passed in as well.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     * @param referenceLSID LSID of the reference object.
+     */
+    private void handleReference(LogicalChannel target, Filter reference,
+    		                     LSID referenceLSID)
+    {
+    	if (referenceLSID.toString().endsWith("SECONDARY_EMISSION_FILTER"))
+    	{
+    		target.setSecondaryEmissionFilter(reference);
+    	}
+    	else if (referenceLSID.toString().endsWith(
+    			"SECONDARY_EXCITATION_FILTER"))
+    	{
+    		target.setSecondaryExcitationFilter(reference);
+    	}
+    	else
+    	{
+    		throw new ApiUsageException(String.format(
+    				"Unable to handle LogicalChannel --> Filter reference: %s",
+    				referenceLSID));
+    	}
     }
     
     /**
