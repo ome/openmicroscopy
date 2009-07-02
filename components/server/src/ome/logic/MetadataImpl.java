@@ -270,6 +270,11 @@ public class MetadataImpl
 		sb.append("left outer join fetch channel.detectorSettings as ds ");
         sb.append("left outer join fetch channel.lightSourceSettings as lss ");
         sb.append("left outer join fetch channel.mode as mode ");
+        sb.append("left outer join fetch channel.filterSet as filter ");
+        sb.append("left outer join fetch channel.secondaryEmissionFilter as emfilter ");
+        sb.append("left outer join fetch channel.secondaryExcitationFilter as exfilter ");
+        sb.append("left outer join fetch exfilter.transmittanceRange as exfilterTrans ");
+        sb.append("left outer join fetch emfilter.transmittanceRange as emfilterTrans ");
         sb.append("left outer join fetch ds.detector as detector ");
         sb.append("left outer join fetch detector.type as dt ");
         sb.append("left outer join fetch ds.binning as binning ");
