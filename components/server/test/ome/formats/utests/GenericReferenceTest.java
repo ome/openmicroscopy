@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.testng.annotations.Test;
+
+import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
 import ome.model.acquisition.Detector;
 import ome.model.acquisition.DetectorSettings;
@@ -31,8 +34,6 @@ public class GenericReferenceTest extends TestCase
 	
 	private static final int PIXELS_INDEX = 0;
 	
-	private static final int CHANNEL_INDEX = 0;
-	
 	private static final int LOGICAL_CHANNEL_INDEX = 0;
 	
 	private static final int INSTRUMENT_INDEX = 0;
@@ -46,10 +47,6 @@ public class GenericReferenceTest extends TestCase
 	private static final int DETECTOR_INDEX = 0;
 	
 	private static final int DICHROIC_INDEX = 0;
-	
-	private static final int LIGHT_SETTINGS_INDEX = 0;
-	
-	private static final int DETECTOR_SETTINGS_INDEX = 0;
 	
 	private static final int SCREEN_INDEX = 0;
 	
@@ -290,6 +287,45 @@ public class GenericReferenceTest extends TestCase
 	    		           new String[] { "FilterSet:0:0" });
 	    store.updateReferences(referenceCache);
 	    assertEquals(logicalChannel.getFilterSet(), filterSet);
+	}
+	
+	public void testLogicalChannelFilterReference()
+	{
+		try
+		{
+			Map<String, String[]> referenceCache =
+				new HashMap<String, String[]>();
+			referenceCache.put("LogicalChannel:0:0", 
+					new String[] { "Filter:0:0" });
+			store.updateReferences(referenceCache);
+			fail("Did not throw ApiUsageException.");
+		}
+		catch (ApiUsageException e)
+		{
+			return;
+		}
+	}
+	
+	public void testLogicalChannelSecondaryEmissionFilterReference()
+	{
+		Map<String, String[]> referenceCache =
+			new HashMap<String, String[]>();
+		referenceCache.put("LogicalChannel:0:0", 
+				new String[] { "Filter:0:0:SECONDARY_EMISSION_FILTER" });
+		store.updateReferences(referenceCache);
+		assertNull(logicalChannel.getSecondaryExcitationFilter());
+		assertEquals(logicalChannel.getSecondaryEmissionFilter(), filter);
+	}
+	
+	public void testLogicalChannelSecondaryExcitationFilterReference()
+	{
+		Map<String, String[]> referenceCache =
+			new HashMap<String, String[]>();
+		referenceCache.put("LogicalChannel:0:0", 
+				new String[] { "Filter:0:0:SECONDARY_EXCITATION_FILTER" });
+		store.updateReferences(referenceCache);
+		assertNull(logicalChannel.getSecondaryEmissionFilter());
+		assertEquals(logicalChannel.getSecondaryExcitationFilter(), filter);
 	}
 	
 	public void testFilterSetDichroicReference()
