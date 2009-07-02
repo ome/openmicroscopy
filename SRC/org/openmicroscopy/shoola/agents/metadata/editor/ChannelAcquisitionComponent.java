@@ -112,6 +112,12 @@ class ChannelAcquisitionComponent
 	/** The UI component hosting the detector metadata. */
 	private DetectorComponent					detectorPane;
 	
+	/** The UI component hosting the emission filter. */
+	private FilterComponent						emissionFilterPane;
+	
+	/** The UI component hosting the excitation filter. */
+	private FilterComponent						excitationFilterPane;
+	
 	/** Button to show or hides the unset fields of the detector. */
 	private JLabelButton						unsetGeneral;
 	
@@ -183,7 +189,10 @@ class ChannelAcquisitionComponent
 	{
 		resetBoxes();
 		fieldsGeneral = new LinkedHashMap<String, DataComponent>();
-
+		emissionFilterPane = new FilterComponent(parent, model, 
+				"Emission Filter");
+		excitationFilterPane = new FilterComponent(parent, model, 
+									"Excitation Filter");
 		detectorPane = new DetectorComponent(parent, model);
 		lightPane = new LightSourceComponent(parent, model);
 		unsetGeneral = null;
@@ -326,10 +335,22 @@ class ChannelAcquisitionComponent
 		constraints.gridy = 0;
 		add(generalPane, constraints);
 		++constraints.gridy;
-    	add(detectorPane, constraints);
-    	++constraints.gridy;
-    	add(lightPane, constraints);
-    	++constraints.gridy;
+		if (emissionFilterPane.isVisible()) {
+			add(emissionFilterPane, constraints);
+			++constraints.gridy;
+		}
+		if (excitationFilterPane.isVisible()) {
+			add(excitationFilterPane, constraints);
+			++constraints.gridy;
+		}
+		if (detectorPane.isVisible()) {
+			add(detectorPane, constraints);
+	    	++constraints.gridy;
+		}
+		if (lightPane.isVisible()) {
+			add(lightPane, constraints);
+	    	++constraints.gridy;
+		}
     	constraints.fill = GridBagConstraints.HORIZONTAL;
     	add(exposureTask, constraints);
     	parent.attachListener(fieldsGeneral);
@@ -374,6 +395,7 @@ class ChannelAcquisitionComponent
 			transformGeneralSource(EditorUtil.transformChannelData(channel));
 			ChannelAcquisitionData data = model.getChannelAcquisitionData(
 	    			channel.getIndex());
+			//if no detector info: don't display.
 			detectorPane.displayDetector(EditorUtil.transformDetector(data));
 			
 			Map<String, Object> details = EditorUtil.transformLightSource(

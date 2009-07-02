@@ -371,9 +371,20 @@ public class EditorUtil
 	/** Identifies a cut out tolerance. */
 	public static final String	CUT_OUT_TOLERANCE = "Cut Out Tolerance";
 	
+	/** The maximum number of field for a detector. */
+	public static final int		MAX_FIELDS_DETECTOR = 12;
 	
+	/** The maximum number of field for a filter. */
+	public static final int		MAX_FIELDS_FILTER = 11;
 	
+	/** The maximum number of field for an objective. */
+	public static final int		MAX_FIELDS_OBJECTIVE = 14;
 	
+	/** The maximum number of field for a laser. */
+	public static final int		MAX_FIELDS_LASER = 14;
+	
+	/** The maximum number of field for a filament. */
+	public static final int		MAX_FIELDS_LIGHT = 7;
 	
 	/** Identifies the <code>Indigo</code> color. */
 	private static final Color  INDIGO = new Color(75, 0, 130);

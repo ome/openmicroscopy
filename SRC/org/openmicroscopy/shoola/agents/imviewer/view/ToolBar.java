@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -179,7 +181,7 @@ class ToolBar
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
         bar.add(new JSeparator(JSeparator.VERTICAL));
-        button =  new JButton(
+        button = new JButton(
         			controller.getAction(ImViewerControl.MOVIE));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);    
@@ -236,6 +238,7 @@ class ToolBar
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
+    	/*
     	setBorder(null);
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     	JPanel p = new JPanel();
@@ -244,6 +247,21 @@ class ToolBar
     	p.add(UIUtilities.buildComponentPanel(bar));
     	p.add(UIUtilities.buildComponentPanelRight(busyLabel));
         add(p);
+        */
+    	JPanel p = new JPanel();
+		JLabel l = new JLabel("Compression:");
+		p.add(l);
+		p.add(compressionBox);
+    	setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+    	setBorder(null);
+    	JPanel bars = new JPanel();
+    	bars.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    	bars.setBorder(null);
+    	bars.add(bar);
+    	bars.add(p);
+    	//add(UIUtilities.buildComponentPanel(bar));
+    	add(UIUtilities.buildComponentPanel(bars));
+    	add(UIUtilities.buildComponentPanelRight(busyLabel));
     }
     
     /**
@@ -282,7 +300,7 @@ class ToolBar
 		JLabel l = new JLabel("Compression:");
 		p.add(l);
 		p.add(compressionBox);
-		bar.add(UIUtilities.buildComponentPanel(p));
+		//add(UIUtilities.buildComponentPanel(p));
 		compressionBox.setSelectedIndex(view.convertCompressionLevel());
 		compressionBox.addActionListener(
     			controller.getAction(ImViewerControl.COMPRESSION));

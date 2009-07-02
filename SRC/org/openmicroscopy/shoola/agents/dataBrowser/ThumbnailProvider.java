@@ -183,6 +183,8 @@ public class ThumbnailProvider
      */
     private BufferedImage magnifyImage(double f, BufferedImage img)
     {
+    	return Factory.magnifyImage(f, img);
+    	/*
         if (img == null) return null;
         int width = img.getWidth(), height = img.getHeight();
         if (width <= 0 || height <= 0) return null;
@@ -190,10 +192,15 @@ public class ThumbnailProvider
         at.scale(f, f);
         BufferedImageOp biop = new AffineTransformOp(at, 
             AffineTransformOp.TYPE_BILINEAR); 
+        int type = img.getType();
+        //if (type == BufferedImage.TYPE_CUSTOM)
+        	//type = BufferedImage.TYPE_
         BufferedImage rescaleBuff = new BufferedImage((int) (width*f), 
                         (int) (height*f), img.getType());
         biop.filter(img, rescaleBuff);
         return rescaleBuff;
+        */
+        
     }
     
     /**

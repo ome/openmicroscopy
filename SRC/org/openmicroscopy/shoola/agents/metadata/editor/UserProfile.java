@@ -497,20 +497,23 @@ class UserProfile
     	
     	//set the groups
     	if (selectedIndex != originalIndex) {
-    		GroupData g = groupData[selectedIndex];
+    		GroupData g = null;
+    		if (selectedIndex < groupData.length)
+    			g = groupData[selectedIndex];
     		ExperimenterData user = (ExperimenterData) model.getRefObject();
     		List userGroups = user.getGroups();
     		List<GroupData> newGroups = new ArrayList<GroupData>();
-    		newGroups.add(g);
+    		if (g != null) newGroups.add(g);
     		Iterator i = userGroups.iterator();
+    		long id = -1;
+    		if (g != null) id = g.getId();
     		GroupData group;
     		while (i.hasNext()) {
 				group = (GroupData) i.next();
-				if (group.getId() != g.getId())
+				if (group.getId() != id)
 					newGroups.add(group);
 			}
     		//Need to see what to do b/c no ExperimenterGroupMap
-    		//newOne.setGroups(newGroups);
     		original.setGroups(newGroups);
     	}
 		return original;//newOne;

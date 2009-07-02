@@ -3896,6 +3896,7 @@ class OMEROGateway
 			}
 			return null;
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot load channel acquisition data.");
 		}
 		return null;

@@ -1505,5 +1505,19 @@ public class UIUtilities
 		return getTotalMemory()-getFreeMemory();
 	}
 
+	/**
+	 * Creates a separator of the specified height.
+	 * 
+	 * @param h The desired height.
+	 * @return See above.
+	 */
+	public static JSeparator createSeparator(int h)
+	{
+		if (h <= 0) h = DEFAULT_ICON_HEIGHT;
+		JSeparator s = new JSeparator(JSeparator.VERTICAL);
+		Dimension d = s.getPreferredSize();
+		s.setMaximumSize(new Dimension(d.width, h));
+		return s;
+	}
 	
 }
