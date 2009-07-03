@@ -113,6 +113,12 @@
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt  
 
+  
+  Artifacts:    bufr-*.jar
+  Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/ 
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+  
 
   Artifacts:    cglib-*.jar
   Project:      CGLIB, a powerful, high performance and quality Code Generation Library
@@ -196,6 +202,12 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    grib-*.jar 
+  Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+  
+
   Artifacts:    hibernate-*.jar
   Project:      Hibernate. A powerful, high performance object/relational persistence and
                 query service.
@@ -203,6 +215,13 @@
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
 
+
+  Artifacts:    hsqldb.jar
+  Project:      HSQLDB is Java database applications.    
+  Web Site:     http://hsqldb.org/
+  License:      BSD
+  License File: hsqldb.txt
+  
 
   Artifacts:    ice-*.jar
   Project:      Internet Communications Engine (Ice). A modern object-oriented
@@ -218,6 +237,12 @@
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
 
+
+  Artifacts:    jai_imageio-*.jar
+  Web Site:     http://jai-imageio.dev.java.net/ 
+  License:      BSD
+  License File: bsd.txt
+  
 
   Artifacts:    jakarta-oro-*.jar
   Project:      Jakarta-ORO, a set of text-processing Java classes
@@ -314,7 +339,19 @@
   Web Site:     http://logging.apache.org/log4j/
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
-
+   
+  
+  Artifacts:    mdbtools-java.jar
+  Web Site:     http://sourceforge.net/forum/message.php?msg_id=2550619  
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+  
+  
+  Artifacts:    netcdf-*.jar 
+  Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/ 
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+  
 
   Artifacts:    components/tools/OmeroPy/src/path.py
   Project:      Improved Python path library
@@ -399,7 +436,13 @@
   Web Site:     http://swingx.dev.java.net
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
-
+  
+  
+  Artifacts:    TableLayout-*.jar 
+  Web Site:     http://java.sun.com/products/jfc/tsc/articles/tablelayout/
+  License:      Sun License
+  License File: tablelayout.txt
+  
 
   Artifacts:    testng-*.jar
   Project:      TestNG, a testing framework inspired by JUnit and NUnit but introducing
@@ -422,48 +465,12 @@
   License:      Apache Software License, Version 1.1
   License File: apache-v1.1.txt
 
-  
-  Artifacts:    bufr-*.jar
-  Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/ 
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
-
 
   Artifacts:    forms-*.jar
   Web Site:     http://www.jgoodies.com/freeware/forms/index.html
   License:      BSD
   License File: bsd.txt
- 
-  
-  Artifacts:    mdbtools-java.jar
-  Web Site:     http://sourceforge.net/forum/message.php?msg_id=2550619  
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
 
-
-  Artifacts:    jai_imageio-*.jar
-  Web Site:     http://jai-imageio.dev.java.net/ 
-  License:      BSD
-  License File: bsd.txt
-
-
-  Artifacts:    grib-*.jar 
-  Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
-  
-  
-  Artifacts:    TableLayout-*.jar 
-  Web Site:     http://java.sun.com/products/jfc/tsc/articles/tablelayout/
-  License:      Sun License
-  License File: tablelayout.txt
-  
-  
-  Artifacts:    netcdf-*.jar 
-  Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/ 
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
-  
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/javascript/ui/*
   Project:      jQuery UI - open source library of interface components.
