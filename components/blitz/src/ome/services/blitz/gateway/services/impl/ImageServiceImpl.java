@@ -94,7 +94,7 @@ public class ImageServiceImpl
 	{
 		IPixelsPrx iPixels = gatewayFactory.getIPixels();
 		Long newID = iPixels.copyAndResizePixels
-						(pixelsID, rint(x), rint(y), rint(t), rint(z), channelList, methodology, true).getValue();
+						(pixelsID, rint(x), rint(y), rint(z), rint(t), channelList, methodology, true).getValue();
 		return newID;
 	}
 	
@@ -108,7 +108,7 @@ public class ImageServiceImpl
 		Pixels pixels = getPixels(pixelsID);
 		Long newID = iPixels.copyAndResizePixels
 						(pixelsID, pixels.getSizeX(), pixels.getSizeY(), 
-						 pixels.getSizeT(),pixels.getSizeZ(), 
+						 pixels.getSizeZ(),pixels.getSizeT(),
 						 channelList, methodology, true).getValue();
 		return newID;
 	}
@@ -121,7 +121,7 @@ public class ImageServiceImpl
 	{
 		IPixelsPrx iPixels = gatewayFactory.getIPixels();
 		Long newID = iPixels.copyAndResizeImage
-						(imageId, rint(x), rint(y), rint(t), rint(z), channelList, methodology, true).getValue();
+						(imageId, rint(x), rint(y), rint(z), rint(t), channelList, methodology, true).getValue();
 		return newID;
 	}
 	
