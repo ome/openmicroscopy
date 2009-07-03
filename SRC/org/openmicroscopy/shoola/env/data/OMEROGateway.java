@@ -2219,7 +2219,6 @@ class OMEROGateway
 			}
 			return service.findAllByQuery(sb.toString(), p);
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot retrieve the annotation links for "+
 					"parent ID: "+parentID);
 		}

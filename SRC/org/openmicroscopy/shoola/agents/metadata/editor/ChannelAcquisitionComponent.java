@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
+import pojos.LightSourceData;
 
 /** 
  * Displays the metadata related to the channel.
@@ -333,8 +334,10 @@ class ChannelAcquisitionComponent
 		constraints.insets = new Insets(0, 2, 2, 0);
 		constraints.weightx = 1.0;
 		constraints.gridy = 0;
-		add(generalPane, constraints);
-		++constraints.gridy;
+		if (generalPane.isVisible()) {
+			add(generalPane, constraints);
+			++constraints.gridy;
+		}
 		if (emissionFilterPane.isVisible()) {
 			add(emissionFilterPane, constraints);
 			++constraints.gridy;
@@ -392,22 +395,54 @@ class ChannelAcquisitionComponent
 			removeAll();
 	    	fieldsGeneral.clear();
 	    	
-			transformGeneralSource(EditorUtil.transformChannelData(channel));
+	    	Map<String, Object> details =
+	    		EditorUtil.transformChannelData(channel);
+	    	List notSet = (List) details.get(EditorUtil.NOT_SET);
+	    	generalPane.setVisible(false);
+	    	if (notSet.size() != EditorUtil.MAX_FIELDS_CHANNEL) {
+	    		transformGeneralSource(details);
+				generalPane.setVisible(true);
+			}
 			ChannelAcquisitionData data = model.getChannelAcquisitionData(
 	    			channel.getIndex());
 			//if no detector info: don't display.
-			detectorPane.displayDetector(EditorUtil.transformDetector(data));
-			
-			Map<String, Object> details = EditorUtil.transformLightSource(
+			details = EditorUtil.transformDetector(data);
+			notSet = (List) details.get(EditorUtil.NOT_SET);
+			detectorPane.setVisible(false);
+			if (notSet.size() != EditorUtil.MAX_FIELDS_DETECTOR) {
+				detectorPane.displayDetector(details);
+				detectorPane.setVisible(true);
+			}
+			details = EditorUtil.transformLightSource(
 					data.getLightSource());
 			String kind = (String) details.get(EditorUtil.LIGHT_TYPE);
 			details.remove(EditorUtil.LIGHT_TYPE);
-			lightPane.displayLightSource(kind, details);
-		
-			excitationFilterPane.displayFilter(EditorUtil.transformFilter(
-					data.getSecondaryExcitationFilter()));
-			emissionFilterPane.displayFilter(EditorUtil.transformFilter(
-					data.getSecondaryEmissionFilter()));
+			notSet = (List) details.get(EditorUtil.NOT_SET);
+			lightPane.setVisible(false);
+			int n = EditorUtil.MAX_FIELDS_LIGHT;
+			if (LightSourceData.LASER.equals(kind)) 
+				n = EditorUtil.MAX_FIELDS_LASER;
+			
+			if (notSet.size() != n) {
+				lightPane.displayLightSource(kind, details);
+				lightPane.setVisible(true);
+			}
+			details = EditorUtil.transformFilter(
+					data.getSecondaryExcitationFilter());
+			notSet = (List) details.get(EditorUtil.NOT_SET);
+			excitationFilterPane.setVisible(false);
+			if (notSet.size() != EditorUtil.MAX_FIELDS_FILTER) {
+				excitationFilterPane.displayFilter(details);
+				excitationFilterPane.setVisible(true);
+			}
+			details = EditorUtil.transformFilter(
+					data.getSecondaryEmissionFilter());
+			notSet = (List) details.get(EditorUtil.NOT_SET);
+			emissionFilterPane.setVisible(false);
+			if (notSet.size() != EditorUtil.MAX_FIELDS_FILTER) {
+				emissionFilterPane.displayFilter(details);
+				emissionFilterPane.setVisible(true);
+			}
 			buildGUI();
 		}
 	}

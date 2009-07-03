@@ -383,8 +383,17 @@ public class EditorUtil
 	/** The maximum number of field for a laser. */
 	public static final int		MAX_FIELDS_LASER = 14;
 	
-	/** The maximum number of field for a filament. */
+	/** The maximum number of field for a filament and arc. */
 	public static final int		MAX_FIELDS_LIGHT = 7;
+	
+	/** The maximum number of field for a channel. */
+	public static final int		MAX_FIELDS_CHANNEL = 10;
+	
+	/** The maximum number of field for a Stage Label. */
+	public static final int		MAX_FIELDS_STAGE_LABEL = 4;
+	
+	/** The maximum number of field for an environment. */
+	public static final int		MAX_FIELDS_ENVIRONMENT = 4;
 	
 	/** Identifies the <code>Indigo</code> color. */
 	private static final Color  INDIGO = new Color(75, 0, 130);

@@ -292,18 +292,10 @@ class ImageAcquisitionComponent
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		fieldsEnv.clear();
-		fieldsStage.clear();
-		ImageAcquisitionData data = model.getImageAcquisitionData();
-		objectivePane.displayObjective(EditorUtil.transformObjective(data));
-		transformEnv(EditorUtil.transformImageEnvironment(data));
-		transformStage(EditorUtil.transformStageLabel(data));
-		parent.layoutFields(envPane, unsetEnv, fieldsEnv, unsetEnvShown);
-		parent.layoutFields(stagePane, unsetStage, fieldsStage, 
-				unsetStageShown);
-		add(objectivePane);
-		add(envPane);
-		add(stagePane);
+		removeAll();
+		if (objectivePane.isVisible()) add(objectivePane);
+		if (envPane.isVisible()) add(envPane);
+		if (stagePane.isVisible()) add(stagePane);
 		parent.attachListener(fieldsStage);
 		parent.attachListener(fieldsEnv);
 	}
@@ -330,7 +322,33 @@ class ImageAcquisitionComponent
 	{
 		if (!init) {
 			init = true;
-			removeAll();
+			fieldsEnv.clear();
+			fieldsStage.clear();
+			ImageAcquisitionData data = model.getImageAcquisitionData();
+			Map<String, Object> details = EditorUtil.transformObjective(data);
+	    	List notSet = (List) details.get(EditorUtil.NOT_SET);
+	    	objectivePane.setVisible(false);
+	    	if (notSet.size() != EditorUtil.MAX_FIELDS_OBJECTIVE) {
+	    		objectivePane.displayObjective(details);
+	    		objectivePane.setVisible(true);
+	    	}
+	    	details = EditorUtil.transformImageEnvironment(data);
+	    	notSet = (List) details.get(EditorUtil.NOT_SET);
+	    	envPane.setVisible(false);
+	    	if (notSet.size() != EditorUtil.MAX_FIELDS_ENVIRONMENT) {
+	    		transformEnv(details);
+	    		envPane.setVisible(true);
+	    	}
+	    	details = EditorUtil.transformStageLabel(data);
+	    	notSet = (List) details.get(EditorUtil.NOT_SET);
+	    	stagePane.setVisible(false);
+	    	if (notSet.size() != EditorUtil.MAX_FIELDS_STAGE_LABEL) {
+	    		transformStage(details);
+	    		stagePane.setVisible(true);
+	    	}
+			parent.layoutFields(envPane, unsetEnv, fieldsEnv, unsetEnvShown);
+			parent.layoutFields(stagePane, unsetStage, fieldsStage, 
+					unsetStageShown);
 			buildGUI();
 		}
 		
