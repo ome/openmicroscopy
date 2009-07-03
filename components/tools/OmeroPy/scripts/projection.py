@@ -86,7 +86,7 @@ def projection(client, session, commandArgs):
 	
 	image = pixels.getImage();		
 	
-	newImageId = gateway.copyImage(image.getId().getValue(), sizeX,sizeY,1,sizeT, channels, 'projection');
+	newImageId = gateway.copyImage(image.getId().getValue(), sizeX,sizeY,sizeT,1, channels, 'projection');
 	newImage = gateway.getImage(newImageId);
 	newImage.setName(RStringI('projectedImage'));
 	gateway.saveObject(newImage);
