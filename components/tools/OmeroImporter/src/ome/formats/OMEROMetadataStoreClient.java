@@ -4454,4 +4454,19 @@ public class OMEROMetadataStoreClient
         o.LSID = id;
 		
 	}
+
+	public void setRoiLinkDirection(String arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setRoiLinkName(String arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setRoiLinkRef(String arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
 }
