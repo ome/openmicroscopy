@@ -109,6 +109,93 @@ def addAnnotationToImage(updateService, image, annotation):
 	l.setParent(image);
 	l.setChild(annotation);
 	return updateService.saveAndReturnObject(l);
+	
+def readFromOriginalFile(fileId):
+	originalFileStore = session.createRawFileStore();
+	iQuery = session.getQueryService();
+	fileDetails = iQuery.findByQuery("from OriginalFile as o where o.id = " + str(fileId) , None);
+	originalFileStore.setFileId(fileId);
+	data = '';
+	cnt = 0;
+	maxBlockSize = 10000;
+	fileSize = fileDetails.getSize().getValue();
+	while(cnt<fileSize):
+		blockSize = min(maxBlockSize, fileSize);
+		block = originalFileStore.read(cnt, blockSize);
+		data = data + block;
+		cnt = cnt+blockSize;
+	return data;
+
+def readImageFile(gateway, pixels, pixelsId, channel, x, y):
+	cRange = range(0,channel);
+	stack = numpy.zeros((channel,x,y),dtype=(pixels.getPixelsType().getValue().getValue()));
+	for c in cRange:
+		plane = downloadPlane(gateway, pixels, pixelsId, x, y, 0, c, 0);
+		stack[c,:,:]=plane;
+	return stack;
+
+def readFile(session, fileId, row, col):
+	textBlock = readFromOriginalFile(fileId);
+	arrayFromFile = numpy.fromstring(textBlock,sep=' ');
+	return numpy.reshape(arrayFromFile, (row, col));
+	
+def calcSha1FromData(data):
+	h = hash_sha1()
+	h.update(data)
+	hash = h.hexdigest()
+	return hash;
+	
+def createFileFromData(session, filename, data, format):
+ 	tempFile = omero.model.OriginalFileI();
+	tempFile.setName(omero.rtypes.rstring(filename));
+	tempFile.setPath(omero.rtypes.rstring(filename));
+	tempFile.setFormat(getFormat(session, format));
+	tempFile.setSize(omero.rtypes.rlong(len(data)));
+	tempFile.setSha1(omero.rtypes.rstring(calcSha1FromData(data)));
+	updateService = session.getUpdateService();
+	return updateService.saveAndReturnObject(tempFile);
+	
+def attachArrayToImage(session, image, file, nameSpace):
+	updateService = session.getUpdateService();
+	fa = omero.model.FileAnnotationI();
+	fa.setFile(file);
+	fa.setNs(omero.rtypes.rstring(nameSpace))
+	l = omero.model.ImageAnnotationLinkI();
+	l.setParent(image);
+	l.setChild(fa);
+	l = updateService.saveAndReturnObject(l);
+
+def uploadArray(session, image, filename, data, format):
+	file = createFileFromData(session, filename, data, format);
+	rawFileStore = session.createRawFileStore();
+	rawFileStore.setFileId(file.getId().getValue());
+	fileSize = len(data);
+	increment = 10000;
+	cnt = 0;
+	done = 0
+	while(done!=1):
+		if(increment+cnt<fileSize):
+			blockSize = increment;
+		else:
+			blockSize = fileSize-cnt;
+			done = 1;
+		block = data[cnt:cnt+blockSize];
+		rawFileStore.write(block, cnt, blockSize);
+		cnt = cnt+blockSize;
+	attachArrayToImage(session, image, file, CSV_NS)	
+
+def arrayToCSV(data):
+	size = data.shape;
+	row = size[0];
+	col = size[1];
+	strdata ="";
+	for r in range(0,row):
+		for c in range(0, col):
+			strdata = strdata + str(data[r,c])
+			if(c<col-1):
+				strdata = strdata+',';
+		strdata = strdata + '\n';
+	return strdata;    
 
 def downloadPlane(rawPixelStore, pixels, z, c, t):
 	rawPlane = rawPixelStore.getPlane(z, c, t);
@@ -135,6 +222,7 @@ def getRenderingEngine(session, pixelsId):
 	renderingEngine.load();
 	return renderingEngine;
 
+	
 def createPlaneDef(z,t):
 	planeDef = omero.romio.PlaneDef()
 	planeDef.t = t;
