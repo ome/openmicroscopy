@@ -57,7 +57,7 @@ public class OriginalFileLoader
 	/** The pixels set. */
 	private long pixelsID;
 	
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
     
 	 /**	
@@ -98,7 +98,7 @@ public class OriginalFileLoader
      */
     public void handleResult(Object result) 
     {
-    	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
+    	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  
     	//viewer.setMetadata(refNode, result);
     	viewer.setDownloadedFiles(folder, (Collection) result);
     } 

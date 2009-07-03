@@ -319,7 +319,7 @@ public interface Editor
 
 	/**
 	 * Selects the renderer view. This will only be applied if the 
-	 * type of the component is {@link #RND_SPECIFIC}.
+	 * type of the component is {@link MetadataViewer#RND_SPECIFIC}.
 	 */
 	public void selectRenderer();
 

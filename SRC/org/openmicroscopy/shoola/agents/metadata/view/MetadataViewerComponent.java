@@ -41,12 +41,14 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.metadata.util.BasicAnalyseDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -128,8 +130,31 @@ class MetadataViewerComponent
 	}
 	
 	/**
+	 * Analyzes the data.
+	 * 
+	 * @param n The id of the image.
+	 */
+	private void analyseData(Number n)
+	{
+		UserNotifier un = 
+			MetadataViewerAgent.getRegistry().getUserNotifier();
+		if (n == null) {
+			un.notifyInfo("Analyse", "Please enter a valid ID.");
+			return;
+		}
+		FileAnnotationData fa = model.getIRF();
+		if (fa == null) {
+			un.notifyInfo("Analyse", "No function linked to the image.");
+			return;
+		}
+		model.analyseData(n.longValue());
+		firePropertyChange(ANALYSE_PROPERTY, Boolean.valueOf(false),
+				Boolean.valueOf(true));
+	}
+	
+	/**
 	 * Creates a new instance.
-	 * The {@link #initialize() initialize} method should be called straigh 
+	 * The {@link #initialize() initialize} method should be called straight
 	 * after to complete the MVC set up.
 	 * 
 	 * @param model The Model sub-component. Mustn't be <code>null</code>.
@@ -634,6 +659,10 @@ class MetadataViewerComponent
 	public void makeMovie(int scaleBar, Color overlayColor)
 	{
 		Object refObject = model.getRefObject();
+		if (refObject instanceof WellSampleData) {
+			WellSampleData wsd = (WellSampleData) refObject;
+			refObject = wsd.getImage();
+		}
 		if (!(refObject instanceof ImageData)) return;
 		PixelsData data = null;
 		ImageData img = (ImageData) refObject;
@@ -666,7 +695,7 @@ class MetadataViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#uploadMovie(FileAnnotationData)
+	 * @see MetadataViewer#uploadMovie(FileAnnotationData, File)
 	 */
 	public void uploadMovie(FileAnnotationData data, File folder)
 	{
@@ -714,7 +743,7 @@ class MetadataViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#applyToAll(ImageData)
+	 * @see MetadataViewer#applyToAll()
 	 */
 	public void applyToAll()
 	{
@@ -787,6 +816,28 @@ class MetadataViewerComponent
 		Renderer rnd = getRenderer();
 		if (rnd == null) return new Dimension(0, 0);
 		return rnd.getUI().getPreferredSize();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#analyse()
+	 */
+	public void analyse()
+	{
+		Object refObject = model.getRefObject();
+		if (!(refObject instanceof ImageData)) return;
+		IconManager icons = IconManager.getInstance();
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		BasicAnalyseDialog d = new BasicAnalyseDialog(f, 
+				icons.getIcon(IconManager.ANALYSE_48));
+		d.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				Number n = (Number) evt.getNewValue();
+				analyseData(n);
+			}
+		});
+		UIUtilities.centerAndShow(d);
 	}
 	
 }

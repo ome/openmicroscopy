@@ -262,7 +262,7 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#importImages(DataObject, File, long, long)
+     * @see OmeroImageService#importImage(DataObject, File, long, long)
      */
 	public Object importImage(DataObject container, File image, 
 			long userID, long groupID) 
@@ -275,14 +275,11 @@ public class NullRenderingService
      * No-op implementation
      * @see OmeroImageService#getFSFileSystemView()
      */
-	public FileSystemView getFSFileSystemView() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public FileSystemView getFSFileSystemView() { return null; }
 
 	public Object monitor(String path, DataObject container, 
-			long userID, long groupID) {
-		// TODO Auto-generated method stub
+			long userID, long groupID)
+	{
 		return null;
 	}
 
@@ -292,8 +289,14 @@ public class NullRenderingService
      */
 	public FileAnnotationData createMovie(long imageID, List<Integer> channels,
 			MovieExportParam param) throws DSOutOfServiceException,
-			DSAccessException {
-		// TODO Auto-generated method stub
+			DSAccessException
+	{
+		return null;
+	}
+
+	public DataObject analyseFretFit(long controlID, long toAnalyzeID,
+			long irfID) throws DSOutOfServiceException, DSAccessException
+	{
 		return null;
 	}
 

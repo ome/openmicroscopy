@@ -325,12 +325,20 @@ public class EditorUI
     }
 
     /**
-     * Enables the saving controls depending on the passed value.
+     * Displays the movie components depending on the passed value.
      * 
      * @param b Pass <code>true</code> if movie creation,
      * 			<code>false</code> when it is done.
      */
     void createMovie(boolean b) { toolBar.createMovie(b); }
+    
+    /**
+     * displays the analyze components depending on the passed value.
+     * 
+     * @param b Pass <code>true</code> if movie creation,
+     * 			<code>false</code> when it is done.
+     */
+    void analyse(boolean b) { toolBar.analyse(b); }
     
     /**
      * Enables the saving controls depending on the passed value.
@@ -548,9 +556,9 @@ public class EditorUI
 	}
 	
 	/**
-	 * Sets the selected tabbed.
+	 * Sets the selected tab.
 	 * 
-	 * @param index The index of the tabbed to select.
+	 * @param index The index of the tab to select.
 	 */
 	void setSelectedTabbed(int index)
 	{
@@ -561,5 +569,8 @@ public class EditorUI
 				tabbedPane.setSelectedIndex(index);
 		}
 	}
+
+	/** Analyzes the data. */
+	void analyse() { model.analyse(); }
 	
 }

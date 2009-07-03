@@ -29,7 +29,6 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -52,7 +51,7 @@ public class MovieCreator
 	extends BatchCallTree
 {
 
-	 /** The results of the call. */
+	/** The results of the call. */
     private Object        results;
     
     /** Loads the specified tree. */
@@ -69,7 +68,7 @@ public class MovieCreator
     private BatchCall makeBatchCall(final long imageID, 
     		final List<Integer> channels, final MovieExportParam param)
     {
-        return new BatchCall("Loading user's images: ") {
+        return new BatchCall("Creating movie: ") {
             public void doCall() throws Exception
             {
                 OmeroImageService os = context.getImageService();

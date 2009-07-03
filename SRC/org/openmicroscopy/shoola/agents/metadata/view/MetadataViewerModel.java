@@ -37,6 +37,7 @@ import java.util.Map;
 import org.openmicroscopy.shoola.agents.metadata.DataBatchSaver;
 import org.openmicroscopy.shoola.agents.metadata.DataSaver;
 import org.openmicroscopy.shoola.agents.metadata.ExperimenterEditor;
+import org.openmicroscopy.shoola.agents.metadata.FretAnalyser;
 import org.openmicroscopy.shoola.agents.metadata.MetadataLoader;
 import org.openmicroscopy.shoola.agents.metadata.ContainersLoader;
 import org.openmicroscopy.shoola.agents.metadata.MovieCreator;
@@ -53,6 +54,7 @@ import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -528,5 +530,41 @@ class MetadataViewerModel
 	 * @return See above.
 	 */
 	int getIndex() { return index; }
+
+	/**
+	 * Returns the instrument transfer function linked to the edited object.
+	 * 
+	 * @return See above
+	 */
+	FileAnnotationData getIRF()
+	{
+		if (!(refObject instanceof ImageData)) return null;
+		if (data == null) return null;
+		Collection l = data.getAttachments();
+		if (l == null || l.size() == 0) return null;
+		Iterator i = l.iterator();
+		FileAnnotationData fa;
+		while (i.hasNext()) {
+			fa = (FileAnnotationData) i.next();
+			if (fa.getFileName().contains("irf"))
+				return fa;
+		}
+		return null;
+	}
+	
+	/**
+	 * Starts an asynchronous call to analyze the data.
+	 * 
+	 * @param toAnalyzeID The id of the image to analyze.
+	 */
+	void analyseData(long toAnalyzeID)
+	{
+		if (!(refObject instanceof ImageData)) return;
+		ImageData img = (ImageData) refObject;
+		FileAnnotationData fa = getIRF();
+		FretAnalyser analyser = new FretAnalyser(component, img, toAnalyzeID, 
+				fa);
+		analyser.load();
+	}
 	
 }

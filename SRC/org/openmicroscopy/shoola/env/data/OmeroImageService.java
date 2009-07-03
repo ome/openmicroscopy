@@ -109,7 +109,7 @@ public interface OmeroImageService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public RenderingControl loadRenderingControl(long pixelsID)
@@ -150,8 +150,7 @@ public interface OmeroImageService
 	 * @param sizeY     The height of the thumnail.
 	 * @param userID	The id of the user the thumbnail is for.
 	 * @return See above.
-	 * @throws RenderingServiceException    If the server cannot retrieve the 
-	 *                                      thumbnail.
+	 * @throws RenderingServiceException    If the server is out of service.
 	 */
 	public BufferedImage getThumbnail(long pixelsID, int sizeX, int sizeY, long
 										userID)
@@ -164,7 +163,7 @@ public interface OmeroImageService
 	 * @param pixelsID	The collection of pixels set.
 	 * @param maxLength The maximum length of a thumbnail.
 	 * @return See above.
-	 * @throws RenderingServiceException
+	 * @throws RenderingServiceException  If the server is out of service.
 	 */
 	public Map<Long, BufferedImage> getThumbnailSet(List pixelsID, 
 			                                        int maxLength)
@@ -177,7 +176,7 @@ public interface OmeroImageService
 	 * @return See above.
 	 * @throws RenderingServiceException If the rendering engine cannot be 
 	 * 									 started.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public RenderingControl reloadRenderingService(long pixelsID)
@@ -190,7 +189,7 @@ public interface OmeroImageService
 	 * @return See above.
 	 * @throws RenderingServiceException If the rendering engine cannot be 
 	 * 									 started.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public RenderingControl resetRenderingService(long pixelsID)
@@ -203,24 +202,24 @@ public interface OmeroImageService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public PixelsData loadPixels(long pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
-	 * Returns the XY-plane identified by the passed z-section, timepoint 
+	 * Returns the XY-plane identified by the passed z-section, time-point 
 	 * and wavelength.
 	 * 
 	 * @param pixelsID 	The id of pixels containing the requested plane.
 	 * @param z			The selected z-section.
-	 * @param t			The selected timepoint.
+	 * @param t			The selected time-point.
 	 * @param c			The selected wavelength.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public byte[] getPlane(long pixelsID, int z, int t, int c)
@@ -228,8 +227,8 @@ public interface OmeroImageService
 
 	/**
 	 * Applies the rendering settings associated to the passed pixels set 
-	 * to the images contained in the specified datasets or categories
-	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * to the images contained in the specified datasets
+	 * if the rootType is <code>DatasetData</code>.
 	 * Applies the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
@@ -245,7 +244,7 @@ public interface OmeroImageService
 	 * of image's id, the settings couldn't be applied.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Map pasteRenderingSettings(long pixelsID, Class rootNodeType,
@@ -254,14 +253,12 @@ public interface OmeroImageService
 	
 	/**
 	 * Resets the rendering settings for the images contained in the 
-	 * specified datasets or categories
-	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * specified datasets if the rootType is <code>DatasetData</code>.
 	 * Resets the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
 	 * @param rootNodeType	The type of nodes. Can either be 
-	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
-	 * 						<code>CategoryData</code>.
+	 * 						<code>ImageData</code>, <code>DatasetData</code>.
 	 * @param nodeIDs		The id of the nodes to apply settings to. 
 	 * 						Mustn't be <code>null</code>.
 	 * @return A map with two keys. A <code>True</code> key whose value 
@@ -270,7 +267,7 @@ public interface OmeroImageService
 	 * of image's id, the settings couldn't be applied.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Map resetRenderingSettings(Class rootNodeType, List<Long> nodeIDs)
@@ -278,8 +275,7 @@ public interface OmeroImageService
 	
 	/**
 	 * Sets the rendering settings for the images contained in the 
-	 * specified datasets or categories
-	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * specified datasets if the rootType is <code>DatasetData</code>
 	 * Resets the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
@@ -294,7 +290,7 @@ public interface OmeroImageService
 	 * of image's id, the settings couldn't be applied.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Map setOriginalRenderingSettings(Class rootNodeType, 
@@ -303,7 +299,7 @@ public interface OmeroImageService
 	
 	/**
 	 * Retrieves the rendering setting related to a given set of pixels.
-	 * Returns a Map whose keys are the experimenter who created the rnd 
+	 * Returns a Map whose keys are the experimenter who created the rendering 
 	 * settings and the value the settings itself.
 	 * 
 	 * @param pixelsID 	The id of the pixels set.
@@ -311,7 +307,7 @@ public interface OmeroImageService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Map getRenderingSettings(long pixelsID, long userID)
@@ -395,7 +391,7 @@ public interface OmeroImageService
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
 	 * @return See above.
-	 * @throws ImportException If an error occured while importing.                            
+	 * @throws ImportException If an error occurred while importing.                            
 	 */
 	public Object importImage(DataObject container, File image, 
 			long userID, long groupID)
@@ -424,15 +420,31 @@ public interface OmeroImageService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public DataObject createMovie(long imageID, List<Integer> channels,
 			MovieExportParam param)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * Performs a basic fit. Returns the file hosting the results.
+	 * 
+	 * @param controlID   The id of the control image.
+	 * @param toAnalyzeID The id of the image to analyze.
+	 * @param irfID		  The id of the function linked to the control.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public DataObject analyseFretFit(long controlID, long toAnalyzeID, long irfID)
+		throws DSOutOfServiceException, DSAccessException;
 	
 	public Object monitor(String path, DataObject container, 
 			long userID, long groupID);
+
+	
 	
 }

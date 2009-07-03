@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.EnumerationLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.FretAnalyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesImporter;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
@@ -295,13 +296,24 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#createMovie(long, long, MovieExportParam, 
+     * @see ImageDataView#createMovie(long, List, MovieExportParam, 
      * 	AgentEventListener)
      */
 	public CallHandle createMovie(long imageID, List<Integer> channels,
 			MovieExportParam param, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new MovieCreator(imageID, channels, param);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#analyseFretFit(long, long, long, AgentEventListener)
+     */
+	public CallHandle analyseFretFit(long controlID, long toAnalyzeID,
+			long irfID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new FretAnalyser(controlID, toAnalyzeID, irfID);
 		return cmd.exec(observer);
 	}
 	

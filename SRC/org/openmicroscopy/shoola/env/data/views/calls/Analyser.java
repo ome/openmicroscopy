@@ -56,7 +56,7 @@ public class Analyser
 	extends BatchCallTree
 {
 
-	/** The pixels set to analyse. */
+	/** The pixels set to analyze. */
 	private final PixelsData	pixels;
 	
 	/** Collection of active channels. */
@@ -69,9 +69,9 @@ public class Analyser
     private BatchCall   		loadCall;
     
     /**
-     * Creates a {@link BatchCall} to analyse the specified shapes.
+     * Creates a {@link BatchCall} to analyze the specified shapes.
      * 
-     * @param shapes	Collection of shapes to analyse. 
+     * @param shapes	Collection of shapes to analyze. 
      * @return The {@link BatchCall}.
      */
     private BatchCall analyseShapes(final ROIShape[] shapes)
@@ -81,7 +81,6 @@ public class Analyser
             {
     		    
             	DataSink sink = PixelsServicesFactory.createDataSink(pixels);
-            	//ROI analyser
             	ROIAnalyser analyser = new ROIAnalyser(sink, 
             					pixels.getSizeZ(), pixels.getSizeT(),
             					pixels.getSizeC(), pixels.getSizeX(),
@@ -113,11 +112,10 @@ public class Analyser
     /**
      * Creates a new instance.
      * 
-     * @param pixels	The pixels set to analyse.
-     * @param type		The type of the pixels set.
+     * @param pixels	The pixels set to analyze.
      * @param channels	Collection of active channels. 
      * 					Mustn't be <code>null</code>.
-     * @param shapes	Collection of shapes to analyse. 
+     * @param shapes	Collection of shapes to analyze. 
      * 					Mustn't be <code>null</code>.
      */
     public Analyser(PixelsData pixels, List channels, List shapes)

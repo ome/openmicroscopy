@@ -129,10 +129,15 @@ public class OptionsDialog
     	body = new JPanel();
     	body.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	mainPanel = new JPanel();
+    	mainPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	controlPanel = new JPanel();
+    	controlPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         contentPanel = new JXHeader();
         noButton = new JButton("No");
+        noButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         yesButton = new JButton("Yes");
+        yesButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+        getContentPane().setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         getRootPane().setDefaultButton(yesButton);
     }
     
@@ -313,11 +318,22 @@ public class OptionsDialog
 		repaint();
 	}
 	
+	/**
+	 * Sets the enabled flag of the {@link #yesButton}.
+	 * 
+	 * @param enabled The value to set.
+	 */
+	public void setYesEnabled(boolean enabled)
+	{
+		yesButton.setEnabled(enabled);
+	}
+	
 	/** Adds the {@link #cancelButton}. */
 	public void addCancelButton()
 	{
 		if (cancelButton == null) {
 			cancelButton = new JButton("Cancel");
+			cancelButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 			cancelButton.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent e) { cancel(); }
 	        });

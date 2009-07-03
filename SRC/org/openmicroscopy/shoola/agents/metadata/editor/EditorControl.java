@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
@@ -45,7 +44,6 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -123,6 +121,9 @@ class EditorControl
 	 * image. 
 	 */
 	static final int	RENDERER = 8;
+	
+	/** Action ID to analyse the image. */
+	static final int	ANALYSE_FLIM = 9;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -204,7 +205,7 @@ class EditorControl
 	/** Brings up the folder chooser. */
 	private void download()
 	{
-		JFrame f =  EditorAgent.getRegistry().getTaskBar().getFrame();
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
 				"Download", "Select where to download the file.");
 		chooser.addPropertyChangeListener(new PropertyChangeListener() {
@@ -340,6 +341,9 @@ class EditorControl
 			view.createMovie(b);
 		} else if (MetadataViewer.SETTINGS_APPLIED_PROPERTY.equals(name)) {
 			view.onSettingsApplied();
+		} else if (MetadataViewer.ANALYSE_PROPERTY.equals(name)) {
+			boolean b = (Boolean) evt.getNewValue();
+			view.analyse(b);
 		} 
 	}
 
@@ -374,6 +378,9 @@ class EditorControl
 				break;
 			case RENDERER:
 				model.loadRenderingControl();
+				break;
+			case ANALYSE_FLIM:
+				view.analyse();
 		}
 	}
 	

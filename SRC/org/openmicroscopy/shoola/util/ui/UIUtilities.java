@@ -1407,10 +1407,10 @@ public class UIUtilities
 	 * Creates a new label.
 	 * 
 	 * @param type 	The type of component to create. Default type is JLabel.
-	 * @param c 	The foreground color if not <code>null</code>.
+	 * @param color The foreground color if not <code>null</code>.
 	 * @return See above.
 	 */
-	public static JComponent createComponent(Class type, Color c)
+	public static JComponent createComponent(Class type, Color color)
 	{
 		if (type == null) type = JLabel.class;
 		JComponent comp = null;
@@ -1426,7 +1426,7 @@ public class UIUtilities
 		comp.setBackground(BACKGROUND_COLOR);
 		Font font = comp.getFont();
 		comp.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
-		if (c != null) comp.setForeground(c);
+		if (color != null) comp.setForeground(color);
 		return comp;
 	}
 	

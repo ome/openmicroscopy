@@ -97,6 +97,9 @@ public interface MetadataViewer
 	/** Bound property indicating to create a movie. */
 	public static final String	CREATING_MOVIE_PROPERTY = "creatingMovie";
 	
+	/** Bound property indicating to analyze. */
+	public static final String	ANALYSE_PROPERTY = "analyse";
+	
 	/** Bound property indicating to render a plane. */
 	public static final String	RENDER_PLANE_PROPERTY = "renderPlane";
 	
@@ -147,7 +150,7 @@ public interface MetadataViewer
 
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
-	 * Any ongoing data loading is cancelled.
+	 * Any ongoing data loading is canceled.
 	 */
 	public void discard();
 
@@ -406,5 +409,8 @@ public interface MetadataViewer
 	 * @return See above.
 	 */
 	Dimension getIdealRendererSize();
+	
+	/** Analyzes the image. */
+	void analyse();
 	
 }

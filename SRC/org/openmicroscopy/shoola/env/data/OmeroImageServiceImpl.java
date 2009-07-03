@@ -70,6 +70,7 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -504,7 +505,7 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#loadPlaneInfo(long, int z, int t, int channel)
+	 * @see OmeroImageService#loadPlaneInfo(long, int, int, int)
 	 */
 	public Collection loadPlaneInfo(long pixelsID, int z, int t, int channel)
 		throws DSOutOfServiceException, DSAccessException
@@ -627,13 +628,30 @@ class OmeroImageServiceImpl
 			MovieExportParam param)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (imageID < 0)
+		if (imageID <= 0)
 			throw new IllegalArgumentException("Image ID not valid.");
 		if (param == null)
 			throw new IllegalArgumentException("No parameters specified.");
 		if (channels == null)
 			channels = new ArrayList<Integer>();
 		long id = gateway.createMovie(imageID, channels, param);
+		if (id < 0) return null;
+		return context.getMetadataService().loadAnnotation(id);
+	}
+	
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#analyseFretFit(long, long, long)
+	 */
+	public DataObject analyseFretFit(long controlID, long toAnalyzeID, 
+			long irfID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (controlID <= 0)
+			throw new IllegalArgumentException("Control ID not valid.");
+		if (toAnalyzeID <= 0)
+			throw new IllegalArgumentException("No image to analyze.");
+		long id = gateway.analyseFretFit(controlID, toAnalyzeID, irfID);
 		if (id < 0) return null;
 		return context.getMetadataService().loadAnnotation(id);
 	}

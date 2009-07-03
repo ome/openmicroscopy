@@ -66,7 +66,7 @@ class ToolBar
 	/** Button to save the annotations. */
 	private JButton			saveButton;
 
-	/** Button to download the original image. */
+	/** Button to create a movie from the original image. */
 	private JButton			createMovieButton;
 	
 	/** Button to download the original image. */
@@ -75,12 +75,18 @@ class ToolBar
 	/** Button to load the rendering control for the primary select. */
 	private JButton			rndButton;
 	
+	/** Button to analyze the image. */
+	private JButton			flimButton;
+	
 	/** Indicates the loading progress. */
 	private JXBusyLabel		busyLabel;
 	
-	/** Indicates the movie creationg. */
+	/** Indicates the movie creation. */
 	private JXBusyLabel		busyMovieLabel;
 
+	/** Indicates an on-going FLIM analysis. */
+	private JXBusyLabel		busyFLimLabel;
+	
 	/** 
 	 * The component hosting the control only used when an <code>Image</code>
 	 * is selected.
@@ -146,10 +152,18 @@ class ToolBar
 		createMovieButton.setActionCommand(""+EditorControl.CREATE_MOVIE);
 		createMovieButton.setEnabled(false);
 		
+		icon = icons.getIcon(IconManager.ANALYSE);
+		flimButton = new JButton(icon);
+		flimButton.setToolTipText("Analyse the image.");
+		flimButton.addActionListener(controller);
+		flimButton.setActionCommand(""+EditorControl.ANALYSE_FLIM);
+		flimButton.setEnabled(false);
+		
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 		UIUtilities.unifiedButtonLookAndFeel(createMovieButton);
 		UIUtilities.unifiedButtonLookAndFeel(rndButton);
+		UIUtilities.unifiedButtonLookAndFeel(flimButton);
 		
 		Dimension d = new Dimension(w, h);
     	busyLabel = new JXBusyLabel(d);
@@ -159,6 +173,10 @@ class ToolBar
     	busyMovieLabel = new JXBusyLabel(d);
     	busyMovieLabel.setEnabled(true);
     	busyMovieLabel.setToolTipText("Creating movie. Please wait.");
+    	
+    	busyFLimLabel = new JXBusyLabel(d);
+    	busyFLimLabel.setEnabled(true);
+    	busyFLimLabel.setToolTipText("Analyzin. Please wait.");
 	}
     
     /** 
@@ -174,6 +192,9 @@ class ToolBar
     	bar.setRollover(true);
     	bar.setBorder(null);
     	bar.add(createMovieButton);
+    	//if (model.isLifetime()) {
+    	bar.add(Box.createHorizontalStrut(5));
+        bar.add(flimButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(downloadButton);
     	return bar;
@@ -260,7 +281,9 @@ class ToolBar
     void setDataToSave(boolean b) { saveButton.setEnabled(b); }
     
     /**
-     * Enables the saving controls depending on the passed value.
+     * Replaces the {@link #createMovieButton} (resp.  {@link #busyMovieLabel})
+     * by the {@link #busyMovieLabel} (resp. {@link #createMovieButton})
+     * if the passed value is <code>false</code> (resp. <code>true</code>). 
      * 
      * @param b Pass <code>true</code> if movie creation,
      * 			<code>false</code> when it is done.
@@ -280,6 +303,31 @@ class ToolBar
     		imageBar.repaint();
     	}
     	createMovieButton.setEnabled(!b);  
+    }
+    
+    /**
+     * Replaces the {@link #flimButton} (resp.  {@link #busyFLimLabel})
+     * by the {@link #busyFLimLabel} (resp. {@link #flimButton})
+     * if the passed value is <code>false</code> (resp. <code>true</code>). 
+     * 
+     * @param b Pass <code>true</code> if movie creation,
+     * 			<code>false</code> when it is done.
+     */
+    void analyse(boolean b)
+    { 
+    	if (imageBar != null) {
+    		busyFLimLabel.setBusy(b);
+    		if (!b) {
+    			imageBar.remove(busyFLimLabel);
+    			imageBar.add(flimButton, 0);
+        	} else {
+        		imageBar.remove(flimButton);
+    			imageBar.add(busyFLimLabel, 0);
+        	}
+    		imageBar.revalidate();
+    		imageBar.repaint();
+    	}
+    	flimButton.setEnabled(!b);  
     }
     
     /**
@@ -304,7 +352,12 @@ class ToolBar
     	if ((refObject instanceof ImageData) || 
     			(refObject instanceof WellSampleData)) {
     		rndButton.setEnabled(!model.isRendererLoaded());
-    		if (model.isLifetime()) rndButton.setEnabled(false);
+    		if (model.isLifetime()) {
+    			rndButton.setEnabled(false);
+    			flimButton.setEnabled(true);
+    		} else {
+    			flimButton.setEnabled(false);
+    		}
     		imageBar.setVisible(!model.isMultiSelection());
     	} else {
     		rndButton.setEnabled(false);

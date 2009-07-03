@@ -33,7 +33,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -114,10 +113,10 @@ public interface ImageDataView
     /**
      * Retrieves the dimensions in microns of the pixels set.
      * 
-     * @param pixels	The pixels set to analyse.
+     * @param pixels	The pixels set to analyze.
      * @param channels	Collection of active channels. 
      * 					Mustn't be <code>null</code>.
-     * @param shapes	Collection of shapes to analyse. 
+     * @param shapes	Collection of shapes to analyze. 
      * 					Mustn't be <code>null</code>.
      * @param observer	Callback handler.
      * @return See above.
@@ -290,4 +289,17 @@ public interface ImageDataView
 	 */
 	public CallHandle createMovie(long imageID, List<Integer> channels,
 			MovieExportParam param, AgentEventListener observer);
+
+	/**
+	 * Performs a basic fit.
+	 * 
+	 * @param controlID   The id of the control image.
+	 * @param toAnalyzeID The id of the image to analyze.
+	 * @param irfID		  The id of the function linked to the control.
+	 * @param observer Callback handler.
+	 * @return See above.
+	 */
+	public CallHandle analyseFretFit(long controlID, long toAnalyzeID, 
+			long irfID, AgentEventListener observer);
+	
 }

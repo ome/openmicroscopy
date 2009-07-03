@@ -1646,7 +1646,10 @@ class EditorModel
 	{
 		parent.makeMovie(scaleBar, overlayColor);
 	}
-
+	
+	/** Analyzes the data. */
+	void analyse() { parent.analyse(); }
+	
 	/**
 	 * Returns <code>true</code> if the renderer has been loaded,
 	 * <code>false</code> otherwise.

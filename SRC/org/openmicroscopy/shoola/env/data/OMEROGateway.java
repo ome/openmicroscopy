@@ -4257,8 +4257,43 @@ class OMEROGateway
 			if (type == null) return -1;
 			return type.getValue();
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot create a movie for image: "+imageID);
+		}
+		return -1;
+	}
+	
+	/**
+	 * Performs a basic fit. Returns the file hosting the results.
+	 * 
+	 * @param controlID   The id of the control image.
+	 * @param toAnalyzeID The id of the image to analyze.
+	 * @param irfID		  The id of the transfer function linked to the control.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	long analyseFretFit(long controlID, long toAnalyzeID, long irfID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IScriptPrx svc = getScripService();
+			long id = svc.getScriptID("fretIrf");
+			if (id <= 0) return -1;
+			ParametersI parameters = new ParametersI();
+			parameters.map.put("imageIdNoFret", omero.rtypes.rlong(controlID));
+			parameters.map.put("imageIdFret", 
+					omero.rtypes.rlong(toAnalyzeID));
+			parameters.map.put("irfRecId", omero.rtypes.rlong(irfID));
+			Map<String, RType> result = svc.runScript(id, parameters.map);
+			RLong type = (RLong) result.get("fileAnnotation");
+			if (type == null) return -1;
+			return type.getValue();
+		} catch (Exception e) {
+			handleException(e, "Cannot analyze the control "+controlID+" and "
+					+" image "+toAnalyzeID);
 		}
 		return -1;
 	}

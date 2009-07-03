@@ -57,6 +57,9 @@ public class NumericalTextField
 	implements DocumentListener, FocusListener
 {
 
+	/** Bounds property indicating that the text has been updated. */
+	public static final String		TEXT_UPDATED_PROPERTY = "textUpdated";
+	
 	/** Accepted value if integer. */
 	private static final String 	NUMERIC = "0123456789";
 	
@@ -100,6 +103,8 @@ public class NumericalTextField
 			originalText = text;
 			defaultForeground = getForeground();
 		}
+		firePropertyChange(TEXT_UPDATED_PROPERTY, Boolean.valueOf(false),
+				Boolean.valueOf(true));
 	}
 	
 	/**
@@ -190,6 +195,7 @@ public class NumericalTextField
 	public Number getValueAsNumber()
 	{
 		String str = getText();
+		if (str == null || str.trim().length() == 0) return null;
 		if (Integer.class.equals(numberType))
 			return Integer.parseInt(str);
 		else if (Double.class.equals(numberType))

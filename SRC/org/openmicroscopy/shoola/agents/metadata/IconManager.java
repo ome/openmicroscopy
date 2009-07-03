@@ -265,11 +265,17 @@ public class IconManager
     /** The <code>RGB</code> icon. */
     public static  final int          RGB = 70;
     
+    /** The <code>Analyze</code> icon. */
+    public static  final int          ANALYSE = 71;
+    
+    /** The <code>Analyze 48x48</code> icon. */
+    public static  final int          ANALYSE_48 = 72;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 70;
+	private static final int          MAX_ID = 72;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -344,6 +350,8 @@ public class IconManager
         relPaths[RENDERER] = "render16.png";
         relPaths[GRAYSCALE] = "grayscale16.png";
         relPaths[RGB] = "rgb16.png";
+        relPaths[ANALYSE] = "rgb16.png";
+        relPaths[ANALYSE_48] = "rgb16.png";
 	}
    
 	/** The sole instance. */
