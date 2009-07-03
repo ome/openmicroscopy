@@ -189,10 +189,10 @@
     * socketTimeoutMillis - the number of ms client sockets will stay open when sending
       messages to the listener. This should be long enough for the slowest message.
       If not specified it defaults 120000ms.
-
-    -->
-    <cacheManagerPeerListenerFactory
+ <cacheManagerPeerListenerFactory
             class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
+    -->
+   
 
 
     <!--
