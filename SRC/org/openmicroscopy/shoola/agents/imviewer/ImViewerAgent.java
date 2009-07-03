@@ -84,7 +84,7 @@ public class ImViewerAgent
     /**
      * Helper method. 
      * 
-     * @return A reference to the {@link Registry}.
+     * @return A reference to the <code>Registry</code>.
      */
     public static Registry getRegistry() { return registry; }
     
@@ -264,7 +264,7 @@ public class ImViewerAgent
 
     /**
      * Implemented as specified by {@link Agent}. 
-     * @see Agent# hasDataToSave()
+     * @see Agent#hasDataToSave()
      */
     public Map<String, Set> hasDataToSave()
     {

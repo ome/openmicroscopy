@@ -82,7 +82,6 @@ public abstract class EditorLoader
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
-     * @param refNode	The node of reference. Mustn't be <code>null</code>.
      */
     public EditorLoader(Editor viewer)
     {
@@ -106,7 +105,7 @@ public abstract class EditorLoader
         handleException(new Exception("No data available."));
     }
     
-    /** Notifies the user that the data retrieval has been cancelled. */
+    /** Notifies the user that the data retrieval has been canceled. */
     public void handleCancellation() 
     {
         String info = "The data retrieval has been cancelled.";
@@ -131,7 +130,7 @@ public abstract class EditorLoader
                                                s, exc);
     }
     
-    /** Fires an asynchrnonous data loading. */
+    /** Fires an asynchronous data loading. */
     public abstract void load();
     
     /** Cancels any ongoing data loading. */

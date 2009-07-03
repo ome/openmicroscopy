@@ -88,7 +88,7 @@ public class RateFilter
     /** One of the rating level defined by this class. */
     private int						ratingLevel;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle				handle;
     
     /**

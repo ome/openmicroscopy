@@ -52,7 +52,7 @@ public class ImageDataLoader
 	extends DataBrowserLoader
 {
 
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  		handle;
     
     /** The node hosting the experimenter the data are for. */

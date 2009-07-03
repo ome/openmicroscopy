@@ -58,7 +58,7 @@ public class ContainersLoader
 	private long		id;
 
 	
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
 	/**
@@ -68,7 +68,7 @@ public class ContainersLoader
      *                  Mustn't be <code>null</code>.
 	 * @param refNode	The node of reference. Mustn't be <code>null</code>.
 	 * @param type		The type of the parent of the {@link #refNode}.
-	 * @param id		The ID of the parent of the ref node.
+	 * @param id		The ID of the parent of the reference node.
 	 */
 	public ContainersLoader(MetadataViewer viewer, TreeBrowserSet refNode,
 						Class type, long id)

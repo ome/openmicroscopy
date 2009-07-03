@@ -32,7 +32,6 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.PlateSaver;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -41,7 +40,6 @@ import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
-import pojos.PlateData;
 
 /** 
  * Provides methods to handle the annotations.

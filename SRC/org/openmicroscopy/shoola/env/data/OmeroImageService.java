@@ -439,7 +439,8 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public DataObject analyseFretFit(long controlID, long toAnalyzeID, long irfID)
+	public DataObject analyseFretFit(long controlID, long toAnalyzeID, 
+			long irfID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	public Object monitor(String path, DataObject container, 

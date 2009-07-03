@@ -150,7 +150,7 @@ public interface OmeroMetadataService
      * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection loadRatings(Class type, long id, long userID)
@@ -167,7 +167,7 @@ public interface OmeroMetadataService
      * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection loadStructuredAnnotations(Class type, long id, 
@@ -186,7 +186,7 @@ public interface OmeroMetadataService
      * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public StructuredDataResults loadStructuredData(Object object, 
@@ -205,7 +205,7 @@ public interface OmeroMetadataService
      * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Map loadStructuredData(List<DataObject> data, long userID, 
@@ -222,7 +222,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public DataObject annotate(DataObject toAnnotate, AnnotationData annotation)
@@ -240,7 +240,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public DataObject annotate(Class type, long id, AnnotationData annotation)
@@ -254,7 +254,7 @@ public interface OmeroMetadataService
 	 * @param annotationType	The type of annotation to clear.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public void clearAnnotation(DataObject object, Class annotationType)
@@ -266,7 +266,7 @@ public interface OmeroMetadataService
 	 * @param object	The object to handle. Mustn't be <code>null</code>.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public void clearAnnotation(DataObject object)
@@ -281,7 +281,7 @@ public interface OmeroMetadataService
 	 * @param annotationType	The type of annotation to delete.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public void clearAnnotation(Class type, long id, Class annotationType)
@@ -294,7 +294,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public DataObject loadAnnotation(long annotationID)
@@ -311,7 +311,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection loadAnnotations(Class annotationType, String nameSpace,
@@ -319,7 +319,7 @@ public interface OmeroMetadataService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
-	 * Saves the object, adds (resp. removes) annotations to(resp. from)
+	 * Saves the object, adds (resp. removes) annotations to (resp. from)
 	 * the object if any.
 	 * 
 	 * @param data		The data object to handle.
@@ -329,7 +329,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object saveData(Collection<DataObject> data, 
@@ -348,7 +348,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object saveBatchData(Collection<DataObject> data, 
@@ -367,7 +367,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object saveBatchData(TimeRefObject data, 
@@ -384,7 +384,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public File downloadFile(File file, long fileID, long size)
@@ -398,7 +398,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Map<Long, Collection> loadRatings(Class nodeType, 
@@ -417,7 +417,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection filterByAnnotation(Class nodeType, List<Long> nodeIds, 
@@ -436,7 +436,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection filterByAnnotated(Class nodeType, List<Long> nodeIds, 
@@ -452,7 +452,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection filterByAnnotation(Class nodeType, List<Long> ids, 
@@ -471,7 +471,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection loadTagSetsContainer(Long id, boolean images,
@@ -486,7 +486,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection getEnumeration(String type)
@@ -500,7 +500,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object loadAcquisitionData(Object refObject)
@@ -515,7 +515,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object saveAcquisitionData(Object refObject)
@@ -532,7 +532,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object archivedFile(FileAnnotationData fileAnnotation, File file, int
@@ -547,7 +547,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection loadViewedBy(long imageID, long pixelsID) 
@@ -569,7 +569,7 @@ public interface OmeroMetadataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection loadTags(Long id, boolean dataObject, boolean topLevel,
@@ -581,11 +581,11 @@ public interface OmeroMetadataService
 	 * one of the following values: {@link #EDITOR_PROTOCOL}, 
 	 * {@link #EDITOR_EXPERIMENT} or {@link #OTHER}.
 	 * 
-	 * @param fileType One of the contants above.
+	 * @param fileType One of the constants above.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public long countFileType(int fileType)
@@ -597,15 +597,28 @@ public interface OmeroMetadataService
 	 * one of the following values: {@link #EDITOR_PROTOCOL}, 
 	 * {@link #EDITOR_EXPERIMENT} or {@link #OTHER}.
 	 * 
-	 * @param fileType One of the contants above. 
+	 * @param fileType One of the constants above. 
 	 * @param userID The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection loadFiles(int fileType, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads the instrument.
+	 * 
+	 * @param instrumentID The id of the instrument.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object loadInstrument(long instrumentID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

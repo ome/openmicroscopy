@@ -72,7 +72,7 @@ public class ExperimenterImagesCounter
     /** The node hosting the time information. */
     private List<TreeImageSet>		nodes;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  			handle;
     
     /**
@@ -167,8 +167,8 @@ public class ExperimenterImagesCounter
     }
     
     /**
-     * Does nothing as the async call returns <code>null</code>.
-     * The actual payload (number of items) is delivered progressively
+     * Does nothing as the asynchronous call returns <code>null</code>.
+     * The actual pay-load (number of items) is delivered progressively
      * during the updates.
      */
     public void handleNullResult() {}
@@ -189,7 +189,7 @@ public class ExperimenterImagesCounter
     
     /**
      * Overridden so that we don't notify the user that the thumbnail
-     * retrieval has been cancelled.
+     * retrieval has been canceled.
      * @see DataTreeViewerLoader#handleCancellation() 
      */
     public void handleCancellation() 

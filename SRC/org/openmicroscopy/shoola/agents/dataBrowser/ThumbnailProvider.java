@@ -28,10 +28,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
@@ -173,36 +170,6 @@ public class ThumbnailProvider
         originalHeight = size.height;//sizeY;
     }
 
-    /** 
-     * Magnifies the specified image.
-     * 
-     * @param f the magnification factor.
-     * @param img The image to magnify.
-     * 
-     * @return The magnified image.
-     */
-    private BufferedImage magnifyImage(double f, BufferedImage img)
-    {
-    	return Factory.magnifyImage(f, img);
-    	/*
-        if (img == null) return null;
-        int width = img.getWidth(), height = img.getHeight();
-        if (width <= 0 || height <= 0) return null;
-        AffineTransform at = new AffineTransform();
-        at.scale(f, f);
-        BufferedImageOp biop = new AffineTransformOp(at, 
-            AffineTransformOp.TYPE_BILINEAR); 
-        int type = img.getType();
-        //if (type == BufferedImage.TYPE_CUSTOM)
-        	//type = BufferedImage.TYPE_
-        BufferedImage rescaleBuff = new BufferedImage((int) (width*f), 
-                        (int) (height*f), img.getType());
-        biop.filter(img, rescaleBuff);
-        return rescaleBuff;
-        */
-        
-    }
-    
     /**
      * Creates a new instance.
      * 
@@ -253,7 +220,7 @@ public class ThumbnailProvider
         scalingFactor = f;
         int w = (int) (originalWidth*f), h = (int) (originalHeight*f);
         if (fullScaleThumb != null) {
-            displayThumb = magnifyImage(f, fullScaleThumb);
+            displayThumb = Factory.magnifyImage(f, fullScaleThumb);
             w = displayThumb.getWidth();
             h = displayThumb.getHeight();
         }  
@@ -293,7 +260,7 @@ public class ThumbnailProvider
      */
     public BufferedImage getZoomedFullScaleThumb()
     {
-    	return magnifyImage(ZOOM_FACTOR, fullScaleThumb);
+    	return Factory.magnifyImage(ZOOM_FACTOR, fullScaleThumb);
     }
     
     /**
@@ -304,7 +271,7 @@ public class ThumbnailProvider
     {
         if (iconThumb != null) return iconThumb;
         if (fullScaleThumb == null) return null;
-        BufferedImage img = magnifyImage(0.16, fullScaleThumb);
+        BufferedImage img = Factory.magnifyImage(0.16, fullScaleThumb);
         BufferedImage newImg = new BufferedImage(img.getWidth()+2*BORDER, 
                 img.getHeight()+2*BORDER, img.getType());
         Graphics g = newImg.getGraphics();

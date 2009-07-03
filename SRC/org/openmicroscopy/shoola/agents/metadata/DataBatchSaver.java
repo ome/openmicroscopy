@@ -66,7 +66,7 @@ public class DataBatchSaver
 	/** The object hosting the time period. */
 	private TimeRefObject			timeRefObject;
 	
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle              handle;
     
 	/**
@@ -110,9 +110,10 @@ public class DataBatchSaver
 		this.toAdd = toAdd;
 		this.toRemove = toRemove;
 	}
+	
 	/** 
 	 * Loads the data.
-	 * @see MetadataLoader#cancel()
+	 * @see MetadataLoader#load()
 	 */
 	public void load()
 	{

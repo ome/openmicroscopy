@@ -33,6 +33,8 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 
+import pojos.ImageData;
+
 /** 
  * Loads the acquisition metadata for an image or a given channel.
  *
@@ -50,6 +52,12 @@ public class AcquisitionDataLoader
 	extends BatchCallTree
 {
 
+	/** Indicates to load the instrument's data. */
+	public static final int INSTRUMENT = 0;
+	
+	/** Indicates to load the image's data. */
+	public static final int IMAGE = 1;
+	
 	/** Result of the call. */
 	private Object    	result;
 
@@ -57,7 +65,8 @@ public class AcquisitionDataLoader
 	private BatchCall	loadCall;
 	
 	/**
-	 * Creates a {@link BatchCall} to retrieve rendering control.
+	 * Creates a {@link BatchCall} to retrieve the acquisition data linked
+	 * to the passed object.
 	 * 
 	 * @param refObject Either an <code>ImageData</code> or 
      * 					<code>ChannelData</code> node.
@@ -68,8 +77,26 @@ public class AcquisitionDataLoader
 		return new BatchCall("Loading Acquisition data: ") {
 			public void doCall() throws Exception
 			{
-				OmeroMetadataService rds = context.getMetadataService();
-				result = rds.loadAcquisitionData(refObject);
+				OmeroMetadataService svc = context.getMetadataService();
+				result = svc.loadAcquisitionData(refObject);
+			}
+		};
+	} 
+	
+	/**
+	 * Creates a {@link BatchCall} to retrieve the components of the passed
+	 * instrument.
+	 * 
+	 * @param id The id of the instrument.
+	 * @return The {@link BatchCall}.
+	 */
+	private BatchCall makeInstrumentBatchCall(final long id)
+	{
+		return new BatchCall("Loading Instrument data: ") {
+			public void doCall() throws Exception
+			{
+				OmeroMetadataService svc = context.getMetadataService();
+				result = svc.loadInstrument(id);
 			}
 		};
 	} 
@@ -101,6 +128,32 @@ public class AcquisitionDataLoader
 		if (refObject == null)
 			throw new IllegalArgumentException("Ref Object cannot be null.");
 		loadCall = makeBatchCall(refObject);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * If bad arguments are passed, we throw a runtime exception so to fail
+	 * early and in the caller's thread.
+	 * 
+	 * @param type One of the constants defined by this class.
+	 * @param id   The id of the object corresponding to the passed type.
+	 */
+	public AcquisitionDataLoader(int type, long id)
+	{
+		if (id <= 0)
+			throw new IllegalArgumentException("Id not valid.");
+		switch (type) {
+			case INSTRUMENT:
+				loadCall = makeInstrumentBatchCall(id);
+				break;
+			case IMAGE:
+				ImageData img = new ImageData();
+				img.setId(id);
+				loadCall = makeBatchCall(img);
+				break;
+			default:
+				throw new IllegalArgumentException("Type not supported");
+		}
 	}
 
 }

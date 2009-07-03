@@ -61,7 +61,7 @@ public class ImagesImporter
 	extends DataTreeViewerLoader
 {
 
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  			handle;
     
     /** The collection of nodes to reload. */
@@ -164,7 +164,7 @@ public class ImagesImporter
     }
     
     /**
-     * Does nothing as the async call returns <code>null</code>.
+     * Does nothing as the asynchronous call returns <code>null</code>.
      * The actual payload (imported files) is delivered progressively
      * during the updates.
      * @see DataTreeViewerLoader#handleNullResult()

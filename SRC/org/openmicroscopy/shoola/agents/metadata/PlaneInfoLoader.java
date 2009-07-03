@@ -55,7 +55,7 @@ public class PlaneInfoLoader
     /** The selected channel. */
     private int 		channel;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
     /**

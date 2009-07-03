@@ -98,7 +98,7 @@ public class DataBrowserTranslator
      * Returns the first element of the specified set. 
      * Returns <code>null</code> if the set is empty or <code>null</code>.
      * 
-     * @param set The set to analyse.
+     * @param set The set to analyze.
      * @return See above.
      */
     private static ImageDisplay getFirstElement(Set set)
@@ -166,8 +166,8 @@ public class DataBrowserTranslator
      * Links the images contained into the specified {@link DataObject} 
      * to {@link ImageSet} corresponding to the {@link DataObject}.
      * 
-     * @param uo        Parent object. Either an instance of {@link DatasetData}
-     *                  or {@link CategoryData}.
+     * @param uo        Parent object. Either an instance of 
+     * 					{@link DatasetData}.
      * @param userID    The id of the current user.
      * @param groupID   The id of the group the current user selects when 
      *                      retrieving the data.        
@@ -438,8 +438,7 @@ public class DataBrowserTranslator
     /** 
      * Transforms a set of {@link DataObject}s into their corresponding 
      * visualization objects. The elements of the set can either be
-     * {@link ProjectData}, {@link DatasetData}, {@link CategoryGroupData},
-     * {@link CategoryData} or {@link ImageData}.
+     * {@link ProjectData}, {@link DatasetData} or {@link ImageData}.
      * The {@link ImageData}s are added to an unclassified {@link ImageSet}.
      * 
      * @param dataObjects   The {@link DataObject}s to transform.
@@ -548,8 +547,7 @@ public class DataBrowserTranslator
     /** 
      * Transforms a {@link DataObject} into its corresponding visualization
      * object. The object can either be
-     * {@link ProjectData}, {@link DatasetData}, {@link CategoryGroupData},
-     * {@link CategoryData} or {@link ImageData}.
+     * {@link ProjectData}, {@link DatasetData} or {@link ImageData}.
      * The {@link ImageData}s are added to an unclassified {@link ImageSet}.
      * 
      * @param ho        The {@link DataObject} to transform.

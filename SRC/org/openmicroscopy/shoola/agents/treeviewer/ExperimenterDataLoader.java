@@ -104,7 +104,7 @@ public class ExperimenterDataLoader
     /** The node hosting the experimenter the data are for. */
     private TreeImageSet		expNode;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  		handle;
     
     /** One of the constants defined by this class. */

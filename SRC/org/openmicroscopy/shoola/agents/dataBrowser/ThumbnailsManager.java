@@ -46,7 +46,7 @@ import pojos.ImageData;
  * visualization tree.
  * This class encapsulates the strategy used to share thumbnail pixels.
  * A given <i>OME</i> Image can be contained in more than one hierarchy
- * container &#151; like a Dataset or Category, in which case it would
+ * container &#151; like a Dataset, in which case it would
  * end up being contained in more than one {@link ImageNode} in the
  * visualization tree &#151; this is because {@link ImageNode}s can't be
  * shared among <code>ImageSet</code>s.  Even if we can have more than one
@@ -86,7 +86,7 @@ public class ThumbnailsManager
      * 
      * @param nodes 	All the {@link ImageDisplay}s in a given visualization
      *                  tree.  Mustn't be <code>null</code>.
-     * @param totalIDs	The total number of timages to load.
+     * @param totalIDs	The total number of images to load.
      */
     public ThumbnailsManager(Collection nodes, int totalIDs)
     {

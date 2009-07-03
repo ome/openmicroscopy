@@ -71,7 +71,7 @@ public class RenderingControlLoader
     /** One of the constants defined by this class. */
     private int			index;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
     /** 
@@ -109,7 +109,7 @@ public class RenderingControlLoader
 
     /**
      * Retrieves the rendering control proxy for the selected pixels set.
-     * @see DataLoader#load()
+     * @see EditorLoader#load()
      */
     public void load()
     {
@@ -118,7 +118,7 @@ public class RenderingControlLoader
 
     /**
      * Cancels the ongoing data retrieval.
-     * @see DataLoader#cancel()
+     * @see EditorLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
@@ -144,7 +144,7 @@ public class RenderingControlLoader
     
     /** 
      * Feeds the result back to the viewer. 
-     * @see DataLoader#handleResult(Object)
+     * @see EditorLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {

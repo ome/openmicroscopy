@@ -81,7 +81,7 @@ public interface OmeroDataService
 	 * @param userID		The Id of the selected user.
 	 * @return  A set of hierarchy trees.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Set loadContainerHierarchy(Class rootNodeType, List rootNodeIDs,
@@ -98,7 +98,7 @@ public interface OmeroDataService
 	 * @param userID		The Id of the selected user.
 	 * @return  A set of hierarchy trees.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Set loadTopContainerHierarchy(Class rootNodeType, long userID)
@@ -120,7 +120,7 @@ public interface OmeroDataService
 	 * found. Every root node is linked to the found objects and so on until the
 	 * leaf nodes, which are <code>Image</code> objects. Note that the type of
 	 * any root node in the returned set can be the given rootNodeType, any of
-	 * its containees or an <code>Image</code>.
+	 * its containers or an <code>Image</code>.
 	 * </p>
 	 * <p>
 	 * For example, say that you pass in the ids of six Images: <code>i1, i2,
@@ -160,7 +160,7 @@ public interface OmeroDataService
 	 * @param userID		The Id of the user.
 	 * @return A <code>Set</code> with all root nodes that were found.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Set findContainerHierarchy(Class rootNodeType, List leavesIDs,
@@ -177,7 +177,7 @@ public interface OmeroDataService
 	 * @param userID	The Id of the root.
 	 * @return A <code>Set</code> of retrieved images.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Set getImages(Class nodeType, List nodeIDs, long userID)
@@ -189,7 +189,7 @@ public interface OmeroDataService
 	 * @param userID The id of the user.
 	 * @return A <code>Set</code> of retrieved images.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Set getExperimenterImages(long userID)
@@ -200,13 +200,12 @@ public interface OmeroDataService
 	 * Returns a map which key is the passed rootNodeID and the value is 
 	 * the number of items contained in this object.
 	 * 
-	 * @param rootNodeType 	The type of container. Can either be Dataset 
-	 * 						and Category.
+	 * @param rootNodeType 	The type of container. Can either be Dataset.
 	 * @param property		One of the properties defined by this class.
 	 * @param rootNodeIDs	Set of root node IDs.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Map getCollectionCount(Class rootNodeType, String property,
@@ -216,8 +215,7 @@ public interface OmeroDataService
 	/**
 	 * Creates a new <code>DataObject</code> and links it to the specified 
 	 * parent. The parent will be <code>null</code> if the
-	 * <code>DataObject</code> to create is either a <code>Project</code>,
-	 * <code>CategoryGroup</code>.
+	 * <code>DataObject</code> to create is either a <code>Project</code>.
 	 * 
 	 * @param newObject The <code>DataObject</code> to create.
 	 *                  Mustn't be <code>null</code>.
@@ -227,7 +225,7 @@ public interface OmeroDataService
 	 * 					<code>DataObject</code>.
 	 * @return          The newly created <code>DataObject</code>
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public DataObject createDataObject(DataObject newObject, DataObject parent, 
@@ -240,7 +238,7 @@ public interface OmeroDataService
 	 * @param object    The <code>DataObject</code> to update.
 	 * @return          The updated object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public DataObject updateDataObject(DataObject object)
@@ -253,7 +251,7 @@ public interface OmeroDataService
 	 *                  <code>ProjectData</code> or <code>DatasetData</code>.
 	 * @param children  The collection of objects to add.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public void addExistingObjects(DataObject parent, Set children)
@@ -265,7 +263,7 @@ public interface OmeroDataService
 	 * @param toPaste   The nodes to paste.
 	 * @param toCut     The nodes to cut.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public void cutAndPaste(Map toPaste, Map toCut)
@@ -277,7 +275,7 @@ public interface OmeroDataService
 	 * @param pixelsID  The id of pixels set.
 	 * @return A list of metadata.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public List getChannelsMetadata(long pixelsID)
@@ -292,7 +290,7 @@ public interface OmeroDataService
 	 * @param pixelsID	The ID of the pixels set.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Map getArchivedFiles(String location, long pixelsID)
@@ -306,7 +304,7 @@ public interface OmeroDataService
 	 * @return 	<code>Boolean.TRUE</code> if successfully modified,
 	 * 			<code>Boolean.FALSE</code> otherwise.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Boolean changePassword(String oldPassword, String newPassword)
@@ -318,7 +316,7 @@ public interface OmeroDataService
 	 * @param exp	The experimenter to update.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public ExperimenterData updateExperimenter(ExperimenterData exp)
@@ -342,7 +340,7 @@ public interface OmeroDataService
 	 * Returns the free or available space (in Kilobytes) if the passed
 	 * parameter is <code>FREE</code>, returns the used space (in Kilobytes) 
 	 * if the passed parameter is <code>USED</code> on the file system
-	 * including nested subdirectories. Returns <code>-1</code> 
+	 * including nested sub-directories. Returns <code>-1</code> 
 	 * otherwise.
 	 * 
 	 * @param index One of the following constants: {@link #USED} or 
@@ -351,7 +349,7 @@ public interface OmeroDataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public long getSpace(int index, long userID)
@@ -368,7 +366,7 @@ public interface OmeroDataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection getImagesPeriod(Timestamp lowerTime, Timestamp time, 
@@ -384,7 +382,7 @@ public interface OmeroDataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public List getImagesAllPeriodCount(Timestamp lowerTime, Timestamp time, 
@@ -399,15 +397,14 @@ public interface OmeroDataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object advancedSearchFor(SearchDataContext context)
 		throws DSOutOfServiceException, DSAccessException;
 
-	
 	/**
-	 * Finds the objects containg the object identifying by the specified
+	 * Finds the objects containing the object identifying by the specified
 	 * type and id e.g. find the datasets containing a given image.
 	 * 
 	 * @param type 		The type of the object.
@@ -417,7 +414,7 @@ public interface OmeroDataService
      * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection findContainerPaths(Class type, long id, long userID)
@@ -431,7 +428,7 @@ public interface OmeroDataService
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection getOriginalFiles(long pixelsID)
@@ -443,7 +440,7 @@ public interface OmeroDataService
 	 * @param userID
 	 * @return See above
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Collection loadPlateWells(long plateID, long userID)
@@ -456,7 +453,7 @@ public interface OmeroDataService
 	 * @param objects	The collection of objects to delete.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Collection<DeletableObject> delete(

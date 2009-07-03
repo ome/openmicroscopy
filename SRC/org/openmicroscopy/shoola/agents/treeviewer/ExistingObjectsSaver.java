@@ -63,7 +63,7 @@ public class ExistingObjectsSaver
     /** The items to add. */
     private Set         children;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
     /**

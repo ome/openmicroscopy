@@ -53,14 +53,14 @@ public class TagsLoader
 	extends EditorLoader
 {
 
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
     
 	 /**	
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
      */
     public TagsLoader(Editor viewer)
     {

@@ -34,7 +34,7 @@ import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * 
+ * Loads the enumerations related to images or channels.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,7 +56,7 @@ public class EnumerationLoader
 	/** Indicates to load the enumeration related to the channel metadata. */
 	public static final int CHANNEL = 1;
 	
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
     /** One of the constants defined by this class. */
@@ -65,8 +65,8 @@ public class EnumerationLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer
-     * @param index
+     * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
+     * @param index  One of the constants defined by this class.
      */
     public EnumerationLoader(Editor viewer, int index)
     {

@@ -217,6 +217,18 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
+     * @see ImageDataView#loadInstrumentData(long, AgentEventListener)
+     */
+	public CallHandle loadInstrumentData(long instrumentID, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AcquisitionDataLoader(
+				AcquisitionDataLoader.INSTRUMENT, instrumentID);
+		return cmd.exec(observer);
+	}
+	
+	/**
+     * Implemented as specified by the view interface.
      * @see ImageDataView#saveAcquisitionData(Object, AgentEventListener)
      */
 	public CallHandle saveAcquisitionData(Object refObject, 
@@ -273,7 +285,8 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#monitorDirectory(File, DataObject, AgentEventListener)
+     * @see ImageDataView#monitorDirectory(File, DataObject, long, long,
+     * AgentEventListener)
      */
 	public CallHandle monitorDirectory(File directory, DataObject container, 
 			long userID, long groupID, AgentEventListener observer)

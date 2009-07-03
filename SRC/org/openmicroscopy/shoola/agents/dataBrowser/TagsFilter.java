@@ -70,7 +70,7 @@ public class TagsFilter
     /** The collection of tags to search for. */
     private List<String> 			tags;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle				handle;
     
     /**

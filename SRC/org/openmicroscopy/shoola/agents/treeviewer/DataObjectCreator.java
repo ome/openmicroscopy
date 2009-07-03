@@ -26,12 +26,11 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.List;
-
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
@@ -59,7 +58,7 @@ public class DataObjectCreator
     /** The parent of the data object to create. */
     private DataObject      parent;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  	handle;
     
     /**

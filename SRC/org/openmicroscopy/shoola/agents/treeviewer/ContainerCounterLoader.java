@@ -56,13 +56,13 @@ public class ContainerCounterLoader
 	extends DataBrowserLoader
 {
 
-    /** The collection of <code>DataObject</code>s we want to analyse. */
+    /** The collection of <code>DataObject</code>s we want to analyze. */
     private Set					rootIDs;
     
     /** The collection of corresponding nodes. */
     private Set<TreeImageSet> 	nodes;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  		handle;
     
     /**
@@ -70,7 +70,7 @@ public class ContainerCounterLoader
      * 
      * @param viewer  Reference to the Model. Mustn't be <code>null</code>.
      * @param rootIDs The collection of <code>DataObject</code>s 
-     *                we want to analyse.
+     *                we want to analyze.
      * @param nodes   The collection of corresponding nodes.            
      */
     public ContainerCounterLoader(Browser viewer, Set rootIDs, 
@@ -144,12 +144,5 @@ public class ContainerCounterLoader
                     						value.longValue(), nodes);
         }
     }
-    
-    /**
-     * Does nothing as the async call returns <code>null</code>.
-     * The actual payload (number of items) is delivered progressively
-     * during the updates.
-     */
-    //public void handleNullResult() {}
     
 }

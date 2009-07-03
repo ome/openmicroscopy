@@ -66,7 +66,7 @@ public class DataSaver
 	/** The acquisition metadata. */
 	private List<Object> 			acquisitionMetadata;
 	
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
 	/**
@@ -95,7 +95,7 @@ public class DataSaver
 	
 	/** 
 	 * Loads the data.
-	 * @see MetadataLoader#cancel()
+	 * @see MetadataLoader#load()
 	 */
 	public void load()
 	{

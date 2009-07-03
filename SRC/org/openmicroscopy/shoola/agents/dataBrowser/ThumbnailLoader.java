@@ -69,7 +69,7 @@ public class ThumbnailLoader
     /** Flag indicating to retrieve thumbnail. */
     private boolean					thumbnail;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle 	 			handle;
     
     /**

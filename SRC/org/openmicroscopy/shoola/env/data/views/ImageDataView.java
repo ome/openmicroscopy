@@ -302,4 +302,14 @@ public interface ImageDataView
 	public CallHandle analyseFretFit(long controlID, long toAnalyzeID, 
 			long irfID, AgentEventListener observer);
 	
+	/**
+	 * Loads the instrument and its components.
+	 * 
+	 * @param instrumentID   The id of instrument
+	 * @param observer Callback handler.
+	 * @return See above.
+	 */
+	public CallHandle loadInstrumentData(long instrumentID, 
+			AgentEventListener observer);
+	
 }

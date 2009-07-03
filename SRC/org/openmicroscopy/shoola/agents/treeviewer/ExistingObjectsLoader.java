@@ -59,7 +59,7 @@ public class ExistingObjectsLoader
     /** The node the objects are added to. */
     private DataObject ho;
 
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
     /**

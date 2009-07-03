@@ -70,7 +70,7 @@ public class CommentsFilter
     /** The collection of comments to search for. */
     private List<String> 			comments;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle				handle;
     
     /**

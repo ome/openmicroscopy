@@ -63,7 +63,7 @@ public class ExperimenterImageLoader
     /** The node hosting the information about the smart folder. */
     private TreeImageSet		smartFolderNode;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  		handle;
     
     /**

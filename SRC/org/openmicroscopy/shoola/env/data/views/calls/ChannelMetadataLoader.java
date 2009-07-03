@@ -61,7 +61,7 @@ public class ChannelMetadataLoader
     private BatchCall   loadCall;
     
     /**
-     * Creates a {@link BatchCall} to retrieve the channels metadat.
+     * Creates a {@link BatchCall} to retrieve the channels metadata.
      * 
      * @param pixelsID The ID of the pixels set.
      * @return The {@link BatchCall}.

@@ -70,12 +70,12 @@ public class DataBrowserAgent
     /**
      * Helper method. 
      * 
-     * @return A reference to the {@link Registry}.
+     * @return A reference to the <code>Registry</code>.
      */
     public static Registry getRegistry() { return registry; }
     
     /**
-	 * Helper method returningthe current user's details.
+	 * Helper method returning the current user's details.
 	 * 
 	 * @return See above.
 	 */

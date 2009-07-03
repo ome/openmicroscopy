@@ -1769,6 +1769,17 @@ class OmeroMetadataServiceImpl
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroMetadataService#loadInstrument(long)
+	 */
+	public Object loadInstrument(long instrumentID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (instrumentID <= 0) return null;
+		return gateway.loadInstrument(instrumentID);
+	}
+	
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroMetadataService#saveAcquisitionData(Object)
 	 */
 	public Object saveAcquisitionData(Object refObject)

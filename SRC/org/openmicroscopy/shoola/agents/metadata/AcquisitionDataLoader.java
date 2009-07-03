@@ -53,7 +53,7 @@ public class AcquisitionDataLoader
 	extends EditorLoader
 {
 
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
     /** Either an image or a channel. */

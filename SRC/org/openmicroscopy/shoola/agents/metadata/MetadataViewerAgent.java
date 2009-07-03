@@ -63,12 +63,12 @@ public class MetadataViewerAgent
     /**
      * Helper method. 
      * 
-     * @return A reference to the {@link Registry}.
+     * @return A reference to the <code>Registry</code>
      */
     public static Registry getRegistry() { return registry; }
     
 	/**
-	 * Helper method returningthe current user's details.
+	 * Helper method returning the current user's details.
 	 * 
 	 * @return See above.
 	 */
@@ -146,7 +146,7 @@ public class MetadataViewerAgent
     
     /**
      * Implemented as specified by {@link Agent}. 
-     * @see Agent# hasDataToSave()
+     * @see Agent#hasDataToSave()
      */
     public Map<String, Set> hasDataToSave()
     {

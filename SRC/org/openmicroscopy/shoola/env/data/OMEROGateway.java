@@ -3895,7 +3895,6 @@ class OMEROGateway
 			}
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot load channel acquisition data.");
 		}
 		return null;
@@ -4409,6 +4408,30 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, "Cannot find the folder with path: "
 					+absolutePath);
+		}
+		return null;
+	}
+	 
+	/**
+	 * Loads the instrument and its components.
+	 * 
+	 * @param instrumentID The id of the instrument.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Object loadInstrument(long instrumentID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		//stage Label
+		isSessionAlive();
+		try {
+			IMetadataPrx service = getMetadataService();
+			return null;
+		} catch (Exception e) {
+			handleException(e, "Cannot load the instrument: "+instrumentID);
 		}
 		return null;
 	}
