@@ -5,7 +5,7 @@
 """
 import logging
 import fsLogger
-log = logging.getLogger("fs.fsRunFSServer")
+log = logging.getLogger("fsserver.fsRunFSServer")
 
 import sys
 
