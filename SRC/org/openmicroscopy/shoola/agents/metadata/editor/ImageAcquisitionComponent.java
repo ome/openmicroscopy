@@ -325,10 +325,11 @@ class ImageAcquisitionComponent
 			fieldsEnv.clear();
 			fieldsStage.clear();
 			ImageAcquisitionData data = model.getImageAcquisitionData();
-			Map<String, Object> details = EditorUtil.transformObjective(data);
+			Map<String, Object> details = 
+				EditorUtil.transformObjectiveAndSettings(data);
 	    	List notSet = (List) details.get(EditorUtil.NOT_SET);
 	    	objectivePane.setVisible(false);
-	    	if (notSet.size() != EditorUtil.MAX_FIELDS_OBJECTIVE) {
+	    	if (notSet.size() != EditorUtil.MAX_FIELDS_OBJECTIVE_AND_SETTINGS) {
 	    		objectivePane.displayObjective(details);
 	    		objectivePane.setVisible(true);
 	    	}

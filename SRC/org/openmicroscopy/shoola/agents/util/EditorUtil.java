@@ -55,11 +55,13 @@ import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DetectorData;
 import pojos.ExperimenterData;
 import pojos.FilterData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.LightSourceData;
+import pojos.ObjectiveData;
 import pojos.PermissionData;
 import pojos.PixelsData;
 import pojos.PlateData;
@@ -371,14 +373,20 @@ public class EditorUtil
 	/** Identifies a cut out tolerance. */
 	public static final String	CUT_OUT_TOLERANCE = "Cut Out Tolerance";
 	
+	/** The maximum number of field for a detector and its settings. */
+	public static final int		MAX_FIELDS_DETECTOR_AND_SETTINGS = 12;
+	
 	/** The maximum number of field for a detector. */
-	public static final int		MAX_FIELDS_DETECTOR = 12;
+	public static final int		MAX_FIELDS_DETECTOR = 10;
 	
 	/** The maximum number of field for a filter. */
 	public static final int		MAX_FIELDS_FILTER = 11;
 	
+	/** The maximum number of field for an objective and its settings. */
+	public static final int		MAX_FIELDS_OBJECTIVE_AND_SETTINGS = 14;
+	
 	/** The maximum number of field for an objective. */
-	public static final int		MAX_FIELDS_OBJECTIVE = 14;
+	public static final int		MAX_FIELDS_OBJECTIVE = 11;
 	
 	/** The maximum number of field for a laser. */
 	public static final int		MAX_FIELDS_LASER = 14;
@@ -895,7 +903,7 @@ public class EditorUtil
     }
     
     /**
-     * Returns <code>true</code> if the specified data object is writabla by 
+     * Returns <code>true</code> if the specified data object is writable by 
      * group members,
      * <code>false</code> otherwise, depending on the permission.
      * 
@@ -1050,45 +1058,38 @@ public class EditorUtil
      * @param data The value to convert.
      * @return See above.
      */
-    public static Map<String, Object> transformObjective(
-    		ImageAcquisitionData data)
+    public static Map<String, Object> transformObjective(ObjectiveData data)
     {
     	LinkedHashMap<String, Object> 
-    			details = new LinkedHashMap<String, Object>(9);
-    	List<String> notSet = new ArrayList<String>();
-    	details.put(MODEL, "");
-    	details.put(MANUFACTURER, "");
-    	details.put(SERIAL_NUMBER, "");
-    	details.put(LOT_NUMBER, "");
-    	details.put(NOMINAL_MAGNIFICATION, Integer.valueOf(0));
-    	details.put(CALIBRATED_MAGNIFICATION,Float.valueOf(0));
-        details.put(LENSNA, new Float(0));
-        details.put(IMMERSION, "");
-        details.put(CORRECTION, "");
-        details.put(WORKING_DISTANCE, Float.valueOf(0));
-        details.put(CORRECTION_COLLAR, Float.valueOf(0));
-    	details.put(MEDIUM, "");
-    	details.put(REFRACTIVE_INDEX, Float.valueOf(0));
-    	details.put(IRIS, null);
-        if (data == null) {
-        	notSet.add(MODEL);
-        	notSet.add(MANUFACTURER);
-        	notSet.add(SERIAL_NUMBER);
-        	notSet.add(LOT_NUMBER);
-        	notSet.add(NOMINAL_MAGNIFICATION);
-        	notSet.add(CALIBRATED_MAGNIFICATION);
-        	notSet.add(LENSNA);
-        	notSet.add(IMMERSION);
-        	notSet.add(CORRECTION);
-        	notSet.add(WORKING_DISTANCE);
-        	notSet.add(CORRECTION_COLLAR);
-    		notSet.add(MEDIUM);
-    		notSet.add(REFRACTIVE_INDEX);
-    		notSet.add(IRIS);
-        	details.put(NOT_SET, notSet);
-        	return details;
-        }
-        Object o = data.hasIris();
+			details = new LinkedHashMap<String, Object>();
+		List<String> notSet = new ArrayList<String>();
+		details.put(MODEL, "");
+		details.put(MANUFACTURER, "");
+		details.put(SERIAL_NUMBER, "");
+		details.put(LOT_NUMBER, "");
+		details.put(NOMINAL_MAGNIFICATION, Integer.valueOf(0));
+		details.put(CALIBRATED_MAGNIFICATION,Float.valueOf(0));
+		details.put(LENSNA, new Float(0));
+		details.put(IMMERSION, "");
+		details.put(CORRECTION, "");
+		details.put(WORKING_DISTANCE, Float.valueOf(0));
+		details.put(IRIS, null);
+		if (data == null) {
+			notSet.add(MODEL);
+			notSet.add(MANUFACTURER);
+			notSet.add(SERIAL_NUMBER);
+			notSet.add(LOT_NUMBER);
+			notSet.add(NOMINAL_MAGNIFICATION);
+			notSet.add(CALIBRATED_MAGNIFICATION);
+			notSet.add(LENSNA);
+			notSet.add(IMMERSION);
+			notSet.add(CORRECTION);
+			notSet.add(WORKING_DISTANCE);
+			notSet.add(IRIS);
+			details.put(NOT_SET, notSet);
+			return details;
+		}
+		Object o = data.hasIris();
     	if (o == null) {
     		notSet.add(IRIS);
     	}
@@ -1097,7 +1098,7 @@ public class EditorUtil
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(MODEL);
 		details.put(MODEL, s);
-		s = data.getManufacturer();
+		s = null;//data.getManufacturer();
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(MANUFACTURER);
 		details.put(MANUFACTURER, s);
@@ -1106,7 +1107,7 @@ public class EditorUtil
 			notSet.add(SERIAL_NUMBER);
 		details.put(SERIAL_NUMBER, s);
 		
-		s = data.getSerialNumber(); //TODO
+		s = null;//data.getLotNumber();
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(LOT_NUMBER);
 		details.put(LOT_NUMBER, s);
@@ -1142,13 +1143,47 @@ public class EditorUtil
  			notSet.add(WORKING_DISTANCE);
  		}
  		details.put(WORKING_DISTANCE, f);
- 		f = data.getCorrectionCollar();
+ 		details.put(NOT_SET, notSet);
+		return details;
+    }
+    
+    /**
+     * Transforms the passed objective.
+     * 
+     * @param data The value to convert.
+     * @return See above.
+     */
+    public static Map<String, Object> transformObjectiveAndSettings(
+    		ImageAcquisitionData data)
+    {
+    	LinkedHashMap<String, Object> 
+    			details = new LinkedHashMap<String, Object>(9);
+    	Map<String, Object> m;
+    	
+    	if (data == null) m = transformObjective(null);
+    	else  m = transformObjective(data.getObjective());
+    	List<String> notSet = (List) m.get(NOT_SET);
+    	m.remove(NOT_SET);
+    	details.putAll(m);
+        details.put(CORRECTION_COLLAR, Float.valueOf(0));
+    	details.put(MEDIUM, "");
+    	details.put(REFRACTIVE_INDEX, Float.valueOf(0));
+    	details.put(IRIS, null);
+        if (data == null) {
+        	notSet.add(CORRECTION_COLLAR);
+    		notSet.add(MEDIUM);
+    		notSet.add(REFRACTIVE_INDEX);
+        	details.put(NOT_SET, notSet);
+        	return details;
+        }
+       
+ 		double f = data.getCorrectionCollar();
     	if (f < 0) {
     		f = 0;
     		notSet.add(CORRECTION_COLLAR);
     	}
     	details.put(CORRECTION_COLLAR, f);
-    	s = data.getMedium();
+    	String s = data.getMedium();
     	if (s == null || s.trim().length() == 0) 
     		notSet.add(MEDIUM);
     	details.put(MEDIUM, s);
@@ -1458,27 +1493,25 @@ public class EditorUtil
     /**
      * Transforms the detector.
      * 
-     * @param data  The value to convert.
+     * @param data The value to convert.
      * @return See above.
      */
-    public static Map<String, Object> transformDetector(
-    		ChannelAcquisitionData data)
+    public static Map<String, Object> transformDetector(DetectorData data)
     {
+
     	LinkedHashMap<String, Object> 
-			details = new LinkedHashMap<String, Object>(11);
-    	List<String> notSet = new ArrayList<String>();
+			details = new LinkedHashMap<String, Object>();
     	details.put(MODEL, "");
     	details.put(MANUFACTURER, "");
     	details.put(SERIAL_NUMBER, "");
     	details.put(LOT_NUMBER, "");
+        details.put(TYPE, ""); 
     	details.put(GAIN, new Double(0));
     	details.put(VOLTAGE, new Double(0));
         details.put(OFFSET, new Double(0));
-        details.put(READ_OUT_RATE, new Double(0));
-        details.put(BINNING, "");
         details.put(ZOOM, new Double(0));
         details.put(AMPLIFICATION, "");
-        details.put(TYPE, ""); 
+        List<String> notSet = new ArrayList<String>();
         if (data == null) {
         	notSet.add(MODEL);
         	notSet.add(MANUFACTURER);
@@ -1486,87 +1519,113 @@ public class EditorUtil
         	notSet.add(LOT_NUMBER);
         	notSet.add(GAIN);
         	notSet.add(VOLTAGE);
-        	notSet.add(READ_OUT_RATE);
-        	notSet.add(BINNING);
         	notSet.add(ZOOM);
         	notSet.add(AMPLIFICATION);
         	notSet.add(TYPE);
         	details.put(NOT_SET, notSet);
         	return details;
         }
-        String s = data.getDetectorModel();
+        String s = data.getModel();
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(MODEL);
 		details.put(MODEL, s);
-		s = data.getDetectorManufacturer();
+		s = data.getManufacturer();
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(MANUFACTURER);
 		details.put(MANUFACTURER, s);
-		s = data.getDetectorSerialNumber();
+		s = data.getSerialNumber();
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(SERIAL_NUMBER);
 		details.put(SERIAL_NUMBER, s);
-		s = data.getDetectorLotNumber();
+		s = data.getLotNumber();
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(LOT_NUMBER);
 		details.put(LOT_NUMBER, s);
 		
+		double f = data.getGain();
+		if (f < 0) {
+			f = 0;
+			notSet.add(GAIN);
+		}
+		details.put(GAIN, f);
+    	f = data.getVoltage();
+		if (f < 0) {
+			f = 0;
+			notSet.add(VOLTAGE);
+		}
+		details.put(VOLTAGE, f);
+		f = data.getOffset();
+		if (f < 0) {
+			f = 0;
+			notSet.add(OFFSET);
+		}
+		details.put(OFFSET, f);
+        f = data.getZoom();
+    	if (f < 0) {
+			f = 0;
+			notSet.add(ZOOM);
+		}
+        details.put(ZOOM, f);
+        f = data.getAmplificationGain();
+    	if (f < 0) {
+			f = 0;
+			notSet.add(AMPLIFICATION);
+		}
+        details.put(AMPLIFICATION, f);
+        s = data.getType();
+        if (s == null || s.trim().length() == 0) 
+			notSet.add(TYPE);
+        details.put(TYPE, s); 
+    	details.put(NOT_SET, notSet);
+    	return details;
+    }
+    
+    /**
+     * Transforms the detector and the detector settings.
+     * 
+     * @param data  The value to convert.
+     * @return See above.
+     */
+    public static Map<String, Object> transformDetectorAndSettings(
+    		ChannelAcquisitionData data)
+    {
+    	LinkedHashMap<String, Object> 
+			details = new LinkedHashMap<String, Object>(11);
+    	Map<String, Object> m;
+    	
+    	if (data == null) m = transformDetector(null);
+    	else  m = transformDetector(data.getDetector());
+    	List<String> notSet = (List) m.get(NOT_SET);
+    	m.remove(NOT_SET);
+    	details.putAll(m);
+        details.put(READ_OUT_RATE, new Double(0));
+        details.put(BINNING, "");
+        if (data == null) {
+        	notSet.add(READ_OUT_RATE);
+        	notSet.add(BINNING);
+        	details.put(NOT_SET, notSet);
+        	return details;
+        }
+
 		double f = data.getDetectorSettingsGain();
     	if (f > 0)  details.put(GAIN, f);
-    	else {
-    		f = data.getDetectorGain();
-    		if (f < 0) {
-    			f = 0;
-    			notSet.add(GAIN);
-    		}
-    		details.put(GAIN, f);
-    	}
+    	
     	f = data.getDetectorSettingsVoltage();
     	if (f > 0) details.put(VOLTAGE, f);
-    	else {
-    		f = data.getDetectorVoltage();
-    		if (f < 0) {
-    			f = 0;
-    			notSet.add(VOLTAGE);
-    		}
-    		details.put(VOLTAGE, f);
-    	}
+
     	f = data.getDetectorSettingsOffset();
     	if (f > 0) details.put(OFFSET, f);
-    	else {
-    		f = data.getDetectorOffset();
-    		if (f < 0) {
-    			f = 0;
-    			notSet.add(OFFSET);
-    		}
-    		details.put(OFFSET, f);
-    	}
+    	
     	f = data.getDetectorSettingsReadOutRate();
     	if (f < 0) {
 			f = 0;
 			notSet.add(READ_OUT_RATE);
 		}
         details.put(READ_OUT_RATE, f);
-        s = data.getDetectorSettingsBinning();
+        String s = data.getDetectorSettingsBinning();
         if (s == null || s.trim().length() == 0) 
 			notSet.add(BINNING);
         details.put(BINNING, s);
-        f = data.getDetectorZoom();
-    	if (f < 0) {
-			f = 0;
-			notSet.add(ZOOM);
-		}
-        details.put(ZOOM, f);
-        f = data.getDetectorAmplificationGain();
-    	if (f < 0) {
-			f = 0;
-			notSet.add(AMPLIFICATION);
-		}
-        details.put(AMPLIFICATION, f);
-        s = data.getDetectorType();
-        if (s == null || s.trim().length() == 0) 
-			notSet.add(TYPE);
-        details.put(TYPE, s); 
     	details.put(NOT_SET, notSet);
     	return details;
     }
@@ -1608,7 +1667,7 @@ public class EditorUtil
     }
     
     /**
-	 * Initialises a <code>JComboBox</code>.
+	 * Initializes a <code>JComboBox</code>.
 	 * 
 	 * @param values 		 The values to display.
 	 * @param decrement 	 The value by which the font size is reduced.
@@ -1633,7 +1692,7 @@ public class EditorUtil
 	}
     
     /**
-	 * Initialises a <code>JComboBox</code>.
+	 * Initializes a <code>JComboBox</code>.
 	 * 
 	 * @param values 	The values to display.
 	 * @param decrement The value by which the font size is reduced.
@@ -1645,7 +1704,7 @@ public class EditorUtil
 	}
     
     /**
-	 * Initialises a <code>JComboBox</code>.
+	 * Initializes a <code>JComboBox</code>.
 	 * 
 	 * @param values The values to display.
 	 * @return See above.
@@ -1656,7 +1715,7 @@ public class EditorUtil
 	}
 
     /**
-	 * Initialises a <code>JComboBox</code>.
+	 * Initializes a <code>JComboBox</code>.
 	 * 
 	 * @param values The values to display.
 	 * @return See above.
@@ -1675,7 +1734,7 @@ public class EditorUtil
 	}
     
 	/**
-	 * Initiliases a <code>JXTaskPane</code>.
+	 * Initializes a <code>JXTaskPane</code>.
 	 * 
 	 * @param title The title of the component.
 	 * @return See above.

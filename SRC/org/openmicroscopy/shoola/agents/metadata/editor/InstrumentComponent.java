@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.InstrumentUI 
+ * org.openmicroscopy.shoola.agents.metadata.editor.InstrumentComponent
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -25,15 +25,12 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JPanel;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXTaskPane;
 
 /** 
  * Describes the instrument used to capture the image.
@@ -48,36 +45,42 @@ import org.jdesktop.swingx.JXTaskPane;
  * </small>
  * @since 3.0-Beta4
  */
-class InstrumentUI 
+class InstrumentComponent 
 	extends JPanel
 {
 
-	/** Collection of detectors. */
-	private List<JXTaskPane> 	detectors;
+	/** Reference to the Model. */
+	private EditorModel							model;
 	
-	/** Collection of light sources. */
-	private List<JXTaskPane> 	lightSources;
-	 
-	/** The microscope used. */
-	private JXTaskPane			microscope;
+	/** Reference to the parent of this component. */
+	private AcquisitionDataUI					parent;
 	
-	/** Collection of objectives. */
-	private List<JXTaskPane> 	objectives; 
-	
-	/** Collection of filters. */
-	private List<JXTaskPane> 	filters; 
-	
-	/** Collection of dichroic. */
-	private List<JXTaskPane> 	dichroics; 
-	
-	/** Initializes the components composing the display. */
+	/** Initiliases the components. */
 	private void initComponents()
 	{
-		detectors = new ArrayList<JXTaskPane>();
-		objectives = new ArrayList<JXTaskPane>();
-		lightSources = new ArrayList<JXTaskPane>();
-		filters = new ArrayList<JXTaskPane>();
-		dichroics = new ArrayList<JXTaskPane>();
+		
 	}
 	
+	/** Builds and lays out the UI. */
+	private void buildGUI()
+	{
+		removeAll();
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param parent Reference to the Parent. Mustn't be <code>null</code>.
+	 * @param model	 Reference to the Model. Mustn't be <code>null</code>.
+	 */
+	InstrumentComponent(AcquisitionDataUI parent, EditorModel model)
+	{
+		if (model == null)
+			throw new IllegalArgumentException("No model.");
+		if (parent == null)
+			throw new IllegalArgumentException("No parent.");
+		this.parent = parent;
+		this.model = model;
+		initComponents();
+	}
 }

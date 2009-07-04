@@ -42,10 +42,6 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.Correction;
-import omero.model.Immersion;
-import omero.model.Medium;
-
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -309,68 +305,7 @@ class ObjectiveComponent
 	/** Prepares the data to save. */
 	void prepareDataToSave()
 	{
-		ImageAcquisitionData data = model.getImageAcquisitionData();
-		String key;
-		DataComponent comp;
-		Object value;
-		EnumerationObject enumObject;
-		Number number;
-		Boolean bool;
-		Entry entry;
-		Iterator i = fieldsObjective.entrySet().iterator();
 		
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			key = (String) entry.getKey();
-			comp = (DataComponent) entry.getValue();
-			if (comp.isDirty()) {
-				value = comp.getAreaValue();
-				if (EditorUtil.MODEL.equals(key)) {
-					data.setModel((String) value);
-				} else if (EditorUtil.MANUFACTURER.equals(key)) {
-					data.setManufacturer((String) value);
-				} else if (EditorUtil.SERIAL_NUMBER.equals(key)) {
-					data.setSerialNumber((String) value);
-				} else if (EditorUtil.NOMINAL_MAGNIFICATION.equals(key)) {
-					data.setNominalMagnification((Integer) value);
-				} else if (EditorUtil.CALIBRATED_MAGNIFICATION.equals(key)) {
-					number = UIUtilities.extractNumber((String) value, 
-							Float.class);
-					if (number != null)
-						data.setCalibratedMagnification((Float) number);
-				} else if (EditorUtil.LENSNA.equals(key)) {
-					number = UIUtilities.extractNumber((String) value, 
-							Float.class);
-					if (number != null) data.setLensNA((Float) number);
-				} else if (EditorUtil.IMMERSION.equals(key)) {
-					enumObject = (EnumerationObject) value;
-					data.setImmersion((Immersion) enumObject.getObject());
-				} else if (EditorUtil.CORRECTION.equals(key)) {
-					enumObject = (EnumerationObject) value;
-					data.setCorrection((Correction) enumObject.getObject());
-				} else if (EditorUtil.WORKING_DISTANCE.equals(key)) {
-					number = UIUtilities.extractNumber((String) value, 
-							Float.class);
-					if (number != null) data.setWorkingDistance((Float) number);
-				} else if (EditorUtil.MEDIUM.equals(key)) {
-					enumObject = (EnumerationObject) value;
-					if (enumObject.getObject() instanceof Medium)
-						data.setMedium((Medium) enumObject.getObject());
-				} else if (EditorUtil.REFRACTIVE_INDEX.equals(key)) {
-					number = UIUtilities.extractNumber((String) value, 
-							Float.class);
-					if (number != null) data.setRefractiveIndex((Float) number);
-				} else if (EditorUtil.IRIS.equals(key)) {
-					bool = parent.convertToBoolean((String) value);
-					if (bool != null) data.setIris(bool);
-				} else if (EditorUtil.CORRECTION_COLLAR.equals(key)) {
-					number = UIUtilities.extractNumber((String) value, 
-							Float.class);
-					if (number != null) 
-						data.setCorrectionCollar((Float) number);
-				} 
-			}
-		}
 	}
 	
 	/**

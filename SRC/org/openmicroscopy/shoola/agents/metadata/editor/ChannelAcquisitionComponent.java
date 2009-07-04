@@ -406,10 +406,10 @@ class ChannelAcquisitionComponent
 			ChannelAcquisitionData data = model.getChannelAcquisitionData(
 	    			channel.getIndex());
 			//if no detector info: don't display.
-			details = EditorUtil.transformDetector(data);
+			details = EditorUtil.transformDetectorAndSettings(data);
 			notSet = (List) details.get(EditorUtil.NOT_SET);
 			detectorPane.setVisible(false);
-			if (notSet.size() != EditorUtil.MAX_FIELDS_DETECTOR) {
+			if (notSet.size() != EditorUtil.MAX_FIELDS_DETECTOR_AND_SETTINGS) {
 				detectorPane.displayDetector(details);
 				detectorPane.setVisible(true);
 			}

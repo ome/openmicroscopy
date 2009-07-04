@@ -464,6 +464,27 @@ class EditorComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#loadInstrumentData()
+	 */
+	public void loadInstrumentData()
+	{
+		Object refObject = model.getRefObject();
+		if (refObject instanceof WellSampleData) {
+			WellSampleData wsd = (WellSampleData) refObject;
+			refObject = wsd.getImage();
+		}
+		if (refObject instanceof ImageData) {
+			ImageData img = (ImageData) refObject;
+			long id = img.getInstrumentId();
+			model.fireInstrumentDataLoading(id);
+			view.setStatus(true);
+		}
+		
+		
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Editor#setChannelEnumerations(Map)
 	 */
 	public void setChannelEnumerations(Map map)

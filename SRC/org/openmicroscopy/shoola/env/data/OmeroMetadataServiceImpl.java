@@ -42,7 +42,6 @@ import org.apache.commons.collections.ListUtils;
 //Application-internal dependencies
 import omero.model.Annotation;
 import omero.model.Channel;
-import omero.model.Correction;
 import omero.model.DatasetAnnotationLink;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
@@ -51,11 +50,9 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
-import omero.model.Immersion;
 import omero.model.LogicalChannel;
 import omero.model.Medium;
 import omero.model.Objective;
-import omero.model.ObjectiveI;
 import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.OriginalFile;
@@ -316,36 +313,7 @@ class OmeroMetadataServiceImpl
 		toCreate.clear();
 		//Now we can deal with the objective.
 		//objective settings exist
-		if (data.isObjectiveDirty()) {
-			id = data.getObjectiveId();
-			Objective objective;
-			if (id < 0) {
-				objective = new ObjectiveI();
-				toCreate.add(objective);
-			} else {
-				objective = (Objective) gateway.findIObject(
-						Objective.class.getName(), id);
-				toUpdate.add(objective);
-			}
-			objective.setModel(omero.rtypes.rstring(data.getModel()));
-			objective.setSerialNumber(omero.rtypes.rstring(
-					data.getSerialNumber()));
-			objective.setManufacturer(
-					omero.rtypes.rstring(data.getManufacturer()));
-			objective.setLensNA(omero.rtypes.rdouble(data.getLensNA()));
-			objective.setNominalMagnification(omero.rtypes.rint(
-					data.getNominalMagnification()));
-			objective.setCalibratedMagnification(omero.rtypes.rdouble(
-					data.getCalibratedMagnification()));
-			object = data.getImmersionAsEnum();
-			if (object != null)
-				objective.setImmersion((Immersion) object);
-			object = data.getCorrectionAsEnum();
-			if (object != null)
-				objective.setCorrection((Correction) object);
-			objective.setWorkingDistance(
-					omero.rtypes.rdouble(data.getWorkingDistance()));
-		}
+		
 		if (toUpdate.size() > 0) {
 			gateway.updateObjects(toUpdate, new Parameters());
 		} else { 

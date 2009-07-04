@@ -108,6 +108,12 @@ class AcquisitionDataUI
 	/** The component hosting the image acquisition data. */
 	private ImageAcquisitionComponent			imageAcquisition;
 	
+	/** 
+	 * The component hosting information about the instrument used to capture
+	 * the image.
+	 */
+	private InstrumentComponent					instrument;
+	
 	/** The collection of channel acquisition data. */
 	private Map<JXTaskPane, ChannelData> 		channelAcquisitionPanes;
 	
@@ -138,7 +144,11 @@ class AcquisitionDataUI
 		imagePane.add(imageAcquisition);
 		imagePane.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
+		instrument = new InstrumentComponent(this, model);
 		instrumentPane = EditorUtil.createTaskPane("Instrument");
+		instrumentPane.add(instrument);
+		instrumentPane.addPropertyChangeListener(
+				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 	}
 	
 	/** Builds and lays out the components. */
@@ -380,8 +390,7 @@ class AcquisitionDataUI
 		while (i.hasNext()) 
 			i.next().setPlaneInfo(index);
 	}
-	
-	
+
 	/** 
 	 * Updates display when the new root node is set. 
 	 * Loads the acquisition data if the passed parameter is <code>true</code>
@@ -466,6 +475,8 @@ class AcquisitionDataUI
 		Object src = evt.getSource();
 		if (src == imagePane) {
 			controller.loadImageAcquisitionData();
+		} else if (src == instrumentPane) {
+			controller.loadInstrumentData();
 		} else {
 			ChannelData channel = channelAcquisitionPanes.get(src);
 			controller.loadChannelAcquisitionData(channel);

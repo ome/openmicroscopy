@@ -109,6 +109,7 @@ import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.Instrument;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.OriginalFile;
@@ -4427,6 +4428,7 @@ class OMEROGateway
 	{
 		//stage Label
 		isSessionAlive();
+		Instrument i;
 		try {
 			IMetadataPrx service = getMetadataService();
 			return null;

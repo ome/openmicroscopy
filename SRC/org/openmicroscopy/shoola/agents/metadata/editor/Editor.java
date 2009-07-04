@@ -331,4 +331,8 @@ public interface Editor
 	 */
 	public Renderer getRenderer();
 	
+	/**
+	 * Loads the instrument related to the image.
+	 */
+	public void loadInstrumentData();
 }

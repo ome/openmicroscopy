@@ -260,6 +260,9 @@ class EditorControl
 		model.loadChannelAcquisitionData(channel);
 	}
 	
+	/** Loads the instrument related to the image. */
+	void loadInstrumentData() { model.loadInstrumentData(); }
+	
 	/** Loads the existing Tags. */
 	void loadExistingTags() { model.loadExistingTags(); }
 

@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.agents.metadata.EnumerationLoader;
 import org.openmicroscopy.shoola.agents.metadata.FileLoader;
+import org.openmicroscopy.shoola.agents.metadata.InstrumentDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.OriginalFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
@@ -1383,6 +1384,18 @@ class EditorModel
 	{
 		AcquisitionDataLoader 
 			loader = new AcquisitionDataLoader(component, channel); 
+		loader.load();
+	}
+	
+	/**
+	 * Starts an asynchronous call to load the instrument linked to the image.
+	 * 
+	 * @param instrumentID The id of the instrument.
+	 */
+	void fireInstrumentDataLoading(long instrumentID)
+	{
+		InstrumentDataLoader loader = new InstrumentDataLoader(component, 
+				instrumentID);
 		loader.load();
 	}
 	
