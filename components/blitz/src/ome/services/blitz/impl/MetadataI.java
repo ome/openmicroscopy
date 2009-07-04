@@ -33,6 +33,7 @@ import omero.api.AMD_IMetadata_getTaggedObjectsCount;
 import omero.api.AMD_IMetadata_loadAnnotation;
 import omero.api.AMD_IMetadata_loadAnnotations;
 import omero.api.AMD_IMetadata_loadChannelAcquisitionData;
+import omero.api.AMD_IMetadata_loadInstrument;
 import omero.api.AMD_IMetadata_loadSpecifiedAnnotations;
 import omero.api.AMD_IMetadata_loadTagContent;
 import omero.api.AMD_IMetadata_loadTagSets;
@@ -128,22 +129,12 @@ public class MetadataI
 	 {
 		 callInvokerOnRawArgs(__cb, __current, ids);
 	 }
-	 
-	 /*
-	 public void loadTags_async(AMD_IMetadata_loadTags __cb,
-			 long id, boolean wihtObjects, Parameters options, 
-			 Current __current) 
-	 throws ServerError {
-		 
-		callInvokerOnRawArgs(__cb, __current, id, wihtObjects, options);
-	 }
 
-	 public void loadTagSets_async(AMD_IMetadata_loadTagSets __cb,
-			 long id, boolean wihtObjects, Parameters options, 
-			 Current __current) 
-	 throws ServerError {
-		 callInvokerOnRawArgs(__cb, __current, id, wihtObjects, options);
+	 public void loadInstrument_async(AMD_IMetadata_loadInstrument __cb, 
+			 long id, Current __current) 
+	 throws ServerError 
+	 {
+		 callInvokerOnRawArgs(__cb, __current, id);
 	 }
-	 */
 	 
 }
