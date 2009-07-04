@@ -70,7 +70,7 @@ public class ImageAcquisitionData
 	private ImagingEnvironment	environment;
 	
 	/** The objective used to acquire the image. */
-	private ObjectiveSettings	objective;
+	private ObjectiveSettings	objectiveSettings;
 	
 	/** Flag indicating if the StageLabel is dirty. */
 	private boolean				labelDirty;
@@ -81,28 +81,12 @@ public class ImageAcquisitionData
 	/** Flag indicating if the objective settings is dirty. */
 	private boolean				objectiveSettingsDirty;
 	
-	/** Flag indicating if the objective is dirty. */
-	private boolean				objectiveDirty;
-	
 	/** The objective's medium. */
 	private Medium				medium;
 	
-	/** The objective's immersion. */
-	private Immersion			immersion;
+	/** The objective used to capture the image. */
+	private ObjectiveData		objective;
 	
-	/** The objective's correction. */
-	private Correction			correction;
-	
-	/**
-	 * Returns the objective if any.
-	 * 
-	 * @return See above.
-	 */
-	private Objective getObjective()
-	{
-		if (objective == null) return null;
-		return objective.getObjective();
-	}
 	/**
 	 * Creates a new instance.
 	 * 
@@ -116,10 +100,21 @@ public class ImageAcquisitionData
         setValue(image);
         label = image.getStageLabel();
         environment = image.getImagingEnvironment();
-        objective = image.getObjectiveSettings();
+        objectiveSettings = image.getObjectiveSettings();
         medium = null;
-        immersion = null;
-        correction = null;
+	}
+	
+	/**
+	 * Returns the objective used to capture the image.
+	 * 
+	 * @return See above.
+	 */
+	public ObjectiveData getObjective()
+	{
+		if (objectiveSettings == null) return null;
+		if (objective == null) 
+			objective = new ObjectiveData(objectiveSettings.getObjective());
+		return objective;
 	}
 	
 	/**
@@ -231,8 +226,8 @@ public class ImageAcquisitionData
 	 */
 	public double getCorrectionCollar()
 	{
-		if (objective == null) return -1;
-		RDouble value = objective.getCorrectionCollar();
+		if (objectiveSettings == null) return -1;
+		RDouble value = objectiveSettings.getCorrectionCollar();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -244,8 +239,8 @@ public class ImageAcquisitionData
 	 */
 	public double getRefractiveIndex()
 	{
-		if (objective == null) return -1;
-		RDouble value = objective.getRefractiveIndex();
+		if (objectiveSettings == null) return -1;
+		RDouble value = objectiveSettings.getRefractiveIndex();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -258,211 +253,12 @@ public class ImageAcquisitionData
 	public String getMedium()
 	{
 		if (medium != null) return medium.getValue().getValue();
-		if (objective == null) return "";
-		Medium value = objective.getMedium();
+		if (objectiveSettings == null) return "";
+		Medium value = objectiveSettings.getMedium();
 		if (value == null) return "";
 		return value.getValue().getValue();
-	}
-	
-	/**
-	 * Returns the objective's calibrated magnification factor.
-	 * 
-	 * @return See above.
-	 */
-	public double getCalibratedMagnification()
-	{
-		Objective obj = getObjective();
-		if (obj == null) return -1;
-		RDouble value = obj.getCalibratedMagnification();
-		if (value == null) return -1;
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the objective's nominal magnification factor.
-	 * 
-	 * @return See above.
-	 */
-	public int getNominalMagnification()
-	{
-		Objective obj = getObjective();
-		if (obj == null) return -1;
-		RInt value = obj.getNominalMagnification();
-		if (value == null) return -1;
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the objective's LensNA.
-	 * 
-	 * @return See above.
-	 */
-	public double getLensNA()
-	{
-		Objective obj = getObjective();
-		if (obj == null) return -1;
-		RDouble value = obj.getLensNA();
-		if (value == null) return -1;
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the immersion value of the objective.
-	 * 
-	 * @return See above.
-	 */
-	public String getImmersion()
-	{
-		if (immersion != null) return immersion.getValue().getValue();
-		Objective obj = getObjective();
-		if (obj == null) return "";
-		Immersion value = obj.getImmersion();
-		if (value == null) return "";
-		return value.getValue().getValue();
-	}
-	
-	/**
-	 * Returns the correction value of the objective.
-	 * 
-	 * @return See above.
-	 */
-	public String getCorrection()
-	{
-		if (correction != null) return correction.getValue().getValue();
-		Objective obj = getObjective();
-		if (obj == null) return "";
-		Correction value = obj.getCorrection();
-		if (value == null) return "";
-		return value.getValue().getValue();
-	}
-	
-	/**
-	 * Returns the working distance.
-	 * 
-	 * @return See above.
-	 */
-	public double getWorkingDistance()
-	{
-		Objective obj = getObjective();
-		if (obj == null) return -1;
-		RDouble value = obj.getWorkingDistance();
-		if (value == null) return -1;
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the serial number of the objective.
-	 * 
-	 * @return See above.
-	 */
-	public String getSerialNumber()
-	{
-		if (objective == null) return "";
-		Objective obj = objective.getObjective();
-		if (obj == null) return "";
-		RString value = obj.getSerialNumber();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns the model of the objective.
-	 * 
-	 * @return See above.
-	 */
-	public String getModel()
-	{
-		if (objective == null) return "";
-		Objective obj = objective.getObjective();
-		if (obj == null) return "";
-		RString value = obj.getModel();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Returns a boolean flag if the value has been set, <code>null</code> 
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public Object hasIris()
-	{
-		if (objective == null) return null;
-		Objective obj = objective.getObjective();
-		if (obj == null) return null;
-		RBool value = obj.getIris();
-		if (value == null) return null;
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the iris flag.
-	 * 
-	 * @param iris The value to set.
-	 */
-	public void setIris(boolean iris)
-	{
-		objectiveDirty = true;
-		Objective ob = objective.getObjective();
-		if (ob == null) ob = new ObjectiveI();
-		ob.setIris(omero.rtypes.rbool(iris));
-	}
-	
-	/**
-	 * Returns the manufacturer of the objective.
-	 * 
-	 * @return See above.
-	 */
-	public String getManufacturer()
-	{
-		if (objective == null) return "";
-		Objective obj = objective.getObjective();
-		if (obj == null) return "";
-		RString value = obj.getManufacturer();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the serial number.
-	 * 
-	 * @param number The value to set.
-	 */
-	public void setSerialNumber(String number)
-	{
-		objectiveDirty = true;
-		Objective ob = objective.getObjective();
-		if (ob == null) ob = new ObjectiveI();
-		ob.setSerialNumber(omero.rtypes.rstring(number));
-	}
-	
-	/**
-	 * Sets the model.
-	 * 
-	 * @param model The value to set.
-	 */
-	public void setModel(String model)
-	{
-		objectiveDirty = true;
-		Objective ob = objective.getObjective();
-		if (ob == null) ob = new ObjectiveI();
-		ob.setModel(omero.rtypes.rstring(model));
 	}
 
-	/**
-	 * Sets the manufacturer.
-	 * 
-	 * @param manufacturer The value to set.
-	 */
-	public void setManufacturer(String manufacturer)
-	{
-		objectiveDirty = true;
-		Objective ob = objective.getObjective();
-		if (ob == null) ob = new ObjectiveI();
-		ob.setManufacturer(omero.rtypes.rstring(manufacturer));
-	}
-	
 	/**
 	 * Sets the name of the stage label.
 	 * 
@@ -572,8 +368,9 @@ public class ImageAcquisitionData
 	public void setCorrectionCollar(double correction)
 	{
 		objectiveSettingsDirty = true;
-		if (objective == null) objective = new ObjectiveSettingsI();	
-		objective.setCorrectionCollar(omero.rtypes.rdouble(correction));
+		if (objectiveSettings == null) 
+			objectiveSettings = new ObjectiveSettingsI();	
+		objectiveSettings.setCorrectionCollar(omero.rtypes.rdouble(correction));
 	}
 	
 	/**
@@ -584,8 +381,9 @@ public class ImageAcquisitionData
 	public void setRefractiveIndex(double index)
 	{
 		objectiveSettingsDirty = true;
-		if (objective == null) objective = new ObjectiveSettingsI();	
-		objective.setRefractiveIndex(omero.rtypes.rdouble(index));
+		if (objectiveSettings == null) 
+			objectiveSettings = new ObjectiveSettingsI();	
+		objectiveSettings.setRefractiveIndex(omero.rtypes.rdouble(index));
 	}
 
 	/**
@@ -597,80 +395,6 @@ public class ImageAcquisitionData
 	{
 		this.medium = medium;
 		objectiveSettingsDirty = true;
-	}
-	
-	/**
-	 * Sets the magnification factor of the objective.
-	 * 
-	 * @param factor The value to set.
-	 */
-	public void setCalibratedMagnification(double factor)
-	{
-		objectiveDirty = true;
-		Objective ob = objective.getObjective();
-		if (ob == null) ob = new ObjectiveI();
-		ob.setCalibratedMagnification(omero.rtypes.rdouble(factor));
-	}
-	
-	/**
-	 * Sets the magnification factor of the objective.
-	 * 
-	 * @param factor The value to set.
-	 */
-	public void setNominalMagnification(int factor)
-	{
-		objectiveDirty = true;
-		Objective ob = objective.getObjective();
-		if (ob == null) ob = new ObjectiveI();
-		ob.setNominalMagnification(omero.rtypes.rint(factor));
-	}
-	
-	/**
-	 * Sets the lens numerical aperture.
-	 * 
-	 * @param na The value to set.
-	 */
-	public void setLensNA(double na)
-	{
-		objectiveDirty = true;
-		Objective ob = objective.getObjective();
-		if (ob == null) ob = new ObjectiveI();
-		ob.setLensNA(omero.rtypes.rdouble(na));
-	}
-	
-	/**
-	 * Sets the working distance.
-	 * 
-	 * @param distance The value to set.
-	 */
-	public void setWorkingDistance(double distance)
-	{
-		objectiveDirty = true;
-		Objective ob = objective.getObjective();
-		if (ob == null) ob = new ObjectiveI();
-		ob.setWorkingDistance(omero.rtypes.rdouble(distance));
-	}
-	
-	/**
-	 * Sets the immersion.
-	 * 
-	 * @param immersion The value to set.
-	 */
-	public void setImmersion(Immersion immersion)
-	{
-		objectiveDirty = true;
-		this.immersion = immersion;
-	}
-	
-	/**
-	 * Sets the correction.
-	 * 
-	 * @param correction The value to set.
-	 */
-	public void setCorrection(Correction correction)
-	{
-		objectiveDirty = true;
-		this.correction = correction;
 	}
 	
 	/**
@@ -687,7 +411,10 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public boolean isImagingEnvironmentDirty() { return imagingEnvironmentDirty; }
+	public boolean isImagingEnvironmentDirty()
+	{ 
+		return imagingEnvironmentDirty;
+	}
 	
 	/**
 	 * Returns <code>true</code> if the objective settings has been updated,
@@ -696,14 +423,6 @@ public class ImageAcquisitionData
 	 * @return See above.
 	 */
 	public boolean isObjectiveSettingsDirty() { return objectiveSettingsDirty; }
-	
-	/**
-	 * Returns <code>true</code> if the objective has been updated,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isObjectiveDirty() { return objectiveDirty; }
 	
 	/**
 	 * Returns the id of the <code>StageLabel</code> or <code>-1</code>
@@ -741,23 +460,8 @@ public class ImageAcquisitionData
 	 */
 	public long getObjectiveSettingsId()
 	{
-		if (objective == null) return -1;
-		RLong id = objective.getId();
-		if (id == null) return -1;
-		return id.getValue();
-	}
-	
-	/**
-	 * Returns the id of the <code>Objective</code> or <code>-1</code>
-	 * if not already linked to the image.
-	 * 
-	 * @return See above
-	 */
-	public long getObjectiveId()
-	{
-		Objective ob = getObjective();
-		if (ob == null) return -1;
-		RLong id = ob.getId();
+		if (objectiveSettings == null) return -1;
+		RLong id = objectiveSettings.getId();
 		if (id == null) return -1;
 		return id.getValue();
 	}
@@ -768,19 +472,5 @@ public class ImageAcquisitionData
 	 * @return See above.
 	 */
 	public Medium getMediumAsEnum() { return medium; }
-	
-	/**
-	 * Returns the immersion enumeration value.
-	 * 
-	 * @return See above.
-	 */
-	public Immersion getImmersionAsEnum() { return immersion; }
-	
-	/**
-	 * Returns the correction enumeration value.
-	 * 
-	 * @return See above.
-	 */
-	public Correction getCorrectionAsEnum() { return correction; }
 	
 }

@@ -7,8 +7,10 @@
 
 package pojos;
 
-import static omero.rtypes.rstring;
 
+
+
+//Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,6 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//Third-party libraries
+
+//Application-internal dependencies
+import static omero.rtypes.rstring;
 import omero.RTime;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
@@ -23,6 +29,7 @@ import omero.model.DatasetImageLink;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageI;
+import omero.model.Instrument;
 import omero.model.LongAnnotation;
 import omero.model.Pixels;
 
@@ -395,6 +402,18 @@ public class ImageData extends DataObject {
     {
     	String name = getName();
     	return (name != null && name.endsWith(".sdt"));
+    }
+    
+    /**
+     * Returns the id of the instrument if any.
+     * 
+     * @return See above.
+     */
+    public long getInstrumentId()
+    {
+    	Instrument instrument = asImage().getInstrument();
+    	if (instrument == null) return -1;
+    	return instrument.getId().getValue();
     }
     
 }
