@@ -296,6 +296,7 @@ module omero {
 	    idempotent omero::sys::CountMap getTaggedObjectsCount(omero::sys::LongList ids, omero::sys::Parameters options) throws ServerError;
 	    omero::RLong countSpecifiedAnnotations(string annotationType, omero::api::StringSet include, omero::api::StringSet exclude, omero::sys::Parameters options) throws ServerError;
 	    idempotent AnnotationList loadAnnotation(omero::sys::LongList annotationIds) throws ServerError;
+	    idempotent IObjectList loadInstrument(long id) throws ServerError;
 	};
 
 	//interface IMetadata; // Forward definition. See omero/api/Metadata.ice
