@@ -45,11 +45,15 @@ import ome.model.IObject;
 import ome.model.annotations.AnnotationAnnotationLink;
 import ome.model.annotations.FileAnnotation;
 import ome.model.acquisition.Arc;
+import ome.model.acquisition.Detector;
 import ome.model.acquisition.Filament;
+import ome.model.acquisition.Filter;
+import ome.model.acquisition.Instrument;
 import ome.model.acquisition.Laser;
 import ome.model.acquisition.LightEmittingDiode;
 import ome.model.acquisition.LightSettings;
 import ome.model.acquisition.LightSource;
+import ome.model.acquisition.Objective;
 import ome.model.annotations.Annotation;
 import ome.model.containers.Project;
 import ome.model.core.LogicalChannel;
@@ -92,6 +96,38 @@ public class MetadataImpl
 	/** Reference to the {@link IContainer} service. */
 	private IContainer iContainer;
 
+	/**
+     * Builds the <code>StringBuilder</code> corresponding to the passed 
+     * light source.
+     * 
+     * @param src The light source to handle.
+     * @return See above.
+     */
+    private StringBuilder createLightQuery(LightSource src)
+    {
+    	if (src == null) return null;
+    	StringBuilder sb = new StringBuilder();
+    	if (src instanceof Laser) {
+			sb.append("select laser from Laser as laser ");
+			sb.append("left outer join fetch laser.type as type ");
+			sb.append("left outer join fetch laser.laserMedium as " +
+					"medium ");
+			sb.append("left outer join fetch laser.pulse as pulse ");
+	        sb.append("where laser.id = :id");
+		} else if (src instanceof Filament) {
+			sb.append("select filament from Filament as filament ");
+			sb.append("left outer join fetch filament.type as type ");
+	        sb.append("where filament.id = :id");
+		} else if (src instanceof Arc) {
+			sb.append("select arc from Arc as arc ");
+			sb.append("left outer join fetch arc.type as type ");
+	        sb.append("where arc.id = :id");
+		} else if (src instanceof LightEmittingDiode) {
+			sb = null;
+		}
+    	return sb;
+    }
+    
 	/**
 	 * Retrieves the annotation of the given type.
 	 * 
@@ -257,7 +293,84 @@ public class MetadataImpl
     }
     
     /**
-     * Implemented as speficied by the {@link IMetadata} I/F
+     * Implemented as specified by the {@link IMetadata} I/F
+     * @see IMetadata#loadInstrument(Long)
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Set<IObject> loadInstrument(long id)
+    {
+    	Set<IObject> results = new HashSet<IObject>();
+    	StringBuilder sb = new StringBuilder();
+    	Parameters params = new Parameters(); 
+    	sb.append("select inst from Instrument as inst ");
+    	sb.append("left outer join fetch inst.microscope as m ");
+    	sb.append("left outer join fetch m.type as mt ");
+    	sb.append("where inst.id = :id");
+    	Instrument value = iQuery.findByQuery(sb.toString(), 
+    			params.addId(id));
+    	if (value == null) return results;
+    	results.add(value);
+    	//detectors
+    	sb = new StringBuilder();
+    	params = new Parameters(); 
+    	sb.append("select d from Detector as d ");
+    	sb.append("left outer join fetch d.type as dt ");
+    	sb.append("where d.instrument.id = :instrumentId");
+    	params.addLong("instrumentId", id);
+    	List<IObject> list = iQuery.findAllByQuery(sb.toString(), params);
+    	if (list != null) results.addAll(list);
+    	
+    	//filters
+    	sb = new StringBuilder();
+    	params = new Parameters(); 
+    	sb.append("select f from Filter as f ");
+    	sb.append("left outer join fetch f.type as ft ");
+    	sb.append("left outer join fetch f.transmittanceRange as trans ");
+    	sb.append("where f.instrument.id = :instrumentId");
+    	params.addLong("instrumentId", id);
+    	list = iQuery.findAllByQuery(sb.toString(), params);
+    	if (list != null) results.addAll(list);
+    	
+    	//objectives
+    	sb = new StringBuilder();
+    	params = new Parameters(); 
+    	sb.append("select o from Objective as o ");
+    	sb.append("left outer join fetch o.immersion as oi ");
+    	sb.append("left outer join fetch o.correction as oc ");
+    	sb.append("where o.instrument.id = :instrumentId");
+    	params.addLong("instrumentId", id);
+    	list = iQuery.findAllByQuery(sb.toString(), params);
+    	if (list != null) results.addAll(list);
+    	
+    	//light sources
+    	sb = new StringBuilder();
+    	params = new Parameters(); 
+    	sb.append("select light from LightSource as light ");
+    	sb.append("left outer join fetch light.type as t ");
+    	sb.append("where light.instrument.id = :instrumentId");
+    	params.addLong("instrumentId", id);
+    	list = iQuery.findAllByQuery(sb.toString(), params);
+    	if (list != null) results.addAll(list);
+    	if (list != null) {
+    		IObject object;
+    		Iterator i = list.iterator();
+    		LightSource src;
+    		while (i.hasNext()) {
+            	src = (LightSource) i.next();
+            	sb = createLightQuery(src);
+				if (sb != null) {
+					object = iQuery.findByQuery(sb.toString(), 
+			        		new Parameters().addId(src.getId()));
+					if (object != null) results.add(object);
+				}
+    		}
+    	}
+    	return results;
+    }
+    
+    /**
+     * Implemented as specified by the {@link IMetadata} I/F
      * @see IMetadata#loadChannelAcquisitionData(Set)
      */
     @RolesAllowed("user")
@@ -294,26 +407,8 @@ public class MetadataImpl
         	channel = i.next();
 			light = channel.getLightSourceSettings();
 			if (light != null) {
-				sb = new StringBuilder();
 				src = light.getLightSource();
-				if (src instanceof Laser) {
-					sb.append("select laser from Laser as laser ");
-					sb.append("left outer join fetch laser.type as type ");
-					sb.append("left outer join fetch laser.laserMedium as " +
-							"medium ");
-					sb.append("left outer join fetch laser.pulse as pulse ");
-			        sb.append("where laser.id = :id");
-				} else if (src instanceof Filament) {
-					sb.append("select filament from Filament as filament ");
-					sb.append("left outer join fetch filament.type as type ");
-			        sb.append("where filament.id = :id");
-				} else if (src instanceof Arc) {
-					sb.append("select arc from Arc as arc ");
-					sb.append("left outer join fetch arc.type as type ");
-			        sb.append("where arc.id = :id");
-				} else if (src instanceof LightEmittingDiode) {
-					sb = null;
-				}
+				sb = createLightQuery(src);
 				if (sb != null) {
 					object = iQuery.findByQuery(sb.toString(), 
 			        		new Parameters().addId(src.getId()));
@@ -325,7 +420,7 @@ public class MetadataImpl
     }
 
     /**
-     * Implemented as speficied by the {@link IMetadata} I/F
+     * Implemented as specified by the {@link IMetadata} I/F
      * @see IMetadata#loadAnnotations(Class, Set, Set, Set)
      */
     @RolesAllowed("user")
@@ -425,10 +520,8 @@ public class MetadataImpl
          return map;
     }
 
-    
-    
     /**
-     * Implemented as speficied by the {@link IMetadata} I/F
+     * Implemented as specified by the {@link IMetadata} I/F
      * @see IMetadata#loadSpecifiedAnnotations(Class, Set, Set, Parameters)
      */
     @RolesAllowed("user")
@@ -454,7 +547,7 @@ public class MetadataImpl
     }
     
     /**
-     * Implemented as speficied by the {@link IMetadata} I/F
+     * Implemented as specified by the {@link IMetadata} I/F
      * @see IMetadata#countSpecifiedAnnotations(Class, Set, Set, Parameters)
      */
     @RolesAllowed("user")
@@ -503,7 +596,7 @@ public class MetadataImpl
     }
     
     /**
-     * Implemented as speficied by the {@link IMetadata} I/F
+     * Implemented as specified by the {@link IMetadata} I/F
      * @see IMetadata#loadTagContent(Set, Parameters)
      */
     @RolesAllowed("user")
@@ -523,7 +616,7 @@ public class MetadataImpl
 	}
     
     /**
-     * Implemented as speficied by the {@link IMetadata} I/F
+     * Implemented as specified by the {@link IMetadata} I/F
      * @see IMetadata#loadTagSets(Parameters)
      */
     @RolesAllowed("user")
@@ -622,7 +715,7 @@ public class MetadataImpl
 	}
     
     /**
-     * Implemented as speficied by the {@link IMetadata} I/F
+     * Implemented as specified by the {@link IMetadata} I/F
      * @see IMetadata#lgetTaggedObjectsCount(Set, Parameters)
      */
     @RolesAllowed("user")
@@ -639,132 +732,5 @@ public class MetadataImpl
 		}
     	return counts;
     }
-
-    /*
-
-
-    @RolesAllowed("user")
-    @Transactional(readOnly = true) 
-    public Map loadTags(long id, boolean withObjects,  Parameters options)
-    {
-    	Map m = new HashMap();
-    	Annotation annotation;
-    	Parameters param = new Parameters();
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("select ann from Annotation as ann ");
-    	if (id >= 0) {
-    		sb.append("where ann.id = :id");
-    		param.addId(id);
-    		annotation = iQuery.findByQuery(sb.toString(), param);
-    		if (annotation == null) return m;
-    		//make sure it is not a tag set.
-    		if (NS_INSIGHT_TAG_SET.equals(annotation.getNs()))
-    			return m;
-    		m.put(annotation, loadObjects(annotation.getId(), options));
-    		return m;
-    	}
-    	param.addString("ns", NS_INSIGHT_TAG_SET);
-    	sb.append(" where ann member of "+TAG_TYPE);
-		sb.append(" and ann.nameSpace not like :ns");
-		List l = iQuery.findAllByQuery(sb.toString(), param);
-		if (l == null || l.size() == 0) return m;
-		Iterator i = l.iterator();
-		while (i.hasNext()) {
-			annotation = (Annotation) i.next();
-			if (!NS_INSIGHT_TAG_SET.equals(annotation.getNs())) 
-				m.put(annotation, loadObjects(annotation.getId(), options));
-		}
-    	return m;
-    }
     
-    @RolesAllowed("user")
-    @Transactional(readOnly = true)
-    public Map loadTagSets(long id, boolean withObjects, Parameters options)
-    {
-    	Map m = new HashMap();
-    	Annotation parent = null;
-		Annotation child;
-		AnnotationAnnotationLink link;
-		Map children;
-		List l;
-		Iterator i;
-    	Parameters param = new Parameters();
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("select link from AnnotationAnnotationLink as link ");
-		sb.append("left outer join link.child child");
-		sb.append("left outer join link.parent parent");
-		sb.append(" where child member of "+TAG_TYPE);
-		
-    	if (id >= 0) { //load the specified tag set.
-    		param.addId(id);
-    		sb.append(" and parent.id = :id");
-    		l = iQuery.findAllByQuery(sb.toString(), param);
-    		if (l == null || l.size() == 0) return m;
-    		children = new HashMap();
-    		i = l.iterator();
-    		if (withObjects) {
-    			while (i.hasNext()) {
-					link = (AnnotationAnnotationLink) i.next();
-					if (parent == null) parent = link.parent();
-					child = link.child();
-					if (child != null) 
-						children.put(child, loadObjects(child.getId(), options));
-				}
-    		} else {
-    			while (i.hasNext()) {
-					link = (AnnotationAnnotationLink) i.next();
-					if (parent == null) parent = link.parent();
-					child = link.child();
-					if (child != null) children.put(child, null);
-				}
-    			
-    		}
-    		if (parent != null)
-    			m.put(parent, children);
-    		return m;
-    	}
-    	param.addString("ns", NS_INSIGHT_TAG_SET);
-    	sb.append(" and parent member of "+TAG_TYPE);
-		sb.append(" and parent.nameSpace like :ns");
-		
-		l = iQuery.findAllByQuery(sb.toString(), param);
-		if (l == null || l.size() == 0) return m;
-		
-		i = l.iterator();
-		List<Long> parentIds = new ArrayList<Long>();
-		long parentID;
-		children = null;
-		if (withObjects) {
-			while (i.hasNext()) {
-				link = (AnnotationAnnotationLink) i.next();
-				parent = link.parent();
-				parentID = parent.getId();
-				child = link.child();
-				if (!parentIds.contains(parentID)) {
-					children = new HashMap();
-					m.put(parent, children);
-					parentIds.add(parentID);
-				}
-				if (child != null) 
-					children.put(child, loadObjects(child.getId(), options));
-				
-			}
-		} else {
-			while (i.hasNext()) {
-				link = (AnnotationAnnotationLink) i.next();
-				parent = link.parent();
-				parentID = parent.getId();
-				child = link.child();
-				if (!parentIds.contains(parentID)) {
-					children = new HashMap();
-					m.put(parent, children);
-					parentIds.add(parentID);
-				}
-				if (child != null) 
-					children.put(child, null);
-			}
-		}
-    	return m;
-    }
-     */
 }
