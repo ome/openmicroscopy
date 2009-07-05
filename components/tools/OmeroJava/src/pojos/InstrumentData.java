@@ -24,15 +24,20 @@ package pojos;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import omero.RString;
+import omero.model.Detector;
+import omero.model.Filter;
 import omero.model.Instrument;
+import omero.model.LightSource;
 import omero.model.Microscope;
 import omero.model.MicroscopeType;
+import omero.model.Objective;
 
 /**
  * Hosts the instrument used to capture an image.
@@ -60,6 +65,9 @@ public class InstrumentData
 	/** The collection of filters. */
 	private List<FilterData> filters;
 	
+	/** The collection of detectors. */
+	private List<DetectorData> detectors;
+	
 	/** Initializes the instrument. */
 	private void initialize()
 	{
@@ -80,6 +88,67 @@ public class InstrumentData
 	     setValue(instrument);
 	}
 
+	/**
+	 * Sets the collection of detectors.
+	 * 
+	 * @param list The value to set.
+	 */
+	public void setDetectors(List<Detector> list)
+	{
+		if (list == null || list.size() == 0) return;
+		if (detectors == null) detectors = new ArrayList<DetectorData>();
+		Iterator<Detector> i = list.iterator();
+		while (i.hasNext()) {
+			detectors.add(new DetectorData(i.next()));
+		}
+	}
+	
+	/**
+	 * Sets the collection of objectives.
+	 * 
+	 * @param list The value to set.
+	 */
+	public void setObjectives(List<Objective> list)
+	{
+		if (list == null || list.size() == 0) return;
+		if (objectives == null) objectives = new ArrayList<ObjectiveData>();
+		Iterator<Objective> i = list.iterator();
+		while (i.hasNext()) {
+			objectives.add(new ObjectiveData(i.next()));
+		}
+	}
+	
+	/**
+	 * Sets the collection of filters.
+	 * 
+	 * @param list The value to set.
+	 */
+	public void setFilters(List<Filter> list)
+	{
+		if (list == null || list.size() == 0) return;
+		if (filters == null) filters = new ArrayList<FilterData>();
+		Iterator<Filter> i = list.iterator();
+		while (i.hasNext()) {
+			filters.add(new FilterData(i.next()));
+		}
+	}
+	
+	/**
+	 * Sets the collection of lights.
+	 * 
+	 * @param list The value to set.
+	 */
+	public void setLightSources(List<LightSource> list)
+	{
+		if (list == null || list.size() == 0) return;
+		if (lightSources == null) 
+			lightSources = new ArrayList<LightSourceData>();
+		Iterator<LightSource> i = list.iterator();
+		while (i.hasNext()) {
+			lightSources.add(new LightSourceData(i.next()));
+		}
+	}
+	
 	/**
 	 * Returns the type of microscope.
 	 * 
@@ -171,4 +240,10 @@ public class InstrumentData
 	 */
 	public List<LightSourceData> getLightSources() { return lightSources; }
 	
+	/**
+	 * Returns the collection of detectors.
+	 * 
+	 * @return See above.
+	 */
+	public List<DetectorData> getDetectors() { return detectors; }
 }
