@@ -103,7 +103,7 @@ public class InstrumentData
 	 */
 	public InstrumentData(List<IObject> components)
 	{
-		if (components == null || components.size() <= 1)
+		if (components == null || components.size() < 1)
 			throw new IllegalArgumentException("No components specified.");
 		initialize();
 		Iterator<IObject> i = components.iterator();
