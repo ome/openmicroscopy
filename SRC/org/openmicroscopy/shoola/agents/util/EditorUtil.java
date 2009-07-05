@@ -56,6 +56,7 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.DetectorData;
+import pojos.DichroicData;
 import pojos.ExperimenterData;
 import pojos.FilterData;
 import pojos.ImageAcquisitionData;
@@ -394,6 +395,9 @@ public class EditorUtil
 	
 	/** The maximum number of field for a filament and arc. */
 	public static final int		MAX_FIELDS_LIGHT = 7;
+	
+	/** The maximum number of field for a dichroic. */
+	public static final int		MAX_FIELDS_DICHROIC = 4;
 	
 	/** The maximum number of field for a channel. */
 	public static final int		MAX_FIELDS_CHANNEL = 10;
@@ -1057,6 +1061,50 @@ public class EditorUtil
     }
 
     /**
+     * Transforms the passed dichroic.
+     * 
+     * @param data The value to convert.
+     * @return See above.
+     */
+    public static Map<String, Object> transformDichroic(DichroicData data)
+    {
+    	LinkedHashMap<String, Object> 
+		details = new LinkedHashMap<String, Object>();
+    	List<String> notSet = new ArrayList<String>();
+    	details.put(MODEL, "");
+    	details.put(MANUFACTURER, "");
+    	details.put(SERIAL_NUMBER, "");
+    	details.put(LOT_NUMBER, "");
+
+    	if (data == null) {
+    		notSet.add(MODEL);
+    		notSet.add(MANUFACTURER);
+    		notSet.add(SERIAL_NUMBER);
+    		notSet.add(LOT_NUMBER);
+    		details.put(NOT_SET, notSet);
+        	return details;
+    	}
+    	String s = data.getModel();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(MODEL);
+		details.put(MODEL, s);
+		s = data.getManufacturer();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(MANUFACTURER);
+		details.put(MANUFACTURER, s);
+		s = data.getSerialNumber();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(SERIAL_NUMBER);
+		details.put(SERIAL_NUMBER, s);
+		s = data.getLotNumber();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(LOT_NUMBER);
+		details.put(LOT_NUMBER, s);
+        details.put(NOT_SET, notSet);
+    	return details;
+    }
+    
+    /**
      * Transforms the passed microscope.
      * 
      * @param data The value to convert.
@@ -1105,6 +1153,7 @@ public class EditorUtil
         details.put(NOT_SET, notSet);
     	return details;
     }
+    
     /**
      * Transforms the passed objective.
      * 

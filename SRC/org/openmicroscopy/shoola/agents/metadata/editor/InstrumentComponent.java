@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Application-internal dependencies
 import pojos.DetectorData;
+import pojos.DichroicData;
 import pojos.FilterData;
 import pojos.InstrumentData;
 import pojos.LightSourceData;
@@ -290,6 +291,23 @@ class InstrumentComponent
 					fp = new FilterComponent(parent, model, null);
 					fp.displayFilter(details);
 					components.add(fp);
+				}
+			}
+		}
+		
+		//Filters
+		List<DichroicData> dichroics = data.getDichroics();
+		if (dichroics != null) {
+			model.sortDataObjectByID(dichroics);
+			i = dichroics.iterator();
+			DichroicComponent dp;
+			while (i.hasNext()) {
+				details = EditorUtil.transformDichroic((DichroicData) i.next());
+				notSet = (List) details.get(EditorUtil.NOT_SET);
+				if (notSet.size() != EditorUtil.MAX_FIELDS_DICHROIC) {
+					dp = new DichroicComponent(parent, model);
+					dp.displayDichroic(details);
+					components.add(dp);
 				}
 			}
 		}

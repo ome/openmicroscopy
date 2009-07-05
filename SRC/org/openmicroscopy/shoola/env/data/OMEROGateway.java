@@ -102,6 +102,7 @@ import omero.model.DatasetI;
 import omero.model.Details;
 import omero.model.DetailsI;
 import omero.model.Detector;
+import omero.model.Dichroic;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
@@ -4441,6 +4442,7 @@ class OMEROGateway
 			List<Objective> objectives = new ArrayList<Objective>();
 			List<Filter> filters = new ArrayList<Filter>();
 			List<LightSource> lights = new ArrayList<LightSource>();
+			List<Dichroic> dichroics = new ArrayList<Dichroic>();
 			Iterator<IObject> i = list.iterator();
 			IObject obj;
 			Instrument instrument = null;
@@ -4456,6 +4458,8 @@ class OMEROGateway
 					filters.add((Filter) obj);
 				else if (obj instanceof LightSource)
 					lights.add((LightSource) obj);
+				else if (obj instanceof Dichroic)
+					dichroics.add((Dichroic) obj);
 			}
 			if (instrument == null) return null;
 			InstrumentData data = new InstrumentData(instrument);
@@ -4463,6 +4467,7 @@ class OMEROGateway
 			data.setObjectives(objectives);
 			data.setLightSources(lights);
 			data.setFilters(filters);
+			data.setDichroics(dichroics);
 			return data;
 		} catch (Exception e) {
 			handleException(e, "Cannot load the instrument: "+instrumentID);

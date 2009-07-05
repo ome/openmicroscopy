@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.FilterComponent
+ * org.openmicroscopy.shoola.agents.metadata.editor.DichroicComponent
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-//Java imports
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.beans.PropertyChangeEvent;
@@ -34,15 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -52,8 +47,14 @@ import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 /**
- * Component hosting a filter.
+ *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *     <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -65,76 +66,51 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-class FilterComponent 
+class DichroicComponent 
 	extends JPanel
 	implements PropertyChangeListener
 {
 
-	/** The component displaying the filter options. */
-	private OMEComboBox							filterBox;
-	
 	/** The fields displaying the metadata. */
-	private Map<String, DataComponent> 			fieldsFilter;
+	private Map<String, DataComponent> 			fields;
 	
 	/** Button to show or hides the unset fields. */
-	private JLabelButton						unsetFilter;
+	private JLabelButton						unset;
 	
 	/** Flag indicating the unset fields displayed. */
-	private boolean								unsetFilterShown;
+	private boolean								unsetShown;
 	
 	/** Reference to the parent of this component. */
 	private AcquisitionDataUI	parent;
 	
 	/** Reference to the Model. */
 	private EditorModel			model;
-	
-	/** Resets the various boxes with enumerations. */
-	private void resetBoxes()
-	{
-		List<EnumerationObject> l; 
-		EnumerationObject[] array;
-		Iterator<EnumerationObject> j;
-		int i = 0;
-		l = model.getChannelEnumerations(Editor.FILTER_TYPE);
-		array = new EnumerationObject[l.size()+1];
-		j = l.iterator();
-		i = 0;
-		while (j.hasNext()) {
-			array[i] = j.next();
-			i++;
-		}
-		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
-		
-		filterBox = EditorUtil.createComboBox(array);
-	}
-	
+
 	
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		resetBoxes();
-		fieldsFilter = new LinkedHashMap<String, DataComponent>();
-		
-		unsetFilter = null;
-		unsetFilterShown = false;
+		fields = new LinkedHashMap<String, DataComponent>();
+		unset = null;
+		unsetShown = false;
 	}
 	
 	/** Shows or hides the unset fields. */
-	private void displayUnsetFilterFields()
+	private void displayUnsetFields()
 	{
-		unsetFilterShown = !unsetFilterShown;
+		unsetShown = !unsetShown;
 		String s = AcquisitionDataUI.SHOW_UNSET;
-		if (unsetFilterShown) s = AcquisitionDataUI.HIDE_UNSET;
-		unsetFilter.setText(s);
-		parent.layoutFields(this, unsetFilter, fieldsFilter, unsetFilterShown);
+		if (unsetShown) s = AcquisitionDataUI.HIDE_UNSET;
+		unset.setText(s);
+		parent.layoutFields(this, unset, fields, unsetShown);
 	}
 	
 	/**
-	 * Transforms the filter .
+	 * Transforms the dichroic.
 	 * 
 	 * @param details The value to transform.
 	 */
-	private void transformFilterSource(Map<String, Object> details)
+	private void transformDichroicSource(Map<String, Object> details)
 	{
 		DataComponent comp;
 		JLabel label;
@@ -146,9 +122,9 @@ class FilterComponent
 		int sizeLabel = font.getSize()-2;
 		List notSet = (List) details.get(EditorUtil.NOT_SET);
 		details.remove(EditorUtil.NOT_SET);
-		if (notSet.size() > 0 && unsetFilter == null) {
-			unsetFilter = parent.formatUnsetFieldsControl();
-			unsetFilter.addPropertyChangeListener(this);
+		if (notSet.size() > 0 && unset == null) {
+			unset = parent.formatUnsetFieldsControl();
+			unset.addPropertyChangeListener(this);
 		}
 
 		Set entrySet = details.entrySet();
@@ -163,52 +139,24 @@ class FilterComponent
             value = entry.getValue();
             label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
-            if (value instanceof Number) {
-            	area = UIUtilities.createComponent(NumericalTextField.class, 
-            			null);
-            	if (value instanceof Double) 
-            		((NumericalTextField) area).setNumberType(Double.class);
-            	else if (value instanceof Float) 
-            		((NumericalTextField) area).setNumberType(Float.class);
-            	((NumericalTextField) area).setText(""+value);
-            	((NumericalTextField) area).setEditedColor(
-            			UIUtilities.EDITED_COLOR);
-            } else if (EditorUtil.TYPE.equals(key)) {
-            	selected = model.getChannelEnumerationSelected(
-            			Editor.FILTER_TYPE, (String) value);
-            	if (selected != null) {
-            		filterBox.setSelectedItem(selected);
-            	} else {
-            		set = false;
-            		notSet.add(key);
-            		filterBox.setSelectedIndex(filterBox.getItemCount()-1);
-            	}
-            	filterBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            	area = filterBox;
-            } else {
-            	area = UIUtilities.createComponent(OMETextArea.class, null);
-            	if (value == null || value.equals("")) 
-                	value = AnnotationUI.DEFAULT_TEXT;
-            	 ((OMETextArea) area).setEditable(false);
-            	 ((OMETextArea) area).setText((String) value);
-            	 ((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
-            }
+            area = UIUtilities.createComponent(OMETextArea.class, null);
+        	if (value == null || value.equals("")) 
+            	value = AnnotationUI.DEFAULT_TEXT;
+        	 ((OMETextArea) area).setEditable(false);
+        	 ((OMETextArea) area).setText((String) value);
+        	 ((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
             area.setEnabled(!set);
             comp = new DataComponent(label, area);
             comp.setEnabled(false);
 			comp.setSetField(!notSet.contains(key));
-			fieldsFilter.put(key, comp);
+			fields.put(key, comp);
         }
 	}
 	
-	/** 
-	 * Builds and lays out the UI. 
-	 * 
-	 * @param title The filter's type e.g. secondary Emission filter
-	 */
-	private void buildGUI(String title)
+	/** Builds and lays out the UI. */
+	private void buildGUI()
 	{
-		setBorder(BorderFactory.createTitledBorder(title));
+		setBorder(BorderFactory.createTitledBorder("Dichroic"));
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new GridBagLayout());
 	}
@@ -218,31 +166,26 @@ class FilterComponent
 	 * 
 	 * @param parent The UI reference.
 	 * @param model  Reference to the model.
-	 * @param title	 The filter's type e.g. secondary Emission filter.
 	 */
-	FilterComponent(AcquisitionDataUI parent, EditorModel model, String title)
+	DichroicComponent(AcquisitionDataUI parent, EditorModel model)
 	{
 		this.parent = parent;
 		this.model = model;
-		if (title == null || title.trim().length() == 0)
-			title = "Filter";
 		initComponents();
-		buildGUI(title);
+		buildGUI();
 	}
 	
 	/**
-	 * Transforms the filter metadata.
+	 * Transforms the dichroic.
 	 * 
 	 * @param details The value to transform.
 	 */
-	void displayFilter(Map<String, Object> details)
+	void displayDichroic(Map<String, Object> details)
 	{
-		resetBoxes();
-		fieldsFilter.clear();
-		transformFilterSource(details);
-		parent.layoutFields(this, unsetFilter, fieldsFilter, 
-				unsetFilterShown);
-    	parent.attachListener(fieldsFilter);
+		fields.clear();
+		transformDichroicSource(details);
+		parent.layoutFields(this, unset, fields, unsetShown);
+    	parent.attachListener(fields);
 	}
 	
 	/**
@@ -251,7 +194,7 @@ class FilterComponent
 	 * 
 	 * @return See above.
 	 */
-	boolean hasDataToSave() { return parent.hasDataToSave(fieldsFilter); }
+	boolean hasDataToSave() { return parent.hasDataToSave(fields); }
 	
 	/** Prepares the data to save. */
 	void prepareDataToSave()
@@ -267,7 +210,7 @@ class FilterComponent
 	{
 		String name = evt.getPropertyName();
 		if (JLabelButton.SELECTED_PROPERTY.equals(name)) 
-			displayUnsetFilterFields();
+			displayUnsetFields();
 	}
-
+	
 }
