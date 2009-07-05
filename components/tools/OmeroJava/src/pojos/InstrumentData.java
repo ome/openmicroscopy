@@ -35,6 +35,7 @@ import omero.model.Detector;
 import omero.model.Dichroic;
 import omero.model.Filter;
 import omero.model.Instrument;
+import omero.model.IObject;
 import omero.model.LightSource;
 import omero.model.Microscope;
 import omero.model.MicroscopeType;
@@ -72,13 +73,14 @@ public class InstrumentData
 	/** The collection of detectors. */
 	private List<DetectorData> detectors;
 	
-	/** Initializes the instrument. */
+	/** Initializes the components. */
 	private void initialize()
 	{
 		objectives = new ArrayList<ObjectiveData>();
 		lightSources = new ArrayList<LightSourceData>(); 
 		filters = new ArrayList<FilterData>(); 
 		dichroics = new ArrayList<DichroicData>(); 
+		detectors = new ArrayList<DetectorData>(); 
 	}
 	
 	/**
@@ -91,83 +93,40 @@ public class InstrumentData
 		 if (instrument == null)
 	            throw new IllegalArgumentException("Object cannot null.");
 	     setValue(instrument);
-	}
-
-	/**
-	 * Sets the collection of detectors.
-	 * 
-	 * @param list The value to set.
-	 */
-	public void setDetectors(List<Detector> list)
-	{
-		if (list == null || list.size() == 0) return;
-		if (detectors == null) detectors = new ArrayList<DetectorData>();
-		Iterator<Detector> i = list.iterator();
-		while (i.hasNext()) {
-			detectors.add(new DetectorData(i.next()));
-		}
+	     initialize();
 	}
 	
 	/**
-	 * Sets the collection of objectives.
+	 * Creates a new instance.
 	 * 
-	 * @param list The value to set.
+	 * @param components The instrument and its components.
 	 */
-	public void setObjectives(List<Objective> list)
+	public InstrumentData(List<IObject> components)
 	{
-		if (list == null || list.size() == 0) return;
-		if (objectives == null) objectives = new ArrayList<ObjectiveData>();
-		Iterator<Objective> i = list.iterator();
+		if (components == null || components.size() <= 1)
+			throw new IllegalArgumentException("No components specified.");
+		initialize();
+		Iterator<IObject> i = components.iterator();
+		IObject obj;
+		boolean instrument = false;
 		while (i.hasNext()) {
-			objectives.add(new ObjectiveData(i.next()));
+			obj = (IObject) i.next();
+			if (obj instanceof Instrument) {
+				setValue(obj);
+				instrument = true;
+			} else if (obj instanceof Detector)
+				detectors.add(new DetectorData((Detector) obj));
+			else if (obj instanceof Objective)
+				objectives.add(new ObjectiveData((Objective) obj));
+			else if (obj instanceof Filter)
+				filters.add(new FilterData((Filter) obj));
+			else if (obj instanceof LightSource)
+				lightSources.add(new LightSourceData((LightSource) obj));
+			else if (obj instanceof Dichroic)
+				dichroics.add(new DichroicData((Dichroic) obj));
 		}
-	}
-	
-	/**
-	 * Sets the collection of filters.
-	 * 
-	 * @param list The value to set.
-	 */
-	public void setFilters(List<Filter> list)
-	{
-		if (list == null || list.size() == 0) return;
-		if (filters == null) filters = new ArrayList<FilterData>();
-		Iterator<Filter> i = list.iterator();
-		while (i.hasNext()) {
-			filters.add(new FilterData(i.next()));
-		}
-	}
-	
-	/**
-	 * Sets the collection of lights.
-	 * 
-	 * @param list The value to set.
-	 */
-	public void setLightSources(List<LightSource> list)
-	{
-		if (list == null || list.size() == 0) return;
-		if (lightSources == null) 
-			lightSources = new ArrayList<LightSourceData>();
-		Iterator<LightSource> i = list.iterator();
-		while (i.hasNext()) {
-			lightSources.add(new LightSourceData(i.next()));
-		}
-	}
-	
-	/**
-	 * Sets the collection of dichroics.
-	 * 
-	 * @param list The value to set.
-	 */
-	public void setDichroics(List<Dichroic> list)
-	{
-		if (list == null || list.size() == 0) return;
-		if (dichroics == null) 
-			dichroics = new ArrayList<DichroicData>();
-		Iterator<Dichroic> i = list.iterator();
-		while (i.hasNext()) {
-			dichroics.add(new DichroicData(i.next()));
-		}
+		if (!instrument)
+			throw new IllegalArgumentException("No instrument specified.");
 	}
 	
 	/**
