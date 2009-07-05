@@ -314,42 +314,44 @@ public class MetadataImpl
     	//detectors
     	sb = new StringBuilder();
     	params = new Parameters(); 
+    	params.addLong("instrumentId", id);
     	sb.append("select d from Detector as d ");
     	sb.append("left outer join fetch d.type as dt ");
     	sb.append("where d.instrument.id = :instrumentId");
-    	params.addLong("instrumentId", id);
+    	
     	List<IObject> list = iQuery.findAllByQuery(sb.toString(), params);
     	if (list != null) results.addAll(list);
     	
     	//filters
     	sb = new StringBuilder();
-    	params = new Parameters(); 
     	sb.append("select f from Filter as f ");
     	sb.append("left outer join fetch f.type as ft ");
     	sb.append("left outer join fetch f.transmittanceRange as trans ");
     	sb.append("where f.instrument.id = :instrumentId");
-    	params.addLong("instrumentId", id);
+    	list = iQuery.findAllByQuery(sb.toString(), params);
+    	if (list != null) results.addAll(list);
+    	
+    	//dichroics
+    	sb = new StringBuilder();
+    	sb.append("select d from Dichroic as d ");
+    	sb.append("where d.instrument.id = :instrumentId");
     	list = iQuery.findAllByQuery(sb.toString(), params);
     	if (list != null) results.addAll(list);
     	
     	//objectives
     	sb = new StringBuilder();
-    	params = new Parameters(); 
     	sb.append("select o from Objective as o ");
     	sb.append("left outer join fetch o.immersion as oi ");
     	sb.append("left outer join fetch o.correction as oc ");
     	sb.append("where o.instrument.id = :instrumentId");
-    	params.addLong("instrumentId", id);
     	list = iQuery.findAllByQuery(sb.toString(), params);
     	if (list != null) results.addAll(list);
     	
     	//light sources
     	sb = new StringBuilder();
-    	params = new Parameters(); 
     	sb.append("select light from LightSource as light ");
     	sb.append("left outer join fetch light.type as t ");
     	sb.append("where light.instrument.id = :instrumentId");
-    	params.addLong("instrumentId", id);
     	list = iQuery.findAllByQuery(sb.toString(), params);
     	if (list != null) results.addAll(list);
     	if (list != null) {
