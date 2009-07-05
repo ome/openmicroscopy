@@ -43,6 +43,7 @@ import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.FileAnnotationData;
 import pojos.ImageAcquisitionData;
+import pojos.InstrumentData;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -69,6 +70,10 @@ public interface Editor
 	
 	/** Identified the <code>Medium</code> enumeration. */
 	public static final String MEDIUM = OmeroMetadataService.MEDIUM;
+	
+	/** Identified the <code>Microscope type</code> enumeration. */
+	public static final String MICROSCOPE_TYPE = 
+					OmeroMetadataService.DETECTOR_TYPE;
 	
 	/** Identified the <code>Detector type</code> enumeration. */
 	public static final String DETECTOR_TYPE = 
@@ -331,8 +336,14 @@ public interface Editor
 	 */
 	public Renderer getRenderer();
 	
-	/**
-	 * Loads the instrument related to the image.
-	 */
+	/** Loads the instrument related to the image. */
 	public void loadInstrumentData();
+
+	/**
+	 * Sets the instrument used to capture the image.
+	 * 
+	 * @param data The value to set.
+	 */
+	public void setInstrumentData(InstrumentData data);
+	
 }

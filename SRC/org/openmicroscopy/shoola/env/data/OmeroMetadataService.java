@@ -46,6 +46,7 @@ import omero.model.Immersion;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
 import omero.model.Medium;
+import omero.model.MicroscopeType;
 import omero.model.PhotometricInterpretation;
 import omero.model.Pulse;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -100,6 +101,9 @@ public interface OmeroMetadataService
 	
 	/** Identified the <code>Medium</code> enumeration. */
 	public static final String MEDIUM = Medium.class.getName();
+	
+	/** Identified the <code>Microscope type</code> enumeration. */
+	public static final String MICROSCOPE_TYPE = MicroscopeType.class.getName();
 	
 	/** Identified the <code>Detector type</code> enumeration. */
 	public static final String DETECTOR_TYPE = DetectorType.class.getName();

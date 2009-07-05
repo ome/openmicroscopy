@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.agents.metadata;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
+import pojos.InstrumentData;
+
 /**
  * Loads the instrument and its components.
  *
@@ -89,7 +91,7 @@ public class InstrumentDataLoader
      */
     public void handleResult(Object result) 
     {
-  		//
+  		viewer.setInstrumentData((InstrumentData) result);
     }
     
 }

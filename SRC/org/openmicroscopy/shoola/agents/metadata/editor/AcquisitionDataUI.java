@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -270,6 +272,21 @@ class AcquisitionDataUI
     	return button;
 	}
 	
+	/**
+	 * Formats the component.
+	 * 
+	 * @param comp  The component to format.
+	 * @param title The title to add to the border.
+	 */
+	void format(JComponent comp, String title)
+	{
+		if (comp == null) return;
+		if (title == null) title = "";
+		comp.setBorder(BorderFactory.createTitledBorder(title));
+		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+		comp.setLayout(new GridBagLayout());
+	}
+	
 	/** 
 	 * Lays out the passed component.
 	 * 
@@ -367,6 +384,9 @@ class AcquisitionDataUI
 		imageAcquisition.setImageAcquisitionData();
 	}
 	
+	/** Sets the instrument and its components. */
+	void setInstrumentData() { instrument.setInstrumentData(); }
+	
 	/**
 	 * Displays the acquisition data for the passed channel.
 	 * 
@@ -400,6 +420,7 @@ class AcquisitionDataUI
 	 * 				<code>false</code> otherwise.*/
 	void setRootObject(boolean load)
 	{
+		instrument.setRootObject();
 		imageAcquisition.setRootObject();
 		channelAcquisitionPanes.clear();
 		layoutUI();

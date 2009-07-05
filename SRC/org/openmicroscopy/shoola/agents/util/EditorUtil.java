@@ -60,6 +60,7 @@ import pojos.ExperimenterData;
 import pojos.FilterData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
+import pojos.InstrumentData;
 import pojos.LightSourceData;
 import pojos.ObjectiveData;
 import pojos.PermissionData;
@@ -402,6 +403,9 @@ public class EditorUtil
 	
 	/** The maximum number of field for an environment. */
 	public static final int		MAX_FIELDS_ENVIRONMENT = 4;
+	
+	/** The maximum number of field for a microscope. */
+	public static final int		MAX_FIELDS_MICROSCOPE = 5;
 	
 	/** Identifies the <code>Indigo</code> color. */
 	private static final Color  INDIGO = new Color(75, 0, 130);
@@ -1053,6 +1057,55 @@ public class EditorUtil
     }
 
     /**
+     * Transforms the passed microscope.
+     * 
+     * @param data The value to convert.
+     * @return See above.
+     */
+    public static Map<String, Object> transformMicroscope(InstrumentData data)
+    {
+    	LinkedHashMap<String, Object> 
+		details = new LinkedHashMap<String, Object>();
+    	List<String> notSet = new ArrayList<String>();
+    	details.put(MODEL, "");
+    	details.put(MANUFACTURER, "");
+    	details.put(SERIAL_NUMBER, "");
+    	details.put(LOT_NUMBER, "");
+    	details.put(TYPE, "");
+
+    	if (data == null) {
+    		notSet.add(MODEL);
+    		notSet.add(MANUFACTURER);
+    		notSet.add(SERIAL_NUMBER);
+    		notSet.add(LOT_NUMBER);
+    		notSet.add(TYPE);
+    		details.put(NOT_SET, notSet);
+        	return details;
+    	}
+    	String s = data.getMicroscopeModel();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(MODEL);
+		details.put(MODEL, s);
+		s = data.getMicroscopeManufacturer();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(MANUFACTURER);
+		details.put(MANUFACTURER, s);
+		s = data.getMicroscopeSerialNumber();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(SERIAL_NUMBER);
+		details.put(SERIAL_NUMBER, s);
+		s = data.getMicroscopeLotNumber();
+		if (s == null || s.trim().length() == 0) 
+			notSet.add(LOT_NUMBER);
+		details.put(LOT_NUMBER, s);
+		s = data.getMicroscopeType();
+        if (s == null || s.trim().length() == 0) 
+			notSet.add(TYPE);
+        details.put(TYPE, s); 
+        details.put(NOT_SET, notSet);
+    	return details;
+    }
+    /**
      * Transforms the passed objective.
      * 
      * @param data The value to convert.
@@ -1098,7 +1151,7 @@ public class EditorUtil
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(MODEL);
 		details.put(MODEL, s);
-		s = null;//data.getManufacturer();
+		s = data.getManufacturer();
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(MANUFACTURER);
 		details.put(MANUFACTURER, s);
@@ -1107,7 +1160,7 @@ public class EditorUtil
 			notSet.add(SERIAL_NUMBER);
 		details.put(SERIAL_NUMBER, s);
 		
-		s = null;//data.getLotNumber();
+		s = data.getLotNumber();
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(LOT_NUMBER);
 		details.put(LOT_NUMBER, s);

@@ -59,6 +59,7 @@ import pojos.ChannelData;
 import pojos.FileAnnotationData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
+import pojos.InstrumentData;
 import pojos.PixelsData;
 import pojos.TagAnnotationData;
 import pojos.URLAnnotationData;
@@ -476,11 +477,11 @@ class EditorComponent
 		if (refObject instanceof ImageData) {
 			ImageData img = (ImageData) refObject;
 			long id = img.getInstrumentId();
-			model.fireInstrumentDataLoading(id);
-			view.setStatus(true);
+			if (id > 0) {
+				model.fireInstrumentDataLoading(id);
+				view.setStatus(true);
+			}
 		}
-		
-		
 	}
 	
 	/** 
@@ -622,6 +623,18 @@ class EditorComponent
 	public Renderer getRenderer()
 	{
 		return model.getRenderer();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setInstrumentData(InstrumentData)
+	 */
+	public void setInstrumentData(InstrumentData data)
+	{
+		if (data == null) return;
+		model.setInstrumentData(data);
+		view.setInstrumentData();
+		view.setStatus(false);
 	}
 	
 }

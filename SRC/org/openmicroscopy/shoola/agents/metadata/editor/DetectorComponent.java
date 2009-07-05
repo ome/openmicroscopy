@@ -118,7 +118,7 @@ class DetectorComponent
 		detectorBox = EditorUtil.createComboBox(array);
 	}
 	
-	/** Initiliases the components. */
+	/** Initializes the components. */
 	private void initComponents()
 	{
 		resetBoxes();
@@ -186,8 +186,7 @@ class DetectorComponent
             	area = binningBox;
             } else if (EditorUtil.TYPE.equals(key)) {
             	selected = model.getChannelEnumerationSelected(
-            			Editor.DETECTOR_TYPE, 
-            			(String) value);
+            			Editor.DETECTOR_TYPE, (String) value);
             	if (selected != null) {
             		detectorBox.setSelectedItem(selected);
             	} else {

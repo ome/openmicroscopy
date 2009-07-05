@@ -115,10 +115,10 @@ public class EditorUI
      */
     private boolean						saved;
 	
-    /** The tabbed pane hosting the metadata. */
+    /** The tab pane hosting the metadata. */
     private JTabbedPane					tabbedPane;
     
-    /** The tabbed pane hosting the user's information. */
+    /** The tab pane hosting the user's information. */
     private JTabbedPane					userTabbedPane;
     
     /** The component currently displayed.. */
@@ -572,5 +572,8 @@ public class EditorUI
 
 	/** Analyzes the data. */
 	void analyse() { model.analyse(); }
+
+	/** Sets the instrument and its components. */
+	void setInstrumentData() { acquisitionPane.setInstrumentData(); }
 	
 }

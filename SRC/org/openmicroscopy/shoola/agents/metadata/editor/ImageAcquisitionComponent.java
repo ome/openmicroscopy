@@ -132,7 +132,7 @@ class ImageAcquisitionComponent
 				unsetStageShown);
 	}
 
-	/** Initiliases the components. */
+	/** Initializes the components. */
 	private void initComponents()
 	{	
 		setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -140,21 +140,14 @@ class ImageAcquisitionComponent
 		fieldsEnv = new LinkedHashMap<String, DataComponent>();
 		fieldsStage = new LinkedHashMap<String, DataComponent>();
 		objectivePane = new ObjectiveComponent(parent, model);
-		objectivePane.setBorder(BorderFactory.createTitledBorder("Objective"));
-		objectivePane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		objectivePane.setLayout(new GridBagLayout());
 		unsetEnv = null;
 		unsetEnvShown = false;
 		envPane = new JPanel();
-		envPane.setBorder(BorderFactory.createTitledBorder("Environment"));
-		envPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		envPane.setLayout(new GridBagLayout());
+		parent.format(envPane, "Environment");
 		unsetStage = null;
 		unsetStageShown = false;
 		stagePane = new JPanel();
-		stagePane.setBorder(BorderFactory.createTitledBorder("Position"));
-		stagePane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		stagePane.setLayout(new GridBagLayout());
+		parent.format(stagePane, "Position");
 	}
 	
 	/**
@@ -294,10 +287,17 @@ class ImageAcquisitionComponent
 	{
 		removeAll();
 		if (objectivePane.isVisible()) add(objectivePane);
-		if (envPane.isVisible()) add(envPane);
-		if (stagePane.isVisible()) add(stagePane);
-		parent.attachListener(fieldsStage);
-		parent.attachListener(fieldsEnv);
+		if (envPane.isVisible()) {
+			parent.layoutFields(stagePane, unsetStage, fieldsStage, 
+					unsetStageShown);
+			add(envPane);
+			parent.attachListener(fieldsEnv);
+		}
+		if (stagePane.isVisible()) {
+			parent.layoutFields(envPane, unsetEnv, fieldsEnv, unsetEnvShown);
+			add(stagePane);
+			parent.attachListener(fieldsStage);
+		}
 	}
 	
 	/**
@@ -320,39 +320,35 @@ class ImageAcquisitionComponent
 	/** Sets the metadata. */
 	void setImageAcquisitionData()
 	{
-		if (!init) {
-			init = true;
-			fieldsEnv.clear();
-			fieldsStage.clear();
-			ImageAcquisitionData data = model.getImageAcquisitionData();
-			Map<String, Object> details = 
-				EditorUtil.transformObjectiveAndSettings(data);
-	    	List notSet = (List) details.get(EditorUtil.NOT_SET);
-	    	objectivePane.setVisible(false);
-	    	if (notSet.size() != EditorUtil.MAX_FIELDS_OBJECTIVE_AND_SETTINGS) {
-	    		objectivePane.displayObjective(details);
-	    		objectivePane.setVisible(true);
-	    	}
-	    	details = EditorUtil.transformImageEnvironment(data);
-	    	notSet = (List) details.get(EditorUtil.NOT_SET);
-	    	envPane.setVisible(false);
-	    	if (notSet.size() != EditorUtil.MAX_FIELDS_ENVIRONMENT) {
-	    		transformEnv(details);
-	    		envPane.setVisible(true);
-	    	}
-	    	details = EditorUtil.transformStageLabel(data);
-	    	notSet = (List) details.get(EditorUtil.NOT_SET);
-	    	stagePane.setVisible(false);
-	    	if (notSet.size() != EditorUtil.MAX_FIELDS_STAGE_LABEL) {
-	    		transformStage(details);
-	    		stagePane.setVisible(true);
-	    	}
-			parent.layoutFields(envPane, unsetEnv, fieldsEnv, unsetEnvShown);
-			parent.layoutFields(stagePane, unsetStage, fieldsStage, 
-					unsetStageShown);
-			buildGUI();
-		}
+		if (init) return;
+		init = true;
+		fieldsEnv.clear();
+		fieldsStage.clear();
+		ImageAcquisitionData data = model.getImageAcquisitionData();
+		Map<String, Object> details = 
+			EditorUtil.transformObjectiveAndSettings(data);
+    	List notSet = (List) details.get(EditorUtil.NOT_SET);
+    	objectivePane.setVisible(false);
+    	if (notSet.size() != EditorUtil.MAX_FIELDS_OBJECTIVE_AND_SETTINGS) {
+    		objectivePane.displayObjective(details);
+    		objectivePane.setVisible(true);
+    	}
+    	details = EditorUtil.transformImageEnvironment(data);
+    	notSet = (List) details.get(EditorUtil.NOT_SET);
+    	envPane.setVisible(false);
+    	if (notSet.size() != EditorUtil.MAX_FIELDS_ENVIRONMENT) {
+    		transformEnv(details);
+    		envPane.setVisible(true);
+    	}
+    	details = EditorUtil.transformStageLabel(data);
+    	notSet = (List) details.get(EditorUtil.NOT_SET);
+    	stagePane.setVisible(false);
+    	if (notSet.size() != EditorUtil.MAX_FIELDS_STAGE_LABEL) {
+    		transformStage(details);
+    		stagePane.setVisible(true);
+    	}
 		
+		buildGUI();
 	}
 	
 	/** Clears the data. */

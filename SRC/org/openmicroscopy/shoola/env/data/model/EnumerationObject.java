@@ -42,6 +42,7 @@ import omero.model.Immersion;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
 import omero.model.Medium;
+import omero.model.MicroscopeType;
 import omero.model.PhotometricInterpretation;
 import omero.model.Pulse;
 
@@ -121,6 +122,8 @@ public class EnumerationObject
 			value = ((FilamentType) object).getValue();
 		else if (object instanceof FilterType)
 			value = ((FilterType) object).getValue();
+		else if (object instanceof MicroscopeType)
+			value = ((MicroscopeType) object).getValue();
 		else if (object instanceof String) return (String) object;
 		if (value != null) return value.getValue();
 		return "";

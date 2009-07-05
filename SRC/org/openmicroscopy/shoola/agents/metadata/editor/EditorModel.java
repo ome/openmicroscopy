@@ -84,6 +84,7 @@ import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
+import pojos.InstrumentData;
 import pojos.PermissionData;
 import pojos.PixelsData;
 import pojos.PlateData;
@@ -150,7 +151,7 @@ class EditorModel
     /** Collection of existing attachments if any. */
     private Collection				existingAttachments;
     
-    /** The list of emissions wavelengths for a given set of pixels. */
+    /** The list of emission wavelengths for a given set of pixels. */
     private List					emissionsWavelengths;
     
     /** Used to sort the various collection. */
@@ -161,6 +162,9 @@ class EditorModel
 	
 	/** The image acquisition data. */
 	private ImageAcquisitionData	imageAcquisitionData;
+	
+	/** The instrument data. */
+	private InstrumentData			instrumentData;
 	
 	/** The enumerations related to channel metadata. */
 	private Map<String, List<EnumerationObject>>	channelEnumerations;
@@ -886,6 +890,7 @@ class EditorModel
 	    if (channelPlaneInfoMap != null)
 	    	channelPlaneInfoMap.clear();
 	    imageAcquisitionData = null;
+	    instrumentData = null;
 	    if (refObject instanceof ImageData) {
 	    	fireChannelEnumerationsLoading();
 	    	fireImageEnumerationsLoading();
@@ -1753,5 +1758,40 @@ class EditorModel
 		if (renderer == null) return;
 		parent.onRndLoaded(reload);
 	}
+
+	/**
+	 * Sets the instrument used to capture the image.
+	 * 
+	 * @param data The value to set.
+	 */
+	void setInstrumentData(InstrumentData data) { instrumentData = data; }
 	
+	/**
+	 * Returns the instrument data.
+	 * 
+	 * @return See above.
+	 */
+	InstrumentData getInstrumentData() { return instrumentData; }
+	
+	/** 
+     * Sorts the passed collection of data objects by ID.
+     * 
+     * @param values  Collection of <code>DataObject</code>s to sort.
+     */
+    void sortDataObjectByID(List values)
+    {
+        if (values == null || values.size() == 0) return;
+        Comparator c = new Comparator() {
+            public int compare(Object o1, Object o2)
+            {
+                long n1 = ((DataObject) o1).getId(),
+                     n2 = ((DataObject) o2).getId();
+                int v = 0;
+                if (n1 < n2) v = -1;
+                else if (n1 > n2) v = 1;
+                return -v;
+            }
+        };
+        Collections.sort(values, c);
+    }
 }

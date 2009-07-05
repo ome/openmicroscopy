@@ -101,17 +101,21 @@ import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Details;
 import omero.model.DetailsI;
+import omero.model.Detector;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.Filter;
 import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Instrument;
+import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
+import omero.model.Objective;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Pixels;
@@ -143,6 +147,7 @@ import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
+import pojos.InstrumentData;
 import pojos.LongAnnotationData;
 import pojos.PixelsData;
 import pojos.PlateData;
@@ -4124,6 +4129,7 @@ class OMEROGateway
 		getEnumerations(OmeroMetadataService.ARC_TYPE);
 		getEnumerations(OmeroMetadataService.FILAMENT_TYPE);
 		getEnumerations(OmeroMetadataService.FILTER_TYPE);
+		getEnumerations(OmeroMetadataService.MICROSCOPE_TYPE);
 	}
 
 	/**
@@ -4426,12 +4432,38 @@ class OMEROGateway
 	Object loadInstrument(long instrumentID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		//stage Label
 		isSessionAlive();
-		Instrument i;
 		try {
 			IMetadataPrx service = getMetadataService();
-			return null;
+			List<IObject> list = service.loadInstrument(instrumentID);
+			if (list == null || list.size() == 0) return null;
+			List<Detector> detectors = new ArrayList<Detector>();
+			List<Objective> objectives = new ArrayList<Objective>();
+			List<Filter> filters = new ArrayList<Filter>();
+			List<LightSource> lights = new ArrayList<LightSource>();
+			Iterator<IObject> i = list.iterator();
+			IObject obj;
+			Instrument instrument = null;
+			while (i.hasNext()) {
+				obj = (IObject) i.next();
+				if (obj instanceof Instrument)
+					instrument = (Instrument) obj;
+				else if (obj instanceof Detector)
+					detectors.add((Detector) obj);
+				else if (obj instanceof Objective)
+					objectives.add((Objective) obj);
+				else if (obj instanceof Filter)
+					filters.add((Filter) obj);
+				else if (obj instanceof LightSource)
+					lights.add((LightSource) obj);
+			}
+			if (instrument == null) return null;
+			InstrumentData data = new InstrumentData(instrument);
+			data.setDetectors(detectors);
+			data.setObjectives(objectives);
+			data.setLightSources(lights);
+			data.setFilters(filters);
+			return data;
 		} catch (Exception e) {
 			handleException(e, "Cannot load the instrument: "+instrumentID);
 		}

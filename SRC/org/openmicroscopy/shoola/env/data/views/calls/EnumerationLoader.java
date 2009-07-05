@@ -132,6 +132,9 @@ public class EnumerationLoader
             	results.put(OmeroMetadataService.FILTER_TYPE, 
             			service.getEnumeration(
             					OmeroMetadataService.FILTER_TYPE));
+            	results.put(OmeroMetadataService.MICROSCOPE_TYPE, 
+            			service.getEnumeration(
+            					OmeroMetadataService.MICROSCOPE_TYPE));
             }
         };
     }
