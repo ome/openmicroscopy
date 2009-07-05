@@ -46,12 +46,13 @@ import java.util.Set;
 
 import javax.swing.filechooser.FileSystemView;
 
-import loci.formats.FormatException;
+
 
 //Third-party libraries
 import Ice.ConnectionLostException;
 
 //Application-internal dependencies
+import loci.formats.FormatException;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -4437,38 +4438,8 @@ class OMEROGateway
 		try {
 			IMetadataPrx service = getMetadataService();
 			List<IObject> list = service.loadInstrument(instrumentID);
-			if (list == null || list.size() == 0) return null;
-			List<Detector> detectors = new ArrayList<Detector>();
-			List<Objective> objectives = new ArrayList<Objective>();
-			List<Filter> filters = new ArrayList<Filter>();
-			List<LightSource> lights = new ArrayList<LightSource>();
-			List<Dichroic> dichroics = new ArrayList<Dichroic>();
-			Iterator<IObject> i = list.iterator();
-			IObject obj;
-			Instrument instrument = null;
-			while (i.hasNext()) {
-				obj = (IObject) i.next();
-				if (obj instanceof Instrument)
-					instrument = (Instrument) obj;
-				else if (obj instanceof Detector)
-					detectors.add((Detector) obj);
-				else if (obj instanceof Objective)
-					objectives.add((Objective) obj);
-				else if (obj instanceof Filter)
-					filters.add((Filter) obj);
-				else if (obj instanceof LightSource)
-					lights.add((LightSource) obj);
-				else if (obj instanceof Dichroic)
-					dichroics.add((Dichroic) obj);
-			}
-			if (instrument == null) return null;
-			InstrumentData data = new InstrumentData(instrument);
-			data.setDetectors(detectors);
-			data.setObjectives(objectives);
-			data.setLightSources(lights);
-			data.setFilters(filters);
-			data.setDichroics(dichroics);
-			return data;
+			if (list == null || list.size() < 1) return null;
+			return new InstrumentData(list);
 		} catch (Exception e) {
 			handleException(e, "Cannot load the instrument: "+instrumentID);
 		}
