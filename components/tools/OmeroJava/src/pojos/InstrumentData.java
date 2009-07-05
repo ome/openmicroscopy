@@ -32,6 +32,7 @@ import java.util.List;
 //Application-internal dependencies
 import omero.RString;
 import omero.model.Detector;
+import omero.model.Dichroic;
 import omero.model.Filter;
 import omero.model.Instrument;
 import omero.model.LightSource;
@@ -65,6 +66,9 @@ public class InstrumentData
 	/** The collection of filters. */
 	private List<FilterData> filters;
 	
+	/** The collection of dichroics. */
+	private List<DichroicData> dichroics;
+	
 	/** The collection of detectors. */
 	private List<DetectorData> detectors;
 	
@@ -74,6 +78,7 @@ public class InstrumentData
 		objectives = new ArrayList<ObjectiveData>();
 		lightSources = new ArrayList<LightSourceData>(); 
 		filters = new ArrayList<FilterData>(); 
+		dichroics = new ArrayList<DichroicData>(); 
 	}
 	
 	/**
@@ -146,6 +151,22 @@ public class InstrumentData
 		Iterator<LightSource> i = list.iterator();
 		while (i.hasNext()) {
 			lightSources.add(new LightSourceData(i.next()));
+		}
+	}
+	
+	/**
+	 * Sets the collection of dichroics.
+	 * 
+	 * @param list The value to set.
+	 */
+	public void setDichroics(List<Dichroic> list)
+	{
+		if (list == null || list.size() == 0) return;
+		if (dichroics == null) 
+			dichroics = new ArrayList<DichroicData>();
+		Iterator<Dichroic> i = list.iterator();
+		while (i.hasNext()) {
+			dichroics.add(new DichroicData(i.next()));
 		}
 	}
 	
@@ -246,4 +267,12 @@ public class InstrumentData
 	 * @return See above.
 	 */
 	public List<DetectorData> getDetectors() { return detectors; }
+	
+	/**
+	 * Returns the collection of dichroics.
+	 * 
+	 * @return See above.
+	 */
+	public List<DichroicData> getDichroics() { return dichroics; }
+	
 }
