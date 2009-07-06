@@ -412,5 +412,7 @@ public interface MetadataViewer
 	
 	/** Analyzes the image. */
 	void analyse();
+
+	public void uploadFret(FileAnnotationData data, File folder);
 	
 }

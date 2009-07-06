@@ -27,17 +27,24 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /**
- *
+ * Performs a basic analysis.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *     <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -64,6 +71,9 @@ public class FretAnalyser
     
     /** The id of the image to analyze. */
     private long				toAnalyzeID;
+    
+    /** The result. */
+    private FileAnnotationData	data;
     
 	/**
      * Creates a new instance.
@@ -108,10 +118,7 @@ public class FretAnalyser
      * Notifies the user that it wasn't possible to retrieve the data and
      * and discards the {@link #viewer}.
      */
-    public void handleNullResult() 
-    {
-    	//viewer.uploadMovie(null, null);
-    }
+    public void handleNullResult()  { viewer.uploadFret(null, null); }
     
     /** 
      * Feeds the result back to the viewer. 
@@ -120,5 +127,32 @@ public class FretAnalyser
     public void handleResult(Object result)
     {
         if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
+        data = (FileAnnotationData) result;
+        if (data == null) return;
+        JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+        MessageBox box = new MessageBox(f, "Data Analyzed",
+		"The images have been analyzed. Do you want to download the result?");
+		if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+			FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
+					"Download", "Select where to download the file.");
+			chooser.addPropertyChangeListener(new PropertyChangeListener() {
+			
+				public void propertyChange(PropertyChangeEvent evt) {
+					String name = evt.getPropertyName();
+					if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+						File folder = (File) evt.getNewValue();
+						viewer.uploadFret(data, folder);
+					} else if (FileChooser.CANCEL_SELECTION_PROPERTY.equals(
+							name)) {
+						viewer.uploadFret(null, 
+								UIUtilities.getDefaultFolder());
+					}
+				}
+			});
+			chooser.centerDialog();
+		} else {
+			viewer.uploadMovie(null, UIUtilities.getDefaultFolder());
+		}
     }
+    
 }

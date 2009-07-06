@@ -839,5 +839,25 @@ class MetadataViewerComponent
 		});
 		UIUtilities.centerAndShow(d);
 	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#uploadFret(FileAnnotationData, File)
+	 */
+	public void uploadFret(FileAnnotationData data, File folder)
+	{
+		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+		if (data == null) {
+			if (folder == null) 
+				un.notifyInfo("Data Analysis", "A problem occured while " +
+					"analyzing the data.");
+		} else {
+			if (folder == null) folder = UIUtilities.getDefaultFolder();
+			un.notifyDownload(data, folder);
+		}
+		firePropertyChange(ANALYSE_PROPERTY, Boolean.valueOf(true), 
+				Boolean.valueOf(false));
+		
+	}
 	
 }

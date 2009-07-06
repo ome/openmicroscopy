@@ -45,7 +45,7 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /** 
- * 
+ * Creates a movie. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -119,10 +119,7 @@ public class MovieCreator
      * Notifies the user that it wasn't possible to retrieve the data and
      * and discards the {@link #viewer}.
      */
-    public void handleNullResult() 
-    {
-    	viewer.uploadMovie(null, null);
-    }
+    public void handleNullResult() { viewer.uploadMovie(null, null); }
     
     /** 
      * Feeds the result back to the viewer. 

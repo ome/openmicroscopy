@@ -147,7 +147,7 @@ class AcquisitionDataUI
 		imagePane.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 		instrument = new InstrumentComponent(this, model);
-		instrumentPane = EditorUtil.createTaskPane("Instrument");
+		instrumentPane = EditorUtil.createTaskPane("Microscope");
 		instrumentPane.add(instrument);
 		instrumentPane.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
