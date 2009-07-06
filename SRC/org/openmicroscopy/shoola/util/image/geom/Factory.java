@@ -32,6 +32,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.Transparency;
@@ -334,14 +335,16 @@ public class Factory
     public static BufferedImage magnifyImage(double f, BufferedImage img)
     {
     	if (img == null) return null;
-    	int width = img.getWidth(), height = img.getHeight();
+    	
     	AffineTransform at = new AffineTransform();
     	at.scale(f, f);
+    	/*
+    	int width = img.getWidth(), height = img.getHeight();
     	BufferedImageOp biop = new AffineTransformOp(at, 
     			AffineTransformOp.TYPE_BILINEAR); 
     	int type = img.getType();
     	if (type == BufferedImage.TYPE_CUSTOM)
-    		type = BufferedImage.TYPE_INT_RGB;
+    		type = BufferedImage.TYPE_INT_ARGB;
     	int scaleWidth = (int) (width*f);
     	int scaleHeight = (int) (height*f);
     	if (scaleWidth <= 0 || scaleHeight <= 0) return null;
@@ -351,6 +354,21 @@ public class Factory
     	biop.filter(img, rescaleBuff);
     	rescaleBuff.flush();
     	System.gc();
+    	*/
+    	int type = img.getType();
+    	if (type == BufferedImage.TYPE_CUSTOM)
+    		type = BufferedImage.TYPE_INT_ARGB;
+    	Rectangle bounds = img.getRaster().getBounds();
+    	bounds = at.createTransformedShape(bounds).getBounds();
+
+
+    	BufferedImage rescaleBuff = img;//
+    	rescaleBuff = new BufferedImage(bounds.width, 
+    			bounds.height, type); //img.getType()
+    	Graphics2D g2 = rescaleBuff.createGraphics();
+    	g2.drawImage(img, at,null);
+    	g2.dispose();
+
     	return rescaleBuff;
     }
 
