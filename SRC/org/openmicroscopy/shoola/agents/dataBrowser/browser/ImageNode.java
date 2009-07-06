@@ -103,13 +103,31 @@ public class ImageNode
      */
     public ImageNode(String title, Object hierarchyObject, Thumbnail t)
     {
+        this(title, hierarchyObject, t, SMALL_BAR);
+    }
+    
+    /**
+     * Creates a new leaf node.
+     * 
+     * @param title             The frame's title.
+     * @param hierarchyObject   The original object in the image hierarchy which
+     *                          is visualized by this node. It has to be an 
+     *                          image object in this case. 
+     *                          Never pass <code>null</code>.
+     * @param t                 The thumbnail this node is going to display. 
+     *                          This is obviously a thumbnail for the image
+     *                          object this node represents.
+     * @param titleBar			The title bar supported.                  
+     */
+    public ImageNode(String title, Object hierarchyObject, Thumbnail t, int
+    		titleBar)
+    {
         super(title, "", hierarchyObject);
         //Probably cleaner to use a visitor but for performance reason better
         //that way.
         setTitle(getPartialName(title+LEFT+getFormattedAcquisitionTime()+
         						RIGHT));
         setNodeDecoration();
-        setTitleBarType(SMALL_BAR);
         //if (t == null) throw new NullPointerException("No thumbnail.");
         thumbnail = t;
         if (t != null) {
@@ -119,6 +137,7 @@ public class ImageNode
             //setCanvasToolTip(getNodeName());
             setCanvasToolTip(getTitle());
         }
+        setTitleBarType(titleBar);
     }
     
     /**

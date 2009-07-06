@@ -37,6 +37,7 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import pojos.ImageData;
+import pojos.WellSampleData;
 
 /** 
  * Initializes two sets: one containing the imageNodes displayed
@@ -117,6 +118,10 @@ public class ImageFinder
     {
         imageNodes.add(node);
         Object ho = node.getHierarchyObject();
+        if (ho instanceof WellSampleData) {
+        	WellSampleData wsd = (WellSampleData) ho;
+        	ho = wsd.getImage();
+        }
         if (ho instanceof ImageData) images.add((ImageData) ho);
     }
 
@@ -134,16 +139,20 @@ public class ImageFinder
     			Component c;
     			ImageNode n;
     			Object ho;
+    			WellSampleData wsd;
     			for (int i = 0; i < comps.length; i++) {
 					c = comps[i];
 					if (c instanceof ImageNode) {
 						n = (ImageNode) c;
 						ho = n.getHierarchyObject();
+						if (ho instanceof WellSampleData) {
+				        	wsd = (WellSampleData) ho;
+				        	ho = wsd.getImage();
+				        }
 						if (ho instanceof ImageData) {
 							visibleImages.add((ImageData) ho);
 							visibleImageNodes.add(n);
 						}
-						
 					}
 				}
     		}

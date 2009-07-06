@@ -190,6 +190,33 @@ class WellsModel
 	}
 	
 	/**
+	 * Handles the selection of a cell
+	 * 
+	 * @param cell The selected cell.
+	 * @param well The well to handle.
+	 * @param results The collection of objects to update.
+	 */
+	private void handleCellSelection(CellDisplay cell, WellImageSet well,
+			List<DataObject> results)
+	{
+		String description = cell.getDescription();
+		Color c = cell.getHighlight();
+		WellData data = (WellData) well.getHierarchyObject();
+		data.setWellType(description);
+		well.setDescription(description);
+		results.add(data);
+		if (c == null || !cell.isSpecified()) {
+			data.setRed(null);
+		} else {
+			data.setRed(c.getRed());
+			data.setGreen(c.getGreen());
+			data.setBlue(c.getBlue());
+			data.setAlpha(c.getAlpha());
+		}
+		well.setHighlight(c);
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param parent	The parent of the wells.
@@ -388,6 +415,8 @@ class WellsModel
 		loader.load();
 	}
 	
+	
+	
 	/**
 	 * Sets the values for the row or the column.
 	 * Returns the collection of wells to update.
@@ -409,6 +438,8 @@ class WellsModel
 			while (i.hasNext()) {
 				well = (WellImageSet) i.next();
 				if (well.getColumn() == index) {
+					handleCellSelection(cell, well, results);
+					/*
 					data = (WellData) well.getHierarchyObject();
 					data.setWellType(description);
 					well.setDescription(description);
@@ -422,12 +453,15 @@ class WellsModel
 						data.setAlpha(c.getAlpha());
 					}
 					well.setHighlight(c);
+					*/
 				}
 			}
 		} else {
 			while (i.hasNext()) {
 				well = (WellImageSet) i.next();
 				if (well.getRow() == index) {
+					handleCellSelection(cell, well, results);
+					/*
 					data = (WellData) well.getHierarchyObject();
 					data.setWellType(description);
 					well.setDescription(description);
@@ -441,6 +475,7 @@ class WellsModel
 						data.setAlpha(c.getAlpha());
 					}
 					well.setHighlight(c);
+					*/
 				}
 			}
 		}

@@ -126,7 +126,7 @@ public class CellDisplay
      */
     public CellDisplay(int index, String value, int type)  
     {
-    	super(value, FAKE_HIERARCHY_OBJECT, null);
+    	super(value, FAKE_HIERARCHY_OBJECT, null, SMALL_BAR);
     	clearDefaultButtons();
     	setCollapsed(true);
     	this.type = type;
@@ -138,9 +138,7 @@ public class CellDisplay
     	setTitle(value);
     	if (type == TYPE_HORIZONTAL) {
     		setToolTipText(TEXT_COLUMN);
-    		setCanvasToolTip(TEXT_COLUMN);
     	} else {
-    		setToolTipText(TEXT_ROW);
     		setToolTipText(TEXT_ROW);
     	}
     	addMouseListener(new MouseAdapter() {
@@ -213,20 +211,6 @@ public class CellDisplay
      */
     public void setNodeDecoration()
     {
-    	
-    	/*
-    	IconManager icons = IconManager.getInstance();
-    	List<JLabel> nodes = new ArrayList<JLabel>();
-    	JLabel l = new JLabel(icons.getIcon(IconManager.EDIT_8));
-    	l.addMouseListener(new MouseAdapter() {
-    		public void mousePressed(MouseEvent evt)
-    		{
-    			showDescriptor(evt.getPoint());
-    		}
-    	});
-    	nodes.add(l);
-    	setDecoration(nodes);
-    	*/
     }
     
     /**
@@ -243,6 +227,17 @@ public class CellDisplay
     {
     	if (highlight == null) highlight = DEFAULT_COLOR;
     	cellColor = highlight;
+    }
+    
+    /**
+     * Overridden to be on the save side.
+     * @see ImageNode#setBounds(int, int, int, int)
+     */
+    public void setBounds(int x, int y, int w, int h)
+    {
+    	try {
+			super.setBounds(x, y, w, h);
+		} catch (Exception e) {}
     }
     
 }

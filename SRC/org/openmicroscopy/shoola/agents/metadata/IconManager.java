@@ -350,8 +350,8 @@ public class IconManager
         relPaths[RENDERER] = "render16.png";
         relPaths[GRAYSCALE] = "grayscale16.png";
         relPaths[RGB] = "rgb16.png";
-        relPaths[ANALYSE] = "rgb16.png";
-        relPaths[ANALYSE_48] = "rgb16.png";
+        relPaths[ANALYSE] = "nuvola_kchart16.png";
+        relPaths[ANALYSE_48] = "nuvola_kchart48.png";
 	}
    
 	/** The sole instance. */
