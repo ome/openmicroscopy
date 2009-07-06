@@ -44,9 +44,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import ome.formats.importer.util.FileUploadContainer;
 import ome.formats.importer.util.GuiCommonElements;
-import ome.formats.importer.util.FileUploader;
 import ome.formats.importer.util.HtmlMessenger;
 import ome.formats.importer.util.IniFileLoader;
 
@@ -78,10 +76,6 @@ public class DebugMessenger extends JDialog implements ActionListener
     boolean debug = false;
 
     String url = "http://users.openmicroscopy.org.uk/~brain/omero/bugcollector.php";   
-    String tokenUrl = "http://mage.openmicroscopy.org.uk/qa/token/"; 
-    String uploaderUrl = "http://mage.openmicroscopy.org.uk/qa/processing/";
-    
-    private String[] files = null;
     
     private static final String ICON = "gfx/nuvola_error64.png";
     
@@ -91,10 +85,9 @@ public class DebugMessenger extends JDialog implements ActionListener
     JPanel                  commentPanel;
     JPanel                  debugPanel;
 
-    JButton                 quitBtn;
+    //JButton                 quitBtn;
     JButton                 cancelBtn;
     JButton                 sendBtn;
-    JButton                 sendWithFilesBtn;
     JButton                 ignoreBtn;
     JButton                 copyBtn;
     
@@ -108,18 +101,17 @@ public class DebugMessenger extends JDialog implements ActionListener
     StyledDocument          debugDocument;
     Style                   debugStyle;
     
-    DebugMessenger(JFrame owner, String title, Boolean modal, Throwable e, String[] files)
+    DebugMessenger(JFrame owner, String title, Boolean modal, Throwable e)
     {
         super(owner);
         gui = new GuiCommonElements();
-        this.files = files;
         
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
         setTitle(title);
         setModal(modal);
         setResizable(true);
-        setSize(new Dimension(680, 500));
+        setSize(new Dimension(680, 400));
         setLocationRelativeTo(owner);
               
         //Get the full debug text
@@ -131,34 +123,25 @@ public class DebugMessenger extends JDialog implements ActionListener
         
         // Set up the main panel for tPane, quit, and send buttons
         double mainTable[][] =
-                {{10, 150, TableLayout.FILL, 100, 5, 150, 5, 150, 10}, // columns
+                {{10, 150, TableLayout.FILL, 100, 5, 100, 10}, // columns
                 {TableLayout.FILL, 40}}; // rows
         
         mainPanel = gui.addMainPanel(this, mainTable, 10, 10, 10, 10, debug);
         
-        
+        /*
         // Add the quit, cancel and send buttons to the main panel
         quitBtn = gui.addButton(mainPanel, "Quit Application", 'Q',
                 "Quit the application", "1, 1, f, c", debug);
         quitBtn.addActionListener(this);
-        
+        */
 
         cancelBtn = gui.addButton(mainPanel, "Cancel", 'C',
                 "Cancel your message", "3, 1, f, c", debug);
         cancelBtn.addActionListener(this);
 
-        sendBtn = gui.addButton(mainPanel, "Send Comment", 'S',
+        sendBtn = gui.addButton(mainPanel, "Send", 'S',
                 "Send your comment to the development team", "5, 1, f, c", debug);
         sendBtn.addActionListener(this);
-        
-        sendWithFilesBtn = gui.addButton(mainPanel, "Send With Files", 'S',
-                "Send your comment and your files to the development team", "7, 1, f, c", debug);
-        sendWithFilesBtn.addActionListener(this);
-        
-        if (this.files == null)
-        {
-            sendWithFilesBtn.setEnabled(false);
-        }
 
         this.getRootPane().setDefaultButton(sendBtn);
         gui.enterPressesWhenFocused(sendBtn);
@@ -180,7 +163,7 @@ public class DebugMessenger extends JDialog implements ActionListener
         
         double commentTable[][] = 
         {{iconSpace, (160 - iconSpace), TableLayout.FILL}, // columns
-                {100, 30, TableLayout.FILL, 110}}; // rows
+                {100, 30, TableLayout.FILL}}; // rows
         
         commentPanel = gui.addMainPanel(this, commentTable, 10, 10, 10, 10, debug);
 
@@ -206,16 +189,6 @@ public class DebugMessenger extends JDialog implements ActionListener
         
         commentTextArea = gui.addTextArea(commentPanel, "What you were doing when you crashed?", 
                 "", 'W', "0, 2, 2, 2", debug);
-        
-        String message2 = "\nIf you choose, you may also upload any files causing this error " +
-        		"to our testing team. Once fixed, your files will then be added to our testing " +
-        		"suite for regular testing. " +
-        		"\n\n" +
-        		"Any files you choose to send us will be kept confidential and only used for testing. " +
-        		"For details on our data privacy policy, go to http://www.openmicroscopy.org.uk/site/privacy.";
-        
-        JTextPane upload_instructions = 
-            gui.addTextPane(commentPanel, message2, "0,3,2,0", debug);
         
         // fill out the debug panel
         double debugTable[][] = 
@@ -244,7 +217,7 @@ public class DebugMessenger extends JDialog implements ActionListener
         "The Exception Message.");
 
         // Add the tab panel to the main panel
-        mainPanel.add(tPane, "0, 0, 8, 0");
+        mainPanel.add(tPane, "0, 0, 6, 0");
         
         add(mainPanel, BorderLayout.CENTER);
         
@@ -256,15 +229,15 @@ public class DebugMessenger extends JDialog implements ActionListener
     {
         Object source = e.getSource();
         
-        
+        /*
         if (source == quitBtn)
         {
-            if (gui.quitConfirmed(this, "Abandon your import and quit the application?") == true)
+            if (gui.quitConfirmed(this) == true)
             {
                 System.exit(0);
             }
         }
-        
+        */
         
         if (source == cancelBtn)
         {
@@ -280,17 +253,6 @@ public class DebugMessenger extends JDialog implements ActionListener
             userPrefs.put("userEmail", emailText);
             
             sendRequest(emailText, commentText, debugText, "Extra data goes here.");
-        }
-        
-        if (source == sendWithFilesBtn)
-        {
-            emailText = emailTextField.getText();
-            commentText = commentTextArea.getText();
-            String debugText = debugTextPane.getText();
-            
-            userPrefs.put("userEmail", emailText);
-            
-            sendFileRequest(emailText, commentText, debugText, "Extra data goes here.");
         }
         
         if (source == ignoreBtn)
@@ -355,57 +317,6 @@ public class DebugMessenger extends JDialog implements ActionListener
         }
     }
     
-    private void sendFileRequest(String email, String comment, String error, String extra)
-    {
-        FileUploadContainer upload = new FileUploadContainer();
-        
-        upload.setEmail(email);
-        upload.setComment(comment);
-        upload.setError(error);
-        upload.setExtra(extra);
-        upload.setCommentType("2");
-        upload.setJavaVersion(System.getProperty("java.version"));
-        upload.setJavaClasspath(System.getProperty("java.class.path"));
-        upload.setOSName(System.getProperty("os.name"));
-        upload.setOSArch(System.getProperty("os.arch"));
-        upload.setOSVersion(System.getProperty("os.version"));
-        upload.setAppVersion(ini.getVersionNumber());
-        upload.setFiles(files);
-
-        try {
-            Map <String, String>map = new HashMap<String, String>();
-            HtmlMessenger messenger = new HtmlMessenger(tokenUrl, map);
-            String tokenReply = messenger.executePost();
-            
-            upload.setSessionId(tokenReply);
-            System.err.println(tokenReply);
-            
-            FileUploader fileUploader = new FileUploader();
-            fileUploader.uploadFiles(uploaderUrl, 5000, upload);
-        }
-        catch( Exception e ) {
-            log.error("Error while sending debug information.", e);
-            //Get the full debug text
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            
-            String debugText = sw.toString();
-            
-            gui.appendTextToDocument(debugDocument, debugStyle, "----\n"+debugText);
-            String internalURL = "Sorry, but due to an error we were not able " +
-            "to automatically \n send your debug information. \n\n" +
-            "You can still send us the error message by clicking on the \n" +
-            "error message tab, copying the error message to the clipboard, \n" +
-            "and sending it to <a href='mailto:comments@openmicroscopy.org.uk'>.";
-            JEditorPane message;
-            try
-            {
-                message = new JEditorPane(internalURL);
-                JOptionPane.showMessageDialog(this, message);
-            } catch (IOException e1){}
-        }
-    }
         
     /**
      * @param args
@@ -442,7 +353,7 @@ public class DebugMessenger extends JDialog implements ActionListener
         }
         catch (Exception e)
         {
-            new DebugMessenger(null, "Error Dialog Test", true, e, null);
+            new DebugMessenger(null, "Error Dialog Test", true, e);
         }
     }
 }

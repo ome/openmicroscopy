@@ -95,7 +95,7 @@ public class ImportHandler
                     catch (Throwable e)
                     {       
                         files = library.getUsedFiles();
-                        new DebugMessenger(null, "OMERO.importer Error Dialog", true, e, files);
+                        new DebugMessenger(null, "OMERO.importer Error Dialog", true, e);
                     }
                 }
             };
@@ -314,7 +314,7 @@ public class ImportHandler
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
                     
                     files = library.getUsedFiles();
-                    new DebugMessenger(null, "OMERO.importer Error Dialog", true, e, files);
+                    new DebugMessenger(null, "OMERO.importer Error Dialog", true, e);
                     if (importStatus < 0)   importStatus = -3;
                     else                    importStatus = -2;
                     
