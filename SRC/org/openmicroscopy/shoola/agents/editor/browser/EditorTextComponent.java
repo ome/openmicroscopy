@@ -25,6 +25,9 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 //Java imports
 
 import java.awt.Color;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +45,7 @@ import javax.swing.text.StyledDocument;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+import org.openmicroscopy.shoola.util.ui.BrowserLauncher;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.ChemicalNameFormatter;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.ChemicalSymbolsEditer;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMERegexFormatter;
@@ -67,8 +71,17 @@ public class EditorTextComponent
 	 * The regex pattern that matches a user-entered parameter. 
 	 * Will match any sequence contained by [ and ], but not containing
 	 * [ or ]!
+	 * 
+	 * Translate regex as "[ ( ( not] not[ ANY) . ) atLeastOnce ]"
+	 * Where [ is escaped \\[, ( is [, ANY is .
+	 * atLeastOnce is +
 	 */
-	public static final String PARAM_REGEX = "\\[[^\\]^\\[.]*\\]";
+	public static final String PARAM_REGEX = "\\[[[^\\]^\\[.].]+\\]";
+	// simpler regex but doesn't allow full stop! 
+	// public static final String PARAM_REGEX = "\\[[^\\]^\\[.]+\\]";
+	
+	public static final String URL_REGEX = 
+		"((https?|ftp|file)://|www)[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
 	
 	/** Formatter for changing appearance of text according to regex matching */
 	private OMERegexFormatter 			regexFormatter;
@@ -209,8 +222,50 @@ public class EditorTextComponent
 			
 		paramPositionList = newPositionList;	
 		
-		//updateParamMap(text);
 	}
+	
+	/**
+	 * MouseListener for handling double-clicks on URLs 
+	 * @author will
+	 */
+	private class UrlMouseListener extends MouseAdapter
+    {
+    	/**
+    	 * Handles double-clicks, checks whether the character clicked is 
+    	 * within a URL (parses all text for URL regexs).
+    	 * If so, gets the URL and opens web browser. 
+    	 * Display of url is handled separately by regexFormatter. 
+    	 */
+    	public void mouseClicked(MouseEvent e) 
+    	{
+    		Point mouseLoc = e.getPoint();
+    		int offset = viewToModel(mouseLoc);
+    		
+    		if (e.getClickCount() == 2) {
+    			
+    			String text = "";
+    			
+    			try {
+    				text = doc.getText(0, doc.getLength());
+    				List<Position> urlPositionList = new ArrayList<Position>();
+    				WikiView.findExpressions(text, URL_REGEX, urlPositionList);
+    			
+    				for (Position p: urlPositionList) {
+    					if (p.contains(offset, offset)) {
+    						String link = doc.getText(
+    								p.getStart(), p.getEnd()-p.getStart());
+    						// if url is "www", needs "http://"
+    						if (link.startsWith("www")){
+    							link = "http://" + link;
+    						}
+    						new BrowserLauncher().openURL(link);
+    						return;
+    					}
+    				}
+    			} catch (BadLocationException e2) { e2.printStackTrace();}
+    		}
+    	}
+    }
 
 
 	/**
@@ -270,11 +325,16 @@ public class EditorTextComponent
         StyleConstants.setFontSize(plainText, 13);
 		
 		// configure the regex formatter to colour any [parameter] in blue. 
+        // This only changes appearance of text. 
+        // Doesn't handle param reporting, edits etc
 		regexFormatter = new OMERegexFormatter(plainText);
         SimpleAttributeSet set = new SimpleAttributeSet();
         StyleConstants.setForeground(set, Color.blue);
-        //StyleConstants.setBold(set, true);
         regexFormatter.addRegex(PARAM_REGEX, set);
+        SimpleAttributeSet urlSet = new SimpleAttributeSet();
+        StyleConstants.setForeground(urlSet, Color.blue);
+        StyleConstants.setUnderline(urlSet, true);		// urls underlined
+        regexFormatter.addRegex(URL_REGEX, urlSet);
         
         // make formatters for chemical names and symbols. 
         chemicalNameFormatter = new ChemicalNameFormatter(plainText);
@@ -283,8 +343,9 @@ public class EditorTextComponent
         populateSymbolsList();
         
         getDocument().addDocumentListener(this);
+        // add a mouseListener for opening a URL with a double-click
+        addMouseListener(new UrlMouseListener());
 	}
-	
 	
 	/**
 	 * Returns the {@link #hasDataToSave} boolean flag.

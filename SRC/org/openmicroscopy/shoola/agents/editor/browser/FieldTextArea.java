@@ -1039,7 +1039,7 @@ public class FieldTextArea
 			
 			if (evt.getSource() instanceof ITreeEditComp) {
 				
-				/* Need controller to pass on the edit  */
+				// Need controller to pass on the edit 
 				if (controller == null) return;
 				
 				ITreeEditComp src = (ITreeEditComp)evt.getSource();
@@ -1063,6 +1063,9 @@ public class FieldTextArea
 			}
 		} else if (EditorTextComponent.PARAM_CREATED.equals(propName) || 
 					EditorTextComponent.PARAM_DELETED.equals(propName)) {
+			// if saving content, do this in a separate thread, because it will
+			// cause text to update - concurrency problem since user is 
+			// currently editing the document
 			SwingUtilities.invokeLater(new Runnable() {
 		        public void run() { saveContent(); }
 		        
