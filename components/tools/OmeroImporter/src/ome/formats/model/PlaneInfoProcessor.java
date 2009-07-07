@@ -23,7 +23,6 @@
 
 package ome.formats.model;
 
-import java.util.Collection;
 import java.util.List;
 
 import ome.util.LSID;
@@ -72,6 +71,7 @@ public class PlaneInfoProcessor implements ModelProcessor
         			i++;
         		}
         		LSID lsid = new LSID(PlaneInfo.class, indexes);
+        		log.warn("Removing empty PlaneInfo: " + lsid);
         		store.removeIObjectContainer(lsid);
         	}
         }
