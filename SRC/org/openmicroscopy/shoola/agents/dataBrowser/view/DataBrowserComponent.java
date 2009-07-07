@@ -586,7 +586,12 @@ class DataBrowserComponent
 			firePropertyChange(PASTE_RND_SETTINGS_PROPERTY, null, 
 					getBrowser().getSelectedDataObjects());
 		} else {
-			firePropertyChange(PASTE_RND_SETTINGS_PROPERTY, 
+			ImageDisplay d = getBrowser().getLastSelectedDisplay();
+			if (d instanceof WellSampleNode) 
+				firePropertyChange(RESET_RND_SETTINGS_PROPERTY, null, 
+						getBrowser().getSelectedDataObjects());
+			else 
+				firePropertyChange(PASTE_RND_SETTINGS_PROPERTY, 
 					Boolean.FALSE, Boolean.TRUE);
 		}
 	}
@@ -604,7 +609,12 @@ class DataBrowserComponent
 			firePropertyChange(RESET_RND_SETTINGS_PROPERTY, null, 
 					getBrowser().getSelectedDataObjects());
 		} else {
-			firePropertyChange(RESET_RND_SETTINGS_PROPERTY, 
+			ImageDisplay d = getBrowser().getLastSelectedDisplay();
+			if (d instanceof WellSampleNode) 
+				firePropertyChange(RESET_RND_SETTINGS_PROPERTY, null, 
+						getBrowser().getSelectedDataObjects());
+			else 
+				firePropertyChange(RESET_RND_SETTINGS_PROPERTY, 
 					Boolean.FALSE, Boolean.TRUE);
 		}
 	}
@@ -621,11 +631,22 @@ class DataBrowserComponent
 		if (model.getType() == DataBrowserModel.SEARCH) {
 			ImageDisplay display = getBrowser().getLastSelectedDisplay();
 			Object o = display.getHierarchyObject();
+			if (o instanceof WellSampleData) {
+				WellSampleData wsd = (WellSampleData) o;
+				o = wsd.getImage();
+			}
 			if (!(o instanceof ImageData)) return;
 			ImageData img = (ImageData) o;
 			firePropertyChange(COPY_RND_SETTINGS_PROPERTY, null, img);
 		} else {
-			firePropertyChange(COPY_RND_SETTINGS_PROPERTY, Boolean.FALSE, null);
+			ImageDisplay d = getBrowser().getLastSelectedDisplay();
+			if (d instanceof WellSampleNode) {
+				WellSampleData wsd = (WellSampleData) d.getHierarchyObject();
+				firePropertyChange(COPY_RND_SETTINGS_PROPERTY, null, 
+						wsd.getImage());
+			} else
+				firePropertyChange(COPY_RND_SETTINGS_PROPERTY, Boolean.FALSE, 
+						null);
 		}
 	}
 
@@ -737,7 +758,12 @@ class DataBrowserComponent
 			firePropertyChange(SET__ORIGINAL_RND_SETTINGS_PROPERTY, null, 
 					getBrowser().getSelectedDataObjects());
 		} else {
-			firePropertyChange(SET__ORIGINAL_RND_SETTINGS_PROPERTY, 
+			ImageDisplay d = getBrowser().getLastSelectedDisplay();
+			if (d instanceof WellSampleNode) 
+				firePropertyChange(RESET_RND_SETTINGS_PROPERTY, null, 
+						getBrowser().getSelectedDataObjects());
+			else 
+				firePropertyChange(SET__ORIGINAL_RND_SETTINGS_PROPERTY, 
 					Boolean.FALSE, Boolean.TRUE);
 		}
 	}

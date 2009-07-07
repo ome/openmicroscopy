@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.WellSampleData;
 
 /** 
  * Copies, pastes or resets the rendering settings depending on the
@@ -136,8 +137,10 @@ public class ManageRndSettingsAction
 				putValue(Action.NAME, NAME_SET_ORIGINAL);
 				putValue(Action.SHORT_DESCRIPTION, 
 					UIUtilities.formatToolTipText(DESCRIPTION_SET_ORIGINAL));
+				//putValue(Action.SMALL_ICON, 
+					//	icons.getIcon(IconManager.SET_ORIGINAL_RND_SETTINGS));
 				putValue(Action.SMALL_ICON, 
-						icons.getIcon(IconManager.SET_ORIGINAL_RND_SETTINGS));
+						icons.getIcon(IconManager.UNDO));
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
@@ -172,27 +175,35 @@ public class ManageRndSettingsAction
         switch (index) {
 			case COPY:
 				if (nodes.size() > 1) setEnabled(false);
-	    		else setEnabled(ho instanceof ImageData);
+	    		else {
+	    			setEnabled(ho instanceof WellSampleData ||
+	    					ho instanceof ImageData);
+	    		}
 				break;
 			case PASTE:
 				if (!model.hasRndSettings()) {
 					setEnabled(false);
 					return;
 				}
-				if (!(ho instanceof ImageData || ho instanceof DatasetData))
+				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
+						ho instanceof WellSampleData))
 					setEnabled(false);
 				else {
-					if (nodes.size() > 1) setEnabled(ho instanceof ImageData);
+					if (nodes.size() > 1) 
+						setEnabled(ho instanceof ImageData ||
+							ho instanceof WellSampleData);
 		        	else setEnabled(true);
 				}
 				break;
 			case RESET:
-				if (!(ho instanceof ImageData || ho instanceof DatasetData))
+				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
+						ho instanceof WellSampleData))
 					setEnabled(false);
 				else setEnabled(true);
 				break;
 			case SET_ORIGINAL:
-				if (!(ho instanceof ImageData || ho instanceof DatasetData))
+				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
+						ho instanceof WellSampleData))
 					setEnabled(false);
 				else setEnabled(true);
 				

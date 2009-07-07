@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 
 /** 
 * Command to paste the rendering settings.
@@ -87,7 +88,8 @@ public class RenderingSettingsSaver
 	 */
 	private void checkRootType(Class type)
 	{
-		if (ImageData.class.equals(type) || DatasetData.class.equals(type))
+		if (ImageData.class.equals(type) || DatasetData.class.equals(type) ||
+				PlateData.class.equals(type))
 			return;
 		throw new IllegalArgumentException("Type not supported.");
 	}
@@ -106,7 +108,7 @@ public class RenderingSettingsSaver
 	private BatchCall makeBatchCall(final long pixelsID, final Class rootType,
 			final List<Long> ids, final int index)
 	{
-		return new BatchCall("Paste the rendering settings: ") {
+		return new BatchCall("Modify the rendering settings: ") {
 			public void doCall() throws Exception
 			{
 				OmeroImageService rds = context.getImageService();
@@ -137,7 +139,7 @@ public class RenderingSettingsSaver
 	private BatchCall makeBatchCall(final long pixelsID,
 			final TimeRefObject ref, final int index)
 	{
-		return new BatchCall("Paste the rendering settings: ") {
+		return new BatchCall("Modify the rendering settings: ") {
 			public void doCall() throws Exception
 			{
 				long userID = ((ExperimenterData) context.lookup(
@@ -190,7 +192,8 @@ public class RenderingSettingsSaver
 			public void doCall() throws Exception
 			{
 				OmeroImageService os = context.getImageService();
-				result = os.createRenderingSettings(pixelsID, rndToCopy, indexes);
+				result = os.createRenderingSettings(pixelsID, rndToCopy, 
+						indexes);
 
 			}
 		};

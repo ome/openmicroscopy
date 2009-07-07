@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateData;
 
 /** 
  * Pastes the rendering settings associated to the passed set of pixels
@@ -112,7 +113,8 @@ public class RndSettingsSaver
 	 */
 	private void checkRootType(Class type)
 	{
-		if (ImageData.class.equals(type) || DatasetData.class.equals(type))
+		if (ImageData.class.equals(type) || DatasetData.class.equals(type) ||
+			PlateData.class.equals(type))
 			return;
 		throw new IllegalArgumentException("Type not supported.");
 	}

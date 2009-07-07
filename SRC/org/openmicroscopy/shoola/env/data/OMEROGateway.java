@@ -316,6 +316,42 @@ class OMEROGateway
 	private OMEROMetadataStoreClient				importStore;
 	
 	/**
+	 * Applies the rendering settings of the specified pixels set to the plate.
+	 * Returns the map with result.
+	 * 
+	 * @param pixelsID The pixels set to handle.
+	 * @param plateID  The id of the plate.
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	private Map applySettingsToPlate(long pixelsID, long plateID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			IQueryPrx service = getQueryService();
+			String sql = "select i from Plate as p " +
+			"left outer join p.wells as w " +
+			"left outer join w.wellSamples as s " +
+			"left outer join s.image as i where p.id = :id";
+			ParametersI param = new ParametersI();
+			param.addLong("id", plateID);
+			List<IObject> images = service.findAllByQuery(sql, param);
+			Iterator i = images.iterator();
+			List<Long> ids = new ArrayList<Long>();
+			IObject o;
+			while (i.hasNext()) {
+				o = (IObject) i.next();
+				ids.add(o.getId().getValue());
+			}
+			return getRenderingSettingsService().applySettingsToImages(pixelsID, 
+					ids);
+		} catch (Exception e) {
+			handleException(e, "Cannot apply settings to plate "+plateID);
+		}
+		return null;
+	}
+	/**
 	 * Helper method to handle exceptions thrown by the connection library.
 	 * Methods in this class are required to fill in a meaningful context
 	 * message.
@@ -2949,7 +2985,8 @@ class OMEROGateway
 			IRenderingSettingsPrx service = getRenderingSettingsService();
 			String klass = convertPojos(rootNodeType).getName();
 			if (klass.equals(Image.class.getName()) 
-					|| klass.equals(Dataset.class.getName()))
+					|| klass.equals(Dataset.class.getName()) ||
+					klass.equals(Plate.class.getName()))
 				success = service.resetDefaultsInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
@@ -2987,7 +3024,8 @@ class OMEROGateway
 			IRenderingSettingsPrx service = getRenderingSettingsService();
 			String klass = convertPojos(rootNodeType).getName();
 			if (klass.equals(Image.class.getName()) 
-				|| klass.equals(Dataset.class.getName()))
+				|| klass.equals(Dataset.class.getName()) || 
+						klass.equals(Plate.class.getName()))
 				success = service.setOriginalSettingsInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
@@ -3053,6 +3091,30 @@ class OMEROGateway
 						}
 					}
 				}
+			} else if (PlateData.class.equals(rootNodeType)) {
+				Map m;
+				List l;
+				Iterator k;
+				while (i.hasNext()) {
+					id = (Long) i.next();
+					m = applySettingsToPlate(pixelsID, id);
+					
+					//m = service.applySettingsToDataset(pixelsID, id);
+					l = (List) m.get(Boolean.TRUE);
+					if (l != null && l.size() > 0) {
+						k = l.iterator();
+						while (k.hasNext()) {
+							success.add((Long) k.next());
+						}
+					}
+					l = (List) m.get(Boolean.FALSE);
+					if (l != null && l.size() > 0) {
+						k = l.iterator();
+						while (k.hasNext()) {
+							failure.add((Long) k.next());
+						}
+					}
+				}
 			}
 		} catch (Exception e) {
 			handleException(e, "Cannot paste the rendering settings.");
@@ -3062,6 +3124,8 @@ class OMEROGateway
 		result.put(Boolean.FALSE, failure);
 		return result;
 	}
+	
+	
 	
 	/**
 	 * Retrieves all the rendering settings linked to the specified set
@@ -3759,57 +3823,6 @@ class OMEROGateway
             results = service.findAllByQuery(sb.toString(), param);
 			Iterator i;
 			Well well;
-			/*
-			results = service.findAllByQuery(sb.toString(), param);
-			i = results.iterator();
-			
-			
-			List<Long> ids = new ArrayList<Long>();
-			while (i.hasNext()) {
-				well = (Well) i.next();
-				ids.add(well.getId());
-			}
-			*/
-			/*
-			sb = new StringBuilder();
-			param = new Parameters();
-			//param.addLong("plateID", plateID);
-			//param.addList("wellIDs", ids);
-			sb.append("select ws from WellSample ws ");
-			sb.append("left outer join fetch ws.well well ");
-			sb.append("left outer join fetch ws.image img ");
-			//sb.append("left outer join fetch well.plate plate ");
-			//sb.append("left outer join fetch well.wellSamples ");
-			
-			//sb.append("left outer join fetch ws.imageLinks wsil ");
-			//sb.append("left outer join fetch wsil.child img ");
-			/*
-			sb.append("left outer join fetch ws.image img ");
-			sb.append("left outer join fetch img.pixels as pix ");
-            sb.append("left outer join fetch pix.pixelsType as pt ");
-            sb.append("left outer join fetch pix.pixelsDimensions as pd ");
-            sb.append("where ws.well.id in (:wellIDs)");
-            */
-			/*
-			List samples = service.findAllByQuery(sb.toString(), param);
-			i = samples.iterator();
-			WellSample ws;
-			WellSampleData data;
-			Map<Long, List<WellSampleData>> 
-				map = new HashMap<Long, List<WellSampleData>>();
-			List<WellSampleData> list;
-			while (i.hasNext()) {
-				ws = (WellSample) i.next();
-				data = (WellSampleData) PojoMapper.asDataObject(ws);
-				well = ws.getWell();
-				list = map.get(well.getId());
-				if (list == null) {
-					list = new ArrayList<WellSampleData>();
-					map.put(well.getId(), list);
-				}
-				list.add(data);
-			}
-			*/
 			Set<DataObject> wells = new HashSet<DataObject>();
 			i = results.iterator();
 			WellData wellData;

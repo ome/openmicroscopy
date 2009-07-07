@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.WellSampleData;
 
 /** 
  * Pastes the rendering settings across the collection of images.
@@ -134,8 +135,13 @@ public class PasteRndSettingsCmd
     		Class klass = null;
     		while (o.hasNext()) {
 				ho = o.next();
-				klass = ho.getClass();
-				ids.add(ho.getId());
+				if (ho instanceof WellSampleData) {
+					klass = ImageData.class;
+					ids.add(((WellSampleData) ho).getImage().getId());
+				} else {
+					klass = ho.getClass();
+					ids.add(ho.getId());
+				}
 			}
     		switch (index) {
 				case PASTE:
@@ -180,7 +186,11 @@ public class PasteRndSettingsCmd
 				ho = node.getUserObject();
 				klass = ho.getClass();
 				if (ho instanceof DataObject) {
-					ids.add(((DataObject) ho).getId());
+					if (ho instanceof WellSampleData) {
+						klass = ImageData.class;
+						ids.add(((WellSampleData) ho).getImage().getId());
+					} else
+						ids.add(((DataObject) ho).getId());
 				}
 			}
 		}

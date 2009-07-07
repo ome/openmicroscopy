@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateData;
 
 /** 
  * Sets the original rendering settings.
@@ -96,7 +97,8 @@ public class SetRndSettingsAction
 			}
 			return;
 		}
-		if (!(ho instanceof ImageData || ho instanceof DatasetData)) 
+		if (!(ho instanceof ImageData || ho instanceof DatasetData || 
+				ho instanceof PlateData)) 
 			setEnabled(false);
 		else {
 			if (n > 1) setEnabled(ho instanceof ImageData);

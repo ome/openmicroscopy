@@ -216,7 +216,7 @@ class TreeViewerControl
 	/** Identifies the <code>Tags action</code>. */
 	static final Integer    TAGS_EXPLORER = Integer.valueOf(35);
 	
-	/** Identifies the <code>Set rnd settings</code>. */
+	/** Identifies the <code>Set rendering settings</code>. */
 	static final Integer    SET_RND_SETTINGS = Integer.valueOf(36);
 	
 	/** Identifies the <code>Create dataset</code> in the File menu. */

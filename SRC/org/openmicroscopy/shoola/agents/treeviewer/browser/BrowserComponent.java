@@ -54,6 +54,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -216,8 +217,9 @@ class BrowserComponent
     	TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
     	//if (oldDisplay != null && oldDisplay.equals(display)) return; 
     	TreeImageDisplay exp = null;
+    	Object ho;
     	if (display != null) {
-    		Object ho = display.getUserObject();
+    		ho = display.getUserObject();
     		if (ho instanceof ExperimenterData) {
     			exp = display;
     			display = null;
@@ -226,7 +228,15 @@ class BrowserComponent
     	if (exp != null) model.setSelectedDisplay(exp, single);
     	else model.setSelectedDisplay(display, single);
     	if (display == null) view.setNullSelectedNode();
-    	firePropertyChange(SELECTED_TREE_NODE_DISPLAY_PROPERTY, oldDisplay, display);
+    	if (oldDisplay != null && oldDisplay.equals(display)) {
+    		ho = oldDisplay.getUserObject();
+    		if (ho instanceof PlateData)
+    			firePropertyChange(SELECTED_TREE_NODE_DISPLAY_PROPERTY, null, 
+            			display);
+    	} else {
+    		firePropertyChange(SELECTED_TREE_NODE_DISPLAY_PROPERTY, oldDisplay, 
+        			display);
+    	}
     }
 	
     /**

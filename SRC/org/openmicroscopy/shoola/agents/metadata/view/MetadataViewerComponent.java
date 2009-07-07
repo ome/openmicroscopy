@@ -729,6 +729,10 @@ class MetadataViewerComponent
 	public void renderPlane()
 	{
 		Object obj = model.getRefObject();
+		if (obj instanceof WellSampleData) {
+			WellSampleData wsd = (WellSampleData) obj;
+			obj = wsd.getImage();
+		}
 		if (!(obj instanceof ImageData)) return;
 		long imageID = ((ImageData) obj).getId();
 		switch (getRndIndex()) {
