@@ -46,8 +46,8 @@ public class OMEROWrapper extends MinMaxCalculator
             System.err.println(readersFile);
             
             iReader = new ImageReader(
-                    new ClassList("importer_readers.txt", 
-                            IFormatReader.class, OMEROWrapper.class));
+                    new ClassList(readersFile, 
+                            IFormatReader.class, null));
             
             filler = new ChannelFiller(iReader);
         }
