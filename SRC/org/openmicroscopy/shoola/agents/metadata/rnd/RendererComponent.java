@@ -87,7 +87,7 @@ class RendererComponent
 	private List            historyActiveChannels;
 
 	/**
-	 * Notifies the user than an error occured while trying to modify the 
+	 * Notifies the user than an error occurred while trying to modify the 
 	 * rendering settings and dispose of the viewer 
 	 * if the passed exception is a <code>RenderingServiceException</code>
 	 * or reloads the rendering engine if it is an 
@@ -126,7 +126,7 @@ class RendererComponent
 	
     /**
      * Creates a new instance.
-     * The {@link #initialize() initialize} method should be called straigh 
+     * The {@link #initialize() initialize} method should be called straight
      * after to complete the MVC set up.
      * 
      * @param model The Model sub-component. Mustn't be <code>null</code>.
@@ -807,6 +807,17 @@ class RendererComponent
 			handleException(e);
 		}
 		return null;
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#reloadUI()
+     */
+	public void reloadUI()
+	{
+		view.resetDefaultRndSettings();
+		firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 
 }

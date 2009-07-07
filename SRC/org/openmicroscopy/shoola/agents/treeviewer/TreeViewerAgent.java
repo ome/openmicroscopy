@@ -27,13 +27,16 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -74,7 +77,7 @@ public class TreeViewerAgent
     public static Registry getRegistry() { return registry; }
     
     /**
-	 * Helper method returningthe current user's details.
+	 * Helper method returning the current user's details.
 	 * 
 	 * @return See above.
 	 */
@@ -104,6 +107,17 @@ public class TreeViewerAgent
     	Object origin = evt.getOrigin();
     	if (!(origin instanceof TreeViewer)) return;
     	TreeViewerFactory.saveOnClose(evt, this);
+    }
+    
+	/**
+     * Handles the {@link RndSettingsCopied} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleRndSettingsCopied(RndSettingsCopied evt)
+    {
+    	Collection ids = evt.getPixelsIDs();
+    	TreeViewerFactory.onRndSettingsCopied(ids);
     }
     
     /**
@@ -139,6 +153,7 @@ public class TreeViewerAgent
         EventBus bus = registry.getEventBus();
         bus.register(this, CopyRndSettings.class);
         bus.register(this, SaveEventRequest.class);
+        bus.register(this, RndSettingsCopied.class);
     }
 
     /**
@@ -149,7 +164,7 @@ public class TreeViewerAgent
 
     /**
      * Implemented as specified by {@link Agent}. 
-     * @see Agent# hasDataToSave()
+     * @see Agent#hasDataToSave()
      */
     public Map<String, Set> hasDataToSave()
     {
@@ -167,6 +182,8 @@ public class TreeViewerAgent
 			handleCopyRndSettings((CopyRndSettings) e);
 		else if (e instanceof SaveEventRequest) 
 			handleSaveEventRequest((SaveEventRequest) e);
+		else if (e instanceof RndSettingsCopied)
+    		handleRndSettingsCopied((RndSettingsCopied) e);
 	}
 
 }

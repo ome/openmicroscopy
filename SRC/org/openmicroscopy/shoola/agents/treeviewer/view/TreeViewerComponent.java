@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -344,6 +345,18 @@ class TreeViewerComponent
 		model.setRndSettings(image);
 	}
 
+	/**
+	 * Notifies that the rendering settings have been copied.
+	 * 
+	 * @param imageIds The collection of updated images
+	 */
+	void onRndSettingsCopied(Collection imageIds)
+	{
+		if (model.getState() == DISCARDED) return;
+		MetadataViewer mv = model.getMetadataViewer();
+		if (mv != null) mv.onRndSettingsCopied(imageIds);
+	}
+	
 	/**
 	 * Returns the Model sub-component.
 	 * 

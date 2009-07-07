@@ -413,6 +413,20 @@ public interface MetadataViewer
 	/** Analyzes the image. */
 	void analyse();
 
-	public void uploadFret(FileAnnotationData data, File folder);
+	/**
+	 * Uploads the results of the fret analysis.
+	 * 
+	 * @param data   The file to upload.
+	 * @param folder The folder where to store the file.
+	 */
+	void uploadFret(FileAnnotationData data, File folder);
+	
+	/**
+	 * Notifies that the rendering settings have been copied.
+	 * Updates the UI if the renderer corresponds to one of the passed image.
+	 * 
+	 * @param imageIds The collection of images.
+	 */
+	void onRndSettingsCopied(Collection imageIds);
 	
 }

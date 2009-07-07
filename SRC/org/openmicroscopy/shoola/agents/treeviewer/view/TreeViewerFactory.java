@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -147,6 +148,21 @@ public class TreeViewerFactory
 		}
 	}
 
+	/**
+	 * Notifies that the rendering settings have been copied.
+	 * 
+	 * @param imageIds The collection of updated images
+	 */
+	public static void onRndSettingsCopied(Collection imageIds)
+	{
+		Iterator v = singleton.viewers.iterator();
+		TreeViewerComponent comp;
+		while (v.hasNext()) {
+			comp = (TreeViewerComponent) v.next();
+			comp.onRndSettingsCopied(imageIds);
+		}
+	}
+	
 	/**
 	 * Saves the data before closing the application.
 	 * 

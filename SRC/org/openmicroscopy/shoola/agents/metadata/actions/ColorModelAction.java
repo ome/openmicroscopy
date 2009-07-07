@@ -55,10 +55,7 @@ public class ColorModelAction
 	implements PropertyChangeListener
 {
 
-	 /** 
-     * The description of the action if the index is {@link #RGB_MODEL}
-     * or  {@link #HSB_MODEL}.
-     */
+	 /** The description of the action if the index is {@link #RGB_MODEL}. */
 	public static final String 	DESCRIPTION_RGB = "Switch between color " +
     										"and monochrome.";
     
@@ -122,7 +119,7 @@ public class ColorModelAction
         setEnabled(true);
         icons = IconManager.getInstance();
         handleColorModel();
-        model.addPropertyChangeListener(Renderer.COLOR_MODEL_PROPERTY, this);
+        model.addPropertyChangeListener(this);
     }
     
     /** 

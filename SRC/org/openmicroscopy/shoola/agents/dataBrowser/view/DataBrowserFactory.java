@@ -200,7 +200,7 @@ public class DataBrowserFactory
 	}
 	
 	/** 
-	 * Refrehes the thumbnails corresponding to the passed image ids.
+	 * Refreshes the thumbnails corresponding to the passed image ids.
 	 * 
 	 * @param ids The collection of images to handle.
 	 */
@@ -280,10 +280,7 @@ public class DataBrowserFactory
 	 * 
 	 * @return See above.
 	 */
-	static Class hasDataToCopy()
-	{
-		return singleton.dataToCopy;
-	}
+	static Class hasDataToCopy() { return singleton.dataToCopy; }
 	
 	/** The collection of discarded browsers. */
 	private Set<String>					discardedBrowsers;
@@ -319,8 +316,7 @@ public class DataBrowserFactory
 	 * @return See above.
 	 */
 	private DataBrowser createWellsDataBrowser(Object grandParent, 
-												Object parent, 
-										Set<WellData> wells)
+			Object parent, Set<WellData> wells)
 	{
 		DataBrowserModel model = new WellsModel(parent, wells);
 		model.setGrandParent(grandParent);
@@ -343,8 +339,7 @@ public class DataBrowserFactory
 	 * @return See above.
 	 */
 	private DataBrowser createImagesDataBrowser(Object grandParent, 
-												Object parent, 
-										Set<ImageData> images)
+									Object parent, Set<ImageData> images)
 	{
 		DataBrowserModel model = new ImagesModel(parent, images);
 		model.setGrandParent(grandParent);

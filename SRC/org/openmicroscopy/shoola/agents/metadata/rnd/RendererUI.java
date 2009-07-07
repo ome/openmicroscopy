@@ -72,11 +72,6 @@ class RendererUI
 	/** The map hosting the controls pane. */
 	private Map<Integer, ControlPane>	controlPanes;
 
-	/** Initializes the components. */
-	private void initComponents()
-	{
-	}
-
 	/** Creates the panels hosting the rendering controls. */
 	private void createControlPanes()
 	{
@@ -133,7 +128,6 @@ class RendererUI
 		if (model == null) throw new NullPointerException("No model.");
 		this.controller = controller;
 		this.model = model;
-		initComponents();
 		createControlPanes();
 		buildGUI();
 	}
@@ -238,15 +232,15 @@ class RendererUI
 		}
 	}
 
-	Color getChannelColor(int channel) {
-		// TODO Auto-generated method stub
+	/**
+	 * Returns the color associated to the channel.
+	 * 
+	 * @param channel The index of the channel.
+	 * @return See above.
+	 */
+	Color getChannelColor(int channel)
+	{ 
 		return model.getChannelColor(channel);
-	}
-
-	void setChannelColor(int index, Color color)
-	{
-		// TODO Auto-generated method stub
-		
 	}
 	
 	/**
@@ -261,9 +255,9 @@ class RendererUI
 	}
 
 	/**
-	 * Updates UI components when a new timepoint is selected.
+	 * Updates UI components when a new time-point is selected.
 	 * 
-	 * @param t The selected timepoint.
+	 * @param t The selected time-point.
 	 */
 	void setTimepoint(int t)
 	{ 

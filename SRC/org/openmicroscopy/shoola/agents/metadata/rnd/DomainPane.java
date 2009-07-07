@@ -96,19 +96,19 @@ public class DomainPane
     
     /** 
      * For slider control only. The minimum value for the curve coefficient. 
-     * The real value is divived by 10.
+     * The real value is divided by 10.
      */
     static final int            	MIN_GAMMA = 1;
     
     /** 
      * For slider control only. The maximum value for the curve coefficient. 
-     * The real value is divived by 10.
+     * The real value is divided by 10.
      */
     static final int            	MAX_GAMMA = 40;
     
     /** 
      * For slider control only. The default value for the curve coefficient. 
-     * The real value is divived by 10.
+     * The real value is divided by 10.
      */
     static final int            	DEFAULT_GAMMA = 10;
  
@@ -193,7 +193,7 @@ public class DomainPane
     /** Selects the z-section. */
     private OneKnobSlider				zSlider;
     
-    /** Selects the timepoint. */
+    /** Selects the time-point. */
     private OneKnobSlider				tSlider;
     
     /** The label displaying the selected plane. */
@@ -351,6 +351,7 @@ public class DomainPane
         		controller.getAction(RendererControl.COLOR_MODEL));
         colorModel.setBackground(UIUtilities.BACKGROUND_COLOR);
         UIUtilities.unifiedButtonLookAndFeel(colorModel);
+        colorModel.setVisible(false);
         channelList = new ArrayList<ChannelButton>();
         channelButtonPanel = createChannelButtons();
         int maxZ = model.getMaxZ()-1;
@@ -436,6 +437,7 @@ public class DomainPane
         controls.setBackground(UIUtilities.BACKGROUND_COLOR);
         int k = 0;
         if (model.isGeneralIndex()) {
+        	 colorModel.setVisible(true);
         	 controls.add(colorModel, "0, "+k);
              k = k+2;
         }
@@ -694,16 +696,9 @@ public class DomainPane
         setSelectedChannel();
         setCodomainInterval();
         resetBitResolution();
-        /*
-        ChannelButton btn;
-        boolean gs = model.isGreyScale();
-        for (int i = 0; i < channelList.size(); i++) {
-            btn = channelList.get(i);
-            btn.setColor(model.getChannelColor(btn.getChannelIndex()));
-            btn.setGrayedOut(gs);
-        }  
-        */
         resetGamma(model.getCurveCoefficient());
+        setZSection(model.getDefaultZ());
+        setTimepoint(model.getDefaultT());
     }
     
     /**
@@ -798,7 +793,7 @@ public class DomainPane
     void setCodomainInterval() { graphicsPane.setCodomainInterval(); }
     
     /**
-     * Sets the colour of the passed channel.
+     * Sets the color of the passed channel.
      *  
      * @param index The index of the channel.
      */
@@ -850,18 +845,24 @@ public class DomainPane
     }
     
     /**
-     * Updates UI components when a new timepoint is selected.
+     * Updates UI components when a new time-point is selected.
      * 
-     * @param t The selected timepoint.
+     * @param t The selected time-point.
      */
-    void setTimepoint(int t) { updateSlider(tSlider, t); }
+    void setTimepoint(int t)
+    { 
+    	if (tSlider != null) updateSlider(tSlider, t); 
+    }
     
     /**
      * Updates UI components when a new z-section is selected.
      * 
      * @param z The selected z-section.
      */
-    void setZSection(int z) { updateSlider(zSlider, z); }
+    void setZSection(int z)
+    { 
+    	if (zSlider != null) updateSlider(zSlider, z);
+    }
     
     /** Updates the display when the settings have been updated. */
 	void onSettingsApplied() { graphicsPane.onSettingsApplied(); }

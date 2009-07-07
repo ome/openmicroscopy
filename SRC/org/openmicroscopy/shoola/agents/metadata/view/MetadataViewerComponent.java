@@ -863,5 +863,26 @@ class MetadataViewerComponent
 				Boolean.valueOf(false));
 		
 	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#onRndSettingsCopied(Collection)
+	 */
+	public void onRndSettingsCopied(Collection imageIds)
+	{
+		if (imageIds == null || imageIds.size() == 0) return;
+		Renderer rnd = getRenderer();
+		if (rnd == null) return;
+		Object ob = model.getRefObject();
+		ImageData img = null;
+		if (ob instanceof WellSampleData) {
+			WellSampleData wsd = (WellSampleData) ob;
+			img = wsd.getImage();
+		} else if (ob instanceof ImageData)
+			img = (ImageData) ob;
+		if (img == null) return;
+		if (!imageIds.contains(img.getId())) return;
+		rnd.reloadUI();
+	}
 	
 }

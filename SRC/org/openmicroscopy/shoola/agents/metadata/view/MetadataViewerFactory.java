@@ -57,7 +57,7 @@ public class MetadataViewerFactory
 	 * @param data	The object viewed as the root of the browser.
 	 * @param type  The type of data object to handle, if type is either
 	 *              <code>DatasetData</code> or <code>TagAnnotationData</code>,
-	 *              this implies that the viewer is for a bacth annotation.
+	 *              this implies that the viewer is for a batch annotation.
 	 * @return See above.
 	 */
 	public static MetadataViewer getViewer(List<Object> data, Class type)
@@ -73,9 +73,7 @@ public class MetadataViewerFactory
 	/**
 	 * Returns the {@link MetadataViewer}.
 	 * 
-	 * @param refObject			The object viewed as the root of the browser.
-	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
-	 * 							thumbnail, <code>false</code> otherwise.
+	 * @param refObject	The object viewed as the root of the browser.
 	 * @return See above.
 	 */
 	public static MetadataViewer getViewer(Object refObject)

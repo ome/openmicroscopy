@@ -59,7 +59,7 @@ public class MetadataViewerAgent
 
 	/** Reference to the registry. */
     private static Registry         registry; 
-    
+
     /**
      * Helper method. 
      * 
@@ -150,8 +150,7 @@ public class MetadataViewerAgent
      */
     public Map<String, Set> hasDataToSave()
     {
-		// TODO Auto-generated method stub
 		return null;
 	}
-
+    
 }

@@ -27,14 +27,12 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.List;
-
 import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -86,7 +84,7 @@ public interface Renderer
     public final static String  SELECTED_CHANNEL_PROPERTY = "selectedChannel";
     
     /** 
-     * Bound property indicating that the pixels intensiy interval is 
+     * Bound property indicating that the pixels intensity interval is 
      * modified.
      */
     public final static String  INPUT_INTERVAL_PROPERTY = "inputInterval";
@@ -97,9 +95,9 @@ public interface Renderer
 	/** Bound property name indicating that a new z-section is selected. */
 	public final static String  Z_SELECTED_PROPERTY = "zSelected";
 
-	/** Bound property name indicating that a new timepoint is selected. */
+	/** Bound property name indicating that a new time-point is selected. */
 	public final static String  T_SELECTED_PROPERTY = "tSelected";
-	
+
 	/** 
 	 * Bound property name indicating to apply the rendering settings
 	 * to all selected or displayed images. 
@@ -520,5 +518,8 @@ public interface Renderer
 	 * @return See above.
 	 */
 	BufferedImage renderPlane(PlaneDef pDef);
+	
+	/** Reloads the UI. */
+	void reloadUI();
 	
 }
