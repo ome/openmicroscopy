@@ -25,6 +25,9 @@ package org.openmicroscopy.shoola.agents.editor.view;
 
 //Java imports
 import java.io.File;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import javax.swing.tree.TreeModel;
 
 //Third-party libraries
@@ -115,6 +118,7 @@ class EditorModel
 	
 	/** Reference to the component that embeds this model. */
 	private Editor				component;
+	
 	
 	/**
 	 * Saves the {@link TreeModel} from the {@link Browser} as an XML file.
@@ -535,5 +539,5 @@ class EditorModel
 	 * @return See above.
 	 */
 	int getType() { return type; }
-	
+
 }

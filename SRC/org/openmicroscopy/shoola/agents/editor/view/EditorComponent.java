@@ -78,6 +78,9 @@ class EditorComponent
 	/** The View sub-component. */
 	private EditorUI       	view;
 	
+	/** Class for handling autosave. Implements Runnable. */
+	private Autosave 		autosave;
+	
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straight 
@@ -99,6 +102,9 @@ class EditorComponent
 		model.initialize(this);
 		controller.initialize(view);
 		view.initialize(controller, model);
+		
+		// create auto-save. Starts saving thread...
+		autosave = new Autosave(model.getBrowser());
 	}
 	
 	/**
@@ -168,6 +174,7 @@ class EditorComponent
 				
 				if (saved) {
 					model.discard();
+					autosave.shutDown();
 				}
 				// If that doesn't work, save as new file.. 
 				else {
@@ -179,11 +186,13 @@ class EditorComponent
 			}
 			else if (option == MessageBox.NO_OPTION) {
 				model.discard();
+				autosave.shutDown();
 			}
 		}
 		else {
 			// no data to save 
 			model.discard();
+			autosave.shutDown();
 		}
 		
 		// the EditorControl will handle view.close() if discard has been 

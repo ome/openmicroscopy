@@ -310,6 +310,18 @@ public class OptionsDialog
 		noButton.setText(txt);
 	}
 	
+	/**
+	 * Sets the label of the {@link #cancelButton}.
+	 * 
+	 * @param txt The value to set.
+	 */
+	public void setCancelText(String txt)
+	{
+		if (txt == null || txt.trim().length() == 0) return;
+		if (cancelButton == null)	return;
+		cancelButton.setText(txt);
+	}
+	
 	/** Hides the {@link #noButton}. */
 	public void hideNoButton()
 	{

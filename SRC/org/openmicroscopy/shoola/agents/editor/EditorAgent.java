@@ -31,6 +31,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.view.AutosaveRecovery;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;
 import org.openmicroscopy.shoola.agents.events.editor.CopyEvent;
@@ -44,6 +45,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 
@@ -112,7 +114,7 @@ public class EditorAgent
 	}
 	
 	/**
-	 * Returns the path of the 'editor home' directory. E.g. user/omero/editor
+	 * Returns the path of the 'editor home' directory. E.g. user/omero/editor. 
 	 * Folder will be created if it doesn't exist. 
 	 * @return		see above.
 	 */
@@ -127,16 +129,32 @@ public class EditorAgent
 	}
 	
 	/**
+	 * Returns the path of the 'editor autosave' directory. 
+	 * E.g. user/omero/editor/autosave. 
+	 * Folder will be created if it doesn't exist. 
+	 * @return		see above.
+	 */
+	public static String getEditorAutosave()
+	{
+		String editorDir = (String)registry.lookup("/services/editor/autosave");
+		editorDir = getEditorHome() + File.separator + editorDir;
+		// make sure dir exists. 
+		File home = new File(editorDir);
+		if (!home.exists()) home.mkdir();
+		return editorDir;
+	}
+	
+	/**
 	 * Static method to open a local file. 
 	 * Creates or recycles an Editor to display the file. 
 	 * 
 	 * @param file The local file to open. 
 	 */
-	public static void openLocalFile(File file)
+	public static Editor openLocalFile(File file)
 	{
 		
-		if (file == null)		return;
-		if (!file.exists())		return;
+		if (file == null)		return null;
+		if (!file.exists())		return null;
 		
 		// gets a blank editor (one that has been created with a 'blank' model), 
 		// OR an existing editor if one has the same 
@@ -148,13 +166,16 @@ public class EditorAgent
 		// if the editor is 'blank' or has just been created (above), 
 		// need to set the file
 		if (editor != null) {
-			if (editor.getState() == Editor.NEW)
+			if (editor.getState() == Editor.NEW) {
 				editor.setFileToEdit(null, file);
+			}
 			
 			// this simply brings the editor to the front / de-iconifies it.
 			editor.activate();
 		}
+		return editor;
 	}
+	
 	
 	/**
 	 * Creates or recycles an editor.
@@ -185,10 +206,13 @@ public class EditorAgent
 	 */
 	private void handleShowEditor(ShowEditorEvent evt)
 	{
+		// need to check for auto-saved files for recovery, after showing editor
+		AutosaveRecovery autosaveRecovery = new AutosaveRecovery();
 		Editor editor = null;
 		if (evt == null) {
 			editor = EditorFactory.getEditor();
 			if (editor != null) editor.activate();
+			autosaveRecovery.checkForRecoveredFiles();	// now check
 			return;
 		}
 		if (evt.getParent() == null)
@@ -200,6 +224,7 @@ public class EditorAgent
 			editor = EditorFactory.getEditor(evt.getParent(), evt.getName(), 
 					editorType);
 		}
+		autosaveRecovery.checkForRecoveredFiles();	// now check
 		if (editor != null) editor.activate();
 	}
 	

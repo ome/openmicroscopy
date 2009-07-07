@@ -25,6 +25,12 @@
      <!-- The name of the Editor folder within the user/omero/ folder -->
      <entry name="/services/editor/home">editor</entry>
      
+     <!-- The name of the Editor autosave folder within the editor folder -->
+     <entry name="/services/editor/autosave">autosave</entry>
+     
+     <!-- The number of seconds delay between each auto-save. -->
+     <entry name="/services/editor/autosaveDelay">30</entry>
+     
      <!-- This entry is the location of the cpe.dtd for validation of cpe.xml
      files. This location is written into the header of saved cpe.xml files -->
      <entry name="/xml/cpe.dtd">http://genome.tugraz.at/iLAP/cpe/cpe.dtd</entry>
