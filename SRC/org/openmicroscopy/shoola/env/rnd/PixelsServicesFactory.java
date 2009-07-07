@@ -83,7 +83,7 @@ public class PixelsServicesFactory
 	/** The sole instance. */
 	private static PixelsServicesFactory 	singleton;
 
-	/** Reference to the container registry. */
+	/** Reference to the container Registry. */
 	private static Registry                 registry;
 
 	/** The maximum amount of memory in bytes used for caching. */
@@ -258,24 +258,35 @@ public class PixelsServicesFactory
 	
 	/**
 	 * Shuts downs the rendering service attached to the specified 
-	 * pixels set.
+	 * pixels set. Returns <code>true</code> if the rendering control is shared.
 	 * 
 	 * @param context   Reference to the registry. To ensure that agents cannot
 	 *                  call the method. It must be a reference to the
 	 *                  container's registry.
 	 * @param pixelsID  The ID of the pixels set.
+	 * @return See above.
 	 */
-	public static void shutDownRenderingControl(Registry context, long pixelsID)
+	public static boolean shutDownRenderingControl(Registry context, 
+			long pixelsID)
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
 		RenderingControlProxy proxy = (RenderingControlProxy) 
 			singleton.rndSvcProxies.get(pixelsID);
+		Integer count = singleton.rndSvcProxiesCount.get(pixelsID);
 		if (proxy != null) {
-			proxy.shutDown();
-			singleton.rndSvcProxies.remove(pixelsID);
-			getCacheSize();
+			if (count == 1) {
+				proxy.shutDown();
+				singleton.rndSvcProxies.remove(pixelsID);
+				singleton.rndSvcProxiesCount.remove(pixelsID);
+				getCacheSize();
+			} else {
+				count--;
+				singleton.rndSvcProxiesCount.put(pixelsID, count);
+			}
+			return singleton.rndSvcProxiesCount.get(pixelsID) > 0;
 		}
+		return false;
 	}
 	
 	/** 
@@ -293,6 +304,7 @@ public class PixelsServicesFactory
 		Iterator i = singleton.rndSvcProxies.entrySet().iterator();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
+			singleton.rndSvcProxiesCount.put((Long) entry.getKey(), 1);
 			((RenderingControlProxy) entry.getValue()).shutDown();
 		}
 		singleton.rndSvcProxies.clear();
@@ -306,14 +318,32 @@ public class PixelsServicesFactory
 	 *                  call the method. It must be a reference to the
 	 *                  container's registry.
 	 * @param pixelsID  The id of the pixels set.
+	 * @param init		Pass <code>true</code> if the rendering control
+	 * 					is going to be initialized, <code>false</code> 
+	 * 					otherwise.
 	 * @return See above.
 	 */
 	public static RenderingControl getRenderingControl(Registry context,
+			Long pixelsID, boolean init)
+	{
+		if (!(context.equals(registry)))
+			throw new IllegalArgumentException("Not allow to access method.");
+		if (init && singleton.rndSvcProxiesCount.containsKey(pixelsID)) {
+			Integer count = singleton.rndSvcProxiesCount.get(pixelsID);
+			count++;
+			singleton.rndSvcProxiesCount.put(pixelsID, count);
+		}
+		return singleton.rndSvcProxies.get(pixelsID);
+	}
+	
+	public static boolean isRenderingControlShared(Registry context,
 			Long pixelsID)
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
-		return singleton.rndSvcProxies.get(pixelsID);
+		if (!singleton.rndSvcProxiesCount.containsKey(pixelsID)) return false;
+		Integer count = singleton.rndSvcProxiesCount.get(pixelsID);
+		return (count > 1);
 	}
 	
 	/**
@@ -387,7 +417,7 @@ public class PixelsServicesFactory
 	}
 
 	/**
-	 * Renders the prejected images.
+	 * Renders the projected images.
 	 * 
 	 * @param context	Reference to the registry. To ensure that agents cannot
 	 *                  call the method. It must be a reference to the
@@ -448,10 +478,17 @@ public class PixelsServicesFactory
 	/** Access to the raw data. */
 	private DataSink					pixelsSource;
 
+	/**
+	 * Keep track of the number of times the rendering proxy has been requested
+	 * to be initialized.
+	 */
+	private Map<Long, Integer>			rndSvcProxiesCount;
+	
 	/** Creates the sole instance. */
 	private PixelsServicesFactory()
 	{
 		rndSvcProxies = new HashMap<Long, RenderingControl>();
+		rndSvcProxiesCount = new HashMap<Long, Integer>();
 	}
 	
 	/**
@@ -462,9 +499,9 @@ public class PixelsServicesFactory
 	 * @param metadata		The related metadata.
 	 * @param compression  	Pass <code>0</code> if no compression otherwise 
 	 * 						pass the compression used.
-	 * @param def			The rendering def linked to the rendering engine.
-	 * 						This is passed to speed up the initialization 
-	 * 						sequence.
+	 * @param def			The rendering definition linked to the 
+	 * 						rendering engine.This is passed to speed up the 
+	 * 						initialization sequence.
 	 * @return See above.
 	 */
 	private RenderingControl makeNew(RenderingEnginePrx re, Pixels pixels, 
@@ -472,8 +509,10 @@ public class PixelsServicesFactory
 	{
 		if (singleton == null) throw new NullPointerException();
 		Long id = pixels.getId().getValue();
-		RenderingControl rnd = getRenderingControl(registry, id);
+		RenderingControl rnd = 
+			(RenderingControl) singleton.rndSvcProxies.get(id);
 		if (rnd != null) return rnd;
+		singleton.rndSvcProxiesCount.put(id, 1);
 		RndProxyDef proxyDef = convert(def);
 		rnd = new RenderingControlProxy(registry, re, pixels, metadata, 
 										compression, proxyDef, getCacheSize());

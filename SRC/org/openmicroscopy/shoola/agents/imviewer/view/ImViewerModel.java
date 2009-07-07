@@ -476,7 +476,7 @@ class ImViewerModel
 		OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
 		long pixelsID = image.getDefaultPixels().getId();
 		svr.shutDown(pixelsID);
-		svr.shutDownDataSink(pixelsID);
+		//svr.shutDownDataSink(pixelsID);
 		Iterator i = loaders.keySet().iterator();
 		Integer index;
 		while (i.hasNext()) {

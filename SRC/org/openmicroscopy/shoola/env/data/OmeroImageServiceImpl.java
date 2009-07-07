@@ -154,7 +154,7 @@ class OmeroImageServiceImpl
 	{
 		RenderingControl proxy = 
 			PixelsServicesFactory.getRenderingControl(context, 
-					new Long(pixelsID));
+					new Long(pixelsID), true);
 		if (proxy == null) {
 			UserCredentials uc = 
 				(UserCredentials) context.lookup(LookupNames.USER_CREDENTIALS);
@@ -210,8 +210,8 @@ class OmeroImageServiceImpl
 	 */
 	public void shutDown(long pixelsID)
 	{
-		gateway.removeREService(pixelsID);
-		PixelsServicesFactory.shutDownRenderingControl(context, pixelsID);
+		if (!PixelsServicesFactory.shutDownRenderingControl(context, pixelsID)) 
+			gateway.removeREService(pixelsID);
 	}
 
 	/** 
@@ -220,7 +220,7 @@ class OmeroImageServiceImpl
 	 */
 	public void shutDownDataSink(long pixelsID)
 	{
-		PixelsServicesFactory.shutDownRenderingControl(context, pixelsID);
+		//PixelsServicesFactory.shutDownRenderingControl(context, pixelsID);
 	}
 	
 	/** 
@@ -293,7 +293,7 @@ class OmeroImageServiceImpl
 	{
 		RenderingControl proxy = 
 			PixelsServicesFactory.getRenderingControl(context, 
-					new Long(pixelsID));
+					new Long(pixelsID), false);
 		if (proxy == null) return null;
 		try {
 			RenderingEnginePrx re = gateway.createRenderingEngine(pixelsID);
@@ -314,7 +314,7 @@ class OmeroImageServiceImpl
 	{
 		RenderingControl proxy = 
 			PixelsServicesFactory.getRenderingControl(context, 
-					new Long(pixelsID));
+					new Long(pixelsID), false);
 		if (proxy == null) return null;
 		try {
 			RenderingEnginePrx re = gateway.createRenderingEngine(pixelsID);
