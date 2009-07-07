@@ -44,6 +44,7 @@ import ome.formats.model.ModelProcessor;
 import ome.formats.model.PlaneInfoProcessor;
 import ome.formats.model.ReferenceProcessor;
 import ome.formats.model.TargetProcessor;
+import ome.formats.model.WellProcessor;
 import ome.util.LSID;
 import omero.RBool;
 import omero.RDouble;
@@ -241,6 +242,7 @@ public class OMEROMetadataStoreClient
         modelProcessors.add(new ChannelProcessor());
         modelProcessors.add(new InstrumentProcessor());
         modelProcessors.add(new PlaneInfoProcessor());
+        modelProcessors.add(new WellProcessor());
         modelProcessors.add(new TargetProcessor());
         modelProcessors.add(new ReferenceProcessor());
         
