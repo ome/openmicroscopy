@@ -210,17 +210,8 @@ class OmeroImageServiceImpl
 	 */
 	public void shutDown(long pixelsID)
 	{
-		if (!PixelsServicesFactory.shutDownRenderingControl(context, pixelsID)) 
+		if (!PixelsServicesFactory.shutDownRenderingControl(context, pixelsID))
 			gateway.removeREService(pixelsID);
-	}
-
-	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#shutDownDataSink(long)
-	 */
-	public void shutDownDataSink(long pixelsID)
-	{
-		//PixelsServicesFactory.shutDownRenderingControl(context, pixelsID);
 	}
 	
 	/** 

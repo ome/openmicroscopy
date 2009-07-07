@@ -417,7 +417,8 @@ class AcquisitionDataUI
 	 * and the {@link #imagePane} is expanded.
 	 * 
 	 * @param load 	Pass <code>true</code> to load the image data,
-	 * 				<code>false</code> otherwise.*/
+	 * 				<code>false</code> otherwise.
+	 */
 	void setRootObject(boolean load)
 	{
 		instrument.setRootObject();
@@ -427,6 +428,8 @@ class AcquisitionDataUI
 		repaint();
 		if (!imagePane.isCollapsed() && load)
 			controller.loadImageAcquisitionData();
+		if (!instrumentPane.isCollapsed() && load)
+			controller.loadInstrumentData();
 	}
 	
 	/**

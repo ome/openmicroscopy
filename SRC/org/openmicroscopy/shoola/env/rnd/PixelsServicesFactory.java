@@ -258,7 +258,8 @@ public class PixelsServicesFactory
 	
 	/**
 	 * Shuts downs the rendering service attached to the specified 
-	 * pixels set. Returns <code>true</code> if the rendering control is shared.
+	 * pixels set. Returns <code>true</code> if the rendering control is shared,
+	 * <code>false</code> otherwise.
 	 * 
 	 * @param context   Reference to the registry. To ensure that agents cannot
 	 *                  call the method. It must be a reference to the
@@ -284,7 +285,7 @@ public class PixelsServicesFactory
 				count--;
 				singleton.rndSvcProxiesCount.put(pixelsID, count);
 			}
-			return singleton.rndSvcProxiesCount.get(pixelsID) > 0;
+			return (singleton.rndSvcProxiesCount.containsKey(pixelsID));
 		}
 		return false;
 	}

@@ -106,7 +106,7 @@ class MetadataViewerModel
 	/** The active data loaders. */
 	private Map<TreeBrowserDisplay, MetadataLoader>	loaders;
 	
-	/** Only used when it is a bacth call. */
+	/** Only used when it is a batch call. */
 	private Class									dataType;
 	
 	/** 
@@ -128,7 +128,7 @@ class MetadataViewerModel
 	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
 	 * 
 	 * @param refObject	The reference object.
-	 * @param index		One of the rnd constants defined by the 
+	 * @param index		One of the rendering constants defined by the 
 	 * 					<code>MetadataViewer</code> I/F.
 	 */
 	MetadataViewerModel(Object refObject, int index)
