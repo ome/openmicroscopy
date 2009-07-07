@@ -175,6 +175,12 @@ public interface IObjectContainerStore
     		                             LinkedHashMap<String, Integer> indexes);
     
     /**
+     * Removes an IObject container from within the OME-XML data model store.
+     * @param lsid LSID of the container to remove.
+     */
+    void removeIObjectContainer(LSID lsid);
+    
+    /**
      * Retrieves all IObject containers of a given class. <b>NOTE:</b> this
      * will only return <b>existing</b> containers.
      * @param klass Class to retrieve containers for.

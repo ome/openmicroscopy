@@ -1,5 +1,5 @@
 /*
- * ome.formats.model.PlateProcessor
+ * ome.formats.model.PlaneInfoProcessor
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -23,34 +23,27 @@
 
 package ome.formats.model;
 
-import static omero.rtypes.*;
-
-import java.io.File;
-import java.sql.Timestamp;
-import java.util.LinkedHashMap;
+import java.util.Collection;
 import java.util.List;
-
-import loci.formats.IFormatReader;
 
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
-import omero.model.Image;
-import omero.model.Pixels;
-import omero.model.Plate;
+import omero.model.PlaneInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Processes the Plates of an IObjectContainerStore and ensures
- *   
+ * Processes the plane info sets of an IObjectContainerStore and removes
+ * entities of this rapidly exploding object that have no metadata populated.
+ * 
  * @author Chris Allan <callan at blackcat dot ca>
  *
  */
-public class PlateProcessor implements ModelProcessor
+public class PlaneInfoProcessor implements ModelProcessor
 {
     /** Logger for this class */
-    private Log log = LogFactory.getLog(PlateProcessor.class);
+    private Log log = LogFactory.getLog(PlaneInfoProcessor.class);
 
     /**
      * Processes the OMERO client side metadata store.
@@ -60,29 +53,27 @@ public class PlateProcessor implements ModelProcessor
     public void process(IObjectContainerStore store)
     throws ModelException
     {
-    	List<Plate> plates = store.getSourceObjects(Plate.class);
-    	for (Plate plate : plates)
-    	{
-    		if (plate.getColumnNamingConvention() == null)
-    		{
-    			plate.setColumnNamingConvention(rstring("1"));
-    		}
-    		if (plate.getRowNamingConvention() == null)
-    		{
-    			plate.setRowNamingConvention(rstring("A"));
-    		}
-    		if (plate.getWellOriginX() == null)
-    		{
-    			plate.setWellOriginX(rdouble(0.5));
-    		}
-    		if (plate.getWellOriginY() == null)
-    		{
-    			plate.setWellOriginY(rdouble(0.5));
-    		}
-    		if (plate.getDefaultSample() == null)
-    		{
-    			plate.setDefaultSample(rint(0));
-    		}
-    	}
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(PlaneInfo.class);
+        for (IObjectContainer container : containers)
+        {
+        	PlaneInfo pi = (PlaneInfo) container.sourceObject;
+        	if (pi.getDeltaT() == null
+        		&& pi.getExposureTime() == null
+        		&& pi.getPositionX() == null
+        		&& pi.getPositionY() == null
+        		&& pi.getPositionZ() == null)
+        	{
+        		int[] indexes = new int[container.indexes.size()];
+        		int i = 0;
+        		for (Integer value : container.indexes.values())
+        		{
+        			indexes[i] = value.intValue();
+        			i++;
+        		}
+        		LSID lsid = new LSID(PlaneInfo.class, indexes);
+        		store.removeIObjectContainer(lsid);
+        	}
+        }
     }
 }

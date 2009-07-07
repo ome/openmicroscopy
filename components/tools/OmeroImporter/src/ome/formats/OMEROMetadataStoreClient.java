@@ -41,6 +41,7 @@ import ome.formats.model.InstrumentProcessor;
 import ome.formats.model.PixelsProcessor;
 import ome.formats.model.InstanceProvider;
 import ome.formats.model.ModelProcessor;
+import ome.formats.model.PlaneInfoProcessor;
 import ome.formats.model.ReferenceProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.util.LSID;
@@ -239,6 +240,7 @@ public class OMEROMetadataStoreClient
         modelProcessors.add(new PixelsProcessor());
         modelProcessors.add(new ChannelProcessor());
         modelProcessors.add(new InstrumentProcessor());
+        modelProcessors.add(new PlaneInfoProcessor());
         modelProcessors.add(new TargetProcessor());
         modelProcessors.add(new ReferenceProcessor());
         
@@ -766,6 +768,14 @@ public class OMEROMetadataStoreClient
         }
         
         return containerCache.get(lsid);
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#removeIObjectContainer(ome.util.LSID)
+     */
+    public void removeIObjectContainer(LSID lsid)
+    {
+    	containerCache.remove(lsid);
     }
     
     /* (non-Javadoc)
