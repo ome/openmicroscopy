@@ -171,7 +171,7 @@ class ImViewerModel
 	/** The bounds of the component requesting the viewer. */
 	private Rectangle           		requesterBounds;
 
-	/** The index of the selected tabbed. */
+	/** The index of the selected tab. */
 	private int							tabbedIndex;
 
 	/** 
@@ -206,9 +206,6 @@ class ImViewerModel
 	
 	/** The ID of the last selected pixels set. */
 	private long						currentPixelsID;
-	
-	/** Reference to the rendering control. */
-	//private RenderingControl    		currentRndControl;
 
 	/** The rendering settings set by another user. */
 	private RndProxyDef					alternativeSettings;
@@ -259,13 +256,13 @@ class ImViewerModel
     private List<ChannelData>			sortedChannels;
     
     /**
-	 * Transforms 3D coords into linear coords.
+	 * Transforms 3D coordinates into linear coordinates.
 	 * The returned value <code>L</code> is calculated as follows: 
-	 * <nobr><code>L = sizeZ*sizeW*t + sizeZ*w + z</code></nobr>.
+	 * <code>L = sizeZ*sizeC*t + sizeZ*c + z</code>.
 	 * 
-	 * @param z The z coord.  Must be in the range <code>[0, sizeZ)</code>.
-	 * @param c The w coord.  Must be in the range <code>[0, sizeW)</code>.
-	 * @param t The t coord.  Must be in the range <code>[0, sizeT)</code>.
+	 * @param z The z coordinate.  Must be in the range <code>[0, sizeZ)</code>.
+	 * @param c The c coordinate.  Must be in the range <code>[0, sizeC)</code>.
+	 * @param t The t coordinate.  Must be in the range <code>[0, sizeT)</code>.
 	 * @return See above.
 	 */
     private Integer linearize(int z, int c, int t)
@@ -730,11 +727,11 @@ class ImViewerModel
 		if (f > 0)
 			browser.initializeMagnificationFactor(f);
 		try {
-			if (alternativeSettings != null) {
-				Renderer rnd = metadataViewer.getRenderer();
-				if (rnd != null) rnd.resetSettings(alternativeSettings);
-			}
+			Renderer rnd = metadataViewer.getRenderer();
+			if (alternativeSettings != null && rnd != null)
+				rnd.resetSettings(alternativeSettings);
 			alternativeSettings = null;
+			if (rnd != null) originalDef = rnd.getRndSettingsCopy();
 		} catch (Exception e) {}
 	}
 	

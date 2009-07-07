@@ -685,9 +685,9 @@ class RendererComponent
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#isSameSettings(RndProxyDef, boolean)
      */
-	public boolean isSameSettings(RndProxyDef def, boolean b) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean isSameSettings(RndProxyDef def, boolean checkPlane)
+	{
+		return model.isSameSettings(def, checkPlane);
 	}
 
     /** 

@@ -487,10 +487,13 @@ public interface Renderer
 	 * Returns <code>true</code> if the passed rendering settings are the same
 	 * that the current one, <code>false</code> otherwise.
 	 * 
-	 * @param def The settings to check.
+	 * @param def 		 The settings to check.
+	 * @param checkPlane Pass <code>true</code> to take into account the 
+	 * 					 z-section and time-point, <code>false</code> 
+	 * 					 otherwise.
 	 * @return See above.
 	 */
-	boolean isSameSettings(RndProxyDef def, boolean b);
+	boolean isSameSettings(RndProxyDef def, boolean checkPlane);
 
 	/**
 	 * Turns on or off the specified channel.

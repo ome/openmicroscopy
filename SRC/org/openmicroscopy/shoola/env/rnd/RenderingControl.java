@@ -682,7 +682,7 @@ public interface RenderingControl
 	 * 
 	 * @param def 		 The original settings. Mustn't be <code>null</code>.
 	 * @param checkPlane Pass <code>true</code> to take into account 
-	 * 					 the z-section and timepoint, <code>false</code> 
+	 * 					 the z-section and time-point, <code>false</code> 
 	 * 					 otherwise.
 	 * 
 	 * @return See above.

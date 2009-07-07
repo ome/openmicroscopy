@@ -206,7 +206,7 @@ class ImViewerComponent
 	}
 	
 	/** 
-	 * Displays message bebofe closing the viewer. 
+	 * Displays message before closing the viewer. 
 	 * Returns <code>true</code> if we need to close the viewer,
 	 * <code>false</code> otherwise.
 	 * 
@@ -225,9 +225,6 @@ class ImViewerComponent
 			}
 		}
 		boolean showBox = false;
-		MessageBox msg = new MessageBox(view, "Save Data", 
-						"Before closing the viewer, do you want to save: ");
-		msg.addCancelButton();
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		JCheckBox rndBox = null;
@@ -244,7 +241,7 @@ class ImViewerComponent
 			p.add(annotationBox);
 			showBox = true;
 		}
-		msg.addBodyComponent(p);
+		
 		List<SaveEventBox> boxes = null;
 		SaveEventBox box;
 		Iterator j;
@@ -263,7 +260,11 @@ class ImViewerComponent
 			}
 		}
 		if (!showBox) return true;
-
+		MessageBox msg = new MessageBox(view, "Save Data", 
+		"Before closing the viewer, do you want to save: ");
+		msg.addCancelButton();
+		msg.addBodyComponent(p);
+		
 		int option = msg.centerMsgBox();
 		if (option == MessageBox.YES_OPTION) {
 			if (rndBox != null && rndBox.isSelected()) {

@@ -166,16 +166,13 @@ class RendererModel
 	}
 	
 	/**
-	 * Gets the colour of the channel from the model. 
+	 * Returns the color associated to the channel.
 	 * 
-	 * @param index Channel.
+	 * @param index The index of the channel.
 	 *  
-	 * @return Color of the channel specified by index.
+	 * @return See above.
 	 */
-	Color getChannelColor(int index)
-	{
-		return rndControl.getRGBA(index);
-	}
+	Color getChannelColor(int index) { return rndControl.getRGBA(index); }
 
 	/**
 	 * Returns the status of the window.
@@ -192,7 +189,7 @@ class RendererModel
 	 */
 	void initialize(Renderer component) { this.component = component; }
 
-	/** Discard component. */
+	/** Discards component. */
 	void discard() 
 	{
 		//state = Renderer.DISCARDED;
@@ -211,7 +208,7 @@ class RendererModel
 	 * @param index The index of the channel.
 	 * @param start	The lower bound of the interval.
 	 * @param end	The upper bound of the interval.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -249,7 +246,7 @@ class RendererModel
 	 * 
 	 * @param s The lower bound of the interval.
 	 * @param e The upper bound of the interval.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -264,7 +261,7 @@ class RendererModel
 	 * Sets the quantum strategy.
 	 * 
 	 * @param v The bit resolution defining the strategy.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -287,7 +284,7 @@ class RendererModel
 	 * the mapping process.
 	 * 
 	 * @param family The family to set.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -304,7 +301,7 @@ class RendererModel
 	 * Selects one curve in the family.
 	 * 
 	 * @param k The coefficient identifying a curve within a family.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -318,11 +315,11 @@ class RendererModel
 	} 
 
 	/**
-	 * Turns on and off the noise reduction algortihm mapping.
+	 * Turns on and off the noise reduction algorithm mapping.
 	 * 
 	 * @param b Pass <code>true</code>  to turn it on,
 	 *          <code>false</code> otherwise.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -336,10 +333,10 @@ class RendererModel
 	}
 
 	/**
-	 * Upates the specified {@link CodomainMapContext context}.
+	 * Updates the specified {@link CodomainMapContext context}.
 	 * 
 	 * @param ctx The context to update.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -390,7 +387,7 @@ class RendererModel
 	 * codomain transformations.
 	 * 
 	 * @param mapType   The type to identify the codomain map.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -408,7 +405,7 @@ class RendererModel
 	 * codomain transformations.
 	 * 
 	 * @param mapType   The type to identify the codomain map.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -502,8 +499,7 @@ class RendererModel
 		if (sortedChannel == null) {
 			ChannelData[] data = rndControl.getChannelData();
 			ViewerSorter sorter = new ViewerSorter();
-			List l = sorter.sort(data);
-			sortedChannel = Collections.unmodifiableList(l);
+			sortedChannel = Collections.unmodifiableList(sorter.sort(data));
 		}
 		return sortedChannel;
 	}
@@ -615,7 +611,7 @@ class RendererModel
 	/** 
 	 * Saves the rendering settings. 
 	 * 
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -684,7 +680,7 @@ class RendererModel
 	 * 
 	 * @param index The channel's index.
 	 * @param color The color to set.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -710,7 +706,7 @@ class RendererModel
 	 * Sets the color model.
 	 * 
 	 * @param colorModel	The color model to set.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -755,7 +751,7 @@ class RendererModel
 	}
 
 	/**
-	 * Returns the maximum number of timepoints.
+	 * Returns the maximum number of time-points.
 	 * 
 	 * @return See above.
 	 */
@@ -777,7 +773,7 @@ class RendererModel
 	}
 
 	/**
-	 * Returns the currently selected timepoint.
+	 * Returns the currently selected time-point.
 	 * 
 	 * @return See above.
 	 */
@@ -791,8 +787,8 @@ class RendererModel
 	 * Sets the selected plane.
 	 * 
 	 * @param z The z-section to set.
-	 * @param t The timepoint to set.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @param t The time-point to set.
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -810,7 +806,7 @@ class RendererModel
 	 * @param index 	The index of the channel.
 	 * @param active	Pass <code>true</code> to turn the channel on,
 	 * 					<code>false</code> to turn in off.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -892,9 +888,9 @@ class RendererModel
 	{
 		if (rndControl == null) return false;
 		switch (band) {
-			case 0: rndControl.hasActiveChannelRed();
-			case 1: rndControl.hasActiveChannelGreen();
-			case 2: rndControl.hasActiveChannelBlue();
+			case 0: return rndControl.hasActiveChannelRed();
+			case 1: return rndControl.hasActiveChannelGreen();
+			case 2: return rndControl.hasActiveChannelBlue();
 		}
 		return false;
 	}
@@ -928,9 +924,9 @@ class RendererModel
 	{
 		if (rndControl == null) return false;
 		switch (band) {
-			case 0: rndControl.isChannelRed(index);
-			case 1: rndControl.isChannelGreen(index);
-			case 2: rndControl.isChannelBlue(index);
+			case 0: return rndControl.isChannelRed(index);
+			case 1: return rndControl.isChannelGreen(index);
+			case 2: return rndControl.isChannelBlue(index);
 		}
 		return false;
 	}
@@ -938,7 +934,7 @@ class RendererModel
 	/**
 	 * Resets the default settings.
 	 * 
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -954,7 +950,7 @@ class RendererModel
 	 * Resets the passed rendering settings.
 	 * 
 	 * @param settings The rendering settings to reset.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -969,7 +965,7 @@ class RendererModel
 	 * Saves the current settings.
 	 *  
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -986,7 +982,7 @@ class RendererModel
 	 * @param index  The index of the channel
 	 * @param active Pass <code>true</code> to turn the channel on, 
 	 * 				 <code>false</code> to turn it off.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -1011,7 +1007,7 @@ class RendererModel
 	/**
 	 * Sets the original settings.
 	 * 
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -1032,6 +1028,7 @@ class RendererModel
 	 */
 	boolean validatePixels(PixelsData pixels)
 	{
+		if (rndControl == null) return false;
 		return rndControl.validatePixels(pixels);
 	}
 
@@ -1040,14 +1037,31 @@ class RendererModel
 	 * 
 	 * @param pDef The plane to render.
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	BufferedImage renderPlane(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		if (rndControl == null) return null;
 		return rndControl.renderPlane(pDef);
+	}
+
+	/**
+	 * Returns <code>true</code> if the passed rendering settings are the same
+	 * that the current one, <code>false</code> otherwise.
+	 * 
+	 * @param def 		 The settings to check.
+	 * @param checkPlane Pass <code>true</code> to take into account the 
+	 * 					 z-section and time-point, <code>false</code> 
+	 * 					 otherwise.
+	 * @return See above.
+	 */
+	boolean isSameSettings(RndProxyDef def, boolean checkPlane)
+	{
+		if (rndControl == null) return false;
+		return rndControl.isSameSettings(def, checkPlane);
 	}
 	
 }
