@@ -277,7 +277,7 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns <code>true</code> if multi selection is on, 
+	 * Returns <code>true</code> if multiple selection is on, 
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
@@ -912,7 +912,7 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the owner of the ref object or <code>null</code>
+	 * Returns the owner of the reference object or <code>null</code>
 	 * if the object is not a <code>DataObject</code>.
 	 * 
 	 * @return See above.
@@ -1708,7 +1708,7 @@ class EditorModel
 	Renderer getRenderer() { return renderer; }
 	
 	/**
-	 * Returns the rnd constants. 
+	 * Returns the rendering constants. 
 	 * 
 	 * @return See above.
 	 */

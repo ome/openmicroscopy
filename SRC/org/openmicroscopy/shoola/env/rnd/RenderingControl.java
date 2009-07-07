@@ -175,7 +175,7 @@ public interface RenderingControl
      * mapped onto a color space.
      * 
      * @param model Identifies the color space model.
-     * @throws RenderingServiceException	If an error occured while setting 
+     * @throws RenderingServiceException	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -199,8 +199,8 @@ public interface RenderingControl
     public int getDefaultZ();
     
     /**
-     * Returns the default timepoint. The default value is set to the
-     * first timepoint.
+     * Returns the default time-point. The default value is set to the
+     * first time-point.
      * 
      * @return See above.
      */
@@ -211,7 +211,7 @@ public interface RenderingControl
      * This index is used to define a default plane.
      *  
      * @param z The stack index.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -219,11 +219,11 @@ public interface RenderingControl
     	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
-     * Sets the default timepoint index.
+     * Sets the default time-point index.
      * This index is used to define a default plane.
      * 
-     * @param t The timepoint index.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @param t The time-point index.
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken. 
      */
@@ -234,7 +234,7 @@ public interface RenderingControl
      * Sets the mapping strategy used during the mapping process.
      * 
      * @param bitResolution The depth, in bits, of the rendered image.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value. 
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -247,7 +247,7 @@ public interface RenderingControl
      * 
      * @param start The lower bound of the interval.
      * @param end   The upper bound of the interval.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -285,7 +285,7 @@ public interface RenderingControl
      * @param noiseReduction    Pass <code>true</code> to select the 
      *                          mapping <code>NoiseReduction</code> algorithm,
      *                          <code>false</code> otherwise.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.       
      * @throws DSOutOfServiceException  	If the connection is broken.                   
      */ 
@@ -326,7 +326,7 @@ public interface RenderingControl
      * @param w     The index of the channel.
      * @param start The lower bound of the interval.
      * @param end   The upper bound of the interval.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -356,7 +356,7 @@ public interface RenderingControl
      * 
      * @param w     The index of the channel.
      * @param color The color to set.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value. 
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -378,7 +378,7 @@ public interface RenderingControl
      * @param w         The index of the channel.
      * @param active    Pass <code>true</code> to map the channel, 
      *                  <code>false</code> otherwise.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.  
      * @throws DSOutOfServiceException  	If the connection is broken.               
      */
@@ -401,7 +401,7 @@ public interface RenderingControl
      * managing the codomain transformations is rebuilt. 
      * 
      * @param mapCtx The context to add.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -413,7 +413,7 @@ public interface RenderingControl
      * The transformation associated should already be in the transformations.
      * 
      * @param mapCtx The context to update.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -425,7 +425,7 @@ public interface RenderingControl
      * transformations.
      * 
      * @param mapCtx    The context to remove.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -453,7 +453,7 @@ public interface RenderingControl
      * Returns the copy of the saved rendering data.
      *  
      * @return See above.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -464,7 +464,7 @@ public interface RenderingControl
      * Resets the original default values. 
      * The default values aren't values previously saved.
      * 
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -505,7 +505,7 @@ public interface RenderingControl
     
     /**
      * Returns <code>true</code> if one of the active channel is mapped
-     * to <code>BLUE</code>,  <code>false</code> otherwise.
+     * to <code>BLUE</code>, <code>false</code> otherwise.
      * 
      * @return See above
      */
@@ -549,7 +549,7 @@ public interface RenderingControl
      * Resets the rendering settings.
      * 
      * @param settings The settings to set.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -566,18 +566,18 @@ public interface RenderingControl
 	
 	/**
      * Returns the minimum value for that channels depending on the pixels
-     * type and the orginal range (globalmax, globalmin)
+     * type and the original range.
      * 
-     * @param w The channel index.
+     * @param w The channel's index.
      * @return See above.
      */
 	public double getPixelsTypeLowerBound(int w);
 
 	/**
      * Returns the maximum value for that channels depending on the pixels
-     * type and the orginal range (globalmax, globalmin)
+     * type and the original range.
      * 
-     * @param w The channel index.
+     * @param w The channel's index.
      * @return See above.
      */
 	public double getPixelsTypeUpperBound(int w);
@@ -612,7 +612,7 @@ public interface RenderingControl
 	 * 
 	 * @param pDef The plane to render.
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -629,7 +629,7 @@ public interface RenderingControl
 	/** 
      * Sets the original rendering settings. 
      * 
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -638,7 +638,7 @@ public interface RenderingControl
 	
     /**
      * Projects the selected optical sections for the currently selected 
-     * timepoint and the active channels and returned a projected image.
+     * time-point and the active channels and returned a projected image.
      * 
      * @param startZ   The first optical section.
      * @param endZ     The last optical section.
@@ -646,7 +646,7 @@ public interface RenderingControl
      * @param type 	   One of the projection type defined by this class.
      * @param channels The collection of channels to project.
      * @return See above.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -661,7 +661,7 @@ public interface RenderingControl
      * @param rndToCopy The rendering settings to copy.
      * @param indexes   Collection of channel's indexes. 
      * 					Mustn't be <code>null</code>.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -688,5 +688,12 @@ public interface RenderingControl
 	 * @return See above.
 	 */
     public boolean isSameSettings(RndProxyDef def, boolean checkPlane);
-	
+
+    /**
+     * Returns the id of the pixels set.
+     * 
+     * @return See above.
+     */
+    public long getPixelsID();
+    
 }

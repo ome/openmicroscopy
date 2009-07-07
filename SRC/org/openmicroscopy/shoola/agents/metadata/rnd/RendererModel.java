@@ -34,15 +34,16 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.IllegalArgumentException;
 import omero.romio.PlaneDef;
-
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -192,7 +193,10 @@ class RendererModel
 	/** Discards component. */
 	void discard() 
 	{
-		//state = Renderer.DISCARDED;
+		if (rndControl == null) return;
+		OmeroImageService svr = 
+			MetadataViewerAgent.getRegistry().getImageService();
+		svr.shutDown(rndControl.getPixelsID());
 	}
 
 	/**

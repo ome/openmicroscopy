@@ -77,7 +77,7 @@ class RenderingControlProxy
 {
  
 	/** Default error message. */
-	private static final String	ERROR = "An error occured while trying to " +
+	private static final String	ERROR = "An error occurred while trying to " +
 										"set the ";
     
     /** List of supported families. */
@@ -92,7 +92,7 @@ class RenderingControlProxy
     /** Reference to service to render pixels set. */
     private RenderingEnginePrx      servant;
 
-    /** The id of the cache associated to this rpoxy. */
+    /** The id of the cache associated to this proxy. */
     private int						cacheID;
     
     /** The channel metadata. */
@@ -127,7 +127,6 @@ class RenderingControlProxy
     private void handleException(Throwable e, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	//Throwable cause = e.getCause();
     	if (e instanceof ServerError) {
     		shutDown();
     		throw new DSOutOfServiceException(message+"\n\n"+
@@ -157,7 +156,7 @@ class RenderingControlProxy
      * plane definition. Note that only the images corresponding to an XY-plane
      * are cached.
      * 
-     * @param pd    The specified {@link PlaneDef plane definition}.
+     * @param pd The specified {@link PlaneDef plane definition}.
      * @return The corresponding bufferedImage.
      */
     private Object getFromCache(PlaneDef pd)
@@ -192,8 +191,7 @@ class RenderingControlProxy
     /** Clears the cache. */
     private void invalidateCache()
     {
-    	if (cacheID >= 0)
-    		 context.getCacheService().clearCache(cacheID);
+    	if (cacheID >= 0) context.getCacheService().clearCache(cacheID);
     }
     
     /** Clears the cache and releases memory. */
@@ -1360,7 +1358,7 @@ class RenderingControlProxy
 
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#renderProjected(int, int, int, int)
+	 * @see RenderingControl#renderProjected(int, int, int, int, List)
 	 */
 	public BufferedImage renderProjected(int startZ, int endZ, int stepping, 
 			                           int type, List<Integer> channels) 
@@ -1496,4 +1494,10 @@ class RenderingControlProxy
 		return true;
 	}
 
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#getPixelsID()
+	 */
+	 public long getPixelsID() { return pixs.getId().getValue(); }
+	 
 }
