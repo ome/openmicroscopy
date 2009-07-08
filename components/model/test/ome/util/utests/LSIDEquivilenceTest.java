@@ -7,10 +7,24 @@ import junit.framework.TestCase;
 
 public class LSIDEquivilenceTest extends TestCase
 {
-    public void testStringVsString()
+    public void testStringVsStringNumeric()
     {
         LSID a = new LSID("Image:0");
         LSID b = new LSID("Image:0");
+        assertEquals(a, b);
+    }
+    
+    public void testStringVsStringAlpha()
+    {
+        LSID a = new LSID("Image:ABC");
+        LSID b = new LSID("Image:ABC");
+        assertEquals(a, b);
+    }
+    
+    public void testStringVsStringMixed()
+    {
+        LSID a = new LSID("Image:ABC-1");
+        LSID b = new LSID("Image:ABC-1");
         assertEquals(a, b);
     }
     
