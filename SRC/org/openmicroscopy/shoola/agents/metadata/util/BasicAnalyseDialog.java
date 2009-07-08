@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -75,22 +76,21 @@ public class BasicAnalyseDialog
 		setYesText("Analyse");
 		hideNoButton();
 		addCancelButton();
-		setResizable(false);
-		setSize(150, 200);
+		setResizable(true);
+		setSize(250, 200);
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		setLayout(new FlowLayout(FlowLayout.LEFT));
+		setLayout(new BorderLayout());
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(new JLabel("Image ID: "));
 		p.add(field);
-		JPanel f = UIUtilities.buildComponentPanel(p);
-		f.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-		addBodyComponent(f);
+		addBodyComponent(p);
+		setSize(450, 200);
 	}
 	
 	/**
