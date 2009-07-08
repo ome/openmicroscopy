@@ -3568,9 +3568,14 @@ public class OMEROMetadataStoreClient
     public void setLogicalChannelLightSource(
     		String lightSource, int imageIndex, int logicalChannelIndex)
     {
-        LSID key = new LSID(LogicalChannel.class, imageIndex,
-                            logicalChannelIndex);
-        addReference(key, new LSID(lightSource));
+    	log.warn("Handling legacy LogicalChannel --> LightSource reference.");
+    	// Create the non-existant LightSettings object; it's unlikely
+    	// we'll ever see method calls associated with it because the Reader
+    	// that called us is likely the OMEXMLReader with a 2003FC OME-XML 
+    	// instance document or OME-TIFF.
+    	getLightSettings(imageIndex, logicalChannelIndex);
+    	setLightSourceSettingsLightSource(lightSource, imageIndex,
+    			                          logicalChannelIndex);
     }
 
     public void setLogicalChannelSecondaryEmissionFilter(
