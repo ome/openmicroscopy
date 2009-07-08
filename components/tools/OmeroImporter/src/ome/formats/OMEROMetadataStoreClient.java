@@ -3548,9 +3548,13 @@ public class OMEROMetadataStoreClient
     public void setLogicalChannelDetector(
     		String detector, int imageIndex, int logicalChannelIndex)
     {
-        LSID key = new LSID(LogicalChannel.class, imageIndex,
-                            logicalChannelIndex);
-        addReference(key, new LSID(detector));
+    	log.warn("Handling legacy LogicalChannel --> Detector reference.");
+    	// Create the non-existant DetectorSettings object; it's unlikely
+    	// we'll ever see method calls associated with it because the Reader
+    	// that called us is likely the OMEXMLReader with a 2003FC OME-XML 
+    	// instance document or OME-TIFF.
+    	getDetectorSettings(imageIndex, logicalChannelIndex);
+    	setDetectorSettingsDetector(detector, imageIndex, logicalChannelIndex);
     }
 
     public void setLogicalChannelFilterSet(
