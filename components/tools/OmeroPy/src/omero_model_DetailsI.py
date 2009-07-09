@@ -27,7 +27,6 @@ class DetailsI(_omero_model.Details):
 
       def __init__(self):
           super(DetailsI, self).__init__()
-          self._permissions = _omero_model.PermissionsI()
 
       def getOwner(self):
           return self._owner
