@@ -203,7 +203,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         s.setTimeToLive(live);
         s.setDefaultEventType(eventType);
         s.setDefaultPermissions(umask.toString());
-        s.getDetails().setPermissions(Permissions.USER_PRIVATE);
+        s.getDetails().setPermissions(Permissions.DEFAULT);
     }
 
     // ~ Session management

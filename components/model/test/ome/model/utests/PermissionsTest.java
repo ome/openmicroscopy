@@ -267,9 +267,11 @@ public class PermissionsTest extends TestCase {
     @Test
     public void testCompareWithString() throws Exception {
         assertTrue(Permissions.EMPTY.sameRights(Permissions
+                .parseString("------")));
+        assertTrue(Permissions.EMPTY.sameRights(Permissions
                 .parseString("______")));
         assertTrue(Permissions.DEFAULT.sameRights(Permissions
-                .parseString("rwr_r_")));
+                .parseString("rw____")));
         assertTrue(Permissions.GROUP_IMMUTABLE.sameRights(Permissions
                 .parseString("r_r___")));
         assertTrue(Permissions.GROUP_PRIVATE.sameRights(Permissions

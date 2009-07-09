@@ -1,12 +1,11 @@
 /*
- * ome.model.internal.Permissions
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.model.internal;
 
-// Java imports
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -14,9 +13,6 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import static ome.model.internal.Permissions.Role.*;
@@ -34,7 +30,8 @@ import static ome.model.internal.Permissions.Flag.*;
  * grant/revoke/isSet logic will remain the same.
  * </p>
  * 
- * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/180">ticket:180</a>
+ * @see <a
+ *      href="https://trac.openmicroscopy.org.uk/omero/ticket/180">ticket:180</a>
  */
 public class Permissions implements Serializable {
 
@@ -101,8 +98,8 @@ public class Permissions implements Serializable {
 
     /**
      * enumeration of flags which can be set on a {@link Permissions} instance.
-     * A {@link Flag#LOCKED} flag implies that the
-     * {@link Details#getOwner() owner}, {@link Details#getGroup() group}, and
+     * A {@link Flag#LOCKED} flag implies that the {@link Details#getOwner()
+     * owner}, {@link Details#getGroup() group}, and
      * {@link Details#getPermissions() permissions} for an {@link IObject}
      * instance may not be changed. {@link Flag#SOFT} implies that the given
      * {@link Permissions} value is intended as a suggestion, and that other
@@ -185,7 +182,7 @@ public class Permissions implements Serializable {
     public static Permissions parseString(String rwrwrw) {
 
         Permissions p = new Permissions(EMPTY);
-        String regex = "([Rr_][Ww_]){3}";
+        String regex = "([Rr_-][Ww_-]){3}";
 
         if (rwrwrw == null || !rwrwrw.matches(regex)) {
             throw new ApiUsageException("Permissions are of the form: " + regex);
@@ -228,8 +225,8 @@ public class Permissions implements Serializable {
      * turns on the {@link Right rights} for the given {@link Role role}. Null
      * or empty rights are simply ignored. For example, <code>
      *   somePermissions().grant(USER,READ,WRITE,USE);
-     * </code>
-     * will guarantee that the current user has all rights on this entity.
+     * </code> will guarantee
+     * that the current user has all rights on this entity.
      */
     public Permissions grant(Role role, Right... rights) {
         if (rights != null && rights.length > 0) {
@@ -244,9 +241,9 @@ public class Permissions implements Serializable {
      * turns off the {@link Right rights} for the given {@link Role role}. Null
      * or empty rights are simply ignored. For example, <code>
      *   new Permissions().revoke(WORLD,WRITE,USE);
-     * </code>
-     * will return a Permissions instance which cannot be altered or linked to
-     * by members of WORLD.
+     * </code> will return a
+     * Permissions instance which cannot be altered or linked to by members of
+     * WORLD.
      */
     public Permissions revoke(Role role, Right... rights) {
         if (rights != null && rights.length > 0) {
@@ -263,9 +260,8 @@ public class Permissions implements Serializable {
      * also be granted to the current instance. For example, <code>
      *   Permissions mask = new Permissions().grant(WORLD,READ);
      *   someEntity.getDetails().getPermissions().grantAllk(mask);
-     * </code>
-     * will allow READ access (and possibly more) to <code>someEntity</code>
-     * for members of WORLD.
+     * </code> will allow READ access (and possibly more) to
+     * <code>someEntity</code> for members of WORLD.
      */
     public Permissions grantAll(Permissions mask) {
         if (mask == null) {
@@ -282,15 +278,14 @@ public class Permissions implements Serializable {
      * also be revoked from the current instance. For example, <code>
      *   Permissions mask = new Permissions().revoke(WORLD,READ,WRITE,USE);
      *   someEntity.getDetails().getPermissions().applyMask(mask);
-     * </code>
-     * will disallow all access to <code>someEntity</code> for members of
-     * WORLD.
+     * </code> will disallow all access to <code>someEntity</code> for members
+     * of WORLD.
      * 
      * This also implies that applyMask can be used to make copies of
      * Permissions. For example, <code>
      *   new Permissions().applyMask( somePermissions );
-     * </code>
-     * will produce a copy of <code>somePermissions</code>.
+     * </code> will produce a copy of
+     * <code>somePermissions</code>.
      * 
      * Note: the logic here is different from Unix UMASKS.
      */
@@ -365,8 +360,8 @@ public class Permissions implements Serializable {
     }
 
     /**
-     * two {@link Permissions} instances are <code>identical</code> if they
-     * have the same bit representation.
+     * two {@link Permissions} instances are <code>identical</code> if they have
+     * the same bit representation.
      * 
      * @see <a
      *      href="https://trac.openmicroscopy.org.uk/omero/ticket/291">ticket:291</a>
@@ -678,13 +673,6 @@ public class Permissions implements Serializable {
     // =========================================================================
 
     /**
-     * an immutable {@link Permissions} instance which is used as the default
-     * value in all persistent classes. It revokes {@link Right#WRITE} to both
-     * {@link Role#GROUP} and {@link Role#WORLD}
-     */
-    public final static Permissions DEFAULT = USER_PRIVATE;
-
-    /**
      * an immutable {@link Permissions} instance with all {@link Right#WRITE}
      * rights turned off. Identical to {@link #WORLD_IMMUTABLE}
      */
@@ -695,5 +683,18 @@ public class Permissions implements Serializable {
      * granted. Identical to {@link #WORLD_WRITEABLE}
      */
     public final static Permissions PUBLIC = WORLD_WRITEABLE;
+
+    /**
+     * an immutable {@link Permissions} instance which is used as the default
+     * value in all persistent classes. It is initiall set to
+     * {@link #USER_PRIVATE}, but is reset from the
+     * {@link ome.system.PermissionsContext#KEY} configuration value which is set by
+     * default in etc/omero.properties.
+     */
+    public/* final */static Permissions DEFAULT = USER_PRIVATE;
+
+    public static void setDefaultPermissions(String permissions) {
+        DEFAULT = new ImmutablePermissions(parseString(permissions));
+    }
 
 }
