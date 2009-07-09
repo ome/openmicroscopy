@@ -255,8 +255,8 @@ public class TestEngine
                 "  -w\tOMERO experimenter password\n" +
                 "  -k\tOMERO session key (can be used in place of -u and -w)\n" +
                 "  -p\tOMERO server port [defaults to 4063]\n" +
-                "  -e Raise error on given situation: any, minimal, never [defaults to any]" +
-                String.format("  -f\tOMERO feedback url [defaults to %s]", TestEngineConfig.DEFAULT_FEEDBACK) +
+                "  -e\tRaise error on given situation: any, minimal, never [defaults to any]\n" +
+                "  -f\tOMERO feedback url [defaults to %s]\n" +
                 "  -c\tConfiguration file location (instead of any of the above arguments)\n" +
                 "  -x\tPopulate initiation files with metadata [defaults to False]\n" +
                 "  -h, --help\tDisplay this help and exit\n" +
@@ -265,7 +265,7 @@ public class TestEngine
                 "ex. %s -s localhost -u bart -w simpson ShortRunImages\n" +
                 "\n" +
                 "Report bugs to <ome-users@openmicroscopy.org.uk>",
-                APP_NAME, APP_NAME));
+                APP_NAME, TestEngineConfig.DEFAULT_FEEDBACK, APP_NAME));
         System.exit(1);
     }
     
