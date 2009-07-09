@@ -90,13 +90,14 @@ class Server(Ice.Application):
             self.impl.serverid = self.communicator().getProperties().getProperty("Ice.ServerId")
 
             self.adapter.add(self.impl, self.identity)
-            self.adapter.activate()
             self.logger.info("Activating")
+            self.adapter.activate()
         finally:
-            self.logger.info("Waiting for shutdown")
+            self.logger.info("Blocking until shutdown")
             self.communicator().waitForShutdown()
             self.logger.info("Cleanup")
             self.cleanup()
+            self.logger.info("Stopped")
 
     def cleanup(self):
         """
@@ -108,6 +109,34 @@ class Server(Ice.Application):
                 self.impl.cleanup()
             finally:
                 del self.impl
+
+class Servant(object):
+    """
+    Abstract servant which can be used along with a slice2py
+    generated dispatch class as the base type of servants.
+    These provide resource cleanup as per the omero.util.Server
+    class.
+    """
+
+    def __init__(self):
+        self.resources = omero.util.Resources()
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger.info("Initialized")
+
+    def cleanup(self):
+        """
+        Cleanups all resoures created by this servant. Calling
+        cleanup multiple times should be safe.
+        """
+        resources = self.resources
+        self.resources = None
+        if resources != None:
+            self.logger.info("Cleaning up")
+            resources.cleanup()
+            self.logger.info("Done")
+
+    def __del__(self):
+        self.cleanup()
 
 
 class Task(threading.Thread):
@@ -155,6 +184,7 @@ class Task(threading.Thread):
         if wait:
             self.logger.info("Waiting on task")
             self.join()
+            self.logger.info("Stopped")
 
 
 class Resources:
@@ -172,6 +202,10 @@ class Resources:
         on each resource. The cleanup method will be called on
         Resources.cleanup()
         """
+
+        self.logger = logging.getLogger("omero.util.Resources")
+        self.logger.info("Starting")
+
         self.stuff = []
         def task():
             remove = []
@@ -186,7 +220,6 @@ class Resources:
 
         self.thread = Task(sleeptime, task)
         self.thread.start()
-        self.logger = logging.getLogger("omero.util.Resources")
 
     def add(self, object, cleanupMethod = "cleanup", checkMethod = "check"):
         lock = threading.RLock()
@@ -215,10 +248,11 @@ class Resources:
                     print "Error cleaning resource:", m
                     traceback.print_exc()
             self.stuff = None
-            self.logger.info("Disabling")
+            self.logger.info("Stopping")
         finally:
             lock.release()
             self.thread.stop(wait=True)
+            self.logger.info("Stopped")
 
 class Environment:
     """

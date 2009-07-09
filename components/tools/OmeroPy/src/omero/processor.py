@@ -18,6 +18,7 @@ import exceptions
 from path import path
 
 import omero, Ice
+import omero_api_Tables_ice
 from omero.rtypes import *
 
 class ProcessI(omero.grid.Process):
