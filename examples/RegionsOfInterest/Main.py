@@ -1,6 +1,6 @@
 import omero
 from omero.rtypes import *
 
-roi = RoiI()
-ellipse = EllipseI()
+roi = omero.model.RoiI()
+ellipse = omero.model.EllipseI()
 ellipse.setCx(rdouble(1))
