@@ -136,40 +136,40 @@ public class Main {
 
         // Display fields which could quickly
         // be parsed from known formats
-        polyline.setFontFamily(rstring("Verdana"));
-        polyline.setFontSize(rint(40));
-        polyline.setFontWeight(rstring("bold"));
-        polyline.setTextFill(rstring("red"));
-        polyline.setStrokeColor(rstring("blue"));
-        polyline.setStrokeWidth(rint(25));
-        polyline.setText(rstring("This is a polyline"));
-        polyline.setVisibility(rbool(true));
-        polyline.setLocked(rbool(true));
-        roi.addShape(other);
+        Text text = new TextI();
+        text.setTextValue(rstring("This is a polyline"));
+        text.setFontFamily(rstring("Verdana"));
+        text.setFontSize(rint(40));
+        text.setFontWeight(rstring("bold"));
+        text.setFillColor(rstring("red"));
+        text.setStrokeColor(rstring("blue"));
+        text.setStrokeWidth(rint(25));
+        text.setVisibility(rbool(true));
+        text.setLocked(rbool(true));
+        roi.addShape(text);
 
         // Other options which may come with time
-        polyline.setVectorEffect(rstring("non-scaling-stroke"));
-        polyline.setFontStretch(rstring("wider"));
-        polyline.setFontStyle(rstring("italic"));
-        polyline.setFontVariant(rstring("small-caps"));
-        polyline.setFillColor(rstring("blue"));
-        polyline.setFillOpacity(rfloat(0.2f)); // Not above 1.0
-        polyline.setFillRule(rstring("even-odd"));
-        polyline.setStrokeColor(rstring("#666"));
-        polyline.setStrokeDashArray(rstring("10 20 30 10"));
-        polyline.setStrokeDashOffset(rint(1));
-        polyline.setStrokeLineCap(rstring("butt"));
-        polyline.setStrokeLineJoin(rstring("bevel"));
-        polyline.setStrokeMiterLimit(rint(1));
-        polyline.setStrokeOpacity(rfloat(0.5f)); // Not above 1.0
-        polyline.setStrokeWidth(rint(10));
-        polyline.setTextAnchor(rstring("middle"));
-        polyline.setTextDecoration(rstring("underline"));
-        polyline.setTextStroke(rstring("#0099FF"));
-        polyline.setBaselineShift(rstring("70%"));
-        polyline.setGlyphOrientationVertical(rint(90));
-        polyline.setDirection(rstring("rtl"));
-        polyline.setWritingMode(rstring("tb-rl"));
+        text.setVectorEffect(rstring("non-scaling-stroke"));
+        text.setFontStretch(rstring("wider"));
+        text.setFontStyle(rstring("italic"));
+        text.setFontVariant(rstring("small-caps"));
+        text.setFillColor(rstring("blue"));
+        text.setFillOpacity(rfloat(0.2f)); // Not above 1.0
+        text.setFillRule(rstring("even-odd"));
+        text.setStrokeColor(rstring("#666"));
+        text.setStrokeDashArray(rstring("10 20 30 10"));
+        text.setStrokeDashOffset(rint(1));
+        text.setStrokeLineCap(rstring("butt"));
+        text.setStrokeLineJoin(rstring("bevel"));
+        text.setStrokeMiterLimit(rint(1));
+        text.setStrokeOpacity(rfloat(0.5f)); // Not above 1.0
+        text.setStrokeWidth(rint(10));
+        text.setAnchor(rstring("middle"));
+        text.setDecoration(rstring("underline"));
+        text.setBaselineShift(rstring("70%"));
+        text.setGlyphOrientationVertical(rint(90));
+        text.setDirection(rstring("rtl"));
+        text.setWritingMode(rstring("tb-rl"));
 
 
         omero.client client = new omero.client();
