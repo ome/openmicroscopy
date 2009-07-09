@@ -143,7 +143,7 @@ class Task(threading.Thread):
 
     def sleep(self):
         start = time.time()
-        while (time.time() - start) < self.sleeptime:
+        while not self.exit and (time.time() - start) < self.sleeptime:
             time.sleep(5)
 
     def stop(self, wait = True):
