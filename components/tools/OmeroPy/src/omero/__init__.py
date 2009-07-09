@@ -706,12 +706,10 @@ class client(object):
         def execute(self, myCallable, action):
             try:
                 myCallable()
-                self.__logger.debug("ClientCallback", action + " run")
+                self.ic.getLogger().trace("ClientCallback", action + " run")
             except:
                 try:
-                    self.__logger.error("Error performing %s" % action)
-                    import traceback
-                    traceback.print_exc()
+                    self.ic.getLogger().error("Error performing %s" % action)
                 except:
                     print "Error performing %s" % action
 
