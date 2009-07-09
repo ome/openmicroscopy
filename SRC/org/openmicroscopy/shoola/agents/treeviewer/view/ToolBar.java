@@ -130,7 +130,9 @@ class ToolBar
         bar.add(b);
         b = new JButton(controller.getAction(TreeViewerControl.SWITCH_USER));
         UIUtilities.unifiedButtonLookAndFeel(b);
-        //bar.add(b);
+        if (Boolean.valueOf(System.getProperty("insight.switch_user", "false"))) {
+            bar.add(b);
+        }        
         b = new JButton(controller.getAction(
         		TreeViewerControl.EDITOR_NO_SELECTION));
         UIUtilities.unifiedButtonLookAndFeel(b);
