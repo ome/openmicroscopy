@@ -13,13 +13,13 @@ public class configuration {
 	// Uses default port 4063
 	// createSession needs username and password
 	omero.client client2 = new omero.client("localhost");
-	client2.createSession("root", "ome"); */
-	client2.closeSession()
+	client2.createSession("root", "ome");
+	client2.closeSession();
 
 	// Configuration with port information
 	omero.client client3 = new omero.client("localhost", 10463);
 	client3.createSession("root", "ome");
-	client3.closeSession()
+	client3.closeSession();
 
 	// Advanced configuration can also be done
 	// via an InitializationData instance.

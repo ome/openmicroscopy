@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
     // No username, password entered
     omero::client client11(argc, argv);
     client1.createSession();
-    client1.closeSession());
+    client1.closeSession();
 
     // Most basic configuration.
     // Uses default port 4063
