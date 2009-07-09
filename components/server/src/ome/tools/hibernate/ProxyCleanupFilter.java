@@ -20,6 +20,7 @@ import java.util.Set;
 import ome.api.StatefulServiceInterface;
 import ome.model.IObject;
 import ome.model.internal.Details;
+import ome.model.meta.Node;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
 import ome.util.Utils;
@@ -57,6 +58,11 @@ public class ProxyCleanupFilter extends ContextFilter {
             return (IObject) unloadedObjectCache.get(f);
         }
 
+        // Filtering all node objects for security reasons
+        if (f instanceof Node) {
+            return new Node((((Node) f).getId()), false);
+        }
+        
         // A proxy; send over the wire in altered form.
         if (!Hibernate.isInitialized(f)) {
 
