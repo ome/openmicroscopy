@@ -8,8 +8,23 @@
 import os, shlex
 import platform
 import subprocess
+import exceptions
+import logging
+
 
 DEFAULT_DEBUG = "-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=n"
+
+def check_java(command):
+    try:
+        p = subprocess.Popen([command[0],"-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        std = p.communicate()
+        rc = p.wait()
+        if rc == 0:
+            return
+    except:
+        pass # Falls through to raise
+
+    raise exceptions.Exception("Java could not be found. (Executable=%s)" % command[0])
 
 def makeVar(key, env):
         if os.environ.has_key(key):
@@ -80,6 +95,7 @@ def run(args,\
     If more control over the debugging configuration is needed, pass debug_string.
     """
     command = cmd(args, java, xargs, chdir, debug, debug_string)
+    check_java(command)
     if use_exec:
         env = os.environ
         if chdir:
@@ -107,6 +123,7 @@ def popen(args,\
     the Popen is returned rather than the stdout.
     """
     command = cmd(args, java, xargs, chdir, debug, debug_string)
+    check_java(command)
     if not chdir:
         chdir = os.getcwd()
     return subprocess.Popen(command, stdout=stdout, cwd=chdir, env = os.environ)
