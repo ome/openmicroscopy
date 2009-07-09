@@ -318,13 +318,6 @@
   License File: cpl-v10.html
   
 
-  Artifacts:    ldapbp-*.jar
-  Project:      JNDI LDAP Booster Pack
-  Web Site:     http://java.sun.com/products/jndi
-  License:      General Public License (GPL), Version 2
-  License File: gpl.txt
-
-
   Artifacts:    log4j-*.jar
   Project:      The Log4j Project. The logging framework used by OMERO.
   Web Site:     http://logging.apache.org/log4j/
