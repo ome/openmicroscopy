@@ -6,9 +6,7 @@ import java.util.Map;
 
 import ome.util.LSID;
 import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
-import omero.metadatastore.IObjectContainer;
 import omero.model.Image;
 import omero.model.ObjectiveSettings;
 import omero.api.ServiceFactoryPrx;

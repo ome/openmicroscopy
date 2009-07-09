@@ -1,5 +1,5 @@
 /*
- * ome.formats.testclient.LogAppenderProxy
+ * ome.formats.importer.LogAppenderProxy
  *
  *------------------------------------------------------------------------------
  *
@@ -23,7 +23,6 @@ import org.apache.log4j.spi.LoggingEvent;
 
 public class LogAppenderProxy extends AppenderSkeleton implements Appender
 {
-
     private static LogAppender delegate;
     private static RollingFileAppender logfile_delegate;
     
@@ -34,14 +33,12 @@ public class LogAppenderProxy extends AppenderSkeleton implements Appender
     public LogAppenderProxy()
     {
         super(); 
-        
         delegate = LogAppender.getInstance();
-        
         logfile_delegate = new RollingFileAppender();
-        System.err.println(saveDirectory);
         String f = new File(saveDirectory, logfileName).getAbsolutePath();
         logfile_delegate.setFile(f);
-        logfile_delegate.setMaxFileSize("1000KB");
+        // 10MB is the default size
+        logfile_delegate.setMaxBackupIndex(10);
         logfile_delegate.activateOptions();
     }
 
@@ -50,7 +47,6 @@ public class LogAppenderProxy extends AppenderSkeleton implements Appender
     {
         String s = getLayout().format(arg0);
         delegate.append(s);
-
         logfile_delegate.append(arg0);
     }
 

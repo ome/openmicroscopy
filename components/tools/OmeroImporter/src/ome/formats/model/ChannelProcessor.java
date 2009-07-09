@@ -73,6 +73,11 @@ public class ChannelProcessor implements ModelProcessor
     	{
     		Pixels pixels = 
     			(Pixels) store.getSourceObject(new LSID(Pixels.class, i));
+    		if (pixels == null)
+    		{
+    			throw new ModelException("Unable to locate Pixels:" + i);
+    		}
+    		
     		int sizeC = pixels.getSizeC().getValue();
     		for (int c = 0; c < sizeC; c++)
     		{

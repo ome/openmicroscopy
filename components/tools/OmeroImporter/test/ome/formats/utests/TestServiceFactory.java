@@ -47,6 +47,7 @@ import omero.api.ThumbnailStorePrx;
 //import omero.system.OmeroContext;
 import omero.api.ServiceFactoryPrx;
 import omero.api.RenderingEnginePrx;
+import omero.constants.METADATASTORE;
 import omero.grid.InteractiveProcessorPrx;
 import omero.model.Job;
 
@@ -252,6 +253,10 @@ public class TestServiceFactory implements ServiceFactoryPrx
 
     public ServiceInterfacePrx getByName(String arg0) throws ServerError
     {
+    	if (arg0.equals(METADATASTORE.value))
+    	{
+    		return new TestMetadataStoreService();
+    	}
         return null;
     }
 

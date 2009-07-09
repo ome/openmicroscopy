@@ -132,7 +132,6 @@ public class IQueryEnumProvider implements EnumerationProvider
         HashMap<String, T> enumerations = getEnumerations(klass);
         EnumerationHandler handler = enumHandlerFactory.getHandler(klass);
         IObject otherEnumeration = enumerations.get("Other");
-        IObject unknownEnumeration = enumerations.get("Unknown");
         // Step 1, check if we've got an exact match for our enumeration value.
         if (enumerations.containsKey(value))
         {
@@ -159,16 +158,6 @@ public class IQueryEnumProvider implements EnumerationProvider
                      + klass + "' setting to 'Other'");
             return (T) otherEnumeration;
         } 
-        
-        /* 
-         else if (unknownEnumeration != null)
-        {
-            log.warn("Enumeration '" + value + "' does not exist in '" 
-                    + klass + "' setting to 'Unknown'");
-           return (T) unknownEnumeration;
-        }
-        */
-        
         // Step 4, warn we have no enumeration to return.
         log.warn("Enumeration '" + value + "' does not exist in '" 
                 + klass + "' returning 'null'");

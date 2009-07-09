@@ -1,5 +1,5 @@
 /*
- * ome.formats.testclient.LogAppender
+ * ome.formats.importer.LogAppender
  *
  *------------------------------------------------------------------------------
  *
@@ -44,7 +44,10 @@ public class LogAppender
 
     public void append(String s)
     {
-        if (t == null) System.err.println(s);
+        if (t == null)
+        {
+        	return;
+        }
         else
         {
             try
@@ -61,10 +64,12 @@ public class LogAppender
                 if (doc.getLength() > maxChars)
                     doc.remove(0, doc.getLength() - maxChars);
                 // Toolkit.getDefaultToolkit().beep();
-            } catch (BadLocationException e)
+            }
+            catch (BadLocationException e)
             {
                 throw new RuntimeException(e);
-            } catch (Throwable t) 
+            }
+            catch (Throwable t) 
             {
                 
             } //Safety catch in case NP passed in.
@@ -74,6 +79,5 @@ public class LogAppender
     public void setTextArea(JTextPane debugTextPane)
     {
         this.t = debugTextPane;
-
     }
 }
