@@ -83,7 +83,7 @@ public class DropBoxDirectoryCheck implements ApplicationListener, Runnable {
         int count = 0;
         for (String name : users) {
             String firstLetter = name.substring(0, 1);
-            if (!firstLetter.matches("[a-z]")) {
+            if (!firstLetter.matches("[a-zA-Z0-9]")) {
                 firstLetter = "other";
             }
             File f = new File(omeroDataDir + File.separator + "DropBox"
