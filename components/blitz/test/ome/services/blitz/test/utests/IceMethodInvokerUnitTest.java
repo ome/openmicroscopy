@@ -148,6 +148,10 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         public void createThumbnails() {
         }
+        
+        public void createThumbnailsByLongestSideSet(Integer size,
+                Set<Long> pixelsIds) {
+        }
 
         public byte[] getThumbnail(Integer sizeX, Integer sizeY) {
             return null;
