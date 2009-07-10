@@ -37,6 +37,7 @@ import ome.services.fulltext.FullTextIndexer;
 import ome.services.fulltext.FullTextThread;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
+import ome.tools.hibernate.ReloadFilter;
 import ome.tools.hibernate.UpdateFilter;
 import ome.util.Utils;
 
@@ -145,7 +146,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
             public IObject[] run(IObject[] value, UpdateFilter filter, Session s) {
                 IObject[] copy = new IObject[value.length];
                 for (int i = 0; i < value.length; i++) {
-                   copy[i] = internalMerge(value[i], filter, s);
+                    copy[i] = internalMerge(value[i], filter, s);
                 }
                 return copy;
             }
@@ -160,15 +161,13 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
         }
 
         final long[] ids = new long[graph.length];
-        doAction(graph, new UpdateAction<IObject[]>() {
+        final ReloadFilter filter = new ReloadFilter(session());
+        doAction(graph, filter, new UpdateAction<IObject[]>() {
             @Override
             public IObject[] run(IObject[] value, UpdateFilter filter, Session s) {
                 for (int i = 0; i < value.length; i++) {
-                    if (i%500 == 0) {
-                        s.flush();
-                        s.clear();
-                    }
-                    ids[i] = internalSave(value[i], filter, s);
+
+                    ids[i] = internalSave(value[i], (ReloadFilter) filter, s);
                 }
                 return null;
             }
@@ -245,7 +244,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
      * {@link ome.tools.hibernate.MergeEventListener} needs to be moved to
      * {@link UpdateFilter} or to another event listener.
      */
-    protected Long internalSave(IObject obj, UpdateFilter filter,
+    protected Long internalSave(IObject obj, ReloadFilter filter,
             Session session) {
         if (getBeanHelper().getLogger().isDebugEnabled()) {
             getBeanHelper().getLogger().debug(" Internal save. ");
@@ -297,6 +296,12 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     @SuppressWarnings("unchecked")
     private <T> T doAction(final T graph, final UpdateAction<T> action) {
         final UpdateFilter filter = new UpdateFilter();
+        return doAction(graph, filter, action);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T doAction(final T graph, final UpdateFilter filter,
+            final UpdateAction<T> action) {
         final Session session = session();
         T retVal;
         beforeUpdate(graph, filter);

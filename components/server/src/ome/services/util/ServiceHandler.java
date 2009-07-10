@@ -32,7 +32,6 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.PropertyValueException;
-import org.perf4j.LoggingStopWatch;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.context.ApplicationEvent;
