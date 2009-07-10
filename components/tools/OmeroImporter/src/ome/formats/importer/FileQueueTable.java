@@ -287,6 +287,10 @@ public class FileQueueTable
         table.setValueAt("archiving", row, 2);       
     }
     
+    public void setProgressResettingDefaults(int row)
+    {
+        table.setValueAt("thumbnailing", row, 2);       
+    }
 
     public void setProgressAnalyzing(int row)
     {
@@ -615,6 +619,10 @@ public class FileQueueTable
         if (message == Actions.IMPORT_ARCHIVING)
         {
             setProgressArchiving((Integer)args[1]);
+        }
+        if (message == Actions.IMPORT_THUMBNAILING)
+        {
+        	setProgressResettingDefaults((Integer)args[1]);
         }
     }
     

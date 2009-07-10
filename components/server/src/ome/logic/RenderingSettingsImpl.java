@@ -87,6 +87,25 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     protected transient IPixels pixelsMetadata;
     
     /**
+     * Checks to see if a given class is a valid container.
+     * @param klass IObject derived class to check for validity.
+     * @throws IllegalArgumentException If the class <code>klass</code> is
+     * an invalid container.
+     */
+    private void checkValidContainerClass(Class<? extends IObject> klass)
+    {
+    	if (!Dataset.class.equals(klass)
+        		&& !Image.class.equals(klass)
+        		&& !Plate.class.equals(klass)
+        		&& !Pixels.class.equals(klass))
+        	{
+        		throw new IllegalArgumentException(
+        				"Class parameter for resetDefaultsInSet() must be in "
+        				+ "{Dataset, Image, Plate, Pixels}, not " + klass);
+        	}	
+    }
+    
+    /**
      * Performs the logic specified by {@link #resetDefaultsInImage(long)}.
      * 
      * @param image The image to handle.
@@ -857,14 +876,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     public <T extends IObject> Set<Long> resetDefaultsInSet(Class<T> klass,
     		                                                Set<Long> nodeIds)
     {
-        if (!Dataset.class.equals(klass)
-            && !Image.class.equals(klass)
-            && !Plate.class.equals(klass))
-        {
-            throw new IllegalArgumentException(
-                    "Class parameter for resetDefaultsInSet() must be in "
-                            + "{Dataset, Image, Plate}, not " + klass);
-        }
+    	checkValidContainerClass(klass);
 
         List<IObject> objects = new ArrayList<IObject>();
         for (Long nodeId : nodeIds)
@@ -890,6 +902,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                     resetDefaults(image);
                     imageIds.add(image.getId());
                 }
+				if (object instanceof Pixels)
+				{
+					Image image = ((Pixels) object).getImage();
+					setOriginalSettings((Pixels) object);
+					imageIds.add(image.getId());
+				}
             }
             catch (Throwable t)
             {
@@ -934,14 +952,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     public <T extends IObject> Set<Long> setOriginalSettingsInSet(
             Class<T> klass, Set<Long> nodeIds)
     {
-    	if (!Dataset.class.equals(klass)
-    		&& !Image.class.equals(klass)
-    		&& !Plate.class.equals(klass))
-    	{
-    		throw new IllegalArgumentException(
-    				"Class parameter for resetDefaultsInSet() must be in "
-    				+ "{Dataset, Image, Plate}, not " + klass);
-    	}
+    	checkValidContainerClass(klass);
 
     	List<IObject> objects = new ArrayList<IObject>();
         for (Long nodeId : nodeIds)
@@ -959,6 +970,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			} else if (object instanceof Image) {
     				image = (Image) object;
     				setOriginalSettings(image);
+    				imageIds.add(image.getId());
+    			} else if (object instanceof Pixels) {
+    				image = ((Pixels) object).getImage();
+    				setOriginalSettings((Pixels) object);
     				imageIds.add(image.getId());
     			}
     		} catch (Throwable t) {

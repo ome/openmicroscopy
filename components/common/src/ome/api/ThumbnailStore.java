@@ -281,6 +281,31 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * @see getThumbDirect()
      */
     public void createThumbnail(Integer sizeX, Integer sizeY);
+    
+    /**
+     * Creates thumbnails for a number of pixels sets using a given set of 
+     * rendering settings (RenderingDef) in the on-disk cache. Unlike the 
+     * other thumbnail creation methods, this method <b>may</b> be called 
+     * without first calling {@link #setPixelsId()}. This method <b>will not</b>
+     * reset or modify rendering settings in any way. If rendering settings for
+     * a pixels set are not present, thumbnail creation for that pixels set
+     * <b>will not</b> be performed.
+     * 
+     * @param size
+     *            the size of the longest side of the thumbnail requested.
+     *            <code>null</code> specifies the default size of 48.
+     * @param pixelsIds the Pixels sets to retrieve thumbnails for.
+     * @throws ApiUsageException
+     *             if:
+     *             <ul>
+     *             <li><i>size</i> > pixels.sizeX and pixels.sizeY</li>
+     *             <li><i>size</i> is negative</li>
+     *             </ul>
+     * @see createThumbnail()
+     * @see createThumbnails()
+     */
+    public void createThumbnailsByLongestSideSet(Integer size, 
+    		@NotNull @Validate(Long.class) Set<Long> pixelsIds);
 
     /**
      * Creates thumbnails for a pixels set using a given set of rendering

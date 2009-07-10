@@ -456,6 +456,21 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     }
     
     /**
+     * Bulk loads a set of rendering sets for a group of pixels sets.
+     * @param pixelsIds the Pixels sets to retrieve thumbnails for.
+     * @return Loaded rendering settings for <code>pixelsIds</code>.
+     */
+    private List<RenderingDef> bulkLoadRenderingSettings(Set<Long> pixelsIds)
+    {
+    	return iQuery.findAllByQuery(
+    			"select r from RenderingDef as r join fetch r.pixels " +
+    			"join fetch r.details.updateEvent " +
+    			"join fetch r.pixels.details.updateEvent " +
+    			"where r.details.owner.id = :id and r.pixels.id in (:ids)",
+    			new Parameters().addId(getCurrentUserId()).addIds(pixelsIds));
+    }
+    
+    /**
      * Compresses a buffered image thumbnail to disk.
      * 
      * @param thumb
@@ -866,6 +881,14 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	iQuery.clear();
     }
     
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public void createThumbnailsByLongestSideSet(Integer size,
+                                                 Set<Long> pixelsIds)
+    {
+    	getThumbnailByLongestSideSet(size, pixelsIds);
+    }
+    
     /* (non-Javadoc)
      * @see ome.api.ThumbnailStore#getThumbnailSet(java.lang.Integer, java.lang.Integer, java.util.Set)
      */
@@ -966,9 +989,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     /* (non-Javadoc)
      * @see ome.api.ThumbnailStore#getThumbnailByLongestSideSet(java.lang.Integer, java.util.Set)
      */
-    /* (non-Javadoc)
-     * @see ome.api.ThumbnailStore#getThumbnailByLongestSideSet(java.lang.Integer, java.util.Set)
-     */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public Map<Long, byte[]> getThumbnailByLongestSideSet(Integer size,
@@ -983,12 +1003,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	// First we try and bulk load as many rendering settings as possible,
     	// loading the Pixels as well to avoid extra database hits later.
     	Long userId = getCurrentUserId();
-    	List<RenderingDef> settingsList = iQuery.findAllByQuery(
-    			"select r from RenderingDef as r join fetch r.pixels " +
-    			"join fetch r.details.updateEvent " +
-    			"join fetch r.pixels.details.updateEvent " +
-    			"where r.details.owner.id = :id and r.pixels.id in (:ids)",
-    			new Parameters().addId(userId).addIds(pixelsIds));
+    	List<RenderingDef> settingsList = bulkLoadRenderingSettings(pixelsIds);
     	
     	// We've got a set of settings, lets populate our hash maps.
     	Map<Long, RenderingDef> settingsMap = new HashMap<Long, RenderingDef>();

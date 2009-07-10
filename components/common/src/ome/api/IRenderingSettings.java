@@ -138,8 +138,13 @@ public interface IRenderingSettings extends ServiceInterface {
 	/**
 	 * Resets a rendering settings back to one or many containers that are 
 	 * specified by the rendering engine intelligent <i>pretty good image
-	 * (PG)</i> logic.
-	 * 
+	 * (PG)</i> logic. Supported container types are:
+	 * <ul>
+	 *   <li>{@link Image}</li>
+	 *   <li>{@link Dataset}</li>
+	 *   <li>{@link Plate}</li>
+	 *   <li>{@link Pixels}</li>
+	 * </ul>
 	 * @param type The type of nodes to handle.
 	 * @param nodeIds Ids of the node type.
 	 * @return A {@link java.util.Set} of image IDs that have had their 
@@ -152,7 +157,14 @@ public interface IRenderingSettings extends ServiceInterface {
 	/**
 	 * Applies rendering settings to one or many containers. If a container such 
 	 * as <code>Dataset</code> is to be copied to, all images within that 
-	 * <code>Dataset</code> will have the rendering settings applied.
+	 * <code>Dataset</code> will have the rendering settings applied. Supported
+	 * container types are:
+	 * <ul>
+	 *   <li>{@link Image}</li>
+	 *   <li>{@link Dataset}</li>
+	 *   <li>{@link Plate}</li>
+	 *   <li>{@link Pixels}</li>
+	 * </ul>
 	 * 
 	 * @param <T> The type of object to copy to. <code>Project</code>, 
 	 * <code>Dataset</code> and <code>Image</code> are currently supported.
@@ -257,6 +269,8 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * <ul>
 	 *   <li>{@link Image}</li>
 	 *   <li>{@link Dataset}</li>
+	 *   <li>{@link Plate}</li>
+	 *   <li>{@link Pixels}</li>
 	 * </ul>
 	 * 
 	 * @param type The type of nodes to handle.

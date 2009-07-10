@@ -412,6 +412,8 @@ public class ImportLibrary implements IObservable
         {
             store.populateMinMax();
         }
+        notifyObservers(Actions.IMPORT_THUMBNAILING, args);
+        store.resetDefaultsAndGenerateThumbnails(pixelsIds);
         
         notifyObservers(Actions.IMPORT_DONE, args);
         

@@ -867,6 +867,7 @@ module omero {
 	    Ice::ByteSeq getThumbnailForSectionByLongestSideDirect(int theZ, int theT, omero::RInt size) throws ServerError;
 	    void createThumbnails() throws ServerError;
 	    void createThumbnail(omero::RInt sizeX, omero::RInt sizeY) throws ServerError;
+	    void createThumbnailsByLongestSideSet(omero::RInt size, omero::sys::LongList pixelsIds) throws ServerError;
 	    bool thumbnailExists(omero::RInt sizeX, omero::RInt sizeY) throws ServerError;
 	    void resetDefaults() throws ServerError;
 	};

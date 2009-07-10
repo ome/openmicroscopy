@@ -57,6 +57,7 @@ import omero.client;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
+import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.ITypesPrx;
 import omero.api.IUpdatePrx;
@@ -66,6 +67,7 @@ import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
+import omero.api.ThumbnailStorePrx;
 import omero.constants.METADATASTORE;
 import omero.metadatastore.IObjectContainer;
 import omero.model.AcquisitionMode;
@@ -185,6 +187,8 @@ public class OMEROMetadataStoreClient
     private RawPixelsStorePrx rawPixelStore;
     private IRepositoryInfoPrx iRepoInfo;
     private IContainerPrx iContainer;
+    private IRenderingSettingsPrx iSettings;
+    private ThumbnailStorePrx thumbnailStore;
     
     /** Our enumeration provider. */
     private EnumerationProvider enumProvider;
@@ -219,6 +223,9 @@ public class OMEROMetadataStoreClient
     /** Companion file namespace */
     private static final String NS_COMPANION =
     	"openmicroscopy.org/omero/import/companionFile";
+    
+    /** The default longest side of a thumbnail in OMERO.insight. */
+    private static final int DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE = 96;
 
     private void initializeServices()
         throws ServerError
@@ -229,8 +236,10 @@ public class OMEROMetadataStoreClient
         iAdmin = serviceFactory.getAdminService();
         rawFileStore = serviceFactory.createRawFileStore();
         rawPixelStore = serviceFactory.createRawPixelsStore();
+        thumbnailStore = serviceFactory.createThumbnailStore();
         iRepoInfo = serviceFactory.getRepositoryInfoService();
         iContainer = serviceFactory.getContainerService();
+        iSettings = serviceFactory.getRenderingSettingsService();
         delegate = MetadataStorePrxHelper.checkedCast(serviceFactory.getByName(METADATASTORE.value));
 
         // Client side services
@@ -321,8 +330,8 @@ public class OMEROMetadataStoreClient
     public void ping()
     {
         serviceFactory.keepAllAlive(new ServiceInterfacePrx[] 
-                {iQuery, iAdmin, rawFileStore, rawPixelStore, iRepoInfo,
-                 iContainer, iUpdate, delegate});
+                {iQuery, iAdmin, rawFileStore, rawPixelStore, thumbnailStore,
+        		 iRepoInfo, iContainer, iUpdate, iSettings, delegate});
         log.debug("KeepAlive ping");
     }
     
@@ -2772,6 +2781,24 @@ public class OMEROMetadataStoreClient
         {
             throw new RuntimeException(e);
         }
+    }
+    
+    /**
+     * Resets the defaults and generates thumbnails for a given set of Pixels 
+     * IDs. 
+     * @param pixelsIds Set of Pixels IDs to reset defaults and thumbanils for.
+     */
+    public void resetDefaultsAndGenerateThumbnails(List<Long> pixelsIds)
+    {
+    	try
+    	{
+    		thumbnailStore.createThumbnailsByLongestSideSet(
+    				rint(DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE), pixelsIds);
+    	}
+    	catch (ServerError e)
+    	{
+    		throw new RuntimeException(e);
+    	}
     }
 
     public void setExperimentDescription(String description, int experimentIndex)
