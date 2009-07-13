@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<demos>
+
+<matlabrelease>14</matlabrelease>
+<name>OmeroMatlab</name>
+<type>toolbox</type>
+<icon>$toolbox/matlab/icons/matlabicon.gif</icon>
+<description>
+The OmeroMatlab Toolbox provides access to microscopy image data stored in an OMERO server.
+</description>
+
+<demosection>
+   <label>TBD</label>
+   <demoitem>
+      <label>demo1</label>
+      <callback>omero_demo('demo1')</callback>
+   </demoitem>
+
+</demosection>
+
+</demos>

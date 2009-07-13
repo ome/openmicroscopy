@@ -1,6 +1,4 @@
-function PerformProjection(pixelsId, zSection)
+function projectedImage = PerformProjection(gateway, pixelsId, zSection)
 
-omerojService = createOmeroJService('ice.config', 'root', 'omero');
-pixels = getPixels(omerojService, pixelsId);
-stack = getPlaneStack(omerojService, pixelsId, zSection);
+stack = getPlaneStack(gateway, pixelsId, zSection);
 projectedImage = ProjectionOnStack(stack,'mean');

@@ -1,7 +1,7 @@
-function [images] = findAllImages()
-omerojService = createOmeroJService('/Users/donald/OMERO3-TRUNK/dist/etc/ice.config', 'root', 'omero');
+function [images] = findAllImages(gateway)
+
 % Get the current user projects and populate the datasets.
-projects = getProjects(omerojService,[], true)
+projects = getProjects(gateway,[], true);
 
 datasetList = java.util.ArrayList;
 
