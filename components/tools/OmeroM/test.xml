@@ -11,5 +11,6 @@
   </publications>
   <dependencies defaultconfmapping="test->*">
     <dependency name="OmeroMatlab" rev="${omero.version}" changing="true"/>
+    <dependency name="blitz-test" rev="${omero.version}" changing="true"/>
   </dependencies>
 </ivy-module>
