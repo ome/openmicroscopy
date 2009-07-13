@@ -1,0 +1,16 @@
+<ivy-module version="1.0">
+  <info
+      organisation="omero"
+      module="OmeroM"
+      status="integration"/>
+  <configurations>
+    <conf name="build"/>
+    <conf name="client"/>
+  </configurations>
+  <publications>
+    <artifact name="OmeroM" type="zip"/>
+  </publications>
+  <dependencies defaultconfmapping="build,client->default">
+    <dependency org="omero" name="omero_client" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
+  </dependencies>
+</ivy-module>

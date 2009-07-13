@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="OmeroM" default="install" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+    <description>
+        Build framework for the OmeroMatlab code. Packages up the *.m files
+        along with necessary jar(s) as a toolbox for us in matlab.
+    </description>
+
+    <dirname property="up-two" file="${basedir}"/>
+    <dirname property="up-one" file="${up-two}"/>
+    <property name="import.dir" value="${up-one}/antlib/resources"/>
+    <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/lifecycle.xml"/>
+
+    <import file="../common.xml"/>
+
+    <target name="release-zip" depends="package"
+            description="Zip the OMERO.importer releases up">
+      <zip destfile="target/${ivy.module}.zip">
+        <zipfileset dir="${etc.dir}"           includes="ice.config"/>
+        <zipfileset dir="${basedir}/src"       includes="**/*"/>
+        <zipfileset dir="${basedir}/resources" includes="**/*"/>
+        <zipfileset dir="${target.dir}/libs/"  includes="*"/>
+        <!-- Previous directory structures -->
+        <zipfileset dir="${basedir}"           includes="functions/**/*,helper/**/*,demo/**/*"/>
+      </zip>
+    </target>
+
+    <target name="tools-init"/>
+
+    <target name="tools-build" depends="tools-init,release-zip,install" description="Creates all artifacts for tools/target"/>
+
+    <target name="tools-dist" depends="tools-build" description="Copied artifacts to tools/target" unless="skip.compile"/>
+
+    <target name="tools-clean" depends="clean"/>
+
+</project>

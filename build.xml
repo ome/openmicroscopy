@@ -183,13 +183,9 @@ java component.
         <ant antfile="${blitz.comp}/build.xml" dir="${blitz.comp}" target="icegen" inheritAll="false"/>
     </target>
 
-    <target name="build-matlab" description="Generate a zip file for working with matlab">
-        <zip destfile="target/OMERO-matlab-${omero.version}.zip">
-            <zipfileset dir="${omero.home}/components/tools/OmeroM" prefix="matlab"/>
-            <zipfileset dir="${dist.dir}/lib/client" prefix="jars" includes="omero_client.jar"/>
-            <zipfileset dir="${dist.dir}/lib/server" prefix="jars" includes="blitz*,model-*,ice.jar"/>
-        </zip>
-
+    <target name="build-matlab" description="Provides a matlab toolbox under target" depends="init">
+        <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
+        <iterate buildpathref="OmeroM.buildpath" target="tools-dist"/>
     </target>
 
     <target name="build-eclipse" description="Creates all source directories needed by eclipse in case default build is failing." depends="init">
@@ -240,8 +236,10 @@ java component.
                 includes="bin/omero"
                 filemode="755"/>
         </zip>
+        <!-- TODO: This should probably be made into another tools target tools-zip -->
 	<copy todir="target">
 	    <fileset dir="components/tools/OmeroImporter/target" includes="*.zip"/>
+	    <fileset dir="components/tools/OmeroM/target" includes="*.zip"/>
 	</copy>
     </target>
 
