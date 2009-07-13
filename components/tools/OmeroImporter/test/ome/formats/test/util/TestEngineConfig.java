@@ -31,8 +31,6 @@ import java.util.prefs.BackingStoreException;
 import org.ini4j.IniPreferences;
 import org.ini4j.InvalidIniFormatException;
 
-import com.sleepycat.db.FeedbackHandler;
-
 public class TestEngineConfig extends IniPreferences
 {
     

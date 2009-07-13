@@ -30,6 +30,7 @@ import java.util.Map;
 
 import ome.api.IQuery;
 import ome.api.IUpdate;
+import ome.api.local.LocalUpdate;
 import ome.model.IObject;
 import ome.model.acquisition.Arc;
 import ome.model.acquisition.Detector;
@@ -69,12 +70,15 @@ import ome.model.screen.Screen;
 import ome.model.screen.Well;
 import ome.model.screen.WellSample;
 import ome.model.stats.StatsInfo;
+import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 import ome.util.LSID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.perf4j.LoggingStopWatch;
+import org.perf4j.StopWatch;
 
 
 /**
@@ -1236,7 +1240,6 @@ public class OMEROMetadataStore
      * @param wellIndex Well index
      * @return See above.
      */
-    
     private Roi getRoi(int imageIndex, int roiIndex)
     {
         Image i = getImage(imageIndex);
@@ -1258,7 +1261,6 @@ public class OMEROMetadataStore
 
         return rois.get(roiIndex);
     }
-    
     
     /**
      * Empty constructor for testing purposes.
@@ -1319,14 +1321,32 @@ public class OMEROMetadataStore
      */
     public List<Pixels> saveToDB()
     {
+    	// Save the entire Image rooted graph using the "insert only"
+    	// saveAndReturnIds() local update service only method.
+    	StopWatch s1 = new LoggingStopWatch("saveImportGraph");
     	Image[] imageArray = imageList.toArray(new Image[imageList.size()]);
-   		IObject[] objectArray = iUpdate.saveAndReturnArray(imageArray);
-   		pixelsList = new ArrayList<Pixels>(objectArray.length);
-   		for (IObject object : objectArray)
-   		{
-   			Image image = (Image) object;
-   			pixelsList.add(image.getPrimaryPixels());
-   		}
+    	long[] imageIds = ((LocalUpdate) iUpdate).saveAndReturnIds(imageArray);
+    	s1.stop();
+    	
+    	// To conform loosely with the method contract, reload a subset of
+    	// the original graph so that it may be manipulated by the caller.
+    	StopWatch s2 = new LoggingStopWatch("buildReturnCollection");
+    	List<Long> imageIdList = new ArrayList<Long>(imageIds.length);
+    	for (long imageId : imageIds)
+    	{
+    		imageIdList.add(imageId);
+    	}
+    	Parameters p = new Parameters();
+    	p.addIds(imageIdList);
+    	pixelsList = iQuery.findAllByQuery(
+    			"select p from Pixels as p " +
+    			"left outer join fetch p.channels as c " +
+    			"left outer join fetch p.image as i " +
+    			"left outer join fetch i.annotationLinks as a_link " +
+    			"left outer join fetch a_link.child as a " +
+    			"left outer join fetch a.file " +
+    			"where i.id in (:ids)", p);
+    	s2.stop();
    		return pixelsList;
     }
     
