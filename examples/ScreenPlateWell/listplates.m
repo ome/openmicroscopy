@@ -5,7 +5,7 @@ s = c.createSession();
 q = s.getQueryService();
 
 QUERY = 'select p from Plate p left outer join fetch p.wells w left outer join fetch w.wellSamples s left outer join fetch s.image where p.id = :id';
-        
+
 filter = omero.sys.Filter();
 plates = q.findAll('Plate', filter);
 

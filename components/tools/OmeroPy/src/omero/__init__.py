@@ -370,7 +370,7 @@ class client(object):
                 raise ClientError("Obtained object proxy is not a ServiceFactory")
 
             # Configure keep alive
-            keep_alive = self.__ice.getProperties().getPropertyWithDefault("omero.keep_alive", "-1")
+            keep_alive = self.__ic.getProperties().getPropertyWithDefault("omero.keep_alive", "-1")
             try:
                 i = int(keep_alive)
                 self.enableKeepAlive(i)
@@ -587,9 +587,6 @@ class client(object):
 
             self.__previous = Ice.InitializationData()
             self.__previous.properties = oldIc.getProperties().clone()
-            self.__previous.logger = oldIc.getLogger()
-            self.__previous.stats = oldIc.getStats()
-            # ThreadHook is not support since not available from ic
 
             oldR = self.__resources
             self.__resources = None
