@@ -57,7 +57,7 @@
 	<property name="OmeroWeb.comp"     value="${tools.comp}/OmeroWeb"/>
 	<property name="OmeroPy.comp"     value="${tools.comp}/OmeroPy"/>
 	<property name="OmeroFs.comp"     value="${tools.comp}/OmeroFS"/>
-	<property name="OmeroM.comp"     value="${tools.comp}/OmeroM"/>
+	<property name="OmeroMatlab.comp"     value="${tools.comp}/OmeroM"/>
 
 	<!-- Build Path References -->
 	<path id="blitz.buildpath">
@@ -90,8 +90,8 @@
 	<path id="OmeroJava.buildpath">
 	  <pathelement location="${OmeroJava.comp}/build.xml"/>
 	</path>
-	<path id="OmeroM.buildpath">
-	  <pathelement location="${OmeroM.comp}/build.xml"/>
+	<path id="OmeroMatlab.buildpath">
+	  <pathelement location="${OmeroMatlab.comp}/build.xml"/>
 	</path>
 	<path id="OmeroPy.buildpath">
 	  <pathelement location="${OmeroPy.comp}/build.xml"/>
