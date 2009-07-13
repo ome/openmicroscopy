@@ -240,8 +240,8 @@ java component.
         <!-- TODO: This should probably be made into another tools target tools-zip -->
 	<copy todir="target">
 	    <fileset dir="components/tools/OmeroImporter/target" includes="*.zip"/>
-	    <fileset dir="components/tools/OmeroM/target" includes="*.zip"/>
 	</copy>
+	<copy file="components/tools/OmeroM/target/OmeroMatlab.zip" tofile="target/OmeroMatlab-${omero.version}.zip"/>
     </target>
 
     <target name="release-tar" description="Tar the dist directory into ${product-name}-${omero.version}.tar.bz2">
