@@ -299,7 +299,7 @@ module omero {
 	    idempotent IObjectList loadInstrument(long id) throws ServerError;
 	};
 
-	//interface IMetadata; // Forward definition. See omero/api/Metadata.ice
+	//interface IMetadata; /* Forward definition. See omero/api/Metadata.ice */
 
 	/*
 	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IProjection.html
@@ -652,7 +652,8 @@ module omero {
 	// Stateful services
 	// ===================================================================================
 
-	interface Gateway; // Forward definition. See omero/Gateway.ice
+        // Forward definition. See omero/api/Gateway.ice
+	interface Gateway;
 
 	/*
 	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/JobHandle.html

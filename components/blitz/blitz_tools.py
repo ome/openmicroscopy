@@ -108,11 +108,23 @@ def slice_py(env, where, dir):
         actions.append( c )
     return actions
 
+def slice_html(env, where, dir):
+    command = ["slice2html"] + common()
+    actions = []
+    for basename, filename in basenames(where, dir):
+        c = env.Command(
+            [filename+ '.html' ],                                  # target TODO
+            filename + '.ice',                                     # source
+            make_slice(command),                                   # command
+            chdir = where )                                        # dir
+        actions.append( c )
+    return actions
+
 #
 # Lists which can be used in a cross-product to generate
 # all necessary files.
 #
-methods = [slice_java, slice_cpp, slice_py]
+methods = [slice_java, slice_cpp, slice_py, slice_html]
 directories = ["omero", "omero/model", "omero/api"]
 where = [generated, resources]
 

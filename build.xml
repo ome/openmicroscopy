@@ -322,7 +322,25 @@ java component.
         </emma>
     </target>
 
-    <target name="release-javadoc" description="Generate Javadocs for all components under dist/docs/api">
+    <target name="release-slice2html">
+      <copy todir="${dist.dir}/docs/api/slice2html">
+        <fileset dir="${blitz.comp}/generated" includes="**/*.html"/>
+      </copy>
+    </target>
+
+    <target name="release-epydoc">
+       <mkdir dir="${dist.dir}/docs/api/epydoc"/>
+       <exec executable="epydoc" failifexecutionfails="false"> <!-- In case dot is missing -->
+           <arg value="--html"/>
+           <arg value="-n"/>
+           <arg value="OmeroPy API Documentation"/>
+           <arg value="-o"/>
+           <arg value="${dist.dir}/docs/api/epydoc"/>
+           <arg value="${dist.dir}/lib/python/omero"/>
+       </exec>
+    </target>
+
+    <target name="release-javadoc" depends="release-epydoc,release-slice2html" description="Generate Javadocs for all components under dist/docs/api">
         <mkdir dir="${dist.dir}/docs/api"/>
         <patternset id="all.java.files">
             <!-- Includes prefixed with "**" in order to pick up
@@ -334,14 +352,15 @@ java component.
 
         <javadoc
             failonerror="true"
-            Verbose="true"
+            Verbose="false"
             maxmemory="${javadoc.maxmem}"
             destdir="dist/docs/api"
             author="true"
             version="true"
             use="true"
             breakiterator="true"
-            windowtitle="OMERO (OME Remote Objects) Server">
+            windowtitle="OMERO (OME Remote Objects) Server"
+            overview="docs/overview.html">
 
             <classpath>
                 <fileset dir="lib">
