@@ -16,6 +16,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import omero.api.ClientCallback;
 import omero.api.ClientCallbackPrxHelper;
 import omero.api.IAdminPrx;
 import omero.api.ISessionPrx;
@@ -26,6 +27,8 @@ import omero.model.DetailsI;
 import omero.model.OriginalFile;
 import omero.model.PermissionsI;
 import omero.util.ObjectFactoryRegistrar;
+import omero.util.Resources;
+import omero.util.Resources.Entry;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 import Ice.Current;
@@ -111,6 +114,17 @@ public class client {
      * 
      */
     private ServiceFactoryPrx __sf;
+
+    /**
+     * If non-null, then has access to this client instance and will
+     * periodically call
+     * {@link ServiceFactoryPrx#keepAlive(omero.api.ServiceInterfacePrx)} in
+     * order to keep any session alive. This can be enabled either via the
+     * omero.keep_alive configuration property, or by calling the
+     * {@link #enableKeepAlive(int)} method. Once enabled, the period cannot be
+     * adjusted during a single session.
+     */
+    private Resources __resources;
 
     /**
      * Lock for all access to {@link #__ic} and {@link #__sf}
@@ -315,6 +329,7 @@ public class client {
             // Store this instance for cleanup on shutdown.
             CLIENTS.add(this);
         }
+
     }
 
     // Destruction
@@ -487,8 +502,7 @@ public class client {
                     reason = wrapped.type + ":" + wrapped.reason;
                     retries++;
                 } catch (Ice.ConnectTimeoutException cte) {
-                    reason = "Ice.ConnectTimeoutException:"
-                            + cte.getMessage();
+                    reason = "Ice.ConnectTimeoutException:" + cte.getMessage();
                     retries++;
                 }
             }
@@ -502,6 +516,16 @@ public class client {
             if (__sf == null) {
                 throw new ClientError(
                         "Obtained object proxy is not a ServiceFactory");
+            }
+
+            // Configure keep alive
+            String keep_alive = __ic.getProperties().getPropertyWithDefault(
+                    "omero.keep_alive", "-1");
+            try {
+                int i = Integer.valueOf(keep_alive);
+                enableKeepAlive(i);
+            } catch (NumberFormatException nfe) {
+                // ignore
             }
 
             // Set the client callback on the session
@@ -540,6 +564,52 @@ public class client {
     }
 
     /**
+     * Resets the "omero.keep_alive" property on the current
+     * {@link Ice.Communicator} which is used on initialization to determine the
+     * time-period between {@link Resources.Entry#check() checks}. If no
+     * {@link #__resources} is available currently, one is also created.
+     */
+    public void enableKeepAlive(int seconds) {
+        synchronized (lock) {
+
+            // A communicator must be configured!
+            Ice.Communicator ic = getCommunicator();
+            // Setting this here guarantees that after closeSession(), the
+            // next createSession() will use the new value despite what was
+            // in the configuration file.
+            ic.getProperties().setProperty("omero.keep_alive", "" + seconds);
+
+            // If it's not null, then there's already an entry for keeping
+            // any existing session alive.
+            if (__resources == null && seconds > 0) {
+                __resources = new Resources(seconds);
+                __resources.add(new Entry() {
+                    // Return true unless prx.keepAlive() throws an exception.
+                    public boolean check() {
+                        ServiceFactoryPrx prx = __sf;
+                        Ice.Communicator ic = __ic;
+                        if (prx != null) {
+                            try {
+                                prx.keepAlive(null);
+                            } catch (Exception e) {
+                                if (ic != null) {
+                                    ic.getLogger().warning(
+                                            "Proxy keep alive failed.");
+                                }
+                            }
+                        }
+                        return true;
+                    }
+
+                    public void cleanup() {
+                        // Nothing to do.
+                    }
+                });
+            }
+        }
+    }
+
+    /**
      * Closes the session and nulls out the communicator. This is required by an
      * Ice bug.
      * 
@@ -551,7 +621,6 @@ public class client {
 
         synchronized (lock) {
 
-            ServiceFactoryPrx oldSf = this.__sf;
             this.__sf = null;
 
             Ice.ObjectAdapter oldOa = this.__oa;
@@ -576,6 +645,21 @@ public class client {
 
             __previous = new Ice.InitializationData();
             __previous.properties = oldIc.getProperties()._clone();
+            __previous.logger = oldIc.getLogger();
+            __previous.stats = oldIc.getStats();
+            // ThreadHook is not support since not available from ic
+
+            // Shutdown keep alive
+            Resources oldR = __resources;
+            __resources = null;
+            if (oldR != null) {
+                try {
+                    oldR.cleanup();
+                } catch (Exception e) {
+                    oldIc.getLogger().warning(
+                            "While cleaning up resources: " + e.getMessage());
+                }
+            }
 
             try {
                 getRouter(oldIc).destroySession();
@@ -735,14 +819,14 @@ public class client {
 
     /**
      * Implementation of {@link ClientCallback} which will be added to any
-     * {@link Session} which this instance creates. Note: this client
-     * should avoid all interaction with the {@link client#lock} since it
-     * can lead to deadlocks during shutdown. See: ticket:1210
+     * {@link ServiceFactoryPrx} which this instance creates. Note: this client
+     * should avoid all interaction with the {@link client#lock} since it can
+     * lead to deadlocks during shutdown. See: ticket:1210
      */
     private static class CallbackI extends _ClientCallbackDisp {
 
         private final Ice.Communicator ic;
-        
+
         private final Ice.ObjectAdapter oa;
 
         private Runnable _noop = new Runnable() {

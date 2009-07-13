@@ -102,8 +102,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/repository/poi-scratchpad-3.0-rc4-20070503.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/postgresql-8.3-604.jdbc3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/quartz-1.5.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/slf4j-api-1.4.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/slf4j-log4j12-1.4.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/slf4j-api-1.5.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/slf4j-log4j12-1.5.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/spring-2.5.5.jar" sourcepath="lib/repository/spring-sources-2.5.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/spring-ldap-1.2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/spring-ldap-tiger-1.2.1.jar"/>

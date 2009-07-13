@@ -128,8 +128,33 @@ public class Entry {
         this.name = name;
     }
 
+    /**
+     * Most ome/omero classes use the {@link Log} and {@link LogFactory}
+     * classes for logging. The underlying implementation, however, is
+     * more complicated. To prevent a dependency on third party jars,
+     * the Ice Logger prints to java.util.logging. Log4j is on the class-
+     * path and so is used as the main logger. And slf4j is also bound
+     * to log4j, which allows us to use the Slf4J java.util.logging bridge
+     * to send JUL to log4j as well. In summary:
+     * <pre>
+     *
+     *  Most classes --> commons logging
+     *                       \
+     *                        \------------> log4j
+     *                        /
+     *                 slf4j-/
+     *                   ^
+     * java.util.logging-|
+     *      ^
+     * Ice--|
+     *
+     * </pre>
+     */
     public static void configureLogging() {
         try {
+
+            org.slf4j.bridge.SLF4JBridgeHandler.install();
+
             String log4j_xml = System.getProperty("log4j.configuration", "");
             if (log4j_xml.length() == 0) {
                 File file = ResourceUtils.getFile("classpath:log4j.xml");

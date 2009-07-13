@@ -59,10 +59,20 @@ class client(object):
         Both "Ice" and "omero" prefixed properties will be parsed.
 
         Defines the state variables:
-          __previous - InitializationData from any previous communicator, if any
+        
+          __previous : InitializationData from any previous communicator, if any
                        Used to re-initialization the client post-closeSession()
-          __ic       - communicator. Nullness => init() needed on createSession()
-          __sf       - current session. Nullness => createSession() needed.
+                       
+          __ic       : communicator. Nullness => init() needed on createSession()
+          
+          __sf       : current session. Nullness => createSession() needed.
+          
+          __resources: if non-null, hs access to this client instance and will
+                       periodically call sf.keepAlive(None) in order to keep any
+                       session alive. This can be enabled either via the omero.keep_alive
+                       configuration property, or by calling the enableKeepAlive() method.
+                       Once enabled, the period cannot be adjusted during a single
+                       session.
 
           Modifying these variables outside of the accessors can lead to
           undefined behavior.
@@ -76,6 +86,7 @@ class client(object):
         self.__oa = None
         self.__sf = None
         self.__uuid = None
+        self.__resources = None
         self.__lock = threading.RLock()
 
         # Logging
@@ -358,6 +369,14 @@ class client(object):
             if not self.__sf:
                 raise ClientError("Obtained object proxy is not a ServiceFactory")
 
+            # Configure keep alive
+            keep_alive = self.__ice.getProperties().getPropertyWithDefault("omero.keep_alive", "-1")
+            try:
+                i = int(keep_alive)
+                self.enableKeepAlive(i)
+            except:
+                pass
+
             # Set the client callback on the session
             # and pass it to icestorm
             id = self.__ic.stringToIdentity("ClientCallback/%s" % self.__uuid )
@@ -366,6 +385,45 @@ class client(object):
             #self.__sf.subscribe("/public/HeartBeat", raw)
 
             return self.__sf
+        finally:
+            self.__lock.release()
+
+    def enableKeepAlive(self, seconds):
+        """
+        Resets the "omero.keep_alive" property on the current
+        Ice.Communicator which is used on initialization to determine
+        the time-period between Resource checks. If no __resources
+        instance is available currently, one is also created.
+        """
+
+        self.__lock.acquire()
+        try:
+            # A communicator must be configured!
+            ic = self.getCommunicator()
+            # Setting this here guarantees that after closeSession()
+            # the next createSession() will use the new value despite
+            # what was in the configuration file
+            ic.getProperties().setProperty("omero.keep_alive", str(seconds))
+
+            # If it's not null, then there's already an entry for keeping
+            # any existing session alive
+            if self.__resources == None and seconds > 0:
+                self.__resources = omero.util.Resources(seconds)
+                class Entry:
+                    def __init__(self, c):
+                        self.c = c
+                    def cleanup(self): pass
+                    def check(self):
+                        sf = self.c._client__sf
+                        ic = self.c._client__ic
+                        if sf != None:
+                            try:
+                                sf.keepAlive(None)
+                            except exceptions.Exception, e:
+                                if ic != None:
+                                    ic.getLogger().warning("Proxy keep alive failed.")
+                        return True
+                self.__resources.add(Entry(self))
         finally:
             self.__lock.release()
 
@@ -509,7 +567,6 @@ class client(object):
 
         self.__lock.acquire()
         try:
-            oldSf = self.__sf
             self.__sf = None
 
             oldOa = self.__oa
@@ -530,6 +587,18 @@ class client(object):
 
             self.__previous = Ice.InitializationData()
             self.__previous.properties = oldIc.getProperties().clone()
+            self.__previous.logger = oldIc.getLogger()
+            self.__previous.stats = oldIc.getStats()
+            # ThreadHook is not support since not available from ic
+
+            oldR = self.__resources
+            self.__resources = None
+            if oldR != None:
+                try:
+                    oldR.cleanup()
+                except exceptions.Exception, e:
+                    oldIc.getLogger().warning(
+                        "While cleaning up resources: " + str(e))
 
             try:
                 try:
