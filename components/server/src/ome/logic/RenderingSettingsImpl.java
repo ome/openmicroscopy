@@ -20,6 +20,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.transaction.annotation.Transactional;
 
 import ome.annotations.NotNull;
@@ -106,14 +108,153 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
     
     /**
-     * Performs the logic specified by {@link #resetDefaultsInImage(long)}.
-     * 
-     * @param image The image to handle.
+     * Updates a collection of Pixels from an arbitrary set of nodes.
+     * @param pixels Collection to update.
+     * @param klass Instance type of the objects for which <code>nodeIds</code>
+     * represent a primary ID for.
+     * @param nodeIds Set of node IDs to lookup Pixels against.
      */
-    private void resetDefaults(Image image)
+    private void updatePixelsForNodes(List<Pixels> pixels, 
+    		                          Class<? extends IObject> klass,
+    		                          Set<Long> nodeIds)
     {
-    	if (image == null) return;
-    	resetDefaults(image.getPrimaryPixels());
+    	// Pre-process our list of potential containers. This will resolve down
+    	// to a list of Pixels objects for us to work on.
+    	if (klass.equals(Dataset.class))
+    	{
+    		for (Long datasetId : nodeIds)
+    		{
+    			pixels.addAll(loadDatasetPixels(datasetId));
+    		}
+    	}
+    	if (klass.equals(Plate.class))
+    	{
+    		for (Long plateId : nodeIds)
+    		{
+    			pixels.addAll(loadPlatePixels(plateId));
+    		}
+    	}
+    	if (klass.equals(Image.class))
+    	{
+    		pixels.addAll(loadPixelsByImage(nodeIds));
+    	}
+    	if (klass.equals(Pixels.class))
+    	{
+    		pixels.addAll(loadPixels(nodeIds));
+    	}
+    }
+    
+    /**
+     * Retrieves all Pixels by ID.
+     * @param pixelsIds Pixels IDs to retrieve Pixels for.
+     * @return List of Pixels with the given Pixels IDs.
+     */
+    private List<Pixels> loadPixels(Set<Long> pixelsIds)
+    {
+		StopWatch s1 = new CommonsLogStopWatch("omero.loadPixelsByImage");
+		Parameters p = new Parameters();
+		p.addIds(pixelsIds);
+		String sql = "select pix from Pixels as pix " +
+			"join fetch pix.image " +
+			"join fetch pix.pixelsType " +
+			"join fetch pix.channels " +
+			"where p.id in (:ids)";
+		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
+		s1.stop();
+		return pixels;
+    }
+    
+    /**
+     * Retrieves all Pixels linked to a given set of Image IDs.
+     * @param imageIds Image IDs to retrieve Pixels for.
+     * @return List of Pixels associated with the given Image IDs.
+     */
+    private List<Pixels> loadPixelsByImage(Set<Long> imageIds)
+    {
+		StopWatch s1 = new CommonsLogStopWatch("omero.loadPixelsByImage");
+		Parameters p = new Parameters();
+		p.addIds(imageIds);
+		String sql = "select pix from Pixels as pix " +
+			"join fetch p.image as i " +
+			"join fetch pix.pixelsType " +
+			"join fetch pix.channels " +
+			"where i.id in (:ids)";
+		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
+		s1.stop();
+		return pixels;
+    }
+    
+    /**
+     * Retrieves all Pixels associated with a Plate from the database.
+     * @param plateId Plate ID to retrieve Pixels for.
+     * @return List of Pixels associated with the Plate.
+     */
+    private List<Pixels> loadPlatePixels(Long plateId)
+    {
+		StopWatch s1 = new CommonsLogStopWatch("omero.loadPlatePixels");
+		Parameters p = new Parameters();
+		p.addId(plateId);
+		String sql = "select pix from Pixels as pix " +
+			"join fetch pix.image as i " +
+			"join fetch pix.pixelsType " +
+			"join fetch pix.channels " +
+			"left outer join i.wellSamples as s " +
+			"left outer join s.well as w " +
+			"left outer join w.plate as p " +
+			"where p.id = :id";
+		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
+		s1.stop();
+		return pixels;
+    }
+    
+    /**
+     * Retrieves all Pixels associated with a Dataset from the database.
+     * @param datasetId Dataset ID to retrieve Pixels for.
+     * @return List of Pixels associated with the Dataset.
+     */
+    private List<Pixels> loadDatasetPixels(Long datasetId)
+    {
+		StopWatch s1 = new CommonsLogStopWatch("omero.loadDatasetPixels");
+		Parameters p = new Parameters();
+		p.addId(datasetId);
+    	String sql = "select pix from Pixels as pix " +
+    		"join fetch pix.image as i " +
+			"join fetch pix.pixelsType " +
+			"join fetch pix.channels " +
+			"left outer join i.datasetLinks dil " +
+			"left outer join dil.parent d where d.id = :id";
+		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
+		s1.stop();
+		return pixels;
+    }
+    
+    /**
+     * Retrieves all rendering settings associated with a given set of Pixels.
+     * @param pixels List of Pixels to retrieve settings for.
+     * @return A map of &lt;Pixels.Id,RenderingDef&gt; for the list of Pixels
+     * given. 
+     */
+    private Map<Long, RenderingDef> loadRenderingSettings(List<Pixels> pixels)
+    {
+		StopWatch s1 = new CommonsLogStopWatch("omero.loadRenderingSettings");
+		Set<Long> pixelsIds = new HashSet<Long>();
+		for (Pixels p : pixels)
+		{
+			pixelsIds.add(p.getId());
+		}
+		Parameters p = new Parameters();
+		p.addIds(pixelsIds);
+    	String sql = PixelsImpl.RENDERING_DEF_QUERY_PREFIX +
+    		"rdef.pixels.id in (:ids)";
+    	
+    	Map<Long, RenderingDef> settingsMap = new HashMap<Long, RenderingDef>();
+		List<RenderingDef> settingsList = iQuery.findAllByQuery(sql, p);
+		for (RenderingDef settings : settingsList)
+		{
+			settingsMap.put(settings.getPixels().getId(), settings);
+		}
+		s1.stop();
+		return settingsMap;
     }
     
     /**
@@ -127,10 +268,14 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @param computeStats Pass <code>true</code> to compute the stats 
      * 					   determining the input interval, <code>false</code>
      *                     otherwise.
+     * @param families The valid rendering family enumerations.
+     * @param renderingModels The valid rendering model enumerations.
      * @return See above.
      */
     private RenderingDef resetDefaults(RenderingDef settings, Pixels pixels,
-                                       boolean save, boolean computeStats)
+                                       boolean save, boolean computeStats,
+                                       List<Family> families, 
+                                       List<RenderingModel> renderingModels)
     {
     	// Handle the case where we have no rendering settings so that we can
     	// reset "pretty good image" or "original" (channel minimum and
@@ -140,19 +285,23 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         	settings = createNewRenderingDef(pixels);
         }
         
-        List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
-        List<RenderingModel> renderingModels = 
-            pixelsMetadata.getAllEnumerations(RenderingModel.class);
         QuantumFactory quantumFactory = new QuantumFactory(families);
         try
         {
-            OriginalFileMetadataProvider metadataProvider =
-            	new OmeroOriginalFileMetadataProvider(iQuery);
-            PixelBuffer buffer = 
-            	pixelsData.getPixelBuffer(pixels, metadataProvider, false);
+        	PixelBuffer buffer = null;
+        	if (computeStats)
+        	{
+        		OriginalFileMetadataProvider metadataProvider =
+        			new OmeroOriginalFileMetadataProvider(iQuery);
+        		buffer = 
+        			pixelsData.getPixelBuffer(pixels, metadataProvider, false);
+        	}
             resetDefaults(settings, pixels, quantumFactory,
                     renderingModels, buffer, computeStats);
-            buffer.close();
+            if (buffer != null)
+            {
+            	buffer.close();
+            }
             
             // Increment the version of the rendering settings so that we 
             // can have some notification that either the RenderingDef 
@@ -163,6 +312,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             
             if (save)
             {
+            	log.info("Saving settings: " + settings);
                 pixelsMetadata.saveRndSettings(settings);
             }
             return settings;
@@ -177,139 +327,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         }
     }
     
-    /**
-     * Resets a pixel's rendering settings back to those that are specified by
-     * the rendering engine intelligent <i>pretty good image (PG)</i> logic.
-     * 
-     * @param pixels The pixels object whose rendering settings are to be reset.
-     */
-    private void resetDefaults(Pixels pixels)
-    {
-    	if (pixels == null) return;
-        RenderingDef settings = getRenderingSettings(pixels.getId());
-        resetDefaults(settings, pixels, true, true);
-	}
-
-	/**
-	 * Performs the logic specified by {@link #resetDefaultsInDataset(long)}.
-	 * 
-	 * @param dataset The dataset to handle.
-	 * @return The collection of images linked to the dataset that had their
-	 * rendering settings reset.
-	 */
-	private Set<Long> resetDefaults(Dataset dataset)
-	{
-		if (dataset == null) return new HashSet<Long>();
-		String sql = "select i from Image i "
-			+ " left outer join fetch i.datasetLinks dil "
-			+ " left outer join fetch dil.parent d where d.id = :id";
-		List<Image> images = 
-			iQuery.findAllByQuery(sql, new Parameters().addId(dataset.getId()));
-		Set<Long> imageIds = new HashSet<Long>();
-		for (Image i : images)
-		{
-		    imageIds.add(i.getId());
-		}
-		return resetDefaultsInSet(Image.class, imageIds);
-	}
-	
-	/**
-	 * Performs the logic specified by {@link #resetDefaultsInSet()} for the
-	 * <code>Plate</code> type.
-	 * 
-	 * @param plate The plate to handle.
-	 * @return The collection of images linked to the plate that had their
-	 * rendering settings reset.
-	 */
-	private Set<Long> resetDefaults(Plate plate)
-	{
-		if (plate == null) return new HashSet<Long>();
-		String sql = "select i from Plate as p " +
-			"left outer join p.wells as w " +
-			"left outer join w.wellSamples as s " +
-			"left outer join s.image as i where p.id = :id";
-		List<Image> images = 
-			iQuery.findAllByQuery(sql, new Parameters().addId(plate.getId()));
-		Set<Long> imageIds = new HashSet<Long>();
-		for (Image i : images)
-		{
-		    imageIds.add(i.getId());
-		}
-		return resetDefaultsInSet(Image.class, imageIds);
-	}
-
-	/**
-     * Resets a pixel's rendering settings back to those that are specified by
-     * the rendering engine intelligent <i>pretty good image (PG)</i> logic.
-     * 
-     * @param pixels The pixels object whose rendering settings are to be set.
-     */
-    private void setOriginalSettings(Pixels pixels)
-    {
-    	if (pixels == null) return;
-        RenderingDef settings = getRenderingSettings(pixels.getId());
-        resetDefaults(settings, pixels, true, false);
-    }
-
-    /**
-     * Performs the logic specified by {@link #resetDefaultsInImage(long)}.
-     * 
-     * @param image The image to handle.
-     */
-    private void setOriginalSettings(Image image)
-    {
-    	if (image == null) return;
-    	setOriginalSettings(image.getPrimaryPixels());
-    }
-
-    /**
-	 * Sets the original settings for the images linked to the specified 
-	 * dataset.
-	 * 
-	 * @param dataset The dataset to handle.
-	 * @return The collection of images linked to the dataset.
-	 */
-	private Set<Long> setOriginalSettings(Dataset dataset)
-	{
-		if (dataset == null) return new HashSet<Long>();
-		String sql = "select i from Image i "
-			+ " left outer join fetch i.datasetLinks dil "
-			+ " left outer join fetch dil.parent d where d.id = :id";
-		List<Image> images = 
-			iQuery.findAllByQuery(sql, new Parameters().addId(dataset.getId()));
-        Set<Long> imageIds = new HashSet<Long>();
-        for (Image image : images)
-        {
-            imageIds.add(image.getId());
-        }
-		return setOriginalSettingsInSet(Image.class, imageIds);
-	}
-	
-	/**
-	 * Performs the logic specified by {@link #setOriginalSettingsInSet()} for 
-	 * the <code>Plate</code> type.
-	 * 
-	 * @param plate The plate to handle.
-	 * @return The collection of images linked to the plate that had their
-	 * rendering settings reset.
-	 */
-	private Set<Long> setOriginalSettings(Plate plate)
-	{
-		if (plate == null) return new HashSet<Long>();
-		String sql = "select i from Plate as p " +
-			"left outer join p.wells as w " +
-			"left outer join w.wellSamples as s " +
-			"left outer join s.image as i where p.id = :id";
-		List<Image> images = 
-			iQuery.findAllByQuery(sql, new Parameters().addId(plate.getId()));
-		Set<Long> imageIds = new HashSet<Long>();
-		for (Image i : images)
-		{
-		    imageIds.add(i.getId());
-		}
-		return setOriginalSettingsInSet(Image.class, imageIds);
-	}
-	
     /**
      * Resets a rendering definition to its predefined defaults.
      * 
@@ -331,7 +348,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         // Set the rendering model to RGB if there is more than one channel,
         // otherwise set it to greyscale.
         RenderingModel defaultModel = null;
-        if (pixels.sizeOfChannels() > 1) {
+        if (pixels.getSizeC() > 1) {
             for (RenderingModel model : renderingModels)
             {
                 if (model.getValue().equals(Renderer.MODEL_RGB))
@@ -360,6 +377,52 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     
         // Reset the channel bindings
         resetChannelBindings(def, pixels, quantumFactory, buffer, computeStats);
+    }
+    
+    /**
+     * Performs the logic specified by {@link #resetDefaultsInSet()} and
+     * {@link #setOriginalSettingsInSet()}.
+     */
+    public <T extends IObject> Set<Long> resetDefaultsInSet(
+            Class<T> klass, Set<Long> nodeIds, boolean computeStats)
+    {
+    	checkValidContainerClass(klass);
+    	
+    	// Load our dependencies for rendering settings manipulation
+    	StopWatch s1 = new CommonsLogStopWatch("omero.resetDefaultsInSet");
+        List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
+        List<RenderingModel> renderingModels = 
+            pixelsMetadata.getAllEnumerations(RenderingModel.class);
+    	// Pre-process our list of potential containers. This will resolve down
+    	// to a list of Pixels objects for us to work on.
+    	List<Pixels> pixels = new ArrayList<Pixels>();
+    	updatePixelsForNodes(pixels, klass, nodeIds);
+    	
+    	// Perform the actual work of resetting rendering settings, collecting
+    	// the settings that need to be saved and saving the newly modified or
+    	// created rendering settings in the database.
+    	Set<Long> imageIds = new HashSet<Long>();
+    	List<RenderingDef> toSave = new ArrayList<RenderingDef>(pixels.size());
+    	Map<Long, RenderingDef> settingsMap = loadRenderingSettings(pixels);
+    	for (Pixels p : pixels)
+    	{
+    		RenderingDef settings = settingsMap.get(p.getId());
+    		if (settings == null)
+    		{
+    			settings = createNewRenderingDef(p);
+    		}
+            toSave.add(resetDefaults(settings, p, false, computeStats, families,
+            		                 renderingModels));
+			imageIds.add(p.getImage().getId());
+    	}
+        StopWatch s2 = new CommonsLogStopWatch(
+			"omero.resetDefaultsInSet.saveAndReturn");
+        RenderingDef[] toSaveArray = 
+        	toSave.toArray(new RenderingDef[toSave.size()]);
+        iUpdate.saveAndReturnArray(toSaveArray);
+        s2.stop();
+        s1.stop();
+    	return imageIds;
     }
     
     /**
@@ -824,7 +887,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public void resetDefaults(RenderingDef def, Pixels pixels) {
-        resetDefaults(def, pixels, true, true);
+        List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
+        List<RenderingModel> renderingModels = 
+            pixelsMetadata.getAllEnumerations(RenderingModel.class);
+        resetDefaults(def, pixels, true, true, families, renderingModels);
     }
     
     /**
@@ -834,7 +900,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public RenderingDef resetDefaultsNoSave(RenderingDef def, Pixels pixels) {
-        return resetDefaults(def, pixels, false, true);
+        List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
+        List<RenderingModel> renderingModels = 
+            pixelsMetadata.getAllEnumerations(RenderingModel.class);
+        return resetDefaults(def, pixels, false, true, families, 
+        		             renderingModels);
     }
     
     /**
@@ -843,8 +913,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public void resetDefaultsInImage(long to) {
-        Image image = iQuery.get(Image.class, to);
-        resetDefaults(image);
+    	Set<Long> nodeIds = new HashSet<Long>();
+    	nodeIds.add(to);
+    	resetDefaultsInSet(Image.class, nodeIds);
     }
     
     /**
@@ -852,9 +923,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @see IRenderingSettings#resetDefaultsForPixels(long)
      */
     @RolesAllowed("user")
-    public void resetDefaultsForPixels(long pixelsId) {
-        Pixels pixels = iQuery.get(Pixels.class, pixelsId);
-        resetDefaults(pixels);
+    public void resetDefaultsForPixels(long to) {
+    	Set<Long> nodeIds = new HashSet<Long>();
+    	nodeIds.add(to);
+    	resetDefaultsInSet(Pixels.class, nodeIds);
     }
 
     /**
@@ -863,9 +935,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @see IRenderingSettings#resetDefaultsInDataset(long)
      */
     @RolesAllowed("user")
-    public Set<Long> resetDefaultsInDataset(long dataSetId) {
-    	Dataset dataset = iQuery.get(Dataset.class, dataSetId);
-    	return resetDefaults(dataset);
+    public Set<Long> resetDefaultsInDataset(long to) {
+    	Set<Long> nodeIds = new HashSet<Long>();
+    	nodeIds.add(to);
+    	return resetDefaultsInSet(Dataset.class, nodeIds);
     }
 
     /**
@@ -876,45 +949,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     public <T extends IObject> Set<Long> resetDefaultsInSet(Class<T> klass,
     		                                                Set<Long> nodeIds)
     {
-    	checkValidContainerClass(klass);
-
-        List<IObject> objects = new ArrayList<IObject>();
-        for (Long nodeId : nodeIds)
-        {
-            objects.add(iQuery.get(klass, nodeId));
-        }
-        Set<Long> imageIds = new HashSet<Long>();
-        for (IObject object : objects)
-        {
-            try
-            {
-                if (object instanceof Dataset)
-                {
-                    imageIds.addAll(resetDefaults((Dataset) object));
-                }
-                if (object instanceof Plate)
-                {
-                	imageIds.addAll(resetDefaults((Plate) object));
-                }
-                if (object instanceof Image)
-                {
-                    Image image = (Image) object;
-                    resetDefaults(image);
-                    imageIds.add(image.getId());
-                }
-				if (object instanceof Pixels)
-				{
-					Image image = ((Pixels) object).getImage();
-					setOriginalSettings((Pixels) object);
-					imageIds.add(image.getId());
-				}
-            }
-            catch (Throwable t)
-            {
-                log.error("Error while resetting defaults.", t);
-            }
-        }
-        return imageIds;
+    	return resetDefaultsInSet(klass, nodeIds, true);
     }
     
     /**
@@ -923,7 +958,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public void setOriginalSettingsInImage(long to) {
-        setOriginalSettings(iQuery.get(Image.class, to));
+    	Set<Long> nodeIds = new HashSet<Long>();
+    	nodeIds.add(to);
+    	setOriginalSettingsInSet(Image.class, nodeIds);
     }
     
     /**
@@ -931,8 +968,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @see IRenderingSettings#setOriginalSettingsForPixels(long)
      */
     @RolesAllowed("user")
-    public void setOriginalSettingsForPixels(long pixelsId) {
-        setOriginalSettings(iQuery.get(Pixels.class, pixelsId));
+    public void setOriginalSettingsForPixels(long to) {
+    	Set<Long> nodeIds = new HashSet<Long>();
+    	nodeIds.add(to);
+    	setOriginalSettingsInSet(Pixels.class, nodeIds);
     }
     
     /**
@@ -941,7 +980,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public Set<Long> setOriginalSettingsInDataset(long to) {
-        return setOriginalSettings(iQuery.get(Dataset.class, to));
+    	Set<Long> nodeIds = new HashSet<Long>();
+    	nodeIds.add(to);
+    	return setOriginalSettingsInSet(Dataset.class, nodeIds);
     }
     
     /**
@@ -952,34 +993,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     public <T extends IObject> Set<Long> setOriginalSettingsInSet(
             Class<T> klass, Set<Long> nodeIds)
     {
-    	checkValidContainerClass(klass);
-
-    	List<IObject> objects = new ArrayList<IObject>();
-        for (Long nodeId : nodeIds)
-        {
-            objects.add(iQuery.get(klass, nodeId));
-        }
-    	Set<Long> imageIds = new HashSet<Long>();
-    	Image image;
-    	for (IObject object : objects) {
-    		try {
-    			if (object instanceof Dataset) {
-    				imageIds.addAll(setOriginalSettings((Dataset) object));
-    			} else if (object instanceof Plate) {
-    				imageIds.addAll(setOriginalSettings((Plate) object));
-    			} else if (object instanceof Image) {
-    				image = (Image) object;
-    				setOriginalSettings(image);
-    				imageIds.add(image.getId());
-    			} else if (object instanceof Pixels) {
-    				image = ((Pixels) object).getImage();
-    				setOriginalSettings((Pixels) object);
-    				imageIds.add(image.getId());
-    			}
-    		} catch (Throwable t) {
-    			log.error("Error while resetting original settings.", t);
-    		}
-    	}
-    	return imageIds;
+    	return resetDefaultsInSet(klass, nodeIds, false);
     }
 }
