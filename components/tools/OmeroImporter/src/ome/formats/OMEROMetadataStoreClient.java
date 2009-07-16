@@ -2277,6 +2277,26 @@ public class OMEROMetadataStoreClient
             o.setSha1(toRType("Pending"));
         }
         
+        // Link each of the Plates in our object cache to the FileAnnotation
+        // and OriginalFile. Return after this, we cannot afford to be linking
+        // potentially 1000's of files to 100's of images.
+        for (int i = 0; i < plates.size(); i++)
+        {
+        	LSID plateKey = new LSID(Plate.class, i);
+        	for (int j = 0; j < files.length; j++)
+        	{
+                LinkedHashMap<String, Integer> indexes = 
+                	new LinkedHashMap<String, Integer>();
+                indexes.put("plateIndex", i);
+                indexes.put("originalFileIndex", j);
+                addFileAnnotationTo(plateKey, indexes, j);
+        	}
+        }
+        if (plates.size() > 0)
+        {
+            return;
+        }
+
         // Link each of the Images in our object cache to the FileAnnotation
         // and OriginalFile.
         for (int i = 0; i < images.size(); i ++)
@@ -2290,23 +2310,9 @@ public class OMEROMetadataStoreClient
                 	new LinkedHashMap<String, Integer>();
                 indexes.put("imageIndex", i);
                 indexes.put("originalFileIndex", j);
+		log.debug(String.format("%d:%d %s", i, j, imageKey));
                 addFileAnnotationTo(imageKey, indexes, j);     
             }
-        }
-        
-        // Link each of the Plates in our object cache to the FileAnnotation
-        // and OriginalFile.
-        for (int i = 0; i < plates.size(); i++)
-        {
-        	LSID plateKey = new LSID(Plate.class, i);
-        	for (int j = 0; j < files.length; j++)
-        	{
-                LinkedHashMap<String, Integer> indexes = 
-                	new LinkedHashMap<String, Integer>();
-                indexes.put("plateIndex", i);
-                indexes.put("originalFileIndex", j);
-                addFileAnnotationTo(plateKey, indexes, j);
-        	}
         }
     }
     

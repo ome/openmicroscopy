@@ -77,7 +77,7 @@ import ome.util.LSID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.perf4j.LoggingStopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.perf4j.StopWatch;
 
 
@@ -1323,14 +1323,14 @@ public class OMEROMetadataStore
     {
     	// Save the entire Image rooted graph using the "insert only"
     	// saveAndReturnIds() local update service only method.
-    	StopWatch s1 = new LoggingStopWatch("saveImportGraph");
+    	StopWatch s1 = new CommonsLogStopWatch("omero.saveImportGraph");
     	Image[] imageArray = imageList.toArray(new Image[imageList.size()]);
     	long[] imageIds = ((LocalUpdate) iUpdate).saveAndReturnIds(imageArray);
     	s1.stop();
     	
     	// To conform loosely with the method contract, reload a subset of
     	// the original graph so that it may be manipulated by the caller.
-    	StopWatch s2 = new LoggingStopWatch("buildReturnCollection");
+    	StopWatch s2 = new CommonsLogStopWatch("omero.buildReturnCollection");
     	List<Long> imageIdList = new ArrayList<Long>(imageIds.length);
     	for (long imageId : imageIds)
     	{
