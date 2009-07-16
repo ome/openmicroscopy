@@ -140,8 +140,9 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * specified by the rendering engine intelligent <i>pretty good image
 	 * (PG)</i> logic. Supported container types are:
 	 * <ul>
-	 *   <li>{@link Image}</li>
+	 *   <li>{@link Project}</li>
 	 *   <li>{@link Dataset}</li>
+	 *   <li>{@link Image}</li>
 	 *   <li>{@link Plate}</li>
 	 *   <li>{@link Pixels}</li>
 	 * </ul>
@@ -149,7 +150,8 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @param nodeIds Ids of the node type.
 	 * @return A {@link java.util.Set} of image IDs that have had their 
 	 * rendering settings reset. 
-	 * @throws ValidationException if the image qualified by 
+	 * @throws ValidationException if an illegal <code>type</code> is
+	 * used.
 	 */
 	<T extends IObject> Set<Long> resetDefaultsInSet(Class<T> type, 
 			@NotNull @Validate(Long.class) Set<Long> nodeIds);
@@ -160,8 +162,9 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * <code>Dataset</code> will have the rendering settings applied. Supported
 	 * container types are:
 	 * <ul>
-	 *   <li>{@link Image}</li>
+	 *   <li>{@link Project}</li>
 	 *   <li>{@link Dataset}</li>
+	 *   <li>{@link Image}</li>
 	 *   <li>{@link Plate}</li>
 	 *   <li>{@link Pixels}</li>
 	 * </ul>
@@ -169,58 +172,56 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @param <T> The type of object to copy to. <code>Project</code>, 
 	 * <code>Dataset</code> and <code>Image</code> are currently supported.
 	 * @param from The Id of the pixels set to copy the rendering settings from.
-	 * @param toType The type of the object to copy to as also declared by
-	 * <code>T</code>
-	 * @param to The list of containers to either apply the settings to
-	 * directly (<code>Image</code>) or in-directly (<code>Project</code> and
-	 * <code>Dataset</code>).
-	 * @throws ValidationException if an illegal <code>toType</code> is
-	 * passed in or the rendering settings <code>from</code> is unlocatable.
+	 * @param type The type of nodes to handle.
+	 * @param nodeIds Ids of the node type.
+	 * @returns A map with two boolean keys. The value of the <code>TRUE</code>
+	 * is a collection of images ID, the settings were successfully applied to.
+	 * The value of the <code>FALSE</code> is a collection of images ID, the 
+	 * settings could not be applied to.
+	 * @throws ValidationException if an illegal <code>type</code> is
+	 * used.
 	 */
-	<T extends IObject> void applySettingsToSet(@NotNull long from, 
-			Class<T> toType, @NotNull Set<T> to);
+	<T extends IObject> Map<Boolean, List<Long>> applySettingsToSet(
+			@NotNull long from, Class<T> type, @NotNull Set<Long> nodeIds);
 	
 	/**
 	 * Applies rendering settings to all images in all <code>Datasets</code> 
 	 * of a given <code>Project</code>.
-	 * Returns a map with two boolean keys. The value of the 
-	 * <code>TRUE</code> is a collection of images ID, the settings were 
-	 * successfully applied to. The value of the 
-	 * <code>FALSE</code> is a collection of images ID, the settings could not 
-	 * be applied to. 
 	 * 
 	 * @param from The Id of the pixels set to copy the rendering settings from.
 	 * @param to The Id of the project container to apply settings to.
-	 * @return See above.
+	 * @return A map with two boolean keys. The value of the <code>TRUE</code>
+	 * is a collection of images ID, the settings were successfully applied to.
+	 * The value of the <code>FALSE</code> is a collection of images ID, the 
+	 * settings could not be applied to.
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the project <code>to</code> is unlocatable.
 	 */
-	Map<Boolean, List<Long>> applySettingsToProject(@NotNull long from, @NotNull long to);
+	Map<Boolean, List<Long>> applySettingsToProject(@NotNull long from,
+			                                        @NotNull long to);
 	
 	/**
 	 * Applies rendering settings to all images in a given <code>Dataset</code>. 
-	 * Returns a map with two boolean keys. The value of the 
-	 * <code>TRUE</code> is a collection of images ID, the settings were 
-	 * successfully applied to. The value of the 
-	 * <code>FALSE</code> is a collection of images ID, the settings could not 
-	 * be applied to. 
 	 * 
 	 * @param from The Id of the pixels set to copy the rendering settings from.
 	 * @param to The Id of the dataset container to apply settings to.
-	 * @return See above.
+	 * @return A map with two boolean keys. The value of the <code>TRUE</code>
+	 * is a collection of images ID, the settings were successfully applied to.
+	 * The value of the <code>FALSE</code> is a collection of images ID, the 
+	 * settings could not be applied to.
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the dataset <code>to</code> is unlocatable.
 	 */
-	Map<Boolean, List<Long>> applySettingsToDataset(@NotNull long from, @NotNull long to);
+	Map<Boolean, List<Long>> applySettingsToDataset(@NotNull long from,
+			                                        @NotNull long to);
 
 	/**
 	 * Applies rendering settings to a given <code>Image</code>. 
-	 * Returns <code>true</code> if the settings were 
-	 * successfully applied to, <code>false</code> otherwise.
 	 * 
 	 * @param from The Id of the pixels set to copy the rendering settings from.
 	 * @param to The Id of the image container to apply settings to.
-	 * @return See above.
+	 * @return <code>true</code> if the settings were successfully applied,
+	 * <code>false</code> otherwise.
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the image <code>to</code> is unlocatable.
 	 */
@@ -228,18 +229,16 @@ public interface IRenderingSettings extends ServiceInterface {
 	
 	/**
 	 * Applies rendering settings to a given <code>Image</code>. 
-	 * Returns <code>true</code> if the settings were 
-	 * successfully applied to, <code>false</code> otherwise.
 	 * 
 	 * @param from The Id of the pixels set to copy the rendering settings from.
 	 * @param to The Id of the image container to apply settings to.
-	 * @return See above.
+	 * @return <code>true</code> if the settings were successfully applied,
+	 * <code>false</code> otherwise.
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the image <code>to</code> is unlocatable.
 	 */
 	Map<Boolean, List<Long>> applySettingsToImages(@NotNull long from,
 			@NotNull  @Validate(Long.class) List<Long> to);
-	
 	
 	/**
 	 * Applies rendering settings to a given <code>Pixels</code>. 
@@ -267,8 +266,9 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * Resets a rendering settings back to channel global minimum and maximum
 	 * for the specified containers. Supported container types are:
 	 * <ul>
-	 *   <li>{@link Image}</li>
+	 *   <li>{@link Project}</li>
 	 *   <li>{@link Dataset}</li>
+	 *   <li>{@link Image}</li>
 	 *   <li>{@link Plate}</li>
 	 *   <li>{@link Pixels}</li>
 	 * </ul>
@@ -277,8 +277,8 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @param nodeIds Ids of the node type.
 	 * @return A {@link java.util.Set} of image IDs that have had their 
 	 * rendering settings reset. 
-	 * @throws ValidationException if the image qualified by any of the
-	 * containers is unlocatable.
+	 * @throws ValidationException if an illegal <code>type</code> is
+	 * used.
 	 */
 	<T extends IObject> Set<Long> setOriginalSettingsInSet(Class<T> type, 
 							@NotNull @Validate(Long.class) Set<Long> nodeIds);

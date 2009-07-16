@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -31,7 +30,6 @@ import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
-import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.OriginalFileMetadataProvider;
@@ -39,6 +37,7 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
 import ome.model.containers.Dataset;
+import ome.model.containers.Project;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
@@ -96,14 +95,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private void checkValidContainerClass(Class<? extends IObject> klass)
     {
-    	if (!Dataset.class.equals(klass)
-        		&& !Image.class.equals(klass)
-        		&& !Plate.class.equals(klass)
-        		&& !Pixels.class.equals(klass))
+    	if (!Project.class.equals(klass)
+    		&& !Dataset.class.equals(klass)
+            && !Image.class.equals(klass)
+            && !Plate.class.equals(klass)
+            && !Pixels.class.equals(klass))
         	{
         		throw new IllegalArgumentException(
-        				"Class parameter for resetDefaultsInSet() must be in "
-        				+ "{Dataset, Image, Plate, Pixels}, not " + klass);
+        				"Class parameter for resetDefaultsInSet() must be in " +
+        				"{Project, Dataset, Image, Plate, Pixels}, not " + 
+        				klass);
         	}	
     }
     
@@ -120,6 +121,13 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     {
     	// Pre-process our list of potential containers. This will resolve down
     	// to a list of Pixels objects for us to work on.
+    	if (klass.equals(Project.class))
+    	{
+    		for (Long projectId : nodeIds)
+    		{
+    			pixels.addAll(loadProjectPixels(projectId));
+    		}
+    	}
     	if (klass.equals(Dataset.class))
     	{
     		for (Long datasetId : nodeIds)
@@ -157,8 +165,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		String sql = "select pix from Pixels as pix " +
 			"join fetch pix.image " +
 			"join fetch pix.pixelsType " +
-			"join fetch pix.channels " +
-			"where p.id in (:ids)";
+			"join fetch pix.channels as c " +
+			"join fetch c.logicalChannel " +
+			"where pix.id in (:ids)";
 		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
 		s1.stop();
 		return pixels;
@@ -175,9 +184,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		Parameters p = new Parameters();
 		p.addIds(imageIds);
 		String sql = "select pix from Pixels as pix " +
-			"join fetch p.image as i " +
+			"join fetch pix.image as i " +
 			"join fetch pix.pixelsType " +
-			"join fetch pix.channels " +
+			"join fetch pix.channels as c " +
+			"join fetch c.logicalChannel " +
 			"where i.id in (:ids)";
 		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
 		s1.stop();
@@ -197,7 +207,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		String sql = "select pix from Pixels as pix " +
 			"join fetch pix.image as i " +
 			"join fetch pix.pixelsType " +
-			"join fetch pix.channels " +
+			"join fetch pix.channels as c " +
+			"join fetch c.logicalChannel " +
 			"left outer join i.wellSamples as s " +
 			"left outer join s.well as w " +
 			"left outer join w.plate as p " +
@@ -220,9 +231,36 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	String sql = "select pix from Pixels as pix " +
     		"join fetch pix.image as i " +
 			"join fetch pix.pixelsType " +
-			"join fetch pix.channels " +
+			"join fetch pix.channels as c " +
+			"join fetch c.logicalChannel " +
 			"left outer join i.datasetLinks dil " +
-			"left outer join dil.parent d where d.id = :id";
+			"left outer join dil.parent d " +
+			"where d.id = :id";
+		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
+		s1.stop();
+		return pixels;
+    }
+    
+    /**
+     * Retrieves all Pixels associated with a Dataset from the database.
+     * @param datasetId Dataset ID to retrieve Pixels for.
+     * @return List of Pixels associated with the Dataset.
+     */
+    private List<Pixels> loadProjectPixels(Long projectIds)
+    {
+		StopWatch s1 = new CommonsLogStopWatch("omero.loadProjectPixels");
+		Parameters p = new Parameters();
+		p.addId(projectIds);
+    	String sql = "select pix from Pixels as pix " +
+    		"join fetch pix.image as i " +
+			"join fetch pix.pixelsType " +
+			"join fetch pix.channels as c " +
+			"join fetch c.logicalChannel " +
+			"left outer join i.datasetLinks dil " +
+			"left outer join dil.parent as d " +
+			"left outer join d.projectLinks as pdl " +
+			"left outer join pdl.parent as p " +
+			"where p.id = :id";
 		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
 		s1.stop();
 		return pixels;
@@ -383,7 +421,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * Performs the logic specified by {@link #resetDefaultsInSet()} and
      * {@link #setOriginalSettingsInSet()}.
      */
-    public <T extends IObject> Set<Long> resetDefaultsInSet(
+    private <T extends IObject> Set<Long> resetDefaultsInSet(
             Class<T> klass, Set<Long> nodeIds, boolean computeStats)
     {
     	checkValidContainerClass(klass);
@@ -563,52 +601,78 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
     
     /**
-     * Applies the settings to the passed collection of Images. Returns a map
-     * with two keys: A <code>True</code> key whose value is a list of image's
-     * ids the settings were successfully applied to, a <code>False</code> key
-     * whose value is a list of image's ids the settings could not be applied
-     * to.
-     * 
-     * @param from
-     *            The image to copy the settings from.
-     * @param images
-     *            The collection of image to copy the settings to.
-     * @return See above.
+     * Applies rendering settings from a source set of pixels and settings to
+     * a destination set of pixels and settings.
+     * @param pixelsFrom Source pixels object.
+     * @param pixelsTo Source renderings settings.
+     * @param settingsFrom Source rendering settings.
+     * @param settingsTo Destination rendering settings. If <code>null</code>
+     * these will be created on the fly.
+     * @return The rendering settings modified or created. It is up to the
+     * caller to save these settings.
      */
-    private Map<Boolean, List<Long>> applySettings(long from, Set<Image> images) {
-
-        if (images.isEmpty())
-            throw new ValidationException("Target does not contain any Images.");
-
-        List<Long> trueList = new ArrayList<Long>();
-        List<Long> falseList = new ArrayList<Long>();
-
-        try {
-            Iterator<Image> i = images.iterator();
-            Image image;
-            boolean r;
-            while (i.hasNext()) {
-                image = i.next();
-                try {
-                    r = applySettingsToImage(from, image.getId());
-                    if (r)
-                        trueList.add(image.getId());
-                    else
-                        falseList.add(image.getId());
-                } catch (Exception e) {
-                    falseList.add(image.getId());
-                }
-            }
-        } catch (NoSuchElementException expected) {
-            throw new ApiUsageException(
-                    "There are no elements assigned to the Dataset");
+    private RenderingDef applySettings(Pixels pixelsFrom, Pixels pixelsTo,
+    		                           RenderingDef settingsFrom,
+    		                           RenderingDef settingsTo)
+    {
+    	// Sanity checks
+        boolean b = sanityCheckPixels(pixelsFrom, pixelsTo);
+        if (!b)
+        {
+            return null;
         }
+        if (settingsFrom == null)
+        {
+            return null;
+        }
+        if (settingsTo == null)
+        {
+        	settingsTo = createNewRenderingDef(pixelsTo);
+        }
+        
+        settingsTo.setModel(settingsFrom.getModel());
+        
+        QuantumDef qDefFrom = settingsFrom.getQuantization();
+        QuantumDef qDefTo = settingsTo.getQuantization();
 
-        Map<Boolean, List<Long>> result = new HashMap<Boolean, List<Long>>();
-        result.put(Boolean.TRUE, trueList);
-        result.put(Boolean.FALSE, falseList);
+        qDefTo.setBitResolution(qDefFrom.getBitResolution());
+        qDefTo.setCdEnd(qDefFrom.getCdEnd());
+        qDefTo.setCdStart(qDefFrom.getCdStart());
 
-        return result;
+        Iterator<ChannelBinding> i = settingsFrom.iterateWaveRendering();
+        Iterator<ChannelBinding> iTo = settingsTo.iterateWaveRendering();
+        ChannelBinding binding, bindingTo;
+        while (i.hasNext())
+        {
+            binding = i.next();
+            bindingTo = iTo.next();
+
+            // channel on or off
+            bindingTo.setActive(binding.getActive());
+            // mapping coefficient
+            bindingTo.setCoefficient(binding.getCoefficient());
+            // type of map used
+            bindingTo.setFamily(binding.getFamily());
+            // lower bound of the pixels intensity interval
+            bindingTo.setInputStart(binding.getInputStart());
+            // upper bound of the pixels intensity interval
+            bindingTo.setInputEnd(binding.getInputEnd());
+            // turn on or off the noise reduction algo.
+            bindingTo.setNoiseReduction(binding.getNoiseReduction());
+            // color used
+            bindingTo.setAlpha(binding.getAlpha());
+            bindingTo.setBlue(binding.getBlue());
+            bindingTo.setGreen(binding.getGreen());
+            bindingTo.setRed(binding.getRed());
+        }
+        
+        // Increment the version of the rendering settings so that we 
+        // can have some notification that either the RenderingDef 
+        // object itself or one of its children in the object graph has 
+        // been updated. FIXME: This should be implemented using 
+        // IUpdate.touch() or similar once that functionality exists.
+        settingsTo.setVersion(settingsTo.getVersion() + 1);
+        return settingsTo;
     }
     
     /**
@@ -685,10 +749,64 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @see IRenderingSettings#applySettingsToSet(long, Class, Set)
      */
     @RolesAllowed("user")
-    public <T extends IObject> void applySettingsToSet(long from, 
-    		Class<T> toType, Set<T> to) {
-        // TODO Auto-generated method stub
-
+    public <T extends IObject> Map<Boolean, List<Long>> applySettingsToSet(
+    		long from, Class<T> klass, Set<Long> nodeIds) {
+    	checkValidContainerClass(klass);
+    	
+    	// Load our dependencies for rendering settings manipulation
+    	StopWatch s1 = new CommonsLogStopWatch("omero.applySettingsToSet");
+    	nodeIds.add(from);
+    	// Pre-process our list of potential containers. This will resolve down
+    	// to a list of Pixels objects for us to work on.
+    	List<Pixels> pixels = new ArrayList<Pixels>();
+    	updatePixelsForNodes(pixels, klass, nodeIds);
+    	Pixels pixelsFrom = null;
+    	for (Pixels p : pixels)
+    	{
+    		if (p.getId() == from)
+    		{
+    			pixelsFrom = p;
+    		}
+    	}
+    	if (pixelsFrom == null)
+    	{
+    		throw new ValidationException("No pixels set with ID: " + from);
+    	}
+    	
+    	// Perform the actual work of copying rendering settings, collecting
+    	// the settings that need to be saved and saving the newly modified or
+    	// created rendering settings in the database.
+    	List<Long> toReturnTrue = new ArrayList<Long>();
+    	List<Long> toReturnFalse = new ArrayList<Long>();
+    	List<RenderingDef> toSave = new ArrayList<RenderingDef>(pixels.size());
+    	Map<Long, RenderingDef> settingsMap = loadRenderingSettings(pixels);
+    	RenderingDef settingsFrom = settingsMap.get(from);
+    	pixels.remove(pixelsFrom);
+    	for (Pixels p : pixels)
+    	{
+    		RenderingDef settingsTo = settingsMap.get(p.getId());
+            settingsTo = applySettings(pixelsFrom, p, settingsFrom, settingsTo);
+            if (settingsTo == null)
+            {
+            	toReturnFalse.add(p.getImage().getId());
+            }
+            else
+            {
+            	toSave.add(settingsTo);
+            	toReturnTrue.add(p.getImage().getId());
+            }
+    	}
+        StopWatch s2 = new CommonsLogStopWatch(
+			"omero.applySettingsToSet.saveAndReturn");
+        RenderingDef[] toSaveArray = 
+        	toSave.toArray(new RenderingDef[toSave.size()]);
+        iUpdate.saveAndReturnArray(toSaveArray);
+        s2.stop();
+        s1.stop();
+    	Map<Boolean, List<Long>> toReturn = new HashMap<Boolean, List<Long>>();
+    	toReturn.put(Boolean.TRUE, toReturnTrue);
+    	toReturn.put(Boolean.FALSE, toReturnFalse);
+        return toReturn;
     }
 
     /**
@@ -696,17 +814,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @see IRenderingSettings#applySettingsToProject(long, long)
      */
     @RolesAllowed("user")
-    public Map<Boolean, List<Long>> applySettingsToProject(long from, long to) {
-
-        String sql = "select i from Image i "
-                + " left outer join fetch i.datasetLinks dil "
-                + " left outer join fetch dil.parent d "
-                + " left outer join fetch d.projectLinks pdl "
-                + " left outer join fetch pdl.parent pr "
-                + " where pr.id = :id";
-        List<Image> images =
-        	iQuery.findAllByQuery(sql, new Parameters().addId(to));
-        return applySettings(from, new HashSet<Image>(images));
+    public Map<Boolean, List<Long>> applySettingsToProject(long from, long to)
+    {
+    	Set<Long> nodeIds = new HashSet<Long>();
+    	nodeIds.add(to);
+    	return applySettingsToSet(from, Project.class, nodeIds);
     }
 
     /**
@@ -714,13 +826,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @see IRenderingSettings#applySettingsToDataset(long, long)
      */
     @RolesAllowed("user")
-    public Map<Boolean, List<Long>> applySettingsToDataset(long from, long to) {
-        String sql = "select i from Image i "
-                + " left outer join fetch i.datasetLinks dil "
-                + " left outer join fetch dil.parent d where d.id = :id";
-        List<Image> images = 
-        	iQuery.findAllByQuery(sql, new Parameters().addId(to));
-        return applySettings(from, new HashSet<Image>(images));
+    public Map<Boolean, List<Long>> applySettingsToDataset(long from, long to)
+    {
+    	Set<Long> nodeIds = new HashSet<Long>();
+    	nodeIds.add(to);
+    	return applySettingsToSet(from, Dataset.class, nodeIds);
     }
 
     /**
@@ -730,18 +840,15 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public boolean applySettingsToImage(long from, long to) {
-    	String sql = "select p from Pixels p "
-            + "left outer join fetch p.image img "
-            + "where img.id = :id";
-    	/*
-        Image img = iQuery.get(Image.class, to);
-        if (img == null) return false;
-        Pixels pix = img.getPrimaryPixels();
-        if (pix == null) return false;
-        */
-    	Pixels pix = (Pixels) iQuery.findByQuery(sql, new Parameters().addId(to));
-    	if (pix == null) return false;
-        return applySettingsToPixels(from, pix.getId());
+    	Set<Long> nodeIds = new HashSet<Long>();
+    	nodeIds.add(to);
+    	Map<Boolean, List<Long>> returnValue = 
+    		applySettingsToSet(from, Image.class, nodeIds);
+    	if (returnValue.get(Boolean.TRUE).contains(to))
+    	{
+    		return true;
+    	}
+    	return false;
     }
 
     /**
@@ -751,24 +858,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public Map<Boolean, List<Long>> applySettingsToImages(long from, 
-    		List<Long> to) {
-    	List<Long> trueList = new ArrayList<Long>();
-        List<Long> falseList = new ArrayList<Long>();
-    	Map<Boolean, List<Long>> result = new HashMap<Boolean, List<Long>>();
-        result.put(Boolean.TRUE, trueList);
-        result.put(Boolean.FALSE, falseList);
-        
-        if (to == null) return result;
-        Iterator<Long> i = to.iterator();
-        Long id;
-        boolean b;
-        while (i.hasNext()) {
-			id = i.next();
-			b = applySettingsToImage(from, id);
-			if (b) trueList.add(id);
-			else falseList.add(id);
-		}
-        return result;
+    		List<Long> nodeIds) {
+    	Set<Long> nodeIdSet = new HashSet<Long>(nodeIds);
+    	return applySettingsToSet(from, Image.class, nodeIdSet);
     }
     
     /**
@@ -777,70 +869,23 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @see IRenderingSettings#applySettingsToPixels(long, long)
      */
     @RolesAllowed("user")
-    public boolean applySettingsToPixels(long from, long to) {
-
-        Pixels pTo = pixelsMetadata.retrievePixDescription(to);
-        Pixels pFrom = pixelsMetadata.retrievePixDescription(from);
-
-        boolean b = sanityCheckPixels(pFrom, pTo);
-        if (!b)
-            return false;
-        // get rendering settings from RenderingDef to PixelId
-        RenderingDef rdFrom = pixelsMetadata.retrieveRndSettings(from);
-        RenderingDef rdTo = pixelsMetadata.retrieveRndSettings(to);
-
-        if (rdFrom == null)
-            return false;
-        // pixelsMetadata.
-        // Controls
-        if (rdTo == null) {
-            // create Rnd Settings.
-            rdTo = createNewRenderingDef(pTo);
+    public boolean applySettingsToPixels(long from, long to)
+    {
+        Pixels pixelsFrom = pixelsMetadata.retrievePixDescription(from);
+        Pixels pixelsTo = pixelsMetadata.retrievePixDescription(to);
+        List<Pixels> pixelsList = new ArrayList<Pixels>(2);
+        pixelsList.add(pixelsFrom);
+        pixelsList.add(pixelsTo);
+        Map<Long, RenderingDef> settingsMap = loadRenderingSettings(pixelsList);
+        RenderingDef settingsFrom = settingsMap.get(from);
+        RenderingDef settingsTo = settingsMap.get(to);
+        settingsTo = applySettings(pixelsFrom, pixelsTo,
+        		                   settingsFrom, settingsTo);
+        if (settingsTo == null)
+        {
+        	return false;
         }
-        rdTo.setModel(rdFrom.getModel());
-
-        QuantumDef qDefFrom = rdFrom.getQuantization();
-        QuantumDef qDefTo = rdTo.getQuantization();
-
-        qDefTo.setBitResolution(qDefFrom.getBitResolution());
-        qDefTo.setCdEnd(qDefFrom.getCdEnd());
-        qDefTo.setCdStart(qDefFrom.getCdStart());
-
-        Iterator<ChannelBinding> i = rdFrom.iterateWaveRendering();
-        Iterator<ChannelBinding> iTo = rdTo.iterateWaveRendering();
-        ChannelBinding binding, bindingTo;
-
-        while (i.hasNext()) {
-            binding = i.next();
-            bindingTo = iTo.next();
-
-            // channel on or off
-            bindingTo.setActive(binding.getActive());
-            // mapping coefficient
-            bindingTo.setCoefficient(binding.getCoefficient());
-            // type of map used
-            bindingTo.setFamily(binding.getFamily());
-            // lower bound of the pixels intensity interval
-            bindingTo.setInputStart(binding.getInputStart());
-            // upper bound of the pixels intensity interval
-            bindingTo.setInputEnd(binding.getInputEnd());
-            // turn on or off the noise reduction algo.
-            bindingTo.setNoiseReduction(binding.getNoiseReduction());
-            // color used
-            bindingTo.setAlpha(binding.getAlpha());
-            bindingTo.setBlue(binding.getBlue());
-            bindingTo.setGreen(binding.getGreen());
-            bindingTo.setRed(binding.getRed());
-        }
-        
-        // Increment the version of the rendering settings so that we 
-        // can have some notification that either the RenderingDef 
-        // object itself or one of its children in the object graph has 
-        // been updated. FIXME: This should be implemented using 
-        // IUpdate.touch() or similar once that functionality exists.
-        rdTo.setVersion(rdTo.getVersion() + 1);
-        
-        pixelsMetadata.saveRndSettings(rdTo);
+        iUpdate.saveObject(settingsTo);
         return true;
     }
 
