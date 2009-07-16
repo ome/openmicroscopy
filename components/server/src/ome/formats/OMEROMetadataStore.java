@@ -406,6 +406,13 @@ public class OMEROMetadataStore
     			}
     			else if (targetObject instanceof FilterSet)
     			{
+    				if (referenceObject instanceof Filter)
+    				{
+    					handleReference((FilterSet) targetObject,
+						                (Filter) referenceObject,
+						                referenceLSID);
+    					continue;
+    				}
     				if (referenceObject instanceof Dichroic)
     				{
     					handleReference((FilterSet) targetObject,
@@ -466,8 +473,8 @@ public class OMEROMetadataStore
      */
     private String stripCustomSuffix(String LSID)
     {
-    	if (LSID.endsWith("SECONDARY_EMISSION_FILTER")
-    		|| LSID.endsWith("SECONDARY_EXCITATION_FILTER"))
+    	if (LSID.endsWith("OMERO_EMISSION_FILTER")
+    		|| LSID.endsWith("OMERO_EXCITATION_FILTER"))
     	{
     		return LSID.substring(0, LSID.lastIndexOf(':'));
     	}
@@ -1002,12 +1009,11 @@ public class OMEROMetadataStore
     private void handleReference(LogicalChannel target, Filter reference,
     		                     LSID referenceLSID)
     {
-    	if (referenceLSID.toString().endsWith("SECONDARY_EMISSION_FILTER"))
+    	if (referenceLSID.toString().endsWith("OMERO_EMISSION_FILTER"))
     	{
     		target.setSecondaryEmissionFilter(reference);
     	}
-    	else if (referenceLSID.toString().endsWith(
-    			"SECONDARY_EXCITATION_FILTER"))
+    	else if (referenceLSID.toString().endsWith("OMERO_EXCITATION_FILTER"))
     	{
     		target.setSecondaryExcitationFilter(reference);
     	}
@@ -1072,6 +1078,31 @@ public class OMEROMetadataStore
     private void handleReference(FilterSet target, Dichroic reference)
     {
         target.setDichroic(reference);
+    }
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(FilterSet target, Filter reference,
+    		                     LSID referenceLSID)
+    {
+    	if (referenceLSID.toString().endsWith("OMERO_EMISSION_FILTER"))
+    	{
+    		target.setEmFilter(reference);
+    	}
+    	else if (referenceLSID.toString().endsWith("OMERO_EXCITATION_FILTER"))
+    	{
+    		target.setExFilter(reference);
+    	}
+    	else
+    	{
+    		throw new ApiUsageException(String.format(
+    				"Unable to handle FilterSet --> Filter reference: %s",
+    				referenceLSID));
+    	}
     }
     
     /**

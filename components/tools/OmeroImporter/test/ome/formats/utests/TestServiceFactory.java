@@ -211,9 +211,7 @@ public class TestServiceFactory implements ServiceFactoryPrx
 
     public ThumbnailStorePrx createThumbnailStore() throws ServerError
     {
-        // TODO Auto-generated method stub
-        //return null;
-        throw new RuntimeException("Not implemented yet.");
+        return null;
     }
 
     public ThumbnailStorePrx createThumbnailStore(Map<String, String> arg0)
@@ -387,9 +385,7 @@ public class TestServiceFactory implements ServiceFactoryPrx
     public IRenderingSettingsPrx getRenderingSettingsService()
             throws ServerError
     {
-        // TODO Auto-generated method stub
-        //return null;
-        throw new RuntimeException("Not implemented yet.");
+        return null;
     }
 
     public IRenderingSettingsPrx getRenderingSettingsService(

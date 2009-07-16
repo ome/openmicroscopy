@@ -3356,6 +3356,11 @@ public class OMEROMetadataStoreClient
     public void setFilterSetEmFilter(String emFilter, int instrumentIndex,
     		                         int filterSetIndex)
     {
+    	// XXX: Using this suffix is kind of a gross hack but the reference
+    	// processing logic does not easily handle multiple A --> B or B --> A 
+    	// linkages of the same type so we'll compromise.
+    	// Thu Jul 16 13:34:37 BST 2009 -- Chris Allan <callan@blackcat.ca>
+    	emFilter += ":OMERO_EMISSION_FILTER";
         LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
         addReference(key, new LSID(emFilter));
     }
@@ -3363,6 +3368,11 @@ public class OMEROMetadataStoreClient
     public void setFilterSetExFilter(String exFilter, int instrumentIndex,
     		                         int filterSetIndex)
     {
+    	// XXX: Using this suffix is kind of a gross hack but the reference
+    	// processing logic does not easily handle multiple A --> B or B --> A 
+    	// linkages of the same type so we'll compromise.
+    	// Thu Jul 16 13:34:37 BST 2009 -- Chris Allan <callan@blackcat.ca>
+    	exFilter += ":OMERO_EXCITATION_FILTER";
         LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
         addReference(key, new LSID(exFilter));
     }
@@ -3619,7 +3629,7 @@ public class OMEROMetadataStoreClient
     	// processing logic does not easily handle multiple A --> B or B --> A 
     	// linkages of the same type so we'll compromise.
     	// Thu Jul  2 12:08:19 BST 2009 -- Chris Allan <callan@blackcat.ca>
-    	secondaryEmissionFilter += ":SECONDARY_EMISSION_FILTER";
+    	secondaryEmissionFilter += ":OMERO_EMISSION_FILTER";
         LSID key = new LSID(LogicalChannel.class, imageIndex,
 	                        logicalChannelIndex);
         addReference(key, new LSID(secondaryEmissionFilter));
@@ -3633,7 +3643,7 @@ public class OMEROMetadataStoreClient
     	// processing logic does not easily handle multiple A --> B or B --> A 
     	// linkages of the same type so we'll compromise.
     	// Thu Jul  2 12:08:19 BST 2009 -- Chris Allan <callan@blackcat.ca>
-    	secondaryExcitationFilter += ":SECONDARY_EXCITATION_FILTER";
+    	secondaryExcitationFilter += ":OMERO_EXCITATION_FILTER";
         LSID key = new LSID(LogicalChannel.class, imageIndex,
         		            logicalChannelIndex);
         addReference(key, new LSID(secondaryExcitationFilter));
