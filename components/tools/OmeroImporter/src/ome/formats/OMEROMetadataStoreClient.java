@@ -2364,13 +2364,22 @@ public class OMEROMetadataStoreClient
         }
         
         // Companion files
-        List<Annotation> imageAnnotationList = 
-        	pixels.getImage().linkedAnnotationList();
-        for (Annotation imageAnnotation : imageAnnotationList)
+        List<Annotation> annotationList = new ArrayList<Annotation>();
+        Image image = pixels.getImage();
+        annotationList.addAll(image.linkedAnnotationList());
+        if (image.sizeOfWellSamples() > 0)
         {
-            if (imageAnnotation instanceof FileAnnotation)
+        	List<WellSample> wellSamples = image.copyWellSamples();
+        	Plate plate = wellSamples.get(0).getWell().getPlate();
+        	log.debug("Found " + plate.sizeOfAnnotationLinks() +
+        			  " annotations linked to Plate.");
+        	annotationList.addAll(plate.linkedAnnotationList());
+        }
+        for (Annotation annotation : annotationList)
+        {
+            if (annotation instanceof FileAnnotation)
             {
-                FileAnnotation fileAnnotation = (FileAnnotation) imageAnnotation;
+                FileAnnotation fileAnnotation = (FileAnnotation) annotation;
                 OriginalFile o = fileAnnotation.getFile();
                 String fileName = o.getName().getValue();
                 originalFileMap.put(fileName, o);

@@ -1376,6 +1376,12 @@ public class OMEROMetadataStore
     			"left outer join fetch i.annotationLinks as a_link " +
     			"left outer join fetch a_link.child as a " +
     			"left outer join fetch a.file " +
+    			"left outer join fetch i.wellSamples as ws " +
+    			"left outer join fetch ws.well as w " +
+    			"left outer join fetch w.plate as pl " +
+    			"left outer join fetch w.annotationLinks as pl_a_link " +
+    			"left outer join fetch pl_a_link.child as pl_a " +
+    			"left outer join fetch pl_a.file " +
     			"where i.id in (:ids)", p);
     	s2.stop();
    		return pixelsList;
