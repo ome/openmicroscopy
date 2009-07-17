@@ -41,6 +41,7 @@ import omero.ServerError;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
+import omero.model.Plate;
 
 /**
  * support class for the proper usage of {@link OMEROMetadataStoreClient} and
@@ -337,6 +338,13 @@ public class ImportLibrary implements IObservable
         // Save metadata and prepare the RawPixelsStore for our arrival.
         List<Pixels> pixList = 
         	importMetadata(imageName, imageDescription, archive, userPixels);
+    	List<Long> plateIds = new ArrayList<Long>();
+    	Image image = pixList.get(0).getImage();
+    	if (image.sizeOfWellSamples() > 0)
+    	{
+    		Plate plate = image.copyWellSamples().get(0).getWell().getPlate();
+    		plateIds.add(plate.getId().getValue());
+    	}
         List<Long> pixelsIds = new ArrayList<Long>(pixList.size());
         for (Pixels pixels : pixList)
         {
@@ -413,7 +421,7 @@ public class ImportLibrary implements IObservable
             store.populateMinMax();
         }
         notifyObservers(Actions.IMPORT_THUMBNAILING, args);
-        store.resetDefaultsAndGenerateThumbnails(pixelsIds);
+        store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
         
         notifyObservers(Actions.IMPORT_DONE, args);
         

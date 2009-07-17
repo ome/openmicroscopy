@@ -2801,12 +2801,22 @@ public class OMEROMetadataStoreClient
     /**
      * Resets the defaults and generates thumbnails for a given set of Pixels 
      * IDs. 
-     * @param pixelsIds Set of Pixels IDs to reset defaults and thumbanils for.
+     * @param plateIds Set of Plate IDs to reset defaults and thumbnails for.
+     * @param pixelsIds Set of Pixels IDs to reset defaults and thumbnails for.
      */
-    public void resetDefaultsAndGenerateThumbnails(List<Long> pixelsIds)
+    public void resetDefaultsAndGenerateThumbnails(List<Long> plateIds,
+    		                                       List<Long> pixelsIds)
     {
     	try
     	{
+    		if (plateIds.size() > 0)
+    		{
+    			iSettings.resetDefaultsInSet("Plate", plateIds);
+    		}
+    		else
+    		{
+    			iSettings.resetDefaultsInSet("Pixels", pixelsIds);
+    		}
     		thumbnailStore.createThumbnailsByLongestSideSet(
     				rint(DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE), pixelsIds);
     	}

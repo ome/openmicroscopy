@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -56,6 +57,8 @@ import omeis.providers.re.quantum.QuantumFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -115,6 +118,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     
     /** If the renderer is dirty. */
     private Boolean dirty = true;
+    
+    /** If the settings {@link metadata} is dirty. */
+    private Boolean dirtyMetadata = false;
 
     /** The pixels instance that the service is currently working on. */
     private Pixels pixels;
@@ -462,12 +468,16 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      */
     private List<RenderingDef> bulkLoadRenderingSettings(Set<Long> pixelsIds)
     {
-    	return iQuery.findAllByQuery(
+    	StopWatch s1 = new CommonsLogStopWatch(
+    			"omero.bulkLoadRenderingSettings");
+    	List<RenderingDef> toReturn = iQuery.findAllByQuery(
     			"select r from RenderingDef as r join fetch r.pixels " +
     			"join fetch r.details.updateEvent " +
     			"join fetch r.pixels.details.updateEvent " +
     			"where r.details.owner.id = :id and r.pixels.id in (:ids)",
     			new Parameters().addId(getCurrentUserId()).addIds(pixelsIds));
+    	s1.stop();
+    	return toReturn;
     }
     
     /**
@@ -546,14 +556,29 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     }
     
     /**
-     * Creates metadata for a thumbnail if the active pixels set and X-Y
-     * dimensions.
+     * Creates metadata for a thumbnail of the active pixels set.
      * 
      * @param dimensions The dimensions of the thumbnail.
-     * @return the thumbnail metadata as created.
+     * @return The thumbnail metadata as created.
      * @see getThumbnailMetadata()
      */
     private Thumbnail createThumbnailMetadata(Dimension dimensions)
+    {
+    	return createThumbnailMetadata(pixels, dimensions);
+    }
+    
+    /**
+     * Creates metadata for a thumbnail of a given set of pixels set and X-Y
+     * dimensions.
+     * 
+     * @param pixels The Pixels set to create thumbnail metadata for.
+     * @param dimensions The dimensions of the thumbnail.
+     * 
+     * @return the thumbnail metadata as created.
+     * @see getThumbnailMetadata()
+     */
+    private Thumbnail createThumbnailMetadata(Pixels pixels,
+    		                                  Dimension dimensions)
     {
         // Unload the pixels object to avoid transactional headaches
         Pixels unloadedPixels = new Pixels(pixels.getId(), false);
@@ -632,6 +657,88 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         }
         pool.add(pixels.getId());
         pools.put(dimensions, pool);
+    }
+    
+    /**
+     * Attempts to efficiently retrieve the thumbnail metadata based on a set
+     * of dimension pools. At worst, the result of maintaining the aspect ratio
+     * (calculating the new XY widths) is that we have to retrieve each 
+     * thumbnail object separately.
+     * @param dimensionPools Dimension pools to query based upon.
+     * @param metadataMap Dictionary of Pixels ID vs. thumbnail metadata. Will
+     * be updated by this method.
+     * @param metadataTimeMap Dictionary of Pixels ID vs. thumbnail metadata
+     * last modification time. Will be updated by this method.
+     */
+    private void loadMetadataByDimensionPool(
+    		Map<Dimension, Set<Long>> dimensionPools,
+    		Map<Long, Thumbnail> metadataMap,
+    		Map<Long, Timestamp> metadataTimeMap)
+    {
+    	StopWatch s1 = new CommonsLogStopWatch(
+    			"omero.loadMetadataByDimensionPool");
+    	Long userId = getCurrentUserId();
+    	for (Dimension dimensions : dimensionPools.keySet())
+    	{
+    		Set<Long> pool = dimensionPools.get(dimensions);
+    	    Parameters params = new Parameters();
+            params.addInteger("x", (int) dimensions.getWidth());
+            params.addInteger("y", (int) dimensions.getHeight());
+            params.addLong("o_id", userId);
+            params.addIds(pool);
+        	List<Thumbnail> thumbnailList = iQuery.findAllByQuery(
+        			"select t from Thumbnail as t " +
+        			"join t.pixels " +
+        			"join fetch t.details.updateEvent " +
+        			"where t.sizeX = :x and t.sizeY = :y " + 
+        			"and t.details.owner.id = :o_id " +
+        			"and t.pixels.id in (:ids)", params);
+        	for (Thumbnail metadata : thumbnailList)
+        	{
+        	    Long pixelsId = metadata.getPixels().getId();
+        	    Timestamp t = metadata.getDetails().getUpdateEvent().getTime();
+        		metadataMap.put(pixelsId, metadata);
+        		metadataTimeMap.put(pixelsId, t);
+        	}
+    	}
+    	s1.stop();
+    }
+    
+    private void createMissingThumbnailMetadata(
+    		Map<Long, Pixels> pixelsMap,
+    		Map<Dimension, Set<Long>> dimensionPools,
+    		Map<Long, Thumbnail> metadataMap,
+    		Map<Long, Timestamp> metadataTimeMap,
+    		Integer size)
+    {
+    	StopWatch s1 = new CommonsLogStopWatch(
+			"omero.createMissingThumbnailMetadata");
+    	List<Thumbnail> toSave = new ArrayList<Thumbnail>();
+    	Set<Long> manipulatedPixels = new HashSet<Long>();
+    	Map<Dimension, Set<Long>> temporaryDimensionPools = 
+    		new HashMap<Dimension, Set<Long>>();
+    	for (Long pixelsId : pixelsMap.keySet())
+    	{
+    		Pixels pixels = pixelsMap.get(pixelsId);
+    		if (!metadataMap.containsKey(pixelsId))
+    		{
+    			for (Dimension dimension : dimensionPools.keySet())
+    			{
+    				Set<Long> pool = dimensionPools.get(dimension);
+    				if (pool.contains(pixelsId))
+    				{
+    					toSave.add(createThumbnailMetadata(
+    							pixelsMap.get(pixelsId), dimension));
+    					addToDimensionPool(temporaryDimensionPools, pixels, size);
+    					manipulatedPixels.add(pixelsId);
+    				}
+    			}
+    		}
+    	}
+    	iUpdate.saveAndReturnIds(toSave.toArray(new Thumbnail[toSave.size()]));
+    	loadMetadataByDimensionPool(temporaryDimensionPools, metadataMap,
+    			                    metadataTimeMap);
+    	s1.stop();
     }
     
     /**
@@ -763,6 +870,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         pixels = null;
         settings = null;
         dirty = true;
+        dirtyMetadata = false;
         metadata = null;
         metadataLastUpdated = null;
     }
@@ -816,26 +924,49 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @Transactional(readOnly = false)
     public void createThumbnail(Integer sizeX, Integer sizeY)
     {
-        // Set defaults and sanity check thumbnail sizes
-        if (sizeX == null) {
-            sizeX = DEFAULT_X_WIDTH;
-        }
-        if (sizeY == null) {
-            sizeY = DEFAULT_Y_WIDTH;
-        }
-        sanityCheckThumbnailSizes(sizeX, sizeY);
-    	_createThumbnail(new Dimension(sizeX, sizeY));
-        
-    	// Ensure that we do not have "dirty" pixels or rendering settings left
-    	// around in the Hibernate session cache.
-    	iQuery.clear();
+    	try
+    	{
+    		// Set defaults and sanity check thumbnail sizes
+    		if (sizeX == null) {
+    			sizeX = DEFAULT_X_WIDTH;
+    		}
+    		if (sizeY == null) {
+    			sizeY = DEFAULT_Y_WIDTH;
+    		}
+    		sanityCheckThumbnailSizes(sizeX, sizeY);
+    		Dimension dimensions = new Dimension(sizeX, sizeY);
+    		metadata = getThumbnailMetadata(dimensions);
+    		if (metadata == null)
+    		{
+    			metadata = iUpdate.saveAndReturnObject(
+    					createThumbnailMetadata(dimensions));
+        		metadataLastUpdated = 
+        			metadata.getDetails().getUpdateEvent().getTime();
+    		}
+    		metadata = _createThumbnail(new Dimension(sizeX, sizeY));
+    		if (dirtyMetadata)
+    		{
+    			metadata = iUpdate.saveAndReturnObject(metadata);
+        		metadataLastUpdated = 
+        			metadata.getDetails().getUpdateEvent().getTime();
+    		}
+
+    		// Ensure that we do not have "dirty" pixels or rendering settings 
+    		// left around in the Hibernate session cache.
+    		iQuery.clear();
+    	}
+    	finally
+    	{
+    		dirtyMetadata = false;
+    	}
     }
     
     /** Actually does the work specified by {@link createThumbnail()}.*/
     private Thumbnail _createThumbnail(Dimension dimensions) {
+    	StopWatch s1 = new CommonsLogStopWatch("omero._createThumbnail");
         if (metadata == null) {
-            metadata = createThumbnailMetadata(dimensions);
-        } else {
+        	throw new ValidationException("Missing thumbnail metadata.");
+        } else if (settingsLastUpdated.after(metadataLastUpdated)){
             // Increment the version of the thumbnail so that its
             // update event has a timestamp equal to or after that of
             // the rendering settings. FIXME: This should be 
@@ -844,16 +975,16 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             metadata.setVersion(metadata.getVersion() + 1);
             Pixels unloadedPixels = new Pixels(pixels.getId(), false);
             metadata.setPixels(unloadedPixels);
+            dirtyMetadata = true;
         }
-        // We're doing this as a two step process due to the possible unloaded 
-        // Pixels above. If we do not, Pixels will be unloaded and we will hit
-        // IllegalStateException's when checking update events.
-        metadata = iUpdate.saveAndReturnObject(metadata);
-        metadataLastUpdated = metadata.getDetails().getUpdateEvent().getTime();
+        // dirtyMetadata is left false here because we may be creating a
+        // thumbnail for the first time and the Thumbnail object has just been
+        // created upstream of us.
         
         BufferedImage image = createScaledImage(dimensions, null, null);
         try {
             compressThumbnailToDisk(metadata, image);
+            s1.stop();
             return metadata;
         } catch (IOException e) {
             log.error("Thumbnail could not be compressed.", e);
@@ -870,15 +1001,29 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void createThumbnails() {
-        List<Thumbnail> thumbnails = getThumbnailMetadata();
+    	try
+    	{
+    		List<Thumbnail> thumbnails = getThumbnailMetadata();
 
-        for (Thumbnail t : thumbnails) {
-            _createThumbnail(new Dimension(t.getSizeX(), t.getSizeY()));
-        }
-        
-    	// Ensure that we do not have "dirty" pixels or rendering settings left
-    	// around in the Hibernate session cache.
-    	iQuery.clear();
+    		for (Thumbnail t : thumbnails) {
+    			metadata = t;
+    			_createThumbnail(new Dimension(t.getSizeX(), t.getSizeY()));
+    		}
+    		// We're doing the update or creation and save as a two step 
+    		// process due to the possible unloaded Pixels. If we do not, 
+    		// Pixels will be unloaded and we will hit 
+    		// IllegalStateException's when checking update events.
+    		iUpdate.saveArray(thumbnails.toArray(
+    				new Thumbnail[thumbnails.size()]));
+
+    		// Ensure that we do not have "dirty" pixels or rendering settings
+    		// left around in the Hibernate session cache.
+    		iQuery.clear();
+    	}
+    	finally
+    	{
+    		dirtyMetadata = false;
+    	}
     }
     
     @RolesAllowed("user")
@@ -897,6 +1042,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public Map<Long, byte[]> getThumbnailSet(Integer sizeX, Integer sizeY,
                                              Set<Long> pixelsIds)
     {
+    	// FIXME: This method is broken if called when thumbnails do not exist
+    	// needs to be resolved.
+    	
         // Set defaults and sanity check thumbnail sizes
         Dimension checkedDimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
         
@@ -912,6 +1060,8 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         params.addInteger("y", (int) checkedDimensions.getHeight());
         params.addLong("o_id", userId);
         params.addIds(pixelsIds);
+    	StopWatch s1 = new CommonsLogStopWatch(
+			"omero.getThumbnailSet.loadSettingsAndThumbnails");
         List<Pixels> pixelsList = iQuery.findAllByQuery(
                 "from Pixels as p " +
                 "join fetch p.details.updateEvent " +
@@ -923,6 +1073,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
                 "thumbnail.details.owner.id = :o_id and " +
                 "thumbnail.sizeX = :x and thumbnail.sizeY = :y and " +
                 "p.id in (:ids)", params);
+        s1.stop();
         
         // Timestamp cache so that a save of an object containing an event
         // which is used elsewhere doesn't wipe out our timestamp. Also,
@@ -946,7 +1097,8 @@ public class ThumbnailBean extends AbstractLevel2Service implements
                 settingsUserMap.put(pId, details.getOwner().getId());
             }
         }
-                
+        
+        List<Thumbnail> toSave = new ArrayList<Thumbnail>(pixelsIds.size());
         for (Long pixelsId : pixelsIds)
     	{
     	    try
@@ -969,8 +1121,19 @@ public class ThumbnailBean extends AbstractLevel2Service implements
                         setPixelsId(pixelsId);
                     }
                 }
-    	        byte[] thumbnail = _getThumbnail(sizeX, sizeY);
-    	        toReturn.put(pixelsId, thumbnail);
+                try
+                {
+                	byte[] thumbnail = _getThumbnail(sizeX, sizeY);
+                	toReturn.put(pixelsId, thumbnail);
+                	if (dirtyMetadata)
+                	{
+                		toSave.add(metadata);
+                	}
+                }
+    	        finally
+    	        {
+    	        	dirtyMetadata = false;
+    	        }
     	    }
             catch (Throwable t)
             {
@@ -979,6 +1142,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
                 toReturn.put(pixelsId, null);
             }
     	}
+    	// We're doing the update or creation and save as a two step 
+    	// process due to the possible unloaded Pixels. If we do not, 
+    	// Pixels will be unloaded and we will hit 
+    	// IllegalStateException's when checking update events.
+    	iUpdate.saveArray(toSave.toArray(new Thumbnail[toSave.size()]));
     	// Ensure that we do not have "dirty" pixels or rendering settings left
     	// around in the Hibernate session cache.
     	iQuery.clear();
@@ -1002,7 +1170,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	
     	// First we try and bulk load as many rendering settings as possible,
     	// loading the Pixels as well to avoid extra database hits later.
-    	Long userId = getCurrentUserId();
     	List<RenderingDef> settingsList = bulkLoadRenderingSettings(pixelsIds);
     	
     	// We've got a set of settings, lets populate our hash maps.
@@ -1012,51 +1179,38 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     		new HashMap<Dimension, Set<Long>>();
     	Map<Long, Timestamp> settingsTimeMap = new HashMap<Long, Timestamp>();
     	Map<Long, Long> settingsUserMap = new HashMap<Long, Long>();
-    	for (RenderingDef def : settingsList)
+    	Map<Long, Pixels> pixelsMap = 
+    		new HashMap<Long, Pixels>(pixelsIds.size());
+    	for (RenderingDef settings : settingsList)
     	{
-    	    Pixels p = def.getPixels();
-    	    Long pId = p.getId();
-    	    Details d = def.getDetails();
-    	    Timestamp t = d.getUpdateEvent().getTime();
-    		settingsMap.put(pId, def);
-    		settingsTimeMap.put(pId, t);
-    		settingsUserMap.put(pId, d.getOwner().getId());
-    		addToDimensionPool(dimensionPools, p,
+    	    Pixels pixels = settings.getPixels();
+    	    Long pixelsId = pixels.getId();
+    	    pixelsMap.put(pixelsId, pixels);
+    	    Details details = settings.getDetails();
+    	    Timestamp timestemp = details.getUpdateEvent().getTime();
+    		settingsMap.put(pixelsId, settings);
+    		settingsTimeMap.put(pixelsId, timestemp);
+    		settingsUserMap.put(pixelsId, details.getOwner().getId());
+    		addToDimensionPool(dimensionPools, pixels,
     		                   (int) checkedDimensions.getWidth());
     	}
     	
     	// Now we're going to attempt to efficiently retrieve the thumbnail
-    	// metadata based on our dimension pools above. At worst, the result
-    	// of maintaining the aspect ratio (calculating the new XY widths) is
-    	// that we have to retrieve each thumbnail object separately.
+    	// metadata based on our dimension pools above. To save significant
+    	// time later we're also going to pre-create thumbnail metadata where
+    	// it is missing.
     	Map<Long, Timestamp> metadataTimeMap = new HashMap<Long, Timestamp>();
-    	for (Dimension dimensions : dimensionPools.keySet())
-    	{
-    		Set<Long> pool = dimensionPools.get(dimensions);
-    	    Parameters params = new Parameters();
-            params.addInteger("x", (int) dimensions.getWidth());
-            params.addInteger("y", (int) dimensions.getHeight());
-            params.addLong("o_id", userId);
-            params.addIds(pool);
-        	List<Thumbnail> thumbnailList = iQuery.findAllByQuery(
-        			"select t from Thumbnail as t " +
-        			"join fetch t.details.updateEvent where " +
-        			"t.sizeX = :x and t.sizeY = :y and " + 
-        			"t.details.owner.id = :o_id and t.pixels.id in (:ids)",
-        			params);
-        	for (Thumbnail metadata : thumbnailList)
-        	{
-        	    Long pixelsId = metadata.getPixels().getId();
-        	    Timestamp t = metadata.getDetails().getUpdateEvent().getTime();
-        		metadataMap.put(pixelsId, metadata);
-        		metadataTimeMap.put(pixelsId, t);
-        	}
-    	}
+    	loadMetadataByDimensionPool(dimensionPools, metadataMap,
+    			                    metadataTimeMap);
+    	createMissingThumbnailMetadata(pixelsMap, dimensionPools, metadataMap,
+    			                       metadataTimeMap,
+    			                       (int) checkedDimensions.getWidth());
     	
     	// Loop through each pixels set that we've been requested to provide
     	// a thumbnail for, using the metadata that has already been retrieved
     	// if available. Thumbnail metadata will be lazily loaded if it is
     	// unavailable.
+    	List<Thumbnail> toSave = new ArrayList<Thumbnail>();
     	for (Long pixelsId : pixelsIds)
     	{
     	    try
@@ -1082,8 +1236,19 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	                setPixelsId(pixelsId);
     	            }
     	        }
-    	        byte[] thumbnail = _getThumbnailByLongestSide(size);
-    	        toReturn.put(pixelsId, thumbnail);
+    	        try
+    	        {
+    	        	byte[] thumbnail = _getThumbnailByLongestSide(size);
+    	        	toReturn.put(pixelsId, thumbnail);
+    	        	if (dirtyMetadata)
+    	        	{
+    	        		toSave.add(metadata);
+    	        	}
+    	        }
+    	        finally
+    	        {
+    	        	dirtyMetadata = false;
+    	        }
     	    }
     	    catch (Throwable t)
     	    {
@@ -1092,6 +1257,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	        toReturn.put(pixelsId, null);
     	    }
     	}
+    	// We're doing the update or creation and save as a two step 
+    	// process due to the possible unloaded Pixels. If we do not, 
+    	// Pixels will be unloaded and we will hit 
+    	// IllegalStateException's when checking update events.
+    	iUpdate.saveArray(toSave.toArray(new Thumbnail[toSave.size()]));
     	// Ensure that we do not have "dirty" pixels or rendering settings left
     	// around in the Hibernate session cache.
     	iQuery.clear();
@@ -1109,13 +1279,33 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public byte[] getThumbnail(Integer sizeX, Integer sizeY) {
+    	Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
         // Ensure that we do not have "dirty" pixels or rendering settings 
         // left around in the Hibernate session cache.
         iQuery.clear();
-        // Resetting thumbnail metadata because we don't know what may have
-        // happened in the database since or if sizeX and sizeY have changed.
-        metadata = null;
-        return _getThumbnail(sizeX, sizeY);
+        // Reloading thumbnail metadata because we don't know what may have
+        // happened in the database since our last method call.
+        metadata = getThumbnailMetadata(dimensions);
+        if (metadata == null)
+        {
+        	metadata = createThumbnailMetadata(dimensions);
+        	metadata = iUpdate.saveAndReturnObject(metadata);
+    		metadataLastUpdated = 
+    			metadata.getDetails().getUpdateEvent().getTime();
+        }
+        byte[] thumbnail = _getThumbnail(sizeX, sizeY);
+        if (dirtyMetadata)
+        {
+        	try
+        	{
+        		iUpdate.saveObject(metadata);
+        	}
+        	finally
+        	{
+        		dirtyMetadata = false;
+        	}
+        }
+        return thumbnail; 
     }
     
     /** Actually does the work specified by {@link getThumbnail()}.*/
@@ -1169,13 +1359,35 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public byte[] getThumbnailByLongestSide(Integer size) {
+        // Set defaults and sanity check thumbnail sizes
+        Dimension dimensions = sanityCheckThumbnailSizes(size, size);
+        
     	// Ensure that we do not have "dirty" pixels or rendering settings left
     	// around in the Hibernate session cache.
     	iQuery.clear();
         // Resetting thumbnail metadata because we don't know what may have
         // happened in the database since or if sizeX and sizeY have changed.
-    	metadata = null;
-    	return _getThumbnailByLongestSide(size);
+    	metadata = getThumbnailMetadata(dimensions);
+    	if (metadata == null)
+    	{
+    		metadata = createThumbnailMetadata(dimensions);
+    		metadata = iUpdate.saveAndReturnObject(metadata);
+    		metadataLastUpdated = 
+    			metadata.getDetails().getUpdateEvent().getTime();
+    	}
+    	byte[] thumbnail = _getThumbnailByLongestSide(size);
+    	if (dirtyMetadata)
+    	{
+    		try
+    		{
+    			iUpdate.saveObject(metadata);
+    		}
+    		finally
+    		{
+    			dirtyMetadata = false;
+    		}
+    	}
+    	return thumbnail;
     }
     
     /** Actually does the work specified by {@link _getThumbnailByLongestSide()}.*/
