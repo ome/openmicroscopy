@@ -8,6 +8,7 @@
 package ome.services.fulltext;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,6 +40,7 @@ public class Main {
     static SessionFactory factory;
     static IQuery rawQuery;
     static SessionManager manager;
+    static FullTextBridge bridge;
 
     // Setup
 
@@ -48,14 +50,13 @@ public class Main {
         factory = (SessionFactory) context.getBean("sessionFactory");
         rawQuery = (IQuery) context.getBean("internal-ome.api.IQuery");
         manager = (SessionManager) context.getBean("sessionManager");
+        bridge = (FullTextBridge) context.getBean("fullTextBridge");
     }
 
     protected static FullTextThread createFullTextThread(EventLogLoader loader) {
-        final FullTextBridge ftb = new FullTextBridge();
-        ftb.setApplicationEventPublisher(context);
         final FullTextIndexer fti = new FullTextIndexer(loader);
         final FullTextThread ftt = new FullTextThread(manager, executor, fti,
-                ftb);
+                bridge);
         return ftt;
     }
 
