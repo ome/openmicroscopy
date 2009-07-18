@@ -82,6 +82,10 @@ public class DropBoxDirectoryCheck implements ApplicationListener, Runnable {
     public int createUserDirectories(Set<String> users) {
         int count = 0;
         for (String name : users) {
+            // ticket:1398 - ignoring empty user names
+            if (name == null || name.length() == 0) {
+                continue;
+            }
             String firstLetter = name.substring(0, 1);
             if (!firstLetter.matches("[a-zA-Z0-9]")) {
                 firstLetter = "other";
