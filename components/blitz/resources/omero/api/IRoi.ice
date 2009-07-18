@@ -13,6 +13,11 @@
 #include <omero/model/Shape.ice>
 #include <omero/ServerErrors.ice>
 
+// Items for a separate service:
+// -----------------------------
+// Histograms
+// Volumes, Velocities, Diffusions
+
 module omero {
 
     module api {
@@ -69,8 +74,35 @@ module omero {
                 DoubleArray  pointsCount;
            };
 
+        sequence<ShapeStats> ShapeStatsList;
+
+        /**
+         * Container for ShapeStats, one with the combined values,
+         * and one per shape.
+         */
+        class RoiStats
+            {
+                ShapeStats combined;
+                ShapeStatsList perShape;
+            };
+
 	["ami","amd"] interface IRoi extends ServiceInterface
 	    {
+
+                /*
+                 * Returns a RoiResult with a single Roi member.
+                 * Shape linkages are properly created.
+                 * All Shapes are loaded, as is the Pixels and Image object.
+                 * TODO: Annotations?
+                 */
+                RoiResult findByRoi(long roiId, RoiOptions opts) throws omero::ServerError;
+
+                /**
+                 * Returns all the Rois in an Image, indexed via Shape.
+                 *
+                 * Loads Rois as findByRoi.
+                 */
+                RoiResult findByImage(long imageId, RoiOptions opts) throws omero::ServerError;
 
 		/**
 		 * Find ROIs which intersect the given shape. If z/t/visible/locked are filled,
@@ -79,8 +111,16 @@ module omero {
                  *
                  * Shape id is ignored, object should be properly loaded.
                  *
+                 * Loads Rois as findByRoi.
+                 *
 		 **/
 		RoiResult findByIntersection(long imageId, omero::model::Shape shape, RoiOptions opts) throws omero::ServerError;
+
+		/**
+		 * Find ROIs which intersect any of the given shape.
+                 * Otherwise as findByIntersection.
+		 **/
+		RoiResult findByAnyIntersection(long imageId, ShapeList shape, RoiOptions opts) throws omero::ServerError;
 
                 /**
                  * Calculate the points contained within a given shape
@@ -88,9 +128,20 @@ module omero {
                 ShapePoints getPoints(long shapeId) throws omero::ServerError;
 
                 /**
-                 * Calculate the stats for the points within the given shape;
+                 * Calculate stats for all the shapes within the given Roi.
+                 */
+                RoiStats getRoiStats(long roiId) throws omero::ServerError;
+
+                /**
+                 * Calculate the stats for the points within the given Shape.
                  **/
-                ShapeStats getStats(long shapeId) throws omero::ServerError;
+                ShapeStats getShapeStats(long shapeId) throws omero::ServerError;
+
+                /**
+                 * Calculate the stats for the points within the given Shapes.
+                 **/
+                ShapeStatsList getShapeStatsList(LongList shapeIdList) throws omero::ServerError;
+
 	    };
 
     };

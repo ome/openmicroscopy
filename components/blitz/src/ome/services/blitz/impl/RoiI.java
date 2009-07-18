@@ -19,8 +19,14 @@ import ome.services.throttling.Adapter;
 import ome.services.util.Executor.SimpleWork;
 import ome.system.ServiceFactory;
 import omero.ServerError;
+import omero.api.AMD_IRoi_findByAnyIntersection;
+import omero.api.AMD_IRoi_findByImage;
 import omero.api.AMD_IRoi_findByIntersection;
+import omero.api.AMD_IRoi_findByRoi;
 import omero.api.AMD_IRoi_getPoints;
+import omero.api.AMD_IRoi_getRoiStats;
+import omero.api.AMD_IRoi_getShapeStats;
+import omero.api.AMD_IRoi_getShapeStatsList;
 import omero.api.AMD_IRoi_getStats;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
@@ -125,6 +131,37 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
         }));
         
     }
+    
+
+    public void findByImage_async(AMD_IRoi_findByImage __cb, long imageId,
+            RoiOptions opts, Current __current) throws ServerError {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void findByRoi_async(AMD_IRoi_findByRoi __cb, long roiId,
+            RoiOptions opts, Current __current) throws ServerError {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void getRoiStats_async(AMD_IRoi_getRoiStats __cb, long roiId,
+            Current __current) throws ServerError {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void getShapeStatsList_async(AMD_IRoi_getShapeStatsList __cb,
+            List<Long> shapeIdList, Current __current) throws ServerError {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void getShapeStats_async(AMD_IRoi_getShapeStats __cb, long shapeId,
+            Current __current) throws ServerError {
+        // TODO Auto-generated method stub
+        
+    }
 
     // Helpers
     // =========================================================================
@@ -186,6 +223,14 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             }
             return result;
         }
+    }
+
+    public void findByAnyIntersection_async(
+            AMD_IRoi_findByAnyIntersection __cb, long imageId,
+            List<Shape> shape, RoiOptions opts, Current __current)
+            throws ServerError {
+        // TODO Auto-generated method stub
+        
     }
 
 }
