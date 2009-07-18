@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ome.api.ITypes;
+import ome.model.acquisition.Instrument;
+import ome.model.acquisition.Objective;
+import ome.model.acquisition.ObjectiveSettings;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -22,7 +25,10 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.CodomainMapContext;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
+import ome.model.enums.Correction;
 import ome.model.enums.Format;
+import ome.model.enums.Immersion;
+import ome.model.enums.Medium;
 import ome.model.jobs.ImportJob;
 import ome.model.jobs.JobStatus;
 import ome.model.meta.Experimenter;
@@ -405,13 +411,33 @@ public class UpdateTest extends AbstractUpdateTest {
     }
     
     @Test(groups ="ticket:1183")
-    public void TestSaveAndReturnWithAnnotation() {
+    public void testSaveAndReturnWithAnnotation() {
         Project p = new Project("ticket:1183");
         p.linkAnnotation(new CommentAnnotation());
         p = iUpdate.saveAndReturnObject(p);
         p.setDescription("something else");
         iUpdate.saveAndReturnObject(p);
     }
+    
+    @Test(groups ="ticket:1183")
+    public void testImageWithObjectSettings() {
+        Image i = ObjectFactory.createPixelGraph(null).getImage();
+        ObjectiveSettings os = new ObjectiveSettings();
+        Immersion imm = new Immersion("Air");
+        Correction corr = new Correction("Other");
+        Instrument instr = new Instrument();
+        Objective obj = new Objective(imm, corr, instr);
+        os.setObjective(obj);
+        os.setMedium(new Medium("Other"));
+        os.setRefractiveIndex(0.0);
+        i.setObjectiveSettings(os);
+        i = iUpdate.saveAndReturnObject(i);
+        assertNotNull(i.getObjectiveSettings());
+        i = iUpdate.saveAndReturnObject(i);
+        assertNotNull(i.getObjectiveSettings());
+        i.setObjectiveSettings(new ObjectiveSettings(i.getObjectiveSettings().getId(),false));
+        i = iUpdate.saveAndReturnObject(i);
+    }    
 
     protected void assertLink(ProjectDatasetLink link) {
         ProjectDatasetLink test = iUpdate.saveAndReturnObject(link);
