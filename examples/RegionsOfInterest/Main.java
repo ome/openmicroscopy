@@ -6,6 +6,47 @@ public class Main {
 
     public static void main(String args[]) throws Exception{
 
+        omero.client client = new omero.client();
+        try {
+            ServiceFactoryPrx sf = client.createSession();
+            Roi roi = createRoi();
+            roi = (Roi) sf.getUpdateService().saveAndReturnObject( roi );
+            System.out.println("Roi:" + roi.getId().getValue());
+            Image image = roi.getImage();
+
+            IRoiPrx roiService = sf.getRoiService();
+            RoiResult rr1 = roiService.findByImage( image.getId().getValue(), null );
+            RoiResult rr2 = roiService.findByPlane( image.getId().getValue(), 0, 1, null );
+            RoiResult rr3 = roiService.findByRoi( roi.getId().getValue(), null );
+
+            Rect shape1 = new RectI();
+            shape1.setX(rdouble(0.0));
+            shape1.setY(rdouble(0.0));
+            shape1.setWidth(rdouble(10));
+            shape1.setHeight(rdouble(10));
+            RoiResult rr4 = roiService.findByIntersection( image.getId().getValue(), shape1, null );
+
+            Rect shape2 = new RectI();
+            shape2.setX(rdouble(0.0));
+            shape2.setY(rdouble(0.0));
+            shape2.setWidth(rdouble(20));
+            shape2.setHeight(rdouble(20));
+            RoiResult rr5 = roiService.findByAnyIntersection(
+                image.getId().getValue(), java.util.Arrays.<Shape>asList( shape1, shape2 ), null );
+
+            //
+            // The other methods -- getPoints and get*Stats()
+            // all require actual data and so are omitted here.
+            //
+
+        } finally {
+            client.closeSession();
+        }
+
+    }
+
+    public static Roi createRoi() {
+
         CommentAnnotation comment = new CommentAnnotationI();
         comment.setTextValue(rstring("Wow. Take a look at this!"));
 
@@ -88,15 +129,15 @@ public class Main {
         rect.setWidth(rdouble(10));
         rect.setHeight(rdouble(10));
         rect.setTransform(null);
-        roi.addShape(other);
+        roi.addShape(rect);
 
         Line line = new LineI();
         line.setX1(rdouble(100));
         line.setX2(rdouble(200));
         line.setY1(rdouble(300));
-        line.setY1(rdouble(400));
+        line.setY2(rdouble(400));
         line.setTransform(rstring("100 0 0 200 0 0"));
-        roi.addShape(other);
+        roi.addShape(line);
 
         Mask mask = new MaskI();
         mask.setX(rdouble(10));
@@ -111,7 +152,7 @@ public class Main {
         point.setCy(rdouble(75.0));
         // Point.r should be removed
         point.setTransform(null);
-        roi.addShape(other);
+        roi.addShape(point);
 
         // For the following three, the format for the string value is unclear:
         //
@@ -171,13 +212,16 @@ public class Main {
         text.setDirection(rstring("rtl"));
         text.setWritingMode(rstring("tb-rl"));
 
+        Rect singlePlane = new RectI();
+        singlePlane.setX(rdouble(2.4));
+        singlePlane.setY(rdouble(1.5));
+        singlePlane.setWidth(rdouble(10));
+        singlePlane.setHeight(rdouble(10));
+        singlePlane.setTheZ(rint(0));
+        singlePlane.setTheT(rint(1));
+        roi.addShape(singlePlane);
 
-        omero.client client = new omero.client();
-        try {
-            ServiceFactoryPrx sf = client.createSession();
-            System.out.println("Roi:" + sf.getUpdateService().saveAndReturnObject( roi ).getId().getValue());
-        } finally {
-            client.closeSession();
-        }
+        return roi;
+
    }
 }

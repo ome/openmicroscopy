@@ -7,6 +7,7 @@
 
 package ome.services.blitz.impl;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -22,12 +23,12 @@ import omero.ServerError;
 import omero.api.AMD_IRoi_findByAnyIntersection;
 import omero.api.AMD_IRoi_findByImage;
 import omero.api.AMD_IRoi_findByIntersection;
+import omero.api.AMD_IRoi_findByPlane;
 import omero.api.AMD_IRoi_findByRoi;
 import omero.api.AMD_IRoi_getPoints;
 import omero.api.AMD_IRoi_getRoiStats;
 import omero.api.AMD_IRoi_getShapeStats;
 import omero.api.AMD_IRoi_getShapeStatsList;
-import omero.api.AMD_IRoi_getStats;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
 import omero.api.ShapePoints;
@@ -76,7 +77,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
         runnableCall(__current, new Adapter(__cb, __current, mapper, factory
                 .getExecutor(), factory.principal, new SimpleWork(this,
-                "findByIntersection") {
+                "findByIntersection", imageId, shape) {
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
@@ -87,10 +88,121 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 } else {
                     Query q = session
                             .createQuery("select distinct r from Roi r "
-                                    + "join fetch r.shapes where r.id in (:ids)");
+                                    + "join fetch r.shapes where r.id in (:ids) "
+                                    + "order by r.id");
                     q.setParameterList("ids", roiIds);
                     return q.list();
                 }
+            }
+        }));
+    }
+
+    public void findByAnyIntersection_async(
+            AMD_IRoi_findByAnyIntersection __cb, final long imageId,
+            final List<Shape> shapes, RoiOptions opts, Current __current)
+            throws ServerError {
+
+        final IceMapper mapper = new RoiResultMapper(opts);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "findByAnyIntersection", imageId, shapes) {
+
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+
+                if (shapes == null || shapes.size() == 0) {
+                    return null; // EARLY EXIT
+                }
+
+                List<Long> roiIds = geomTool.findIntersectingRois(imageId,
+                        shapes.toArray(new Shape[shapes.size()]));
+                if (roiIds == null || roiIds.size() == 0) {
+                    return null;
+                } else {
+                    Query q = session
+                            .createQuery("select distinct r from Roi r "
+                                    + "join fetch r.shapes where r.id in (:ids) "
+                                    + "order by r.id");
+                    q.setParameterList("ids", roiIds);
+                    return q.list();
+                }
+            }
+        }));
+
+    }
+
+    public void findByImage_async(AMD_IRoi_findByImage __cb,
+            final long imageId, RoiOptions opts, Current __current)
+            throws ServerError {
+
+        final IceMapper mapper = new RoiResultMapper(opts);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "findByImage", imageId) {
+
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+
+                Query q = session
+                        .createQuery("select distinct r from Roi r join r.image i "
+                                + "join fetch r.shapes where i.id = :id "
+                                + "order by r.id");
+                q.setParameter("id", imageId);
+                return q.list();
+
+            }
+        }));
+
+    }
+
+    public void findByRoi_async(AMD_IRoi_findByRoi __cb, final long roiId,
+            RoiOptions opts, Current __current) throws ServerError {
+
+        final IceMapper mapper = new RoiResultMapper(opts);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "findByRoi", roiId) {
+
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+
+                Query q = session.createQuery("select distinct r from Roi r "
+                        + "join fetch r.shapes where r.id = :id "
+                        + "order by r.id");
+                q.setParameter("id", roiId);
+                return q.list();
+
+            }
+        }));
+    }
+
+    public void findByPlane_async(AMD_IRoi_findByPlane __cb,
+            final long imageId, final int z, final int t, RoiOptions opts,
+            Current __current) throws ServerError {
+
+        final IceMapper mapper = new RoiResultMapper(opts);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "findByPlane", imageId, z, t) {
+
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+
+                Query q = session
+                        .createQuery("select distinct r from Roi r "
+                                + "join fetch r.shapes s where r.id = :id "
+                                + "and ( s.theZ is null or s.theZ = :z ) "
+                                + "and ( s.theT is null or s.theT = :t ) "
+                                + "order by r.id");
+                q.setParameter("id", imageId);
+                q.setParameter("z", z);
+                q.setParameter("t", t);
+                return q.list();
+
             }
         }));
     }
@@ -102,65 +214,63 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
         runnableCall(__current, new Adapter(__cb, __current, mapper, factory
                 .getExecutor(), factory.principal, new SimpleWork(this,
-                "getPoints") {
+                "getPoints", shapeId) {
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                Shape shape = geomTool.shapeById(shapeId, session);
-                return geomTool.getPoints(shape);
+                return geomTool.getPoints(shapeId, session);
             }
         }));
     }
 
+    public void getShapeStats_async(AMD_IRoi_getShapeStats __cb,
+            final long shapeId, Current __current) throws ServerError {
 
-    public void getStats_async(AMD_IRoi_getStats __cb, final long shapeId,
+        final IceMapper mapper = new IceMapper(IceMapper.UNMAPPED);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "getShapeStats", shapeId) {
+
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return geomTool.getStats(Arrays.asList(shapeId)).perShape[0];
+            }
+        }));
+
+    }
+
+    public void getShapeStatsList_async(AMD_IRoi_getShapeStatsList __cb,
+            final List<Long> shapeIdList, Current __current) throws ServerError {
+
+        final IceMapper mapper = new IceMapper(IceMapper.UNMAPPED);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "getShapeStatsList", shapeIdList) {
+
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return Arrays.asList(geomTool.getStats(shapeIdList).perShape);
+            }
+        }));
+    }
+
+    public void getRoiStats_async(AMD_IRoi_getRoiStats __cb, final long roiId,
             Current __current) throws ServerError {
 
         final IceMapper mapper = new IceMapper(IceMapper.UNMAPPED);
 
         runnableCall(__current, new Adapter(__cb, __current, mapper, factory
                 .getExecutor(), factory.principal, new SimpleWork(this,
-                "getPoints") {
+                "getRoiStats", roiId) {
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                Shape shape = geomTool.shapeById(shapeId, session);
-                ShapePoints points = geomTool.getPoints(shape);
-                return geomTool.getStats(shape, points);
+                List<Long> shapesInRoi = geomTool.getShapeIds(roiId);
+                return geomTool.getStats(shapesInRoi);
             }
         }));
-        
-    }
-    
-
-    public void findByImage_async(AMD_IRoi_findByImage __cb, long imageId,
-            RoiOptions opts, Current __current) throws ServerError {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void findByRoi_async(AMD_IRoi_findByRoi __cb, long roiId,
-            RoiOptions opts, Current __current) throws ServerError {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void getRoiStats_async(AMD_IRoi_getRoiStats __cb, long roiId,
-            Current __current) throws ServerError {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void getShapeStatsList_async(AMD_IRoi_getShapeStatsList __cb,
-            List<Long> shapeIdList, Current __current) throws ServerError {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void getShapeStats_async(AMD_IRoi_getShapeStats __cb, long shapeId,
-            Current __current) throws ServerError {
-        // TODO Auto-generated method stub
-        
     }
 
     // Helpers
@@ -209,12 +319,18 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                     Shape shape = it.next();
                     if (shape.getTheT() != null) {
                         byT.put(shape.getTheT().getValue(), shape);
+                    } else {
+                        byT.put(-1, shape);
                     }
                     if (shape.getTheZ() != null) {
                         byZ.put(shape.getTheZ().getValue(), shape);
+                    } else {
+                        byZ.put(-1, shape);
                     }
                     if (shape.getG() != null) {
                         byG.put(shape.getG().getValue(), shape);
+                    } else {
+                        byG.put("", shape);
                     }
                 }
                 result.byG = byG;
@@ -223,14 +339,6 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             }
             return result;
         }
-    }
-
-    public void findByAnyIntersection_async(
-            AMD_IRoi_findByAnyIntersection __cb, long imageId,
-            List<Shape> shape, RoiOptions opts, Current __current)
-            throws ServerError {
-        // TODO Auto-generated method stub
-        
     }
 
 }

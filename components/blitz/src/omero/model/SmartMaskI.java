@@ -15,7 +15,7 @@ import java.util.Random;
 
 public class SmartMaskI extends omero.model.MaskI implements SmartShape {
 
-    public int[][] areaPoints() {
+    public void areaPoints(PointCallback cb) {
         throw new UnsupportedOperationException();
     }
     
@@ -28,7 +28,9 @@ public class SmartMaskI extends omero.model.MaskI implements SmartShape {
         double y = getY().getValue();
         double w = getWidth().getValue();
         double h = getHeight().getValue();
-        return Util.points(x, y, w, h);
+        List<Point> points = Util.points(x, y, w, h);
+        assert Util.checkNonNull(points) : "Null points in " + this;
+        return points;
     }
 
     public void randomize(Random random) {

@@ -15,24 +15,29 @@ import static omero.rtypes.rtime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Roi;
 import omero.model.Shape;
 
+import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.testng.annotations.Test;
 
 /**
  * Tests searching for ellipses with rectangles
  */
-@Test(groups = "integration")
-public class FindIntersectingEllipseByRectTest extends AbstractRoiITest {
+@Test(groups = {"integration","rois"})
+public class FindIntersectionsTest extends AbstractRoiITest {
 
     class Fixture {
 
+        CommonsLogStopWatch watch;
+        
         List<Shape> shapes = new ArrayList<Shape>();
         Map<Shape, Integer> tests = new HashMap<Shape, Integer>();
 
@@ -40,7 +45,7 @@ public class FindIntersectingEllipseByRectTest extends AbstractRoiITest {
             shapes.add(geomTool.pt(cx, cy));
             return this;
         }
-        
+
         Fixture withEllipse(double cx, double cy, double rx, double ry) {
             shapes.add(geomTool.ellipse(cx, cy, rx, ry));
             return this;
@@ -56,10 +61,17 @@ public class FindIntersectingEllipseByRectTest extends AbstractRoiITest {
             tests.put(s, overlaps);
             return this;
         }
-        
+
         Fixture searchedByRectangle(double x, double y, double w, double h,
                 int overlaps) {
             Shape s = geomTool.rect(x, y, w, h);
+            tests.put(s, overlaps);
+            return this;
+        }
+
+        Fixture searchedByEllipse(double cx, double cy, double rx, double ry,
+                int overlaps) {
+            Shape s = geomTool.ellipse(cx, cy, rx, ry);
             tests.put(s, overlaps);
             return this;
         }
@@ -69,6 +81,31 @@ public class FindIntersectingEllipseByRectTest extends AbstractRoiITest {
             shape.setTheZ(null);
             shape.setVisibility(null);
             shape.setLocked(null);
+        }
+        
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("FindIntersectionFixture(shapes=");
+            int l = sb.length();
+            for (Shape shape : shapes) {
+                if (sb.length()>l) {
+                    sb.append(",");
+                }
+                sb.append(shape.getClass().getSimpleName());
+            }
+            sb.append(";tests=");
+            Set<String> names = new HashSet<String>();
+            for (Shape shape : tests.keySet()) {
+                names.add(shape.getClass().getSimpleName());
+            }
+            for (String name : names) {
+                if (sb.length()>l) {
+                    sb.append(",");
+                }
+                sb.append(name);
+            }
+            sb.append(")");
+            return sb.toString();
         }
 
         public void test() throws Exception {
@@ -80,12 +117,17 @@ public class FindIntersectingEllipseByRectTest extends AbstractRoiITest {
             for (Shape s : shapes) {
                 clear(s);
             }
-            Roi roi = createRoi("test basicc", shapes.toArray(new Shape[] {}));
-
+            
+            watch = new CommonsLogStopWatch();
+            Roi roi = createRoi("test.basic", shapes.toArray(new Shape[] {}));
+            watch.lap(this+".create");
+            
             for (Shape t : tests.keySet()) {
                 // All fields on t should be null here.
+                clear(t);
                 assertIntersection(roi, t, tests.get(t));
             }
+            watch.lap(this+".simplesearch");
 
             //
             // Visibility
@@ -106,7 +148,8 @@ public class FindIntersectingEllipseByRectTest extends AbstractRoiITest {
                 t.setVisibility(rbool(false));
                 assertIntersection(roi_visible, t, 0);
             }
-
+            watch.lap(this+".viz.true");
+            
             for (Shape s : shapes) {
                 clear(s);
                 s.setVisibility(rbool(false));
@@ -122,7 +165,9 @@ public class FindIntersectingEllipseByRectTest extends AbstractRoiITest {
                 t.setVisibility(rbool(true));
                 assertIntersection(roi_invisible, t, 0);
             }
-
+            watch.lap(this+".viz.false");
+            
+                        
             //
             // Locked
             //
@@ -142,6 +187,8 @@ public class FindIntersectingEllipseByRectTest extends AbstractRoiITest {
                 t.setLocked(rbool(false));
                 assertIntersection(roi_locked, t, 0);
             }
+            watch.lap(this+".locked.true");
+
 
             for (Shape s : shapes) {
                 clear(s);
@@ -158,6 +205,7 @@ public class FindIntersectingEllipseByRectTest extends AbstractRoiITest {
                 t.setLocked(rbool(true));
                 assertIntersection(roi_unlocked, t, 0);
             }
+            watch.lap(this+".locked.false");
 
             //
             // Z
@@ -178,6 +226,8 @@ public class FindIntersectingEllipseByRectTest extends AbstractRoiITest {
                 t.setTheZ(rint(2));
                 assertIntersection(roi_z1, t, 0);
             }
+            watch.lap(this+".z");
+
 
             //
             // T
@@ -198,6 +248,8 @@ public class FindIntersectingEllipseByRectTest extends AbstractRoiITest {
                 t.setTheT(rint(2));
                 assertIntersection(roi_t1, t, 0);
             }
+            watch.lap(this+".t");
+
 
             //
             // Z & T
@@ -235,6 +287,7 @@ public class FindIntersectingEllipseByRectTest extends AbstractRoiITest {
                 t.setTheZ(rint(0));
                 assertIntersection(roi_t1_z2, t, 0);
             }
+            watch.lap(this+".z_and_t");
 
         }
 
@@ -270,21 +323,74 @@ public class FindIntersectingEllipseByRectTest extends AbstractRoiITest {
                 .searchedByRectangle(10.0, 10.0, 1.0, 1.0, 0) //
                 .test();
     }
-    
+
+    @Test
+    public void testFindEllipseByEllipse() throws Exception {
+        new Fixture().withEllipse(1, 1, .5, .5)//
+                .searchedByEllipse(1.0, 1.0, 0.1, 0.1, 1)//
+                .searchedByEllipse(10.0, 10.0, 1.0, 1.0, 0)//
+                .test();
+    }
+
     @Test
     public void testFindEllipseByPoint() throws Exception {
         new Fixture().withEllipse(1, 1, .5, .5) //
                 .searchedByPoint(0.75, 0.75, 1) // 
                 .searchedByPoint(10.0, 10.0, 0) //
                 .test();
+
+        new Fixture().withEllipse(256, 256, 100, 100) //
+                .searchedByPoint(220, 220, 1) // 
+                .searchedByPoint(10.0, 10.0, 0) //
+                .test();
     }
-    
+
     @Test
     public void testFindPointByRectangle() throws Exception {
-        new Fixture().withPoint(1,1)//
-            .searchedByRectangle(0.0, 0.0, 2.0, 2.0, 1)//
-            .searchedByRectangle(10.0, 10.0, 1.0, 1.0, 0)//
-            .test();
+        new Fixture().withPoint(1, 1)//
+                .searchedByRectangle(0.0, 0.0, 2.0, 2.0, 1)//
+                .searchedByRectangle(10.0, 10.0, 1.0, 1.0, 0)//
+                .test();
+    }
+
+    @Test
+    public void testFindPointByEllipse() throws Exception {
+        new Fixture().withPoint(1, 1)//
+                .searchedByEllipse(1.0, 1.0, 0.1, 0.1, 1)//
+                .searchedByEllipse(10.0, 10.0, 1.0, 1.0, 0)//
+                .test();
+    }
+
+    @Test
+    public void testFindPointByPoint() throws Exception {
+        new Fixture().withPoint(1, 1)//
+                .searchedByPoint(1.0, 1.0, 1)//
+                .searchedByPoint(10.0, 10.0, 0)//
+                .test();
+    }
+
+    @Test
+    public void testFindRectByPoint() throws Exception {
+        new Fixture().withRect(1.0, 1.0, 0.5, 0.5)//
+                .searchedByPoint(1.0, 1.0, 1)//
+                .searchedByPoint(10.0, 10.0, 0)//
+                .test();
+    }
+
+    @Test
+    public void testFindRectByRect() throws Exception {
+        new Fixture().withRect(1.0, 1.0, 0.5, 0.5)//
+                .searchedByRectangle(1.0, 1.0, 0.5, 0.5, 1)//
+                .searchedByRectangle(10.0, 10.0, 1.0, 1.0, 0)//
+                .test();
+    }
+
+    @Test
+    public void testFindRectByEllipse() throws Exception {
+        new Fixture().withRect(1.0, 1.0, 0.5, 0.5)//
+                .searchedByEllipse(1.0, 1.0, 0.5, 0.5, 1)//
+                .searchedByEllipse(10.0, 10.0, 1.0, 1.0, 0)//
+                .test();
     }
 
 }

@@ -12,6 +12,7 @@ import java.io.IOException;
 import ome.api.IPixels;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
+import ome.conditions.ValidationException;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
@@ -42,11 +43,13 @@ public class PixelData {
                 null, true);
         try {
             ome.io.nio.PixelData pd = buf.getRow(y, z, c, t);
-            return pd.getData().asDoubleBuffer().get(x);
+            return pd.getPixelValue(x);
         } catch (IOException e) {
             throw new ResourceError("IOException: " + e);
         } catch (DimensionsOutOfBoundsException e) {
             throw new ApiUsageException("DimensionsOutOfBounds: " + e);
+        } catch (IndexOutOfBoundsException iobe) {
+            throw new ValidationException("IndexOutOfBounds: " + iobe);
         }
     }
 

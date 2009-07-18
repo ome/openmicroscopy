@@ -17,7 +17,7 @@ import omero.model.SmartShape.Util;
 
 public class SmartPolylineI extends omero.model.PolylineI implements SmartShape {
 
-    public int[][] areaPoints() {
+    public void areaPoints(PointCallback cb) {
         throw new UnsupportedOperationException();
     }
     
@@ -28,7 +28,9 @@ public class SmartPolylineI extends omero.model.PolylineI implements SmartShape 
 
     public List<Point> asPoints() {
         String str = this.points.getValue();
-        return Util.parsePoints(str);
+        List<Point> points = Util.parsePoints(str);
+        assert Util.checkNonNull(points) : "Null points in " + this;
+        return points;
     }
 
     public void randomize(Random random) {

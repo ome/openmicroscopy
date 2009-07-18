@@ -23,7 +23,7 @@ module omero {
     module api {
 
         /**
-         * Specifies filters used when querying the ROIs
+         * Specifies filters used when querying the ROIs. CURRENTLY UNUSED.
          **/
         class RoiOptions
             {
@@ -32,17 +32,39 @@ module omero {
                 omero::RInt        offset;
             };
 
+        /**
+         * Returned by most search methods. The RoiOptions is the options object passed
+         * into a method, possibly modified by the server if some value was out of range.
+         * The RoiList contains all the Rois which matched the given query.
+         *
+         * The individual shapes of the Rois which matched can be found in the indexes.
+         * For example, all the shapes on z=1 can by found by:
+         *
+         *   ShapeList shapes = byZ.get(1);
+         *
+         * Shapes which are found on all z, t, or do not belong to a group can be found
+         * with:
+         *
+         *   byZ.get(-1);
+         *   byT.get(-1);
+         *   byG.get("");
+         *
+         * respectively. The groups string-string map provides the hierarchy of the group
+         * strings using unix-style filesystem paths. That is, if a returned shape is in
+         * the group "/a/b", then there will be an entry in the groups map: ...TBD...
+         *
+         **/
         class RoiResult
             {
                 RoiOptions         opts;
                 RoiList            rois;
-                StringStringMap    groups;
 
                 // Indexes
 
                 IntShapeListMap    byZ;
                 IntShapeListMap    byT;
                 StringShapeListMap byG;
+                StringStringMap    groups;
             };
 
         /**
@@ -62,16 +84,23 @@ module omero {
         /**
          *
          * Contains arrays, one entry per channel, of the statistics
-         * for a given shape. All arrays are the same size.
+         * for a given shape. All arrays are the same size, except for
+         * the channelIds array, which specifies the ids of the logical
+         * channels which compose this Shape. If the user specified no
+         * logical channels for the Shape, then all logical channels from
+         * the Pixels will be in channelIds.
          **/
         class ShapeStats
             {
+                long         shapeId;
+                LongArray    channelIds;
+                LongArray    pointsCount;
+
                 DoubleArray  min;
                 DoubleArray  max;
                 DoubleArray  sum;
                 DoubleArray  mean;
                 DoubleArray  stdDev;
-                DoubleArray  pointsCount;
            };
 
         sequence<ShapeStats> ShapeStatsList;
@@ -82,7 +111,10 @@ module omero {
          */
         class RoiStats
             {
-                ShapeStats combined;
+                long           roiId;
+                long           imageId;
+                long           pixelsId;
+                ShapeStats     combined;
                 ShapeStatsList perShape;
             };
 
@@ -104,6 +136,13 @@ module omero {
                  */
                 RoiResult findByImage(long imageId, RoiOptions opts) throws omero::ServerError;
 
+                /**
+                 * Returns all the Rois on the given plane, indexed via Shape.
+                 *
+                 * Loads Rois as findByRoi.
+                 */
+                RoiResult findByPlane(long imageId, int z, int t, RoiOptions opts) throws omero::ServerError;
+
 		/**
 		 * Find ROIs which intersect the given shape. If z/t/visible/locked are filled,
                  * only intersections on the given plane(s) or with the given properties are
@@ -120,7 +159,7 @@ module omero {
 		 * Find ROIs which intersect any of the given shape.
                  * Otherwise as findByIntersection.
 		 **/
-		RoiResult findByAnyIntersection(long imageId, ShapeList shape, RoiOptions opts) throws omero::ServerError;
+		RoiResult findByAnyIntersection(long imageId, ShapeList shapes, RoiOptions opts) throws omero::ServerError;
 
                 /**
                  * Calculate the points contained within a given shape

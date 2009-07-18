@@ -21,7 +21,7 @@ import org.apache.batik.parser.PathParser;
 
 public class SmartPathI extends omero.model.PathI implements SmartShape {
 
-    public int[][] areaPoints() {
+    public void areaPoints(PointCallback cb) {
         throw new UnsupportedOperationException();
     }
     
@@ -36,6 +36,7 @@ public class SmartPathI extends omero.model.PathI implements SmartShape {
         PathHandler ph = new SmartPathHandler(points);
         pp.setPathHandler(ph);
         pp.parse(d.getValue());
+        assert Util.checkNonNull(points) : "Null points in " + this;
         return points;
     }
 

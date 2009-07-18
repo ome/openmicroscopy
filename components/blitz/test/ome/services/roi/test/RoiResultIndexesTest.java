@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
  * Checks that when a {@link RoiResult} is returned that its indexes are
  * properly setup.
  */
-@Test(groups = "integration")
+@Test(groups = {"integration", "rois"})
 public class RoiResultIndexesTest extends AbstractRoiITest {
 
     @Test

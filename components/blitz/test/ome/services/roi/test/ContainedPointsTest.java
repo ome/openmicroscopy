@@ -14,13 +14,15 @@ import omero.model.Image;
 import omero.model.Rect;
 import omero.model.Roi;
 import omero.model.Shape;
+import omero.model.SmartLineI;
+import omero.model.SmartShape.Util;
 
 import org.testng.annotations.Test;
 
 /**
  *
  */
-@Test(groups = "integration")
+@Test(groups = { "integration", "rois" })
 public class ContainedPointsTest extends AbstractRoiITest {
 
     Image i;

@@ -16,12 +16,12 @@ import java.util.Random;
 
 public class SmartRectI extends omero.model.RectI implements SmartShape {
 
-    public int[][] areaPoints() {
+    public void areaPoints(PointCallback cb) {
         Shape s = asAwtShape();
         Rectangle2D r = s.getBounds2D();
-        return Util.pointsByBoundingBox(s, r);
+        Util.pointsByBoundingBox(s, r, cb);
     }
-    
+
     public Shape asAwtShape() {
         double[] d = data();
         Rectangle2D.Double rect = new Rectangle2D.Double(d[0], d[1], d[2], d[3]);
@@ -30,7 +30,9 @@ public class SmartRectI extends omero.model.RectI implements SmartShape {
 
     public List<Point> asPoints() {
         double[] d = data();
-        return Util.points(d[0], d[1], d[2], d[3]);
+        List<Point> points = Util.points(d[0], d[1], d[2], d[3]);
+        assert Util.checkNonNull(points) : "Null points in " + this;
+        return points;
     }
 
     public void randomize(Random random) {

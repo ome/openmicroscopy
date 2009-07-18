@@ -22,9 +22,48 @@ import org.apache.batik.parser.PointsHandler;
 import org.apache.batik.parser.PointsParser;
 import org.apache.xerces.impl.xpath.regex.ParseException;
 
+/**
+ * Orthogonal interface hierarchy of types for working with the
+ * {@link omero.model.Shape} hierarchy.
+ * 
+ * @since Beta4.1
+ */
 public interface SmartShape {
 
+    /**
+     * Utility class used as a mixin by all of the {@link SmartShape}
+     * implementations. The inheritance hierarchy of Ice-generated objects
+     * doesn't allow for simply subclassing .
+     */
     public static class Util {
+
+        /**
+         * Used from assert statements of the form:
+         * 
+         * <pre>
+         * assert Util.checkNonNull(points) : &quot;Null points in &quot; + this;
+         * </pre>
+         * 
+         * in all the implementations of {@link SmartShape#asPoints()}.
+         * 
+         * @param points
+         * @return false if iterating through the points list and dereferencing
+         *         the cx and cy fields would cause a
+         *         {@link NullPointerException}
+         */
+        public static boolean checkNonNull(List<Point> points) {
+            if (points == null) {
+                return false;
+            }
+
+            for (Point point : points) {
+                if (point == null || point.cx == null || point.cy == null) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         public static void appendDbPoint(StringBuilder sb, Point p) {
             appendDbPoint(sb, p.cx.getValue(), p.cy.getValue());
@@ -48,7 +87,7 @@ public interface SmartShape {
             sb.append(cy);
             sb.append(" ");
         }
-        
+
         public static boolean appendSegement(StringBuilder sb, boolean first,
                 double cx, double cy) {
             if (first) {
@@ -117,6 +156,19 @@ public interface SmartShape {
             return points;
         }
 
+        /**
+         * Returns the four corner points of a rectangle
+         * 
+         * @param x
+         *            the top-left corner's x coordinate (the lowest x)
+         * @param y
+         *            the top-left corner's y coordinate (the lowest y)
+         * @param w
+         *            width of the rectangle so that x+w gives the highest x
+         * @param h
+         *            height of the rectange so taht y+h gives the highest y
+         * @return a list of points of the form: (x,y),(x+w,y),(x+w,y+h),(x,y+h)
+         */
         public static List<Point> points(double x, double y, double w, double h) {
             omero.RDouble x0 = rdouble(x);
             omero.RDouble y0 = rdouble(y);
@@ -146,11 +198,9 @@ public interface SmartShape {
 
             return points;
         }
-        
-        public static int[][] pointsByBoundingBox(Shape s, Rectangle2D r) {
-            int size = ((int) r.getHeight() * (int) r.getWidth());
-            List<Integer> xs = new ArrayList<Integer>(size);
-            List<Integer> ys = new ArrayList<Integer>(size);
+
+        public static void pointsByBoundingBox(Shape s, Rectangle2D r,
+                PointCallback cb) {
 
             double xEnd = (r.getX() + r.getWidth());
             double yEnd = (r.getY() + r.getHeight());
@@ -160,30 +210,61 @@ public interface SmartShape {
             for (double y = startY; y < yEnd; ++y) {
                 for (double x = startX; x < xEnd; ++x) {
                     if (s.intersects(x, y, 0.001, 0.001)) {
-                        xs.add((int) x);
-                        ys.add((int) y);
+                        cb.handle((int) x, (int) y);
                     }
                 }
             }
 
-            int[] xpts = new int[xs.size()];
-            int[] ypts = new int[ys.size()];
-            for (int i = 0; i < xpts.length; i++) {
-                xpts[i] = xs.get(i);
-                ypts[i] = ys.get(i);
-            }
-            return new int[][] { xpts, ypts };
         }
     }
 
+    /**
+     * Callback interface passed every point which is within the area of this
+     * shape. This prevents having all the points in memory at the same time. An
+     * implementation that would like to collect all the points can do something
+     * like:
+     * 
+     * <pre>
+     * final List&lt;Integer&gt; xs = ...;
+     * final List&lt;Integer&gt; ys = ...;
+     * PointCallback cb = new PointCallback(){
+     *   void handle(int x, int y) {
+     *     xs.add(x);
+     *     ys.add(y);
+     *   };
+     * };
+     * </pre>
+     */
+    public interface PointCallback {
+        void handle(int x, int y);
+    }
+
+    /**
+     * Calls the {@link PointCallback} with all of the x/y coordinates which are
+     * within the shape.
+     */
+    void areaPoints(PointCallback action);
+
+    /**
+     * Converst the current {@link SmartShape} to a {@link java.awt.Shape}. This
+     * is useful for determining paths and included points.
+     * 
+     * @return
+     */
     java.awt.Shape asAwtShape();
 
+    /**
+     * Provides some, possibly lossy, bounding polygon of this
+     * {@link SmartShape} via points.
+     * 
+     * @return
+     */
     List<Point> asPoints();
 
-    int[][] areaPoints();
-    
-    // int[][] perimeterPoints();
-    
+    /**
+     * Initializes this shape with completely random data. This is useful for 
+     * @param random
+     */
     void randomize(Random random);
 
 }

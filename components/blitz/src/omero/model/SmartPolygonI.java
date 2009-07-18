@@ -15,7 +15,7 @@ import java.util.Random;
 
 public class SmartPolygonI extends omero.model.PolygonI implements SmartShape {
 
-    public int[][] areaPoints() {
+    public void areaPoints(PointCallback cb) {
         throw new UnsupportedOperationException();
     }
     
@@ -26,7 +26,9 @@ public class SmartPolygonI extends omero.model.PolygonI implements SmartShape {
 
     public List<Point> asPoints() {
         String str = this.points.getValue();
-        return Util.parsePoints(str);
+        List<Point> points = Util.parsePoints(str);
+        assert Util.checkNonNull(points) : "Null points in " + this;
+        return points;
     }
 
     public void randomize(Random random) {

@@ -29,6 +29,8 @@ import omero.model.SmartPointI;
 import omero.model.SmartPolygonI;
 import omero.model.SmartPolylineI;
 import omero.model.SmartRectI;
+import omero.model.SmartTextI;
+import omero.model.Text;
 
 /**
  * Intelligent server-side representations of the {@link Roi} and {@link Shape}
@@ -138,6 +140,15 @@ public abstract class RoiTypes {
             @Override
             public Rect shape() {
                 return new SmartRectI();
+            }
+
+        });
+        
+        factories.put(SmartTextI.class, new ObjectFactory(Text.ice_staticId()) {
+
+            @Override
+            public Text shape() {
+                return new SmartTextI();
             }
 
         });

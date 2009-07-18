@@ -49,7 +49,7 @@
   <bean id="roiPixData" class="ome.services.roi.PixelData" lazy-init="false">
       <constructor-arg ref="internal-ome.api.IPixels"/>
       <constructor-arg ref="/OMERO/Pixels"/>
-  </bean>  
+  </bean>
 
   <bean id="omero.api.IScript" class="omero.api._IScriptTie" singleton="false">
     <constructor-arg>

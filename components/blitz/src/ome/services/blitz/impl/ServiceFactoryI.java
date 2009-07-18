@@ -211,7 +211,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 this.context), this.principal);
         // TODO Move this to injection.
         // FIXME
-        this.topicManager = null; // (TopicManager) context.getBean("topicManager");
+        this.topicManager = null; // (TopicManager)
+        // context.getBean("topicManager");
 
         // Setting up in memory store.
         Ehcache cache = manager.inMemoryCache(p.getName());
@@ -266,9 +267,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 current));
     }
 
-    public IContainerPrx getContainerService(Ice.Current current) throws ServerError {
-        return IContainerPrxHelper.uncheckedCast(getByName(CONTAINERSERVICE.value,
-                current));
+    public IContainerPrx getContainerService(Ice.Current current)
+            throws ServerError {
+        return IContainerPrxHelper.uncheckedCast(getByName(
+                CONTAINERSERVICE.value, current));
     }
 
     public IProjectionPrx getProjectionService(Ice.Current current)
@@ -286,7 +288,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         Ice.ObjectPrx prx = getByName(ROISERVICE.value, current);
         return IRoiPrxHelper.uncheckedCast(prx);
     }
-    
+
     public IScriptPrx getScriptService(Ice.Current current) throws ServerError {
         Ice.ObjectPrx prx = getByName(SCRIPTSERVICE.value, current);
         return IScriptPrxHelper.uncheckedCast(prx);
@@ -314,8 +316,9 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     }
 
     public IUpdatePrx getUpdateService(Ice.Current current) throws ServerError {
-        return IUpdatePrxHelper.uncheckedCast(getByName(UPDATESERVICE.value,
-                current));
+        Ice.ObjectPrx prx = getByName(UPDATESERVICE.value, current);
+        return IUpdatePrxHelper.uncheckedCast(prx);
+
     }
 
     public IRenderingSettingsPrx getRenderingSettingsService(Ice.Current current)
@@ -331,11 +334,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     }
 
     public IMetadataPrx getMetadataService(Ice.Current current)
-    throws ServerError {
+            throws ServerError {
         return IMetadataPrxHelper.uncheckedCast(getByName(
-                        METADATASERVICE.value, current));
+                METADATASERVICE.value, current));
     }
-    
+
     // ~ Stateful
     // =========================================================================
 
@@ -445,7 +448,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // The InteractiveProcessor will be responsible for its
         // further lifetime.
         final ome.model.jobs.Job savedJob = (ome.model.jobs.Job) this.executor
-                .execute(this.principal, new Executor.SimpleWork(this, "submitJob") {
+                .execute(this.principal, new Executor.SimpleWork(this,
+                        "submitJob") {
                     @Transactional(readOnly = false)
                     public ome.model.jobs.Job doWork(Session session,
                             ServiceFactory sf) {
@@ -570,7 +574,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * reconnecting to it. This means that the Glacier timeout property is
      * fairly unimportant. If a Glacier connection times out or is otherwise
      * destroyed, a client can attempt to reconnect.
-     *
+     * 
      * However, in the case of only one reference to the session, if the
      * Glacier2 timeout is greater than the session timeout, exceptions can be
      * thrown when this method tries to clean up the session. Therefore all
@@ -590,7 +594,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             // this session first. Logging the fact, but we will
             // continue with the closing which should be safe
             // to call multiple times.
-            log.warn("NotRegisteredException: " + Ice.Util.identityToString(sessionId()));
+            log.warn("NotRegisteredException: "
+                    + Ice.Util.identityToString(sessionId()));
         } catch (Ice.ObjectAdapterDeactivatedException oade) {
             log.warn("Adapter already deactivated. Cannot remove: "
                     + sessionId());
@@ -634,7 +639,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 } catch (ConnectionLostException cle) {
                     log.debug(clientId + "'s connection lost as expected");
                 } catch (ConnectTimeoutException cte) {
-                    log.warn("ConnectTimeoutException on callback:"+clientId);
+                    log.warn("ConnectTimeoutException on callback:" + clientId);
                 } catch (Exception e) {
                     log.error("Unknown error on oneway "
                             + "ClientCallback.sessionClosed to "
@@ -665,7 +670,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * {@link Session}. Since {@link #destroy()} is called regardless by the
      * router, even when a client has just died, we have this internal method
      * for handling the actual closing of resources.
-     *
+     * 
      * This method must take precautions to not throw a {@link SessionException}
      * . See {@link #destroy(Current)} for more information.
      */
@@ -731,11 +736,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                                 new AMD_StatefulServiceInterface_close() {
                                     public void ice_exception(Exception ex) {
                                         if (ex instanceof omero.SessionException) {
-                                            log.warn("Stateful session not properly closed: "
-                                                    +key);
+                                            log
+                                                    .warn("Stateful session not properly closed: "
+                                                            + key);
                                         } else {
-                                            log.error("Error on close callback: "
-                                                + key + "=" + stateful, ex);
+                                            log.error(
+                                                    "Error on close callback: "
+                                                            + key + "="
+                                                            + stateful, ex);
                                         }
                                     }
 
@@ -785,9 +793,9 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // First take measures to keep the session alive
         sessionManager.getEventContext(this.principal);
         if (log.isInfoEnabled()) {
-            log.info("Keep alive: "+__current.id.name);
+            log.info("Keep alive: " + __current.id.name);
         }
-        
+
         if (proxies == null || proxies.length == 0) {
             return -1; // All set to 1
         }
@@ -811,9 +819,9 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // First take measures to keep the session alive
         sessionManager.getEventContext(this.principal);
         if (log.isInfoEnabled()) {
-            log.info("Keep alive: "+__current.id.name);
+            log.info("Keep alive: " + __current.id.name);
         }
-        
+
         if (proxy == null) {
             return false;
         }
@@ -913,7 +921,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 throw (omero.InternalException) e;
             } else if (e instanceof Ice.ObjectAdapterDeactivatedException) {
                 // ticket:1251
-                ShutdownInProgress sip = new ShutdownInProgress(null, null, "ObjectAdapter deactivated");
+                ShutdownInProgress sip = new ShutdownInProgress(null, null,
+                        "ObjectAdapter deactivated");
                 IceMapper.fillServerError(sip, e);
                 throw sip;
             } else {

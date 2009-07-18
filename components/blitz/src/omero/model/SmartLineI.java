@@ -17,7 +17,7 @@ import java.util.Random;
 
 public class SmartLineI extends omero.model.LineI implements SmartShape {
 
-    public int[][] areaPoints() {
+    public void areaPoints(PointCallback cb) {
         throw new UnsupportedOperationException();
     }
     
@@ -40,6 +40,7 @@ public class SmartLineI extends omero.model.LineI implements SmartShape {
         end.setCy(getY2());
         points.addAll(start.asPoints());
         points.addAll(end.asPoints());
+        assert Util.checkNonNull(points) : "Null points in " + this;
         return points;
     }
 

@@ -21,25 +21,31 @@ import java.util.Random;
 
 public class SmartEllipseI extends omero.model.EllipseI implements SmartShape {
 
-    public int[][] areaPoints() {
+    public void areaPoints(PointCallback cb) {
         Shape s = asAwtShape();
         Rectangle2D r = s.getBounds2D();
-        return Util.pointsByBoundingBox(s, r);
+        Util.pointsByBoundingBox(s, r, cb);
     }
 
     public Shape asAwtShape() {
-        double[] d = data();
-        Ellipse2D.Double e = new Ellipse2D.Double(d[0], d[1], d[2], d[3]);
+        double cx = getCx().getValue();
+        double cy = getCy().getValue();
+        double rx = getRx().getValue();
+        double ry = getRy().getValue();
+        double height = ry * 2;
+        double width = rx * 2;
+        double cornerX = cx - rx;
+        double cornerY = cy - ry;
+        Ellipse2D.Double e = new Ellipse2D.Double(cornerX, cornerY, width,
+                height);
         return e;
     }
 
     public List<Point> asPoints() {
-        double[] d = data();
-        Ellipse2D.Double e2d = new Ellipse2D.Double(d[0], d[1], d[2], d[3]);
-        PathIterator it = e2d.getPathIterator(new AffineTransform(), 1.0f);
+        Ellipse2D.Double e2d = (Ellipse2D.Double) asAwtShape();
+        PathIterator it = e2d.getPathIterator(new AffineTransform(), 0.1f);
         List<Point> points = new ArrayList<Point>();
         final double[] coords = new double[6];
-        long count = 0;
         while (!it.isDone()) {
             it.currentSegment(coords);
             SmartPointI pt = new SmartPointI();
@@ -48,6 +54,7 @@ public class SmartEllipseI extends omero.model.EllipseI implements SmartShape {
             points.add(pt);
             it.next();
         }
+        assert Util.checkNonNull(points) : "Null points in " + this;
         return points;
     }
 
@@ -61,13 +68,5 @@ public class SmartEllipseI extends omero.model.EllipseI implements SmartShape {
             throw new UnsupportedOperationException(
                     "Roi-based values unsupported");
         }
-    }
-
-    double[] data() {
-        double cx = getCx().getValue();
-        double cy = getCy().getValue();
-        double rx = getRx().getValue();
-        double ry = getRy().getValue();
-        return new double[] { cx, cy, rx, ry };
     }
 }
