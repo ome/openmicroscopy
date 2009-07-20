@@ -22,4 +22,11 @@
        </structuredEntry>
      </fonts>
 </resources>
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * 
+   * General set up for the data manager
+   * 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+   <entry name="MultiUser" type="boolean">false</entry>
+  
 </agent>

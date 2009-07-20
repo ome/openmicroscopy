@@ -75,6 +75,9 @@ class ToolBar
 	/** Button to load the rendering control for the primary select. */
 	private JButton			rndButton;
 	
+	/** Button to refresh the selected tab. */
+	private JButton			refreshButton;
+	
 	/** Button to analyze the image. */
 	private JButton			flimButton;
 	
@@ -135,7 +138,7 @@ class ToolBar
 			if (icon.getIconWidth() > w) w = icon.getIconWidth();
 		}
 		rndButton = new JButton(icon);
-		rndButton.setToolTipText("Rendeing control for the primary selected " +
+		rndButton.setToolTipText("Rendering control for the primary selected " +
 				"image.");
 		rndButton.addActionListener(controller);
 		rndButton.setActionCommand(""+EditorControl.RENDERER);
@@ -159,11 +162,18 @@ class ToolBar
 		flimButton.setActionCommand(""+EditorControl.ANALYSE_FLIM);
 		flimButton.setEnabled(false);
 		
+		icon = icons.getIcon(IconManager.REFRESH);
+		refreshButton = new JButton(icon);
+		refreshButton.setToolTipText("Refresh the selected tab.");
+		refreshButton.addActionListener(controller);
+		refreshButton.setActionCommand(""+EditorControl.REFRESH);
+		
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 		UIUtilities.unifiedButtonLookAndFeel(createMovieButton);
 		UIUtilities.unifiedButtonLookAndFeel(rndButton);
 		UIUtilities.unifiedButtonLookAndFeel(flimButton);
+		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
 		
 		Dimension d = new Dimension(w, h);
     	busyLabel = new JXBusyLabel(d);
@@ -212,6 +222,8 @@ class ToolBar
     	bar.setRollover(true);
     	bar.setBorder(null);
     	bar.add(saveButton);
+    	bar.add(Box.createHorizontalStrut(5));
+    	bar.add(refreshButton);
     	if (model.getRndIndex() == MetadataViewer.RND_GENERAL) {
     		bar.add(Box.createHorizontalStrut(5));
         	bar.add(rndButton);
@@ -343,9 +355,7 @@ class ToolBar
     	busyLabel.setVisible(busy);
     }
     
-    /**
-     * Updates the UI when a new object is selected.
-     */
+    /** Updates the UI when a new object is selected. */
     void buildUI()
     {
     	Object refObject = model.getRefObject();

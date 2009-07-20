@@ -121,10 +121,11 @@ public class ImViewerAgent
         ImageData image = evt.getImage();
         Rectangle r = evt.getRequesterBounds();
         ImViewer view;
+        boolean b = evt.isSeparateWindow();
         if (image != null)
-        	view = ImViewerFactory.getImageViewer(image, r);
+        	view = ImViewerFactory.getImageViewer(image, r, b);
         else
-        	view = ImViewerFactory.getImageViewer(evt.getImageID(), r);;
+        	view = ImViewerFactory.getImageViewer(evt.getImageID(), r, b);
         if (view != null) {
         	view.activate(evt.getSettings(), evt.getSelectedUserID());
         	view.setContext(evt.getParent(), evt.getGrandParent());

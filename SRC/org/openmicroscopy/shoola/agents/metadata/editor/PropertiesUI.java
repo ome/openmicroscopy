@@ -154,7 +154,7 @@ class PropertiesUI
 	/** The new full name. */
 	private String				modifiedName;
 	
-	/** The default border of the name and decription components. */
+	/** The default border of the name and description components. */
 	private Border				defaultBorder;
 	
 	/** Reference to the control. */
@@ -671,17 +671,18 @@ class PropertiesUI
 	/**
 	 * Sets the channels when loaded.
 	 * 
-	 * @param waves The value to set.
+	 * @param channels The value to set.
 	 */
-	void setChannelData(List waves)
+	void setChannelData(List channels)
 	{
-		if (waves == null) return;
+		if (channels == null) return;
 		String s = "";
-		Iterator k = waves.iterator();
+		int n = channels.size()-1;
+		Iterator k = channels.iterator();
 		int j = 0;
 		while (k.hasNext()) {
 			s += ((ChannelData) k.next()).getChannelLabeling();
-			if (j != waves.size()-1) s +=", ";
+			if (j != n) s +=", ";
 			j++;
 		}
 		channelsArea.setText(s);
@@ -703,13 +704,13 @@ class PropertiesUI
 	protected String getComponentTitle() { return TITLE; }
 
 	/**
-	 * No-op implementation in this case.
+	 * No implementation in this case.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
 	protected List<AnnotationData> getAnnotationToRemove() { return null; }
 
 	/**
-	 * No-op implementation in this case.
+	 * No implementation in this case.
 	 * @see AnnotationUI#getAnnotationToSave()
 	 */
 	protected List<AnnotationData> getAnnotationToSave() { return null; }
@@ -762,10 +763,7 @@ class PropertiesUI
 	 * Clears the UI.
 	 * @see AnnotationUI#clearDisplay()
 	 */
-	protected void clearDisplay() 
-	{
-		
-	}
+	protected void clearDisplay() {}
 
 	/**
 	 * Sets the title of the component.
@@ -780,8 +778,8 @@ class PropertiesUI
 	public void insertUpdate(DocumentEvent e)
 	{
 		handleNameChanged(e.getDocument());
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-						Boolean.TRUE);
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 
 	/**
@@ -791,8 +789,8 @@ class PropertiesUI
 	public void removeUpdate(DocumentEvent e)
 	{
 		handleNameChanged(e.getDocument());
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-							Boolean.TRUE);
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 
 	/** 

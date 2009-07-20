@@ -71,6 +71,9 @@ class ToolBar
     /** Reference to the control. */
     private TreeViewerControl   controller;
     
+    /** Reference to the model. */
+    private TreeViewerModel	   model;
+    
     /** The component indicating the status of the import. */
     private JXBusyLabel			importLabel;
     
@@ -130,9 +133,12 @@ class ToolBar
         bar.add(b);
         b = new JButton(controller.getAction(TreeViewerControl.SWITCH_USER));
         UIUtilities.unifiedButtonLookAndFeel(b);
+        if (model.isMultiUser())  bar.add(b);
+        /*
         if (Boolean.valueOf(System.getProperty("insight.switch_user", "false"))) {
             bar.add(b);
-        }        
+        }      
+        */  
         b = new JButton(controller.getAction(
         		TreeViewerControl.EDITOR_NO_SELECTION));
         UIUtilities.unifiedButtonLookAndFeel(b);
@@ -163,7 +169,7 @@ class ToolBar
     }
     
     /**
-     * Returns the toolbar indicating the status of the import.
+     * Returns the tool bar indicating the status of the import.
      * 
      * @return See above.
      */
@@ -224,13 +230,18 @@ class ToolBar
      * 
      * @param controller    Reference to the control. 
      *                      Mustn't be <code>null</code>.
+     * @param model    		Reference to the model. 
+     *                      Mustn't be <code>null</code>.
      */
-    ToolBar(TreeViewerControl   controller)
+    ToolBar(TreeViewerControl controller, TreeViewerModel model)
     {
         if (controller == null) 
             throw new NullPointerException("No controller.");
-        initComponents();
+        if (model == null) 
+            throw new NullPointerException("No model.");
+        this.model = model;
         this.controller = controller;
+        initComponents();
         buildGUI();
     }
     

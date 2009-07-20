@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.util;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Font;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
@@ -37,6 +38,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
+
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
@@ -1844,6 +1848,11 @@ public class EditorUtil
 	public static JXTaskPane createTaskPane(String title)
 	{
 		JXTaskPane taskPane = new JXTaskPane();
+		Container c = taskPane.getContentPane();
+		c.setBackground(UIUtilities.BACKGROUND_COLOR);
+		if (c instanceof JComponent) 
+			((JComponent) c).setBorder(BorderFactory.createEmptyBorder(
+					1, 1, 1, 1));
 		taskPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		taskPane.setTitle(title);
 		taskPane.setCollapsed(true);

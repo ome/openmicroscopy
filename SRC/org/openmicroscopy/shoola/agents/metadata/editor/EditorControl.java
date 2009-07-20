@@ -122,8 +122,11 @@ class EditorControl
 	 */
 	static final int	RENDERER = 8;
 	
-	/** Action ID to analyse the image. */
+	/** Action ID to analyze the image. */
 	static final int	ANALYSE_FLIM = 9;
+	
+	/** Action ID to resfrsh the selected tab. */
+	static final int	REFRESH = 10;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -384,6 +387,9 @@ class EditorControl
 				break;
 			case ANALYSE_FLIM:
 				view.analyse();
+				break;
+			case REFRESH:
+				model.refresh();
 		}
 	}
 	

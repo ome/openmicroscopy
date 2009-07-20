@@ -81,6 +81,12 @@ public class ViewImage
     /** The id of the image to view. Used when no <code>ImageData</code>set. */
     private long		imageID;
     
+    /**  
+     * Flag indicating if the viewer should be opened as a separate window
+     * or not. The default value is <code>true</code>.
+     */
+    private boolean		separateWindow;
+    
     /**
      * Creates a new instance.
      * 
@@ -89,11 +95,12 @@ public class ViewImage
      */
     public ViewImage(long imageID, Rectangle bounds)
     {
-        if (imageID< 0l) 
+        if (imageID < 0l) 
             throw new IllegalArgumentException("Image ID not valid.");
         this.imageID = imageID;
         requesterBounds = bounds;
         selectedUserID = -1;
+        separateWindow = true;
     }
     
     /**
@@ -110,6 +117,7 @@ public class ViewImage
         requesterBounds = bounds;
         selectedUserID = -1;
         imageID = -1;
+        separateWindow = true;
     }
     
     /**
@@ -190,5 +198,25 @@ public class ViewImage
      * @return See above.
      */
     public Rectangle getRequesterBounds() { return requesterBounds; }
+    
+    /**
+     * Returns <code>true</code> if the viewer should be opened in a 
+     * separate window, <code>false</code> otherwise.
+     * The default value is <code>true</code>.
+     * 
+     * @return See above.
+     */
+    public boolean isSeparateWindow() { return separateWindow; }
+    
+    /**
+     * Sets to <code>true</code> if the viewer should be opened in a separate
+     * window, <code>false</code> otherwise.
+     * 
+     * @param separateWindow The value to set.
+     */
+    public void setSeparateWindow(boolean separateWindow)
+    {
+    	this.separateWindow = separateWindow;
+    }
     
 }

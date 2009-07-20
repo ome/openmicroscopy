@@ -34,7 +34,6 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -66,6 +65,9 @@ public class TreeViewerAgent
     implements Agent, AgentEventListener
 {
 
+    /** Determine if the multiple users flag is on or off. */
+    public static final String MULTI_USER = "MultiUser";
+    
 	/** Reference to the registry. */
     private static Registry         registry;
     

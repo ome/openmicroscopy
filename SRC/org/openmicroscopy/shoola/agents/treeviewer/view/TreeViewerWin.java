@@ -425,7 +425,7 @@ class TreeViewerWin
         displayMode = TreeViewer.EXPLORER_MODE;
         statusBar = new StatusBar(controller);
         statusBar.addPropertyChangeListener(controller);
-        toolBar = new ToolBar(controller);
+        toolBar = new ToolBar(controller, model);
         initComponents();
         setJMenuBar(createMenuBar());
         buildGUI();

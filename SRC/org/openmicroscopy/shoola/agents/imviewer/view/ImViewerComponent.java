@@ -191,7 +191,7 @@ class ImViewerComponent
 
 	/**
 	 * Posts an {@link ChannelSelection} event to indicate that the 
-	 * a new channel is selected or deselected; or that a channel is mapped
+	 * a new channel is selected or unselected; or that a channel is mapped
 	 * to a new color.
 	 * 
 	 * @param index One of the constants defined by {@link ChannelSelection}.
@@ -349,13 +349,12 @@ class ImViewerComponent
 		if (ref.getEndZ() != view.getProjectionEndZ()) return false;
 		if (ref.getAlgorithm() != view.getProjectionType()) return false;
 		if (ref.getStepping() != view.getProjectionStepping()) return false;
-		//if (ref.)
 		return true;
 	}
 	
 	/**
 	 * Creates a new instance.
-	 * The {@link #initialize() initialize} method should be called straigh 
+	 * The {@link #initialize() initialize} method should be called straight 
 	 * after to complete the MVC set up.
 	 * 
 	 * @param model The Model sub-component. Mustn't be <code>null</code>.
@@ -433,7 +432,7 @@ class ImViewerComponent
 	boolean hasRndToSave() { return model.isOriginalSettings(); }
 	
 	/**
-	 * Returns the id of the pixels set thie viewer is for.
+	 * Returns the id of the pixels set this viewer is for.
 	 * 
 	 * @return See above.
 	 */
@@ -524,7 +523,7 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setZoomFactor(double)
+	 * @see ImViewer#setZoomFactor(double, int)
 	 */
 	public void setZoomFactor(double factor, int zoomIndex)
 	{
@@ -576,81 +575,7 @@ class ImViewerComponent
 						"This method can't be invoked in the DISCARDED, " +
 						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
-		/*
-		List active = model.getActiveChannels();
-		Iterator i;
-		int index;
-		switch (key) {
-			case ColorModelAction.GREY_SCALE_MODEL:
-				historyActiveChannels = model.getActiveChannels();
-				//model.setColorModel(GREY_SCALE_MODEL);
-				if (active != null && active.size() >= 1) {
-					List<ChannelData> channels = model.getChannelData();
-					ChannelData channel;
-					i = channels.iterator();
-					boolean set = false;
-					while (i.hasNext()) {
-						channel = (ChannelData) i.next();
-						index = channel.getIndex();
-						if (active.contains(index)) {
-							if (set) 
-								setChannelActive(index, false);
-							else {
-								setChannelActive(index, true);
-								set = true;
-							}
-						}
-					}
-				} else if (active == null || active.size() == 0) {
-					//no channel so no active channel
-					setChannelActive(0, true);
-				}
-				
-				if (active != null) {
-					i = active.iterator();
-					while (i.hasNext()) {
-						index = ((Integer) i.next()).intValue();
-						view.setChannelActive(index, 
-								ImViewerUI.GRID_ONLY);
-					}
-				}
-				model.setColorModel(GREY_SCALE_MODEL);
-				break;
-			case ColorModelAction.RGB_MODEL:
-				//model.setColorModel(RGB_MODEL);
-				if (historyActiveChannels != null && 
-						historyActiveChannels.size() > 0) {
-					i = historyActiveChannels.iterator();
-					while (i.hasNext()) {
-						index = ((Integer) i.next()).intValue();
-						setChannelActive(index, true);
-					}
-				} else {
-					if (active == null || active.size() == 0) {
-						//no channel so one will be active.
-						setChannelActive(0, true);
-					} else {
-						i = active.iterator();
-						while (i.hasNext()) {
-							index = ((Integer) i.next()).intValue();
-							setChannelActive(index, true);
-						}
-					}
-				}
-				model.setColorModel(RGB_MODEL);
-				break;
-			default:
-				throw new IllegalArgumentException("Color model not " +
-				"supported");
-		}
-		//need
-		firePropertyChange(COLOR_MODEL_CHANGED_PROPERTY, 
-				Integer.valueOf(1), Integer.valueOf(-1));
-		view.setColorModel(key);
-		if (model.getTabbedIndex() != GRID_INDEX) {
-			colorModel = model.getColorModel();
-			renderXYPlane();
-		}*/
+
 		switch (key) {
 			case ColorModelAction.GREY_SCALE_MODEL:
 				model.setColorModel(GREY_SCALE_MODEL);
@@ -659,8 +584,7 @@ class ImViewerComponent
 				model.setColorModel(RGB_MODEL);
 				break;
 			default:
-				throw new IllegalArgumentException("ColorModel not supported");	
-				
+				throw new IllegalArgumentException("Color Model not supported");		
 		}
 		
 		firePropertyChange(COLOR_MODEL_CHANGED_PROPERTY, 
@@ -805,9 +729,8 @@ class ImViewerComponent
 
 			if (GREY_SCALE_MODEL.equals(model.getColorModel()))
 				setColorModel(ColorModelAction.RGB_MODEL);
-			else {
+			else 
 				renderXYPlane();
-			}
 		} catch (Exception e) {
 			Registry reg = ImViewerAgent.getRegistry();
 			LogMessage msg = new LogMessage();
@@ -847,8 +770,7 @@ class ImViewerComponent
 					if (i == index) {
 						if (b) l.add(i);
 					} else {
-						if (selectedChannels.contains(i))
-							l.add(i);
+						if (selectedChannels.contains(i)) l.add(i);
 					}
 				}
 				view.setChannelsSelection(l);
@@ -884,7 +806,6 @@ class ImViewerComponent
 					Integer.valueOf(index-1), Integer.valueOf(index));
 		}
 		view.setChannelsSelection(uiIndex);
-		//TODO: Notify rnd
 		model.setSelectedChannel(index);
 		renderXYPlane();
 		postActiveChannelSelection(ChannelSelection.CHANNEL_SELECTION);
@@ -1092,7 +1013,8 @@ class ImViewerComponent
 		case NEW:
 		case DISCARDED:
 			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW state.");
+					"This method can't be invoked in the DISCARDED or" +
+					" NEW state.");
 		}
 		return view;
 	}
@@ -1258,12 +1180,6 @@ class ImViewerComponent
 				model.setColorModel(GREY_SCALE_MODEL);
 			}
 
-			active = model.getActiveChannels();
-			i = active.iterator();
-			Integer index;
-			while (i.hasNext()) { //reset values.
-				Object me = i.next();
-			}
 		} else {
 			while (i.hasNext()) {
 				k = i.next().getIndex();
@@ -2642,47 +2558,13 @@ class ImViewerComponent
 		if (!reload) {
 			colorModel = model.getColorModel();
 			view.buildComponents();
-			view.setOnScreen();
-			view.toFront();
-			view.requestFocusInWindow();
-			if (ImViewerAgent.isFastConnection())
-				model.firePlaneInfoRetrieval();
-			
-			view.setLeftStatus();
-		} else {
-			//TODO
-			//clean history, reset UI element
-			model.resetHistory();
-			view.switchRndControl();
-		}
-		
-		renderXYPlane();
-		fireStateChange();
-		/*
-		if (model.getState() != LOADING_RENDERING_CONTROL)
-			throw new IllegalStateException(
-					"This method can't be invoked in the " +
-					"LOADING_RENDERING_CONTROL.");
-		Object rnd = model.getRenderer();
-		model.setRenderingControl(result);
-		//Register the renderer
-		model.getRenderer().addPropertyChangeListener(controller);
-		if (model.isLifetime()) {
-			try {
-				model.setForLifetime();
-			} catch (Exception e) {
-				// TODO: handle exception
+			if (model.isSeparateWindow()) {
+				view.setOnScreen();
+				view.toFront();
+				view.requestFocusInWindow();
 			}
-		} 
-		if (rnd == null) { //initial 
-			colorModel = model.getColorModel();
-			view.buildComponents();
-			view.setOnScreen();
-			view.toFront();
-			view.requestFocusInWindow();
 			if (ImViewerAgent.isFastConnection())
 				model.firePlaneInfoRetrieval();
-			
 			view.setLeftStatus();
 		} else {
 			//TODO
@@ -2693,7 +2575,6 @@ class ImViewerComponent
 		
 		renderXYPlane();
 		fireStateChange();
-		*/
 	}
 
 	/** 

@@ -103,7 +103,7 @@ class MetadataViewerComponent
 	private MetadataViewerUI 		view;
 
 	/**
-	 * Initialises a message dialog.
+	 * Initializes a message dialog.
 	 * 
 	 * @return See above.
 	 */
@@ -539,7 +539,7 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#onDataSave(Collection)
+	 * @see MetadataViewer#onDataSave(List)
 	 */
 	public void onDataSave(List<DataObject> data)
 	{
@@ -597,7 +597,7 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#loadParents(StructuredDataResults)
+	 * @see MetadataViewer#loadParents()
 	 */
 	public void loadParents()
 	{
@@ -882,7 +882,7 @@ class MetadataViewerComponent
 			img = (ImageData) ob;
 		if (img == null) return;
 		if (!imageIds.contains(img.getId())) return;
-		rnd.reloadUI();
+		rnd.reloadUI(false);
 	}
 	
 }

@@ -70,7 +70,7 @@ public interface Renderer
 	
     /** 
      * The maximum number of channels before displaying the channels 
-     * buttons in a scrollpane.
+     * buttons in a scroll pane.
      */
     public static final int		MAX_CHANNELS = 10;
     
@@ -519,7 +519,12 @@ public interface Renderer
 	 */
 	BufferedImage renderPlane(PlaneDef pDef);
 	
-	/** Reloads the UI. */
-	void reloadUI();
+	/** 
+	 * Reloads the UI.
+	 * 
+	 * @param reloadPlane Pass <code>true</code> to reload a plane,
+	 * 					  <code>false</code> otherwise.
+	 */
+	void reloadUI(boolean reloadPlane);
 	
 }

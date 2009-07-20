@@ -345,5 +345,8 @@ public interface Editor
 	 * @param data The value to set.
 	 */
 	public void setInstrumentData(InstrumentData data);
+
+	/** Refreshes the currently selected tab. */
+	public void refresh();
 	
 }

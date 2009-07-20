@@ -2166,7 +2166,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			RenderingEnginePrx service = getRenderingService();
-			reServices.put(pixelsID,  service);
+			reServices.put(pixelsID, service);
 			service.lookupPixels(pixelsID);
 			needDefault(pixelsID, service);
 			service.load();

@@ -934,4 +934,16 @@ class TreeViewerModel
 		return svc.getSupportedFileFilters();
 	}
 
+	/**
+	 * Returns <code>true</code> if the multiple users flag is turned on,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMultiUser()
+	{
+		return (Boolean) TreeViewerAgent.getRegistry().lookup(
+				TreeViewerAgent.MULTI_USER);
+	}
+	
 }

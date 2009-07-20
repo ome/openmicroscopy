@@ -150,11 +150,14 @@ public class ImViewerFactory
 	 * @param image  	The image to view.
 	 * @param bounds    The bounds of the component invoking the 
 	 *                  {@link ImViewer}.
+	 * @param separateWindow Pass <code>true</code> to open the viewer in a 
+	 * 						 separate window, <code>false</code> otherwise.           
 	 * @return See above.
 	 */
-	public static ImViewer getImageViewer(ImageData image, Rectangle bounds)
+	public static ImViewer getImageViewer(ImageData image, Rectangle bounds, 
+			boolean separateWindow)
 	{
-		ImViewerModel model = new ImViewerModel(image, bounds);
+		ImViewerModel model = new ImViewerModel(image, bounds, separateWindow);
 		return singleton.getViewer(model);
 	}
 
@@ -164,11 +167,15 @@ public class ImViewerFactory
 	 * @param imageID  	The image to view.
 	 * @param bounds    The bounds of the component invoking the 
 	 *                  {@link ImViewer}.
+	 * @param separateWindow Pass <code>true</code> to open the viewer in a 
+	 * 						 separate window, <code>false</code> otherwise. 
 	 * @return See above.
 	 */
-	public static ImViewer getImageViewer(long imageID, Rectangle bounds)
+	public static ImViewer getImageViewer(long imageID, Rectangle bounds, 
+			boolean separateWindow)
 	{
-		ImViewerModel model = new ImViewerModel(imageID, bounds);
+		ImViewerModel model = new ImViewerModel(imageID, bounds, 
+				separateWindow);
 		return singleton.getViewer(model);
 	}
 	

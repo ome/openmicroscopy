@@ -88,7 +88,7 @@ class MetadataViewerControl
 	/** Reference to the View. */
 	private MetadataViewerUI					view;
 	
-	/** Maps actions ids onto actual <code>Action</code> object. */
+	/** Maps actions identifiers onto actual <code>Action</code> object. */
 	private Map<Integer, MetadataViewerAction>	actionsMap;
 	
 	/** The loading window. */
@@ -108,7 +108,7 @@ class MetadataViewerControl
 	 * Creates a new instance.
 	 * The
 	 * {@link #initialize(MetadataViewer, MetadataViewerUI) initialize} 
-	 * method should be called straigh 
+	 * method should be called straight
 	 * after to link this Controller to the other MVC components.
 	 */
 	MetadataViewerControl() {}
@@ -166,7 +166,7 @@ class MetadataViewerControl
 	}
 
 	/**
-	 * Reacts to property 
+	 * Reacts to properties fired by the renderer.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt)

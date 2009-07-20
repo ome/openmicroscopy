@@ -230,8 +230,8 @@ class RendererComponent
         try {
         	model.setBitResolution(v);
         	if (model.isGeneralIndex()) model.saveRndSettings();
-            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
-           		 			Boolean.TRUE);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
+            		Boolean.valueOf(true));
 		} catch (Exception ex) {
 			handleException(ex);
 		}
@@ -301,8 +301,8 @@ class RendererComponent
 		try {
         	model.setCodomainInterval(s, e);
         	if (model.isGeneralIndex()) model.saveRndSettings();
-        	firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
-        			Boolean.TRUE);
+        	firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
+            		Boolean.valueOf(true));
 		} catch (Exception ex) {
 			handleException(ex);
 		}
@@ -323,8 +323,8 @@ class RendererComponent
 		try {
         	model.setCurveCoefficient(k);
         	if (model.isGeneralIndex()) model.saveRndSettings();
-            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
-           		 			Boolean.TRUE);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
+            		Boolean.valueOf(true));
 		} catch (Exception ex) {
 			handleException(ex);
 		}
@@ -339,8 +339,8 @@ class RendererComponent
 		try {
         	model.setFamily(family);
         	if (model.isGeneralIndex()) model.saveRndSettings();
-            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
-           		 			Boolean.TRUE);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
+            		Boolean.valueOf(true));
 		} catch (Exception ex) {
 			handleException(ex);
 		}
@@ -364,8 +364,8 @@ class RendererComponent
 		try {
         	model.setNoiseReduction(b);
         	if (model.isGeneralIndex()) model.saveRndSettings();
-            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
-           		 			Boolean.TRUE);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
+            		Boolean.valueOf(true));
 		} catch (Exception ex) {
 			handleException(ex);
 		}
@@ -752,10 +752,10 @@ class RendererComponent
 			if (start == s && end == e) return;
 			model.setInputInterval(index, start, end);
         	if (model.isGeneralIndex()) model.saveRndSettings();
-        	firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
-           		 			Boolean.TRUE);
-        	firePropertyChange(INPUT_INTERVAL_PROPERTY, Boolean.FALSE, 
-                    Boolean.TRUE);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
+            		Boolean.valueOf(true));
+        	firePropertyChange(INPUT_INTERVAL_PROPERTY, Boolean.valueOf(false), 
+            		Boolean.valueOf(true));
 		} catch (Throwable e) {
 			handleException(e);
 		}
@@ -811,13 +811,16 @@ class RendererComponent
 
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#reloadUI()
+     * @see Renderer#reloadUI(boolean)
      */
-	public void reloadUI()
+	public void reloadUI(boolean reload)
 	{
 		view.resetDefaultRndSettings();
 		firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));
+		if (reload) {
+			
+		}
 	}
 
 }

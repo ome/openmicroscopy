@@ -136,7 +136,7 @@ class EditorComponent
 	
 	/**
 	 * Creates a new instance.
-	 * The {@link #initialize() initialize} method should be called straigh 
+	 * The {@link #initialize() initialize} method should be called straight 
 	 * after to complete the MVC set up.
 	 * 
 	 * @param model The Model sub-component. Mustn't be <code>null</code>.
@@ -158,13 +158,13 @@ class EditorComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#getUI()
 	 */
 	public JComponent getUI() { return view; }
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setStructuredDataResults()
 	 */
 	public void setStructuredDataResults()
@@ -176,7 +176,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setRootObject(Object)
 	 */
 	public void setRootObject(Object refObject)
@@ -191,7 +191,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setParentRootObject(Object)
 	 */
 	public void setParentRootObject(Object parentRefObject)
@@ -201,7 +201,7 @@ class EditorComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setThumbnails(Map, long)
 	 */
 	public void setThumbnails(Map<Long, BufferedImage> thumbnails, 
@@ -217,7 +217,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setExistingTags(Collection)
 	 */
 	public void setExistingTags(Collection tags)
@@ -261,7 +261,7 @@ class EditorComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setChannelsData(List, boolean)
 	 */
 	public void setChannelsData(List channelData, boolean updateView)
@@ -271,7 +271,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#hasDataToSave()
 	 */
 	public boolean hasDataToSave()
@@ -280,7 +280,7 @@ class EditorComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setDownloadedFiles(File, Collection)
 	 */
 	public void setDownloadedFiles(File folder, Collection files)
@@ -292,7 +292,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setDiskSpace(List)
 	 */
 	public void setDiskSpace(List list)
@@ -303,7 +303,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#passwordChanged(boolean)
 	 */
 	public void passwordChanged(boolean changed)
@@ -320,7 +320,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#loadChannelData()
 	 */
 	public void loadChannelData()
@@ -333,7 +333,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setExistingAttachements(Collection)
 	 */
 	public void setExistingAttachements(Collection attachments)
@@ -363,7 +363,7 @@ class EditorComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setSelectionMode(boolean)
 	 */
 	public void setSelectionMode(boolean single)
@@ -372,7 +372,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#loadParents()
 	 */
 	public void loadParents() { model.loadParents(); }
@@ -384,7 +384,7 @@ class EditorComponent
 	public void setStatus(boolean busy) { view.setStatus(busy); }
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setStatus(boolean)
 	 */
 	public void loadExistingTags()
@@ -394,7 +394,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#deleteAnnotation(AnnotationData)
 	 */
 	public void deleteAnnotation(AnnotationData data)
@@ -419,7 +419,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setImageAcquisitionData(ImageAcquisitionData)
 	 */
 	public void setImageAcquisitionData(ImageAcquisitionData map)
@@ -431,7 +431,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#loadImageAcquisitionData()
 	 */
 	public void loadImageAcquisitionData()
@@ -447,7 +447,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#loadChannelAcquisitionData(ChannelData)
 	 */
 	public void loadChannelAcquisitionData(ChannelData channel)
@@ -464,7 +464,7 @@ class EditorComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#loadInstrumentData()
 	 */
 	public void loadInstrumentData()
@@ -485,7 +485,7 @@ class EditorComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setChannelEnumerations(Map)
 	 */
 	public void setChannelEnumerations(Map map)
@@ -494,7 +494,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setImageEnumerations(Map)
 	 */
 	public void setImageEnumerations(Map map)
@@ -503,7 +503,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setChannelAcquisitionData(int, ChannelAcquisitionData)
 	 */
 	public void setChannelAcquisitionData(int index, 
@@ -515,7 +515,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#loadExistingAttachments()
 	 */
 	public void loadExistingAttachments()
@@ -525,7 +525,7 @@ class EditorComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#download(File)
 	 */
 	public void download(File folder)
@@ -535,7 +535,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setPlaneInfo(Collection, long, int)
 	 */
 	public void setPlaneInfo(Collection result, long pixelsID, int channel)
@@ -550,7 +550,7 @@ class EditorComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setRenderingControl(RenderingControl)
 	 */
 	public void setRenderingControl(RenderingControl rndControl)
@@ -564,7 +564,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#loadRenderingControl()
 	 */
 	public void loadRenderingControl()
@@ -589,7 +589,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setLoadedFile(FileAnnotationData, File, Object)
 	 */
 	public void setLoadedFile(FileAnnotationData data, File file, Object uiView)
@@ -605,7 +605,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#selectRenderer()
 	 */
 	public void selectRenderer()
@@ -613,11 +613,11 @@ class EditorComponent
 		int index = EditorUI.RND_INDEX;
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
 			index = EditorUI.GENERAL_INDEX;
-		view.setSelectedTabbed(index);
+		view.setSelectedTab(index);
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#getRenderer()
 	 */
 	public Renderer getRenderer()
@@ -626,7 +626,7 @@ class EditorComponent
 	}
 
 	/** 
-	 * Implemented as specified by the {@link Browser} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setInstrumentData(InstrumentData)
 	 */
 	public void setInstrumentData(InstrumentData data)
@@ -635,6 +635,31 @@ class EditorComponent
 		model.setInstrumentData(data);
 		view.setInstrumentData();
 		view.setStatus(false);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#refresh()
+	 */
+	public void refresh()
+	{
+		switch (view.getSelectedTab()) {
+			case EditorUI.GENERAL_INDEX:
+				if (model.getRndIndex() == MetadataViewer.RND_GENERAL) {
+				} else {
+					Renderer rnd = getRenderer();
+					if (rnd != null) rnd.reloadUI(true);
+				}
+				break;
+			case EditorUI.RND_INDEX:
+				if (model.getRndIndex() == MetadataViewer.RND_GENERAL) {
+					Renderer rnd = getRenderer();
+					if (rnd != null) rnd.reloadUI(true);
+				}
+				break;
+			case EditorUI.ACQUISITION_INDEX:
+				
+		};
 	}
 	
 }

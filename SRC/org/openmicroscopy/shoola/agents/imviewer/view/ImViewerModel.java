@@ -253,7 +253,13 @@ class ImViewerModel
     private Collection 					containers;
     
     /** The collection of sorted channel data, sorted by emission wavelength. */
-    private List<ChannelData>			sortedChannels;
+    //private List<ChannelData>			sortedChannels;
+    
+    /**  
+     * Flag indicating if the viewer should be opened as a separate window
+     * or not. The default value is <code>true</code>.
+     */
+    private boolean		separateWindow;
     
     /**
 	 * Transforms 3D coordinates into linear coordinates.
@@ -267,9 +273,11 @@ class ImViewerModel
 	 */
     private Integer linearize(int z, int c, int t)
     {
-    	int sizeZ = metadataViewer.getRenderer().getPixelsDimensionsZ();
-		int sizeC = metadataViewer.getRenderer().getPixelsDimensionsC();
-		int sizeT = metadataViewer.getRenderer().getPixelsDimensionsT();
+    	Renderer rnd = metadataViewer.getRenderer();
+    	if (rnd == null) return -1;
+    	int sizeZ = rnd.getPixelsDimensionsZ();
+		int sizeC = rnd.getPixelsDimensionsC();
+		int sizeT = rnd.getPixelsDimensionsT();
 		if (z < 0 || sizeZ <= z) return -1;
 		if (c < 0 || sizeC <= c) return -1;
 		if (t < 0 || sizeT <= t) return -1;
@@ -352,8 +360,10 @@ class ImViewerModel
 	 * @param imageID 	The id of the image.
 	 * @param bounds	The bounds of the component invoking the 
 	 *                  {@link ImViewer}.
+	 * @param separateWindow Pass <code>true</code> to open the viewer in a 
+	 * 						 separate window, <code>false</code> otherwise.  
 	 */
-	ImViewerModel(long imageID, Rectangle bounds)
+	ImViewerModel(long imageID, Rectangle bounds, boolean separateWindow)
 	{
 		this.imageID = imageID;
 		initialize(bounds);
@@ -365,8 +375,10 @@ class ImViewerModel
 	 * @param image  	The image.
 	 * @param bounds    The bounds of the component invoking the 
 	 *                  {@link ImViewer}.
+	 * @param separateWindow Pass <code>true</code> to open the viewer in a 
+	 * 						 separate window, <code>false</code> otherwise.  
 	 */
-	ImViewerModel(ImageData image, Rectangle bounds)
+	ImViewerModel(ImageData image, Rectangle bounds, boolean separateWindow)
 	{
 		this.image = image;
 		initialize(bounds);
@@ -1846,14 +1858,14 @@ class ImViewerModel
 	}
 	
 	/**
-	 * Returns the last projection ref.
+	 * Returns the last projection details.
 	 * 
 	 * @return See above.
 	 */
 	ProjectionParam getLastProjRef() { return lastProjRef; }
 	
 	/**
-	 * Sets the last projection ref.
+	 * Sets the last projection details.
 	 * 
 	 * @param ref The value to set.
 	 */
@@ -1961,4 +1973,13 @@ class ImViewerModel
 		rnd.setSelectedChannel(index);
 	}
 	
+    /**
+     * Returns <code>true</code> if the viewer should be opened in a 
+     * separate window, <code>false</code> otherwise.
+     * The default value is <code>true</code>.
+     * 
+     * @return See above.
+     */
+    boolean isSeparateWindow() { return separateWindow; }
+    
 }
