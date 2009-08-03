@@ -77,7 +77,10 @@ class GraphicsPane
 	private static final String	PREVIEW_DESCRIPTION = "Update the " +
 			"rendering settings without releasing the mouse.";
     
-    /** Action command ID to set the start and end values to min and max.*/
+    /** 
+     * Action command ID to set the start and end values to the minimum and 
+     * maximum.
+     */
     private static final int	RANGE = 0;
     
     /** 
@@ -95,10 +98,10 @@ class GraphicsPane
     /** The label displaying the global max. */
     private JLabel              	maxLabel;
     
-    /** The label displaying the global min. */
+    /** The label displaying the global minimum. */
     private JLabel              	minLabel;
     
-    /** Button to set the start and end value to the min and max. */
+    /** Button to set the start and end value to the minimum and maximum. */
     private JButton					rangeButton;
     
     /** The component displaying the plane histogram. */
@@ -334,7 +337,7 @@ class GraphicsPane
     {
         int s = (int) model.getWindowStart();
         int e = (int) model.getWindowEnd();
-        //domainSlider.setInterval(s, e);
+        domainSlider.setInterval(s, e);
         onCurveChange();
     }
     

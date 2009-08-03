@@ -894,7 +894,7 @@ class OMEROGateway
 	 *  
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private RawFileStorePrx getRawFileService()
@@ -2186,7 +2186,7 @@ class OMEROGateway
 	 * 					child specified.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	IObject findAnnotationLink(Class type, long parentID, long childID)

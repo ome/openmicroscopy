@@ -524,6 +524,8 @@ public class TextualTwoKnobsSlider
 		startField.setText(""+s);
 		slider.setStartValue(s);
 		slider.setEndValue(e);
+		start = s;
+		end = e;
 		attachListeners();
 	}
 	

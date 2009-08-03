@@ -547,8 +547,8 @@ public class MessengerDialog
     	bar.add(cancelButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(sendButton);
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(submitButton);
+    	//bar.add(Box.createHorizontalStrut(5));
+    	//bar.add(submitButton);
     	JPanel p = UIUtilities.buildComponentPanelRight(bar);
     	p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	if (dialogType == ERROR_TYPE) {
@@ -625,7 +625,6 @@ public class MessengerDialog
 	 * @param parent		The parent of this dialog.
 	 * @param title			The dialog's title.
 	 * @param emailAddress	The e-mail address of the current user.
-	 * @param teamAddress	The e-mail address of the development team.
 	 * @param exception		The exception to handle.
 	 */
 	public MessengerDialog(JFrame parent, String title, String emailAddress, 

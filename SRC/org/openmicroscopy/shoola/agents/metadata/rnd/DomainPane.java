@@ -141,7 +141,7 @@ public class DomainPane
     private static final String 	Z_SLIDER_DESCRIPTION = 
     								"Select a z-section.";
 
-    /** The description of a timepoint selection slider. */
+    /** The description of a time-point selection slider. */
     private static final String 	T_SLIDER_DESCRIPTION = 
     								"Select a timepoint.";
     
