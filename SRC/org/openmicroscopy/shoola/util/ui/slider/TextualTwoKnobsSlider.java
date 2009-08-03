@@ -147,7 +147,7 @@ public class TextualTwoKnobsSlider
 	 * Installs the various listeners for the passed field.
 	 * 
 	 * @param field	The text field to handle.
-	 * @param id	The id of the action command
+	 * @param id	The id of the action command.
 	 */
 	private void installFieldListeners(JTextField field, int id)
 	{
@@ -166,13 +166,13 @@ public class TextualTwoKnobsSlider
 	 */
 	private void uninstallFieldListeners(JTextField field)
 	{
-		field.removeActionListener(this);
+		//field.removeActionListener(this);
 		field.removeFocusListener(this);
-		field.getDocument().removeDocumentListener(this);
+		//field.getDocument().removeDocumentListener(this);
 	}
 	
 	/**
-	 * Initialises the components.
+	 * Initializes the components.
 	 * 
 	 * @param absMin The absolute minimum value.
 	 * @param absMax The absolute maximum value.
@@ -247,7 +247,7 @@ public class TextualTwoKnobsSlider
 	}
 	
 	/**
-	 * Synchronises the slider and the {@link #startField} when the 
+	 * Synchronizes the slider and the {@link #startField} when the 
 	 * left knob is moved.
 	 * 
 	 * @param value The value to set.
@@ -262,7 +262,7 @@ public class TextualTwoKnobsSlider
 	}
 	
 	/**
-	 * Synchronises the slider and the {@link #endField} when the 
+	 * Synchronizes the slider and the {@link #endField} when the 
 	 * right knob is moved.
 	 * 
 	 * @param value The value to set.
@@ -524,6 +524,8 @@ public class TextualTwoKnobsSlider
 		startField.setText(""+s);
 		slider.setStartValue(s);
 		slider.setEndValue(e);
+		endField.setMinimum(s);
+		startField.setMaximum(e);
 		start = s;
 		end = e;
 		attachListeners();
