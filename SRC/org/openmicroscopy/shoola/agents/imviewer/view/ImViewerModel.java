@@ -327,9 +327,12 @@ class ImViewerModel
 	 * Initializes the model.
 	 * 
 	 * @param bounds The bounds of the component invoking the {@link ImViewer}.
+	 * @param separateWindow Pass <code>true</code> to open the viewer in a 
+	 * 						 separate window, <code>false</code> otherwise.  
 	 */
-	private void initialize(Rectangle bounds)
+	private void initialize(Rectangle bounds, boolean separateWindow)
 	{
+		this.separateWindow = separateWindow;
 		requesterBounds = bounds;
 		state = ImViewer.NEW;
 		initMagnificationFactor = false;
@@ -366,7 +369,7 @@ class ImViewerModel
 	ImViewerModel(long imageID, Rectangle bounds, boolean separateWindow)
 	{
 		this.imageID = imageID;
-		initialize(bounds);
+		initialize(bounds, separateWindow);
 	}
 	
 	/**
@@ -381,7 +384,7 @@ class ImViewerModel
 	ImViewerModel(ImageData image, Rectangle bounds, boolean separateWindow)
 	{
 		this.image = image;
-		initialize(bounds);
+		initialize(bounds, separateWindow);
 		initializeMetadataViewer();
 		currentPixelsID = image.getDefaultPixels().getId();
 	}
