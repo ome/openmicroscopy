@@ -158,7 +158,7 @@ class DatasetsModel
 	protected int getType() { return DataBrowserModel.DATASETS; }
 
 	/**
-	 * No-op implementation in our case.
+	 * No-operation implementation in our case.
 	 * @see DataBrowserModel#getNodes()
 	 */
 	protected List<ImageDisplay> getNodes() { return null; }

@@ -64,8 +64,8 @@ public class ViewImageAction
     
     /**
      * Sets the action enabled depending on the browser's type and 
-     * the currenlty selected node. Sets the name of the action depending on 
-     * the <code>DataObject</code> hosted by the currenlty selected node.
+     * the currently selected node. Sets the name of the action depending on 
+     * the <code>DataObject</code> hosted by the currently selected node.
      * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)

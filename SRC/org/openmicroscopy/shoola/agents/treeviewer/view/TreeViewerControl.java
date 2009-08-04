@@ -284,7 +284,7 @@ class TreeViewerControl
 	/** Maps actions ids onto actual <code>Action</code> object. */
 	private Map<Integer, TreeViewerAction>	actionsMap;
 
-	/** The tabbed pane listener. */
+	/** The tab pane listener. */
 	private ChangeListener  				tabsListener;
 
 	/** The loading window. */

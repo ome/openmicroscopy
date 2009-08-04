@@ -135,10 +135,10 @@ public class SearchComponent
 	 */
 	static final int 				ANNOTATOR = 6;
 	
-	/** Action command ID indicating to display the adavanced search. */
+	/** Action command ID indicating to display the advanced search. */
 	static final int 				ADVANCED_SEARCH = 7;
 	
-	/** Action command ID indicating to display the adavanced search. */
+	/** Action command ID indicating to display the advanced search. */
 	static final int 				BASIC_SEARCH = 8;
 	
 	/** 

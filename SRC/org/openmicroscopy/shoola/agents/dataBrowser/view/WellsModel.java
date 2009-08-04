@@ -229,9 +229,8 @@ class WellsModel
 			throw new IllegalArgumentException("No wells.");
 		wellDimension = null;
 		this.parent = parent;
-		long userID = DataBrowserAgent.getUserDetails().getId();
-		Set nodes = DataBrowserTranslator.transformHierarchy(wells, userID, 0);
-		wellNodes = sortByRow(nodes);
+		wellNodes = sortByRow(DataBrowserTranslator.transformHierarchy(wells, 
+				DataBrowserAgent.getUserDetails().getId(), 0));
 		PlateData plate = (PlateData) parent;
 		int columSequenceIndex = plate.getColumnSequenceIndex();
 		int rowSequenceIndex = plate.getRowSequenceIndex();

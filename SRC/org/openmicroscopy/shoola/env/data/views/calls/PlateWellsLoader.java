@@ -25,6 +25,11 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -34,7 +39,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /** 
- * 
+ * Loads the wells contained within a plate.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,18 +64,26 @@ public class PlateWellsLoader
     /**
      * Creates a {@link BatchCall} to retrieve the wells-wellsample-image.
      * 
-     * @param plateID  The type of the plate.
+     * @param plateIDs  The collection of plate's ids.
      * @param userID   The id of the user who tagged the object or 
      * 				   <code>-1</code> if the user is not specified.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadPlateWells(final long plateID, final long userID)
+    private BatchCall loadPlateWells(final Set<Long> plateIDs, 
+    		final long userID)
     {
         return new BatchCall("Loading Screen-Plate") {
             public void doCall() throws Exception
             {
             	OmeroDataService os = context.getDataService();
-            	result = os.loadPlateWells(plateID, userID);
+            	Iterator<Long> i = plateIDs.iterator();
+            	long id;
+            	Map<Long, Collection> r = new HashMap<Long, Collection>();
+            	while (i.hasNext()) {
+					id = i.next();
+					r.put(id, os.loadPlateWells(id, userID));
+				}
+            	result = r;
             }
         };
     }
@@ -90,12 +103,12 @@ public class PlateWellsLoader
     /**
      * Creates a new instance.
      * 
-     * @param plateID The id of the plate.
-     * @param userID  The id of the user.
+     * @param plateIDs  The collection of plate's ids.
+     * @param userID  	The id of the user.
      */
-    public PlateWellsLoader(long plateID, long userID)
+    public PlateWellsLoader(Set<Long> plateIDs, long userID)
     {
-    	loadCall = loadPlateWells(plateID, userID);
+    	loadCall = loadPlateWells(plateIDs, userID);
     }
     
 }

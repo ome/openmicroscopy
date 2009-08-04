@@ -681,7 +681,6 @@ class BrowserModel
 			*/
 			parent.browse(node);
 		}
-		
 	}
 	
 	/**

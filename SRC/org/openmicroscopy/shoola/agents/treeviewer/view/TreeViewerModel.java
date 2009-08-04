@@ -757,12 +757,11 @@ class TreeViewerModel
 							TreeViewerAgent.getRegistry());
 		return advancedFinder; 
 	}
-	
 
 	/**
 	 * Browses the node hosting the project to browse.
 	 * 
-	 * @param node The node to browse
+	 * @param node The node to browse.
 	 */
 	void browseProject(TreeImageDisplay node)
 	{
@@ -770,25 +769,27 @@ class TreeViewerModel
 		currentLoader = new ProjectsLoader(component, node);
 		currentLoader.load();
 	}
-
+	
 	/**
-	 * Browses the node hosting the project to browse.
+	 * Browses the node hosting the plates to browse.
 	 * 
-	 * @param node The node to browse
+	 * @param nodes The nodes to browse.
 	 */
-	void browsePlate(TreeImageDisplay node)
+	void browsePlates(List<TreeImageDisplay> nodes)
 	{
 		state = TreeViewer.LOADING_DATA;
-		Object ho = node.getUserObject();
-		currentLoader = new PlateWellsLoader(component, 
-				(TreeImageSet) node, ((PlateData) ho).getId());
+		List<TreeImageSet> plates = new ArrayList<TreeImageSet>();
+		Iterator<TreeImageDisplay> i = nodes.iterator();
+		while (i.hasNext())
+			plates.add((TreeImageSet) i.next());
+		currentLoader = new PlateWellsLoader(component, plates);
 		currentLoader.load();
 	}
 	
 	/**
 	 * Browses the node hosting the time interval to browse.
 	 * 
-	 * @param node The node to browse
+	 * @param node The node to browse.
 	 */
 	void browseTimeInterval(TreeImageTimeSet node)
 	{
@@ -800,7 +801,7 @@ class TreeViewerModel
 	/**
 	 * Browses the node hosting the tag linked to tags to browse.
 	 * 
-	 * @param node The node to browse
+	 * @param node The node to browse.
 	 */
 	void browseTag(TreeImageDisplay node)
 	{

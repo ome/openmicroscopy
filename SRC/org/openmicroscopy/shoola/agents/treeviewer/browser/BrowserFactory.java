@@ -47,6 +47,28 @@ public class BrowserFactory
 {
 
     /**
+     * Returns the node hosting the experimenter passing a child node.
+     * 
+     * @param node The child node.
+     * @return See above.
+     */
+    public static TreeImageDisplay getDataOwner(TreeImageDisplay node)
+    {
+    	if (node == null) return null;
+    	TreeImageDisplay parent = node.getParentDisplay();
+    	Object ho;
+    	if (parent == null) {
+    		ho = node.getUserObject();
+    		if (ho instanceof ExperimenterData)
+    			return node;
+    		return null;
+    	}
+    	ho = parent.getUserObject();
+    	if (ho instanceof ExperimenterData) return parent;
+    	return getDataOwner(parent);
+    }
+    
+    /**
      * Creates a new {@link Browser}.
      * 
      * @param browserType   The browser's type to create.

@@ -145,7 +145,7 @@ class BrowserUI
      * 
      * @param loc			The location of the mouse click.
      * @param popupTrigger	Pass <code>true</code> if the mouse event is the 
-     * 						popup menu trigger event for the platform,
+     * 						pop-up menu trigger event for the platform,
      * 						<code>false</code> otherwise.
      */
     private void handleMouseClick(Point loc, boolean popupTrigger)

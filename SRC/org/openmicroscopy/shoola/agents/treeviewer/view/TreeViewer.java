@@ -714,12 +714,11 @@ public interface TreeViewer
 	public void browseTimeInterval(TreeImageTimeSet node, Set set);
 
 	/**
-	 * Sets the wells linked to the parent.
+	 * Sets the wells linked to the specified plates.
 	 * 
-	 * @param parent The parent to handle.
-	 * @param wells  The wells to add.
+	 * @param plates The parents to handle.
 	 */
-	public void setWells(TreeImageSet parent, Set wells);
+	public void setPlates(Map<TreeImageSet, Set> plates);
 
 	/**
 	 * Browses the passed node.

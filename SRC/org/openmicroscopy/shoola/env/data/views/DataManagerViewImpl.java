@@ -262,9 +262,9 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadPlateWells(long, long, AgentEventListener)
+	 * @see DataManagerView#loadPlatesWells(Set, long, AgentEventListener)
 	 */
-	public CallHandle loadPlateWells(long plateID, long userID, 
+	public CallHandle loadPlateWells(Set<Long> plateID, long userID, 
 									AgentEventListener observer)
 	{
 		BatchCallTree cmd = new PlateWellsLoader(plateID, userID);

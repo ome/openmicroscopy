@@ -37,6 +37,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
@@ -60,6 +62,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.ImportManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
@@ -1872,23 +1875,64 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setWells(TreeImageSet, Set)
+	 * @see TreeViewer#setPlates(Map)
 	 */
-	public void setWells(TreeImageSet parent, Set wells)
+	public void setPlates(Map<TreeImageSet, Set> plates)
 	{
-		Object parentObject = parent.getUserObject();
-		TreeImageDisplay display = parent.getParentDisplay();
+		if (plates == null || plates.size() == 0) {
+			return;
+		}
+		int n = plates.size();
+		Iterator i = plates.entrySet().iterator();
+		Entry entry;
+		Object parentObject;
+		TreeImageSet parent;
+		TreeImageDisplay display;
 		Object grandParentObject = null;
-		if (display != null) grandParentObject =  display.getUserObject();
-		DataBrowser db = DataBrowserFactory.getWellsDataBrowser(
-					grandParentObject, parentObject, wells);
-		db.addPropertyChangeListener(controller);
-		db.activate();
-		view.removeAllFromWorkingPane();
-		view.addComponent(db.getUI());
-		model.setDataViewer(db);
+		DataBrowser db = null;
+		if (n == 1) {
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				parent = (TreeImageSet) entry.getKey();
+				parentObject = parent.getUserObject();
+				display = parent.getParentDisplay();
+				if (display != null) 
+					grandParentObject =  display.getUserObject();
+				db = DataBrowserFactory.getWellsDataBrowser(
+						grandParentObject, parentObject, 
+						(Set) entry.getValue());
+			}
+		}
+		if (db != null) {
+			db.addPropertyChangeListener(controller);
+			db.activate();
+			view.removeAllFromWorkingPane();
+			view.addComponent(db.getUI());
+			model.setDataViewer(db);
+		}
 		model.setState(READY);
 		fireStateChange();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setWells(TreeImageSet, Set)
+	 */
+	public void browse(List<TreeImageDisplay> nodes)
+	{
+		if (nodes == null || nodes.size() == 0) return;
+		TreeImageDisplay node;
+		Object uo;
+		Iterator<TreeImageDisplay> i = nodes.iterator();
+		Class type = null;
+		while (i.hasNext()) {
+			node = i.next();
+			uo = node.getUserObject();
+			type = uo.getClass();
+		}
+		if (PlateData.class.equals(type)) {
+			model.browsePlates(nodes);
+		}
 	}
 	
 	/**
@@ -1897,10 +1941,15 @@ class TreeViewerComponent
 	 */
 	public void browse(TreeImageDisplay node)
 	{
+		
 		if (node == null) return;
 		Object uo = node.getUserObject();
 		if (uo instanceof ProjectData) {
 			model.browseProject(node);
+		} else if (uo instanceof DatasetData) {
+			model.getSelectedBrowser().loadExperimenterData(
+					BrowserFactory.getDataOwner(node), 
+        			node);
 		} else if (uo instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) uo;
 			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
@@ -1928,7 +1977,9 @@ class TreeViewerComponent
 		} else if (node instanceof TreeImageTimeSet) {
 			model.browseTimeInterval((TreeImageTimeSet) node);
 		} else if (uo instanceof PlateData) {
-			model.browsePlate(node);
+			List<TreeImageDisplay> plates = new ArrayList<TreeImageDisplay>();
+			plates.add(node);
+			model.browsePlates(plates);
 		} else if (uo instanceof File) {
 			File f = (File) uo;
 			if (f.isDirectory() && !f.isHidden()) {

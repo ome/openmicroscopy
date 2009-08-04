@@ -271,12 +271,12 @@ public interface DataManagerView
 	/**
 	 * Loads to the wells contained within the specified plate.
 	 * 
-	 * @param plateID 	The id of the plate.
+	 * @param plateIDs 	The id of the plates.
 	 * @param userID 	The Id of the user.
 	 * @param observer  Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadPlateWells(long plateID, long userID, 
+	public CallHandle loadPlateWells(Set<Long> plateIDs, long userID, 
 								AgentEventListener observer);
 	
 	/**

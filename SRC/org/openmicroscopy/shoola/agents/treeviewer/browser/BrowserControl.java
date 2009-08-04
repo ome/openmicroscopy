@@ -141,28 +141,6 @@ class BrowserControl
         this.view = view;
         model.addChangeListener(this);
     }
-    
-    /**
-     * Returns the node hosting the experimenter passing a child node.
-     * 
-     * @param node The child node.
-     * @return See above.
-     */
-    TreeImageDisplay getDataOwner(TreeImageDisplay node)
-    {
-    	if (node == null) return null;
-    	TreeImageDisplay parent = node.getParentDisplay();
-    	Object ho;
-    	if (parent == null) {
-    		ho = node.getUserObject();
-    		if (ho instanceof ExperimenterData)
-    			return node;
-    		return null;
-    	}
-    	ho = parent.getUserObject();
-    	if (ho instanceof ExperimenterData) return parent;
-    	return getDataOwner(parent);
-    }
 
     /**
      * Reacts to tree expansion events.
@@ -219,19 +197,21 @@ class BrowserControl
         view.loadAction(display);
         if ((display instanceof TreeImageTimeSet) ||  
         	(display instanceof TreeFileSet)) {
-        	model.loadExperimenterData(getDataOwner(display), display);
+        	model.loadExperimenterData(BrowserFactory.getDataOwner(display), 
+        			display);
         	return;
         }
         if ((ho instanceof DatasetData) || (ho instanceof TagAnnotationData) 
         		|| (ho instanceof PlateData)) {
-        	model.loadExperimenterData(getDataOwner(display), display);
+        	model.loadExperimenterData(BrowserFactory.getDataOwner(display), 
+        			display);
         } else if (ho instanceof ExperimenterData) {
         	model.loadExperimenterData(display, null);
         }
     }
     
     /** 
-     * Brings up the popup menu. 
+     * Brings up the pop-up menu. 
      * 
      * @param index The index of the menu.
      */

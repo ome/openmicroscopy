@@ -379,7 +379,7 @@ class RenderingControlProxy
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -582,7 +582,7 @@ class RenderingControlProxy
      * @param servant	The value to set.
      * @param rndDef	Local copy of the rendering settings used to 
 	 * 					speed-up the client.
-	 * @throws RenderingServiceException	If an error occured while setting 
+	 * @throws RenderingServiceException	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
@@ -617,7 +617,7 @@ class RenderingControlProxy
      * Reloads the rendering engine.
      * 
      * @param servant The value to set.
-     * @throws RenderingServiceException	If an error occured while setting 
+     * @throws RenderingServiceException	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */

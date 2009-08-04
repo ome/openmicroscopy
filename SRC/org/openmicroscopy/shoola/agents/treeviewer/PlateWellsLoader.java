@@ -24,14 +24,24 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.IllegalArgumentException;
+
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.PlateData;
 
 
 /** 
@@ -54,12 +64,9 @@ public class PlateWellsLoader
 {
     
     /** The parent the nodes to retrieve are for. */
-    private TreeImageSet		parent;
+    private Map<Long, TreeImageSet>		nodes;
     
-    /** The id of the plate. */
-    private long 				plateID;
-    
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  		handle;
     
     /**
@@ -67,16 +74,22 @@ public class PlateWellsLoader
      * 
      * @param viewer  The viewer this data loader is for.
      *                Mustn't be <code>null</code>.
-     * @param expNode The node hosting the experimenter the data are for.
-     * 				  Mustn't be <code>null</code>.
-     * @param parent  The parent the nodes are for.
-     * @param plateID The id of the plate.
+     * @param plates  The parent the nodes are for.
      */
-	public PlateWellsLoader(TreeViewer viewer, TreeImageSet parent, long plateID)
+	public PlateWellsLoader(TreeViewer viewer, List<TreeImageSet> plates)
 	{
 		super(viewer);
-		this.parent = parent;
-		this.plateID = plateID;
+		if (plates == null || plates.size() == 0)
+			throw new IllegalArgumentException("No plates specified.");
+		nodes = new HashMap<Long, TreeImageSet>(plates.size());
+		Iterator<TreeImageSet> i = plates.iterator();
+		TreeImageSet p;
+		PlateData plate;
+		while (i.hasNext()) {
+			p = i.next();
+			plate = (PlateData) p.getUserObject();
+			nodes.put(plate.getId(), p);
+		}
 	}
 	
 	 /**
@@ -85,7 +98,7 @@ public class PlateWellsLoader
      */
     public void load()
     {
-    	handle = dmView.loadPlateWells(plateID, -1, this);
+    	handle = dmView.loadPlateWells(nodes.keySet(), -1, this);
     }
 
     /**
@@ -101,7 +114,17 @@ public class PlateWellsLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.setWells(parent, (Set) result);
+        Map m = (Map) result;
+        Map<TreeImageSet, Set> plates = new HashMap<TreeImageSet, Set>();
+        
+        Iterator i = m.entrySet().iterator();
+        Entry entry;
+        TreeImageSet p;
+        while (i.hasNext()) {
+			entry = (Entry) i.next();
+			plates.put(nodes.get(entry.getKey()), (Set) entry.getValue());
+		}
+        
     }
     
 }

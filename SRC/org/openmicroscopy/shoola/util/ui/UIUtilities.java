@@ -1384,6 +1384,10 @@ public class UIUtilities
 								boolean collapse)
 	{
 		JXTaskPane pane = new JXTaskPane();
+		Container c = pane.getContentPane();
+		if (c instanceof JComponent) 
+			((JComponent) c).setBorder(BorderFactory.createEmptyBorder(
+					1, 1, 1, 1));
 		if (comp == null) return pane;
 		if (title == null) title = "";
 		pane.add(comp, null, 0);

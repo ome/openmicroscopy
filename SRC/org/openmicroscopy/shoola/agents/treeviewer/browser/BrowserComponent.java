@@ -409,7 +409,9 @@ class BrowserComponent
         if (model.getState() != BROWSING_DATA) return;
         //No node added to the tree.
         model.setState(READY);
-        model.getParentModel().setWells(parent, wells);
+        Map<TreeImageSet, Set> plates = new HashMap<TreeImageSet, Set>();
+        plates.put(parent, wells);
+        model.getParentModel().setPlates(plates);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }
@@ -825,7 +827,8 @@ class BrowserComponent
         	if (i == 0) model.setSelectedDisplay(nodes[i], flush);
         	else model.setSelectedDisplay(nodes[i], false);
 		}
-        firePropertyChange(SELECTED_TREE_NODE_DISPLAY_PROPERTY, null, nodes[n-1]);
+        firePropertyChange(SELECTED_TREE_NODE_DISPLAY_PROPERTY, null, 
+        		nodes[n-1]);
     }
 
     /**
@@ -1200,7 +1203,7 @@ class BrowserComponent
 	{
 		if (node == null) 
 			throw new IllegalArgumentException("No node specified.");
-		TreeImageDisplay n = controller.getDataOwner(node);
+		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
 		if (n == null) return model.getUserDetails();
 		return (ExperimenterData) n.getUserObject();
 	}

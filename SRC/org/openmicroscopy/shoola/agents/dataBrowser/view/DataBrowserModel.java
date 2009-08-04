@@ -106,6 +106,9 @@ abstract class DataBrowserModel
 	/** Identifies the <code>TagsModel</code>. */
 	static final int	TAGS = 4;
 	
+	/** Identifies the <code>PlatesModel</code>. */
+	static final int	PLATES = 5;
+	
 	/** Holds one of the state flags defined by {@link DataBrowser}. */
     private int					state;
     

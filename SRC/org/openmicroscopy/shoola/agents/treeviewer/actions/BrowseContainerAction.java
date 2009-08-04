@@ -99,6 +99,11 @@ public class BrowseContainerAction
     		"Plate.";
     
     /** 
+     * Description of the action if the <code>DataObject</code> is a Dataset. 
+     */
+    private static final String DESCRIPTION_DATASET = "Browse the selected " +
+    		"Dataset.";
+    /** 
      * Description of the action if the <code>Object</code> is a folder. 
      */
     private static final String DESCRIPTION_FOLDER = "Browse the selected " +
@@ -109,8 +114,8 @@ public class BrowseContainerAction
     
     /**
      * Sets the action enabled depending on the browser's type and 
-     * the currenlty selected node. Sets the name of the action depending on 
-     * the <code>DataObject</code> hosted by the currenlty selected node.
+     * the currently selected node. Sets the name of the action depending on 
+     * the <code>DataObject</code> hosted by the currently selected node.
      * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
@@ -156,9 +161,9 @@ public class BrowseContainerAction
             
             return;
         }
-        if (ho == null||
+        if (ho == null ||
         	ho instanceof ExperimenterData || ho instanceof ImageData ||
-        	ho instanceof FileAnnotationData || ho instanceof DatasetData) {
+        	ho instanceof FileAnnotationData){// || ho instanceof DatasetData) {
         	putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DEFAULT));
         	setEnabled(false);
@@ -178,7 +183,7 @@ public class BrowseContainerAction
                 if (browser.getSelectedDisplays().length > 1) {
                     setEnabled(true);
                     //for this version
-                    setEnabled(false);
+                    //setEnabled(false);
                     name = NAME;
                     putValue(Action.SMALL_ICON, 
                     			icons.getIcon(IconManager.BROWSER)); 
@@ -189,8 +194,7 @@ public class BrowseContainerAction
             }
             name = NAME;
         	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
-        	
-        	
+
         	String description = DESCRIPTION_DEFAULT;
         	
             if (selectedDisplay instanceof TreeImageSet) {
@@ -202,6 +206,9 @@ public class BrowseContainerAction
                 	description = DESCRIPTION_PLATE;
                 } else if (ho instanceof ProjectData) {
                 	description = DESCRIPTION_PROJECT;
+                	setEnabled(n > 0);
+                } else if (ho instanceof DatasetData) {
+                	description = DESCRIPTION_DATASET;
                 	setEnabled(n > 0);
                 } else if (ho instanceof TagAnnotationData) {
             		String ns = ((TagAnnotationData) ho).getNameSpace();

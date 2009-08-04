@@ -391,11 +391,11 @@ class OmeroMetadataServiceImpl
 		FileAnnotation fa;
 		OriginalFile of;
 		List<Annotation> toCreate = new ArrayList<Annotation>();
-		List<IObject> links = new ArrayList<IObject>();
-		TextualAnnotationData desc;
+		//List<IObject> links = new ArrayList<IObject>();
+		//TextualAnnotationData desc;
 		TagAnnotationData tag;
-		IObject link = null;
-		DataObject data;
+		//IObject link = null;
+		//DataObject data;
 		while (i.hasNext()) {
 			ann = (AnnotationData) i.next();
 			if (ann.getId() < 0) {
@@ -447,6 +447,7 @@ class OmeroMetadataServiceImpl
 			List<IObject> r = gateway.createObjects(l);
 			annotations.addAll(PojoMapper.asDataObjects(r));
 		}
+		/*
 		if (links.size() > 0) {
 			i = links.iterator();
 			List<IObject> l = new ArrayList<IObject>(toCreate.size());
@@ -454,6 +455,7 @@ class OmeroMetadataServiceImpl
 				l.add((IObject) i.next());
 			gateway.createObjects(l);
 		}
+		*/
 		return annotations;
     }
 
@@ -463,7 +465,7 @@ class OmeroMetadataServiceImpl
 	 * @param data       The data object to annotate.
 	 * @param annotation The annotation to link.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service.
 	 */
 	private void linkAnnotation(DataObject data, AnnotationData annotation)
@@ -515,7 +517,7 @@ class OmeroMetadataServiceImpl
 	 * 
 	 * @param ann The annotation to update.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service.
 	 */
 	private DataObject updateAnnotationData(DataObject ann)
@@ -597,7 +599,7 @@ class OmeroMetadataServiceImpl
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	private Collection loadAllAttachments(Class type, long userID)
@@ -661,7 +663,7 @@ class OmeroMetadataServiceImpl
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	private Collection loadTextualAnnotations(Class type, long id, long userID) 

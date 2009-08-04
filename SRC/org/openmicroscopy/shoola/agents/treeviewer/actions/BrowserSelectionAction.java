@@ -38,7 +38,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 
 /** 
  * Selects the type of <code>Browser</code>. Three types are actually 
- * implemented and defined by the following contants:
+ * implemented and defined by the following constants:
  * {@link Browser#PROJECT_EXPLORER}, {@link Browser#IMAGES_EXPLORER},
  * {@link Browser#TAGS_EXPLORER} and {@link Browser#SCREENS_EXPLORER}.
  *
