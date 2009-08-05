@@ -234,6 +234,7 @@ class EditorUI
     {
     	remove(splashScreen);
     	JTextPane pane = new JTextPane();
+    	pane.setEditable(false);
     	pane.setText(contents);
     	add(new JScrollPane(pane), BorderLayout.CENTER);
     	setTitle(model.getFileName());
