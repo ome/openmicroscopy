@@ -15,7 +15,7 @@ perl -i -pe "s/versions.bio-formats=$OLD/versions.bio-formats=$NEW/" ../../etc/o
 svn add ../../etc/omero.properties
 LIST="bio-formats jai_imageio loci-common mdbtools-java ome-xml poi-loci"
 for l in $LIST; do
-    svn del $l-$OLD.jar
+    svn del --force $l-$OLD.jar
     svn add $l-$NEW.jar
     perl -i -pe "s/$l-$OLD.jar/$l-$NEW.jar/" ../../.classpath
 done
