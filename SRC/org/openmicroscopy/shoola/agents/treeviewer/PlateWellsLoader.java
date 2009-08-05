@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -36,11 +35,9 @@ import java.util.Map.Entry;
 
 //Application-internal dependencies
 import omero.IllegalArgumentException;
-
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.PlateData;
 
 
@@ -124,7 +121,7 @@ public class PlateWellsLoader
 			entry = (Entry) i.next();
 			plates.put(nodes.get(entry.getKey()), (Set) entry.getValue());
 		}
-        
+        viewer.setPlates(plates);
     }
     
 }

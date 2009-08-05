@@ -74,7 +74,7 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadContainerHierarchy(Class, List, boolean, 
+	 * @see DataManagerView#loadContainerHierarchy(Class, List, boolean, long,
 	 * 						AgentEventListener)
 	 */
 	public CallHandle loadContainerHierarchy(Class rootNodeType,
@@ -88,7 +88,7 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadImages(AgentEventListener)
+	 * @see DataManagerView#loadImages(long, AgentEventListener)
 	 */
 	public CallHandle loadImages(long userID, AgentEventListener observer)
 	{
@@ -190,8 +190,6 @@ class DataManagerViewImpl
 		return cmd.exec(observer);
 	}
 
-
-
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see DataManagerView#changePassword(String, String, AgentEventListener)
@@ -251,7 +249,8 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadTags(Long, boolean, boolean, long, AgentEventListener)
+	 * @see DataManagerView#loadTags(Long, boolean, boolean, long,
+	 *  AgentEventListener)
 	 */
 	public CallHandle loadTags(Long id, boolean dataObject, boolean topLevel,
 			long userID, AgentEventListener observer)
@@ -262,7 +261,7 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadPlatesWells(Set, long, AgentEventListener)
+	 * @see DataManagerView#loadPlateWells(Set, long, AgentEventListener)
 	 */
 	public CallHandle loadPlateWells(Set<Long> plateID, long userID, 
 									AgentEventListener observer)

@@ -24,10 +24,15 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -38,6 +43,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -398,7 +404,20 @@ public class DataBrowserFactory
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();
-		String key = parent.toString()+parent.getId();
+		String key;
+		if (parent == null) {
+			key = DatasetData.class.toString();
+			Iterator<DatasetData> i = datasets.iterator();
+			List<Long> ids = new ArrayList<Long>();
+			while (i.hasNext()) {
+				ids.add(((DatasetData) i.next()).getId());
+			}
+			sortNodes(ids);
+			Iterator<Long> j = ids.iterator();
+			while (j.hasNext()) {
+				key += ""+(Long) j.next();
+			}
+		} else key = parent.toString()+parent.getId();
 		browsers.put(key, comp);
 		return comp;
 	}
@@ -460,6 +479,27 @@ public class DataBrowserFactory
 		return comp;
 	}
 
+    /** 
+     * Sorts the passed collection of <code>DataObject</code>s by id.
+     * 
+     * @param nodes Collection of <code>DataObject</code>s to sort.
+     */
+    private void sortNodes(List nodes)
+    {
+        if (nodes == null || nodes.size() == 0) return;
+        Comparator c = new Comparator() {
+            public int compare(Object o1, Object o2)
+            {
+                long i1 = ((Long) o1), i2 = ((Long) o2);
+                int v = 0;
+                if (i1 < i2) v = -1;
+                else if (i1 > i2) v = 1;
+                return -v;
+            }
+        };
+        Collections.sort(nodes, c);
+    }
+    
 	/**
 	 * Removes a browser from the {@link #browsers} set when it is
 	 * {@link DataBrowser#DISCARDED discarded}. 

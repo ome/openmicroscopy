@@ -238,8 +238,8 @@ class DataBrowserComponent
 				if (!(parent instanceof DataObject))
 					parent = model.getParent();
 			}
-			
-			objects.add(parent);
+			if (parent != null)
+				objects.add(parent);
 		}
 		firePropertyChange(SELECTED_NODE_DISPLAY_PROPERTY, null, objects);
 	}
@@ -556,7 +556,7 @@ class DataBrowserComponent
 			Object parent = p.getHierarchyObject();
 			if (!(parent instanceof DataObject))
 				parent = model.getParent();
-			objects.add(parent);
+			if (parent != null) objects.add(parent);
 		}
 		firePropertyChange(UNSELECTED_NODE_DISPLAY_PROPERTY, null, objects);
 	}

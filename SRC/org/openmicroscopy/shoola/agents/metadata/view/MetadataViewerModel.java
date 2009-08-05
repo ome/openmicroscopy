@@ -271,7 +271,7 @@ class MetadataViewerModel
 	}
 	
 	/**
-	 * Starts the asynchronous retrieval of the attachments reladed 
+	 * Starts the asynchronous retrieval of the attachments related 
 	 * to the parent node.
 	 * 
 	 * @param refNode 	The menu node of reference.
@@ -442,7 +442,7 @@ class MetadataViewerModel
 	 * 
 	 * @param toAdd		Collection of annotations to add.
 	 * @param toRemove	Collection of annotations to remove.
-	 * @param toSave    Collection of data objectst to handle.
+	 * @param toSave    Collection of data objects to handle.
 	 */
 	void fireBatchSaving(List<AnnotationData> toAdd, List<AnnotationData> 
 						toRemove, Collection<DataObject> toSave)
@@ -501,7 +501,7 @@ class MetadataViewerModel
 	 * currently edited object.
 	 * 
 	 * @param type  The type of the edited object.
-	 * @param id 	The id of the currently edited oject.
+	 * @param id 	The id of the currently edited object.
 	 */
 	void loadParents(Class type, long id)
 	{
@@ -525,7 +525,7 @@ class MetadataViewerModel
 	}
 	
 	/**
-	 * Returns the rnd index.
+	 * Returns the rendering index.
 	 * 
 	 * @return See above.
 	 */
