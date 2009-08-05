@@ -191,9 +191,13 @@ public class EditorAgent
 				editor = EditorFactory.getEditor(event.getFileAnnotationID());
 		} else {
 			String name = data.getFileName();
+			String ns = data.getNameSpace();
 			if (name == null) return;
-			if (!EditorUtil.isEditorFile(name)) return;
-			editor = EditorFactory.getEditor(data);
+			if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
+				FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns) ||
+				FileAnnotationData.COMPANION_FILE_NS.equals(ns) ||
+				EditorUtil.isEditorFile(name))
+				editor = EditorFactory.getEditor(data);
 		}
 		if (editor != null)
 			editor.activate();		// starts file downloading

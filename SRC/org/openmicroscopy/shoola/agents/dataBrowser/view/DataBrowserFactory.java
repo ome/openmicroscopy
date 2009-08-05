@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,14 +35,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -103,7 +100,7 @@ public class DataBrowserFactory
 	}
 
 	/**
-	 * Returns the {@link SearchBrowser} if any.
+	 * Returns the browser used for searching data.
 	 * 
 	 * @return See above.
 	 */
@@ -435,25 +432,6 @@ public class DataBrowserFactory
 			Set<DataObject> dataObjects, boolean withImages)
 	{
 		DataBrowserModel model = new TagsModel(parent, dataObjects, withImages);
-		DataBrowserComponent comp = new DataBrowserComponent(model);
-		model.initialize(comp);
-		comp.initialize();
-		String key = parent.toString()+parent.getId();
-		browsers.put(key, comp);
-		return comp;
-	}
-	
-	/**
-	 * Creates a new {@link DataBrowser} for the passed collection of tags.
-	 * 
-	 * @param parent The parent's node.
-	 * @param tags	 The collection to set.
-	 * @return See above.
-	 */
-	private DataBrowser createTagSetsDataBrowser(DataObject parent, 
-											Set<TagAnnotationData> tags)
-	{
-		DataBrowserModel model = new TagSetsModel(parent, tags);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();

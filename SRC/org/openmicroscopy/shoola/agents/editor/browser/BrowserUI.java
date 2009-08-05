@@ -64,7 +64,8 @@ class BrowserUI
 	extends JPanel
 	implements ChangeListener 
 {
-	    /** The Controller. */
+	
+	/** The Controller. */
     private BrowserControl  		controller;
     
     /** The model. */
@@ -95,7 +96,7 @@ class BrowserUI
      * {@link #navTree} and creates a new {@link FieldEditorPanel} for
      * the selected field. 
      * The {@link #editorPanel} is not visible if Editing of the tree is
-     * disabled (ie. if the {@link Browser} is in the 
+     * disabled (i.e. if the {@link Browser} is in the 
      * {@link Browser#FILE_LOCKED} state.
      */
     private FieldEditorDisplay 		editorPanel;
@@ -112,9 +113,7 @@ class BrowserUI
      * Either text-view or tree-view.
      */
     private JTabbedPane 			tabbedPane;
-    
 
-    
     /** A panel to display experimental info in the text tab-pane */
     private ExperimentInfoPanel		expInfoText;
     

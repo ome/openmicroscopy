@@ -26,9 +26,11 @@ package org.openmicroscopy.shoola.util.file;
 //Java imports
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -101,6 +103,45 @@ public class IOUtil
 			throw new IOException("Cannot write the file "+fileName+". " +
 					"Error: "+e.getMessage());
 		}
+	}
+	
+	/**
+	 * Reads the contents of the passed text file.
+	 * 
+	 * @param file The file to handle.
+	 * @return See above.
+	 * @throws IOException If we cannot write the file or create a stream.
+	 */
+	public static String readTextFile(File file)
+		throws IOException
+	{
+		StringBuffer contents = new StringBuffer();
+		BufferedReader input = new BufferedReader(new FileReader(file));
+		try {
+			String line = null;
+			while ((line = input.readLine()) != null) {
+				contents.append(line);
+				contents.append(System.getProperty("line.separator"));
+			}
+		} finally {
+			input.close();
+		}
+		return contents.toString();
+	}
+	
+	/**
+	 * Reads the contents of the passed text file.
+	 * 
+	 * @param fileName The name of the file.
+	 * @return See above.
+	 * @throws IOException If we cannot write the file or create a stream.
+	 */
+	public static String readTextFile(String fileName)
+		throws IOException
+	{
+		if (fileName == null)
+			throw new IllegalArgumentException("No file name specified.");
+		return readTextFile(new File(fileName));
 	}
 	
 }

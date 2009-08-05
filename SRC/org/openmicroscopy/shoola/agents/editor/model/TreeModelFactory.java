@@ -111,8 +111,7 @@ public class TreeModelFactory
 		// if you reach here, something is wrong. Throw exception.
 		throw new ParsingException(errMsg);
 	}
-	
-	
+
 	/**
 	 * Creates a tree model. This method will handle ANY XML file, converting
 	 * it to the .cpe.xml format! 

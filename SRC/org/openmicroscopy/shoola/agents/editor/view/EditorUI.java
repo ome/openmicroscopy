@@ -35,7 +35,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
@@ -223,12 +225,27 @@ class EditorUI
         statusBar.setProgress(hide);
     }
     
+    /** 
+     * Displays the browser by adding it to this UI.
+     * 
+     *  @param contents The contents of the text file.
+     */
+    void displayFile(String contents)
+    {
+    	remove(splashScreen);
+    	JTextPane pane = new JTextPane();
+    	pane.setText(contents);
+    	add(new JScrollPane(pane), BorderLayout.CENTER);
+    	setTitle(model.getFileName());
+    	validate();
+    	repaint();
+    }
+    
     /** Displays the browser by adding it to this UI. */
     void displayFile()
     {
     	remove(splashScreen);
     	add(model.getBrowser().getUI(), BorderLayout.CENTER);
-    	
     	toolBarContainer.add(new JSeparator(SwingConstants.VERTICAL));
     	toolBarContainer.add(model.getBrowser().getToolBar());
     	

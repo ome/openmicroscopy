@@ -127,7 +127,7 @@ public class IconManager
     /** The <code>Double left arrow</code> icon. */
     public static final int           DOUBLE_LEFT_ARROW = 23;
     
-    /** The <code>Tags 48</code> icon. */
+    /** The <code>Tags 48x48</code> icon. */
     public static final int           TAGS_48 = 24;
     
     /** The <code>Order by date</code> icon. */
@@ -139,28 +139,28 @@ public class IconManager
     /** The <code>Close</code> icon. */
     public static final int           CLOSE = 27;
     
-    /** The <code>Close</code> icon. */
+    /** The <code>Edit</code> icon. */
     public static final int           EDIT = 28;
     
-    /** The <code>Info 48</code> icon. */
+    /** The <code>Info 48x48</code> icon. */
     public static final int           INFO_48 = 29;
     
-    /** The <code>PDF</code> icon. */
+    /** The <code>PDF 22x22</code> icon. */
     public static final int           PDF_DOC_22 = 30;
     
-    /** The <code>Text</code> icon. */
+    /** The <code>Text 22x22</code> icon. */
     public static final int           TEXT_DOC_22 = 32;
     
-    /** The <code>Word</code> icon. */
+    /** The <code>Word 22x22</code> icon. */
     public static final int           WORD_DOC_22 = 33;
     
-    /** The <code>Excel</code> icon. */
+    /** The <code>Excel 22x22</code> icon. */
     public static final int           EXCEL_DOC_22 = 34;
     
-    /** The <code>Power point</code> icon. */
+    /** The <code>Power point 22x22</code> icon. */
     public static final int           PPT_DOC_22 = 35;
     
-    /** The <code>XML</code> icon. */
+    /** The <code>XML 22x22</code> icon. */
     public static final int           XML_DOC_22 = 36;
     
     /** The <code>Save</code> icon. */
@@ -175,19 +175,19 @@ public class IconManager
     /** The <code>Sort</code> icon. */
     public static final int           SORT = 40;
     
-    /** The <code>URL</code> 48 icon. */
+    /** The <code>URL</code> 48x48 icon. */
     public static final int           URL_48 = 41;
      
-    /** The <code>Attachment 48</code> icon. */
+    /** The <code>Attachment 48x48</code> icon. */
     public static final int           ATTACHMENT_48 = 42;
     
-    /** The <code>Metadata 48</code> icon. */
+    /** The <code>Metadata 48x48</code> icon. */
     public static final int           METADATA_48 = 43;
     
     /** The <code>Doc</code> icon. */
     public static final int           DOC = 44;
     
-    /** The <code>Tag 12</code> icon. */
+    /** The <code>Tag 12x12</code> icon. */
     public static final int           TAG_12 = 45;
     
     /** The <code>HTML Document</code> icon. */
@@ -211,29 +211,29 @@ public class IconManager
     /** The <code>Minus</code> icon. */
     public static final int           MINUS_9 = 52;
     
-    /** The <code>Edit 8</code> icon. */
+    /** The <code>Edit 8x8</code> icon. */
     public static final int           EDIT_8 = 53;
     
-    /** The <code>Edit 12</code> icon. */
+    /** The <code>Edit 12x12</code> icon. */
     public static final int           EDIT_12 = 54;
     
-    /** The <code>Edit 48</code> icon. */
+    /** The <code>Edit 48x48</code> icon. */
     public static final int           EDIT_48 = 55;
     
-    /** The <code>Plus 12</code> icon. */
+    /** The <code>Plus 12x12</code> icon. */
     public static final int           PLUS_12 = 56;
     
-    /** The <code>Minus 12</code> icon. */
+    /** The <code>Minus 12x12</code> icon. */
     public static final int           MINUS_12 = 57;
     
     /** The <code>Tag set</code> icon. */
     public static final int           TAG_SET = 58;
     
-    /** The <code>Download 12</code> icon. */
+    /** The <code>Download 12x12</code> icon. */
     public static final int           DOWNLOAD_12 = 59;
     
-    /** The <code>Editor 12</code> icon. */
-    public static final int           EDITOR_12= 60;
+    /** The <code>Editor 12x12</code> icon. */
+    public static final int           EDITOR_12 = 60;
     
     /** The <code>Create Movie</code> icon. */
     public static final int           CREATE_MOVIE = 61;

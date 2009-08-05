@@ -164,6 +164,16 @@ class DocComponent
 	 */
 	private Icon 		thumbnail;
 	
+	/** Opens the file. */
+	private void openFile()
+	{
+		if (!(data instanceof FileAnnotationData)) return;
+		FileAnnotationData fa = (FileAnnotationData) data;
+		String ns = fa.getNameSpace();
+		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+		bus.post(new EditFileEvent((FileAnnotationData) data));
+	}
+	
 	/**
 	 * Formats the passed annotation.
 	 * 
@@ -289,6 +299,8 @@ class DocComponent
 		deleteButton = new JButton(icons.getIcon(IconManager.MINUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(deleteButton);
 		deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+		deleteButton.addActionListener(this);
+		deleteButton.setActionCommand(""+DELETE);
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData fa = (FileAnnotationData) data;
 			deleteButton.setToolTipText("Remove the attachment.");
@@ -300,19 +312,13 @@ class DocComponent
 				UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 				downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 				downloadButton.setToolTipText("Download the selected file.");
-				/*
-				String defaultFolder = UIUtilities.getDefaultFolderAsString();
-				String toolTip = "Download the file in: \n";
-				toolTip += defaultFolder;
-				downloadButton.setToolTipText(toolTip);
-				*/
-				
 				downloadButton.setActionCommand(""+DOWNLOAD);
 				downloadButton.addActionListener(this);
 				
 				String ns = fa.getNameSpace();
 				if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
-						FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns)) {
+						FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns) ||
+						FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
 					openButton = new JButton(icons.getIcon(
 							IconManager.EDITOR_12));
 					openButton.setOpaque(false);
@@ -321,7 +327,9 @@ class DocComponent
 					openButton.setToolTipText("Open the file in the editor.");
 					openButton.setActionCommand(""+OPEN);
 					openButton.addActionListener(this);
-				}
+				} 
+				if (FileAnnotationData.COMPANION_FILE_NS.equals(ns))
+					deleteButton = null;
 			}
 		} else if (data instanceof TagAnnotationData) {
 			deleteButton.setToolTipText("Remove the Tag.");
@@ -345,10 +353,7 @@ class DocComponent
 				}
 			
 			});
-		}
-			
-		deleteButton.addActionListener(this);
-		deleteButton.setActionCommand(""+DELETE);
+		}	
 	}
 	
 	/** Initializes the components composing the display. */
@@ -417,7 +422,6 @@ class DocComponent
 			{
 				if (e.getClickCount() == 2) postFileClicked();
 			}
-		
 		});
 	}
 	
@@ -561,11 +565,7 @@ class DocComponent
 				download();
 				break;
 			case OPEN:
-				if (data instanceof FileAnnotationData) {
-					EventBus bus = 
-						MetadataViewerAgent.getRegistry().getEventBus();
-					bus.post(new EditFileEvent((FileAnnotationData) data));
-				}
+				openFile();
 		}
 	}
 

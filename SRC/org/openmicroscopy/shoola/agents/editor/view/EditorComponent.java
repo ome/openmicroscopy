@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.FileAnnotationData;
@@ -124,7 +125,7 @@ class EditorComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#activate()
 	 */
 	public void activate()
@@ -234,19 +235,29 @@ class EditorComponent
 	 */
 	public void setFileToEdit(FileAnnotationData fa, File file)
 	{
-		if ((model.getState() != LOADING) && (model.getState() != NEW))
+		int state = model.getState();
+		if ((state != LOADING) && (state != NEW))
 			throw new IllegalStateException("This method should only be " +
 					"invoked in the LOADING or NEW states.");
 		if (fa != null) model.setFileAnnotationData(fa);
-		if (model.setFileToEdit(file)) {
-			// based on whether file has experiment info
-			model.updateNameSpace(); 
-			view.setTitle(model.getFileName());
-			view.displayFile();
-			model.getBrowser().setId(model.getAnnotationId());
-			if (!view.isVisible()) view.setVisible(true);
+		if (FileAnnotationData.COMPANION_FILE_NS.equals(model.getNameSpace())) {
+			try {
+				view.displayFile(model.readTextFile(file));
+				if (!view.isVisible()) view.setVisible(true);
+			} catch (Exception e) {
+				UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Reading...", 
+						"Problem while reading the text file.");
+			}
+		} else {
+			if (model.setFileToEdit(file)) {
+				// based on whether file has experiment info
+				model.updateNameSpace(); 
+				view.displayFile();
+				model.getBrowser().setId(model.getAnnotationId());
+				if (!view.isVisible()) view.setVisible(true);
+			}
 		}
-		
 		fireStateChange();
 	}
 

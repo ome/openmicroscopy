@@ -89,10 +89,10 @@ public class PlateWellsLoader
 		}
 	}
 	
-	 /**
-     * Retrieves the data.
-     * @see DataTreeViewerLoader#load()
-     */
+	/**
+	 * Retrieves the data.
+	 * @see DataTreeViewerLoader#load()
+	 */
     public void load()
     {
     	handle = dmView.loadPlateWells(nodes.keySet(), -1, this);
@@ -116,7 +116,6 @@ public class PlateWellsLoader
         
         Iterator i = m.entrySet().iterator();
         Entry entry;
-        TreeImageSet p;
         while (i.hasNext()) {
 			entry = (Entry) i.next();
 			plates.put(nodes.get(entry.getKey()), (Set) entry.getValue());

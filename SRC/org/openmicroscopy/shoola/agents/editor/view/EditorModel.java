@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.editor.view;
 
 //Java imports
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -45,6 +46,7 @@ import org.openmicroscopy.shoola.agents.editor.model.CPEexport;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 
 import pojos.DataObject;
@@ -302,6 +304,20 @@ class EditorModel
 	File getFileToEdit() { return fileToEdit; }
 	
 	/**
+	 * Returns the contents of the passed file.
+	 * 
+	 * @param file The file to handle.
+	 * @return See above.
+	 */
+	String readTextFile(File file)
+		throws IOException
+	{
+		state = Editor.READY;
+		if (file == null) throw new IOException("File cannot be null.");
+		return IOUtil.readTextFile(file);
+	}
+	
+	/**
 	 * Sets the file to edit.
 	 * If the file cannot be read by {@link TreeModelFactory#getTree()} then
 	 * the state of this model is re-set to {@link Editor#NEW}.
@@ -492,16 +508,16 @@ class EditorModel
 	 */
 	void setFileAnnotationData(FileAnnotationData data)
 	{
-		this.fileAnnotation = data;
+		fileAnnotation = data;
 		if (data == null) {
-			this.fileAnnotation = null;
 			fileID = 0;
 			fileName = null;
-			this.nameSpace = null;
+			nameSpace = null;
 			return;
 		} 
 		this.fileID = data.getFileID();
 		this.fileName = data.getFileName();
+		nameSpace = data.getNameSpace();
 	}
 	
 	/**
@@ -510,7 +526,7 @@ class EditorModel
 	 * Sets the {@link #nameSpace} according to the presence of experiment info
 	 * as determined by {@link Browser#isModelExperiment()}.
 	 * Use this in preference to {@link FileAnnotationData#getNameSpace()}
-	 * since namespace is not updated on server, and won't work for local files.
+	 * since nameSpace is not updated on server, and won't work for local files.
 	 */
 	void updateNameSpace()
 	{
