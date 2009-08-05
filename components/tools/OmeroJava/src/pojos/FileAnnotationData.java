@@ -44,9 +44,16 @@ import omero.model.OriginalFile;
  */
 public class FileAnnotationData extends AnnotationData {
 
+	/** 
+     * The name space used to indicate that the <code>FileAnnotation</code> 
+     * is a companion file.
+     */
+    public static final String COMPANION_FILE_NS = 
+    	"openmicroscopy.org/omero/import/companionFile";
+    
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
-     * is an protocol.
+     * is a protocol.
      */
     public static final String EDITOR_PROTOCOL_NS = 
     	"openmicroscopy.org/omero/editor/protocol";
