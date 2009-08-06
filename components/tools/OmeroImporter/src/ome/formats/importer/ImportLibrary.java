@@ -398,7 +398,7 @@ public class ImportLibrary implements IObservable
         } 
         else
         {
-            String[] fileNameList = reader.getUsedFiles(true);
+            String[] fileNameList = store.getFilteredCompanionFiles();
             if (fileNameList != null)
             {
                 notifyObservers(Actions.IMPORT_ARCHIVING, args);

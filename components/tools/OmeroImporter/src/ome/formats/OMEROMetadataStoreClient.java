@@ -2246,6 +2246,26 @@ public class OMEROMetadataStoreClient
             }
         }
     }
+    
+    /**
+     * Returns the current set of filtered companion files that the Bio-Formats
+     * image reader contains.
+     * @return See above.
+     */
+    public String[] getFilteredCompanionFiles()
+    {
+    	String[] files = reader.getUsedFiles(true);
+    	List<String> filteredFiles = new ArrayList<String>();
+    	for (String file : files)
+    	{
+    		if (!file.endsWith(".tif")
+    			|| !file.endsWith(".tiff"))
+    		{
+    			filteredFiles.add(file);
+    		}
+    	}
+    	return filteredFiles.toArray(new String[filteredFiles.size()]);
+    }
 
     /**
      * Populates companion files for all images processed. This method
@@ -2257,7 +2277,7 @@ public class OMEROMetadataStoreClient
     {
         List<Image> images = getSourceObjects(Image.class);
         List<Plate> plates = getSourceObjects(Plate.class);
-        String[] files = reader.getUsedFiles(true);
+        String[] files = getFilteredCompanionFiles();
         String formatString = "application/octet-stream";
 
         // Create each of the OriginalFile source objects
@@ -2306,12 +2326,15 @@ public class OMEROMetadataStoreClient
             LSID imageKey = new LSID(Image.class, i);
             for (int j = 0; j < files.length; j++)
             {
-                LinkedHashMap<String, Integer> indexes = 
-                	new LinkedHashMap<String, Integer>();
-                indexes.put("imageIndex", i);
-                indexes.put("originalFileIndex", j);
-		log.debug(String.format("%d:%d %s", i, j, imageKey));
-                addFileAnnotationTo(imageKey, indexes, j);     
+            	LinkedHashMap<String, Integer> indexes = 
+            		new LinkedHashMap<String, Integer>();
+            	indexes.put("imageIndex", i);
+            	indexes.put("originalFileIndex", j);
+            	if (log.isDebugEnabled())
+            	{
+            		log.debug(String.format("%d:%d %s", i, j, imageKey));
+            	}
+            	addFileAnnotationTo(imageKey, indexes, j);     
             }
         }
     }
