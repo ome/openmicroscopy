@@ -2259,7 +2259,7 @@ public class OMEROMetadataStoreClient
     	for (String file : files)
     	{
     		if (!file.endsWith(".tif")
-    			|| !file.endsWith(".tiff"))
+    			&& !file.endsWith(".tiff"))
     		{
     			filteredFiles.add(file);
     		}
