@@ -224,7 +224,8 @@ public class ModelMapper
         	RString ns = ((TagAnnotation) parent).getNs();
         	if (ns == null || !ns.getValue().equals(
         			TagAnnotationData.INSIGHT_TAGSET_NS))
-        		throw new IllegalArgumentException("Parent not valid.");
+        		return null;
+        		//throw new IllegalArgumentException("Parent not valid.");
         	return linkAnnotation(parent, (TagAnnotation) child);
         }
         return null;

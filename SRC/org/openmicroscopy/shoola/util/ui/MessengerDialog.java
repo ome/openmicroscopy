@@ -216,7 +216,7 @@ public class MessengerDialog
 	/** The e-mail address of the user submitting the message. */
 	private String			emailAddress;
 	
-	/** The execption to handle, <code>null</code> if no exception. */
+	/** The exception to handle, <code>null</code> if no exception. */
 	private Exception		exception;
 	
 	/** The text pane displaying the error message. */
@@ -238,9 +238,9 @@ public class MessengerDialog
 	 * Formats the specified button.
 	 * 
 	 * @param b			The button to format.
-	 * @param mnemonic	The keycode that indicates a mnemonic key.
+	 * @param mnemonic	The key-code that indicates a mnemonic key.
 	 * @param tooltip	The button's tooltip.
-	 * @param actionID	The action id associadet to the passed button.
+	 * @param actionID	The action id associated to the passed button.
 	 */
 	private void formatButton(JButton b, int mnemonic, String tooltip, int
 			actionID)
@@ -331,7 +331,7 @@ public class MessengerDialog
 	}
 
 	/**
-	 * Builds the UI component displayin the exception.
+	 * Builds the UI component displaying the exception.
 	 * 
 	 * @return See above.
 	 */
@@ -402,7 +402,7 @@ public class MessengerDialog
 	 * Builds and lays out the panel hosting the <code>comment</code> details.
 	 * 
 	 * @param comment		The comment's text.
-	 * @param mnemonic 		The keycode that indicates a mnemonic key.
+	 * @param mnemonic 		The key-code that indicates a mnemonic key.
 	 * @return See above.
 	 */
 	private JPanel buildCommentAreaPanel(String comment, int mnemonic)
@@ -427,7 +427,7 @@ public class MessengerDialog
 	/**
 	 * Builds and lays out the panel hosting the <code>email</code> details.
 	 * 
-	 * @param mnemonic The keycode that indicates a mnemonic key.
+	 * @param mnemonic The key-code that indicates a mnemonic key.
 	 * @return See above.
 	 */
 	private JPanel buildEmailAreaPanel(int mnemonic)
@@ -517,7 +517,7 @@ public class MessengerDialog
 	/** 
 	 * Builds the UI component hosting the debug information.
 	 * 
-	 * @return Se above
+	 * @return See above
 	 */
 	private JTabbedPane buildExceptionPane()
 	{
@@ -662,7 +662,7 @@ public class MessengerDialog
 	public void setObjecToSubmit(Object toSubmit)
 	{ 
 		this.toSubmit = toSubmit; 
-		submitButton.setVisible(toSubmit != null);
+		//submitButton.setVisible(toSubmit != null);
 	}
 	
 	/**

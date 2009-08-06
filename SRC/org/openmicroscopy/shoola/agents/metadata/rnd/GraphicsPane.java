@@ -329,6 +329,9 @@ class GraphicsPane
         minLabel.setText(""+min);
         maxLabel.setText(""+max);
         initDomainSlider();
+        int s = (int) model.getWindowStart();
+        int e = (int) model.getWindowEnd();
+        domainSlider.setInterval(s, e);
         onCurveChange();
     }
     

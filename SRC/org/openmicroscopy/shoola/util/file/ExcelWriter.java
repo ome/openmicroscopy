@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.table.TableModel;
 
 //Third-party libraries
@@ -58,7 +57,7 @@ import org.openmicroscopy.shoola.util.image.io.WriterImage;
 
 
 /** 
- * Writes to excel.
+ * Writes to Excel.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -73,7 +72,7 @@ import org.openmicroscopy.shoola.util.image.io.WriterImage;
 public class ExcelWriter
 {	
 	
-	/** Hyperlink fonts. */
+	/** Hyper-link fonts. */
 	public final  static String HYPERLINK = "hyperlink";
 	
 	/** default font. */
@@ -103,19 +102,19 @@ public class ExcelWriter
 	public final static String ITALIC_UNDERLINE_DEFAULT = 
 									"italic_underline_default";
 
-	/** plain 12pt. font. */
+	/** plain 12 point font. */
 	public final static String PLAIN_12 = "plain_12";
 
-	/** plain 14pt. font. */
+	/** plain 14 point font. */
 	public final static String PLAIN_14 = "plain_14";
 	
-	/** bold 14pt font. */
+	/** bold 14 point font. */
 	public final static String BOLD_14 = "bold_14";
 	
-	/** plain, 18 pt font. */
+	/** plain, 18 point font. */
 	public final static String PLAIN_18 = "plain_18";
 	
-	/** bold, 18 pt font. */
+	/** bold, 18 point font. */
 	public final static String BOLD_18 = "bold_18";
 	
 	/** two decimal point format. */
@@ -127,7 +126,7 @@ public class ExcelWriter
 	/** Cell Border Underline. */
 	public final static String CELLBORDER_UNDERLINE = "cellborder_underline";
 	
-	/** Cell Border topline. */
+	/** Cell Border Topline. */
 	public final static String CELLBORDER_TOPLINE = "cellborder_topline";
 
 	/** Cell Border Underline and top line. */
@@ -163,7 +162,6 @@ public class ExcelWriter
 	
 	/** The current sheet being worked on. */
 	private SheetInfo				currentSheet;
-	
 
 	/** Sets the different styles used in the output of the excel. */
 	private void setStyles()

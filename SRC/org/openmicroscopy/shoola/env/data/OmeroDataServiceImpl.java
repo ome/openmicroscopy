@@ -768,7 +768,7 @@ class OmeroDataServiceImpl
 			if (links.size() > 0)
 				gateway.createObjects(links);
 		}
-		return  PojoMapper.asDataObject(created);
+		return PojoMapper.asDataObject(created);
 	}
 
 	/**

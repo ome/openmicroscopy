@@ -38,7 +38,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 
 /** 
- * 
+ * A sheet of an Excel document.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -105,7 +105,7 @@ class SheetInfo
 	}
 	
 	/**
-	 * Autosizes column, columnIndex. 
+	 * Auto-sizes a column.
 	 * 
 	 * @param columnIndex The index of the column.
 	 */
@@ -114,9 +114,7 @@ class SheetInfo
 		sheet.autoSizeColumn((short) columnIndex);
 	}
 	
-	/**
-	 * Autosizes all columns to fit contents. 
-	 */
+	/** Auto-sizes all columns to fit contents. */
 	void sizeAllColumnsToFit()
 	{
 		Map<Integer, Integer> colMap = new HashMap<Integer,Integer>();
@@ -144,7 +142,7 @@ class SheetInfo
 	}
 	
 	/**
-	 * Sets the height of the rows [rowStart, rowEnd] to rowHeight in px.
+	 * Sets the height of the rows [rowStart, rowEnd] to rowHeight in pixels.
 	 * 
 	 * @param rowStart see above.
 	 * @param rowEnd see above.
@@ -157,7 +155,7 @@ class SheetInfo
 	}
 	
 	/**
-	 * Sets the height of the row rowIndex to rowHeight in px.
+	 * Sets the height of the row rowIndex to rowHeight in pixels.
 	 * 
 	 * @param rowIndex 	The index of the row.
 	 * @param rowHeight The height of the row.
@@ -230,7 +228,3 @@ class SheetInfo
 	void setName(String name) { this.name = name; }
 	
 }
-
-
-
-	

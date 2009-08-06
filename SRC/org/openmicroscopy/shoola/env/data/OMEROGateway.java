@@ -623,7 +623,7 @@ class OMEROGateway
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public ISessionPrx getSessionService()
@@ -642,7 +642,7 @@ class OMEROGateway
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private IRenderingSettingsPrx getRenderingSettingsService()
@@ -702,7 +702,7 @@ class OMEROGateway
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private IScriptPrx getScripService()
@@ -725,7 +725,7 @@ class OMEROGateway
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private IContainerPrx getPojosService()
@@ -748,7 +748,7 @@ class OMEROGateway
 	 *  
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private IQueryPrx getQueryService()
@@ -771,7 +771,7 @@ class OMEROGateway
 	 *  
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private IUpdatePrx getUpdateService()
@@ -794,7 +794,7 @@ class OMEROGateway
 	 *  
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private IMetadataPrx getMetadataService()
@@ -817,7 +817,7 @@ class OMEROGateway
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private IAdminPrx getAdminService()
@@ -1545,7 +1545,7 @@ class OMEROGateway
 	 * @param options   The Options to retrieve the data.
 	 * @return  A set of hierarchy trees.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#loadContainerHierarchy(Class, List, Map)
 	 */

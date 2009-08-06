@@ -353,6 +353,7 @@ public class QuickSearch
 		searchPanel.validate();
 		searchPanel.repaint();
 		cleanBar.setVisible(false);
+		/*
 		switch (selectedNode.getIndex()) {
 			case RATED_ONE_OR_BETTER:
 			case RATED_TWO_OR_BETTER:
@@ -366,6 +367,7 @@ public class QuickSearch
 				setSearchContext(SHOW_ALL);
 		}
 		firePropertyChange(QUICK_SEARCH_PROPERTY, null, showAll);
+		*/
 	}
 	
 	/** 
@@ -674,7 +676,7 @@ public class QuickSearch
      */
 	public void removeUpdate(DocumentEvent e)
 	{
-		if (e.getDocument().getLength() == 0) clear();
+		//if (e.getDocument().getLength() == 0) clear();
 	}
 	
 	/** Subclasses should override this method to handle the search. */
