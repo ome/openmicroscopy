@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjSavingDialog;
@@ -2375,6 +2376,7 @@ class ImViewerComponent
 		model.setImageData(data);
 		view.setTitle(model.getImageTitle());
 		model.fireRenderingControlLoading(model.getPixelsID());
+		
 		if (model.getMetadataViewer() != null)
 			model.getMetadataViewer().addPropertyChangeListener(controller);
 		fireStateChange();
@@ -2555,7 +2557,11 @@ class ImViewerComponent
 	{
 		if (model.isLifetime()) model.setForLifetime();
 		model.onRndLoaded();
+		
 		if (!reload) {
+			int index = UnitBarSizeAction.getDefaultIndex(5*getPixelsSizeX());
+			setUnitBarSize(UnitBarSizeAction.getValue(index));
+			view.setDefaultScaleBarMenu(index);
 			colorModel = model.getColorModel();
 			view.buildComponents();
 			if (model.isSeparateWindow()) {

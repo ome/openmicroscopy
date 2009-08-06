@@ -23,9 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.util;
 
-
-
-
 //Java imports
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -43,11 +40,12 @@ import javax.swing.JTextField;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Sets the value of the scale bar.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -87,8 +85,7 @@ public class UnitBarSizeDialog
                 un.notifyInfo("Invalid value", "Please enter a positive value");
             }
         } catch(NumberFormatException nfe) {}
-        
-        
+
     }
     
     /** Sets the properties of this window. */
@@ -112,7 +109,7 @@ public class UnitBarSizeDialog
         });
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(new JLabel("Value: "));
+        p.add(new JLabel("Value (in "+EditorUtil.MICRONS_NO_BRACKET+"): "));
         p.add(label);
         getContentPane().add(UIUtilities.buildComponentPanel(p));
     }

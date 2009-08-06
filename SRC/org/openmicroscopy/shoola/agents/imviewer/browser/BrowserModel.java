@@ -31,13 +31,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
 import javax.swing.Icon;
 
 //Third-party libraries
@@ -139,9 +136,6 @@ class BrowserModel
     
     /** The bacground color of the canvas. */
     private Color				backgroundColor;
-    
-    /** Unloaded image data. */
-    private ImageData			data;
 
     /** Collection of images composing the grid. */
     private List<BufferedImage>	originalGridImages;
@@ -193,8 +187,7 @@ class BrowserModel
 		}
     	return null;
     }
-    
-    
+
     /**
      * Returns <code>true</code> if the channel is mapped to <code>Red</code>,
      * <code>Green</code> or <code>Blue</code>, <code>false</code> otherwise.
@@ -279,7 +272,6 @@ class BrowserModel
 			}
 		}
     	return true;
-    	
     }
     
     /** 
@@ -511,17 +503,17 @@ class BrowserModel
      * @param imageID	The id of the image.
      * @param pref		The preferences for the viewer.
      */
-    BrowserModel(ImViewer parent, long imageID, ViewerPreferences pref)
+    BrowserModel(ImViewer parent, ViewerPreferences pref)
     {
         if (parent == null) throw new IllegalArgumentException("No parent.");
         //unloaded image data
-        data = new ImageData();
-        data.setId(imageID);
         this.parent = parent;
         unitBar = true;
         ratio = ZoomGridAction.DEFAULT_ZOOM_FACTOR;
         gridRatio = ZoomGridAction.DEFAULT_ZOOM_FACTOR;
         init = true;
+        //parent.getMicronsPerPixels();
+        double v = unitInMicrons;
         unitInMicrons = UnitBarSizeAction.getDefaultValue(); // size microns.
         unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
         backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
@@ -794,13 +786,6 @@ class BrowserModel
      */
 	void setBackgroundColor(Color c) { backgroundColor = c; }
 	
-	/**
-	 * Returns the unloaded image data.
-	 * 
-	 * @return See above.
-	 */
-	ImageData getImageData() { return data; }
-
     /**
      * Returns the title of the <code>Grid View</code>.
      * 
@@ -809,7 +794,7 @@ class BrowserModel
     String getGridViewTitle() { return ImViewer.TITLE_GRID_INDEX; }
     
     /**
-     * Returns the icon of the <code>Annotator</code>.
+     * Returns the icon of the <code>Grid View</code>.
      * 
      * @return See above.
      */

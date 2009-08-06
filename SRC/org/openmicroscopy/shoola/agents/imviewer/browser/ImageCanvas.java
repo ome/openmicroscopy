@@ -128,7 +128,7 @@ class ImageCanvas
 			w = x+viewRect.width;
 			h = y+viewRect.height;
 		}
-		if (viewRect.width >= size)
+		if (viewRect.width >= size && size > 1)
 			ImagePaintingFactory.paintScaleBar(g2D, w-size-10, h-10, size, 
 											value, model.getUnitBarColor());
 	}

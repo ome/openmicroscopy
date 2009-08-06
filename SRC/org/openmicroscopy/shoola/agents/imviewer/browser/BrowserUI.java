@@ -315,7 +315,7 @@ class BrowserUI
 	
 	/**
 	 * Sets the <code>adjusting</code> flag when the experimenter uses 
-	 * the scrollbars..
+	 * the scrollbars.
 	 * @see MouseMotionListener#mouseDragged(MouseEvent)
 	 */
 	public void mouseDragged(MouseEvent e) { adjusting = true; }

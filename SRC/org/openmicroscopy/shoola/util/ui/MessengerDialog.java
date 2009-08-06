@@ -551,6 +551,7 @@ public class MessengerDialog
     	//bar.add(submitButton);
     	JPanel p = UIUtilities.buildComponentPanelRight(bar);
     	p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+    	/*
     	if (dialogType == ERROR_TYPE) {
     		JPanel controls = new JPanel();
     		controls.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
@@ -560,6 +561,7 @@ public class MessengerDialog
         	controls.add(p);
         	return controls;
     	}
+    	*/
     	return p;
     }
     

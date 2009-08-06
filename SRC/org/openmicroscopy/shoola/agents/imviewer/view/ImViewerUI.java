@@ -225,13 +225,13 @@ class ImViewerUI
 	/** Item used to control show or hide the history. */
 	private JCheckBoxMenuItem					historyItem;
 
-	/** The dimension of the main component i.e. the tabbed pane. */
+	/** The dimension of the main component i.e. the tab pane. */
 	private Dimension							restoreSize;
 
 	/** Listener to the bounds of the container. */
 	private HierarchyBoundsAdapter				boundsAdapter;
 
-	/** The height of the icons in the tabbed pane plus 2 pixels. */
+	/** The height of the icons in the tab pane plus 2 pixels. */
 	private int									tabbedIconHeight;
 
 	/** The menu displaying the users who viewed the image. */
@@ -279,8 +279,10 @@ class ImViewerUI
 	/** Listener attached to the rendering node. */
 	private MouseAdapter						nodeListener;
 
+	private int									defaultIndex;
+	
 	/**
-	 * Finds the first {@link HistoryItem} in <code>x</code>'s containement
+	 * Finds the first {@link HistoryItem} in <code>x</code>'s containment
 	 * hierarchy.
 	 * 
 	 * @param x A component.
@@ -442,19 +444,18 @@ class ImViewerUI
 		JMenu menu = new JMenu("Scale bar length " +
 				"(in "+UIUtilities.NANOMETER+")");
 		scaleBarGroup = new ButtonGroup();
-		int index = UnitBarSizeAction.DEFAULT_UNIT_INDEX;
 		if (pref != null && pref.getScaleBarIndex() > 0)
-			index = pref.getScaleBarIndex();
+			defaultIndex = pref.getScaleBarIndex();
 		UnitBarSizeAction a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_ONE);
 		JCheckBoxMenuItem item = new JCheckBoxMenuItem(a);
-		item.setSelected(a.getIndex() == index);
+		item.setSelected(a.getIndex() == defaultIndex);
 		scaleBarGroup.add(item);
 		menu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_TWO);
 		item = new JCheckBoxMenuItem(a);
-		item.setSelected(a.getIndex() == index);
+		item.setSelected(a.getIndex() == defaultIndex);
 		scaleBarGroup.add(item);
 		menu.add(item);
 		a = (UnitBarSizeAction) 
@@ -462,42 +463,42 @@ class ImViewerUI
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_FIVE));
 		scaleBarGroup.add(item);
-		item.setSelected(a.getIndex() == index);
+		item.setSelected(a.getIndex() == defaultIndex);
 		menu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_TEN);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_TEN));
 		scaleBarGroup.add(item);
-		item.setSelected(a.getIndex() == index);
+		item.setSelected(a.getIndex() == defaultIndex);
 		menu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_TWENTY);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_TWENTY));
 		scaleBarGroup.add(item);
-		item.setSelected(a.getIndex() == index);
+		item.setSelected(a.getIndex() == defaultIndex);
 		menu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_FIFTY);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_FIFTY));
 		scaleBarGroup.add(item);
-		item.setSelected(a.getIndex() == index);
+		item.setSelected(a.getIndex() == defaultIndex);
 		menu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_HUNDRED);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_HUNDRED));
 		scaleBarGroup.add(item);
-		item.setSelected(a.getIndex() == index);
+		item.setSelected(a.getIndex() == defaultIndex);
 		menu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_CUSTOM);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_CUSTOM));
 		scaleBarGroup.add(item);
-		item.setSelected(a.getIndex() == index);
+		item.setSelected(a.getIndex() == defaultIndex);
 		menu.add(item);
 		return menu;
 	}
@@ -506,7 +507,7 @@ class ImViewerUI
 	 * Helper method to create the view menu.
 	 * 
 	 * @param pref The user preferences.
-	 * @return The controls submenu.
+	 * @return The controls sub-menu.
 	 */
 	private JMenu createViewMenu(ViewerPreferences pref)
 	{
@@ -528,7 +529,7 @@ class ImViewerUI
 	 * Helper method to create the controls menu.
 	 * 
 	 * @param pref The user preferences.
-	 * @return The controls submenu.
+	 * @return The controls sub-menu.
 	 */
 	private JMenu createControlsMenu(ViewerPreferences pref)
 	{
@@ -881,6 +882,7 @@ class ImViewerUI
 		
 		switch (displayMode) {
 			case RENDERER:
+				System.err.println(restoreSize);
 				rightComponent = model.getMetadataViewer().getEditorUI();
 				container.remove(mainComponent);
 				addComponents(rendererSplit, tabs, rightComponent);
@@ -994,7 +996,7 @@ class ImViewerUI
 			h = height;
 		} 
 		if (reset) {
-			setSize(w, h);
+			setSize(h, h);
 			model.setZoomFactor(ZoomAction.ZOOM_FIT_FACTOR, false);
 			//restoreSize = tabs.getSize();
 		}
@@ -1013,6 +1015,7 @@ class ImViewerUI
 	{
 		super(title);
 		loadingWindow = new LoadingWindow(this);
+		defaultIndex = UnitBarSizeAction.DEFAULT_UNIT_INDEX;
 		displayMode = NEUTRAL;
 	}
 
@@ -2176,6 +2179,16 @@ class ImViewerUI
 	 * 			<code>false</code> to indicate that the creation is done.
 	 */
 	void setMovieStatus(boolean b) { toolBar.setMovieStatus(b); }
+	
+	/**
+	 * Updates the scale bar menu.
+	 * 
+	 * @param index The selected index.
+	 */
+	void setDefaultScaleBarMenu(int index)
+	{
+		defaultIndex = index;
+	}
 	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.

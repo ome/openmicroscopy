@@ -79,7 +79,7 @@ public class UnitBarSizeAction
     /** The default index. */
     public static final int 	DEFAULT_UNIT_INDEX = FIVE;
     
-    /** The number of supported ids. */
+    /** The number of supported identifiers. */
     private static final int	MAX = 7;
     
     /** The description of the action. */
@@ -124,6 +124,33 @@ public class UnitBarSizeAction
      * @return See above.
      */
     public static int getDefaultValue() { return values[DEFAULT_UNIT_INDEX]; }
+    
+    /**
+     * Returns the value associated to the default index.
+     * 
+     * @param size The size of reference.
+     * @return See above.
+     */
+    public static int getDefaultIndex(double size)
+    { 
+    	if (size < 1) return FIVE; 
+    	if (size >=1 && size < 2) return TEN; 
+    	if (size >=2 && size < 3) return TWENTY; 
+    	if (size >=3 && size < 4) return FIFTY;
+    	return HUNDRED;
+    }
+    
+    /**
+     * Returns the value corresponding to the passed index or <code>-1</code>.
+     * 
+     * @param index The index to handle.
+     * @return See above.
+     */
+    public static int getValue(int index)
+    {
+    	if (index < ONE || index > MAX) return -1;
+    	return values[index];
+    }
     
     /** One of the constant defined by this class. */
     private int     index;

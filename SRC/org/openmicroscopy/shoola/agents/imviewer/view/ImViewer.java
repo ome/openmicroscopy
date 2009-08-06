@@ -1021,4 +1021,11 @@ public interface ImViewer
 	 */
 	boolean allowSplitView();
 	
+	/**
+	 * Returns the number of microns per pixels.
+	 * 
+	 * @return
+	 */
+	//int getMicronsPerPixels();
+	
 }

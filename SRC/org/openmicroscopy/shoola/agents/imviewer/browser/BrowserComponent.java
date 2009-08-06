@@ -195,7 +195,7 @@ class BrowserComponent
 				break;
 		}
     }
-
+    
     /** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setZoomFactor(double, boolean)
@@ -230,6 +230,8 @@ class BrowserComponent
     		}
     	}
         model.setZoomFactor(factor);
+        //check the unit bar size.
+        
         if (!reset) {
         	if (index == ImViewer.VIEW_INDEX) view.zoomImage();  
         	else if (index == ImViewer.PROJECTION_INDEX)
@@ -302,11 +304,14 @@ class BrowserComponent
             	projectionView.repaint();
         	return;
         }
-        
-        UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-        un.notifyInfo("Scale bar size", "A scale bar of the selected size " +
-        		"cannot be displayed on the image. Please select a new size.");
-        model.setUnitBarSize(oldUnit);
+        if (viewRect.width > 0) {
+        	  UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+              un.notifyInfo("Scale bar size", "A scale bar of " +
+              		"the selected size: "+size +
+              		"\ncannot be displayed on the image. " +
+              		"Please select a new size.");
+              model.setUnitBarSize(oldUnit);
+        }
     }
 
     /** 

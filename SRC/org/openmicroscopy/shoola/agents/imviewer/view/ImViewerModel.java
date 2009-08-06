@@ -398,7 +398,7 @@ class ImViewerModel
 	void initialize(ImViewer component)
 	{ 
 		this.component = component;
-		browser = BrowserFactory.createBrowser(component, getImageID(), 
+		browser = BrowserFactory.createBrowser(component, 
 										ImViewerFactory.getPreferences());
 	}
 	
@@ -1016,7 +1016,7 @@ class ImViewerModel
 
 	/**
 	 * Returns <code>true</code> if playing movie across channels,
-	 * <code>false</code> oherwise.
+	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
@@ -1984,5 +1984,5 @@ class ImViewerModel
      * @return See above.
      */
     boolean isSeparateWindow() { return separateWindow; }
-    
+   
 }
