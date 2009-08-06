@@ -2255,6 +2255,10 @@ public class OMEROMetadataStoreClient
     public String[] getFilteredCompanionFiles()
     {
     	String[] files = reader.getUsedFiles(true);
+    	if (files == null)
+    	{
+    		return null;
+    	}
     	List<String> filteredFiles = new ArrayList<String>();
     	for (String file : files)
     	{
