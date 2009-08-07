@@ -83,13 +83,13 @@ public class EditorUI
 	/** Identifies the collection of data to remove. */
 	static final int 	TO_REMOVE = 1;
 	
-	/** Identifies the general component of the tabbed pane. */
+	/** Identifies the general component of the tab pane. */
 	static final int	GENERAL_INDEX = 0;
 	
-	/** Identifies the acquisition component of the tabbed pane. */
+	/** Identifies the acquisition component of the tab pane. */
 	static final int	ACQUISITION_INDEX = 1;
 	
-	/** Identifies the rendering component of the tabbed pane. */
+	/** Identifies the rendering component of the tab pane. */
 	static final int	RND_INDEX = 2;
 	
 	/** Reference to the controller. */

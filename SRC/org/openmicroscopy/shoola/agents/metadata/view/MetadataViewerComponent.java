@@ -783,12 +783,12 @@ class MetadataViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#selectRenderer()
+	 * @see MetadataViewer#selectRenderer(int)
 	 */
-	public void selectRenderer()
+	public void selectRenderer(int index)
 	{
 		if (getRndIndex() != RND_SPECIFIC) return;
-		model.getEditor().selectRenderer();
+		model.getEditor().selectRenderer(index);
 	}
 
 	/**

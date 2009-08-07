@@ -34,6 +34,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -206,7 +207,7 @@ public interface Editor
 	public void setExistingAttachements(Collection attachments);
 	
 	/**
-	 * Sets either to single selection or to multi selection.
+	 * Sets either to single selection or to multiple selection.
 	 * 
 	 * @param single	Pass <code>true</code> when single selection, 
 	 * 					<code>false</code> otherwise.
@@ -325,8 +326,12 @@ public interface Editor
 	/**
 	 * Selects the renderer view. This will only be applied if the 
 	 * type of the component is {@link MetadataViewer#RND_SPECIFIC}.
+	 * 
+	 * @param index One of the following constants: 
+	 * 				{@link MetadataViewer#RENDERER_TAB} or
+	 * 				{@link MetadataViewer#GENERAL_TAB}.
 	 */
-	public void selectRenderer();
+	public void selectRenderer(int index);
 
 	/**
 	 * Returns the renderer. This method will always return 

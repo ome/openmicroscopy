@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.JPanel;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import layout.TableLayout;
 
 //Third-party libraries
@@ -88,6 +90,7 @@ class RendererUI
 	 */
 	private void buildGUI()
 	{
+		setBackground(UIUtilities.BACKGROUND_COLOR);
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
 		//add(new JScrollPane(pane));
 		double[][] size = {{TableLayout.FILL}, {TableLayout.PREFERRED}};
@@ -194,7 +197,7 @@ class RendererUI
 
 	/**
 	 * This is a method which is triggered from the {@link RendererControl} 
-	 * if the colour model has changed.
+	 * if the color model has changed.
 	 */
 	void setColorModelChanged() 
 	{

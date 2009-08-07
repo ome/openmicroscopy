@@ -889,7 +889,6 @@ class ImViewerUI
 		
 		switch (displayMode) {
 			case RENDERER:
-				//System.err.println(restoreSize);
 				rightComponent = model.getMetadataViewer().getEditorUI();
 				container.remove(mainComponent);
 				addComponents(rendererSplit, tabs, rightComponent);
@@ -1815,7 +1814,7 @@ class ImViewerUI
 	 * @param fromPreferences	Pass <code>true</code> to indicate that the 
 	 * 							method is invoked while setting the user 
 	 * 							preferences, <code>false</code> otherwise.
-	 * @param index			    The index of the tabbed to select.
+	 * @param index			    The index of the tab to select.
 	 */
 	void showRenderer(boolean fromPreferences, int index)
 	{
@@ -1832,7 +1831,7 @@ class ImViewerUI
 		rndItem.setSelected(isRendererShown());
 		toolBar.displayRenderer();
 		layoutComponents(fromPreferences);
-		if (show) model.selectRenderer();
+		if (show) model.selectRenderer(index);
 	}
 	
 	/**

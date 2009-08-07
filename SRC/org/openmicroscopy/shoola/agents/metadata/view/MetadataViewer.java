@@ -66,6 +66,12 @@ public interface MetadataViewer
 	extends ObservableComponent
 {
 	
+	/** Indicates to select the renderer tab. */
+	public static final int		RENDERER_TAB = 0;
+	
+	/** Indicates to select the general tab. */
+	public static final int		GENERAL_TAB = 1;
+	
 	/** Indicates that the renderer is for general purpose. */
 	public static final int 	RND_GENERAL = 0;
 	
@@ -376,8 +382,11 @@ public interface MetadataViewer
 	/**
 	 * Selects the renderer view. This will only be applied if the 
 	 * type of the component is {@link #RND_SPECIFIC}.
+	 * 
+	 * @param index One of the following constants: {@link #RENDERER_TAB} or
+	 * 				{@link #GENERAL_TAB}.
 	 */
-	public void selectRenderer();
+	public void selectRenderer(int index);
 	
 	/**
 	 * Returns the renderer. This method will always return 

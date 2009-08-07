@@ -606,13 +606,19 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#selectRenderer()
+	 * @see Editor#selectRenderer(int)
 	 */
-	public void selectRenderer()
+	public void selectRenderer(int type)
 	{
-		int index = EditorUI.RND_INDEX;
-		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
-			index = EditorUI.GENERAL_INDEX;
+		int index = EditorUI.RND_INDEX; 
+		if (type == MetadataViewer.RENDERER_TAB) {
+			if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
+				index = EditorUI.GENERAL_INDEX;
+		} else if (type == MetadataViewer.GENERAL_TAB) {
+			if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
+				index = EditorUI.ACQUISITION_INDEX;
+			else index = EditorUI.GENERAL_INDEX;
+		}
 		view.setSelectedTab(index);
 	}
 
