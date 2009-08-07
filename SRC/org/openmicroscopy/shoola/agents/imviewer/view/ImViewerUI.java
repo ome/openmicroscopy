@@ -50,6 +50,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BoxLayout;
@@ -191,7 +193,7 @@ class ImViewerUI
 	/** The loading window. */
 	private LoadingWindow   					loadingWindow;
 
-	/** Tabbed pane hosting the various panel. */
+	/** Tab pane hosting the various panel. */
 	private ClosableTabbedPane					tabs;
 
 	/** The component displaying the history. */
@@ -279,6 +281,7 @@ class ImViewerUI
 	/** Listener attached to the rendering node. */
 	private MouseAdapter						nodeListener;
 
+	/** The default index of the scale bar. */
 	private int									defaultIndex;
 	
 	/**
@@ -300,7 +303,7 @@ class ImViewerUI
 	}
 	
 	/**
-	 * Initializes and returns a split pane, either verical or horizontal 
+	 * Initializes and returns a split pane, either vertical or horizontal 
 	 * depending on the passed parameter.
 	 * 
 	 * @param orientation The orientation of the split pane.
@@ -365,7 +368,7 @@ class ImViewerUI
 	{
 		JMenu menu = new JMenu("Background color");
 		bgColorGroup = new ButtonGroup();
-		Iterator i = backgrounds.keySet().iterator();
+		Iterator i = backgrounds.entrySet().iterator();
 		ColorCheckBoxMenuItem item;
 		Color c;
 		Color refColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
@@ -373,10 +376,12 @@ class ImViewerUI
 			refColor = pref.getBackgroundColor();
 		if (refColor == null) 
 			refColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
+		Entry entry;
 		while (i.hasNext()) {
-			c = (Color) i.next();
+			entry = (Entry) i.next();
+			c = (Color) entry.getKey();
 			item = new ColorCheckBoxMenuItem(c);
-			item.setText(backgrounds.get(c)); 
+			item.setText((String) entry.getValue()); 
 			item.setSelected(c.equals(refColor));
 			bgColorGroup.add(item);
 			menu.add(item);
@@ -405,17 +410,19 @@ class ImViewerUI
 	{
 		JMenu menu = new JMenu("Scale bar color");
 		ButtonGroup group = new ButtonGroup();
-		Iterator i = EditorUtil.COLORS_BAR.keySet().iterator();
+		Iterator i = EditorUtil.COLORS_BAR.entrySet().iterator();
 		ColorCheckBoxMenuItem item;
 		Color c;
 		Color refColor = ImagePaintingFactory.UNIT_BAR_COLOR;
 		if (pref != null) refColor = pref.getScaleBarColor();
 		if (refColor == null)
 			refColor = ImagePaintingFactory.UNIT_BAR_COLOR;
+		Entry entry;
 		while (i.hasNext()) {
-			c = (Color) i.next();
+			entry = (Entry) i.next();
+			c = (Color) entry.getKey();
 			item = new ColorCheckBoxMenuItem(c);
-			item.setText(EditorUtil.COLORS_BAR.get(c)); 
+			item.setText((String) entry.getValue()); 
 			item.setSelected(c.equals(refColor));
 			group.add(item);
 			menu.add(item);
@@ -882,7 +889,7 @@ class ImViewerUI
 		
 		switch (displayMode) {
 			case RENDERER:
-				System.err.println(restoreSize);
+				//System.err.println(restoreSize);
 				rightComponent = model.getMetadataViewer().getEditorUI();
 				container.remove(mainComponent);
 				addComponents(rendererSplit, tabs, rightComponent);
@@ -891,6 +898,8 @@ class ImViewerUI
 				container.validate();
 				container.repaint();
 				d = model.getMetadataViewer().getIdealRendererSize();
+				rightComponent.setMinimumSize(d);
+				tabs.setMinimumSize(restoreSize);
 				height = restoreSize.height;
 				diff = d.height-restoreSize.height;
 				if (diff > 0) height += diff;
@@ -958,12 +967,14 @@ class ImViewerUI
 			default: 
 		}
 		rendererSplit.setDividerLocation(-1);
+		//rendererSplit.setResizeWeight(1.0);
 		//historySplit.setDividerLocation(-1);
 		d = getIdealSize(width, height);
-		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+		
+		/* Need to review that code.
+		 * Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 		int w = (int) (screen.width*SCREEN_RATIO);
 		int h = (int) (screen.height*SCREEN_RATIO);
-		/* Need to review that code.
 		if (d.width > w || d.height > h) {
 			setSize(width, height);
 		} else setSize(d);
@@ -2185,10 +2196,7 @@ class ImViewerUI
 	 * 
 	 * @param index The selected index.
 	 */
-	void setDefaultScaleBarMenu(int index)
-	{
-		defaultIndex = index;
-	}
+	void setDefaultScaleBarMenu(int index) { defaultIndex = index; }
 	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
