@@ -62,7 +62,7 @@
             <fileset dir="${basedir}" includes="config/**/*,importer-*,metadata-validator"/>
         </copy>
         <chmod perm="a+x">
-            <fileset dir="${target.dir}" includes="importer-*"/>
+            <fileset dir="${target.dir}" includes="importer-*,metadata-validator"/>
         </chmod>
         <jar destfile="${target.dir}/${ivy.module}.jar" update="true">
             <fileset dir="${resrc.dir}" includes="*.icns"/>
