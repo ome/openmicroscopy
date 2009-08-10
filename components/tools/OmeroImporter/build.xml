@@ -59,7 +59,7 @@
 
     <target name="package" depends="lifecycle.package">
         <copy todir="${target.dir}">
-            <fileset dir="${basedir}" includes="config/**/*,importer-*"/>
+            <fileset dir="${basedir}" includes="config/**/*,importer-*,metadata-validator"/>
         </copy>
         <chmod perm="a+x">
             <fileset dir="${target.dir}" includes="importer-*"/>
