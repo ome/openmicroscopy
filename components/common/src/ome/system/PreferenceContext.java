@@ -30,7 +30,7 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
  * <li>Java {@link System#getProperties()}</li>
  * <li>Any configured property files</li>
  * </ul>
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/800">#800</a>
@@ -56,7 +56,8 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
      * well as ignoring unfound resources. The {@link #setUserTreePath(String)}
      * user-tree is set according to a similar logic as in the {@link prefs}
      * command-line tool, using first {@link #ENV} from the environment if
-     * present, otherwise the value of "omero.prefs.default".
+     * present, otherwise the value of "default" under "/omero/prefs". If no
+     * value is found, then the node "/omero/prefs/default" will be used.
      */
     public PreferenceContext() {
         setSystemPropertiesMode(SYSTEM_PROPERTIES_MODE_OVERRIDE);
@@ -71,8 +72,11 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
         }
 
         // Ok, then if we've found something use it.
+        // otherwise use /omero/prefs/default
         if (OMERO != null) {
             setUserTreePath(ROOT + "/" + OMERO);
+        } else {
+            setUserTreePath(ROOT + "/default");
         }
 
     }
