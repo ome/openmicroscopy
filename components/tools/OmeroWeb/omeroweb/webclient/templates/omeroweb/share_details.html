@@ -5,39 +5,39 @@
 {% load wikitags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/images.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/share.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/slider.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tooltip.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/share.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/slider.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.tooltip.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.dimensions.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.bgiframe.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.delegate.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.dimensions.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.bgiframe.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.delegate.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/cookiesupport.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/blitzcon.js" %}"></script>
     
     {% ifequal share.share.getShareType "Share" %}
     <script type="text/javascript">
         $(document).ready(function(){
             
-            $("div#share_content").html('<p>Loading content... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
+            $("div#share_content").html('<p>Loading content... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
             {% if share.share.isOwned %}
-                $("div#share_content").load("{% get_webclient_root_url %}/share_owner_content/{{ share.share.id }}/");
+                $("div#share_content").load("{% url load_share_owner_content share.share.id %}");
             {% else %}
-                $("div#share_content").load("{% get_webclient_root_url %}/share_content/{{ share.share.id }}/");
+                $("div#share_content").load("{% url load_share_content share.share.id %}");
             {% endif %}
         });
     </script>
@@ -80,7 +80,7 @@
             <div class="body">{{ share.share.message|sharewikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
-        <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ share.share.owner.id.val }}/" alt="{{ share.share.getShareOwnerFullName }}" title="{{ share.share.getShareOwnerFullName }}" width="40" height="40" /></div>
+        <div class="photo"><img src="{% url load_photo share.share.owner.id.val %}" alt="{{ share.share.getShareOwnerFullName }}" title="{{ share.share.getShareOwnerFullName }}" width="40" height="40" /></div>
         </div>
     {% else %}
         <div id="comment_wrapper_rev">
@@ -89,7 +89,7 @@
             <div class="body">{{ share.share.message|sharewikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
-        <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ share.share.owner.id.val }}/" alt="{{ share.share.getShareOwnerFullName }}" title="{{ share.share.getShareOwnerFullName }}" width="40" height="40" /></div>
+        <div class="photo"><img src="{% url load_photo share.share.owner.id.val %}" alt="{{ share.share.getShareOwnerFullName }}" title="{{ share.share.getShareOwnerFullName }}" width="40" height="40" /></div>
         </div>
     {% endif %}
     <div class="clear"></div>
@@ -104,7 +104,7 @@
                     <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                     <div class="footer"></div>
                 </div>
-                <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwnerFullName }}" title="{{ cm.getOwnerFullName }}" width="40" height="40" /></div>
+                <div class="photo"><img src="{% url load_photo cm.details.owner.id.val %}" alt="{{ cm.getOwnerFullName }}" title="{{ cm.getOwnerFullName }}" width="40" height="40" /></div>
                 </div>
                 <div class="clear"></div>
                 <br/>
@@ -115,7 +115,7 @@
                     <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                     <div class="footer"></div>
                 </div>
-                <div class="photo"><img src="{% get_webclient_root_url %}/userphoto/{{ cm.details.owner.id.val }}/" alt="{{ cm.getOwnerFullName }}" title="{{ cm.getOwnerFullName }}" width="40" height="40" /></div>
+                <div class="photo"><img src="{% url load_photo cm.details.owner.id.val %}" alt="{{ cm.getOwnerFullName }}" title="{{ cm.getOwnerFullName }}" width="40" height="40" /></div>
                 </div>
                 <div class="clear"></div>
                 <br/>
@@ -130,7 +130,7 @@
     <h1>{% trans "Leave a Reply" %}</h1>
     {% if form %}
     <div>
-        <form action="{% get_webclient_root_url %}/share/comment/{{ share.share.id }}/" method="post">
+        <form action="{% url manage_share_action "comment" share.share.id %}" method="post">
             <table>
             {% for field in form %}
                 <tr>
@@ -141,7 +141,7 @@
         <input type="submit" value="{% trans 'Post' %}" />
         </form>
         <script type="text/javascript">
-            var googie_spell = new GoogieSpell("static_core/googiespell/", "/webclient/spellchecker/?lang=");
+            var googie_spell = new GoogieSpell("static_core/googiespell/", "{% url spellchecker %}"+"?lang=");
             googie_spell.decorateTextarea("id_comment", null, "600px");
         </script>
     </div>

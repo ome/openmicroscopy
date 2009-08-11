@@ -9,7 +9,7 @@
         <tbody>
         {% for cm in controller.mostRecentSharesComments %}
             <tr><td>
-                <img src="{% get_webclient_static_url %}/images/knotes16.png" title="comment" alt="comment"/> {{ cm.getComment.getOwnerFullName }}</a> {% trans "commented the" %} <a href="{% get_webclient_root_url %}/share/view/{{ cm.getShare.id }}/">{% trans "share" %} {{ cm.getShare.id }}</a> on {{ cm.getComment.creationEventDate|date:"Y m d H:i:s" }}
+                <img src="{% url webstatic "images/knotes16.png" %}" title="comment" alt="comment"/> {{ cm.getComment.getOwnerFullName }}</a> {% trans "commented the" %} <a href="{% url manage_share "view" cm.getShare.id %}">{% trans "share" %} {{ cm.getShare.id }}</a> on {{ cm.getComment.creationEventDate|date:"Y m d H:i:s" }}
             </td></tr>
         {% endfor %}
         </tbody>
@@ -26,12 +26,12 @@
             <tr><td>
                 
                 {% ifequal c.getShareType "Discuss" %}
-                    <img src="{% get_webclient_static_url %}/images/wp_protocol16.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>                     <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{% trans "discussion" %}</a>
+                    <img src="{% url webstatic "images/wp_protocol16.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> <a href="{% url manage_share_action "view" c.id %}">{% trans "discussion" %}</a>
                 {% else %}
                     {% if c.active %}
-                        <img src="{% get_webclient_static_url %}/images/folder_html16.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{% trans "share" %}</a>
+                        <img src="{% url webstatic "images/folder_html16.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> <a href="{% url manage_share_action "view" c.id %}">{% trans "share" %}</a>
                     {% else %}
-                        <img src="{% get_webclient_static_url %}/images/folder_locked16.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">{% trans "share" %}</a>
+                        <img src="{% url webstatic "images/folder_locked16.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> <a href="{% url manage_share_action "view" c.id %}">{% trans "share" %}</a>
                     {% endif %}
                 {% endifequal %}
                 {% trans "about" %}: "{{ c.shortMessage }}"

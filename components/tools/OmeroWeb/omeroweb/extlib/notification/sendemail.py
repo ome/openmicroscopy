@@ -156,13 +156,12 @@ class SendEmail(threading.Thread):
         self.to_send.append({"message": msgRoot.as_string(), "sender": settings.EMAIL_SENDER_ADDRESS, "recipients": [settings.ADMINS[0][1]]})
     
     def create_share(self, details):
-        app = settings.WEBCLIENT_ROOT_BASE
         # Create the root message and fill in the from, to, and subject headers
         msgRoot = MIMEMultipart('related')
         try:
-            msgRoot['Subject'] = 'OMERO.%s - %s shared some data with you' % (app, details.sender)
+            msgRoot['Subject'] = 'OMERO.webclient - %s shared some data with you' % (details.sender)
         except:
-            msgRoot['Subject'] = 'OMERO.%s - unknown person shared some data with you' % (app)
+            msgRoot['Subject'] = 'OMERO.webclient - unknown person shared some data with you'
         try:
             msgRoot['From'] = '%s <%s>' % (details.sender, details.sender_email)
         except:
@@ -188,10 +187,9 @@ class SendEmail(threading.Thread):
         return msgRoot.as_string()
 
     def add_comment_to_share(self, details):
-        app = settings.WEBCLIENT_ROOT_BASE
         # Create the root message and fill in the from, to, and subject headers
         msgRoot = MIMEMultipart('related')
-        msgRoot['Subject'] = 'OMERO.%s - new comment on share available' % (app)
+        msgRoot['Subject'] = 'OMERO.webclient - new comment on share available'
         msgRoot['From'] = settings.EMAIL_SENDER_ADDRESS
 
         msgRoot.preamble = 'This is a multi-part message in MIME format.'

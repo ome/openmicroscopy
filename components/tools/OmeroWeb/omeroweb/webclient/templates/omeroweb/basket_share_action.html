@@ -4,35 +4,35 @@
 {% load custom_tags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/datepicker.css" type="text/css" />
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tooltip.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/datepicker.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.tooltip.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.dimensions.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.bgiframe.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.delegate.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.dimensions.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.bgiframe.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.delegate.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.datepicker.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.datepicker.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.simple.tree.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.simple.tree.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/cookiesupport.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
 {% endblock %}
 
 
 {% block script %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/basket.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/blitzcon.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
     <script>
       $(document).ready(function(){
           $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
@@ -81,8 +81,8 @@
     <div class="image"><ul id="products">
         {% for e in basket.imageInBasket %}
             <li id="image-{{ e.id }}"class="product"><em>{{ e.name }}</em>
-                <a href="#" onclick="popup(null,'_blank',{{ e.id }}); return false;"><img id="{{ e.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/{{ e.id }}/" alt="image" title="{{ e.name }}"/></a>
-                <a href="#" onclick="fromBasket('image', '{{ e.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/cancel16.png" alt="r" title="remove"/></a>
+                <a href="#" onclick="popup(null,'_blank',{{ e.id }}); return false;"><img id="{{ e.id }}" class="imgzoom" src="{% url render_thumbnail e.id %}" alt="image" title="{{ e.name }}"/></a>
+                <a href="#" onclick="fromBasket('image', '{{ e.id }}'); return false;"><img src ="{% url webstatic "images/cancel16.png" %}" alt="r" title="remove"/></a>
             </li>
         {% endfor %}
     </ul></div>
@@ -91,7 +91,7 @@
     <div class="clear"></div>
 
     <div>
-        <form action="{% get_webclient_root_url %}/share/create/" method="post">
+        <form action="{% url manage_share "create" %}" method="post">
             <table>
             {% for field in form %}
                 <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
@@ -102,13 +102,13 @@
             </table>
         </form>
         <script type="text/javascript">
-            var googie_spell = new GoogieSpell("static_core/googiespell/", "/webclient/spellchecker/?lang=");
+            var googie_spell = new GoogieSpell("static_core/googiespell/", "{% url spellchecker %}"+"?lang=");
             googie_spell.decorateTextarea("id_message", null, "600px");
         </script>
     </div>
 {% else %}
     <h1>{% trans "Your basket is empty." %}</h1>
-    <div class="error"><p>{% trans "Your basket is empty. Please add some of your bio-data from" %} <a href="{% get_webclient_root_url %}/mydata/">{% trans "My data" %}</a>.</p></div>
+    <div class="error"><p>{% trans "Your basket is empty. Please add some of your bio-data from" %} <a href="{% url manage_data "mydata" %}">{% trans "My data" %}</a>.</p></div>
 {% endif %}
 {% endblock %}
 

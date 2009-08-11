@@ -134,10 +134,6 @@ SESSION_COOKIE_AGE = 86400 # 1 day in sec (86400)
 FILE_UPLOAD_TEMP_DIR = '/tmp'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 #default 2621440
 
-# BASE config
-WEBADMIN_ROOT_BASE = 'webadmin'
-WEBCLIENT_ROOT_BASE = 'webclient'
-
 STATIC_LOGO = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'logo.png').replace('\\','/')
 DEFAULT_IMG = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'image128.png').replace('\\','/')
 DEFAULT_USER = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'personal32.png').replace('\\','/')

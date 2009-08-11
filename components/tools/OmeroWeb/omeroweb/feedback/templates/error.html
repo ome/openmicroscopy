@@ -7,16 +7,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/layout.css" type="text/css" />
-    <link rel="shortcut icon" href="{% get_webadmin_static_url %}/images/ome.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="{% url webstatic "css/layout.css" %}" type="text/css" />
+    <link rel="shortcut icon" href="{% url webstatic "images/ome.ico" %}" type="image/x-icon" />
     
     <title>{% trans "Web - Internal Error" %}</title>
     
 </head>
 <body>
 <div id="main" class="error"><h1>
-    {% trans "Go back to" %}: <a href="{% get_webadmin_root_url %}/">{% trans "Webadmin" %}</a> {% trans "or" %} 
-    <a href="{% get_webclient_root_url %}/">{% trans "Webclient" %}</a>
+    {% trans "Go back to" %}: <a href="{% url admin_index %}/">{% trans "Webadmin" %}</a> {% trans "or" %} 
+    <a href="{% url webindex %}/">{% trans "Webclient" %}</a>
 </h1>
 
 {% block content %}

@@ -4,22 +4,22 @@
 {% load custom_tags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/images.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tree.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/tree.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/cookiesupport.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
 
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script> 
+    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script> 
 {% endblock %}
 
 {% block center %}
@@ -28,7 +28,7 @@
 <div>
     {% if manager.comment %}
     <h1>{% trans "Edit comment" %}</h1>
-    <form action="{% get_webclient_root_url %}/action/save/comment/{{ manager.comment.id }}/?url={{url}}" method="post">
+    <form action="{% url manage_action_containers_id "save" "comment" manager.comment.id %}?url={{url}}" method="post">
     <table>
         {% for field in form %}
             <tr>
@@ -39,14 +39,14 @@
         </table>
     </form>
     <script type="text/javascript">
-        var googie_spell = new GoogieSpell("static_core/googiespell/", "/webclient/spellchecker/?lang=");
+        var googie_spell = new GoogieSpell("static_core/googiespell/", "{% url spellchecker %}"+"?lang=");
         googie_spell.decorateTextarea("id_content", null, "600px");
     </script>
     {% endif %}
     
     {% if manager.url %}
     <h1>{% trans "Edit url" %}</h1>
-    <form action="{% get_webclient_root_url %}/action/save/url/{{ manager.url.id }}/?url={{url}}" method="post">
+    <form action="{% url manage_action_containers_id "save" "url" manager.url.id %}?url={{url}}" method="post">
     <table>
         {% for field in form %}
             <tr>
@@ -60,7 +60,7 @@
     
     {% if manager.tag %}
     <h1>{% trans "Edit tag" %}</h1>
-    <form action="{% get_webclient_root_url %}/action/save/tag/{{ manager.tag.id }}/?url={{url}}" method="post">
+    <form action="{% url manage_action_containers_id "save" "tag" manager.tag.id %}?url={{url}}?url={{url}}" method="post">
     <table>
         {% for field in form %}
             <tr>

@@ -24,6 +24,8 @@
 
 import operator
 
+from omero_model_PermissionsI import PermissionsI
+
 class BaseController(object):
     
     conn = None
@@ -74,42 +76,48 @@ class BaseController(object):
     # Permissions
     
     def objectPermissions(self, obj, permissions):
-        if permissions['owner'] == 'rw':
-            obj.details.permissions.setUserRead(True)
-            obj.details.permissions.setUserWrite(True)
-        elif permissions['owner'] == 'w':
-            obj.details.permissions.setUserRead(False)
-            obj.details.permissions.setUserWrite(True)
-        elif permissions['owner'] == 'r':
-            obj.details.permissions.setUserRead(True)
-            obj.details.permissions.setUserWrite(False)
+        if obj.details.getPermissions() is None:
+            perm = PermissionsI()
         else:
-            obj.details.permissions.setUserRead(False)
-            obj.details.permissions.setUserWrite(False)
+            perm = obj.details.getPermissions()
+            
+        if permissions['owner'] == 'rw':
+            perm.setUserRead(True)
+            perm.setUserWrite(True)
+        elif permissions['owner'] == 'w':
+            perm.setUserRead(False)
+            perm.setUserWrite(True)
+        elif permissions['owner'] == 'r':
+            perm.setUserRead(True)
+            perm.setUserWrite(False)
+        else:
+            perm.setUserRead(False)
+            perm.setUserWrite(False)
         
         if permissions['group'] == 'rw':
-            obj.details.permissions.setGroupRead(True)
-            obj.details.permissions.setGroupWrite(True)
+            perm.setGroupRead(True)
+            perm.setGroupWrite(True)
         elif permissions['group'] == 'w':
-            obj.details.permissions.setGroupRead(False)
-            obj.details.permissions.setGroupWrite(True)
+            perm.setGroupRead(False)
+            perm.setGroupWrite(True)
         elif permissions['group'] == 'r':
-            obj.details.permissions.setGroupRead(True)
-            obj.details.permissions.setGroupWrite(False)
+            perm.setGroupRead(True)
+            perm.setGroupWrite(False)
         else:
-            obj.details.permissions.setGroupRead(False)
-            obj.details.permissions.setGroupWrite(False)
+            perm.setGroupRead(False)
+            perm.setGroupWrite(False)
         
         if permissions['world'] == 'rw':
-            obj.details.permissions.setWorldRead(True)
-            obj.details.permissions.setWorldWrite(True)
+            perm.setWorldRead(True)
+            perm.setWorldWrite(True)
         elif permissions['world'] == 'w':
-            obj.details.permissions.setWorldRead(False)
-            obj.details.permissions.setWorldWrite(True)
+            perm.setWorldRead(False)
+            perm.setWorldWrite(True)
         elif permissions['world'] == 'r':
-            obj.details.permissions.setWorldRead(True)
-            obj.details.permissions.setWorldWrite(False)
+            perm.setWorldRead(True)
+            perm.setWorldWrite(False)
         else:
-            obj.details.permissions.setWorldRead(False)
-            obj.details.permissions.setWorldWrite(False)
+            perm.setWorldRead(False)
+            perm.setWorldWrite(False)
     
+        obj.details.setPermissions(perm)

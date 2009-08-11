@@ -30,32 +30,6 @@ from django import template
 
 register = template.Library()
 
-@register.simple_tag
-def get_webadmin_root_url():
-    base = "/%s" % (settings.WEBADMIN_ROOT_BASE)
-    return str( base )
-
-@register.simple_tag
-def get_webadmin_static_url():
-    base = "/%s/static" % (settings.WEBADMIN_ROOT_BASE)
-    return str( base )
-
-@register.simple_tag
-def get_webclient_root_url():
-    base = "/%s" % (settings.WEBCLIENT_ROOT_BASE)
-    return str( base )
-
-@register.simple_tag
-def get_webclient_static_url():
-    base = "/%s/static" % (settings.WEBCLIENT_ROOT_BASE)
-    return str( base )
-
-@register.simple_tag
-def get_calendar_url():
-    today = datetime.datetime.today()
-    path = "%d/%d/" % (today.year, today.month)
-    return str( path )
-
 
 # makes settings available in template
 @register.tag

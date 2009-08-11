@@ -4,42 +4,42 @@
 {% load custom_tags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/images.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/annotation.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/slider.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tree.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tooltip.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/slider.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/tree.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.draggable.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.droppable.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.resizable.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.slider.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.core.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.highlight.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.draggable.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.droppable.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.resizable.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.slider.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/effects.core.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/effects.highlight.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.quicksearch.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.tooltip.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.dimensions.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.bgiframe.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.delegate.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.dimensions.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.bgiframe.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.delegate.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/cookiesupport.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
     
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script> 
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/slider.js"></script> 
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script> 
+    <script type="text/javascript" src="{% url webstatic "javascript/slider.js" %}"></script> 
+    <script type="text/javascript" src="{% url webstatic "javascript/blitzcon.js" %}"></script>
     
     <script>
       $(document).ready(function(){
@@ -49,7 +49,7 @@
                 stripeRowClass: null,
                 labelText: '{% trans "Filter" %}:',
                 inputText: '...',
-                loaderImg: '/webclient/static/images/tree/spinner.gif',
+                loaderImg: '{% url webstatic "images/tree/spinner.gif" %}'
             });
         });
     </script>
@@ -92,8 +92,8 @@
         {% trans "shared with me" %} ({% trans "no items" %})
     {% endif %}:
 </h1>
-<div id="view"> | {% trans "View" %} <a href="{% get_webclient_root_url %}/share/?view=table"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="table" title="table"/></a> <a href="{% get_webclient_root_url %}/share/?view=icon"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> | {% trans "New" %} <a href="{% get_webclient_root_url %}/basket/toshare/"><span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% get_webclient_static_url %}/images/folder_html16.png" alt="share" /></span></a> 
-<a href="{% get_webclient_root_url %}/basket/todiscuss/"><span id="discussion" title="Create discussion - <small>Starts the thread of the new discussion with no images currently stored in the basket.</small>"><img src="{% get_webclient_static_url %}/images/wp_protocol16.png" alt="discussion" /></span></a> |
+<div id="view"> | {% trans "View" %} <a href="{% url manage_shares %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="table" title="table"/></a> <a href="{% url manage_shares %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> | {% trans "New" %} <a href="{% url basket_action "toshare" %}"><span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% url webstatic "images/folder_html16.png" %}" alt="share" /></span></a> 
+<a href="{% url basket_action "todiscuss" %}"><span id="discussion" title="Create discussion - <small>Starts the thread of the new discussion with no images currently stored in the basket.</small>"><img src="{% url webstatic "images/wp_protocol16.png" %}" alt="discussion" /></span></a> |
 </div>
 
 <div class="slider">
@@ -114,22 +114,22 @@
     {% if share.oshSize %}
         {% for c in share.ownShares %}
         <li class="product"><em>{{ c.shortMessage }}</em>
-            <a href="{% get_webclient_root_url %}/share/view/{{ c.id }}/">
+            <a href="{% url manage_share_action "view" c.id %}">
                 {% ifequal c.getShareType "Discuss" %}
                     {% if c.active %}
-                        <img src="{% get_webclient_static_url %}/images/wp_protocol64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                        <img src="{% url webstatic "images/wp_protocol64.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                     {% else %}
-                        <img src="{% get_webclient_static_url %}/images/wp_protocol_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                        <img src="{% url webstatic "images/wp_protocol_locked64.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                     {% endif %}
                 {% else %}
                     {% if c.active %}
-                        <img src="{% get_webclient_static_url %}/images/folder_html64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                        <img src="{% url webstatic "images/folder_html64.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                     {% else %}
-                        <img src="{% get_webclient_static_url %}/images/folder_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                        <img src="{% url webstatic "images/folder_locked64.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                     {% endif %}
                 {% endifequal %}
             </a>
-            <div class="center">{% if c.annotation_counter %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% get_webclient_static_url %}/images/kuser12.png" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}<br/>{{ c.tinyMessage }}</div>
+            <div class="center">{% if c.annotation_counter %} <img src="{% url webstatic "images/knotes12.gif" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% url webstatic "images/kuser12.png" %}" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}<br/>{{ c.tinyMessage }}</div>
         </li>
         {% endfor %}
     {% else %}
@@ -141,18 +141,18 @@
         <li class="product"><em>{{ c.shortMessage }}</em>
             {% ifequal c.getShareType "Discuss" %}
                 {% if c.active %}
-                    <a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;"><img src="{% get_webclient_static_url %}/images/wp_protocol64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/></a>
+                    <a href="#" onclick="openSharedWindow('{% url manage_share_action "view" c.id %}'); return false;"><img src="{% url webstatic "images/wp_protocol64.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/></a>
                 {% else %}
-                    <img src="{% get_webclient_static_url %}/images/wp_protocol_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                    <img src="{% url webstatic "images/wp_protocol_locked64.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                 {% endif %}
             {% else %}
                 {% if c.active %}
-                    <a href="#" onclick="openSharedWindow('{% get_webclient_root_url %}/share/view/{{ c.id }}/'); return false;"><img src="{% get_webclient_static_url %}/images/folder_html64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/></a>
+                    <a href="#" onclick="openSharedWindow('{% url manage_share_action "view" c.id %}'); return false;"><img src="{% url webstatic "images/folder_html64.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/></a>
                 {% else %}
-                    <img src="{% get_webclient_static_url %}/images/folder_locked64.png" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
+                    <img src="{% url webstatic "images/folder_locked64.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                 {% endif %}
             {% endifequal %}
-            <div class="center">{% if c.annotation_counter %} <img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% get_webclient_static_url %}/images/kuser12.png" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}<br/>{{ c.tinyMessage }}</div>
+            <div class="center">{% if c.annotation_counter %} <img src="{% url webstatic "images/knotes12.gif" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% url webstatic "images/kuser12.png" %}" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}<br/>{{ c.tinyMessage }}</div>
         </li>
         {% endfor %}
     {% endif %}

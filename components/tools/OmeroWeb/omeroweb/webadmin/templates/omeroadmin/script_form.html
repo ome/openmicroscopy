@@ -24,9 +24,9 @@
 <br/>
 
 {% if sc_id %}
-    <form action="{% get_webadmin_root_url %}/script/save/{{ sc_id }}/" method="POST">
+    <form action="{% url admin_manage_script_id "save" sc_id %}" method="POST">
 {% else %}
-    <form action="{% get_webadmin_root_url %}/script/save/" method="POST">
+    <form action="{% url admin_manage_script_action "save" %}" method="POST">
 {% endif %}
 
 <table>

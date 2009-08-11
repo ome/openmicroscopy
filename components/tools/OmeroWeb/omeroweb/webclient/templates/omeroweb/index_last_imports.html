@@ -20,8 +20,8 @@ $(document).ready(function () {
         {% for im in controller.lastAcquiredImages %}
             
             <li class="product">{% if im.isOwned %}
-            <a href="{% get_webclient_root_url %}/mydata/image/{{ im.id }}/"><img id="{{ im.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/{{ im.id }}/" alt="image" title="{{ im.name }}"/></a>{% else %}<a class="product" href="{% get_webclient_root_url %}/userdata/image/{{ im.id }}/"><img id="{{ im.id }}" class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/{{ im.id }}/" alt="image" title="{{ im.name }}"/></a>{% endif %}
-            <div class="center">{% if im.countAnnotations %}<img src="{% get_webclient_static_url %}/images/knotes12.png" alt="a" title="annotation"/>[{{ im.countAnnotations }}]{% endif %}{% if not im.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg12.png" alt="l" title="locked"/>{% endif %}</div>
+            <a href="{% url manage_data_t_id "mydata" "image" im.id %}"><img id="{{ im.id }}" class="imgzoom" src="{% url render_thumbnail im.id %}" alt="image" title="{{ im.name }}"/></a>{% else %}<a class="product" href="{% url manage_data_t_id "userdata" "image" im.id %}"><img id="{{ im.id }}" class="imgzoom" src="{% url render_thumbnail im.id %}" alt="image" title="{{ im.name }}"/></a>{% endif %}
+            <div class="center">{% if im.countAnnotations %}<img src="{% url webstatic "images/knotes12.gif" %}" alt="a" title="annotation"/>[{{ im.countAnnotations }}]{% endif %}{% if not im.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</div>
             <div class="center">{{ im.tinyName }}</div></li>
             
         {% endfor %}

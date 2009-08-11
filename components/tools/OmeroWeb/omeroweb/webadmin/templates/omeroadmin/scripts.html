@@ -4,16 +4,16 @@
 {% load custom_tags %}
 
 {% block css %}
-    <link rel="stylesheet" href="{% get_webadmin_static_url %}/css/table.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url admin_static "css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block title %}{% trans "Scripts" %}{% endblock %}
 
 {% block jscript %}
 
-    <script type="text/javascript" src="{% get_webadmin_static_url %}/javascript/jquery_1.2.6.js"></script>
-    <script type="text/javascript" src="{% get_webadmin_static_url %}/javascript/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="{% get_webadmin_static_url %}/javascript/jquery.quicksearch.js"></script>
+    <script type="text/javascript" src="{% url admin_static "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url admin_static "javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% url admin_static "javascript/jquery.quicksearch.js" %}"></script>
 
 <script type="text/javascript">
     $(document).ready(function() 
@@ -32,7 +32,7 @@
             stripeRowClass: null,
             labelText: '{% trans "Filter" %}:',
             inputText: '{% trans "search" %}',
-            loaderImg: '{% get_webadmin_static_url %}/images/spinner.gif',
+            loaderImg: '{% url admin_static "images/spinner.gif" %}',
         });
 
     })
@@ -41,7 +41,7 @@
 {% endblock %}
 
 {% block content %}
-<p><img src="{% get_webadmin_static_url %}/images/add.png" alt="add" title="add"> <a href="{% get_webadmin_root_url %}/script/new/">{% trans "Add new script" %}</a></p>
+<p><img src="{% url admin_static "images/add.png" %}" alt="add" title="add"> <a href="{% url admin_manage_script_action "new" %}">{% trans "Add new script" %}</a></p>
 
 <h2>Scripts</h2>
 {% if controller.scriptsCount %}
@@ -56,8 +56,8 @@
     {% for k,v in controller.scripts.iteritems %}
         <tr>
           <td class="action">
-            <img src="{% get_webadmin_static_url %}/images/del.png" alt="delete" title="delete"> 
-            <a href="{% get_webadmin_root_url %}/script/edit/{{ k }}/"><img src="{% get_webadmin_static_url %}/images/edit.png" alt="edit" title="edit"></a>
+            <img src="{% url admin_static "images/del.png" %}" alt="delete" title="delete"> 
+            <a href="{% url admin_manage_script_id "edit" k %}"><img src="{% url admin_static "images/edit.png" %}" alt="edit" title="edit"></a>
           </td>
           <td class="link">{{ v }}</td>
         </tr>

@@ -4,16 +4,16 @@
 {% load custom_tags %}
 
 {% block css %}
-    <link rel="stylesheet" href="{% get_webadmin_static_url %}/css/table.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url admin_static "css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block title %}{% trans "Groups" %}{% endblock %}
 
 {% block jscript %}
 
-    <script type="text/javascript" src="{% get_webadmin_static_url %}/javascript/jquery_1.2.6.js"></script>
-    <script type="text/javascript" src="{% get_webadmin_static_url %}/javascript/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="{% get_webadmin_static_url %}/javascript/jquery.quicksearch.js"></script>
+    <script type="text/javascript" src="{% url admin_static "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url admin_static "javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% url admin_static "javascript/jquery.quicksearch.js" %}"></script>
 
 <script type="text/javascript">
     $(document).ready(function() 
@@ -32,7 +32,7 @@
             stripeRowClass: null,
             labelText: '{% trans "Filter" %}:',
             inputText: '{% trans "search" %}',
-            loaderImg: '{% get_webadmin_static_url %}/images/spinner.gif',
+            loaderImg: '{% url admin_static "images/spinner.gif" %}',
         });
 
     })
@@ -42,7 +42,7 @@
 
 {% block content %}
 
-<p><img src="{% get_webadmin_static_url %}/images/add.png" alt="add" title="add"> <a href="{% get_webadmin_root_url %}/group/new/">{% trans "Add new group" %}</a></p>
+<p><img src="{% url admin_static "images/add.png" %}" alt="add" title="add"> <a href="{% url admin_manage_group_action "new" %}">{% trans "Add new group" %}</a></p>
 
 <h2>{% trans "Groups" %}</h2>
 {% if controller.groupsCount %}
@@ -60,9 +60,9 @@
         <tr>
             <td class="action">
                 {% if not dict.locked %}
-                    <a href="{% get_webadmin_root_url %}/group/edit/{{ dict.group.id }}/"><img src="{% get_webadmin_static_url %}/images/edit.png" alt="edit" title="edit"></a>
+                    <a href="{% url admin_manage_group_id "edit" dict.group.id %}"><img src="{% url admin_static "images/edit.png" %}" alt="edit" title="edit"></a>
                 {% endif %}
-                <a href="{% get_webadmin_root_url %}/group/members/{{ dict.group.id }}/"><img src="{% get_webadmin_static_url %}/images/editing.png" alt="manage" title="manage members"></a>
+                <a href="{% url admin_manage_group_id "members" dict.group.id %}"><img src="{% url admin_static "images/editing.png" %}" alt="manage" title="manage members"></a>
             </td>
             <td class="link">{{ dict.group.name }}</td>
             <td class="link">{{ dict.group.getOwnerFullName }}</td>

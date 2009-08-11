@@ -7,13 +7,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/layout.css" type="text/css" />
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/menu.css" type="text/css" />
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/images.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/layout.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% url webstatic "css/menu.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
     
     {% block link %}{% endblock %}
 
-    <link rel="shortcut icon" href="{% get_webclient_static_url %}/images/ome.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="{% url webstatic "images/ome.ico" %}" type="image/x-icon" />
 
     <title>{% trans "Webclient" %} {% block title %}{% endblock %}</title>
 
@@ -29,15 +29,15 @@
         <div id="logo"> </div>
         <div id="menu"><ul id="navigation">
             <li class="contact"><a href="mailto:" title="Contact">{% trans "Contact" %}</a></li>
-            <li class="help"><a href="{% get_webclient_root_url %}/help/index/" title="Help">{% trans "Help" %}</a></li>
-            <li class="person"><a href="{% get_webclient_root_url %}/myaccount/" title="Person">{% trans "Person" %}</a></li>
-            <li class="import"><a href="{% get_webclient_root_url %}/impexp/image/" title="Import">{% trans "Import" %}</a></li>
-            <li class="search"><a href="{% get_webclient_root_url %}/search/?view=table" title="Search">{% trans "Search" %}</a></li>
-            <li class="history"><a href="{% get_webclient_root_url %}/history/calendar/{% get_calendar_url %}" title="History">{% trans "History" %}</a></li>
-            <li class="share"><a href="{% get_webclient_root_url %}/share/?view=table" title="Share">{% trans "Share" %}</a></li>
-            <li class="collaboration"><a href="{% get_webclient_root_url %}/userdata/?view=table" title="Collaboration">{% trans "Collaboration" %}</a></li>
-            <li class="mydata"><a href="{% get_webclient_root_url %}/mydata/?view=table" title="My Data">{% trans "My Data" %}</a></li>
-            <li class="home"><a href="{% get_webclient_root_url %}/" title="Home">{% trans "Home" %}</a></li>
+            <li class="help"><a href="{% url help %}" title="Help">{% trans "Help" %}</a></li>
+            <li class="person"><a href="{% url myaccount %}" title="Person">{% trans "Person" %}</a></li>
+            <li class="import"><a href="{% url importer %}" title="Import">{% trans "Import" %}</a></li>
+            <li class="search"><a href="{% url search %}?view=table" title="Search">{% trans "Search" %}</a></li>
+            <li class="history"><a href="{% url history %}" title="History">{% trans "History" %}</a></li>
+            <li class="share"><a href="{% url manage_shares %}?view=table" title="Share">{% trans "Share" %}</a></li>
+            <li class="userdata"><a href="{% url manage_data "userdata" %}?view=table" title="Team">{% trans "Team" %}</a></li>
+            <li class="mydata"><a href="{% url manage_data "mydata" %}?view=table" title="My Data">{% trans "My Data" %}</a></li>
+            <li class="home"><a href="{% url webindex %}" title="Home">{% trans "Home" %}</a></li>
         </ul></div>
     </div>
     
@@ -49,16 +49,16 @@
 </div>
 <div id="footer">
     <div>
-        <a href="{% get_webclient_root_url %}/" title="Home">{% trans "Home" %}</a> | 
-        <a href="{% get_webclient_root_url %}/basket/" title="Basket">{% trans "Basket" %}</a> |  
-        <a href="{% get_webclient_root_url %}/mydata/?view=table" title="My Data">{% trans "My Data" %}</a> | 
-        <a href="{% get_webclient_root_url %}/userdata/?view=table" title="Collaboration">{% trans "Team" %}</a> | 
-        <a href="{% get_webclient_root_url %}/share/?view=table" title="Share">{% trans "Share" %}</a> | 
-        <a href="{% get_webclient_root_url %}/history/calendar/{% get_calendar_url %}" title="History">{% trans "History" %}</a> | 
-        <a href="{% get_webclient_root_url %}/search/?view=table" title="Search">{% trans "Search" %}</a> | 
-        <a href="{% get_webclient_root_url %}/impexp/image/" title="Import">{% trans "Import" %}</a> | 
-        <a href="{% get_webclient_root_url %}/myaccount/" title="Person">{% trans "Person" %}</a> | 
-        <a href="{% get_webclient_root_url %}/help/index/" title="Help">{% trans "Help" %}</a> | 
+        <a href="{% url webindex %}" title="Home">{% trans "Home" %}</a> | 
+        <a href="{% url basket %}" title="Basket">{% trans "Basket" %}</a> |  
+        <a href="{% url manage_data "mydata" %}?view=table" title="My Data">{% trans "My Data" %}</a> | 
+        <a href="{% url manage_data "userdata" %}?view=table" title="Team">{% trans "Team" %}</a> | 
+        <a href="{% url manage_shares %}?view=table" title="Share">{% trans "Share" %}</a> | 
+        <a href="{% url history %}" title="History">{% trans "History" %}</a> | 
+        <a href="{% url search %}?view=table" title="Search">{% trans "Search" %}</a> | 
+        <a href="{% url importer %}" title="Import">{% trans "Import" %}</a> | 
+        <a href="{% url myaccount %}" title="Person">{% trans "Person" %}</a> | 
+        <a href="{% url help %}" title="Help">{% trans "Help" %}</a> | 
         <a href="mailto:" title="Contact">{% trans "Contact" %}</a>    
     </div>
     <p>&copy;2009 University of Dundee & Open Microscopy Environment</p>

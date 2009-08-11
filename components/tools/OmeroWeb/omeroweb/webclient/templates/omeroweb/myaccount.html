@@ -4,16 +4,16 @@
 {% load custom_tags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/myaccount.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href='{% url webstatic "css/myaccount.css" %}' type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.imgareaselect.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.imgareaselect.js" %}"></script>
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
     
     {% if nav.edit_mode %}
     <script type="text/javascript">
@@ -76,7 +76,7 @@
 
 <p>{% trans "Fields marked with an * are mandatory." %}</p>
 
-<form action="{% get_webclient_root_url %}/myaccount/save/" method="POST">
+<form action="{% url myaccount_action "save" %}" method="POST">
 <table>
   <tbody>
     {% for field in form %}
@@ -94,13 +94,13 @@
     <div align="center">
         {% if nav.edit_mode %}
         
-		<img src="{% get_webclient_root_url %}/myphoto/" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
+		<img src="{% url myphoto %}" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
 		<div style="border:1px #999999 solid; float:left; position:relative; overflow:hidden; width:100px; height:100px;">
-			<img src="{% get_webclient_root_url %}/myphoto/" style="position: relative;" alt="Thumbnail Preview" />
+			<img src="{% url myphoto %}" style="position: relative;" alt="Thumbnail Preview" />
 		</div>
 		<p>Thumbnail Preview</p>
 		<div class="clear"> </div>
-		<h1><form name="thumbnail" action="{% get_webclient_root_url %}/myaccount/crop/" method="post">
+		<h1><form name="thumbnail" action="{% url myaccount_action "crop" %}" method="post">
 			<input type="hidden" name="x1" value="" id="x1" />
 			<input type="hidden" name="y1" value="" id="y1" />
 			<input type="hidden" name="x2" value="" id="x2" />
@@ -111,11 +111,11 @@
 		{% else %}
 		    <p>
     		    {% if photo_size %}
-    		    <img src="{% get_webclient_root_url %}/myphoto/" width="150" height="150" class="imgzoom"/>
+    		    <img src="{% url myphoto %}" width="150" height="150" class="imgzoom"/>
     		    <br/>Original size: ({{ photo_size.0.0 }}, {{ photo_size.0.1 }}) {{ photo_size.1|filesizeformat }}
-    		    <br/><a href="{% get_webclient_root_url %}/myaccount/editphoto/">Crop this picture.</a>
+    		    <br/><a href="{% url myaccount_action "editphoto" %}">Crop this picture.</a>
         		{% else %}
-        		<img src="{% get_webclient_root_url %}/myphoto/" />
+        		<img src="{% url myphoto %}" />
         		<ul class="errorlist"><li>You have not upload photo for your profile yet.</li></ul>
         		{% endif %}
     		</p>
@@ -125,7 +125,7 @@
     <h1>Upload your photo</h1>
     <div class="body">
       <p>
-        <form enctype="multipart/form-data" method="post" action="{% get_webclient_root_url %}/myaccount/upload/">
+        <form enctype="multipart/form-data" method="post" action="{% url myaccount_action "upload" %}">
             <table>
               <tbody>
                 {% for field in form_file %}

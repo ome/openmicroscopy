@@ -4,41 +4,41 @@
 {% load custom_tags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/index.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/index.css" %}" type="text/css" media="screen"/>
     
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.draggable.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.droppable.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.resizable.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.core.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.highlight.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.draggable.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.droppable.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.resizable.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/effects.core.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/effects.highlight.js" %}"></script>
 
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
     
     <script>
         $(document).ready(function(){
             
-            $("div#last_imports").html('<p>Loading imported images... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
-            $("div#last_imports").load("{% get_webclient_root_url %}/last_imports/");
+            $("div#last_imports").html('<p>Loading imported images... please wait <img src="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+            $("div#last_imports").load("{% url index_last_imports %}");
             
-            $("div#tagcloud").html('<p>Loading tag cloud... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
-            $("div#tagcloud").load("{% get_webclient_root_url %}/tag_cloud/");
+            $("div#tagcloud").html('<p>Loading tag cloud... please wait <img src="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+            $("div#tagcloud").load("{% url index_tag_cloud %}");
             
-            $("div#comments").html('<h1>Most recents:</h1><p>Loading data... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
-            $("div#comments").load("{% get_webclient_root_url %}/most_recent/");
+            $("div#comments").html('<h1>Most recents:</h1><p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+            $("div#comments").load("{% url index_most_recent %}");
                         
             $("a.loadData").click(function()
             {
-                $("div#context").html('<p>Loading your context... please wait <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
-                $("div#context").load("{% get_webclient_root_url %}/context/", function()
+                $("div#context").html('<p>Loading your context... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                $("div#context").load("{% url index_context %}", function()
                     {  
                         $("a.loadData").remove();
                     });

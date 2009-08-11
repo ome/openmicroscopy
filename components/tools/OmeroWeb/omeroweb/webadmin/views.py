@@ -42,6 +42,7 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
 from django.core import template_loader
 from django.core.cache import cache
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext as Context
@@ -115,9 +116,9 @@ def isAdminConnected (f):
             conn = getConnection(request)
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect("/%s/login/?error=%s" % (settings.WEBADMIN_ROOT_BASE, x.__class__.__name__))
+            return HttpResponseRedirect(reverse("admin_login")+(("?error=%s") % x.__class__.__name__))
         if conn is None:
-            return HttpResponseRedirect("/%s/login/" % (settings.WEBADMIN_ROOT_BASE))
+            return HttpResponseRedirect(reverse("admin_login"))
         if not conn.getEventContext().isAdmin:
             return page_not_found(request, "404.html")
         kwargs["conn"] = conn
@@ -144,12 +145,14 @@ def isUserConnected (f):
         try:
             conn = getConnection(request)
         except KeyError:
-            return HttpResponseRedirect("/%s/login/?url=%s" % (settings.WEBADMIN_ROOT_BASE, url))
+            
+            
+            return HttpResponseRedirect(reverse("admin_login")+(("?url=%s") % (url)))
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect("/%s/login/?error=%s&url=%s" % (settings.WEBADMIN_ROOT_BASE, x.__class__.__name__, url))
+            return HttpResponseRedirect(reverse("admin_login")+(("?error=%s&url=%s") % (x.__class__.__name__,url)))
         if conn is None:
-            return HttpResponseRedirect("/%s/login/?url=%s" % (settings.WEBADMIN_ROOT_BASE, url))   
+            return HttpResponseRedirect(reverse("admin_login")+(("?url=%s") % (url)))   
         
         kwargs["conn"] = conn
         kwargs["url"] = url
@@ -226,7 +229,7 @@ def login(request):
         error = x.__class__.__name__
     
     if conn is not None:
-        return HttpResponseRedirect("/%s/" % (settings.WEBADMIN_ROOT_BASE))
+        return HttpResponseRedirect(reverse("admin_index"))
     else:
         if request.method == 'POST' and request.REQUEST['server']:
             error = "Connection not available, please chceck your user name and password."
@@ -261,9 +264,9 @@ def index(request, **kwargs):
         logger.error(traceback.format_exc())
     
     if conn.getEventContext().isAdmin:
-        return HttpResponseRedirect("/%s/experimenters/" % (settings.WEBADMIN_ROOT_BASE))
+        return HttpResponseRedirect(reverse("admin_experimenters"))
     else:
-        return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
+        return HttpResponseRedirect(reverse("admin_myaccount"))
 
 def logout(request):
     _session_logout(request, request.session['server'])
@@ -306,7 +309,7 @@ def logout(request):
 #        logger.error(traceback.format_exc())
     
     request.session.set_expiry(1)
-    return HttpResponseRedirect("/%s/" % (settings.WEBADMIN_ROOT_BASE))
+    return HttpResponseRedirect(reverse("admin_index"))
 
 @isAdminConnected
 def experimenters(request, **kwargs):
@@ -376,7 +379,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
             otherGroups = request.POST.getlist('other_groups')
             password = request.REQUEST['password'].encode('utf-8')
             controller.createExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
-            return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
+            return HttpResponseRedirect(reverse("admin_experimenters"))
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'edit' :
         if controller.ldapAuth == "" or controller.ldapAuth is None:
@@ -426,13 +429,13 @@ def manage_experimenter(request, action, eid=None, **kwargs):
             except:
                 password = None
             controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution, password)
-            return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
+            return HttpResponseRedirect(reverse("admin_experimenters"))
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid}
     elif action == "delete":
         controller.deleteExperimenter()
-        return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
+        return HttpResponseRedirect(reverse("admin_experimenters"))
     else:
-        return HttpResponseRedirect("/%s/experimenters/" % settings.WEBADMIN_ROOT_BASE)
+        return HttpResponseRedirect(reverse("admin_experimenters"))
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -488,7 +491,7 @@ def manage_group(request, action, gid=None, **kwargs):
             description = request.REQUEST['description'].encode('utf-8')
             owner = request.REQUEST['owner']
             controller.createGroup(name, owner, description)
-            return HttpResponseRedirect("/%s/groups/" % settings.WEBADMIN_ROOT_BASE)
+            return HttpResponseRedirect(reverse("admin_groups"))
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'edit':
         form = GroupForm(initial={'name': controller.group.name, 'description':controller.group.description,
@@ -502,7 +505,7 @@ def manage_group(request, action, gid=None, **kwargs):
             description = request.REQUEST['description'].encode('utf-8')
             owner = request.REQUEST['owner']
             controller.updateGroup(name, owner, description)
-            return HttpResponseRedirect("/%s/groups/" % settings.WEBADMIN_ROOT_BASE)
+            return HttpResponseRedirect(reverse("admin_groups"))
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
     elif action == "update":
         template = "omeroadmin/group_edit.html"
@@ -512,7 +515,7 @@ def manage_group(request, action, gid=None, **kwargs):
             available = request.POST.getlist('available')
             members = request.POST.getlist('members')
             controller.setMembersOfGroup(available, members)
-            return HttpResponseRedirect("/%s/groups/" % settings.WEBADMIN_ROOT_BASE)
+            return HttpResponseRedirect(reverse("admin_groups"))
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
     elif action == "members":
         template = "omeroadmin/group_edit.html"
@@ -520,7 +523,7 @@ def manage_group(request, action, gid=None, **kwargs):
         form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
     else:
-        return HttpResponseRedirect("/%s/groups/" % settings.WEBADMIN_ROOT_BASE)
+        return HttpResponseRedirect(reverse("admin_groups"))
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -529,7 +532,7 @@ def manage_group(request, action, gid=None, **kwargs):
 
 @isAdminConnected
 def ldap(request, **kwargs):
-    return HttpResponseRedirect("/%s/" % (settings.WEBADMIN_ROOT_BASE))
+    return HttpResponseRedirect(reverse("admin_index"))
 
 @isAdminConnected
 def scripts(request, **kwargs):
@@ -575,14 +578,14 @@ def manage_script(request, action, sc_id=None, **kwargs):
         form = GroupForm(initial={'script':controller.script}, data=request.POST.copy())
         if form.is_valid():
             
-            return HttpResponseRedirect("/%s/scripts/" % settings.WEBADMIN_ROOT_BASE)
+            return HttpResponseRedirect(reverse("admin_scripts"))
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == "edit":
         controller.getScript(sc_id)
         form = ScriptForm(initial={'name':controller.details.val.path.val, 'content':controller.script, 'size':controller.details.val.size.val})
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'sc_id': sc_id}
     else:
-        return HttpResponseRedirect("/%s/scripts/" % settings.WEBADMIN_ROOT_BASE)
+        return HttpResponseRedirect(reverse("admin_scripts"))
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -591,7 +594,7 @@ def manage_script(request, action, sc_id=None, **kwargs):
 
 @isAdminConnected
 def imports(request, **kwargs):
-    return HttpResponseRedirect("/%s/" % (settings.WEBADMIN_ROOT_BASE))
+    return HttpResponseRedirect(reverse("admin_index"))
 
 @isUserConnected
 def my_account(request, action=None, **kwargs):
@@ -645,14 +648,14 @@ def my_account(request, action=None, **kwargs):
                 password = None
             myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
             logout(request)
-            return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
+            return HttpResponseRedirect(reverse("admin_myaccount"))
     elif action == "upload":
         if request.method == 'POST':
             form_file = UploadPhotoForm(request.POST, request.FILES)
             if form_file.is_valid():
                 controller = BaseUploadFile(conn)
                 controller.attach_photo(request.FILES['photo'])
-                return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
+                return HttpResponseRedirect(reverse("admin_myaccount"))
     elif action == "crop": 
         x1 = long(request.REQUEST['x1'].encode('utf-8'))
         x2 = long(request.REQUEST['x2'].encode('utf-8'))
@@ -660,7 +663,7 @@ def my_account(request, action=None, **kwargs):
         y2 = long(request.REQUEST['y2'].encode('utf-8'))
         box = (x1,y1,x2,y2)
         conn.cropExperimenterPhoto(box)
-        return HttpResponseRedirect("/%s/myaccount/" % (settings.WEBADMIN_ROOT_BASE))
+        return HttpResponseRedirect(reverse("admin_myaccount"))
     elif action == "editphoto":
         if photo_size is not None:
             edit_mode = True

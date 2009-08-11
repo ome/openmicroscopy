@@ -4,18 +4,18 @@
 {% load custom_tags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/myaccount.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href='{% url webstatic "css/myaccount.css" %}' type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.svg.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.drawinglibrary.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/roi.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.svg.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.drawinglibrary.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/roi.js" %}"></script>
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
     
     <script type="text/javascript">
     function preview(img, selection) { 
@@ -64,8 +64,8 @@
 
 {% block center %}
 <div align="center">
-	<img src="{% get_webclient_root_url %}/myphoto/" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
-	<form action="{% get_webclient_root_url %}/test/"><ul>
+	<img src="{% url myphoto %}" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
+	<form action="{% url test %}"><ul>
 	    <li>x1 <input name="x1" value="{% if params.x1 %}{{ params.x1 }}{% endif %}" id="x1" /></li>
 		<li>y1 <input name="y1" value="{% if params.y1 %}{{ params.y1 }}{% endif %}" id="y1" /></li>
 		<li>x2 <input name="x2" value="{% if params.x2 %}{{ params.x2 }}{% endif %}" id="x2" /></li>

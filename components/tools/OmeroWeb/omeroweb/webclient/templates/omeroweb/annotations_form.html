@@ -32,7 +32,7 @@
                 </table>
                 </form>
                 <script type="text/javascript">
-                    var googie_spell = new GoogieSpell("static_core/googiespell/", "/webclient/spellchecker/?lang=");
+                    var googie_spell = new GoogieSpell("static_core/googiespell/", "{% url spellchecker %}"+"?lang=");
                     googie_spell.decorateTextarea("id_content", null, "600px");
                 </script>
             </div>

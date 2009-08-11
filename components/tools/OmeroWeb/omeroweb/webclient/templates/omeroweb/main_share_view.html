@@ -7,13 +7,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/layout.css" type="text/css" />
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/menu.css" type="text/css" />
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/images.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/layout.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% url webstatic "css/menu.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
     
     {% block link %}{% endblock %}
 
-    <link rel="shortcut icon" href="{% get_webclient_static_url %}/images/ome.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="{% url webstatic "images/ome.ico" %}" type="image/x-icon" />
 
     <title>{% trans "Webclient" %} {% block title %}{% endblock %}</title>
 
@@ -24,7 +24,7 @@
 </head>
 <body id="{{ menu }}">
     <div id="content">{% block center %}{% endblock %}</div>
-    <div id="footer"><p>&copy;2009 University of Dundee & Open Microscopy Environment</p><a href="{% get_webclient_root_url %}/logout/">out</a></div>
+    <div id="footer"><p>&copy;2009 University of Dundee & Open Microscopy Environment</p><a href="{% url weblogout %}">out</a></div>
 
 </body>
 </html>

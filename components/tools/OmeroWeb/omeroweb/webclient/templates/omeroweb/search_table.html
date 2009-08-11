@@ -4,42 +4,42 @@
 {% load custom_tags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/datepicker.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/thickbox.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/table.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tooltip.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/datepicker.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/thickbox.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.datepicker.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.draggable.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.droppable.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.core.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/effects.highlight.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.datepicker.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.draggable.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.droppable.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/effects.core.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/effects.highlight.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.tooltip.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.dimensions.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.bgiframe.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.delegate.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.dimensions.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.bgiframe.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.delegate.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery.quicksearch.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/cookiesupport.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/thickbox/thickbox.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/thickbox/thickbox.js" %}"></script>
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/basket.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/blitzcon.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
     <script>
       $(document).ready(function(){
           $('#dateperiodinput').datepicker({rangeSelect: true, firstDay: 1, dateFormat: 'yy-mm-dd', rangeSeparator: '_'});
@@ -52,7 +52,7 @@
               stripeRowClass: null,
               labelText: '{% trans "Filter" %}:',
               inputText: 'search',
-              loaderImg: '{% get_webclient_static_url %}/images/tree/spinner.gif',
+              loaderImg: '{% url webstatic "images/tree/spinner.gif" %}',
           });
         });
     </script>
@@ -80,13 +80,13 @@
     <div class="clear"></div>
     
     <p>
-    <form action="{% get_webclient_root_url %}/search/" method="GET">
+    <form action="{% url search %}" method="GET">
         <table>
             <tr><th>{% trans "Search for" %} *:</th><td><input class="search" type="text" name="query" value="{{ controller.criteria.query }}" size="52"/>  <span id="searching" title="Searching - <small>To perform a single character wildcard search use the <b>'?'</b> symbol. The single character wildcard search looks for terms that match that with the single character replaced. To perform a multiple character wildcard search use the <b>'*'</b> symbol. <br/><br/>
             For example, to search for <i>'text'</i> or <i>'test'</i> you can use the search: <b>'te?t'
-    </b>. Multiple character wildcard searches looks for 0 or more characters. For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>. You can also use the wildcard searches in the middle or the beginning of a term.</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span></td></tr>
+    </b>. Multiple character wildcard searches looks for 0 or more characters. For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>. You can also use the wildcard searches in the middle or the beginning of a term.</small>"><img src="{% url webstatic "images/help16.png" %}" /></span></td></tr>
             <!--<tr><th>by date:</th><td><input type="text" id="dateinput" name="date" value="" size="15"/></td></tr>-->
-            <tr><th>{% trans "Date range" %}:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ controller.criteria.period }}" size="25"/> <span id="daterange" title="Date range - <small>Date range feature enables you to specify the start and end time of the created data. To select the range, clink on the field and pick start date and end date on the same calendar. If you want to change the date click on the field again the pick the range.</small>"><img src="{% get_webclient_static_url %}/images/help16.png" /></span></td></tr>
+            <tr><th>{% trans "Date range" %}:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ controller.criteria.period }}" size="25"/> <span id="daterange" title="Date range - <small>Date range feature enables you to specify the start and end time of the created data. To select the range, clink on the field and pick start date and end date on the same calendar. If you want to change the date click on the field again the pick the range.</small>"><img src="{% url webstatic "images/help16.png" %}" /></span></td></tr>
             <tr><th>{% trans "In" %} *:</th><td>
                 <input  type="checkbox" name="image" {{ controller.criteria.image }} />{% trans "Images" %} <input type="checkbox" name="dataset" {{ controller.criteria.dataset }} />{% trans "Datasets" %}  <input type="checkbox" name="project" {{ controller.criteria.project }} />{% trans "Projects" %}
             </td></tr>
@@ -100,7 +100,7 @@
     {% if controller.resultsSize %}
     <div><h1>{% trans "Results" %} ({{ controller.resultsSize }} {% trans "items" %}):</h1>
 
-    <div id="view"> | {% trans "View" %} <a href="{% get_webclient_root_url %}/search/?view=table{{ controller.url }}"><img src="{% get_webclient_static_url %}/images/view_detailed16.png" alt="details" title="details"/></a> <a href="{% get_webclient_root_url %}/search/?view=icon{{ controller.url }}"><img src="{% get_webclient_static_url %}/images/view_icon16.png" alt="icon" title="icon"/></a> | </div>
+    <div id="view"> | {% trans "View" %} <a href="{% url search %}?view=table{{ controller.url }}"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> <a href="{% url search %}?view=icon{{ controller.url }}"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> | </div>
         
     <table id="searchTable" class="tablesorter"> 
     <thead> 
@@ -114,25 +114,25 @@
     <tbody> 
         {% for c in controller.projects %}
         <tr> 
-            <td class="product">{% if c.isOnwed %}<a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% get_webclient_root_url %}/userdata/project/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder32.png" title="{{ c.name }}" alt="project"/></a>{% endif %}</td> 
-            <td>{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/project/{{ c.id }}/">{{ c.shortName }}</a>{% else %}<a href="{% get_webclient_root_url %}/userdata/project/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% endif %} <img alt="dataset" title="dataset" src="{% get_webclient_static_url %}/images/folder_image16.png"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
+            <td class="product">{% if c.isOnwed %}<a href="{% url manage_data_t_id "project" c.id %}"><img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% url manage_data_t_id "userdata" c.id %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" title="{{ c.name }}" alt="project"/></a>{% endif %}</td> 
+            <td>{% if c.isOwned %}<a href="{% url manage_data_t_id "mydata" c.id %}">{{ c.shortName }}</a>{% else %}<a href="{% url manage_data_t_id "userdata" c.id %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% endif %} <img alt="dataset" title="dataset" src="{% url webstatic "images/folder_image16.png" %}"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
             <td></td>
             <td>{{ c.creationEventDate|date:"Y m d H:i:s" }}</td>
         </tr>
         {% endfor %}
         {% for c in controller.datasets %}
         <tr> 
-            <td class="product">{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/folder_image32.png" title="{{ c.name }}" alt="project"/></a>{% endif %} </td> 
-            <td>{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/">{{ c.shortName }}</a>{% else %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}dataset/{{ c.id }}/?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% endif %} <img alt="image" title="image" src="{% get_webclient_static_url %}/images/image16.png"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
-            <td><!--{% if c.isOwned %} <a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endif %}--> <a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a></td>
+            <td class="product">{% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data_t_id_t_id "mydata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data_t_id "mydata" "dataset" c.id %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% if manager.project %}{% url manage_data_t_id_t_id "userdata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data_t_id "userdata" "dataset" c.id %}{% endif %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" title="{{ c.name }}" alt="project"/></a>{% endif %}</td> 
+            <td>{% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data_t_id_t_id "mydata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data_t_id "mydata" "dataset" c.id %}{% endif %}">{{ c.shortName }}</a>{% else %}<a href="{% if manager.project %}{% url manage_data_t_id_t_id "userdata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data_t_id "userdata" "dataset" c.id %}{% endif %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% endif %} <img src="{% url webstatic "images/image16.png" %}" title="image" alt="image"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
+            <td>{% if c.isOwned %}<a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> {% if manager.project %}<a href="{% url manage_action_containers "remove" %}?parent=pr-{{ manager.project.id }}&source=ds-{{ c.id }}&url={{ url }}" onClick="return confirm('Unlink dataset?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}{% endif %}</td>
             <td>{{ c.creationEventDate|date:"Y m d H:i:s" }}</td>
         </tr>
         {% endfor %}
         {% for c in controller.images %}
         <tr> 
-            <td class="product">{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="{{ c.name }}" alt="image"/></a>{% else %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/"><img id="{{ c.id }}" src="{% get_webclient_static_url %}/images/image32.png" title="{{ c.name }}" alt="image"/></a>{% endif %}</td> 
-            <td>{% if c.isOwned %}<a href="{% get_webclient_root_url %}/mydata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/">{{ c.shortName }}</a> {% else %}<a href="{% get_webclient_root_url %}/userdata/{% if manager.project %}project/{{manager.project.id}}/{% endif %}{% if manager.dataset %}dataset/{{manager.dataset.id}}/{% endif %}image/{{ c.id }}/">{{ c.shortName }}</a>{% endif %}{% if not c.isOwned %} <img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
-            <td><a href="#" onclick="popup(null,'_blank','{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/kview16.png" title="{{ c.name }}" alt="image"/></a> <a href="{% get_webclient_root_url %}/image_zoom/{{ c.id }}/?keepThis=true&TB_iframe=true&height=500&width=860" alt="{{ c.shortName }}" class="thickbox" rel="gallery-omero" title="{{ c.shortName }} by {{ c.getOwnerFullName }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% get_webclient_static_url %}/images/kpresenter16.png" alt="p" title="presentation"/></a>{% if c.isOwned %} <a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="basket"/></a>{% endif %} <a href="#" onclick="copyToClipboard('image', '{{ c.id }}'); return false;"><img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a></td>
+            <td class="product">{% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data_t_id_t_id_t_id "mydata" "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data_t_id_t_id "mydata" "dataset" manager.dataset.id "image" c.id %}{% else %}{% url manage_data_t_id "mydata" "image" c.id %}{% endif %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/image32.png" %}" title="{{ c.name }}" alt="image"/></a>{% else %}<a href="{% if manager.project %}{% url manage_data_t_id_t_id_t_id "userdata" "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data_t_id_t_id "userdata" "dataset" manager.dataset.id "image" c.id %}{% else %}{% url manage_data_t_id "userdata" "image" c.id %}{% endif %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/image32.png" %}" title="{{ c.name }}" alt="image"/></a>{% endif %}</td> 
+            <td>{% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data_t_id_t_id_t_id "mydata" "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data_t_id_t_id "mydata" "dataset" manager.dataset.id "image" c.id %}{% else %}{% url manage_data_t_id "mydata" "image" c.id %}{% endif %}{% endif %}">{{ c.shortName }}</a> {% else %}<a href="{% if manager.project %}{% url manage_data_t_id_t_id_t_id "userdata" "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data_t_id_t_id "userdata" "dataset" manager.dataset.id "image" c.id %}{% else %}{% url manage_data_t_id "userdata" "image" c.id %}{% endif %}{% endif %}">{{ c.shortName }}</a>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td>
+            <td><a href="#" onclick="popup(null,'_blank','{{ c.id }}'); return false;"><img src="{% url webstatic "images/kview16.png" %}" title="{{ c.name }}" alt="image"/></a> <a href="{% url manage_image_zoom c.id %}?keepThis=true&TB_iframe=true&height=500&width=860" alt="{{ c.shortName }}" class="thickbox" rel="gallery-omero" title="{{ c.shortName }} by {{ c.getOwnerFullName }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% url webstatic "images/kpresenter16.png" %}" alt="p" title="presentation"/></a>{% if c.isOwned %} <a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="basket"/></a> <a href="#" onclick="copyToClipboard('image', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> {% if manager.dataset %}<a href="{% url manage_action_containers "remove" %}?parent=ds-{{ manager.dataset.id }}&source=img-{{ c.id }}&url={{ url }}" onClick="return confirm('Unlink image?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}{% endif %}</td>
             <td>{{ c.getDate|date:"Y m d H:i:s" }}</td>
         </tr>
         {% endfor %}

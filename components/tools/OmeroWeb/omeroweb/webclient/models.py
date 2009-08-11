@@ -25,10 +25,10 @@
 
 from django import forms
 from django.db import models
-from django.conf import settings
 from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.forms.widgets import HiddenInput
+from django.core.urlresolvers import reverse
 
 from omeroweb.webadmin.models import Gateway
 
@@ -37,13 +37,16 @@ import re
 ##################################################################
 # Static values
 
-help_wiki = '<span id="markup" title="Markups - <small>If you\'d like to include an OMERO image or container in the below field, simply get the id of the item from the URL and type: <b>[image:157], </b><b>[dataset:64], </b><b>[project:76].</b><br/>In addition, for URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
+# TODO: change to reverse
+help_button = "/webclient/static/images/help16.png"
 
-help_wiki_c = '<span id="markup_c" title="Markups - <small><b>WARNING:</b>We do not recomend you to use OMERO markups while in a share. They will not link to the existing bio-data. If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
+help_wiki = '<span id="markup" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
 
-help_enable = '<span id="enable" title="Enable/Disable - <small>This option allows the owner to keep the access control of the share.</small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
+help_wiki_c = '<span id="markup_c" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
 
-help_expire = '<span id="expire" title="Expire date - <small>This date defines when share will stop being available. Date format: YY-MM-DD.</small>"><img src="/%s/static/images/help16.png" /></span>' % (settings.WEBCLIENT_ROOT_BASE)
+help_enable = '<span id="enable" title="Enable/Disable - <small>This option allows the owner to keep the access control of the share.</small>"><img src="%s" /></span>' % help_button
+
+help_expire = '<span id="expire" title="Expire date - <small>This date defines when share will stop being available. Date format: YY-MM-DD.</small>"><img src="%s" /></span>' % help_button
 
 ##################################################################
 # Model
@@ -156,7 +159,7 @@ class ContainerForm(forms.Form):
     #access_controll = forms.ChoiceField(choices = PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True)
 
 class CommentAnnotationForm(forms.Form):
-    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 9, 'cols': 65}))
+    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 9, 'cols': 60}))
 
 class UriAnnotationForm(forms.Form):
     link = UrlField(widget=forms.TextInput(attrs={'size':55}))
@@ -242,9 +245,9 @@ class MyGroupsForm(forms.Form):
         super(MyGroupsForm, self).__init__(*args, **kwargs)
         try:
             if kwargs['initial']['mygroup']: pass
-            self.fields['group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], initial=kwargs['initial']['mygroup'], widget=forms.Select(attrs={'onchange':'window.location.href=\'/'+settings.WEBCLIENT_ROOT_BASE+'/groupdata/?group=\'+this.options[this.selectedIndex].value'}), required=False)
+            self.fields['group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], initial=kwargs['initial']['mygroup'], widget=forms.Select(attrs={'onchange':'window.location.href=\'/'+reverse(viewname="manage_data", args=["groupdata"])+'?group=\'+this.options[this.selectedIndex].value'}), required=False)
         except:
-            self.fields['group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], widget=forms.Select(attrs={'onchange':'window.location.href=\'/'+settings.WEBCLIENT_ROOT_BASE+'/groupdata/?group=\'+this.options[this.selectedIndex].value'}), required=False)
+            self.fields['group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], widget=forms.Select(attrs={'onchange':'window.location.href=\'/'+reverse(viewname="manage_data", args=["groupdata"])+'/?group=\'+this.options[this.selectedIndex].value'}), required=False)
         self.fields.keyOrder = ['group']
 
 class MyUserForm(forms.Form):
@@ -253,16 +256,16 @@ class MyUserForm(forms.Form):
         super(MyUserForm, self).__init__(*args, **kwargs)
         try:
             if kwargs['initial']['user']: pass
-            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], initial=kwargs['initial']['user'], widget=forms.Select(attrs={'onchange':'window.location.href=\'/'+settings.WEBCLIENT_ROOT_BASE+'/userdata/?experimenter=\'+this.options[this.selectedIndex].value'}), required=False)
+            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], initial=kwargs['initial']['user'], widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="manage_data", args=["userdata"])+'?experimenter=\'+this.options[this.selectedIndex].value'}), required=False)
         except:
-            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], widget=forms.Select(attrs={'onchange':'window.location.href=\'/'+settings.WEBCLIENT_ROOT_BASE+'/userdata/?experimenter=\'+this.options[this.selectedIndex].value'}), required=False)
+            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="manage_data", args=["userdata"])+'/userdata/?experimenter=\'+this.options[this.selectedIndex].value'}), required=False)
         self.fields.keyOrder = ['experimenter']
 
 class ActiveGroupForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(ActiveGroupForm, self).__init__(*args, **kwargs)
-        self.fields['active_group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], initial=kwargs['initial']['activeGroup'], empty_label=None, widget=forms.Select(attrs={'onchange':'window.location.href=\'/'+settings.WEBCLIENT_ROOT_BASE+'/active_group/?active_group=\'+this.options[this.selectedIndex].value'})) 
+        self.fields['active_group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], initial=kwargs['initial']['activeGroup'], empty_label=None, widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="change_active_group")+'?active_group=\'+this.options[this.selectedIndex].value'})) 
         self.fields.keyOrder = ['active_group']
 
 class HistoryTypeForm(forms.Form):

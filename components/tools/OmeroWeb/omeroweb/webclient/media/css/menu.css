@@ -31,8 +31,8 @@
 #navigation .mydata a {
 	background: url(/webclient/static/images/menu/mydata.jpg) no-repeat bottom right;
 }
-#navigation .collaboration a {
-	background: url(/webclient/static/images/menu/collaboration.jpg) no-repeat bottom right;
+#navigation .userdata a {
+	background: url(/webclient/static/images/menu/userdata.jpg) no-repeat bottom right;
 }
 #navigation .share a {
 	background: url(/webclient/static/images/menu/share.jpg) no-repeat bottom right;

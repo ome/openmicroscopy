@@ -4,14 +4,14 @@
 {% load custom_tags %}
 
 {% block css %}
-    <link rel="stylesheet" href="{% get_webadmin_static_url %}/css/table.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url admin_static "css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block title %}{% trans "Scientists" %}{% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% get_webadmin_static_url %}/javascript/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="{% get_webadmin_static_url %}/javascript/jquery.quicksearch.js"></script>
+    <script type="text/javascript" src="{% url admin_static "javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% url admin_static "javascript/jquery.quicksearch.js" %}"></script>
 
 <script type="text/javascript">
     $(document).ready(function() 
@@ -30,7 +30,7 @@
             stripeRowClass: null,
             labelText: '{% trans "Filter" %}:',
             inputText: '{% trans "search" %}',
-            loaderImg: '{% get_webadmin_static_url %}/images/spinner.gif',
+            loaderImg: '{% url admin_static "images/spinner.gif" %}',
         });
 
     })
@@ -40,7 +40,7 @@
 
 {% block content %}
 
-<p><img src="{% get_webadmin_static_url %}/images/add.png" alt="add" title="add"> <a href="{% get_webadmin_root_url %}/experimenter/new/">{% trans "Add new scientist" %}</a></p>
+<p><img src="{% url admin_static "images/add.png" %}" alt="add" title="add"> <a href="{% url admin_manage_experimenter_action "new" %}">{% trans "Add new scientist" %}</a></p>
 
 <h2>{% trans "Scientists" %}</h2>
 {% if controller.experimentersCount %}
@@ -58,17 +58,17 @@
     {% for dict in controller.experimenters %}
         <tr>
           <td class="action">
-            <a href="{% get_webadmin_root_url %}/experimenter/delete/{{ dict.experimenter.id }}/"><img src="{% get_webadmin_static_url %}/images/del.png" alt="delete" title="delete"></a> 
-            <a href="{% get_webadmin_root_url %}/experimenter/edit/{{ dict.experimenter.id }}/"><img src="{% get_webadmin_static_url %}/images/edit.png" alt="edit" title="edit"></a> id:{{ dict.experimenter.id }}
+            <a href="{% url admin_manage_experimenter_id "delete" dict.experimenter.id %}"><img src="{% url admin_static "images/del.png" %}" alt="delete" title="delete"></a> 
+            <a href="{% url admin_manage_experimenter_id "edit" dict.experimenter.id %}"><img src="{% url admin_static "images/edit.png" %}" alt="edit" title="edit"></a> id:{{ dict.experimenter.id }}
           </td>
           <td class="link">{{ dict.experimenter.getFullName }}</td>
           <td class="link">{{ dict.experimenter.omeName }}</td>
           <td class="desc">{{ dict.experimenter.shortInstitution|default_if_none:"-" }}</td>
           <td class="roles">
-              {% if dict.admin %}<img src="{% get_webadmin_static_url %}/images/admin.png" alt="admin" title="admin"> {% endif %}
-              {% if dict.guest %}<img src="{% get_webadmin_static_url %}/images/guest.png" alt="guest" title="guest"> {% endif %}
-              {% if dict.ldap %}<img src="{% get_webadmin_static_url %}/images/ldap.png" alt="ldap" title="ldap"> {% endif %}
-              {% if dict.active %}<img src="{% get_webadmin_static_url %}/images/active.png" alt="active" title="active">{% else %}<img src="{% get_webadmin_static_url %}/images/notactive.png" alt="active" title="active">{% endif %}
+              {% if dict.admin %}<img src="{% url admin_static "images/admin.png" %}" alt="admin" title="admin"> {% endif %}
+              {% if dict.guest %}<img src="{% url admin_static "images/guest.png" %}" alt="guest" title="guest"> {% endif %}
+              {% if dict.ldap %}<img src="{% url admin_static "images/ldap.png" %}" alt="ldap" title="ldap"> {% endif %}
+              {% if dict.active %}<img src="{% url admin_static "images/active.png" %}" alt="active" title="active">{% else %}<img src="{% url admin_static "images/notactive.png" %}" alt="active" title="active">{% endif %}
           </td></tr>
     {% endfor %}
   </tbody>

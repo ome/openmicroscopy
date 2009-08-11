@@ -22,8 +22,6 @@
 # Version: 1.0
 #
 
-from django.conf import settings
-
 import omero
 from omero.rtypes import *
 from omero_model_CommentAnnotationI import CommentAnnotationI
@@ -40,6 +38,8 @@ from omero_model_ProjectI import ProjectI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 from omero_model_PermissionsI import PermissionsI
+
+from django.core.urlresolvers import reverse
 
 from webclient.controller import BaseController
 
@@ -191,7 +191,7 @@ class BaseContainer(BaseController):
     def buildBreadcrumb(self, menu):
         if menu == 'new' or menu == 'addnew':
             self.eContext['breadcrumb'] = ['New container']
-        elif menu == 'edit':
+        elif menu == 'edit' or menu == 'save':
             if self.project is not None:
                 self.eContext['breadcrumb'] = ['Edit project: %s' % (self.project.breadcrumbName())]
             elif self.dataset is not None:
@@ -201,40 +201,38 @@ class BaseContainer(BaseController):
             elif self.tag is not None:
                 self.eContext['breadcrumb'] = ['Edit tag: %s' % (self.tag.breadcrumbName())]
         elif self.orphaned:
-            self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), "Orphaned images"]
+            self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data_orphaned", args=[menu, "orphaned"]), menu.title()), "Orphaned images"]
         else:
             if self.tags is not None:
                 try:
-                    self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tags: %s | %s | %s | %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName(), self.tags[2].breadcrumbName(), self.tags[3].breadcrumbName(), self.tags[4].breadcrumbName())]
+                    self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), 'Tags: %s | %s | %s | %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName(), self.tags[2].breadcrumbName(), self.tags[3].breadcrumbName(), self.tags[4].breadcrumbName())]
                 except:
                     try:
-                        self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tags: %s | %s | %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName(), self.tags[2].breadcrumbName(), self.tags[3].breadcrumbName())]
+                        self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), 'Tags: %s | %s | %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName(), self.tags[2].breadcrumbName(), self.tags[3].breadcrumbName())]
                     except:
                         try:
-                            self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tags: %s | %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName(), self.tags[2].breadcrumbName())]
+                            self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), 'Tags: %s | %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName(), self.tags[2].breadcrumbName())]
                         except:
                             try:
-                                self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tags: %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName())]
+                                self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), 'Tags: %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName())]
                             except:
                                 try:
-                                    self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tag: %s' % (self.tags[0].breadcrumbName())]
+                                    self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), 'Tag: %s' % (self.tags[0].breadcrumbName())]
                                 except:
-                                    self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()), 'Tags']
+                                    self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), 'Tags']
             elif self.project is not None:
-                self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()),  
-                            '<a href="/%s/%s/project/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.project.id, self.project.breadcrumbName())]
+                self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()),  
+                            '<a href="%s">%s</a>' % (reverse(viewname="manage_data_t_id", args=[menu, "project", self.project.id]), self.project.breadcrumbName())]
                 if self.dataset is not None:
-                    self.eContext['breadcrumb'].append('<a href="/%s/%s/project/%i/dataset/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.project.id, self.dataset.id, self.dataset.breadcrumbName()))
+                    self.eContext['breadcrumb'].append('<a href="%s">%s</a>' % (reverse(viewname="manage_data_t_id_t_id", args=[menu, "project", self.project.id, "dataset", self.dataset.id]), self.dataset.breadcrumbName()))
                     if self.image is not None:
-                        self.eContext['breadcrumb'].append('<a href="/%s/%s/project/%i/dataset/%i/image/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.project.id, self.dataset.id, self.image.id, self.image.breadcrumbName()))
+                        self.eContext['breadcrumb'].append('<a href="%s">%s</a>' % (reverse(viewname="manage_data_t_id_t_id_t_id", args=[menu, "project", self.project.id, "dataset", self.dataset.id, "image", self.image.id]), self.image.breadcrumbName()))
             elif self.dataset is not None:
-                self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()),  
-                            '<a href="/%s/%s/dataset/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.dataset.id, self.dataset.breadcrumbName())]
+                self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), '<a href="%s">%s</a>' % (reverse(viewname="manage_data_t_id", args=[menu, "dataset", self.dataset.id]), self.dataset.breadcrumbName())]
                 if self.image is not None:
-                    self.eContext['breadcrumb'].append('<a href="/%s/%s/dataset/%i/image/%i/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, self.dataset.id, self.image.id, self.image.breadcrumbName()))
+                    self.eContext['breadcrumb'].append('<a href="%s">%s</a>' % (reverse(viewname="manage_data_t_id_t_id", args=[menu, "dataset", self.dataset.id, "image", self.image.id]), self.image.breadcrumbName()))
             elif self.image is not None:
-                self.eContext['breadcrumb'] = ['<a href="/%s/%s/">%s</a>' % (settings.WEBCLIENT_ROOT_BASE, menu, menu.title()),  
-                            "%s" % (self.image.breadcrumbName())]
+                self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), "%s" % (self.image.breadcrumbName())]
             else:
                 self.eContext['breadcrumb'] = [menu.title()] 
     

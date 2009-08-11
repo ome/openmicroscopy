@@ -5,35 +5,35 @@
 {% load wikitags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/annotation.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/googiespell.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/tree.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/tree.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/jquery_1.2.6.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.core.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.accordion.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/ui/ui.tabs.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.accordion.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.tabs.js" %}"></script>
     
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/AJS.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/googiespell.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/googiespell/cookiesupport.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/menu.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/image.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/basket.js"></script>
-    <script type="text/javascript" src="{% get_webclient_static_url %}/javascript/blitzcon.js"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/image.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/blitzcon.js" %}"></script>
     
     <script>
         $(document).ready(function(){
             $("a.loadData").click(function()
             {
-                $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
-                $("div#hierarchy").load("{% get_webclient_root_url %}/hierarchy/image/{{ manager.image.id }}/", 
+                $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                $("div#hierarchy").load("{% url manage_container_hierarchies_id "image" manager.image.id %}", 
                     function() {  
                         $("a.loadData").remove();                        
                     });
@@ -41,8 +41,8 @@
             });
             $("a.loadAnnotation").click(function()
             {
-                $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src="{% get_webclient_static_url %}/images/tree/spinner.gif"/></p>');
-                $("div#annotation").load("{% get_webclient_root_url %}/annotations/image/{{ manager.image.id }}/?url={{ url }}", function() {  
+                $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                $("div#annotation").load("{% url manage_annotations "image" manager.image.id %}?url={{ url }}", function() {  
                         $("a.loadAnnotation").remove();                        
                     });
                 return false; 
@@ -65,21 +65,21 @@
 {% block center %}
 
 <div class="image">
-    <h1>{% trans "Image" %}: {{ manager.image.fullNameWrapped }} {% if not manager.image.isOwned %}<img src="{% get_webclient_static_url %}/images/kgpg16.png" alt="l" title="locked"/>{% endif %}</h1>
+    <h1>{% trans "Image" %}: {{ manager.image.fullNameWrapped }} {% if not manager.image.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
 </div>
 
 <div class="toolbar">
 {% if manager.image.isOwned %}
-    | <a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;">{% trans "View" %} <img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> 
-    {% if manager.image.isOwned %}| <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;">{% trans "Select" %} <img src="{% get_webclient_static_url %}/images/basket16.png" alt="b" title="add to basket"/></a> 
-    | <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;">{% trans "Copy" %} <img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
-    | <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}">{% trans "Edit" %} <img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}
+    | <a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;">{% trans "View" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> 
+    {% if manager.image.isOwned %}| <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;">{% trans "Select" %} <img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> 
+    | <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;">{% trans "Copy" %} <img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> 
+    | <a href="{% url manage_action_containers_id "edit" "image" manager.image.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}
 {% else %}
-    | <a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;">{% trans "View" %} <img src="{% get_webclient_static_url %}/images/tree/kview.png" alt="v" title="view"/></a> 
-    {% if manager.image.isOwned %}| <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;">{% trans "Copy" %} <img src="{% get_webclient_static_url %}/images/eclipse_copy_edit16.png" alt="c" title="copy"/></a> 
-    | <a href="{% get_webclient_root_url %}/action/edit/image/{{ manager.image.id }}/?url={{url}}">{% trans "Edit" %} <img src="{% get_webclient_static_url %}/images/color_line16.png" alt="e" title="edit"/></a>{% endif %}
+    | <a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;">{% trans "View" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> 
+    {% if manager.image.isOwned %}| <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;">{% trans "Copy" %} <img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> 
+    | <a href="{% url manage_action_containers_id "edit" "image" manager.image.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}
 {% endif %}
-| <a href="#annotation_form">{% trans "Annotate" %} <img src="{% get_webclient_static_url %}/images/knotes16.png" alt="a" title="annotate"/></a> |
+| <a href="#annotation_form">{% trans "Annotate" %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotate"/></a> |
 </div>
 
 <div class="clear"></div>
@@ -88,7 +88,7 @@
 
 <div class="thumbnail">
     <center>
-        <p><a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% get_webclient_root_url %}/render_thumbnail/details/{{ manager.image.id }}/" alt="image" title="{{ manager.image.name }}"/></a></p>
+        <p><a href="#" onclick="popup(null,'_blank','{{ manager.image.id }}'); return false;"><img class="imgzoom" src="{% url render_thumbnail_details manager.image.id %}" alt="image" title="{{ manager.image.name }}"/></a></p>
     
         <p>by {{ manager.image.getOwnerFullName }}</p>
         <!---<p><a href="">Send this image to someone else.</a></p>-->

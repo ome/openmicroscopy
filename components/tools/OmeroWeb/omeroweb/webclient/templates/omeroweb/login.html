@@ -7,20 +7,20 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/layout.css" type="text/css" />
-    <link rel="stylesheet" href="{% get_webclient_static_url %}/css/login.css" type="text/css" />
+    <link rel="stylesheet" href="{% url webstatic "css/layout.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% url webstatic "css/login.css" %}" type="text/css" />
 
-    <link rel="shortcut icon" href="{% get_webclient_static_url %}/images/ome.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="{% url webstatic "images/ome.ico" %}" type="image/x-icon" />
 
     <title>{% trans "OMERO.web - Login" %}</title>
 
 </head>
 <body>
 <div id="login-logo">
-    <img src="{% get_webclient_static_url %}/images/logo-main.png" />
+    <img src="{% url webstatic "images/logo-main.png" %}" />
 </div>
 <div id="login">
-    <form action="{% get_webclient_root_url %}/login/?url={{url}}" method="post">
+    <form action="{% url weblogin %}?url={{url}}" method="post">
         <table><tbody>
             {% if error %}<tr><th colspan="2"><ul class="errorlist"><li>{% trans "Error:" %} {{ error }}</li></ul></th><tr>{% endif %}
         </tbody></table>
