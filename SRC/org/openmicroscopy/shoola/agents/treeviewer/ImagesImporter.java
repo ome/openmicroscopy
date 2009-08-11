@@ -146,7 +146,7 @@ public class ImagesImporter
         	Iterator i = m.entrySet().iterator();
         	while (i.hasNext()) {
 				entry = (Entry) i.next();
-				viewer.setFilesImported((File) entry.getKey(), entry.getValue(), 
+				viewer.setImportedFiles((File) entry.getKey(), entry.getValue(), 
 						nodes, container);
 			}
         }

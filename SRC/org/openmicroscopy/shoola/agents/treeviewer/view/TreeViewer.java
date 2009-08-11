@@ -795,7 +795,7 @@ public interface TreeViewer
 	 * @param container The container where the files are linked to or 
 	 * 					<code>null</code>.
 	 */
-	void setFilesImported(File key, Object value, List<TreeImageDisplay> nodes,
+	void setImportedFiles(File key, Object value, List<TreeImageDisplay> nodes,
 			DataObject container);
 
 	/**

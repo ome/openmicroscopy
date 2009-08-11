@@ -76,13 +76,13 @@ class ImageTable
 	/** Identified the column displaying if the file has been annotated. */
 	static final int  					ANNOTATED_COL = 2;
 	
-	/** The texf of the {@link #NAME_COL}. */
+	/** The text of the {@link #NAME_COL}. */
 	static final String					NAME =  "Name";
 	
-	/** The texf of the {@link #DATE_COL}. */
+	/** The text of the {@link #DATE_COL}. */
 	static final String					DATE =  "Acquisition Date";
 	
-	/** The texf of the {@link #ANNOTATED_COL}. */
+	/** The text of the {@link #ANNOTATED_COL}. */
 	static final String					ANNOTATED =  "Annotated";
 	
 	/** The columns of the table. */
@@ -338,7 +338,8 @@ class ImageTable
 	}
 	
 	/**
-	 * Overridden to pop up a menu when the user righ-clicks on a selected item.
+	 * Overridden to pop up a menu when the user right-clicks on a selected 
+	 * item.
 	 * @see OMETreeTable#onMousePressed(MouseEvent)
 	 */
 	protected void onMousePressed(MouseEvent e)
@@ -347,7 +348,8 @@ class ImageTable
 	}
 	
 	/**
-	 * Overridden to pop up a menu when the user righ-clicks on a selected item.
+	 * Overridden to pop up a menu when the user right-clicks on a selected 
+	 * item.
 	 * @see OMETreeTable#onMouseReleased(MouseEvent)
 	 */
 	protected void onMouseReleased(MouseEvent e)

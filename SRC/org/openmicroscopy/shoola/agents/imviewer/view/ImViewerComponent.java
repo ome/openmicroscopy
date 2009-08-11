@@ -2578,7 +2578,6 @@ class ImViewerComponent
 			model.resetHistory();
 			view.switchRndControl();
 		}
-		
 		renderXYPlane();
 		fireStateChange();
 	}

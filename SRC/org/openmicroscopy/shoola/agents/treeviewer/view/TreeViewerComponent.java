@@ -2286,9 +2286,9 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setFilesImported(File, Object, List, DataObject)
+	 * @see TreeViewer#setImportedFiles(File, Object, List, DataObject)
 	 */
-	public void setFilesImported(File key, Object value,
+	public void setImportedFiles(File key, Object value,
 			List<TreeImageDisplay> nodes, DataObject container)
 	{
 		if (model.getState() == DISCARDED) return;

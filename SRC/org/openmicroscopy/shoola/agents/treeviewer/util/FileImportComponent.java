@@ -34,22 +34,21 @@ import java.io.File;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.ImportManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
-
 import pojos.ImageData;
 
 /** 
@@ -68,8 +67,12 @@ import pojos.ImageData;
  */
 public class FileImportComponent 
 	extends JPanel
+	implements ChangeListener
 {
 
+	/** Bound property indicating to the file that failed to import. */
+	public static final String		SEND_FILE_PROPERTY = "sendFile";
+	
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
 	
@@ -77,7 +80,7 @@ public class FileImportComponent
 	private static final Border		LABEL_BORDER = 
 							BorderFactory.createLineBorder(Color.black, 1);
 	
-	/** Default text when a failure occured. */
+	/** Default text when a failure occurred. */
 	private static final String		FAILURE_TEXT = "failed";
 	
 	/** The file to import. */
@@ -101,8 +104,8 @@ public class FileImportComponent
 	/** The imported image. */
 	private Object			image;
 	
-	/** Button to notify bug. */
-	private JButton			errorButton;
+	/** The check box displayed if the import failed. */
+	private JCheckBox		errorBox;
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -113,6 +116,7 @@ public class FileImportComponent
 		busyLabel.setBusy(false);
 		//busyLabel.setEnabled(false);
 		nameLabel = new JPanel();
+		nameLabel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		nameLabel.add(new JLabel(file.getName()));
 		nameLabel.add(Box.createHorizontalStrut(10));
 		Dimension d = nameLabel.getPreferredSize();
@@ -133,20 +137,11 @@ public class FileImportComponent
 			}
 		});
 		control = busyLabel;
-		errorButton = new JButton("Submit");
-		errorButton.setOpaque(false);
-		errorButton.setToolTipText("Submit error.");
-		errorButton.addActionListener(new ActionListener() {
-		
-			public void actionPerformed(ActionEvent e) {
-				UserNotifier un = 
-					TreeViewerAgent.getRegistry().getUserNotifier();
-				if (image instanceof ImportException) {
-					ImportException ie = (ImportException) image;
-					un.notifyError("Import failure", ie.getMessage(), ie, file);
-				}
-			}
-		});
+		errorBox = new JCheckBox("Send file");
+		errorBox.setOpaque(false);
+		errorBox.setToolTipText("Select the file to send.");
+		errorBox.addChangeListener(this);
+		errorBox.setVisible(false);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -154,8 +149,10 @@ public class FileImportComponent
 	{
 		removeAll();
 		add(control);
-		if (image instanceof ImportException)
-			add(errorButton);
+		if (image instanceof ImportException) {
+			errorBox.setVisible(true);
+			add(errorBox);
+		}
 	}
 	
 	/**
@@ -192,7 +189,11 @@ public class FileImportComponent
 	 * 
 	 * @return See above.
 	 */
-	public JPanel getNameLabel() { return nameLabel; }
+	public JPanel getNameLabel() { 
+		
+
+		return nameLabel; 
+	}
 	
 	/**
 	 * Sets the id of the image to view.
@@ -239,19 +240,44 @@ public class FileImportComponent
 	}
 	
 	/**
+	 * Returns <code>true</code> if the error box is selected,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isSelected()
+	{
+		if (errorBox != null && errorBox.isVisible())
+			return errorBox.isSelected();
+		return errorBox.isSelected();
+	}
+	
+	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.
 	 * @see JPanel#setBackground(Color)
 	 */
 	public void setBackground(Color color)
 	{
-		super.setBackground(color);
+		//super.setBackground(color);
 		if (busyLabel != null) busyLabel.setBackground(color);
 		if (nameLabel != null) {
 			nameLabel.setBackground(color);
 			for (int i = 0; i < nameLabel.getComponentCount(); i++) 
 				nameLabel.getComponent(i).setBackground(color);
 		}
+		super.setBackground(color);
+	}
+
+	/**
+	 * Indicates that the error box has been selected or unselected.
+	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 */
+	public void stateChanged(ChangeEvent e)
+	{
+		if (errorBox != null && errorBox.isVisible())
+			firePropertyChange(SEND_FILE_PROPERTY, !errorBox.isSelected(), 
+					errorBox.isSelected());
 	}
 
 }

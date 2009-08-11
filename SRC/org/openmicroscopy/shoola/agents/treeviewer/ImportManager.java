@@ -28,6 +28,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -35,6 +37,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -45,7 +49,6 @@ import javax.swing.border.LineBorder;
 import layout.TableLayout;
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.treeviewer.util.FileImportComponent;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -66,7 +69,7 @@ import pojos.ImageData;
  */
 public class ImportManager 
 	extends JPanel
-	implements ActionListener
+	implements ActionListener, PropertyChangeListener
 {
 
 	/** Bound property indicating to view the image. */
@@ -79,8 +82,11 @@ public class ImportManager
 	private static final double[] COLUMNS = 
 						{TableLayout.PREFERRED, TableLayout.FILL};
 	
-	/** Action id indicating to clear the list of imported files. */
+	/** Action ID indicating to clear the list of imported files. */
 	private static final int	CLEAR = 0;
+	
+	/** Action ID indicating to send the list files that failed to import. */
+	private static final int	SEND = 1;
 	
 	/** The components to lay out. */
 	private LinkedHashMap<String, FileImportComponent>	components;
@@ -90,13 +96,16 @@ public class ImportManager
 	
 	/** The collection of objects to import. */
 	private List<File>									toImport;
-	
+
 	/** Component hosting the entries. */
 	private JPanel	entries;
 	
 	/** Button to clear the list of imported files. */
 	private JButton clearButton;
 	
+	/** Button to send the selected file that failed to import.. */
+	private JButton sendButton;
+
 	/** The number of files to import. */
 	private int		total;
 	
@@ -113,6 +122,11 @@ public class ImportManager
 				"from the list.");
 		clearButton.setActionCommand(""+CLEAR);
 		clearButton.addActionListener(this);
+		sendButton = new JButton("Send");
+		sendButton.setToolTipText("Sends the files that failed to import.");
+		sendButton.setActionCommand(""+SEND);
+		sendButton.addActionListener(this);
+		sendButton.setEnabled(false);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -138,6 +152,8 @@ public class ImportManager
 	{
 		JPanel p = new JPanel();
 		p.add(clearButton);
+		p.add(Box.createHorizontalStrut(5));
+		p.add(sendButton);
 		JPanel bar = UIUtilities.buildComponentPanelRight(p);
 		bar.setBorder(new LineBorder(Color.LIGHT_GRAY));
 		return bar;
@@ -157,7 +173,7 @@ public class ImportManager
 			c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		else 
 			c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
-		entries.add(c.getNameLabel(), "0, "+index+", l, c");
+		entries.add(c.getNameLabel(), "0, "+index);
 		entries.add(c, "1, "+index+"");
 	}
 	
@@ -202,16 +218,14 @@ public class ImportManager
 	private void clearList()
 	{
 		if (imported == null) return;
-		/*
-		Entry entry;
-		Iterator i = imported.entrySet().iterator();
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			components.remove(entry.getKey());
-		}
-		*/
 		imported.clear();
 		layoutEntries();
+	}
+	
+	/** Sends the files that failed to import. */
+	private void send()
+	{
+		
 	}
 	
 	/** Creates a new instance. */
@@ -242,6 +256,8 @@ public class ImportManager
 				f = (File) ho;
 				toImport.add(f);
 				c = new FileImportComponent(this, f);
+				c.addPropertyChangeListener(
+						FileImportComponent.SEND_FILE_PROPERTY, this);
 				components.put(f.getAbsolutePath(), c);
 			}
 		}
@@ -263,7 +279,6 @@ public class ImportManager
 	 * Sets the status for the specified file.
 	 * 
 	 * @param f 		The file.
-	 * @param status 	Pass <code>true</code> of <code>false</code>.
 	 * @param image 	The imported image.
 	 */
 	public void setStatus(File f, Object image)
@@ -322,10 +337,37 @@ public class ImportManager
 			case CLEAR:
 				clearList();
 				break;
+			case SEND:
+				send();
+				break;
 			default:
 				break;
 		}
-		
+	}
+
+	/** 
+	 * Listens to property sent by the {@link FileImportComponent}s.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (FileImportComponent.SEND_FILE_PROPERTY.equals(name)) {
+			boolean selected = false;
+			Entry entry;
+			
+			FileImportComponent c;
+			Iterator i = imported.entrySet().iterator();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				c = (FileImportComponent) entry.getValue();
+				if (c != null && c.isSelected()) {
+					selected = true;
+					break;
+				}
+			}
+			sendButton.setEnabled(selected);
+		}
 	}
 
 }

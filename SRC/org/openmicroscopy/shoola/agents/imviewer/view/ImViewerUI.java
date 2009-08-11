@@ -73,8 +73,6 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import omero.model.PlaneInfo;
-
-import org.apache.commons.digester.xmlrules.FromXmlRuleSet;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
@@ -1020,6 +1018,7 @@ class ImViewerUI
 			clearZoomMenu(zoomingGridGroup, zoomGridMenu);
 			ViewerPreferences pref = ImViewerFactory.getPreferences();
 			createZoomMenu(pref, false);
+			controlPane.resetZoomValues();
 		}
 	}
 	

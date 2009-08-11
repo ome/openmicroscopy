@@ -175,16 +175,16 @@ class ControlPane
     /** Slider to select the z-section. */
     private OneKnobSlider			zSlider;
     
-    /** Slider to select the timepoint. */
+    /** Slider to select the time-point. */
     private OneKnobSlider			tSlider;
     
     /** Slider to select the z-section. */
     private OneKnobSlider			zSliderGrid;
     
-    /** Slider to select the timepoint. */
+    /** Slider to select the time-point. */
     private OneKnobSlider			tSliderGrid;
     
-    /** Slider to select the timepoint. */
+    /** Slider to select the time-point. */
     private OneKnobSlider			tSliderProjection;
     
     /** Slider to select the z-sections interval to project. */
@@ -229,7 +229,7 @@ class ControlPane
     /** Button to play movie across T. */
     private JButton					playTMovie;
     
-    /** Button to play mvoie across lifetime bin. */
+    /** Button to play movie across lifetime bin. */
     private JButton					playLifetimeMovie;
     
     /** Button to play movie across T displayed in the split view. */
@@ -254,14 +254,13 @@ class ControlPane
     private JSpinner			   	projectionFrequency;
     
     /** Helper reference. */
-    private IconManager     		icons;
-    
+    private IconManager     		icons; 
 
     /**
      * Sets the selected plane.
      * 
      * @param z The selected z-section.
-     * @param t The selected timepoint.
+     * @param t The selected time-point.
      */
     private void setSelectedXYPlane(int z, int t)
     {
@@ -1487,6 +1486,12 @@ class ControlPane
 		return projectionTypes.get(index);
 	}
     
+	/** Resets the zoom values when the image is large. */
+	void resetZoomValues()
+	{
+		ratioSlider.setMaximum(ZoomAction.ZOOM_100);
+	}
+	
 	/**
 	 * Returns a textual version of the type of projection.
 	 * 
