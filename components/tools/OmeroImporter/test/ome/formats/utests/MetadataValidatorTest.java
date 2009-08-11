@@ -40,12 +40,15 @@ import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
 import omero.api.ServiceFactoryPrx;
 import omero.metadatastore.IObjectContainer;
+import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Instrument;
 import omero.model.LightSettings;
+import omero.model.LightSource;
 import omero.model.LogicalChannel;
+import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OTF;
 
@@ -94,6 +97,7 @@ public class MetadataValidatorTest
         		new BlitzInstanceProvider(store.getEnumerationProvider()));
         wrapper = new OMEROWrapper();
         wrapper.setMetadataStore(store);
+        store.setReader(wrapper);
         wrapper.setId(TARGET);
         store.postProcess();
         containerCache = store.getContainerCache();
@@ -120,6 +124,30 @@ public class MetadataValidatorTest
         System.err.println("referenceCache contains " 
         		+ store.countCachedReferences(null, null)
         		+ " entries.");
+	}
+	
+	/**
+	 * Examines the container cache and returns whether or not an LSID is
+	 * present.
+	 * @param klass Instance class of the source object container.
+	 * @param lsid LSID to compare against.
+	 * @return <code>true</code> if the object exists in the container cache,
+	 * and <code>false</code> otherwise.
+	 */
+	private boolean authoritativeLSIDExists(Class<? extends IObject> klass,
+			                                LSID lsid)
+	{
+		List<IObjectContainer> containers = 
+			store.getIObjectContainers(klass);
+		for (IObjectContainer container : containers)
+		{
+			LSID containerLSID = new LSID(container.LSID);
+			if (containerLSID.equals(lsid))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	@Test
@@ -158,9 +186,20 @@ public class MetadataValidatorTest
 		{
 			LSID lsid = new LSID(container.LSID);
 			String e = String.format(
-					"DetectorSettings %s missing from reference cache",
-					container.LSID);
+					"%s %s missing from reference cache",
+					klass, lsid);
 			assertTrue(e, referenceCache.containsKey(lsid));
+			List<LSID> references = referenceCache.get(lsid);
+			assertTrue(references.size() > 0);
+			for (LSID referenceLSID : references)
+			{
+				assertNotNull(referenceLSID);
+				klass = Detector.class;
+				e = String.format(
+						"%s with LSID %s missing container cache",
+						klass, referenceLSID);
+				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
+			}
 		}
 	}
 	
@@ -192,9 +231,19 @@ public class MetadataValidatorTest
 		{
 			LSID lsid = new LSID(container.LSID);
 			String e = String.format(
-					"ObjectiveSettings %s missing from reference cache",
-					container.LSID);
+					"%s %s missing from reference cache", klass, lsid);
 			assertTrue(e, referenceCache.containsKey(lsid));
+			List<LSID> references = referenceCache.get(lsid);
+			assertTrue(references.size() > 0);
+			for (LSID referenceLSID : references)
+			{
+				assertNotNull(referenceLSID);
+				klass = Objective.class;
+				e = String.format(
+						"%s with LSID %s not found in container cache",
+						klass, referenceLSID);
+				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
+			}
 		}
 	}
 	
@@ -234,9 +283,19 @@ public class MetadataValidatorTest
 		{
 			LSID lsid = new LSID(container.LSID);
 			String e = String.format(
-					"LightSourceSettings %s missing from reference cache",
-					container.LSID);
+					"%s %s missing from reference cache", klass, container.LSID);
 			assertTrue(e, referenceCache.containsKey(lsid));
+			List<LSID> references = referenceCache.get(lsid);
+			assertTrue(references.size() > 0);
+			for (LSID referenceLSID : references)
+			{
+				assertNotNull(referenceLSID);
+				klass = LightSource.class;
+				e = String.format(
+						"%s with LSID %s not found in container cache",
+						klass, referenceLSID);
+				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
+			}
 		}
 	}
 	
@@ -261,7 +320,7 @@ public class MetadataValidatorTest
 				}
 			}
 			fail(String.format(
-					"Instrument %s not referenced by any image.", lsid));
+					"%s %s not referenced by any image.", klass, lsid));
 		}
 	}
 	
@@ -286,7 +345,7 @@ public class MetadataValidatorTest
 				}
 			}
 			fail(String.format(
-					"OTF %s not referenced by any object.", lsid));
+					"%s %s not referenced by any object.", klass, lsid));
 		}
 	}
 	

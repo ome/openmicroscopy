@@ -58,6 +58,9 @@ public class ChannelProcessor implements ModelProcessor
 	/** Container store we're currently working with. */
 	private IObjectContainerStore store;
 	
+	/** Bio-Formats reader implementation we're currently working with. */
+	private IFormatReader reader;
+	
     /**
      * Processes the OMERO client side metadata store.
      * @param store OMERO metadata store to process.
@@ -67,6 +70,11 @@ public class ChannelProcessor implements ModelProcessor
     	throws ModelException
     {
     	this.store = store;
+    	reader = this.store.getReader();
+    	if (reader == null)
+    	{
+    		throw new ModelException("Unexpected null reader.");
+    	}
     	
     	List<Image> images = store.getSourceObjects(Image.class);
     	for (int i = 0; i < images.size(); i++)
@@ -125,7 +133,6 @@ public class ChannelProcessor implements ModelProcessor
      */
     private void populateColor(Channel channel, int channelIndex)
     {
-    	IFormatReader reader = store.getReader();
     	if (reader.isRGB() || reader.isIndexed())
 		{
     	    log.debug("Setting color channel to RGB.");
@@ -175,7 +182,6 @@ public class ChannelProcessor implements ModelProcessor
 	 */
 	private void populateName(LogicalChannel lc, int logicalChannelIndex)
 	{
-		IFormatReader reader = store.getReader();
 		if (reader.isRGB() || reader.isIndexed())
 		{
 		    log.debug("Setting channels name to Red, Green, Blue or Alpha.");
