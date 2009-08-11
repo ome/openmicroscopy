@@ -2529,8 +2529,7 @@ public class OMEROMetadataStoreClient
     {
         try
         {
-            Set<IObjectContainer> containers = 
-            	new HashSet<IObjectContainer>(containerCache.values());
+            Collection<IObjectContainer> containers = containerCache.values();
             IObjectContainer[] containerArray = 
                 containers.toArray(new IObjectContainer[containers.size()]);
             
