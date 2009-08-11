@@ -23,8 +23,10 @@
 
 package ome.formats.utests;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -148,6 +150,22 @@ public class MetadataValidatorTest
 			}
 		}
 		return false;
+	}
+	
+	@Test
+	public void testAuthoritativeLSIDsAreUnique()
+	{
+		Set<String> authoritativeLSIDs = new HashSet<String>();
+		for (IObjectContainer container : containerCache.values())
+		{
+			if (!authoritativeLSIDs.add(container.LSID))
+			{
+				String e = String.format(
+						"LSID from %s,%s not unique.",
+						container.sourceObject, container.LSID);
+				fail(e);
+			}
+		}
 	}
 	
 	@Test

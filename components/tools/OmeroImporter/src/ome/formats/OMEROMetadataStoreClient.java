@@ -475,6 +475,26 @@ public class OMEROMetadataStoreClient
         return enumProvider.getEnumeration(klass, value, false);
     }
     
+    /**
+     * Checks for duplicate authoritative LSIDs for a given class in the 
+     * container cache.
+     * @param klass Filter class for IObjectContainer types.
+     * @param lsid LSID to check against.
+     */
+    private void checkDuplicateLSID(Class<? extends IObject> klass, String lsid)
+    {
+    	List<IObjectContainer> containers = getIObjectContainers(klass);
+    	for (IObjectContainer container : containers)
+    	{
+    		if (container.LSID.equals(lsid))
+    		{
+    			log.warn(String.format("Duplicate LSID %s exists in %s,%s",
+    					lsid, container.sourceObject, container.LSID));
+    			return;
+    		}
+    	}
+    }
+    
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#getReader()
      */
@@ -973,6 +993,7 @@ public class OMEROMetadataStoreClient
 
     public void setDetectorID(String id, int instrumentIndex, int detectorIndex)
     {
+    	checkDuplicateLSID(Detector.class, id);
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("instrumentIndex", instrumentIndex);
         indexes.put("detectorIndex", detectorIndex);
@@ -1213,6 +1234,7 @@ public class OMEROMetadataStoreClient
 
     public void setImageID(String id, int imageIndex)
     {
+    	checkDuplicateLSID(Image.class, id);
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("imageIndex", imageIndex);
         IObjectContainer o = getIObjectContainer(Image.class, indexes);
@@ -1274,6 +1296,7 @@ public class OMEROMetadataStoreClient
 
     public void setInstrumentID(String id, int instrumentIndex)
     {
+    	checkDuplicateLSID(Instrument.class, id);
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("instrumentIndex", instrumentIndex);
         IObjectContainer o = getIObjectContainer(Instrument.class, indexes);
@@ -1334,6 +1357,7 @@ public class OMEROMetadataStoreClient
     public void setLightSourceID(String id, int instrumentIndex,
             int lightSourceIndex)
     {
+    	checkDuplicateLSID(LightSource.class, id);
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("instrumentIndex", instrumentIndex);
         indexes.put("lightSourceIndex", lightSourceIndex);  
@@ -1448,6 +1472,7 @@ public class OMEROMetadataStoreClient
     public void setLogicalChannelID(String id, int imageIndex,
             int logicalChannelIndex)
     {
+    	checkDuplicateLSID(LogicalChannel.class, id);
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("imageIndex", imageIndex);
         indexes.put("logicalChannelIndex", logicalChannelIndex);  
@@ -1515,6 +1540,7 @@ public class OMEROMetadataStoreClient
 
     public void setOTFID(String id, int instrumentIndex, int otfIndex)
     {
+    	checkDuplicateLSID(OTF.class, id);
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("instrumentIndex", instrumentIndex);
         indexes.put("otfIndex", otfIndex);  
@@ -1589,6 +1615,7 @@ public class OMEROMetadataStoreClient
     public void setObjectiveID(String id, int instrumentIndex,
             int objectiveIndex)
     {
+    	checkDuplicateLSID(Objective.class, id);
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("instrumentIndex", instrumentIndex);
         indexes.put("objectiveIndex", objectiveIndex);  
@@ -1659,6 +1686,7 @@ public class OMEROMetadataStoreClient
 
     public void setPixelsID(String id, int imageIndex, int pixelsIndex)
     {
+    	checkDuplicateLSID(Pixels.class, id);
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("imageIndex", imageIndex);
         indexes.put("pixelsIndex", pixelsIndex);  
@@ -1770,6 +1798,7 @@ public class OMEROMetadataStoreClient
 
     public void setPlateID(String id, int plateIndex)
     {
+    	checkDuplicateLSID(Plate.class, id);
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("plateIndex", plateIndex); 
         IObjectContainer o = getIObjectContainer(Plate.class, indexes);
@@ -1845,6 +1874,7 @@ public class OMEROMetadataStoreClient
 
     public void setReagentID(String id, int screenIndex, int reagentIndex)
     {
+    	checkDuplicateLSID(Reagent.class, id);
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("screenIndex", screenIndex);
         indexes.put("reagentIndex", reagentIndex);  
@@ -1901,6 +1931,7 @@ public class OMEROMetadataStoreClient
     public void setScreenAcquisitionID(String id, int screenIndex,
             int screenAcquisitionIndex)
     {
+    	checkDuplicateLSID(ScreenAcquisition.class, id);
         LSID lsid = 
             new LSID(ScreenAcquisition.class, screenIndex, screenAcquisitionIndex);
         IObjectContainer o = containerCache.get(lsid);
@@ -1928,6 +1959,7 @@ public class OMEROMetadataStoreClient
 
     public void setScreenID(String id, int screenIndex)
     {
+    	checkDuplicateLSID(Screen.class, id);
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("screenIndex", screenIndex); 
         IObjectContainer o = getIObjectContainer(Screen.class, indexes);
@@ -2095,6 +2127,7 @@ public class OMEROMetadataStoreClient
 
     public void setWellID(String id, int plateIndex, int wellIndex)
     {
+    	checkDuplicateLSID(Well.class, id);
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("plateIndex", plateIndex);
         indexes.put("wellIndex", wellIndex);  
@@ -2111,6 +2144,7 @@ public class OMEROMetadataStoreClient
     public void setWellSampleID(String id, int plateIndex, int wellIndex,
             int wellSampleIndex)
     {
+    	checkDuplicateLSID(WellSample.class, id);
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("plateIndex", plateIndex);
         indexes.put("wellIndex", wellIndex); 
@@ -2868,6 +2902,7 @@ public class OMEROMetadataStoreClient
 
     public void setExperimentID(String id, int experimentIndex)
     {
+    	checkDuplicateLSID(Experiment.class, id);
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
         indexes.put("experimentIndex", experimentIndex);
         IObjectContainer o = getIObjectContainer(Experiment.class, indexes);
@@ -4535,6 +4570,7 @@ public class OMEROMetadataStoreClient
 
 	public void setDichroicID(String id, int instrumentIndex, int dichroicIndex)
 	{
+		checkDuplicateLSID(Dichroic.class, id);
         LinkedHashMap<String, Integer> indexes = 
         	new LinkedHashMap<String, Integer>();
         indexes.put("instrumentIndex", instrumentIndex);
@@ -4545,6 +4581,7 @@ public class OMEROMetadataStoreClient
 
 	public void setFilterID(String id, int instrumentIndex, int filterIndex)
 	{
+		checkDuplicateLSID(Filter.class, id);
         LinkedHashMap<String, Integer> indexes = 
         	new LinkedHashMap<String, Integer>();
         indexes.put("instrumentIndex", instrumentIndex);
@@ -4556,6 +4593,7 @@ public class OMEROMetadataStoreClient
 	public void setFilterSetID(String id, int instrumentIndex,
 			                   int filterSetIndex)
 	{
+		checkDuplicateLSID(FilterSet.class, id);
         LinkedHashMap<String, Integer> indexes = 
         	new LinkedHashMap<String, Integer>();
         indexes.put("instrumentIndex", instrumentIndex);
