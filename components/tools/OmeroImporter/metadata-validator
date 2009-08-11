@@ -1,160 +1,127 @@
-#!/bin/bash
+#!/usr/bin/env python
+# encoding: utf-8
+"""
+Generate Java classes from an OME XML (http://www.ome-xml.org) XSD document.
+"""
 
-######## CONFIGURATION OPTIONS ########
-SCRIPT_NOT_CHANGED=1	# change this to 1 if you don't want your script overwritten!
-JAVA_PROGRAM_DIR=""	# use full path to java bin dir, ex. "/usr/java/j2sdk1.4.2/bin/"
-JAVA_ARGS="-Xmx256m"
-#######################################
+#  
+#  Copyright (c) 2009 University of Dundee. All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+#  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+#  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+#  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+#  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+#  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+#  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+#  SUCH DAMAGE.
+
+import glob
+import sys
+import os
+
+from tempfile import NamedTemporaryFile
+from getopt import getopt, GetoptError
+
+# Handle Python 2.5 built-in ElementTree
+try:
+        from xml.etree.ElementTree import XML, Element, SubElement, ElementTree, dump
+except ImportError:
+        from elementtree.ElementTree import XML, Element, SubElement, ElementTree, dump
 
 
+# Configuration options
+JAVA_ARGS = "-Xmx256m"
+START_CLASS = "org.testng.TestNG"
+TEST_CLASS = "ome.formats.utests.MetadataValidatorTest"
+DOCTYPE = '<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">'
 
-######## YOU PROBABLY DO NOT WANT TO TOUCH ANYTHING BELOW! ########
+def usage(error):
+	"""Prints usage so that we don't have to. :)"""
+	cmd = sys.argv[0]
+	print """%s
+Usage: %s [-f file] [target...>
+Runs the metadata validation tests on a given set of targets.
 
-START_CLASS="ome.formats.utests.MetadataValidatorTest"
+Options:
+  -f            Reads targets from a file ("-" reads from STDIN)
 
-MSG_LOADING="Loading Metadata Validator:"
-MSG_STARTING="Starting Metadata Validator..."
-MSG2="Java exec found in "
-MSG3="OOPS, your java version is too old "
-MSG4="You need to upgrade to JRE 1.5.x or newer from http://java.sun.com"
-MSG5="Suitable java version found "
-MSG6="Configuring environment..."
-MSG7="OOPS, you don't seem to have a valid JRE "
-MSG8="OOPS, unable to locate java exec in "
-MSG9=" hierarchy"
-MSG10="Java exec not found in PATH, starting auto-search..."
-MSG11="Java exec found in PATH. Verifying..."
-MSG_RECHECK="Re-checking with GCJ (Sun Java recommended).."
-MSG_ISGCJ="Java is GCJ.. looking for Sun Java.."
-MSG_JAVABORK="Java appeared to have crashed:"
+Examples:
+  %s -f ~/regular_test_files ~/testimages/foo.tiff
+  find -name '*.tif' | %s -f -
 
-SKIP_GCJ=1
+Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd, cmd)
+	sys.exit(2)
 
-look_for_java()
-{
-	if command -v java &>/dev/null; then
-		if check_version ; then
-			echo $MSG11
-			return 0
-		fi
-	fi
+def create_testng_xml_file(targets):
+    """Creates a temporary file with TestNG XML content for each target."""
+    root = Element("suite")
+    root.set("name", "metadata-validator")
+    for target in targets:
+        target = target.strip().lstrip()
+        test_name = target.replace("/", "_")
+        klass = Element("class")
+        klass.set("name", TEST_CLASS)
+        klasses = Element("classes")
+        klasses.append(klass)
+        parameter = Element("parameter")
+        parameter.set("name", "target")
+        parameter.set("value", target)
+        test = Element("test")
+        test.set("verbose", "2")
+        test.set("name", test_name)
+        test.set("annotations", "JDK")
+        test.append(parameter)
+        test.append(klasses)
+        root.append(test)
+    xml_file = NamedTemporaryFile(suffix=".xml")
+    xml_file.write(DOCTYPE)
+    ElementTree(root).write(xml_file)
+    xml_file.flush()
+    return xml_file
 
-	echo $MSG10
+if __name__ == '__main__':
+    try:
+        options, args = getopt(sys.argv[1:], "f:")
+    except GetoptError, (msg, opt):
+        usage(msg)
 
+    targets = list()
+    for option, argument in options:
+        if option == "-f":
+            if argument == "-":
+                f = sys.stdin
+            else:
+                f = open(argument)
+            targets += f.readlines()
+    targets += args
 
-	JAVA_CHECK_DIRS="/usr/java/latest /usr/java /usr/lib/jvm/latest /usr/lib/jvm"
-	for JAVADIR in $JAVA_CHECK_DIRS; do
-		IFS=$'\n'
-		potential_java_dirs=(`ls -1 "$JAVADIR" | sort | tac 2>/dev/null`)
-		IFS=
-		for D in "${potential_java_dirs[@]}"; do
-			if [[ -d "$JAVADIR/$D" && -x "$JAVADIR/$D/bin/java" ]]; then
-				JAVA_PROGRAM_DIR="$JAVADIR/$D/bin/"
-				echo $MSG2 $JAVA_PROGRAM_DIR
-				if check_version ; then
-					return 0
-				else
-					return 1
-				fi
-			fi
-		done
-	done
-	
-	if [ $SKIP_GCJ ] ; then
-		echo $MSG_RECHECK
-		SKIP_GCJ=
-		if look_for_java ; then
-			return 0
-		else
-			return 1
-		fi
-	else
-		echo $MSG8 "${JAVADIR}/" $MSG9 ; echo $MSG4
-	fi
-	return 1
-}
+    if len(targets) == 0:
+        usage("Expecting at least one target from file or argument")
 
-check_version()
-{
-	if [ $SKIP_GCJ ] ; then
-		JAVA_ISGCJ=`"${JAVA_PROGRAM_DIR}java" -version 2>&1 | grep "gcj"`
-		if [ ! "$JAVA_ISGCJ x" = " x" ] ; then
-			echo $MSG_ISGCJ
-			return 1
-		fi
-	fi
+    program_dir = os.path.dirname(sys.argv[0])
+    os.chdir(program_dir)
 
-	JAVA_HEADER=`"${JAVA_PROGRAM_DIR}java" -version 2>&1 | head -n 1`
-	JAVA_IMPL=`echo ${JAVA_HEADER} | cut -f1 -d' '`
-	if [ "$JAVA_IMPL" = "java" ] ; then
-		VERSION=`echo ${JAVA_HEADER} | sed "s/java version \"\(.*\)\"/\1/"`
-		if echo $VERSION | grep "^1.[0-4]" ; then
-			echo $MSG3 "[${JAVA_PROGRAM_DIR}java = ${VERSION}]" ; echo $MSG4
-			return 1
-		else
-			echo $MSG5 "[${JAVA_PROGRAM_DIR}java = ${VERSION}]" ; echo $MSG6
-			return 0
-		fi
-	elif [ "$JAVA_IMPL" = "#" ] ; then
-		echo $MSG_JAVABORK
-		${JAVA_PROGRAM_DIR}java -version 2>&1
-		exit 1
-	else	
-		echo $MSG7 "[${JAVA_PROGRAM_DIR}java = ${JAVA_IMPL}]" ; echo $MSG4
-		return 1
-	fi
-}
+    classpath = "./test-classes:./OmeroImporter.jar"
+    for f in glob.glob("./libs/test/*.jar"):
+        classpath += ":%s" % f
 
-echo $MSG_STARTING
-
-# locate and test the java executable
-if [ "$JAVA_PROGRAM_DIR" == "" ]; then
-	if ! look_for_java ; then
-		exit 1
-	fi
-fi
-
-# get the app dir if not already defined
-if [ -z "$PROGRAM_DIR" ]; then
-		PROGRAM_DIR=`dirname "$0"`
-		PROGRAM_DIR=`cd "$PROGRAM_DIR"; pwd`
-else
-	if [ "$(echo ${PROGRAM_DIR}/*.jar)" = "${PROGRAM_DIR}/*.jar" ]; then
-		echo "You seem to have set an invalid PROGRAM_DIR, unable to continue!"
-		exit 1
-	elif [ ! -f "${PROGRAM_DIR}/OmeroImporter.jar" ]; then
-		echo "Unable to locate OmeroImporter.jar in $PROGRAM_DIR, aborting!"
-		exit 1
-	fi
-fi
-
-# Change path here so we can do for loop on program dirs with spaces
-cd "${PROGRAM_DIR}"
-
-# build the classpath
-CLASSPATH="./test-classes:./OmeroImporter.jar"
-for FILE in ./libs/*.jar; do
-	CLASSPATH="${CLASSPATH:+${CLASSPATH}:}$FILE"
-done
-for FILE in ./libs/test/*.jar; do
-	CLASSPATH="${CLASSPATH:+${CLASSPATH}:}$FILE"
-done
-
-# setup Java System Properties (no spaces in values)
-JAVA_PROPS=""
-if [ ! "$JAVA_ISGCJ x" = " x" ] ; then
-	JAVA_PROPS="$JAVA_PROPS -Dgnu.gcj.runtime.VMClassLoader.library_control=never"
-fi
-
-echo $MSG_LOADING
-
-echo "${JAVA_PROGRAM_DIR}java ${JAVA_ARGS} -cp \"${CLASSPATH}\" -Djava.library.path=\"${PROGRAM_DIR}\" $JAVA_PROPS $START_CLASS $@"
-# Don't use "exec -a importer-cli ..." here as exec quits this script after completion,
-# preventing ScriptAfterShutdown from running, which installs updates and does
-# restarts
-${JAVA_PROGRAM_DIR}java "${JAVA_ARGS}" \
-	-cp "${CLASSPATH}" \
-	-Djava.library.path="${PROGRAM_DIR}" \
-	$JAVA_PROPS \
-	$START_CLASS "$@"
+    xml_file = create_testng_xml_file(targets)
+    cmd = 'java %s -cp "%s" %s %s' % (JAVA_ARGS, classpath, \
+                                      START_CLASS, xml_file.name)
+    print cmd
+    os.system(cmd)
+    xml_file.close()
 

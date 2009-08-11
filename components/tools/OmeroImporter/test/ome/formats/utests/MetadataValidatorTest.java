@@ -30,8 +30,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.testng.TestNG;
 import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.*;
@@ -64,12 +64,6 @@ import omero.model.OTF;
  */
 public class MetadataValidatorTest
 {   
-	/** Usage name. */
-    private static final String APP_NAME = "metadata-validator";
-    
-    /** Our target file. */
-    private static String TARGET = null;
-
 	/** Logger for this class */
 	private static final Log log = 
 		LogFactory.getLog(MetadataValidatorTest.class);
@@ -86,11 +80,10 @@ public class MetadataValidatorTest
     /** Our current reference cache. */
     Map<LSID, List<LSID>> referenceCache;
 	
+    @Parameters({ "target" })
 	@BeforeTest
-	public void setUp() throws Exception
+	public void setUp(String target) throws Exception
 	{
-		assertNotNull("Metadata validator must be initialized with a TARGET " +
-				      "via main()", TARGET);
 		ServiceFactoryPrx sf = new TestServiceFactory();
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);
@@ -100,7 +93,7 @@ public class MetadataValidatorTest
         wrapper = new OMEROWrapper();
         wrapper.setMetadataStore(store);
         store.setReader(wrapper);
-        wrapper.setId(TARGET);
+        wrapper.setId(target);
         store.postProcess();
         containerCache = store.getContainerCache();
         referenceCache = store.getReferenceCache();
@@ -368,36 +361,4 @@ public class MetadataValidatorTest
 					"%s %s not referenced by any object.", klass, lsid));
 		}
 	}
-	
-    /**
-     * Prints usage so we don't have to.
-     */
-    public static void usage()
-    {
-        System.err.println(String.format(
-                "Usage: %s <target>", APP_NAME));
-        System.exit(1);
-    }
-    
-    /**
-     * Command line application entry point which parses CLI arguments and
-     * passes them into the test case. Return codes are:
-     * <ul>
-     *   <li>0 on success</li>
-     *   <li>1 on argument parsing failure</li>
-     *   <li>2 on exception</li>
-     * </ul>
-     * @param args Command line arguments.
-     */
-    public static void main(String[] args) throws Throwable
-    {
-    	if (args.length != 1)
-    	{
-    		usage();
-    	}
-    	TARGET = args[0];
-    	log.info("Testing metadata of: " + TARGET);
-    	TestNG.main(new String[] { 
-    			"-testclass", "ome.formats.utests.MetadataValidatorTest" });
-    }
 }
