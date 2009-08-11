@@ -156,7 +156,9 @@ public class MetadataValidatorTest
 	public void testAuthoritativeLSIDsAreUnique()
 	{
 		Set<String> authoritativeLSIDs = new HashSet<String>();
-		for (IObjectContainer container : containerCache.values())
+		Set<IObjectContainer> containers = 
+			new HashSet<IObjectContainer>(containerCache.values());
+		for (IObjectContainer container : containers)
 		{
 			if (!authoritativeLSIDs.add(container.LSID))
 			{
