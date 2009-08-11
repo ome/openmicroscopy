@@ -73,6 +73,8 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import omero.model.PlaneInfo;
+
+import org.apache.commons.digester.xmlrules.FromXmlRuleSet;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
@@ -346,10 +348,17 @@ class ImViewerUI
 	 */
 	private JMenuBar createMenuBar(ViewerPreferences pref)
 	{
+		zoomMenu = new JMenu("Zoom");
+		zoomMenu.setMnemonic(KeyEvent.VK_Z);
+		zoomingGroup = new ButtonGroup();
+		//Create zoom grid menu
+		zoomGridMenu = new JMenu("Zoom");
+		zoomingGridGroup = new ButtonGroup();
+		
 		JMenuBar menuBar = new JMenuBar(); 
 		menuBar.add(createControlsMenu(pref));
 		menuBar.add(createViewMenu(pref));
-		menuBar.add(createZoomMenu(pref));
+		menuBar.add(createZoomMenu(pref, true));
 		menuBar.add(createShowViewMenu());
 		TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
 		//menuBar.add(tb.getWindowsMenu());
@@ -611,14 +620,13 @@ class ImViewerUI
 	/**
 	 * Helper method to create the Zoom menu. 
 	 * 
-	 * @param pref The user preferences.
-	 * @return The zoom submenu;
+	 * @param pref  The user preferences.
+	 * @param full  Pass <code>true</code> to create a full menu, 
+	 * 				<code>false</code> to create a partial menu.
+	 * @return See above.
 	 */
-	private JMenu createZoomMenu(ViewerPreferences pref)
+	private JMenu createZoomMenu(ViewerPreferences pref, boolean full)
 	{
-		zoomMenu = new JMenu("Zoom");
-		zoomMenu.setMnemonic(KeyEvent.VK_Z);
-		zoomingGroup = new ButtonGroup();
 		ViewerAction action = controller.getAction(ImViewerControl.ZOOM_25);
 		JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
 		zoomMenu.add(item);
@@ -636,38 +644,41 @@ class ImViewerUI
 		item.setAction(action); 
 		zoomMenu.add(item);
 		zoomingGroup.add(item);
-		action = controller.getAction(ImViewerControl.ZOOM_125);
-		item = new JCheckBoxMenuItem(action);
-		zoomMenu.add(item);
-		zoomingGroup.add(item);
-		action = controller.getAction(ImViewerControl.ZOOM_150);
-		item = new JCheckBoxMenuItem(action);
-		zoomMenu.add(item);
-		zoomingGroup.add(item);
-		action = controller.getAction(ImViewerControl.ZOOM_175);
-		item = new JCheckBoxMenuItem(action);
-		zoomMenu.add(item);
-		zoomingGroup.add(item);
-		action = controller.getAction(ImViewerControl.ZOOM_200);
-		item = new JCheckBoxMenuItem(action);
-		zoomMenu.add(item);
-		zoomingGroup.add(item);
-		action = controller.getAction(ImViewerControl.ZOOM_225);
-		item = new JCheckBoxMenuItem(action);
-		zoomMenu.add(item);
-		zoomingGroup.add(item);
-		action = controller.getAction(ImViewerControl.ZOOM_250);
-		item = new JCheckBoxMenuItem(action);
-		zoomMenu.add(item);
-		zoomingGroup.add(item);
-		action = controller.getAction(ImViewerControl.ZOOM_275);
-		item = new JCheckBoxMenuItem(action);
-		zoomMenu.add(item);
-		zoomingGroup.add(item);
-		action = controller.getAction(ImViewerControl.ZOOM_300);
-		item = new JCheckBoxMenuItem(action);
-		zoomMenu.add(item);
-		zoomingGroup.add(item);
+		if (full) {
+			action = controller.getAction(ImViewerControl.ZOOM_125);
+			item = new JCheckBoxMenuItem(action);
+			zoomMenu.add(item);
+			zoomingGroup.add(item);
+			action = controller.getAction(ImViewerControl.ZOOM_150);
+			item = new JCheckBoxMenuItem(action);
+			zoomMenu.add(item);
+			zoomingGroup.add(item);
+			action = controller.getAction(ImViewerControl.ZOOM_175);
+			item = new JCheckBoxMenuItem(action);
+			zoomMenu.add(item);
+			zoomingGroup.add(item);
+			action = controller.getAction(ImViewerControl.ZOOM_200);
+			item = new JCheckBoxMenuItem(action);
+			zoomMenu.add(item);
+			zoomingGroup.add(item);
+			action = controller.getAction(ImViewerControl.ZOOM_225);
+			item = new JCheckBoxMenuItem(action);
+			zoomMenu.add(item);
+			zoomingGroup.add(item);
+			action = controller.getAction(ImViewerControl.ZOOM_250);
+			item = new JCheckBoxMenuItem(action);
+			zoomMenu.add(item);
+			zoomingGroup.add(item);
+			action = controller.getAction(ImViewerControl.ZOOM_275);
+			item = new JCheckBoxMenuItem(action);
+			zoomMenu.add(item);
+			zoomingGroup.add(item);
+			action = controller.getAction(ImViewerControl.ZOOM_300);
+			item = new JCheckBoxMenuItem(action);
+			zoomMenu.add(item);
+			zoomingGroup.add(item);
+		}
+		
 		action = controller.getAction(ImViewerControl.ZOOM_FIT_TO_WINDOW);
 		item = new JCheckBoxMenuItem(action);
 		zoomMenu.add(item);
@@ -681,11 +692,7 @@ class ImViewerUI
 			}
 		}
 		setZoomFactor(factor, index);
-		//Create zoom grid menu
-		zoomGridMenu = new JMenu("Zoom");
-		//zoomGridMenu.setMnemonic(KeyEvent.VK_Z);
-		zoomingGridGroup = new ButtonGroup();
-		
+
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.ZOOM_GRID_25));
 		zoomGridMenu.add(item);
@@ -709,7 +716,7 @@ class ImViewerUI
 	/**
 	 * Helper method to create the show View menu. 
 	 * 
-	 * @return The rating submenu;
+	 * @return See above.
 	 */
 	private JMenu createShowViewMenu()
 	{
@@ -1008,11 +1015,27 @@ class ImViewerUI
 		if (reset) {
 			setSize(h, h);
 			model.setZoomFactor(ZoomAction.ZOOM_FIT_FACTOR, false);
-			//restoreSize = tabs.getSize();
+			//Depending on the size 
+			clearZoomMenu(zoomingGroup, zoomMenu);
+			clearZoomMenu(zoomingGridGroup, zoomGridMenu);
+			ViewerPreferences pref = ImViewerFactory.getPreferences();
+			createZoomMenu(pref, false);
 		}
 	}
 	
-
+	/**
+	 * Removes all the elements from the passed menu and button group.
+	 * 
+	 * @param group The group to handle.
+	 * @param menu  The menu to handle.
+	 */
+	private void clearZoomMenu(ButtonGroup group, JMenu menu)
+	{
+		menu.removeAll();
+		for (Enumeration e = group.getElements(); e.hasMoreElements();)
+			group.remove((AbstractButton) e.nextElement()) ;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize(ImViewerControl, ImViewerModel) initialize} 

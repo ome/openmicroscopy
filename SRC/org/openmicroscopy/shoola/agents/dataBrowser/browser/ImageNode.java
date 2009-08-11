@@ -249,8 +249,7 @@ public class ImageNode
     }
 
     /** 
-     * Overrides the <code>setSize(int, int)</code> method, otherwise
-     * after collapsing the node, we can resize the node.
+     * Overridden so that if the node is collapsed, we can still resize it.
      * @see ImageDisplay#setSize(int, int)
      */
     public void setSize(int w, int h)
@@ -259,4 +258,14 @@ public class ImageNode
         setResizable(false);
     }
     
+    /** 
+     * Overridden so that if the node is collapsed, we can still resize it.
+     * @see ImageDisplay#setSize(Dimension)
+     */
+    public void setSize(Dimension d)
+    {
+        super.setSize(d);
+        setResizable(false);
+    }
+
 }

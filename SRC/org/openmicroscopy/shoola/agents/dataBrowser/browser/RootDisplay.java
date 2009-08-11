@@ -53,7 +53,7 @@ class RootDisplay
 {
     
     /**
-     * A placeholder to simulate an hierarchy object.
+     * A place holder to simulate an hierarchy object.
      * This is required because every {@link ImageDisplay} must have one,
      * but it's not actually used.  (It only avoids a <code>NPE</code> in
      * the constructor.)

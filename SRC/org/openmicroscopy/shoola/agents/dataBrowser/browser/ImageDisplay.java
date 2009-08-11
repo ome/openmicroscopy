@@ -83,7 +83,6 @@ import pojos.ProjectData;
  * that implements the {@link ImageDisplayVisitor} interface to lay out the
  * contents of every {@link ImageSet} node in a visualization tree.</p>
  * 
- * @see org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane
  * @see ImageNode
  * @see ImageSet
  * @see ImageDisplayVisitor
@@ -286,13 +285,16 @@ public abstract class ImageDisplay
     	IconManager icons = IconManager.getInstance();
     	if (hierarchyObject instanceof DataObject) {
     		try {
-    			ExperimenterData owner = ((DataObject) hierarchyObject).getOwner();
+    			ExperimenterData owner = 
+    				((DataObject) hierarchyObject).getOwner();
         		if (owner != null) {
         			ExperimenterData exp = DataBrowserAgent.getUserDetails();
         			if (exp.getId() != owner.getId()) {
         				JLabel l = new JLabel(icons.getIcon(IconManager.OWNER_8));
-        				l.setToolTipText("Owner: "+EditorUtil.formatExperimenter(
-        						DataBrowserAgent.getExperimenter(owner.getId())));
+        				l.setToolTipText("Owner: "+
+        						EditorUtil.formatExperimenter(
+        						DataBrowserAgent.getExperimenter(
+        								owner.getId())));
         				nodes.add(l);
         			}
         		}

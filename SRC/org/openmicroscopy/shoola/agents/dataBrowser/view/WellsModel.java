@@ -429,30 +429,12 @@ class WellsModel
 		List l = getNodes();
 		Iterator i = l.iterator();
 		WellImageSet well;
-		String description = cell.getDescription();
 		int index = cell.getIndex();
-		Color c = cell.getHighlight();
-		WellData data;
 		if (cell.getType() == CellDisplay.TYPE_HORIZONTAL) {
 			while (i.hasNext()) {
 				well = (WellImageSet) i.next();
 				if (well.getColumn() == index) {
 					handleCellSelection(cell, well, results);
-					/*
-					data = (WellData) well.getHierarchyObject();
-					data.setWellType(description);
-					well.setDescription(description);
-					results.add(data);
-					if (c == null || !cell.isSpecified()) {
-						data.setRed(null);
-					} else {
-						data.setRed(c.getRed());
-						data.setGreen(c.getGreen());
-						data.setBlue(c.getBlue());
-						data.setAlpha(c.getAlpha());
-					}
-					well.setHighlight(c);
-					*/
 				}
 			}
 		} else {
@@ -460,21 +442,6 @@ class WellsModel
 				well = (WellImageSet) i.next();
 				if (well.getRow() == index) {
 					handleCellSelection(cell, well, results);
-					/*
-					data = (WellData) well.getHierarchyObject();
-					data.setWellType(description);
-					well.setDescription(description);
-					results.add(data);
-					if (c == null || !cell.isSpecified()) {
-						data.setRed(null);
-					} else {
-						data.setRed(c.getRed());
-						data.setGreen(c.getGreen());
-						data.setBlue(c.getBlue());
-						data.setAlpha(c.getAlpha());
-					}
-					well.setHighlight(c);
-					*/
 				}
 			}
 		}
@@ -501,7 +468,6 @@ class WellsModel
 			node = (ImageSet) i.next();
 			if (node instanceof WellImageSet) {
 				selected = ((WellImageSet) node).getSelectedWellSample();
-				//img = (ImageData) selected.getHierarchyObject();
 				data = (WellSampleData) selected.getHierarchyObject();
 				if (data.getId() < 0)
 					selected.getThumbnail().setFullScaleThumb(
@@ -523,7 +489,7 @@ class WellsModel
 	protected int getType() { return DataBrowserModel.WELLS; }
 	
 	/**
-	 * No-op implementation in our case.
+	 * No-operation implementation in our case.
 	 * @see DataBrowserModel#getNodes()
 	 */
 	protected List<ImageDisplay> getNodes() { return wellNodes; }

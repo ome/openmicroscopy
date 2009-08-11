@@ -69,9 +69,9 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 public interface ImageDisplayVisitor
 {
 
-	 /** 
-     * Indicates that only the {@link ImageNode} nodes will be visited.
-     */
+	/** 
+	 * Indicates that only the {@link ImageNode} nodes will be visited.
+	 */
     public static final int IMAGE_NODE_ONLY = 0;
     
     /** 

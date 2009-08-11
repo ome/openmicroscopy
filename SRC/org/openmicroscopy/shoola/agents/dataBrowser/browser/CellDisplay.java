@@ -66,7 +66,7 @@ public class CellDisplay
 	public static final Color	DEFAULT_COLOR = Color.WHITE;
 	
 	/**
-     * A placeholder to simulate an hierarchy object.
+     * A place holder to simulate an hierarchy object.
      * This is required because every {@link ImageDisplay} must have one,
      * but it's not actually used.  (It only avoids a <code>NPE</code> in
      * the constructor.)
@@ -136,11 +136,8 @@ public class CellDisplay
     	setTitleBarType(SMALL_TITLE_BAR);
     	setListenToBorder(false);
     	setTitle(value);
-    	if (type == TYPE_HORIZONTAL) {
-    		setToolTipText(TEXT_COLUMN);
-    	} else {
-    		setToolTipText(TEXT_ROW);
-    	}
+    	if (type == TYPE_HORIZONTAL) setToolTipText(TEXT_COLUMN);
+    	else setToolTipText(TEXT_ROW);
     	addMouseListener(new MouseAdapter() {
     		public void mousePressed(MouseEvent evt)
     		{
