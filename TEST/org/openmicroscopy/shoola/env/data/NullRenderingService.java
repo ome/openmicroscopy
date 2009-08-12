@@ -44,6 +44,7 @@ import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -262,10 +263,10 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#importImage(DataObject, File, long, long)
+     * @see OmeroImageService#importImage(DataObject, File, StatusLabel, long, long)
      */
 	public Object importImage(DataObject container, File image, 
-			long userID, long groupID) 
+			StatusLabel status, long userID, long groupID) 
 		throws ImportException
 	{
 		return null;

@@ -55,7 +55,7 @@ public class OneKnobSlider
 	extends JSlider
 {
 	
-	/** Slider UI for new laf. */
+	/** Slider UI for new L&F. */
 	private OneKnobSliderUI	sliderUI;	
 	
 	/** This is set to <code>true</code> if the slider has tooltipString. */

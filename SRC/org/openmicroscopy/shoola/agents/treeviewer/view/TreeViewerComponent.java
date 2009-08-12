@@ -79,6 +79,7 @@ import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -2272,15 +2273,16 @@ class TreeViewerComponent
 			importManager = new ImportManager();
 			importManager.addPropertyChangeListener(controller);
 		}
-		importManager.initialize(l);
+		Map<File, StatusLabel> map = importManager.initialize(l);
 		
+		if (map == null || map.size() == 0) return;
 		if (!view.isImporterVisible())
 			view.setImporterVisibility(importManager.getUIDelegate(), true);
 		view.setImportStatus("Importing...", true);
 		if (node == null)
-			model.importFiles(parents, l);
+			model.importFiles(parents, map);
 		else {
-			model.importFiles(node, l);
+			model.importFiles(node, map);
 		}
 	}
 

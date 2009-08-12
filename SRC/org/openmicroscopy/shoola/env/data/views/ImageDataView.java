@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data.views;
 //Java imports
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -35,6 +36,7 @@ import java.util.List;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.DataObject;
@@ -250,8 +252,8 @@ public interface ImageDataView
 	 * @param observer	Callback handler.
 	 * @return See above.
 	 */
-	public CallHandle importImages(DataObject container, List<Object> images, 
-			long userID, long groupID, AgentEventListener observer);
+	public CallHandle importImages(DataObject container, Map<File, StatusLabel>
+		images, long userID, long groupID, AgentEventListener observer);
 
 	/**
 	 * Monitors the passed directory.

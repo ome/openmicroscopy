@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 //import Ice.Communicator;
 import ome.conditions.ResourceError;
@@ -4319,13 +4320,15 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
-	Object importImage(DataObject container, File file)
+	Object importImage(DataObject container, File file, StatusLabel status)
 		throws ImportException
 	{
 		try {
 			ImportLibrary importLibrary = new ImportLibrary(getImportStore(), 
 					new OMEROWrapper());
-			if (container != null) importLibrary.setTarget(container.asIObject());
+			importLibrary.addObserver(status);
+			if (container != null) 
+				importLibrary.setTarget(container.asIObject());
 			List<Pixels> pixels = 
 				importLibrary.importImage(file, 0, 0, 1, file.getName(), null, 
 					false, null);

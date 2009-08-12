@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.DataObject;
@@ -68,7 +69,7 @@ public class ImagesImporter
     private List<TreeImageDisplay>	nodes;
     
     /** The collection of files to import. */
-    private List<Object>			files;
+    private Map<File, StatusLabel>  files;
     
     /** Container to download the image into or <code>null</code>. */
     private DataObject				container;
@@ -82,7 +83,7 @@ public class ImagesImporter
      * @param files	 The collection of files to import.
      */
     public ImagesImporter(TreeViewer viewer, TreeImageDisplay node,
-			List<Object> files)
+    		Map<File, StatusLabel> files)
 	{
 		super(viewer);
 		if (files == null || files.size() == 0)
@@ -107,7 +108,7 @@ public class ImagesImporter
      * @param files		The collection of files to import.
      */
 	public ImagesImporter(TreeViewer viewer, List<TreeImageDisplay> nodes,
-			List<Object> files)
+			Map<File, StatusLabel> files)
 	{
 		super(viewer);
 		if (files == null || files.size() == 0)
@@ -118,7 +119,7 @@ public class ImagesImporter
 	}
 	
 	/** 
-     * Deletes the objects.
+     * Imports the images.
      * @see DataTreeViewerLoader#load()
      */
     public void load()

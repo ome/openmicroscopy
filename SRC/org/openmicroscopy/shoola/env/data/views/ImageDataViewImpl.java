@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data.views;
 //Java imports
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -35,6 +36,7 @@ import java.util.List;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
@@ -272,11 +274,12 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#importImages(DataObject, List, long, long,
+     * @see ImageDataView#importImages(DataObject, Map, long, long,
      * AgentEventListener)
      */
-	public CallHandle importImages(DataObject container, List<Object> images, 
-			long userID, long groupID, AgentEventListener observer)
+	public CallHandle importImages(DataObject container, 
+			Map<File, StatusLabel> images, long userID, long groupID, 
+			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ImagesImporter(container, images, userID, 
 				groupID);

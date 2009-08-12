@@ -49,6 +49,8 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.treeviewer.ImportManager;
 import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+
 import pojos.ImageData;
 
 /** 
@@ -95,6 +97,9 @@ public class FileImportComponent
 	/** The component allowing to launch the viewer. */
 	private JLabel			thumbLabel;
 	
+	/** The component displaying the status of the import. */
+	private JLabel			status;
+	
 	/** The default control. */
 	private JComponent		control;
 	
@@ -106,6 +111,9 @@ public class FileImportComponent
 	
 	/** The check box displayed if the import failed. */
 	private JCheckBox		errorBox;
+	
+	/** Indicates the status of the on-going import. */
+	private StatusLabel		statusLabel;
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -142,6 +150,7 @@ public class FileImportComponent
 		errorBox.setToolTipText("Select the file to send.");
 		errorBox.addChangeListener(this);
 		errorBox.setVisible(false);
+		statusLabel = new StatusLabel();
 	}
 	
 	/** Builds and lays out the UI. */
@@ -149,6 +158,8 @@ public class FileImportComponent
 	{
 		removeAll();
 		add(control);
+		if (statusLabel.isVisible())
+			add(statusLabel);
 		if (image instanceof ImportException) {
 			errorBox.setVisible(true);
 			add(errorBox);
@@ -185,15 +196,18 @@ public class FileImportComponent
 	}
 	
 	/**
+	 * Returns the components displaying the status of an on-going import.
+	 * 
+	 * @return See above.
+	 */
+	public StatusLabel getStatus() { return statusLabel; }
+	
+	/**
 	 * Returns the components hosting the name of the file.
 	 * 
 	 * @return See above.
 	 */
-	public JPanel getNameLabel() { 
-		
-
-		return nameLabel; 
-	}
+	public JPanel getNameLabel() { return nameLabel; }
 	
 	/**
 	 * Sets the id of the image to view.
@@ -210,6 +224,7 @@ public class FileImportComponent
 			thumbLabel.setToolTipText("");
 			thumbLabel.setEnabled(false);
 			control = thumbLabel;
+			statusLabel.setVisible(false);
 			//control = viewButton;
 		} else if (image instanceof ThumbnailData) {
 			ThumbnailData thumb = (ThumbnailData) image;
@@ -219,12 +234,13 @@ public class FileImportComponent
 			if (icon != null)
 				thumbLabel.setPreferredSize(new Dimension(icon.getIconWidth(), 
 						icon.getIconHeight()));
+			statusLabel.setVisible(false);
 			control = thumbLabel;
 		} else {
 			if (!status) {
 				thumbLabel.setToolTipText("");
 				thumbLabel.setEnabled(false);
-				if (image == null) thumbLabel.setText(FAILURE_TEXT);
+				if (image == null) setStatusText(null);
 				else if (image instanceof String) {
 					setStatusText((String) image);
 				} else if (image instanceof ImportException) {
@@ -259,13 +275,13 @@ public class FileImportComponent
 	 */
 	public void setBackground(Color color)
 	{
-		//super.setBackground(color);
 		if (busyLabel != null) busyLabel.setBackground(color);
 		if (nameLabel != null) {
 			nameLabel.setBackground(color);
 			for (int i = 0; i < nameLabel.getComponentCount(); i++) 
 				nameLabel.getComponent(i).setBackground(color);
 		}
+		if (status != null) status.setBackground(color);
 		super.setBackground(color);
 	}
 

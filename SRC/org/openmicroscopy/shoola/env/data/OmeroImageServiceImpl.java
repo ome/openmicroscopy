@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
@@ -506,15 +507,16 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#importImage(DataObject, File, long, long)
+	 * @see OmeroImageService#importImage(DataObject, File, StatusLabel, long, 
+	 * long)
 	 */
 	public Object importImage(DataObject container, File file, 
-			long userID, long groupID) 
+			StatusLabel status, long userID, long groupID) 
 		throws ImportException
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No images to import.");
-		Object object = gateway.importImage(container, file);
+		Object object = gateway.importImage(container, file, status);
 		if (!(object instanceof ImageData)) return object;
 		
 		ImageData image = (ImageData) object;
@@ -532,7 +534,6 @@ class OmeroImageServiceImpl
 				List<DeletableObject> l = new ArrayList<DeletableObject>(1);
 				l.add(d);
 				try {
-
 					context.getDataService().delete(l);
 				} catch (Exception ex) {}
 				throw new ImportException("Failed to create thumbnail", e);

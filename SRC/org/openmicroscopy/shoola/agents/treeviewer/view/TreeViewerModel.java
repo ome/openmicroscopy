@@ -68,6 +68,8 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -868,7 +870,7 @@ class TreeViewerModel
 	 * @param nodes The nodes to reload.
 	 * @param files The files to import.
 	 */
-	void importFiles(List<TreeImageDisplay> nodes, List<Object> files)
+	void importFiles(List<TreeImageDisplay> nodes, Map<File, StatusLabel> files)
 	{
 		ImagesImporter loader = new ImagesImporter(component, nodes, files);
 		loader.load();
@@ -880,7 +882,7 @@ class TreeViewerModel
 	 * @param node The node hosting the container to import the image into.
 	 * @param files The files to import.
 	 */
-	void importFiles(TreeImageDisplay node, List<Object> files)
+	void importFiles(TreeImageDisplay node, Map<File, StatusLabel> files)
 	{
 		ImagesImporter loader = new ImagesImporter(component, node, files);
 		loader.load();

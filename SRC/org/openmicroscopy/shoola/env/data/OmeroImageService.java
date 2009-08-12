@@ -40,6 +40,7 @@ import omero.constants.projection.ProjectionType;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -381,13 +382,14 @@ public interface OmeroImageService
 	 * @param container The container where to import the images into or 
 	 * 					<code>null</code>.
 	 * @param image		The image to import. Mustn't be <code>null</code>.
+	 * @param status 	The component indicating status of the import.
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.                            
 	 */
 	public Object importImage(DataObject container, File image, 
-			long userID, long groupID)
+			StatusLabel status, long userID, long groupID)
 		throws ImportException;
 	
 	/**

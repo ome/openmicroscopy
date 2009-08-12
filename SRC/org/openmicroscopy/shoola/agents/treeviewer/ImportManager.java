@@ -32,6 +32,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -50,6 +51,7 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.util.FileImportComponent;
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
@@ -237,12 +239,16 @@ public class ImportManager
 	
 	/**
 	 * Initializes the collection of files to import.
+	 * Returns the observable component displaying the status of the on-going
+	 * import.
 	 * 
 	 * @param files The files to import.
+	 * @return See above.
 	 */
-	public void initialize(List<Object> files)
+	public Map<File, StatusLabel> initialize(List<Object> files)
 	{
-		if (files == null) return;
+		Map<File, StatusLabel> map = new HashMap<File, StatusLabel>();
+		if (files == null) return null;
 		total = 0;
 		toImport.clear();
 		components.clear();
@@ -256,6 +262,7 @@ public class ImportManager
 				f = (File) ho;
 				toImport.add(f);
 				c = new FileImportComponent(this, f);
+				map.put(f, c.getStatus());
 				c.addPropertyChangeListener(
 						FileImportComponent.SEND_FILE_PROPERTY, this);
 				components.put(f.getAbsolutePath(), c);
@@ -263,6 +270,7 @@ public class ImportManager
 		}
 		total = toImport.size();
 		layoutEntries();
+		return map;
 	}
 	
 	/**
