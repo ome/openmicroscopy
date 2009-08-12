@@ -53,6 +53,9 @@ import omero.model.LogicalChannel;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OTF;
+import omero.model.Plate;
+import omero.model.Well;
+import omero.model.WellSample;
 
 /**
  * Generic set of unit tests, that are designed to be initiated on a 
@@ -146,6 +149,41 @@ public class MetadataValidatorTest
 	}
 	
 	@Test
+	public void testPlatesExist()
+	{
+		
+		List<IObjectContainer> containers = 
+			store.getIObjectContainers(WellSample.class);
+		for (IObjectContainer container : containers)
+		{
+			Map<String, Integer> indexes = container.indexes;
+			Integer plateIndex = indexes.get("plateIndex");
+			String e = String.format(
+					"Plate %d not found in container cache", plateIndex);
+			assertTrue(e, 
+					store.countCachedContainers(Plate.class, plateIndex) > 0);
+		}
+	}
+	
+	@Test
+	public void testWellsExist()
+	{
+		
+		List<IObjectContainer> containers = 
+			store.getIObjectContainers(WellSample.class);
+		for (IObjectContainer container : containers)
+		{
+			Map<String, Integer> indexes = container.indexes;
+			Integer plateIndex = indexes.get("plateIndex");
+			Integer wellIndex = indexes.get("wellIndex");
+			String e = String.format(
+					"Well %d not found in container cache", wellIndex);
+			assertTrue(e, store.countCachedContainers(Well.class, plateIndex, 
+					                                  wellIndex) > 0);
+		}
+	}
+	
+	@Test
 	public void testAuthoritativeLSIDsAreUnique()
 	{
 		Set<String> authoritativeLSIDs = new HashSet<String>();
@@ -199,7 +237,7 @@ public class MetadataValidatorTest
 		{
 			LSID lsid = new LSID(container.LSID);
 			String e = String.format(
-					"%s %s missing from reference cache",
+					"%s %s not found in reference cache",
 					klass, lsid);
 			assertTrue(e, referenceCache.containsKey(lsid));
 			List<LSID> references = referenceCache.get(lsid);
@@ -209,7 +247,7 @@ public class MetadataValidatorTest
 				assertNotNull(referenceLSID);
 				klass = Detector.class;
 				e = String.format(
-						"%s with LSID %s missing container cache",
+						"%s with LSID %s not found in container cache",
 						klass, referenceLSID);
 				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
 			}
@@ -244,7 +282,7 @@ public class MetadataValidatorTest
 		{
 			LSID lsid = new LSID(container.LSID);
 			String e = String.format(
-					"%s %s missing from reference cache", klass, lsid);
+					"%s %s not found in reference cache", klass, lsid);
 			assertTrue(e, referenceCache.containsKey(lsid));
 			List<LSID> references = referenceCache.get(lsid);
 			assertTrue(references.size() > 0);
@@ -296,7 +334,7 @@ public class MetadataValidatorTest
 		{
 			LSID lsid = new LSID(container.LSID);
 			String e = String.format(
-					"%s %s missing from reference cache", klass, container.LSID);
+					"%s %s not found in reference cache", klass, container.LSID);
 			assertTrue(e, referenceCache.containsKey(lsid));
 			List<LSID> references = referenceCache.get(lsid);
 			assertTrue(references.size() > 0);
