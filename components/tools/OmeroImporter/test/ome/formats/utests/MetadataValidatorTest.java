@@ -23,7 +23,11 @@
 
 package ome.formats.utests;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +46,7 @@ import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
 import omero.api.ServiceFactoryPrx;
 import omero.metadatastore.IObjectContainer;
+import omero.model.Channel;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.IObject;
@@ -53,7 +58,10 @@ import omero.model.LogicalChannel;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OTF;
+import omero.model.Pixels;
+import omero.model.PlaneInfo;
 import omero.model.Plate;
+import omero.model.StageLabel;
 import omero.model.Well;
 import omero.model.WellSample;
 
@@ -149,9 +157,110 @@ public class MetadataValidatorTest
 	}
 	
 	@Test
+	public void testCreationDateIsReasonable()
+	{
+		List<IObjectContainer> containers = 
+			store.getIObjectContainers(Image.class);
+		for (IObjectContainer container : containers)
+		{
+			Image image = (Image) container.sourceObject;
+			assertNotNull(image.getAcquisitionDate());
+			Date acquisitionDate = 
+				new Date(image.getAcquisitionDate().getValue());
+			Date now = new Date(System.currentTimeMillis());
+			Date january1st1995 = new GregorianCalendar(1995, 1, 1).getTime();
+			if (acquisitionDate.after(now))
+			{
+				fail(String.format("%s after %s", acquisitionDate, now));
+			}
+			if (acquisitionDate.before(january1st1995))
+			{
+				fail(String.format("%s before %s", acquisitionDate,
+						           january1st1995));
+			}
+		}
+	}
+	
+	@Test
+	public void testPlaneInfoZCT()
+	{
+		List<IObjectContainer> containers = 
+			store.getIObjectContainers(PlaneInfo.class);
+		for (IObjectContainer container : containers)
+		{
+			PlaneInfo planeInfo = (PlaneInfo) container.sourceObject;
+			assertNotNull("theZ is null", planeInfo.getTheZ());
+			assertNotNull("theC is null", planeInfo.getTheC());
+			assertNotNull("theT is null", planeInfo.getTheT());
+		}
+	}
+	
+	@Test
+	public void testChannelCount()
+	{
+		List<IObjectContainer> containers = 
+			store.getIObjectContainers(Pixels.class);
+		for (IObjectContainer container : containers)
+		{
+			Pixels pixels = (Pixels) container.sourceObject;
+			assertNotNull(pixels.getSizeC());
+			int sizeC = pixels.getSizeC().getValue();
+			Integer imageIndex = container.indexes.get("imageIndex");
+			int count = store.countCachedContainers(Channel.class, imageIndex);
+			String e = String.format(
+					"Pixels sizeC %d != channel object count %d",
+					sizeC, count);
+			for (int c = 0; c < sizeC; c++)
+			{
+				LinkedHashMap<String, Integer> indexes = 
+					new LinkedHashMap<String, Integer>();
+				indexes.put("imageIndex", imageIndex);
+				indexes.put("logicalChannelIndex", c);
+				Channel channel = (Channel) store.getSourceObject(
+						new LSID(Channel.class, imageIndex, c)); 
+				e = String.format(
+						"Missing channel object; imageIndex=%d " +
+						"logicalChannelIndex=%d", imageIndex, c);
+				assertNotNull(e, channel);
+			}
+		}
+	}
+	
+	@Test
+	public void testLogicalChannelCount()
+	{
+		List<IObjectContainer> containers = 
+			store.getIObjectContainers(Pixels.class);
+		for (IObjectContainer container : containers)
+		{
+			Pixels pixels = (Pixels) container.sourceObject;
+			assertNotNull(pixels.getSizeC());
+			int sizeC = pixels.getSizeC().getValue();
+			Integer imageIndex = container.indexes.get("imageIndex");
+			int count = store.countCachedContainers(LogicalChannel.class,
+					                                imageIndex);
+			String e = String.format(
+					"Pixels sizeC %d != logical channel object count %d",
+					sizeC, count);
+			for (int c = 0; c < sizeC; c++)
+			{
+				LinkedHashMap<String, Integer> indexes = 
+					new LinkedHashMap<String, Integer>();
+				indexes.put("imageIndex", imageIndex);
+				indexes.put("logicalChannelIndex", c);
+				Channel channel = (Channel) store.getSourceObject(
+						new LSID(Channel.class, imageIndex, c)); 
+				e = String.format(
+						"Missing logical channel object; imageIndex=%d " +
+						"logicalChannelIndex=%d", imageIndex, c);
+				assertNotNull(e, channel);
+			}
+		}
+	}
+	
+	@Test
 	public void testPlatesExist()
 	{
-		
 		List<IObjectContainer> containers = 
 			store.getIObjectContainers(WellSample.class);
 		for (IObjectContainer container : containers)
@@ -168,7 +277,6 @@ public class MetadataValidatorTest
 	@Test
 	public void testWellsExist()
 	{
-		
 		List<IObjectContainer> containers = 
 			store.getIObjectContainers(WellSample.class);
 		for (IObjectContainer container : containers)
