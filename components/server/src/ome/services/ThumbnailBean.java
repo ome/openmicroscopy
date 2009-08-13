@@ -1293,6 +1293,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     		metadataLastUpdated = 
     			metadata.getDetails().getUpdateEvent().getTime();
         }
+        else
+        {
+        	metadataLastUpdated =
+        		metadata.getDetails().getUpdateEvent().getTime();
+        }
         byte[] thumbnail = _getThumbnail(sizeX, sizeY);
         if (dirtyMetadata)
         {
@@ -1375,6 +1380,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     		metadataLastUpdated = 
     			metadata.getDetails().getUpdateEvent().getTime();
     	}
+        else
+        {
+        	metadataLastUpdated =
+        		metadata.getDetails().getUpdateEvent().getTime();
+        }
     	byte[] thumbnail = _getThumbnailByLongestSide(size);
     	if (dirtyMetadata)
     	{
