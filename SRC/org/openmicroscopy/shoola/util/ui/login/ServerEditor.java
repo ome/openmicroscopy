@@ -48,8 +48,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 
@@ -168,6 +166,9 @@ public class ServerEditor
 	/** The default port value. */
 	private String			defaultPort;
 	
+	/** The original row selected corresponding to the server. */
+	private int				originalRow;
+	
 	/** 
 	 * Removes the selected server from the list. 
 	 * 
@@ -205,7 +206,6 @@ public class ServerEditor
 	private void addRow()
 	{
 		if (editing) {
-			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			TableCellEditor editor = table.getCellEditor();
 			if (editor != null) editor.stopCellEditing();
 			
@@ -364,13 +364,6 @@ public class ServerEditor
 	 */
 	private void fireEditProperty(boolean b)
 	{
-		/*
-		Boolean newValue = Boolean.TRUE, oldValue = Boolean.FALSE;
-		if (!b) {
-			newValue = Boolean.FALSE;
-			oldValue = Boolean.TRUE;
-		}
-		*/
 		firePropertyChange(EDIT_PROPERTY, Boolean.valueOf(!b), 
 				Boolean.valueOf(b));
 	}
@@ -399,6 +392,40 @@ public class ServerEditor
          * */
 
     }
+	
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param defaultPort The default port to use.
+	 */
+	ServerEditor(String defaultPort)
+	{
+		this(null, null, defaultPort);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param activeServer  The server the user is currently connected to.
+	 * @param activePort	The port used by the server.
+	 * @param defaultPort	The default port to use.
+	 */
+	ServerEditor(String activeServer, String activePort, String defaultPort)
+	{
+		icons = IconManager.getInstance();
+		this.activeServer = activeServer;
+		if (defaultPort == null) defaultPort = "";
+		this.defaultPort = defaultPort;
+		if (activePort == null || activePort.trim().length() == 0)
+			this.activePort = defaultPort;
+		int n = 0; 
+		Map<String, String> servers = getServers();
+		if (servers != null) n = servers.size();
+		initComponents(servers, n != 0);
+		editing = false;
+		buildGUI();
+	}
+	
     
     /**
      * Returns the default port value.
@@ -678,48 +705,20 @@ public class ServerEditor
 		}
 		if (list.length() != 0) prefs.put(OMERO_SERVER, list);
 	}
-	
-	/** 
-	 * Creates a new instance. 
-	 * 
-	 * @param defaultPort The default port to use.
-	 */
-	ServerEditor(String defaultPort)
-	{
-		this(null, null, defaultPort);
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param activeServer  The server the user is currently connected to.
-	 * @param activePort	The port used by the server.
-	 * @param defaultPort	The default port to use.
-	 */
-	ServerEditor(String activeServer, String activePort, String defaultPort)
-	{
-		icons = IconManager.getInstance();
-		this.activeServer = activeServer;
-		if (defaultPort == null) defaultPort = "";
-		this.defaultPort = defaultPort;
-		if (activePort == null || activePort.trim().length() == 0)
-			this.activePort = defaultPort;
-		int n = 0; 
-		Map<String, String> servers = getServers();
-		if (servers != null) n = servers.size();
-		initComponents(servers, n != 0);
-		editing = false;
-		buildGUI();
-	}
-	
-	/** Requests focus if no server address at init time. */
+
+	/** Requests focus if no server address at initialization time. */
 	void initFocus()
 	{
 		int n = 0;
 		Map<String, String> servers = getServers();
 		if (servers != null) n = servers.size();
+		originalRow = -1;
 		if (n == 0) 
 			requestFocusOnEditedCell(table.getRowCount()-1, 1);
+		else {
+			originalRow = n-1;
+			table.setRowSelectionInterval(originalRow, originalRow);
+		}
 	}
 
 	/** Makes sure to remove rows without server address.*/
@@ -739,5 +738,20 @@ public class ServerEditor
 			removeRow(j.next());
 		}
 	}
+	
+	/**
+	 * Returns the row corresponding to the file original selected.
+	 * 
+	 * @return See above.
+	 */
+	int getOriginalRow() { return originalRow; }
+	
+	/**
+	 * Returns <code>true</code> if the selected row is the original one,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isOriginalRow() { return table.getSelectedRow() == originalRow; }
 	
 }

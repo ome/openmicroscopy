@@ -107,7 +107,7 @@ class ServerDialog
 	/** The window's title. */
 	private static final String			TITLE = "Servers";
 	
-	/** The textual decription of the window. */
+	/** The textual description of the window. */
 	private static final String 		TEXT = "Enter a new server or \n" +
 										"select an existing one.";
 	
@@ -140,6 +140,9 @@ class ServerDialog
     
     /** Group hosting the connection speed level. */
     private ButtonGroup 	buttonsGroup;
+    
+    /** The original Speed connection if set. */
+    private int				originalIndexSpeed;
     
 	/** Closes and disposes. */
 	private void close()
@@ -247,15 +250,15 @@ class ServerDialog
         return p;
 	}
 	
-	/** Builds and lays out the UI.
+	/**
+	 * Builds and lays out the UI.
 	 * 
 	 *  @param index The connection speed index.
 	 */
 	private void buildGUI(int index)
 	{
 		JPanel mainPanel;
-		if (index == -1) 
-			mainPanel = editor;
+		if (index == -1) mainPanel = editor;
 		else mainPanel = buildConnectionSpeed(index);
 		//mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         //mainPanel.add(editor);
@@ -327,6 +330,36 @@ class ServerDialog
 		return content;
 	}
 	
+
+	/**
+	 * Sets the enabled flag of the {@link #finishButton} depending on 
+	 * the passed factor.
+	 * 
+	 * @param index The connection index.
+	 */
+	private void setControlEnabled(int index)
+	{
+		int factor = -1;
+		switch (index) {
+			case HIGH_SPEED:
+				factor = LoginCredentials.HIGH;
+				break;
+			case MEDIUM_SPEED:
+				factor = LoginCredentials.MEDIUM;
+				break;
+			case LOW_SPEED:
+				factor = LoginCredentials.LOW;
+		}
+		int original = editor.getOriginalRow();
+		if (original == -1)
+			finishButton.setEnabled(true);
+		else {
+			if (editor.isOriginalRow())
+				finishButton.setEnabled(originalIndexSpeed != factor);
+			else finishButton.setEnabled(true);
+		}
+	}
+	
 	/** 
 	 * Creates a new instance. 
 	 * 
@@ -337,6 +370,7 @@ class ServerDialog
 	ServerDialog(JFrame frame, ServerEditor editor, int index)
 	{ 
 		super(frame);
+		originalIndexSpeed = index;
 		this.editor = editor;
 		setProperties();
 		initComponents();
@@ -365,7 +399,21 @@ class ServerDialog
 		String name = evt.getPropertyName();
 		if (ServerEditor.EDIT_PROPERTY.equals(name)) {
 			Boolean value = (Boolean) evt.getNewValue();
-			finishButton.setEnabled(value);
+			if (editor.isEditing()) finishButton.setEnabled(value);
+			else {
+				if (buttonsGroup != null) {
+					Enumeration en = buttonsGroup.getElements();
+					JRadioButton button;
+					int index;
+					while (en.hasMoreElements()) {
+						button = (JRadioButton) en.nextElement();
+						if (button.isSelected()) {
+							index = Integer.parseInt(button.getActionCommand());
+							setControlEnabled(index);
+						}
+					}
+				}
+			}
 		} else if (ServerEditor.ADD_MESSAGE_PROPERTY.equals(name)) {
 			showMessagePanel(true, (JComponent) evt.getNewValue());
 		}  else if (ServerEditor.REMOVE_MESSAGE_PROPERTY.equals(name)) {
@@ -392,8 +440,8 @@ class ServerDialog
 			case HIGH_SPEED:
 			case MEDIUM_SPEED:
 			case LOW_SPEED:
-				finishButton.setEnabled(true);
+				setControlEnabled(index);
 		}
 	}
-
+	
 }

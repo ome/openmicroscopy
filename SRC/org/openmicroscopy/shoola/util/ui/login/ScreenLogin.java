@@ -126,7 +126,7 @@ public class ScreenLogin
 	/** The login text. */
 	private static final String		TEXT_LOGIN = "Log In";
 
-	/** The username text. */
+	/** The user name text. */
 	private static final String		USER_TEXT = "Username: ";
 
 	/** The password text. */
@@ -162,7 +162,7 @@ public class ScreenLogin
 	/** Field hosting the server text. */
 	private JLabel 				connectionSpeedText;
 	
-	/** UI component hosting the version of the sotfware. */
+	/** UI component hosting the version of the software. */
 	private JTextPane 			versionInfo;
 
 	/** Reference to the editor hosting the table. */
@@ -186,7 +186,7 @@ public class ScreenLogin
 		firePropertyChange(QUIT_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
 
-	/** Atempts to log in. */
+	/** Attempts to log in. */
 	private void login()
 	{
 		firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, Boolean.TRUE);
@@ -429,7 +429,7 @@ public class ScreenLogin
 	}
 
 	/** 
-	 * Lays out the widgets and positions the window at the centre of
+	 * Lays out the widgets and positions the window in the middle of
 	 * the screen.
 	 * 
 	 * @param logo 		The Frame's background logo. 
@@ -720,7 +720,7 @@ public class ScreenLogin
 	}
 	
 	/**
-	 * Sets whether or not the buttons composing the display areenabled.
+	 * Sets whether or not the buttons composing the display are enabled.
 	 * 
 	 * @param b Pass <code>true</code> if this component should be enabled, 
 	 * 			<code>false</code> otherwise.
