@@ -15,10 +15,6 @@ import sys
 import Ice
 import IceGrid
 
-try:
-    import fsMonitorServer 
-except:
-    raise
 
 import fsConfig as config
 
@@ -38,36 +34,28 @@ class Server(Ice.Application):
             :param args: Arguments required by the ICE system.
             :return: Exit state.
             :rtype: int
-        """      
-        # Create a MonitorServer, its adapter and activate it.
-        mServer = fsMonitorServer.MonitorServerI()
-        adapter = self.communicator().createObjectAdapter(config.serverAdapterName)
-        mServerPrx = adapter.add(mServer, self.communicator().stringToIdentity(config.serverIdString))
-        adapter.activate() 
-
-        """ 
-        # I used to need to do this but for some reason it
-        # stopped being necessary.      
-        try:
-            reg = self.communicator().stringToProxy("IceGrid/Registry")
-            reg = IceGrid.RegistryPrx.checkedCast(reg)
-            session = reg.createAdminSession("null", "")           
-            try:
-                session.getAdmin().addObject(mServerPrx)
-            except IceGrid.ObjectExistsException:
-                try:
-                    session.getAdmin().updateObject(mServerPrx)
-                except:
-                    raise
-            except:
-                raise
-        except:
-            log.error("Error adding object to registry: %s", format_exc())
         """
         
+        try:
+            import fsMonitorServer 
+        except:
+            log.exception("System requirements not met: \n")
+            return -1
+ 
+        # Create a MonitorServer, its adapter and activate it.
+        try:
+            mServer = fsMonitorServer.MonitorServerI()
+            adapter = self.communicator().createObjectAdapter(config.serverAdapterName)
+            mServerPrx = adapter.add(mServer, self.communicator().stringToIdentity(config.serverIdString))
+            adapter.activate() 
+        except:
+            log.exception("Failed create OMERO.fs Server: \n")
+            return -1
+            
         log.info('Started OMERO.fs Server')
         
         # Wait for an interrupt.
         self.communicator().waitForShutdown()
+        
         log.info('Stopping OMERO.fs Server')
         return 0

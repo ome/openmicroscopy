@@ -10,6 +10,7 @@ log = logging.getLogger("fsclient."+__name__)
 import string
 import subprocess as sp
 import os
+import platform
 import uuid
 import threading
 import path as pathModule
@@ -90,6 +91,10 @@ class MonitorClientI(monitors.MonitorClient):
                         fileExt = pathModule.path(fileInfo.fileId).ext
                         fileName = pathModule.path(fileInfo.fileId).name
                         fileBase = pathModule.path(fileInfo.fileId).namebase
+
+                        # Deal with jpg files
+                        if fileExt == ".jpg":
+                            self.importFile(fileInfo.fileId, exName)
 
                         # Deal with lsm files
                         if fileExt == ".lsm":
@@ -206,7 +211,17 @@ class MonitorClientI(monitors.MonitorClient):
 
                     key = user_sess.getAdminService().getEventContext().sessionUuid
                     log.info("Importing file using session key = %s", key)
-                    command = [config.climporter +
+
+                    if platform.system() == 'Windows':
+                        climporter = config.climporter.replace('/','\\')
+                    else:
+                        climporter = config.climporter
+                        # Escape any spaces in the filename
+                        # fileName = fileName.replace(' ', '\ ')
+                        # Wrap filename in single quotes, escape any ' characters first.
+                        fileName = "'" + fileName.replace("'", r"'\''") + "'"
+
+                    command = [climporter +
                                 " -s " + config.host +
                                 " -k " + key +
                                 " " + fileName]

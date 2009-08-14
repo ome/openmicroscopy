@@ -19,19 +19,20 @@ import monitors
 import fsDropBoxMonitorClient
 import fsConfig as config
 
-# This tests if the FSServer is supported by the platform
-# if not there's no point starting the FSDropBox client 
-import fsUtil
-try:
-    fsUtil.monitorPackage()         
-except:
-    raise
-
 
 class DropBox(Ice.Application):
     
     def run(self, args):
-                 
+        
+        # This tests if the FSServer is supported by the platform
+        # if not there's no point starting the FSDropBox client 
+        import fsUtil
+        try:
+            fsUtil.monitorPackage()         
+        except:
+            log.exception("System requirements not met: \n")
+            return -1
+           
         try:
             root = omero.client(config.host, config.port)
         except:
@@ -52,7 +53,7 @@ class DropBox(Ice.Application):
         
         try:
             dropBoxBase = configService.getConfigValue("omero.data.dir")
-            dropBoxBase += config.dropBoxDir
+            dropBoxBase = os.path.join(dropBoxBase, config.dropBoxDir)
         except:
             log.exception("Failed to use a query service : \n")
             return -1

@@ -13,12 +13,15 @@ retryInterval = 3 # seconds.
 clientIdString = "DropBox"
 clientAdapterName = "omerofs.DropBox"
 dropBoxDir = "DropBox"
-# root and guest can't import 
-# (these could be excluded using blacklist below)
-excludedUsers = ["root", "guest"]
+
+# This config item should be removed. See tickets: #1420 and #1421
+config.excludedUsers = []
+
+# A more general solution needs to be found for the various
+# multi-file formats. For now this is how .dv files are handled...
 # e.g. dv files may have an associated log file.
 relatedTypes = {".dv" : [".log"]}
-# e.g. how long to wait after a dv file appears for a log file to appear (seconds).
+# e.g how long to wait after a dv file appears for a log file to appear (seconds).
 waitTimes = {".dv": 30}
 # e.g. how long after a log file appears should it be abandoned (seconds).
 dropTimes = {".dv": 120}
@@ -26,19 +29,34 @@ dropTimes = {".dv": 120}
 # fs server settings
 serverIdString = "FSServer"
 serverAdapterName = "omerofs.MonitorServer"
+
 # At present just looking for new files
 eventType = "Create"
+
+#    pyinotify as it stands misses some events when a new
+#    directory is created, "Follow" will not report all events
+#    until this issue is fixed.
 pathMode = "Follow"
-# file extensions to watch for
-fileTypes = set([".lsm", ".dv", ".tif", ".tiff"])
+
+# file extensions to watch for.
+#     (although only .ome.tif are of genuine interest.)
+fileTypes = set([".jpg", ".lsm", ".dv", ".tif", ".tiff"])
 # add the related extensions
 for ext in relatedTypes.keys():
     for extra in relatedTypes[ext]:
         fileTypes.add(extra)
+
 # subdirectories to exclude. NOT CURRENTLY USED
 blacklist = [""]
 
 # importer path relative to dist or base install directory
 climporter = "bin/omero import"
+
+# Values used only by the test client
+# dropdox directory settings
+testClientIdString = "FSTestClient"
+testClientAdapterName = "omerofs.FSTestClient"
+testBase = "/OMERO/"
+##testBase = "/OMERODEV/"
 
 ###
