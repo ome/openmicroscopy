@@ -420,8 +420,6 @@ class WellsModel
 		loader.load();
 	}
 	
-	
-	
 	/**
 	 * Sets the values for the row or the column.
 	 * Returns the collection of wells to update.

@@ -156,6 +156,17 @@ class DataBrowserStatusBar
         }
     }
     
+    /**
+     * Returns the magnification factor.
+     * 
+     * @return See above.
+     */
+    double getMagnificationFactor()
+    {
+    	int v = zoomSlider.getValue();
+    	return (double) v/FACTOR;
+    }
+    
 	/** 
 	 * Zooms in or out the thumbnails.
 	 * @see ChangeListener#stateChanged(ChangeEvent)
@@ -164,8 +175,7 @@ class DataBrowserStatusBar
 	{
 		Object src = e.getSource();
 		if (src == zoomSlider) {
-			int v = zoomSlider.getValue();
-			view.setMagnificationFactor((double) v/FACTOR);
+			view.setMagnificationFactor(getMagnificationFactor());
 		}
 	}
 	

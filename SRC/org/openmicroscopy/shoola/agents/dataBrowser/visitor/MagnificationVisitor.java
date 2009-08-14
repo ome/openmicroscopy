@@ -55,9 +55,9 @@ public class MagnificationVisitor
 	private double factor;
 	
 	/**
-	 * Creates a new instace.
+	 * Creates a new instance.
 	 * 
-	 * @param factor The magnfication factor.
+	 * @param factor The magnification factor.
 	 */
 	public MagnificationVisitor(double factor)
 	{
@@ -85,8 +85,6 @@ public class MagnificationVisitor
      * Implemented as specified by {@link ImageDisplayVisitor}. 
      * @see ImageDisplayVisitor#visit(ImageSet)
      */
-	public void visit(ImageSet node)
-	{
-	}
+	public void visit(ImageSet node) {}
 	
 }

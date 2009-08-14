@@ -107,7 +107,7 @@ class DataBrowserUI
 	/** The selected view. */
 	private int						selectedView;
 	
-	 /** The popup menu. */
+	 /** The pop-up menu. */
 	private PopupMenu				popupMenu;
 	
 	/** Builds and lays out the UI. */
@@ -486,6 +486,12 @@ class DataBrowserUI
 		if (model instanceof WellsModel)
 			return ((WellsModel) model).getSelectedField();
 		return 0;
+	}
+
+	/** Updates the view when a new field is selected. */
+	void viewField()
+	{
+		setMagnificationFactor(statusBar.getMagnificationFactor());
 	}
 
 }
