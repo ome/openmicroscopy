@@ -5,7 +5,7 @@
 {% if manager.tgannSize %}
 <h1>{% trans "Tags" %}:
 {% for tag in manager.tag_annotations %}
-    <a href="{% url manage_data_by_tag1 tag.id %}" target="_blank"> {{ tag.textValue }}</a>, 
+    <a href="{% url manage_data_by_tag tag.id %}" target="_blank"> {{ tag.textValue }}</a>, 
 {% endfor %}
 </h1>
 {% endif %}

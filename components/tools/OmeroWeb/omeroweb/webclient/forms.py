@@ -38,7 +38,7 @@ import re
 # Static values
 
 # TODO: change to reverse
-help_button = "../images/help16.png"
+help_button = "/webclient/static/images/help16.png"
 
 help_wiki = '<span id="markup" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
 

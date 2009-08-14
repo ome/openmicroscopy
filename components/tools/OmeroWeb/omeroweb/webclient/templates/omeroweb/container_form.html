@@ -59,13 +59,13 @@
 <div>
     
     {% if manager.project %}
-        <form action="{% url manage_action_containers_id "save" "project" manager.project.id %}?url={{url}}" method="post">
+        <form action="{% url manage_action_containers "save" "project" manager.project.id %}?url={{url}}" method="post">
     {% endif %}
     {% if manager.dataset %}
-        <form action="{% url manage_action_containers_id "save" "dataset" manager.dataset.id %}?url={{url}}" method="post">
+        <form action="{% url manage_action_containers "save" "dataset" manager.dataset.id %}?url={{url}}" method="post">
     {% endif %}
     {% if manager.image %}
-        <form action="{% url manage_action_containers_id "save" "image" manager.image.id %}?url={{url}}" method="post">
+        <form action="{% url manage_action_containers "save" "image" manager.image.id %}?url={{url}}" method="post">
     {% endif %}
     <table>
         {% for field in form %}

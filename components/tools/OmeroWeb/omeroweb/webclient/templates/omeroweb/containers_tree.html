@@ -121,13 +121,13 @@
             | {% trans "View" %} <a href="{% url manage_shares %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="table" title="table"/></a> <a href="{% url manage_shares %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> |
         {% endifequal %}
     {% else %}
-        | {% trans "View" %} <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data_t_id_t_id nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data_t_id nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data_t_id nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data_t_id_t_id nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data_t_id nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data_t_id nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"/></a> |
+        | {% trans "View" %} <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"/></a> |
     {% endifequal %}
 
 {% if not manager.image %}
     {% if not manager.dataset %}
         {% if manager.project %}
-            {% trans "New" %} <a href="{% url manage_action_containers_id "new" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/window_new16.jpg" %}" alt="new" title="new" /></a> | 
+            {% trans "New" %} <a href="{% url manage_action_containers "new" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/window_new16.jpg" %}" alt="new" title="new" /></a> | 
         {% else %}
             {% trans "New" %} <a href="{% url manage_action_containers "new" %}?url={{url}}"><img src="{% url webstatic "images/window_new16.jpg" %}" alt="new" title="new" /></a> | 
         {% endif %}
@@ -152,7 +152,7 @@
                     {% for d in c.listChildren %}
                         <li id='ds-{{ d.id }}' ><span>{{ d.shortName }} <img alt="image" title="image" src="{% url webstatic "images/image12.png" %}"/>[{{ d.countChild }}]{% if not d.isOwned %} <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.gif" %}" alt="a" title="annotation"/>[{{ d.countAnnotations }}]{% endif %}</span> 
                             <ul class="ajax">
-                                <li id='{{ d.id.val }}'>{url:{% manage_data_t_id nav.whos "ajaxdataset" d.id %}?view=tree}</li>
+                                <li id='{{ d.id.val }}'>{url:{% manage_data nav.whos "ajaxdataset" d.id %}?view=tree}</li>
                             </ul>
                         </li>
                     {% endfor %}
@@ -165,7 +165,7 @@
             {% for c in manager.containers.datasets %}
                 <li id='ds-{{ c.id }}'><span>{{ c.shortName }} <img alt="image" title="image" src="{% url webstatic "images/image12.png" %}"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.gif" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</span>
                     <ul class="ajax">
-                        <li id='{{ d.id.val }}'>{url:{% manage_data_t_id nav.whos "ajaxdataset" c.id %}?view=tree}</li>
+                        <li id='{{ d.id.val }}'>{url:{% manage_data nav.whos "ajaxdataset" c.id %}?view=tree}</li>
                     </ul>
                 </li>
             {% endfor %}

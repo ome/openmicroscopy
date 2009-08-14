@@ -18,9 +18,9 @@
   text-align: center;
   margin: 0px;
   padding: 0px;
-  background-image: url("/appmedia/webgateway/img/glencoe_drop_logo.gif");
+  background-image: url("/webclient/static/images/logo.png");
   background-repeat: no-repeat;
-  background-position: center top;
+  background-position: 10px top;
   height: 80px;
   font-size: 1em;
 }

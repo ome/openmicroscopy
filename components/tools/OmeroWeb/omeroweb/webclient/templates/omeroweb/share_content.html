@@ -31,7 +31,7 @@ var popup = function (url) {
             {% if share.share.isOwned %}
                 <a href="#" onclick="return popup('{% url image_viewer e.id %}')"><img id="{{ e.id }}" class="imgzoom" src="{% url render_thumbnail e.id %}" alt="image" title="{{ e.name }}"/></a>
             {% else %}
-                <a href="#" onclick="return popup('{% url image_viewer share.share.id e.id %}')"><img id="{{ e.id }}" class="imgzoom" src="{% url render_thumbnail_shareid e.id share.share.id %}" alt="image" title="{{ e.name }}"/></a>
+                <a href="#" onclick="return popup('{% url image_viewer share.share.id e.id %}')"><img id="{{ e.id }}" class="imgzoom" src="{% url render_thumbnail e.id share.share.id %}" alt="image" title="{{ e.name }}"/></a>
             {% endif %}
         </li>
     {% endfor %}

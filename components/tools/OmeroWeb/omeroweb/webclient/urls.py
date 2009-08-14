@@ -48,11 +48,8 @@ urlpatterns = patterns('',
     url( r'^active_group/$', views.change_active_group, name="change_active_group" ),
     
     # manage mydata, userdata, groupdata
-    url( r'^(?P<whos>((?i)mydata|userdata|groupdata))/$', views.manage_data, name="manage_data" ),
     url( r'^(?P<whos>((?i)mydata|userdata|groupdata))/(?P<o1_type>((?i)orphaned|ajaxorphaned))/$', views.manage_data, name="manage_data_orphaned" ),
-    url( r'^(?P<whos>((?i)mydata|userdata|groupdata))/(?P<o1_type>[a-zA-Z]+)/(?P<o1_id>[0-9]+)/$', views.manage_data, name="manage_data_t_id" ),
-    url( r'^(?P<whos>((?i)mydata|userdata|groupdata))/(?P<o1_type>[a-zA-Z]+)/(?P<o1_id>[0-9]+)/(?P<o2_type>[a-zA-Z]+)/(?P<o2_id>[0-9]+)/$', views.manage_data, name="manage_data_t_id_t_id" ),
-    url( r'^(?P<whos>((?i)mydata|userdata|groupdata))/(?P<o1_type>[a-zA-Z]+)/(?P<o1_id>[0-9]+)/(?P<o2_type>[a-zA-Z]+)/(?P<o2_id>[0-9]+)/(?P<o3_type>[a-zA-Z]+)/(?P<o3_id>[0-9]+)/$', views.manage_data, name="manage_data_t_id_t_id_t_id" ),
+    url( r'^(?P<whos>((?i)mydata|userdata|groupdata))/(?:(?P<o1_type>[a-zA-Z]+)/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>[a-zA-Z]+)/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>[a-zA-Z]+)/)?(?:(?P<o3_id>[0-9]+)/)?$', views.manage_data, name="manage_data" ),
         
     # direct access
     url( r'^(?P<o1_type>((?i)project|dataset|image))/(?P<o1_id>[0-9]+)/$', views.manage_data, name="manage_group_data_t_id" ),
@@ -65,53 +62,40 @@ urlpatterns = patterns('',
     
     url( r'^image_zoom/(?P<iid>[0-9]+)/$', views.manage_image_zoom, name="manage_image_zoom" ),
     
-    url( r'^action/([a-zA-Z]+)/$', views.manage_action_containers, name="manage_action_containers" ),
-    url( r'^action/([a-zA-Z]+)/([a-zA-Z]+)/([0-9]+)/$', views.manage_action_containers, name="manage_action_containers_id" ),    
+    url( r'^action/(?P<action>[a-zA-Z]+)/(?:(?P<o_type>[a-zA-Z]+)/)?(?:(?P<o_id>[0-9]+)/)?$', views.manage_action_containers, name="manage_action_containers" ),
     
     url( r'^metadata/(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/$', views.manage_metadata, name="manage_metadata" ),
     
-    url( r'^annotations/([a-zA-Z]+)/([0-9]+)/$', views.manage_annotations, name="manage_annotations" ),
-    url( r'^annotation/([a-zA-Z]+)/([0-9]+)/$', views.manage_annotation, name="manage_annotation" ),
+    url( r'^annotations/(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/$', views.manage_annotations, name="manage_annotations" ),
+    url( r'^annotation/(?P<action>[a-zA-Z]+)/(?P<iid>[0-9]+)/$', views.manage_annotation, name="manage_annotation" ),
     
-    url( r'^tag/$', views.manage_data_by_tag, name="manage_data_by_tag" ),
-    url( r'^tag/([0-9]+)/$', views.manage_data_by_tag, name="manage_data_by_tag1" ),
-    url( r'^tag/([0-9]+)/([0-9]+)/$', views.manage_data_by_tag, name="manage_data_by_tag2" ),
-    url( r'^tag/([0-9]+)/([0-9]+)/([0-9]+)/$', views.manage_data_by_tag, name="manage_data_by_tag3" ),
-    url( r'^tag/([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/$', views.manage_data_by_tag, name="manage_data_by_tag4" ),
-    url( r'^tag/([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/([0-9]+)/$', views.manage_data_by_tag, name="manage_data_by_tag5" ),
+    url( r'^tag/(?:(?P<tid>[0-9]+)/)?(?:(?P<tid2>[0-9]+)/)?(?:(?P<tid3>[0-9]+)/)?(?:(?P<tid4>[0-9]+)/)?(?:(?P<tid5>[0-9]+)/)?$', views.manage_data_by_tag, name="manage_data_by_tag" ),
     url( r'^autocompletetags/$', views.autocomplete_tags, name="autocomplete_tags" ),
     
-    url( r'^render_thumbnail/(?P<iid>[0-9]+)/$', views.render_thumbnail, name="render_thumbnail" ),
-    url( r'^render_thumbnail/(?P<iid>[0-9]+)/(?P<share_id>[0-9]+)/$', views.render_thumbnail, name="render_thumbnail_shareid" ),
-    url( r'^render_thumbnail/size/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/$', views.render_thumbnail_resize, name="render_thumbnail_resize" ),
-    url( r'^render_thumbnail/size/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/(?P<share_id>[0-9]+)/$', views.render_thumbnail_resize, name="render_thumbnail_resize_shareid" ),
+    url( r'^render_thumbnail/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail, name="render_thumbnail" ),
+    url( r'^render_thumbnail/size/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)$', views.render_thumbnail_resize, name="render_thumbnail_resize" ),
     url( r'^render_thumbnail/details/(?P<iid>[0-9]+)/$', views.render_thumbnail_details, name="render_thumbnail_details" ),
     url( r'^render_thumbnail/big/(?P<iid>[0-9]+)/$', views.render_big_thumbnail, name="render_big_thumbnail" ),
     url( r'^shares/$', views.manage_shares, name="manage_shares" ),
-    url( r'^share/([a-zA-Z]+)/$', views.manage_share, name="manage_share" ),
-    url( r'^share/(?P<action>[a-zA-Z]+)/(?P<oid>[0-9]+)/$', views.manage_share, name="manage_share_action" ),
-    url( r'^share_content/([0-9]+)/$', views.load_share_content, name="load_share_content" ),
-    url( r'^share_owner_content/([0-9]+)/$', views.load_share_owner_content, name="load_share_owner_content" ),
+    url( r'^share/(?P<action>[a-zA-Z]+)/(?:(?P<sid>[0-9]+)/)?$', views.manage_share, name="manage_share" ),
+    url( r'^share_content/(?P<share_id>[0-9]+)/$', views.load_share_content, name="load_share_content" ),
+    url( r'^share_owner_content/(?P<share_id>[0-9]+)/$', views.load_share_owner_content, name="load_share_owner_content" ),
     
-    url( r'^basket/$', views.basket_action, name="basket"),
     url( r'^basket/empty/$', views.empty_basket, name="empty_basket"),
     url( r'^basket/update/$', views.update_basket, name="update_basket"),
-    url( r'^basket/([a-zA-Z]+)/$', views.basket_action, name="basket_action"),
-    url( r'^basket/(?P<action>[a-zA-Z]+)/(?P<oid>[0-9]+)/$', views.basket_action, name="basket_action_id"),
+    url( r'^basket/(?:(?P<action>[a-zA-Z]+)/)?$', views.basket_action, name="basket_action"),
     
     url( r'^clipboard/$', views.update_clipboard, name="update_clipboard"),
     
     url( r'^search/$', views.search, name="search"),
     
-    url( r'^history/$', views.history, name="history"),
-    url( r'^history/(\d{4})/(\d{1,2})/$', views.history, name="history_date"),
+    url( r'^history/(?:(\d{4})/(\d{1,2})/)?$', views.history, name="history"),
     url( r'^history/(\d{4})/(\d{1,2})/(\d{1,2})/$', views.history_details, name="history_details"),
     
     url( r'^import/$', views.importer, name="importer"),
     url( r'^upload/$', views.flash_uploader, name="flash_uploader"), 
     
-    url( r'^myaccount/$', views.myaccount, name="myaccount"),
-    url( r'^myaccount/(?P<action>[a-zA-Z]+)/$', views.myaccount, name="myaccount_action"),
+    url( r'^myaccount/(?:(?P<action>[a-zA-Z]+)/)?$', views.myaccount, name="myaccount"),
     
     url( r'^help/$', views.help, name="help" ),
     

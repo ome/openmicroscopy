@@ -31,7 +31,7 @@
             {% if manager.dataset.copyProjectLinks %}
             {% for c in manager.dataset.copyProjectLinks %}
             <li id="pr-{{ c.parent.id.val }}" class="folder-open-last-static" style="position: static;">
-                <span><a href="{% url manage_data_t_id nav.whos "project" c.parent.id.val %}?view={{ nav.view }}">{{ c.parent.name.val }}</a></span> 
+                <span><a href="{% url manage_data nav.whos "project" c.parent.id.val %}?view={{ nav.view }}">{{ c.parent.name.val }}</a></span> 
                 {% if not manager.dataset.isOwned %}
                     <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>
                 {% endif %}
@@ -72,14 +72,14 @@
                 <li class="line"> </li>
                 {% if c.copyDatasetLinks %}
                 <li id="pr-{{ c.id }}" class="folder-open-last-static" style="position: static;">
-                    <span><a href="{% url manage_data_t_id nav.whos "project" c.id %}?view={{ nav.view }}">{{ c.name }}</a></span> 
+                    <span><a href="{% url manage_data nav.whos "project" c.id %}?view={{ nav.view }}">{{ c.name }}</a></span> 
                     {% if not c.isOwned %}<img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
                     <ul style="overflow: visible; display: block;">
                         {% if c.copyDatasetLinks %}
                         {% for d in c.listChildren %}
                         <li class="line"> </li>
                         <li id="ds-{{ d.id }}" class="subfolder-open-last-static" style="position: static;">
-                            <span><a href="{% url manage_data_t_id_t_id nav.whos "project" c.id "dataset" d.id %}?view={{ nav.view }}"> {{ d.name }}</a></span>
+                            <span><a href="{% url manage_data nav.whos "project" c.id "dataset" d.id %}?view={{ nav.view }}"> {{ d.name }}</a></span>
                             {% if not d.isOwned %}<img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
                             <ul style="overflow: visible; display: block;">
                                 <li class="line"> </li>
@@ -101,7 +101,7 @@
                 <li class="line"> </li>
                 {% for c in manager.hierarchy.datasets %}
                 <li id="ds-{{ c.id }}" class="subfolder-open-last-static" style="position: static;">
-                    <span><a href="{% url manage_data_t_id nav.whos "dataset" c.id %}?view={{ nav.view }}">{{ c.name }}</a></span> 
+                    <span><a href="{% url manage_data nav.whos "dataset" c.id %}?view={{ nav.view }}">{{ c.name }}</a></span> 
                     {% if not c.isOwned %}<img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
                     <ul style="overflow: visible; display: block;">
                         <li class="line"> </li>

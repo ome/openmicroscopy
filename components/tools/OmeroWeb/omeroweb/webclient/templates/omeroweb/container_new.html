@@ -54,7 +54,7 @@
 {% if form %}
 <div>
     {% if manager.project %}
-        <form action="{% url manage_action_containers_id "addnew" "project" manager.project.id %}?url={{url}}" method="post">
+        <form action="{% url manage_action_containers "addnew" "project" manager.project.id %}?url={{url}}" method="post">
     {% else %}
         <form action="{% url manage_action_containers "addnew" %}?url={{url}}" method="post">
     {% endif %}

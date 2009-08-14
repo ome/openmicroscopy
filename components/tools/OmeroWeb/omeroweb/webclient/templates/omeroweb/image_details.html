@@ -90,11 +90,11 @@
     | <a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')">{% trans "View" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> 
     {% if manager.image.isOwned %}| <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;">{% trans "Select" %} <img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> 
     | <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;">{% trans "Copy" %} <img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> 
-    | <a href="{% url manage_action_containers_id "edit" "image" manager.image.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}
+    | <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}
 {% else %}
     | <a href="#" onclick="window.open('{% url image_viewer manager.image.id %}', '_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800'); return false;">{% trans "View" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> 
     {% if manager.image.isOwned %}| <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;">{% trans "Copy" %} <img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> 
-    | <a href="{% url manage_action_containers_id "edit" "image" manager.image.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}
+    | <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}
 {% endif %}
 | <a href="#annotation_form">{% trans "Annotate" %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotate"/></a> |
 </div>

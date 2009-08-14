@@ -130,7 +130,7 @@
     <h1>{% trans "Leave a Reply" %}</h1>
     {% if form %}
     <div>
-        <form action="{% url manage_share_action "comment" share.share.id %}" method="post">
+        <form action="{% url manage_share "comment" share.share.id %}" method="post">
             <table>
             {% for field in form %}
                 <tr>

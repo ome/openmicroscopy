@@ -143,7 +143,7 @@ def load_session_from_request(handler):
 
 
 def isUserConnected (f):
-    def wrapped (request, share_id=None, *args, **kwargs):
+    def wrapped (request, *args, **kwargs):
         try:
             request.session['server'] = request.REQUEST['server']
         except:
@@ -158,9 +158,9 @@ def isUserConnected (f):
                 url = '%s' % (request.META['PATH_INFO'])
         
         conn_share = None
-        if share_id is not None:
+        if kwargs.get('share_id', None) is not None:
             try:
-                conn_share = getShareConnection(request, share_id)
+                conn_share = getShareConnection(request, kwargs.get('share_id', None))
             except Exception, x:
                 logger.error(traceback.format_exc())
                 
@@ -180,7 +180,7 @@ def isUserConnected (f):
         kwargs["conn"] = conn
         kwargs["conn_share"] = conn_share
         kwargs["url"] = url
-        return f(request, share_id=share_id, *args, **kwargs)
+        return f(request, *args, **kwargs)
     
     return wrapped
 
@@ -1069,12 +1069,8 @@ def manage_data_by_tag(request, tid=None, tid2=None, tid3=None, tid4=None, tid5=
         for t in manager.tags:
             if t is not None:
                 viewargs.append(t.id)
-        
-        if len(viewargs) > 0:
-            viewname = "manage_data_by_tag%i" % len(viewargs)
-        else:
-            viewname = "manage_data_by_tag"
-        return HttpResponseRedirect(reverse(viewname=viewname, args=viewargs))
+
+        return HttpResponseRedirect(reverse(viewname="manage_data_by_tag", args=viewargs))
     else:
         manager.buildBreadcrumb(whos)
     
@@ -1520,7 +1516,7 @@ def manage_shares(request, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def manage_share(request, action, oid=None, **kwargs):
+def manage_share(request, action, sid=None, **kwargs):
     request.session['nav']['menu'] = 'share'
     request.session['nav']['whos'] = 'share'
     
@@ -1540,7 +1536,7 @@ def manage_share(request, action, oid=None, **kwargs):
         logger.error(traceback.format_exc())
     
     try:
-        share = BaseShare(request.session['nav']['menu'], conn, None, oid, action)
+        share = BaseShare(request.session['nav']['menu'], conn, None, sid, action)
     except AttributeError, x:
         return handlerInternalError(x)
     form_active_group = ActiveGroupForm(initial={'activeGroup':share.eContext['context'].groupId, 'mygroups': share.eContext['allGroups']})
@@ -1609,8 +1605,8 @@ def manage_share(request, action, oid=None, **kwargs):
             context = {'nav':request.session['nav'], 'eContext': share.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == 'edit':
         template = "omeroweb/share_form.html"
-        share.getMembers(oid)
-        share.getComments(oid)
+        share.getMembers(sid)
+        share.getComments(sid)
         
         if share.share.getExpirationDate() is not None:
             form = ShareForm(initial={'message': share.share.message, 'expiration': share.share.getExpirationDate().strftime("%Y-%m-%d"), \
@@ -1647,14 +1643,14 @@ def manage_share(request, action, oid=None, **kwargs):
             return HttpResponseRedirect(reverse("manage_shares"))
         else:
             template = "omeroweb/share_form.html"
-            share.getComments(oid)
+            share.getComments(sid)
             context = {'url':url, 'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
     elif action == 'delete':
         return HttpResponseRedirect(reverse("manage_shares"))
     elif action == 'view':
         template = "omeroweb/share_details.html"
-        share.getAllUsers(oid)
-        share.getComments(oid)
+        share.getAllUsers(sid)
+        share.getComments(sid)
         if share.share.isExpired():
             form = None
         else:
@@ -1669,10 +1665,10 @@ def manage_share(request, action, oid=None, **kwargs):
             except:
                 host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
             share.addComment(host, request.session['server'], comment)
-            return HttpResponseRedirect(reverse(viewname="manage_share_action", args=["view", oid]))
+            return HttpResponseRedirect(reverse(viewname="manage_share", args=["view", sid]))
         else:
             template = "omeroweb/share_details.html"
-            share.getComments(oid)
+            share.getComments(sid)
             form = ShareCommentForm(data=request.REQUEST.copy())
             context = {'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
 
@@ -1735,7 +1731,7 @@ def load_share_owner_content(request, share_id, **kwargs):
 # Basket
 
 @isUserConnected
-def basket_action (request, action=None, oid=None, **kwargs):
+def basket_action (request, action=None, **kwargs):
     request.session['nav']['menu'] = ''
     request.session['nav']['whos'] = ''
 
@@ -1827,7 +1823,7 @@ def empty_basket(request, **kwargs):
     request.session['nav']['basket'] = 0
     request.session['imageInBasket'] = list()
     #request.session['datasetInBasket'] = list()
-    return HttpResponseRedirect(reverse("basket"))
+    return HttpResponseRedirect(reverse("basket_action"))
 
 @isUserConnected
 def update_basket(request, **kwargs):

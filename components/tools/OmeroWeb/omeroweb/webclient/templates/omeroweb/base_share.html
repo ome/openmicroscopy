@@ -26,7 +26,7 @@
 <div id="shareBodyWrapper">
 <div id="share">
     <div id="share_menu">
-        <h1>{% trans "Go back to" %} <a href="{% url manage_shares %}">{% trans "Webclient" %}</a>{% if share.share.isOwned %} {% trans "or Edit" %} <a href="{% url manage_share_action "edit" share.share.id %}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</h1>
+        <h1>{% trans "Go back to" %} <a href="{% url manage_shares %}">{% trans "Webclient" %}</a>{% if share.share.isOwned %} {% trans "or Edit" %} <a href="{% url manage_share "edit" share.share.id %}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</h1>
     </div>
     <div id="content">{% block center %}{% endblock %}</div>
 </div>
@@ -34,7 +34,7 @@
 <div id="footer">
     <div>
         <a href="{% url webindex %}" title="Home">{% trans "Home" %}</a> | 
-        <a href="{% url basket %}" title="Basket">{% trans "Basket" %}</a> |  
+        <a href="{% url basket_action %}" title="Basket">{% trans "Basket" %}</a> |  
         <a href="{% url manage_data "mydata" %}?view=table" title="My Data">{% trans "My Data" %}</a> | 
         <a href="{% url manage_data "userdata" %}?view=table" title="Userdata">{% trans "Team" %}</a> | 
         <a href="{% url manage_shares %}?view=table" title="Share">{% trans "Share" %}</a> | 

@@ -115,7 +115,7 @@
 <tbody> 
     {% for c in share.ownShares %}
     <tr> 
-        <td><a href="{% url manage_share_action "view" c.id %}">
+        <td><a href="{% url manage_share "view" c.id %}">
             {% ifequal c.getShareType "Discuss" %}
                 {% if c.active %}
                     <img src="{% url webstatic "images/wp_protocol32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
@@ -130,8 +130,8 @@
                 {% endif %}
             {% endifequal %} {{ c.getShareType }}
         </a></td> 
-        <td><a href="{% url manage_share_action "view" c.id %}">{{ c.shortMessage }}</a> {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% url webstatic "images/kuser16.png" %}" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}</td> 
-        <td><a href="{% url manage_share_action "view" c.id %}"><img src="{% url webstatic "images/kview16.png" %}" alt="v" title="view"/></a> <a href="{% url manage_share_action "edit" c.id %}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a></td>
+        <td><a href="{% url manage_share "view" c.id %}">{{ c.shortMessage }}</a> {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% url webstatic "images/kuser16.png" %}" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}</td> 
+        <td><a href="{% url manage_share "view" c.id %}"><img src="{% url webstatic "images/kview16.png" %}" alt="v" title="view"/></a> <a href="{% url manage_share "edit" c.id %}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a></td>
         <td>{{ c.getStartDate|date:"Y m d H:i:s" }} - {% if c.getExpirationDate %}{{ c.getExpirationDate|date:"Y m d H:i:s" }}{% else %}never{% endif %}</td>
     </tr> 
     {% endfor %}
@@ -171,21 +171,21 @@
         <td>
         {% ifequal c.getShareType "Discuss" %}
             {% if c.active %}
-                <a href="{% url manage_share_action "view" c.id %}"><img src="{% url webstatic "images/wp_protocol32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> {{ c.getShareType }}</a>
+                <a href="{% url manage_share "view" c.id %}"><img src="{% url webstatic "images/wp_protocol32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> {{ c.getShareType }}</a>
             {% else %}
                 <img src="{% url webstatic "images/wp_protocol_locked32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> {{ c.getShareType }}
             {% endif %}
         {% else %}
             {% if c.active %}
-                <a href="{% url manage_share_action "view" c.id %}"><img src="{% url webstatic "images/folder_html32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> {{ c.getShareType }}</a>
+                <a href="{% url manage_share "view" c.id %}"><img src="{% url webstatic "images/folder_html32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> {{ c.getShareType }}</a>
             {% else %}
                 <img src="{% url webstatic "images/folder_locked32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> {{ c.getShareType }}
             {% endif %}
         {% endifequal %} 
         </td> 
-        <td>{% if c.active %}<a href="{% url manage_share_action "view" c.id %}">{{ c.shortMessage }}</a>{% else %}{{ c.shortMessage }}{% endif %} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% url webstatic "images/kuser16.png" %}" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}</td> 
+        <td>{% if c.active %}<a href="{% url manage_share "view" c.id %}">{{ c.shortMessage }}</a>{% else %}{{ c.shortMessage }}{% endif %} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% url webstatic "images/kuser16.png" %}" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}</td> 
         <td>{{ c.getShareOwnerFullName }}</td> 
-        <td>{% if c.active %}<a href="{% url manage_share_action "view" c.id %}"><img src="{% url webstatic "images/kview16.png" %}" alt="v" title="view"/></a>{% endif %}</td>
+        <td>{% if c.active %}<a href="{% url manage_share "view" c.id %}"><img src="{% url webstatic "images/kview16.png" %}" alt="v" title="view"/></a>{% endif %}</td>
         <td>{{ c.getStartDate|date:"Y m d H:i:s" }} - {% if c.getExpirationDate %}{{ c.getExpirationDate|date:"Y m d H:i:s" }}{% else %}never{% endif %}</td>
     </tr>
     {% endfor %}
