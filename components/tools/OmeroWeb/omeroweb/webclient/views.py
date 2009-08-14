@@ -575,12 +575,12 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
             if request.REQUEST['experimenter'] != "": 
                 form_users = MyUserForm(initial={'users': users}, data=request.REQUEST.copy())
                 if form_users.is_valid():
-                    filter_user_id = request.REQUEST['experimenter']
+                    filter_user_id = request.REQUEST.get('experimenter', None)
                     request.session['experimenter'] = filter_user_id
                     form_users = MyUserForm(initial={'user':filter_user_id, 'users': users})
                 else:
                     try:
-                        filter_user_id = request.session['experimenter']
+                        filter_user_id = request.session.get('experimenter', None)
                     except:
                         pass
             else:
@@ -588,7 +588,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                 form_users = MyUserForm(initial={'users': users})
         except:
             try:
-                filter_user_id = request.session['experimenter']
+                filter_user_id = request.session.get('experimenter', None)
                 form_users = MyUserForm(initial={'user':filter_user_id, 'users': users})
             except:
                 form_users = MyUserForm(initial={'users': users})
@@ -605,12 +605,12 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
             if request.REQUEST['group'] != "": 
                 form_mygroups = MyGroupsForm(initial={'mygroups': my_groups}, data=request.REQUEST.copy())
                 if form_mygroups.is_valid():
-                    filter_group_id = request.REQUEST['group']
+                    filter_group_id = request.REQUEST.get('groupId', None)
                     request.session['groupId'] = filter_group_id
                     form_mygroups = MyGroupsForm(initial={'mygroup':filter_group_id, 'mygroups': my_groups})
                 else:
                     try:
-                        filter_group_id = request.session['groupId']
+                        filter_group_id = request.session.get('groupId', None)
                     except:
                         pass
             else:
@@ -618,7 +618,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                 form_mygroups = MyGroupsForm(initial={'mygroups': my_groups})
         except:
             try:
-                filter_group_id = request.session['groupId']
+                filter_group_id = request.session.get('groupId', None)
                 form_mygroups = MyGroupsForm(initial={'mygroup':filter_group_id, 'mygroups': my_groups})
             except:
                 form_mygroups = MyGroupsForm(initial={'mygroups': my_groups})
@@ -642,7 +642,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                 manager.listImagesInDatasetAsUser(o2_id, filter_user_id, page)
             elif filter_group_id is not None:
                 manager.listImagesInDatasetInGroup(o2_id, filter_group_id, page)
-            else:
+            elif whos == "mydata":
                 manager.listMyImagesInDataset(o2_id, page)
         elif o2_type == 'image':
             template = "omeroweb/image_details.html"
@@ -653,43 +653,53 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                 manager.loadUserImages(o1_id, filter_user_id)
             elif filter_group_id is not None:
                 manager.loadGroupImages(o1_id, filter_group_id)
-            else:
+            elif whos == "mydata":
                 manager.loadMyImages(o1_id)
         elif o1_type == 'project':
             if filter_user_id is not None:
                 manager.listDatasetsInProjectAsUser(o1_id, filter_user_id, page)
             elif filter_group_id is not None:
                 manager.listDatasetsInProjectInGroup(o1_id, filter_group_id, page)
-            else:
+            elif whos == "mydata":
                 manager.listMyDatasetsInProject(o1_id, page)
         elif o1_type == 'dataset':
             if filter_user_id is not None:
                 manager.listImagesInDatasetAsUser(o1_id, filter_user_id, page)
             elif filter_group_id is not None:
                 manager.listImagesInDatasetInGroup(o1_id, filter_group_id, page)
-            else:
+            elif whos == "mydata":
                 manager.listMyImagesInDataset(o1_id, page)
         elif o1_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type == 'orphaned':
-        manager.loadMyOrphanedImages()
+        if filter_user_id is not None:
+            manager.loadUserOrphanedImages(filter_user_id)
+        elif filter_group_id is not None:
+            manager.loadGroupOrphanedImages(filter_group_id)
+        elif whos == "mydata":
+            manager.loadMyOrphanedImages()
     elif o1_type == 'ajaxorphaned':
         template = "omeroweb/container_subtree.html"
-        manager.loadMyOrphanedImages()
+        if filter_user_id is not None:
+            manager.loadUserOrphanedImages(filter_user_id)
+        elif filter_group_id is not None:
+            manager.loadGroupOrphanedImages(filter_group_id)
+        elif whos == "mydata":
+            manager.loadMyOrphanedImages()
     else:
         if view == 'tree':
             if filter_user_id is not None:
                 manager.loadUserContainerHierarchy(filter_user_id)
             elif filter_group_id is not None:
                 manager.loadGroupContainerHierarchy(filter_group_id)
-            else:
+            elif whos == "mydata":
                 manager.loadMyContainerHierarchy()
         else:
             if filter_user_id is not None:
                 manager.listRootsAsUser(filter_user_id)
             elif filter_group_id is not None:
                 manager.listRootsInGroup(filter_group_id)
-            else:
+            elif whos == "mydata":
                 manager.listMyRoots()
     
     form_comment = None

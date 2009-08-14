@@ -35,14 +35,14 @@
             autoclose: false,
             afterClick:function(node){
                 if($(node).attr('id') == "orphan") {
-                    $("div#view").html('| {% trans "View" %} <a href="{% url manage_data nav.whos %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"></a> <a href="{% url manage_data nav.whos %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"></a> {% if not manager.experimenter %} | {% trans "New" %} <a href="{% manage_action_containers "new" %}?url={{ url }}"><img src="{% url webstatic "images/window_new16.jpg" %}" alt="new" title="new"></a>{% endif %} |');
+                    $("div#view").html('| {% trans "View" %} <a href="{% url manage_data nav.whos %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"></a> <a href="{% url manage_data nav.whos %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"></a> {% if not manager.experimenter %} | {% trans "New" %} <a href="{% url manage_action_containers "new" %}?url={{ url }}"><img src="{% url webstatic "images/window_new16.jpg" %}" alt="new" title="new"></a>{% endif %} |');
                     
                     $("div#context").html('<div id="context"><h1>{% trans "Orphaned images" %}</h1><p>{% trans "This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container." %}</p></div>');
                 } else {
                     var obj = $(node).attr('id').split("-");
                     var par = $(node).parents('li:first').attr('id')
                     if (obj[0] == 'pr') {
-                        $("div#view").html('| {% trans "View" %} <a href="{% url manage_data nav.whos %}project/'+obj[1]+'/?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"></a> <a href="{% url manage_data nav.whos %}project/'+obj[1]+'/?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"></a> <a href="{% manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"></a> {% if not manager.experimenter %} | {% trans "New" %} <a href="{% manage_action_containers "new" %}project/'+obj[1]+'/?url={{ url }}"><img src="{% url webstatic "images/window_new16.jpg" %}" alt="new" title="new"></a> | <a href="#" onclick="pasteFromClipboard(\'project\', \''+obj[1]+'\', \'{{ url }}\'); return false;"><img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a>{% endif %} |');
+                        $("div#view").html('| {% trans "View" %} <a href="{% url manage_data nav.whos %}project/'+obj[1]+'/?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"></a> <a href="{% url manage_data nav.whos %}project/'+obj[1]+'/?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"></a> {% if not manager.experimenter %} | {% trans "New" %} <a href="{% url manage_action_containers "new" %}project/'+obj[1]+'/?url={{ url }}"><img src="{% url webstatic "images/window_new16.jpg" %}" alt="new" title="new"></a> | <a href="#" onclick="pasteFromClipboard(\'project\', \''+obj[1]+'\', \'{{ url }}\'); return false;"><img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a>{% endif %} |');
 
                         $("div#context").html('<p>{% trans "Loading project details... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
                         $("div#context").load('/webclient/tree_details/project/'+obj[1]+'/');
@@ -115,10 +115,8 @@
 {% endif %}
     
 <div id="view"> 
-    {% ifequal nav.menu "userdata" %}
-        {% ifequal nav.whos "share" %}
-            | {% trans "View" %} <a href="{% url manage_shares %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="table" title="table"/></a> <a href="{% url manage_shares %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> |
-        {% endifequal %}
+    {% ifequal nav.whos "share" %}
+        | {% trans "View" %} <a href="{% url manage_shares %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="table" title="table"/></a> <a href="{% url manage_shares %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> |
     {% else %}
         | {% trans "View" %} <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"/></a> |
     {% endifequal %}
@@ -151,7 +149,7 @@
                     {% for d in c.listChildren %}
                         <li id='ds-{{ d.id }}' ><span>{{ d.shortName }} <img alt="image" title="image" src="{% url webstatic "images/image12.png" %}"/>[{{ d.countChild }}]{% if not d.isOwned %} <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.gif" %}" alt="a" title="annotation"/>[{{ d.countAnnotations }}]{% endif %}</span> 
                             <ul class="ajax">
-                                <li id='{{ d.id.val }}'>{url:{% manage_data nav.whos "ajaxdataset" d.id %}?view=tree}</li>
+                                <li id='{{ d.id.val }}'>{url:{% url manage_data nav.whos "ajaxdataset" d.id %}?view=tree}</li>
                             </ul>
                         </li>
                     {% endfor %}
@@ -164,7 +162,7 @@
             {% for c in manager.containers.datasets %}
                 <li id='ds-{{ c.id }}'><span>{{ c.shortName }} <img alt="image" title="image" src="{% url webstatic "images/image12.png" %}"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.gif" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</span>
                     <ul class="ajax">
-                        <li id='{{ d.id.val }}'>{url:{% manage_data nav.whos "ajaxdataset" c.id %}?view=tree}</li>
+                        <li id='{{ d.id.val }}'>{url:{% url manage_data nav.whos "ajaxdataset" c.id %}?view=tree}</li>
                     </ul>
                 </li>
             {% endfor %}
@@ -176,7 +174,7 @@
             {% if not manager.orphaned %}
                 <li id='orphan' ><span>{% trans "Orphaned images" %}</span>
                     <ul class="ajax">
-                        <li id='{{ d.id.val }}'>{url:{% manage_data_orphaned nav.whos "ajaxdataset" %}?view=tree}</li>
+                        <li id='{{ d.id.val }}'>{url:{% url manage_data_orphaned nav.whos "ajaxorphaned" %}?view=tree}</li>
                     </ul>
                 </li>
             {% endif %}

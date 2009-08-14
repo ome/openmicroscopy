@@ -586,7 +586,9 @@ class BaseContainer(BaseController):
                 im_list_with_counters.append(im)
         
         self.containers = {'images': im_list_with_counters}
+        self.subcontainers = im_list_with_counters
         self.c_size = len(im_list_with_counters)
+        
     
     # COLLABORATION - group
     '''
@@ -765,6 +767,7 @@ class BaseContainer(BaseController):
                 im_list_with_counters.append(im)
         
         self.containers = {'images': im_list_with_counters}
+        self.subcontainers = im_list_with_counters
         self.c_size = len(im_list_with_counters)
     '''
     # Annotation list

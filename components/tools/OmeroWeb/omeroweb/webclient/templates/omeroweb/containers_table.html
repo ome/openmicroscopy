@@ -176,10 +176,8 @@
 {% endif %}
 
 <div id="view"> 
-    {% ifequal nav.menu "userdata" %}
-        {% ifequal nav.whos "share" %}
-            | {% trans "View" %} <a href="{% url manage_shares %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="table" title="table"/></a> <a href="{% url manage_shares %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> |
-        {% endifequal %}
+    {% ifequal nav.whos "share" %}
+        | {% trans "View" %} <a href="{% url manage_shares %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="table" title="table"/></a> <a href="{% url manage_shares %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> |
     {% else %}
         | {% trans "View" %} <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"/></a> |
     {% endifequal %}
