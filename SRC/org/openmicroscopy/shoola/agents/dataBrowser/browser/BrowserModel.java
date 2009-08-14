@@ -317,7 +317,13 @@ class BrowserModel
 	        buf.insert(0, title);
 	        parent = parent.getParentDisplay();
 	    }
-	    return buf.toString();
+	    String result = buf.toString();
+	    if (parent instanceof RootDisplay) {
+	    	String t = ((RootDisplay) parent).getOriginalTitle();
+	    	if (t != null && t.trim().length() != 0)
+	    		result = t+" >"+result;
+	    }
+	    return result;
 	}
 	
 	/** 

@@ -52,9 +52,6 @@ public class EditorFactory
      * @param parent			Reference to the parent. 
      * 							Must't be <code>null</code>.
      * @param refObject   		The object of reference.
-	 * @param multiSelection	Pass <code>true</code> to indicate that the
-	 *                          editor is for a multi selection, 
-	 *                          <code>false</code> otherwise.
 	 * @param browser			The browser to set.
      * @return See above.
      */

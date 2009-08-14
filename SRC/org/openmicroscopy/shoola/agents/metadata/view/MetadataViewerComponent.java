@@ -68,6 +68,7 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellData;
 import pojos.WellSampleData;
 
 /** 
@@ -248,7 +249,6 @@ class MetadataViewerComponent
 	{
 		if (node == null)
 			throw new IllegalArgumentException("No node specified.");
-		//
 		Object userObject = node.getUserObject();
 		Object refObject = model.getRefObject();
 		if (refObject == userObject) {
@@ -262,7 +262,6 @@ class MetadataViewerComponent
 				fireStateChange();
 				return;
 			}
-				
 			if (!(userObject instanceof String)) return;
 			String name = (String) userObject;
 			
@@ -331,7 +330,6 @@ class MetadataViewerComponent
 	public void setParentRootObject(Object parent)
 	{
 		model.setParentRootObject(parent);
-		
 	}
 	
 	/** 

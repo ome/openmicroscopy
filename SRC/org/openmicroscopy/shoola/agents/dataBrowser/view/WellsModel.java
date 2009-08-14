@@ -118,8 +118,10 @@ class WellsModel
 		Comparator c = new Comparator() {
             public int compare(Object o1, Object o2)
             {
-                WellData w1 = (WellData) ((WellImageSet) o1).getHierarchyObject(),
-                         w2 = (WellData) ((WellImageSet) o2).getHierarchyObject();
+                WellData w1 = (WellData) 
+                		((WellImageSet) o1).getHierarchyObject(),
+                         w2 = (WellData) 
+                         ((WellImageSet) o2).getHierarchyObject();
                 int n1 = w1.getRow();
                 int n2 = w2.getRow();
                 int v = 0;
@@ -343,7 +345,11 @@ class WellsModel
 			samples.add(cell);
 			cells.add(cell);
 		}
-        browser = BrowserFactory.createBrowser(samples);
+		String title = null;
+		if (parent instanceof PlateData) {
+			title = ((PlateData) parent).getName();
+		}
+        browser = BrowserFactory.createBrowser(samples, title);
 		layoutBrowser(LayoutFactory.PLATE_LAYOUT);
 	}
 	

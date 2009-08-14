@@ -52,6 +52,9 @@ class RootDisplay
 	extends ImageSet
 {
     
+	/** The originalTitle associated to the node if any. */
+	private String originalTitle;
+	
     /**
      * A place holder to simulate an hierarchy object.
      * This is required because every {@link ImageDisplay} must have one,
@@ -60,14 +63,32 @@ class RootDisplay
      */
     static final Object FAKE_HIERARCHY_OBJECT = new Object();
     
-    /** Creates a new root display. */
-    RootDisplay()  
+    /** 
+     * Creates a new root display. 
+     * 
+     * @param originalTitle The original title.
+     */
+    RootDisplay(String originalTitle)  
     {
         super("", FAKE_HIERARCHY_OBJECT);
         Colors colors = Colors.getInstance();
         setHighlight(colors.getColor(Colors.TITLE_BAR));
         setTitleBarType(STATIC_BAR);
         setListenToBorder(false);
+        this.originalTitle = originalTitle;
     }
+    
+    /** Creates a new root display. */
+    RootDisplay()  
+    {
+        this(null);
+    }
+    
+    /**
+     * Returns the original title.
+     * 
+     * @return See above.
+     */
+    String getOriginalTitle() { return originalTitle; }
     
 }

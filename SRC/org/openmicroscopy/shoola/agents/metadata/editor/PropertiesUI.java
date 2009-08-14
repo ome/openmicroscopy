@@ -71,6 +71,7 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellData;
 import pojos.WellSampleData;
 
 /** 
@@ -136,6 +137,9 @@ class PropertiesUI
     /** The component hosting the id of the <code>DataObject</code>. */
     private JLabel				idLabel;
     
+    /** The label displaying the parent of the node. */
+    private JLabel				parentLabel;
+    
     /** Indicates if the <code>DataObject</code> has group visibility. */
     private JRadioButton 		publicBox;
     
@@ -188,6 +192,9 @@ class PropertiesUI
        	group.add(groupBox);
        	group.add(publicBox);
        	
+       	parentLabel = new JLabel();
+       	parentLabel.setOpaque(false);
+       	parentLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
        	idLabel = UIUtilities.setTextFont("");
     	namePane = createTextPane();
     	namePane.addMouseListener(new MouseAdapter() {
@@ -218,6 +225,12 @@ class PropertiesUI
     	f = descriptionPane.getFont();
     	descriptionPane.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
     	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	
+    	
+    	f = parentLabel.getFont();
+    	parentLabel.setFont(f.deriveFont(Font.BOLD));
+    	parentLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	
     	channelsArea = UIUtilities.createComponent(null);
     	
     	IconManager icons = IconManager.getInstance();
@@ -395,6 +408,10 @@ class PropertiesUI
          l.setBackground(UIUtilities.BACKGROUND_COLOR);
          int w = editName.getIcon().getIconWidth()+4;
          p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
+         l = UIUtilities.buildComponentPanel(parentLabel, 0, 0);
+         l.setBackground(UIUtilities.BACKGROUND_COLOR);
+         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
+         
          namePanel = layoutEditablefield(editName, namePane);
          p.add(namePanel);
          p.add(Box.createVerticalStrut(5));
@@ -503,6 +520,19 @@ class PropertiesUI
 		if (d == document) modifiedName = namePane.getText();
 	}
 	
+	/** Sets the text of the parent label. */
+	private void setParentLabel()
+	{
+		Object parent = model.getParentRootObject();
+		String text = "";
+		if (parent instanceof WellData) {
+			text = "Plate: "; 
+			text += ((WellData) parent).getPlate().getName();
+		}
+		parentLabel.setText(text);
+		parentLabel.repaint();
+	}
+	
     /**
      * Creates a new instance.
      * 
@@ -585,16 +615,18 @@ class PropertiesUI
         	namePane.getDocument().addDocumentListener(this);
         	descriptionPane.getDocument().addDocumentListener(this);
         }
+        setParentLabel();
         buildGUI();
 	}
 	
     /** Sets the focus on the name area. */
 	void setFocusOnName() { namePane.requestFocus(); }
-   
+	
 	/** Updates the data object. */
 	void setParentRootObject()
 	{
 		Object object =  model.getRefObject();
+		setParentLabel();
 		if (!(object instanceof WellSampleData)) return;
 		originalDescription = model.getRefObjectDescription();
 		if (originalDescription == null || originalDescription.length() == 0)

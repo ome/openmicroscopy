@@ -408,7 +408,7 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the id of the ref object if it is an instance of 
+	 * Returns the id of the reference object if it is an instance of 
 	 * <code>DataObject</code> or <code>-1</code> otherwise.
 	 * 
 	 * @return See above.
@@ -910,6 +910,13 @@ class EditorModel
 	{
 		this.parentRefObject = parentRefObject;
 	}
+	
+	/**
+	 * Returns the parent of the object of reference.
+	 * 
+	 * @return See above.
+	 */
+	Object getParentRootObject() { return parentRefObject; }
 	
 	/**
 	 * Returns the owner of the reference object or <code>null</code>

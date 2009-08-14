@@ -3844,6 +3844,7 @@ class OMEROGateway
 			param.addLong("plateID", plateID);
 			
 			sb.append("select well from Well as well ");
+			sb.append("left outer join fetch well.plate as pt ");
 			sb.append("left outer join fetch well.wellSamples as ws ");
 			sb.append("left outer join fetch ws.image as img ");
 			

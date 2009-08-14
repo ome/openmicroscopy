@@ -66,6 +66,7 @@ import pojos.DataObject;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.WellData;
 import pojos.WellSampleData;
 
 /** 
