@@ -1167,7 +1167,7 @@ public class UIUtilities
     }
     
     /**
-     * Rounds the passed value to the specifed number of decimals.
+     * Rounds the passed value to the specified number of decimals.
      * 
      * @param value 	The value to round.
      * @param decimal 	The number of figures after decimal point.

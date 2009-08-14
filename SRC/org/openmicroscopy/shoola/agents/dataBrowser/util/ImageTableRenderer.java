@@ -25,10 +25,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.util;
 
 //Java imports
 import java.awt.Component;
-
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-
 
 //Third-party libraries
 

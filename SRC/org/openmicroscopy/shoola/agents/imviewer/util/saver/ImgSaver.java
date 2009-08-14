@@ -100,7 +100,7 @@ public class ImgSaver
     /** Indicates that the question dialog will save the image directly. */
     static final int			DIRECT = 1;
     
-    /** The message when an image with the name and extension aleady exists. */
+    /** The message when an image with the name and extension already exists. */
     private static final String	MESSAGE = "A file with the same name and \n" +
                                 "extension already exists in this " +
                                 "directory.\n " +

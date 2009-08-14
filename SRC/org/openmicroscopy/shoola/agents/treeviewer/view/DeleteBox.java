@@ -50,7 +50,9 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -194,7 +196,9 @@ public class DeleteBox
 				p.add(typesPane);
 			}
 		} else if (DatasetData.class.equals(type) || 
-				ProjectData.class.equals(type)) {
+				ProjectData.class.equals(type) ||
+				PlateData.class.equals(type) || 
+				ScreenData.class.equals(type)) {
 			add = true;
 			if (children) {
 				p.add(withContent);
@@ -237,11 +241,15 @@ public class DeleteBox
 			return "Project"+end;
 		else if (FileAnnotationData.class.equals(type))
 			return "File"+end;
+		else if (ScreenData.class.equals(type))
+			return "Screen"+end;
+		else if (PlateData.class.equals(type))
+			return "Plate"+end;
 		else if (TagAnnotationData.class.equals(type)) {
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
 				return "Tag Set"+end;
 			return "Tag"+end;
-		}
+		} 
 		return "";
 	}
 	
@@ -271,13 +279,14 @@ public class DeleteBox
 			buffer.append("\n");
 			if (ImageData.class.equals(type) || 
 					DatasetData.class.equals(type) || 
-					ProjectData.class.equals(type)) {
+					ProjectData.class.equals(type) ||
+					ScreenData.class.equals(type) || 
+					PlateData.class.equals(type)) {
 				if (annotation || children) buffer.append("If yes, ");
 			} else if (TagAnnotationData.class.equals(type) &&
 						TagAnnotationData.INSIGHT_TAGSET_NS.equals(nameSpace)) {
 				if (children) buffer.append("If yes, ");
-			}
-					
+			}	
 		}
 		return buffer.toString();
 	}
@@ -303,6 +312,7 @@ public class DeleteBox
 		this.nameSpace = nameSpace;
 		this.type = type;
 		this.annotation = annotation;
+		if (PlateData.class.equals(type)) children = false;
 		this.children = children;
 		initComponents(DeleteBox.getTypeAsString(type, number, nameSpace));
 		layoutComponents();

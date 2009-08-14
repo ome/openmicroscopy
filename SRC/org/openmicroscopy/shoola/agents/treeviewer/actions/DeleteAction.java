@@ -40,7 +40,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -111,7 +113,9 @@ public class DeleteAction
         Object ho = selectedDisplay.getUserObject(); 
         if ((ho instanceof DatasetData) || (ho instanceof ProjectData) ||
         	(ho instanceof FileAnnotationData) ||
-        	(ho instanceof TagAnnotationData)) {
+        	(ho instanceof TagAnnotationData) || 
+        	(ho instanceof ScreenData) || 
+        	(ho instanceof PlateData)) {
         	TreeImageDisplay[] selected = browser.getSelectedDisplays();
         	if (selected.length > 1) setEnabled(false);
         	else {

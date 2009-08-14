@@ -43,7 +43,6 @@ import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.svc.SvcRegistry;
@@ -53,6 +52,8 @@ import org.openmicroscopy.shoola.svc.transport.HttpChannel;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ExperimenterData;
 
 /** 
  * Acts a controller. Listens to property changes fired by the 
@@ -72,11 +73,11 @@ class UserNotifierManager
 	implements PropertyChangeListener
 {
     
-	/** The default message if an error occured while transfering data. */
+	/** The default message if an error occurred while transferring data. */
 	private static final String	MESSAGE_START = "Sorry, but due to an error " +
 								"we were not able to automatically \n";
 	
-	/** The default message if an error occured while transfering data. */
+	/** The default message if an error occurred while transferring data. */
 	private static final String	MESSAGE_END = "\n\n"+
 								"You can still send us the error message by " +
 								"clicking on the \n" +
@@ -89,9 +90,6 @@ class UserNotifierManager
 	
 	/** Message if the dialog's type is {@link MessengerDialog#COMMENT_TYPE}. */
 	private static final String	COMMENT_MSG = "send your comment.";
-	
-	/** Message if the user attempts to submit a file. */
-	private static final String SUBMIT_MSG = "submit your file.";
 	
 	/** Reply when sending the comments. */
 	private static final String	COMMENT_REPLY = "Thanks, your comments have " +
@@ -106,10 +104,7 @@ class UserNotifierManager
 	
 	/** The tool invoking the service. */
 	private static final String INVOKER_COMMENT = "insight_comments";
-	
-	/** The tool invoking the service. */
-	private static final String INVOKER_SUBMIT = "files_submission";
-	
+
 	/** Default title for the comment dialog. */
     private static final String	DEFAULT_COMMENT_TITLE = "Comment";
 
@@ -127,41 +122,6 @@ class UserNotifierManager
 	
 	/** The Dialog used to send comments. */
 	private MessengerDialog					commentDialog;
-	
-	/**
-	 * Submits files to the dev team.
-	 * 
-	 * @param source	The source of the message.
-	 * @param details 	The values to send.
-	 */
-	private void submitFile(MessengerDialog source, 
-								MessengerDetails details)
-	{
-		Registry reg = container.getRegistry();
-		String url = (String) reg.lookup(LookupNames.TOKEN_URL);
-		String teamAddress = (String) reg.lookup(LookupNames.DEBUG_EMAIL);
-		CommunicatorDescriptor desc = new CommunicatorDescriptor
-						(HttpChannel.CONNECTION_PER_REQUEST, url, -1);
-		try {
-			Communicator c = SvcRegistry.getCommunicator(desc);
-			
-			StringBuilder builder = new StringBuilder();
-			c.submitBasicRequest(INVOKER_SUBMIT, builder);
-			String reply = builder.toString();
-			
-		} catch (Exception e) {
-			LogMessage msg = new LogMessage();
-            msg.println("Failed to submmit file.");
-            msg.println("Reason: "+e.getMessage());
-            Logger logger = container.getRegistry().getLogger();
-            logger.error(this, msg);
-			String s = MESSAGE_START;
-			s += SUBMIT_MSG;
-			JOptionPane.showMessageDialog(source, s+teamAddress+".");
-		}
-		source.setVisible(false);
-		source.dispose();
-	}
 	
 	/**
 	 * Sends a message.
@@ -261,6 +221,19 @@ class UserNotifierManager
 		container = c;
 		this.component = component;
 		loaders = new HashMap<String, UserNotifierLoader>();
+	}
+	
+	/**
+	 * Returns the details of the user currently logged in if any.
+	 * 
+	 * @return See above.
+	 */
+	ExperimenterData getExperimenter()
+	{
+		Object exp = 
+			container.getRegistry().lookup(LookupNames.CURRENT_USER_DETAILS);
+		if (exp == null) return null;
+		return (ExperimenterData) exp;
 	}
 	
 	/**
@@ -385,7 +358,7 @@ class UserNotifierManager
 	}
 	
 	/**
-	 * Creates or recycles the messanger dialog.
+	 * Creates or recycles the messenger dialog.
 	 * 
 	 * @param frame The owner of the dialog.
 	 * @param email The e-mail address.
@@ -413,17 +386,6 @@ class UserNotifierManager
 		if (MessengerDialog.SEND_PROPERTY.equals(name)) {
 			MessengerDialog source = (MessengerDialog) pce.getSource();
 			handleSendMessage(source, (MessengerDetails) pce.getNewValue());
-		} else if (MessengerDialog.SEND_AND_QUIT_PROPERTY.equals(name)) {
-			MessengerDialog source = (MessengerDialog) pce.getSource();
-			handleSendMessage(source, (MessengerDetails) pce.getNewValue());
-			try {
-				DataServicesFactory f = 
-					DataServicesFactory.getInstance(container);
-				f.exitApplication();
-			} catch (Exception e) {}
-		} else if (MessengerDialog.SUBMIT_PROPERTY.equals(name)) {
-			MessengerDialog source = (MessengerDialog) pce.getSource();
-			submitFile(source, (MessengerDetails) pce.getNewValue());
 		} else if (MessengerDialog.CLOSE_MESSENGER_PROPERTY.equals(name)) {
 			commentDialog = null;
 		} else if (OpeningFileDialog.SAVE_TO_DISK_PROPERTY.equals(name)) {

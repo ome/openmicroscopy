@@ -728,6 +728,15 @@ class TreeViewerControl
 			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 			ViewImage evt = new ViewImage(image, view.getBounds());
 			bus.post(evt);
+		} else if (ImportManager.SEND_FILES_PROPERTY.equals(name)) {
+			Map files = (Map) pce.getNewValue();
+			if (files != null && files.size() > 0) {
+				UserNotifier un = 
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				un.notifyError("Import failures", 
+						"Submit the files to development team", "", files);
+				//Notifications dialog.
+			}
 		} else if (Browser.FILE_FORMATS_PROPERTY.equals(name)) {
 			view.showSupportedFileFormats();
 		} else if (MetadataViewer.RENDER_THUMBNAIL_PROPERTY.equals(name)) {

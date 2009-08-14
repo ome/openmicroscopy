@@ -73,7 +73,7 @@ class MessengerRequest
 	/** Identifies the name of the operating system. */
 	private static final String OS_NAME = "os_name";
 	
-	/** Identifies the architectur of the operating system. */
+	/** Identifies the architecture of the operating system. */
 	private static final String OS_ARCH = "os_arch";
 	
 	/** Identifies the version of the operating system. */
@@ -95,7 +95,7 @@ class MessengerRequest
 	private String invoker;
 	
 	/**
-	 * Creates a new intance.
+	 * Creates a new instance.
 	 * 
 	 * @param email		The e-mail address of the user reporting an error.
 	 * @param comment	The comment entered by the user.

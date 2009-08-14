@@ -82,6 +82,7 @@ import omero.api.IProjectionPrx;
 import omero.api.IQueryPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
+import omero.api.IRoiPrx;
 import omero.api.IScriptPrx;
 import omero.api.ISessionPrx;
 import omero.api.IUpdatePrx;
@@ -272,6 +273,9 @@ class OMEROGateway
 	
 	/** The scripting service. */
 	private IScriptPrx								scriptService;
+	
+	/** The ROI (Region of Interest) service. */
+	private IRoiPrx									roiService;
 	
 	/** Tells whether we're currently connected and logged into <i>OMERO</i>. */
 	private boolean                 				connected;
@@ -808,7 +812,30 @@ class OMEROGateway
 			}
 			return metadataService; 
 		} catch (Throwable e) {
-			handleException(e, "Cannot access Update service.");
+			handleException(e, "Cannot access Metadata service.");
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the {@link IRoiPrx} service.
+	 *  
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private IRoiPrx getROIService()
+		throws DSAccessException, DSOutOfServiceException
+	{ 
+		try {
+			if (roiService == null) {
+				roiService = entry.getRoiService();
+				services.add(roiService);
+			}
+			return roiService; 
+		} catch (Throwable e) {
+			handleException(e, "Cannot access ROI service.");
 		}
 		return null;
 	}
@@ -1869,8 +1896,13 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IUpdatePrx service = getUpdateService();
-			service.deleteObject(object);
+			if (object instanceof Plate) {
+				IDeletePrx service = getDeleteService();
+				service.deletePlate(object.getId().getValue());
+			} else {
+				IUpdatePrx service = getUpdateService();
+				service.deleteObject(object);
+			}
 		} catch (Throwable t) {
 			handleException(t, "Cannot delete the object.");
 		}

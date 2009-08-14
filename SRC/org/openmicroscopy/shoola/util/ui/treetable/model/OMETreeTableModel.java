@@ -117,7 +117,7 @@ public class OMETreeTableModel
 	}
 	
 	/**
-	 * Returns the class corresponding to the specifed column.
+	 * Returns the class corresponding to the specified column.
 	 * 
 	 * @param column The selected column.
 	 * @return See above.

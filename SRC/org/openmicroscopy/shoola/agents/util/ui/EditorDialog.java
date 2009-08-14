@@ -221,8 +221,8 @@ public class EditorDialog
     /**
      * Builds the panel hosting the {@link #nameArea} and the
      * {@link #descriptionArea}. If the <code>DataOject</code>
-     * is annotable and if we are in the {@link Editor#PROPERTIES_EDITOR} mode,
-     * we display the annotation pane. 
+     * can be annotated and if we are in the 
+     * {@link Editor#PROPERTIES_EDITOR} mode, we display the annotation pane. 
      * 
      * @return See above.
      */
@@ -231,8 +231,8 @@ public class EditorDialog
         JPanel content = new JPanel();
         int height = 80;
         double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
-        				{TableLayout.PREFERRED, 5, height, 5, 
-        				TableLayout.PREFERRED} }; //rows
+        				{TableLayout.PREFERRED, 5, height}};//, 5, 
+        				//TableLayout.PREFERRED} }; //rows
         TableLayout layout = new TableLayout(tl);
         content.setLayout(layout);
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -241,7 +241,7 @@ public class EditorDialog
         content.add(nameArea, "1, 0");
         content.add(UIUtilities.setTextFont("Description"), "0, 2, l, t");
         content.add(new JScrollPane(descriptionArea), "1, 2");
-        content.add(buildPermissions(), "1, 4, l, t");
+        //content.add(buildPermissions(), "1, 4, l, t");
         return content;
     }
     

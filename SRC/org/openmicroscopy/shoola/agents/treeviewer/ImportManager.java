@@ -77,12 +77,15 @@ public class ImportManager
 	/** Bound property indicating to view the image. */
 	public static final String	VIEW_IMAGE_PROPERTY = "viewImage";
 	
+	/** Bound property indicating to send the files. */
+	public static final String SEND_FILES_PROPERTY = "sendFiles";
+	
 	/** The title of the dialog. */
 	private static final String	TITLE = "Import";
 	
 	/** The columns for the layout of the {@link #entries}. */
-	private static final double[] COLUMNS = 
-						{TableLayout.PREFERRED, TableLayout.FILL};
+	private static final double[] COLUMNS = {TableLayout.FILL};
+						//{TableLayout.PREFERRED, TableLayout.FILL};
 	
 	/** Action ID indicating to clear the list of imported files. */
 	private static final int	CLEAR = 0;
@@ -175,8 +178,8 @@ public class ImportManager
 			c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		else 
 			c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
-		entries.add(c.getNameLabel(), "0, "+index);
-		entries.add(c, "1, "+index+"");
+		//entries.add(c.getNameLabel(), "0, "+index);
+		entries.add(c, "0, "+index+"");
 	}
 	
 	/** Lays out the entries. */
@@ -227,7 +230,24 @@ public class ImportManager
 	/** Sends the files that failed to import. */
 	private void send()
 	{
-		
+		if (imported == null) return;
+		Map<File, Exception> files = new HashMap<File, Exception>();
+		Entry entry;
+		FileImportComponent c;
+		Iterator i = imported.entrySet().iterator();
+		List<String> names = new ArrayList<String>();
+		File f;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			c = (FileImportComponent) entry.getValue();
+			if (c != null && c.isSelected()) {
+				f = c.getOriginalFile();
+				if (!names.contains(f.getAbsolutePath()))
+					files.put(f, c.getImportException());
+			}
+		}
+		if (files.size() == 0) return;
+		firePropertyChange(SEND_FILES_PROPERTY, null, files);
 	}
 	
 	/** Creates a new instance. */
@@ -295,11 +315,12 @@ public class ImportManager
 		String path = f.getAbsolutePath();
 		FileImportComponent c = components.get(path);
 		if (c != null) {
+			imported.put(path, c);
 			c.setStatus(false, image);
 			components.remove(path);
 			total--;
 			//if (image != null) {
-			imported.put(path, c);
+			
 			//}
 			int index = 0;
 			File ff;

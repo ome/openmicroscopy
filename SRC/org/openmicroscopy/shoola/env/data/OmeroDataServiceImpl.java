@@ -240,9 +240,30 @@ class OmeroDataServiceImpl
 			if (notDeleted.size() > 0)
 				result.addAll(notDeleted);
 			return result;
+		} else if (data instanceof PlateData) {
+			gateway.deleteObject(data.asIObject());
+		} else if (data instanceof ScreenData) {
+			if (!content)
+				return deleteTopContainer(object);
+			List<Long> ids = new ArrayList<Long>(1);
+			ids.add(id);
+			Set l = loadContainerHierarchy(ScreenData.class, ids, false, 
+											userID);
+			//delete all the plates
+			if (l != null && l.size() > 0) {
+				Iterator i = l.iterator();
+				DataObject obj;
+				while (i.hasNext()) {
+					obj = (DataObject) i.next();
+					if (obj instanceof PlateData) {
+						gateway.deleteObject(obj.asIObject());
+					}
+				}
+			}
+			return deleteTopContainer(object);
 		} else if (data instanceof ProjectData) { //project
 			if (!content)
-				return deleteProject(object);
+				return deleteTopContainer(object);
 			//retrieve all the dataset
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(id);
@@ -285,7 +306,7 @@ class OmeroDataServiceImpl
 						*/
 				}
 			}
-			notDeleted = deleteProject(object);
+			notDeleted = deleteTopContainer(object);
 			if (notDeleted.size() > 0)
 				result.addAll(notDeleted);
 			return result;
@@ -488,27 +509,33 @@ class OmeroDataServiceImpl
 		}
 		return newList;
 	}
+	
 	/**
-	 * Deletes the specified project.
+	 * Deletes the specified top container.
 	 * 
 	 * @param object  The object to handle.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	private List<DeletableObject> deleteProject(DeletableObject object)
+	private List<DeletableObject> deleteTopContainer(DeletableObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		DataObject data = object.getObjectToDelete();
+		Class klass = null;
+		if (data instanceof ProjectData) klass = ProjectData.class;
+		else if (data instanceof ScreenData) klass = ScreenData.class;
+		if (klass == null) 
+			throw new omero.IllegalArgumentException("Method can only be" +
+					"invoked to delete Project or Screen");
 		boolean attachment = object.deleteAttachment();
 		long id = data.getId();
 		List<IObject> list;
 		List<IObject> annotations;
 		List<IObject> annotatedByOthers;
 		List<DeletableObject> resuls = new ArrayList<DeletableObject>();
-		annotations = gateway.findAnnotationLinks(
-				ProjectData.class.getName(), id, null);
+		annotations = gateway.findAnnotationLinks(klass.getName(), id, null);
 		annotatedByOthers = isRelatedToOther(annotations);
 		if (annotatedByOthers.size() != 0) {
 			//cannot delete. Notify user.
@@ -528,7 +555,7 @@ class OmeroDataServiceImpl
 			//remove the annotation from the object.
 			List<IObject> toDelete = 
 				annotationsLinkToDelete(object.getAttachmentTypes(), 
-						annotations, ProjectData.class);
+						annotations, klass);
 			if (toDelete.size() > 0)
 				gateway.deleteObjects(toDelete);
 		}
@@ -550,7 +577,7 @@ class OmeroDataServiceImpl
 	 * @param object
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private List<DeletableObject> deleteDataset(DeletableObject object)

@@ -122,13 +122,12 @@ public class FileImportComponent
 		busyLabel = new JXBusyLabel(SIZE);
 		busyLabel.setVisible(true);
 		busyLabel.setBusy(false);
-		//busyLabel.setEnabled(false);
 		nameLabel = new JPanel();
-		nameLabel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		nameLabel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		nameLabel.add(new JLabel(file.getName()));
 		nameLabel.add(Box.createHorizontalStrut(10));
-		Dimension d = nameLabel.getPreferredSize();
-		nameLabel.setPreferredSize(new Dimension(d.width, 35));
+		//Dimension d = nameLabel.getPreferredSize();
+		//nameLabel.setPreferredSize(new Dimension(d.width, 35));
 		thumbLabel = new JLabel();
 		thumbLabel.setToolTipText("Click on thumbnail to launch the viewer.");
 		thumbLabel.addMouseListener(new MouseAdapter() {
@@ -157,10 +156,12 @@ public class FileImportComponent
 	private void buildGUI()
 	{
 		removeAll();
+		add(nameLabel);
 		add(control);
 		if (statusLabel.isVisible())
 			add(statusLabel);
 		if (image instanceof ImportException) {
+			errorBox.setSelected(true);
 			errorBox.setVisible(true);
 			add(errorBox);
 		}
@@ -238,6 +239,7 @@ public class FileImportComponent
 			control = thumbLabel;
 		} else {
 			if (!status) {
+				statusLabel.setVisible(false);
 				thumbLabel.setToolTipText("");
 				thumbLabel.setEnabled(false);
 				if (image == null) setStatusText(null);
@@ -246,6 +248,7 @@ public class FileImportComponent
 				} else if (image instanceof ImportException) {
 					ImportException ie = (ImportException) image;
 					setStatusText(ie.getMessage());
+					errorBox.setSelected(true);
 				}
 				control = thumbLabel;
 			} else control = busyLabel;
@@ -266,6 +269,25 @@ public class FileImportComponent
 		if (errorBox != null && errorBox.isVisible())
 			return errorBox.isSelected();
 		return errorBox.isSelected();
+	}
+	
+	/**
+	 * Returns the file that needs to be imported.
+	 * 
+	 * @return See above.
+	 */
+	public File getOriginalFile() { return file; }
+	
+	/**
+	 * Returns the exception associated to the import;
+	 * 
+	 * @return See above.
+	 */
+	public Exception getImportException()
+	{
+		if (image instanceof Exception)
+			return (Exception) image;
+		return null;
 	}
 	
 	/**
@@ -291,7 +313,7 @@ public class FileImportComponent
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
-		if (errorBox != null && errorBox.isVisible())
+		if (errorBox != null)
 			firePropertyChange(SEND_FILE_PROPERTY, !errorBox.isSelected(), 
 					errorBox.isSelected());
 	}

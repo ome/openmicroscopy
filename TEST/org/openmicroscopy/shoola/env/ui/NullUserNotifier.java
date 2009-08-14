@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.io.File;
 import java.util.Collection;
+import java.util.Map;
+
 import javax.swing.Icon;
 
 //Third-party libraries
@@ -58,12 +60,6 @@ public class NullUserNotifier
      * @see UserNotifier#notifyError(String, String, Throwable)
      */
     public void notifyError(String title, String summary, Throwable detail) {}
-    
-    /**
-     * @see UserNotifier#notifyError(String, String, Throwable, Object)
-     */
-    public void notifyError(String title, String summary, Throwable detail, 
-    		Object toSubmit) {}
 
     /**
      * @see UserNotifier#notifyError(String, String, String)
@@ -71,10 +67,10 @@ public class NullUserNotifier
     public void notifyError(String title, String summary, String detail) {}
 
     /**
-     * @see UserNotifier#notifyError(String, String, String, Object)
+     * @see UserNotifier#notifyError(String, String, String, Map)
      */
-    public void notifyError(String title, String summary, String detail, 
-    		Object toSubmit) {}
+    public void notifyError(String title, String summary, String email, 
+    		Map toSubmit) {}
     
     /**
      * @see UserNotifier#notifyError(String, String)
@@ -135,7 +131,5 @@ public class NullUserNotifier
 	 * @see UserNotifier#setLoadingStatus(int, long, String)
 	 */
 	public void setLoadingStatus(int percent, long id, String name) {}
-
-	
 
 }

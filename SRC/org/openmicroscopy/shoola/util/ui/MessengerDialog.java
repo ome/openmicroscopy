@@ -33,10 +33,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -98,15 +101,12 @@ public class MessengerDialog
 	/** Identifies the error dialog type. */
 	public static final int			COMMENT_TYPE = 1;
 	
+	/** Identifies the error dialog type. */
+	public static final int			SUBMIT_ERROR_TYPE = 2;
+	
 	/** Bound property indicating to send the message. */
 	public static final String		SEND_PROPERTY = "send";
-	
-	/** Bound property indicating to send a message and quit the application. */
-	public static final String		SEND_AND_QUIT_PROPERTY = "sendAndQuit";
-	
-	/** Bound property indicating to submit a file. */
-	public static final String		SUBMIT_PROPERTY = "submit";
-	
+
 	/** Bound property indicating to close the window. */
 	public static final String		CLOSE_MESSENGER_PROPERTY = "closeMessenger";
 	
@@ -115,13 +115,7 @@ public class MessengerDialog
 	
 	/** Action ID to send comment and close the dialog. */
 	private static final int		SEND = 1;
-	
-	/** Action ID to submit file close the dialog. */
-	private static final int		SUBMIT = 2;
-	
-	/** Action ID to send comment and quit the application. */
-	private static final int		QUIT = 3;
-	
+
 	/** Action ID to copy on the clipboard. */
 	private static final int		COPY = 4;
 	
@@ -134,14 +128,6 @@ public class MessengerDialog
 	/** The tooltip of the {@link #sendButton}. */
 	private static final String		SEND_TOOLTIP = "Send the information to " +
 										"the development team";
-	
-	/** The tooltip of the {@link #quitButton}. */
-	private static final String		QUIT_TOOLTIP = "Send the information to " +
-					"the development team and Quit the application.";
-	
-	/** The tooltip of the {@link #submitButton}. */
-	private static final String		SUBMIT_TOOLTIP = "Send file to " +
-					"the development team and Close the dialog.";
 	
 	/** The tooltip of the {@link #copyButton}. */
 	private static final String		COPY_TOOLTIP = "Copy the Exception " +
@@ -163,6 +149,9 @@ public class MessengerDialog
 			"optional, and will only be used for development purposes.\n\n" +
 			"Please note that your application may need to be restarted " +
 			"to work properly.";
+	
+	/** The default message displayed. */
+	private static final String		SUBMIT_MESSAGE = "Review TEXT.";
 	
 	/** The default message displayed when an unvalid e-mail is entered. */
 	private static final String		EMAIL_MESSAGE = "The e-mail address " +
@@ -200,13 +189,7 @@ public class MessengerDialog
 	
 	/** Button to post the message. */
 	private JButton			sendButton;
-	
-	/** Button to quit the application. */
-	private JButton			quitButton;
-	
-	/** Button to quit the application. */
-	private JButton			submitButton;
-	
+
 	/** The area displaying the <code>e-mail address</code>. */
 	private JTextField		emailArea;
 	
@@ -231,8 +214,8 @@ public class MessengerDialog
 	/** A brief description of the error. */
 	private String			errorDescription;
 	
-	/** The object to submit to dev team. */
-	private Object			toSubmit;
+	/** The component displaying the files to send. */
+	private FileTable		table;
 	
 	/**
 	 * Formats the specified button.
@@ -279,14 +262,21 @@ public class MessengerDialog
 	{
 		String email = emailArea.getText().trim();
 		String comment = commentArea.getText().trim();
-		String error = null;
-		if (debugArea != null)  error = debugArea.getText().trim();
-		MessengerDetails details = new MessengerDetails(email, comment);
-		details.setExtra(version);
-		details.setError(error); 
-		details.setObjectToSubmit(toSubmit);
-		firePropertyChange(propertyName, null, details);
-		close();
+		if (dialogType == SUBMIT_ERROR_TYPE) {
+			Map<File, Exception> files = null;
+			if (table != null) {
+				files = table.getSelectedFiles(); 
+			}
+		} else {
+			
+			String error = null;
+			if (debugArea != null)  error = debugArea.getText().trim();
+			MessengerDetails details = new MessengerDetails(email, comment);
+			details.setExtra(version);
+			details.setError(error);
+			firePropertyChange(propertyName, null, details);
+			close();
+		}
 	}
 	
 	/** Initializes the various components. */
@@ -302,12 +292,6 @@ public class MessengerDialog
 		sendButton = new JButton("Send");
 		formatButton(sendButton, 'S', SEND_TOOLTIP, SEND);
 		
-		quitButton = new JButton("Send And Quit");
-		formatButton(quitButton, 'Q', QUIT_TOOLTIP, QUIT);
-		
-		submitButton = new JButton("Submit Files");
-		formatButton(submitButton, 'F', SUBMIT_TOOLTIP, SUBMIT);
-		submitButton.setVisible(false);
         emailArea = new JTextField(20);
         emailArea.setToolTipText(EMAIL_TOOLTIP);
         emailArea.setText(emailAddress);
@@ -467,7 +451,7 @@ public class MessengerDialog
 	 * 
 	 * @return See above.
 	 */
-	private JPanel buildDebugPanel()
+	private JPanel buildDebugPane()
 	{
 		JPanel panel = new JPanel();
 		panel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
@@ -485,12 +469,36 @@ public class MessengerDialog
 	}
 	
 	/**
+	 * Builds and lays out the panel hosting the collection of files to submit.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildFilesToSubmitPane(Map toSubmit)
+	{
+		JPanel panel = new JPanel();
+		panel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+        panel.setOpaque(false);
+        
+        
+        double tableSize[][] = {{TableLayout.FILL}, // columns
+        						{TableLayout.FILL}}; // rows
+        TableLayout layout = new TableLayout(tableSize);
+        panel.setLayout(layout);       
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        table = new FileTable(toSubmit);
+        JScrollPane pane = new JScrollPane(table);
+        pane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+        panel.add(pane, "0, 0");
+        return panel;
+	}
+	
+	/**
 	 * Builds and lays out the panel hosting the comments.
 	 * 
 	 * @param comment		The comment's text.
 	 * @return See above.
 	 */
-	private JPanel buildCommentPanel(String comment)
+	private JPanel buildCommentPane(String comment)
 	{
 		JPanel commentPanel = new JPanel();
 		commentPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
@@ -517,20 +525,27 @@ public class MessengerDialog
 	/** 
 	 * Builds the UI component hosting the debug information.
 	 * 
+	 * @param toSubmit The collection of files to send.
 	 * @return See above
 	 */
-	private JTabbedPane buildExceptionPane()
+	private JTabbedPane buildExceptionPane(Map toSubmit)
 	{
         JTabbedPane tPane = new JTabbedPane();
         tPane.setOpaque(false);
         tPane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-        //IconManager icons = IconManager.getInstance();
-        //Icon icon = icons.getIcon(IconManager.ERROR_ICON_64);
-        //if (icon == null) icon = UIManager.getIcon("OptionPane.errorIcon");
-        tPane.addTab("Comments", null, buildCommentPanel(DEBUG_COMMENT_FIELD), 
+       
+        if (dialogType == SUBMIT_ERROR_TYPE) {
+        	tPane.addTab("Comments", null, buildCommentPane(COMMENT_FIELD), 
         		"Your comments go here.");
-        tPane.addTab("Error Message", null, buildDebugPanel(),
-        			"The Exception Message.");
+        	tPane.addTab("Files to Submit", null, 
+        			buildFilesToSubmitPane(toSubmit),
+        	"The files to send to the development team.");
+        } else {
+        	tPane.addTab("Comments", null, buildCommentPane(DEBUG_COMMENT_FIELD), 
+        		"Your comments go here.");
+        	tPane.addTab("Error Message", null, buildDebugPane(),
+        	"The Exception Message.");
+        }
 		return tPane;
 	}
 	
@@ -547,41 +562,37 @@ public class MessengerDialog
     	bar.add(cancelButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(sendButton);
-    	//bar.add(Box.createHorizontalStrut(5));
-    	//bar.add(submitButton);
+    	bar.add(Box.createHorizontalStrut(10));
     	JPanel p = UIUtilities.buildComponentPanelRight(bar);
     	p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-    	/*
-    	if (dialogType == ERROR_TYPE) {
-    		JPanel controls = new JPanel();
-    		controls.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-        	controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-        	controls.add(Box.createHorizontalStrut(10));
-        	controls.add(quitButton);
-        	controls.add(p);
-        	return controls;
-    	}
-    	*/
     	return p;
     }
     
-	/** Builds and lays out the GUI. */
-	private void buildGUI()
+	/** 
+	 * Builds and lays out the GUI. 
+	 * 
+	 * @param toSubmit The collection of files to send.
+	 */
+	private void buildGUI(Map toSubmit)
 	{
         JComponent component;
         Icon icon;
         IconManager icons = IconManager.getInstance();
         String message;
-        if (exception == null) {
+        if (dialogType == SUBMIT_ERROR_TYPE) {
+        	message = SUBMIT_MESSAGE;
+        	component = buildExceptionPane(toSubmit);
+        	icon = icons.getIcon(IconManager.SUBMIT_ICON_64);
+            if (icon == null) icon = UIManager.getIcon("OptionPane.errorIcon");
+        } else if (exception == null) {
         	message = MESSAGE;
             icon = icons.getIcon(IconManager.COMMENT_ICON_64);
             if (icon == null)
             	icon = UIManager.getIcon("OptionPane.questionIcon");
-        	component = buildCommentPanel(COMMENT_FIELD);
-        	
+        	component = buildCommentPane(COMMENT_FIELD);
         } else {
         	message = DEBUG_MESSAGE;
-        	component = buildExceptionPane();
+        	component = buildExceptionPane(null);
         	icon = icons.getIcon(IconManager.ERROR_ICON_64);
             if (icon == null) icon = UIManager.getIcon("OptionPane.errorIcon");
         }
@@ -596,13 +607,14 @@ public class MessengerDialog
 	/** 
 	 * Initializes the dialog.
 	 * 
-	 *  @param title The title of the dialog.
+	 *  @param title 	The title of the dialog.
+	 *  @param toSubmit The collection of files to send.
 	 */
-	private void initialize(String title)
+	private void initialize(String title, Map toSubmit)
 	{
 		setTitle(title);
 		initComponents();
-		buildGUI();
+		buildGUI(toSubmit);
 		setSize(DEFAULT_SIZE);
 	}
 	
@@ -618,7 +630,7 @@ public class MessengerDialog
 		super(parent);
 		this.emailAddress = emailAddress;
 		dialogType = COMMENT_TYPE;
-		initialize(title);
+		initialize(title, null);
 	}
 	
 	/**
@@ -636,7 +648,24 @@ public class MessengerDialog
 		dialogType = ERROR_TYPE;
 		this.emailAddress = emailAddress;
 		this.exception = exception;
-		initialize(title);
+		initialize(title, null);
+	}	
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param parent		The parent of this dialog.
+	 * @param title			The dialog's title.
+	 * @param emailAddress	The e-mail address of the current user.
+	 * @param toSubmit		The object to submit.
+	 */
+	public MessengerDialog(JFrame parent, String title, String emailAddress, 
+						Map toSubmit)
+	{
+		super(parent);
+		this.dialogType = SUBMIT_ERROR_TYPE;
+		this.emailAddress = emailAddress;
+		initialize(title, toSubmit);
 	}	
 	
 	/**
@@ -656,17 +685,6 @@ public class MessengerDialog
 	 */
 	public void setVersion(String version) { this.version = version; }
 	
-	/** 
-	 * Sets the object to submit.
-	 * 
-	 * @param toSubmit The object to submit.
-	 */
-	public void setObjecToSubmit(Object toSubmit)
-	{ 
-		this.toSubmit = toSubmit; 
-		//submitButton.setVisible(toSubmit != null);
-	}
-	
 	/**
 	 * Returns the type associated to this widget. 
 	 * 
@@ -682,17 +700,11 @@ public class MessengerDialog
 	{
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
-			case QUIT:
-				send(SEND_AND_QUIT_PROPERTY);
-				break;
 			case CANCEL:
 				close();
 				break;
 			case SEND:
 				send(SEND_PROPERTY);
-				break;
-			case SUBMIT:
-				send(SUBMIT_PROPERTY);
 				break;
 			case COPY:
 				copy();

@@ -52,11 +52,7 @@ public class IconCellRenderer
 	extends DefaultTableCellRenderer
 {
 
-	/**
-	 * Creates a new instance. 
-	 * 
-	 * @param alignment The alignment of the label being rendered.
-	 */
+	/** Creates a new instance.  */
 	public IconCellRenderer()
 	{
 		setOpaque(true);
@@ -64,14 +60,9 @@ public class IconCellRenderer
 	}
 	
 	/**
-	 * @see DefaultTableCellRenderer#getTreeCellRendererComponent(JTree, 
-	 * 								Object, boolean, boolean, boolean, 
-	 * 								int, boolean)
-	 */
-	/**
 	 * Overridden to set the correct renderer.
-	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object,
-	 *      boolean, boolean, int, int)
+	 * @see DefaultTableCellRenderer#getTableCellRendererComponent(JTable, 
+	 * Object, boolean, boolean, int, int)
 	 */
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)

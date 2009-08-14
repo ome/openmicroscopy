@@ -55,7 +55,6 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
-import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
 
 /** 
  * Dialog displaying the objects that could not be deleted.

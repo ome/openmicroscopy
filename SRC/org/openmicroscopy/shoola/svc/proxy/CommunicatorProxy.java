@@ -35,7 +35,7 @@ import org.openmicroscopy.shoola.svc.transport.HttpChannel;
 import org.openmicroscopy.shoola.svc.transport.TransportException;
 
 /** 
- * Acitvates the {@link Communicator}.
+ * Activates the {@link Communicator}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -86,7 +86,7 @@ public class CommunicatorProxy
 
 	/**
 	 * Implemented as specified by the {@link Communicator} interface.
-	 * @see Communicator#submitError(String, String, String, String, 
+	 * @see Communicator#submitError(String, String, String, String, String,
 	 * 								StringBuilder)
 	 */
 	public void submitError(String invoker, String email, String comment, 
@@ -103,25 +103,6 @@ public class CommunicatorProxy
             throw new TransportException(
                     "Couldn't communicate with server (I/O error).", ioe);
         }
-	}
-
-	/**
-	 * Implemented as specified by the {@link Communicator} interface.
-	 * @see Communicator#submitBasicRequest(String, String)
-	 */
-	public void submitBasicRequest(String invoker, StringBuilder reply)
-			throws TransportException
-	{
-		MessengerRequest out = new MessengerRequest(null, null, null, null, 
-				invoker);
-		MessengerReply in = new MessengerReply(reply);
-		
-		try {
-			channel.exchange(out, in);
-		} catch (IOException ioe) {
-			throw new TransportException(
-					"Couldn't communicate with server (I/O error).", ioe);
-		}
 	}
 	
 }

@@ -77,7 +77,7 @@ public class ListCellRenderer
 	}
 
 	/**
-	 * Overridden to set the correct renderer.
+	 * Implements as specified by the {@link TableCellRenderer} I/F.
 	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object,
 	 *      boolean, boolean, int, int)
 	 */

@@ -461,11 +461,14 @@ public class IconManager
     /** ID of the <code>Import 48</code> icon. */
     public static final int IMPORT_48 = 131;
     
+    /** ID of the <code>Submit icon 64</code> icon. */
+    public static final int SUBMIT_ICON_64 = 132;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 131;
+    private static int      MAX_ID = 132;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -605,6 +608,7 @@ public class IconManager
         relPaths[MOVIE_48] = "openOffice_stock_insert-video-plugin-48.png";
         relPaths[COLOR_PICKER] = "nuvola_colorpicker16.png";
         relPaths[IMPORT_48] = "omeroImporterLink48.png";
+        relPaths[SUBMIT_ICON_64] = "nuvola_error64.png";
     }
 	
 	/**

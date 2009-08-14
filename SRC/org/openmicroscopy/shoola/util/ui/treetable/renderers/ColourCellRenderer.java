@@ -69,8 +69,11 @@ public class ColourCellRenderer
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		PaintPot paintPot = new PaintPot((Color) value);
-		return paintPot;
+		if (value != null && value instanceof Color) {
+			PaintPot paintPot = new PaintPot((Color) value);
+			return paintPot;
+		}
+		return this;
 	}
 }
 

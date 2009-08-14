@@ -59,6 +59,12 @@ public class MessengerDetails
 	/** The object to submit. */
 	private Object toSubmit;
 	
+	/** The name of the user. */
+	private String userName;
+	
+	/** The password of the user. */
+	private String password;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -87,7 +93,7 @@ public class MessengerDetails
 	public void setError(String error) { this.error = error; }
 	
 	/**
-	 * Sets the object to submit to the dev team.
+	 * Sets the object to submit to the development team.
 	 * 
 	 * @param toSubmit The value to set.
 	 */

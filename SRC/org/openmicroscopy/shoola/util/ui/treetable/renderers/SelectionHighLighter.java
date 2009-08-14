@@ -61,7 +61,7 @@ public class SelectionHighLighter
 	 * 
 	 * @param row 	The row to handle.
 	 * @param rows 	The selected rows.
-	 * @return S ee above.
+	 * @return See above.
 	 */
 	private boolean isSelected(int row, int [] rows)
 	{

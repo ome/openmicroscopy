@@ -28,6 +28,8 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.Map;
+
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
@@ -40,6 +42,8 @@ import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 
 /** 
@@ -113,22 +117,40 @@ public class UserNotifierImpl
     }
     
     /**
+     * Returns the e-mail address of the user currently logged in, if 
+     * no address specified.
+     * 
+     * @param email The address to check.
+     * @return See above.
+     */
+    private String getEmail(String email)
+    {
+    	if (email != null && email.trim().length() != 0) return email;
+    	ExperimenterData exp = manager.getExperimenter();
+		if (exp != null) email = exp.getEmail();
+		if (email == null) email = "";
+		return email;
+    }
+    
+    /**
      * Brings up a messenger dialog.
      * 
      * @param title		The dialog title.
      * @param summary	The dialog message.
      * @param detail	The detailed error message.
+     * @param email		The e-mail address of the user.
      * @param toSubmit 	The version of the software.
      */
     private void showErrorDialog(String title, String summary, String detail, 
-    		Object toSubmit)
+    		String email)
     {
     	Exception e;
     	if (detail == null) e = new Exception(summary);
     	else e = new Exception(detail);
-    	if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
-    	MessengerDialog d = new MessengerDialog(SHARED_FRAME, title, "", e); 
-    	d.setObjecToSubmit(toSubmit);
+    	if (title == null || title.length() == 0) 
+    		title = DEFAULT_ERROR_TITLE;
+    	MessengerDialog d = new MessengerDialog(SHARED_FRAME, title, 
+    			getEmail(email), e); 
     	d.setVersion(manager.getVersionNumber());
     	d.addPropertyChangeListener(manager);
     	d.setModal(true);
@@ -168,27 +190,24 @@ public class UserNotifierImpl
 		notifyError(title, summary, 
 						detail == null ? null : printErrorText(detail));
     }
-    
-	/** 
-     * Implemented as specified by {@link UserNotifier}. 
-     * @see UserNotifier#notifyError(String, String, Throwable, Object)
-     */       
-    public void notifyError(String title, String summary, Throwable detail, 
-    		Object toSubmit)
-    {
-		notifyError(title, summary, 
-				detail == null ? null : printErrorText(detail), toSubmit);
-    }
 
 	/** 
      * Implemented as specified by {@link UserNotifier}. 
-     * @see UserNotifier#notifyError(String, String, String, Object)
+     * @see UserNotifier#notifyError(String, String, String, Map)
      */     
-	public void notifyError(String title, String summary, String detail,
-			Object toSubmit)
+	public void notifyError(String title, String summary, String email,
+			Map toSubmit)
 	{
-		if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
-		showErrorDialog(title, summary, detail, toSubmit);
+		if (title == null || title.length() == 0) 
+			title = DEFAULT_ERROR_TITLE;
+    	if (email == null) email = "";
+    	MessengerDialog d = new MessengerDialog(SHARED_FRAME, title, 
+    			getEmail(email), toSubmit); 
+    	d.setVersion(manager.getVersionNumber());
+    	d.addPropertyChangeListener(manager);
+    	d.setModal(true);
+    	UIUtilities.centerAndShow(d);
+		//showErrorDialog(title, summary, detail, toSubmit);
 	}
     
 	
@@ -198,7 +217,7 @@ public class UserNotifierImpl
      */     
 	public void notifyError(String title, String summary, String detail)
 	{
-		notifyError(title, summary, detail, null);
+		showErrorDialog(title, summary, detail, null);
 	}
     
 	/**
@@ -275,7 +294,10 @@ public class UserNotifierImpl
     	d.setAlwaysOnTop(false);
     	UIUtilities.centerAndShow(d);
     	*/
-		MessengerDialog d = manager.getCommentDialog(SHARED_FRAME, email);
+		
+		
+		MessengerDialog d = manager.getCommentDialog(SHARED_FRAME, 
+				getEmail(email));
 		UIUtilities.centerAndShow(d);
 	}
 

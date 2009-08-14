@@ -29,7 +29,6 @@ import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
@@ -150,7 +149,7 @@ public class OMETreeTable
 		setTreeTableModel(model);
 	}
 	
-	/** Sets the default hightlighter for this table. */
+	/** Sets the default high lighter for this table. */
 	protected void setDefaultHighLighter()
 	{
 		Highlighter h = HighlighterFactory.createAlternateStriping(

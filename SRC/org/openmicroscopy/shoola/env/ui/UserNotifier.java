@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.env.ui;
 // Java Imports
 import java.io.File;
 import java.util.Collection;
+import java.util.Map;
+
 import javax.swing.Icon;
 
 //Third-party libraries
@@ -64,19 +66,6 @@ public interface UserNotifier
     public void notifyError(String title, String summary, Throwable detail);
     
     /**
- 	 * Brings up a modal dialog to notify the user of an error.
- 	 * The dialog will just show the error summary.  However the user can press
- 	 * a <i>details</i> button to have the dialog show the error detail.
- 	 * 
- 	 * @param title		The title of the dialog.
- 	 * @param summary	A brief description of the error.
- 	 * @param detail	The cause of the error.
- 	 * @param toSubmit	The objects to submit to the dev team.
- 	 */
-    public void notifyError(String title, String summary, Throwable detail, 
-    		Object toSubmit);
-    
-    /**
      * Brings up a modal dialog to notify the user of an error.
  	 * The dialog will just show the error summary.  However the user can press
  	 * a <i>details</i> button to have the dialog show the error detail.
@@ -94,11 +83,11 @@ public interface UserNotifier
  	 * 
      * @param title		The title of the dialog.
  	 * @param summary	A brief description of the error.
- 	 * @param detail	A more detailed description of the cause of the error.
- 	 * @param toSubmit	The objects to submit to the dev team.
+ 	 * @param email		The e-mail address of the user.
+ 	 * @param toSubmit	The objects to submit to the development team.
      */
-	public void notifyError(String title, String summary, String detail, 
-			Object toSubmit);
+	public void notifyError(String title, String summary, String email, 
+			Map toSubmit);
 	
 	/**
 	 * Brings up a modal dialog to notify the user of an error.
