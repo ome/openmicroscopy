@@ -26,13 +26,11 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 
 from omeroweb.webadmin.models import Gateway
-from omeroweb.webclient.models import Advice, CategoryAdvice, EmailToSend, EmailTemplate
+from omeroweb.feedback.models import EmailToSend, EmailTemplate
 
 # make admin enable
 admin.autodiscover()
 admin.site.register(Gateway)
-admin.site.register(Advice)
-admin.site.register(CategoryAdvice)
 admin.site.register(EmailToSend)
 admin.site.register(EmailTemplate)
 
@@ -44,9 +42,11 @@ handler500 = "omeroweb.feedback.views.handler500"
 urlpatterns = patterns('',
     (r'^admin/(.*)', admin.site.root),
     
+    (r'^appmedia/webgateway/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'webgateway/media'}),
     (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),
     (r'(?i)^webclient/', include('omeroweb.webclient.urls')),
     (r'(?i)^feedback/', include('omeroweb.feedback.urls')),
+    (r'(?i)^webgateway/', include('omeroweb.webgateway.urls')),
     
     (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/webadmin/static/images/ome.ico'}),
 

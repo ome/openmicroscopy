@@ -117,12 +117,14 @@ urlpatterns = patterns('',
     
     url( r'^myphoto/$', views.myphoto, name="myphoto"),
     url( r'^userphoto/(?P<oid>[0-9]+)/$', views.load_photo, name="load_photo"),
-    url( r'^render_image/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', views.render_image, name="render_image"),
-    url( r'^render_image/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/(?P<share_id>[0-9]+)/$', views.render_image, name="render_image_shareid"),
-    url( r'^img_detail/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.image_viewer, name="image_viewer"),
-    url( r'^imgData/(?P<iid>[0-9]+)/$', views.imageData_json, name="imageData_json"),
-    url( r'^imgData/(?P<iid>[0-9]+)/(?P<share_id>[0-9]+)/$', views.imageData_json, name="imageData_json_shareid"),
+    url( r'^(?:(?P<share_id>[0-9]+)/)?render_image/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', views.render_image, name="render_image"),
+    url( r'^(?:(?P<share_id>[0-9]+)/)?img_detail/(?P<iid>[0-9]+)/$', views.image_viewer, name="image_viewer"),
+    url( r'^(?:(?P<share_id>[0-9]+)/)?imgData/(?P<iid>[0-9]+)/$', views.imageData_json, name="imageData_json"),
     
+    url(r'^(?:(?P<share_id>[0-9]+)/)?render_row_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$', views.render_row_plot, name="render_row_plot"),
+    url(r'^(?:(?P<share_id>[0-9]+)/)?render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$', views.render_col_plot, name="render_col_plot"),
+    url(r'^(?:(?P<share_id>[0-9]+)/)?render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', views.render_split_channel, name="render_split_channel"),
+
     url( r'^spellchecker/$', views.spellchecker, name="spellchecker"), 
     
     #( r'^feeds/(?P<url>.*)/$', 'django.contrib.syndication.views.feed',{'feed_dict': feeds}),

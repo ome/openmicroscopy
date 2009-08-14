@@ -45,7 +45,11 @@ TEXT="""
 """ % str(VERSION)
 
 OMEROCLI = path(__file__).expand().dirname()
-OMERODIR = OMEROCLI.dirname().dirname().dirname()
+OMERODIR = os.getenv('OMERODIR', None)
+if OMERODIR is not None:
+    OMERODIR = path(OMERODIR)
+else:
+    OMERODIR = OMEROCLI.dirname().dirname().dirname()
 
 COMMENT = re.compile("^\s*#")
 RELFILE = re.compile("^\w")

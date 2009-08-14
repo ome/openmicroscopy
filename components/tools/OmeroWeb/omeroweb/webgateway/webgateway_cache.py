@@ -14,6 +14,9 @@
 from django.conf import settings
 import omero
 import logging
+from random import random
+import datetime
+
 
 logger = logging.getLogger('cache')
 
@@ -23,9 +26,11 @@ string_type = type('')
 
 CACHE=getattr(settings, 'WEBGATEWAY_CACHE', None)
 THUMB_CACHE_TIME = 3600 # 1 hour
-THUMB_CACHE_SIZE = 1024 # KB == 1MB
+THUMB_CACHE_SIZE = 20*1024 # KB == 20MB
 IMG_CACHE_TIME= 3600 # 1 hour
 IMG_CACHE_SIZE = 512*1024 # KB == 512MB
+JSON_CACHE_TIME= 3600 # 1 hour
+JSON_CACHE_SIZE = 1*1024 # KB == 1MB
 
 class CacheBase (object):
     def __init__ (self):
@@ -34,10 +39,13 @@ class CacheBase (object):
     def get (self, k):
         return None
 
-    def set (self, k, v, t=0):
+    def set (self, k, v, t=0, invalidateGroup=None):
         return False
 
     def delete (self, k):
+        return False
+
+    def wipe (self):
         return False
 
 class FileCache(CacheBase):
@@ -54,11 +62,11 @@ class FileCache(CacheBase):
         if not os.path.exists(self._dir):
             self._createdir()
 
-    def add(self, key, value, timeout=None):
+    def add(self, key, value, timeout=None, invalidateGroup=None):
         if self.has_key(key):
             return False
 
-        self.set(key, value, timeout)
+        self.set(key, value, timeout, invalidateGroup=invalidateGroup)
         return True
 
     def get(self, key, default=None):
@@ -76,7 +84,7 @@ class FileCache(CacheBase):
             pass
         return default
 
-    def set(self, key, value, timeout=None):
+    def set(self, key, value, timeout=None, invalidateGroup=None):
         if type(value) != string_type:
             raise ValueError("%s not a string, can't cache" % type(value))
         fname = self._key_to_file(key)
@@ -99,7 +107,7 @@ class FileCache(CacheBase):
                 os.makedirs(dirname)
 
             f = open(fname, 'wb')
-            exp = time.time() + timeout
+            exp = time.time() + timeout + (timeout / 5 * random()) 
             f.write(struct.pack('d', exp))
             f.write(value)
         except (IOError, OSError):
@@ -124,6 +132,10 @@ class FileCache(CacheBase):
                 os.rmdir(os.path.dirname(dirname))
             except (IOError, OSError):
                 pass
+
+    def wipe (self):
+        shutil.rmtree(self._dir)
+        return True
 
     def _check_entry (self, fname):
         """
@@ -215,14 +227,88 @@ class FileCache(CacheBase):
 FN_REGEX = re.compile('[#$,|]')
 class WebGatewayCache (object):
     def __init__ (self, backend=None, basedir=CACHE):
+        self._basedir = basedir
+        self._lastlock = None
         if backend is None or basedir is None:
+            self._json_cache = CacheBase()
             self._img_cache = CacheBase()
             self._thumb_cache = CacheBase()
         else:
+            self._json_cache = backend(dir=os.path.join(basedir,'json'),
+                                      timeout=JSON_CACHE_TIME, max_entries=0, max_size=JSON_CACHE_SIZE)
             self._img_cache = backend(dir=os.path.join(basedir,'img'),
                                       timeout=IMG_CACHE_TIME, max_entries=0, max_size=IMG_CACHE_SIZE)
             self._thumb_cache = backend(dir=os.path.join(basedir,'thumb'),
                                         timeout=THUMB_CACHE_TIME, max_entries=0, max_size=THUMB_CACHE_SIZE)
+
+    def _updateCacheSettings (self, cache, timeout=None, max_entries=None, max_size=None):
+        if isinstance(cache, CacheBase):
+            cache = (cache,)
+        for c in cache:
+            if timeout is not None:
+                c._default_timeout = timeout
+            if max_entries is not None:
+                c._max_entries = max_entries
+            if max_size is not None:
+                c._max_size = max_size
+
+    def __del__ (self):
+        if self._lastlock:
+            try:
+                logger.debug('removing cache lock file on __del__')
+                os.remove(self._lastlock)
+            except:
+                pass
+            self._lastlock = None
+
+    def tryLock (self):
+        lockfile = os.path.join(self._basedir, '%s_lock' % datetime.datetime.now().strftime('%Y%m%d_%H%M'))
+        if self._lastlock:
+            if lockfile == self._lastlock:
+                return True
+            try:
+                os.remove(self._lastlock)
+            except:
+                pass
+            self._lastlock = None
+        try:
+            fd = os.open(lockfile, os.O_CREAT | os.O_EXCL)
+            os.close(fd)
+            self._lastlock = lockfile
+            return True
+        except OSError:
+            return False
+
+    def handleEvent (self, client_base, e):
+        logger.debug('## %s#%i %s user #%i group #%i(%i)' % (e.entityType.val, e.entityId.val, e.action.val, e.details.owner.id.val, e.details.group.id.val, e.event.id.val))
+
+    def eventListener (self, client_base, events):
+        for e in events:
+            if self.tryLock():
+                self.handleEvent(client_base, e)
+            else:
+                logger.debug("## ! ignoring event %s" % str(e.event.id.val))
+
+    def clear (self):
+        self._json_cache.wipe()
+        self._img_cache.wipe()
+        self._thumb_cache.wipe()
+
+    def _cache_set (self, cache, key, obj):
+        logger.debug('   set: %s' % key)
+        cache.set(key, obj)
+
+    def _cache_clear (self, cache, key):
+        logger.debug(' clear: %s' % key)
+        cache.delete(key)
+
+    def invalidateObject (self, client_base, obj):
+        """ Invalidates all caches for this particular object """
+        if obj.OMERO_CLASS == 'Image':
+            self.clearImage(None, client_base, obj)
+        else:
+            logger.debug('unhandled object type: %s' % obj.OMERO_CLASS)
+            self.clearJson(client_base, obj)
 
     ##
     # Thumb
@@ -232,8 +318,7 @@ class WebGatewayCache (object):
 
     def setThumb (self, r, client_base, iid, obj):
         k = self._thumbKey(r, client_base, iid)
-        logger.debug('   set: %s' % k)
-        self._thumb_cache.set(k, obj)
+        self._cache_set(self._thumb_cache, k, obj)
         return True
 
     def getThumb (self, r, client_base, iid):
@@ -247,14 +332,14 @@ class WebGatewayCache (object):
 
     def clearThumb (self, r, client_base, iid):
         k = self._thumbKey(r, client_base, iid)
-        logger.debug(' clear: %s' % k)
-        self._thumb_cache.delete(k)
+        self._cache_clear(self._thumb_cache, k)
         return True
 
     ##
     # Image
 
-    def _imageKey (self, r, client_base, iid, z=0, t=0):
+    def _imageKey (self, r, client_base, img, z=0, t=0):
+        iid = img.getId()
         if r:
             r = r.REQUEST
             c = FN_REGEX.sub('-',r.get('c', ''))
@@ -271,14 +356,13 @@ class WebGatewayCache (object):
         else:
             return 'img_%s/%s/' % (client_base, str(iid))
 
-    def setImage (self, r, client_base, iid, z, t, obj):
-        k = self._imageKey(r, client_base, iid, z, t)
-        logger.debug('   set: %s' % k)
-        self._img_cache.set(k, obj)
+    def setImage (self, r, client_base, img, z, t, obj, ctx=''):
+        k = self._imageKey(r, client_base, img, z, t) + ctx
+        self._cache_set(self._img_cache, k, obj)
         return True
 
-    def getImage (self, r, client_base, iid, z, t):
-        k = self._imageKey(r, client_base, iid, z, t)
+    def getImage (self, r, client_base, img, z, t, ctx=''):
+        k = self._imageKey(r, client_base, img, z, t) + ctx
         r = self._img_cache.get(k)
         if r is None:
             logger.debug('  fail: %s' % k)
@@ -286,35 +370,53 @@ class WebGatewayCache (object):
             logger.debug('cached: %s' % k)
         return r
 
-    def clearImage (self, r, client_base, iid):
-        k = self._imageKey(None, client_base, iid)
-        logger.debug(' clear: %s' % k)
-        self._img_cache.delete(k)
+    def clearImage (self, r, client_base, img):
+        k = self._imageKey(None, client_base, img)
+        self._cache_clear(self._img_cache, k)
         # do the thumb too
-        self.clearThumb(r, client_base, iid)
+        self.clearThumb(r, client_base, img.getId())
+        # and json data
+        self.clearJson(client_base, img)
         return True
 
-    def setSplitChannelImage (self, r, client_base, iid, z, t, obj):
-        k = 'sc'+self._imageKey(r, client_base, iid, z, t)
-        logger.debug('   set: %s' % k)
-        self._img_cache.set(k, obj)
+    def setSplitChannelImage (self, r, client_base, img, z, t, obj):
+        return self.setImage(r, client_base, img, z, t, obj, '-sc')
+
+    def getSplitChannelImage (self, r, client_base, img, z, t):
+        return self.getImage(r, client_base, img, z, t, '-sc')
+
+    ##
+    # hierarchies (json)
+
+    def _jsonKey (self, r, client_base, obj, ctx=''):
+        return 'json_%s/%s_%s/%s' % (client_base, obj.OMERO_CLASS, obj.id, ctx)
+
+    def clearJson (self, client_base, obj):
+        logger.debug('clearjson')
+        if obj.OMERO_CLASS == 'Dataset':
+            self.clearDatasetContents(None, client_base, obj)
+    
+    #def _jsonDSKey (self, r, client_base, did, ctx):
+    #    # ignore request data
+    #    return self._jsonKey(r, client_base, str(did), 'ds') + ctx
+
+    def setDatasetContents (self, r, client_base, ds, data):
+        k = self._jsonKey(r, client_base, ds, 'contents')
+        self._cache_set(self._json_cache, k, data)
         return True
 
-    def getSplitChannelImage (self, r, client_base, iid, z, t):
-        k = 'sc'+self._imageKey(r, client_base, iid, z, t)
-        r = self._img_cache.get(k)
+    def getDatasetContents (self, r, client_base, ds):
+        k = self._jsonKey(r, client_base, ds, 'contents')
+        r = self._json_cache.get(k)
         if r is None:
             logger.debug('  fail: %s' % k)
         else:
             logger.debug('cached: %s' % k)
         return r
 
-    def clearSplitChannelImage (self, r, client_base, iid):
-        k = 'sc'+self._imageKey(None, client_base, iid)
-        logger.debug(' clear: %s' % k)
-        self._img_cache.delete(k)
-        # do the thumb too
-        self.clearThumb(r, client_base, iid)
+    def clearDatasetContents (self, r, client_base, ds):
+        k = self._jsonKey(r, client_base, ds, 'contents')
+        self._cache_clear(self._json_cache, k)
         return True
 
 webgateway_cache = WebGatewayCache(FileCache)

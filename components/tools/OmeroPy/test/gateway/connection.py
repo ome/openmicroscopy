@@ -14,6 +14,26 @@ import Ice
 import test.gateway.library as lib
 
 class ConnectionMethodsTest (lib.GTest):
+    def testMultiProcessSession (self):
+        #120 amongst other things trying to getSession() twice for the same session dies. Also in separate processes.
+        # we mimic this by calling setGroupForSession, which calls sessionservice.getSession, 2 times on cloned connections
+        self.loginAsAuthor()
+        self.assertNotEqual(self.gateway._session, None)
+        c2 = self.gateway.clone()
+        self.assert_(c2.connect(sUuid=self.gateway._sessionUuid))
+        self.assertEqual(c2._session, None)
+        a = c2.getAdminService()
+        g = omero.gateway.ExperimenterGroupWrapper(c2, a.containedGroups(c2._userid)[-1])
+        self.assertNotEqual(g.name, c2.getEventContext().groupName)
+        c2.setGroupForSession(g)
+        c3 = self.gateway.clone()
+        self.assert_(c3.connect(sUuid=self.gateway._sessionUuid))
+        self.assertEqual(c3._session, None)
+        a = c3.getAdminService()
+        g = omero.gateway.ExperimenterGroupWrapper(c3, a.containedGroups(c3._userid)[1])
+        self.assertNotEqual(g.name, c3.getEventContext().groupName)
+        c3.setGroupForSession(g)
+
     def testSeppuku (self):
         self.loginAsAuthor()
         self.assertNotEqual(self.getTestImage(), None)
@@ -47,7 +67,7 @@ class ConnectionMethodsTest (lib.GTest):
         self.assert_(project_id in ids)
         ##
         # Test listProjects as guest (does not see, does not own)
-        self.doLogin(*self.USER)
+        self.doLogin(self.USER)
         ids = map(lambda x: x.getId(), self.gateway.listProjects(only_owned=False))
         self.assert_(project_id not in ids)
         ids = map(lambda x: x.getId(), self.gateway.listProjects(only_owned=True))
@@ -63,14 +83,14 @@ class ConnectionMethodsTest (lib.GTest):
         ##
         # Test listExperimenters
         exps = map(lambda x: x.omeName, self.gateway.listExperimenters())
-        for omeName in (self.USER[0], self.AUTHOR[0], self.ADMIN[0].decode('utf-8')):
+        for omeName in (self.USER.name, self.AUTHOR.name, self.ADMIN.name.decode('utf-8')):
             self.assert_(omeName in exps)
             self.assert_(len(list(self.gateway.listExperimenters(omeName))) > 0)
-        self.assert_(len(list(self.gateway.listExperimenters(self.USER[0]+self.AUTHOR[0]+self.ADMIN[0]))) ==  0)
+        self.assert_(len(list(self.gateway.listExperimenters(self.USER.name+self.AUTHOR.name+self.ADMIN.name))) ==  0)
         ##
         # Test lookupExperimenter
-        self.assertEqual(self.gateway.lookupExperimenter(self.USER[0]).omeName, self.USER[0])
-        self.assertEqual(self.gateway.lookupExperimenter(self.USER[0]+self.AUTHOR[0]+self.ADMIN[0]), None)
+        self.assertEqual(self.gateway.lookupExperimenter(self.USER.name).omeName, self.USER.name)
+        self.assertEqual(self.gateway.lookupExperimenter(self.USER.name+self.AUTHOR.name+self.ADMIN.name), None)
         ##
         # still logged in as Author, test listImages(ns)
         ns = 'weblitz.test_annotation'
@@ -92,7 +112,7 @@ class ConnectionMethodsTest (lib.GTest):
 
     def testCloseSession (self):
         #74 the failed connection for a user not in the system group does not get closed
-        self.gateway.setIdentity(*self.USER)
+        self.gateway.setIdentity(self.USER.name, self.USER.passwd)
         setprop = self.gateway.c.ic.getProperties().setProperty
         map(lambda x: setprop(x[0],str(x[1])), self.gateway._ic_props.items())
         self.gateway.c.ic.getImplicitContext().put(omero.constants.GROUP, self.gateway.group)
@@ -105,7 +125,7 @@ class ConnectionMethodsTest (lib.GTest):
         
     def testMiscellaneous (self):
         self.loginAsUser()
-        self.assertEqual(self.gateway.getUser().omeName, self.USER[0])
+        self.assertEqual(self.gateway.getUser().omeName, self.USER.name)
 
 if __name__ == '__main__':
     unittest.main()

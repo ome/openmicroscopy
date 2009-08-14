@@ -107,7 +107,7 @@
 
 #wblitz-image-vpi { 
   cursor: -moz-grab;
-  cursor: url('/webclient/static/images/blitzcon/openhand.cur'), pointer, auto;
+  cursor: url('../images/blitzcon/openhand.cur'), pointer, auto;
 }
 
 #wblitz-message { 
@@ -158,12 +158,12 @@
 
 .draggable {
   cursor: -moz-grab;
-  cursor: url('/webclient/static/images/blitzcon/openhand.cur'), pointer, auto;
+  cursor: url('../images/blitzcon/openhand.cur'), pointer, auto;
 }
 
 .ondrag {
   cursor: -moz-grabbing;
-  cursor: url('/webclient/static/images/blitzcon/closedhand.cur'), hand, auto;
+  cursor: url('../images/blitzcon/closedhand.cur'), hand, auto;
 }
 
 

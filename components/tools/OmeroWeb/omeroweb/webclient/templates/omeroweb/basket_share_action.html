@@ -63,7 +63,12 @@
             $('#products img.catzoom').attr('width', 80);
         });
     })
-
+    </script>
+    <script>
+    var popup = function (url) {
+          window.open(url,'_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800');
+          return false;
+    }
     </script>
     
 {% endblock %}
@@ -81,7 +86,7 @@
     <div class="image"><ul id="products">
         {% for e in basket.imageInBasket %}
             <li id="image-{{ e.id }}"class="product"><em>{{ e.name }}</em>
-                <a href="#" onclick="popup(null,'_blank',{{ e.id }}); return false;"><img id="{{ e.id }}" class="imgzoom" src="{% url render_thumbnail e.id %}" alt="image" title="{{ e.name }}"/></a>
+                <a href="#" onclick="return popup('{% url image_viewer e.id %}')"><img id="{{ e.id }}" class="imgzoom" src="{% url render_thumbnail e.id %}" alt="image" title="{{ e.name }}"/></a>
                 <a href="#" onclick="fromBasket('image', '{{ e.id }}'); return false;"><img src ="{% url webstatic "images/cancel16.png" %}" alt="r" title="remove"/></a>
             </li>
         {% endfor %}

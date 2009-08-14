@@ -101,16 +101,31 @@ function parseQuery (q) {
   return Params;
 }
 
+var gs_modalJson_cb;
+
 /**
  * Calls a jsonp url, just like $.getJson, but also looks out for errors.
  * The call is made in a make-believe synchronous fashion, by adding a semi-transparent overlay and disabling controls.
  */
-function gs_modalJson (url, data, callback) {
+function gs_modalJson (url, data, callback, confirm_first) {
   if (jQuery.blockUI === undefined) {
-    jQuery.getScript(gs_script_location_prefix + 'jquery.blockUI.js', function () {gs_modalJson(url,data,callback);});
+    jQuery.getScript(gs_script_location_prefix + 'jquery.blockUI.js', function () {gs_modalJson(url,data,callback,confirm_first);});
     return;
   }
-  jQuery.blockUI();
+  if (confirm_first != null) {
+    gs_modalJson_cb = function () {
+      jQuery.unblockUI();
+      gs_modalJson(url, data, callback);
+      return false;
+    }
+    message = '<h2>Are you sure ?</h2>' +
+              '<input type="button" onclick="return gs_modalJson_cb();" value="Yes" />' +
+              '<input type="button" onclick="jQuery.unblockUI(); return false;" value="No" />';
+    jQuery.blockUI({message: message});
+    return;
+  } else {
+    jQuery.blockUI();
+  }
   var cb = function (result) {
     return function (data, textStatus, errorThrown) {
       jQuery.unblockUI();

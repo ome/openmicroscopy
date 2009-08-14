@@ -10,7 +10,7 @@ table.tablesorter thead tr th, table.tablesorter tfoot tr th {
     padding: 2px 10px 2px 2px;
 }
 table.tablesorter thead tr .header {
-    background-image: url(/webclient/static/images/table/bg.gif);
+    background-image: url(../images/table/bg.gif);
     background-repeat: no-repeat;
     background-position: center right;
     cursor: pointer;
@@ -25,10 +25,10 @@ table.tablesorter tbody tr.odd td {
     background-color:#ccc;
 }
 table.tablesorter thead tr .headerSortUp {
-    background-image: url(/webclient/static/images/table/asc.gif);
+    background-image: url(../images/table/asc.gif);
 }
 table.tablesorter thead tr .headerSortDown {
-    background-image: url(/webclient/static/images/table/desc.gif);
+    background-image: url(../images/table/desc.gif);
 }
 table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
     background-color: #ccc;

@@ -32,6 +32,8 @@ class AnnotationsTest (lib.GTest):
         ann.setValue(value)
         obj.linkAnnotation(ann)
         ann = obj.getAnnotation(ns)
+        # Make sure the group for the annotation is the same as the original object. (#120)
+        self.assertEqual(ann.getDetails().getGroup(), obj.getDetails().getGroup())
         tval = hasattr(value, 'val') and value.val or value
         self.assert_(ann.getValue() == value, '%s != %s' % (str(ann.getValue()), str(tval)))
         self.assert_(ann.getNs() == ns,  '%s != %s' % (str(ann.getNs()), str(ns)))
@@ -41,6 +43,8 @@ class AnnotationsTest (lib.GTest):
         # Same dance, createAndLink shortcut
         annclass.createAndLink(target=obj, ns=ns, val=value)
         ann = obj.getAnnotation(ns)
+        # Make sure the group for the annotation is the same as the original object. (#120)
+        self.assertEqual(ann.getDetails().getGroup(), obj.getDetails().getGroup())
         tval = hasattr(value, 'val') and value.val or value
         self.assert_(ann.getValue() == value, '%s != %s' % (str(ann.getValue()), str(tval)))
         self.assert_(ann.getNs() == ns,  '%s != %s' % (str(ann.getNs()), str(ns)))
@@ -48,6 +52,9 @@ class AnnotationsTest (lib.GTest):
         obj.removeAnnotations(ns)
         self.assertEqual(obj.getAnnotation(ns), None)
 
+    def testNonDefGroupAnnotation (self):
+        p = self.getTestProject2()
+        self._testAnnotation(p,  omero.gateway.CommentAnnotationWrapper, self.TESTANN_NS, 'some value')
 
     def testCommentAnnotation (self):
         self._testAnnotation(self.TESTIMG, omero.gateway.CommentAnnotationWrapper, self.TESTANN_NS, 'some value')

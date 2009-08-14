@@ -105,7 +105,7 @@ jQuery._ThumbSlider = function (container) {
     var onerror = function () {
       onload(true);
       thumb.unbind('load', onload);
-      error_cb && error_cb(thumb);
+      error_cb && error_cb(thumb, _this);
     }
     thumb.one('load',onload);
     thumb.one('error',onerror);

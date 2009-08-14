@@ -77,15 +77,15 @@ class WrapperTest (lib.GTest):
 
     def testExperimenterWrapper (self):
         self.loginAsAdmin()
-        e = self.gateway.lookupExperimenter(self.USER[0])
-        self.assertEqual(e.getDetails().getOwner().omeName, self.USER[0])
+        e = self.gateway.lookupExperimenter(self.USER.name)
+        self.assertEqual(e.getDetails().getOwner().omeName, self.USER.name)
 
     def testDetailsWrapper (self):
         self.loginAsAuthor()
         img = self.getTestImage()
         d = img.getDetails()
-        self.assertEqual(d.getOwner().omeName, self.AUTHOR[0])
-        self.assertEqual(d.getGroup().name, self.AUTHOR[0] + '_group')
+        self.assertEqual(d.getOwner().omeName, self.AUTHOR.name)
+        self.assertEqual(d.getGroup().name, img.getProject().getDetails().getGroup().name)
 
     def testSetters (self):
         """ verify the setters that coerce values into blitz friendly rtypes."""

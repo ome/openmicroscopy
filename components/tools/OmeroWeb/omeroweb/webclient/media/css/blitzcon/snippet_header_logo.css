@@ -15,7 +15,7 @@
   text-align: center;
   margin: 0px;
   padding: 0px;
-  background-image: url("/webclient/static/images/blitzcon/logo-selzer.gif");
+  background-image: url("../images/blitzcon/logo-selzer.gif");
   background-repeat: no-repeat;
   background-position: center top;
   height: 120px;

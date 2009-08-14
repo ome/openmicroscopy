@@ -11,12 +11,12 @@
  */
 
 .farbtastic .wheel {
-  background: url(/webclient/static/images/blitzcon/farbtastic/wheel.png) no-repeat;
+  background: url(../images/blitzcon/farbtastic/wheel.png) no-repeat;
 }
 .farbtastic .overlay {
-  background: url(/webclient/static/images/blitzcon/farbtastic/mask.png) no-repeat;
+  background: url(../images/blitzcon/farbtastic/mask.png) no-repeat;
 }
 .farbtastic .marker {
-  background: url(/webclient/static/images/blitzcon/farbtastic/marker.png) no-repeat;
+  background: url(../images/blitzcon/farbtastic/marker.png) no-repeat;
 }
 

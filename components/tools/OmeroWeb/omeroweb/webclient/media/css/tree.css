@@ -39,7 +39,7 @@
 .simpleTree .root
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/root.gif) no-repeat 16px 0 #ffffff;
+	background: url(../images/tree/root.gif) no-repeat 16px 0 #ffffff;
 }
 .simpleTree .line
 {
@@ -48,7 +48,7 @@
 	line-height: 5px;
 	height: 5px;
 	font-size:3px;
-	background: url(/webclient/static/images/tree/line_bg.gif) 0 0 no-repeat transparent;
+	background: url(../images/tree/line_bg.gif) 0 0 no-repeat transparent;
 }
 .simpleTree .line-last
 {
@@ -57,7 +57,7 @@
 	line-height: 5px;
 	height: 5px;
 	font-size:3px;
-	background: url(/webclient/static/images/tree/spacer.gif) 0 0 no-repeat transparent;
+	background: url(../images/tree/spacer.gif) 0 0 no-repeat transparent;
 }
 .simpleTree .line-over
 {
@@ -66,7 +66,7 @@
 	line-height: 5px;
 	height: 5px;
 	font-size:3px;
-	background: url(/webclient/static/images/tree/line_bg_over.gif) 0 0 no-repeat transparent;
+	background: url(../images/tree/line_bg_over.gif) 0 0 no-repeat transparent;
 }
 .simpleTree .line-over-last
 {
@@ -75,98 +75,98 @@
 	line-height: 5px;
 	height: 5px;
 	font-size:3px;
-	background: url(/webclient/static/images/tree/line_bg_over_last.gif) 0 0 no-repeat transparent;
+	background: url(../images/tree/line_bg_over_last.gif) 0 0 no-repeat transparent;
 }
 .simpleTree .folder-open
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/collapsable.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .folder-open-last
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/collapsable-last.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-last.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .folder-open-last-static
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/collapsable-last-static.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-last-static.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .folder-close
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/expandable.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .folder-close-last
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/expandable-last.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-last.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .folder-close-last-static
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/expandable-last-static.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-last-static.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .subfolder-open
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/collapsable-sub.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-sub.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .subfolder-open-last
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/collapsable-sub-last.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-sub-last.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .subfolder-open-last-static
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/collapsable-sub-last-static.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-sub-last-static.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .subfolder-close
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/expandable-sub.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-sub.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .subfolder-close-last
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/expandable-sub-last.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-sub-last.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .subfolder-close-last-static
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/expandable-sub-last-static.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-sub-last-static.png) 0 -2px no-repeat #fff;
 }
 
 .simpleTree .orfolder-open
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/collapsable-or.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-or.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .orfolder-open-last
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/collapsable-or-last.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-or-last.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .orfolder-open-last-static
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/collapsable-or-last-static.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-or-last-static.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .orfolder-close
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/expandable-or.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-or.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .orfolder-close-last
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/expandable-or-last.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-or-last.png) 0 -2px no-repeat #fff;
 }
 .simpleTree .orfolder-close-last-static
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/expandable-or-last-static.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-or-last-static.png) 0 -2px no-repeat #fff;
 }
 
 
@@ -174,16 +174,16 @@
 {
 	cursor: default;
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/leaf.png) 0 -1px no-repeat #fff;
+	background: url(../images/tree/leaf.png) 0 -1px no-repeat #fff;
 }
 .simpleTree .doc-last
 {
 	margin-left:-16px;
-	background: url(/webclient/static/images/tree/leaf-last.png) 0 -1px no-repeat #fff;
+	background: url(../images/tree/leaf-last.png) 0 -1px no-repeat #fff;
 }
 .simpleTree .ajax
 {
-	background: url(/webclient/static/images/tree/spinner.gif) no-repeat 0 0 #ffffff;
+	background: url(../images/tree/spinner.gif) no-repeat 0 0 #ffffff;
 	height: 16px;
 	display:none;
 }
@@ -247,14 +247,14 @@
 
 #drag_container li.doc, #drag_container li.doc-last
 {
-	background: url(/webclient/static/images/tree/leaf.png) no-repeat -17px 0 #ffffff;
+	background: url(../images/tree/leaf.png) no-repeat -17px 0 #ffffff;
 }
 #drag_container .folder-close, #drag_container .folder-close-last
 {
-	background: url(/webclient/static/images/tree/expandable.png) no-repeat -17px 0 #ffffff;
+	background: url(../images/tree/expandable.png) no-repeat -17px 0 #ffffff;
 }
 
 #drag_container .folder-open, #drag_container .folder-open-last
 {
-	background: url(/webclient/static/images/tree/collapsable.png) no-repeat -17px 0 #ffffff;
+	background: url(../images/tree/collapsable.png) no-repeat -17px 0 #ffffff;
 }

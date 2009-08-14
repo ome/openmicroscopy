@@ -84,7 +84,7 @@ class SendEmail(threading.Thread):
         logger.debug("Starting sendemail thread...")
         while not (self.allow_thread_timeout): 
             try:
-                from omeroweb.webclient.models import EmailToSend
+                from omeroweb.feedback.models import EmailToSend
                 counter = EmailToSend.objects.count()
                 logger.info("%i emails is waiting..." % (counter))
                 if counter > 0:

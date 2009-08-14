@@ -147,6 +147,8 @@ class _BlitzGateway (object):
             self.group = None
         self._sessionUuid = None
         self._session_cb = None
+        self._session = None
+        self._lastGroup = None
         self._anonymous = True
 
         # The properties we are setting through the interface
@@ -275,6 +277,7 @@ class _BlitzGateway (object):
             self._proxies['admin'] = ProxyObjectWrapper(self, 'getAdminService')
             self._proxies['query'] = ProxyObjectWrapper(self, 'getQueryService')
             self._proxies['rendering'] = ProxyObjectWrapper(self, 'createRenderingEngine')
+            self._proxies['rendsettings'] = ProxyObjectWrapper(self, 'getRenderingSettingsService')
             #self._proxies['projection'] = ProxyObjectWrapper(self, 'getProjectionService')
             self._proxies['rawpixels'] = ProxyObjectWrapper(self, 'createRawPixelsStore')
             self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
@@ -310,6 +313,9 @@ class _BlitzGateway (object):
         s = self.c.createSession(self._ic_props[omero.constants.USERNAME],
                                  self._ic_props[omero.constants.PASSWORD])
         self._sessionUuid = self.c.sf.ice_getIdentity().name
+        ss = self.c.sf.getSessionService()
+        self._session = ss.getSession(self._sessionUuid)
+        self._lastGroup = None
         s.detachOnDestroy()
         self._was_join = False
         if self.group is not None:
@@ -530,6 +536,26 @@ class _BlitzGateway (object):
         
         return self.isAdmin() or (self._userid == obj.details.owner.id.val and obj.details.permissions.isUserWrite())
 
+    def setGroupForSession (self, group):
+        if self._session is None:
+            ss = self.c.sf.getSessionService()
+            self._session = ss.getSession(self._sessionUuid)
+        if self._session.getDetails().getGroup() == group:
+            # Already correct
+            return
+        a = self.getAdminService()
+        if not group.name in [x.name.val for x in a.containedGroups(self._userid)]:
+            # User not in this group
+            return
+        self._lastGroup = self._session.getDetails().getGroup()
+        self._session.getDetails().setGroup(group._obj)
+        self.getSessionService().updateSession(self._session)
+
+    def revertGroupForSession (self):
+        if self._lastGroup:
+            self.setGroupForSession(self._lastGroup)
+            self._lastGroup = None
+
     ##############
     ## Services ##
 
@@ -643,7 +669,10 @@ class _BlitzGateway (object):
         """
         
         return self._proxies['rendering']
-    
+
+    def getRenderingSettingsService (self):
+        return self._proxies['rendsettings']
+   
     def createRawPixelsStore (self):
         """
         Creates a new raw pixels store.
@@ -907,6 +936,8 @@ def safeCallWrap (self, attr, f): #pragma: no cover
             raise
         except Ice.MemoryLimitException:
             raise
+        except omero.InternalException:
+            raise
         except Ice.Exception, x:
             # Failed
             logger.debug( "Ice.Exception (1) on safe call %s(%s,%s)" % (attr, str(args), str(kwargs)))
@@ -944,7 +975,12 @@ def safeCallWrap (self, attr, f): #pragma: no cover
         except omero.ApiUsageException:
             logger.debug("ApiUsageException, bailing out")
             raise
-        except Ice.Exception:
+        except Ice.Exception, x:
+            if hasattr(x, 'serverExceptionClass'):
+                if x.serverExceptionClass == 'ome.conditions.InternalException' and \
+                        x.message.find('java.lang.NullPointerException') > 0:
+                    logger.debug("NullPointerException, bailing out")
+                    raise
             logger.debug("exception caught, first time we back off for 10 secs")
             logger.debug(traceback.format_exc())
             time.sleep(10)
@@ -1161,21 +1197,6 @@ class BlitzObjectWrapper (object):
     def __loadedHotSwap__ (self):
         self._obj = self._conn.getContainerService().loadContainerHierarchy(self.OMERO_CLASS, (self._oid,), None)[0]
 
-    def _setWorldReadRecursive (self, val): #pragma: no cover
-        """ This is used only in testing """
-        self.getDetails().permissions.setWorldRead(val)
-        self.save()
-        param = omero.sys.Parameters()
-        childw = self._getChildWrapper()
-        if childw is None:
-            return
-        childlinks = [ x for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.parent.id=%i order by c.child.name" % (self.LINK_CLASS, self._oid), param)]
-        for link in childlinks:
-            link.getDetails().permissions.setWorldRead(val)
-            self._conn.getUpdateService().saveObject(link)
-            c = childw(self._conn, link.child)
-            c._setWorldReadRecursive(val)
-
     def _moveLink (self, newParent):
         """ moves this object from the current parent container to a new one """
         p = self.listParents()
@@ -1383,12 +1404,14 @@ class BlitzObjectWrapper (object):
     def _linkAnnotation (self, ann):
         if not ann.getId():
             # Not yet in db, save it
+            ann.details.setPermissions(omero.model.PermissionsI())
             ann.details.permissions.setWorldRead(True)
             ann = ann.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(ann._obj))
         #else:
         #    ann.save()
         lnktype = "%sAnnotationLinkI" % self.OMERO_CLASS
         lnk = getattr(omero.model, lnktype)()
+        lnk.details.setPermissions(omero.model.PermissionsI())
         lnk.details.permissions.setWorldRead(True)
         #lnk.details.permissions.setUserWrite(True)
         lnk.setParent(self._obj.__class__(self._obj.id, False))
@@ -1398,22 +1421,28 @@ class BlitzObjectWrapper (object):
 
 
     def linkAnnotation (self, ann, sameOwner=True):
-        if sameOwner and self._conn.isAdmin():
-            # Keep the annotation owner the same as the linked of object's
+        if sameOwner:
             d = self.getDetails()
             ad = ann.getDetails()
-            if ad.getOwner() and d.getOwner().omeName == ad.getOwner().omeName and d.getGroup().name == ad.getGroup().name:
-                newConn = ann._conn
+            if self._conn.isAdmin():
+                # Keep the annotation owner the same as the linked of object's
+                if ad.getOwner() and d.getOwner().omeName == ad.getOwner().omeName and d.getGroup().name == ad.getGroup().name:
+                    newConn = ann._conn
+                else:
+                    p = omero.sys.Principal()
+                    p.name = d.getOwner().omeName
+                    p.group = d.getGroup().name
+                    p.eventType = "User"
+                    newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
+                    newConn = self._conn.clone()
+                    newConn.connect(sUuid=newConnId.getUuid().val)
+                clone = self.__class__(newConn, self._obj)
+                ann = clone._linkAnnotation(ann)
             else:
-                p = omero.sys.Principal()
-                p.name = d.getOwner().omeName
-                p.group = d.getGroup().name
-                p.eventType = "User"
-                newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
-                newConn = self._conn.clone()
-                newConn.connect(sUuid=newConnId.getUuid().val)
-            clone = self.__class__(newConn, self._obj)
-            ann = clone._linkAnnotation(ann)
+                # Try to match group
+                self._conn.setGroupForSession(d.getGroup())
+                ann = self._linkAnnotation(ann)
+                self._conn.revertGroupForSession()
         else:
             ann = self._linkAnnotation(ann)
         self.unloadAnnotationLinks()
@@ -2019,7 +2048,11 @@ class _ImageWrapper (BlitzObjectWrapper):
             return None
         pixels_id = self._obj.getPrimaryPixels().getId().val
         tb = self._conn.createThumbnailStore()
-        if not tb.setPixelsId(pixels_id): #pragma: no cover
+        try:
+            rv = tb.setPixelsId(pixels_id)
+        except omero.InternalException:
+            rv = False
+        if not rv: #pragma: no cover
             tb.resetDefaults()
             tb.close()
             tb.setPixelsId(pixels_id)
@@ -2051,7 +2084,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         for c in range(len(self.getChannels())):
             self._re.setActive(c, (c+1) in channels)
             if (c+1) in channels:
-                if windows is not None and windows[c][0] and windows[c][1]:
+                if windows is not None and windows[c][0] is not None and windows[c][1] is not None:
                     self._re.setChannelWindow(c, *windows[c])
                 if colors is not None and colors[c]:
                     rgba = splitHTMLColor(colors[c])
@@ -2476,6 +2509,13 @@ class _DatasetWrapper (BlitzObjectWrapper):
         self.LINK_CLASS = "DatasetImageLink"
         self.CHILD_WRAPPER_CLASS = 'ImageWrapper'
         self.PARENT_WRAPPER_CLASS = 'ProjectWrapper'
+
+    def __loadedHotSwap__ (self):
+        super(_DatasetWrapper, self).__loadedHotSwap__()
+        if not self._obj.isImageLinksLoaded():
+            links = self._conn.getQueryService().findAllByQuery("select l from DatasetImageLink as l join fetch l.child as a where l.parent.id=%i" % (self._oid), None)
+            self._obj._imageLinksLoaded = True
+            self._obj._imageLinksSeq = links
 
 DatasetWrapper = _DatasetWrapper
 

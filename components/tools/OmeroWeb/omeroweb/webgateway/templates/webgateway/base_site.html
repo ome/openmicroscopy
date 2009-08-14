@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+{% comment %}
+/**
+ * base_site - django html template
+ * 
+ * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * 
+ * This software is distributed under the terms described by the LICENCE file
+ * you can find at the root of the distribution bundle, which states you are
+ * free to use it only for non commercial purposes.
+ * If the file is missing please request a copy by contacting
+ * jason@glencoesoftware.com.
+ */
+{% endcomment %}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <link rel="shortcut icon" href="{% block favicon_href %}/appmedia/webgateway/img/favicon.ico{% endblock %}" type="image/x-icon" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <link rel="SHORTCUT ICON" href="/media/favicon.ico" />    <link rel="SHORTCUT ICON" href="/media/favicon.ico" />
+    <title>{% block title %}{% endblock %}</title>
+    {% block css %}
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/weblitz-viewport.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/jquery-plugin-slider.css" media="all" />
+
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/base.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/snippet_header_logo.css" media="all" />
+    {% endblock %}
+    {% for href in extra_css %}
+    <link rel="stylesheet" type="text/css" href="{{ href }}" />
+    {% endfor %}
+    {% block extra_css %}{% endblock %}
+    {% block js %}
+	<script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/jquery-1.2.6.js"></script>
+	<script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/aop.js"></script>
+
+        <script type="text/javascript" src="/appmedia/webgateway/js/gs_utils.js"></script>
+	<script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-viewportImage.js"></script>
+	<script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-slider.js"></script>
+	<script type="text/javascript" src="/appmedia/webgateway/js/weblitz-viewport.js"></script>
+    {% endblock %}
+    {% for src in extra_js %}
+    <script type="text/javascript" src="{{ src }}"></script>
+    {% endfor %}
+    {% block extra_js %}{% endblock %}
+  </head>
+
+  <body>
+    <div id="body-wrapper">
+    {% block header_content %}
+      <div id="header"></div>
+    {% endblock %}
+    {% block header_menu %}
+    {% endblock %}
+{% block full_content %}
+{% block full_body %}
+    <div id="body">
+      {% block body %}
+      
+      <div class="content">
+        {% block content %}{% endblock %}
+      </div>
+      
+      {% endblock body %}
+    </div>
+{% endblock full_body %}
+    <script type="text/javascript">
+      /* <![CDATA[ */
+      $(document).ready(function () {
+        $.ajaxSettings.cache = false;
+      });
+{% block content_script %}
+{% endblock content_script %}
+      /* ]]> */
+    </script>
+{% endblock full_content %}
+    </div>
+  </body>
+</html>

@@ -122,11 +122,11 @@ div.menu .compound * {
 }
 
 .menu li.tree {
-  list-style-image: url('/webclient/static/images/blitzcon/blue_arrow_right.gif');
+  list-style-image: url('../images/blitzcon/blue_arrow_right.gif');
 }
 
 .menu li.open { 
-  list-style-image: url('/webclient/static/images/blitzcon/blue_arrow_down.gif');
+  list-style-image: url('../images/blitzcon/blue_arrow_down.gif');
 }
 
 .menu li.notree {
@@ -221,11 +221,11 @@ a:hover {
   bottom: 0px;
   height: 16px;
   width: 16px;
-  background: url('/webclient/static/images/blitzcon/blue_arrow_down.gif') no-repeat center;
+  background: url('../images/blitzcon/blue_arrow_down.gif') no-repeat center;
 }
 
 .expanded .fd-toggle {
-  background: url('/webclient/static/images/blitzcon/blue_arrow_up.gif') no-repeat center;
+  background: url('../images/blitzcon/blue_arrow_up.gif') no-repeat center;
 }
 
 .image-thumb {

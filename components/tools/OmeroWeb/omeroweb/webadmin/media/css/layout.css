@@ -29,7 +29,7 @@ body {
     margin-bottom: 0px;
 }
 #banner {
-    background: url(/webadmin/static/images/logo.jpg) no-repeat;
+    background: url(../images/logo.jpg) no-repeat;
     height: 100px;
 }
 #addform {
@@ -248,7 +248,7 @@ ul.errorlist {
 }
 
 #piechart.loading {
-  background: url(/webadmin/static/images/spinner.gif) no-repeat center center;
+  background: url(../images/spinner.gif) no-repeat center center;
 }
 
 

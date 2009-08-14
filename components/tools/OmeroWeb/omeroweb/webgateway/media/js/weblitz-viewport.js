@@ -151,6 +151,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
    *                      channels:[{emissionWave,color,active},]}
    */
   var _reset = function (data, textStatus) {
+    hideLoading();
     clearTimeout(ajaxTimeout);
     _this.loadedImg._load(data);
     if (_this.loadedImg.current.query) {
@@ -202,15 +203,21 @@ jQuery._WeblitzViewport = function (container, server, options) {
    * @param {Integer} dsid The Dataset id this image belongs to, optional.
    */
   this.load = function(iid, dsid, query) {
-    //showLoading();
+    showLoading();
     linePlot = null;
     _this.refreshPlot();
     _this.loadedImg.current.dataset_id = dsid;
     _this.loadedImg.current.query = parseQuery(query);
     //viewportimg.hide();
-    ajaxTimeout = setTimeout(function() {if (_this.origHTML) _this.self.replaceWith(_this.origHTML);}, 2500);
+    ajaxTimeout = setTimeout(loadError, 10000);
     jQuery.getJSON(server+'/imgData/'+iid+'/?callback=?', _reset);
   };
+
+  var loadError = function () {
+    if (_this.origHTML) _this.self.replaceWith(_this.origHTML);
+    hideLoading();
+    showLoading('Error loading image!', 5);
+  }
 
   var loadingQ = 0;
   var showLoading = function (msg, time) {

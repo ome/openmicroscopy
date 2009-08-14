@@ -31,7 +31,7 @@ def handler():
     global sender
 
     if sender is None:
-        from omeroweb.webclient.models import EmailToSend
+        from omeroweb.feedback.models import EmailToSend
         counter = EmailToSend.objects.count()
         if counter > 0:
             sender = SendEmail()

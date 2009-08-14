@@ -31,7 +31,7 @@
   font-weight: bold;
   text-align: center;
   cursor: -moz-grab;
-  cursor: url('/webclient/static/images/blitzcon/openhand.cur'), pointer, auto;
+  cursor: url('../images/blitzcon/openhand.cur'), pointer, auto;
 }
 
 .postit h2 { 
@@ -70,7 +70,7 @@
   position: absolute;
   right: 0px;
   top: 0px;
-  background-image: url("/webclient/static/images/blitzcon/close.gif");
+  background-image: url("../images/blitzcon/close.gif");
   background-repeat: no-repeat;
   background-position: center center;
   width: 1.5em;
@@ -86,7 +86,7 @@
 .postit-resize-btn {
   position: absolute;
   right: 0px;
-  background-image: url("/webclient/static/images/blitzcon/resize.gif");
+  background-image: url("../images/blitzcon/resize.gif");
   background-repeat: no-repeat;
   background-position: center center;
   height: 8px;
@@ -98,7 +98,7 @@
   position: absolute;
   left: 0px;
   top: 0px;
-  background: url('/webclient/static/images/blitzcon/white_arrow_up.gif') no-repeat center;
+  background: url('../images/blitzcon/white_arrow_up.gif') no-repeat center;
   background-position: center center;
   width: 1.5em;
   height: 1.5em;
@@ -106,5 +106,5 @@
 }
 
 .postit.collapsed .postit-toggle-btn { 
-  background: url('/webclient/static/images/blitzcon/white_arrow_down.gif') no-repeat center;
+  background: url('../images/blitzcon/white_arrow_down.gif') no-repeat center;
 }

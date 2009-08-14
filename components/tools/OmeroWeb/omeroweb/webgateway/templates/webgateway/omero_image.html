@@ -1,0 +1,733 @@
+{% extends "webgateway/base_site.html" %}
+
+{% comment %}
+/**
+ * omero_image - django html template
+ * 
+ * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * 
+ * This software is distributed under the terms described by the LICENCE file
+ * you can find at the root of the distribution bundle, which states you are
+ * free to use it only for non commercial purposes.
+ * If the file is missing please request a copy by contacting
+ * jason@glencoesoftware.com.
+ */
+{% endcomment %}
+
+{% block title %}
+{{ block.super }} - Full Viewer
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/jquery-plugin-postit.css" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/jquery-plugin-rangewidget.css" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/farbtastic.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/jquery-plugin-colorbtn.css" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/JQuerySpinBtn.css" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/omero_image.css" media="all" />
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-smartdialog.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/JQuerySpinBtn.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-colorbtn.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-postit.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/jqDnR.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/jquery.selectboxes.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-rangewidget.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/farbtastic.js"></script>
+{% endblock %}
+
+
+{% block full_body %}
+
+<script type="text/javascript">
+  /* <![CDATA[ */
+
+  /**
+   * The viewport object holds the image browsing viewport that has all the logic for connecting to
+   * the supporting ajax server.
+   */
+  var viewport;
+
+  /**
+   * Zoom input box change event handler.
+   */
+  function zoomCheck (i) {
+    var percent = parseFloat($(i).attr('value').replace(/%/, ''));
+    if (isNaN(percent)) {
+      percent = 100;
+    }
+    /* Zoom window */
+    viewport.setZoom(percent);
+  }
+
+  function hidePicker () {
+    $(".picker").get(0) && $(".picker").get(0).hide_picker && $(".picker").get(0).hide_picker();
+  }
+
+  /**
+   * Bound to the window resize, calculates the viewport size and top tool box positions.
+   */
+  var calcResize = function () {
+    var dim = { height: $(window).height(),
+                width: $(window).width()};
+
+    var ts_visible = $('.figure-box').length && $('.figure-box').css('display') != "none";
+    var zl = $('#z-axis-legend');
+    var tl = $('#t-axis-legend');
+    /* Resize the viewport */
+    $.extend(dim, viewport.self.offset());
+
+    var h = dim.height - dim.top - 33 - (ts_visible?$('.figure-box').height():0);
+    var w = dim.width - dim.left  - zl.width();
+
+    /* The following is needed as a hack for IE */
+    viewport.viewport.height(10);
+
+    viewport.self
+      .height(h - tl.height())
+      .width(w);
+    viewport.refresh(true);
+
+
+    //ts_visible &&
+    $('.figure-box')
+      .width(dim.width - dim.left - {% block fbCloseBtnWidth %}20{% endblock %} + zl.width())
+      .css('top',viewport.self.height()+15+tl.height());
+
+    zl.css('top', h/2 - (zl.height()/2));
+    tl.css({top: h-tl.height()+15, left: (w/2)+dim.left - (tl.width()/2)});
+  };
+
+  var getMetadata = function () {
+    return viewport.getMetadata();
+  }
+
+
+  /**
+   * Gets called when an image is initially loaded.
+   * This is the place to sync everything; rendering model, quality, channel buttons, etc.
+   */
+  var _refresh_cb = function (ev, viewport) {
+    /* Sync inputs with initial values */
+
+    $('#wblitz-rmodel').attr('checked', !viewport.isGreyModel());
+
+    var q = viewport.getQuality();
+    if (q) {
+      var qr = $('#wblitz-quality > [@value='+q.toFixed(1)+']');
+      if (qr.length) {
+        qr.attr('selected','selected');
+      }
+    }
+
+    /* Prepare the channels box and the rendering definition for the channels */
+    var box = $('#wblitz-channels-box');
+    var channels = viewport.getChannels();
+    box.empty();
+    for (i in channels) {
+      box.append('<button id="wblitz-ch'+i+'"\
+                 class="squared' + (channels[i].active?' pressed':'') + '"\
+                 style="background-color: #'+channels[i].color+'"\
+                 onclick="viewport.toggleChannel('+i+')">'+channels[i].emissionWave+'</button>');
+
+    }
+    modelChange();
+
+    /* Image details */
+    $('#wblitz-t-count').html(viewport.getTCount());
+    $('#wblitz-z-count').html(viewport.getZCount());
+    var tmp = getMetadata();
+    $('#wblitz-image-name').html(tmp.name);
+    $('#wblitz-image-description').html(tmp.description.replace(/\n/g, '<br />'));
+    $('#wblitz-image-author').html(tmp.author);
+    $('#wblitz-image-pub').html(tmp.project);
+    $('#wblitz-image-pubid').html(tmp.project_id);
+    $('#wblitz-image-timestamp').html(tmp.timestamp);
+    {% block xtra_metadata %}{% endblock %}
+
+    $('#wblitz-shortname').attr('title', tmp.name).html(gs_text_trim(tmp.name, 15, true));
+
+    tmp = viewport.getSizes();
+    $('#wblitz-image-width').html(tmp.width);
+    $('#wblitz-image-height').html(tmp.height);
+    $('#wblitz-image-z-count').html(tmp.z);
+    $('#wblitz-image-t-count').html(tmp.t);
+    tmp = viewport.getPixelSizes();
+    $('#wblitz-image-pixel-size-x').html(tmp.x==0?'-':(tmp.x.toFixed(4) + '&micro;m'));
+    $('#wblitz-image-pixel-size-y').html(tmp.y==0?'-':(tmp.y.toFixed(4) + '&micro;m'));
+    $('#wblitz-image-pixel-size-z').html(tmp.z==0?'-':(tmp.z.toFixed(4) + '&micro;m'));
+
+    /* Fill in the Rendering Details box */
+
+    $(".picker").unbind('prepared').unbind('showing');
+    $('#rdef-postit li').not('li:last-child').remove();
+    tmp = $('#rdef-postit ul');
+    for (i=channels.length; i>0; i--) {
+      tmp
+        .prepend(
+          '<li><strong>Channel '+channels[i-1].emissionWave+'</strong>&nbsp;->&nbsp;' +
+            '<button id="wblitz-ch'+(i-1)+'-color" class="picker squarred">&nbsp;</button>' +
+            '<div id="wblitz-ch'+(i-1)+'-cw" class="rangewidget"></div>' +
+          '</li>');
+      $('#wblitz-ch'+(i-1)+'-cw').rangewidget({
+	min: channels[i-1].window.min,
+	max: channels[i-1].window.max});
+    }
+
+    /* Prepare color picker buttons */
+    $(".picker")
+      .colorbtn()
+      .bind('showing', function () {
+          var t = $(this).parents('.postit');
+          var offset = t.offset();
+          offset.left += t.width();
+          $('#cbpicker-box').css(offset);
+      })
+      .bind('prepared', function () {
+        zindex_automator('.postit', 10, $('#cbpicker-box'));
+      });
+
+    projectionChange(null,null, true);
+
+    syncRDCW();
+    
+    $('#wblitz-workarea > .box > div.row').show();
+  };
+
+  /**
+   * Set the projection based on the clicked element name.
+   */
+  var setProjection = function (obj) {
+    viewport.setProjection($(obj).attr('value'));
+  };
+          
+  /**
+   * Checks the currently selected rendering projection and applies interface customizations as needed.
+   * Bound to the viewport projectionChange event.
+   */
+  var projectionChange = function (ev, obj, nosync) {
+    var p = viewport.getProjection();
+    if (p) {
+      $('[@name="wblitz-proj"]').parent().removeClass('selected');
+      $('[@name="wblitz-proj"][@value='+p+']').click().parent().addClass('selected');
+//    if (p) {
+//      var pr = $('#wblitz-proj > [@value='+p+']');
+//      if (pr.length) {
+//        pr.attr('selected','selected');
+//      }
+      if (p != 'normal') {
+        editLinePlot(false);
+      }
+      $('#wblitz-lp-enable').attr('disabled', p != 'normal');
+      //$('#wblitz-channels-box button').attr('disabled', p == 'split');
+    }
+    
+    nosync || syncRDCW();
+  };
+
+  /**
+   * Checks the currently selected rendering model and applies interface customizations as needed.
+   * Bound to the viewport modelChange event.
+   */
+  var modelChange = function (ev, obj) {
+    var btns = $('button[@id^=wblitz-ch]');
+    if (viewport.isGreyModel()) {
+      btns.addClass('forcegrey');
+    } else {
+      btns.removeClass('forcegrey');
+    }
+    syncRDCW();
+  };
+
+  /**
+   *
+   */
+  var channelChange = function (ev, obj, idx, ch) {
+    if (ch.active) {
+      $('button#wblitz-ch'+idx).addClass('pressed');
+    } else {
+      $('button#wblitz-ch'+idx).removeClass('pressed');
+    }
+    $('#wblitz-ch'+idx).css('background-color', ch.color);
+  };
+
+  /**
+   *
+   */
+  var linePlotChange = function (ev, show) {
+    if (show) {
+      viewport.startPickPos();
+      var lp = viewport.getLinePlot();
+      $('#wblitz-lp-axis').html(lp.isHorizontal() ? 'Y': 'X');
+      $('#wblitz-lp-enable').attr('checked', 'checked');
+      $('#wblitz-lp-editpos').val(lp.position).show();
+      $('#wblitz-lp-wrap').show();
+      $('#wblitz-lp-btn').html('apply');
+      $('#wblitz-lp-axis-select').selectOptions(lp.isHorizontal() ? 'h': 'v');
+    } else {
+      viewport.stopPickPos();
+      $('#wblitz-lp-enable').attr('checked', null);
+      $('#wblitz-lp-wrap').hide();
+      $('#wblitz-lp-cur').html('');
+    }
+  }
+
+  var editLinePlot = function (show) {
+    if (show) {
+      viewport.prepareLinePlot($('#wblitz-lp-axis-select option[selected]').val());
+    } else {
+      viewport.hidePlot();
+    }
+    linePlotChange(null, show);
+  }
+
+  var prepLinePlot = function (val) {
+    viewport.prepareLinePlot(val);
+    $('#wblitz-lp-axis').html(viewport.getLinePlot().isHorizontal() ? 'Y': 'X');
+  }
+
+  var showLinePlot = function () {
+    viewport.loadPlot(parseInt($('#wblitz-lp-editpos').val()));
+    $('#wblitz-lp-cur').html('showing: ' + (viewport.getLinePlot().isHorizontal() ? 'Y': 'X') + ' = ' + parseInt($('#wblitz-lp-editpos').val()));
+  }
+
+  /**
+   *
+   */
+  var imageChange = function (ev, obj) {
+    $('#wblitz-t-curr').html(viewport.getTPos());
+    $('#wblitz-z-curr').html(viewport.getZPos());
+    if (viewport.hasLinePlot() || $('#wblitz-lp-enable').attr('checked')) {
+      viewport.refreshPlot();
+    }
+  };
+
+  var linePlotPos = function (ev, obj) {
+    $('#wblitz-lp-editpos').val(obj);
+    showLinePlot();
+  };
+
+  function resetRDCW() {
+    viewport.reset_channels();
+    syncRDCW();
+  }
+
+  function syncRDCW() {
+    var cb;
+    var channels = viewport.getChannels();
+    for (i in channels) {
+      $('#wblitz-ch'+i+'-color').css('background-color', $('#wblitz-ch'+i).css('background-color'));
+      cb = function (i) {
+        return function () {
+          show_change($('#wblitz-ch'+i+'-cw-start').get(0), channels[i].window.start, 'changed');
+        };
+      }
+      $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', cb(i)).change();
+      cb = function (i) {
+        return function () {
+          show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
+        };
+      }
+      $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', cb(i)).change();
+    }
+    hidePicker();
+    $('#rdef-undo-btn').attr('disabled',viewport.has_channels_undo()?'':'true');
+    $('#rdef-redo-btn').attr('disabled',viewport.has_channels_redo()?'':'true');
+    //$('#rdef-default-btn').attr('disabled',viewport.has_channels_undo()?'':'true');
+  }
+
+  function undoRDCW () {
+    viewport.undo_channels();
+    syncRDCW();
+  }
+
+  function redoRDCW () {
+    viewport.redo_channels();
+    syncRDCW();
+  }
+
+  function applyRDCW(final) {
+    for (var i=0; i<viewport.getCCount(); i++) {
+      viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').css('background-color'), true);
+      viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value);
+    }
+    if (final) {
+      viewport.forget_bookmark_channels();
+      $('#rdef-postit').hide();
+    }
+    viewport.save_channels();
+    syncRDCW();
+  }
+
+  function show_tooltip(self, ttid) {
+    var pos = $(self).parents('div').offset();
+    pos.top += $(self).parents('div').height();
+    pos.left += 10;
+    var tooltip = $('#' + ttid);
+    tooltip.css(pos)
+    .toggleClass('popped');
+    if (tooltip.is('.popped')) {
+      var ww = $(window).width() -5;
+      if ((pos.left + tooltip.width()) > ww) {
+        pos.left -= (pos.left + tooltip.width()) - ww;
+        tooltip.css(pos);
+      }
+      var auto = $('#' + ttid).find('.autoselect').get(0);
+      if (auto) {
+        auto.focus();
+        auto.select();
+      }
+    }
+  }
+
+  function show_change(obj, val, klass) {
+    if (obj.value != val) {
+      $(obj).addClass(klass);
+    } else {
+      $(obj).removeClass(klass);
+    }
+  }
+
+  function zindex_automator (klass, basez, wspace) {
+    if (!wspace) {
+      wspace = $(klass);
+    }
+    var sorter = function (a,b) {
+      return parseInt(a.css('z-index'))-parseInt(b.css('z-index'));
+    };
+    var tofront = function (e) {
+      var self = this;
+      var z = basez;
+      var objs = new Array();
+      $(klass).each(function () {
+        this != self && objs.push($(this));
+      });
+      $.each(objs.sort(sorter), function () {
+        this.css('z-index', z);
+        z++;
+      });
+      $(self).css('z-index', z);
+    };
+    $.each(wspace, function () {
+      $(this).bind('opening', tofront);
+      $(this).bind('mousedown', tofront);
+    });
+  }
+
+{% if dataset.canWrite %}
+  function setDefaultColors (obj) {
+    //$(obj).parent().append('<span class="a-like">'+$(obj).html()+'</span>');
+    //$(obj).hide();
+    applyRDCW();
+    var old = $(obj).html();
+    $(obj).html('saving...').attr('disabled', true);
+    $.getJSON('/bgw/{{ blitzcon.client_base }}/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(),
+              function(data) {
+      //$(obj).next('span').remove();
+      //$(obj).show();
+      $(obj).html(old).attr('disabled', false);
+      if (!data) {
+        alert('Setting default colors failed.');
+      }
+    });
+    return false;
+  }
+{% endif %}
+
+  /* ]]> */
+</script>
+
+ 
+    <!-- Floating boxes come on top -->
+    <div id="curr-link" class="tooltipbox">
+      <table>
+        <tr>
+          <td>
+            Link to this page:
+          </td>
+          <td class="left">
+            <img class="popclose" src="/appmedia/webgateway/img/close.gif" alt="close" />
+          </td>
+        </tr>
+        <tr>
+          <td><input class="autoselect" type="text" size="40" value="" /></td>
+        </tr>
+      </table>
+    </div>
+
+    <div id="metadata-postit" class="postit" style="width: 500px">
+      <h1> Image Information </h1>
+      <table>
+        <tr class="odd"><td class="title">Image name:&nbsp;</td><td id="wblitz-image-name"></td></tr>
+        <tr class="even"><td class="title">Author:&nbsp;</td><td id="wblitz-image-author"></td></tr>
+        <tr class="odd"><td class="title">Publication:&nbsp;</td><td id="wblitz-image-pub"></td></tr>
+        <tr class="even"><td class="title">Publication ID:&nbsp;</td><td id="wblitz-image-pubid"></td></tr>
+        <tr class="odd"><td class="title">Created on:&nbsp;</td><td id="wblitz-image-timestamp"></td></tr>
+      </table>
+    </div>
+
+    <div id="legend-postit" class="postit">
+      <h1> Legend </h1>
+      <div id="wblitz-image-description"></div>
+    </div>
+
+    <div id="sizes-postit" class="postit" style="width: 160px">
+      <h1> Dimensions </h1>
+      <h2>Image Size</h2>
+      <table>
+        <tr class="odd"><td class="title" style="width: 40%">X:&nbsp;</td><td><span id="wblitz-image-width"></span>px</td></tr>
+        <tr class="even"><td class="title">Y:&nbsp;</td><td><span id="wblitz-image-height"></span>px</td></tr>
+        <tr class="odd"><td class="title">Z:&nbsp;</td><td><span id="wblitz-image-z-count"></span></td></tr>
+        <tr class="even"><td class="title">T:&nbsp;</td><td><span id="wblitz-image-t-count"></span></td></tr>
+      </table>
+      <h2>Pixel Size</h2>
+      <table>
+        <tr class="odd"><td class="title" style="width: 35%">X:&nbsp;</td><td><span id="wblitz-image-pixel-size-x"></span></td></tr>
+        <tr class="even"><td class="title">Y:&nbsp;</td><td><span id="wblitz-image-pixel-size-y"></span></td></tr>
+        <tr class="odd"><td class="title">Z:&nbsp;</td><td><span id="wblitz-image-pixel-size-z"></span></td></tr>
+      </table>
+    </div>
+
+    <div id="rdef-postit" class="postit" style="width: 380px">
+      <h1> Rendering Details </h1>
+      <h2>Channel Windows</h2>
+      <ul>
+        <li class="buttonbar"><button id="rdef-default-btn" onclick="return resetRDCW();">default</button><button id="rdef-undo-btn" onclick="return undoRDCW();">undo</button><button id="rdef-redo-btn" onclick="return redoRDCW();">redo</button><button id="rdef-apply-btn" onclick="return applyRDCW();">apply</button><button id="rdef-ok-btn" onclick="return applyRDCW(true);">OK</button>
+        {% if dataset.canWrite %}
+          <br /><button style="width: 10em;" onclick="return setDefaultColors(this)">SAVE</button>
+        {% endif %}
+        </li>
+      </ul>
+
+    </div>
+
+    <!-- End floating boxes -->
+    <div id="wblitz">
+      <div id="wblitz-workarea">
+      <!-- Top Toolbox -->
+        <!-- Zoom -->
+        <div class="box">
+            <h1>Image Options</h1>
+          <div class="even row">
+            <label for="wblitz-proj">Display</label>
+            <div class="multiselect selected">
+              Normal
+              <input type="radio" value="normal" name="wblitz-proj" onclick="return setProjection(this);" />
+            </div>
+            <div class="multiselect">
+              Maximum Intensity
+              <input type="radio" value="intmax" name="wblitz-proj" onclick="return setProjection(this);" />
+            </div>
+            <div class="multiselect">
+              Split Channel
+              <input type="radio" value="split" name="wblitz-proj" onclick="return setProjection(this);" />
+            </div>
+            <!--select id="wblitz-proj" onchange="viewport.setProjection(this.item(this.selectedIndex).value);">
+              <option value="normal">Normal</option>
+              <option value="intmax">Maximum Intensity</option>
+              <option value="split">Split Channel</option>
+            </select-->
+          </div>
+          <div class="odd row">
+            <label for="wblitz-quality" class="odd">Quality</label>
+            <!-- br /><input type="radio" name="wblitz-quality" value="1.0"> High</input>
+            <br /><input type="radio" name="wblitz-quality" value="0.9" checked="checked"> Normal</input>
+            <br /><input type="radio" name="wblitz-quality" value="0.5"> Low</input -->
+            <select id="wblitz-quality" onchange="viewport.setQuality(this.item(this.selectedIndex).value);">
+              <option value="1.0">High</option>
+              <option value="0.9" selected="selected">Normal</option>
+              <option value="0.5">Low</option>
+            </select>
+          </div>
+          <div class="even row">
+            <label for="wblitz-rmodel">Color</label>
+            <input id="wblitz-rmodel" type="checkbox" onchange="viewport.setModel(this.checked?'c':'g');" />
+            <!-- select id="wblitz-rmodel" onchange="viewport.setModel(this.item(this.selectedIndex).value);">
+              <option value="c">Color</option>
+              <option value="g">Greyscale</option>
+            </select -->
+            <br />
+          </div>
+          <div class="odd row">
+            <h2>Zoom</h2>
+            <input type="text" class="spin-button" id="wblitz-zoom" value="100" onchange="zoomCheck(this)" size="5" />
+            <button id="full-size"
+                    title="1:1"
+                    onclick="viewport.setZoom(100)" ></button>
+            <button id="full-screen"
+                    title="full screen"
+                    onclick="viewport.setZoomToFit()"></button>
+          </div>
+          <div class="even row">
+            <h2>Channels</h2>
+            <span id="wblitz-channels-box"></span>
+          </div>
+          <div class="odd row">
+            <h2>Line Plot</h2>
+            <div>Enabled: 
+              <input id="wblitz-lp-enable" type="checkbox" onclick="editLinePlot(this.checked)" />
+            </div>
+            <div id="wblitz-lp-wrap" style="display: none">
+              <div>Axis: 
+                <select id="wblitz-lp-axis-select" onchange="prepLinePlot(this.options[this.options.selectedIndex].value)">
+                  <option value="h" selected="selected">Horizontal</option>
+                  <option value="v">Vertical</option>
+                </select>
+              </div>
+              <span id="wblitz-lp-axis"></span> =
+              <input type="text" id="wblitz-lp-editpos" size="4" />
+              <button id="wblitz-lp-btn" onclick="showLinePlot()"></button>
+              <div id="wblitz-lp-cur"></div>
+            </div>
+          </div>
+          <div class="even row" style="display: none">
+            <h2>Current Image</h2>
+            <span style="font-size: 0.9em">
+            <span id="wblitz-shortname" style="white-space: nowrap;"></span><br />
+            Z: <span id="wblitz-z-curr">?</span>/<span id="wblitz-z-count">?</span> |
+            T: <span id="wblitz-t-curr">1</span>/<span id="wblitz-t-count">1</span>
+            </span>
+          </div>
+        </div>
+        <div class="box">
+          <h1>Image Data</h1>
+            <a href="#" onclick="$('#metadata-postit').toggle(); return false;">Image Information</a><br />
+            <a href="#" onclick="$('#legend-postit').toggle(); return false;">Legend</a><br />
+            <a href="#" onclick="$('#rdef-postit').toggle(); return false;">Rendering Details</a><br />
+            <a href="#" onclick="$('#sizes-postit').toggle(); return false;">Dimensions</a><br />
+            <a href="#" onmouseover="this.href=viewport.getUrl('img_detail')"
+               onclick="$('#curr-link input').attr('value', location.href.substring(0,location.href.length - location.search.length).replace(/(.*?\/)\d+(?:\/\d+)?(?:\/)?$/,'$1') + viewport.getCurrentImgUrlPath() +'?'+ viewport.getQuery(true));
+                        show_tooltip(this, 'curr-link'); return false;">
+                Image Link
+            </a><br />
+        </div>
+
+
+        <!-- Image Viewport -->
+        <div id="weblitz-viewport"></div>
+        <img id="z-axis-legend" src="/appmedia/webgateway/img/z_axis.gif" />
+        <img id="t-axis-legend" src="/appmedia/webgateway/img/t_axis.gif" />
+        <div class="figure-box-holder">
+        </div>
+      </div>
+    </div>
+    <div id="footer">
+    {% block footer_content %}
+      &copy;2007/2008 Glencoe Software Inc. All rights reserved.
+    {% endblock %}
+    </div>
+{% endblock full_body %}
+
+{% block content_script %}
+  $(document).ready(function () {
+    /* Prepare the viewport */
+    viewport = $.WeblitzViewport($('#weblitz-viewport'), '{{ viewport_server }}',{% block viewport_opts %}null{% endblock %});
+    viewport.bind('imageLoad', _refresh_cb);
+
+    /* Prepare the Zoom spin button */
+    $("INPUT.spin-button").SpinButton({min:0});
+
+    /* Bind zoom changes to the zoom button */
+    viewport.bind('zoom', function(e, percent) {
+      $("#wblitz-zoom").attr('value', ''+percent /*+'%'*/);
+      $(".popped").removeClass('popped');
+    });
+
+    /* Bind projection changes */
+    viewport.bind('projectionChange', projectionChange);
+    /* Bind model changes */
+    viewport.bind('modelChange', modelChange);
+    /* Bind channel changes */
+    viewport.bind('channelChange', channelChange);
+    /* Bind image changes */
+    viewport.bind('imageChange', imageChange);
+    /* Bind line plot changes */
+    viewport.bind('linePlotChange', linePlotChange);
+    /* Bind line plot position pick */
+    viewport.bind('linePlotPos', linePlotPos);
+
+    /* Prepare pop tools */
+    $(".popover > h1")
+      .prepend('<div class="drop-img drop-left"></div><div class="drop-img drop-right"></div>')
+      .click(function () {
+        var this_popped = $(this).parent().is('.popped');
+        $(".popped").removeClass('popped');
+        if (this_popped) {
+          $(this).parent().removeClass('popped');
+        } else {
+          $(this).parent().addClass('popped');
+        }
+        return false;
+      });
+
+    $(".popclose").click(function () {
+      $(".popped").removeClass('popped');
+    });
+
+    $("#weblitz-viewport").click(function () {
+      $(".popped").removeClass('popped');
+    })
+    .bind("imageChange", function () {
+      $(".popped").removeClass('popped');
+    });
+
+    /* Prepare the post-its */
+    var layout_pos = $("#weblitz-viewport").offset();
+    $(".postit").each(function () {
+      if (this.id == 'legend-postit') {
+        $(this).postit({noResize: false}).css($("#weblitz-viewport-vp").offset());
+      } else {
+        layout_pos.left += 20;
+        $(this).postit({noResize: true})
+          .css(layout_pos);
+        layout_pos.top += 20;
+      }
+    });
+    var legend_open = function () {
+      var d = $(this);
+      d.unbind('opening', legend_open);
+      /* Calculate the size for legend post-it */
+      var h = $('#weblitz-viewport-vp').height();
+      var w = ($('#weblitz-viewport-vp').width() - h) /2;
+      d.css('width', Math.max(w, 250));
+      if (d.height() > h) {
+        d.css('height', h);
+      }
+      d.trigger('jqResize');
+    };
+    $("#legend-postit").bind('opening', legend_open);
+
+    zindex_automator('.postit', 10);
+
+    /* Make (kind of) sure that closing the rendering defs window closes an eventually opened color picker */
+    $("#rdef-postit").bind('closed', function () {hidePicker(); viewport.back_to_bookmarked_channels(); syncRDCW();})
+      .bind('opening', viewport.bookmark_channels);
+
+    /* Load the selected image into the viewport */
+    {% if image %}
+    var did = '{{ dataset.id }}';
+    viewport.setQuality('0.9');
+    viewport.load({{ image.id }}, did.length ? parseInt(did) : null, location.search);
+    {% endif %}
+
+    /* Bind actions needed on window resize */
+    $(window).resize(calcResize);
+
+    $('input[@name=wblitz-quality]').click(function () {
+      viewport.setQuality(this.value);
+    });
+    /* And we're done! */
+    /* Set Window Initial Size */
+    window.resizeTo(1000,800);
+
+    if ($.browser.safari) setTimeout(1,calcResize);
+    else calcResize();
+
+  });
+{% endblock content_script %}
+
+

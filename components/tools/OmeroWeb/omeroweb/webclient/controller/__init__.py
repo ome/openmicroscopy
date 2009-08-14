@@ -23,7 +23,6 @@
 #
 
 import operator
-from omeroweb.webclient.models import Advice
 
 def sortByAttr(seq, attr, reverse=False):
     # Use the "Schwartzian transform".
@@ -78,7 +77,7 @@ class BaseController(object):
         
         #grs.extend(list(self.conn.getGroupsLeaderOf()))
         self.eContext['allGroups'] = self.sortByAttr(grs, "name")
-        self.eContext['advice'] = Advice.objects.get(pk=1)
+        self.eContext['advice'] = None
     
     def sortByAttr(self, seq, attr, reverse=False):
         return sortByAttr(seq, attr, reverse)

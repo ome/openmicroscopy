@@ -23,10 +23,38 @@
 #
 
 from django import forms
+from django.db import models
 from django.forms.widgets import Textarea
+
+from omeroweb.webadmin.models import Gateway
 
 class ErrorForm(forms.Form):
     
     email = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':50}), label="Your email", required=False)
     comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'cols': 70}), required=False)
     error = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 70}))
+
+class EmailTemplate(models.Model):
+    template = models.CharField(max_length=100)
+    content_html = models.TextField()
+    content_txt = models.TextField()
+    
+    def __unicode__(self):
+        t = "%s" % (self.template)
+        return t
+
+class EmailToSend(models.Model):
+    host = models.CharField(max_length=100)
+    blitz = models.ForeignKey(Gateway)
+    share = models.PositiveIntegerField()
+    sender = models.CharField(max_length=100, blank=True, null=True)
+    sender_email = models.CharField(max_length=100, blank=True, null=True)
+    recipients = models.TextField()
+    template = models.ForeignKey(EmailTemplate)
+    	   
+    def __init__(self, *args, **kwargs):
+        super(EmailToSend, self).__init__(*args, **kwargs)
+           
+    def __unicode__(self):
+        e = "%s %s on %s" % (self.sender, self.template, self.blitz.host)
+        return e

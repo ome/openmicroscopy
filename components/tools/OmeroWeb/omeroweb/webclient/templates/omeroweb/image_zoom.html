@@ -31,12 +31,19 @@
             });
         });
     </script>
+    <script>
+    var popup = function (url) {
+          window.open(url,'_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800');
+          return false;
+    }
+    </script>
+    
 {% endblock %}
 
 {% block center %}
 
 <div><center>
-    <a href="#" onclick="popup(null,'_blank','{{ image.image.id }}'); return false;"><img class="imgzoom" src="{% url render_big_thumbnail image.image.id %}" alt="image" title="{{ image.image.name }}"/></a></center>
+    <a href="#" onclick="return popup('{% url image_viewer manger.image.id %}')"><img class="imgzoom" src="{% url render_big_thumbnail image.image.id %}" alt="image" title="{{ image.image.name }}"/></a></center>
     <div><h1>{% trans "Description" %}: </h1>
         {{ image.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}
     </div>

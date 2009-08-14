@@ -16,7 +16,7 @@ html {
 
 body {
   overflow: hidden;
-  background: url(/webclient/static/images/logo.png) no-repeat ;
+  background: url(../images/logo.png) no-repeat ;
 }
 
 #body { 
@@ -28,7 +28,7 @@ hr {
   margin: 0px;
   padding: 0 0 0 0;
   clear: both;
-  background: url('/webclient/static/images/blitzcon/hr_sep_1.gif') repeat-x center;
+  background: url('../images/blitzcon/hr_sep_1.gif') repeat-x center;
   height: 10px;
 }
 
@@ -103,11 +103,11 @@ hr {
   display: inline;
   width: 8px;
   height: 8px;
-  background: url('/webclient/static/images/blitzcon/white_arrow_down.gif') no-repeat center;
+  background: url('../images/blitzcon/white_arrow_down.gif') no-repeat center;
 }
 
 .popped .drop-img { 
-  background: url('/webclient/static/images/blitzcon/white_arrow_up.gif') no-repeat center;
+  background: url('../images/blitzcon/white_arrow_up.gif') no-repeat center;
 }
 
 .drop-left { 
@@ -211,7 +211,7 @@ hr {
 }
 
 #wblitz-workarea button#full-size {
-  background: url('/webclient/static/images/blitzcon/1_1.gif') no-repeat center;
+  background: url('../images/blitzcon/1_1.gif') no-repeat center;
   height: 22px;
   width: 22px;
   padding: 0;
@@ -220,7 +220,7 @@ hr {
 }
 
 #wblitz-workarea button#full-screen {
-  background: url('/webclient/static/images/blitzcon/fs.gif') no-repeat center;
+  background: url('../images/blitzcon/fs.gif') no-repeat center;
   height: 22px;
   width: 22px;
   padding: 0;

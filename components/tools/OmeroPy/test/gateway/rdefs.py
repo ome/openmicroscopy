@@ -29,16 +29,26 @@ class RDefsTest (lib.GTest):
         self.c0color = self.channels[0].getColor().getHtml()
         self.c1color = self.channels[1].getColor().getHtml()
 
+    def tearDown (self):
+        super(RDefsTest, self).tearDown()
+
     def testDefault (self):
+        # Clean potentially customized default
+        self.image.clearDefaults()
+        self.image = self.getTestImage()
+        c0wmin = self.image.getChannels()[0].getWindowMin()
         # Change the color for the rendering defs
+        # For #126, also verify channels, and specifically setting min to 0
         self.channels = self.image.getChannels()
         self.assertNotEqual(self.c0color, 'F0F000')
         self.assertNotEqual(self.c1color, '000F0F')
-        self.image.setActiveChannels([1, 2],[[292.0, 1631.0], [409.0, 5015.0]],[u'F0F000', u'000F0F'])
+        self.assertNotEqual(c0wmin, 0)
+        self.image.setActiveChannels([1, 2],[[0.0, 1631.0], [409.0, 5015.0]],[u'F0F000', u'000F0F'])
         self.channels = self.image.getChannels()
         self.assert_(len(self.channels) == 2, 'bad channel count on image #%d' % self.TESTIMG_ID)
         self.assertEqual(self.channels[0].getColor().getHtml(), 'F0F000')
         self.assertEqual(self.channels[1].getColor().getHtml(), '000F0F')
+        self.assertEqual(self.channels[0].getWindowStart(), 0)
         # Save it as default
         self.assert_(self.image.saveDefaults(), 'Failed saveDefaults')
         # Verify that it comes back as default
@@ -47,39 +57,26 @@ class RDefsTest (lib.GTest):
         self.assert_(len(self.channels) == 2, 'bad channel count on image #%d' % self.TESTIMG_ID)
         self.assertEqual(self.channels[0].getColor().getHtml(), 'F0F000')
         self.assertEqual(self.channels[1].getColor().getHtml(), '000F0F')
-        # weblitz#82 Changing default colors doesn't work correctly
-        # the customizations weren't global, each user had its own
-        self.loginAsAdmin()
-        self.image = self.getTestImage()
-        self.assertNotEqual(self.image, None, 'No test image found on database')
-        self.channels = self.image.getChannels()
-        self.assert_(len(self.channels) == 2, 'bad channel count on image #%d' % self.TESTIMG_ID)
-        self.assertEqual(self.channels[0].getColor().getHtml(), 'F0F000')
-        self.assertEqual(self.channels[1].getColor().getHtml(), '000F0F')
-        # so root sees the changes, but do root's changes get seen by author?
-        self.image.clearDefaults() # remove author's version to make sure root creates a new one as author
-        self.image = self.getTestImage()
-        self.image.setActiveChannels([1, 2],[[292.0, 1631.0], [409.0, 5015.0]],[u'000F0F', u'F0F000'])
-        self.assert_(self.image.saveDefaults(), 'Failed saveDefaults')
-        self.loginAsEditor()
-        self.image = self.getTestImage()
-        self.assertNotEqual(self.image, None, 'No test image found on database')
-        self.assert_(isinstance(self.image.getThumbnail(), StringTypes))
-        self.channels = self.image.getChannels()
-        self.assert_(len(self.channels) == 2, 'bad channel count on image #%d' % self.TESTIMG_ID)
-        self.assertEqual(self.channels[0].getColor().getHtml(), '000F0F')
-        self.assertEqual(self.channels[1].getColor().getHtml(), 'F0F000')
-        # webliz#82 ends, back to AUTHOR
-        # Clean the customized default
-        self.loginAsAuthor()
-        self.image = self.getTestImage()
+        self.assertEqual(self.channels[0].getWindowStart(), 0)
         self.image.clearDefaults()
         self.image = self.getTestImage()
+        self.image.clearDefaults()
         self.channels = self.image.getChannels()
         # Verify we got back to the original state
         self.assert_(len(self.channels) == 2, 'bad channel count on image #%d' % self.TESTIMG_ID)
         self.assertEqual(self.channels[0].getColor().getHtml(), self.c0color)
         self.assertEqual(self.channels[1].getColor().getHtml(), self.c1color)
+        self.assertEqual(self.channels[0].getWindowMin(), c0wmin)
+        ## Check that only author (or admin) can change defaults
+        #self.doLogin(GUEST)
+        #self.image = self.getTestImage(self.gateway, public=True)
+        #self.image.setActiveChannels([1, 2],[[292.0, 1631.0], [409.0, 5015.0]],[u'F0F000', u'000F0F'])
+        #self.assert_(not self.image.saveDefaults(), 'saveDefaults should have failed!')
+        ## Verify we are still in the original state
+        #self.channels = self.image.getChannels()
+        #self.assert_(len(self.channels) == 2, 'bad channel count on image #%d' % self.TESTIMG_ID)
+        #self.assertEqual(self.channels[0].getColor().getHtml(), self.c0color)
+        #self.assertEqual(self.channels[1].getColor().getHtml(), self.c1color)
 
     def testCustomized (self):
         self.image.setActiveChannels([1, 2],[[292.0, 1631.0], [409.0, 5015.0]],[u'FF0000', u'0000FF'])
@@ -101,11 +98,11 @@ class RDefsTest (lib.GTest):
             min = channel.getWindowMin()
             start = channel.getWindowStart()
             end = channel.getWindowEnd()
-            self.assert_(min < start < end < max)
-            channel.setWindowStart(min)
-            self.assertEqual(channel.getWindowStart(), min)
-            channel.setWindowEnd(max)
-            self.assertEqual(channel.getWindowEnd(), max)
+            self.assert_(min <= start < end <= max)
+            channel.setWindowStart(min-1)
+            self.assertEqual(channel.getWindowStart(), min-1)
+            channel.setWindowEnd(max+1)
+            self.assertEqual(channel.getWindowEnd(), max+1)
             channel.setWindow(start, end)
             self.assertEqual(channel.getWindowStart(), start)
             self.assertEqual(channel.getWindowEnd(), end)

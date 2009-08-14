@@ -17,21 +17,21 @@
     float: left; 
 }
 .small_label { 
-    background: url(/webclient/static/images/minus.png) no-repeat; 
+    background: url(../images/minus.png) no-repeat; 
     height: 19px; 
     width: 19px; 
     overflow: hidden; 
     float: left; 
 } 
 .large_label { 
-    background: url(/webclient/static/images/plus.png) no-repeat; 
+    background: url(../images/plus.png) no-repeat; 
     height: 19px; 
     width: 19px; 
     overflow: hidden; 
     float: left; 
 } 
 .slider_bar { 
-    background: url(/webclient/static/images/bar.png) no-repeat; 
+    background: url(../images/bar.png) no-repeat; 
     height: 19px; 
     width: 150px;  
     float: left; 
@@ -39,7 +39,7 @@
     position: relative;
 } 
 .slider_handle { 
-    background: url(/webclient/static/images/selector.png) no-repeat; 
+    background: url(../images/selector.png) no-repeat; 
     height: 19px; 
     width: 20px; 
     overflow: hidden; 

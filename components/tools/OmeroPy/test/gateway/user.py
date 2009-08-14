@@ -24,10 +24,10 @@ class UserTest (lib.GTest):
 
     def testSaveAs (self):
         for u in (self.ADMIN, self.AUTHOR):
-            self.doLogin(*u)
+            self.doLogin(u)
             # Test image should be owned by author
             image = self.getTestImage()
-            self.assertEqual(image.getOwnerOmeName(), self.AUTHOR[0])
+            self.assertEqual(image.getOwnerOmeName(), self.AUTHOR.name)
             # Create some object
             param = omero.sys.Parameters()
             param.map = {'ns': omero.rtypes.rstring('weblitz.UserTest.testSaveAs')}
@@ -40,7 +40,7 @@ class UserTest (lib.GTest):
             try:
                 ann2 = self.gateway.getQueryService().findAllByQuery('from CommentAnnotation as a where a.ns=:ns', param)
                 self.assertEqual(len(ann2), 1)
-                self.assertEqual(omero.gateway.CommentAnnotationWrapper(self.gateway, ann2[0]).getOwnerOmeName(), self.AUTHOR[0])
+                self.assertEqual(omero.gateway.CommentAnnotationWrapper(self.gateway, ann2[0]).getOwnerOmeName(), self.AUTHOR.name)
             finally:
                 self.gateway.getUpdateService().deleteObject(ann._obj)
 

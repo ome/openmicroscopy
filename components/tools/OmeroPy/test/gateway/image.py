@@ -148,7 +148,7 @@ class ImageTest (lib.GTest):
         self.assertEqual(m['description'], self.image.getDescription())
         self.assertEqual(m['id'], self.image.getId())
         self.assertEqual(m['type'], self.image.OMERO_CLASS)
-        self.assertEqual(m['author'], ' '.join(lib.AUTHOR_NAME))
+        self.assertEqual(m['author'], self.AUTHOR.fullname())
         self.assert_('parents' not in m)
         self.assert_('date' in m)
         parents = map(lambda x: x.simpleMarshal(), self.image.getAncestry())
@@ -157,7 +157,7 @@ class ImageTest (lib.GTest):
         self.assertEqual(m['description'], self.image.getDescription())
         self.assertEqual(m['id'], self.image.getId())
         self.assertEqual(m['type'], self.image.OMERO_CLASS)
-        self.assertEqual(m['author'], ' '.join(lib.AUTHOR_NAME))
+        self.assertEqual(m['author'], self.AUTHOR.fullname())
         self.assert_('date' in m)
         self.assertEqual(m['parents'], parents)
 

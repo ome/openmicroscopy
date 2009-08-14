@@ -43,24 +43,24 @@
 	height: 1.4em;
 	display: block;
 	font-size: 1em;
-	background: url(/webclient/static/images/arrow_left.png) 50% 50% no-repeat;
+	background: url(../images/arrow_left.png) 50% 50% no-repeat;
 	border: 1px solid #d3d3d3;
 	cursor: pointer;
 }
 .ui-datepicker-next a {
-	background: url(/webclient/static/images/arrow_right.png) 50% 50% no-repeat;
+	background: url(../images/arrow_right.png) 50% 50% no-repeat;
 }
 .ui-datepicker-prev a:hover {
-	background: url(/webclient/static/images/arrow_left.png) 50% 50% no-repeat;
+	background: url(../images/arrow_left.png) 50% 50% no-repeat;
 }
 .ui-datepicker-next a:hover {
-	background: url(/webclient/static/images/arrow_right.png) 50% 50% no-repeat;
+	background: url(../images/arrow_right.png) 50% 50% no-repeat;
 }
 .ui-datepicker-prev a:active {
-	background: url(/webclient/static/images/arrow_left.png) 50% 50% no-repeat;
+	background: url(../images/arrow_left.png) 50% 50% no-repeat;
 }
 .ui-datepicker-next a:active {
-	background: url(/webclient/static/images/arrow_right.png) 50% 50% no-repeat;
+	background: url(../images/arrow_right.png) 50% 50% no-repeat;
 }
 .ui-datepicker-header select {
 	border: 1px solid #d3d3d3;

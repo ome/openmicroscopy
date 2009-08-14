@@ -73,7 +73,7 @@
   height: 100%;
   position: relative;
   cursor: -moz-grab;
-  cursor: url('/webclient/static/images/blitzcon/openhand.cur'), pointer, auto;
+  cursor: url('../images/blitzcon/openhand.cur'), pointer, auto;
   opacity: 0.8;
 }
 
@@ -81,7 +81,7 @@
   cursor: pointer;
   position: absolute;
   left: -27px;
-  background: transparent url("/webclient/static/images/blitzcon/figure_box_btn_left.gif") center no-repeat;
+  background: transparent url("../images/blitzcon/figure_box_btn_left.gif") center no-repeat;
   width: 24px;
   height: 16px;
 }
@@ -90,7 +90,7 @@
   cursor: pointer;
   position: absolute;
   right: -27px;
-  background: transparent url("/webclient/static/images/blitzcon/figure_box_btn_right.gif") center no-repeat;
+  background: transparent url("../images/blitzcon/figure_box_btn_right.gif") center no-repeat;
   width: 24px;
   height: 16;
 }
@@ -102,5 +102,5 @@
   position: absolute;
   height: 28px;
   top: -6px;
-  background: transparent url("/webclient/static/images/blitzcon/slider_focus.gif") center no-repeat;
+  background: transparent url("../images/blitzcon/slider_focus.gif") center no-repeat;
 }

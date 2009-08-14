@@ -123,14 +123,22 @@ div#view, div#view2  {
     background-color: #fff;
     padding: 5px;
 }
-.thumbnail {
+.miniview {
+    /* This is for the miniviewer in image_details */
     float: left;
     width: 600px;
-    padding: 0;
+    height: 500px;
+    position: relative;
+}
+.miniview_desc {
+    float: left;
+    width: 600px;
+    position: relative;
 }
 .metadata {
     float: right;
     margin: -8px 0 20px 0;
+    position: relative;
 }
 
 .ui-accordion-help {

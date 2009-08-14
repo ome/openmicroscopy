@@ -47,7 +47,9 @@
                 $.ThumbSlider(fb).setFocus($(this));
               };
             };
-            var loaderror = function (thumb) {
+            var loaderror = function (thumb, ts) {
+              $(thumb).one('load', ts.center);
+              $(thumb).attr('src', '/appmedia/webgateway/img/broken.gif');
               self.trigger('thumbError', thumb);
             };
             for (i in data) {

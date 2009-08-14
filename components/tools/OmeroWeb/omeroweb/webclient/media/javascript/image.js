@@ -2,7 +2,7 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
     if (image_id == null) {
         alert("No image selected.")
     } else {
-        $($('#id_'+metadata_type).parent()).append('<img src="/webclient/static/images/tree/spinner.gif"/>');
+        $($('#id_'+metadata_type).parent()).append('<img src="../images/tree/spinner.gif"/>');
         $.ajax({
             type: "POST",
             url: "/webclient/metadata/image/"+image_id+"/", //this.href,

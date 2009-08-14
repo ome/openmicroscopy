@@ -10,7 +10,7 @@ table.tablesorter thead tr th, table.tablesorter tfoot tr th {
     background-color: #eeeeee;
 }
 table.tablesorter thead tr .header {
-    background-image: url(/webadmin/static/images/table/bg.gif);
+    background-image: url(../images/table/bg.gif);
     background-repeat: no-repeat;
     background-position: center right;
     cursor: pointer;
@@ -22,10 +22,10 @@ table.tablesorter tbody tr.odd td {
     background-color:#ccc;
 }
 table.tablesorter thead tr .headerSortUp {
-    background-image: url(/webadmin/static/images/table/asc.gif);
+    background-image: url(../images/table/asc.gif);
 }
 table.tablesorter thead tr .headerSortDown {
-    background-image: url(/webadmin/static/images/table/desc.gif);
+    background-image: url(../images/table/desc.gif);
 }
 table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
     background-color: #ccc;
@@ -71,7 +71,7 @@ table.tablesortersmall thead tr th, table.tablesortersmall tfoot tr th {
     background-color: #eeeeee;
 }
 table.tablesortersmall thead tr .header {
-    background-image: url(/webadmin/static/images/table/bg.gif);
+    background-image: url(../images/table/bg.gif);
     background-repeat: no-repeat;
     background-position: center right;
     cursor: pointer;
@@ -83,10 +83,10 @@ table.tablesortersmall tbody tr.odd td {
     background-color:#ccc;
 }
 table.tablesortersmall thead tr .headerSortUp {
-    background-image: url(/webadmin/static/images/table/asc.gif);
+    background-image: url(../images/table/asc.gif);
 }
 table.tablesortersmall thead tr .headerSortDown {
-    background-image: url(/webadmin/static/images/table/desc.gif);
+    background-image: url(../images/table/desc.gif);
 }
 table.tablesortersmall thead tr .headerSortDown, table.tablesortersmall thead tr .headerSortUp {
     background-color: #ccc;

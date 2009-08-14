@@ -51,6 +51,13 @@
 
         })
     </script>
+    <script>
+    var popup = function (url) {
+          window.open(url,'_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800');
+          return false;
+    }
+    </script>
+    
 {% endblock %}
 
 {% block center %}
@@ -103,7 +110,7 @@
     <tr> 
         <td class="product"><a href="{% if manager.project %}{% url manage_data_t_id_t_id_t_id "mydata" "project" manager.project.id "dataset" c.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data_t_id_t_id "mydata" "dataset" c.id "image" c.id %}{% else %}{% url manage_data_t_id "mydata" "image" c.id %}{% endif %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/image32.png" %}" title="{{ c.name }}" alt="image"/></a></td> 
         <td><a href="{% if manager.project %}{% url manage_data_t_id_t_id_t_id "mydata" "project" manager.project.id "dataset" c.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data_t_id_t_id "mydata" "dataset" c.id "image" c.id %}{% else %}{% url manage_data_t_id "mydata" "image" c.id %}{% endif %}{% endif %}">{{ c.shortName }}</a>{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %} </td> 
-        <td><a href="#" onclick="popup(null,'_blank','{{ c.id }}'); return false;"><img src="{% url webstatic "images/kview16.png" %}" title="{{ c.name }}" alt="image"/></a> <a href="{% url manage_image_zoom c.id %}?keepThis=true&TB_iframe=true&height=500&width=860" alt="{{ c.shortName }}" class="thickbox" rel="gallery-omero" title="{{ c.shortName }} by {{ c.getOwnerFullName }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% url webstatic "images/kpresenter16.png" %}" alt="p" title="presentation"/></a> <a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="basket"/></a> <a href="#" onclick="copyToClipboard('image', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit12.png" %}" alt="c" title="copy"/></a></td>
+        <td><a href="#" onclick="return popup('{% url image_viewer e.id %}')"><img src="{% url webstatic "images/kview16.png" %}" title="{{ c.name }}" alt="image"/></a> <a href="{% url manage_image_zoom c.id %}?keepThis=true&TB_iframe=true&height=500&width=860" alt="{{ c.shortName }}" class="thickbox" rel="gallery-omero" title="{{ c.shortName }} by {{ c.getOwnerFullName }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% url webstatic "images/kpresenter16.png" %}" alt="p" title="presentation"/></a> <a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="basket"/></a> <a href="#" onclick="copyToClipboard('image', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit12.png" %}" alt="c" title="copy"/></a></td>
         <td>{{ c.getDate|date:"Y m d H:i:s" }}</td>
     </tr>
     {% endfor %}

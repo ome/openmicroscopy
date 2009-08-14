@@ -20,6 +20,10 @@ urlpatterns = patterns('',
     (r'^render_row_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$', 'webgateway.views.render_row_plot'),
     (r'^render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$', 'webgateway.views.render_col_plot'),
     (r'^render_thumbnail/(?P<iid>[^/]+)/$', 'webgateway.views.render_thumbnail'),
+
+    # Template views
+    (r'^test/$', 'webgateway.views.test'),
+
     # JSON methods
     (r'^proj/list/$', 'webgateway.views.listProjects_json'),
     (r'^proj/(?P<pid>[^/]+)/detail/$', 'webgateway.views.projectDetail_json'),
@@ -28,6 +32,7 @@ urlpatterns = patterns('',
     (r'^dataset/(?P<did>[^/]+)/children/$', 'webgateway.views.listImages_json'),
     (r'^imgData/(?P<iid>[^/]+)/(?:(?P<key>[^/]+)/)?$', 'webgateway.views.imageData_json'),
     (r'^search/$', 'webgateway.views.search_json'),
+    (r'^img_detail/(?P<iid>[0-9]+)/$', "webgateway.views.full_viewer"),
 
     (r'^saveImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.save_image_rdef_json'),
                        

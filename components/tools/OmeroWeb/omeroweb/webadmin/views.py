@@ -58,14 +58,16 @@ from controller.script import BaseScripts, BaseScript
 from controller.drivespace import BaseDriveSpace
 from controller.uploadfile import BaseUploadFile
 
-from models import Gateway, LoginForm, ForgottonPasswordForm, ExperimenterForm, \
+from models import Gateway
+from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
                    ExperimenterLdapForm, GroupForm, ScriptForm, MyAccountForm, \
                    MyAccountLdapForm, ContainedExperimentersForm, UploadPhotoForm
 
-#from extlib.gateway import BlitzGateway
+from extlib import gateway
 
-from extlib.gateway import _session_logout, timeit, getBlitzConnection, _createConnection
-
+#from extlib.gateway import _session_logout, timeit, getBlitzConnection, _createConnection
+from webgateway.views import getBlitzConnection, timeit, _session_logout, _createConnection
+from webgateway import views as webgateway_views
 logger = logging.getLogger('views-admin')
 
 connectors = {}
@@ -81,15 +83,20 @@ except:
 
 ################################################################################
 # Blitz Gateway Connection
+#_getBlitzConnection = webgateway_views.getBlitzConnection
+#def getBlitzConnection (request, server_id=None, force_key=None, **kwargs):
+#    if server_id is not None:
+#        return _getBlitzConnection(request, server_id, force_key=force_key, **kwargs)
+#    try:
+#        server_id = request.session['server']
+#    except KeyError:
+#        return None
+#    return _getBlitzConnection(request, server_id, with_session=True, skip_stored=True, force_key=force_key)
+#webgateway_views.getBlitzConnection = getBlitzConnection
 
-@timeit
-def getConnection (request, force_key=None):
-    try:
-        server = request.session['server']
-    except KeyError:
-        return None
-
-    return getBlitzConnection(request, server, with_session=True, skip_stored=True, force_key=force_key)
+#@timeit
+#def getConnection (request, force_key=None):
+#    return getBlitzConnection(request, force_key=force_key)
 
 def getGuestConnection(host, port):
     conn = None
@@ -113,7 +120,7 @@ def isAdminConnected (f):
         #this check the connection exist, if not it will redirect to login page
         conn = None
         try:
-            conn = getConnection(request)
+            conn = getBlitzConnection(request)
         except Exception, x:
             logger.error(traceback.format_exc())
             return HttpResponseRedirect(reverse("admin_login")+(("?error=%s") % x.__class__.__name__))
@@ -143,10 +150,8 @@ def isUserConnected (f):
         
         conn = None
         try:
-            conn = getConnection(request)
+            conn = getBlitzConnection(request)
         except KeyError:
-            
-            
             return HttpResponseRedirect(reverse("admin_login")+(("?url=%s") % (url)))
         except Exception, x:
             logger.error(traceback.format_exc())
@@ -223,7 +228,7 @@ def login(request):
         
     conn = None
     try:
-        conn = getConnection(request)
+        conn = getBlitzConnection(request)
     except Exception, x:
         logger.debug(traceback.format_exc())
         error = x.__class__.__name__
@@ -271,7 +276,7 @@ def index(request, **kwargs):
 def logout(request):
     _session_logout(request, request.session['server'])
 #    try:
-#        conn = getConnection(request)
+#        conn = getBlitzConnection(request)
 #    except:
 #        logger.error(traceback.format_exc())
 #    else:

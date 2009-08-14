@@ -70,15 +70,17 @@ from omeroweb.feedback.views import handlerInternalError
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
 from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
 
-from models import ShareForm, ShareCommentForm, ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
+from webadmin.models import Gateway
+from forms import ShareForm, ShareCommentForm, ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
                     UriAnnotationForm, UploadFileForm, MyGroupsForm, MyUserForm, ActiveGroupForm, \
                     HistoryTypeForm, MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
                     TagListForm, UrlListForm, CommentListForm, FileListForm, TagFilterForm
-from omeroweb.webadmin.models import MyAccountForm, MyAccountLdapForm, UploadPhotoForm
-from omeroweb.webadmin.models import Gateway, LoginForm
+from omeroweb.webadmin.forms import MyAccountForm, MyAccountLdapForm, UploadPhotoForm, LoginForm
 
-from omeroweb.webadmin.views import isUserConnected
-from extlib.gateway import _session_logout, timeit, getBlitzConnection
+from omeroweb.webadmin.views import _session_logout
+from omeroweb.webgateway.views import getBlitzConnection
+from omeroweb.webgateway import views as webgateway_views
+#from extlib.gateway import _session_logout, timeit, getBlitzConnection
 
 #from extlib.gateway import BlitzGateway
 
@@ -100,19 +102,10 @@ except:
 ################################################################################
 # Blitz Gateway Connection
 
-@timeit
-def getConnection (request, force_key=None):
-    try:
-        server = request.session['server']
-    except KeyError:
-        return None
-
-    return getBlitzConnection(request, server, with_session=True, skip_stored=True, force_key=force_key)
-
 def getShareConnection (request, share_id):
     browsersession_key = request.session.session_key
     share_conn_key = "S:%s#%s#%s" % (browsersession_key, request.session.get('server'), share_id)
-    share = getConnection(request, force_key=share_conn_key)
+    share = getBlitzConnection(request, force_key=share_conn_key)
     share.attachToShare(share_id)
     request.session['shares'][share_id] = share._sessionUuid
     request.session.modified = True
@@ -150,7 +143,7 @@ def load_session_from_request(handler):
 
 
 def isUserConnected (f):
-    def wrapped (request, *args, **kwargs):
+    def wrapped (request, share_id=None, *args, **kwargs):
         try:
             request.session['server'] = request.REQUEST['server']
         except:
@@ -164,9 +157,16 @@ def isUserConnected (f):
             else:
                 url = '%s' % (request.META['PATH_INFO'])
         
+        conn_share = None
+        if share_id is not None:
+            try:
+                conn_share = getShareConnection(request, share_id)
+            except Exception, x:
+                logger.error(traceback.format_exc())
+                
         conn = None
         try:
-            conn = getConnection(request)
+            conn = getBlitzConnection(request)
         except KeyError:
             return HttpResponseRedirect(reverse("weblogin")+(("?url=%s") % (url)))
         except Exception, x:
@@ -178,8 +178,9 @@ def isUserConnected (f):
         sessionHelper(request)
         notification()
         kwargs["conn"] = conn
+        kwargs["conn_share"] = conn_share
         kwargs["url"] = url
-        return f(request, *args, **kwargs)
+        return f(request, share_id=share_id, *args, **kwargs)
     
     return wrapped
 
@@ -246,7 +247,7 @@ def login(request):
     
     conn = None
     try:
-        conn = getConnection(request)
+        conn = getBlitzConnection(request)
     except Exception, x:
         error = x.__class__.__name__
     
@@ -1692,11 +1693,11 @@ def load_share_content(request, share_id, **kwargs):
     
     conn_share = None
     try:
-
-        conn_share = getShareConnection(request, share_id)
+        conn_share = kwargs["conn_share"]
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
     try:
         share = BaseShare(request.session['nav']['menu'], conn, conn_share, share_id)
     except AttributeError, x:
@@ -2286,23 +2287,22 @@ def myphoto(request, **kwargs):
 @isUserConnected
 def render_thumbnail (request, iid, share_id=None, **kwargs):
     conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
     if share_id is not None:
         try:
-            conn = getShareConnection(request, share_id)
-        except Exception, x:
+            conn = kwargs["conn_share"]
+        except:
             logger.error(traceback.format_exc())
-            raise x
-        if conn is None:
-            raise Exception("Share connection not available")
-        img = conn.getImage(iid)
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
     else:
-        img = conn.getImage(iid)
+        try:
+            conn = kwargs["conn"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+         
+    if conn is None:
+        raise Exception("Share connection not available")
+    img = conn.getImage(iid)
     
     if img is None:
         logger.error("Image %s not found..." % (str(iid)))
@@ -2343,23 +2343,22 @@ def render_thumbnail_details (request, iid, **kwargs):
 @isUserConnected
 def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
     conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
     if share_id is not None:
         try:
-            conn = getShareConnection(request, share_id)
-        except Exception, x:
+            conn = kwargs["conn_share"]
+        except:
             logger.error(traceback.format_exc())
-            raise x
-        if conn is None:
-            raise Exception("Share connection not available")
-        img = conn.getImage(iid)
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
     else:
-        img = conn.getImage(iid)
+        try:
+            conn = kwargs["conn"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+         
+    if conn is None:
+        raise Exception("Share connection not available")
+    img = conn.getImage(iid)
     
     if img is None:
         logger.error("Image %s not found..." % (str(iid)))
@@ -2396,221 +2395,152 @@ def render_big_thumbnail (request, iid, **kwargs):
     
     jpeg_data = img.getThumbnail(size=size)
     return HttpResponse(jpeg_data, mimetype='image/jpeg')
-    
-class UserAgent (object):
-    def __init__ (self, request):
-        self.ua = request.META['HTTP_USER_AGENT']
 
-    def isIE (self):
-        return 'MSIE' in self.ua
-
-    def isFF (self):
-        return 'Firefox' in self.ua
-
-    def isSafari (self):
-        return 'Safari' in self.ua
-
-@isUserConnected
-def _get_prepared_image (request, iid, share_id=None, **kwargs):
-    r = request.REQUEST
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except Exception, x:
-        logger.error(traceback.format_exc())
-        raise x
-
-    if share_id is not None:
-        try:
-            conn = getShareConnection(request, share_id)
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            raise x
-        if conn is None:
-            raise Exception("Share connection not available")
-        img = conn.getImage(iid)
-    else:
-        img = conn.getImage(iid)
-        
-    if img is None:
-        logger.error("Image %s not found..." % (str(iid)))
-        raise AttributeError("Image %s not found..." % (str(iid)))
-    
-    if r.has_key('c'):
-        logger.info("c="+r['c'])
-        channels, windows, colors =  _split_channel_info(r['c'])
-        if not img.setActiveChannels(channels, windows, colors):
-            logger.info("Could not set the active channels")
-    if r.get('m', None) == 'g':
-        img.setGreyscaleRenderingModel()
-    elif r.get('m', None) == 'c':
-        img.setColorRenderingModel()
-    compress_quality = r.get('q', None)
-    return (img, compress_quality)
 
 @isUserConnected
 def render_image (request, iid, z, t, share_id=None, **kwargs):
     """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
         Many options are available from the request dict.
     I am assuming a single Pixels object on image with id='iid'. May be wrong """
-    
-    r = request.REQUEST
 
-    pi = _get_prepared_image(request, iid, share_id)
-    img, compress_quality = pi
-    jpeg_data = img.renderJpeg(z,t, compression=compress_quality)
-    return HttpResponse(jpeg_data, mimetype='image/jpeg')
+    conn = None
+    if share_id is not None:
+        try:
+            conn = kwargs["conn_share"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+    else:
+        try:
+            conn = kwargs["conn"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+         
+    if conn is None:
+        raise Exception("Share connection not available")
+
+    return webgateway_views.render_image(request, iid, z, t, _conn=conn, **kwargs)
+
 
 @isUserConnected
 def image_viewer (request, iid, share_id=None, **kwargs):
     """ This view is responsible for showing pixel data as images """
-    user_agent = UserAgent(request)
-    rid = _get_img_details_from_req(request)
-    rk = "&".join(["%s=%s" % (x[0], x[1]) for x in rid.items()])
     
     conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
     if share_id is not None:
         try:
-            conn = getShareConnection(request, share_id)
-        except Exception, x:
+            conn = kwargs["conn_share"]
+        except:
             logger.error(traceback.format_exc())
-            raise x
-        if conn is None:
-            raise Exception("Share connection not available")
-        img = conn.getImage(iid)
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
     else:
-        img = conn.getImage(iid)
-    
-    if img is None:
-        logger.error("Image %s not found..." % (str(iid)))
-        return handlerInternalError("Image %s not found..." % (str(iid)))
-    
-    context = {'conn': conn, 'image': img, 'share_id': conn._shareId, 'opts': rid, 'user_agent': user_agent, 'object': 'image:%i' % long(iid)}
-    template = "omeroweb/omero_image.html"
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    return HttpResponse(t.render(c))
-
-def _split_channel_info (rchannels):
-    channels = []
-    windows = []
-    colors = []
-    for chan in rchannels.split(','):
-        chan = chan.split('|')
-        t = chan[0].strip()
-        color = None
-        if t.find('$')>=0:
-            t,color = t.split('$')
         try:
-            channels.append(long(t))
-            ch_window = (None, None)
-            if len(chan) > 1:
-                t = chan[1].strip()
-                if t.find('$')>=0:
-                    t, color = t.split('$')
-                t = t.split(':')
-                if len(t) == 2:
-                    try:
-                        ch_window = [float(x) for x in t]
-                    except ValueError:
-                        pass
-            windows.append(ch_window)
-            colors.append(color)
-        except ValueError:
-            pass
-    logger.info(str(channels)+","+str(windows)+","+str(colors))
-    return channels, windows, colors
+            conn = kwargs["conn"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+         
+    if conn is None:
+        raise Exception("Share connection not available")
+    
+    kwargs['viewport_server'] = '/webclient'
+    if share_id:
+        kwargs['viewport_server'] += '/%s' % share_id
 
-def _get_img_details_from_req (request, as_string=False):
-    """ Break the GET information from the request object into details on how to render the image.
-    The following keys are recognized:
-    z - Z axis position
-    t - T axis position
-    q - Quality set (0,0..1,0)
-    m - Model (g for greyscale, c for color)
-    x - X position (for now based on top/left offset on the browser window)
-    y - Y position (same as above)
-    c - a comma separated list of channels to be rendered (start index 1)
-      - format for each entry [-]ID[|wndst:wndend][#HEXCOLOR][,...]
-    zm - the zoom setting (as a percentual value)
-    """
-    r = request.REQUEST
-    rv = {}
-    for k in ('z', 't', 'q', 'm', 'zm', 'x', 'y'):
-        if r.has_key(k):
-           rv[k] = r[k]
-    if r.has_key('c'):
-        rv['c'] = []
-        ci = _split_channel_info(r['c'])
-        logger.info(ci)
-        for i in range(len(ci[0])):
-            # a = abs channel, i = channel, s = window start, e = window end, c = color
-          rv['c'].append({'a':abs(ci[0][i]), 'i':ci[0][i], 's':ci[1][i][0], 'e':ci[1][i][1], 'c':ci[2][i]})
-    if as_string:
-        return "&".join(["%s=%s" % (x[0], x[1]) for x in rv.items()])
-    return rv
+    return webgateway_views.full_viewer(request, iid, _conn=conn, **kwargs)
+
 
 @isUserConnected
 def imageData_json (request, iid, share_id=None, **kwargs):
     """ Get a dict with image information """
-    r = request.REQUEST
-    
     conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
     if share_id is not None:
         try:
-            conn = getShareConnection(request, share_id)
-        except Exception, x:
+            conn = kwargs["conn_share"]
+        except:
             logger.error(traceback.format_exc())
-            raise x
-        if conn is None:
-            raise Exception("Share connection not available")
-        img = conn.getImage(iid)
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
     else:
-        img = conn.getImage(iid)
-    
-    if img is None:
-        logger.error("Image %s not found..." % (str(iid)))
-        return handlerInternalError("Image %s not found..." % (str(iid)))
-    
-    rv = {
-        'id': iid,
-        'size': {'width': img.getWidth(),
-                 'height': img.getHeight(),
-                 'z': img.z_count(),
-                 't': img.t_count(),
-                 'c': img.c_count(),},
-        'pixel_size': {'x': img.getPixelSizeX(),
-                       'y': img.getPixelSizeY(),
-                       'z': img.getPixelSizeZ(),},
-        'rdefs': {'model': img.isGreyscaleRenderingModel() and 'greyscale' or 'color',
-                  },
-        'channels': map(lambda x: {'emissionWave': x.getEmissionWave(),
-                                   'color': x.getColor().getHtml(),
-                                   'window': {'min': x.getWindowMin(),
-                                              'max': x.getWindowMax(),
-                                              'start': x.getWindowStart(),
-                                              'end': x.getWindowEnd(),},
-                                   'active': x.isActive()}, img.getChannels()),
-        'meta': {'name': img.name or '',
-                 'description': img.description or '',
-                 'author':img.getOwnerFullName(),
-                 'timestamp': img.getDateAsTimestamp(),},
-        }
-    json_data = simplejson.dumps(rv)
-    return HttpResponse(json_data, mimetype='application/javascript')
+        try:
+            conn = kwargs["conn"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+         
+    if conn is None:
+        raise Exception("Share connection not available")
+
+    return HttpResponse(webgateway_views.imageData_json(request, iid=iid, _conn=conn, **kwargs), mimetype='application/javascript')
+
+@isUserConnected
+def render_row_plot (request, iid, z, t, y, share_id=None, w=1, **kwargs):
+    """ Get a dict with image information """
+    conn = None
+    if share_id is not None:
+        try:
+            conn = kwargs["conn_share"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+    else:
+        try:
+            conn = kwargs["conn"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+         
+    if conn is None:
+        raise Exception("Share connection not available")
+    img = conn.getImage(iid)
+
+    return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, _conn=conn, **kwargs)
+
+@isUserConnected
+def render_col_plot (request, iid, z, t, x, share_id=None, w=1, **kwargs):
+    """ Get a dict with image information """
+    conn = None
+    if share_id is not None:
+        try:
+            conn = kwargs["conn_share"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+    else:
+        try:
+            conn = kwargs["conn"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+         
+    if conn is None:
+        raise Exception("Share connection not available")
+    img = conn.getImage(iid)
+
+    return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, _conn=conn, **kwargs)
+
+@isUserConnected
+def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
+    """ Get a dict with image information """
+    conn = None
+    if share_id is not None:
+        try:
+            conn = kwargs["conn_share"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+    else:
+        try:
+            conn = kwargs["conn"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+         
+    if conn is None:
+        raise Exception("Share connection not available")
+    img = conn.getImage(iid)
+
+    return webgateway_views.render_split_channel(request, iid, z, t, _conn=conn, **kwargs)
 
 ####################################################################################
 # utils
@@ -2626,6 +2556,7 @@ def spellchecker(request):
         r_text = response.read()
         con.close()
         return HttpResponse(r_text, mimetype='text/javascript')
+
 
 @isUserConnected
 def test(request, **kwargs):
@@ -2651,6 +2582,7 @@ def test(request, **kwargs):
     c = Context(request, context)
     rsp = t.render(c)
     return HttpResponse(rsp)
+
 
 @isUserConnected
 def histogram(request, oid, **kwargs):

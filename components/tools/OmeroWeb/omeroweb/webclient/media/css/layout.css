@@ -18,7 +18,7 @@ body {
 }
 #bodyWrapper {
     width: 100%;
-    background: url(/webclient/static/images/background.png) repeat-x top left ;
+    background: url(../images/background.png) repeat-x top left ;
     background-color: #fff;
     padding-bottom: 50px;
 }
@@ -94,7 +94,7 @@ body.zoom {
     margin: 0;
     height: 90px;
     width: 160px;
-    background: url(/webclient/static/images/logo.png) no-repeat bottom left ;
+    background: url(../images/logo.png) no-repeat bottom left ;
     top: 0;
     left: 25px;
 }

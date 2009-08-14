@@ -1442,9 +1442,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 else:
                     from omeroweb.webadmin.models import Gateway
                     blitz = Gateway.objects.get(id=blitz_id)
-                    from omeroweb.webclient.models import EmailTemplate
+                    from omeroweb.feedback.models import EmailToSend, EmailTemplate
                     t = EmailTemplate.objects.get(template="add_comment_to_share")
-                    from omeroweb.webclient.models import EmailToSend
                     e = EmailToSend(host=host, blitz=blitz, share=share_id, sender="", sender_email="", recipients=recipients, template=t)
                     e.save()
     
@@ -1498,9 +1497,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 else:
                     from omeroweb.webadmin.models import Gateway
                     blitz = Gateway.objects.get(id=blitz_id)
-                    from omeroweb.webclient.models import EmailTemplate
+                    from omeroweb.feedback.models import EmailToSend, EmailTemplate
                     t = EmailTemplate.objects.get(template="create_share")
-                    from omeroweb.webclient.models import EmailToSend
                     e = EmailToSend(host=host, blitz=blitz, share=sid, sender=self.getUser().getFullName(), sender_email=self.getUser().email, recipients=recipients, template=t)
                     e.save()
     
@@ -1526,9 +1524,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 	            else:
 	                from omeroweb.webadmin.models import Gateway
 	                blitz = Gateway.objects.get(id=blitz_id)
-	                from omeroweb.webclient.models import EmailTemplate
+	                from omeroweb.feedback.models import EmailToSend, EmailTemplate
 	                t = EmailTemplate.objects.get(template="add_member_to_share")
-	                from omeroweb.webclient.models import EmailToSend
 	                e = EmailToSend(host=host, blitz=blitz, share=sid, sender=self.getUser().getFullName(), sender_email=self.getUser().email, recipients=recipients, template=t)
 	                e.save()
 			
@@ -1542,11 +1539,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 	            else:
 	                from omeroweb.webadmin.models import Gateway
 	                blitz = Gateway.objects.get(id=blitz_id)
-	                from omeroweb.webclient.models import EmailTemplate
+	                from omeroweb.feedback.models import EmailToSend, EmailTemplate
 	                t = EmailTemplate.objects.get(template="remove_member_from_share")
-	                from omeroweb.webclient.models import EmailToSend
-                        e = EmailToSend(host=host, blitz=blitz, share=sid, sender="", sender_email="", recipients=recipients, template=t)
-	                e.save()
+                    e = EmailToSend(host=host, blitz=blitz, share=sid, sender="", sender_email="", recipients=recipients, template=t)
+                    e.save()
     
     def setFile(self, buf):
         f = self.createRawFileStore()
@@ -1776,7 +1772,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 
 omero.gateway.BlitzGateway = OmeroWebGateway
 
-from webgateway.views import getBlitzConnection, timeit, _session_logout, _createConnection
+#from webgateway.views import getBlitzConnection, timeit, _session_logout, _createConnection
 
 #
 ###############################################
