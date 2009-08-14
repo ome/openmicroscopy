@@ -18,8 +18,8 @@ import java.awt.Dimension;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.Icon;
@@ -32,7 +32,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-import javax.swing.UIManager;
+
+import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.httpclient.methods.multipart.StringPart;
 
 import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.HtmlMessenger;
@@ -159,16 +161,6 @@ public class CommentMessenger extends JDialog implements ActionListener
     {
         Object source = e.getSource();
         
-        /*
-        if (source == quitBtn)
-        {
-            if (gui.quitConfirmed(this) == true)
-            {
-                System.exit(0);
-            }
-        }
-        */
-        
         if (source == cancelBtn)
         {
             dispose();
@@ -187,22 +179,21 @@ public class CommentMessenger extends JDialog implements ActionListener
 
     private void sendRequest(String email, String comment, String extra)
     {
-        Map <String, String>map = new HashMap<String, String>();
-        extra = "(" + ini.getVersionNumber() + ") " + extra;
+        List<Part> postList = new ArrayList<Part>();
         
-        map.put("email",email);
-        map.put("comment", comment);
-        map.put("extra", extra);
-        
-        map.put("type", "importer_comments");
-        map.put("java_version", System.getProperty("java.version"));
-        map.put("java_class_path", System.getProperty("java.class.path"));
-        map.put("os_name", System.getProperty("os.name"));
-        map.put("os_arch", System.getProperty("os.arch"));
-        map.put("os_version", System.getProperty("os.version"));
+        postList.add(new StringPart("java_version", System.getProperty("java.version")));
+        postList.add(new StringPart("java_classpath", System.getProperty("java.class.path")));
+        postList.add(new StringPart("os_name", System.getProperty("os.name")));
+        postList.add(new StringPart("os_arch", System.getProperty("os.arch")));
+        postList.add(new StringPart("os_version", System.getProperty("os.version")));
+        postList.add(new StringPart("extra", extra));
+        postList.add(new StringPart("comment", comment));
+        postList.add(new StringPart("email", email));
+        postList.add(new StringPart("app_name", "2"));
+        postList.add(new StringPart("import_session", "test"));
 
         try {
-            HtmlMessenger messenger = new HtmlMessenger(url, map);
+            HtmlMessenger messenger = new HtmlMessenger(url, postList);
             String serverReply = messenger.executePost();
             JOptionPane.showMessageDialog(this, serverReply);
             this.dispose();
@@ -222,27 +213,6 @@ public class CommentMessenger extends JDialog implements ActionListener
      */
     public static void main(String[] args) throws Exception
     {
-        String laf = UIManager.getSystemLookAndFeelClassName() ;
-        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
-        //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-        
-        if (laf.equals("apple.laf.AquaLookAndFeel"))
-        {
-            System.setProperty("Quaqua.design", "panther");
-            
-            try {
-                UIManager.setLookAndFeel(
-                    "ch.randelshofer.quaqua.QuaquaLookAndFeel"
-                );
-           } catch (Exception e) { System.err.println(laf + " not supported.");}
-        } else {
-            try {
-                UIManager.setLookAndFeel(laf);
-            } catch (Exception e) 
-            { System.err.println(laf + " not supported."); }
-        }
         new CommentMessenger(null, "Comment Dialog Test", true);
     }
 }

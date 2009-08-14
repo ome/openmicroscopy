@@ -9,10 +9,14 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
+import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.ProxyFactory;
@@ -50,6 +54,11 @@ public class TestEngine
     
     // Mutable state
     int errors = 0;
+   
+    private String login_url = "http://mage.openmicroscopy.org.uk/qa/login/";
+    private String message_url = "http://mage.openmicroscopy.org.uk/qa/feedback/test_result/";
+
+    private Date start;
     
     public TestEngine(TestEngineConfig config)
     	throws CannotCreateSessionException, PermissionDeniedException, ServerError
@@ -179,6 +188,7 @@ public class TestEngine
             
 			try
 			{
+			    start = new Date();
 	             // record used files to log file
                 wrapper.getReader().setId(file.getAbsolutePath());
                 String[] usedFiles = wrapper.getReader().getUsedFiles();
@@ -210,7 +220,7 @@ public class TestEngine
 			    
 				log.error("Failed on file: " + file.getAbsolutePath());
 				errors += 1;
-				sendRequest("", "TestEngine Error", e.toString(), file.getAbsolutePath());
+				sendRequest("", "TestEngine Error", e.toString(), file);
 				//throw e;
 			}
 		}
@@ -272,24 +282,33 @@ public class TestEngine
     /**
      * Sends error message to feedback system.
      */
-    private void sendRequest(String email, String comment, String error, String extra)
+    private void sendRequest(String email, String comment, String error, File file)
     {
-        Map <String, String>map = new HashMap<String, String>();
-
-        map.put("email", email);
-        map.put("comment", comment);
-        map.put("error", error);
-        map.put("extra", extra);
+        List<Part> postList = new ArrayList<Part>();
         
-        map.put("type", "testEngine_bugs");
-        map.put("java_version", System.getProperty("java.version"));
-        map.put("java_class_path", System.getProperty("java.class.path"));
-        map.put("os_name", System.getProperty("os.name"));
-        map.put("os_arch", System.getProperty("os.arch"));
-        map.put("os_version", System.getProperty("os.version"));
+        Date end = new Date();
+        Format formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
+        String parent = file.getParent();
+        String[] splitPath = parent.split(File.separator);
+        String feedback_id = "";
+        feedback_id = splitPath[splitPath.length-1];
+        
+        postList.add(new StringPart("selected_file", file.getName()));
+        postList.add(new StringPart("feedback_id", feedback_id));
+        postList.add(new StringPart("started", formatter.format(start)));
+        postList.add(new StringPart("ended", formatter.format(end)));
+        postList.add(new StringPart("error", error));
+        
+        postList.add(new StringPart("repo_java_version", System.getProperty("java.version")));
+        postList.add(new StringPart("repo_java_classpath", System.getProperty("java.class.path")));
+        postList.add(new StringPart("repo_os_name", System.getProperty("os.name")));
+        postList.add(new StringPart("repo_os_arch", System.getProperty("os.arch")));
+        postList.add(new StringPart("repo_os_version", System.getProperty("os.version")));
+        
         try {
-            HtmlMessenger messenger = new HtmlMessenger(config.getFeedbackUrl(), map);
+            HtmlMessenger messenger = new HtmlMessenger(message_url, postList);
+
             String serverReply = messenger.executePost();
             log.info("Feedback sent. Returned: " + serverReply);
         }

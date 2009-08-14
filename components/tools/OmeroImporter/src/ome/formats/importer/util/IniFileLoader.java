@@ -210,6 +210,21 @@ public class IniFileLoader
         userPrefs.node("UI").putInt("yOffset", bounds.y);
 	}
 	
+	public String getUploaderTokenURL()
+	{
+	   return staticPrefs.node("Uploader").get("TokenURL", "");
+	}
+
+   public String getUploaderURL()
+    {
+       return staticPrefs.node("Uploader").get("URL", "");
+    }
+
+   public String getBugTrackerURL()
+   {
+      return staticPrefs.node("Uploader").get("BugTrackerURL", "");
+   }
+   
     //////////////// Testing Section ////////////////
     /**
      * @param args

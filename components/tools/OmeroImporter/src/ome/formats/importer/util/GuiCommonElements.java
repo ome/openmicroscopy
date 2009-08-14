@@ -327,8 +327,7 @@ public class GuiCommonElements
         panel.setLayout(layout);       
 
         JLabel label = new JLabel(name);
-        label.setDisplayedMnemonic(mnemonic);
-        
+        label.setDisplayedMnemonic(mnemonic);     
         JTextField result = new JTextField(20);
         label.setLabelFor(result);
         label.setOpaque(false);

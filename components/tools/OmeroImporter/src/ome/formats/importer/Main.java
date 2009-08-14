@@ -46,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
+import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
@@ -114,6 +115,8 @@ public class Main extends JFrame
     public static final String OUTPUT_ICON = "gfx/nuvola_output16.png";
     public static final String BUG_ICON = "gfx/nuvola_bug16.png";
     public static final String CONFIG_ICON = "gfx/nuvola_configure16.png";
+    public static final String ERROR_ICON_ANIM = "gfx/warning_msg16_anim.gif";
+    public static final String ERROR_ICON = "gfx/warning_msg16.png";
     
     public LoginHandler         loginHandler;
     public FileQueueHandler     fileQueueHandler;
@@ -141,6 +144,7 @@ public class Main extends JFrame
     private JTextPane           outputTextPane;
     private JTextPane           debugTextPane;
     private JPanel              historyPanel;
+    private JPanel              errorPanel;
     
     private JTabbedPane         tPane;
 
@@ -152,7 +156,7 @@ public class Main extends JFrame
     private String              server;
     @SuppressWarnings("unused")
     private String              port;
-  
+
     
     /**
      * Main entry class for the application
@@ -160,6 +164,8 @@ public class Main extends JFrame
     public Main(String[] args)
     {
         //super(TITLE);
+        
+        javax.swing.ToolTipManager.sharedInstance().setDismissDelay(0);
         
         isUpgradeRequired();
         
@@ -314,6 +320,15 @@ public class Main extends JFrame
                 "Debug messages are displayed here.");
         tPane.setMnemonicAt(0, KeyEvent.VK_3);
 
+        // Error Pane
+        errorPanel = new JPanel();
+        errorPanel.setOpaque(false);
+        errorPanel.setLayout(new BorderLayout());
+
+        tPane.addTab("Import Errors", gui.getImageIcon(ERROR_ICON), errorPanel,
+        "Import errors are displayed here.");
+        tPane.setMnemonicAt(0, KeyEvent.VK_5);
+        
         tPane.setSelectedIndex(0);
         
         // Add the tabbed pane to this panel.
@@ -337,6 +352,10 @@ public class Main extends JFrame
         
         HistoryHandler historyHandler = HistoryHandler.getHistoryHandler();
         historyPanel.add(historyHandler, BorderLayout.CENTER);
+        
+        ErrorHandler errorHandler = ErrorHandler.getErrorHandler();
+        errorHandler.addObserver(this);
+        errorPanel.add(errorHandler, BorderLayout.CENTER);
         
         macMenuFix();
         
@@ -709,6 +728,17 @@ public class Main extends JFrame
             dialog.setContentPane(optionPane);
             dialog.pack();
             dialog.setVisible(true);
+        }
+        
+        
+        if (message == Actions.ERRORS_PENDING)
+        {
+            tPane.setIconAt(4, gui.getImageIcon(ERROR_ICON_ANIM));
+        }
+        
+        if (message == Actions.ERRORS_COMPLETE)
+        {
+            tPane.setIconAt(4, gui.getImageIcon(ERROR_ICON));
         }
     }
 

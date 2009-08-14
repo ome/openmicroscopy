@@ -24,6 +24,7 @@ import javax.swing.JOptionPane;
 import static omero.rtypes.*;
 import loci.formats.FormatException;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.util.ErrorContainer;
 import ome.formats.model.InstanceProvider;
 import omero.ResourceError;
 import omero.model.IObject;
@@ -62,6 +63,8 @@ public class ImportHandler
     private int numOfDone = 0;
     
     private String[] files = null;
+    private String selected_file = null;
+    protected boolean errorsCollected = false;
 
     public ImportHandler(Main viewer, FileQueueTable qTable, OMEROMetadataStoreClient store,
             OMEROWrapper reader, ImportContainer[] importContainer)
@@ -86,17 +89,36 @@ public class ImportHandler
                        
             runThread = new Thread()
             {
+
                 public void run()
                 {
                     try
                     {
                         importImages();
                     }
-                    catch (Throwable e)
+                    catch (Throwable error)
                     {       
                         files = library.getUsedFiles();
-                        new DebugMessenger(null, "OMERO.importer Error Dialog", true, e);
+                        
+                        ErrorContainer errorContainer = new ErrorContainer();
+                        errorContainer.setFiles(files);
+                        errorContainer.setSelectedFile(null);
+                        errorContainer.setReaderType(null);
+                        errorContainer.setCommentType("2");
+                        
+                        errorContainer.setJavaVersion(System.getProperty("java.version"));
+                        errorContainer.setJavaClasspath(System.getProperty("java.class.path"));
+                        errorContainer.setOSName(System.getProperty("os.name"));
+                        errorContainer.setOSArch(System.getProperty("os.arch"));
+                        errorContainer.setOSVersion(System.getProperty("os.version"));
+                        errorContainer.setError(error);
+                        
+                        ErrorHandler errorHandler = ErrorHandler.getErrorHandler();
+                        errorHandler.addError(errorContainer);
+                        
+                        errorsCollected  = true;
                     }
+
                 }
             };
             runThread.start();
@@ -307,16 +329,36 @@ public class ImportHandler
                     }
                     
                 }
-                catch (Exception e)
+                catch (Exception error)
                 {
-                	log.error("Generic error while importing image.", e);
-                	qTable.setProgressFailed(j);
+                    log.error("Generic error while importing image.", error);
+                    qTable.setProgressFailed(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
                     
                     files = library.getUsedFiles();
-                    new DebugMessenger(null, "OMERO.importer Error Dialog", true, e);
+                    String readerType = store.getReaderType();
+                    
+                    ErrorContainer errorContainer = new ErrorContainer();
+                    errorContainer.setFiles(files);
+                    errorContainer.setSelectedFile(importContainer[j].file);
+                    errorContainer.setReaderType(readerType);
+                    errorContainer.setCommentType("2");
+                    
+                    errorContainer.setJavaVersion(System.getProperty("java.version"));
+                    errorContainer.setJavaClasspath(System.getProperty("java.class.path"));
+                    errorContainer.setOSName(System.getProperty("os.name"));
+                    errorContainer.setOSArch(System.getProperty("os.arch"));
+                    errorContainer.setOSVersion(System.getProperty("os.version"));
+                    errorContainer.setError(error);
+                    
+                    ErrorHandler errorHandler = ErrorHandler.getErrorHandler();
+                    errorHandler.addError(errorContainer);
+                    
+                    errorsCollected  = true;
+                    
                     if (importStatus < 0)   importStatus = -3;
                     else                    importStatus = -2;
+                                      importStatus = -2;
                     
                     try
                     {
@@ -356,6 +398,16 @@ public class ImportHandler
         	log.error("SQL exception when updating import status.", e);
         }
 
+        if (errorsCollected)
+        {
+            JOptionPane.showMessageDialog(
+                    viewer,
+                    "\nYour import has produced one or more errors, " +
+                    "\nvisit the 'Import Errors' tab for details.", 
+                    "Errors in import!", 
+                    JOptionPane.WARNING_MESSAGE);
+        }
+        
         timestampOut = System.currentTimeMillis();
         timestampDiff = timestampOut - timestampIn;
 

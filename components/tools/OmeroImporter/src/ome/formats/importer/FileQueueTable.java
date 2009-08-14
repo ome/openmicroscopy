@@ -42,6 +42,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
+import ome.formats.importer.util.GuiCommonElements;
 import omero.model.IObject;
 
 public class FileQueueTable 
@@ -96,6 +97,9 @@ public class FileQueueTable
         int statusWidth = 100;
 
 // ----- GUI Layout Elements -----
+        
+        GuiCommonElements gui = new GuiCommonElements();
+        
         // Start layout here
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
         setBorder(BorderFactory.createEmptyBorder(6,5,9,8));
@@ -218,6 +222,7 @@ public class FileQueueTable
         importBtn.setEnabled(false);
         importBtn.setActionCommand(Actions.IMPORT);
         importBtn.addActionListener(this);
+        gui.enterPressesWhenFocused(importBtn);
         queuePanel.add(Box.createRigidArea(new Dimension(0,5)));
         queuePanel.add(importPanel);
         add(queuePanel);
@@ -487,11 +492,19 @@ public class FileQueueTable
             }
 
             setFont(UIManager.getFont("TableCell.font"));
+            
             if (queue.getValueAt(row, 2).equals("done"))
-            { this.setEnabled(false);} 
+            { this.setEnabled(false); } 
             else
             { this.setEnabled(true); }
-           
+
+            if (queue.getValueAt(row, 2).equals("failed"))
+            { setForeground(Color.red);} 
+            else if (queue.getValueAt(row, 2).equals("unreadable"))
+            { setForeground(queue.DARK_ORANGE);} 
+            else
+            { setForeground(null);}
+            
             return this;
         }
     }
@@ -506,7 +519,7 @@ public class FileQueueTable
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
 
-            super.getTableCellRendererComponent(
+            Component comp = super.getTableCellRendererComponent(
                     table, value, isSelected, hasFocus, row, column);
 
             setFont(UIManager.getFont("TableCell.font"));
@@ -515,11 +528,17 @@ public class FileQueueTable
             // Set tool tip if desired
             //setToolTipText((String)value);
             
-            if (queue.getValueAt(row, 2).equals("done") || 
-                    queue.getValueAt(row, 2).equals("failed"))
+            if (queue.getValueAt(row, 2).equals("done"))
             { this.setEnabled(false); } 
             else
             { this.setEnabled(true); }
+
+            if (queue.getValueAt(row, 2).equals("failed"))
+            { setForeground(Color.red);} 
+            else if (queue.getValueAt(row, 2).equals("unreadable"))
+            { setForeground(queue.DARK_ORANGE);} 
+            else
+            { setForeground(null);}
             
             // Since the renderer is a component, return itself
             return this;

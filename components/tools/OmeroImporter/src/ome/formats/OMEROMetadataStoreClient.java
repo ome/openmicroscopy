@@ -503,6 +503,16 @@ public class OMEROMetadataStoreClient
         return reader;
     }
     
+    
+    public String getReaderType()
+    {
+        ImageReader imageReader = (ImageReader) reader;
+        String formatString = imageReader.getReader().getClass().toString();
+        formatString = formatString.replace("class loci.formats.in.", "");
+        formatString = formatString.replace("Reader", "");
+        return formatString;
+    }
+    
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#setReader(loci.formats.IFormatReader)
      */

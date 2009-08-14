@@ -14,44 +14,33 @@
 package ome.formats.importer;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
-import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
+import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-import javax.swing.UIManager;
 import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import ome.formats.importer.util.Actions;
+import ome.formats.importer.util.ErrorContainer;
 import ome.formats.importer.util.GuiCommonElements;
-import ome.formats.importer.util.HtmlMessenger;
-import ome.formats.importer.util.IniFileLoader;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import layout.TableLayout;
 
@@ -59,35 +48,37 @@ import layout.TableLayout;
  * @author TheBrain
  *
  */
-public class DebugMessenger extends JDialog implements ActionListener
+public class DebugMessenger extends JDialog implements ActionListener, IObservable
 {
-	/** Logger for this class */
-	private Log log = LogFactory.getLog(DebugMessenger.class);
-	
     private static final long serialVersionUID = -1026712513033611084L;
 
-    IniFileLoader ini = IniFileLoader.getIniFileLoader();
     
     private Preferences    userPrefs = 
         Preferences.userNodeForPackage(Main.class);
 
     private String userEmail = userPrefs.get("userEmail", "");
+    private boolean sendFiles = userPrefs.getBoolean("sendFiles", true);
     
     boolean debug = false;
-
-    String url = "http://users.openmicroscopy.org.uk/~brain/omero/bugcollector.php";   
     
     private static final String ICON = "gfx/nuvola_error64.png";
     
+    ArrayList<IObserver> observers = new ArrayList<IObserver>();
+    
+    JProgressBar progressBar = null;
+    
     GuiCommonElements       gui;
+    
+    JFrame                  owner;
     
     JPanel                  mainPanel;
     JPanel                  commentPanel;
     JPanel                  debugPanel;
 
-    //JButton                 quitBtn;
+    JButton                 quitBtn;
     JButton                 cancelBtn;
     JButton                 sendBtn;
+    JButton                 sendWithFilesBtn;
     JButton                 ignoreBtn;
     JButton                 copyBtn;
     
@@ -100,11 +91,18 @@ public class DebugMessenger extends JDialog implements ActionListener
     JTextPane               debugTextPane;
     StyledDocument          debugDocument;
     Style                   debugStyle;
+
+	private ArrayList<ErrorContainer> errorsArrayList;
+
+
+	private JCheckBox uploadCheckmark;
     
-    DebugMessenger(JFrame owner, String title, Boolean modal, Throwable e)
+    DebugMessenger(JFrame owner, String title, Boolean modal, ArrayList<ErrorContainer> errorsArrayList)
     {
         super(owner);
         gui = new GuiCommonElements();
+        this.owner = owner;
+        this.errorsArrayList = errorsArrayList;
         
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
@@ -113,48 +111,28 @@ public class DebugMessenger extends JDialog implements ActionListener
         setResizable(true);
         setSize(new Dimension(680, 400));
         setLocationRelativeTo(owner);
-              
-        //Get the full debug text
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        e.printStackTrace(pw);
-        
-        String debugText = sw.toString();
         
         // Set up the main panel for tPane, quit, and send buttons
         double mainTable[][] =
-                {{10, 150, TableLayout.FILL, 100, 5, 100, 10}, // columns
-                {TableLayout.FILL, 40}}; // rows
+                {{10, 150, TableLayout.FILL, 100, 5, 150, 5, 150, 10}, // columns
+                {TableLayout.FILL, 20, 40}}; // rows
         
         mainPanel = gui.addMainPanel(this, mainTable, 10, 10, 10, 10, debug);
-        
-        /*
-        // Add the quit, cancel and send buttons to the main panel
-        quitBtn = gui.addButton(mainPanel, "Quit Application", 'Q',
-                "Quit the application", "1, 1, f, c", debug);
-        quitBtn.addActionListener(this);
-        */
 
         cancelBtn = gui.addButton(mainPanel, "Cancel", 'C',
-                "Cancel your message", "3, 1, f, c", debug);
+                "Cancel your message", "5, 2, f, c", debug);
         cancelBtn.addActionListener(this);
 
-        sendBtn = gui.addButton(mainPanel, "Send", 'S',
-                "Send your comment to the development team", "5, 1, f, c", debug);
+        sendBtn = gui.addButton(mainPanel, "Send Comment", 'S',
+                "Send your comment to the development team", "7, 2, f, c", debug);
         sendBtn.addActionListener(this);
 
         this.getRootPane().setDefaultButton(sendBtn);
         gui.enterPressesWhenFocused(sendBtn);
         
-        // set up the tabbed panes
-        JTabbedPane tPane = new JTabbedPane();
-        tPane.setOpaque(false); // content panes must be opaque
-        
-        if (debug == true)
-            tPane.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(Color.red),
-                    tPane.getBorder()));
-        
+        uploadCheckmark = gui.addCheckBox(mainPanel, "Send selected images.", "1,1,7,c", debug);
+        uploadCheckmark.setSelected(sendFiles);
+                
         // fill out the comments panel (changes according to icon existance)        
         Icon icon = gui.getImageIcon(ICON);
         
@@ -163,17 +141,15 @@ public class DebugMessenger extends JDialog implements ActionListener
         
         double commentTable[][] = 
         {{iconSpace, (160 - iconSpace), TableLayout.FILL}, // columns
-                {100, 30, TableLayout.FILL}}; // rows
+                {100, 30, TableLayout.FILL, 110}}; // rows
         
         commentPanel = gui.addMainPanel(this, commentTable, 10, 10, 10, 10, debug);
 
-        tPane.addTab("Comments", null, commentPanel, "Your comments go here.");
-
-        String message = "An error message has been generated by the " +
-        "application.\n\nTo help us improve our software, please fill " +
-        "out the following form. Your personal details are purely optional, " +
-        "and will only be used for development purposes.\n\nPlease note that " +
-        "your application may need to be restarted to work properly.";
+        String message = "To help us improve our software, please fill " +
+        "out the following form. \n\nPlease note that providing your email " +
+        "address is optional, however doing so will make it easier for us " +
+        "to contact you for addition information about your errors, and for " +
+        "you to track their status.";
 
         JLabel iconLabel = new JLabel(icon);
         commentPanel.add(iconLabel, "0,0, l, c");
@@ -187,57 +163,30 @@ public class DebugMessenger extends JDialog implements ActionListener
         
         emailTextField.setText(userEmail);
         
-        commentTextArea = gui.addTextArea(commentPanel, "What you were doing when you crashed?", 
-                "", 'W', "0, 2, 2, 2", debug);
+        commentTextArea = gui.addTextArea(commentPanel, "Please provide any additional information of importance.", 
+                "", 'W', "0, 2, 2, 3", debug);
         
-        // fill out the debug panel
-        double debugTable[][] = 
-        {{TableLayout.FILL}, // columns
-        {TableLayout.FILL, 32}}; // rows
-        
-        debugPanel = gui.addMainPanel(this, debugTable, 10, 10, 10, 10, debug);
-
-        debugTextPane = gui.addTextPane(debugPanel, "", "", 'W', "0, 0", debug);  
-        debugTextPane.setEditable(false);
-
-        debugDocument = (StyledDocument) debugTextPane.getDocument();
-        debugStyle = debugDocument.addStyle("StyleName", null);
-        StyleConstants.setForeground(debugStyle, Color.black);
-        StyleConstants.setFontFamily(debugStyle, "SansSerif");
-        StyleConstants.setFontSize(debugStyle, 12);
-        StyleConstants.setBold(debugStyle, false);
-
-        gui.appendTextToDocument(debugDocument, debugStyle, debugText);
-        
-        copyBtn = gui.addButton(debugPanel, "Copy to Clipboard", 'C', 
-                "Copy the Exception Message to the clipboard", "0, 1, c, b", debug);
-        copyBtn.addActionListener(this);
-        
-        tPane.addTab("Error Message", null, debugPanel,
-        "The Exception Message.");
-
         // Add the tab panel to the main panel
-        mainPanel.add(tPane, "0, 0, 6, 0");
+        mainPanel.add(commentPanel, "0, 0, 8, 0");
         
         add(mainPanel, BorderLayout.CENTER);
         
         setVisible(true);      
-        
     }
 
     public void actionPerformed(ActionEvent e)
     {
         Object source = e.getSource();
         
-        /*
+        
         if (source == quitBtn)
         {
-            if (gui.quitConfirmed(this) == true)
+            if (gui.quitConfirmed(this, "Abandon your import and quit the application?") == true)
             {
                 System.exit(0);
             }
         }
-        */
+        
         
         if (source == cancelBtn)
         {
@@ -248,11 +197,12 @@ public class DebugMessenger extends JDialog implements ActionListener
         {           
             emailText = emailTextField.getText();
             commentText = commentTextArea.getText();
-            String debugText = debugTextPane.getText();
             
             userPrefs.put("userEmail", emailText);
+            userPrefs.putBoolean("sendFiles", uploadCheckmark.isSelected());
             
-            sendRequest(emailText, commentText, debugText, "Extra data goes here.");
+            sendRequest(emailText, commentText, "Extra data goes here.");
+        	dispose();
         }
         
         if (source == ignoreBtn)
@@ -267,85 +217,51 @@ public class DebugMessenger extends JDialog implements ActionListener
         }
     }
 
-    private void sendRequest(String email, String comment, String error, String extra)
+    private void sendRequest(String emailText, String commentText, String extraText)
     {
-        Map <String, String>map = new HashMap<String, String>();
-        extra = "(" + ini.getVersionNumber() + ") " + extra;
         
-        map.put("email",email);
-        map.put("comment", comment);
-        map.put("error", error);
-        map.put("extra", extra);
-        
-        map.put("type", "importer_bugs");
-        map.put("java_version", System.getProperty("java.version"));
-        map.put("java_class_path", System.getProperty("java.class.path"));
-        map.put("os_name", System.getProperty("os.name"));
-        map.put("os_arch", System.getProperty("os.arch"));
-        map.put("os_version", System.getProperty("os.version"));
+    	for (ErrorContainer errorContainer : errorsArrayList)
+    	{
+            errorContainer.setEmail(emailText);
+            errorContainer.setComment(commentText);
+            errorContainer.setExtra(extraText);
+    	}
 
-        try {
-            HtmlMessenger messenger = new HtmlMessenger(url, map);
-            String serverReply = messenger.executePost();
-            JEditorPane reply = new JEditorPane("text/html", serverReply);
-            reply.setEditable(false);
-            reply.setOpaque(false);
-            JOptionPane.showMessageDialog(this, reply);
-            this.dispose();
-        }
-        catch( Exception e ) {
-        	log.error("Error while sending debug information.", e);
-            //Get the full debug text
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            
-            String debugText = sw.toString();
-            
-            gui.appendTextToDocument(debugDocument, debugStyle, "----\n"+debugText);
-            String internalURL = "Sorry, but due to an error we were not able " +
-            "to automatically \n send your debug information. \n\n" +
-            "You can still send us the error message by clicking on the \n" +
-            "error message tab, copying the error message to the clipboard, \n" +
-            "and sending it to <a href='mailto:comments@openmicroscopy.org.uk'>.";
-            JEditorPane message;
-            try
-            {
-                message = new JEditorPane(internalURL);
-                JOptionPane.showMessageDialog(this, message);
-            } catch (IOException e1){}
+        final Object[] observerArgs;
+        observerArgs = new Object[1];
+        observerArgs[0] = uploadCheckmark.isSelected();
+    	
+    	notifyObservers(Actions.DEBUG_SEND, observerArgs);
+    }
+    
+
+    // Observable methods    
+    public boolean addObserver(IObserver object)
+    {
+        return observers.add(object);
+    }
+    
+    public boolean deleteObserver(IObserver object)
+    {
+        return observers.remove(object);
+        
+    }
+
+    public void notifyObservers(Object message, Object[] args)
+    {
+        for (IObserver observer:observers)
+        {
+            observer.update(this, message, args);
         }
     }
     
-        
+    
     /**
      * @param args
      * @throws Exception 
      */
     public static void main(String[] args) throws Exception
-    {
-        String laf = UIManager.getSystemLookAndFeelClassName() ;
-        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
-        //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-        
-        if (laf.equals("apple.laf.AquaLookAndFeel"))
-        {
-            System.setProperty("Quaqua.design", "panther");
-            
-            try {
-                UIManager.setLookAndFeel(
-                    "ch.randelshofer.quaqua.QuaquaLookAndFeel"
-                );
-           } catch (Exception e) { System.err.println(laf + " not supported.");}
-        } else {
-            try {
-                UIManager.setLookAndFeel(laf);
-            } catch (Exception e) 
-            { System.err.println(laf + " not supported."); }
-        }
-        
+    {       
         try {
                 HttpClient client = new HttpClient();
                 PostMethod method = new PostMethod( "blarg" );
@@ -353,7 +269,7 @@ public class DebugMessenger extends JDialog implements ActionListener
         }
         catch (Exception e)
         {
-            new DebugMessenger(null, "Error Dialog Test", true, e);
+            new DebugMessenger(null, "Error Dialog Test", true, null);
         }
     }
 }

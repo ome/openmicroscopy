@@ -49,7 +49,12 @@ public class Actions
     public static final String FILE_UPLOAD_STARTED = "file_upload_started";
     public static final String FILE_UPLOAD_COMPLETE = "file_upload_complete";
     public static final String FILE_UPLOAD_FAILED = "file_upload_failed";
-    public static final String FILE_UPLOAD_ERROR = "file_upload_error";
-    public static final String FILE_UPLOAD_BYTES = "file_upload_bytes";
-    public static final String FILE_UPLOAD_FINSIHED = "file_upload_finished";
+    public static final Object FILE_UPLOAD_ERROR = "file_upload_error";
+    public static final Object FILE_UPLOAD_BYTES = "file_upload_bytes";
+    public static final Object FILE_UPLOAD_FINSIHED = "file_upload_finished";
+    public static final Object ERRORS_SEND = "errors_send";
+    public static final Object DEBUG_SEND = "debug_send";
+    public static final Object ERRORS_UPLOAD_CANCELLED = "errors_upload_cancelled";
+    public static final Object ERRORS_PENDING = "errors_pending";
+    public static final Object ERRORS_COMPLETE = "errors_complete";
 }

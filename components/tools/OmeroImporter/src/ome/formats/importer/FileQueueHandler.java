@@ -113,8 +113,8 @@ public class FileQueueHandler
         if (action.equals(JFileChooser.APPROVE_SELECTION)) {
             file = fileChooser.getSelectedFile();
             store = viewer.loginHandler.getMetadataStore();
-                       
-            if (store != null && reader.isSPWReader(files[0].getAbsolutePath()))
+            
+            if (store != null && files != null && reader.isSPWReader(files[0].getAbsolutePath()))
             {
                 SPWDialog dialog =
                     new SPWDialog(viewer, "Screen Import", true, store);
@@ -133,6 +133,7 @@ public class FileQueueHandler
                 }
                 
                 qTable.centerOnRow(qTable.queue.getRowCount()-1);
+                qTable.importBtn.requestFocus();
             }
             else if (store != null)
             {
@@ -148,6 +149,8 @@ public class FileQueueHandler
                         dialog.useFullPath, dialog.numOfDirectories, 
                         dialog.archiveImage.isSelected(), dialog.project.getId().getValue(),
                         pixelSizes);
+                qTable.importBtn.requestFocus();
+                
             } else { 
                 JOptionPane.showMessageDialog(viewer, 
                         "Due to an error the application is unable to \n" +
