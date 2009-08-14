@@ -2103,7 +2103,7 @@ class ImageStageLabelWrapper (omero.gateway.BlitzObjectWrapper):
 
 class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
     
-    def getThumbnail (self, size=(120,120)):
+    '''def getThumbnail (self, size=(120,120)):
         rv = super(omero.gateway.ImageWrapper, self).getThumbnail(size=size)
         if rv is None:
             try:
@@ -2112,7 +2112,8 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
                 logger.info(traceback.format_exc())
                 raise e
         else:
-            return rv
+            return rv'''
+    
 
     def defaultThumbnail(self, size=(120,120)):
         img = Image.open(settings.DEFAULT_IMG)

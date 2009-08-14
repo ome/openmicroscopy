@@ -2304,36 +2304,7 @@ def render_thumbnail (request, iid, share_id=None, **kwargs):
         logger.error("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
     
-    jpeg_data = img.getThumbnail()
-    return HttpResponse(jpeg_data, mimetype='image/jpeg')
-
-@isUserConnected
-def render_thumbnail_details (request, iid, **kwargs):
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    img = conn.getImage(iid)
-    
-    if img is None:
-        logger.error("Image %s not found..." % (str(iid)))
-        return handlerInternalError("Image %s not found..." % (str(iid)))
-    
-    side = 0
-    if img.getWidth() > img.getHeight():
-        side = img.getWidth() 
-    else:
-        side = img.getHeight()
-    size = 0
-    if side < 400:
-        size = side
-    else:
-        size = 400
-    
-    jpeg_data = img.getThumbnail(size=(size,))
+    jpeg_data = img.getThumbnail(size=(120,120))
     return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 @isUserConnected

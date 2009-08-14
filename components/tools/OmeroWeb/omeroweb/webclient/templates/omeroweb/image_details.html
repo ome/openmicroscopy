@@ -34,8 +34,7 @@
     <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/image.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/blitzcon.js" %}"></script>
-    
+        
     <script>
         $(document).ready(function(){
             $("a.loadData").click(function()
@@ -164,6 +163,7 @@
 
 <div class="miniview_desc">
     <center>
+        <a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')">Open full viewer</a>
         <p>{{ manager.image.name }}</p>
         <p>created by {{ manager.image.getOwnerFullName }}</p>
         <!--<p><a href="">Send this image to someone else.</a></p>-->

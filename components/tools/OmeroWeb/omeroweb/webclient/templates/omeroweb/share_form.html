@@ -28,9 +28,8 @@
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script> 
-
-    <script type="text/javascript" src="{% url webstatic "javascript/blitzcon.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
+    
     <script>
       $(document).ready(function(){
           $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});

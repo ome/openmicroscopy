@@ -26,8 +26,7 @@
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/blitzcon.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>   
     
     {% ifequal share.share.getShareType "Share" %}
     <script type="text/javascript">
