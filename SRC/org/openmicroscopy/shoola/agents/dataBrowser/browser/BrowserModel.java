@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.ImageData;
+import pojos.WellData;
 import pojos.WellSampleData;
 
 /** 
@@ -309,6 +310,15 @@ class BrowserModel
 	    	} else if (parent instanceof WellImageSet) {
 	    		WellImageSet wiNode = (WellImageSet) parent;
 	    		title = wiNode.getTitle();
+	    	} else if (parent instanceof WellSampleNode) {
+	    		Object o = ((WellSampleNode) parent).getParentObject();
+	    		if (o instanceof WellData) {
+	    			title = ((WellData) o).getPlate().getName();
+	    			if (title != null && title.trim().length() != 0)
+	    				title += " > ";
+	    			title += parent.getTitle();
+		    		if (title == null || title.length() == 0) title = "[..]";
+	    		}
 	    	} else {
 	    		title = parent.getTitle();
 	    		if (title == null || title.length() == 0) title = "[..]";
@@ -317,13 +327,7 @@ class BrowserModel
 	        buf.insert(0, title);
 	        parent = parent.getParentDisplay();
 	    }
-	    String result = buf.toString();
-	    if (parent instanceof RootDisplay) {
-	    	String t = ((RootDisplay) parent).getOriginalTitle();
-	    	if (t != null && t.trim().length() != 0)
-	    		result = t+" >"+result;
-	    }
-	    return result;
+	    return buf.toString();
 	}
 	
 	/** 

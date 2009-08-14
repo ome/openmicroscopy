@@ -345,11 +345,7 @@ class WellsModel
 			samples.add(cell);
 			cells.add(cell);
 		}
-		String title = null;
-		if (parent instanceof PlateData) {
-			title = ((PlateData) parent).getName();
-		}
-        browser = BrowserFactory.createBrowser(samples, title);
+        browser = BrowserFactory.createBrowser(samples);
 		layoutBrowser(LayoutFactory.PLATE_LAYOUT);
 	}
 	

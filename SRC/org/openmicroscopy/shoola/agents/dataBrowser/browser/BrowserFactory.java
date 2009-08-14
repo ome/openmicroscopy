@@ -58,38 +58,25 @@ public class BrowserFactory
      */
     public static Browser createBrowser(Set topNodes)
     {
-       return createBrowser(topNodes, null);
-    }
-    
-	/**
-     * Creates a new {@link Browser}.
-     * 
-     * @param topNodes  Each node is the top node of a visualization tree.
-     *                  Don't pass <code>null</code>.
-     * @param title 	The original title if any.                
-     * @return A new {@link Browser} object.
-     */
-    public static Browser createBrowser(Set topNodes, String title)
-    {
-        if (topNodes == null) throw new NullPointerException("No top nodes.");
-        
-        //Create the View.  Add each visualization tree to the root display.
-        RootDisplay view = new RootDisplay(title);
-        Iterator i = topNodes.iterator();
-        while (i.hasNext())
-            view.addChildDisplay((ImageDisplay) i.next());
+    	 if (topNodes == null) throw new NullPointerException("No top nodes.");
+         
+         //Create the View.  Add each visualization tree to the root display.
+         RootDisplay view = new RootDisplay();
+         Iterator i = topNodes.iterator();
+         while (i.hasNext())
+             view.addChildDisplay((ImageDisplay) i.next());
 
-        
-        //Now the Model.  In an ideal world the Model wouldn't depend on the
-        //View; however right now the dependence is basically insignificant
-        //(see BrowserModel code) and simplifies matters quite a bit.
-        BrowserModel model = new BrowserModel(view);
-        //Finally the Controller.  Call initialize to allow subscription.
-        BrowserControl controller = new BrowserControl(model, view);
-        controller.initialize();
+         
+         //Now the Model.  In an ideal world the Model wouldn't depend on the
+         //View; however right now the dependence is basically insignificant
+         //(see BrowserModel code) and simplifies matters quite a bit.
+         BrowserModel model = new BrowserModel(view);
+         //Finally the Controller.  Call initialize to allow subscription.
+         BrowserControl controller = new BrowserControl(model, view);
+         controller.initialize();
 
-        //Fit to go!
-        return model;
+         //Fit to go!
+         return model;
     }
     
 }
