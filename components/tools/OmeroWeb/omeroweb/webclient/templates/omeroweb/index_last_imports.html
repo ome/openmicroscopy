@@ -21,7 +21,7 @@ $(document).ready(function () {
             
             <li class="product">{% if im.isOwned %}
             <a href="{% url manage_data "mydata" "image" im.id %}"><img id="{{ im.id }}" class="imgzoom" src="{% url render_thumbnail im.id %}" alt="image" title="{{ im.name }}"/></a>{% else %}<a class="product" href="{% url manage_data "userdata" "image" im.id %}"><img id="{{ im.id }}" class="imgzoom" src="{% url render_thumbnail im.id %}" alt="image" title="{{ im.name }}"/></a>{% endif %}
-            <div class="center">{% if im.countAnnotations %}<img src="{% url webstatic "images/knotes12.gif" %}" alt="a" title="annotation"/>[{{ im.countAnnotations }}]{% endif %}{% if not im.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</div>
+            <div class="center">{% if im.countAnnotations %}<img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ im.countAnnotations }}]{% endif %}{% if not im.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</div>
             <div class="center">{{ im.tinyName }}</div></li>
             
         {% endfor %}

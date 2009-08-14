@@ -3,6 +3,6 @@
 
 {% for d in manager.subcontainers %}
     <li id='img-{{ d.id }}'>
-        <span>{{ d.shortName }} {% if not d.isOwned %} <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="l" title="locked"/>{% endif %}{% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.gif" %}" alt="a" title="annotation"/>[{{ d.countAnnotations }}]{% endif %}</span>
+        <span>{{ d.shortName }} {% if not d.isOwned %} <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="l" title="locked"/>{% endif %}{% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ d.countAnnotations }}]{% endif %}</span>
     </li>
 {% endfor %}
