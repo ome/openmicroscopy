@@ -65,6 +65,9 @@ public class LookupNames
 	/** Field to access the <code>Help on line</code> information. */
 	public static final String HELP_ON_LINE = "HelpOnLine";
 	
+	/** Field to access the <code>Forum</code> information. */
+	public static final String FORUM = "Forum";
+	
     /** Field to access the <code>env</code> package. */
 	public static final  String ENV = "/env";
 	
@@ -191,17 +194,17 @@ public class LookupNames
      */
     public static final String LOGIN_TIME_OUT = "/services/LOGIN/omeds/timeout";
     
-    /** Field to access the url of the server where to post comments. */
+    /** Field to access the URL of the server where to post comments. */
     public static final String DEBUG_URL_COMMENT = 
     							"/services/DEBUGGER/hostnameComment";
     
-    /** Field to access the url of the server where to post error messages. */
+    /** Field to access the URL of the server where to post error messages. */
     public static final String DEBUG_URL_BUG = "/services/DEBUGGER/hostnameBug";
     
-    /** Field to access the url of the server where obtain an token. */
+    /** Field to access the URL of the server where obtain an token. */
     public static final String TOKEN_URL = "/services/DEBUGGER/hostnameToken";
     
-    /** Field to access the url of the server where to submit the files. */
+    /** Field to access the URL of the server where to submit the files. */
     public static final String PROCESSING_URL = 
     	"/services/DEBUGGER/hostnameProcessing";
     

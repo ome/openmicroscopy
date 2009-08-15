@@ -217,6 +217,13 @@ class MetadataViewerModel
 		editor.setParentRootObject(parentRefObject);
 	}
 	
+	/**
+	 * Returns the parent of the reference object.
+	 * 
+	 * @return See above.
+	 */
+	Object getParentRefObject() { return parentRefObject; }
+	
 	/** 
 	 * Returns the object of reference.
 	 * 

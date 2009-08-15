@@ -107,6 +107,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
+import pojos.WellData;
+import pojos.WellSampleData;
 
 
 /** 
@@ -745,27 +748,28 @@ class TreeViewerControl
 			ids.add(imageID);
 			view.reloadThumbnails(ids);
 		} else if (MetadataViewer.APPLY_SETTINGS_PROPERTY.equals(name)) {
-			ImageData image = (ImageData) pce.getNewValue();
-			model.copyRndSettings(image);
-			List l = model.getSelectedBrowser().getSelectedDataObjects();
-			PasteRndSettingsCmd cmd = null;
-			Collection toUpdate;
-			if (l.size() > 1) toUpdate = l;
-			else toUpdate = model.getDisplayedImages();
-			if (toUpdate != null) {
-				/*
-				Iterator i = toUpdate.iterator();
-				DataObject ho;
-				List<DataObject> toKeep = new ArrayList<DataObject>();
-				while (i.hasNext()) {
-					ho = (DataObject) i.next();
-					if (ho.getClass().equals(ImageData.class) && 
-							ho.getId() != image.getId()) toKeep.add(ho);
+			Object object = pce.getNewValue();
+			if (object instanceof ImageData) {
+				model.copyRndSettings((ImageData) object);
+				//improve code to speed it up
+				List l = model.getSelectedBrowser().getSelectedDataObjects();
+				PasteRndSettingsCmd cmd = null;
+				Collection toUpdate;
+				if (l.size() > 1) toUpdate = l;
+				else toUpdate = model.getDisplayedImages();
+				if (toUpdate != null) {
+					cmd = new PasteRndSettingsCmd(model, 
+							PasteRndSettingsCmd.PASTE, toUpdate);
+					cmd.execute();
 				}
-				*/
-				cmd = new PasteRndSettingsCmd(model, 
-						PasteRndSettingsCmd.PASTE, toUpdate);
-				cmd.execute();
+			} else if (object instanceof Object[]) {
+				Object[] objects = (Object[]) object;
+				WellSampleData wsd = (WellSampleData) objects[0];
+				WellData well = (WellData) objects[1];
+				model.copyRndSettings(wsd.getImage());
+				List<Long> ids = new ArrayList<Long>(1);
+				ids.add(well.getPlate().getId());
+				model.pasteRndSettings(ids, PlateData.class);
 			}
 		}
 	}

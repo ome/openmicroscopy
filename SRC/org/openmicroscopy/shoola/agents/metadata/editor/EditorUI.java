@@ -251,7 +251,6 @@ public class EditorUI
 							if (b) tabPane.setSelectedIndex(GENERAL_INDEX);
 						}
 					}
-					
 				} else if (uo instanceof WellSampleData) {
 					ImageData img = ((WellSampleData) uo).getImage();
 					if (img != null && img.getId() >= 0) {
@@ -260,6 +259,12 @@ public class EditorUI
 					} else {
 						tabPane.setSelectedIndex(GENERAL_INDEX);
 						tabPane.setEnabledAt(ACQUISITION_INDEX, false);
+					}
+					if (tabPane.getComponentCount() > 2) {
+						boolean b = 
+							tabPane.getSelectedIndex() == RND_INDEX;
+						tabPane.remove(RND_INDEX);
+						if (b) tabPane.setSelectedIndex(GENERAL_INDEX);
 					}
 				} else {
 					tabPane.setSelectedIndex(GENERAL_INDEX);

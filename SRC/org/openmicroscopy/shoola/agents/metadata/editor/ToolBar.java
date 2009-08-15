@@ -280,7 +280,7 @@ class ToolBar
     			createMovieButton.setEnabled(data.getSizeT() > 1 || 
     					data.getSizeZ() > 1);
 			} catch (Exception e) {}
-    	}
+    	} 
     	downloadButton.setEnabled(model.isArchived()); 
     }
     

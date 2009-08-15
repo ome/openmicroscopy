@@ -528,7 +528,7 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setSelectedXYPlane(int, int)
+     * @see Renderer#applyToAll()
      */
 	public void applyToAll()
 	{

@@ -68,7 +68,6 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
-import pojos.WellData;
 import pojos.WellSampleData;
 
 /** 
@@ -750,12 +749,14 @@ class MetadataViewerComponent
 	public void applyToAll()
 	{
 		Object obj = model.getRefObject();
-		if (obj instanceof WellSampleData) {
-			WellSampleData wsd = (WellSampleData) obj;
-			obj = wsd.getImage();
+		if (obj instanceof ImageData) {
+			firePropertyChange(APPLY_SETTINGS_PROPERTY, null, obj);
+		} else if (obj instanceof WellSampleData) {
+			Object[] objects = new Object[2];
+			objects[0] = obj;
+			objects[1] = model.getParentRefObject();
+			firePropertyChange(APPLY_SETTINGS_PROPERTY, null, objects);
 		}
-		if (!(obj instanceof ImageData)) return;
-		firePropertyChange(APPLY_SETTINGS_PROPERTY, null, obj);
 	}
 	
 	/**

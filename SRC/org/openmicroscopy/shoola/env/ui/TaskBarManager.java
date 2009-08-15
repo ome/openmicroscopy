@@ -118,7 +118,7 @@ public class TaskBarManager
 	private Map<Agent, Integer> 	exitResponses;
 	
 	/** 
-	 * Parses the passed file to determine the value of the url.
+	 * Parses the passed file to determine the value of the URL.
 	 * 
 	 * @param refFile	The file to parse
 	 * @return See above.
@@ -153,9 +153,9 @@ public class TaskBarManager
 	}
 	
 	/**
-	 * Opens the url. 
+	 * Opens the URL. 
 	 * 
-	 * @param url The url to open.
+	 * @param url The URL to open.
 	 */
 	void openURL(String url)
 	{
@@ -408,6 +408,14 @@ public class TaskBarManager
     	openURL(path);
     }
     
+    /** Launches a browser with the documentation. */
+    private void forum()
+    {
+    	String path = (String) container.getRegistry().lookup(
+    						LookupNames.FORUM);
+    	openURL(path);
+    }
+    
 	/**
 	 * Attaches the {@link #notAvailable() not-available} action to all buttons
 	 * whose functionality hasn't been implemented yet.
@@ -440,6 +448,10 @@ public class TaskBarManager
 		view.getButton(TaskBarView.COMMENT_MI).addActionListener(
                 new ActionListener() {       
             public void actionPerformed(ActionEvent ae) { sendComment(); }
+        });
+		view.getButton(TaskBarView.FORUM_MI).addActionListener(
+				new ActionListener() {       
+            public void actionPerformed(ActionEvent ae) { forum(); }
         });
 	}
 	

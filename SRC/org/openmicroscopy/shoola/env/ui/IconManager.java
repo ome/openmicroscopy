@@ -228,11 +228,14 @@ public class IconManager
     /** ID of the <code>remove</code> icon. */
     static final int        REMOVE = 15;
     
+    /** ID of the <code>forum</code> icon. */
+    static final int        FORUM = 16;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int      MAX_ID = 15;
+	private static int      MAX_ID = 16;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -253,6 +256,7 @@ public class IconManager
         relPaths[DOCUMENT_32] = "nuvola_fileexport32.png";
         relPaths[CANCEL] = "nuvola_background16.png";
 		relPaths[REMOVE] = "nuvola_artscontrol16.png";
+		relPaths[FORUM] = "nuvola_chat16.png";
 	}
 	
 	/** The sole instance. */

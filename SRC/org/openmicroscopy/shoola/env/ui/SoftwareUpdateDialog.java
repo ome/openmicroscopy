@@ -81,7 +81,7 @@ class SoftwareUpdateDialog
     /** The file of reference. */
     private String	refFile;
     
-    /** Sets the propertie of thsi window. */
+    /** Sets the properties of the window. */
     private void setWindowProperties()
     {
         setModal(true);
@@ -175,7 +175,7 @@ class SoftwareUpdateDialog
     }
     
     /**
-     * Creates a new intance.
+     * Creates a new instance.
      * 
      * @param owner 		The owner of the frame.
      * @param aboutMessage	The message retrieved from the About file.

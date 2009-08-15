@@ -127,11 +127,14 @@ class TaskBarView
 	/** Identifies the comment menu item within the help menu. */
 	static final int	COMMENT_MI = 12;
 	
+	/** Identifies the help contents menu item within the help menu. */
+	static final int	FORUM_MI = 13;
+	
 	/** 
 	 * The maximum id of the buttons and menu items identifiers.
 	 * Allows to size the {@link #buttons} array correctly.
 	 */
-	private static final int	MAX_ID = 12;
+	private static final int	MAX_ID = 13;
 		
     /** The title of the frame. */
     private static final String TITLE = "Open Microscopy Environment";
@@ -204,6 +207,8 @@ class TaskBarView
 												IconManager.getOMEIcon());
 		buttons[COMMENT_MI] = new JMenuItem("Send Comment",
 								iconManager.getIcon(IconManager.COMMENT));
+		buttons[FORUM_MI] = new JMenuItem("Forum",
+				iconManager.getIcon(IconManager.FORUM));
 	}
 	
     /**
@@ -239,7 +244,7 @@ class TaskBarView
     }
     
     /**
-     * Makes and returns a copy of the speficied item.
+     * Makes and returns a copy of the specified item.
      * 
      * @param original The item to handle.
      * @return See above.
@@ -319,6 +324,7 @@ class TaskBarView
 		//help.add(buttons[WELCOME_MI]);
 		help.add(buttons[COMMENT_MI]);
 		help.add(buttons[HELP_MI]);
+		help.add(buttons[FORUM_MI]);
 		//help.add(buttons[HOWTO_MI]);
 		help.add(buttons[UPDATES_MI]);
 		//help.add(new JSeparator());
@@ -478,7 +484,7 @@ class TaskBarView
 	}
 
 	/**
-	 * Implemented as specifed by {@link TaskBar}.
+	 * Implemented as specified by {@link TaskBar}.
 	 * @see TaskBar#addToMenu(int, JMenuItem)
 	 */
 	public void addToMenu(int menuID, JMenuItem entry) 
@@ -512,7 +518,7 @@ class TaskBarView
 	}
 
 	/**
-	 * Implemented as specifed by {@link TaskBar}.
+	 * Implemented as specified by {@link TaskBar}.
 	 * @see TaskBar#removeFromMenu(int, JMenuItem)
 	 */
 	public void removeFromMenu(int menuID, JMenuItem entry) 
@@ -560,7 +566,7 @@ class TaskBarView
 	}
 
 	/**
-	 * Implemented as specifed by {@link TaskBar}.
+	 * Implemented as specified by {@link TaskBar}.
 	 * @see TaskBar#addToToolBar(int, AbstractButton)
 	 */
 	public void addToToolBar(int toolBarID, AbstractButton entry) 
@@ -574,7 +580,7 @@ class TaskBarView
 	}
 
 	/**
-	 * Implemented as specifed by {@link TaskBar}.
+	 * Implemented as specified by {@link TaskBar}.
 	 * @see TaskBar#removeFromToolBar(int, AbstractButton)
 	 */
 	public void removeFromToolBar(int toolBarID, AbstractButton entry)
@@ -586,25 +592,25 @@ class TaskBarView
 	}
 
     /**
-     * Overriden so that the task bar is never brought up on screen.
+     * Overridden so that the task bar is never brought up on screen.
      * @see JFrame#setVisible(boolean)
      */
     public void setVisible(boolean b) { super.setVisible(false); }
     
     /**
-     * Implemented as specifed by {@link TaskBar}.
+     * Implemented as specified by {@link TaskBar}.
      * @see TaskBar#getFrame()
      */
     public JFrame getFrame() { return this; }
 
     /**
-     * Implemented as specifed by {@link TaskBar}.
+     * Implemented as specified by {@link TaskBar}.
      * @see TaskBar#getTaskBarMenuBar()
      */
     public JMenuBar getTaskBarMenuBar() { return copyMenuBar(); }
 
     /**
-     * Implemented as specifed by {@link TaskBar}.
+     * Implemented as specified by {@link TaskBar}.
      * @see TaskBar#getWindowsMenu()
      */
     public JMenu getWindowsMenu()
@@ -622,7 +628,7 @@ class TaskBarView
     }
 
     /**
-     * Implemented as specifed by {@link TaskBar}.
+     * Implemented as specified by {@link TaskBar}.
      * @see TaskBar#getHelpMenu()
      */
     public JMenu getHelpMenu()
@@ -640,7 +646,7 @@ class TaskBarView
     }
     
     /**
-     * Implemented as specifed by {@link TaskBar}.
+     * Implemented as specified by {@link TaskBar}.
      * @see TaskBar#getCopyMenuItem(int)
      */
 	public JMenuItem getCopyMenuItem(int index)
@@ -656,7 +662,7 @@ class TaskBarView
 	}
 
     /**
-     * Implemented as specifed by {@link TaskBar}.
+     * Implemented as specified by {@link TaskBar}.
      * @see TaskBar#login()
      */
 	public boolean login() { return manager.login(); }
