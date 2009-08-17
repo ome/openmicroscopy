@@ -23,7 +23,6 @@
 
 package ome.formats.utests;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -61,14 +60,12 @@ import omero.model.OTF;
 import omero.model.Pixels;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
-import omero.model.StageLabel;
 import omero.model.Well;
 import omero.model.WellSample;
 
 /**
  * Generic set of unit tests, that are designed to be initiated on a 
- * Bio-Formats "ID" target, which sanity check metadata validity. For the most
- * part this "sanity checking" is isolated to reference validation.
+ * Bio-Formats "ID" target, which sanity check metadata validity.
  *  
  * @author Chris Allan <callan at blackcat dot ca>
  *
@@ -242,18 +239,19 @@ public class MetadataValidatorTest
 			String e = String.format(
 					"Pixels sizeC %d != logical channel object count %d",
 					sizeC, count);
+			assertEquals(e, sizeC, count);
 			for (int c = 0; c < sizeC; c++)
 			{
 				LinkedHashMap<String, Integer> indexes = 
 					new LinkedHashMap<String, Integer>();
 				indexes.put("imageIndex", imageIndex);
 				indexes.put("logicalChannelIndex", c);
-				Channel channel = (Channel) store.getSourceObject(
-						new LSID(Channel.class, imageIndex, c)); 
+				count = store.countCachedContainers(Channel.class,
+						                            imageIndex);
 				e = String.format(
 						"Missing logical channel object; imageIndex=%d " +
 						"logicalChannelIndex=%d", imageIndex, c);
-				assertNotNull(e, channel);
+				assertEquals(e, 1, count);
 			}
 		}
 	}
@@ -286,8 +284,9 @@ public class MetadataValidatorTest
 			Integer wellIndex = indexes.get("wellIndex");
 			String e = String.format(
 					"Well %d not found in container cache", wellIndex);
-			assertTrue(e, store.countCachedContainers(Well.class, plateIndex, 
-					                                  wellIndex) > 0);
+			int count = store.countCachedContainers(Well.class, plateIndex, 
+                    wellIndex);
+			assertTrue(e, count == 1);
 		}
 	}
 	

@@ -865,18 +865,31 @@ public class OMEROMetadataStoreClient
             Class<? extends IObject> lsidClass = lsid.getJavaClass();
             if (lsidClass != null && lsidClass.equals(klass))
             {
-                if (indexes != null)
+                if (indexes == null)
                 {
+                	// We're just doing a class match, increment the count
+                	count++;
+                }
+                else
+                {
+                	// We're doing a class and index match, loop over and
+                	// check the indexes based on the shortest array.
                     int[] lsidIndexes = lsid.getIndexes();
-                    for (int i = 0; i < indexes.length; i++)
+                    int n = Math.min(indexes.length, lsidIndexes.length);
+                    boolean match = true;
+                    for (int i = 0; i < n; i++)
                     {
                         if (lsidIndexes[i] != indexes[i])
                         {
-                            continue;
+                            match = false;
+                            break;
                         }
                     }
+                    if (match)
+                    {
+                    	count++;
+                    }
                 }
-                count++;
             }
         }
         return count;

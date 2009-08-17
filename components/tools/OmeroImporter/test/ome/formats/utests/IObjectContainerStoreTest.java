@@ -9,6 +9,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
 import omero.model.Image;
 import omero.model.ObjectiveSettings;
+import omero.model.Pixels;
 import omero.api.ServiceFactoryPrx;
 import junit.framework.TestCase;
 
@@ -34,8 +35,9 @@ public class IObjectContainerStoreTest extends TestCase
         store.setImageName("Foo1", IMAGE_INDEX);
         store.setImageName("Foo2", IMAGE_INDEX + 1);
         
-        // Object of a different type
+        // Objects of a different type
         store.setPixelsSizeX(1, IMAGE_INDEX, PIXELS_INDEX);
+        store.setPixelsSizeX(1, IMAGE_INDEX + 1, PIXELS_INDEX);
         
         // Add a reference
         store.setObjectiveSettingsObjective("Objective:0", IMAGE_INDEX);
@@ -77,11 +79,16 @@ public class IObjectContainerStoreTest extends TestCase
 	public void testCachedContainers()
 	{
 		assertEquals(2, store.countCachedContainers(Image.class));
+		assertEquals(2, store.countCachedContainers(Pixels.class));
+		assertEquals(1, store.countCachedContainers(
+				Pixels.class, IMAGE_INDEX));
+		assertEquals(1, store.countCachedContainers(
+				Pixels.class, IMAGE_INDEX + 1));
 	}
 	
 	public void testHasReference()
 	{
-		assertTrue(store.hasReference(new LSID(ObjectiveSettings.class, IMAGE_INDEX),
-				                      new LSID("Objective:0")));
+		assertTrue(store.hasReference(new LSID(ObjectiveSettings.class,
+				                      IMAGE_INDEX), new LSID("Objective:0")));
 	}
 }
