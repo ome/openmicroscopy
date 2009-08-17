@@ -76,7 +76,27 @@ public interface TopicManager extends ApplicationListener {
                 try {
                     Ice.ObjectPrx obj = publisherOrNull(msg.topic);
                     msg.base.__copyFrom(obj);
-                    Method m = msg.base.getClass().getMethod(msg.method);
+                    Method m = null;
+                    for (Method check : msg.base.getClass().getMethods()) {
+                        if (check.getName().equals(msg.method)) {
+                            if (check.getParameterTypes().length == msg.args.length) {
+                                if (m != null) {
+                                    String err = String
+                                            .format(
+                                                    "More than one method named "
+                                                            + "\"%s\" with %s arguments",
+                                                    msg.method, msg.args);
+                                    log.error(err);
+                                } else {
+                                    m = check;
+                                }
+                            }
+                        }
+                    }
+                    if (m == null) {
+                        log.error(String.format("No method named \"%s\" "
+                                + "with %s arguments", msg.method, msg.args));
+                    }
                     m.invoke(msg.base, msg.args);
                 } catch (Exception e) {
                     log.error("Error publishing to topic:" + msg.topic, e);
@@ -100,7 +120,7 @@ public interface TopicManager extends ApplicationListener {
             IceStorm.TopicPrx topic = topicOrNull(topicName);
 
             while (topic != null) { // See 45.7.3 IceStorm Clients under HA
-                                    // IceStorm
+                // IceStorm
                 try {
                     topic.subscribeAndGetPublisher(null, prx);
                 } catch (Ice.UnknownException ue) {
