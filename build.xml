@@ -458,6 +458,9 @@ java component.
                     <exclude name="local.properties"/>
                 </fileset>
             </copy>
+            <echo file="${dist.dir}/etc/omero.properties" append="true">
+omero.version=${omero.version}
+            </echo>
             <copy todir="${dist.dir}">
                 <fileset dir="${omero.home}">
                     <include name="sql/**"/>
