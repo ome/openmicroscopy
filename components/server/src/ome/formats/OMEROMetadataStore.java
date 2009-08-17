@@ -1396,9 +1396,9 @@ public class OMEROMetadataStore
     			"left outer join fetch pl_a.file " +
     			"where i.id in (:ids)", p);
     	pixelsList = new LinkedHashMap<Integer, Pixels>();
-    	for (int i = 0; i < pixelsList.size(); i++)
+    	for (int i = 0; i < toReturn.size(); i++)
     	{
-    		pixelsList.put(i, pixelsList.get(i));
+    		pixelsList.put(i, toReturn.get(i));
     	}
     	s2.stop();
    		return toReturn;
