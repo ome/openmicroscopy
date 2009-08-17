@@ -25,6 +25,7 @@ package ome.formats;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -107,27 +108,32 @@ public class OMEROMetadataStore
     /** OMERO update service */
     private IUpdate iUpdate;
 
-    /** The "root" image object */
-    private List<Image> imageList = new ArrayList<Image>();
+    /** A map of imageIndex vs. Image object ordered by first access. */
+    private Map<Integer, Image> imageList = 
+    	new LinkedHashMap<Integer, Image>();
 
-    /** A list of Pixels that we have worked on ordered by first access. */
-    private List<Pixels> pixelsList = new ArrayList<Pixels>();
+    /** A map of pixelsIndex vs. Pixels object ordered by first access. */
+    private Map<Integer, Pixels> pixelsList = 
+    	new LinkedHashMap<Integer, Pixels>();
     
-    /** A list of Screens that we have worked on ordered by first access. */
-    private List<Screen> screenList = new ArrayList<Screen>();
+    /** A map of screenIndex vs. Screen object ordered by first access. */
+    private Map<Integer, Screen> screenList = 
+    	new LinkedHashMap<Integer, Screen>();
 
-    /** A list of Plates that we have worked on ordered by first access. */
-    private List<Plate> plateList = new ArrayList<Plate>();
+    /** A map of plateIndex vs. Plate object ordered by first access. */
+    private Map<Integer, Plate> plateList = 
+    	new LinkedHashMap<Integer, Plate>();
 
-    /** A list of Wells that we have worked on ordered by first access. */
-    private List<Well> wellList = new ArrayList<Well>();
+    /** A map of wellIndex vs. Well object ordered by first access. */
+    private Map<Integer, Well> wellList = new LinkedHashMap<Integer, Well>();
     
-    /** A 2d Array of ImageIndex and RoiIndex */    
+    /** A map of instrumentIndex vs. Instrument object ordered by first access. */
+    private Map<Integer, Instrument> instrumentList = 
+    	new LinkedHashMap<Integer, Instrument>();
+    
+    /** A map of imageIndex vs. ROIs */    
     private Map<Integer, List<Roi>> roiMap = new HashMap<Integer, List<Roi>>();
     
-    /** A list of instrument objects */
-    private List<Instrument> instrumentList = new ArrayList<Instrument>();
-
     /** A list of all objects we've received from the client and their LSIDs. */
     private Map<LSID, IObject> lsidMap = new HashMap<LSID, IObject>();
         
@@ -491,7 +497,8 @@ public class OMEROMetadataStore
     private void handle(String LSID, Image sourceObject,
     		            Map<String, Integer> indexes)
     {
-        imageList.add(sourceObject);
+    	int imageIndex = indexes.get("imageIndex");
+        imageList.put(imageIndex, sourceObject);
     }
     
     /**
@@ -563,7 +570,8 @@ public class OMEROMetadataStore
     private void handle(String LSID, Instrument sourceObject,
     		            Map<String, Integer> indexes)
     {
-    	instrumentList.add(sourceObject);
+    	int instrumentIndex = indexes.get("instrumentIndex");
+    	instrumentList.put(instrumentIndex, sourceObject);
     }
     
     /**
@@ -718,8 +726,9 @@ public class OMEROMetadataStore
     private void handle(String LSID, Plate sourceObject,
                         Map<String, Integer> indexes)
     {
-        wellList = new ArrayList<Well>();
-        plateList.add(sourceObject);
+    	int plateIndex = indexes.get("plateIndex");
+        wellList = new LinkedHashMap<Integer, Well>();
+        plateList.put(plateIndex, sourceObject);
     }
 
     /**
@@ -733,8 +742,9 @@ public class OMEROMetadataStore
                         Map<String, Integer> indexes)
     {
         int plateIndex = indexes.get("plateIndex");
+        int wellIndex = indexes.get("wellIndex");
         getPlate(plateIndex).addWell(sourceObject);  
-        wellList.add(sourceObject);
+        wellList.put(wellIndex, sourceObject);
     }
 
     /**
@@ -747,7 +757,8 @@ public class OMEROMetadataStore
     private void handle(String LSID, Screen sourceObject,
                         Map<String, Integer> indexes)
     {
-    	screenList.add(sourceObject);
+    	int screenIndex = indexes.get("screenIndex");
+    	screenList.put(screenIndex, sourceObject);
     }
     
     /**
@@ -1335,13 +1346,13 @@ public class OMEROMetadataStore
      */
     public void createRoot()
     {
-        imageList = new ArrayList<Image>();
-        pixelsList = new ArrayList<Pixels>();
-        screenList = new ArrayList<Screen>();
-        plateList = new ArrayList<Plate>();
-        wellList = new ArrayList<Well>();
-        instrumentList = new ArrayList<Instrument>();
-        lsidMap = new HashMap<LSID, IObject>();
+        imageList = new LinkedHashMap<Integer, Image>();
+        pixelsList = new LinkedHashMap<Integer, Pixels>();
+        screenList = new LinkedHashMap<Integer, Screen>();
+        plateList = new LinkedHashMap<Integer, Plate>();
+        wellList = new LinkedHashMap<Integer, Well>();
+        instrumentList = new LinkedHashMap<Integer, Instrument>();
+        lsidMap = new LinkedHashMap<LSID, IObject>();
     }
 
     /**
@@ -1355,7 +1366,8 @@ public class OMEROMetadataStore
     	// Save the entire Image rooted graph using the "insert only"
     	// saveAndReturnIds() local update service only method.
     	StopWatch s1 = new CommonsLogStopWatch("omero.saveImportGraph");
-    	Image[] imageArray = imageList.toArray(new Image[imageList.size()]);
+    	Image[] imageArray = 
+    		imageList.values().toArray(new Image[imageList.size()]);
     	long[] imageIds = ((LocalUpdate) iUpdate).saveAndReturnIds(imageArray);
     	s1.stop();
     	
@@ -1369,7 +1381,7 @@ public class OMEROMetadataStore
     	}
     	Parameters p = new Parameters();
     	p.addIds(imageIdList);
-    	pixelsList = iQuery.findAllByQuery(
+    	List<Pixels> toReturn = iQuery.findAllByQuery(
     			"select p from Pixels as p " +
     			"left outer join fetch p.channels as c " +
     			"left outer join fetch p.image as i " +
@@ -1383,8 +1395,13 @@ public class OMEROMetadataStore
     			"left outer join fetch pl_a_link.child as pl_a " +
     			"left outer join fetch pl_a.file " +
     			"where i.id in (:ids)", p);
+    	pixelsList = new LinkedHashMap<Integer, Pixels>();
+    	for (int i = 0; i < pixelsList.size(); i++)
+    	{
+    		pixelsList.put(i, pixelsList.get(i));
+    	}
     	s2.stop();
-   		return pixelsList;
+   		return toReturn;
     }
     
     /**

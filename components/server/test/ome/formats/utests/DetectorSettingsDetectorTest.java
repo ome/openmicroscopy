@@ -11,6 +11,7 @@ import ome.model.acquisition.DetectorSettings;
 import ome.model.acquisition.Instrument;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
+import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
@@ -49,6 +50,13 @@ public class DetectorSettingsDetectorTest extends TestCase
             new LinkedHashMap<String, Integer>();
         pixelsIndexes.put("imageIndex", IMAGE_INDEX);
         pixelsIndexes.put("pixelsIndex", PIXELS_INDEX);
+        
+        String channelLSID = "Channel:0";
+        Channel channel = new Channel();
+        Map<String, Integer> channelIndexes = 
+            new LinkedHashMap<String, Integer>();
+        channelIndexes.put("imageIndex", IMAGE_INDEX);
+        channelIndexes.put("logicalChannelIndex", LOGICAL_CHANNEL_INDEX);
         
         String logicalChannelLSID = "LogicalChannel:0";
         LogicalChannel logicalChannel = new LogicalChannel();
@@ -93,6 +101,7 @@ public class DetectorSettingsDetectorTest extends TestCase
         store.updateObject(imageLSID, image, imageIndexes);
         store.updateObject(pixelsLSID, pixels, pixelsIndexes);
         store.updateObject(instrumentLSID, instrument, instrumentIndexes);
+        store.updateObject(channelLSID, channel, channelIndexes);
         store.updateObject(logicalChannelLSID, logicalChannel,
         		           logicalChannelIndexes);
         store.updateObject(detectorLSID, detector, detectorIndexes);

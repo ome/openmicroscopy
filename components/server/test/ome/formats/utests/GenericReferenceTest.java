@@ -311,7 +311,7 @@ public class GenericReferenceTest extends TestCase
 		Map<String, String[]> referenceCache =
 			new HashMap<String, String[]>();
 		referenceCache.put("LogicalChannel:0:0", 
-				new String[] { "Filter:0:0:SECONDARY_EMISSION_FILTER" });
+				new String[] { "Filter:0:0:OMERO_EMISSION_FILTER" });
 		store.updateReferences(referenceCache);
 		assertNull(logicalChannel.getSecondaryExcitationFilter());
 		assertEquals(logicalChannel.getSecondaryEmissionFilter(), filter);
@@ -322,7 +322,7 @@ public class GenericReferenceTest extends TestCase
 		Map<String, String[]> referenceCache =
 			new HashMap<String, String[]>();
 		referenceCache.put("LogicalChannel:0:0", 
-				new String[] { "Filter:0:0:SECONDARY_EXCITATION_FILTER" });
+				new String[] { "Filter:0:0:OMERO_EXCITATION_FILTER" });
 		store.updateReferences(referenceCache);
 		assertNull(logicalChannel.getSecondaryEmissionFilter());
 		assertEquals(logicalChannel.getSecondaryExcitationFilter(), filter);
