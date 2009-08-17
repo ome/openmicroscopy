@@ -70,12 +70,19 @@ def choose_omero_version():
     ant. Returned as an array so that an empty value can
     be extended into the build command.
 
-    If BUILD_NUMBER is set, then "-Domero.version=buildBUILD_NUMBER",
+    If OMERO_BULID is set, then "-Domero.version=${omero-version}-${OMERO_BUILD}"
     otherwise nothing.
     """
-    if os.environ.has_key("BUILD_NUMBER"):
-        return [ "-Domero.version=build%s" % os.environ["BUILD_NUMBER"] ]
-    else:
+    try:
+        omero_build = os.environ["OMERO_BUILD"]
+        command = [ find_java() ]
+        command.extend( calculate_memory_args() )
+        command.extend(["omero","-q","version"])
+        p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        omero_version,err = p.communicate()
+        omero_version = omero_version.split()[1]
+        return [ "-Domero.version=%s-%s" % (omero_version, omero_build) ]
+    except KeyError, ke:
         return [] # Use default
 
 def execute(args):

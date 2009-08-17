@@ -474,4 +474,8 @@ java component.
        </sequential>
     </macrodef>
 
+    <target name="version">
+      <echo>${omero.version}</echo>
+    </target>
+
 </project>
