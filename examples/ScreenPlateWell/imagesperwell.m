@@ -16,7 +16,7 @@ plates = q.findAll('Plate', filter);
 if plates.size() == 0
     return
 else
-    r = randint(0,plates.size()-1,1);
+    r = randint(0,plates.size()-1);
     example_plate = plates.get(r);
     disp(sprintf('Loading wells for Plate %d (%s)', example_plate.getId().getValue(), char(example_plate.getName().getValue())))
 end
