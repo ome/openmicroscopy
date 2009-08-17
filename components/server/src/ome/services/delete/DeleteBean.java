@@ -270,33 +270,73 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         sec.runAsAdmin(new AdminAction() {
             public void runAsAdmin() {
 
-                List<Image> imagesOnPlate = iQuery.findAllByQuery(
+                final List<Image> imagesOnPlate = iQuery.findAllByQuery(
                         PLATEIMAGES_QUERY, new Parameters().addId(plateId));
+
+                final Session session = sf.getSession();
+                final StringBuilder sb = new StringBuilder();
+                sb.append("Deleting for plate ");
+                sb.append(plateId);
+                sb.append(" : ");
+
+                Query q; // reused.
+                int count; // reused
 
                 if (imagesOnPlate.size() > 0) {
                     Set<Long> imageIdsForPlate = new HashSet<Long>();
                     for (Image img : imagesOnPlate) {
                         imageIdsForPlate.add(img.getId());
                     }
-                    Session session = sf.getSession();
+                    sb.append(imageIdsForPlate.size());
+                    sb.append(" Image(s); ");
+
                     // Samples
-                    Query q = session.createQuery("delete WellSample ws "
-                            + "where ws.image.id in (:ids)");
+                    q = session.createQuery("delete WellSampleAnnotationLink "
+                            + "where parent.id in (select id from WellSample "
+                            + "where image.id in (:ids) )");
                     q.setParameterList("ids", imageIdsForPlate);
-                    int wellSampleCount = q.executeUpdate();
-                    log.info("Deleted " + wellSampleCount
-                            + " well samples for plate " + plateId);
+                    count = q.executeUpdate();
+                    sb.append(count);
+                    sb.append(" WellSampleAnnotationLink(s); ");
+
+                    q = session.createQuery("delete WellSample "
+                            + "where image.id in (:ids)");
+                    q.setParameterList("ids", imageIdsForPlate);
+                    count = q.executeUpdate();
+                    sb.append(count);
+                    sb.append(" WellSample(s); ");
+
                     // Images
                     deleteImages(imageIdsForPlate, true);
-                    // Well
-                    q = session.createQuery("delete Well w where w.plate.id = :id");
-                    q.setParameter("id", plateId);
-                    q.executeUpdate();
-                    // Plate
-                    q = session.createQuery("delete Plate p where p.id = :id");
-                    q.setParameter("id", plateId);
-                    q.executeUpdate();
                 }
+
+                // Well
+                q = session
+                        .createQuery("delete WellAnnotationLink where parent.id in "
+                                + "(select id from Well where plate.id = :id)");
+                q.setParameter("id", plateId);
+                count = q.executeUpdate();
+                sb.append(count);
+                sb.append(" WellAnnotationLink(s);");
+
+                q = session.createQuery("delete Well where plate.id = :id");
+                q.setParameter("id", plateId);
+                count = q.executeUpdate();
+                sb.append(count);
+                sb.append(" Well(s);");
+
+                // Plate
+                q = session
+                        .createQuery("delete PlateAnnotationLink where parent.id = :id");
+                q.setParameter("id", plateId);
+                count = q.executeUpdate();
+                sb.append(count);
+                sb.append(" PlateAnnotationLink(s);");
+
+                q = session.createQuery("delete Plate where id = :id");
+                q.setParameter("id", plateId);
+                q.executeUpdate();
+
                 iUpdate.flush();
             }
         });

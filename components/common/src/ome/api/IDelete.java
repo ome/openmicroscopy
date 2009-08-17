@@ -172,22 +172,25 @@ public interface IDelete extends ServiceInterface {
      */
     public void deleteImagesByDataset(long datasetId, boolean force)
             throws SecurityViolation, ValidationException, ApiUsageException;
-    
+
     /**
      * Deletes all rendering settings for the given Pixel id. This removes
      * all the same objects that deleteImage() would delete below the given
      * Pixels
      */
     public void deleteSettings(long pixelId);
-    
+
     /**
-     * Deletes all the images in contained in a plate as if deleted by:
+     * Deletes all the images contained in a plate as if deleted by:
      * <code>
      *   deleteImage(id, true)
      * </code>
-     * so that all Dataset links are broken. All Wells and WellSamples linked
-     * to the Images will be deleted, as well as the Plate itself.
-     *   
+     * so that all Dataset and Annotation links are broken, with WellSamples removed
+     * first. Then all Wells in the Plate and the Plate itself are removed.
+     *
+     * WellSampleAnnotationLinks, WellAnnotationLinks, and PlateAnnotationLinks are
+     * deleted as necessary.
+     *
      * @param plateId
      */
     public void deletePlate(long plateId);

@@ -268,12 +268,21 @@ public class AbstractManagedContextTest extends
     }
 
     protected Image makeImage(String path, boolean withDataset) throws Exception {
+        
+        return makeImage(path, withDataset, 1);
+        
+    }
+    
+    protected Image makeImage(String path, boolean withDataset, Integer pixelCount) throws Exception {
+        
         MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(
                 this.factory, "");
         try {
             File test = ResourceUtils.getFile(path);
             List<omero.model.Pixels> pixs = fixture.fullImport(test, "test");
-            assertEquals(1, pixs.size());
+            if (pixelCount != null) {
+                assertEquals(pixelCount.intValue(), pixs.size());
+            }
             omero.model.Pixels p = pixs.get(0);
             assertNotNull(p);
             Image i = new Image(p.getImage().getId().getValue(), false);

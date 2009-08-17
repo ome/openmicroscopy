@@ -5,8 +5,8 @@
 
 package ome.services.delete;
 
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -15,9 +15,9 @@ import ome.api.IDelete;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
-import ome.formats.MockedOMEROImportFixture;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
+import ome.model.annotations.TagAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.core.Channel;
@@ -32,7 +32,6 @@ import ome.model.screen.WellSample;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 
-import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
 
 @Test(groups = { "integration" })
@@ -299,12 +298,14 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
     // =========================================================================
 
     @Test(groups = "ticket:1228")
-    public void testDeleteByPlate() throws Exception {
+    public void testDeleteByPlateReal() throws Exception {
 
+        fail("disabling");
+        
         String name = "2007.08.02.16.43.24.xdce";
         Experimenter e1 = loginNewUser();
         try {
-            makeImage("classpath:"+name, false);
+            makeImage("classpath:"+name, false, null);
 
         } catch (FileNotFoundException fnfe) {
             // Partial support
@@ -316,4 +317,76 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         factory.getDeleteService().deletePlate(p.getId());
     }
 
+    @Test(groups = "ticket:1228")
+    public void testDeleteByPlateSimple() throws Exception {
+
+        Plate p = new Plate();
+        p.setName("ticket:1228");
+        Well w1 = new Well();
+        WellSample ws = new WellSample();
+        Image i = new Image();
+        i.setName("ticket:1228");
+        i.setAcquisitionDate(new Timestamp(0));
+        
+        // Linking
+        p.addWell(w1);
+        w1.addWellSample(ws);
+        ws.setImage(i);
+        ws.setWell(w1);
+        i.addWellSample(ws);
+
+        
+        p = iUpdate.saveAndReturnObject(p);
+        
+        factory.getDeleteService().deletePlate(p.getId());
+        
+        try {
+            iQuery.get(Plate.class, p.getId());
+            fail("This should throw");
+        } catch (ApiUsageException aue) {
+            // good, it's gone.
+        }
+    }
+    
+    @Test(groups = "ticket:1228")
+    public void testDeleteByPlateAnnotated() throws Exception {
+
+        TagAnnotation ta = new TagAnnotation();
+        ta.setTextValue("ticket:1228");
+        
+        Plate p = new Plate();
+        p.setName("ticket:1228");
+        p.linkAnnotation(ta);
+        
+        Well w1 = new Well();
+        w1.linkAnnotation(ta);
+        
+        WellSample ws = new WellSample();
+        ws.linkAnnotation(ta);
+        
+        Image i = new Image();
+        i.setName("ticket:1228");
+        i.setAcquisitionDate(new Timestamp(0));
+        i.linkAnnotation(ta);
+        
+        // Linking
+        p.addWell(w1);
+        w1.addWellSample(ws);
+        ws.setImage(i);
+        ws.setWell(w1);
+        i.addWellSample(ws);
+                
+        p = iUpdate.saveAndReturnObject(p);
+        
+        factory.getDeleteService().deletePlate(p.getId());
+        
+        try {
+            iQuery.get(Plate.class, p.getId());
+            fail("This should throw");
+        } catch (ApiUsageException aue) {
+            // good, it's gone.
+        }
+    }
+
+    
 }
