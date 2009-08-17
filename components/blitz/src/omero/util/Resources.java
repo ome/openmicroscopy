@@ -81,16 +81,16 @@ public class Resources {
     public Resources(int sleeptimeSeconds, ScheduledExecutorService service) {
         this.sleeptime = sleeptimeSeconds;
         this.service = service;
-        log.fine("Starting");
+        log.finest("Starting");
         this.future = this.service.scheduleAtFixedRate(task(), 1, sleeptime, TimeUnit.SECONDS);
     }
 
     private Runnable task() {
         return new Runnable() {
             public void run() {
-                log.fine("Running checks...");
+                log.finest("Running checks...");
                 for (Entry entry : stuff) {
-                    log.fine("Checking " + entry);
+                    log.finest("Checking " + entry);
                     boolean success = true;
                     try {
                         success = entry.check();
@@ -103,14 +103,14 @@ public class Resources {
                         remove(entry);
                     }
                 }
-                log.fine("Finished checks.");
+                log.finest("Finished checks.");
             }
 
         };
     }
 
     public void add(Entry entry) {
-        log.fine("Adding object " + entry);
+        log.finest("Adding object " + entry);
         stuff.add(entry);
     }
 
@@ -120,26 +120,26 @@ public class Resources {
     
     public void cleanup() {
         
-        log.fine("Cleaning called");
+        log.finest("Cleaning called");
 
         for (Entry entry : stuff) {
             remove(entry);
         }
 
-        log.fine("Stopping");
+        log.finest("Stopping");
         // Cancel thread; allows current task to finish
         future.cancel(false);
-        log.fine("Stopped");
+        log.finest("Stopped");
     }
 
     protected void remove(Entry entry) {
-        log.fine("Cleaning " + entry);
+        log.finest("Cleaning " + entry);
         try {
             entry.cleanup();
         } catch (Exception e) {
             log.warning("Cleaning entry threw an exception" + e);
         }
-        log.fine("Removing " + entry);
+        log.finest("Removing " + entry);
         stuff.remove(entry);
     }
 

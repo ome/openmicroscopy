@@ -1,7 +1,7 @@
 function [images] = findAllImages(gateway)
 
 % Get the current user projects and populate the datasets.
-projects = getProjects(gateway,[], true);
+projects = gateway.getProjects([], true);
 
 datasetList = java.util.ArrayList;
 
