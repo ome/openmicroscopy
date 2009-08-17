@@ -395,6 +395,7 @@ class DataBrowserComponent
 		} else {
 			nodes = new ArrayList<ImageDisplay>();
 		}
+		
 		if (names != null && names.size() > 0) {
 			Pattern pattern;
 			try {

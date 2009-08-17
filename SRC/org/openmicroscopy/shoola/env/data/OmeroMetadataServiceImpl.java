@@ -1522,18 +1522,16 @@ class OmeroMetadataServiceImpl
 					while (j.hasNext()) 
 						annotationsIds.add((Long) j.next());
 						
-					
 					j = map.entrySet().iterator();
-					
 					while (j.hasNext()) {
 						entry = (Entry) j.next();
 						id = (Long) entry.getKey();
 						l = (Collection) entry.getValue();
-						if (l.size() == annotations.size()) {
+						if (l.size() >= annotations.size()) {
 							k = l.iterator();
 							while (k.hasNext()) {
 								data = (AnnotationData) k.next();
-								if (annotationsIds.contains(data.getId()) && 
+								if (annotationsIds.contains(data.getId()) &&
 										!found.contains(id)) {
 									found.add(id);
 								}

@@ -1497,7 +1497,7 @@ class TreeViewerComponent
 	{
 		DataBrowser db = model.getDataViewer();
 		if (db == null) return null;
-		return db.getBrowser().getImages();
+		return db.getBrowser().getVisibleImages();
 	}
 	
 	/**

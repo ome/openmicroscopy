@@ -638,6 +638,7 @@ class TreeViewerModel
 			id1 = i.next();
 			if (id1 != id) toKeep.add(id1);
 		}
+		if (toKeep.size() == 0) return;
 		currentLoader = new RndSettingsSaver(component, klass, toKeep, 
 								refImage.getDefaultPixels().getId());
 		currentLoader.load();
@@ -660,7 +661,7 @@ class TreeViewerModel
 	 * Fires an asynchronous call to paste the rendering settings.
 	 * 
 	 * @param ids 	Collection of nodes ids.
-	 * @param klass Either dataset, catgory or image.
+	 * @param klass Either dataset, or image.
 	 */
 	void fireResetRenderingSettings(List<Long> ids, Class klass)
 	{
@@ -687,7 +688,7 @@ class TreeViewerModel
 	 * Fires an asynchronous call to paste the rendering settings.
 	 * 
 	 * @param ids 	Collection of nodes ids.
-	 * @param klass Either dataset, catgory or image.
+	 * @param klass Either dataset or image.
 	 */
 	void fireSetOriginalRenderingSettings(List<Long> ids, Class klass)
 	{
