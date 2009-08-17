@@ -130,7 +130,7 @@ public class TagsFilter
     	Collection l = (Collection) result;
     	List<DataObject> filteredNodes = new ArrayList<DataObject>();
     	if (l == null) {
-    		viewer.setFilteredNodes(filteredNodes);
+    		viewer.setFilteredNodes(filteredNodes, null);
     		return;
     	}
     	Iterator i = l.iterator();
@@ -139,7 +139,7 @@ public class TagsFilter
 			id = (Long) i.next();
 			filteredNodes.add(nodes.get(id));
 		}
-    	viewer.setFilteredNodes(filteredNodes);
+    	viewer.setFilteredNodes(filteredNodes, null);
     }
     
 }

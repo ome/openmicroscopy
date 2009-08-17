@@ -977,8 +977,8 @@ public class EditorUtil
         		details = new LinkedHashMap<String, Object>(10);
         List<String> notSet = new ArrayList<String>();
         details.put(NAME, "");
-        details.put(EMISSION, Integer.valueOf(0));
         details.put(EXCITATION, Integer.valueOf(0));
+        details.put(EMISSION, Integer.valueOf(0)); 
         details.put(ND_FILTER, Float.valueOf(0));
         details.put(PIN_HOLE_SIZE, Float.valueOf(0));
         details.put(FLUOR, "");

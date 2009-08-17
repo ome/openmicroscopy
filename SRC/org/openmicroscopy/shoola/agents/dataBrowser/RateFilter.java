@@ -190,7 +190,7 @@ public class RateFilter
     			}
     		}
     	}
-    	viewer.setFilteredNodes(filteredNodes);
+    	viewer.setFilteredNodes(filteredNodes, null);
     }
     
 }

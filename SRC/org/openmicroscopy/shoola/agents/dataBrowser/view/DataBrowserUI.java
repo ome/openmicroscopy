@@ -447,7 +447,7 @@ class DataBrowserUI
     }
 
     /**
-     * Sets the filering context.
+     * Sets the filtering context.
      * 
      * @param context The context to handle.
      */

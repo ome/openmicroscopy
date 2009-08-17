@@ -153,16 +153,15 @@ public class AnnotatedFilter
     	Collection l = (Collection) result;
     	List<DataObject> filteredNodes = new ArrayList<DataObject>();
     	if (l == null) {
-    		viewer.setFilteredNodes(filteredNodes);
+    		viewer.setFilteredNodes(filteredNodes, null);
     		return;
     	}
     	Iterator i = l.iterator();
-    	long id;
-    	while (i.hasNext()) {
-			id = (Long) i.next();
-			filteredNodes.add(nodes.get(id));
-		}
-    	viewer.setFilteredNodes(filteredNodes);
+
+    	while (i.hasNext()) 
+			filteredNodes.add(nodes.get((Long) i.next()));
+	
+    	viewer.setFilteredNodes(filteredNodes, null);
     }
     
 }

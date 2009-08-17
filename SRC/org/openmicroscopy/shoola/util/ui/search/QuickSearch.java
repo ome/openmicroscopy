@@ -79,7 +79,7 @@ public class QuickSearch
 	/** Indicates to search for textual annotations. */
 	public static final int 	COMMENTS = 1;
 	
-	/** Indicates to search for textual annotations. */
+	/** Indicates to search for name. */
 	public static final int 	FULL_TEXT = 2;
 	
 	/** Indicates to search for objects rated one or higher. */

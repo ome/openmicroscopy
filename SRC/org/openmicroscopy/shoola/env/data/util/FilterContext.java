@@ -68,6 +68,9 @@ public class FilterContext
 	/** Indicates that no contexts selected. */
 	public static final int NONE = 4;
 	
+	/** Indicates that the name context selected. */
+	public static final int NAME = 5;
+	
 	/** Indicate to retrieve objects rated higher than the passed level. */
 	public static final int HIGHER = 0;
 	
@@ -104,6 +107,9 @@ public class FilterContext
 	/** The type of filter. */
 	private List<Integer>				type;
 	
+	/** The collection of name to filter by. */
+	private List<String>				names;
+	
 	/** Creates a new instance. */
 	public FilterContext()
 	{
@@ -115,8 +121,22 @@ public class FilterContext
 	}
 	
 	/**
-	 * Returns one of the following contants: {@link #RATE}, {@link #TAG} or
-	 * {@link #COMMENT} or <code>-1</code> when more than one type is selected.
+	 * Returns <code>true</code> if it is only filtered by name, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isNameOnly()
+	{
+		int size = type.size();
+		if (size > 1) return false;
+		return type.contains(NAME);
+	}
+	
+	/**
+	 * Returns one of the following constants: {@link #RATE}, {@link #TAG} or
+	 * {@link #COMMENT}, {@link #NAME} or 
+	 * <code>-1</code> when more than one type is selected.
 	 * 
 	 * @return See above.
 	 */
@@ -264,5 +284,24 @@ public class FilterContext
 			annotationType.put(klass, terms);
 		}
 	}
+	
+	/**
+	 * Adds the name to filter by.
+	 * 
+	 * @param terms The collection of name.
+	 */
+	public void addName(List<String> terms)
+	{
+		if (terms == null || terms.size() == 0) return;
+		type.add(NAME);
+		names = terms;
+	}
+	
+	/**
+	 * Returns the collection of names to filter by.
+	 * 
+	 * @return See above.
+	 */
+	public List<String> getNames() { return names; }
 	
 }

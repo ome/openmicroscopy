@@ -90,7 +90,7 @@ public class SearchComponent
 	/** Identifies the text for searching for comments. */
 	public static final String		NAME_COMMENTS = "Comments";
 	
-	/** Identifies the text for searching for urls. */
+	/** Identifies the text for searching for URLs. */
 	public static final String		NAME_URL = "URL";
 	
 	/** Identifies the text for searching for attachments. */

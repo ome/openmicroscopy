@@ -137,6 +137,9 @@ public class FilteringDialog
 	/** The component to select the comments. */
 	private JCheckBox		commentsBox;
 	
+	/** The component to select the name. */
+	private JCheckBox		nameBox;
+	
 	/** The component to select the tags. */
 	private JCheckBox		tagsBox;
 	
@@ -160,6 +163,9 @@ public class FilteringDialog
 	
 	/** The field area to collect the comments. */
 	private JTextField		commentsArea;
+	
+	/** The field area to collect the name. */
+	private JTextField		nameArea;
 	
 	/** Button to close the dialog. */
 	private JButton			cancelButton;
@@ -267,6 +273,7 @@ public class FilteringDialog
 		//ratingBox.setSelected(true);
 		calendarBox = new JCheckBox("Calendar:");
 		commentsBox = new JCheckBox("Comments");
+		nameBox = new JCheckBox("Name");
 		tagsBox = new JCheckBox("Tags");
 		ratingOptions = new JComboBox(RATING);
 		rating = new RatingComponent(5, RatingComponent.HIGH_SIZE);
@@ -300,6 +307,8 @@ public class FilteringDialog
 		
 		commentsArea = new JTextField();
 		commentsArea.setColumns(15);
+		nameArea = new JTextField();
+		nameArea.setColumns(15);
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Close.");
 		cancelButton.setActionCommand(""+CANCEL);
@@ -354,6 +363,14 @@ public class FilteringDialog
 					SearchUtil.COMMA_SEPARATOR);
 			if (l != null && l.size() > 0) {
 				context.addAnnotationType(TextualAnnotationData.class, l);
+				filter = true;
+			}
+		}
+		if (nameBox.isSelected()) {
+			List<String> l = SearchUtil.splitTerms(nameArea.getText(), 
+					SearchUtil.COMMA_SEPARATOR);
+			if (l != null && l.size() > 0) {
+				context.addName(l);
 				filter = true;
 			}
 		}
@@ -436,6 +453,19 @@ public class FilteringDialog
 		return UIUtilities.buildComponentPanel(p, 0, 0);
 	}
 	
+	/**
+	 * Builds and lays out the components used to select the name.
+	 * 
+	 * @return See above.
+	 */
+	public JPanel buildNamePane()
+	{
+		JPanel p = new JPanel();
+		p.add(nameBox);
+		p.add(nameArea);
+		return UIUtilities.buildComponentPanel(p, 0, 0);
+	}
+	
 	/** 
 	 * Builds the selection component.
 	 * 
@@ -445,12 +475,17 @@ public class FilteringDialog
 	{
 		JPanel p = new JPanel();
 		double[][] size = {{TableLayout.FILL}, 
-				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5,
+				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
+			TableLayout.PREFERRED, 5,
 				TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
 				TableLayout.PREFERRED, 5}};
 		p.setLayout(new TableLayout(size));
 		int i = 0;
 		p.add(buildTagsPane(), "0, "+i);
+		i++;
+		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
+		i++;
+		p.add(buildNamePane(), "0, "+i);
 		i++;
 		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
 		i++;
@@ -509,7 +544,7 @@ public class FilteringDialog
 	}
 
 	/**
-	 * Sets the text of the {@link tagsArea}.
+	 * Sets the text of the {@link #tagsArea}.
 	 * 
 	 * @param text The value to set.
 	 */
@@ -524,7 +559,7 @@ public class FilteringDialog
 	}
 	
 	/**
-	 * Sets the text of the {@link commentsArea}.
+	 * Sets the text of the {@link #commentsArea}.
 	 * 
 	 * @param text The value to set.
 	 */
@@ -537,7 +572,7 @@ public class FilteringDialog
 	}
 	
 	/**
-	 * Sets the value of the {@link rating} component.
+	 * Sets the value of the {@link #rating} component.
 	 * 
 	 * @param value The value to set.
 	 */

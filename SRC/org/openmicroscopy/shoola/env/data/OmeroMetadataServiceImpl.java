@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 import org.apache.commons.collections.ListUtils;
@@ -1494,7 +1495,7 @@ class OmeroMetadataServiceImpl
 		Timestamp start = filter.getFromDate();
 		Timestamp end = filter.getToDate();
 		Set<Long> annotationsIds = new HashSet<Long>();
-		Iterator i, j;
+		Iterator i, j, k;
 		Long id;
 		Collection l;
 		Set annotations;
@@ -1504,31 +1505,38 @@ class OmeroMetadataServiceImpl
 		Map<Class, List<Long>> r = new HashMap<Class, List<Long>>();
 		List<Long> found;
 		Class type;
+		Entry entry;
 		if (types != null && types.size() > 0) {
-			i = types.keySet().iterator();
+			i = types.entrySet().iterator();
 			
 			AnnotationData data;
 			if (resultType == FilterContext.INTERSECTION) {
 				
 				while (i.hasNext()) {
-					type = (Class) i.next();
+					entry = (Entry) i.next();
+					type = (Class) entry.getKey();
 					found = new ArrayList<Long>();
-					annotations = gateway.filterBy(type, 
-							                 types.get(type), start, end, exp);
-					i = annotations.iterator();
-					while (i.hasNext())
-						annotationsIds.add((Long) i.next());
+					annotations = gateway.filterBy(type, (List<String>)
+							entry.getValue(), start, end, exp);
+					j = annotations.iterator();
+					while (j.hasNext()) 
+						annotationsIds.add((Long) j.next());
+						
 					
-					i = map.keySet().iterator();
+					j = map.entrySet().iterator();
 					
-					while (i.hasNext()) {
-						id = (Long) i.next();
-						l = (Collection) map.get(id);
-						j = l.iterator();
-						while (j.hasNext()) {
-							data = (AnnotationData) j.next();
-							if (annotationsIds.contains(data.getId())) {
-								found.add(id);
+					while (j.hasNext()) {
+						entry = (Entry) j.next();
+						id = (Long) entry.getKey();
+						l = (Collection) entry.getValue();
+						if (l.size() == annotations.size()) {
+							k = l.iterator();
+							while (k.hasNext()) {
+								data = (AnnotationData) k.next();
+								if (annotationsIds.contains(data.getId()) && 
+										!found.contains(id)) {
+									found.add(id);
+								}
 							}
 						}
 					}
@@ -1648,7 +1656,6 @@ class OmeroMetadataServiceImpl
 				filteredNodes.addAll(r.get(type));
 				break;
 			}
-			
 			index++;
 		}
 		r.remove(type);
@@ -1657,7 +1664,6 @@ class OmeroMetadataServiceImpl
 			type = (Class) i.next();
 			filteredNodes = ListUtils.intersection(filteredNodes, r.get(type));
 		}
-		//r.put(RatingAnnotationData.class, found);
 		return filteredNodes;
 	}
 

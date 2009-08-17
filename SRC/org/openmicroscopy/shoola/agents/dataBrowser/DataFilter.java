@@ -70,7 +70,7 @@ public class DataFilter
     /** The filtering context. */
     private FilterContext			context;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle				handle;
     
     /**
@@ -128,14 +128,15 @@ public class DataFilter
     	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
     	Collection r = (Collection) result;
     	List<DataObject> filteredNodes = new ArrayList<DataObject>();
+    	List<String> names = context.getNames();
     	if (r == null || r.size() == 0) {
-    		viewer.setFilteredNodes(filteredNodes);
+    		viewer.setFilteredNodes(filteredNodes, names);
     	} else {
     		Iterator i = r.iterator();
-    		while (i.hasNext()) {
+    		while (i.hasNext()) 
     			filteredNodes.add(nodes.get(i.next()));
-			}
-    		viewer.setFilteredNodes(filteredNodes);
+			
+    		viewer.setFilteredNodes(filteredNodes, names);
     	}
     }
     

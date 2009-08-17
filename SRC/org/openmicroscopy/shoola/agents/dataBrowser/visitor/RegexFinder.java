@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.visitor;
 
 //Java importss
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -39,7 +40,9 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Finds the nodes matching the specified pattern.
@@ -78,6 +81,10 @@ public class RegexFinder
             return ((DatasetData) userObject).getName();
         else if (userObject instanceof ImageData) 
             return ((ImageData) userObject).getName();
+        else if (userObject instanceof ScreenData) 
+            return ((ScreenData) userObject).getName();
+        else if (userObject instanceof PlateData) 
+            return ((PlateData) userObject).getName();
         return null;
     }
     
@@ -95,6 +102,10 @@ public class RegexFinder
             return ((DatasetData) userObject).getDescription();
         else if (userObject instanceof ImageData) 
             return ((ImageData) userObject).getDescription();
+        else if (userObject instanceof ScreenData) 
+            return ((ScreenData) userObject).getDescription();
+        else if (userObject instanceof PlateData) 
+            return ((PlateData) userObject).getDescription();
         return null;
     }
     
@@ -135,6 +146,20 @@ public class RegexFinder
     	foundNodes = new ArrayList<ImageDisplay>();
     }
     
+    /** 
+     * Analyzes the collection of passed nodes.
+     *  
+     * @param nodes The collection of nodes.
+     */
+    public void analyse(List<ImageDisplay> nodes)
+    {
+    	if (nodes == null || nodes.size() == 0) return;
+    	Iterator<ImageDisplay> i = nodes.iterator();
+    	while (i.hasNext()) {
+    		foundNode(i.next());
+		}
+    }
+    
 	/**
 	 * Returns the collection of found nodes.
 	 * 
@@ -149,7 +174,7 @@ public class RegexFinder
 	public void visit(ImageNode node) { foundNode(node); }
 
 	 /** 
-     * Required by the {@link ImageDisplayVisitor} I/F but no-op in our case. 
+     * Implemented as specified by {@link ImageDisplayVisitor}. 
      * @see ImageDisplayVisitor#visit(ImageSet)
      */
 	public void visit(ImageSet node) { foundNode(node); }

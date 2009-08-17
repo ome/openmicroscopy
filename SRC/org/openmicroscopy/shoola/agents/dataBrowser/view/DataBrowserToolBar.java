@@ -642,6 +642,10 @@ class DataBrowserToolBar
 					if (text.length() != 0) text += ", ";
 					text += SearchComponent.NAME_COMMENTS;
 				}
+				if (c.contains(FilterContext.NAME)) {
+					if (text.length() != 0) text += ", ";
+					text += SearchComponent.NAME_TEXT;
+				}
 				setFilterLabel(text);
 				break;
 			case FilterContext.NONE:
@@ -691,6 +695,12 @@ class DataBrowserToolBar
 				search.setSearchContext(QuickSearch.COMMENTS);
 				terms = context.getAnnotation(TextualAnnotationData.class);
 				if (terms != null) search.setSearchValue(terms);
+				break;
+			case FilterContext.NAME:
+				setFilterLabel(SearchComponent.NAME_TEXT);
+				search.setSearchContext(QuickSearch.FULL_TEXT);
+				//terms = context.getAnnotation(TextualAnnotationData.class);
+				//if (terms != null) search.setSearchValue(terms);
 		}
 	}
 	

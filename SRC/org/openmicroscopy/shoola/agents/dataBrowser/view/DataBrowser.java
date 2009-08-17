@@ -317,8 +317,9 @@ public interface DataBrowser
 	 * Sets the collection of filtered nodes.
 	 * 
 	 * @param objects The nodes to filter.
+	 * @param names	  The collection of terms to filter by.
 	 */
-	public void setFilteredNodes(List<DataObject> objects);
+	public void setFilteredNodes(List<DataObject> objects, List<String> names);
 
 	/**
 	 * Filters the images.

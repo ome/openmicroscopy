@@ -118,7 +118,7 @@ public class DataFilter
      * 
      * @param nodeType	The type of objects to filter.	
      * @param ids		The collection of object ids.
-     * @param filter	The filering context.
+     * @param filter	The filtering context.
      * @param userID	The id of the user or <code>-1</code> if the id 
      * 					is not specified.
      * @return The {@link BatchCall}.
@@ -200,7 +200,7 @@ public class DataFilter
      * 
      * @param nodeType	The type of objects to filter.	
      * @param nodeIds	The collection of object ids.
-     * @param context	The filering context.
+     * @param context	The filtering context.
      * @param userID	The id of the user or <code>-1</code> if the id 
      * 					is not specified.
      */

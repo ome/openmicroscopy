@@ -66,7 +66,6 @@ import pojos.DataObject;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
-import pojos.WellData;
 import pojos.WellSampleData;
 
 /** 
@@ -382,9 +381,9 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#setFilteredNodes(List)
+	 * @see DataBrowser#setFilteredNodes(List, List)
 	 */
-	public void setFilteredNodes(List<DataObject> objects)
+	public void setFilteredNodes(List<DataObject> objects, List<String> names)
 	{
 		if (objects == null) return;
 		Browser browser = model.getBrowser();
@@ -395,6 +394,22 @@ class DataBrowserComponent
 			nodes = finder.getFoundNodes();
 		} else {
 			nodes = new ArrayList<ImageDisplay>();
+		}
+		if (names != null && names.size() > 0) {
+			Pattern pattern;
+			try {
+				pattern = RegExFactory.createPattern(
+						RegExFactory.formatSearchTextAsString(names));
+			} catch (PatternSyntaxException pse) {
+	            UserNotifier un = 
+	            	
+	            	DataBrowserAgent.getRegistry().getUserNotifier();
+	            un.notifyInfo("Find", "Some characters are not recognised.");
+	            return;
+	        }
+			RegexFinder finder = new RegexFinder(pattern);
+			finder.analyse(nodes);
+			nodes = finder.getFoundNodes();
 		}
 		browser.setFilterNodes(nodes);
 		view.layoutUI();
@@ -420,13 +435,17 @@ class DataBrowserComponent
 			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
 			return;
 		}
-		Browser browser = model.getBrowser();
-		Set<DataObject> nodes = browser.getOriginal();
-		if (nodes != null && nodes.size() > 0) {
-			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			view.filterByContext(context);
-			model.fireFilteringByContext(context, nodes);
-			fireStateChange();
+		if (context.isNameOnly()) {
+			filterByFullText(context.getNames()); 
+		} else {
+			Browser browser = model.getBrowser();
+			Set<DataObject> nodes = browser.getOriginal();
+			if (nodes != null && nodes.size() > 0) {
+				view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				view.filterByContext(context);
+				model.fireFilteringByContext(context, nodes);
+				fireStateChange();
+			}
 		}
 	}
 
