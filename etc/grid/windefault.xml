@@ -19,6 +19,7 @@
     -->
     <variable name="OMERO_HOME"   value="c:\\omero_dist"/>
     <variable name="OMEROPY_HOME" value="${OMERO_HOME}\\lib\\python\\"/>
+    <variable name="OMEROPY_SERV" value="${OMERO_HOME}\\lib\\python\\omero\\"/>
     <variable name="PYTHONPATH"   value="PYTHONPATH=%PYTHONPATH%;${OMEROPY_HOME}"/>
 
     <properties id="Profile">
