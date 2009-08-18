@@ -265,7 +265,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
         Plate p = iQuery.get(Plate.class, plateId);
         throwSecurityViolationIfNotAllowed(p);
-        ;
 
         sec.runAsAdmin(new AdminAction() {
             public void runAsAdmin() {
@@ -275,7 +274,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
                 final Session session = sf.getSession();
                 final StringBuilder sb = new StringBuilder();
-                sb.append("Deleting for plate ");
+                sb.append("Delete for plate ");
                 sb.append(plateId);
                 sb.append(" : ");
 
@@ -338,6 +337,8 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
                 q.executeUpdate();
 
                 iUpdate.flush();
+
+                log.info(sb.toString());
             }
         });
 
