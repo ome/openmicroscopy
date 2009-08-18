@@ -4640,4 +4640,9 @@ public class OMEROMetadataStoreClient
 		// TODO Auto-generated method stub
 		
 	}
+	
+        public void setGroupID(String arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
 }
