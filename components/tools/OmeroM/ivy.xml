@@ -1,7 +1,7 @@
 <ivy-module version="1.0">
   <info
       organisation="omero"
-      module="OmeroMatlab"
+      module="OMERO.matlab"
       status="integration"/>
   <configurations>
     <conf name="build"/>
