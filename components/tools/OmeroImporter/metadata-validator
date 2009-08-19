@@ -114,7 +114,12 @@ if __name__ == '__main__':
     program_dir = os.path.dirname(sys.argv[0])
     os.chdir(program_dir)
 
-    classpath = "./test-classes:./OmeroImporter.jar"
+    classpath = ""
+    try:
+        classpath = os.environ['CLASSPATH']
+    except KeyError:
+        pass
+    classpath = "%s:./test-classes:./OmeroImporter.jar" % classpath
     for f in glob.glob("./libs/test/*.jar"):
         classpath += ":%s" % f
 
