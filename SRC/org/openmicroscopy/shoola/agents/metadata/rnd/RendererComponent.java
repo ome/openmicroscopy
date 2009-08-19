@@ -508,6 +508,7 @@ class RendererComponent
 		int defaultT = model.getDefaultT();
 		if (defaultZ == z && defaultT == t) return;
 		try {
+			model.setSelectedXYPlane(z, t);
 			if (defaultZ != z) {
 				firePropertyChange(Z_SELECTED_PROPERTY, 
 						Integer.valueOf(defaultZ), Integer.valueOf(z));
@@ -516,7 +517,6 @@ class RendererComponent
 				firePropertyChange(T_SELECTED_PROPERTY, 
 						Integer.valueOf(defaultT), Integer.valueOf(t));
 			}
-			model.setSelectedXYPlane(z, t);
 			if (model.isGeneralIndex()) 
 				model.saveRndSettings();
 			 firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 

@@ -34,7 +34,6 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.IllegalArgumentException;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
