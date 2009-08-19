@@ -92,7 +92,7 @@ public class RenderingSettingsI extends AbstractAmdServant implements
     
     public void applySettingsToSet_async(
             AMD_IRenderingSettings_applySettingsToSet __cb, long from,
-            String toType, List<IObject> to, Current __current)
+            String toType, List<Long> to, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, from, toType, to);
 
