@@ -182,7 +182,8 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * used.
 	 */
 	<T extends IObject> Map<Boolean, List<Long>> applySettingsToSet(
-			@NotNull long from, Class<T> type, @NotNull Set<Long> nodeIds);
+			@NotNull long from, Class<T> type, 
+			@NotNull @Validate(Long.class) Set<Long> nodeIds);
 	
 	/**
 	 * Applies rendering settings to all images in all <code>Datasets</code> 
