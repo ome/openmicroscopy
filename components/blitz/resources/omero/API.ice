@@ -495,7 +495,7 @@ module omero {
 	    void resetDefaultsForPixels(long pixelsId) throws ServerError;
 	    omero::sys::LongList resetDefaultsInDataset(long dataSetId) throws ServerError;
 	    omero::sys::LongList resetDefaultsInSet(string type, omero::sys::LongList noteIds) throws ServerError;
-	    BooleanIdListMap applySettingsToSet(long from, string toType, IObjectList to) throws ServerError;
+	    BooleanIdListMap applySettingsToSet(long from, string toType, omero::sys::LongList to) throws ServerError;
 	    BooleanIdListMap applySettingsToProject(long from, long to) throws ServerError;
 	    BooleanIdListMap applySettingsToDataset(long from, long to) throws ServerError;
 	    BooleanIdListMap applySettingsToImages(long from, omero::sys::LongList to) throws ServerError;
