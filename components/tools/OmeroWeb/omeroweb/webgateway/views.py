@@ -65,24 +65,24 @@ class UserProxy (object):
     def getName (self):
         return self._blitzcon._user.omeName
 
-class SessionCB (object):
-    def _log (self, what, c):
-        logger.debug('CONN:%s %s:%d:%s' % (what, c._user, os.getpid(), c._sessionUuid))
-
-    def create (self, c):
-        self._log('create',c)
-
-    def join (self, c):
-        self._log('join',c)
-
-    def close (self, c):
-        self._log('close',c)
-_session_cb = SessionCB()
+#class SessionCB (object):
+#    def _log (self, what, c):
+#        logger.debug('CONN:%s %s:%d:%s' % (what, c._user, os.getpid(), c._sessionUuid))
+#
+#    def create (self, c):
+#        self._log('create',c)
+#
+#    def join (self, c):
+#        self._log('join',c)
+#
+#    def close (self, c):
+#        self._log('close',c)
+#_session_cb = SessionCB()
 
 def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=None, port=None, retry=True):
     try:
         blitzcon = client_wrapper(username, passwd, host=host, port=port)
-        blitzcon.connect()
+        blitzcon.connect(sUuid=sUuid)
         blitzcon.server_id = server_id
         blitzcon.user = UserProxy(blitzcon)
         return blitzcon
@@ -429,7 +429,7 @@ def jsonp (f):
                 kwargs['_conn'] = blitzcon
             if kwargs['_conn'] is None or not kwargs['_conn'].isConnected():
                 return HttpResponseServerError('""', mimetype='application/javascript')
-            rv = f(request, server_id, *args, **kwargs)
+            rv = f(request, server_id=server_id, *args, **kwargs)
             rv = simplejson.dumps(rv)
             c = request.REQUEST.get('callback', None)
             if c is not None:
