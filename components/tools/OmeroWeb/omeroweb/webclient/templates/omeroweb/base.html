@@ -15,9 +15,9 @@
 
 <div id="breadcrumb">
     <ol class="breadcrumb">
-        <!--<li class="breadcrumb">{{ eContext.user.omeName }}@{{ nav.blitz }}</li>-->
+        <li><a href="{% url webindex %}">{{ eContext.user.omeName|capfirst }}</a></li>
         {% for b in eContext.breadcrumb %}
-            <li class="breadcrumb"> > {{ b|safe }}</li>
+            <li> > {{ b|safe }}</li>
         {% endfor %}
     </ol>
 </div>

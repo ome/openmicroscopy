@@ -51,6 +51,7 @@ class OmeNameField(forms.Field):
         omeName_pattern = re.compile(r"(?:^|\s)[a-zA-Z0-9_.]") #TODO: PATTERN !!!!!!!
         return omeName_pattern.match(omeName) is not None
 
+
 #################################################################
 # Non-model Form
 
@@ -73,17 +74,18 @@ class LoginForm(forms.Form):
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22}))
 
+
 class ForgottonPasswordForm(forms.Form):
     
     server = forms.ModelChoiceField(Gateway.objects.all(), empty_label=u"---------")
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':28}))
     email = forms.EmailField(widget=forms.TextInput(attrs={'size':28}))
 
+
 class ExperimenterForm(forms.Form):
 
-    def __init__(self, name_check=False, email_check=False, passwd_check=False, *args, **kwargs):
+    def __init__(self, name_check=False, email_check=False, *args, **kwargs):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
-        self.passwd_check=passwd_check
         self.name_check=name_check
         self.email_check=email_check
         try:
@@ -117,15 +119,16 @@ class ExperimenterForm(forms.Form):
     def clean_email(self):
         if self.email_check:
             raise forms.ValidationError('This email already exist.')
-            
-    def clean_confirmation(self):
-        if self.passwd_check or self.cleaned_data['password'] or self.cleaned_data['confirmation']:
-            if len(self.cleaned_data['password']) < 3:
+    
+    def clean_password(self):
+        if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):
+            if len(self.cleaned_data.get('password')) < 3:
                 raise forms.ValidationError('Password must be at least 3 letters long')
-            if self.cleaned_data['password'] != self.cleaned_data['confirmation']:
+            if self.cleaned_data.get('password') != self.cleaned_data.get('confirmation'):
                 raise forms.ValidationError('Passwords do not match')
             else:
-                return self.cleaned_data['password']
+                return self.cleaned_data.get('password')
+            
 
 class ExperimenterLdapForm(forms.Form):
 
@@ -162,6 +165,7 @@ class ExperimenterLdapForm(forms.Form):
         if self.email_check:
             raise forms.ValidationError('This email already exist.')
 
+
 class GroupForm(forms.Form):
     
     def __init__(self, name_check=False, *args, **kwargs):
@@ -181,6 +185,7 @@ class GroupForm(forms.Form):
         if self.name_check:
             raise forms.ValidationError('This name already exist.')
 
+
 class ScriptForm(forms.Form):
     
     name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':51}))
@@ -189,9 +194,10 @@ class ScriptForm(forms.Form):
 
 
 class MyAccountForm(forms.Form):
-
-    def __init__(self, *args, **kwargs):
+        
+    def __init__(self, email_check=False, *args, **kwargs):
         super(MyAccountForm, self).__init__(*args, **kwargs)
+        self.email_check=email_check
         try:
             if kwargs['initial']['default_group']: pass
             self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['default_group'], empty_label=None)
@@ -208,15 +214,20 @@ class MyAccountForm(forms.Form):
 
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30}), required=False)
     confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30}), required=False)
-
-    def clean_confirmation(self):
-        if self.cleaned_data['password'] or self.cleaned_data['confirmation']:
-            if len(self.cleaned_data['password']) < 3:
+    
+    def clean_email(self):
+        if self.email_check:
+            raise forms.ValidationError('This email already exist.')
+    
+    def clean_password(self):
+        if self.cleaned_data.get('password') and self.cleaned_data.get('confirmation'):
+            if len(self.cleaned_data.get('password')) < 3:
                 raise forms.ValidationError('Password must be at least 3 letters long')
-            if self.cleaned_data['password'] != self.cleaned_data['confirmation']:
+            if self.cleaned_data.get('password') != self.cleaned_data.get('confirmation'):
                 raise forms.ValidationError('Passwords do not match')
             else:
-                return self.cleaned_data['password']
+                return self.cleaned_data.get('password')
+
 
 class MyAccountLdapForm(forms.Form):
 
@@ -236,9 +247,14 @@ class MyAccountLdapForm(forms.Form):
     email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}))
     institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
 
+    def clean_email(self):
+        if self.email_check:
+            raise forms.ValidationError('This email already exist.')
+
+
 class ContainedExperimentersForm(forms.Form):
 
-    def __init__(self, passwd_check=False, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(ContainedExperimentersForm, self).__init__(*args, **kwargs)
         self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['members'], required=False, widget=forms.SelectMultiple(attrs={'size':25}))
         self.fields['available'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['available'], required=False, widget=forms.SelectMultiple(attrs={'size':25}))
@@ -246,13 +262,13 @@ class ContainedExperimentersForm(forms.Form):
 
 
 class UploadPhotoForm(forms.Form):
-    photo  = forms.FileField(required=False)
+    photo = forms.FileField(required=False)
 
     def clean_photo(self):
-        if self.cleaned_data['photo'] is None:
+        if self.cleaned_data.get('photo') is None:
             raise forms.ValidationError('This field is required.')
-        if not self.cleaned_data['photo'].content_type.startswith("image"):
+        if not self.cleaned_data.get('photo').content_type.startswith("image"):
             raise forms.ValidationError('Only images (JPEG, GIF, PNG) acepted.')
-        if self.cleaned_data['photo'].size > 204800:
+        if self.cleaned_data.get('photo').size > 204800:
             raise forms.ValidationError('Photo size file cannot be greater them 200KB.')
 

@@ -40,10 +40,24 @@ class BaseExperimenters(BaseController):
         self.experimentersList = list(self.conn.lookupExperimenters())
         self.auth = self.conn.lookupLdapAuthExperimenters()
         self.experimenters = list()
+        self.experimentersCount = {'experimenters': 0, 'active': 0, 'ldap': 0, 'admin': 0, 'guest': 0}
         for exp in self.experimentersList:
-            self.experimenters.append({'experimenter': exp, 'active': self.isActive(exp.id), 'ldap':self.isLdap(exp.id),
-                                       'admin': self.isAdmin(exp.id), 'guest': self.isGuest(exp.id)})
-        self.experimentersCount = len(self.experimenters)
+            isActive = self.isActive(exp.id)
+            isLdap = self.isLdap(exp.id)
+            isAdmin = self.isAdmin(exp.id)
+            isGuest = self.isGuest(exp.id)
+            self.experimenters.append({'experimenter': exp, 'active': isActive, 'ldap':isLdap,
+                                       'admin': isAdmin, 'guest':isGuest })
+            if isActive:
+                self.experimentersCount['active'] += 1
+            if isLdap:
+                self.experimentersCount['ldap'] += 1
+            if isAdmin:
+                self.experimentersCount['admin'] += 1
+            if isGuest:
+                self.experimentersCount['guest'] += 1
+        
+        self.experimentersCount['experimenters'] = len(self.experimenters)
     
     def isLdap(self, eid):
         try:

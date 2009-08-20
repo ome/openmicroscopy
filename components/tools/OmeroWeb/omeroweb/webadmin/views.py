@@ -123,9 +123,9 @@ def isAdminConnected (f):
             conn = getBlitzConnection(request)
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("admin_login")+(("?error=%s") % x.__class__.__name__))
+            return HttpResponseRedirect(reverse("walogin")+(("?error=%s") % x.__class__.__name__))
         if conn is None:
-            return HttpResponseRedirect(reverse("admin_login"))
+            return HttpResponseRedirect(reverse("walogin"))
         if not conn.getEventContext().isAdmin:
             return page_not_found(request, "404.html")
         kwargs["conn"] = conn
@@ -152,12 +152,12 @@ def isUserConnected (f):
         try:
             conn = getBlitzConnection(request)
         except KeyError:
-            return HttpResponseRedirect(reverse("admin_login")+(("?url=%s") % (url)))
+            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("admin_login")+(("?error=%s&url=%s") % (x.__class__.__name__,url)))
+            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (x.__class__.__name__,url)))
         if conn is None:
-            return HttpResponseRedirect(reverse("admin_login")+(("?url=%s") % (url)))   
+            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))   
         
         kwargs["conn"] = conn
         kwargs["url"] = url
@@ -234,7 +234,7 @@ def login(request):
         error = x.__class__.__name__
     
     if conn is not None:
-        return HttpResponseRedirect(reverse("admin_index"))
+        return HttpResponseRedirect(reverse("waindex"))
     else:
         if request.method == 'POST' and request.REQUEST['server']:
             error = "Connection not available, please chceck your user name and password."
@@ -269,9 +269,9 @@ def index(request, **kwargs):
         logger.error(traceback.format_exc())
     
     if conn.getEventContext().isAdmin:
-        return HttpResponseRedirect(reverse("admin_experimenters"))
+        return HttpResponseRedirect(reverse("waexperimenters"))
     else:
-        return HttpResponseRedirect(reverse("admin_myaccount"))
+        return HttpResponseRedirect(reverse("wamyaccount"))
 
 def logout(request):
     _session_logout(request, request.session['server'])
@@ -314,7 +314,7 @@ def logout(request):
 #        logger.error(traceback.format_exc())
     
     request.session.set_expiry(1)
-    return HttpResponseRedirect(reverse("admin_index"))
+    return HttpResponseRedirect(reverse("waindex"))
 
 @isAdminConnected
 def experimenters(request, **kwargs):
@@ -360,7 +360,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
     elif action == 'create':
         name_check = conn.checkOmeName(request.REQUEST['omename'].encode('utf-8'))
         email_check = conn.checkEmail(request.REQUEST['email'].encode('utf-8'))
-        form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.REQUEST.copy(), name_check=name_check, email_check=email_check, passwd_check=True)
+        form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.REQUEST.copy(), name_check=name_check, email_check=email_check)
         if form.is_valid():
             omeName = request.REQUEST['omename'].encode('utf-8')
             firstName = request.REQUEST['first_name'].encode('utf-8')
@@ -384,7 +384,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
             otherGroups = request.POST.getlist('other_groups')
             password = request.REQUEST['password'].encode('utf-8')
             controller.createExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
-            return HttpResponseRedirect(reverse("admin_experimenters"))
+            return HttpResponseRedirect(reverse("waexperimenters"))
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'edit' :
         if controller.ldapAuth == "" or controller.ldapAuth is None:
@@ -434,13 +434,13 @@ def manage_experimenter(request, action, eid=None, **kwargs):
             except:
                 password = None
             controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution, password)
-            return HttpResponseRedirect(reverse("admin_experimenters"))
+            return HttpResponseRedirect(reverse("waexperimenters"))
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid}
     elif action == "delete":
         controller.deleteExperimenter()
-        return HttpResponseRedirect(reverse("admin_experimenters"))
+        return HttpResponseRedirect(reverse("waexperimenters"))
     else:
-        return HttpResponseRedirect(reverse("admin_experimenters"))
+        return HttpResponseRedirect(reverse("waexperimenters"))
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -496,7 +496,7 @@ def manage_group(request, action, gid=None, **kwargs):
             description = request.REQUEST['description'].encode('utf-8')
             owner = request.REQUEST['owner']
             controller.createGroup(name, owner, description)
-            return HttpResponseRedirect(reverse("admin_groups"))
+            return HttpResponseRedirect(reverse("wagroups"))
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'edit':
         form = GroupForm(initial={'name': controller.group.name, 'description':controller.group.description,
@@ -510,7 +510,7 @@ def manage_group(request, action, gid=None, **kwargs):
             description = request.REQUEST['description'].encode('utf-8')
             owner = request.REQUEST['owner']
             controller.updateGroup(name, owner, description)
-            return HttpResponseRedirect(reverse("admin_groups"))
+            return HttpResponseRedirect(reverse("wagroups"))
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
     elif action == "update":
         template = "omeroadmin/group_edit.html"
@@ -520,7 +520,7 @@ def manage_group(request, action, gid=None, **kwargs):
             available = request.POST.getlist('available')
             members = request.POST.getlist('members')
             controller.setMembersOfGroup(available, members)
-            return HttpResponseRedirect(reverse("admin_groups"))
+            return HttpResponseRedirect(reverse("wagroups"))
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
     elif action == "members":
         template = "omeroadmin/group_edit.html"
@@ -528,7 +528,7 @@ def manage_group(request, action, gid=None, **kwargs):
         form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
     else:
-        return HttpResponseRedirect(reverse("admin_groups"))
+        return HttpResponseRedirect(reverse("wagroups"))
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -537,7 +537,7 @@ def manage_group(request, action, gid=None, **kwargs):
 
 @isAdminConnected
 def ldap(request, **kwargs):
-    return HttpResponseRedirect(reverse("admin_index"))
+    return HttpResponseRedirect(reverse("waindex"))
 
 @isAdminConnected
 def scripts(request, **kwargs):
@@ -583,14 +583,14 @@ def manage_script(request, action, sc_id=None, **kwargs):
         form = GroupForm(initial={'script':controller.script}, data=request.POST.copy())
         if form.is_valid():
             
-            return HttpResponseRedirect(reverse("admin_scripts"))
+            return HttpResponseRedirect(reverse("wascripts"))
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == "edit":
         controller.getScript(sc_id)
         form = ScriptForm(initial={'name':controller.details.val.path.val, 'content':controller.script, 'size':controller.details.val.size.val})
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'sc_id': sc_id}
     else:
-        return HttpResponseRedirect(reverse("admin_scripts"))
+        return HttpResponseRedirect(reverse("wascripts"))
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -599,7 +599,7 @@ def manage_script(request, action, sc_id=None, **kwargs):
 
 @isAdminConnected
 def imports(request, **kwargs):
-    return HttpResponseRedirect(reverse("admin_index"))
+    return HttpResponseRedirect(reverse("waindex"))
 
 @isUserConnected
 def my_account(request, action=None, **kwargs):
@@ -618,26 +618,18 @@ def my_account(request, action=None, **kwargs):
     myaccount = BaseExperimenter(conn)
     myaccount.getMyDetails()
     
-    if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
-        form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
-                                'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
-                                'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
-                                'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
-    else:
-        form = MyAccountLdapForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
-                                'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
-                                'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
-                                'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
-    
     edit_mode = False
-    photo_size = conn.getExperimenterPhotoSize()
+    photo_size = None
+    form = None
     form_file = UploadPhotoForm()
     
+    
     if action == "save":
+        email_check = conn.checkEmail(request.REQUEST['email'].encode('utf-8'), myaccount.experimenter.email)
         if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
-            form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups})
+            form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups}, email_check=email_check)
         else:
-            form = MyAccountLdapForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups})
+            form = MyAccountLdapForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups}, email_check=email_check)
         if form.is_valid():
             firstName = request.REQUEST['first_name'].encode('utf-8')
             middleName = request.REQUEST['middle_name'].encode('utf-8')
@@ -653,14 +645,14 @@ def my_account(request, action=None, **kwargs):
                 password = None
             myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
             logout(request)
-            return HttpResponseRedirect(reverse("admin_myaccount"))
+            return HttpResponseRedirect(reverse("wamyaccount"))
     elif action == "upload":
         if request.method == 'POST':
             form_file = UploadPhotoForm(request.POST, request.FILES)
             if form_file.is_valid():
                 controller = BaseUploadFile(conn)
                 controller.attach_photo(request.FILES['photo'])
-                return HttpResponseRedirect(reverse("admin_myaccount"))
+                return HttpResponseRedirect(reverse("wamyaccount"))
     elif action == "crop": 
         x1 = long(request.REQUEST['x1'].encode('utf-8'))
         x2 = long(request.REQUEST['x2'].encode('utf-8'))
@@ -668,10 +660,34 @@ def my_account(request, action=None, **kwargs):
         y2 = long(request.REQUEST['y2'].encode('utf-8'))
         box = (x1,y1,x2,y2)
         conn.cropExperimenterPhoto(box)
-        return HttpResponseRedirect(reverse("admin_myaccount"))
+        return HttpResponseRedirect(reverse("wamyaccount"))
     elif action == "editphoto":
+        if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
+            form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+                                    'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
+                                    'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
+                                    'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
+        else:
+            form = MyAccountLdapForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+                                    'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
+                                    'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
+                                    'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
+        
+        photo_size = conn.getExperimenterPhotoSize()        
         if photo_size is not None:
             edit_mode = True
+    else:
+        photo_size = conn.getExperimenterPhotoSize()        
+        if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
+            form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+                                    'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
+                                    'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
+                                    'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
+        else:
+            form = MyAccountLdapForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+                                    'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
+                                    'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
+                                    'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
     
     context = {'info':info, 'eventContext':eventContext, 'form':form, 'form_file':form_file, 'ldapAuth': myaccount.ldapAuth, 'edit_mode':edit_mode, 'photo_size':photo_size}
     t = template_loader.get_template(template)
@@ -727,12 +743,17 @@ def piechart(request, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    from StringIO import StringIO
-    from PIL import Image as PILImage
+    from cStringIO import StringIO
     
-    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-    from matplotlib.figure import Figure
-    
+    try:
+        import matplotlib
+        from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from pylab import *    
+    except:
+        logger.error(traceback.format_exc())
+        
     controller = BaseDriveSpace(conn)
     controller.pieChartData()
     
@@ -742,24 +763,24 @@ def piechart(request, **kwargs):
         keys.append(str(item[0]))
         values.append(long(item[1]))
     
-    fig = Figure()
-    canvas = FigureCanvas(fig)
-    ax = fig.add_subplot(111)
-
     explode = list()
     explode.append(0.1)
     for e in controller.topTen:
         explode.append(0)
     explode.remove(0)
+    
+    # make a square figure and axes
+    fig = plt.figure()
+    ax = axes([0.1, 0.1, 0.8, 0.8])
 
-    ax.pie(values, labels=tuple(keys), explode=tuple(explode), autopct='%1.1f%%', shadow=False)
-    ax.set_title(_("Repository information status"))
-    ax.grid(True)
-    canvas.draw()
-    size = canvas.get_renderer().get_canvas_width_height()
-    buf=canvas.tostring_rgb()
-    im=PILImage.fromstring('RGB', size, buf, 'raw', 'RGB', 0, 1)
-    imdata=StringIO()
-    im.save(imdata, format='PNG')
+    labels = labels=tuple(keys)
+    explode = tuple(explode)
+
+    plt.pie(values, labels=labels, explode=explode, autopct='%1.1f%%', shadow=False)
+    plt.title(_("Repository information status"))
+    plt.grid(True)
+    canvas = FigureCanvas(fig)
+    imdata = StringIO()
+    canvas.print_figure(imdata)
     return HttpResponse(imdata.getvalue(), mimetype='image/png')
 

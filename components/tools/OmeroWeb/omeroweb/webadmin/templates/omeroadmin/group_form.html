@@ -23,9 +23,9 @@
 <br/>
 
 {% if gid %}
-    <form action="{% url admin_manage_group_id "save" gid %}" method="POST">
+    <form action="{% url wamanagegroupid "save" gid %}" method="POST">
 {% else %}
-    <form action="{% url admin_manage_group_action "create" %}" method="POST">
+    <form action="{% url wamanagegroupaction "create" %}" method="POST">
 {% endif %}
 
 <table>

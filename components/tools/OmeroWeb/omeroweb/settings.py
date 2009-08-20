@@ -29,13 +29,14 @@ import os.path
 import sys
 import datetime
 import logging
+import logging.handlers
 
 # Debuging mode. 
 # A boolean that turns on/off debug mode.
 # For logging configuration please change 'LEVEL = logging.INFO' below
 # 
 # NEVER DEPLOY a site into production with DEBUG turned on.
-DEBUG = True # handler404 and handler500 works only when False
+DEBUG = False # handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
 
 # Database settings
@@ -85,7 +86,7 @@ MEDIA_URL = ''
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
+ADMIN_MEDIA_PREFIX = '/admin_static/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '@@k%g#7=%4b6ib7yr1tloma&g0s2nni6ljf!m0h&x9c712c7yj'
@@ -102,6 +103,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.doc.XViewMiddleware',
+    'djangologging.middleware.LoggingMiddleware',
 )
 
 ROOT_URLCONF = 'omeroweb.urls'
@@ -143,11 +145,13 @@ DEFAULT_USER = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__),
 # LOGS
 # Configure logging and set place to store logs.
 # Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
-LEVEL = logging.DEBUG
+LEVEL = logging.INFO
+INTERNAL_IPS = ()
+LOGGING_LOG_SQL = False
 
 # LOGDIR path
-LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
 # LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
+LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
 
 if not os.path.isdir(LOGDIR):
     try:
@@ -155,6 +159,29 @@ if not os.path.isdir(LOGDIR):
     except Exception, x:
         exctype, value = sys.exc_info()[:2]
         raise exctype, value
+
+LOGFILE = ('OMEROweb.log')
+logging.basicConfig(level=LEVEL,
+                format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                datefmt='%a, %d %b %Y %H:%M:%S',
+                filename=os.path.join(LOGDIR, LOGFILE),
+                filemode='a')
+
+fileLog = logging.handlers.TimedRotatingFileHandler(os.path.join(LOGDIR, LOGFILE),'midnight',1)
+
+# Windows will not allow renaming (or deleting) a file that's open. 
+# There's nothing the logging package can do about that.
+try:
+    sys.getwindowsversion()
+except:
+    fileLog.doRollover()
+
+fileLog.setLevel(LEVEL)
+formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(message)s')
+fileLog.setFormatter(formatter)
+logging.getLogger().addHandler(fileLog)
+
+logger = logging.getLogger()
 
 # CUSTOM CONFIG
 try:
@@ -203,25 +230,35 @@ try:
 except:
     pass
 
-# DEVELOPMENT
-# ADMIN notification
-# If you wish to help us catching errors, please set the Error notifier to True (please
-# be sure you turned on EMAIL_NOTIFICATION and set ADMIN details).
-# That mechanism sent to the administrator every errors.
-# We are very appreciative if you can deliver them to:
-#   Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>
-# ERROR2EMAIL_NOTIFICATION = False
 
-# Notification
-# Application allows to notify user about new shares
-# EMAIL_NOTIFICATION = False
-# EMAIL_SENDER_ADDRESS = 'sender@domain' # email address
-# EMAIL_SMTP_SERVER = 'smtp.domain'
-# EMAIL_SMTP_PORT = 25
-# EMAIL_SMTP_USER = 'login'
-# EMAIL_SMTP_PASSWORD = 'password'
-# EMAIL_SMTP_TLS = True
+# Ice handling: When manage.py is called by icegridnode
+# an extra argument "--Ice.Config=..." is added. For now,
+# it must be stripped out.
+#
+while True:
+    for i in range(0, len(sys.argv)):
+        if sys.argv[i].startswith("--Ice.Config"):
+            sys.argv.pop(i)
+        continue
+    break
 
-# HOST CONFIG
-# That option is required by share notification sendere.
-# APPLICATION_HOST='http://www.domain.com:80'
+
+# upgrade check:
+# -------------
+# On each startup OMERO.web checks for possible server upgrades
+# and logs the upgrade url at the WARNING level. If you would
+# like to disable the checks, change the following to
+#
+#   if False:
+#
+# For more information, see
+# http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck
+#
+try:
+    from omero.util.upgrade_check import UpgradeCheck
+    check = UpgradeCheck("web")
+    check.run()
+    if check.isUpgradeNeeded():
+        logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
+except Exception, x:
+    logger.error("Upgrade check error: %s" % x)

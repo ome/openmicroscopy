@@ -23,9 +23,9 @@
 <br/>
 
 {% if eid %}
-    <form action="{% url admin_manage_experimenter_id "save" eid %}" method="POST">
+    <form action="{% url wamanageexperimenterid "save" eid %}" method="POST">
 {% else %}
-    <form action="{% url admin_manage_experimenter_action "create" %}" method="POST">
+    <form action="{% url wamanageexperimenteraction "create" %}" method="POST">
 {% endif %}
 <table>
   <tbody>

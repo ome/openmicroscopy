@@ -4,16 +4,16 @@
 {% load custom_tags %}
 
 {% block css %}
-    <link rel="stylesheet" href="{% url admin_static "css/picklist.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url wastatic "css/picklist.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block title %}Edit in group{% endblock %}
 
 {% block jscript %}
 
-    <script type="text/javascript" src="{% url admin_static "javascript/jquery_1.2.6.js" %}"></script>
-    <script type="text/javascript" src="{% url admin_static "javascript/jquery.multiselects.js" %}"></script>
-    <script type="text/javascript" src="{% url admin_static "javascript/jquery.multiselects.pack.js" %}"></script>
+    <script type="text/javascript" src="{% url wastatic "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url wastatic "javascript/jquery.multiselects.js" %}"></script>
+    <script type="text/javascript" src="{% url wastatic "javascript/jquery.multiselects.pack.js" %}"></script>
 
     <script type="text/javascript">
     jQuery(function($){
@@ -42,7 +42,7 @@
 <p>* - {% trans "active group" %}.<br/>{% trans "To remove experimenter with * from this group first change the active group." %}</p>
 
 
-<form action="{% url admin_manage_group_id "update" controller.group.id %}" method="POST">
+<form action="{% url wamanagegroupid "update" controller.group.id %}" method="POST">
 <table id="dogBreedsTable" border="0" cellspacing="0" cellpadding="0" class="formTable">
     <tbody>
     <tr>

@@ -18,7 +18,7 @@
                 // notify the user that the image could not be loaded
                 $('#piechart').removeClass('loading')
                 $('#piechart').html('<p class="error">Piechart could not be displayed. Please check log file to solve the problem.</p>').show();
-                }).attr('src', '{% url admin_piechart %}');
+                }).attr('src', '{% url wapiechart %}');
             });
     </script>
 {% endblock %}

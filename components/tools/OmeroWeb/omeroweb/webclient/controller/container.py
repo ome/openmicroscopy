@@ -226,11 +226,11 @@ class BaseContainer(BaseController):
                 if self.dataset is not None:
                     self.eContext['breadcrumb'].append('<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "project", self.project.id, "dataset", self.dataset.id]), self.dataset.breadcrumbName()))
                     if self.image is not None:
-                        self.eContext['breadcrumb'].append('<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "project", self.project.id, "dataset", self.dataset.id, "image", self.image.id]), self.image.breadcrumbName()))
+                        self.eContext['breadcrumb'].append('%s' % self.image.breadcrumbName())
             elif self.dataset is not None:
                 self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), '<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "dataset", self.dataset.id]), self.dataset.breadcrumbName())]
                 if self.image is not None:
-                    self.eContext['breadcrumb'].append('<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "dataset", self.dataset.id, "image", self.image.id]), self.image.breadcrumbName()))
+                    self.eContext['breadcrumb'].append('%s' % self.image.breadcrumbName())
             elif self.image is not None:
                 self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), "%s" % (self.image.breadcrumbName())]
             else:

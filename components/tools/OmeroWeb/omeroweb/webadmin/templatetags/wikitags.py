@@ -34,7 +34,7 @@ register = Library()
 def wikify(value):
     if value is not None:
             
-        urlier = r'(http[s]?://|localhost|ftp://|ftps://)(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        urlier = r'(http[s]?://|localhost|ftp://|ftps://)(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\)\|,]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
         wikifier = re.compile(r'\b(%s)\b' % urlier, re.IGNORECASE)
         value = wikifier.sub(r'<a href="\1" target="_blank">\1</a>', value)
 
@@ -118,7 +118,7 @@ def wikify(value):
 def sharewikify(value):
     if value is not None:
         
-        WIKI_WORD = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        WIKI_WORD = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\)\|,]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
         wikifier = re.compile(r'\b(%s)\b' % WIKI_WORD)
         value = wikifier.sub(r'<a href="\1" target="_blank">\1</a>', value)
 

@@ -7,7 +7,7 @@
 
 {% block jscript %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.imgareaselect.js" %}"></script>
+    <script type="text/javascript" src="{% url wastatic "javascript/jquery.imgareaselect.js" %}"></script>
     
     {% if edit_mode %}
     <script type="text/javascript">
@@ -68,7 +68,7 @@
 <br/>
 
 <div class="myform">
-<form action="{% url admin_myaccount_action "save" %}" method="POST">
+<form action="{% url wamyaccountaction "save" %}" method="POST">
 <table>
   <tbody>
     {% for field in form %}
@@ -84,13 +84,12 @@
 <div class="photo">
     {% if edit_mode %}
     
-	<img src="{% url admin_myphoto %}" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
+	<img src="{% url wamyphoto %}" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
 	<div style="border:1px #999999 solid; float:left; position:relative; overflow:hidden; width:100px; height:100px;">
-		<img src="{% url admin_myphoto %}" style="position: relative;" alt="Thumbnail Preview" />
+		<img src="{% url wamyphoto %}" style="position: relative;" alt="Thumbnail Preview" />
 	</div>
-	<p>Thumbnail Preview</p>
 	<div class="clear"> </div>
-	<h1><form name="thumbnail" action="{% url admin_myaccount_action "crop" %}" method="post">
+	<h1><form name="thumbnail" action="{% url wamyaccountaction "crop" %}" method="post">
 		<input type="hidden" name="x1" value="" id="x1" />
 		<input type="hidden" name="y1" value="" id="y1" />
 		<input type="hidden" name="x2" value="" id="x2" />
@@ -101,11 +100,11 @@
 	{% else %}
 	    <p><center>
 		    {% if photo_size %}
-		    <img src="{% url admin_myphoto %}" width="150" height="150" class="imgzoom"/>
+		    <img src="{% url wamyphoto %}" width="150" height="150" class="imgzoom"/>
 		    <br/>Original size: ({{ photo_size.0.0 }}, {{ photo_size.0.1 }}) {{ photo_size.1|filesizeformat }}
-		    <br/><a href="{% url admin_myaccount_action "editphoto" %}">Crop this picture.</a>
+		    <br/><a href="{% url wamyaccountaction "editphoto" %}">Crop this picture.</a>
     		{% else %}
-    		<img src="{% url admin_myphoto %}" />
+    		<img src="{% url wamyphoto %}" />
     		<ul class="errorlist"><li>You have not upload photo for your profile yet.</li></ul>
     		{% endif %}
 		</center></p>
@@ -114,14 +113,14 @@
     <h1>Upload your photo</h1>
     <div class="body">
       <p>
-        <form enctype="multipart/form-data" method="post" action="{% url admin_myaccount_action "upload" %}">
+        <form enctype="multipart/form-data" method="post" action="{% url wamyaccountaction "upload" %}">
             <table>
               <tbody>
                 {% for field in form_file %}
-                <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+                <tr><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
                 {% endfor %}
               </tbody>
-              <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Upload' %}" /></td></tr>
+              <tr><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Upload' %}" /></td></tr>
             </table>
         </form>
       </p>

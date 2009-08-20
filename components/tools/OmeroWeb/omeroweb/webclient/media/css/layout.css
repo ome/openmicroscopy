@@ -105,7 +105,7 @@ body.zoom {
     padding: 4px 0;
 }
 
-li.breadcrumb, ol.breadcrumb {
+li, ol.breadcrumb {
     display: inline;
     list-style: none;
     padding: 0;

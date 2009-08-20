@@ -22,8 +22,11 @@
 # Version: 1.0
 #
 
+import os.path
+
 from django.conf.urls.defaults import *
 from django.contrib import admin
+from django.views.static import serve
 
 from omeroweb.webadmin.models import Gateway
 from omeroweb.feedback.models import EmailToSend, EmailTemplate
@@ -40,7 +43,12 @@ handler500 = "omeroweb.feedback.views.handler500"
 
 # url patterns
 urlpatterns = patterns('',
+
+    # admin panel support
     (r'^admin/(.*)', admin.site.root),
+    # Require link to admin_media
+    url( r'^admin_static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'admin_media').replace('\\','/') }, name="admin_static" ),
+    
     
     (r'^appmedia/webgateway/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'webgateway/media'}),
     (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),

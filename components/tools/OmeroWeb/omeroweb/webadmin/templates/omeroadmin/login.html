@@ -7,8 +7,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-    <link rel="stylesheet" href="{% url admin_static "css/layout.css" %}" type="text/css" />
-    <link rel="stylesheet" href="{% url admin_static "css/login.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% url wastatic "css/layout.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% url wastatic "css/login.css" %}" type="text/css" />
 
     <link rel="shortcut icon" href="{% url webstatic "images/ome.ico" %}" type="image/x-icon" />
 
@@ -17,10 +17,10 @@
 </head>
 <body>
 <div id="login-logo">
-    <img src="{% url admin_static "images/logo.png" %}" />
+    <img src="{% url wastatic "images/logo.png" %}" />
 </div>
 <div id="login">
-	<form action="{% url admin_login %}" method="post">
+	<form action="{% url walogin %}" method="post">
 		<table><tbody>
             {% if error %}<tr><th colspan="2"><ul class="errorlist"><li>{% trans "Error:" %} {{ error }}</li></ul></th><tr>{% endif %}
         </tbody></table>
@@ -50,7 +50,7 @@
 </div>
 
 <div id="bottom">
-    <center><a href="{% url admin_forgotten_password %}">Forgotten password</a> | <a href="javascript:openHelp()">Help</a></center>
+    <center><a href="{% url waforgottenpassword %}">Forgotten password</a> | <a href="javascript:openHelp()">Help</a></center>
 	<p>All material ©2008 OMERO Team</p>
 </div>
 

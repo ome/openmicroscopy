@@ -98,7 +98,6 @@
 		<div style="border:1px #999999 solid; float:left; position:relative; overflow:hidden; width:100px; height:100px;">
 			<img src="{% url myphoto %}" style="position: relative;" alt="Thumbnail Preview" />
 		</div>
-		<p>Thumbnail Preview</p>
 		<div class="clear"> </div>
 		<h1><form name="thumbnail" action="{% url myaccount "crop" %}" method="post">
 			<input type="hidden" name="x1" value="" id="x1" />
@@ -106,7 +105,7 @@
 			<input type="hidden" name="x2" value="" id="x2" />
 			<input type="hidden" name="y2" value="" id="y2" />
 			<input type="submit" name="Cancel" value="Cancel" onclick="history.back();return false" />
-			<input type="submit" name="upload_thumbnail" value="Save Thumbnail" id="save_thumb" />
+			<input type="submit" name="upload_thumbnail" value="Crop" id="save_thumb" />
 		</form></h1>
 		{% else %}
 		    <p>
@@ -129,10 +128,10 @@
             <table>
               <tbody>
                 {% for field in form_file %}
-                <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+                <tr><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
                 {% endfor %}
               </tbody>
-              <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Upload' %}" /></td></tr>
+              <tr><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Upload' %}" /></td></tr>
             </table>
         </form>
       </p>
