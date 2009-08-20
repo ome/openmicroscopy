@@ -209,16 +209,12 @@ public class MetadataValidatorTest
 					sizeC, count);
 			for (int c = 0; c < sizeC; c++)
 			{
-				LinkedHashMap<String, Integer> indexes = 
-					new LinkedHashMap<String, Integer>();
-				indexes.put("imageIndex", imageIndex);
-				indexes.put("logicalChannelIndex", c);
-				Channel channel = (Channel) store.getSourceObject(
-						new LSID(Channel.class, imageIndex, c)); 
+				count = store.countCachedContainers(
+						Channel.class, imageIndex, c); 
 				e = String.format(
 						"Missing channel object; imageIndex=%d " +
 						"logicalChannelIndex=%d", imageIndex, c);
-				assertNotNull(e, channel);
+				assertEquals(e, 1, count);
 			}
 		}
 	}
@@ -242,12 +238,8 @@ public class MetadataValidatorTest
 			assertEquals(e, sizeC, count);
 			for (int c = 0; c < sizeC; c++)
 			{
-				LinkedHashMap<String, Integer> indexes = 
-					new LinkedHashMap<String, Integer>();
-				indexes.put("imageIndex", imageIndex);
-				indexes.put("logicalChannelIndex", c);
-				count = store.countCachedContainers(Channel.class,
-						                            imageIndex);
+				count = store.countCachedContainers(
+				    LogicalChannel.class, imageIndex, c);
 				e = String.format(
 						"Missing logical channel object; imageIndex=%d " +
 						"logicalChannelIndex=%d", imageIndex, c);
