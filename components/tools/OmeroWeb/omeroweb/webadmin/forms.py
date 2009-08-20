@@ -120,7 +120,7 @@ class ExperimenterForm(forms.Form):
         if self.email_check:
             raise forms.ValidationError('This email already exist.')
     
-    def clean_password(self):
+    def clean_confirmation(self):
         if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):
             if len(self.cleaned_data.get('password')) < 3:
                 raise forms.ValidationError('Password must be at least 3 letters long')
@@ -219,7 +219,7 @@ class MyAccountForm(forms.Form):
         if self.email_check:
             raise forms.ValidationError('This email already exist.')
     
-    def clean_password(self):
+    def clean_confirmation(self):
         if self.cleaned_data.get('password') and self.cleaned_data.get('confirmation'):
             if len(self.cleaned_data.get('password')) < 3:
                 raise forms.ValidationError('Password must be at least 3 letters long')
@@ -231,8 +231,9 @@ class MyAccountForm(forms.Form):
 
 class MyAccountLdapForm(forms.Form):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, email_check=False, *args, **kwargs):
         super(MyAccountLdapForm, self).__init__(*args, **kwargs)
+        self.email_check=email_check
         try:
             if kwargs['initial']['default_group']: pass
             self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['default_group'], empty_label=None)

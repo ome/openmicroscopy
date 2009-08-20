@@ -41,8 +41,6 @@ admin.site.register(EmailTemplate)
 handler404 = "omeroweb.feedback.views.handler404"
 handler500 = "omeroweb.feedback.views.handler500"
 
-print os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), 'django'), 'contrib'), 'admin'), 'media').replace('\\','/')
-
 # url patterns
 urlpatterns = patterns('',
 

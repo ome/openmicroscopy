@@ -405,7 +405,10 @@ def manage_experimenter(request, action, eid=None, **kwargs):
     elif action == 'save':
         name_check = conn.checkOmeName(request.REQUEST['omename'].encode('utf-8'), controller.experimenter.omeName)
         email_check = conn.checkEmail(request.REQUEST['email'].encode('utf-8'), controller.experimenter.email)
-        form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.POST.copy(), name_check=name_check, email_check=email_check)
+        if controller.ldapAuth == "" or controller.ldapAuth is None:
+            form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.POST.copy(), name_check=name_check, email_check=email_check)
+        else:
+            form = ExperimenterLdapForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.POST.copy(), name_check=name_check, email_check=email_check)
         if form.is_valid():
             omeName = request.REQUEST['omename'].encode('utf-8')
             firstName = request.REQUEST['first_name'].encode('utf-8')
@@ -435,7 +438,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
                 password = None
             controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution, password)
             return HttpResponseRedirect(reverse("waexperimenters"))
-        context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid}
+        context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid, 'ldapAuth': controller.ldapAuth}
     elif action == "delete":
         controller.deleteExperimenter()
         return HttpResponseRedirect(reverse("waexperimenters"))
