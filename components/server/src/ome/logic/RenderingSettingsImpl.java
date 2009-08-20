@@ -105,7 +105,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         	{
         		throw new IllegalArgumentException(
         				"Class parameter for resetDefaultsInSet() must be in " +
-        				"{Project, Dataset, Image, Plate, Pixels}, not " + 
+        				"{Project, Dataset, Image, Plate, Screen, Pixels}, not " + 
         				klass);
         	}	
     }
