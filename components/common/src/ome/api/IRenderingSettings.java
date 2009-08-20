@@ -166,6 +166,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 *   <li>{@link Dataset}</li>
 	 *   <li>{@link Image}</li>
 	 *   <li>{@link Plate}</li>
+	 *   <li>{@link Screen}</li>
 	 *   <li>{@link Pixels}</li>
 	 * </ul>
 	 * 
