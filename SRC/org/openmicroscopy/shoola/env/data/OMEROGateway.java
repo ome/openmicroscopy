@@ -3104,7 +3104,8 @@ class OMEROGateway
 				failure = (List<Long>) m.get(Boolean.FALSE);
 			} else if (DatasetData.class.equals(rootNodeType) ||
 					PlateData.class.equals(rootNodeType) ||
-					Project.class.equals(rootNodeType)) {
+					ProjectData.class.equals(rootNodeType) ||
+					ScreenData.class.equals(rootNodeType)) {
 				Map m  = service.applySettingsToSet(pixelsID, 
 						convertPojos(rootNodeType).getName(),
 						nodes);
