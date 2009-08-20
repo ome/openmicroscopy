@@ -41,13 +41,15 @@ admin.site.register(EmailTemplate)
 handler404 = "omeroweb.feedback.views.handler404"
 handler500 = "omeroweb.feedback.views.handler500"
 
+print os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), 'django'), 'contrib'), 'admin'), 'media').replace('\\','/')
+
 # url patterns
 urlpatterns = patterns('',
 
     # admin panel support
     (r'^admin/(.*)', admin.site.root),
-    # Require link to admin_media
-    url( r'^admin_static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'admin_media').replace('\\','/') }, name="admin_static" ),
+    # Require link to admin media
+    url( r'^admin_static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), 'django'), 'contrib'), 'admin'), 'media').replace('\\','/') }, name="admin_static" ),
     
     
     (r'^appmedia/webgateway/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'webgateway/media'}),
