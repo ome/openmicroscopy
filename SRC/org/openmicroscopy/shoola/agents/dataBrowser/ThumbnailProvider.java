@@ -37,6 +37,7 @@ import javax.swing.ImageIcon;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -124,6 +125,9 @@ public class ThumbnailProvider
     /** The {@link Icon} representing the thumbnail. */
     private Icon            iconThumb;
      
+    /** Flag indicating if the thumbnail is valid or not. */
+    private boolean			valid;
+    
     //TODO: this duplicates code in env.data.views.calls.ThumbnailLoader,
     //but we need size b/f img is retrieved -- b/c we vis tree need to be
     //laid out.  Sort this out.
@@ -181,6 +185,7 @@ public class ThumbnailProvider
         imgInfo = is;
         scalingFactor = SCALING_FACTOR;
         computeDims();
+        valid = true;
     }
     
     /**
@@ -202,6 +207,20 @@ public class ThumbnailProvider
         fullScaleThumb = t;
         fullSizeImage = null;
         if (fullScaleThumb != null) scale(scalingFactor);
+    }
+    
+    /**
+     * Implemented as specified by the {@link Thumbnail} I/F.
+     * @see Thumbnail#setFullScaleThumb(BufferedImage)
+     */
+    public void setValid(boolean valid)
+    {
+    	this.valid = valid;
+    	if (!valid && display != null) {
+    		Registry reg = DataBrowserAgent.getRegistry();
+    		Boolean b = (Boolean) reg.lookup("/views/DisplayNonValidImage");
+    		display.setVisible(b);
+    	}
     }
     
     /**

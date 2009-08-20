@@ -43,6 +43,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
@@ -850,7 +852,8 @@ class ImViewerControl
 			model.loadAllContainers();
 		} else if (MetadataViewer.CREATING_MOVIE_PROPERTY.equals(pName)) {
 			boolean b = ((Boolean) pce.getNewValue()).booleanValue();
-			getAction(CREATE_MOVIE).setEnabled(!b);
+			Action a = getAction(CREATE_MOVIE);
+			if (a != null) a.setEnabled(!b);
 			view.setMovieStatus(b);
 		} else if (MetadataViewer.SELECTED_CHANNEL_PROPERTY.equals(pName)) {
 			int index = (Integer) pce.getNewValue();
@@ -895,21 +898,21 @@ class ImViewerControl
 	}
 
 	/**
-	 * Required by the {@link ComponentListener} I/F but no-op implemenation 
+	 * Required by the {@link ComponentListener} I/F but no-op implementation 
 	 * in our case.
 	 * @see ComponentListener#componentShown(ComponentEvent)
 	 */
 	public void componentShown(ComponentEvent e) {}
 
 	/**
-	 * Required by the {@link ComponentListener} I/F but no-op implemenation 
+	 * Required by the {@link ComponentListener} I/F but no-op implementation 
 	 * in our case.
 	 * @see ComponentListener#componentHidden(ComponentEvent)
 	 */
 	public void componentHidden(ComponentEvent e) {}
 
 	/**
-	 * Required by the {@link ComponentListener} I/F but no-op implemenation 
+	 * Required by the {@link ComponentListener} I/F but no-op implementation 
 	 * in our case.
 	 * @see ComponentListener#componentMoved(ComponentEvent)
 	 */

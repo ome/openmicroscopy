@@ -164,4 +164,12 @@ public interface Thumbnail
      */
     public Dimension getOriginalSize();
     
+    /** 
+     * Sets the flag indicating if the thumbnail is a dummy one or a real one.
+     * 
+     * @param valid Pass <code>true</code> if it is a valid thumbnail,
+     * 				<code>false</code> otherwise.
+     */
+    public void setValid(boolean valid);
+    
 }

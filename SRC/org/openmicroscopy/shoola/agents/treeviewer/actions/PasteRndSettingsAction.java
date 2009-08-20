@@ -40,6 +40,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Action to paste the rendering settings previously copied from
@@ -110,7 +112,8 @@ public class PasteRndSettingsAction
 			return;
 		}
 		if (!(ho instanceof ImageData || ho instanceof DatasetData || 
-				ho instanceof PlateData))
+				ho instanceof PlateData || ho instanceof ScreenData ||
+				ho instanceof ProjectData))
 			setEnabled(false);
 		else {
 			if (n > 1) setEnabled((ho instanceof ImageData));

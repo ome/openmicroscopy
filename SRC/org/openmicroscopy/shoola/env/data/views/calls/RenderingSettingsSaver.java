@@ -45,6 +45,8 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
 * Command to paste the rendering settings.
@@ -89,7 +91,8 @@ public class RenderingSettingsSaver
 	private void checkRootType(Class type)
 	{
 		if (ImageData.class.equals(type) || DatasetData.class.equals(type) ||
-				PlateData.class.equals(type))
+				PlateData.class.equals(type) || ProjectData.class.equals(type)
+				|| ScreenData.class.equals(type))
 			return;
 		throw new IllegalArgumentException("Type not supported.");
 	}

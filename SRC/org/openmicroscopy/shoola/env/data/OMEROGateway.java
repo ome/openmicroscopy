@@ -3071,8 +3071,8 @@ class OMEROGateway
 	
 	/**
 	 * Applies the rendering settings associated to the passed pixels set 
-	 * to the images contained in the specified datasets or categories
-	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * to the images contained in the specified datasets or plate.
+	 * if the rootType is <code>DatasetData</code> or <code>PlateData</code>.
 	 * Applies the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
@@ -3102,7 +3102,16 @@ class OMEROGateway
 				Map m = service.applySettingsToImages(pixelsID, nodes);
 				success = (List<Long>) m.get(Boolean.TRUE);
 				failure = (List<Long>) m.get(Boolean.FALSE);
-			} else if (DatasetData.class.equals(rootNodeType)) {
+			} else if (DatasetData.class.equals(rootNodeType) ||
+					PlateData.class.equals(rootNodeType) ||
+					Project.class.equals(rootNodeType)) {
+				Map m  = service.applySettingsToSet(pixelsID, 
+						convertPojos(rootNodeType).getName(),
+						nodes);
+				success = (List) m.get(Boolean.TRUE);
+				failure = (List) m.get(Boolean.FALSE);
+				
+				/*
 				Map m;
 				List l;
 				Iterator k;
@@ -3124,7 +3133,10 @@ class OMEROGateway
 						}
 					}
 				}
-			} else if (PlateData.class.equals(rootNodeType)) {
+				*/
+			} 
+			/*
+			else if (PlateData.class.equals(rootNodeType)) {
 				Map m;
 				List l;
 				Iterator k;
@@ -3148,7 +3160,8 @@ class OMEROGateway
 						}
 					}
 				}
-			}
+			} 
+			*/
 		} catch (Exception e) {
 			handleException(e, "Cannot paste the rendering settings.");
 		}

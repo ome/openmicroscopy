@@ -236,10 +236,13 @@ public interface DataBrowser
      * 
      * @param imageID    The id of the image to which the thumbnail belongs.
      * @param thumb      The thumbnail pixels.
+     * @param valid		 Pass <code>true</code> if it is a valid thumbnail,
+     * 					 <code>false</code> otherwise.
      * @param maxEntries The number of thumbnails to load.
-     * @see org.openmicroscopy.shoola.agents.hiviewer.DataLoader
+     * @see org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader
      */
-    public void setThumbnail(long imageID, BufferedImage thumb, int maxEntries);
+    public void setThumbnail(long imageID, BufferedImage thumb, boolean valid, 
+    		int maxEntries);
     
     /**
      * Callback used by data loaders to provide the viewer with feedback about

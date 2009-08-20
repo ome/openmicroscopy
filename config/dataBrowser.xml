@@ -40,5 +40,6 @@
 </structuredEntry>
 </colors>
 <entry name="/views/MAX_ENTRIES" type="integer">100</entry>
+<entry name="/views/DisplayNonValidImage" type="boolean">false</entry>
 </resources>
 </agent>

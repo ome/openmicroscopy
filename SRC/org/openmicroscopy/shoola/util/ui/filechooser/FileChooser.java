@@ -224,8 +224,6 @@ public class FileChooser
      * @param title 		Title of the dialog.
      * @param message 		Message of the dialog.
      * @param filters 		The list of filters.
-     * @param accept		Determines whether the all files filter is turned
-     * 						on or off.
      */
     public FileChooser(JFrame owner, int dialogType, String title, 
     					String message, List<FileFilter> filters)
@@ -286,8 +284,8 @@ public class FileChooser
     /** Closes the window and disposes. */
     void cancelSelection()
     {
-    	firePropertyChange(CANCEL_SELECTION_PROPERTY, Boolean.FALSE, 
-    						Boolean.TRUE);
+    	firePropertyChange(CANCEL_SELECTION_PROPERTY, Boolean.valueOf(false), 
+    						Boolean.valueOf(true));
     	option = JFileChooser.CANCEL_OPTION;
     	setVisible(false);
     	dispose();
@@ -298,11 +296,11 @@ public class FileChooser
     {
     	option = JFileChooser.APPROVE_OPTION;
     	if (getChooserType() == FOLDER_CHOOSER) {
-    		firePropertyChange(APPROVE_SELECTION_PROPERTY, Boolean.FALSE, 
-					getFolderPath());
+    		firePropertyChange(APPROVE_SELECTION_PROPERTY, 
+    				Boolean.valueOf(false), getFolderPath());
     	} else {
-    		firePropertyChange(APPROVE_SELECTION_PROPERTY, Boolean.FALSE, 
-					getSelectedFile());
+    		firePropertyChange(APPROVE_SELECTION_PROPERTY, 
+    				Boolean.valueOf(false), getSelectedFile());
     	}
     	
         if (uiDelegate.isSetDefaultFolder() 

@@ -50,13 +50,13 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
-
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -464,15 +464,19 @@ class WellsModel
 		List<ImageData> images = new ArrayList<ImageData>();
 		ImageNode selected;
 		WellSampleData data;
+		Thumbnail thumb;
 		while (i.hasNext()) {
 			node = (ImageSet) i.next();
 			if (node instanceof WellImageSet) {
 				selected = ((WellImageSet) node).getSelectedWellSample();
 				data = (WellSampleData) selected.getHierarchyObject();
-				if (data.getId() < 0)
-					selected.getThumbnail().setFullScaleThumb(
+				if (data.getId() < 0) {
+					thumb = selected.getThumbnail();
+					thumb.setValid(false);
+					thumb.setFullScaleThumb(
 							Factory.createDefaultImageThumbnail(
 									wellDimension.width, wellDimension.height));
+				}
 				else 
 					images.add(data.getImage());
 			}

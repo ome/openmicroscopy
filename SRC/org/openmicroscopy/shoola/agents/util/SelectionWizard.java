@@ -229,9 +229,7 @@ public class SelectionWizard
 			originalSelectedItems.add(item);
 	}
 	
-	/**
-	 * Adds an item to the list and then sorts the list to maintain order. 
-	 */
+	/** Adds an item to the list and then sorts the list to maintain order.  */
 	private void addItem()
 	{
 		if (availableItemsListbox.getSelectedIndex() == -1) return;
@@ -387,7 +385,7 @@ public class SelectionWizard
 		container.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		
 		double[][] size = {{TableLayout.FILL, 40, TableLayout.FILL},
-				{TableLayout.PREFERRED}};
+				{TableLayout.FILL, TableLayout.PREFERRED}};
 		container.setLayout(new TableLayout(size));
 		container.add(createAvailableItemsPane(), "0, 0");
 		container.add(createSelectionPane(), "1, 0, c, c");

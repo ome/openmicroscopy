@@ -784,7 +784,7 @@ public interface TreeViewer
 	 * 
 	 * @param files The files to import.
 	 */
-	void importFiles(File[] files);
+	void importFiles(List<File> files);
 	
 	/**
 	 * Sets the imported file.

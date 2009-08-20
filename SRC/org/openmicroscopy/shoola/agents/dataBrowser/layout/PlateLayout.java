@@ -39,8 +39,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
-import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
-
 import pojos.WellSampleData;
 
 

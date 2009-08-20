@@ -195,12 +195,13 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#setThumbnail(long, BufferedImage, int)
+	 * @see DataBrowser#setThumbnail(long, BufferedImage, boolean, int)
 	 */
-	public void setThumbnail(long imageID, BufferedImage thumb, int maxEntries)
+	public void setThumbnail(long imageID, BufferedImage thumb, boolean valid, 
+			int maxEntries)
 	{
 		int previousState = model.getState();
-		model.setThumbnail(imageID, thumb, maxEntries);
+		model.setThumbnail(imageID, thumb, valid, maxEntries);
 		if (previousState != model.getState()) fireStateChange();
 	}
 

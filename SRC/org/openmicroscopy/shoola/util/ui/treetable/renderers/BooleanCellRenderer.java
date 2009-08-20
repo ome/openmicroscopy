@@ -74,7 +74,7 @@ public class BooleanCellRenderer
 	{
 		if (value != null && value instanceof Boolean) 
 			setSelected((Boolean) value);
-		else setSelected(Boolean.FALSE);
+		else setSelected(Boolean.valueOf(false));
 		return this;
 	}
 	

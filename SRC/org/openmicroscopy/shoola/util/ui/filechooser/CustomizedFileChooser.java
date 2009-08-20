@@ -197,7 +197,7 @@ class CustomizedFileChooser
 		
 	/**
 	 * Sets the <code>enabled</code> flag of not the <code>Save</code> and
-	 * <code>Preview</code> options depending on the lenght of the text entered
+	 * <code>Preview</code> options depending on the length of the text entered
 	 * in the {@link #nameArea}.
 	 */
 	private void handleTextUpdate()

@@ -2217,9 +2217,9 @@ class TreeViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#importFiles(File[])
+	 * @see TreeViewer#importFiles(List)
 	 */
-	public void importFiles(File[] files)
+	public void importFiles(List<File> files)
 	{
 		if (model.getState() == DISCARDED) return;
 		Browser browser = model.getSelectedBrowser();
@@ -2234,10 +2234,10 @@ class TreeViewerComponent
 			//File chooser import.
 			node = browser.getLastSelectedDisplay();
 			if (files != null) {
-				total = files.length;
-				for (int i = 0; i < files.length; i++) {
-					prepareFile(l, files[i], total);
-				}
+				total = files.size();
+				Iterator<File> i = files.iterator();
+				while (i.hasNext()) 
+					prepareFile(l, i.next(), total);
 			}
 		} else if (type == Browser.FILE_SYSTEM_EXPLORER) {
 			TreeImageDisplay[] nodes = browser.getSelectedDisplays();
@@ -2314,7 +2314,6 @@ class TreeViewerComponent
 		view.setImportStatus("Done", b);
 		Browser selectedBrowser = model.getSelectedBrowser();
 		if (container instanceof DatasetData) {
-			
 			if (selectedBrowser != null && 
 					selectedBrowser.getBrowserType() == 
 						Browser.PROJECT_EXPLORER) {

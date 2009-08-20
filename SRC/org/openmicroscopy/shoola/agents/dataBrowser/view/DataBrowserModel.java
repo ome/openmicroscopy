@@ -285,9 +285,12 @@ abstract class DataBrowserModel
      * @param imageID    The id of the hierarchy object to which the thumbnail 
      *                   belongs.
      * @param thumb      The thumbnail pixels.
+     * @param valid		 Pass <code>true</code> if it is a valid thumbnail,
+     * 					 <code>false</code> otherwise.
      * @param maxEntries The number of thumbnails to load.
      */
-    void setThumbnail(long imageID, BufferedImage thumb, int maxEntries)
+    void setThumbnail(long imageID, BufferedImage thumb, boolean valid, 
+    		int maxEntries)
     {
         if (thumbsManager == null) {
         	if (getType() == WELLS) {
@@ -298,7 +301,7 @@ abstract class DataBrowserModel
         	}
         }
 
-        thumbsManager.setThumbnail(imageID, thumb);
+        thumbsManager.setThumbnail(imageID, thumb, valid);
         if (thumbsManager.isDone()) {
             state = DataBrowser.READY;
             thumbsManager = null;

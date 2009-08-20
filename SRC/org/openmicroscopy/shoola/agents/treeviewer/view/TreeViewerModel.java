@@ -625,7 +625,7 @@ class TreeViewerModel
 	 * Fires an asynchronous call to paste the rendering settings.
 	 * 
 	 * @param ids 	Collection of nodes ids.
-	 * @param klass Either dataset, Plate or image.
+	 * @param klass Either dataset, Plate, Project, Screen or image.
 	 */
 	void firePasteRenderingSettings(List<Long> ids, Class klass)
 	{

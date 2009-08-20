@@ -154,7 +154,8 @@ public class ThumbnailLoader
             	ThumbnailData td;
             	while (i.hasNext()) {
             		td = (ThumbnailData) i.next();
-            		viewer.setThumbnail(td.getImageID(), td.getThumbnail(), max);
+            		viewer.setThumbnail(td.getImageID(), td.getThumbnail(), 
+            				td.isValidImage(), max);
 				}
             }
         } else {
@@ -181,7 +182,7 @@ public class ThumbnailLoader
     }
     
     /**
-     * Does nothing as the async call returns <code>null</code>.
+     * Does nothing as the asynchronous call returns <code>null</code>.
      * The actual payload (thumbnails) is delivered progressively
      * during the updates.
      * @see DataBrowserLoader#handleNullResult()

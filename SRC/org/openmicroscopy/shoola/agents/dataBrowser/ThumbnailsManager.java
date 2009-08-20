@@ -106,7 +106,8 @@ public class ThumbnailsManager
             node = i.next();
             if (node instanceof WellImageSet) {
         		is = ((WellImageSet) node).getSelectedImage();
-        		thumb = ((WellImageSet) node).getSelectedWellSample().getThumbnail();
+        		thumb = 
+        			((WellImageSet) node).getSelectedWellSample().getThumbnail();
             } else if (node instanceof ImageNode) {
             	 is = (ImageData) node.getHierarchyObject();
             	 thumb = ((ImageNode) node).getThumbnail();
@@ -128,16 +129,23 @@ public class ThumbnailsManager
      * 
      * @param imageID The id of the Image.
      * @param thumb   The thumbnail pixels. Mustn't be <code>null</code>.
+     * @param valid   Pass <code>true</code> if it is a valid thumbnail,
+     * 					 <code>false</code> otherwise.
      */
-    public void setThumbnail(long imageID, BufferedImage thumb)
+    public void setThumbnail(long imageID, BufferedImage thumb, boolean valid)
     {
         if (thumb == null) throw new NullPointerException("No thumbnail.");
         Long id = Long.valueOf(imageID);
         Set providers = thumbProviders.get(id);
         if (providers != null) {
             Iterator p = providers.iterator();
-            while (p.hasNext())
-                ((ThumbnailProvider) p.next()).setFullScaleThumb(thumb);
+            ThumbnailProvider tp;
+            while (p.hasNext()) {
+            	tp = (ThumbnailProvider) p.next();
+            	tp.setValid(valid);
+            	tp.setFullScaleThumb(thumb);
+            }
+                
             processedIDs.add(id);
         }
     }

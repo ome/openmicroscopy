@@ -29,16 +29,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
-
-import javax.swing.JFileChooser;
+import java.util.List;
 
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -163,11 +159,20 @@ public class CreateCmd
         	}
         	*/
         	if (chooser) {
+        		ImportDialog chooser = new ImportDialog(model.getUI(), 
+        				model.getSupportedFormats());
+        		/*
         		FileChooser chooser = new FileChooser(model.getUI(),
         				FileChooser.IMPORT, "Import images",
         			"Select the images to import", model.getSupportedFormats(), 
         			true);
+        			*/
         		int option = chooser.centerDialog();
+        		if (option == ImportDialog.IMPORT) {
+        			List<File> files = chooser.getFilesToImport();
+        			model.importFiles(files);
+        		}
+        		/*
         		if (option == JFileChooser.APPROVE_OPTION) {
         			File[] files = new File[1];
         			files[0] = chooser.getSelectedFile();
@@ -175,6 +180,7 @@ public class CreateCmd
         			chooser.setVisible(false);
         			//chooser.dispose();
         		}
+        		*/
         	} else {
         		model.importFiles(null);
         	}
