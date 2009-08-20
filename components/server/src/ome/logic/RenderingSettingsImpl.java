@@ -47,6 +47,7 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
+import ome.model.screen.Screen;
 import ome.model.screen.Plate;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
@@ -99,7 +100,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     		&& !Dataset.class.equals(klass)
             && !Image.class.equals(klass)
             && !Plate.class.equals(klass)
-            && !Pixels.class.equals(klass))
+            && !Pixels.class.equals(klass) 
+            && !Screen.class.equals(klass))
         	{
         		throw new IllegalArgumentException(
         				"Class parameter for resetDefaultsInSet() must be in " +
@@ -121,32 +123,39 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     {
     	// Pre-process our list of potential containers. This will resolve down
     	// to a list of Pixels objects for us to work on.
-    	if (klass.equals(Project.class))
+    	if (Project.class.equals(klass))
     	{
     		for (Long projectId : nodeIds)
     		{
     			pixels.addAll(loadProjectPixels(projectId));
     		}
     	}
-    	if (klass.equals(Dataset.class))
+    	if (Dataset.class.equals(klass))
     	{
     		for (Long datasetId : nodeIds)
     		{
     			pixels.addAll(loadDatasetPixels(datasetId));
     		}
     	}
-    	if (klass.equals(Plate.class))
+    	if (Plate.class.equals(klass))
     	{
     		for (Long plateId : nodeIds)
     		{
     			pixels.addAll(loadPlatePixels(plateId));
     		}
     	}
-    	if (klass.equals(Image.class))
+    	if (Screen.class.equals(klass))
+    	{
+    		for (Long screenId : nodeIds)
+    		{
+    			pixels.addAll(loadScreenPixels(screenId));
+    		}
+    	}
+    	if (Image.class.equals(klass))
     	{
     		pixels.addAll(loadPixelsByImage(nodeIds));
     	}
-    	if (klass.equals(Pixels.class))
+    	if (Pixels.class.equals(klass))
     	{
     		pixels.addAll(loadPixels(nodeIds));
     	}
@@ -219,6 +228,32 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
     
     /**
+     * Retrieves all Pixels associated with a Screen from the database.
+     * @param plateId Plate ID to retrieve Pixels for.
+     * @return List of Pixels associated with the Plate.
+     */
+    private List<Pixels> loadScreenPixels(Long plateId)
+    {
+		StopWatch s1 = new CommonsLogStopWatch("omero.loadScreenPixels");
+		Parameters p = new Parameters();
+		p.addId(plateId);
+		String sql = "select pix from Pixels as pix " +
+			"join fetch pix.image as i " +
+			"join fetch pix.pixelsType " +
+			"join fetch pix.channels as c " +
+			"join fetch c.logicalChannel " +
+			"left outer join i.wellSamples as s " +
+			"left outer join s.well as w " +
+			"left outer join w.plate as p " +
+			"left outer join p.screenLinks as spl " +
+			"left outer join spl.parent as s " +
+			"where s.id = :id";
+		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
+		s1.stop();
+		return pixels;
+    }
+    
+    /**
      * Retrieves all Pixels associated with a Dataset from the database.
      * @param datasetId Dataset ID to retrieve Pixels for.
      * @return List of Pixels associated with the Dataset.
@@ -242,9 +277,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
     
     /**
-     * Retrieves all Pixels associated with a Dataset from the database.
-     * @param datasetId Dataset ID to retrieve Pixels for.
-     * @return List of Pixels associated with the Dataset.
+     * Retrieves all Pixels associated with a Project from the database.
+     * @param datasetId Project ID to retrieve Pixels for.
+     * @return List of Pixels associated with the Project.
      */
     private List<Pixels> loadProjectPixels(Long projectIds)
     {
@@ -630,6 +665,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         	settingsTo = createNewRenderingDef(pixelsTo);
         }
         
+        int z = settingsFrom.getDefaultZ();
+        if (z < pixelsTo.getSizeZ())
+        	settingsTo.setDefaultZ(z);
+        int t = settingsFrom.getDefaultT();
+        if (t < pixelsTo.getSizeT())
+        	settingsTo.setDefaultT(t);
         settingsTo.setModel(settingsFrom.getModel());
         
         QuantumDef qDefFrom = settingsFrom.getQuantization();
