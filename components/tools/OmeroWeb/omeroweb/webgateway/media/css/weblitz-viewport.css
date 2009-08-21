@@ -86,7 +86,8 @@
 .slider-handle { 
   background: #184A89;
   font-size: 0.1em;
-  left: 0%; 
+  left: -1px; 
+  top: -1px;
 }
 
 .vslider .slider-line {
