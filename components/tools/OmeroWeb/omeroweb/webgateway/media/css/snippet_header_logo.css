@@ -18,10 +18,7 @@
   text-align: center;
   margin: 0px;
   padding: 0px;
-  background-image: url("/webclient/static/images/logo.png");
-  background-repeat: no-repeat;
-  background-position: 10px top;
-  height: 80px;
+  height: 10px;
   font-size: 1em;
 }
 
