@@ -87,7 +87,16 @@ class WebControl(BaseControl):
       }
   },
   {
-    "pk": 1,
+      "pk": 1,
+      "model": "feedback.emailtemplate",
+      "fields": {
+          "content_html": "%s",
+          "template": "error_message",
+          "content_txt": "%s"
+      }
+  },
+  {
+    "pk": 2,
     "model": "feedback.emailtemplate",
     "fields": {
       "content_html": "<p><img src='cid:image1'/></p><hr/><p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href='%%sshare/view/%%i/?server=%%i'>%%sshare/view/%%i/?server=%%i</a>.</p><p>-- %%s</p>",
@@ -96,7 +105,7 @@ class WebControl(BaseControl):
     }
   },
   {
-    "pk": 2,
+    "pk": 3,
     "model": "feedback.emailtemplate",
     "fields": {
       "content_html": "<p><img src='cid:image1'/></p><hr/><p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href='%%sshare/view/%%i/?server=%%i'>%%sshare/view/%%i/?server=%%i</a>.</p><p>-- %%s</p>",
@@ -105,7 +114,7 @@ class WebControl(BaseControl):
     }
   },
   {
-    "pk": 3,
+    "pk": 4,
     "model": "feedback.emailtemplate",
     "fields": {
       "content_html": "<p><img src='cid:image1'/></p><hr/><p>You were removed from the share <a href='%%sshare/view/%%i/?server=%%i'>%%sshare/view/%%i/?server=%%i</a>. This share is no longer available for you.</p>",
@@ -114,7 +123,7 @@ class WebControl(BaseControl):
     }
   },
   {
-    "pk": 4,
+    "pk": 5,
     "model": "feedback.emailtemplate",
     "fields": {
       "content_html": "<p><img src='cid:image1'/></p><hr/><p>New comment is available on share <a href='%%sshare/view/%%i/?server=%%i'>%%sshare/view/%%i/?server=%%i</a>.</p>",
@@ -229,19 +238,11 @@ class WebControl(BaseControl):
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
 # 
 # Version: 1.0
-#
-# ADMIN notification
-# If you wish to help us catching errors, please set the Error notifier to True (please
-# be sure you turned on EMAIL_NOTIFICATION and set ADMIN details).
-# That mechanism sent to the administrator every errors.
-# We are very appreciative if you can deliver them to:
-#   Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>
-ERROR2EMAIL_NOTIFICATION = %s
 
 # Notification
 # Application allows to notify user about new shares
 EMAIL_NOTIFICATION = %s
-""" % ('False', str(settings["NOTIFICATION"])))
+""" % (str(settings["NOTIFICATION"])))
             if settings.has_key('SENDER_ADDRESS'):
                 output.write("""EMAIL_SENDER_ADDRESS = '%s'
 """ % settings["SENDER_ADDRESS"])
