@@ -20,7 +20,7 @@ body {
 }
 
 a {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 #body { 
@@ -94,8 +94,8 @@ hr {
 }
 .box { 
   display: block;
-  background-color: #C4CFD5;
-  border: 2px solid;
+  background-color: #eee;
+  border: 1px solid #bbb;
   padding: 0px;
   text-align: center;
   width: 150px;
@@ -108,11 +108,11 @@ hr {
 }
 
 .odd {
-  background-color: #D1D3D5;   
+  background-color: #eee;   
 }
 
 .even {
-  background-color: #C4CFD5;   
+  background-color: #eee;   
 }
 
 /*
@@ -195,8 +195,10 @@ hr {
   display: block;
   margin: 0px;
   font-weight: bold;
-  background-color: #184a89;
-  color: #fff;
+  border-bottom: 1px solid #bbb;
+  padding: 5px;
+  background-color: #fff;
+  color: #555;
 }
 
 .box h2 { 
@@ -241,11 +243,10 @@ hr {
 
 .tooltipbox {
   display: none;
-  font-size: 0.9em;
   position: absolute;
-  background-color: #c4cfd5;
+  background-color: #eee;
   z-index: 10;
-  border: solid 2px;
+  border: solid 1px #bbb;
 }
 
 .tooltipbox td {
@@ -271,7 +272,7 @@ hr {
   display: block;
 /*  float: left;
   position: relative; */
-  margin: 0px 5px 5px 0px;
+  margin: 0px 5px 5px 5px;
 }
 
 #wblitz-workarea button#full-size {
@@ -307,13 +308,13 @@ button.pressed {
 }
 
 .postit { 
-  background-color: #C4CFD5;
+  background-color: #eee;
   font-size: 0.9em;
 }
 
 .postit h1 {
-  background-color: #184A89;
-  color: #FFF;
+  background-color: #bbb;
+  color: #fff;
 /*  font-size: 0.9em; */
 }
 
@@ -455,11 +456,11 @@ td.title {
 }
 
 .odd .multiselect {
-  background-color: #D5D5D2;
+  background-color: #fff;
 }
 
 .even .multiselect {
-  background-color: #F3F2F2;
+  background-color: #fff;
 }
 
 

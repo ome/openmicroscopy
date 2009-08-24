@@ -12,13 +12,13 @@
 
 #header {
   width: 100%;
-  border-width: 5px;
-  border-top: solid;
-  border-color: #0D4082;
+  background-color: #aaa;
+  border-top:5px solid #ddd;
+  border-bottom:10px solid #fff;
   text-align: center;
   margin: 0px;
   padding: 0px;
-  height: 10px;
+  height: 1px;
   font-size: 1em;
 }
 

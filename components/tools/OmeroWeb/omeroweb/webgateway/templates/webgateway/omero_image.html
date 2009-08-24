@@ -459,36 +459,16 @@
       </table>
     </div>
 
+    
     <div id="metadata-postit" class="postit" style="width: 500px">
       <h1> Image Information </h1>
       <table>
-        <tr class="odd"><td class="title">Image name:&nbsp;</td><td id="wblitz-image-name"></td></tr>
-        <tr class="even"><td class="title">Author:&nbsp;</td><td id="wblitz-image-author"></td></tr>
-        <tr class="odd"><td class="title">Publication:&nbsp;</td><td id="wblitz-image-pub"></td></tr>
-        <tr class="even"><td class="title">Publication ID:&nbsp;</td><td id="wblitz-image-pubid"></td></tr>
-        <tr class="odd"><td class="title">Created on:&nbsp;</td><td id="wblitz-image-timestamp"></td></tr>
-      </table>
-    </div>
-
-    <div id="legend-postit" class="postit">
-      <h1> Legend </h1>
-      <div id="wblitz-image-description"></div>
-    </div>
-
-    <div id="sizes-postit" class="postit" style="width: 160px">
-      <h1> Dimensions </h1>
-      <h2>Image Size</h2>
-      <table>
-        <tr class="odd"><td class="title" style="width: 40%">X:&nbsp;</td><td><span id="wblitz-image-width"></span>px</td></tr>
-        <tr class="even"><td class="title">Y:&nbsp;</td><td><span id="wblitz-image-height"></span>px</td></tr>
-        <tr class="odd"><td class="title">Z:&nbsp;</td><td><span id="wblitz-image-z-count"></span></td></tr>
-        <tr class="even"><td class="title">T:&nbsp;</td><td><span id="wblitz-image-t-count"></span></td></tr>
-      </table>
-      <h2>Pixel Size</h2>
-      <table>
-        <tr class="odd"><td class="title" style="width: 35%">X:&nbsp;</td><td><span id="wblitz-image-pixel-size-x"></span></td></tr>
-        <tr class="even"><td class="title">Y:&nbsp;</td><td><span id="wblitz-image-pixel-size-y"></span></td></tr>
-        <tr class="odd"><td class="title">Z:&nbsp;</td><td><span id="wblitz-image-pixel-size-z"></span></td></tr>
+        <tr class="odd"><td class="title">Image name:</td><td id="wblitz-image-name"></td></tr>
+        <tr class="odd"><td class="title">Image date:</td><td id="wblitz-image-timestamp"></td></tr>
+        <tr class="odd"><td class="title">Dimensions (XY):</td><td><span id="wblitz-image-width"></span>px x <span id="wblitz-image-height"></span>px</td></tr>
+        <tr class="odd"><td class="title">Pixel size (XYZ):</td><td><span id="wblitz-image-pixel-size-x"></span> x <span id="wblitz-image-pixel-size-y"></span> x <span id="wblitz-image-pixel-size-z"></span></td></tr>
+        <tr class="odd"><td class="title">Z-sections:</td><td><span id="wblitz-image-z-count"></span></td></tr>
+        <tr class="odd"><td class="title">Timepoints:</td><td><span id="wblitz-image-t-count"></span></td></tr>
       </table>
     </div>
 
@@ -502,7 +482,6 @@
         {% endif %}
         </li>
       </ul>
-
     </div>
 
     <!-- End floating boxes -->
@@ -597,9 +576,7 @@
         <div class="box">
           <h1>Image Data</h1>
             <a href="#" onclick="$('#metadata-postit').toggle(); return false;">Image Information</a><br />
-            <a href="#" onclick="$('#legend-postit').toggle(); return false;">Legend</a><br />
             <a href="#" onclick="$('#rdef-postit').toggle(); return false;">Rendering Details</a><br />
-            <a href="#" onclick="$('#sizes-postit').toggle(); return false;">Dimensions</a><br />
             <a href="#" onmouseover="this.href=viewport.getUrl('img_detail')"
                onclick="$('#curr-link input').attr('value', location.href.substring(0,location.href.length - location.search.length).replace(/(.*?\/)\d+(?:\/\d+)?(?:\/)?$/,'$1') + viewport.getCurrentImgUrlPath() +'?'+ viewport.getQuery(true));
                         show_tooltip(this, 'curr-link'); return false;">
@@ -618,7 +595,7 @@
     </div>
     <div id="footer">
     {% block footer_content %}
-      &copy;2007/2008 Glencoe Software Inc. All rights reserved.
+      &copy;2009 University of Dundee & Open Microscopy Environment
     {% endblock %}
     </div>
 {% endblock full_body %}

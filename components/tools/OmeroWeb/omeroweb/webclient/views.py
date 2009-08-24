@@ -93,7 +93,7 @@ logger.info("INIT '%s'" % os.getpid())
 
 try:
     if settings.EMAIL_NOTIFICATION:
-        import omeroweb.extlib.notification.handlesender as sender
+        import omeroweb.feedback.notification.handlesender as sender
         sender.handler()
 except:
     logger.error(traceback.format_exc())
@@ -187,7 +187,7 @@ def isUserConnected (f):
 def notification():
     try:
         if settings.EMAIL_NOTIFICATION:
-            import omeroweb.extlib.notification.handlesender as sender
+            import omeroweb.feedback.notification.handlesender as sender
             sender.handler()
     except:
         logger.error(traceback.format_exc())
@@ -569,7 +569,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
         request.session['groupId'] = None
         form_mygroups = MyGroupsForm(initial={'mygroups': my_groups})'''
                 
-        users = sortByAttr(list(conn.getColleaguesAndStaffs()), "lastName")
+        users = sortByAttr(list(conn.getColleagues()), "lastName")
 
         try:
             if request.REQUEST['experimenter'] != "": 
@@ -593,7 +593,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
             except:
                 form_users = MyUserForm(initial={'users': users})
     elif whos == "groupdata":
-        users = sortByAttr(list(conn.getColleaguesAndStaffs()), "lastName")
+        users = sortByAttr(list(conn.getColleagues()), "lastName")
         request.session['experimenter'] = None
         form_users = MyUserForm(initial={'users': users})
 

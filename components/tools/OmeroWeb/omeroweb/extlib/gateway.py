@@ -101,8 +101,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         a = self.getAdminService()
         gr_u = a.lookupGroup('user')
         try:
-            self._eventContext.memberOfGroups.remove(gr_u.id.val)
-            self._eventContext.leaderOfGroups.remove(gr_u.id.val)
+            self._ctx.memberOfGroups.remove(gr_u.id.val)
+            self._ctx.leaderOfGroups.remove(gr_u.id.val)
         except:
             pass
     
@@ -122,7 +122,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         session = s.getSession(self._sessionUuid)
         session.details.group = gr
         s.updateSession(session)
-        self._eventContext = self._proxies['admin'].getEventContext()
+        self._ctx = self._proxies['admin'].getEventContext()
     
     ##############################################
     ##   Forgotten password                     ##
@@ -1434,7 +1434,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                                 members.remove(m)
                         except:
                             logger.error(traceback.format_exc())
-                    from omeroweb.extlib.notification.sendemail import prepareRecipientsAsString
+                    from omeroweb.feedback.notification.sendemail import prepareRecipientsAsString
                     recipients = prepareRecipientsAsString(members)
                 except Exception, x:
                     logger.error(x)
@@ -1489,7 +1489,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if enable:
             if settings.EMAIL_NOTIFICATION:
                 try:
-                    from omeroweb.extlib.notification.sendemail import prepareRecipientsAsString
+                    from omeroweb.feedback.notification.sendemail import prepareRecipientsAsString
                     recipients = prepareRecipientsAsString(ms)
                 except Exception, x:
                     logger.error(x)
@@ -1516,7 +1516,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if settings.EMAIL_NOTIFICATION:
 		if len(add_members) > 0:
                     try:
-	                from omeroweb.extlib.notification.sendemail import prepareRecipientsAsString
+	                from omeroweb.feedback.notification.sendemail import prepareRecipientsAsString
 	                recipients = prepareRecipientsAsString(add_members)
 	            except Exception, x:
 	                logger.error(x)
@@ -1531,7 +1531,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 			
                 if len(rm_members) > 0:
                     try:
-	                from omeroweb.extlib.notification.sendemail import prepareRecipientsAsString
+	                from omeroweb.feedback.notification.sendemail import prepareRecipientsAsString
 	                recipients = prepareRecipientsAsString(rm_members)
 	            except Exception, x:
 	                logger.error(x)

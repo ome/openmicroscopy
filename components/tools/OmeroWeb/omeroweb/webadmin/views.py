@@ -76,7 +76,7 @@ logger.info("INIT '%s'" % os.getpid())
 
 try:
     if settings.EMAIL_NOTIFICATION:
-        import omeroweb.extlib.notification.handlesender as sender
+        import omeroweb.feedback.notification.handlesender as sender
         sender.handler()
 except:
     logger.error(traceback.format_exc())

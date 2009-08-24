@@ -78,6 +78,7 @@ class SendEmail(threading.Thread):
         self.allow_thread_timeout = False
         self.to_send = list()
         self.start()
+        self.smtp = None
     
     def run (self):
         """ this thread lives forever, pinging whatever connection exists to keep it's services alive """
@@ -96,26 +97,34 @@ class SendEmail(threading.Thread):
                         if message is not None:
                             logger.info("Sending notification...")
                             try:
-                                smtp = smtplib.SMTP(self.smtp_server, self.smtp_port)
-                            except:
-                                logger.debug("settings.EMAIL_SMTP_PORT was not set, connecting on default port...")
-                                smtp = smtplib.SMTP(self.smtp_server)
-                            try:
-                                if self.smtp_tls:
-                                    smtp.starttls()
-                                    logger.debug("settings.EMAIL_SMTP_TLS set")
-                                else:
+                                try:
+                                    self.smtp = smtplib.SMTP(self.smtp_server, self.smtp_port)
+                                except:
+                                    logger.debug("settings.EMAIL_SMTP_PORT was not set, connecting on default port...")
+                                    self.smtp = smtplib.SMTP(self.smtp_server)
+                                try:
+                                    if self.smtp_tls:
+                                        self.smtp.starttls()
+                                        logger.debug("settings.EMAIL_SMTP_TLS set")
+                                    else:
+                                        logger.debug("settings.EMAIL_SMTP_TLS was not set, connecting...")
+                                except:
                                     logger.debug("settings.EMAIL_SMTP_TLS was not set, connecting...")
-                            except:
-                                logger.debug("settings.EMAIL_SMTP_TLS was not set, connecting...")
-                            try:
-                                smtp.login(self.smtp_user, self.smtp_password)
-                            except:
-                                logger.debug("settings.EMAIL_SMTP_USER and settings.EMAIL_SMTP_PASSWORD was not set, connecting without login details...")
-                            smtp.sendmail(settings.EMAIL_SENDER_ADDRESS, details.recipients, message)
-                            smtp.quit()
-                            details.delete()
-                            logger.info("Email was sent successful.")
+                                try:
+                                    self.smtp.login(self.smtp_user, self.smtp_password)
+                                except:
+                                    logger.debug("settings.EMAIL_SMTP_USER and settings.EMAIL_SMTP_PASSWORD was not set, connecting without login details...")
+                                self.smtp.sendmail(settings.EMAIL_SENDER_ADDRESS, details.recipients, message)
+                                details.delete()
+                                logger.info("Email was sent successful.")
+                            finally:
+                                try:
+                                    if self.smtp is not None:
+                                        self.smtp.quit()
+                                        logger.error("SMTP connection was closed.")
+                                except:
+                                    logger.error("SMTP connection could not be closed.")
+                                    logger.error(traceback.format_exc())
                         else:
                             logger.debug("Message was not created.")
                     except:
@@ -133,27 +142,41 @@ class SendEmail(threading.Thread):
 
     def seppuku (self):
         logger.info("Sendemail will be closed")
-        logger.info("Sendemail Deleted")
+        try:
+            if self.smtp is not None:
+                self.smtp.quit()
+        except:
+            logger.error("SMTP connection could not be closed.")
+        else:
+            logger.info("Sendemail Deleted")
 
     def __del__ (self):
         logger.info("Garbage Collector KICK IN")
 
-    def create_error_message(self, app, user, error):
+    def error_message(self, details):
+        app = "QA"
         # Create the root message and fill in the from, to, and subject headers
         msgRoot = MIMEMultipart('related')
-        msgRoot['Subject'] = '%s - error message by %s' % (app, user)
-        msgRoot['From'] = settings.EMAIL_SENDER_ADDRESS
-        msgRoot['To'] = settings.ADMINS[0][1]
+        try:
+            msgRoot['Subject'] = 'OMERO.%s - error message by %s' % (app, details.sender)
+        except:
+            msgRoot['Subject'] = 'OMERO.%s - error message' % (app)
+        try:
+            msgRoot['From'] = '%s <%s>' % (details.sender, details.sender_email)
+        except:
+            msgRoot['From'] = 'Unknown'
         msgRoot.preamble = 'This is a multi-part message in MIME format.'
         msgAlternative = MIMEMultipart('alternative')
         msgRoot.attach(msgAlternative)
         
-        msgText = MIMEText(error)
+        contentAlternative = details.message
+        msgText = MIMEText(contentAlternative)
         msgAlternative.attach(msgText)
-        
-        msgText = MIMEText(error, 'html')
+        content = details.message_html
+        msgText = MIMEText(content, 'html')
         msgAlternative.attach(msgText)
-        self.to_send.append({"message": msgRoot.as_string(), "sender": settings.EMAIL_SENDER_ADDRESS, "recipients": [settings.ADMINS[0][1]]})
+
+        return msgRoot.as_string()
     
     def create_share(self, details):
         # Create the root message and fill in the from, to, and subject headers

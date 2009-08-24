@@ -13,10 +13,10 @@
     <title>{% trans "Web - Internal Error" %}</title>
     
 </head>
+
 <body>
 <div id="main" class="error"><h1>
-    {% trans "Go back to" %}: <a href="{% url waindex %}/">{% trans "Webadmin" %}</a> {% trans "or" %} 
-    <a href="{% url webindex %}/">{% trans "Webclient" %}</a>
+    {% trans "Go back to" %}: <a href="{% url waindex %}">{% trans "Webadmin" %}</a>, <a href="{% url webindex %}">{% trans "Webclient" %}</a> {% trans "or" %}  <a href="{% url weblogout %}">{% trans "Logout" %}</a>
 </h1>
 
 {% block content %}
@@ -24,5 +24,8 @@
 {% endblock %}
 
 </div>
+<div id="footer"><p>&copy;2009 University of Dundee & Open Microscopy Environment</p></div>
 
 </div>
+</body>
+</html>

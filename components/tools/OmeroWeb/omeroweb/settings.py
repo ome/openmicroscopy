@@ -56,6 +56,14 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# ADMIN notification
+# If you wish to help us catching errors, please set the Error notifier to True (please
+# be sure you turned on EMAIL_NOTIFICATION and set ADMIN details).
+# That mechanism sent to the administrator every errors.
+# We are very appreciative if you can deliver them to:
+#   Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>
+ERROR2EMAIL_NOTIFICATION = True
+
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
 # although not all variations may be possible on all operating systems.
@@ -192,9 +200,6 @@ except ImportError:
         "passing it your settings module.\n(If the file custom_settings.py does indeed exist, " \
         "it's causing an ImportError somehow.)\n" % __file__)
     sys.exit(1)
-
-# ADMIN notification
-ERROR2EMAIL_NOTIFICATION = custom_settings.ERROR2EMAIL_NOTIFICATION
 
 # Notification
 # Application allows to notify user about new shares
