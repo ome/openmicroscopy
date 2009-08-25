@@ -439,10 +439,10 @@ public class ImportLibrary implements IObservable
     throws FormatException, IOException, ServerError
     {
         int i = 1;
+        reader.setSeries(series);
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
         byte[] arrayBuf = new byte[sizeX * sizeY * bytesPerPixel];
 
-        reader.setSeries(series);
         MessageDigest md;
         
         try {
