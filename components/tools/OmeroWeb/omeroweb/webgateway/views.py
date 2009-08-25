@@ -207,7 +207,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                     return None
                 logger.debug('Failed connection, logging out')
                 _session_logout(request, server_id)
-                return None
+                return blitzcon
                 #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored)
             else:
                 ####
@@ -231,7 +231,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     if blitzcon and not blitzcon.keepAlive() and not ckey.startswith('C:'):
         logger.info("Failed keepalive")
         _session_logout(request, server_id)
-        return None
+        return blitzcon
         #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored)
     if blitzcon and ckey.startswith('C:') and not blitzcon.isConnected():
         logger.info("Something killed the base connection, recreating")
