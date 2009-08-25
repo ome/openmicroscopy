@@ -21,6 +21,14 @@ from omero.cli import BaseControl
 from omero.cli import NonZeroReturnCode
 from omero_ext import pysys
 
+try:
+    import win32service
+    import win32evtlogutil
+    has_win32 = True
+except ImportError:
+    has_win32 = False
+
+
 class AdminControl(BaseControl):
 
     def help(self, args = None):
@@ -58,6 +66,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
 
            waitup                            : Used by start after calling startasync
            waitdown                          : Used by stop after calling stopasync
+           events                            : Print event log
 
         """)
         DISABLED = """ see: http://www.zeroc.com/forums/bug-reports/4237-sporadic-freeze-errors-concurrent-icegridnode-access.html
@@ -65,6 +74,59 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
            restartasync [filename] [targets] : Calls stop followed by startasync args
         """
 
+    #
+    # Windows utility methods
+    #
+    if has_win32:
+        def _query_service(unused, svc_name):
+            hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
+            try:
+                try:
+                    hs = win32service.OpenService(hscm, svc_name, win32service.SERVICE_ALL_ACCESS)
+                except:
+                    return "DOESNOTEXIST"
+                try:
+                    q = win32service.QueryServiceStatus(hs)
+                    type, state, ctrl, err, svcerr, svccp, svcwh = q
+                    if state == win32service.SERVICE_STOPPED:
+                        return "STOPPED"
+                    else:
+                        return "unknown"
+                finally:
+                    win32service.CloseServiceHandle(hs)
+            finally:
+                win32service.CloseServiceHandle(hscm)
+
+        def events(ctx, svc_name):
+            def DumpRecord(record):
+                if str(record.SourceName) == svc_name:
+                    ctx.out("Time: %s" % record.TimeWritten)
+                    ctx.out("Rec:  %s" % record.RecordNumber)
+                    for si in record.StringInserts:
+                        ctx.out(si)
+                    ctx.out("="*20)
+            win32evtlogutil.FeedEventLogRecords(DumpRecord)
+
+    else:
+
+        def events(ctx, svc_name):
+            ctx.die(666, "Could not import win32service and/or win32evtlogutil")
+
+        def _query_service(ctx, svc_name):
+            """
+            Query the service
+            Required to check the stdout since
+            rcode is not non-0
+            """
+            command = ["sc", "query", svc_name]
+            popen = ctx.popen(command) # popen
+            output = popen.communicate()[0]
+            ctx.dbg("Checking for %s: %s" % (svc_name, output))
+            return output
+
+    #
+    # End Windows Methods
+    #
 
     def _complete(self, text, line, begidx, endidx):
         s = " deploy "
@@ -144,19 +206,6 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
 
             """ % (templates, self.ctx.dir))
 
-    def _queryService(self, svc_name):
-        """
-        Query the service
-        Required to check the stdout since
-        rcode is not non-0
-	"""
-        command = ["sc", "query", svc_name]
-        popen = self.ctx.popen(command) # popen
-        output = popen.communicate()[0]
-        self.ctx.dbg("Checking for %s: %s" % (svc_name, output))
-	return output
-
-
     ##############################################
     #
     # Commands
@@ -175,17 +224,22 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         self._regdata()
         self.check([])
 
+        user = None
         args = Arguments(args)
         first, other = args.firstOther()
+        if first == "-u":
+            user = first
+            args = Arguments(other)
+            first, other = args.firstOther()
         descript = self._descript(first, other)
 
         if self._isWindows():
             self._checkWindows()
             svc_name = "OMERO.%s" % self._node()
-            output = self._queryService(svc_name)
+            output = self._query_service(svc_name)
 
 	    # Now check if the server exists
-            if 0 <= output.find("does not exist"):
+            if 0 <= output.find("DOESNOTEXIST"):
                 command = [
                    "sc", "create", svc_name,
                    "binPath=","""icegridnode.exe "%s" --deploy "%s" --service %s""" % (self._icecfg(), descript, svc_name),
@@ -193,12 +247,16 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
                    "start=","auto"]
 
                 # By default: "NT Authority\LocalService"
-                user = self.ctx.initData().properties.getProperty("omero.windows.user")
+                if user:
+                    user = self.ctx.input("User account:", False)
+                if not user:
+                    user = self.ctx.initData().properties.getProperty("omero.windows.user")
                 if len(user) > 0:
                     command.append("obj=")
                     command.append(user)
-                pasw = self.ctx.initData().properties.getProperty("omero.windows.pass")
-                if len(pasw) > 0:
+                    self.ctx.out(self.ctx.popen(["ntrights","+r","SeServiceLogonRight","-u",user]).communicate()[0]) # popen
+                    pasw = self.ctx.initData().properties.getProperty("omero.windows.pass")
+                    pasw = self._ask_for_password(" for service user: %s" % user, pasw)
                     command.append("password=")
                     command.append(pasw)
                 self.ctx.out(self.ctx.popen(command).communicate()[0]) # popen
@@ -300,7 +358,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         ##    self.ctx.err("Server not running")
         if self._isWindows():
             svc_name = "OMERO.%s" % self._node()
-            output = self._queryService(svc_name)
+            output = self._query_service(svc_name)
             if 0 <= output.find("does not exist"):
 	        self.ctx.die(203, "%s does not exist. Use 'start' first." % svc_name)
             self.ctx.out(self.ctx.popen(["sc","stop",svc_name]).communicate()[0]) # popen
