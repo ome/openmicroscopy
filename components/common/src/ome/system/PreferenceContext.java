@@ -79,6 +79,7 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
             setUserTreePath(ROOT + "/default");
         }
 
+	log.error(String.format("PreferenceContext %s %s %s %s", OMERO, DEFAULT, ROOT, path));
     }
 
     @Override
@@ -92,6 +93,7 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
      * properties} for this instance.
      */
     public String getProperty(String key) {
+	log.error(String.format("getProperty %s %s", key, this.path));
         try {
             try {
                 Preferences.userRoot().node(this.path).sync();
@@ -108,6 +110,7 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
     }
 
     public void setProperty(String key, String value) {
+	log.error(String.format("setProperty %s %s %s", key, value, this.path));
         Preferences prefs = Preferences.userRoot().node(this.path);
         if (value != null) {
             prefs.put(key, value);
