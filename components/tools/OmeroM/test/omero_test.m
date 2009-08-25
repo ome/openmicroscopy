@@ -3,8 +3,10 @@
 %  See LICENSE for details.
 
 try
+
   omero_home = getenv('OMERO_HOME');
-  cd(omero_home)
+  addpath(fullfile(omero_home,'lib','matlab'))
+
   [c,s,g] = loadOmero;
   disp(s.getConfigService().getVersion());
   c.closeSession();
@@ -12,8 +14,12 @@ try
   clear s;
   clear c;
   unloadOmero;
+
 catch ME
+
   disp('FAILED');
   disp(ME);
+  disp(ME.message);
+
 end
 exit;
