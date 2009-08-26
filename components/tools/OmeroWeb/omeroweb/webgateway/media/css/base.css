@@ -123,11 +123,11 @@ div.menu .compound * {
 }
 
 .menu li.tree {
-  list-style-image: url('/webgateway/appmedia/img/blue_arrow_right.gif');
+  list-style-image: url('/appmedia/webgateway/img/blue_arrow_right.gif');
 }
 
 .menu li.open { 
-  list-style-image: url('/webgateway/appmedia/img/blue_arrow_down.gif');
+  list-style-image: url('/appmedia/webgateway/img/blue_arrow_down.gif');
 }
 
 .menu li.notree {
@@ -214,11 +214,11 @@ a, .a-like {
   bottom: 0px;
   height: 16px;
   width: 16px;
-  background: url('/webgateway/appmedia/img/blue_arrow_down.gif') no-repeat center;
+  background: url('/appmedia/webgateway/img/blue_arrow_down.gif') no-repeat center;
 }
 
 .expanded .fd-toggle {
-  background: url('/webgateway/appmedia/img/blue_arrow_up.gif') no-repeat center;
+  background: url('/appmedia/webgateway/img/blue_arrow_up.gif') no-repeat center;
 }
 
 .image-thumb {
@@ -344,7 +344,7 @@ tr.image-thumb td p {
 
 .blockUI h1 {
   color: #FE5916;
-  background: #B2AEA8 url(/webgateway/appmedia/img/ajax-loader-ovl.gif) no-repeat bottom;
+  background: #B2AEA8 url(/appmedia/webgateway/img/ajax-loader-ovl.gif) no-repeat bottom;
   margin: 0px;
   height: 2em;
 }
