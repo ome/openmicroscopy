@@ -9,6 +9,23 @@ try
 
   [c,s,g] = loadOmero;
   disp(s.getConfigService().getVersion());
+
+  try
+
+    filter = omero.sys.Filter();
+    filter.limit = omero.rtypes.rint(1);
+    images = s.getQueryService().findAll('Image', filter);
+    image = images.get(0);
+    id = image.getId().getValue();
+    plane_z0 = getPlaneFromImageId(g,id,0,0,0);
+    stack = getPlaneStack(g,id,0,0);
+
+  catch ME2
+    disp('FAILED');
+    disp(ME2);
+    disp(ME2.message);
+  end
+
   c.closeSession();
   clear g;
   clear s;

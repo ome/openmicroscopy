@@ -91,9 +91,12 @@ if exist('omero.client','class') == 0
 % version active.
 else
 
-    w = which('omeroVersion','-ALL')
-    if size(2) > 1
-        warning(['More than one OMERO version found!',char(w));
+    w = which('omeroVersion','-ALL');
+    sz = size(w);
+    sz = sz(1);
+    if sz > 1
+        warning('OMERO:loadOmero','More than one OMERO version found!');
+        disp(char(w));
     end
 
 end
