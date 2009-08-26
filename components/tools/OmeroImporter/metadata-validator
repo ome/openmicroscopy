@@ -43,7 +43,7 @@ except ImportError:
 
 
 # Configuration options
-JAVA_ARGS = "-Xmx1024M"
+JAVA_ARGS = "-Xmx2048M"
 START_CLASS = "org.testng.TestNG"
 TEST_CLASS = "ome.formats.utests.MetadataValidatorTest"
 DOCTYPE = '<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">'
