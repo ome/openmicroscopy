@@ -27,6 +27,11 @@ try
   end
 
   c.closeSession();
+  clear stack;
+  clear plane_z0;
+  clear id;
+  clear image;
+  clear images;
   clear g;
   clear s;
   clear c;
