@@ -90,9 +90,9 @@ class WebControl(BaseControl):
       "pk": 1,
       "model": "feedback.emailtemplate",
       "fields": {
-          "content_html": "%s",
+          "content_html": "%%s",
           "template": "error_message",
-          "content_txt": "%s"
+          "content_txt": "%%s"
       }
   },
   {
