@@ -1,4 +1,7 @@
 function drawImagetest(gateway, pixelsId)
+% Creates a Matlab image figure based on the given pixelsId.
+% The Gateway object is the service as returned by loadOmero
+
 pixels = gateway.getPixels(pixelsId);
 channel = 0;
 figure(1);

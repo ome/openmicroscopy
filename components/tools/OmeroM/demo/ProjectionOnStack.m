@@ -1,4 +1,7 @@
 function [resultImage] = ProjectionOnStack(imageStack,type)
+% Calculates the projection for the given image stack, as
+% returned by getPlaneStack. See PerformProjection for more
+% information.
 
 [zSections, X, Y] = size(imageStack);
 
@@ -11,5 +14,3 @@ end
 if(strcmp(type,'max'))
     resultImage = squeeze(max(imageStack,[],1));
 end
-
-    

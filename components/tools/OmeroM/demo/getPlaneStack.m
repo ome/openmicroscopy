@@ -1,4 +1,8 @@
 function [stack] = getPlaneStack(gateway, pixelsId, channel, timePoint)
+% Return a full 3D stack for the given channel and timePoint.
+% This is like calling getPlaneFromPixelsId for all Z slices.
+%
+% The Gateway object is the service as returned by loadOmero
 
 pixels = gateway.getPixels(pixelsId);
 sizeZ = pixels.getSizeZ().getValue();

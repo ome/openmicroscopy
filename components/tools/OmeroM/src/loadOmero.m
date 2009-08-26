@@ -69,21 +69,34 @@ disp(omeroVersion);
 disp('--------------------------');
 disp('');
 
-%
-% Add the omero_client jar to the Java dynamic classpath
-% This will allow the import omero.* statement to pass
-% successfully.
-%
-OmeroClient_Jar = fullfile(findOmero, 'omero_client.jar');
-javaaddpath(OmeroClient_Jar);
-import omero.*;
 
-% Also add the OmeroM directory and its subdirectories to the path
-% so that functions and demos are available even if the user changes
-% directories. See the unloadOmero function for how to remove these
-% values.
-addpath(genpath(findOmero)); % OmeroM and subdirectories
+% Check if "omero.client" is already on the classpath, if not
+% then add the omero_client.jar to the javaclasspath.
+if exist('omero.client','class') == 0
 
+    % Add the omero_client jar to the Java dynamic classpath
+    % This will allow the import omero.* statement to pass
+    % successfully.
+    OmeroClient_Jar = fullfile(findOmero, 'omero_client.jar');
+    javaaddpath(OmeroClient_Jar);
+    import omero.*;
+
+    % Also add the OmeroM directory and its subdirectories to the path
+    % so that functions and demos are available even if the user changes
+    % directories. See the unloadOmero function for how to remove these
+    % values.
+    addpath(genpath(findOmero)); % OmeroM and subdirectories
+
+% If it does exist, then check that there aren't more than one
+% version active.
+else
+
+    w = which('omeroVersion','-ALL')
+    if size(2) > 1
+        warning(['More than one OMERO version found!',char(w));
+    end
+
+end
 
 %
 % Try to find a valid configuration file and use it to create an initial
@@ -112,7 +125,9 @@ if (nargout >=1 )
         if strcmp(ice_config, '')
             client = omero.client();
         else
-            client = omero.client(['--Ice.Config=',ice_config]);
+            args = javaArray('java.lang.String',1);
+            args(1) = java.lang.String(['--Ice.Config=',ice_config]);
+            client = omero.client(args);
         end
     end
 end
