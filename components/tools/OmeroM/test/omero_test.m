@@ -32,6 +32,7 @@ try
   clear id;
   clear image;
   clear images;
+  clear filter;
   clear g;
   clear s;
   clear c;
