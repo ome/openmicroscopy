@@ -97,12 +97,12 @@
 
 .draggable {
   cursor: -moz-grab;
-  cursor: url('/appmedia/webgateway/img/openhand.cur'), pointer, auto;
+  cursor: url('/webgateway/appmedia/img/openhand.cur'), pointer, auto;
 }
 
 .ondrag {
   cursor: -moz-grabbing;
-  cursor: url('/appmedia/webgateway/img/closedhand.cur'), hand, auto;
+  cursor: url('/webgateway/appmedia/img/closedhand.cur'), hand, auto;
 }
 
 .pick-pos {
