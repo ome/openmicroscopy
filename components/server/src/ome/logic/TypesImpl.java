@@ -132,7 +132,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
         return k.cast(e);
     }
 
-    @RolesAllowed("system")
+    @RolesAllowed("user")
     public <T extends IEnum> List<Class<T>> getEnumerationTypes() {
 
         List<Class<T>> list = new ArrayList<Class<T>>();
@@ -153,7 +153,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
         return list;
     }
 
-    @RolesAllowed("system")
+    @RolesAllowed("user")
     public <T extends IEnum> Map<Class<T>, List<T>> getEnumerationsWithEntries() {
         Map<Class<T>, List<T>> map = new HashMap<Class<T>, List<T>>();
         for (Class klass : getEnumerationTypes()) {

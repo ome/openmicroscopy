@@ -7,7 +7,12 @@
 
 package ome.services.blitz.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ome.api.ITypes;
 import ome.services.blitz.util.BlitzExecutor;
@@ -25,7 +30,9 @@ import omero.api.AMD_ITypes_updateEnumeration;
 import omero.api.AMD_ITypes_updateEnumerations;
 import omero.api._ITypesOperations;
 import omero.model.IObject;
+import omero.util.IceMapper;
 import Ice.Current;
+import Ice.UserException;
 
 /**
  * Implementation of the ITypes service.
@@ -69,7 +76,24 @@ public class TypesI extends AbstractAmdServant implements _ITypesOperations {
 
     public void getEnumerationTypes_async(AMD_ITypes_getEnumerationTypes __cb,
             Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current);
+        
+        IceMapper mapper = new IceMapper(new IceMapper.ReturnMapping(){
+
+            public Object mapReturnValue(IceMapper mapper, Object value)
+                    throws UserException {
+                
+                if (value == null) {
+                    return null;
+                }
+                List<Class> iv = (List<Class>) value;
+                List<String> rv = new ArrayList<String>(iv.size());
+                for (Class i : iv) {
+                    rv.add(i.getSimpleName());
+                }
+                return rv;
+            }});
+
+        callInvokerOnMappedArgs(mapper, __cb, __current);
 
     }
 

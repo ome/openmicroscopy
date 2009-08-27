@@ -6,8 +6,16 @@
  */
 package ome.services.blitz.test.utests;
 
+import static omero.rtypes.rbool;
+import static omero.rtypes.rdouble;
+import static omero.rtypes.rint;
+import static omero.rtypes.rinternal;
+import static omero.rtypes.rlist;
+import static omero.rtypes.rlong;
+import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
+
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,17 +32,18 @@ import ome.api.IMetadata;
 import ome.api.IQuery;
 import ome.api.ISession;
 import ome.api.IShare;
+import ome.api.ITypes;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
 import ome.api.Search;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
-import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.acquisition.Objective;
 import ome.model.enums.Family;
+import ome.model.enums.FilterType;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
@@ -69,8 +78,6 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
-
-import static omero.rtypes.*;
 
 @Test
 public class IceMethodInvokerUnitTest extends MockObjectTestCase {
@@ -565,6 +572,22 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
     }
 
+    // Types
+
+    @Test( groups = "ticket:1436" )
+    public void testTypesWorks() throws Exception {
+
+        ITypes t;
+
+        init(ITypes.class, "getEnumerationTypes");
+        method().will(returnValue(Arrays.asList(FilterType.class)));
+
+        Object rv = invoke();
+        assertNotNull(rv);
+
+    }
+
+    
     // Query
 
     @Test
