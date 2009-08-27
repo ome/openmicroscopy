@@ -4,15 +4,15 @@ function x = randint(a,b)
 % will be thrown.
 
 if (b<a)
-  throw(MException('OMERO:Helper','b<a'))
+  throw(MException('OMERO:Helper','b<a'));
 end
 
 if (a<0)
-  throw(MException('OMERO:Helper','a<0'))
+  throw(MException('OMERO:Helper','a<0'));
 end
 
 if (b<0)
-  throw(MException('OMERO:Helper','b<0'))
+  throw(MException('OMERO:Helper','b<0'));
 end
 
 x = ceil(rand()*b);

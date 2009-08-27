@@ -1,5 +1,5 @@
 function rv=rset(varargin)
-% omero.rtypes.rsetg static method workaround
+% omero.rtypes.rset static method workaround
 % varargin converted to javaset of type 'omero.RType'
 ja=javaset('omero.RType',nargin);
 for i=1:nargin,
