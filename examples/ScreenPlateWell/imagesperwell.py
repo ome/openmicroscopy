@@ -1,3 +1,4 @@
+import sys
 import omero
 from omero.rtypes import *
 from omero_sys_ParametersI import ParametersI # Temporary
@@ -6,7 +7,8 @@ c = omero.client();
 s = c.createSession();
 q = s.getQueryService();
 
-LOAD_WELLS = 'select w from Well w join fetch w.wellSamples ws join fetch ws.image i where w.plate.id = :id'
+LOAD_WELLS = """select w from Well w join fetch w.wellSamples ws
+                join fetch ws.image i join fetch i.pixels p where w.plate.id = :id"""
 
 filter = omero.sys.Filter();
 filter.limit = rint(10)
@@ -15,7 +17,7 @@ filter.offset = rint(0)
 
 plates = q.findAll("Plate", filter)
 if len(plates) == 0:
-    import sys
+    print "No plates"
     sys.exit(0)
 else:
     import random
@@ -43,6 +45,13 @@ while True:
         row = well.getRow().getValue()
         col = well.getColumn().getValue()
         images = []
+        planes = 0
         for ws in well.copyWellSamples():
-            images.append( ws.getImage().getId().getValue() )
-        print "Well %s (%2sx%2s) contains the images: %s" % (id, row, col, images)
+            img = ws.getImage()
+            pix = img.getPixels(0)
+            sizeC = pix.sizeC.val
+            sizeT = pix.sizeT.val
+            sizeZ = pix.sizeZ.val
+            images.append( img.getId().getValue() )
+            planes += sizeZ*sizeT*sizeC
+        print "Well %s (%2sx%2s) contains the images: %s with %s planes" % (id, row, col, images, planes)

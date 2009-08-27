@@ -5,7 +5,8 @@ c = omero.client();
 s = c.createSession();
 q = s.getQueryService();
 
-LOAD_WELLS = 'select w from Well w join fetch w.wellSamples ws join fetch ws.image i where w.plate.id = :id';
+LOAD_WELLS = ['select w from Well w join fetch w.wellSamples ws ',...
+              'join fetch ws.image i join fetch i.pixels p where w.plate.id = :id'];
 
 filter = omero.sys.Filter();
 filter.limit = rint(10);
@@ -14,7 +15,8 @@ filter.offset = rint(0);
 
 plates = q.findAll('Plate', filter);
 if plates.size() == 0
-    return
+    disp('No plates');
+    return;
 else
     r = randint(0,plates.size()-1);
     example_plate = plates.get(r);
@@ -46,12 +48,19 @@ while true
         col = well.getColumn().getValue();
         images = java.util.ArrayList();
 
+        planes = 0;
         ws_it = well.copyWellSamples().listIterator();
         while ws_it.hasNext()
             ws = ws_it.next();
-            images.add( ws.getImage().getId().getValue() );
+            img = ws.getImage();
+            pix = img.getPixels(0);
+            sizeC = pix.getSizeC().getValue();
+            sizeT = pix.getSizeT().getValue();
+            sizeZ = pix.getSizeZ().getValue();
+            images.add( java.lang.Long.toString(img.getId().getValue()) );
+            planes = planes + (sizeC*sizeZ*sizeT);
         end
         images = char(java.util.Arrays.toString(images));
-        disp(sprintf('Well %d (%2dx%2d) contains the images: %s', id, row, col, images));
+        disp(sprintf('Well %d (%2dx%2d) contains the images: %s with a total of %d planes', id, row, col, images, planes));
     end
 end

@@ -1,4 +1,4 @@
-function x = randint(a,b,n)
+function x = randint(a,b)
 % Simple random integer function which selects a value
 % from the range a-b, inclusive. If n+1 is >= b-a, an exception
 % will be thrown.
