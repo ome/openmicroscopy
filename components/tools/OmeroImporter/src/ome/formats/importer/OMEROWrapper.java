@@ -174,7 +174,7 @@ public class OMEROWrapper extends MinMaxCalculator
     public void close() throws IOException
     {
     	minMaxSet = null;
-    	super.close();
+    	super.close(false);
     }
 
     @Override
