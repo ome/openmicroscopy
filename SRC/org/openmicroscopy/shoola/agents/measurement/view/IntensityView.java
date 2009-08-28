@@ -59,7 +59,6 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
@@ -88,11 +87,11 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrap
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-
 import pojos.ChannelData;
 
 /** 
- * Displays stats computed on the pixels intensity value of a given ROI shape.
+ * Displays statistics computed on the pixels intensity value of a given 
+ * ROI shape.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -112,37 +111,33 @@ class IntensityView
 	/** Index to identify tab */
 	public final static int		INDEX = MeasurementViewerUI.INTENSITY_INDEX;
 
-	/** width of textfield components. */
-	public final static int		TEXTWIDTH = 100;
+	/** Width of the text field components. */
+	public final static int		TEXT_WIDTH = 100;
 
-	/** width of textfield components. */
-	public final static int		TEXTHEIGHT = 26;
+	/** Height of the text field components. */
+	public final static int		TEXT_HEIGHT = 26;
 
-	/** width of textfield components. */
-	public final static int		LABELWIDTH = 60;
+	/** Width of label components. */
+	public final static int		LABEL_WIDTH = 60;
 
-	/** width of textfield components. */
-	public final static int		LABELHEIGHT = 26;
+	/** Height of label components. */
+	public final static int		LABEL_HEIGHT = 26;
 	
-	/** The intial size of the intensity table dialog. */
-	private Dimension intensityTableSize = new Dimension(300,300);
+	/** The initial size of the intensity table dialog. */
+	private Dimension intensityTableSize = new Dimension(300, 300);
 
 	/** The state of the Intensity View. */
 	static enum State 
 	{
-		/**
-		 * Analysing data.
-		 */
+		/** Analysing data. */
 		ANALYSING,
 		
-		/** 
-		 * Ready to analyse.
-		 */
+		/** Ready to analyse. */
 		READY
 	}
 	
 	/** 
-	 * Intensity view state, if Analysiing we should not all the user to 
+	 * Intensity view state, if Analysing we should not all the user to 
 	 * change combobox or save. 
 	 */
 	private State						state = State.READY;
@@ -151,13 +146,13 @@ class IntensityView
 	private static final String			NAME = "Intensity View";
 
 	/** The save button action command. */
-	private static final int			SAVEACTION = 0;
+	private static final int			SAVE_ACTION = 0;
 	
 	/** The show table action button. */
-	private static final int			SHOWTABLEACTION = 1;
+	private static final int			SHOW_TABLE_ACTION = 1;
 	
-	/** The cannel selection action command. */
-	private static final int			CHANNELSELECTION = 2;
+	/** The channel selection action command. */
+	private static final int			CHANNEL_SELECTION = 2;
 	
 	/** Reference to the model. */
 	private MeasurementViewerModel		model;
@@ -165,7 +160,8 @@ class IntensityView
 	/** Reference to the view. */
 	private MeasurementViewerUI			view;
 
-	/** SelectChannelsForm the form to select the channels to output to the 
+	/** 
+	 * SelectChannelsForm the form to select the channels to output to the 
 	 * file. 
 	 */
 	private	ChannelSelectionForm		channelsSelectionForm;
@@ -179,10 +175,10 @@ class IntensityView
 	/** Model for summary of measurement values. */
 	private ChannelSummaryModel			channelSummaryModel;
 	
-	/** The channel selected in the combo box. */
+	/** The channel selected in the Combo box. */
 	private int 						selectedChannel=-1;
 
-	/** The name of the channel selected in the combo box. */
+	/** The name of the channel selected in the Combo box. */
 	private String 						selectedChannelName;
 	
 	/** Select to choose the channel to show values for . */
@@ -197,7 +193,7 @@ class IntensityView
 	/** The slider controlling the movement of the analysis through T. */
 	private OneKnobSlider 				tSlider;
 	
-	/** list of the channel names. */
+	/** List of the channel names. */
 	private Map<Integer, String> channelName = new TreeMap<Integer, String>();
 	
 	/** List of the channel colours. */
@@ -206,7 +202,7 @@ class IntensityView
 	/** Map of the channel sums, for each selected channel. */
 	private Map<Integer, Double> channelSum = new TreeMap<Integer, Double>();
 	
-	/** Map of the channel mins, for each selected channel. */
+	/** Map of the channel minimum, for each selected channel. */
 	private Map<Integer, Double> channelMin = new TreeMap<Integer, Double>();
 	
 	/** Map of the channel Max, for each selected channel. */
@@ -224,28 +220,28 @@ class IntensityView
 	/** The map of the shape stats to coord. */
 	private TreeMap<Coord3D, Map<StatsType, Map>> shapeStatsList;
 
-	/** Map of the pixel intensity values to coord. */
+	/** Map of the pixel intensity values to coordinates. */
 	private TreeMap<Coord3D, Map<Integer, Map<Point, Double>>> pixelStats;
 	
-	/** Map of the min channel intensity values to coord. */
+	/** Map of the minimum channel intensity values to coordinates. */
 	private TreeMap<Coord3D, Map<Integer, Double>> minStats;
 
-	/** Map of the max channel intensity values to coord. */
+	/** Map of the max channel intensity values to coordinates. */
 	private TreeMap<Coord3D, Map<Integer, Double>> maxStats;
 
-	/** Map of the mean channel intensity values to coord. */
+	/** Map of the mean channel intensity values to coordinates. */
 	private TreeMap<Coord3D, Map<Integer, Double>> meanStats;
 	
-	/** Map of the std dev channel intensity values to coord. */
+	/** Map of the std dev channel intensity values to coordinates. */
 	private TreeMap<Coord3D, Map<Integer, Double>> stdDevStats;
 	
-	/** Map of the sum channel intensity values to coord. */
+	/** Map of the sum channel intensity values to coordinates. */
 	private TreeMap<Coord3D, Map<Integer, Double>> sumStats;
 	
-	/** Map of the coord to a shape. */
+	/** Map of the coordinates to a shape. */
 	private TreeMap<Coord3D, ROIShape> shapeMap;
 	
-	/** The current coord of the ROI being depicted in the slider. */
+	/** The current coordinates of the ROI being depicted in the slider. */
 	private Coord3D 					coord;
 	
 	/** Button for the calling of the intensity table. */
@@ -260,9 +256,7 @@ class IntensityView
 	/** Table Model. */
 	private IntensityModel				tableModel;
 	
-	/**
-	 * The slider has changed value and the mouse button released. 
-	 */
+	/** The slider has changed value and the mouse button released. */
 	private void handleSliderReleased()
 	{
 		stateChanged(null);
@@ -285,13 +279,13 @@ class IntensityView
 	
 		showIntensityTable = new JButton("Intensity Values");
 		showIntensityTable.addActionListener(this);
-		showIntensityTable.setActionCommand(""+SHOWTABLEACTION);
+		showIntensityTable.setActionCommand(""+SHOW_TABLE_ACTION);
 		channelSelection = new JComboBox();
 		channelSelection.addActionListener(this);
-		channelSelection.setActionCommand(""+CHANNELSELECTION);
+		channelSelection.setActionCommand(""+CHANNEL_SELECTION);
 		saveButton = new JButton("Export to Excel");
 		saveButton.addActionListener(this);
-		saveButton.setActionCommand(""+SAVEACTION);
+		saveButton.setActionCommand(""+SAVE_ACTION);
 		state = State.READY;
 
 		zSlider = new OneKnobSlider();
@@ -449,8 +443,8 @@ class IntensityView
 			channel = channelData.getIndex();
 			if (channelName.containsKey(channel)) 
 			{
-				channelCols[index] = new Object[]{channelColour.get(channel), 
-						channelName.get(channel)};
+				channelCols[index] = new Object[]{ channelColour.get(channel), 
+						channelName.get(channel) };
 				index++;
 			}
 		}
@@ -515,7 +509,7 @@ class IntensityView
 		channelIterator = channelName.keySet().iterator();
 		int channel;
 		count = 0;
-		while(channelIterator.hasNext())
+		while (channelIterator.hasNext())
 		{
 			channel = channelIterator.next();
 			populateSummaryColumn(fig, data, channel, count);
@@ -812,7 +806,7 @@ class IntensityView
 				//TODO
 			}
 			int col = writer.getMaxColumn(0);
-			writer.writeImage(0, col+1, 256, 256,	"ThumbnailImage");
+			writer.writeImage(0, col+1, 256, 256, "ThumbnailImage");
 
 			if (channelSummarySelected(channels) && channels.size() != 1)
 				while (coordMapIterator.hasNext())
@@ -826,6 +820,7 @@ class IntensityView
 						if (!nameMap.containsKey(channelName.get(channel)))
 							continue;
 						int rowIndex = 0;
+						
 						writer.createSheet("Channel Number "+
 								channelName.get(channel));
 						writeHeader(writer, rowIndex, currentCoord);
@@ -884,7 +879,8 @@ class IntensityView
 		for (Integer c : channels)
 		{
 			for (int z = start.getZSection() ; z<= end.getZSection(); z++)
-				for (int t = start.getTimePoint() ; t <= end.getTimePoint(); t++)
+				for (int t = start.getTimePoint() ; t <= end.getTimePoint(); 
+					t++)
 				{
 					coord = new Coord3D(z, t);
 					populateData(coord, c);
@@ -1036,7 +1032,7 @@ class IntensityView
 	/**
 	 * Get the analysis results from the model and convert to the 
 	 * necessary array. data types using the ROIStats wrapper then
-	 * create the approriate table data and summary statistics.  
+	 * create the appropriate table data and summary statistics.  
 	 */
 	void displayAnalysisResults()
 	{
@@ -1107,12 +1103,16 @@ class IntensityView
 			
 			
 			i = metadata.iterator();
+			List<String> names = new ArrayList<String>();
+			String name;
 			while (i.hasNext()) {
 				channelData = i.next();
 				channel = channelData.getIndex();
 				if (model.isChannelActive(channel)) 
 				{
-					channelName.put(channel, channelData.getChannelLabeling());
+					name = channelData.getChannelLabeling();
+					if (names.contains(name)) name += " "+channel;
+					channelName.put(channel, name);
 					nameMap.put(channelName.get(channel), channel);
 					channelColour.put(channel, 
 						(Color) model.getActiveChannels().get(channel));
@@ -1169,7 +1169,7 @@ class IntensityView
 			return;
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
-			case CHANNELSELECTION:
+			case CHANNEL_SELECTION:
 				JComboBox cb = (JComboBox)e.getSource();
 				Object[] nameColour = (Object[])cb.getSelectedItem();
 				String string = (String)nameColour[1];
@@ -1186,10 +1186,10 @@ class IntensityView
 				}
 				break;
 	
-			case SAVEACTION:
+			case SAVE_ACTION:
 				saveResults();
 				break;
-			case SHOWTABLEACTION:
+			case SHOW_TABLE_ACTION:
 				showIntensityResults();
 		}
 	 }
@@ -1227,7 +1227,7 @@ class IntensityView
 		repaint();
 		if (shape!=null)
 			view.selectFigure(shape.getFigure());
-		state=State.READY;
+		state = State.READY;
 	}
 	
 	/**
