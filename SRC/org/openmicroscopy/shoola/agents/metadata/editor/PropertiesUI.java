@@ -853,6 +853,7 @@ class PropertiesUI
 		if (src == namePane) {
 			editField(namePanel, namePane, editName, false);
 			String text = namePane.getText();
+			editName.setEnabled(true);
 			if (text == null || text.trim().length() == 0) {
 				namePane.getDocument().removeDocumentListener(this);
 				namePane.setText(modifiedName);
@@ -881,7 +882,14 @@ class PropertiesUI
 	{
 		Object src = e.getSource();
 		if (src == namePane) {
-			namePane.setCaretPosition(0);
+			String text = namePane.getText();
+			if (text != null) {
+				
+				namePane.selectAll();
+				//int n = text.length()-1;
+				//if (n >= 0) namePane.setCaretPosition(n);
+			}
+			//namePane.setCaretPosition(0);
 		} else if (src == descriptionPane) {
 			String text = descriptionPane.getText();
 			if (text != null) {
@@ -891,13 +899,14 @@ class PropertiesUI
 					int n = text.length()-1;
 					if (n >= 0) descriptionPane.setCaretPosition(n);
 				}
+				descriptionPane.selectAll();
 			}
 		}
 	}
-
+	
 	/**
-	 * Required by the {@link DocumentListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link DocumentListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
