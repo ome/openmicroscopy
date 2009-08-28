@@ -25,8 +25,10 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.JComponent;
@@ -139,9 +141,9 @@ class FileTable
 	 * 
 	 * @return See above.
 	 */
-	Map<File, Exception> getSelectedFiles()
+	List<FileTableNode> getSelectedFiles()
 	{
-		Map<File, Exception> files = new HashMap<File, Exception>();
+		List<FileTableNode> nodes = new ArrayList<FileTableNode>();
 		Entry entry;
 		File f;
 		FileTableNode node;
@@ -149,11 +151,10 @@ class FileTable
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			node = (FileTableNode) entry.getValue();
-			if (node != null) {
-				files.put(node.getFile(), node.getException());
-			}
+			if (node != null && node.isSelected())
+				nodes.add(node);
 		}
-		return files;
+		return nodes;
 	}
 	
 }

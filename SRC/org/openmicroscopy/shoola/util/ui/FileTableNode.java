@@ -53,7 +53,7 @@ import org.jdesktop.swingx.JXBusyLabel;
  * </small>
  * @since 3.0-Beta4
  */
-class FileTableNode 
+public class FileTableNode 
 	extends JPanel
 {
 
@@ -108,18 +108,26 @@ class FileTableNode
 	}
 	
 	/**
+	 * Returns <code>true</code> if the file has to be sent, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return
+	 */
+	boolean isSelected() { return selected.isSelected(); }
+	
+	/**
 	 * Returns the file hosting by the node.
 	 * 
 	 * @return See above.
 	 */
-	File getFile() { return file; }
+	public File getFile() { return file; }
 	
 	/**
 	 * Returns the exception hosting by the node.
 	 * 
 	 * @return See above.
 	 */
-	Exception getException() { return exception; }
+	public Exception getException() { return exception; }
 	
 	/**
 	 * Sets the status of the post.
@@ -127,7 +135,7 @@ class FileTableNode
 	 * @param busy Pass <code>true</code> to indicate an on-going post,
 	 * 			   <code>false</code> when it is done.
 	 */
-	void setStatus(boolean busy)
+	public void setStatus(boolean busy)
 	{
 		status.setBusy(busy);
 		if (!busy) status.setText("done");

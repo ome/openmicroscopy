@@ -70,6 +70,9 @@ class MessengerRequest
 	/** Identifies the class path of java. */
 	private static final String JAVA_CLASS_PATH = "java_class_path";
 	
+	/** Identifies the class path of java. */
+	private static final String JAVA_CLASS_PATH_OTHER = "java_classpath";
+	
 	/** Identifies the name of the operating system. */
 	private static final String OS_NAME = "os_name";
 	
@@ -78,6 +81,9 @@ class MessengerRequest
 	
 	/** Identifies the version of the operating system. */
 	private static final String OS_VERSION = "os_version";
+	
+	/** Identifies the number associated to the application. */
+	private static final String APP_NAME = "app_name";
 
 	/** The error message. */
 	private String error;
@@ -94,6 +100,9 @@ class MessengerRequest
 	/** The client posting the message. */
 	private String invoker;
 	
+	/** The number associated to the application. */
+	private String applicationNumber;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -104,7 +113,7 @@ class MessengerRequest
 	 * @param invoker	The client posting the message.
 	 */
 	MessengerRequest(String email, String comment, String extra, String error,
-					String invoker)
+					String applicationNumber, String invoker)
 	{
 		super();
 		this.error = error;
@@ -112,6 +121,7 @@ class MessengerRequest
 		this.comment = comment;
 		this.extra = extra;
 		this.invoker = invoker;
+		this.applicationNumber = applicationNumber;
 	}
 	
 	/**
@@ -130,11 +140,15 @@ class MessengerRequest
         if (error != null) request.addParameter(ERROR, error);
         	
         if (extra != null) request.addParameter(EXTRA, extra);
-        request.addParameter(INVOKER, invoker);
+        if (applicationNumber != null) 
+        	request.addParameter(APP_NAME, applicationNumber);
+        if (invoker != null) request.addParameter(INVOKER, invoker);
         request.addParameter(JAVA_VERSION, 
         							System.getProperty("java.version"));
         request.addParameter(JAVA_CLASS_PATH, 
         							System.getProperty("java.class.path"));
+        request.addParameter(JAVA_CLASS_PATH_OTHER, 
+				System.getProperty("java.class.path"));
         request.addParameter(OS_NAME, System.getProperty("os.name"));
         request.addParameter(OS_ARCH, System.getProperty("os.arch"));
         request.addParameter(OS_VERSION, System.getProperty("os.version"));

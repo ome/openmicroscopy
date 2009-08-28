@@ -536,7 +536,8 @@ class OmeroImageServiceImpl
 				try {
 					context.getDataService().delete(l);
 				} catch (Exception ex) {}
-				throw new ImportException("Failed to create thumbnail", e);
+				throw new ImportException("Failed to create thumbnail", e, 
+						gateway.getReaderType());
 			}
 		}
 		return image;

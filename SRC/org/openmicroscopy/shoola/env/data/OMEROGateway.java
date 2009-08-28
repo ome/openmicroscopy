@@ -53,6 +53,8 @@ import Ice.ConnectionLostException;
 
 //Application-internal dependencies
 import loci.formats.FormatException;
+import loci.formats.ImageReader;
+
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -684,7 +686,7 @@ class OMEROGateway
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private IRepositoryInfoPrx getRepositoryService()
@@ -4386,9 +4388,27 @@ class OMEROGateway
 			}
 		} catch (Throwable e) {
 			String message = getImportFailureMessage(e);
-			throw new ImportException(message, e);
+			throw new ImportException(message, e, getReaderType());
 		}
 		return null;
+	}
+	
+	/**
+	 * Returns the latest reader type used
+	 * 
+	 * @return See above.
+	 */
+	String getReaderType()
+	{
+		try {
+			ImageReader imageReader = (ImageReader) getImportStore().getReader();
+	        String formatString = imageReader.getReader().getClass().toString();
+	        formatString = formatString.replace("class loci.formats.in.", "");
+	        formatString = formatString.replace("Reader", "");
+	        return formatString;
+		} catch (Exception e) {
+		}
+		return "";
 	}
 	
 	/**

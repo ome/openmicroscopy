@@ -64,7 +64,7 @@ class MessengerReply
 	}
 	
 	/**
-	 * Checks the http status.
+	 * Checks the HTTP status.
 	 * @see Reply#unmarshal(HttpMethod, HttpChannel)
 	 */
 	public void unmarshal(HttpMethod response, HttpChannel context) 

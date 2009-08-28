@@ -22,7 +22,10 @@
  */
 package org.openmicroscopy.shoola.util.ui;
 
+
 //Java imports
+import java.io.File;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -58,13 +61,7 @@ public class MessengerDetails
 	
 	/** The object to submit. */
 	private Object toSubmit;
-	
-	/** The name of the user. */
-	private String userName;
-	
-	/** The password of the user. */
-	private String password;
-	
+
 	/**
 	 * Creates a new instance.
 	 * 

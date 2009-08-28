@@ -267,7 +267,7 @@ public class ImportManager
 	 */
 	public Map<File, StatusLabel> initialize(List<Object> files)
 	{
-		Map<File, StatusLabel> map = new HashMap<File, StatusLabel>();
+		Map<File, StatusLabel> map = new LinkedHashMap<File, StatusLabel>();
 		if (files == null) return null;
 		total = 0;
 		toImport.clear();

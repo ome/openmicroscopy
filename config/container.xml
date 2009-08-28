@@ -136,8 +136,11 @@
 <entry name="/services/DEBUGGER/hostnameComment">http://users.openmicroscopy.org.uk/~brain/omero/commentcollector.php</entry>
 <entry name="/services/DEBUGGER/hostnameBug">http://users.openmicroscopy.org.uk/~brain/omero/bugcollector.php</entry>
 <entry name="/services/DEBUGGER/email">comments@openmicroscopy.org.uk</entry>
-<entry name="/services/DEBUGGER/hostnameToken">http://mage.openmicroscopy.org.uk/qa/token/</entry>
-<entry name="/services/DEBUGGER/hostnameProcessing">http://mage.openmicroscopy.org.uk/qa/processing/</entry>
+<entry name="/services/DEBUGGER/hostnameToken">http://mage.openmicroscopy.org.uk/qa/initial/</entry>
+<entry name="/services/DEBUGGER/hostnameProcessing">http://mage.openmicroscopy.org.uk/qa/upload_processing/</entry>
+<entry name="/services/DEBUGGER/applicationNameBug">4</entry>
+<entry name="/services/DEBUGGER/applicationNameComment">3</entry>
+<entry name="/services/DEBUGGER/postTimeout" type="integer">2000</entry>
   </services>
   
   

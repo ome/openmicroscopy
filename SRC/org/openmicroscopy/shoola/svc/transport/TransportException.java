@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.svc.transport;
 //Application-internal dependencies
 
 /** 
- * Reports an error occured while transferring data.
+ * Reports an error occurred while transferring data.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

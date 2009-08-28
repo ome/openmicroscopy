@@ -105,7 +105,7 @@ public class CreateAction
     private boolean chooser;
     
     /** 
-     * Sets the action enabled dependong on the state of the {@link Browser}.
+     * Sets the action enabled depending on the state of the {@link Browser}.
      * @see TreeViewerAction#onBrowserStateChange(Browser)
      */
     protected void onBrowserStateChange(Browser browser)

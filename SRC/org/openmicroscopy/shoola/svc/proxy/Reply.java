@@ -56,7 +56,7 @@ public abstract class Reply
 	 * 
 	 * @param response	The response to handle.
 	 * @return The message from server.
-	 * @throws TransportException If an error occured while transferring data.
+	 * @throws TransportException If an error occurred while transferring data.
 	 */
     protected static String checkStatusCode(HttpMethod response)
     	throws TransportException
@@ -89,7 +89,7 @@ public abstract class Reply
      * 
      * @param response	The response to handle.
      * @param context	The communication link.
-     * @throws TransportException If an error occured while transferring data.
+     * @throws TransportException If an error occurred while transferring data.
      */
     public abstract void unmarshal(HttpMethod response, HttpChannel context)
         throws TransportException;  

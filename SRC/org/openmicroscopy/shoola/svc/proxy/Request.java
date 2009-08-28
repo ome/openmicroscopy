@@ -72,7 +72,7 @@ public abstract class Request
      * Prepares the <code>http</code> method.
      * 
      * @return See above.
-     * @throws TransportException 	If an error occured while preparing the 
+     * @throws TransportException 	If an error occurred while preparing the 
      * 								method.
      */
     public abstract HttpMethod marshal()

@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.env.data;
 //Application-internal dependencies
 
 /** 
- * Reports an error occured while importing an image.
+ * Reports an error occurred while importing an image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,25 +45,42 @@ public class ImportException
 	extends Exception
 {
 
+	/** The type of reader used while trying to import an image. */
+	private String readerType;
+	
 	/**
 	 * Constructs a new exception with the specified detail message.
 	 * 
-	 * @param message	Short explanation of the problem.
+	 * @param message		Short explanation of the problem.
+	 * @param readerType 	The type of reader used while trying to import an 
+	 * 						image.
 	 */
-	public ImportException(String message)
+	public ImportException(String message, String readerType)
 	{
 		super(message);
+		this.readerType = readerType;
 	}
 	
 	/**
 	 * Constructs a new exception with the specified detail message and cause.
 	 * 
-	 * @param message	Short explanation of the problem.
-	 * @param cause		The exception that caused this one to be risen.
+	 * @param message		Short explanation of the problem.
+	 * @param cause			The exception that caused this one to be risen.
+	 * @param readerType 	The type of reader used while trying to import an 
+	 * 						image.
 	 */
-	public ImportException(String message, Throwable cause) 
+	public ImportException(String message, Throwable cause, String readerType) 
 	{
 		super(message, cause);
+		this.readerType = readerType;
 	}
+	
+	/**
+	 * Returns the type of reader used while trying to import an image.
+	 * 
+	 * @return See above
+	 */
+	public String getReaderType() { return readerType; }
+	
 	
 }

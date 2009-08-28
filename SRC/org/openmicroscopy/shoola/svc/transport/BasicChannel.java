@@ -39,10 +39,10 @@ import org.apache.commons.httpclient.params.HttpClientParams;
  * Creates a basic <code>HttpChannel</code>.
  * In order to enforce a connection per request model, the same channel
  * may not be shared by concurrent invocations of the exchange method.  For
- * this reason we create a new HttpClient everytime -- using a synch object
+ * this reason we create a new HttpClient every time -- using a synch object
  * would imply serializing all requests, thus defeating any potential
  * benefit of concurrency.  Note that HttpClient can be configured with a 
- * thread-safe connection pool (see docs), but in this case connections are
+ * thread-safe connection pool (see documents), but in this case connections are
  * recycled and possibly waited on, so we wouldn't have a connection per 
  * request if we were to use the HttpClient built-in capabilities.
  *
@@ -63,7 +63,7 @@ class BasicChannel
 	/** The default value for the time out. */
 	static final int    DEF_CONN_TIMEOUT = 10000;
 	
-	/** The server's url. */
+	/** The server's URL. */
     private final URI       serverURL;
     
     /** The requested path. */
@@ -75,9 +75,9 @@ class BasicChannel
     /**
      * Creates a new instance.
      * 
-     * @param url			The server's url.
+     * @param url			The server's URL.
      * @param connTimeout	The time before being disconnected.
-     * @throws IllegalArgumentException If the specified url is not valid.
+     * @throws IllegalArgumentException If the specified URL is not valid.
      */
 	BasicChannel(String url, int connTimeout) 
     	throws IllegalArgumentException

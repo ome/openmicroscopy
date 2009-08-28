@@ -65,7 +65,7 @@ public class CommunicatorFactory
 		try {
 			HttpChannel channel = ChannelFactory.getChannel(
 									d.getChannelType(), 
-									d.getURL(), d.getConnexionTimOut());
+									d.getURL(), d.getConnexionTimeout());
 			service = new CommunicatorProxy(channel);
 		} catch (Exception e) {
 			throw new SvcActivationException("Couldn't activate Communicator.", 

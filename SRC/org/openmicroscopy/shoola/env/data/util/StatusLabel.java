@@ -26,11 +26,10 @@ package org.openmicroscopy.shoola.env.data.util;
 //Java imports
 import javax.swing.JLabel;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.util.Actions;

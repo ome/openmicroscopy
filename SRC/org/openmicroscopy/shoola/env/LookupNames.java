@@ -208,6 +208,17 @@ public class LookupNames
     public static final String PROCESSING_URL = 
     	"/services/DEBUGGER/hostnameProcessing";
     
+    /** Field to access the application number to submit bug. */
+    public static final String APPLICATION_NAME_BUG = 
+    	"/services/DEBUGGER/applicationNameBug";
+    
+    /** Field to access the application to submit comment. */
+    public static final String APPLICATION_NAME_COMMENT = 
+    	"/services/DEBUGGER/applicationNameComment";
+    
+    /** Field to access the timeout value. */
+    public static final String POST_TIMEOUT = "/services/DEBUGGER/postTimeout";
+    
     /** Field to access the e-mail address used to collect comments. */
     public static final String DEBUG_EMAIL = "/services/DEBUGGER/email";
     
@@ -218,10 +229,10 @@ public class LookupNames
 	public static final String SERVER_AVAILABLE = "/services/SERVER/available";
 	
     //For blitz
-    /** The value to replace in the FS config file. */
+    /** The value to replace in the FS configuration file. */
     public static final String FS_HOSTNAME = "/services/FS/defaultDirectory";
     
-    /** The value to replace in the FS config file. */
+    /** The value to replace in the FS configuration file. */
     public static final String FS_DEFAUL_DIR = "/services/FS/defaultDirectory";
     
 }

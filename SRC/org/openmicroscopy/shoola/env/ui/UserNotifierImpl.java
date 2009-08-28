@@ -77,7 +77,7 @@ public class UserNotifierImpl
      * This is the common parent frame that we use to build every notification
      * dialog.
      * We don't use the one already provided by <i>Swing</i> because we need
-     * to set the <i>OME</i> icon in the title bar, so that notifcation dialogs
+     * to set the <i>OME</i> icon in the title bar, so that notification dialogs
      * can inherit it.
      */
     private static JFrame			SHARED_FRAME = null;
@@ -207,10 +207,8 @@ public class UserNotifierImpl
     	d.addPropertyChangeListener(manager);
     	d.setModal(true);
     	UIUtilities.centerAndShow(d);
-		//showErrorDialog(title, summary, detail, toSubmit);
 	}
-    
-	
+
 	/** 
      * Implemented as specified by {@link UserNotifier}. 
      * @see UserNotifier#notifyError(String, String, String)
@@ -283,19 +281,6 @@ public class UserNotifierImpl
      */ 
 	public void submitMessage(String email)
 	{
-		/*
-		MessengerDialog d = new MessengerDialog(SHARED_FRAME, 
-												DEFAULT_COMMENT_TITLE, 
-												email);   
-		d.setVersion(manager.getVersionNumber());
-    	d.addPropertyChangeListener(manager);
-    	// allow user to type in dialog while continue to use app. 
-    	d.setModal(false);
-    	d.setAlwaysOnTop(false);
-    	UIUtilities.centerAndShow(d);
-    	*/
-		
-		
 		MessengerDialog d = manager.getCommentDialog(SHARED_FRAME, 
 				getEmail(email));
 		UIUtilities.centerAndShow(d);

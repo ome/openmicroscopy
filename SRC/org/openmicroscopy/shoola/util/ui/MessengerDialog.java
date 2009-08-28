@@ -253,6 +253,19 @@ public class MessengerDialog
 		}
 	}
 	
+	private void sendError(String propertyName)
+	{
+		String email = emailArea.getText().trim();
+		String comment = commentArea.getText().trim();
+		String error = null;
+		if (debugArea != null)  error = debugArea.getText().trim();
+		MessengerDetails details = new MessengerDetails(email, comment);
+		details.setExtra(version);
+		details.setError(error);
+		firePropertyChange(propertyName, null, details);
+		close();
+	}
+	
 	/** 
 	 * Sends the message. 
 	 * 
@@ -260,22 +273,21 @@ public class MessengerDialog
 	 */
 	private void send(String propertyName)
 	{
-		String email = emailArea.getText().trim();
-		String comment = commentArea.getText().trim();
 		if (dialogType == SUBMIT_ERROR_TYPE) {
-			Map<File, Exception> files = null;
-			if (table != null) {
-				files = table.getSelectedFiles(); 
+			List<FileTableNode> files = null;
+			if (table != null) files = table.getSelectedFiles(); 
+			if (files == null || files.size() == 0) {
+				sendError(propertyName);
+			} else {
+				String email = emailArea.getText().trim();
+				String comment = commentArea.getText().trim();
+				MessengerDetails details = new MessengerDetails(email, comment);
+				details.setExtra(version);
+				details.setObjectToSubmit(files);
+				firePropertyChange(propertyName, null, details);
 			}
 		} else {
-			
-			String error = null;
-			if (debugArea != null)  error = debugArea.getText().trim();
-			MessengerDetails details = new MessengerDetails(email, comment);
-			details.setExtra(version);
-			details.setError(error);
-			firePropertyChange(propertyName, null, details);
-			close();
+			sendError(propertyName);
 		}
 	}
 	

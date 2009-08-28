@@ -72,7 +72,7 @@ public abstract class HttpChannel
     protected abstract HttpClient getCommunicationLink();
     
     /**
-     * Returns the path derived from the server's url.
+     * Returns the path derived from the server's URL.
      * 
      * @return See above.
      */
@@ -83,8 +83,8 @@ public abstract class HttpChannel
      * 
      * @param out	The request to post.
      * @param in	The reply to fill.
-     * @throws TransportException If an error occured while transferring data.
-     * @throws IOException	If an error occured while unmarshalling the method.
+     * @throws TransportException If an error occurred while transferring data.
+     * @throws IOException	If an error occurred while unmarshalling the method.
      */
     public void exchange(Request out, Reply in) 
     	throws TransportException, IOException

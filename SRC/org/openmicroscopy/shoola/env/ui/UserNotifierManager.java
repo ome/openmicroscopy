@@ -30,6 +30,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -43,12 +44,14 @@ import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.svc.SvcRegistry;
 import org.openmicroscopy.shoola.svc.communicator.Communicator;
 import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
 import org.openmicroscopy.shoola.svc.transport.HttpChannel;
+import org.openmicroscopy.shoola.util.ui.FileTableNode;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -104,7 +107,7 @@ class UserNotifierManager
 	
 	/** The tool invoking the service. */
 	private static final String INVOKER_COMMENT = "insight_comments";
-
+	
 	/** Default title for the comment dialog. */
     private static final String	DEFAULT_COMMENT_TITLE = "Comment";
 
@@ -124,6 +127,97 @@ class UserNotifierManager
 	private MessengerDialog					commentDialog;
 	
 	/**
+	 * Submits files that failed to import.
+	 * 
+	 * @param source	The source of the message.
+	 * @param details 	The values to send.
+	 */
+	private void submitFiles(MessengerDialog source, 
+								MessengerDetails details)
+	{
+		Registry reg = container.getRegistry();
+		String tokenURL = (String) reg.lookup(LookupNames.TOKEN_URL);
+		String processURL = (String) reg.lookup(LookupNames.PROCESSING_URL);
+		String appName = (String) reg.lookup(LookupNames.APPLICATION_NAME_BUG);
+		String teamAddress = (String) reg.lookup(LookupNames.DEBUG_EMAIL);
+		int timeout = (Integer) reg.lookup(LookupNames.POST_TIMEOUT);
+		
+		try {
+			Communicator c; 
+			CommunicatorDescriptor desc = new CommunicatorDescriptor
+			(HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
+			List l = (List) details.getObjectToSubmit();
+			Iterator i = l.iterator();
+			FileTableNode node;
+			File f;
+			ImportException ex;
+			StringBuilder token;
+			StringBuilder reply;
+			while (i.hasNext()) {
+				node = (FileTableNode) i.next();
+				f = node.getFile();
+				ex = (ImportException) node.getException();
+				if (f != null) {
+					c = SvcRegistry.getCommunicator(desc);
+					token = new StringBuilder();
+					c.submitError(INVOKER_ERROR,
+							details.getEmail(), details.getComment(), 
+							details.getExtra(), ex.toString(), appName, token);
+					desc = new CommunicatorDescriptor(
+							HttpChannel.CONNECTION_PER_REQUEST, processURL, 
+							timeout);
+					c = SvcRegistry.getCommunicator(desc);
+					reply = new StringBuilder();
+					c.submitFile(token.toString(), f, ex.getReaderType(), 
+							reply); 
+				}
+			}
+			/*
+			Communicator c = SvcRegistry.getCommunicator(desc);
+			StringBuilder token = new StringBuilder();
+			c.submitComment(INVOKER_ERROR,
+					details.getEmail(), details.getComment(), 
+					details.getExtra(), appName, token);
+			System.err.println(token.toString());
+			//Going to submit the files.
+			desc = new CommunicatorDescriptor(
+					HttpChannel.CONNECTION_PER_REQUEST, processURL, timeout);
+			c = SvcRegistry.getCommunicator(desc);
+			List l = (List) details.getObjectToSubmit();
+			Map<File, String> files = new HashMap<File, String>();
+			Iterator i = l.iterator();
+			FileTableNode node;
+			File f;
+			ImportException ex;
+			while (i.hasNext()) {
+				node = (FileTableNode) i.next();
+				f = node.getFile();
+				ex = (ImportException) node.getException();
+				if (f != null)
+					files.put(f, ex.getReaderType());
+			}
+			
+			StringBuilder reply = new StringBuilder();
+			c.submitFiles(token.toString(), files, reply); 
+			*/
+		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+            msg.println("Failed to send files.");
+            msg.println("Reason: "+e.getMessage());
+            Logger logger = container.getRegistry().getLogger();
+            logger.error(this, msg);
+			String s = MESSAGE_START;
+			if (source.getDialogType() == MessengerDialog.ERROR_TYPE)
+				s += ERROR_MSG;
+			else s += COMMENT_MSG;
+			s += MESSAGE_END;
+			JOptionPane.showMessageDialog(source, s+teamAddress+".");
+		}
+		//source.setVisible(false);
+		//source.dispose();
+	}
+	
+	/**
 	 * Sends a message.
 	 * 
 	 * @param source	The source of the message.
@@ -132,14 +226,22 @@ class UserNotifierManager
 	private void handleSendMessage(MessengerDialog source, 
 								MessengerDetails details)
 	{
+		if (details.getObjectToSubmit() != null) {
+			submitFiles(source, details);
+			return;
+		}
 		Registry reg = container.getRegistry();
-		String url;
 		boolean bug = true;
 		String error = details.getError();
 		if (error == null || error.length() == 0) bug = false;
-		if (bug) url = (String) reg.lookup(LookupNames.DEBUG_URL_BUG);
-		else url = (String) reg.lookup(LookupNames.DEBUG_URL_COMMENT);
-		
+		String url = (String) reg.lookup(LookupNames.TOKEN_URL);
+		String appName; 
+		//if (bug) url = (String) reg.lookup(LookupNames.DEBUG_URL_BUG);
+		//else url = (String) reg.lookup(LookupNames.DEBUG_URL_COMMENT);
+		if (bug) 
+			appName = (String) reg.lookup(LookupNames.APPLICATION_NAME_BUG);
+		else 
+			appName = (String) reg.lookup(LookupNames.APPLICATION_NAME_COMMENT);
 		String teamAddress = (String) reg.lookup(LookupNames.DEBUG_EMAIL);
 		CommunicatorDescriptor desc = new CommunicatorDescriptor
 						(HttpChannel.CONNECTION_PER_REQUEST, url, -1);
@@ -150,12 +252,14 @@ class UserNotifierManager
 			String reply = "";
 			if (!bug) c.submitComment(INVOKER_COMMENT,
 								details.getEmail(), details.getComment(), 
-								details.getExtra(), builder);
+								details.getExtra(), appName, builder);
 			else c.submitError(INVOKER_ERROR, 
 							details.getEmail(), details.getComment(), 
-					details.getExtra(), error, builder);
+					details.getExtra(), error, appName, builder);
 			if (!bug) reply += COMMENT_REPLY;
 			else reply += ERROR_REPLY;
+			
+			
 			JOptionPane.showMessageDialog(source, reply);
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();

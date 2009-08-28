@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.svc.transport;
 //Application-internal dependencies
 
 /** 
- * Helper class to create commnucation links.
+ * Helper class to create communication links.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,7 +48,7 @@ public class ChannelFactory
 	 * Creates a <code>HttpChannel</code> corresponding to the passed type.
 	 * 
 	 * @param type			The channel type.
-	 * @param url			The server's url.
+	 * @param url			The server's URL.
 	 * @param connTimeout	The time before being disconnected.
 	 * @return See above.
 	 * @throws IllegalArgumentException If the specified type is not supported.

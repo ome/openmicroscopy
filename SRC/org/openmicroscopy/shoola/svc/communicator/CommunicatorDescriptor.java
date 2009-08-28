@@ -52,9 +52,9 @@ public class CommunicatorDescriptor
     /** Human readable name of the service identified by this descriptor. */
     private static final String     SVC_NAME = "Communication Service";
     
-    /** The server's url. */
+    /** The server's URL. */
     private String 	url;
-    
+
     /** The time before being disconnected. */
     private int		connTimeout;
     
@@ -68,7 +68,7 @@ public class CommunicatorDescriptor
      * Creates a new instance.
      * 
      * @param channelType 	The type of channel.
-     * @param url			The server's url.
+     * @param url			The server's URL.
      * @param connTimeout	The time before being disconnected.
      */
     public CommunicatorDescriptor(int channelType, String url, int connTimeout)
@@ -79,7 +79,7 @@ public class CommunicatorDescriptor
     }
     
     /**
-     * Returns the server's url.
+     * Returns the server's URL.
      * 
      * @return See above.
      */
@@ -90,7 +90,7 @@ public class CommunicatorDescriptor
      * 
      * @return See above.
      */
-    public int getConnexionTimOut() { return connTimeout; }
+    public int getConnexionTimeout() { return connTimeout; }
     
     /**
      * Returns the type of channel.
