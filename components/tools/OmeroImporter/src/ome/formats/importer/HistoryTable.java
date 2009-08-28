@@ -49,6 +49,7 @@ import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
 import ome.formats.importer.util.GuiCommonElements;
 import omero.model.Dataset;
+import omero.model.Screen;
 
 
 public class HistoryTable
@@ -251,7 +252,7 @@ public class HistoryTable
        // *****Bottom right most row containing the history table*****
         TableColumnModel cModel =  eTable.getColumnModel();
         
-        // *** remove last 3 rows from display ***
+        // *** remove last 4 rows from display ***
         TableColumn hiddenColumn = cModel.getColumn(6);
         cModel.removeColumn(hiddenColumn);
         hiddenColumn = cModel.getColumn(5);
@@ -413,8 +414,8 @@ public class HistoryTable
             }
            
             // Format the current time.
-            String dayString, hourString, datasetName= "", projectName = "";
-            long oldDatasetID = 0, datasetID = 0, oldProjectID = 0, projectID = 0;
+            String dayString, hourString, objectName= "", projectName = "", pdsString = "";
+            long oldObjectID = 0, objectID = 0, oldProjectID = 0, projectID = 0;
             
             // the result set is a cursor into the data.  You can only
             // point to one row at a time
@@ -422,30 +423,49 @@ public class HistoryTable
             // rs.next() points to next row and returns true
             // or false if there is no next row, which breaks the loop
             for (; rs.next() ;) {
-                datasetID = rs.getLong("datasetID");
+                objectID = rs.getLong("datasetID");
                 projectID = rs.getLong("projectID");
                 
-                if (oldDatasetID != datasetID)
+                if (oldObjectID != objectID)
                 {
-                    oldDatasetID = datasetID;
-                    try {
-                        datasetName = store.getTarget(Dataset.class, rs.getLong("datasetID")).getName().getValue();
-                    } catch (Exception e)
+                    oldObjectID = objectID;
+                    if (projectID != 0)
                     {
-                        datasetName = "unknown";
-                        displayAccessError();
-                    } 
-                }
-                
-                if (oldProjectID != projectID)
-                {
-                    oldProjectID = projectID;
-                    try {
-                        projectName = store.getProject(rs.getLong("projectID")).getName().getValue();
-                    } catch (Exception e)
+                        try {
+                            objectName = store.getTarget(Dataset.class, rs.getLong("datasetID")).getName().getValue();
+                        } catch (Exception e)
+                        {
+                            objectName = "unknown";
+                            displayAccessError();
+                        } 
+                        
+                        
+                        if (oldProjectID != projectID)
+                        {
+                            oldProjectID = projectID;
+                            try {
+                                projectName = store.getProject(rs.getLong("projectID")).getName().getValue();
+                            } catch (Exception e)
+                            {
+                                projectName = "unknown";
+                                displayAccessError();
+                            }
+                        }
+                        
+                        pdsString = projectName + "/" + objectName;
+                        
+                    }
+                    else
                     {
-                        projectName = "unknown";
-                        displayAccessError();
+                        try {
+                            objectName = store.getTarget(Screen.class, rs.getLong("datasetID")).getName().getValue();
+                        } catch (Exception e)
+                        {
+                            objectName = "unknown";
+                            displayAccessError();
+                        }   
+                        
+                        pdsString = objectName;
                     }
                 }
                 
@@ -462,7 +482,7 @@ public class HistoryTable
                 
                 Vector<Object> row = new Vector<Object>();
                 row.add(rs.getObject("filename"));
-                row.add(projectName + "/" + datasetName);
+                row.add(pdsString);
                 row.add(dayString + " " + hourString);
                 row.add(rs.getObject("status"));
                 row.add(rs.getObject("filepath"));
@@ -603,7 +623,7 @@ public class HistoryTable
         implements TableModelListener {
         
         private static final long serialVersionUID = 1L;
-        private String[] columnNames = {"File Name", "Project/Dataset", "Import Date/Time", "Status", "FilePath", "DatasetID", "ProjectID"};
+        private String[] columnNames = {"File Name", "Project/Dataset or Screen", "Import Date/Time", "Status", "FilePath", "DatasetID", "ProjectID"};
     
         public void tableChanged(TableModelEvent arg0) { }
         

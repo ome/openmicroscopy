@@ -65,8 +65,6 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
-    JProgressBar progressBar = null;
-    
     GuiCommonElements       gui;
     
     JFrame                  owner;

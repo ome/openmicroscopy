@@ -14,6 +14,7 @@
 
 package ome.formats.importer;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -63,7 +64,7 @@ public class ImportHandler
     private int numOfDone = 0;
     
     private String[] files = null;
-    private String selected_file = null;
+    private File selected_file = null;
     protected boolean errorsCollected = false;
 
     public ImportHandler(Main viewer, FileQueueTable qTable, OMEROMetadataStoreClient store,
@@ -97,28 +98,9 @@ public class ImportHandler
                         importImages();
                     }
                     catch (Throwable error)
-                    {       
-                        files = library.getUsedFiles();
-                        
-                        ErrorContainer errorContainer = new ErrorContainer();
-                        errorContainer.setFiles(files);
-                        errorContainer.setSelectedFile(null);
-                        errorContainer.setReaderType(null);
-                        errorContainer.setCommentType("2");
-                        
-                        errorContainer.setJavaVersion(System.getProperty("java.version"));
-                        errorContainer.setJavaClasspath(System.getProperty("java.class.path"));
-                        errorContainer.setOSName(System.getProperty("os.name"));
-                        errorContainer.setOSArch(System.getProperty("os.arch"));
-                        errorContainer.setOSVersion(System.getProperty("os.version"));
-                        errorContainer.setError(error);
-                        
-                        ErrorHandler errorHandler = ErrorHandler.getErrorHandler();
-                        errorHandler.addError(errorContainer);
-                        
-                        errorsCollected  = true;
+                    {    
+                        addError(error, selected_file, null, null);
                     }
-
                 }
             };
             runThread.start();
@@ -171,15 +153,15 @@ public class ImportHandler
         }
         
         for(int i = 0; i < importContainer.length; i++)
-        {                
+        {   
+            selected_file = importContainer[i].file;
            	if (qTable.setProgressPending(i))
            	{
                 numOfPendings++;
                	try {
                	    if (db != null)
                	    {
-               	    	// FIXME: This is now "broken" with targets now able to
-               	    	// be of type Screen or Dataset.
+               	    	// FIXME: This is now "broken" with targets now able to be of type Screen or Dataset.
                	        db.insertFileHistory(importKey, store.getExperimenterID(), i, importContainer[i].imageName, 
                	         importContainer[i].projectID, importContainer[i].getTarget().getId().getValue(), 
                	         "pending", importContainer[i].file);
@@ -236,15 +218,13 @@ public class ImportHandler
                 {
                     System.err.println(fe.getMessage());
                 	log.error("Format exception while importing image.", fe);
-                    qTable.setProgressUnknown(j);
+                	qTable.setProgressFailed(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
                     if (importStatus < 0)   importStatus = -3;
                     else                    importStatus = -1;
                     
                     if (fe.getMessage() == "Cannot locate JPEG decoder")
                     {
-                        qTable.setProgressFailed(j);
-
                         viewer.appendToOutputLn("> [" + j + "] Lossless JPEG not supported.");
                                 /*
                                 See " +
@@ -260,7 +240,11 @@ public class ImportHandler
                                 "\nthat will support this format. For details on this error, check:" +
                                 "\nhttp://trac.openmicroscopy.org.uk/omero/wiki/LosslessJPEG");
                                 */
-                    } 
+                    }
+                    else
+                    {
+                        addError(fe, importContainer[j].file, null, null);
+                    }
                     
                     try
                     {
@@ -338,27 +322,10 @@ public class ImportHandler
                     files = library.getUsedFiles();
                     String readerType = store.getReaderType();
                     
-                    ErrorContainer errorContainer = new ErrorContainer();
-                    errorContainer.setFiles(files);
-                    errorContainer.setSelectedFile(importContainer[j].file);
-                    errorContainer.setReaderType(readerType);
-                    errorContainer.setCommentType("2");
-                    
-                    errorContainer.setJavaVersion(System.getProperty("java.version"));
-                    errorContainer.setJavaClasspath(System.getProperty("java.class.path"));
-                    errorContainer.setOSName(System.getProperty("os.name"));
-                    errorContainer.setOSArch(System.getProperty("os.arch"));
-                    errorContainer.setOSVersion(System.getProperty("os.version"));
-                    errorContainer.setError(error);
-                    
-                    ErrorHandler errorHandler = ErrorHandler.getErrorHandler();
-                    errorHandler.addError(errorContainer);
-                    
-                    errorsCollected  = true;
+                    addError(error, importContainer[j].file, files, readerType);
                     
                     if (importStatus < 0)   importStatus = -3;
                     else                    importStatus = -2;
-                                      importStatus = -2;
                     
                     try
                     {
@@ -425,6 +392,27 @@ public class ImportHandler
         viewer.appendToOutputLn("> Image import completed!");
     }
     
+    private void addError(Throwable error, File file, String[] files, String readerType)
+    {
+        ErrorContainer errorContainer = new ErrorContainer();
+        errorContainer.setFiles(files);
+        errorContainer.setSelectedFile(file);
+        errorContainer.setReaderType(readerType);
+        errorContainer.setCommentType("2");
+        
+        errorContainer.setJavaVersion(System.getProperty("java.version"));
+        errorContainer.setJavaClasspath(System.getProperty("java.class.path"));
+        errorContainer.setOSName(System.getProperty("os.name"));
+        errorContainer.setOSArch(System.getProperty("os.arch"));
+        errorContainer.setOSVersion(System.getProperty("os.version"));
+        errorContainer.setError(error);
+        
+        ErrorHandler errorHandler = ErrorHandler.getErrorHandler();
+        errorHandler.addError(errorContainer);
+        
+        errorsCollected  = true;
+    }
+
     /**
      * Instantiates an unloaded target object to feed to the import library for
      * usage during the import.

@@ -36,5 +36,5 @@ public class ImportContainer
 	public IObject getTarget()
 	{
 	    return target;
-	}
+	}	
 }

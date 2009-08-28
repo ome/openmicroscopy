@@ -20,7 +20,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.Serializable;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 
@@ -38,6 +37,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.Actions;
 import omero.model.Dataset;
 import omero.model.IObject;
+import omero.model.Screen;
 
 @SuppressWarnings("serial")
 public class FileQueueHandler 
@@ -124,8 +124,8 @@ public class FileQueueHandler
                 {             
                     
                     addFileToQueue(f, dialog.screen, 
-                            null, 
                             dialog.screen.getName().getValue(),
+                            null, 
                             false, 
                             0,
                             dialog.archiveImage.isSelected(),
@@ -202,8 +202,8 @@ public class FileQueueHandler
                 {             
                     
                     addFileToQueue(f, dialog.screen, 
-                            null, 
                             dialog.screen.getName().getValue(),
+                            null, 
                             false, 
                             0,
                             dialog.archiveImage.isSelected(),
@@ -333,6 +333,7 @@ public class FileQueueHandler
                         qTable.cancel = true;
                         qTable.abort = true;
                         qTable.importing = false;
+                        System.exit(0);
                     } else {
                         qTable.cancel = true;
                         qTable.importing = false;
@@ -391,12 +392,12 @@ public class FileQueueHandler
         String imageName = getImageName(file, useFullPath, numOfDirectories);
         String pdsString = null;
         
-        if (dName != null)
+        if (project != null)
         {
             pdsString = project + "/" + dName;
         } else
         {
-            pdsString = project;
+            pdsString = dName;
         }
 
         row.add(imageName);
@@ -514,16 +515,18 @@ public class FileQueueHandler
         f.pack();
     }
 
+    @SuppressWarnings("unchecked")
     public void update(IObservable observable, Object message, Object[] args)
     {
         if (message == "REIMPORT")
         {
             store = viewer.loginHandler.getMetadataStore();  
             
-            String datasetName = "", projectName = "", fileName = "";
-            Long datasetID = 0L, projectID = 0L;
+            String objectName = "", projectName = "", fileName = "";
+            Long objectID = 0L, projectID = 0L;
             File file = null;
             Integer finalCount = 0;
+            IObject object;
             
             int count = 0;
             
@@ -532,44 +535,67 @@ public class FileQueueHandler
 
             for (int r = 0; r < count; r++)
             {
-                Vector<Serializable> row = new Vector<Serializable>();
+                Vector row = new Vector();
                 
-                datasetID = (Long) historyTable.table.getValueAt(r, 5);
+                objectID = (Long) historyTable.table.getValueAt(r, 5);
                 projectID = (Long) historyTable.table.getValueAt(r, 6);
                 
                 fileName = (String) historyTable.table.getValueAt(r, 0);
                 file = new File((String) historyTable.table.getValueAt(r, 4));
                 
-                Dataset d = null;
-                try {
-           	    	// FIXME: This is now "broken" with targets now able to
-           	    	// be of type Screen or Dataset.
-                	d = store.getTarget(Dataset.class, datasetID);
-                    datasetName = d.getName().getValue();
-                } catch (Exception e)
+                if (projectID == null || projectID == 0)
                 {
-                	log.warn("Failed to retrieve dataset: " + datasetID, e);
-                    continue;
-                } 
+                    object = null;
 
-                
-                try {
-                    projectName = store.getProject(projectID).getName().getValue();
-                } catch (Exception e)
+                    try {
+                        object = store.getTarget(Screen.class, objectID);
+                        objectName = ((Screen)object).getName().getValue();
+                    } catch (Exception e)
+                    {
+                        log.warn("Failed to retrieve screen: " + objectID, e);
+                        continue;
+                    }                    
+                }
+                else
                 {
-                	log.warn("Failed to retrieve project: " + projectID, e);
-                    continue;
+                    object = null;
+                    try {
+                    	object = store.getTarget(Dataset.class, objectID);
+                        objectName = ((Dataset)object).getName().getValue();
+                    } catch (Exception e)
+                    {
+                    	log.warn("Failed to retrieve dataset: " + objectID, e);
+                        continue;
+                    } 
+                    
+                    try {
+                        projectName = store.getProject(projectID).getName().getValue();
+                    } catch (Exception e)
+                    {
+                        log.warn("Failed to retrieve project: " + projectID, e);
+                        continue;
+                    }
                 }
                 
                 finalCount = finalCount + 1;
                 
+                Double[] pixelSizes = new Double[] {1.0, 1.0, 1.0};
+                
                 row.add(fileName);
-                row.add(projectName + "/" + datasetName);
+                if (projectID == null || projectID == 0)
+                {
+                    row.add(objectName); 
+                }
+                else
+                {
+                    row.add(projectName + "/" + objectName);   
+                }
                 row.add("added");
-                row.add(d.getId().getValue());
+                row.add(object);
                 row.add(file);
                 row.add(false);
                 row.add(projectID);
+                row.add(pixelSizes);
                 qTable.table.addRow(row);
             }
             

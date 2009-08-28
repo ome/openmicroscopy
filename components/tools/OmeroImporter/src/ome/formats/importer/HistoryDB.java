@@ -345,8 +345,8 @@ public class HistoryDB implements IObservable
         return rs.getInt(1);
     }
     
-    public int insertFileHistory(long importID, long experimenterID, int rowNum, 
-            String filename, long projectID, long datasetID, String status, File file) 
+    public int insertFileHistory(Integer importID, Long experimenterID, Integer rowNum, 
+            String filename, Long projectID, Long datasetID, String status, File file) 
     throws SQLException
     {
         return update(

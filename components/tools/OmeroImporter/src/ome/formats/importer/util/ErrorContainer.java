@@ -305,9 +305,12 @@ public class ErrorContainer
      */
     public void setSelectedFile(File selected_file)
     {
-        this.selected_file = selected_file;
-        String parentPath = selected_file.getParent();
-        setAbsolutePath(parentPath);
+        if (selected_file != null)
+        {
+            this.selected_file = selected_file;
+            String parentPath = selected_file.getParent();
+            setAbsolutePath(parentPath);
+        }
     }
     
     /**
