@@ -402,7 +402,7 @@ class EditorModel
 				description = ws.getWellType();
 			}
 		} //else if (ref instanceof FolderData) 
-			description = null;//((FolderData) ref).getDescription();
+			//description = null;//((FolderData) ref).getDescription();
 		if (description == null) return "";
 		return description.trim();
 	}
