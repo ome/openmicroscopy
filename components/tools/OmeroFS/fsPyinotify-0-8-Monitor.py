@@ -68,6 +68,8 @@ class Monitor(threading.Thread):
         if str(eventType) not in ['Create']:
             raise UnsupportedEventType("Event Type " + str(eventType) + " not yet supported on this platform")
             
+        self.whitelist = whitelist
+        
         self.proxy = proxy
             
         pathsToMonitor = pathString
@@ -154,7 +156,7 @@ class ProcessEvent(pyinotify.ProcessEvent):
         # Explicitely registered for this kind of event.
         log.info("Raw pyinotify event = %s", str(event))
         try:
-            if pathModule.path(event.pathname).ext in self.whitelist:
+            if (len(self.whitelist) == 0) or (pathModule.path(event.pathname).ext in self.whitelist):
                 self.callback(self.id, event.pathname)
         except:
             log.exception("Failed to process event: ")
@@ -163,7 +165,7 @@ class ProcessEvent(pyinotify.ProcessEvent):
         # Explicitely registered for this kind of event.
         log.info("Raw pyinotify event = %s", str(event))
         try:
-            if pathModule.path(event.pathname).ext in self.whitelist:
+            if (len(self.whitelist) == 0) or (pathModule.path(event.pathname).ext in self.whitelist):
                 self.callback(self.id, event.pathname)
         except:
             log.exception("Failed to process event: ")

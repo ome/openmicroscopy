@@ -49,6 +49,7 @@ class Monitor(threading.Thread):
         """
         threading.Thread.__init__(self)
         self.pathsToMonitor = pathString
+        self.whitelist = whitelist
         self.proxy = proxy
         self.idString = monitorId
         self.event = threading.Event()
@@ -116,7 +117,8 @@ class Monitor(threading.Thread):
                 if action == 1:
                     filename = os.path.join(self.pathsToMonitor, file)
                     try:
-                        self.callback(self.idString, filename)
+                        if (len(self.whitelist) == 0) or (pathModule.path(filename).ext in self.whitelist):
+                            self.callback(self.idString, filename)
                     except:
                         log.exception("Failed to make callback: ")
 

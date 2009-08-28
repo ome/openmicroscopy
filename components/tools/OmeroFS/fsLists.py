@@ -22,7 +22,7 @@ class Greylist(object):
         :group String Representation: __repr__
 
     """
-    
+
     def __init__(self, initialList=[]):
         """
             Create an initial initial list.
@@ -95,13 +95,16 @@ class Greylist(object):
             
             :Parameters:
                 anItem : string
-                    An string of any type.
+                    A string.
 
             :return: Existence of item on list.
             :rtype: boolean
             
-        """     
-        return anItem in self.theSet
+        """
+        if len(self.theSet) == 0:
+            return True
+        else:
+            return anItem in self.theSet
 
 class Whitelist(Greylist):
     """

@@ -149,7 +149,7 @@ class MonitorClientI(monitors.MonitorClient):
                         # Deal with all other notified file types.
                         else:
                             # ignore other file types for now.
-                            pass
+                            log.info("File not imported: file type %s not currently handled.", fileExt)
                     except IndexError:
                         log.info("File not imported: file not copied into user level directory")
                     except:
@@ -214,33 +214,33 @@ class MonitorClientI(monitors.MonitorClient):
 
                     if platform.system() == 'Windows':
                         climporter = config.climporter.replace('/','\\')
+                        command = ['""' + climporter +
+                                    " -s " + config.host +
+                                    " -k " + key +
+                                    " " + fileName + '""']
                     else:
                         climporter = config.climporter
                         # Escape any spaces in the filename
                         # fileName = fileName.replace(' ', '\ ')
                         # Wrap filename in single quotes, escape any ' characters first.
                         fileName = "'" + fileName.replace("'", r"'\''") + "'"
-
-                    command = [climporter +
-                                " -s " + config.host +
-                                " -k " + key +
-                                " " + fileName]
-                    output = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True).communicate()
-                    
-                    # Debugging information from stdout and stderr is required
-                    if log.getEffectiveLevel() == logging.DEBUG:
-                        log.debug("Import call finished. Result:")
-                        log.debug("***** start of output from importer-cli *****")
-                        log.debug("To stdout: ")
-                        for line in output[0].split('\n'):
-                            log.debug(line)
-                        log.debug("To stderr: ")
+                        command = [climporter +
+                                    " -s " + config.host +
+                                    " -k " + key +
+                                    " " + fileName]
+                                    
+                    process = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
+                    output = process.communicate()
+                    retCode = process.returncode
+                    if retCode == 0:
+                        log.info("Import completed on session key = %s", key)
+                    else:
+                        log.error("Import completed on session key = %s, return code = %s", key, str(retCode))
+                        log.error("***** start of output from importer-cli to stderr *****")
                         for line in output[1].split('\n'):
-                            log.debug(line)
-                        log.debug("***** end *****")
-                    # End of debugging output
+                            log.error(line)
+                        log.error("***** end *****")
                     
-                    log.info("Import completed on session key = %s", key)
                 else:
                     log.info("File not imported: user unknown: %s", exName)
             else:

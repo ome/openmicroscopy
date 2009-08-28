@@ -15,7 +15,7 @@ clientAdapterName = "omerofs.DropBox"
 dropBoxDir = "DropBox"
 
 # This config item should be removed. See tickets: #1420 and #1421
-config.excludedUsers = []
+excludedUsers = []
 
 # A more general solution needs to be found for the various
 # multi-file formats. For now this is how .dv files are handled...
@@ -40,11 +40,16 @@ pathMode = "Follow"
 
 # file extensions to watch for.
 #     (although only .ome.tif are of genuine interest.)
-fileTypes = set([".jpg", ".lsm", ".dv", ".tif", ".tiff"])
+#whitelist = [".jpg", ".lsm", ".dv", ".tif", ".tiff"]
+# An empty filelist equates to a wildcard extension, 
+# watch for and report all file types
+whitelist = []
+fileTypes = set(whitelist)
 # add the related extensions
 for ext in relatedTypes.keys():
-    for extra in relatedTypes[ext]:
-        fileTypes.add(extra)
+    if ext in fileTypes:
+        for extra in relatedTypes[ext]:
+            fileTypes.add(extra)
 
 # subdirectories to exclude. NOT CURRENTLY USED
 blacklist = [""]
