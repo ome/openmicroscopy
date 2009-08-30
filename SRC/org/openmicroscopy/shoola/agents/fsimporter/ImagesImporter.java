@@ -87,7 +87,7 @@ public class ImagesImporter
 	public void load()
 	{
 		handle = ivView.importImages(container, null, 
-				getCurrentUserID(), -1, this);
+				getCurrentUserID(), -1, false, -1, this);
 	}
 	
 	/** 

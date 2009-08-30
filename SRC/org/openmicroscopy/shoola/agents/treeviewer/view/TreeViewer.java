@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -782,9 +783,9 @@ public interface TreeViewer
 	/** 
 	 * Imports the selected files. 
 	 * 
-	 * @param files The files to import.
+	 * @param toImport Object containing the files and the import options.
 	 */
-	void importFiles(List<File> files);
+	void importFiles(ImportableObject toImport);
 	
 	/**
 	 * Sets the imported file.
@@ -828,4 +829,8 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public List<FileFilter> getSupportedFormats();
+	
+	/** Brings up the import dialog. */
+	public void showImporter();
+	
 }

@@ -74,21 +74,32 @@ public class ImagesImporter
     /** Container to download the image into or <code>null</code>. */
     private DataObject				container;
     
+    /** Flag indicating to archive the files or not. */
+    private boolean 				archived;
+    
+    /** The number of folder before the name or <code>-1</code>.. */
+    private int  					folder;
+    
     /**
      * Creates a new instance.
      * 
-     * @param viewer The Viewer this data loader is for.
-     * 				 Mustn't be <code>null</code>.
-     * @param node	 The node hosting the container.
-     * @param files	 The collection of files to import.
+     * @param viewer 	The Viewer this data loader is for.
+     * 				 	Mustn't be <code>null</code>.
+     * @param node	 	The node hosting the container.
+     * @param files	 	The collection of files to import.
+     * @param archived 	Pass <code>true</code> to archived the files, 
+	 * 					<code>false</code> otherwise.
+	 * @param folder	The number of folder before the name or <code>-1</code>.
      */
     public ImagesImporter(TreeViewer viewer, TreeImageDisplay node,
-    		Map<File, StatusLabel> files)
+    		Map<File, StatusLabel> files, boolean archived, int folder)
 	{
 		super(viewer);
 		if (files == null || files.size() == 0)
 			throw new IllegalArgumentException("No images to import.");
 		this.files = files;
+		this.archived = archived;
+		this.folder = folder;
 		if (node != null) {
 			nodes = new ArrayList<TreeImageDisplay>(1); 
 			Object ho = node.getUserObject();
@@ -106,15 +117,20 @@ public class ImagesImporter
      * 					Mustn't be <code>null</code>.
      * @param nodes		The collection of nodes to reload.
      * @param files		The collection of files to import.
+     * @param archived 	Pass <code>true</code> to archived the files, 
+	 * 					<code>false</code> otherwise.
+	 * @param folder	The number of folder before the name or <code>-1</code>.
      */
 	public ImagesImporter(TreeViewer viewer, List<TreeImageDisplay> nodes,
-			Map<File, StatusLabel> files)
+			Map<File, StatusLabel> files, boolean archived, int folder)
 	{
 		super(viewer);
 		if (files == null || files.size() == 0)
 			throw new IllegalArgumentException("No images to import.");
 		this.files = files;
 		this.nodes = nodes;
+		this.archived = archived;
+		this.folder = folder;
 		container = null;
 	}
 	
@@ -125,7 +141,7 @@ public class ImagesImporter
     public void load()
     {
     	handle = ivView.importImages(container, files, getCurrentUserID(), -1, 
-    			this);
+    			archived, folder, this);
     }
 
     /**

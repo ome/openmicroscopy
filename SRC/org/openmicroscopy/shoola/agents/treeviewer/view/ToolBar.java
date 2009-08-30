@@ -273,8 +273,8 @@ class ToolBar
      */
     void showCreateMenu(Component c, Point p, int index)
     {
-        if (c == null) throw new IllegalArgumentException("No component.");
-        if (p == null) throw new IllegalArgumentException("No point.");
+        if (c == null) return;
+        if (p == null) return;
         PopupMenu menu = new PopupMenu(controller,index);
         menu.show(c, p.x, p.y);
     }

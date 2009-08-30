@@ -249,11 +249,15 @@ public interface ImageDataView
 	 * @param images	The images to import. Mustn't be <code>null</code>.
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
+	 * @param archived 	Pass <code>true</code> to archived the files, 
+	 * 					<code>false</code> otherwise.
+	 * @param folder	The number of folder before the name or <code>-1</code>.
 	 * @param observer	Callback handler.
 	 * @return See above.
 	 */
 	public CallHandle importImages(DataObject container, Map<File, StatusLabel>
-		images, long userID, long groupID, AgentEventListener observer);
+		images, long userID, long groupID, boolean archived, int folder,
+		AgentEventListener observer);
 
 	/**
 	 * Monitors the passed directory.

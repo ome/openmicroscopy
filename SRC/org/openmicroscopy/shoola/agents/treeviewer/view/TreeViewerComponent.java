@@ -71,6 +71,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.agents.treeviewer.util.NotDeletedObjectDialog;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -137,6 +139,9 @@ class TreeViewerComponent
 	/** The component managing the import. */
 	private ImportManager 		importManager;
 	
+    /** The file chooser. */
+    private ImportDialog 		importDialog;
+    
 	/** 
 	 * Prepares the file to import.
 	 * 
@@ -2217,16 +2222,16 @@ class TreeViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#importFiles(List)
+	 * @see TreeViewer#importFiles(ImportableObject)
 	 */
-	public void importFiles(List<File> files)
+	public void importFiles(ImportableObject toImport)
 	{
 		if (model.getState() == DISCARDED) return;
 		Browser browser = model.getSelectedBrowser();
 		int type = browser.getBrowserType();
 		List<Object> l = new ArrayList<Object>();
 		int total = 0;
-
+		List<File> files = toImport.getFiles();
 		List<TreeImageDisplay> parents = new ArrayList<TreeImageDisplay>();
 		TreeImageDisplay node = null;
 		if (type == Browser.PROJECT_EXPLORER || 
@@ -2280,9 +2285,11 @@ class TreeViewerComponent
 			view.setImporterVisibility(importManager.getUIDelegate(), true);
 		view.setImportStatus("Importing...", true);
 		if (node == null)
-			model.importFiles(parents, map);
+			model.importFiles(parents, map, toImport.isArchived(), 
+					toImport.getNumberOfFolders());
 		else {
-			model.importFiles(node, map);
+			model.importFiles(node, map, toImport.isArchived(), 
+					toImport.getNumberOfFolders());
 		}
 	}
 
@@ -2353,6 +2360,27 @@ class TreeViewerComponent
 	{
 		if (model.getState() == DISCARDED) return null;
 		return model.getSupportedFormats();
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#showImporter()
+	 */
+	public void showImporter()
+	{
+		Browser browser = model.getSelectedBrowser();
+		Object o;
+        if (browser == null) o = null;
+        else o = browser.getLastSelectedDisplay().getUserObject();
+		if (importDialog == null) {
+			importDialog = new ImportDialog(view, 
+    				model.getSupportedFormats(), o);
+    		importDialog.addPropertyChangeListener(
+    				ImportDialog.IMPORT_PROPERTY, controller);
+		} else {
+			importDialog.resetObject(o);
+		}
+		importDialog.centerDialog();
 	}
 	
 }

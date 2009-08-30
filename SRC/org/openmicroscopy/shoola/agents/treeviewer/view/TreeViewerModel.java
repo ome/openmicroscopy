@@ -868,24 +868,34 @@ class TreeViewerModel
 	/**
 	 * Fires an asynchronous call to import the specified files.
 	 * 
-	 * @param nodes The nodes to reload.
-	 * @param files The files to import.
+	 * @param nodes 	The nodes to reload.
+	 * @param files 	The files to import.
+	 * @param archived 	Pass <code>true</code> to archived the files, 
+	 * 					<code>false</code> otherwise.
+	 * @param folder	The number of folder before the name or <code>-1</code>.
 	 */
-	void importFiles(List<TreeImageDisplay> nodes, Map<File, StatusLabel> files)
+	void importFiles(List<TreeImageDisplay> nodes, Map<File, StatusLabel> files,
+			boolean archived, int folder)
 	{
-		ImagesImporter loader = new ImagesImporter(component, nodes, files);
+		ImagesImporter loader = new ImagesImporter(component, nodes, files,
+			archived, folder);
 		loader.load();
 	}
 	
 	/**
 	 * Fires an asynchronous call to import the specified files.
 	 * 
-	 * @param node The node hosting the container to import the image into.
-	 * @param files The files to import.
+	 * @param node 		The node hosting the container to import the image into.
+	 * @param files 	The files to import.
+	 * @param archived 	Pass <code>true</code> to archived the files, 
+	 * 					<code>false</code> otherwise.
+	 * @param folder	The number of folder before the name or <code>-1</code>.
 	 */
-	void importFiles(TreeImageDisplay node, Map<File, StatusLabel> files)
+	void importFiles(TreeImageDisplay node, Map<File, StatusLabel> files, 
+			boolean archived, int folder)
 	{
-		ImagesImporter loader = new ImagesImporter(component, node, files);
+		ImagesImporter loader = new ImagesImporter(component, node, files,
+				archived, folder);
 		loader.load();
 	}
 	

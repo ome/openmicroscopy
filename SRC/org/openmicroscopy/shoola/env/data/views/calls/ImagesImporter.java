@@ -65,19 +65,25 @@ public class ImagesImporter
     private Map<File, StatusLabel> images;
     
     /** The id of the user currently logged in. */
-    private long 		 userID;
+    private long 		 			userID;
     
     /** The id of the group is logged as. */
-    private long 		 groupID;
+    private long 		 			groupID;
     
     /** The container the images have to be downloaded into. */
-    private DataObject	container;
+    private DataObject				container;
     
     /** 
      * Map of result, key is the file to import, value is an object or a
      * string. 
      */
-    private Map<File, Object> partialResult;
+    private Map<File, Object> 		partialResult;
+    
+    /** Flag indicating to archive the files or not. */
+    private boolean 				archived;
+    
+    /** The number of folder before the name or <code>-1</code>.. */
+    private int  					folder;
     
     /** 
      * Imports the file.
@@ -90,10 +96,10 @@ public class ImagesImporter
     	partialResult = new HashMap<File, Object>();
     	OmeroImageService os = context.getImageService();
     	try {
-    		Object ho = os.importImage(container, f, status, userID, groupID);
+    		Object ho = os.importImage(container, f, status, userID, groupID,
+    				archived, folder);
     		partialResult.put(f, ho);
 		} catch (Exception e) {
-			e.printStackTrace();
 			partialResult.put(f, e);
 		}
     }
@@ -177,9 +183,12 @@ public class ImagesImporter
 	 * @param images	The images to import. Mustn't be <code>null</code>.
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
+	 * @param archived 	Pass <code>true</code> to archived the files, 
+	 * 					<code>false</code> otherwise.
+	 * @param folder	The number of folder before the name or <code>-1</code>.
      */
     public ImagesImporter(DataObject container, Map<File, StatusLabel> images, 
-    					long userID, long groupID)
+    					long userID, long groupID, boolean archived, int folder)
     {
     	if (images == null || images.size() == 0)
     		throw new IllegalArgumentException("No images to import.");
@@ -187,6 +196,8 @@ public class ImagesImporter
     	this.groupID = groupID;
     	this.images = images;
     	this.container = container;
+    	this.archived = archived;
+    	this.folder = folder;
     	//loadCall = makeBatchCall(container, images, userID, groupID);
     }
     

@@ -274,15 +274,15 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#importImages(DataObject, Map, long, long,
+     * @see ImageDataView#importImages(DataObject, Map, long, long, boolean, int, 
      * AgentEventListener)
      */
 	public CallHandle importImages(DataObject container, 
-			Map<File, StatusLabel> images, long userID, long groupID, 
-			AgentEventListener observer)
+			Map<File, StatusLabel> images, long userID, long groupID, boolean
+			archived, int folder, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ImagesImporter(container, images, userID, 
-				groupID);
+				groupID, archived, folder);
 		return cmd.exec(observer);
 	}
 

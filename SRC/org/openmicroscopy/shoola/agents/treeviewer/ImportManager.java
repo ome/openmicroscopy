@@ -225,6 +225,7 @@ public class ImportManager
 		if (imported == null) return;
 		imported.clear();
 		layoutEntries();
+		sendButton.setEnabled(false);
 	}
 	
 	/** Sends the files that failed to import. */

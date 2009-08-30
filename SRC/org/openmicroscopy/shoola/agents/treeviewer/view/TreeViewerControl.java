@@ -97,6 +97,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteRndSettingsCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
@@ -771,6 +773,9 @@ class TreeViewerControl
 				ids.add(well.getPlate().getId());
 				model.pasteRndSettings(ids, PlateData.class);
 			}
+		} else if (ImportDialog.IMPORT_PROPERTY.equals(name)) {
+			ImportableObject object = (ImportableObject) pce.getNewValue();
+			model.importFiles(object);
 		}
 	}
 

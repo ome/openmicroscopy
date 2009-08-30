@@ -37,7 +37,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
@@ -203,18 +202,6 @@ class FileSelectionTable
 		enabledControl(table.getRowCount() > 0);
 	}
 	
-	/** Removes all the files from the queue. */
-	private void removeAllFiles()
-	{
-		int n = table.getRowCount();
-		if (n == 0) return;
-		DefaultTableModel model = (DefaultTableModel) table.getModel();
-		for (int i = 0; i < n; i++) 
-			model.removeRow(i);
-		firePropertyChange(REMOVE_PROPERTY, -1, 0);
-		enabledControl(false);
-	}
-	
 	/**
 	 * Sets the enabled flag of the buttons.
 	 * 
@@ -271,6 +258,18 @@ class FileSelectionTable
 	 * @param value The value to set.
 	 */
 	void allowAddition(boolean value) { addButton.setEnabled(value); }
+	
+	/** Removes all the files from the queue. */
+	void removeAllFiles()
+	{
+		int n = table.getRowCount();
+		if (n == 0) return;
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		for (int i = 0; i < n; i++) 
+			model.removeRow(i);
+		firePropertyChange(REMOVE_PROPERTY, -1, 0);
+		enabledControl(false);
+	}
 	
 	/**
 	 * Adds the collection of files to the queue.

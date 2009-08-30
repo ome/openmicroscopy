@@ -263,10 +263,12 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#importImage(DataObject, File, StatusLabel, long, long)
+     * @see OmeroImageService#importImage(DataObject, File, StatusLabel, long, 
+     * long, boolean, int)
      */
 	public Object importImage(DataObject container, File image, 
-			StatusLabel status, long userID, long groupID) 
+			StatusLabel status, long userID, long groupID, boolean archived,
+			int folder) 
 		throws ImportException
 	{
 		return null;

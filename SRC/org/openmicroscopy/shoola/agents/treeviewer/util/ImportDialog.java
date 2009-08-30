@@ -40,21 +40,28 @@ import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DatasetData;
+import pojos.ScreenData;
 
 /**
  * Basic import dialog.
@@ -71,7 +78,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class ImportDialog
 	extends JDialog
-	implements ActionListener, PropertyChangeListener
+	implements ActionListener, ChangeListener, PropertyChangeListener
 {
 
 	/** Bound property indicating that the cancel button is pressed. */
@@ -95,6 +102,16 @@ public class ImportDialog
 	/** The message to display in the header. */
 	private static final String MESSAGE = "Selects the files to import";
 	
+	/** The message to display in the header. */
+	private static final String MESSAGE_PLATE = "Selects the plates to import";
+	
+	/** The message to display in the header. */
+	private static final String END = ".";
+	
+	/** Text of the sub-message. */
+	private static final String SUB_MESSAGE = "File Naming: by default, the " +
+			"name the imported file is the absolute path.";
+	
 	/** The approval option the user chose. */
 	private int					option;
 
@@ -113,8 +130,22 @@ public class ImportDialog
 	/** Button to import the files. */
 	private JButton				refreshButton;
 	
+	/** Box indicating to archive or not the files. */
+	private JCheckBox			archived;
+	
+	/** 
+	 * Indicate to use the name of the file and a number of directories above.
+	 */
+	private JCheckBox			partialName;
+	
+	/** Text field indicating how many folders to include. */
+	private NumericalTextField	numberOfFolders;
+	
 	/** The collection of supported filters. */
 	private List<FileFilter> 	filters;
+	
+	/** The title panel of the window. */
+	private TitlePanel			titlePane;
 	
 	/** Sets the properties of the dialog. */
 	private void setProperties()
@@ -138,6 +169,15 @@ public class ImportDialog
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		archived = new JCheckBox();
+		archived.setText("Archived files");
+		numberOfFolders = new NumericalTextField();
+		numberOfFolders.setText("1");
+		numberOfFolders.setEnabled(false);
+		partialName = new JCheckBox();
+		partialName.setText("Partial path. Directories before " +
+				"the file's name:");
+		partialName.addChangeListener(this);
 		chooser = new JFileChooser();
 		File f = UIUtilities.getDefaultFolder();
 		if (f != null) chooser.setCurrentDirectory(f);
@@ -203,24 +243,77 @@ public class ImportDialog
 		return bar;
 	}
 	
-	/** Builds and lays out the UI. */
-	private void buildGUI()
+	/**
+	 * Returns the text corresponding to the passed container.
+	 * 
+	 * @param container Container where to import the image.
+	 * @return See above.
+	 */
+	private String getContainerText(Object container)
+	{
+		if (container instanceof DatasetData) {
+			return MESSAGE+" into dataset: "+
+					((DatasetData) container).getName()+END;
+		} else if (container instanceof ScreenData) {
+			return MESSAGE_PLATE+" into screen: "+
+			((ScreenData) container).getName()+END;
+		}
+		return MESSAGE+END;
+	}
+	
+	/**
+	 * Builds and lays out the components.
+	 * 
+	 * @return See above
+	 */
+	private JPanel buildPathComponent()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(partialName);
+		p.add(Box.createHorizontalStrut(5));
+		p.add(numberOfFolders);
+		p.add(Box.createHorizontalStrut(5));
+		return UIUtilities.buildComponentPanelRight(p);
+	}
+	
+	/** 
+	 * Builds and lays out the UI. 
+	 * 
+	 * @param container Container where to import the image.
+	 */
+	private void buildGUI(Object container)
 	{
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
 		IconManager icons = IconManager.getInstance();
-		TitlePanel tp = new TitlePanel(TITLE, MESSAGE, 
+		titlePane = new TitlePanel(TITLE, getContainerText(container), 
 				icons.getIcon(IconManager.IMPORT_48));
-		c.add(tp, BorderLayout.NORTH);
+		titlePane.setSubtitle(SUB_MESSAGE);
+		c.add(titlePane, BorderLayout.NORTH);
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser, 
 				table);
 		c.add(pane, BorderLayout.CENTER);
 		
+		
+		JPanel controls = new JPanel();
+		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
+		
+		//Lays out the options
+		JPanel options = new JPanel();
+		options.setLayout(new BoxLayout(options, BoxLayout.X_AXIS));
+		options.add(UIUtilities.buildComponentPanel(archived));
+		options.add(buildPathComponent());
+		controls.add(options);
+		//Lays out the buttons.
 		JPanel bar = new JPanel();
 		bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
 		bar.add(buildToolBarLeft());
 		bar.add(buildToolBarRight());
-		c.add(bar, BorderLayout.SOUTH);
+		controls.add(new JSeparator());
+		controls.add(bar);
+		
+		c.add(controls, BorderLayout.SOUTH);
 		if (JDialog.isDefaultLookAndFeelDecorated()) {
 			boolean supportsWindowDecorations = 
 				UIManager.getLookAndFeel().getSupportsWindowDecorations();
@@ -247,7 +340,16 @@ public class ImportDialog
     	//Set the current directory as the defaults
     	UIUtilities.setDefaultFolder(
     			chooser.getCurrentDirectory().toString());
-    	firePropertyChange(IMPORT_PROPERTY, null, table.getFilesToImport());
+    	
+    	int field = -1;
+    	if (partialName.isSelected()) {
+    		Number n = (Number) numberOfFolders.getValueAsNumber();
+        	if (n != null) field = (Integer) n;
+    	}
+
+    	ImportableObject object = new ImportableObject(table.getFilesToImport(),
+    			archived.isSelected(), field);
+    	firePropertyChange(IMPORT_PROPERTY, null, object);
     	setVisible(false);
     	dispose();
     }
@@ -299,18 +401,32 @@ public class ImportDialog
      * 
      * @param owner 	The owner of the dialog.
      * @param filters 	The list of filters.
+     * @param container The container where to import the files.
      */
-    public ImportDialog(JFrame owner, List<FileFilter> filters)
+    public ImportDialog(JFrame owner, List<FileFilter> filters, Object 
+    		container)
     {
     	super(owner);
     	this.filters = filters;
     	setProperties();
     	initComponents();
-    	buildGUI();
+    	buildGUI(container);
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     	setSize(7*(screenSize.width/10), 7*(screenSize.height/10));
     }
-    
+
+    /**
+     * Resets the text and remove all the files to import.
+     * 
+     * @param container The container where to import the files.
+     */
+	public void resetObject(Object container)
+	{
+		titlePane.setTextHeader(getContainerText(container));
+		titlePane.setSubtitle(SUB_MESSAGE);
+		table.removeAllFiles();
+	}
+	
     /**
      * Returns the collection of files to import.
      * 
@@ -381,6 +497,15 @@ public class ImportDialog
 				chooser.rescanCurrentDirectory();
 				chooser.repaint();
 		}
+	}
+
+	/** 
+	 * Sets the enabled flag of the numerical field.
+	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 */
+	public void stateChanged(ChangeEvent e)
+	{
+		numberOfFolders.setEnabled(partialName.isSelected());
 	}
 	
 }

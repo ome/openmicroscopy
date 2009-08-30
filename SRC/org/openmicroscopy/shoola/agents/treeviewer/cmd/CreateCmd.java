@@ -29,9 +29,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.io.File;
-import java.util.List;
-
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -93,6 +90,9 @@ public class CreateCmd
     
     /** Flag indicating to bring up or not a filer chooser. */
     private boolean		chooser;
+    
+    /** The file chooser. */
+    private ImportDialog importDialog;
     
     /**
      * Checks that the specified type is currently supported
@@ -158,33 +158,8 @@ public class CreateCmd
             	bus.post(new LoadFSImporter((DatasetData) object));
         	}
         	*/
-        	if (chooser) {
-        		ImportDialog chooser = new ImportDialog(model.getUI(), 
-        				model.getSupportedFormats());
-        		/*
-        		FileChooser chooser = new FileChooser(model.getUI(),
-        				FileChooser.IMPORT, "Import images",
-        			"Select the images to import", model.getSupportedFormats(), 
-        			true);
-        			*/
-        		int option = chooser.centerDialog();
-        		if (option == ImportDialog.IMPORT) {
-        			List<File> files = chooser.getFilesToImport();
-        			model.importFiles(files);
-        		}
-        		/*
-        		if (option == JFileChooser.APPROVE_OPTION) {
-        			File[] files = new File[1];
-        			files[0] = chooser.getSelectedFile();
-        			model.importFiles(files);
-        			chooser.setVisible(false);
-        			//chooser.dispose();
-        		}
-        		*/
-        	} else {
-        		model.importFiles(null);
-        	}
-        	
+        	if (chooser) model.showImporter();
+        	else model.importFiles(null);
         } else {
         	model.createDataObject(userObject, withParent);
         }	
