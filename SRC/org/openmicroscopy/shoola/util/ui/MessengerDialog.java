@@ -33,13 +33,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -66,6 +64,8 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
+
+import org.jdesktop.swingx.JXBusyLabel;
 
 //Third-party libraries
 import layout.TableLayout;
@@ -217,6 +217,9 @@ public class MessengerDialog
 	/** The component displaying the files to send. */
 	private FileTable		table;
 	
+	/** Indicates the status of the files submission. */
+	private JXBusyLabel		submitStatus;
+	
 	/**
 	 * Formats the specified button.
 	 * 
@@ -253,6 +256,11 @@ public class MessengerDialog
 		}
 	}
 	
+	/**
+	 * Sends the error to the server.
+	 * 
+	 * @param propertyName The name of the property.
+	 */
 	private void sendError(String propertyName)
 	{
 		String email = emailArea.getText().trim();
@@ -279,11 +287,14 @@ public class MessengerDialog
 			if (files == null || files.size() == 0) {
 				sendError(propertyName);
 			} else {
+				
 				String email = emailArea.getText().trim();
 				String comment = commentArea.getText().trim();
 				MessengerDetails details = new MessengerDetails(email, comment);
 				details.setExtra(version);
 				details.setObjectToSubmit(files);
+				submitStatus.setVisible(true);
+				submitStatus.setBusy(true);
 				firePropertyChange(propertyName, null, details);
 			}
 		} else {
@@ -311,7 +322,7 @@ public class MessengerDialog
         commentArea.setEditable(true);
         //commentArea.setBorder(
         //		BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        commentArea.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+        commentArea.setBackground(UIUtilities.BACKGROUND_COLOR);
         commentArea.setOpaque(true);
         if (exception != null) {
         	debugArea = buildExceptionArea();
@@ -324,6 +335,9 @@ public class MessengerDialog
 			sendButton.setEnabled(false);
 			commentArea.getDocument().addDocumentListener(this);
 		}
+        submitStatus = new JXBusyLabel(new Dimension(16, 16));
+        submitStatus.setText("Uploading files");
+        submitStatus.setVisible(false);
 	}
 
 	/**
@@ -568,6 +582,11 @@ public class MessengerDialog
      */
     private JPanel buildToolBar()
     {
+    	JPanel bars = new JPanel();
+    	bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
+    	JPanel p = UIUtilities.buildComponentPanel(submitStatus);
+    	p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+    	bars.add(p);
     	JPanel bar = new JPanel();
     	bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
@@ -575,9 +594,10 @@ public class MessengerDialog
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(sendButton);
     	bar.add(Box.createHorizontalStrut(10));
-    	JPanel p = UIUtilities.buildComponentPanelRight(bar);
+    	p = UIUtilities.buildComponentPanelRight(bar);
     	p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-    	return p;
+    	bars.add(p);
+    	return bars;
     }
     
 	/** 

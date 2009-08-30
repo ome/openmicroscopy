@@ -135,6 +135,10 @@ class UserNotifierManager
 	private void submitFiles(MessengerDialog source, 
 								MessengerDetails details)
 	{
+		FileUploader loader = new FileUploader(component, container.getRegistry(), 
+				source, details);
+		loader.load();
+		/*
 		Registry reg = container.getRegistry();
 		String tokenURL = (String) reg.lookup(LookupNames.TOKEN_URL);
 		String processURL = (String) reg.lookup(LookupNames.PROCESSING_URL);
@@ -172,34 +176,6 @@ class UserNotifierManager
 							reply); 
 				}
 			}
-			/*
-			Communicator c = SvcRegistry.getCommunicator(desc);
-			StringBuilder token = new StringBuilder();
-			c.submitComment(INVOKER_ERROR,
-					details.getEmail(), details.getComment(), 
-					details.getExtra(), appName, token);
-			System.err.println(token.toString());
-			//Going to submit the files.
-			desc = new CommunicatorDescriptor(
-					HttpChannel.CONNECTION_PER_REQUEST, processURL, timeout);
-			c = SvcRegistry.getCommunicator(desc);
-			List l = (List) details.getObjectToSubmit();
-			Map<File, String> files = new HashMap<File, String>();
-			Iterator i = l.iterator();
-			FileTableNode node;
-			File f;
-			ImportException ex;
-			while (i.hasNext()) {
-				node = (FileTableNode) i.next();
-				f = node.getFile();
-				ex = (ImportException) node.getException();
-				if (f != null)
-					files.put(f, ex.getReaderType());
-			}
-			
-			StringBuilder reply = new StringBuilder();
-			c.submitFiles(token.toString(), files, reply); 
-			*/
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
             msg.println("Failed to send files.");
@@ -213,6 +189,7 @@ class UserNotifierManager
 			s += MESSAGE_END;
 			JOptionPane.showMessageDialog(source, s+teamAddress+".");
 		}
+		*/
 		//source.setVisible(false);
 		//source.dispose();
 	}

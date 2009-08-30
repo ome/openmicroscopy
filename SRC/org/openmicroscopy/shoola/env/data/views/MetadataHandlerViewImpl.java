@@ -37,12 +37,15 @@ import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.DataFilter;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.FileUploader;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.util.ui.MessengerDetails;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.FileAnnotationData;
@@ -294,6 +297,17 @@ class MetadataHandlerViewImpl
 	{
 		BatchCallTree cmd = new DataObjectSaver(objects, null, 
 				DataObjectSaver.UPDATE);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#submitFile(MessengerDetails, AgentEventListener)
+	 */
+	public CallHandle submitFile(MessengerDetails details,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new FileUploader(details);
 		return cmd.exec(observer);
 	}
 	

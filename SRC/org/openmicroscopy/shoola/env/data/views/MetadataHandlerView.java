@@ -36,6 +36,8 @@ import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.util.ui.MessengerDetails;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.FileAnnotationData;
@@ -319,5 +321,14 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle updateDataObjects(List<DataObject> objects, 
 			AgentEventListener observer);
-	
+
+	/**
+	 * Submits the files to the QA system.
+	 * 
+	 * @param details  Object containing the information to send.
+	 * @param observer Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle submitFile(MessengerDetails details, 
+			AgentEventListener observer);
 }

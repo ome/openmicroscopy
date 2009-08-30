@@ -59,7 +59,7 @@ class FileLoader
 	/** The size of the file. */
 	private long		size;
 	
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
     
     /**
