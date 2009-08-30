@@ -300,6 +300,7 @@ public class MessengerDialog
 		} else {
 			sendError(propertyName);
 		}
+		sendButton.setEnabled(false);
 	}
 	
 	/** Initializes the various components. */

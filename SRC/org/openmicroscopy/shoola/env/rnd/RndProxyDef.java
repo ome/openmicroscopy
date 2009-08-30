@@ -192,20 +192,6 @@ public class RndProxyDef
 	void setColorModel(String colorModel) { this.colorModel = colorModel; }
 
 	/**
-	 * Returns the currently selected timepoint.
-	 * 
-	 * @return See above. 
-	 */
-	int getDefaultT() { return defaultT; }
-
-	/**
-	 * Returns the currently selected z-section.
-	 * 
-	 * @return See above. 
-	 */
-	int getDefaultZ() { return defaultZ; }
-
-	/**
 	 * Sets to <code>true</code> if the pixels type is signed,
 	 * <code>false</code> otherwise.
 	 * 
@@ -263,5 +249,20 @@ public class RndProxyDef
 		}
 		return copy;
 	}
+	
+	/**
+	 * Returns the currently selected time-point.
+	 * 
+	 * @return See above. 
+	 */
+	public int getDefaultT() { return defaultT; }
+
+	/**
+	 * Returns the currently selected z-section.
+	 * 
+	 * @return See above. 
+	 */
+	public int getDefaultZ() { return defaultZ; }
+	
   
 }

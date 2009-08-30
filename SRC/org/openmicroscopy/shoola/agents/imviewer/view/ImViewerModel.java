@@ -1809,6 +1809,19 @@ class ImViewerModel
 	boolean isOriginalSettings() { return isSameSettings(originalDef); }
 
 	/**
+	 * Returns <code>true</code> if it is the original plane, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isOriginalPlane()
+	{
+		if (originalDef.getDefaultZ() != getDefaultZ()) return false;
+		if (originalDef.getDefaultT() != getDefaultT()) return false;
+		return true;
+	}
+	
+	/**
 	 * Returns <code>true</code> if the passed rendering settings are the same
 	 * that the current one, <code>false</code> otherwise.
 	 * 

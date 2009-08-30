@@ -206,6 +206,20 @@ class ImViewerComponent
 		view.setPlaneInfoStatus();
 	}
 	
+	/** Saves the plane quietly i.e. no question asked to the user. */
+	private void savePlane()
+	{
+		if (model.isOriginalPlane()) return;
+		try {
+			saveRndSettings();
+		} catch (Exception e) {
+			LogMessage logMsg = new LogMessage();
+			logMsg.println("Cannot save rendering settings. ");
+			logMsg.print(e);
+			ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
+		}
+	}
+	
 	/** 
 	 * Displays message before closing the viewer. 
 	 * Returns <code>true</code> if we need to close the viewer,
@@ -260,7 +274,10 @@ class ImViewerComponent
 				}
 			}
 		}
-		if (!showBox) return true;
+		if (!showBox) {
+			savePlane();
+			return true;
+		}
 		MessageBox msg = new MessageBox(view, "Save Data", 
 		"Before closing the viewer, do you want to save: ");
 		msg.addCancelButton();
@@ -277,6 +294,9 @@ class ImViewerComponent
 					logMsg.print(e);
 					ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
 				}
+			}
+			if (rndBox == null) {
+				savePlane();
 			}
 			if (annotationBox != null && annotationBox.isSelected())
 				model.saveMetadata();
