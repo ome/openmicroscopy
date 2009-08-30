@@ -1149,7 +1149,7 @@ class OMEROGateway
 	 * @param service	The search service.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
 	private List<String> prepareTextSearch(String[] terms, SearchPrx service) 
@@ -1195,7 +1195,7 @@ class OMEROGateway
 	 * @param service	The search service.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
 	private List<String> prepareTextSearch(Collection<String> terms, 
@@ -1225,9 +1225,13 @@ class OMEROGateway
 	{
 		if (value == null) return false;
 		Iterator<String> i = WILD_CARDS.iterator();
-		while (i.hasNext()) 
-			if (value.startsWith(i.next())) return true;
-		
+		String card = null;
+		while (i.hasNext()) {
+			card = i.next();
+			if (value.startsWith(card)) {
+				return true;
+			}
+		}
 		return false;
 	}
 
