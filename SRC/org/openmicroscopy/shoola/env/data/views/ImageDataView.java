@@ -43,7 +43,7 @@ import pojos.DataObject;
 import pojos.PixelsData;
 
 /** 
- * Provides methods to support image viewing and analysing
+ * Provides methods to support image viewing and analysing.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -316,6 +316,17 @@ public interface ImageDataView
 	 * @return See above.
 	 */
 	public CallHandle loadInstrumentData(long instrumentID, 
+			AgentEventListener observer);
+
+	/**
+	 * Loads the ROI.
+	 * 
+	 * @param imageID 	The image's id.
+	 * @param userID	The user's id.
+	 * @param observer	Callback handler.
+	 * @return See above.
+	 */
+	public CallHandle loadROI(long imageID, long userID, 
 			AgentEventListener observer);
 	
 }

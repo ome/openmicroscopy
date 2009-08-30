@@ -650,4 +650,16 @@ class OmeroImageServiceImpl
 		return context.getMetadataService().loadAnnotation(id);
 	}
 	
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#loadROI(long, long)
+	 */
+	public Object loadROI(long imageID, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (imageID <= 0)
+			throw new IllegalArgumentException("No image specified.");
+		return gateway.loadROI(imageID, userID);
+	}
+	
 }

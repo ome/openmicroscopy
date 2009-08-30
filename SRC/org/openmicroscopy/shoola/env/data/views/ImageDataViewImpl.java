@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.MovieCreator;
 import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.ROILoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
@@ -330,6 +331,17 @@ class ImageDataViewImpl
 			long irfID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new FretAnalyser(controlID, toAnalyzeID, irfID);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#analyseFretFit(long, long, long, AgentEventListener)
+     */
+	public CallHandle loadROI(long imageID, long userID,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ROILoader(imageID, userID);
 		return cmd.exec(observer);
 	}
 	

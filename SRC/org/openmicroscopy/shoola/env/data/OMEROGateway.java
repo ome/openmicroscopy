@@ -4554,6 +4554,28 @@ class OMEROGateway
 		return null;
 	}
 	
+	/**
+	 * Loads the ROI related to the specified image.
+	 * 
+	 * @param imageID 	The image's ID.
+	 * @param userID	The user's ID.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Object loadROI(long imageID, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			return null;
+		} catch (Exception e) {
+			handleException(e, "Cannot load the ROI for image: "+imageID);
+		}
+		return null;
+	}
 	//tmp
 	//static MonitorServerPrx getMonitorServer() { return monitorPrx; }
 	

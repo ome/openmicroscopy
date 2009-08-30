@@ -297,8 +297,22 @@ public class NullRenderingService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#analyseFretFit(long, long, long)
+     */
 	public DataObject analyseFretFit(long controlID, long toAnalyzeID,
 			long irfID) throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#loadROI(long, long)
+     */
+	public Object loadROI(long imageID, long userID)
+			throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
 	}

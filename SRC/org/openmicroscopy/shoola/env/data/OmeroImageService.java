@@ -445,6 +445,18 @@ public interface OmeroImageService
 	public Object monitor(String path, DataObject container, 
 			long userID, long groupID);
 
-	
-	
+	/**
+	 * Loads the ROI related to the specified image.
+	 * 
+	 * @param imageID 	The image's ID.
+	 * @param userID	The user's ID.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object loadROI(long imageID, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+
 }
