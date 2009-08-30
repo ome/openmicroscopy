@@ -129,27 +129,32 @@ public class DMRefreshLoader
                     if (parent instanceof ProjectData) {
                         children = ((ProjectData) parent).getDatasets();
                         klass = DatasetData.class;
+                    } else if (parent instanceof ScreenData) {
+                    	children = ((ScreenData) parent).getPlates();
+                        klass = ScreenData.class;
                     } else if (parent instanceof DatasetData) {
                     	children = new HashSet(1);
                     	children.add(parent);
                     	klass = DatasetData.class;
                     } 
                     topNodes.put(parent, newChildren);
-                    c = children.iterator();
-                    while (c.hasNext()) {
-                        child = (DataObject) c.next();
-                        id = new Long(child.getId());
-                        if (ids.contains(id)) {
-                            cIds = new ArrayList(1);
-                            cIds.add(id);
-                            r = os.loadContainerHierarchy(klass, cIds, 
-                                    true, userID);
-                            k = r.iterator();
-                            while (k.hasNext()) {
-                                newChildren.add(k.next());
-                            }
-                        } else newChildren.add(child);
-                    }
+                    //if (children != null) {
+                    	c = children.iterator();
+                        while (c.hasNext()) {
+                            child = (DataObject) c.next();
+                            id = new Long(child.getId());
+                            if (ids.contains(id)) {
+                                cIds = new ArrayList(1);
+                                cIds.add(id);
+                                r = os.loadContainerHierarchy(klass, cIds, 
+                                        true, userID);
+                                k = r.iterator();
+                                while (k.hasNext()) {
+                                    newChildren.add(k.next());
+                                }
+                            } else newChildren.add(child);
+                        }
+                    //}
                 }
                 result = topNodes;
                 if (results.containsKey(userID)) {
