@@ -22,6 +22,9 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 //Java imports
 
 //Third-party libraries
@@ -82,5 +85,20 @@ public class ImportException
 	 */
 	public String getReaderType() { return readerType; }
 	
+	/**
+	 * Overridden to return the cause of the problem
+	 * @see Exception#toString()
+	 */
+	public String toString()
+	{
+		Throwable cause = getCause();
+		if (cause != null) {
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			cause.printStackTrace(pw);
+			return sw.toString();
+		}
+		return super.toString();
+	}
 	
 }

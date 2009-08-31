@@ -53,8 +53,6 @@ import Ice.ConnectionLostException;
 
 //Application-internal dependencies
 import loci.formats.FormatException;
-import loci.formats.ImageReader;
-
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -4438,11 +4436,9 @@ class OMEROGateway
 	String getReaderType()
 	{
 		try {
-			ImageReader imageReader = (ImageReader) getImportStore().getReader();
-	        String formatString = imageReader.getReader().getClass().toString();
-	        formatString = formatString.replace("class loci.formats.in.", "");
-	        formatString = formatString.replace("Reader", "");
-	        return formatString;
+			String reader = getImportStore().getReaderType();
+			if (reader != null) return reader;
+	        return "";
 		} catch (Exception e) {
 		}
 		return "";
