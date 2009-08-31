@@ -68,7 +68,7 @@ public class ROILoader
     		            public void doCall() throws Exception
             {
     		    OmeroImageService svc = context.getImageService();
-    		    svc.loadROI(imageID, userID);
+    		    results = svc.loadROI(imageID, userID);
             }
         };
     }

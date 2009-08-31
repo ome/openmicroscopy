@@ -90,6 +90,8 @@ import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
+import omero.api.RoiOptions;
+import omero.api.RoiResult;
 import omero.api.SearchPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
@@ -4570,11 +4572,12 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			return null;
+			IRoiPrx service = getROIService();
+			return service.findByImage(imageID, new RoiOptions());
 		} catch (Exception e) {
 			handleException(e, "Cannot load the ROI for image: "+imageID);
 		}
-		return null;
+		return new Object();
 	}
 	//tmp
 	//static MonitorServerPrx getMonitorServer() { return monitorPrx; }

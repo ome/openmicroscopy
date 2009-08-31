@@ -40,11 +40,13 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 
+import pojos.ExperimenterData;
 import pojos.PixelsData;
 
 /** 
@@ -165,7 +167,6 @@ public class MeasurementAgent
 					viewer.setActiveChannelsColor(evt.getChannels());
 					break;
 			}
-    		
     	}
     }
     
@@ -205,6 +206,17 @@ public class MeasurementAgent
      */
     public static Registry getRegistry() { return registry; }
     
+    /**
+	 * Helper method returning the current user's details.
+	 * 
+	 * @return See above.
+	 */
+	public static ExperimenterData getUserDetails()
+	{ 
+		return (ExperimenterData) registry.lookup(
+								LookupNames.CURRENT_USER_DETAILS);
+	}
+	
     /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate()

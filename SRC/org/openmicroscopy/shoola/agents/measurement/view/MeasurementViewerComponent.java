@@ -39,6 +39,8 @@ import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
+import omero.api.RoiResult;
+
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 
@@ -203,7 +205,8 @@ class MeasurementViewerComponent
         							(int) (model.getSizeY()*f));
         		UIUtilities.setDefaultSize(model.getDrawingView(), d);
         		model.getDrawingView().setSize(d);
-        		model.fireROILoading(null);
+        		//model.fireROILoading(null);
+        		model.fireLoadROIFromServer();
         		fireStateChange();
                 break;
             case DISCARDED:
@@ -768,7 +771,7 @@ class MeasurementViewerComponent
 	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#saveRndSettings()
+     * @see MeasurementViewer#toFront()
      */
     public void toFront()
     {
@@ -778,7 +781,7 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setIconImage(BufferedImage, BufferedImage)
+     * @see MeasurementViewer#setIconImage(BufferedImage)
      */
 	public void setIconImage(BufferedImage thumbnail)
 	{
@@ -804,6 +807,29 @@ class MeasurementViewerComponent
 	{
 		if (model.getState() == DISCARDED) return false;
 		return model.hasROIToSave();
+	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setServerROI(Object)
+     */
+	public void setServerROI(Object result)
+	{
+		if (model.getState() != LOADING_ROI)
+			throw new IllegalArgumentException("The method can only " +
+					"be invoked in the LOADING_ROI state.");
+		System.err.println("loaded");
+		if (result instanceof RoiResult) { //some ROI previously saved.
+			
+		} 
+		//bring up the UI.
+		view.rebuildManagerTable();
+		view.updateDrawingArea();
+		view.setReadyStatus();
+		fireStateChange();
+		//Now we are ready to go. We can post an event to add component to
+		//Viewer
+		postEvent(MeasurementToolLoaded.ADD);
 	}
 	
 }

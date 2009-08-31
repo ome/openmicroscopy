@@ -22,21 +22,18 @@
  */
 package org.openmicroscopy.shoola.agents.measurement;
 
-import java.util.Map;
-
-import omero.IllegalArgumentException;
-
-import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 //Java imports
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /**
- *
+ * Loads the ROI related to a given image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *     <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -100,7 +97,7 @@ public class ROILoader
     public void handleResult(Object result)
     {
     	if (viewer.getState() == MeasurementViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setStatsShapes((Map) result);
+    	viewer.setServerROI(result);
     }
 
 }

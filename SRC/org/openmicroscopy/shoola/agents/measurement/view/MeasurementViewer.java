@@ -262,11 +262,11 @@ public interface MeasurementViewer
      */
 	public void setIconImage(BufferedImage thumbnail);
 	
-	 /**
-     * Sets the rendered image.
-     * 
-     * @param rndImage	The rendered image.
-     */
+	/**
+	 * Sets the rendered image.
+	 * 
+	 * @param rndImage	The rendered image.
+	 */
 	public void setRndImage(BufferedImage rndImage);
 	
 	/**
@@ -276,5 +276,12 @@ public interface MeasurementViewer
 	 * @return See above.
 	 */
 	public boolean hasROIToSave();
+
+	/**
+	 * Sets the ROI loaded from the server.
+	 * 
+	 * @param result The ROI.
+	 */
+	public void setServerROI(Object result);
 	
 }

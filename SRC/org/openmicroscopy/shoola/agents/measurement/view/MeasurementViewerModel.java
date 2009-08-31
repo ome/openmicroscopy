@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.measurement.Analyser;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
+import org.openmicroscopy.shoola.agents.measurement.ROILoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -73,6 +74,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import pojos.ChannelData;
+import pojos.ExperimenterData;
 import pojos.PixelsData;
 
 /** 
@@ -712,6 +714,16 @@ class MeasurementViewerModel
 		}
 	}
 	
+	/** Loads the ROI associated to the image. */
+	void fireLoadROIFromServer()
+	{
+		state = MeasurementViewer.LOADING_ROI;
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		currentLoader = new ROILoader(component, getImageID(), exp.getId());
+		currentLoader.load();
+	}
+	
 	/** 
 	 * Returns the path to the file where the ROIs have been saved
 	 * or <code>null</code> if not previously saved.
@@ -721,7 +733,7 @@ class MeasurementViewerModel
 	String getFileSaved() { return fileSaved; }
 	
 	/**
-	 * Saves the current ROISet in the roi component to file.
+	 * Saves the current ROISet in the ROI component to file.
 	 * 
 	 * @param fileName 	name of the file to be saved.
 	 * @param post		Pass <code>true</code> to post an event, 
