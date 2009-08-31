@@ -108,9 +108,17 @@ public class FileUploader implements IObservable
 
                 method = new PostMethod(url);
 
+                String format = "";
+                
+                if (upload.getFileFormat() != null)
+                    format = upload.getFileFormat();
+                else
+                    format = "unknown";
+                    
+                
                 Part[] parts ={ 
                         new StringPart("token", upload.getToken()), 
-                        new StringPart("file_format", upload.getFileFormat()), 
+                        new StringPart("file_format", format), 
                         new FilePart("Filedata", file) 
                         };
                 

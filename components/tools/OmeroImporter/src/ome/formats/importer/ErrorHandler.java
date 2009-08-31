@@ -148,6 +148,7 @@ public class ErrorHandler
             		}
             		catch (Throwable error)
             		{ 
+            		    error.printStackTrace();
             		}
             	}
             };
@@ -212,19 +213,23 @@ public class ErrorHandler
 			String sendUrl = tokenUrl;
 			
 			boolean send = (Boolean)errorTable.table.getValueAt(i, 0);
-			System.err.println(send);
+			//System.err.println(send);
 			
 			if (errorContainer.getSelectedFile() != null && sendFiles && send)
 			{
 				postList.add(new StringPart("selected_file", errorContainer.getSelectedFile().getName()));
 				postList.add(new StringPart("absolute_path", errorContainer.getAbsolutePath()));
 
-				for (String f : errorContainer.getFiles())
+				if (errorContainer.getFiles().length > 1)
 				{
-					File file = new File(f);          
-					postList.add(new StringPart("additional_files", file.getName()));
-					postList.add(new StringPart("additional_files_size", ((Long)file.length()).toString()));
-					postList.add(new StringPart("additional_files_path", file.getParent()));
+    				for (String f : errorContainer.getFiles())
+    				{
+    					File file = new File(f);          
+    					postList.add(new StringPart("additional_files", file.getName()));
+    					postList.add(new StringPart("additional_files_size", ((Long)file.length()).toString()));
+    					if (file.getParent() != null)
+    					    postList.add(new StringPart("additional_files_path", file.getParent()));
+    				}
 				}
 			}
 

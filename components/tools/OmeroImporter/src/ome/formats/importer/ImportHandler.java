@@ -99,7 +99,8 @@ public class ImportHandler
                     }
                     catch (Throwable error)
                     {    
-                        addError(error, selected_file, null, null);
+                        String[] files = {selected_file.getAbsolutePath()};
+                        addError(error, selected_file, files, null);
                     }
                 }
             };
@@ -243,7 +244,8 @@ public class ImportHandler
                     }
                     else
                     {
-                        addError(fe, importContainer[j].file, null, null);
+                        String[] files = {importContainer[j].file.getAbsolutePath()};
+                        addError(fe, importContainer[j].file, files, null);
                     }
                     
                     try
