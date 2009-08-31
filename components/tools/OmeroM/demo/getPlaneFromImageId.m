@@ -8,7 +8,7 @@ function plane = getPlaneFromImageId(gateway, imageId, zSlice, channel, timePoin
 pixels = gateway.getPixelsFromImage(imageId);
 pixelsId = pixels.get(0).getId().getValue();
 rawPlane = gateway.getPlane(pixelsId, zSlice, channel , timePoint);
-plane = toMatrix(rawPlane, pixels);
+plane = toMatrix(rawPlane, pixels.get(0));
 
 % plane2D = omerojava.util.GatewayUtils.getPlane2D(pixels.get(0), rawPlane);
 % plane = plane2D.getPixelsArrayAsDouble(1);
