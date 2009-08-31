@@ -130,7 +130,7 @@ public class DMRefreshLoader
                         children = ((ProjectData) parent).getDatasets();
                         klass = DatasetData.class;
                     } else if (parent instanceof ScreenData) {
-                    	children = ((ScreenData) parent).getPlates();
+                    	children = null;//((ScreenData) parent).getPlates();
                         klass = ScreenData.class;
                     } else if (parent instanceof DatasetData) {
                     	children = new HashSet(1);
@@ -138,7 +138,7 @@ public class DMRefreshLoader
                     	klass = DatasetData.class;
                     } 
                     topNodes.put(parent, newChildren);
-                    //if (children != null) {
+                    if (children != null) {
                     	c = children.iterator();
                         while (c.hasNext()) {
                             child = (DataObject) c.next();
@@ -154,7 +154,7 @@ public class DMRefreshLoader
                                 }
                             } else newChildren.add(child);
                         }
-                    //}
+                    }
                 }
                 result = topNodes;
                 if (results.containsKey(userID)) {
