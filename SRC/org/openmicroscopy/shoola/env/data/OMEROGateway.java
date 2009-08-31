@@ -2410,24 +2410,11 @@ class OMEROGateway
 		return new ArrayList();
 	}
 
-	/**
-	 * Finds the links if any between the specified parent and children.
-	 * 
-	 * @param parentClass   The parent.
-	 * @param childID  		The id of the child.
-	 * @param userID		The id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	List findLinks(Class parentClass, long childID, long userID)
+	private List loadLinks(String table, long childID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		isSessionAlive();
 		try {
-			String table = getTableForLink(parentClass);
-			if (table == null) return null;
+			if (table == null) return new ArrayList();
 			ParametersI param = new ParametersI();
 			param.map.put("id", omero.rtypes.rlong(childID));
 			StringBuffer sb = new StringBuffer();
@@ -2453,6 +2440,31 @@ class OMEROGateway
 					"child ID: "+childID);
 		}
 		return new ArrayList();
+	}
+	
+	/**
+	 * Finds the links if any between the specified parent and children.
+	 * 
+	 * @param parentClass   The parent.
+	 * @param childID  		The id of the child.
+	 * @param userID		The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	List findLinks(Class parentClass, long childID, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		if (FileAnnotation.class.equals(parentClass)) {
+			List results = new ArrayList();
+			results.addAll(loadLinks("ProjectAnnotationLink", childID, userID));
+			results.addAll(loadLinks("DatasetAnnotationLink", childID, userID));
+			results.addAll(loadLinks("ImageAnnotationLink", childID, userID));
+			return results;
+		}
+		return loadLinks(getTableForLink(parentClass), childID, userID);
 	}
 
 	/**

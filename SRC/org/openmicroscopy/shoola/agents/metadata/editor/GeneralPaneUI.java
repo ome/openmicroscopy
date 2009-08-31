@@ -339,6 +339,11 @@ class GeneralPaneUI
 					s = "Contained in Tag Sets";
 				}
 			}
+		} else if (refObject instanceof FileAnnotationData) {
+			if (!multi) {
+				h = TableLayout.PREFERRED;
+				s = "Attached to...";
+			}
 		} else if (refObject instanceof DatasetData) {
 			if (!multi) {
 				h = TableLayout.PREFERRED;
@@ -429,6 +434,17 @@ class GeneralPaneUI
     		if (model.isMultiSelection()) layout.setRow(browserIndex, 0);
     		else layout.setRow(browserIndex, TableLayout.PREFERRED);
     	}
+    	if (uo instanceof FileAnnotationData) {
+    		if (model.isMultiSelection()) layout.setRow(browserIndex, 0);
+    		else layout.setRow(browserIndex, TableLayout.PREFERRED);
+    	} else if (uo instanceof TagAnnotationData) {
+			TagAnnotationData tag = (TagAnnotationData) uo;
+			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+					tag.getNameSpace())) {
+				if (model.isMultiSelection()) layout.setRow(browserIndex, 0);
+	    		else layout.setRow(browserIndex, TableLayout.PREFERRED);
+			}
+		}
 		revalidate();
     	repaint();
 	}

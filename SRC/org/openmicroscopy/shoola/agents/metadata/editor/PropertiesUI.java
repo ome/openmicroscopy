@@ -343,9 +343,9 @@ class PropertiesUI
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
         content.setBorder(null);
        	if (permissions != null && permissions.isGroupRead()) 
-       		publicBox.setSelected(true);
+       		groupBox.setSelected(true);
        	content.add(privateBox);
-       	content.add(publicBox);
+       	content.add(groupBox);
        	JPanel p = UIUtilities.buildComponentPanel(content, 0, 0);
        	p.setBackground(UIUtilities.BACKGROUND_COLOR);
        	p.setBorder(null);

@@ -186,7 +186,7 @@ public class ThumbnailSetLoader
         		image = input.get(pixelsID);
         		thumbPix = (BufferedImage) m.get(pixelsID);
 				if (thumbPix == null) {
-					valid = false;
+					//valid = false;
 					thumbPix = createDefaultImage(image);
 				}
 					

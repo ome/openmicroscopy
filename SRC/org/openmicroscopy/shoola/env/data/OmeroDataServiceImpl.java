@@ -46,6 +46,7 @@ import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetImageLink;
 import omero.model.Event;
+import omero.model.FileAnnotation;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -1162,6 +1163,8 @@ class OmeroDataServiceImpl
 				parentClass = Screen.class;
 			else if (TagAnnotationData.class.equals(type))
 				parentClass = TagAnnotation.class;
+			else if (FileAnnotationData.class.equals(type))
+				parentClass = FileAnnotation.class;
 			if (parentClass == null) return new HashSet();
 			List links = gateway.findLinks(parentClass, id, userID);
 			if (links == null) return new HashSet();
@@ -1171,6 +1174,7 @@ class OmeroDataServiceImpl
 			DataObject data;
 			List<Long> ids = new ArrayList<Long>();
 			long parentId;
+			IObject link;
 			while (i.hasNext()) {
 				if (parentClass.equals(Project.class))
 					parent = ((ProjectDatasetLink) i.next()).getParent();
@@ -1180,6 +1184,15 @@ class OmeroDataServiceImpl
 					parent = ((ScreenPlateLink) i.next()).getParent();
 				else if (parentClass.equals(TagAnnotation.class)) 
 					parent = ((AnnotationAnnotationLink) i.next()).getParent();
+				else if (parentClass.equals(FileAnnotation.class)) {
+					link = (IObject) i.next();
+					if (link instanceof ProjectAnnotationLink)
+						parent = ((ProjectAnnotationLink) link).getParent();
+					else if (link instanceof DatasetAnnotationLink)
+						parent = ((DatasetAnnotationLink) link).getParent();
+					else if (link instanceof ImageAnnotationLink)
+						parent = ((ImageAnnotationLink) link).getParent();
+				}
 				parentId = parent.getId().getValue();
 				if (!ids.contains(parentId)) {
 					object = gateway.findIObject(parent.getClass().getName(), 
@@ -1196,7 +1209,6 @@ class OmeroDataServiceImpl
 					} else nodes.add(data);
 					ids.add(parentId);
 				}
-				
 			}
 			return nodes;
 		} catch (Exception e) {
