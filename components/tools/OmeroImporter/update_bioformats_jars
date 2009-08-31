@@ -24,6 +24,13 @@ repository; predominently Bio-Formats.
 
 
 import urllib
+import sys
+import re
+import os
+
+from subprocess import Popen
+from getopt import getopt, GetoptError
+from glob import glob
 
 # Handle Python 2.5 built-in ElementTree
 try:
@@ -31,25 +38,84 @@ try:
 except ImportError:
         from elementtree.ElementTree import XML, ElementTree, tostring
 
-# JARs to ignore from download
-ignore = ["loci_tools.jar"]
+def usage(error):
+    """Prints usage so that we don't have to. :)"""
+    cmd = sys.argv[0]
+    print """%s
+Usage: %s [--subversion]
+Retrieves and updates Bio-Formats JARs from Hudson
 
-url = urllib.urlopen("http://hudson.openmicroscopy.org.uk/job/LOCI/lastBuild/api/xml")
-hudson_xml = url.read()
-url.close()
+Options:
+  --subversion      Performs Subversion commands to update the working copy
 
-root = XML(hudson_xml)
+Examples:
+  %s --subversion
 
-revision = root.find("./changeSet/revision/revision").text
-artifacts = root.findall("./artifact")
+Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
+    sys.exit(2)
 
-print "Updating Bio-Formats JARs from revision: %s" % revision
-base_url = "http://hudson.openmicroscopy.org.uk/job/LOCI/lastBuild/artifact/"
-for artifact in artifacts:
-    filename = artifact.find("fileName").text
-    if filename in ignore:
-        continue
-    filename = "%s-r%s.jar" % (filename[:-4], revision)
-    jar_url = base_url + artifact.find("relativePath").text
-    print "Downloading %s from URL %s" % (filename, jar_url)
-    urllib.urlretrieve(jar_url, filename)
+def download():
+    # JARs to ignore from download
+    ignore = ["loci_tools.jar"]
+    url = urllib.urlopen("http://hudson.openmicroscopy.org.uk/job/LOCI/lastBuild/api/xml")
+    hudson_xml = url.read()
+    url.close()
+    root = XML(hudson_xml)
+
+    revision = root.find("./changeSet/revision/revision").text
+    artifacts = root.findall("./artifact")
+    print "Updating Bio-Formats JARs from revision: %s" % revision
+    base_url = "http://hudson.openmicroscopy.org.uk/job/LOCI/lastBuild/artifact/"
+    new_jars = list()
+    for artifact in artifacts:
+        filename = artifact.find("fileName").text
+        if filename in ignore:
+            continue
+        filename = "%s-r%s.jar" % (filename[:-4], revision)
+        jar_url = base_url + artifact.findtext("relativePath")
+        print "Downloading %s from URL %s" % (filename, jar_url)
+        urllib.urlretrieve(jar_url, filename)
+        new_jars.append(filename)
+    return [revision, new_jars]
+    
+def update(revision, new_jars):
+    print "Updating local Subversion repository"
+    f = open("../../etc/omero.properties")
+    properties = f.read()
+    f.close()
+    regex = re.compile(r'.*versions.bio-formats=r([^\n]*)', re.DOTALL)
+    old_revision = regex.match(properties).group(1)
+    print "Old revision is: %s" % old_revision
+
+    args = ['svn', 'del', '--force'] + glob('*r%s.jar' % old_revision)
+    p = Popen(args)
+    os.waitpid(p.pid, 0)
+    args = ['svn', 'add'] + glob('*r%s.jar' % revision)
+    p = Popen(args)
+    os.waitpid(p.pid, 0)
+
+    regex = re.compile('versions.bio-formats=r%s' % old_revision)
+    properties = regex.sub('versions.bio-formats=r%s' % revision, properties)
+    f = open("../../etc/omero.properties", 'w')
+    f.write(properties)
+    f.close()
+    
+    f = open("../../.classpath")
+    classpath = f.read()
+    f.close()
+    regex = re.compile('r%s.jar' % old_revision)
+    classpath = regex.sub('r%s.jar' % revision, classpath)
+    f = open("../../.classpath", "w")
+    f.write(classpath)
+    f.close()
+
+if __name__ == "__main__":
+    try:
+        options, args = getopt(sys.argv[1:], "", ['subversion'])
+    except GetoptError, (msg, opt):
+        usage(msg)
+
+    revision, new_jars = download()
+    for option, argument in options:
+        if option == '--subversion':
+            update(revision, new_jars)
