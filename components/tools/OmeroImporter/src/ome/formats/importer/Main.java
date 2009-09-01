@@ -173,6 +173,7 @@ public class Main extends JFrame
         
         // Load up the main ini file
         ini = IniFileLoader.getIniFileLoader(args);
+        ini.updateFlexReaderServerMaps();
         
         // Add a shutdown hook for when app closes
         Runtime.getRuntime().addShutdownHook(new Thread() {

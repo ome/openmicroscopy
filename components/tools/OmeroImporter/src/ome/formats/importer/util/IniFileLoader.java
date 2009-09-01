@@ -18,6 +18,9 @@ import java.util.prefs.Preferences;
 
 import javax.swing.JOptionPane;
 
+import loci.formats.FormatException;
+import loci.formats.in.FlexReader;
+
 import ome.formats.importer.Main;
 
 import org.apache.commons.logging.Log;
@@ -175,6 +178,35 @@ public class IniFileLoader
         return staticPrefs.node("General").get("port", "4063");
     }
     
+    public void updateFlexReaderServerMaps()
+    {
+    	Preferences maps = userPrefs.node("FlexReaderServerMaps");
+    	try
+    	{
+    		for (String key : maps.keys())
+    		{
+    			String value = maps.get(key, null);
+    			try
+    			{
+    				FlexReader.mapServer(key, value);
+    				log.info(String.format(
+    					"Added Flex reader server map '%s' = '%s'.",
+    					key, value));
+    			}
+    			catch (FormatException e)
+    			{
+    				log.warn(String.format(
+    					"Unable to add Flex reader server map '%s' = '%s'", 
+    					key, value), e);
+    			}
+    		}
+    	}
+    	catch (BackingStoreException e)
+    	{
+    		log.warn("Error updating Flex reader server maps.", e);
+    	}
+    }
+    
     //////////////// [UI] Section ////////////////
     public Boolean isDebugUI()
     {
@@ -182,8 +214,6 @@ public class IniFileLoader
     }
   
     // TODO: UI locations should handled multiple monitors
-    
-    
     
 	public Rectangle getUIBounds() {
 		
