@@ -48,6 +48,9 @@ import omero.metadatastore.IObjectContainer;
 import omero.model.Channel;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
+import omero.model.Dichroic;
+import omero.model.Filter;
+import omero.model.FilterSet;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Instrument;
@@ -450,6 +453,33 @@ public class MetadataValidatorTest
 	}
 	
 	@Test
+	public void testLogicalChannelFilterSetRef()
+	{
+		Class<? extends IObject> klass = LogicalChannel.class;
+		List<IObjectContainer> containers = 
+			store.getIObjectContainers(klass);
+		referenceCache = store.getReferenceCache();
+		for (IObjectContainer container : containers)
+		{
+			LSID lsid = new LSID(container.LSID);
+			String e = String.format(
+					"%s %s not found in reference cache", klass, lsid);
+			assertTrue(e, referenceCache.containsKey(lsid));
+			List<LSID> references = referenceCache.get(lsid);
+			assertTrue(references.size() > 0);
+			for (LSID referenceLSID : references)
+			{
+				assertNotNull(referenceLSID);
+				klass = FilterSet.class;
+				e = String.format(
+						"%s with LSID %s not found in container cache",
+						klass, referenceLSID);
+				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
+			}
+		}
+	}
+	
+	@Test
 	public void testInstrumentImageRef()
 	{
 		Class<? extends IObject> klass = Instrument.class;
@@ -471,6 +501,60 @@ public class MetadataValidatorTest
 			}
 			fail(String.format(
 					"%s %s not referenced by any image.", klass, lsid));
+		}
+	}
+	
+	@Test
+	public void testFilterSetFilterRef()
+	{
+		Class<? extends IObject> klass = FilterSet.class;
+		List<IObjectContainer> containers = 
+			store.getIObjectContainers(klass);
+		referenceCache = store.getReferenceCache();
+		for (IObjectContainer container : containers)
+		{
+			LSID lsid = new LSID(container.LSID);
+			String e = String.format(
+					"%s %s not found in reference cache", klass, lsid);
+			assertTrue(e, referenceCache.containsKey(lsid));
+			List<LSID> references = referenceCache.get(lsid);
+			assertTrue(references.size() > 0);
+			for (LSID referenceLSID : references)
+			{
+				assertNotNull(referenceLSID);
+				klass = Filter.class;
+				e = String.format(
+						"%s with LSID %s not found in container cache",
+						klass, referenceLSID);
+				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
+			}
+		}
+	}
+	
+	@Test
+	public void testFilterSetDichroic()
+	{
+		Class<? extends IObject> klass = FilterSet.class;
+		List<IObjectContainer> containers = 
+			store.getIObjectContainers(klass);
+		referenceCache = store.getReferenceCache();
+		for (IObjectContainer container : containers)
+		{
+			LSID lsid = new LSID(container.LSID);
+			String e = String.format(
+					"%s %s not found in reference cache", klass, lsid);
+			assertTrue(e, referenceCache.containsKey(lsid));
+			List<LSID> references = referenceCache.get(lsid);
+			assertTrue(references.size() > 0);
+			for (LSID referenceLSID : references)
+			{
+				assertNotNull(referenceLSID);
+				klass = Dichroic.class;
+				e = String.format(
+						"%s with LSID %s not found in container cache",
+						klass, referenceLSID);
+				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
+			}
 		}
 	}
 	
