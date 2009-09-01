@@ -31,6 +31,7 @@ Generate Java classes from an OME XML (http://www.ome-xml.org) XSD document.
 import glob
 import sys
 import os
+import re
 
 from tempfile import NamedTemporaryFile
 from getopt import getopt, GetoptError
@@ -57,6 +58,7 @@ Runs the metadata validation tests on a given set of targets.
 
 Options:
   -f            Reads targets from a file ("-" reads from STDIN)
+  --hudson      Prepares the TestNG XML for use by Hudson
 
 Examples:
   %s -f ~/regular_test_files ~/testimages/foo.tiff
@@ -65,9 +67,19 @@ Examples:
 Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd, cmd)
 	sys.exit(2)
 
-def create_testng_xml_file(targets):
+def create_testng_xml_file(targets, revision, bioformats_revision, hudson):
     """Creates a temporary file with TestNG XML content for each target."""
     root = Element("suite")
+    if revision is not None:
+        parameter = Element("parameter")
+        parameter.set("name", "omero_revision")
+        parameter.set("value", revision)
+        root.append(parameter)
+    if bioformats_revision is not None:
+        parameter = Element("parameter")
+        parameter.set("name", "bioformats_revision")
+        parameter.set("value", bioformats_revision)
+        root.append(parameter)
     root.set("name", "metadata-validator")
     for target in targets:
         target = target.strip().lstrip()
@@ -86,19 +98,24 @@ def create_testng_xml_file(targets):
         test.append(parameter)
         test.append(klasses)
         root.append(test)
-    xml_file = NamedTemporaryFile(suffix=".xml")
+    if hudson:
+        xml_file = open('testng.xml', 'w')
+    else:
+        xml_file = NamedTemporaryFile(suffix=".xml")
     xml_file.write(DOCTYPE)
     ElementTree(root).write(xml_file)
+    xml_file.write("\n")
     xml_file.flush()
     return xml_file
 
 if __name__ == '__main__':
     try:
-        options, args = getopt(sys.argv[1:], "f:")
+        options, args = getopt(sys.argv[1:], "f:", ['hudson'])
     except GetoptError, (msg, opt):
         usage(msg)
 
     targets = list()
+    hudson = False
     for option, argument in options:
         if option == "-f":
             if argument == "-":
@@ -106,8 +123,10 @@ if __name__ == '__main__':
             else:
                 f = open(argument)
             targets += f.readlines()
-    targets += args
+        if option == "--hudson":
+            hudson = True
 
+    targets += args
     if len(targets) == 0:
         usage("Expecting at least one target from file or argument")
 
@@ -123,7 +142,21 @@ if __name__ == '__main__':
     for f in glob.glob("./libs/test/*.jar"):
         classpath += ":%s" % f
 
-    xml_file = create_testng_xml_file(targets)
+    bioformats_revision = None
+    for entry in classpath.split(":"):
+        print "entry: %s" % entry
+        match = re.match('.*bio-formats-r(.*)\.jar', entry)
+        if match is not None:
+            bioformats_revision = match.group(1)
+
+    revision = None
+    try:
+        revision = os.environ['SVN_REVISION']
+    except:
+        pass
+
+    xml_file = create_testng_xml_file(targets, revision, bioformats_revision,
+                                      hudson)
     cmd = 'java %s -cp "%s" %s %s' % (JAVA_ARGS, classpath, \
                                       START_CLASS, xml_file.name)
     print cmd
