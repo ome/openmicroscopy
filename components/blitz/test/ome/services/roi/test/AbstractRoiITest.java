@@ -77,9 +77,14 @@ public class AbstractRoiITest extends AbstractServantTest {
     }
 
     protected RoiResult assertIntersection(Roi roi, Shape test, int size)
-            throws Exception {
+    throws Exception {
+        return assertIntersection(roi, test, size, null);
+    }
+    
+    protected RoiResult assertIntersection(Roi roi, Shape test, int size, RoiOptions opts)
+    throws Exception {
         long imageId = roi.getImage().getId().getValue();
-        RoiResult rr = assertFindIntersectingRois(imageId, test, null);
+        RoiResult rr = assertFindIntersectingRois(imageId, test, opts);
         assertNotNull(rr);
         assertEquals(size, rr.rois.size());
         return rr;

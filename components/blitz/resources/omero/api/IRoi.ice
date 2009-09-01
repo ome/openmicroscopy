@@ -23,13 +23,15 @@ module omero {
     module api {
 
         /**
-         * Specifies filters used when querying the ROIs. CURRENTLY UNUSED.
+         * Specifies filters used when querying the ROIs.
          **/
         class RoiOptions
             {
                 StringSet          shapes;
                 omero::RInt        limit;
                 omero::RInt        offset;
+                omero::RLong       userId;
+                omero::RLong       groupId;
             };
 
         /**

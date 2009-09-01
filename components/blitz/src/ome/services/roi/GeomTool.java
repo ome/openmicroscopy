@@ -18,7 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.model.meta.EventLog;
@@ -27,6 +30,7 @@ import ome.tools.hibernate.SessionFactory;
 import ome.util.Filterable;
 import omero.RBool;
 import omero.RInt;
+import omero.api.RoiOptions;
 import omero.api.RoiStats;
 import omero.api.ShapePoints;
 import omero.api.ShapeStats;
@@ -121,7 +125,8 @@ public class GeomTool implements ApplicationListener {
     }
 
     /**
-     * Loads just the shape and no other relationships. This 
+     * Loads just the shape and no other relationships. This
+     * 
      * @param shapeId
      * @param session
      * @return
@@ -240,9 +245,14 @@ public class GeomTool implements ApplicationListener {
      * the end to create a full SQL statement.
      */
     static final String FIND_INTERESECTING_QUERY = "select distinct r.id from "
-            + "Shape s, Roi r where r.image = %s and r.id  = s.roi and ( ";
+            + "Shape s, Roi r where r.image = %s and r.id  = s.roi and ";
 
     public List<Long> findIntersectingRois(long imageId, Shape... shapes) {
+        return findIntersectingRois(imageId, null, shapes);
+    }
+
+    public List<Long> findIntersectingRois(long imageId, RoiOptions opts,
+            Shape... shapes) {
 
         if (shapes == null || shapes.length == 0) {
             return null; // EARLY EXIT
@@ -251,16 +261,17 @@ public class GeomTool implements ApplicationListener {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format(FIND_INTERESECTING_QUERY, imageId));
 
+        sb.append("( ");
         boolean first = true;
         for (Shape shape : shapes) {
 
             if (first) {
                 first = false;
             } else {
-                sb.append(" or ");
+                sb.append("or ");
             }
 
-            sb.append(" ( ");
+            sb.append("( ");
 
             RInt z = shape.getTheZ();
             RInt t = shape.getTheT();
@@ -268,35 +279,76 @@ public class GeomTool implements ApplicationListener {
             RBool l = shape.getLocked();
 
             if (z != null) {
-                sb.append(" theZ = ");
+                sb.append("s.theZ = ");
                 sb.append(z.getValue());
                 sb.append(" and ");
             }
             if (t != null) {
-                sb.append(" theT = ");
+                sb.append("s.theT = ");
                 sb.append(t.getValue());
                 sb.append(" and ");
             }
             if (v != null) {
-                sb.append(" visibility = ");
+                sb.append("s.visibility = ");
                 sb.append(v.getValue());
                 sb.append(" and ");
             }
             if (l != null) {
-                sb.append(" locked = ");
+                sb.append("s.locked = ");
                 sb.append(l.getValue());
                 sb.append(" and ");
             }
-
-            sb.append(" pg_geom && ");
+            if (opts != null) {
+                if (opts.shapes != null && opts.shapes.size() > 0) {
+                    sb.append("s.discriminator in ( ");
+                    for (int i = 0; i < opts.shapes.size(); i++) {
+                        if (i > 0) {
+                            sb.append(", ");
+                        }
+                        sb.append("'");
+                        sb.append(discriminator(opts.shapes.get(i)));
+                        sb.append("'");
+                    }
+                    sb.append(") and ");
+                }
+            }
+            sb.append("s.pg_geom && ");
             String path = dbPath(shape);
             sb.append(path);
             sb.append("::polygon ");
-            sb.append(" ) ");
+            sb.append(") ");
 
         }
+        sb.append(") ");
 
-        sb.append(") order by r.id");
+        if (opts != null) {
+            // TODO if these were variables then the query could be cached
+            if (opts.userId != null) {
+                sb.append(" and r.owner_id = ");
+                sb.append(opts.userId.getValue());
+                sb.append(" ");
+            }
+            if (opts.groupId != null) {
+                sb.append(" and r.group_id = ");
+                sb.append(opts.groupId.getValue());
+                sb.append(" ");
+            }
+        }
+
+        sb.append("order by r.id ");
+        // FIXME This is not portable!
+        if (opts != null) {
+            if (opts.limit != null) {
+                sb.append("limit ");
+                sb.append(opts.limit.getValue());
+                sb.append(" ");
+            }
+            if (opts.offset != null) {
+                sb.append("offset ");
+                sb.append(opts.offset.getValue());
+                sb.append(" ");
+            }
+        }
         List<Long> ids = jdbc.query(sb.toString(), new IdRowMapper());
         return ids;
     }
@@ -338,9 +390,9 @@ public class GeomTool implements ApplicationListener {
         rs.perShape = new ShapeStats[shapeIds.size()];
 
         for (int i = 0; i < shapeIds.size(); i++) {
-            
+
             final long shapeId = shapeIds.get(i);
-            
+
             final ome.model.roi.Shape shape = (ome.model.roi.Shape) session
                     .createQuery(
                             "select s from Shape s "
@@ -385,7 +437,7 @@ public class GeomTool implements ApplicationListener {
 
             final ShapeStats stats = makeStats(pix, shape);
             stats.shapeId = shape.getId();
-            
+
             final int ch = stats.channelIds.length;
             final double[] sumOfSquares = new double[ch];
 
@@ -397,8 +449,7 @@ public class GeomTool implements ApplicationListener {
 
             final int endZ = (theZ == null) ? (maxZ - 1) : theZ.intValue();
             final int endT = (theT == null) ? (maxT - 1) : theT.intValue();
-            
-            
+
             SmartShape.PointCallback cb = new SmartShape.PointCallback() {
 
                 public void handle(int x, int y) {
@@ -444,6 +495,27 @@ public class GeomTool implements ApplicationListener {
 
     }
 
+    /**
+     * Maps from multiple possible user-provided names of shapes (e.g.
+     * "::omero::model::Text", "Text", "TextI", "omero.model.TextI",
+     * "ome.model.roi.Text", ...) to the definitive database discriminator.
+     *
+     * @param string
+     * @return
+     */
+    public Object discriminator(String string) {
+        if (string == null || string.length() == 0) {
+            throw new ApiUsageException("Empty string");
+        }
+        String[] s = string.split("[.:]");
+        string = s[s.length-1];
+        string = string.toLowerCase();
+        if (string.endsWith("i")) {
+            string = string.substring(0, string.length()-1);
+        }
+        return string;
+    }
+
     //
     // helpers
     //
@@ -460,13 +532,12 @@ public class GeomTool implements ApplicationListener {
         Arrays.fill(stats.min, 0, ch, Double.MAX_VALUE);
         return stats;
     }
-    
+
     private ShapeStats makeStats(Pixels pix, ome.model.roi.Shape shape) {
-        
+
         // If the shape does not explicitly list any channels, then we will
         // need to take all the available channels from the pixels.
-        
-        
+
         boolean shapeChannels = true;
         int ch = shape.sizeOfChannels();
         if (ch == 0) {
@@ -480,11 +551,12 @@ public class GeomTool implements ApplicationListener {
             if (shapeChannels) {
                 stats.channelIds[w] = -1; // FIXME
             } else {
-                stats.channelIds[w] = pix.getChannel(w).getLogicalChannel().getId();
+                stats.channelIds[w] = pix.getChannel(w).getLogicalChannel()
+                        .getId();
             }
-            
+
         }
-        
+
         return stats;
     }
 

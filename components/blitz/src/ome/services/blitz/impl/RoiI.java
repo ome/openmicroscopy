@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import ome.parameters.Filter;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
@@ -19,6 +20,7 @@ import ome.services.roi.GeomTool;
 import ome.services.throttling.Adapter;
 import ome.services.util.Executor.SimpleWork;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.QueryBuilder;
 import omero.ServerError;
 import omero.api.AMD_IRoi_findByAnyIntersection;
 import omero.api.AMD_IRoi_findByImage;
@@ -31,7 +33,6 @@ import omero.api.AMD_IRoi_getShapeStats;
 import omero.api.AMD_IRoi_getShapeStatsList;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
-import omero.api.ShapePoints;
 import omero.api._IRoiOperations;
 import omero.model.Roi;
 import omero.model.Shape;
@@ -82,16 +83,12 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
                 List<Long> roiIds = geomTool.findIntersectingRois(imageId,
-                        shape);
+                        opts, shape);
                 if (roiIds == null || roiIds.size() == 0) {
                     return null;
                 } else {
-                    Query q = session
-                            .createQuery("select distinct r from Roi r "
-                                    + "join fetch r.shapes where r.id in (:ids) "
-                                    + "order by r.id");
-                    q.setParameterList("ids", roiIds);
-                    return q.list();
+                    RoiQueryBuilder qb = new RoiQueryBuilder(roiIds);
+                    return qb.query(session).list();
                 }
             }
         }));
@@ -99,7 +96,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
     public void findByAnyIntersection_async(
             AMD_IRoi_findByAnyIntersection __cb, final long imageId,
-            final List<Shape> shapes, RoiOptions opts, Current __current)
+            final List<Shape> shapes, final RoiOptions opts, Current __current)
             throws ServerError {
 
         final IceMapper mapper = new RoiResultMapper(opts);
@@ -116,16 +113,12 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 }
 
                 List<Long> roiIds = geomTool.findIntersectingRois(imageId,
-                        shapes.toArray(new Shape[shapes.size()]));
+                        opts, shapes.toArray(new Shape[shapes.size()]));
                 if (roiIds == null || roiIds.size() == 0) {
                     return null;
                 } else {
-                    Query q = session
-                            .createQuery("select distinct r from Roi r "
-                                    + "join fetch r.shapes where r.id in (:ids) "
-                                    + "order by r.id");
-                    q.setParameterList("ids", roiIds);
-                    return q.list();
+                    RoiQueryBuilder qb = new RoiQueryBuilder(roiIds);
+                    return qb.query(session).list();
                 }
             }
         }));
@@ -144,7 +137,6 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-
                 Query q = session
                         .createQuery("select distinct r from Roi r join r.image i "
                                 + "join fetch r.shapes where i.id = :id "
@@ -158,7 +150,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
     }
 
     public void findByRoi_async(AMD_IRoi_findByRoi __cb, final long roiId,
-            RoiOptions opts, Current __current) throws ServerError {
+            final RoiOptions opts, Current __current) throws ServerError {
 
         final IceMapper mapper = new RoiResultMapper(opts);
 
@@ -168,13 +160,8 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-
-                Query q = session.createQuery("select distinct r from Roi r "
-                        + "join fetch r.shapes where r.id = :id "
-                        + "order by r.id");
-                q.setParameter("id", roiId);
-                return q.list();
-
+                RoiQueryBuilder qb = new RoiQueryBuilder(Arrays.asList(roiId));
+                return qb.query(session).list();
             }
         }));
     }
@@ -192,12 +179,11 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
 
-                Query q = session
-                        .createQuery("select distinct r from Roi r "
-                                + "join fetch r.shapes s where r.id = :id "
-                                + "and ( s.theZ is null or s.theZ = :z ) "
-                                + "and ( s.theT is null or s.theT = :t ) "
-                                + "order by r.id");
+                Query q = session.createQuery("select distinct r from Roi r "
+                        + "join fetch r.shapes s where r.id = :id "
+                        + "and ( s.theZ is null or s.theZ = :z ) "
+                        + "and ( s.theT is null or s.theT = :t ) "
+                        + "order by r.id");
                 q.setParameter("id", imageId);
                 q.setParameter("z", z);
                 q.setParameter("t", t);
@@ -275,6 +261,25 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
     // Helpers
     // =========================================================================
+
+    private static class RoiQueryBuilder extends QueryBuilder {
+
+        RoiQueryBuilder(List<Long> roiIds) {
+            this.paramList("ids", roiIds);
+            this.select("distinct r");
+            this.from("Roi", "r");
+            this.join("r.shapes", "s", false, true);
+            this.where();
+        }
+
+        @Override
+        public Query query(Session session) {
+            this.and("r.id in (:ids)");
+            this.append("order by r.id");
+            return super.query(session);
+        }
+
+    }
 
     private static class RoiResultMapper extends IceMapper {
         public RoiResultMapper(RoiOptions opts) {
