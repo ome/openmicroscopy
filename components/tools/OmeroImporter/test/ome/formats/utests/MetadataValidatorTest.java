@@ -514,16 +514,17 @@ public class MetadataValidatorTest
 		for (IObjectContainer container : containers)
 		{
 			LSID lsid = new LSID(container.LSID);
-			String e = String.format(
-					"%s %s not found in reference cache", klass, lsid);
-			assertTrue(e, referenceCache.containsKey(lsid));
+			if (!referenceCache.containsKey(lsid))
+			{
+				continue;
+			}
 			List<LSID> references = referenceCache.get(lsid);
 			assertTrue(references.size() > 0);
 			for (LSID referenceLSID : references)
 			{
 				assertNotNull(referenceLSID);
 				klass = Filter.class;
-				e = String.format(
+				String e = String.format(
 						"%s with LSID %s not found in container cache",
 						klass, referenceLSID);
 				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
@@ -541,16 +542,17 @@ public class MetadataValidatorTest
 		for (IObjectContainer container : containers)
 		{
 			LSID lsid = new LSID(container.LSID);
-			String e = String.format(
-					"%s %s not found in reference cache", klass, lsid);
-			assertTrue(e, referenceCache.containsKey(lsid));
+			if (!referenceCache.containsKey(lsid))
+			{
+				continue;
+			}
 			List<LSID> references = referenceCache.get(lsid);
 			assertTrue(references.size() > 0);
 			for (LSID referenceLSID : references)
 			{
 				assertNotNull(referenceLSID);
 				klass = Dichroic.class;
-				e = String.format(
+				String e = String.format(
 						"%s with LSID %s not found in container cache",
 						klass, referenceLSID);
 				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
