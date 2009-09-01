@@ -178,6 +178,9 @@ public class IniFileLoader
         return staticPrefs.node("General").get("port", "4063");
     }
     
+    /**
+     * Updates the Flex reader server maps from the configuration file.
+     */
     public void updateFlexReaderServerMaps()
     {
     	Preferences maps = userPrefs.node("FlexReaderServerMaps");
