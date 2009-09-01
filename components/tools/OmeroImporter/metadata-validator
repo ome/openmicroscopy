@@ -144,7 +144,6 @@ if __name__ == '__main__':
 
     bioformats_revision = None
     for entry in classpath.split(":"):
-        print "entry: %s" % entry
         match = re.match('.*bio-formats-r(.*)\.jar', entry)
         if match is not None:
             bioformats_revision = match.group(1)
