@@ -289,4 +289,28 @@ public class PlateData extends DataObject {
     	asPlate().setDefaultSample(omero.rtypes.rint(value));
     }
     
+    /** 
+     * Returns the status of the plate.
+     * 
+     * @return See above.
+     */
+    public String getStatus()
+    {
+    	omero.RString value = asPlate().getStatus();
+    	if (value == null) return "";
+    	return value.getValue();
+    }
+    
+    /** 
+     * Returns the external identifier of the plate.
+     * 
+     * @return See above.
+     */
+    public String getExternalIdentifier()
+    {
+    	omero.RString value = asPlate().getExternalIdentifier();
+    	if (value == null) return "";
+    	return value.getValue();
+    }
+    
 }

@@ -186,5 +186,51 @@ public class ScreenData extends DataObject {
         }
         plates = new HashSet<PlateData>(m.result());
     }
+    
+    /**
+     * Returns the description of the protocol.
+     * 
+     * @return See above.
+     */
+    public String getProtocolDescription()
+    {
+    	omero.RString d = asScreen().getProtocolDescription();
+        return d == null ? "" : d.getValue();
+    }
 
+    /**
+     * Returns the identifier of the protocol.
+     * 
+     * @return See above.
+     */
+    public String getProtocolIdentifier()
+    {
+    	omero.RString d = asScreen().getProtocolIdentifier();
+        return d == null ? "" : d.getValue();
+    }
+
+    /**
+     * Returns the description of the reagent set.
+     * 
+     * @return See above.
+     */
+    public String getReagentSetDescripion()
+    {
+    	omero.RString d = asScreen().getReagentSetDescription();
+        return d == null ? "" : d.getValue();
+    }
+
+    /**
+     * Returns the identifier of the reagent set.
+     * 
+     * @return See above.
+     */
+    public String getReagentSetIdentifier()
+    {
+    	omero.RString d = asScreen().getReagentSetIdentifier();
+        return d == null ? "" : d.getValue();
+    }
+    
+    
+    
 }
