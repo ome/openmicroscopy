@@ -31,7 +31,9 @@ import java.util.Collection;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -54,8 +56,8 @@ public class OriginalFileLoader
 	/** The folder where to save the file. */
 	private File folder;
 	
-	/** The pixels set. */
-	private long pixelsID;
+	/** The collection of pixels sets. */
+	private Collection<Long> pixelsID;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
@@ -65,25 +67,24 @@ public class OriginalFileLoader
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
-     * @param pixelsID	The ID of the pixels set to handle.
+     * @param pixelsID	The collection of the pixels set to handle.
      * @param folder	The folder where to save the files.
      */
-    public OriginalFileLoader(Editor viewer, long pixelsID, File folder)
+    public OriginalFileLoader(Editor viewer, Collection<Long> pixelsID, 
+    		File folder)
     {
     	 super(viewer);
-    	 if (pixelsID < 0)
-    		 throw new IllegalArgumentException("Pixels set not valid");
     	 this.pixelsID = pixelsID;
     	 this.folder = folder;
     }
     
 	/** 
-	 * Loads the tags. 
-	 * @see EditorLoader#cancel()
+	 * Loads the files. 
+	 * @see EditorLoader#load()
 	 */
 	public void load()
 	{
-		handle = mhView.loadOriginalFile(pixelsID, this);
+		handle = mhView.loadOriginalFiles(pixelsID, this);
 	}
 	
 	/** 
@@ -92,15 +93,35 @@ public class OriginalFileLoader
 	 */
 	public void cancel() { handle.cancel(); }
 	
+	/** 
+     * Feeds the files back to the viewer, as they arrive. 
+     * @see DataBrowserLoader#update(DSCallFeedbackEvent)
+     */
+    public void update(DSCallFeedbackEvent fe) 
+    {
+    	Object o = fe.getPartialResult();
+    	if (o != null) viewer.setDownloadedFiles(folder, (Collection) o);
+    }
+    
+    /**
+     * Does nothing as the asynchronous call returns <code>null</code>.
+     * The actual payload (files) is delivered progressively
+     * during the updates.
+     * @see DataBrowserLoader#handleNullResult()
+     */
+    public void handleNullResult() {}
+    
 	/**
      * Feeds the result back to the viewer.
      * @see EditorLoader#handleResult(Object)
      */
+    /*
     public void handleResult(Object result) 
     {
     	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  
     	//viewer.setMetadata(refNode, result);
     	viewer.setDownloadedFiles(folder, (Collection) result);
     } 
+    */
     
 }

@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.Collection;
+import java.util.Iterator;
 
 //Third-party libraries
 
@@ -49,79 +51,88 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 public class ArchivedFilesLoader
 	extends BatchCallTree
 {
-
-	/** Loads the specified annotations. */
-    private BatchCall   loadCall;
-    
+	
     /** The result of the call. */
     private Object		result;
     
-    /**
-     * Creates a {@link BatchCall} to retrieve the archived files.
-     * 
-     * @param location		The location where to save the file.
-     * @param pixelsID 		The ID of the pixels set.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall makeBatchCall(final String location, final long pixelsID)
-    {
-        return new BatchCall("Loading annotation") {
-            public void doCall() throws Exception
-            {
-                OmeroDataService os = context.getDataService();
-                result = os.getArchivedFiles(location, pixelsID);
-            }
-        };
-    }
+    private String				location;
+    
+    private Collection<Long> 	pixelsID;
     
     /**
-     * Creates a {@link BatchCall} to retrieve the archived files.
+     * Downloads the original file.
      * 
-     * @param pixelsID 		The ID of the pixels set.
-     * @return The {@link BatchCall}.
+     * @param id The id of the pixel set.
      */
-    private BatchCall makeBatchCall(final long pixelsID)
+    private void downloadFile(long id) 
     {
-        return new BatchCall("Loading annotation") {
-            public void doCall() throws Exception
-            {
-                OmeroDataService os = context.getDataService();
-                result = os.getOriginalFiles(pixelsID);
-            }
-        };
+    	try {
+    		OmeroDataService os = context.getDataService();
+    		if (location == null) result = os.getOriginalFiles(id);
+    		else result = os.getArchivedFiles(location, id);
+        } catch (Exception e) {
+        	context.getLogger().error(this, 
+        			"Cannot retrieve download the file: "+e.getMessage());
+        }
     }
     
     /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
-    protected void buildTree() { add(loadCall); }
+    protected void buildTree()
+    { 
+    	Iterator<Long> i = pixelsID.iterator();
+    	String description; 
+    	Long id;
+    	description = "Downloading original files.";
+		while (i.hasNext()) {
+			id = i.next();
+			final Long pix = id;
+			add(new BatchCall(description) {
+        		public void doCall() { downloadFile(pix); }
+        	});  
+		}
+    }
 
     /**
-     * Returns the collection of archives files.
+     * Returns the lastly downloaded files.
+     * This will be packed by the framework into a feedback event and
+     * sent to the provided call observer, if any.
+     * 
+     * @return See above
+     */
+    protected Object getPartialResult() { return result; }
+    
+    /**
+     * Returns <code>null</code> as there's no final result.
+     * In fact, files are progressively delivered with 
+     * feedback events. 
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return result; }
+    protected Object getResult() { return null; }
     
     /**
      * Creates a new instance.
      * 
      * @param location	The location where to save the file.
-     * @param pixelsID	The ID of the pixels set.
+     * @param pixelsID	The collection of the pixels set.
      */
-    public ArchivedFilesLoader(String location, long pixelsID)
+    public ArchivedFilesLoader(String location, Collection<Long> pixelsID)
     {
-    	loadCall = makeBatchCall(location, pixelsID);
+    	//loadCall = makeBatchCall(location, pixelsID);
+    	this.location = location;
+    	this.pixelsID = pixelsID;
     }
     
     /**
      * Creates a new instance.
      * 
-     * @param pixelsID	The ID of the pixels set.
+     * @param pixelsID	The collection of the pixels set.
      */
-    public ArchivedFilesLoader(long pixelsID)
+    public ArchivedFilesLoader(Collection<Long> pixelsID)
     {
-    	loadCall = makeBatchCall(pixelsID);
+    	this(null, pixelsID);
     }
     
 }

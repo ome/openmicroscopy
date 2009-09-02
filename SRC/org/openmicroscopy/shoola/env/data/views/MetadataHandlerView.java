@@ -232,11 +232,11 @@ public interface MetadataHandlerView
 	/**
 	 * Loads the original files related to a given pixels set.
 	 * 
-	 * @param pixelsID The id of the pixels set.
+	 * @param pixelsID The collection of the pixels sets.
 	 * @param observer	Callback handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadOriginalFile(long pixelsID, 
+	public CallHandle loadOriginalFiles(Collection<Long> pixelsID, 
 							AgentEventListener observer);
 	
 	/**

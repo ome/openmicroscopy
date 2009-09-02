@@ -1228,7 +1228,19 @@ class EditorModel
 		Object ref = getRefObject();
 		if (!(ref instanceof ImageData)) return false;
 		ImageData img = (ImageData) ref;
-		return img.isArchived();
+		if (img.isArchived()) return true;
+		Collection l = parent.getRelatedNodes();
+		if (l == null || l.size() == 0) return false;
+		Iterator i = l.iterator();
+		Object o;
+		while (i.hasNext()) {
+			o = (Object) i.next();
+			if (o instanceof ImageData) {
+				img = (ImageData) o;
+				if (img.isArchived()) return true;
+			}
+		}
+		return false;
 	}
 
 	/** 
@@ -1240,9 +1252,31 @@ class EditorModel
 	{
 		Object ref = getRefObject();
 		if (!(ref instanceof ImageData)) return;
-		PixelsData data = ((ImageData) ref).getDefaultPixels();
-		OriginalFileLoader loader = new OriginalFileLoader(component, 
-											data.getId(), folder);
+		Set<Long> ids = new HashSet<Long>();
+		Collection l = parent.getRelatedNodes();
+		ImageData img;
+		PixelsData data;
+		if (l != null) {
+			Iterator i = l.iterator();
+			Object o;
+			while (i.hasNext()) {
+				o = (Object) i.next();
+				if (o instanceof ImageData) {
+					img = (ImageData) o;
+					if (img.isArchived()) {
+						data = img.getDefaultPixels();
+						ids.add(data.getId());
+					}
+				}
+			}
+		}
+		img = (ImageData) ref;
+		if (img.isArchived()) {
+			data = img.getDefaultPixels();
+			ids.add(data.getId());
+		}
+		OriginalFileLoader loader = new OriginalFileLoader(component, ids, 
+				folder);
 		loader.load();
 		loaders.add(loader);
 	}

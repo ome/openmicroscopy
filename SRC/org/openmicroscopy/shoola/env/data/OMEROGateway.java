@@ -2562,7 +2562,6 @@ class OMEROGateway
 	}
 	
 	/**
-	 * 
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param path		The location where to save the files.

@@ -188,9 +188,9 @@ class MetadataHandlerViewImpl
 	
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadOriginalFile(long, AgentEventListener)
+	 * @see MetadataHandlerView#loadOriginalFiles(Collection, AgentEventListener)
 	 */
-	public CallHandle loadOriginalFile(long pixelsID, 
+	public CallHandle loadOriginalFiles(Collection<Long> pixelsID, 
 										AgentEventListener observer) 
 	{
 		BatchCallTree cmd = new ArchivedFilesLoader(pixelsID); 

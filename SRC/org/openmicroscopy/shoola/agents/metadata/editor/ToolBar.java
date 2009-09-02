@@ -205,8 +205,6 @@ class ToolBar
     	//if (model.isLifetime()) {
     	bar.add(Box.createHorizontalStrut(5));
         bar.add(flimButton);
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(downloadButton);
     	return bar;
     }
     
@@ -228,6 +226,8 @@ class ToolBar
     		bar.add(Box.createHorizontalStrut(5));
         	bar.add(rndButton);
     	}
+    	bar.add(Box.createHorizontalStrut(5));
+    	bar.add(downloadButton);
     	return bar;
     }
     
@@ -368,10 +368,14 @@ class ToolBar
     		} else {
     			flimButton.setEnabled(false);
     		}
+    		//TODO: improve code
+    		if (model.isMultiSelection()) 
+    			downloadButton.setEnabled(model.isArchived());
     		imageBar.setVisible(!model.isMultiSelection());
     	} else {
     		rndButton.setEnabled(false);
     		imageBar.setVisible(false);
+    		downloadButton.setEnabled(false);
     	}
     	revalidate();
     	repaint();

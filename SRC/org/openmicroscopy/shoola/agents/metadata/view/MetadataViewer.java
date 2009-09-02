@@ -283,6 +283,8 @@ public interface MetadataViewer
 	 */
 	public boolean isSingleMode();
 	
+	public Collection getRelatedNodes();
+	
 	/**
 	 * Sets the nodes related to the root nodes when multi selection is
 	 * on.

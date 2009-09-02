@@ -362,6 +362,15 @@ class MetadataViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getRelatedNodes()
+	 */
+	public Collection getRelatedNodes()
+	{
+		return model.getRelatedNodes();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#saveData(List, List, List, DataObject)
 	 */
 	public void saveData(List<AnnotationData> toAdd, 

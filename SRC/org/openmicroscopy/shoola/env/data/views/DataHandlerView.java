@@ -53,23 +53,10 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 public interface DataHandlerView
 	extends DataServicesView
 {
-
-	/**
-	 * Loads the original archived files if any linked to the set of pixels.
-	 * 
-	 * @param location	The location where to save the file.
-	 * @param pixelsID	The pixels set ID.
-	 * @param observer	Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadArchivedFiles(String location, long pixelsID, 
-			AgentEventListener observer);
 	
 	/**
 	 * Loads the images imported during the passed period.
 	 * 
-	 * @param constrain		One of the following constants: {@link #BEFORE},
-	 * 						{@link #AFTER} or {@link #PERIOD}
 	 * @param startTime		The lower bound of the period interval. 
 	 * @param endTime		The upper bound of the interval. 
 	 * @param userID		The id of the user the images belonged to.

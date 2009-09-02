@@ -58,17 +58,6 @@ public class DataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#loadArchivedFiles(String, long, AgentEventListener)
-	 */
-	public CallHandle loadArchivedFiles(String location, long pixelsID, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ArchivedFilesLoader(location, pixelsID);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
 	 * @see DataHandlerView#loadImages(Timestamp, Timestamp, long, 
 	 * 								AgentEventListener)
 	 */
