@@ -2239,79 +2239,61 @@ public class OMEROMetadataStoreClient
      */
     public void setArchive(boolean archive)
     {
-        List<Image> images = getSourceObjects(Image.class);
-        String[] files = reader.getUsedFiles();
-        
-        String[] companionFileArray = reader.getUsedFiles(true);
-        
-        List<String> companionFiles = new ArrayList<String>();
-        
-        if (companionFileArray !=null)
-        {
-            for (String fileName : companionFiles)
-            {
-                companionFiles.add(fileName);
-            }
-        }
-        
-        if (archive)
-        {
-            ImageReader imageReader = (ImageReader) reader;
-            String formatString = imageReader.getReader().getClass().toString();
-            formatString = formatString.replace("class loci.formats.in.", "");
-            formatString = formatString.replace("Reader", "");
-            
-            for (int i = 0; i < files.length; i ++)
-            {
-                LinkedHashMap<String, Integer> indexes = 
-                	new LinkedHashMap<String, Integer>();
-                indexes.put("originalFileIndex", i);
-                OriginalFile o = (OriginalFile) 
-                	getSourceObject(OriginalFile.class, indexes);
-                File file = new File(files[i]);
-                Format format = (Format) 
-                	getEnumeration(Format.class, formatString);
-                o.setName(toRType(file.getName()));
-                o.setSize(toRType(file.length()));
-                o.setFormat(format);
-                o.setPath(toRType(file.getAbsolutePath()));
-                o.setSha1(toRType("Pending"));
-            }
-        }
-        
-        for (int i = 0; i < images.size(); i ++)
-        {
-            Image image = images.get(i);
-            image.setArchived(toRType(archive));
-            if (archive)
-            {
-                LSID pixelsKey = new LSID(Pixels.class, i, 0);
-                LSID imageKey = new LSID(Image.class, i);
-                
-                for (int j = 0; j < files.length; j++)
-                {
-                    addReference(pixelsKey, new LSID(OriginalFile.class, j));
-                    if (companionFiles.contains(files[j]))
-                    {
-                        LinkedHashMap<String, Integer> indexes = 
-                        	new LinkedHashMap<String, Integer>();
-                        indexes.put("imageIndex", i);
-                        indexes.put("originalFileIndex", j);
-                        addFileAnnotationTo(imageKey, indexes, j);
-                    }
-                }
-            }
-        }
+    	for (int series = 0; series < reader.getSeriesCount(); series++)
+    	{
+    		reader.setSeries(series);
+    		String[] usedFiles = reader.getSeriesUsedFiles();
+    		// Collection of companion files so we can use contains()
+    		List<String> companionFiles = getFilteredSeriesCompanionFiles();
+    		
+    		ImageReader imageReader = (ImageReader) reader;
+    		String formatString = 
+    			imageReader.getReader().getClass().toString();
+    		formatString = formatString.replace("class loci.formats.in.", "");
+    		formatString = formatString.replace("Reader", "");
+    		LSID pixelsKey = new LSID(Pixels.class, series, 0);
+    		LSID imageKey = new LSID(Image.class, series);
+    		
+    		int i = 0;
+    		for (String usedFile : usedFiles)
+    		{
+    			boolean isCompanionFile = companionFiles.contains(usedFile);
+    			if (archive || isCompanionFile)
+    			{
+    				LinkedHashMap<String, Integer> indexes = 
+    					new LinkedHashMap<String, Integer>();
+    				indexes.put("originalFileIndex", i);
+    				OriginalFile o = (OriginalFile) 
+    				getSourceObject(OriginalFile.class, indexes);
+    				File file = new File(usedFiles[i]);
+    				Format format = (Format) 
+    				getEnumeration(Format.class, formatString);
+    				o.setName(toRType(file.getName()));
+    				o.setSize(toRType(file.length()));
+    				o.setFormat(format);
+    				o.setPath(toRType(file.getAbsolutePath()));
+    				o.setSha1(toRType("Pending"));
+    				addReference(pixelsKey, new LSID(OriginalFile.class, i));
+    				if (isCompanionFile)
+    				{
+                        indexes = new LinkedHashMap<String, Integer>();
+                        indexes.put("imageIndex", series);
+                        indexes.put("originalFileIndex", i);
+                        addCompanionFileAnnotationTo(imageKey, indexes, i);
+    				}
+    				i++;
+    			}
+    		}
+    	}
     }
     
     /**
-     * Returns the current set of filtered companion files that the Bio-Formats
-     * image reader contains.
-     * @return See above.
+     * Filters a set of filenames.
+     * @param files An array of the files to filter.
+     * @return A collection of the filtered files.
      */
-    public String[] getFilteredCompanionFiles()
+    private List<String> filterFilenames(String[] files)
     {
-    	String[] files = reader.getUsedFiles(true);
     	if (files == null)
     	{
     		return null;
@@ -2325,79 +2307,29 @@ public class OMEROMetadataStoreClient
     			filteredFiles.add(file);
     		}
     	}
-    	return filteredFiles.toArray(new String[filteredFiles.size()]);
+    	return filteredFiles;
     }
-
+    
     /**
-     * Populates companion files for all images processed. This method
-     * should only be called <b>after</b> a full Bio-Formats metadata parsing
-     * cycle. 
-     * @see setArchive()
+     * Returns the current set of filtered companion files that the Bio-Formats
+     * image reader contains.
+     * @return See above.
+     * @see getFilteredSeriesCompanionFiles()
      */
-    public void setCompanionFiles()
+    public List<String> getFilteredCompanionFiles()
     {
-        List<Image> images = getSourceObjects(Image.class);
-        List<Plate> plates = getSourceObjects(Plate.class);
-        String[] files = getFilteredCompanionFiles();
-        String formatString = "application/octet-stream";
-
-        // Create each of the OriginalFile source objects
-        for (int i = 0; i < files.length; i ++)
-        {
-            LinkedHashMap<String, Integer> indexes = 
-            	new LinkedHashMap<String, Integer>();
-            indexes.put("originalFileIndex", i);
-            OriginalFile o = (OriginalFile) 
-            	getSourceObject(OriginalFile.class, indexes);
-            File file = new File(files[i]);
-            Format format = (Format) getEnumeration(Format.class, formatString);
-            o.setName(toRType(file.getName()));
-            o.setSize(toRType(file.length()));
-            o.setFormat(format);
-            o.setPath(toRType(file.getAbsolutePath()));
-            o.setSha1(toRType("Pending"));
-        }
-        
-        // Link each of the Plates in our object cache to the FileAnnotation
-        // and OriginalFile. Return after this, we cannot afford to be linking
-        // potentially 1000's of files to 100's of images.
-        for (int i = 0; i < plates.size(); i++)
-        {
-        	LSID plateKey = new LSID(Plate.class, i);
-        	for (int j = 0; j < files.length; j++)
-        	{
-                LinkedHashMap<String, Integer> indexes = 
-                	new LinkedHashMap<String, Integer>();
-                indexes.put("plateIndex", i);
-                indexes.put("originalFileIndex", j);
-                addFileAnnotationTo(plateKey, indexes, j);
-        	}
-        }
-        if (plates.size() > 0)
-        {
-            return;
-        }
-
-        // Link each of the Images in our object cache to the FileAnnotation
-        // and OriginalFile.
-        for (int i = 0; i < images.size(); i ++)
-        {
-            Image image = images.get(i);
-            image.setArchived(toRType(true));
-            LSID imageKey = new LSID(Image.class, i);
-            for (int j = 0; j < files.length; j++)
-            {
-            	LinkedHashMap<String, Integer> indexes = 
-            		new LinkedHashMap<String, Integer>();
-            	indexes.put("imageIndex", i);
-            	indexes.put("originalFileIndex", j);
-            	if (log.isDebugEnabled())
-            	{
-            		log.debug(String.format("%d:%d %s", i, j, imageKey));
-            	}
-            	addFileAnnotationTo(imageKey, indexes, j);     
-            }
-        }
+    	return filterFilenames(reader.getUsedFiles(true));
+    }
+    
+    /**
+     * Returns the current set of filtered companion files that the Bio-Formats
+     * image reader contains for the current series.
+     * @return See above.
+     * @see getFilteredCompanionFiles()
+     */
+    public List<String> getFilteredSeriesCompanionFiles()
+    {
+    	return filterFilenames(reader.getSeriesUsedFiles(true));
     }
     
     /**
@@ -2407,9 +2339,9 @@ public class OMEROMetadataStoreClient
      * @param indexes Indexes of the annotation.
      * @param originalFileIndex Index of the original file.
      */
-    private void addFileAnnotationTo(LSID target,
-    		                         LinkedHashMap<String, Integer> indexes,
-    		                         int originalFileIndex)
+    private void addCompanionFileAnnotationTo(
+    		LSID target, LinkedHashMap<String, Integer> indexes,
+    		int originalFileIndex)
     {
     	FileAnnotation a = (FileAnnotation) 
     	getSourceObject(FileAnnotation.class, indexes);
