@@ -27,6 +27,9 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -34,8 +37,12 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -57,6 +64,7 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -250,6 +258,140 @@ class PropertiesUI
 		editDescription.setActionCommand(""+EDIT_DESC);
     }   
     
+    /**
+     * Lays out the plate fields.
+     * 
+     * @param plate The plate to handle.
+     * @return See above.
+     */
+    private JPanel layoutPlateContent(PlateData plate)
+    {
+    	JPanel content = new JPanel();
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+    	content.setLayout(new GridBagLayout());
+		JLabel l = new JLabel();
+    	Font font = l.getFont();
+    	int size = font.getSize()-2;
+    	
+    	Map<JLabel, JComponent> components = 
+    		new LinkedHashMap<JLabel, JComponent>();
+    	
+    	l = UIUtilities.setTextFont("External Identifier:", Font.BOLD, size);
+    	JLabel value = UIUtilities.createComponent(null);
+    	value.setFont(font.deriveFont(font.getStyle(), size));
+    	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	String v = plate.getExternalIdentifier();
+    	if (v == null || v.length() == 0) v = NO_SET_TEXT;
+    	value.setText(v);
+    	components.put(l, value);
+    	l = UIUtilities.setTextFont("Status:", Font.BOLD, size);
+    	value = UIUtilities.createComponent(null);
+    	value.setFont(font.deriveFont(font.getStyle(), size));
+    	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	v = plate.getStatus();
+    	if (v == null || v.length() == 0) v = NO_SET_TEXT;
+    	value.setText(v);
+    	components.put(l, value);
+    	layoutComponents(content, components);
+    	return content;
+    }
+    
+    /**
+     * Lays out the screen fields.
+     * 
+     * @param screen The screen to handle.
+     * @return See above.
+     */
+    private JPanel layoutScreenContent(ScreenData screen)
+    {
+    	JPanel content = new JPanel();
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+    	content.setLayout(new GridBagLayout());
+		JLabel l = new JLabel();
+    	Font font = l.getFont();
+    	int size = font.getSize()-2;
+    	
+    	Map<JLabel, JComponent> components = 
+    		new LinkedHashMap<JLabel, JComponent>();
+    	
+    	l = UIUtilities.setTextFont("Protocol Identifier:", Font.BOLD, size);
+    	JLabel value = UIUtilities.createComponent(null);
+    	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	String v = screen.getProtocolIdentifier();
+    	if (v == null || v.length() == 0) v = NO_SET_TEXT;
+    	value.setText(v);
+    	components.put(l, value);
+    	
+    	l = UIUtilities.setTextFont("Protocol Description:", Font.BOLD, size);
+    	value = UIUtilities.createComponent(null);
+    	value.setFont(font.deriveFont(font.getStyle(), size));
+    	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	v = screen.getProtocolDescription();
+    	if (v == null || v.length() == 0) v = NO_SET_TEXT;
+    	value.setText(v);
+    	components.put(l, value);
+    	
+    	l = UIUtilities.setTextFont("ReagentSet Identifier:", Font.BOLD, size);
+    	value = UIUtilities.createComponent(null);
+    	value.setFont(font.deriveFont(font.getStyle(), size));
+    	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	v = screen.getReagentSetIdentifier();
+    	if (v == null || v.length() == 0) v = NO_SET_TEXT;
+    	value.setText(v);
+    	components.put(l, value);
+    	
+    	l = UIUtilities.setTextFont("ReagentSet Description:", Font.BOLD, size);
+    	value = UIUtilities.createComponent(null);
+    	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	value.setFont(font.deriveFont(font.getStyle(), size));
+    	v = screen.getReagentSetDescripion();
+    	if (v == null || v.length() == 0) v = NO_SET_TEXT;
+    	value.setText(v);
+    	components.put(l, value);
+
+    	layoutComponents(content, components);
+    	return content;
+    }
+    
+    /**
+     * Lays out the passed components.
+     * 
+     * @param pane The main pane.
+     * @param components The components to lay out.
+     */
+    private void layoutComponents(JPanel pane, 
+    		Map<JLabel, JComponent> components)
+    {
+    	GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+        Set set = components.entrySet();
+        Entry entry;
+        
+		Iterator i = set.iterator();
+		c.gridy = 0;
+        while (i.hasNext()) {
+            c.gridx = 0;
+            entry = (Entry) i.next();
+            ++c.gridy;
+       	 	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.weightx = 0.0;  
+            pane.add((JLabel) entry.getKey(), c);
+            c.gridx++;
+            pane.add(Box.createHorizontalStrut(5), c); 
+            c.gridx++;
+            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            pane.add((JComponent) entry.getValue(), c);  
+        }
+    }
+    
+    
 	/**
      * Builds the panel hosting the information
      * 
@@ -420,7 +562,9 @@ class PropertiesUI
             (refObject instanceof DatasetData) ||
         	(refObject instanceof ProjectData) || 
         	(refObject instanceof TagAnnotationData) ||
-        	(refObject instanceof WellSampleData)) {
+        	(refObject instanceof WellSampleData) |
+        	(refObject instanceof PlateData) ||
+        	(refObject instanceof ScreenData)) {
         	//|| (refObject instanceof FolderData)) {
         	 p.add(Box.createVerticalStrut(5));
         	 descriptionPanel = layoutEditablefield(editDescription, 
@@ -466,6 +610,12 @@ class PropertiesUI
         	    	add(panel);
         		}
         	}
+        } else if (refObject instanceof PlateData) {
+        	add(Box.createVerticalStrut(5));
+        	add(layoutPlateContent((PlateData) refObject));
+        } else if (refObject instanceof ScreenData) {
+        	add(Box.createVerticalStrut(5));
+        	add(layoutScreenContent((ScreenData) refObject));
         }
         if (data == null) return;
         add(Box.createVerticalStrut(5));
