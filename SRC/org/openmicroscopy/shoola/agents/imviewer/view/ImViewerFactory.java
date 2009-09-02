@@ -38,6 +38,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.prefs.Preferences;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
@@ -54,6 +56,8 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ActivateRecentAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
+import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
+
 import pojos.ImageData;
 
 /** 
@@ -80,6 +84,12 @@ public class ImViewerFactory
   	implements ChangeListener, PropertyChangeListener
 {
 
+	/** 
+	 * The name of the property, temporary solution before we have preferences.
+	 */
+	private static final String	OMERO_VIEWER_COMPRESSION = 
+		"omeroViewerCompression";
+	
 	/** The name associated to the component. */
 	private static final String NAME = "Viewer: ";
 	
@@ -321,6 +331,31 @@ public class ImViewerFactory
 	static void setPreferences(ViewerPreferences pref)
 	{
 		singleton.pref = null;//pref;
+	}
+	
+	/**
+	 * Sets the compression level.
+	 * 
+	 * @param level The value to set.
+	 */
+	static void setCompressionLevel(int level)
+	{
+		Preferences p = Preferences.userNodeForPackage(ImViewerFactory.class);
+		p.put(OMERO_VIEWER_COMPRESSION, ""+level);
+	}
+	
+	/**
+	 * Returns the compression level.
+	 * 
+	 * @return See above.
+	 */
+	static int getCompressionLevel()
+	{
+		Preferences p = Preferences.userNodeForPackage(ImViewerFactory.class);
+		String value = p.get(OMERO_VIEWER_COMPRESSION, null);
+		if (value != null && value.trim().length() > 0) 
+			return Integer.parseInt(value);
+		return -1;
 	}
 	
 	/** All the tracked components. */

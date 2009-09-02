@@ -293,14 +293,18 @@ class ToolBar
 	        rndButton.setSelected(pref.isRenderer());
 	        //rndButton.setAction(a);
 		}
-    	
+    	int compression = ImViewerFactory.getCompressionLevel();
 		bar.add(new JSeparator(JSeparator.VERTICAL));
 		JPanel p = new JPanel();
 		JLabel l = new JLabel("Compression:");
 		p.add(l);
 		p.add(compressionBox);
 		//add(UIUtilities.buildComponentPanel(p));
-		compressionBox.setSelectedIndex(view.convertCompressionLevel());
+		int index = view.convertCompressionLevel();
+		if (compression >= UNCOMPRESSED && compression <= LOW)
+			index = compression;
+		compressionBox.setSelectedIndex(index);
+		
 		compressionBox.addActionListener(
     			controller.getAction(ImViewerControl.COMPRESSION));
     	buildGUI(); 

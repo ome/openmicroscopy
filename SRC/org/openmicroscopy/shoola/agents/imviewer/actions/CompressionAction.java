@@ -55,7 +55,6 @@ public class CompressionAction
     private static final String		DESCRIPTION = "View your image has " +
     		"uncompressed or select the desired compression quality.";
 
-    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -69,7 +68,7 @@ public class CompressionAction
 	}
 	
 	/**
-     * Sets the enabled flag depending on the tabbed selected.
+     * Sets the enabled flag depending on the tab selected.
      * @see ViewerAction#onStateChange(ChangeEvent)
      */
     protected void onStateChange(ChangeEvent e)

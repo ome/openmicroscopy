@@ -515,6 +515,8 @@ class ImViewerComponent
 			//case DISCARDED:
 			default:
 				controller.setPreferences();
+				//tmp store compression
+				ImViewerFactory.setCompressionLevel(view.getUICompressionLevel());
 				if (!saveOnClose()) return;
 				postViewerState(ViewerState.CLOSE);
 				ImViewerRecentObject object = new ImViewerRecentObject(
@@ -2454,6 +2456,7 @@ class ImViewerComponent
 		int index = view.getUICompressionLevel();
 		if (old == index) return;
 		view.setCompressionLevel(index);
+		ImViewerFactory.setCompressionLevel(index);
 		renderXYPlane();
 	}
 
