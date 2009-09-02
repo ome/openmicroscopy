@@ -24,15 +24,11 @@ package org.openmicroscopy.shoola.agents.measurement;
 
 
 //Java imports
-import java.util.Iterator;
-import java.util.List;
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.api.RoiResult;
-import omero.model.Roi;
-import omero.model.Shape;
 
 /**
  * Collection of helper class to convert ROI.
@@ -53,27 +49,12 @@ public class MeasurementTranslator
 	/**
 	 * Transforms the ROI.
 	 * 
-	 * @param result The ROI to transform.
+	 * @param rois The ROI to transform.
 	 * @return See above.
 	 */
-	public Object transformROI(RoiResult result)
+	public Object transformROI(Collection rois)
 	{
-		List<Roi> l = result.rois;
-		Iterator<Roi> i = l.iterator();
-		Roi r;
-		List<Shape> shapes;
-		Iterator<Shape> j;
-		Shape shape;
-		while (i.hasNext()) {
-			r = (Roi) i.next();
-			shapes = r.copyShapes();
-			j = shapes.iterator();
-			while (j.hasNext()) {
-				shape = (Shape) j.next();
-				//shape.
-			}
-		}
-		
+	
 		return new Object();
 	}
 	

@@ -24,7 +24,7 @@ package org.openmicroscopy.shoola.agents.measurement;
 
 
 //Java imports
-import java.util.Map;
+import java.util.Collection;
 
 //Third-party libraries
 
@@ -97,7 +97,7 @@ public class ROILoader
     public void handleResult(Object result)
     {
     	if (viewer.getState() == MeasurementViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setServerROI(result);
+    	viewer.setServerROI((Collection) result);
     }
 
 }

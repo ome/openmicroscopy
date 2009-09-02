@@ -232,7 +232,6 @@ public class CreateTopContainerAction
      */
     public void actionPerformed(ActionEvent e)
     {
-
         if (nodeType == -1) return;
         boolean withParent = false;
         

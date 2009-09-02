@@ -51,6 +51,7 @@ import omero.model.LongAnnotation;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Project;
+import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.TagAnnotation;
 import omero.model.TimestampAnnotation;
@@ -69,6 +70,7 @@ import pojos.LongAnnotationData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ROIData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -166,6 +168,8 @@ public class PojoMapper
         	return new WellData((Well) object);
         else if (object instanceof WellSample)
         	return new WellSampleData((WellSample) object);
+        else if (object instanceof Roi)
+        	return new ROIData((Roi) object);
         return null;
     }
     

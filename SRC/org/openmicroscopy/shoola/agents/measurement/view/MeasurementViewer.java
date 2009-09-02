@@ -282,6 +282,6 @@ public interface MeasurementViewer
 	 * 
 	 * @param result The ROI.
 	 */
-	public void setServerROI(Object result);
+	public void setServerROI(Collection result);
 	
 }

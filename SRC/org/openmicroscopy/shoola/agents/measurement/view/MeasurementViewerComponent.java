@@ -811,15 +811,15 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setServerROI(Object)
+     * @see MeasurementViewer#setServerROI(Collection)
      */
-	public void setServerROI(Object result)
+	public void setServerROI(Collection result)
 	{
 		if (model.getState() != LOADING_ROI)
 			throw new IllegalArgumentException("The method can only " +
 					"be invoked in the LOADING_ROI state.");
 		System.err.println("loaded");
-		if (result instanceof RoiResult) { //some ROI previously saved.
+		if (result != null) { //some ROI previously saved.
 			
 		} 
 		//bring up the UI.

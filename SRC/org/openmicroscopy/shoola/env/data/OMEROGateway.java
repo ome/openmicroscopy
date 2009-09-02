@@ -4585,7 +4585,10 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IRoiPrx service = getROIService();
-			return service.findByImage(imageID, new RoiOptions());
+			//Convert to pojo data.
+			RoiResult result = service.findByImage(imageID, new RoiOptions());
+			if (result == null) return new Object();
+			return PojoMapper.asDataObjects(result.rois);
 		} catch (Exception e) {
 			handleException(e, "Cannot load the ROI for image: "+imageID);
 		}
