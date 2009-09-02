@@ -1441,13 +1441,14 @@ class ImViewerModel
 	 */
 	boolean hasRndToPaste() 
 	{ 
+		if (metadataViewer == null) return false;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return false;
 		ImageData image = ImViewerFactory.getRefImage();
 		if (image == null) return false;
 		PixelsData pixels = image.getDefaultPixels();
 		if (pixels == null) return false;
-		return metadataViewer.getRenderer().validatePixels(pixels);
+		return rnd.validatePixels(pixels);
 	}
 
 	/** Posts a {@link CopyRndSettings} event. */
