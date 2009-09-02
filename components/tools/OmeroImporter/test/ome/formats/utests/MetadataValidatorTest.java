@@ -23,10 +23,10 @@
 
 package ome.formats.utests;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -151,6 +151,34 @@ public class MetadataValidatorTest
 			if (containerLSID.equals(lsid))
 			{
 				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Examines the container cache and returns whether or not an LSID is
+	 * present.
+	 * @param klasses Instance classes of potential source object containers.
+	 * @param lsid LSID to compare against.
+	 * @return <code>true</code> if an object exists in the container cache,
+	 * for one of <code>klasses</code> and <code>false</code> otherwise.
+	 */
+	private boolean authoritativeLSIDExists(List<Class<? extends IObject>> klasses,
+			                                LSID lsid)
+	{
+		for (Class<? extends IObject> klass : klasses)
+		{
+			List<IObjectContainer> containers = 
+				store.getIObjectContainers(klass);
+
+			for (IObjectContainer container : containers)
+			{
+				LSID containerLSID = new LSID(container.LSID);
+				if (containerLSID.equals(lsid))
+				{
+					return true;
+				}
 			}
 		}
 		return false;
@@ -453,7 +481,7 @@ public class MetadataValidatorTest
 	}
 	
 	@Test
-	public void testLogicalChannelFilterSetRef()
+	public void testLogicalChannelRefs()
 	{
 		Class<? extends IObject> klass = LogicalChannel.class;
 		List<IObjectContainer> containers = 
@@ -470,12 +498,21 @@ public class MetadataValidatorTest
 			assertTrue(references.size() > 0);
 			for (LSID referenceLSID : references)
 			{
+				String asString = referenceLSID.toString();
+				if (asString.endsWith("OMERO_EMISSION_FILTER")
+					|| asString.endsWith("OMERO_EXCITATION_FILTER"))
+				{
+					int index = asString.lastIndexOf(':');
+					referenceLSID = new LSID(asString.substring(0, index));
+				}
 				assertNotNull(referenceLSID);
-				klass = FilterSet.class;
+				List<Class<? extends IObject>> klasses = 
+					new ArrayList<Class<? extends IObject>>();
+				klasses.add(Filter.class);
+				klasses.add(FilterSet.class);
 				String e = String.format(
-						"%s with LSID %s not found in container cache",
-						klass, referenceLSID);
-				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
+						"LSID %s not found in container cache", referenceLSID);
+				assertTrue(e, authoritativeLSIDExists(klasses, referenceLSID));
 			}
 		}
 	}
@@ -506,7 +543,7 @@ public class MetadataValidatorTest
 	}
 	
 	@Test
-	public void testFilterSetFilterRef()
+	public void testFilterSetRefs()
 	{
 		Class<? extends IObject> klass = FilterSet.class;
 		List<IObjectContainer> containers = 
@@ -524,39 +561,13 @@ public class MetadataValidatorTest
 			for (LSID referenceLSID : references)
 			{
 				assertNotNull(referenceLSID);
-				klass = Filter.class;
+				List<Class<? extends IObject>> klasses = 
+					new ArrayList<Class<? extends IObject>>();
+				klasses.add(Filter.class);
+				klasses.add(Dichroic.class);
 				String e = String.format(
-						"%s with LSID %s not found in container cache",
-						klass, referenceLSID);
-				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
-			}
-		}
-	}
-	
-	@Test
-	public void testFilterSetDichroic()
-	{
-		Class<? extends IObject> klass = FilterSet.class;
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(klass);
-		referenceCache = store.getReferenceCache();
-		for (IObjectContainer container : containers)
-		{
-			LSID lsid = new LSID(container.LSID);
-			if (!referenceCache.containsKey(lsid))
-			{
-				continue;
-			}
-			List<LSID> references = referenceCache.get(lsid);
-			assertTrue(references.size() > 0);
-			for (LSID referenceLSID : references)
-			{
-				assertNotNull(referenceLSID);
-				klass = Dichroic.class;
-				String e = String.format(
-						"%s with LSID %s not found in container cache",
-						klass, referenceLSID);
-				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
+						"LSID %s not found in container cache", referenceLSID);
+				assertTrue(e, authoritativeLSIDExists(klasses, referenceLSID));
 			}
 		}
 	}
