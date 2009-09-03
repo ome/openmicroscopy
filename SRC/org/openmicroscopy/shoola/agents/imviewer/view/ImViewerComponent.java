@@ -2632,5 +2632,23 @@ class ImViewerComponent
 			}
 		return model.allowSplitView();
 	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#selectAllChannels(boolean)
+	 */
+	public void selectAllChannels(boolean selection)
+	{
+		for (int i = 0; i < model.getMaxC(); i++) {
+			model.setChannelActive(i, selection);
+			firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
+					Integer.valueOf(i-1), Integer.valueOf(i));
+			
+			model.setSelectedChannel(i);		
+		}
+		view.setChannelsSelection(ImViewerUI.ALL_VIEW);
+		renderXYPlane();
+		postActiveChannelSelection(ChannelSelection.CHANNEL_SELECTION);
+	}
 	
 }

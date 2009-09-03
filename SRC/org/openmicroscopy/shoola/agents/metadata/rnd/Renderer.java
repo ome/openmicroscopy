@@ -527,4 +527,6 @@ public interface Renderer
 	 */
 	void reloadUI(boolean reloadPlane);
 	
+	/** Sets the maximum range for channels. */
+	void setRangeAllChannels();
 }

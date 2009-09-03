@@ -1,5 +1,4 @@
-/*
- * org.openmicroscopy.shoola.agents.iviewer.view.ImViewer
+/* * org.openmicroscopy.shoola.agents.iviewer.view.ImViewer
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -1020,6 +1019,14 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	boolean allowSplitView();
+
+	/**
+	 * Turns all channels on or off depending on the passed value.
+	 * 
+	 * @param selection Pass <code>true</code> to select, <code>false</code>
+	 * 					otherwise.
+	 */
+	void selectAllChannels(boolean selection);
 	
 	/**
 	 * Returns the number of microns per pixels.

@@ -512,23 +512,39 @@ class RendererModel
 	 * 
 	 * @return See above.
 	 */
-	double getGlobalMin()
-	{
-		if (rndControl == null) return -1;
-		return rndControl.getChannelData(selectedChannelIndex).getGlobalMin();
-	}
+	double getGlobalMin() { return getGlobalMin(selectedChannelIndex); }
 
 	/**
 	 * Returns the global maximum of the currently selected channel.
 	 * 
 	 * @return See above.
 	 */
-	double getGlobalMax()
+	double getGlobalMax() { return getGlobalMax(selectedChannelIndex); }
+
+	/**
+	 * Returns the global maximum of the passed channel.
+	 * 
+	 * @param index The index of the channel.
+	 * @return See above.
+	 */
+	double getGlobalMax(int index)
 	{
 		if (rndControl == null) return -1;
-		return rndControl.getChannelData(selectedChannelIndex).getGlobalMax();
+		return rndControl.getChannelData(index).getGlobalMax();
 	}
-
+	
+	/**
+	 * Returns the global minimum of the passed channel.
+	 * 
+	 * @param index The index of the channel.
+	 * @return See above.
+	 */
+	double getGlobalMin(int index)
+	{
+		if (rndControl == null) return -1;
+		return rndControl.getChannelData(index).getGlobalMin();
+	}
+	
 	/**
 	 * Returns the lowest possible value.
 	 * 

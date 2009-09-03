@@ -59,6 +59,7 @@ import javax.swing.event.MenuListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelsSelectionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ClearHistoryAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
@@ -316,6 +317,12 @@ class ImViewerControl
 	/** Identifies the <code>Play movie across life time bin</code> action. */
 	static final Integer     PLAY_LIFETIME_MOVIE = Integer.valueOf(69);
 	
+	/** Identifies the <code>Channels On</code> action. */
+	static final Integer     CHANNELS_ON = Integer.valueOf(70);
+	
+	/** Identifies the <code>Channels Off</code> action. */
+	static final Integer     CHANNELS_OFF = Integer.valueOf(71);
+	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -416,6 +423,8 @@ class ImViewerControl
 		actionsMap.put(COMPRESSION, new CompressionAction(model));
 		actionsMap.put(CLEAR_HISTORY, new ClearHistoryAction(model));
 		actionsMap.put(METADATA, new MetadataAction(model));
+		actionsMap.put(CHANNELS_ON, new ChannelsSelectionAction(model, true));
+		actionsMap.put(CHANNELS_OFF, new ChannelsSelectionAction(model, false));
 		//TO be modified.
 		actionsMap.put(PLAY_LIFETIME_MOVIE, new PlayMovieAction(model, 
 				PlayMovieAction.ACROSS_T));

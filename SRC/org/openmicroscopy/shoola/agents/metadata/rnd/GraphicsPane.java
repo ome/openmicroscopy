@@ -187,6 +187,7 @@ class GraphicsPane
         rangeButton.setBackground(UIUtilities.BACKGROUND_COLOR);
         rangeButton.addActionListener(this);
         rangeButton.setActionCommand(""+RANGE);
+        rangeButton.setToolTipText("Apply maximum range to all channels.");
         applyButton = new JButton("Apply to All");
         applyButton.setToolTipText("Apply settings to all selected or " +
         		"displayed images.");
@@ -512,8 +513,10 @@ class GraphicsPane
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case RANGE:
-            	controller.setInputInterval(model.getGlobalMin(), 
-            							model.getGlobalMax());
+				//Sets the range for all channels
+				controller.setRangeAllChannels();
+            	//controller.setInputInterval(model.getGlobalMin(), 
+            	//						model.getGlobalMax());
             	break;
 			case APPLY:
 				applyButton.setEnabled(false);

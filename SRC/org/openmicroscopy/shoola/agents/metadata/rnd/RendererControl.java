@@ -232,9 +232,11 @@ class RendererControl
 	/** Applies the rendering settings to the selected or displayed images. */
 	void applyToAll() { model.applyToAll(); }
 
+	/** Sets the maximum range for channels. */
+	void setRangeAllChannels() { model.setRangeAllChannels(); }
+
     /**
-     * Reacts to property change events in the {@link ImViewer} and 
-     * the {@link CodomainMapContextDialog}
+     * Reacts to property change events.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent evt)

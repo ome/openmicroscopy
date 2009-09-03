@@ -604,6 +604,16 @@ class ImViewerUI
 		menu.add(item);
 		
 		menu.add(new JSeparator());
+		action = controller.getAction(ImViewerControl.CHANNELS_ON);
+		item = new JMenuItem(action);
+		item.setText(action.getName());
+		menu.add(item);
+		action = controller.getAction(ImViewerControl.CHANNELS_OFF);
+		item = new JMenuItem(action);
+		item.setText(action.getName());
+		menu.add(item);
+		
+		menu.add(new JSeparator());
 		action = controller.getAction(ImViewerControl.SAVE);
 		item = new JMenuItem(action);
 		item.setText(action.getName());

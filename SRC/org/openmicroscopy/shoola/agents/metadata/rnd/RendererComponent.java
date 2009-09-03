@@ -822,5 +822,26 @@ class RendererComponent
 			
 		}
 	}
+	
+	/** Sets the maximum range for channels. */
+	public void setRangeAllChannels()
+	{
+		try {
+			double min, max;
+			for (int i = 0; i < model.getMaxC(); i++) {
+				min = model.getGlobalMin(i);
+				max = model.getGlobalMax(i);
+				model.setInputInterval(i, min, max);
+			}
+			if (model.isGeneralIndex()) model.saveRndSettings();
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
+            		Boolean.valueOf(true));
+        	firePropertyChange(INPUT_INTERVAL_PROPERTY, Boolean.valueOf(false), 
+            		Boolean.valueOf(true));
+
+		} catch (Throwable e) {
+			handleException(e);
+		}
+	}
 
 }
