@@ -72,10 +72,6 @@ public class ROICoordinate
 	 */
 	public ROICoordinate(int z, int t)
 	{
-		if (z < 0) 
-			throw new IllegalArgumentException("Z-section cannot be negative.");
-		if (t < 0) 
-			throw new IllegalArgumentException("Timepoint cannot be negative.");
 		this.z = z;
 		this.t = t;
 	}
@@ -97,6 +93,7 @@ public class ROICoordinate
 	/**
 	 * Implemented as specified by the {@link Comparator} I/F.
 	 * @see Comparator#compare(Object, Object)
+	 * If any attribute == -1 it is not included in comparison.
 	 */
 	public int compare(Object o1, Object o2)
 	{
@@ -113,6 +110,7 @@ public class ROICoordinate
 
 	/**
 	 * Overridden to control if the passed object equals the current one.
+	 * If any attribute == -1 it is not included in comparison.
 	 * @see java.lang.Object#equals(Object)
 	 */
 	public boolean equals(Object obj)
@@ -128,7 +126,10 @@ public class ROICoordinate
 	 * 
 	 * @return See above.
 	 */
-	public int hashCode() { return z<<ZTBITSPLIT+t; }
+	public int hashCode() 
+	{ 
+		return z<<ZTBITSPLIT+t; 
+	}
 	
 	/**
 	 * Returns the string of the coordinates.

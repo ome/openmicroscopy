@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -39,10 +40,10 @@ import omero.model.Shape;
 /**
  * Converts the ROI object.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- *     <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author    Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- *     <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
@@ -108,8 +109,46 @@ public class ROIData
 	 */
 	public List<ShapeData> getShapes(int z, int t)
 	{
-		if (z < 0 || t < 0) return null;
 		return roiShapes.get(new ROICoordinate(z, t));
 	}
+	
+	/**
+	* Returns the iterator of the collection of the map.
+	* @return See above.
+	*/
+	public Iterator getIterator()
+	{
+		return roiShapes.values().iterator();
+	}
+	
+	/** 
+	* Return the first plane that the ROI starts on.
+	* @return See above.
+	*/
+	public ROICoordinate firstPlane()
+	{
+		return roiShapes.firstKey();
+	}
+	
+	/** 
+	* Return the last plane that the ROI starts on.
+	* @return See above.
+	*/
+	public ROICoordinate lastPlane()
+	{
+		return roiShapes.lastKey();
+	}
+	
+	/**
+	* Return an iterator of the Shapes in the ROI in the range [start, end].
+	* @param start The starting plane where the Shapes should reside.
+	* @param end The final plane where the Shapes should reside.
+	* @return See above.
+	*/
+	public Iterator<List<ShapeData>> getShapesInRange(ROICoordinate start, ROICoordinate end)
+	{
+		return roiShapes.subMap(start, end).values().iterator();
+	}
+	
 	
 }
