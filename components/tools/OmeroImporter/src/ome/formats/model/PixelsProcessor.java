@@ -136,13 +136,21 @@ public class PixelsProcessor implements ModelProcessor
             String userSpecifiedName = store.getUserSpecifiedImageName();
             String saveName = "";
             if (image.getName() == null
-                || image.getName().getValue().trim().length() == 0)
+                || image.getName().getValue().trim().length() == 0
+                || userSpecifiedName != null)
             {
                 saveName = userSpecifiedName;
                 
                 if (reader.getSeriesCount() > 1)
                 {
-                    saveName += " [" + imageIndex + "]";
+                    if (image.getName() != null || image.getName().getValue().trim().length() != 0)
+                    {
+                        saveName += " [" + image.getName().getValue() + "]";
+                    }
+                    else
+                    {
+                        saveName += " [" + imageIndex + "]";   
+                    }
                 }
             } 
             else

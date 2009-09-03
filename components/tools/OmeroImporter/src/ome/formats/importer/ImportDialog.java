@@ -120,6 +120,9 @@ public class ImportDialog extends JDialog implements ActionListener
     private Long savedDataset = userPrefs.getLong("savedDataset", 0);
     public Boolean useFullPath = userPrefs.getBoolean("savedFileNaming", true);
     public Integer numOfDirectories = userPrefs.getInt("savedNumOfDirs", 0);
+    public Boolean OverrideImageName = userPrefs.getBoolean("OverrideImageName", false);
+
+    public JCheckBox fileCheckBox;
 
 
     ImportDialog(JFrame owner, String title, boolean modal, OMEROMetadataStoreClient store)
@@ -194,33 +197,33 @@ public class ImportDialog extends JDialog implements ActionListener
         // File naming section
 
         double namedTable[][] =
-        {{TableLayout.FILL}, // columns
+        {{30, TableLayout.FILL}, // columns
                 {24, TableLayout.PREFERRED, 
             TableLayout.PREFERRED, TableLayout.FILL}}; // rows      
 
         namedPanel = gui.addBorderedPanel(importPanel, namedTable, "File Naming", debug);
 
-        message = "The imported file name on the server should include:";
-        gui.addTextPane(namedPanel, message, "0, 0", debug);
+        fileCheckBox = gui.addCheckBox(namedPanel, "Override default file naming. Instead use:", "0,0,1", debug);
+        fileCheckBox.setSelected(OverrideImageName);
 
-        String fullPathTooltip = "This will use the full path and file name for " +
+        String fullPathTooltip = "The full file+path name for " +
         "the file. For example: \"c:/myfolder/mysubfolder/myfile.dv\"";
 
-        String partPathTooltip = "This will use a partial path and file name for " +
+        String partPathTooltip = "A partial path and file name for " +
         "the file. For example: \"mysubfolder/myfile.dv\"";
 
         fullPathButton = gui.addRadioButton(namedPanel, 
-                "the full path and file name from you local system", 'u', 
-                fullPathTooltip, "0,1", debug);
+                "the full path+file name of your file", 'u', 
+                fullPathTooltip, "1,1", debug);
 
         partPathButton = gui.addRadioButton(namedPanel, 
-                "a partial path which includes the file name and...", 'u', 
-                partPathTooltip, "0,2", debug);
+                "a partial path+file name with...", 'u', 
+                partPathTooltip, "1,2", debug);
 
         numOfDirectoriesField = gui.addWholeNumberField(namedPanel, 
-                "      " , "0", "of the directories immediately before it.", 0, 
+                "" , "0", "of the directories immediately before it.", 0, 
                 "Add this number of directories to the file names",
-                3, 40, "0,3,l,c", debug);
+                3, 40, "1,3,l,c", debug);
         
         numOfDirectoriesField.setText(numOfDirectories.toString());
 
@@ -242,6 +245,9 @@ public class ImportDialog extends JDialog implements ActionListener
             group.setSelected(fullPathButton.getModel(), true);
         else
             group.setSelected(partPathButton.getModel(), true);
+        
+        
+        
 
         importPanel.add(namedPanel, "0, 3, 4, 2");
 
@@ -464,6 +470,7 @@ public class ImportDialog extends JDialog implements ActionListener
             userPrefs.putLong("savedProject", 
                     ((ProjectItem) pbox.getSelectedItem()).getProject().getId().getValue());
             userPrefs.putLong("savedDataset", dataset.getId().getValue());
+            userPrefs.putBoolean("OverrideImageName", fileCheckBox.isSelected());
             if (fullPathButton.isSelected() == true)
                 userPrefs.putBoolean("savedFileNaming", true);
             else 

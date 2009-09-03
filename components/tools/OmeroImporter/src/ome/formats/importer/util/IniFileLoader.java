@@ -272,4 +272,13 @@ public class IniFileLoader
         System.out.println("version: " + getVersionNumber());
         System.out.println("debug: " + isDebugConsole());
     }
+
+    
+    /**
+     * @return Returns the userSettingsDirectory.
+     */
+    public String getUserSettingsDirectory()
+    {
+        return userSettingsDirectory;
+    }
 }

@@ -199,7 +199,7 @@ public class ImportHandler
                 {
                 	library.importImage(importContainer[j].file, j,
                 			    numOfDone, numOfPendings,
-                			    container.imageName,
+                			    importContainer[j].getUserSpecifiedName(),
                 			    null,  // Description
                 			    container.archive,
                 			    container.userPixels);

@@ -190,6 +190,8 @@ public class FileQueueTable
         tcm.removeColumn(projectColumn);
         TableColumn userPixelColumn = tcm.getColumn(6);
         tcm.removeColumn(userPixelColumn);
+        TableColumn userSpecifiedNameColumn = tcm.getColumn(6);
+        tcm.removeColumn(userSpecifiedNameColumn);
         TableColumn datasetColumn = tcm.getColumn(3);
         tcm.removeColumn(datasetColumn);
         TableColumn pathColumn = tcm.getColumn(3);
@@ -346,6 +348,8 @@ public class FileQueueTable
                 IObject target = (IObject) table.getValueAt(i, 3);
                 importContainer[i] = new ImportContainer(file, projectID, target, imageName, archive, 
                         (Double[]) table.getValueAt(i, 7));
+                if (table.getValueAt(i,8) != null)
+                    importContainer[i].setUserSpecifiedFileName((String)table.getValueAt(i, 8));
             }
             catch (ArrayIndexOutOfBoundsException e)
             {
@@ -401,7 +405,7 @@ public class FileQueueTable
         implements TableModelListener {
         
         private static final long serialVersionUID = 1L;
-        private String[] columnNames = {"Files in Queue", "Project/Dataset or Screen", "Status", "DatasetNum", "Path", "Archive", "ProjectNum", "UserPixels"};
+        private String[] columnNames = {"Files in Queue", "Project/Dataset or Screen", "Status", "DatasetNum", "Path", "Archive", "ProjectNum", "UserPixels", "UserSpecifiedName"};
 
         public void tableChanged(TableModelEvent arg0) { }
         

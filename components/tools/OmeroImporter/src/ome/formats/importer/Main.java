@@ -34,6 +34,8 @@ import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.ResourceBundle;
 
 import javax.swing.JDialog;
@@ -117,6 +119,7 @@ public class Main extends JFrame
     public static final String CONFIG_ICON = "gfx/nuvola_configure16.png";
     public static final String ERROR_ICON_ANIM = "gfx/warning_msg16_anim.gif";
     public static final String ERROR_ICON = "gfx/warning_msg16.png";
+    public static final String LOGFILE_ICON = "gfx/nuvola_output16.png";
     
     public LoginHandler         loginHandler;
     public FileQueueHandler     fileQueueHandler;
@@ -240,7 +243,13 @@ public class Main extends JFrame
         helpAbout.addActionListener(this);
         helpMenu.add(helpComment);
         helpMenu.add(helpHome);
+        // Help --> Show log file location...
+        JMenuItem helpShowLog = new JMenuItem("Show log file location...", gui.getImageIcon(LOGFILE_ICON));
+        helpShowLog.setActionCommand(Actions.SHOW_LOG_FILE_LOCATION);
+        helpShowLog.addActionListener(this);
+        helpMenu.add(helpShowLog);
         helpMenu.add(helpAbout);
+        // Help --> About
         setJMenuBar(menubar);
       
         // tabbed panes
@@ -551,6 +560,22 @@ public class Main extends JFrame
         {
             BareBonesBrowserLaunch.openURL(HOME_URL);
         }
+        else if (Actions.SHOW_LOG_FILE_LOCATION.equals(cmd))
+        {
+            File path = new File(ini.getUserSettingsDirectory());
+            try
+            {
+                String url = path.toURI().toURL().toString();
+                url = url.replaceAll("^file:/", "file:///");
+                BareBonesBrowserLaunch.openURL(url);
+            }
+            catch (MalformedURLException ex)
+            {
+                log.error("Error while transforming URL for: " 
+                        + path.getAbsolutePath(), ex);
+            }
+        }
+        
     }
 
     /**

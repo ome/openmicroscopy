@@ -144,9 +144,14 @@ public class FileQueueHandler
                 
                 Double[] pixelSizes = new Double[] {dialog.pixelSizeX, dialog.pixelSizeY, dialog.pixelSizeZ};
                 
+                Boolean useFullPath = dialog.useFullPath;
+                
+                if (dialog.fileCheckBox.isEnabled() == true)
+                    useFullPath = null;                    
+                               
                 addFileToQueue(file, dialog.dataset,
                         dialog.dataset.getName().getValue(), dialog.project.getName().getValue(), 
-                        dialog.useFullPath, dialog.numOfDirectories, 
+                        useFullPath, dialog.numOfDirectories, 
                         dialog.archiveImage.isSelected(), dialog.project.getId().getValue(),
                         pixelSizes);
                 qTable.importBtn.requestFocus();
@@ -221,6 +226,10 @@ public class FileQueueHandler
                 
                 Double[] pixelSizes = new Double[] {dialog.pixelSizeX, dialog.pixelSizeY, dialog.pixelSizeZ};
                 System.err.println(dialog.pixelSizeX);
+                Boolean useFullPath = dialog.useFullPath;
+                if (dialog.fileCheckBox.isSelected() == false)
+                    useFullPath = null; //use the default bio-formats naming
+                    
                 
                 for (File f : files)
                 {
@@ -228,7 +237,7 @@ public class FileQueueHandler
                         addFileToQueue(f, dialog.dataset, 
                                 dialog.dataset.getName().getValue(), 
                                 dialog.project.getName().getValue(),
-                                dialog.useFullPath, 
+                                useFullPath, 
                                 dialog.numOfDirectories,
                                 dialog.archiveImage.isSelected(),
                                 dialog.project.getId().getValue(),
@@ -388,8 +397,14 @@ public class FileQueueHandler
             int numOfDirectories, boolean archiveImage, Long projectID, Double[] pixelSizes)
     {
         Vector row = new Vector();
+        String imageName;
+        String userSpecifiedName = null;
         
-        String imageName = getImageName(file, useFullPath, numOfDirectories);
+        if (useFullPath != null)
+            userSpecifiedName = imageName = getImageName(file, useFullPath, numOfDirectories);
+        else
+            imageName = file.getAbsolutePath();
+        
         String pdsString = null;
         
         if (project != null)
@@ -408,6 +423,7 @@ public class FileQueueHandler
         row.add(archiveImage);
         row.add(projectID);
         row.add(pixelSizes);
+        row.add(userSpecifiedName);
         qTable.table.addRow(row);
         if (qTable.table.getRowCount() == 1)
             qTable.importBtn.setEnabled(true);

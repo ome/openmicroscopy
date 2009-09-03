@@ -221,7 +221,7 @@ public class ImportLibrary implements IObservable
     /**
      * Uses the {@link OMEROMetadataStoreClient} to save the current all
      * image metadata provided.
-     * @param imageName A user specified image name.
+     * @param userSpecifiedImageName A user specified image name.
      * @param imageDescription A user specified description.
      * @param archive Whether or not the user requested the original files to
      * be archived.
@@ -229,7 +229,7 @@ public class ImportLibrary implements IObservable
 	 * @throws FormatException if there is an error parsing metadata.
 	 * @throws IOException if there is an error reading the file.
      */
-	private List<Pixels> importMetadata(String imageName,
+	private List<Pixels> importMetadata(String userSpecifiedImageName,
 			                            String imageDescription,
 			                            boolean archive,
 			                            Double[] userPixels)
@@ -239,7 +239,7 @@ public class ImportLibrary implements IObservable
     	log.debug("Post-processing metadata.");
 
     	store.setArchive(archive);
-    	store.setUserSpecifiedImageName(imageName);
+    	//store.setUserSpecifiedImageName(imageName);
     	store.setUserSpecifiedImageDescription(imageDescription);
     	if (userPixels != null)
     	    store.setUserSpecifiedPhysicalPixelSizes(userPixels[0], userPixels[1], userPixels[2]);
@@ -323,13 +323,10 @@ public class ImportLibrary implements IObservable
         formatString = formatString.replace("class loci.formats.in.", "");
         formatString = formatString.replace("Reader", "");
         
-        try {
-            if (formatString.equals("Micromanager"))
-            {
-                imageName = new File(file.getParent()).getName();
-                shortName = imageName;
-            } 
-        } catch (Exception e) {}
+        if (imageName != null)
+        {
+            store.setUserSpecifiedImageName(imageName);
+        }
         
         // Save metadata and prepare the RawPixelsStore for our arrival.
         List<Pixels> pixList = 
@@ -416,9 +413,10 @@ public class ImportLibrary implements IObservable
         {
             store.populateMinMax();
         }
+                
         notifyObservers(Actions.IMPORT_THUMBNAILING, args);
         store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
-        
+
         notifyObservers(Actions.IMPORT_DONE, args);
         
         return pixList;

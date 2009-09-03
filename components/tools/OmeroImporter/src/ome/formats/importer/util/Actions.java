@@ -57,4 +57,5 @@ public class Actions
     public static final Object ERRORS_UPLOAD_CANCELLED = "errors_upload_cancelled";
     public static final Object ERRORS_PENDING = "errors_pending";
     public static final Object ERRORS_COMPLETE = "errors_complete";
+    public static final String SHOW_LOG_FILE_LOCATION = "show_log_file_location";
 }

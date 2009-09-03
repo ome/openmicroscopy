@@ -19,6 +19,8 @@ public class ImportContainer
 	public String imageName;
 	public boolean archive;
     public Double[] userPixels;
+    public String userSpecifiedImageName;
+    
 
 	public ImportContainer(File file, Long projectID,
 			IObject target, 
@@ -33,8 +35,18 @@ public class ImportContainer
 		this.userPixels = userPixels;
 	}
 
+	public void setUserSpecifiedFileName(String name)
+	{
+	    this.userSpecifiedImageName = name;
+	}
+	
 	public IObject getTarget()
 	{
 	    return target;
-	}	
+	}
+
+    public String getUserSpecifiedName()
+    {
+        return userSpecifiedImageName;
+    }	
 }
