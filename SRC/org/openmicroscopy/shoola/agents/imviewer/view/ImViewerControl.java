@@ -476,7 +476,7 @@ class ImViewerControl
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no op implementation.
+			 * no-op implementation.
 			 * @see MenuKeyListener#menuKeyPressed(MenuKeyEvent)
 			 */
 			public void menuKeyPressed(MenuKeyEvent e) {}
@@ -512,7 +512,7 @@ class ImViewerControl
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize(ImViewerComponent, ImViewerUI) initialize} 
-	 * method should be called straigh 
+	 * method should be called straight 
 	 * after to link this Controller to the other MVC components.
 	 */
 	ImViewerControl() {}

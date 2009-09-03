@@ -154,17 +154,18 @@ class ImageCanvasListener
 				return;
 			}
 		}
-		
+		int maxZ = model.getMaxZ();
+		int maxT = model.getMaxT();
+		if (maxZ <= 0 && maxT <= 0) return;
 		int pressedZ = -1;
 		int pressedT = -1;
-		int maxZ = model.getMaxZ();
 		pressedZ = (p.y*maxZ)/area.height;
 		if (pressedZ < 0) return;
 		pressedZ = maxZ-pressedZ;
-		if (pressedZ > model.getMaxZ()) pressedZ = -1;
-		pressedT = (p.x*model.getMaxT())/area.width;
+		if (pressedZ > maxZ) pressedZ = -1;
+		pressedT = (p.x*maxT)/area.width;
 		if (pressedT < 0) return;
-		if (pressedT > model.getMaxT())  return;
+		if (pressedT > maxT)  return;
 		model.setSelectedXYPlane(pressedZ, pressedT);
 		canvas.setPaintedString(pressedZ, pressedT);
 	}
@@ -198,12 +199,15 @@ class ImageCanvasListener
 	public void mouseWheelMoved(MouseWheelEvent e)
 	{
 		if (!mouseOnCanvas) return;
+		int maxZ = model.getMaxZ();
+		int maxT = model.getMaxT();
+		if (maxZ <= 0 && maxT <= 0) return;
 		boolean up = true;
         if (e.getWheelRotation() > 0) up = false;
         if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
             int v = model.getDefaultZ()-e.getWheelRotation();
             if (up) {
-                if (v <= model.getMaxZ()) {
+                if (v <= maxZ) {
                 	model.setSelectedXYPlane(v, -1);
                 	canvas.setPaintedString(v, model.getDefaultT());
                 } else
