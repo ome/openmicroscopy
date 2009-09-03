@@ -1,6 +1,7 @@
 package ome.formats.importer.cli;
 
 import gnu.getopt.Getopt;
+import gnu.getopt.LongOpt;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +19,8 @@ import omero.model.Screen;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * The base entry point for the CLI version of the OMERO importer.
@@ -157,7 +160,9 @@ public class CommandLineImporter
      */
     public static void main(String[] args)
     {
-        Getopt g = new Getopt(APP_NAME, args, "fs:u:w:d:r:k:x:n:p:h");
+    	LongOpt debug = new LongOpt("debug", LongOpt.NO_ARGUMENT, null, 1);
+        Getopt g = new Getopt(APP_NAME, args, "fs:u:w:d:r:k:x:n:p:h",
+        		              new LongOpt[] { debug });
         int a;
         String username = null;
         String password = null;
@@ -173,6 +178,15 @@ public class CommandLineImporter
         {
             switch (a)
             {
+            	case 1:
+            	{
+            		// We're modifying the Log4j logging level of everything
+            		// under the ome.format package hierarchically. We're using
+            		// OMEROMetadataStoreClient as a convenience.
+            		Logger l = Logger.getLogger(OMEROMetadataStoreClient.class);
+            		l.setLevel(Level.DEBUG);
+            		break;
+            	}
                 case 's':
                 {
                     hostname = g.getOptarg();

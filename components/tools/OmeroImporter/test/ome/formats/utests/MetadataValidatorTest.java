@@ -108,26 +108,26 @@ public class MetadataValidatorTest
         store.postProcess();
         containerCache = store.getContainerCache();
         referenceCache = store.getReferenceCache();
-        System.err.println("Starting container cache...");
+        log.debug("Starting container cache...");
         for (LSID key : containerCache.keySet())
         {
         	String s = String.format("%s == %s,%s", 
         			key, containerCache.get(key).sourceObject,
         			containerCache.get(key).LSID);
-        	System.err.println(s);
+        	log.debug(s);
         }
-        System.err.println("Starting reference cache...");
+        log.debug("Starting reference cache...");
         for (LSID key : referenceCache.keySet())
         {
         	for (LSID value : referenceCache.get(key))
         	{
         		String s = String.format("%s == %s", key, value);
-        		System.err.println(s);
+        		log.debug(s);
         	}
         }
-        System.err.println("containerCache contains " + containerCache.size()
+        log.debug("containerCache contains " + containerCache.size()
         		+ " entries.");
-        System.err.println("referenceCache contains " 
+        log.debug("referenceCache contains " 
         		+ store.countCachedReferences(null, null)
         		+ " entries.");
 	}
