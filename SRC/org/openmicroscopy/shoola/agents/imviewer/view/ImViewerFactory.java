@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 
+import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
@@ -157,14 +158,14 @@ public class ImViewerFactory
 	/**
 	 * Returns a viewer to display the image corresponding to the specified id.
 	 * 
-	 * @param image  	The image to view.
+	 * @param image  	The image or wellSample to view.
 	 * @param bounds    The bounds of the component invoking the 
 	 *                  {@link ImViewer}.
 	 * @param separateWindow Pass <code>true</code> to open the viewer in a 
 	 * 						 separate window, <code>false</code> otherwise.           
 	 * @return See above.
 	 */
-	public static ImViewer getImageViewer(ImageData image, Rectangle bounds, 
+	public static ImViewer getImageViewer(DataObject image, Rectangle bounds, 
 			boolean separateWindow)
 	{
 		ImViewerModel model = new ImViewerModel(image, bounds, separateWindow);

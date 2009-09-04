@@ -49,6 +49,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -118,7 +120,7 @@ public class ImViewerAgent
     private void handleViewImage(ViewImage evt)
     {
         if (evt == null) return;
-        ImageData image = evt.getImage();
+        DataObject image = evt.getImage();
         Rectangle r = evt.getRequesterBounds();
         ImViewer view;
         boolean b = evt.isSeparateWindow();

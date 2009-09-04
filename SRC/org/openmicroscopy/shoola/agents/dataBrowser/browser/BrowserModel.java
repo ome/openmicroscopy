@@ -712,7 +712,12 @@ class BrowserModel
 			if (uo instanceof ImageData) {
 				bus.post(new ViewImage((ImageData) uo, null));
 			} else if (uo instanceof WellSampleData) {
-				bus.post(new ViewImage(((WellSampleData) uo).getImage(), null));
+				ViewImage event = new ViewImage((WellSampleData) uo, null);
+				WellSampleNode wsn = (WellSampleNode) node;
+				Object parent = wsn.getParentObject();
+				if (parent instanceof DataObject)
+					event.setContext((DataObject) parent, null);
+				bus.post(event);
 			}
 		}
 	}

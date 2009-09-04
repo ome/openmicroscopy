@@ -75,6 +75,7 @@ import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.WellSampleData;
 
 /** 
 * The Model component in the <code>ImViewer</code> MVC triad.
@@ -136,7 +137,7 @@ class ImViewerModel
 	private static final int	RND = 1;
 	
 	/** The image to view. */
-	private ImageData 					image; 
+	private DataObject 					image; 
 
 	/** Holds one of the state flags defined by {@link ImViewer}. */
 	private int                 		state;
@@ -358,6 +359,18 @@ class ImViewerModel
 	}
 	
 	/**
+	 * Returns the image to view.
+	 * 
+	 * @return See above.
+	 */
+	private ImageData getImage()
+	{
+		if (image instanceof WellSampleData)
+			return ((WellSampleData) image).getImage();
+		return (ImageData) image;
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param imageID 	The id of the image.
@@ -375,18 +388,18 @@ class ImViewerModel
 	/**
 	 * Creates a new object and sets its state to {@link ImViewer#NEW}.
 	 * 
-	 * @param image  	The image.
+	 * @param image  	The image or well sample to view.
 	 * @param bounds    The bounds of the component invoking the 
 	 *                  {@link ImViewer}.
 	 * @param separateWindow Pass <code>true</code> to open the viewer in a 
 	 * 						 separate window, <code>false</code> otherwise.  
 	 */
-	ImViewerModel(ImageData image, Rectangle bounds, boolean separateWindow)
+	ImViewerModel(DataObject image, Rectangle bounds, boolean separateWindow)
 	{
 		this.image = image;
 		initialize(bounds, separateWindow);
 		initializeMetadataViewer();
-		currentPixelsID = image.getDefaultPixels().getId();
+		currentPixelsID = getImage().getDefaultPixels().getId();
 	}
 
 	/**
@@ -455,7 +468,7 @@ class ImViewerModel
 	String getImageName()
 	{ 
 		if (image == null) return "";
-		return image.getName(); 
+		return getImage().getName(); 
 	}
 
 	/** 
@@ -486,7 +499,7 @@ class ImViewerModel
 		if (image == null) return;
 		//Shut down the service
 		OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
-		long pixelsID = image.getDefaultPixels().getId();
+		long pixelsID = getImage().getDefaultPixels().getId();
 		svr.shutDown(pixelsID);
 		Iterator i = loaders.keySet().iterator();
 		Integer index;
@@ -932,7 +945,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isLifetime() { return image.isLifetime(); }
+	boolean isLifetime() { return getImage().isLifetime(); }
 	
 	/**
 	 * Returns <code>true</code> if the split view is allowed i.e. if the 
@@ -1454,7 +1467,7 @@ class ImViewerModel
 	/** Posts a {@link CopyRndSettings} event. */
 	void copyRenderingSettings()
 	{
-		CopyRndSettings evt = new CopyRndSettings(image);
+		CopyRndSettings evt = new CopyRndSettings(getImage());
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 		bus.post(evt);
 	}
@@ -1511,7 +1524,7 @@ class ImViewerModel
 	void fireRenderingSettingsRetrieval()
 	{
 		DataLoader loader = new RenderingSettingsLoader(component, 
-						image.getDefaultPixels().getId());
+						getImage().getDefaultPixels().getId());
 		loader.load();
 		if (loaders.get(SETTINGS) != null)
 			loaders.get(SETTINGS).cancel();
@@ -1592,27 +1605,6 @@ class ImViewerModel
 		}
 	}
 
-	 /**
-     * Returns the collection of pixels sets linked to the image.
-     * 
-     * @return See above.
-     */
-    List<PixelsData> getPixelsSets() { return image.getAllPixels(); }
-
-    /**
-     * Returns the collection of pixels ID.
-     * 
-     * @return See above.
-     */
-    List<Long> getPixelsIDs()
-    {
-    	Iterator<PixelsData> i = getPixelsSets().iterator();
-    	List<Long> ids = new ArrayList<Long>();
-    	while (i.hasNext()) 
-			ids.add(i.next().getId());
-		return ids;
-    }
-
     /** Resets the history when switching to a new rendering control.*/
 	void resetHistory() { historyItems = null; }
 	
@@ -1690,7 +1682,10 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	String getPixelsType() { return image.getDefaultPixels().getPixelType(); }
+	String getPixelsType()
+	{ 
+		return getImage().getDefaultPixels().getPixelType();
+	}
 
 	/**
 	 * Starts an asynchronous creation of the rendering settings
@@ -1722,6 +1717,8 @@ class ImViewerModel
 	{
 		this.parent = parent;
 		this.grandParent = grandParent;
+		if (metadataViewer != null)
+			metadataViewer.setParentRootObject(parent);
 	}
 	
 	/**
@@ -1799,6 +1796,8 @@ class ImViewerModel
 		this.image = image;
 		initializeMetadataViewer();
 		currentPixelsID = image.getDefaultPixels().getId();
+		if (metadataViewer != null)
+			metadataViewer.setParentRootObject(parent);
 	}
 	
 	/**
@@ -1871,7 +1870,7 @@ class ImViewerModel
 	PixelsData getPixelsData()
 	{ 
 		if (image == null) return null;
-		return image.getDefaultPixels();
+		return getImage().getDefaultPixels();
 	}
 	
 	/**
@@ -1889,7 +1888,7 @@ class ImViewerModel
 	void setLastProjectionRef(ProjectionParam ref) { lastProjRef = ref; }
 	
 	/**
-	 * Returns the timepoint used for the projection's preview.
+	 * Returns the time-point used for the projection's preview.
 	 * 
 	 * @return See above.
 	 */

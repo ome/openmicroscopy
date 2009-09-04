@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -64,7 +63,6 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -105,6 +103,9 @@ class PropertiesUI
 
 	/** The default description. */
     private static final String	DEFAULT_DESCRIPTION_TEXT = "Description";
+    
+    /** The text for the external identifier. */
+    private static final String	EXTERNAL_IDENTIFIER = "External Identifier:";
     
     /** The text for the id. */
     private static final String ID_TEXT = "ID: ";
@@ -277,7 +278,7 @@ class PropertiesUI
     	Map<JLabel, JComponent> components = 
     		new LinkedHashMap<JLabel, JComponent>();
     	
-    	l = UIUtilities.setTextFont("External Identifier:", Font.BOLD, size);
+    	l = UIUtilities.setTextFont(EXTERNAL_IDENTIFIER, Font.BOLD, size);
     	JLabel value = UIUtilities.createComponent(null);
     	value.setFont(font.deriveFont(font.getStyle(), size));
     	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
@@ -676,8 +677,9 @@ class PropertiesUI
 		Object parent = model.getParentRootObject();
 		String text = "";
 		if (parent instanceof WellData) {
+			PlateData plate = ((WellData) parent).getPlate();
 			text = "Plate: "; 
-			text += ((WellData) parent).getPlate().getName();
+			text += plate.getName();
 		}
 		parentLabel.setText(text);
 		parentLabel.repaint();

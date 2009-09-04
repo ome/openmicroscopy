@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
 import pojos.DataObject;
 import pojos.ImageData;
+import pojos.WellSampleData;
 
 /** 
  * Event to retrieve and view a given image.
@@ -58,7 +59,7 @@ public class ViewImage
 {
 
     /** The image to view. */
-    private ImageData	image;
+    private DataObject	image;
 
     /** The bounds of the component posting the event. */
     private Rectangle   requesterBounds;
@@ -109,10 +110,13 @@ public class ViewImage
      * @param image   	The image to view.
      * @param bounds    The bounds of the component posting the event.
      */
-    public ViewImage(ImageData image, Rectangle bounds)
+    public ViewImage(DataObject image, Rectangle bounds)
     {
         if (image == null) 
             throw new IllegalArgumentException("Image not null.");
+        if (!(image instanceof ImageData || image instanceof WellSampleData))
+        	throw new IllegalArgumentException("Object can either be a " +
+        			"WellSample or an Image.");
         this.image = image;
         requesterBounds = bounds;
         selectedUserID = -1;
@@ -185,11 +189,11 @@ public class ViewImage
     public long getSelectedUserID() { return selectedUserID; }
 
     /**
-     * Returns the image.
+     * Returns the image or well sample.
      * 
      * @return See above. 
      */
-    public ImageData getImage() { return image; }
+    public DataObject getImage() { return image; }
 
     /**
      * Returns the bounds of the component posting the event. 
