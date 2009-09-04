@@ -2266,8 +2266,17 @@ public class OMEROMetadataStoreClient
     				OriginalFile o = (OriginalFile) 
     				getSourceObject(OriginalFile.class, indexes);
     				File file = new File(usedFiles[i]);
-    				Format format = (Format) 
-    				getEnumeration(Format.class, formatString);
+    				Format format;
+    				if (isCompanionFile)
+    				{
+    					format = (Format) getEnumeration(
+    							Format.class, "application/octet-stream");
+    				}
+    				else
+    				{
+    					format = (Format) 
+							getEnumeration(Format.class, formatString);    					
+    				}
     				o.setName(toRType(file.getName()));
     				o.setSize(toRType(file.length()));
     				o.setFormat(format);
