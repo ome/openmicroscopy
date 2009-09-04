@@ -39,8 +39,6 @@ import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
-import omero.api.RoiResult;
-
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 
@@ -207,7 +205,7 @@ class MeasurementViewerComponent
         		model.getDrawingView().setSize(d);
         		//model.fireROILoading(null);
         		model.fireLoadROIFromServer();
-        		fireStateChange();
+        		//fireStateChange();
                 break;
             case DISCARDED:
                 throw new IllegalStateException(
@@ -818,10 +816,14 @@ class MeasurementViewerComponent
 		if (model.getState() != LOADING_ROI)
 			throw new IllegalArgumentException("The method can only " +
 					"be invoked in the LOADING_ROI state.");
-		System.err.println("loaded");
-		if (result != null) { //some ROI previously saved.
-			
-		} 
+		try {
+			if (result != null) { //some ROI previously saved.
+				model.setServerROI(result);
+			} 	
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		//bring up the UI.
 		view.rebuildManagerTable();
 		view.updateDrawingArea();

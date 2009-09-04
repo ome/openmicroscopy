@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -264,7 +265,7 @@ public class InputStrategy
 	/**
 	 * Holds the ROIs which have been created.
 	 */
-	private ArrayList<ROI>									roiList;
+	private List<ROI>									roiList;
 		
 	/**
 	 * The current coord of the shape being created.
@@ -325,7 +326,7 @@ public class InputStrategy
 	 * @throws NoSuchROIException thrown if there is a bad ref to another ROI
 	 * in the XML.
 	 * @throws ParsingException thrown if there is badly formed xml
-	 * @throws ROICreationException thrown if the ROI connot be created.
+	 * @throws ROICreationException thrown if the ROI cannot be created.
 	 */
 	private ROI createROI(IXMLElement roiElement, ROIComponent component)
 			throws NoSuchROIException, ParsingException, ROICreationException
@@ -335,8 +336,7 @@ public class InputStrategy
 				new Long(roiElement.getAttribute(IOConstants.ROI_ID_ATTRIBUTE,
 					"-1"));
 		setCurrentROI(id);
-		ROI newROI=null;
-		newROI=component.createROI(id);
+		ROI newROI = component.createROI(id);
 		ArrayList<IXMLElement> roiShapeList=
 				roiElement.getChildrenNamed(IOConstants.ROISHAPE_TAG);
 		ArrayList<IXMLElement> annotationElementList=
@@ -427,11 +427,11 @@ public class InputStrategy
 	/**
 	 * Parse the dataType attribute in the annotationElement and create an
 	 * object of that type, populate it with values from the data in the 
-	 * annoation element.
+	 * annotation element.
 	 * @param annotationElement see above.
 	 * @return see above.
 	 */
-	public Object createAnnotationData(IXMLElement annotationElement)
+	Object createAnnotationData(IXMLElement annotationElement)
 	{
 		String dataType=
 				annotationElement.getAttribute(IOConstants.DATATYPE_ATTRIBUTE,
@@ -1096,7 +1096,7 @@ public class InputStrategy
 	 * @throws NoSuchROIException if there is an error creating line connection 
 	 * figure.
 	 */
-	ArrayList<ROI> readROI(InputStream in, ROIComponent component)
+	List<ROI> readROI(InputStream in, ROIComponent component)
 			throws ParsingException, ROICreationException,
 			NoSuchROIException
 	{

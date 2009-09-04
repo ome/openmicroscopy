@@ -415,7 +415,7 @@ class MeasurementViewerModel
 	 * @return See above.
 	 * @throws ROICreationException If the ROI cannot be created.
 	 * @throws NoSuchROIException 	If the ROI does not exist.
-	 * @throws ParsingException		Thrown when an error occured
+	 * @throws ParsingException		Thrown when an error occurred
 	 * 								while parsing the stream.
 	 */
 	boolean setROI(InputStream input)
@@ -449,6 +449,44 @@ class MeasurementViewerModel
 		return true;
 	}
 
+	/**
+	 * Sets the server ROIS.
+	 * 
+	 * @param rois The collection of Rois.
+	 * @return See above.
+	 * @throws ROICreationException
+	 * @throws NoSuchROIException
+	 */
+	boolean setServerROI(Collection rois)
+		throws ROICreationException, NoSuchROIException
+	{
+		state = MeasurementViewer.READY;
+		List<ROI> roiList = roiComponent.loadROI(rois);
+		if (roiList == null) return false;
+		Iterator<ROI> i = roiList.iterator();
+		ROI roi;
+		TreeMap<Coord3D, ROIShape> shapeList;
+		Iterator<ROIShape> shapeIterator;
+		ROIShape shape;
+		Coord3D c;
+		int sizeZ = pixels.getSizeZ();
+		int sizeT = pixels.getSizeT();
+		
+		while (i.hasNext()) {
+			roi = i.next();
+			shapeList = roi.getShapes();
+			shapeIterator = shapeList.values().iterator();
+			while (shapeIterator.hasNext()) {
+				shape = shapeIterator.next();
+				c = shape.getCoord3D();
+				if (c.getTimePoint() > sizeT) return false;
+				if (c.getZSection() > sizeZ) return false;
+			}
+		}
+		component.attachListeners(roiList);
+		return true;
+	}
+	
 	/**
 	 * Returns the ROI.
 	 * 

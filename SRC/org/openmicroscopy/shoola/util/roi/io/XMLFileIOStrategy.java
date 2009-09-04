@@ -85,7 +85,7 @@ public class XMLFileIOStrategy
 		if (input == null)
 			throw new NullPointerException("No input stream specified.");
 		//TODO: REview that code.
-		ArrayList<ROI> roiList = inputStrategy.readROI(input, component);
+		List<ROI> roiList = inputStrategy.readROI(input, component);
 		try
 		{
 			input.close();

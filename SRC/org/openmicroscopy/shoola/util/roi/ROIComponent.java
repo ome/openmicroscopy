@@ -29,6 +29,7 @@ import java.awt.Component;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -43,6 +44,7 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
+import org.openmicroscopy.shoola.util.roi.io.ServerROIStrategy;
 import org.openmicroscopy.shoola.util.roi.io.XMLFileIOStrategy;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROICollection;
@@ -119,6 +121,9 @@ public class ROIComponent
 
 	/** The object used to load and save ROIs. */
 	private XMLFileIOStrategy			ioStrategy;
+	
+	/** The object used to load and save ROIs. */
+	private ServerROIStrategy			serverStrategy;
 		
 	/** Show the measurement units. */
 	private MeasurementUnits			units;
@@ -322,7 +327,7 @@ public class ROIComponent
 	 * @param input The stream with the previously saved ROIs or 
 	 * 				<code>null</code> if no ROIs previously saved.
 	 * @return list of newly loaded ROI.
-	 * @throws ParsingException				Thrown when an error occured
+	 * @throws ParsingException				Thrown when an error occurred
 	 * 										while parsing the stream.
 	 * @throws NoSuchROIException		 	Tried to access a ROI which does not
 	 * 									   	Exist. In this case most likely 
@@ -344,6 +349,24 @@ public class ROIComponent
 	}
 
 	/**
+	 * Reads the ROIs from the server and returns the UI representations.
+	 * 
+	 * @param rois The collection of ROIs to convert.
+	 * @return See above.
+	 * @throws NoSuchROIException
+	 * @throws ROICreationException
+	 */
+	public List<ROI> loadROI(Collection rois) 
+		throws NoSuchROIException, ROICreationException	
+	{
+		if (rois == null)
+			throw new NullPointerException("No rois to transform.");
+		if (serverStrategy == null)
+			serverStrategy = new ServerROIStrategy();
+		return serverStrategy.read(rois, this);
+	}
+	
+	/**
 	 * Generates the next ID for a new ROI. This method will possibly be 
 	 * replaced with a call to the database for the generation of an ROI id.
 	 * 
@@ -363,7 +386,7 @@ public class ROIComponent
 	 * 
 	 * @param id The ROI id. 
 	 * @return See above.
-	 * @throws ROICreationException			If an error occured while creating 
+	 * @throws ROICreationException			If an error occurred while creating 
 	 * 									   	an ROI, basic assumption is this is 
 	 * 									   	linked to memory issues.
 	 */
@@ -377,7 +400,7 @@ public class ROIComponent
 	 * Create a new ROI, assign it an ROI from the getNextID call.
 	 * 
 	 * @return See above. 
-	 * @throws ROICreationException	If an error occured while creating 
+	 * @throws ROICreationException	If an error occurred while creating 
 	 * 								an ROI, basic assumption is this is 
 	 * 								linked to memory issues.
 	 */
@@ -391,10 +414,10 @@ public class ROIComponent
 	 * Create a new ROI, assign it an ROI from the getNextID call.
 	 * 
 	 * @return See above. 
-	 * @throws ROICreationException	If an error occured while creating 
+	 * @throws ROICreationException	If an error occurred while creating 
 	 * 								an ROI, basic assumption is this is 
 	 * 								linked to memory issues.
-	 * @throws NoSuchROIException 	If the roi to be cloned does not exist.
+	 * @throws NoSuchROIException 	If the ROI to be cloned does not exist.
 	 */
 	public ROI cloneROI(long id)
 		throws 	ROICreationException, NoSuchROIException
@@ -416,7 +439,7 @@ public class ROIComponent
 
 	/**
 	 * Returns the ROI with the id == id. 
-	 * This is obtained by a searh of the ROIMap. 
+	 * This is obtained by a search of the ROIMap. 
 	 * 
 	 * @param id the ROI.id that is being requested.
 	 * @return See above.

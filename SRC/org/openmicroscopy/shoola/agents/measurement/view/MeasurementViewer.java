@@ -140,7 +140,7 @@ public interface MeasurementViewer
 	public void close();
 
 	/**
-	 * Sets the visibilty of the component depending on the passed
+	 * Sets the visibility of the component depending on the passed
 	 * parameter.
 	 * 
 	 * @param b Pass <code>true</code> to display the component on screen.
