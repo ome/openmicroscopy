@@ -101,7 +101,7 @@ class MeasurementViewerUI
 	static final String					DELETE_MSG = "Cannot delete the ROI";
 	
 	/** 
-	 * The message displayed when a an ROI exception occured but cause 
+	 * The message displayed when a an ROI exception occurred but cause 
 	 * is unknown. 
 	 */
 	static final String					UNKNOWN_MSG = "An unknown, " +
@@ -176,7 +176,7 @@ class MeasurementViewerUI
 	/** The calculation Wizard component. */
 	private CalculationWizard			calcWizard;
 	
-    /** Tabbed pane hosting the various panel. */
+    /** Tab pane hosting the various panel. */
     private JTabbedPane					tabs;
  
     /** The status bar. */
@@ -204,7 +204,7 @@ class MeasurementViewerUI
     /**
      * Helper method to create the controls menu.
      * 
-     * @return The controls submenu.
+     * @return The controls sub-menu.
      */
     private JMenu createControlsMenu()
     {
@@ -229,7 +229,7 @@ class MeasurementViewerUI
     /**
      * Helper method to create the Options menu.
      * 
-     * @return The options submenu.
+     * @return The options sub-menu.
      */
     private JMenu createOptionsMenu()
     {
@@ -547,8 +547,11 @@ class MeasurementViewerUI
 	 */
 	boolean inCalcWizardView()
 	{
-		return (tabs.getTitleAt(tabs.getSelectedIndex()).
-				equals(calcWizard.getComponentName()));
+		int index = tabs.getSelectedIndex();
+		if (index < 0) return false;
+		int n = tabs.getTabCount();
+		if (index >= n) return false;
+		return (tabs.getTitleAt(index).equals(calcWizard.getComponentName()));
 	}
 	
 	/**
@@ -559,8 +562,11 @@ class MeasurementViewerUI
 	 */
 	boolean inGraphView()
 	{
-		return (tabs.getTitleAt(tabs.getSelectedIndex()).
-				equals(graphPane.getComponentName()));
+		int index = tabs.getSelectedIndex();
+		if (index < 0) return false;
+		int n = tabs.getTabCount();
+		if (index >= n) return false;
+		return (tabs.getTitleAt(index).equals(graphPane.getComponentName()));
 	}
 	
 	/**
@@ -571,8 +577,11 @@ class MeasurementViewerUI
 	 */
 	boolean inIntensityView()
 	{
-		return (tabs.getTitleAt(tabs.getSelectedIndex()).
-				equals(intensityView.getComponentName()));
+		int index = tabs.getSelectedIndex();
+		if (index < 0) return false;
+		int n = tabs.getTabCount();
+		if (index >= n) return false;
+		return (tabs.getTitleAt(index).equals(intensityView.getComponentName()));
 	}
 	
 
@@ -871,13 +880,22 @@ class MeasurementViewerUI
     	}
     }
     
+    void layoutUI()
+    {
+    	if (model.isServerROI()) {
+    		tabs.removeAll();
+    		tabs.addTab(roiManager.getComponentName(), 
+					roiManager.getComponentIcon(), roiManager);
+    		tabs.setSelectedIndex(0);
+    	}
+    }
+    
     /** Updates the drawing area. */
 	void updateDrawingArea()
 	{
 		Drawing drawing = model.getDrawing();
 		drawing.removeDrawingListener(controller);
 		drawing.clear();
-		
 		ShapeList list = null;
 		try {
 			list = model.getShapeList();

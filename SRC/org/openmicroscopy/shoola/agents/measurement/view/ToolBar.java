@@ -90,7 +90,7 @@ class ToolBar
 	
 	static
 	{
-		defaultConnectionAttributes=new HashMap<AttributeKey, Object>();
+		defaultConnectionAttributes = new HashMap<AttributeKey, Object>();
 		defaultConnectionAttributes.put(MeasurementAttributes.FILL_COLOR,
 						IOConstants.DEFAULT_FILL_COLOUR);
 		defaultConnectionAttributes.put(MeasurementAttributes.STROKE_COLOR,
@@ -157,8 +157,19 @@ class ToolBar
     /** The polyline creation tool. */
     private DrawingBezierTool 			polylineTool;
     
-    /** The connetion creation tool. */
+    /** The connection creation tool. */
     private DrawingConnectionTool		connectionTool;
+    
+    /**
+     * Sets the property of the toggle button.
+     * 
+     * @param button The button to handle.
+     */
+    private void setUpToggleButton(JToggleButton button)
+    {
+    	button.setAction(new DrawingAction(measurementcomponent, button));	
+		button.addMouseListener(this);
+    }
     
     /** Initializes the component composing the display. */
 	private void initComponents()
@@ -183,11 +194,7 @@ class ToolBar
 		DrawingToolBarButtonFactory.addSelectionToolTo(toolBar, editor);
 		component = toolBar.getComponent(toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
-		{
-			JToggleButton button = (JToggleButton) component;
-			button.setAction(new DrawingAction(measurementcomponent, button));	
-			button.addMouseListener(this);
-		}
+			setUpToggleButton((JToggleButton) component);
 
 		toolBar.add(new JSeparator());
 		toolBar.add(Box.createRigidArea(HGLUE));
@@ -195,20 +202,14 @@ class ToolBar
 				CREATE_KEY+FigureUtil.RECTANGLE_TYPE);
 		component = toolBar.getComponent(toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
-		{
-			JToggleButton button = (JToggleButton) component;
-			button.setAction(new DrawingAction(measurementcomponent, button));	
-			button.addMouseListener(this);
-		}
+			setUpToggleButton((JToggleButton) component);
+		
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, ellipseTool, 
 				CREATE_KEY+FigureUtil.ELLIPSE_TYPE);
 		component = toolBar.getComponent(toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
-		{
-			JToggleButton button = (JToggleButton) component;
-			button.setAction(new DrawingAction(measurementcomponent, button));	
-			button.addMouseListener(this);
-		}
+			setUpToggleButton((JToggleButton) component);
+		
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, pointTool, 
 				CREATE_KEY+FigureUtil.ELLIPSE_TYPE);
 		component = toolBar.getComponent(
@@ -216,21 +217,17 @@ class ToolBar
 		if (component instanceof JToggleButton)
 		{
 			JToggleButton button = (JToggleButton) component;
-			button.addMouseListener(this);
 			IconManager icons = IconManager.getInstance();
 			button.setIcon(icons.getIcon(IconManager.POINTICON_22));
 			button.setToolTipText(FigureUtil.POINT_TYPE);
-			button.setAction(new DrawingAction(measurementcomponent, button));	
+			setUpToggleButton(button);
 		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, lineTool, 
 					CREATE_KEY+FigureUtil.LINE_TYPE);
 		component = toolBar.getComponent(toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
-		{
-			JToggleButton button = (JToggleButton) component;
-			button.setAction(new DrawingAction(measurementcomponent, button));	
-			button.addMouseListener(this);
-		}
+			setUpToggleButton((JToggleButton) component);
+		
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, connectionTool, 
 	    			CREATE_KEY+FigureUtil.LINE_CONNECTION_TYPE);
 		 component = toolBar.getComponent(
@@ -239,35 +236,24 @@ class ToolBar
 		 {
 			 JToggleButton button = (JToggleButton) component;
 			 button.setToolTipText("Connector");
-			 button.setAction(new DrawingAction(measurementcomponent, button));	
+			 setUpToggleButton(button);	
 		 }
 		 DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polylineTool, 
 				  CREATE_KEY+FigureUtil.SCRIBBLE_TYPE);
 		 component = toolBar.getComponent(toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
-		{
-			JToggleButton button = (JToggleButton) component;
-			button.setAction(new DrawingAction(measurementcomponent, button));	
-			button.addMouseListener(this);
-		}
+			setUpToggleButton((JToggleButton) component);
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polygonTool, 
 	    	  CREATE_KEY+FigureUtil.POLYGON_TYPE);
 		component = toolBar.getComponent(toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
-		{
-			JToggleButton button = (JToggleButton) component;
-			button.setAction(new DrawingAction(measurementcomponent, button));	
-			button.addMouseListener(this);
-		}
+			setUpToggleButton((JToggleButton) component);
+		
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, textTool, 
 			CREATE_KEY+FigureUtil.TEXT_TYPE);
 		component = toolBar.getComponent(toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
-		{
-			JToggleButton button = (JToggleButton) component;
-			button.setAction(new DrawingAction(measurementcomponent, button));	
-			button.addMouseListener(this);
-		}
+			setUpToggleButton((JToggleButton) component);
 	}
 	
 	/**

@@ -58,6 +58,15 @@ public class LoadROIAction
 	/** The description of the action. */
 	private static final String DESCRIPTION = "Load the ROI.";
 
+	/** 
+	 * Sets the action enabled if the ROIs are server ROI. 
+	 * @see MeasurementViewerAction# onStateChange()
+	 */
+	protected void onStateChange()
+	{
+		if (model.isServerROI()) setEnabled(false);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -77,9 +86,6 @@ public class LoadROIAction
      * Loads the ROI.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    {
-    	model.loadROI();
-    }
+    public void actionPerformed(ActionEvent e) { model.loadROI(); }
     
 }

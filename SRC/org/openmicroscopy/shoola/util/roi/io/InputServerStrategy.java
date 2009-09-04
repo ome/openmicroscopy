@@ -25,9 +25,6 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,8 +42,6 @@ import static org.jhotdraw.draw.AttributeKeys.FONT_ITALIC;
 import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_CAP;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
-import static org.jhotdraw.draw.AttributeKeys.STROKE_DASHES;
-import static org.jhotdraw.draw.AttributeKeys.STROKE_DASH_PHASE;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 
 //Application-internal dependencies
@@ -73,7 +68,7 @@ import pojos.ShapeSettingsData;
 
 
 /**
- *
+ * Transforms the ROI server into the corresponding UI objects.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *     <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -88,6 +83,7 @@ import pojos.ShapeSettingsData;
 class InputServerStrategy
 {
 
+	/** Identifies the transformation attribute. */
 	public final static AttributeKey<AffineTransform> TRANSFORM = 
 		  new AttributeKey<AffineTransform>("transform", null, true);
 	

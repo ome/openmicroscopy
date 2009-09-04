@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.measurement.actions;
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JToggleButton;
 
 //Third-party libraries
@@ -37,7 +38,8 @@ import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Removes the action listener but listens to state changes via 
+ * MeasurementViewerAction.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,29 +54,39 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class DrawingAction
 	extends MeasurementViewerAction
 {
-
+	
+	/** 
+	 * Sets the action enabled if the ROIs are server ROI. 
+	 * @see MeasurementViewerAction# onStateChange()
+	 */
+	protected void onStateChange()
+	{
+		if (model.isServerROI()) setEnabled(false);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param model The model. Mustn't be <code>null</code>.
-	 * @param button	the button the action will be applied to.
+	 * @param model 	The model. Mustn't be <code>null</code>.
+	 * @param button	The button the action will be applied to.
 	 */
 	public DrawingAction(MeasurementViewer model, JToggleButton button)
 	{
 		super(model);
+		if (button == null)
+			throw new IllegalArgumentException("No button specified. ");
 		putValue(Action.NAME, button.getName());
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(button.getToolTipText()));
+		//resize icons
 		putValue(Action.SMALL_ICON, button.getIcon());
 	}
 	
 	/** 
+	 * Removes the action listener.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    {
- 
-    }
+    public void actionPerformed(ActionEvent e) {}
     
 }
 

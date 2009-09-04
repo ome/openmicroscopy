@@ -60,7 +60,7 @@ public class MeasurementViewerAction
 	 /** The name of the action. */
     protected String			name;
     
-    /** Sub-classes should implement this mehod. */
+    /** Sub-classes should implement this method. */
     protected void onStateChange() {}
     
 	/**

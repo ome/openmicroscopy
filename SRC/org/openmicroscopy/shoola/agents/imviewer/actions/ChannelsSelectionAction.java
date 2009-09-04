@@ -59,12 +59,12 @@ public class ChannelsSelectionAction
 	/** 
 	 * The name of the action if {@link #selection} is <code>true</code>.
 	 */
-	private static final String NAME_ON = "Turn channels on.";
+	private static final String NAME_ON = "Turn channels on";
 	
 	/** 
 	 * The name of the action if {@link #selection} is <code>true</code>.
 	 */
-	private static final String NAME_OFF = "Turn channels off.";
+	private static final String NAME_OFF = "Turn channels off";
 
 	/** 
 	 * The Description of the action if {@link #selection} is <code>true</code>.

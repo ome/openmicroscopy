@@ -33,7 +33,7 @@ import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Action to create a single or several figures.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,59 +49,71 @@ public class CreateFigureAction
 	extends MeasurementViewerAction
 {
 
-		/** Show the pixels in create single. */
-		private static final String NAME_CREATE_SINGLE = "Create Single ROI";
-		
-		/** Show the pixels in create multiple. */
-		private static final String NAME_CREATE_MULTIPLE = "Create Multiple ROIs";
-		
-		/** The description of the action for create single. */
-		private static final String DESCRIPTION_CREATE_SINGLE = 
-			"Create a single ROI and go back to selection tool.";
+	/** Show the pixels in create single. */
+	private static final String NAME_CREATE_SINGLE = "Create Single ROI";
 
-		/** The description of the action for create multiple. */
-		private static final String DESCRIPTION_CREATE_MULTIPLE = 
-			"Create multiple ROIs, user needs to select selection tool by hand.";
+	/** Show the pixels in create multiple. */
+	private static final String NAME_CREATE_MULTIPLE = 
+		"Create Multiple ROIs";
 
-		/** Create a single figure. */
-		private boolean				createSingleFigure; 
-		
-		/**
-		 * Creates a new instance.
-		 * 
-		 * @param model 	The model. Mustn't be <code>null</code>.
-		 * @param createSingleFigure Passed <code>true</code> to set the tool to 
-		 * 						create a single figure at a time,
-		 * 						<code>false</code> otherwise.
-		 */
-		public CreateFigureAction(MeasurementViewer model, boolean createSingleFigure)
+	/** The description of the action for create single. */
+	private static final String DESCRIPTION_CREATE_SINGLE = 
+		"Create a single ROI and go back to selection tool.";
+
+	/** The description of the action for create multiple. */
+	private static final String DESCRIPTION_CREATE_MULTIPLE = 
+		"Create multiple ROIs, user needs to select selection tool by hand.";
+
+	/** Create a single figure. */
+	private boolean				createSingleFigure; 
+
+	/** 
+	 * Sets the action enabled if the ROIs are server ROI. 
+	 * @see MeasurementViewerAction# onStateChange()
+	 */
+	protected void onStateChange()
+	{
+		if (model.isServerROI()) setEnabled(false);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model 	The model. Mustn't be <code>null</code>.
+	 * @param createSingleFigure Passed <code>true</code> to set the tool to 
+	 * 						create a single figure at a time,
+	 * 						<code>false</code> otherwise.
+	 */
+	public CreateFigureAction(MeasurementViewer model, 
+			boolean createSingleFigure)
+	{
+		super(model);
+		this.createSingleFigure = createSingleFigure;
+		if (createSingleFigure)
 		{
-			super(model);
-			this.createSingleFigure = createSingleFigure;
-			if (createSingleFigure)
-			{
-				name = NAME_CREATE_SINGLE;
-				putValue(Action.NAME, NAME_CREATE_SINGLE);
-				putValue(Action.SHORT_DESCRIPTION, 
-	                UIUtilities.formatToolTipText(DESCRIPTION_CREATE_SINGLE));
-			}
-			else
-			{
-				name = NAME_CREATE_MULTIPLE;
-				putValue(Action.NAME, NAME_CREATE_MULTIPLE);
-				putValue(Action.SHORT_DESCRIPTION, 
-					UIUtilities.formatToolTipText(DESCRIPTION_CREATE_MULTIPLE));
-			}
+			name = NAME_CREATE_SINGLE;
+			putValue(Action.NAME, NAME_CREATE_SINGLE);
+			putValue(Action.SHORT_DESCRIPTION, 
+					UIUtilities.formatToolTipText(DESCRIPTION_CREATE_SINGLE));
 		}
-		
-		/** 
-	     * Sets the units.
-	     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-	     */
-	    public void actionPerformed(ActionEvent e) 
-	    { 
-	    	model.createSingleFigure(createSingleFigure); 
-	    }
+		else
+		{
+			name = NAME_CREATE_MULTIPLE;
+			putValue(Action.NAME, NAME_CREATE_MULTIPLE);
+			putValue(Action.SHORT_DESCRIPTION, 
+					UIUtilities.formatToolTipText(DESCRIPTION_CREATE_MULTIPLE));
+		}
+	}
+
+	/** 
+	 * Creates figures.
+	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e) 
+	{ 
+		model.createSingleFigure(createSingleFigure); 
+	}
+	
 }
 
 

@@ -57,6 +57,15 @@ public class ShowROIAssistant
 	/** The description of the action. */
 	private static final String DESCRIPTION = "Show the ROI Assistant.";
 
+	/** 
+	 * Sets the action enabled if the ROIs are server ROI. 
+	 * @see MeasurementViewerAction# onStateChange()
+	 */
+	protected void onStateChange()
+	{
+		if (model.isServerROI()) setEnabled(false);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 

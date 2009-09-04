@@ -284,4 +284,12 @@ public interface MeasurementViewer
 	 */
 	public void setServerROI(Collection result);
 	
+	/**
+	 * Returns <code>true</code> if the tool hosts server ROI,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isServerROI();
+	
 }

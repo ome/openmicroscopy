@@ -825,6 +825,7 @@ class MeasurementViewerComponent
 		}
 		
 		//bring up the UI.
+		view.layoutUI();
 		view.rebuildManagerTable();
 		view.updateDrawingArea();
 		view.setReadyStatus();
@@ -833,5 +834,11 @@ class MeasurementViewerComponent
 		//Viewer
 		postEvent(MeasurementToolLoaded.ADD);
 	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#isServerROI()
+     */
+	public boolean isServerROI() { return model.isServerROI(); }
 	
 }

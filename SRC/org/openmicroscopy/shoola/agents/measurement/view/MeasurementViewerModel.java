@@ -158,6 +158,9 @@ class MeasurementViewerModel
     /** The roi file previously saved if any. */
     private String					fileSaved;
     
+    /** Boolean indicating that the tool is dealing with server ROI. */
+    private boolean					serverROI;
+    
     /** 
 	 * Sorts the passed nodes by row.
 	 * 
@@ -463,6 +466,7 @@ class MeasurementViewerModel
 		state = MeasurementViewer.READY;
 		List<ROI> roiList = roiComponent.loadROI(rois);
 		if (roiList == null) return false;
+		serverROI = true;
 		Iterator<ROI> i = roiList.iterator();
 		ROI roi;
 		TreeMap<Coord3D, ROIShape> shapeList;
@@ -1101,6 +1105,18 @@ class MeasurementViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean hasROIToSave() { return event != null; }
+	boolean hasROIToSave()
+	{ 
+		if (isServerROI()) return false;
+		return event != null;
+	}
+	
+	/** 
+	 * Returns <code>true</code> if the tool hosts server ROIs,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isServerROI() { return serverROI; }
 	
 }	
