@@ -213,16 +213,17 @@ class MonitorClientI(monitors.MonitorClient):
                     log.info("Importing file using session key = %s", key)
 
                     if platform.system() == 'Windows':
+                        # Windows requires bin/omero to be bin\omero
                         climporter = config.climporter.replace('/','\\')
-                        command = ['""' + climporter +
+                        # Awkward file names not yet handled.
+                        command = [climporter +
                                     " -s " + config.host +
                                     " -k " + key +
-                                    " " + fileName + '""']
+                                    " " + fileName ]
                     else:
                         climporter = config.climporter
-                        # Escape any spaces in the filename
-                        # fileName = fileName.replace(' ', '\ ')
                         # Wrap filename in single quotes, escape any ' characters first.
+                        # This deals with awkward file names (spaces, quotes, etc.)
                         fileName = "'" + fileName.replace("'", r"'\''") + "'"
                         command = [climporter +
                                     " -s " + config.host +
@@ -232,6 +233,18 @@ class MonitorClientI(monitors.MonitorClient):
                     process = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
                     output = process.communicate()
                     retCode = process.returncode
+
+                    if retCode == 2:
+                        # The file still being in use is one possible cause of retCode == 2 under
+                        # Windows. At the moment it is impossible to know for sure so try once
+                        # more and then log a failure. A better strategy may be possible with
+                        # more error information passed on by bin/omero
+                        log.warn("Import failed, possible cause file locking. Trying once more.")
+                        log.info("Importing file using command = %s", command[0])                
+                        process = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
+                        output = process.communicate()
+                        retCode = process.returncode
+ 
                     if retCode == 0:
                         log.info("Import completed on session key = %s", key)
                     else:
@@ -239,7 +252,7 @@ class MonitorClientI(monitors.MonitorClient):
                         log.error("***** start of output from importer-cli to stderr *****")
                         for line in output[1].split('\n'):
                             log.error(line)
-                        log.error("***** end *****")
+                        log.error("***** end of output from importer-cli *****")
                     
                 else:
                     log.info("File not imported: user unknown: %s", exName)
