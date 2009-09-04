@@ -202,6 +202,8 @@ public class ImportHandler
                 			    importContainer[j].getUserSpecifiedName(),
                 			    null,  // Description
                 			    container.archive,
+                			    true,  // Metadata file creation
+                			           // (TODO: Enable in container and UI)
                 			    container.userPixels);
                 	store.createRoot();
                     try

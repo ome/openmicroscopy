@@ -109,6 +109,9 @@ public class ImportLibrary implements IObservable
     private int                tSize;
 
     private int                wSize;
+    
+    /** List of temporary metadata files created for each series imported. */
+    private List<File> metadataFiles;
 
     /**
      * @param store not null
@@ -225,6 +228,8 @@ public class ImportLibrary implements IObservable
      * @param userSpecifiedImageDescription A user specified description.
      * @param archive Whether or not the user requested the original files to
      * be archived.
+     * @param useMetadataFile Whether or not to dump all metadata to a flat
+     * file annotation on the server.
      * @return the newly created {@link Pixels} id.
 	 * @throws FormatException if there is an error parsing metadata.
 	 * @throws IOException if there is an error reading the file.
@@ -232,13 +237,14 @@ public class ImportLibrary implements IObservable
 	private List<Pixels> importMetadata(String userSpecifiedImageName,
 			                            String userSpecifiedImageDescription,
 			                            boolean archive,
+			                            boolean useMetadataFile,
 			                            Double[] userPixels)
     	throws FormatException, IOException
     {
     	// 1st we post-process the metadata that we've been given.
     	log.debug("Post-processing metadata.");
 
-    	store.setArchive(archive);
+    	metadataFiles = store.setArchive(archive, useMetadataFile);
     	store.setUserSpecifiedImageName(userSpecifiedImageName);
     	store.setUserSpecifiedImageDescription(userSpecifiedImageDescription);
     	if (userPixels != null)
@@ -246,7 +252,6 @@ public class ImportLibrary implements IObservable
     	store.setUserSpecifiedTarget(target);
         store.postProcess();
         
-
         log.debug("Saving pixels to DB.");
         List<Pixels> pixelsList = store.saveToDB();
         return pixelsList;
@@ -289,6 +294,8 @@ public class ImportLibrary implements IObservable
      * imported from target file <code>file</code>
      * @param archive Whether or not to archive target file <code>file</code>
      * and all sub files.
+     * @param useMetadataFile Whether or not to dump all metadata to a flat
+     * file annotation on the server.
      * @return List of Pixels that have been imported.
      * @throws FormatException If there is a Bio-Formats image file format
      * error during import.
@@ -300,7 +307,8 @@ public class ImportLibrary implements IObservable
      */
     public List<Pixels> importImage(File file, int index, int numDone,
     		                        int total, String userSpecifiedImageName, 
-    		                        String userSpecifiedImageDescription, boolean archive,
+    		                        String userSpecifiedImageDescription,
+    		                        boolean archive, boolean useMetadataFile,
     		                        Double[] userPixels)
     	throws FormatException, IOException, ServerError
     {        
@@ -326,7 +334,9 @@ public class ImportLibrary implements IObservable
         
         // Save metadata and prepare the RawPixelsStore for our arrival.
         List<Pixels> pixList = 
-        	importMetadata(userSpecifiedImageName, userSpecifiedImageDescription, archive, userPixels);
+        	importMetadata(userSpecifiedImageName,
+        			       userSpecifiedImageDescription,
+        			       archive, useMetadataFile, userPixels);
     	List<Long> plateIds = new ArrayList<Long>();
     	Image image = pixList.get(0).getImage();
     	if (image.sizeOfWellSamples() > 0)
@@ -374,30 +384,41 @@ public class ImportLibrary implements IObservable
             
             notifyObservers(Actions.DATA_STORED, args);  
         }
+        
         if (archive)
         {
-        	String[] fileNameList = reader.getUsedFiles();
-            notifyObservers(Actions.IMPORT_ARCHIVING, args);
-        	File[] files = new File[fileNameList.length];
-        	for (int i = 0; i < fileNameList.length; i++) 
+        	for (int series = 0; series < seriesCount; series++)
         	{
-        		files[i] = new File(fileNameList[i]); 
+        		reader.setSeries(series);
+        		String[] fileNameList = reader.getSeriesUsedFiles();
+        		notifyObservers(Actions.IMPORT_ARCHIVING, args);
+        		File[] files = new File[fileNameList.length + 1];
+        		for (int i = 0; i < fileNameList.length; i++) 
+        		{
+        			files[i] = new File(fileNameList[i]); 
+        		}
+        		files[fileNameList.length] = metadataFiles.get(series);
+        		store.writeFilesToFileStore(files, pixList.get(series));
         	}
-        	store.writeFilesToFileStore(files, pixList.get(0));   
         } 
         else
         {
-            List<String> fileNameList = store.getFilteredCompanionFiles();
-            if (fileNameList != null)
-            {
-                notifyObservers(Actions.IMPORT_ARCHIVING, args);
-                File[] files = new File[fileNameList.size()];
-                for (int i = 0; i < fileNameList.size(); i++)
-                {
-                    files[i] = new File(fileNameList.get(i));
-                }
-                store.writeFilesToFileStore(files, pixList.get(0));
-            }
+        	for (int series = 0; series < seriesCount; series++)
+        	{
+        		List<String> fileNameList = 
+        			store.getFilteredSeriesCompanionFiles();
+        		if (fileNameList != null)
+        		{
+        			notifyObservers(Actions.IMPORT_ARCHIVING, args);
+        			File[] files = new File[fileNameList.size() + 1];
+        			for (int i = 0; i < fileNameList.size(); i++)
+        			{
+        				files[i] = new File(fileNameList.get(i));
+        			}
+        			files[fileNameList.size()] = metadataFiles.get(series);
+        			store.writeFilesToFileStore(files, pixList.get(series));
+        		}
+        	}
         }
         
         if (saveSha1)

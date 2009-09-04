@@ -202,7 +202,7 @@ public class TestEngine
                 
                 // Do import
 				interceptor.setSourceFile(file); 
-				importLibrary.importImage(file, 0, 0, 1, fileList[j], null, false, null);
+				importLibrary.importImage(file, 0, 0, 1, fileList[j], null, false, true, null);
 				iniFile.flush();
                 store.createRoot();
 			}

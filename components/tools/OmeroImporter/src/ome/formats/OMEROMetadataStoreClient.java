@@ -2,6 +2,9 @@ package ome.formats;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.text.ParseException;
@@ -14,6 +17,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -2229,6 +2233,87 @@ public class OMEROMetadataStoreClient
             throw new RuntimeException(e);
         }
     }
+    
+    /**
+     * Creates an original file object from a Java file object along with some
+     * metadata specific to OMERO in the container cache.
+     * @param file Java file object to pull metadata from.
+     * @param indexes Container cache indexes to use.
+     * @param formatString Original file format as a string.
+     * @return Created original file source object.
+     */
+    private OriginalFile createOriginalFileFromFile(
+    		File file, LinkedHashMap<String, Integer> indexes,
+    		String formatString)
+    {
+		OriginalFile o = (OriginalFile) 
+			getSourceObject(OriginalFile.class, indexes);
+		Format format = (Format) getEnumeration(Format.class, formatString);
+		o.setName(toRType(file.getName()));
+		o.setSize(toRType(file.length()));
+		o.setFormat(format);
+		o.setPath(toRType(file.getAbsolutePath()));
+		o.setSha1(toRType("Pending"));
+		return o;
+    }
+    
+    /**
+     * Creates a temporary file on disk containing all metadata in the
+     * Bio-Formats metadata hash table for the current series.
+     * @return Temporary file created.
+     */
+    private File createSeriesMetadataFile()
+    {
+    	Hashtable globalMetadata = reader.getGlobalMetadata();
+    	Hashtable seriesMetadata = reader.getSeriesMetadata();
+    	FileOutputStream stream = null;
+    	OutputStreamWriter writer= null;
+    	try
+    	{
+    		File metadataFile = File.createTempFile("metadata", ".txt");
+    		stream = new FileOutputStream(metadataFile);
+    		writer = new OutputStreamWriter(stream);
+    		metadataFile.deleteOnExit();
+    		writer.write("[GlobalMetadata]\n");
+    		for (Object key : globalMetadata.keySet())
+    		{
+    			String s = key.toString() + "="
+    			           + globalMetadata.get(key).toString() + "\n";
+    			writer.write(s);
+    		}
+    		writer.write("[SeriesMetadata]\n");
+    		for (Object key : seriesMetadata.keySet())
+    		{
+    			String s = key.toString() + "="
+    			           + seriesMetadata.get(key).toString() + "\n";
+    			writer.write(s);
+    		}
+    		return metadataFile;
+    	}
+    	catch (IOException e)
+    	{
+    		log.error("Unable to create series metadata file.", e);
+    		return null;
+    	}
+    	finally
+    	{
+    		try
+    		{
+    			if (writer != null)
+    			{
+    				writer.close();
+    			}
+    			if (stream != null)
+    			{
+    				stream.close();
+    			}
+    		}
+    		catch (IOException e)
+    		{
+    			log.error("Unable to close writer or stream.", e);
+    		}
+    	}
+    }
 
     /**
      * Populates archive flags on all images currently processed. This method
@@ -2236,9 +2321,14 @@ public class OMEROMetadataStoreClient
      * cycle. 
      * @param archive Whether or not the user requested the original files to
      * be archived.
+     * @param useMetadataFile Whether or not to dump all metadata to a flat
+     * file annotation on the server.
+     * @return A list of the temporary metadata files created on local disk.
      */
-    public void setArchive(boolean archive)
+    public List<File> setArchive(boolean archive, boolean useMetadataFile)
     {
+    	List<File> metadataFiles = new ArrayList<File>();
+    	int originalFileIndex = 0;
     	for (int series = 0; series < reader.getSeriesCount(); series++)
     	{
     		reader.setSeries(series);
@@ -2254,46 +2344,70 @@ public class OMEROMetadataStoreClient
     		LSID pixelsKey = new LSID(Pixels.class, series, 0);
     		LSID imageKey = new LSID(Image.class, series);
     		
-    		int i = 0;
-    		for (String usedFile : usedFiles)
+    		// If we have been asked to create a metadata file with all the
+    		// metadata dumped out, do so, add it to the collection we're to
+    		// return and create an OriginalFile object to hold state on the
+    		// server and a companion file annotation to link it to the pixels
+    		// set itself. This increments the original file count if enabled.
+    		if (useMetadataFile)
     		{
-    			boolean isCompanionFile = companionFiles.contains(usedFile);
+    			File metadataFile = createSeriesMetadataFile();
+    			metadataFiles.add(metadataFile);
+				LinkedHashMap<String, Integer> indexes = 
+					new LinkedHashMap<String, Integer>();
+				indexes.put("originalFileIndex", originalFileIndex);
+				String format = "text/plain";
+				OriginalFile originalFile = 
+					createOriginalFileFromFile(metadataFile, indexes, format);
+				originalFile.setName(toRType("original_metadata.txt"));
+                indexes = new LinkedHashMap<String, Integer>();
+                indexes.put("imageIndex", series);
+                indexes.put("originalFileIndex", originalFileIndex);
+                addCompanionFileAnnotationTo(imageKey, indexes,
+                		                     originalFileIndex);
+				originalFileIndex++;
+    		}
+    		
+    		// Create all original file objects for later population based on
+    		// the existence or abscence of companion files and the archive
+    		// flag. This increments the original file count by the number of
+    		// files to actually be created.
+    		for (int i = 0; i < usedFiles.length; i++)
+    		{
+    			String usedFile = usedFiles[i];
+    			boolean isCompanionFile = companionFiles == null? false :
+    				                      companionFiles.contains(usedFile);
     			if (archive || isCompanionFile)
     			{
     				LinkedHashMap<String, Integer> indexes = 
     					new LinkedHashMap<String, Integer>();
-    				indexes.put("originalFileIndex", i);
-    				OriginalFile o = (OriginalFile) 
-    				getSourceObject(OriginalFile.class, indexes);
+    				indexes.put("originalFileIndex", originalFileIndex);
     				File file = new File(usedFiles[i]);
-    				Format format;
     				if (isCompanionFile)
     				{
-    					format = (Format) getEnumeration(
-    							Format.class, "application/octet-stream");
+    					String format = "application/octet-stream";
+    					createOriginalFileFromFile(file, indexes, format);
     				}
     				else
     				{
-    					format = (Format) 
-							getEnumeration(Format.class, formatString);    					
+    					createOriginalFileFromFile(file, indexes, formatString);
     				}
-    				o.setName(toRType(file.getName()));
-    				o.setSize(toRType(file.length()));
-    				o.setFormat(format);
-    				o.setPath(toRType(file.getAbsolutePath()));
-    				o.setSha1(toRType("Pending"));
-    				addReference(pixelsKey, new LSID(OriginalFile.class, i));
+    				LSID originalFileKey = 
+    					new LSID(OriginalFile.class, originalFileIndex);
+    				addReference(pixelsKey, originalFileKey);
     				if (isCompanionFile)
     				{
                         indexes = new LinkedHashMap<String, Integer>();
                         indexes.put("imageIndex", series);
-                        indexes.put("originalFileIndex", i);
-                        addCompanionFileAnnotationTo(imageKey, indexes, i);
+                        indexes.put("originalFileIndex", originalFileIndex);
+                        addCompanionFileAnnotationTo(imageKey, indexes,
+                        		                     originalFileIndex);
     				}
-    				i++;
+    				originalFileIndex++;
     			}
     		}
     	}
+    	return metadataFiles;
     }
     
     /**
@@ -2317,17 +2431,6 @@ public class OMEROMetadataStoreClient
     		}
     	}
     	return filteredFiles;
-    }
-    
-    /**
-     * Returns the current set of filtered companion files that the Bio-Formats
-     * image reader contains.
-     * @return See above.
-     * @see getFilteredSeriesCompanionFiles()
-     */
-    public List<String> getFilteredCompanionFiles()
-    {
-    	return filterFilenames(reader.getUsedFiles(true));
     }
     
     /**
@@ -2378,14 +2481,14 @@ public class OMEROMetadataStoreClient
      */
     public void writeFilesToFileStore(File[] files, Pixels pixels)
     {
-        // Populate a hash map of filename --> original file
+        // Populate a hash map of filepath --> original file
         List<OriginalFile> originalFileList = pixels.linkedOriginalFileList();
         Map<String, OriginalFile> originalFileMap =
             new HashMap<String, OriginalFile>(originalFileList.size());
         for (OriginalFile originalFile: originalFileList)
         {
-            String fileName = originalFile.getName().getValue();
-            originalFileMap.put(fileName, originalFile);
+            String filePath = originalFile.getPath().getValue();
+            originalFileMap.put(filePath, originalFile);
         }
         
         // Companion files
@@ -2406,8 +2509,8 @@ public class OMEROMetadataStoreClient
             {
                 FileAnnotation fileAnnotation = (FileAnnotation) annotation;
                 OriginalFile o = fileAnnotation.getFile();
-                String fileName = o.getName().getValue();
-                originalFileMap.put(fileName, o);
+                String filePath = o.getPath().getValue();
+                originalFileMap.put(filePath, o);
             }
         }
 
@@ -2416,10 +2519,11 @@ public class OMEROMetadataStoreClient
         byte[] buf = new byte[1048576];  // 1 MB buffer
         for (File file : files)
         {
-            OriginalFile originalFile = originalFileMap.get(file.getName());
+            OriginalFile originalFile = 
+            	originalFileMap.get(file.getAbsolutePath());
             if (originalFile == null)
             {
-                log.warn("Cannot lookup original file with name: "
+                log.warn("Cannot lookup original file with path: "
                          + file.getAbsolutePath());
                 continue;
             }
