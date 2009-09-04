@@ -226,7 +226,7 @@ class InputServerStrategy
 		double cx = data.getX();
 		double cy = data.getY();
 		double rx = data.getRadiusX();
-		double ry = data.getRadiusX();
+		double ry = data.getRadiusY();
 		
 		double x = cx-rx;
 		double y = cy-ry;
