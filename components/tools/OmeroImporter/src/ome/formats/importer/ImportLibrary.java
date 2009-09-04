@@ -222,7 +222,7 @@ public class ImportLibrary implements IObservable
      * Uses the {@link OMEROMetadataStoreClient} to save the current all
      * image metadata provided.
      * @param userSpecifiedImageName A user specified image name.
-     * @param imageDescription A user specified description.
+     * @param userSpecifiedImageDescription A user specified description.
      * @param archive Whether or not the user requested the original files to
      * be archived.
      * @return the newly created {@link Pixels} id.
@@ -230,7 +230,7 @@ public class ImportLibrary implements IObservable
 	 * @throws IOException if there is an error reading the file.
      */
 	private List<Pixels> importMetadata(String userSpecifiedImageName,
-			                            String imageDescription,
+			                            String userSpecifiedImageDescription,
 			                            boolean archive,
 			                            Double[] userPixels)
     	throws FormatException, IOException
@@ -239,12 +239,13 @@ public class ImportLibrary implements IObservable
     	log.debug("Post-processing metadata.");
 
     	store.setArchive(archive);
-    	//store.setUserSpecifiedImageName(imageName);
-    	store.setUserSpecifiedImageDescription(imageDescription);
+    	store.setUserSpecifiedImageName(userSpecifiedImageName);
+    	store.setUserSpecifiedImageDescription(userSpecifiedImageDescription);
     	if (userPixels != null)
     	    store.setUserSpecifiedPhysicalPixelSizes(userPixels[0], userPixels[1], userPixels[2]);
     	store.setUserSpecifiedTarget(target);
         store.postProcess();
+        
 
         log.debug("Saving pixels to DB.");
         List<Pixels> pixelsList = store.saveToDB();
@@ -282,9 +283,9 @@ public class ImportLibrary implements IObservable
      * safe if this is a singular import.
      * @param total Total number of imports in a set. <code>1</code> is safe
      * if this is a singular import.
-     * @param imageName Name to use for all images that are imported from the
+     * @param userSpecifiedImageName Name to use for all images that are imported from the
      * target file <code>file</code>.
-     * @param imageDescription Description to use for all images that are
+     * @param userSpecifiedImageDescription Description to use for all images that are
      * imported from target file <code>file</code>
      * @param archive Whether or not to archive target file <code>file</code>
      * and all sub files.
@@ -298,8 +299,8 @@ public class ImportLibrary implements IObservable
      * TODO: Add observer messaging for any agnostic viewer class to use
      */
     public List<Pixels> importImage(File file, int index, int numDone,
-    		                        int total, String imageName, 
-    		                        String imageDescription, boolean archive,
+    		                        int total, String userSpecifiedImageName, 
+    		                        String userSpecifiedImageDescription, boolean archive,
     		                        Double[] userPixels)
     	throws FormatException, IOException, ServerError
     {        
@@ -323,14 +324,9 @@ public class ImportLibrary implements IObservable
         formatString = formatString.replace("class loci.formats.in.", "");
         formatString = formatString.replace("Reader", "");
         
-        if (imageName != null)
-        {
-            store.setUserSpecifiedImageName(imageName);
-        }
-        
         // Save metadata and prepare the RawPixelsStore for our arrival.
         List<Pixels> pixList = 
-        	importMetadata(imageName, imageDescription, archive, userPixels);
+        	importMetadata(userSpecifiedImageName, userSpecifiedImageDescription, archive, userPixels);
     	List<Long> plateIds = new ArrayList<Long>();
     	Image image = pixList.get(0).getImage();
     	if (image.sizeOfWellSamples() > 0)
