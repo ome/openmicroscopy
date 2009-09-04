@@ -51,10 +51,13 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 
 //Application-internal dependencies
 import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.geom.BezierPath.Node;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.util.SVGTransform;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -96,16 +99,17 @@ class InputServerStrategy
 	{
 		DEFAULT_ATTRIBUTES = new HashMap<AttributeKey, Object>();
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.FILL_COLOR,
-			IOConstants.DEFAULT_FILL_COLOUR);
+				ShapeSettingsData.DEFAULT_FILL_COLOUR);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.STROKE_COLOR,
-			IOConstants.DEFAULT_STROKE_COLOUR);
+			ShapeSettingsData.DEFAULT_STROKE_COLOUR);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.TEXT_COLOR,
 			IOConstants.DEFAULT_TEXT_COLOUR);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.FONT_SIZE, 
-				new Double(10));
-		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.FONT_BOLD, false);
+				ShapeSettingsData.DEFAULT_FONT_SIZE);
+		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.FONT_BOLD, 
+				ShapeSettingsData.DEFAULT_FONT_STYLE);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.STROKE_WIDTH, 
-				new Double(1.0));
+				ShapeSettingsData.DEFAULT_STROKE_WIDTH);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.TEXT, "Text");
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
 			IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
@@ -182,9 +186,8 @@ class InputServerStrategy
 	 */
 	private ROIShape createROIShape(ShapeData data, ROI roi)
 	{
-		//TODO
-		int z = 0;//data.getZ();
-		int t = 0;//data.getT();
+		int z = data.getZ();
+		int t = data.getT();
 		if (z < 0 || t < 0) return null;
 		Coord3D coord = new Coord3D(z, t);
 		ROIFigure fig = createROIFigure(data);
@@ -205,11 +208,11 @@ class InputServerStrategy
 	private ROIFigure createROIFigure(ShapeData shape)
 	{
 		if (shape instanceof RectangleData) {
-			
+			return createRectangleFigure((RectangleData) shape);			
 		} else if (shape instanceof EllipseData) {
 			return createEllipseFigure((EllipseData) shape);
 		} else if (shape instanceof LineData) {
-			
+			return createLineFigure((LineData) shape);			
 		}
 		return null;
 	}
@@ -235,6 +238,67 @@ class InputServerStrategy
 		
 		MeasureEllipseFigure fig = new MeasureEllipseFigure();
 		fig.setEllipse(x, y, width, height);
+		addShapeSettings(fig, data.getShapeSettings());
+		AffineTransform transform;
+		try {
+			transform = SVGTransform.toTransform(data.getTransform());
+			TRANSFORM.set(fig, transform);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
+		}
+		
+		return fig;
+	}
+	
+	/**
+	 * Transforms the passed rectangle into its UI corresponding object.
+	 * 
+	 * @param data The rectangle to transform.
+	 * @return See above.
+	 */
+	private MeasureRectangleFigure createRectangleFigure(RectangleData data)
+	{
+		
+		double x = data.getX();
+		double y = data.getY();
+		double width = data.getWidth();
+		double height = data.getHeight();
+		
+		MeasureRectangleFigure fig = new MeasureRectangleFigure(x, y, width, 
+				height);
+		addShapeSettings(fig, data.getShapeSettings());
+		AffineTransform transform;
+		try {
+			transform = SVGTransform.toTransform(data.getTransform());
+			TRANSFORM.set(fig, transform);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
+		}
+		
+		return fig;
+	}
+	
+	/**
+	 * Transforms the passed line into its UI corresponding object.
+	 * 
+	 * @param data The line to transform.
+	 * @return See above.
+	 */
+	private MeasureLineFigure createLineFigure(LineData data)
+	{
+		
+		double x1 = data.getX1();
+		double y1 = data.getY1();
+		double x2 = data.getX2();
+		double y2 = data.getY2();
+		
+		MeasureLineFigure fig = new MeasureLineFigure();
+		fig.removeAllNodes();
+		fig.addNode(new Node(new Double(x1), new Double(y1)));
+		fig.addNode(new Node(new Double(x2), new Double(y2)));
+		
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
 		try {
