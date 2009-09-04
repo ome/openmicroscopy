@@ -114,15 +114,17 @@ public class ROIData
 	
 	/**
 	* Returns the iterator of the collection of the map.
+	* 
 	* @return See above.
 	*/
-	public Iterator getIterator()
+	public Iterator<List<ShapeData>> getIterator()
 	{
 		return roiShapes.values().iterator();
 	}
 	
 	/** 
 	* Return the first plane that the ROI starts on.
+	* 
 	* @return See above.
 	*/
 	public ROICoordinate firstPlane()
@@ -131,7 +133,8 @@ public class ROIData
 	}
 	
 	/** 
-	* Return the last plane that the ROI starts on.
+	* Returns the last plane that the ROI ends on.
+	* 
 	* @return See above.
 	*/
 	public ROICoordinate lastPlane()
@@ -140,12 +143,14 @@ public class ROIData
 	}
 	
 	/**
-	* Return an iterator of the Shapes in the ROI in the range [start, end].
+	* Returns an iterator of the Shapes in the ROI in the range [start, end].
+	* 
 	* @param start The starting plane where the Shapes should reside.
 	* @param end The final plane where the Shapes should reside.
 	* @return See above.
 	*/
-	public Iterator<List<ShapeData>> getShapesInRange(ROICoordinate start, ROICoordinate end)
+	public Iterator<List<ShapeData>> getShapesInRange(ROICoordinate start, 
+			ROICoordinate end)
 	{
 		return roiShapes.subMap(start, end).values().iterator();
 	}

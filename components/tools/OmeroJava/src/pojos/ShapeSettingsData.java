@@ -23,7 +23,9 @@
 package pojos;
 
 //Java imports
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 
 //Third-party libraries
 
@@ -49,17 +51,37 @@ public class ShapeSettingsData
 	extends DataObject
 {
 
-	/** The default color. */
-	public static final Color 	DEFAULT_COLOR = Color.RED;
+	/** The <code>Butt</code> descriptor. */
+	public static final String	LINE_CAP_BUTT = "Butt";
 	
+	/** The <code>Round</code> descriptor. */
+	public static final String	LINE_CAP_ROUND = "Round";
+	
+	/** The <code>Square</code> descriptor. */
+	public static final String	LINE_CAP_SQUARE = "Square";
+	
+	/** The default fill color. */
+	public final static Color DEFAULT_FILL_COLOUR = new Color(0, 0, 0, 64);
+	
+	/** The default fill color. */
+	public final static Color DEFAULT_FILL_COLOUR_ALPHA = new Color(0, 0, 0, 
+			32);
+	
+	/** The default stroke color. */
+	public final static Color DEFAULT_STROKE_COLOUR = new Color(196, 196, 196, 
+			196);
+
 	/** The default font size. */
 	public static final int 	DEFAULT_FONT_SIZE = 12;
 	
 	/** The default font style. */
-	public static final String 	DEFAULT_FONT_STYLE = "Regular";
+	public static final int 	DEFAULT_FONT_STYLE = Font.PLAIN;
 	
 	/** The default font family. */
 	public static final String 	DEFAULT_FONT_FAMILY = "Courier";
+	
+	/** The default stroke width. */
+	public final static double DEFAULT_STROKE_WIDTH =  1.0f;
 	
 	/**
 	 * Converts the string into a color.
@@ -69,9 +91,10 @@ public class ShapeSettingsData
 	 */
 	private Color stringToColor(String value)
 	{
-		if (value == null) return DEFAULT_COLOR;
-		return DEFAULT_COLOR;
+		if (value == null) return null;
+		return Color.decode(value);
 	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -105,8 +128,10 @@ public class ShapeSettingsData
 	{
 		Shape shape = (Shape) asIObject();
 		RString value = shape.getFillColor();
-		if (value == null) return stringToColor(null);
-		return stringToColor(value.getValue());
+		if (value == null) return DEFAULT_FILL_COLOUR;
+		Color c = stringToColor(value.getValue());
+		if (c == null) return DEFAULT_FILL_COLOUR;
+		return c;
 	}
 	
 	/**
@@ -118,8 +143,10 @@ public class ShapeSettingsData
 	{
 		Shape shape = (Shape) asIObject();
 		RString value = shape.getStrokeColor();
-		if (value == null) return stringToColor(null);
-		return stringToColor(value.getValue());
+		if (value == null) return DEFAULT_STROKE_COLOUR;
+		Color c = stringToColor(value.getValue());
+		if (c == null) return DEFAULT_STROKE_COLOUR;
+		return c;
 	}
 
 	/**
@@ -136,16 +163,21 @@ public class ShapeSettingsData
 	}
 	
 	/**
-	 * Returns the stroke.
+	 * Returns the stroke dashes.
 	 * 
 	 * @return See above.
 	 */
-	public String getStrokeDashArray()
+	public double[] getStrokeDashArray()
 	{
 		Shape shape = (Shape) asIObject();
 		RString value = shape.getStrokeDashArray();
-		if (value == null) return "";
-		return value.getValue();
+		if (value == null) return null;
+		String v = value.getValue();
+		String[] values = v.split("\\s*,\\s*");
+		double[] dashes = new double[values.length];
+        for (int i = 0; i < values.length; i++) 
+            dashes[i] = new Double(values[i]);
+		return dashes;
 	}
 	
 	/**
@@ -153,12 +185,16 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
-	public String getLineCap()
+	public int getLineCap()
 	{
 		Shape shape = (Shape) asIObject();
 		RString value = shape.getStrokeLineCap();
-		if (value == null) return "";
-		return value.getValue();
+		if (value == null) return BasicStroke.CAP_BUTT;
+		String v = value.getValue();
+		if (LINE_CAP_BUTT.equals(v)) return BasicStroke.CAP_BUTT;
+		else if (LINE_CAP_ROUND.equals(v)) return BasicStroke.CAP_ROUND;
+		else if (LINE_CAP_SQUARE.equals(v)) return BasicStroke.CAP_SQUARE;
+		return BasicStroke.CAP_BUTT;
 	}
 	
 	/**
@@ -186,7 +222,7 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
-	public String getFontStyle()
+	public int getFontStyle()
 	{
 		return DEFAULT_FONT_STYLE;
 	}
@@ -220,5 +256,31 @@ public class ShapeSettingsData
 	{
 		return "";
 	}
+	
+	/**
+	 * Returns the font.
+	 * 
+	 * @return See above.
+	 */
+	public Font getFont()
+	{
+		return new Font(getFontFamily(), getFontStyle(), getFontSize());
+	}
+	
+	/**
+	 * Returns <code>true</code> if it is italic, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isFontItalic() { return getFontStyle() == Font.ITALIC; }
+	
+	/**
+	 * Returns <code>true</code> if it is bold, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isFontBold() { return getFontStyle() == Font.BOLD; }
 	
 }
