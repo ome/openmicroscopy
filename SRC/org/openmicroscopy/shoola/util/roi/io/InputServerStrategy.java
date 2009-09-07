@@ -216,6 +216,12 @@ class InputServerStrategy
 			return createEllipseFigure((EllipseData) shape);
 		} else if (shape instanceof LineData) {
 			return createLineFigure((LineData) shape);			
+		} else if (shape instanceof PolylineData) {
+			return createPolylineFigure((PolylineData) shape);			
+		} else if (shape instanceof PolygonData) {
+			return createPolygonFigure((PolygonData) shape);			
+		} else if (shape instanceof MaskData) {
+			return createMaskFigure((MaskData) shape);			
 		}
 		return null;
 	}
@@ -381,7 +387,7 @@ class InputServerStrategy
 	 * @param data The polyline to transform.
 	 * @return See above.
 	 */
-	private MeasureBezierFigure createPolygonFigure(PolylineData data)
+	private MeasureBezierFigure createPolylineFigure(PolylineData data)
 	{
 		
 		MeasureBezierFigure fig = new MeasureBezierFigure();
