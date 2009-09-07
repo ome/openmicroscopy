@@ -76,6 +76,10 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     protected final Ring ring;
 
+    protected final Registry registry;
+    
+    protected final TopicManager topicManager;
+    
     protected final AtomicBoolean loaded = new AtomicBoolean(false);
 
     /**
@@ -87,11 +91,13 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     public SessionManagerI(Ring ring, Ice.ObjectAdapter adapter,
             SecuritySystem secSys, SessionManager sessionManager,
-            Executor executor) {
+            Executor executor, TopicManager topicManager, Registry reg) {
         this.ring = ring;
+        this.registry = reg;
         this.adapter = adapter;
         this.executor = executor;
         this.securitySystem = secSys;
+        this.topicManager = topicManager;
         this.sessionManager = sessionManager;
     }
 
@@ -159,7 +165,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
             // Create the ServiceFactory
             ServiceFactoryI session = new ServiceFactoryI(current, context,
-                    sessionManager, executor, sp, CPTORS);
+                    sessionManager, executor, sp, CPTORS, topicManager, registry);
 
             Ice.Identity id = session.sessionId();
             Ice.ObjectPrx _prx = current.adapter.add(session, id);

@@ -54,10 +54,6 @@
 
   <!-- Storm configuration -->
 
-  <bean id="topicManager" class="ome.services.blitz.fire.TopicManager$Impl">
-    <constructor-arg ref="Ice.Communicator"/>
-  </bean>
-
   <bean id="requestHeartBeatsRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="BlitzManager" />
     <property name="targetMethod" value="requestHeartBeats" />
@@ -81,6 +77,7 @@
   <bean id="BlitzAdapter" factory-bean="configuration" factory-method="getBlitzAdapter"/>
   <bean id="BlitzManager" factory-bean="configuration" factory-method="getBlitzManager"/>
   <bean id="BlitzVerifier" factory-bean="configuration" factory-method="getBlitzVerifier"/>
+  <bean id="TopicManager" factory-bean="configuration" factory-method="getTopicManager"/>
   <bean id="Registry" factory-bean="configuration" factory-method="getRegistry"/>
 
 </beans>

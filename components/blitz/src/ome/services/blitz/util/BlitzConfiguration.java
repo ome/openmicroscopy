@@ -7,7 +7,6 @@
 package ome.services.blitz.util;
 
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 
 import ome.security.SecuritySystem;
@@ -15,6 +14,7 @@ import ome.services.blitz.fire.PermissionsVerifierI;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.fire.Ring;
 import ome.services.blitz.fire.SessionManagerI;
+import ome.services.blitz.fire.TopicManager;
 import ome.services.roi.RoiTypes;
 import ome.services.util.Executor;
 import omero.model.DetailsI;
@@ -56,6 +56,8 @@ public class BlitzConfiguration implements ApplicationListener {
     private final PermissionsVerifier blitzVerifier;
 
     private final Registry registry;
+    
+    private final TopicManager topicManager;
 
     private final Ice.InitializationData id;
 
@@ -139,6 +141,7 @@ public class BlitzConfiguration implements ApplicationListener {
 
             // This component is inert, and so can be created early.
             registry = new Registry.Impl(this.communicator);
+            topicManager = new TopicManager.Impl(this.communicator);
 
             registerObjectFactory(factories);
             blitzAdapter = createAdapter();
@@ -323,7 +326,7 @@ public class BlitzConfiguration implements ApplicationListener {
         throwIfInitialized(blitzManager);
 
         SessionManagerI manager = new SessionManagerI(blitzRing, blitzAdapter,
-                securitySystem, sessionManager, executor);
+                securitySystem, sessionManager, executor, topicManager, registry);
         Ice.Identity id = managerId();
         Ice.ObjectPrx prx = this.blitzAdapter.add(manager, id);
         return manager;
@@ -401,6 +404,13 @@ public class BlitzConfiguration implements ApplicationListener {
             throw new IllegalStateException("Registry is null");
         }
         return registry;
+    }
+    
+    public TopicManager getTopicManager() {
+        if (topicManager == null) {
+            throw new IllegalStateException("TopicManager is null");
+        }
+        return topicManager;
     }
 
     /**

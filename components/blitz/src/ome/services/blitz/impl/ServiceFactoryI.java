@@ -17,6 +17,7 @@ import ome.api.JobHandle;
 import ome.conditions.SessionException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
+import ome.services.blitz.fire.Registry;
 import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.repo.InternalRepositoryI;
 import ome.services.blitz.util.ServantHolder;
@@ -187,6 +188,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     final TopicManager topicManager;
 
+    final Registry registry;
+    
     /**
      * {@link Executor} to be used by servant implementations which do not
      * delegate to the server package where all instances are wrapped with AOP
@@ -209,7 +212,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     public ServiceFactoryI(Ice.Current current, OmeroContext context,
             SessionManager manager, Executor executor, Principal p,
-            List<HardWiredInterceptor> interceptors) throws ApiUsageException {
+            List<HardWiredInterceptor> interceptors,
+            TopicManager topicManager, Registry registry) throws ApiUsageException {
         this.adapter = current.adapter;
         this.clientId = clientId(current);
         this.context = context;
@@ -219,10 +223,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         this.cptors = interceptors;
         this.initializer = new AopContextInitializer(new ServiceFactory(
                 this.context), this.principal);
-        // TODO Move this to injection.
-        // FIXME
-        this.topicManager = null; // (TopicManager)
-        // context.getBean("topicManager");
+        this.topicManager = topicManager;
+        this.registry = registry;
 
         // Setting up in memory store.
         Ehcache cache = manager.inMemoryCache(p.getName());
@@ -455,21 +457,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // Need to keep up with closing
         // might need to cache the found repositories.
 
-        // Temporary. Find the first
-        Ice.ObjectPrx objectPrx = adapter.getCommunicator().stringToProxy(
-                "IceGrid/Query");
-        IceGrid.QueryPrx query = IceGrid.QueryPrxHelper.checkedCast(objectPrx);
-        Ice.ObjectPrx[] candidates = query
-                .findAllObjectsByType(InternalRepositoryI.ice_staticId());
-        InternalRepositoryPrx[] repos = new InternalRepositoryPrx[candidates.length];
-        for (int i = 0; i < repos.length; i++) {
-            try {
-                repos[i] = InternalRepositoryPrxHelper
-                        .checkedCast(candidates[i]);
-            } catch (Exception e) {
-                log.info("Not adding " + candidates[i]);
-            }
-        }
+        InternalRepositoryPrx[] repos = registry.lookupRepositories();
 
         RepositoryMap map = new RepositoryMap();
         map.descriptions = new ArrayList<Repository>();

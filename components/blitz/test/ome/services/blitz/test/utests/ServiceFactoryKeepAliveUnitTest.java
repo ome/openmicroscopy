@@ -64,7 +64,7 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
         cacheMock.expects(once()).method("get").will(
                 returnValue(new Element("activeServants", map)));
         sf = new ServiceFactoryI(current, null, manager, executor,
-                new Principal("a", "b", "c"), null);
+                new Principal("a", "b", "c"), null, null, null);
     }
 
     @Test
