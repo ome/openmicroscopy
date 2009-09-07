@@ -199,25 +199,27 @@ class _BlitzGateway (object):
             return self.c.sf.keepAlive(self._proxies['admin']._obj)
         except Ice.ObjectNotExistException: #pragma: no cover
             # The connection is there, but it has been reset, because the proxy no longer exists...
+            logger.debug(traceback.format_exc())
             logger.debug("... reset, not reconnecting")
             return False
         except Ice.ConnectionLostException: #pragma: no cover
             # The connection was lost. This shouldn't happen, as we keep pinging it, but does so...
-            logger.debug(''.join(traceback.format_stack()))
+            logger.debug(traceback.format_exc())
             logger.debug("... lost, reconnecting")
             return self.connect()
         except Ice.ConnectionRefusedException: #pragma: no cover
             # The connection was refused. We lost contact with glacier2router...
-            logger.debug(''.join(traceback.format_stack()))
+            logger.debug(traceback.format_exc())
             logger.debug("... refused, not reconnecting")
             return False
         except omero.RemovedSessionException: #pragma: no cover
             # Session died on us
-            logger.debug(''.join(traceback.format_stack()))
+            logger.debug(traceback.format_exc())
             logger.debug("... session has left the building, not reconnecting")
             return False
         except Ice.UnknownException, x: #pragma: no cover
             # Probably a wrapped RemovedSession
+            logger.debug(traceback.format_exc())
             logger.debug('Ice.UnknownException: %s' % str(x))
             logger.debug("... ice says something bad happened, not reconnecting")
             return False
