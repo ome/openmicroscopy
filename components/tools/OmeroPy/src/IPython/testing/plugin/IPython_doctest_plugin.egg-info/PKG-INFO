@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: IPython-doctest-plugin
+Version: 0.1
+Summary: Nose plugin to load IPython-extended doctests
+Home-page: UNKNOWN
+Author: The IPython Team
+Author-email: UNKNOWN
+License: LGPL
+Description: UNKNOWN
+Platform: UNKNOWN
