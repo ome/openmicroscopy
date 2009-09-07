@@ -12,7 +12,7 @@
  * Author: Carlos Neves <carlos(at)glencoesoftware.com>
  */
 
-var gs_script_location_prefix='/webgateway/appmedia//js/3rdparty/';
+var gs_script_location_prefix='/webgateway/appmedia/js/3rdparty/';
 
 /**
  * Given a string that may contain an RGB, RRGGBB or the previous with a # prefix,
@@ -246,7 +246,7 @@ function gs_popViewer (did, iid, baseurl) {
 function gs_searchImgs (text, baseurl, renderurl, result_cb) {
   if (text.length > 0) {
     jQuery('#search-results-summary').removeClass('ajax-error').html('searching for "'+text+'"');
-    jQuery('#search-results').html('<img src="/webgateway/appmedia//img/ajax-loader.gif" alt="loading..." />');
+    jQuery('#search-results').html('<img src="/webgateway/appmedia/img/ajax-loader.gif" alt="loading..." />');
     if (renderurl == null) {
       renderurl = baseurl;
     }
