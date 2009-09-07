@@ -2236,10 +2236,12 @@ public class OMEROMetadataStoreClient
     
     /**
      * Creates an original file object from a Java file object along with some
-     * metadata specific to OMERO in the container cache.
+     * metadata specific to OMERO in the container cache or returns the
+     * original file as already created in the supplied map.
      * @param file Java file object to pull metadata from.
      * @param indexes Container cache indexes to use.
      * @param formatString Original file format as a string.
+     * @param existing Existing original files keyed by absolute path.
      * @return Created original file source object.
      */
     private OriginalFile createOriginalFileFromFile(
@@ -2329,6 +2331,7 @@ public class OMEROMetadataStoreClient
     {
     	List<File> metadataFiles = new ArrayList<File>();
     	int originalFileIndex = 0;
+		Map<String, Integer> pathIndexMap = new HashMap<String, Integer>();
     	for (int series = 0; series < reader.getSeriesCount(); series++)
     	{
     		reader.setSeries(series);
@@ -2374,26 +2377,47 @@ public class OMEROMetadataStoreClient
     		// files to actually be created.
     		for (int i = 0; i < usedFiles.length; i++)
     		{
-    			String usedFile = usedFiles[i];
+    			String usedFilename = usedFiles[i];
+    			File usedFile = new File(usedFilename);
+    			String absolutePath = usedFile.getAbsolutePath();
     			boolean isCompanionFile = companionFiles == null? false :
-    				                      companionFiles.contains(usedFile);
+    				                      companionFiles.contains(usedFilename);
     			if (archive || isCompanionFile)
     			{
     				LinkedHashMap<String, Integer> indexes = 
     					new LinkedHashMap<String, Integer>();
     				indexes.put("originalFileIndex", originalFileIndex);
-    				File file = new File(usedFiles[i]);
-    				if (isCompanionFile)
+    				int usedFileIndex = originalFileIndex;
+    				if (pathIndexMap.containsKey(absolutePath))
     				{
-    					String format = "application/octet-stream";
-    					createOriginalFileFromFile(file, indexes, format);
+    					// PATH 1: We've already seen this path before, re-use
+    					// the same original file index.
+    					usedFileIndex = pathIndexMap.get(absolutePath);
+    				}
+    				else if (isCompanionFile)
+    				{
+    					// PATH 2: The file is a companion file, create it,
+    					// put the new original file index into our cached map
+    					// and increment the next original file's index.
+    					String format = "Companion/" + formatString;
+    					createOriginalFileFromFile(usedFile, indexes, format);
+    					pathIndexMap.put(absolutePath, usedFileIndex);
+    					originalFileIndex++;
     				}
     				else
     				{
-    					createOriginalFileFromFile(file, indexes, formatString);
+    					// PATH 3: We're archiving and the file is not a
+    					// companion file, create it, put the new original file
+    					// index into our cached map and increment the next
+    					// original file's index.
+    					createOriginalFileFromFile(usedFile, indexes,
+    					                           formatString);
+    					pathIndexMap.put(absolutePath, usedFileIndex);
+    					originalFileIndex++;
     				}
+    				
     				LSID originalFileKey = 
-    					new LSID(OriginalFile.class, originalFileIndex);
+    					new LSID(OriginalFile.class, usedFileIndex);
     				addReference(pixelsKey, originalFileKey);
     				if (isCompanionFile)
     				{
@@ -2401,9 +2425,8 @@ public class OMEROMetadataStoreClient
                         indexes.put("imageIndex", series);
                         indexes.put("originalFileIndex", originalFileIndex);
                         addCompanionFileAnnotationTo(imageKey, indexes,
-                        		                     originalFileIndex);
+                        		                     usedFileIndex);
     				}
-    				originalFileIndex++;
     			}
     		}
     	}
