@@ -119,22 +119,47 @@ insert into $table (id,permissions,owner_id,group_id,creation_id,value)
 #end
 #end
 
+##
+## Cryptographic functions for specifying UUID
+##
+create or replace function digest(text, text) returns bytea
+    AS '$libdir/pgcrypto', 'pg_digest'
+    language c;
+
+create or replace function sha1(text) returns character(40)
+    as '
+begin
+return encode(digest($1, ''sha1''), ''hex'');
+end;
+' LANGUAGE plpgsql;
+
+create or replace function uuid() returns character(36)
+as '
+select substring(x.my_rand from 1 for 8)||''-''||substring(x.my_rand from 9 for 4)||''-4''||substring(x.my_rand from 13 for 3)||''-''||x.clock_1||substring(x.my_rand from 16 for 3)||''-''||substring(x.my_rand from 19 for 12)
+from
+(select sha1(now()::text||random()) as my_rand, to_hex(8+(3*random())::int) as clock_1) as x;'
+language sql;
+
+##
+## Configuration table including a UUID uniquely identifying this database.
+##
 create table configuration ( name varchar(255) primary key, value text );
+insert into configuration values ('omero.db.uuid',uuid());
 
 alter table pixels add column url varchar(2048);
 alter table originalfile add column url varchar(2048);
 alter table thumbnail add column url varchar(2048);
 
 create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash char(24), dn text );
-insert into password values (0,'@ROOTPASS@'); 
+insert into password values (0,'@ROOTPASS@');
 insert into password values (1,'');
 -- root can now login with omero.rootpass property value
 -- and guest can login with any value
 
--- Here we have finished initializing this database. 
-update dbpatch set message = 'Database ready.', finished = now() 
-  where currentVersion = '@DBVERSION@' and 
-        currentPatch = @DBPATCH@ and 
-        previousVersion = '@DBVERSION@' and 
+-- Here we have finished initializing this database.
+update dbpatch set message = 'Database ready.', finished = now()
+  where currentVersion = '@DBVERSION@' and
+        currentPatch = @DBPATCH@ and
+        previousVersion = '@DBVERSION@' and
         previousPatch = 0;
 

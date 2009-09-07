@@ -8,6 +8,7 @@ package ome.services.blitz.test;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 import ome.services.blitz.impl.ExporterI;
+import ome.services.db.DatabaseIdentity;
 import omero.api.AMD_Exporter_addImage;
 import omero.api.AMD_Exporter_getBytes;
 import omero.model.Image;
@@ -19,6 +20,7 @@ import org.testng.annotations.Test;
 @Test(groups = "integration")
 public class ExporterITest extends AbstractServantTest {
 
+    DatabaseIdentity db = new DatabaseIdentity("test","test");
     ExporterI user_e, root_e;
 
     @Override
@@ -26,10 +28,10 @@ public class ExporterITest extends AbstractServantTest {
     protected void setUp() throws Exception {
         super.setUp();
 
-        user_e = new ExporterI(be);
+        user_e = new ExporterI(be, db);
         user_e.setServiceFactory(user_sf);
 
-        root_e = new ExporterI(be);
+        root_e = new ExporterI(be, db);
         root_e.setServiceFactory(root_sf);
     }
 
@@ -39,7 +41,7 @@ public class ExporterITest extends AbstractServantTest {
 
     @Test
     public void testSimpleXml() throws Exception {
-        ExporterI.Retrieve retrieve = new ExporterI.Retrieve();
+        ExporterI.Retrieve retrieve = new ExporterI.Retrieve(db);
         retrieve.addImage(new ImageI());
         String xml = ExporterI.generateXml(retrieve);
         assertNotNull(xml);
@@ -55,6 +57,11 @@ public class ExporterITest extends AbstractServantTest {
     }
 
     @Test
+    public void testForExistingExternalInfo() throws Exception {
+        fail("NYI ~ all queries will need to load them.");
+    }
+    
+    @Test
     public void testBasicExport() throws Exception {
         Image i = assertNewImage();
         assertAddImage(i.getId().getValue());
@@ -64,7 +71,7 @@ public class ExporterITest extends AbstractServantTest {
 
         // Now let's compare the XML
         String xml1 = new String(buf);
-        ExporterI.Retrieve retrieve = new ExporterI.Retrieve();
+        ExporterI.Retrieve retrieve = new ExporterI.Retrieve(db);
         retrieve.addImage(i);
         String xml2 = ExporterI.generateXml(retrieve);
         assertEquals(xml1, xml2);

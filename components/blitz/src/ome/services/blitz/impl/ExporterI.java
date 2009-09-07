@@ -32,6 +32,7 @@ import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.blitz.util.UnregisterServantMessage;
+import ome.services.db.DatabaseIdentity;
 import ome.services.util.Executor;
 import ome.services.util.Executor.SimpleWork;
 import ome.services.util.Executor.Work;
@@ -53,6 +54,7 @@ import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api._ExporterOperations;
 import omero.model.Details;
+import omero.model.Event;
 import omero.model.ExternalInfo;
 import omero.model.ExternalInfoI;
 import omero.model.IObject;
@@ -130,8 +132,15 @@ public class ExporterI extends AbstractAmdServant implements
      */
     private volatile long offset = 0;
 
-    public ExporterI(BlitzExecutor be) {
+    /**
+     * Encapsulates the logic for creating new LSIDs and comparing existing ones
+     * to the internal value for this DB.
+     */
+    private final DatabaseIdentity databaseIdentity;
+
+    public ExporterI(BlitzExecutor be, DatabaseIdentity databaseIdentity) {
         super(null, be);
+        this.databaseIdentity = databaseIdentity;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -225,7 +234,7 @@ public class ExporterI extends AbstractAmdServant implements
             file.delete();
             file = null;
         }
-        retrieve = new Retrieve();
+        retrieve = new Retrieve(databaseIdentity);
         offset = 0;
     }
 
@@ -390,17 +399,19 @@ public class ExporterI extends AbstractAmdServant implements
 
     public static class Retrieve implements MetadataRetrieve {
 
+        private final DatabaseIdentity db;
+
+        public Retrieve(DatabaseIdentity db) {
+            this.db = db;
+        }
+
         private final List<Image> images = new ArrayList<Image>();
 
         private static String nsString(omero.RString rs) {
             return rs == null ? null : rs.getValue();
         }
 
-        private static String lsid(Class k, String id) {
-            return String.format("urn:lsid:%s:%s", k.getName(), id);
-        }
-
-        private static String lsid(IObject obj) {
+        public String handleLsid(IObject obj) {
 
             if (obj == null) {
                 return null;
@@ -408,6 +419,7 @@ public class ExporterI extends AbstractAmdServant implements
 
             Details d = obj.getDetails();
             ExternalInfo ei = d.getExternalInfo();
+            Event ue = d.getUpdateEvent();
 
             // If an LSID has previously been set, always use that.
             if (ei != null && ei.getLsid() != null) {
@@ -416,14 +428,24 @@ public class ExporterI extends AbstractAmdServant implements
 
             // Otherwise if we have an ID use that as the value.
             if (obj.getId() != null) {
-                return lsid(obj.getClass(), "" + obj.getId().getValue());
+
+                Class k = obj.getClass();
+                long id = obj.getId().getValue();
+                Long v = (ue == null) ? null : ue.getId().getValue();
+                if (v == null) {
+                    return db.lsid(k, id);
+                } else {
+                    return db.lsid(k, id, v);
+                }
+
             }
 
             // Finally, we need to create an LSID since this object
             // doesn't have one. This should not be done in the general
             // case, since all exported objects should be coming from
-            // the database. On re-import they will be given their
-            // LSIDs.
+            // the database (i.e. have an id), and only on re-import will they
+            // be given their
+            // LSIDs. However, to simplify any possible
 
             if (ei == null) {
                 ei = new ExternalInfoI();
@@ -431,8 +453,11 @@ public class ExporterI extends AbstractAmdServant implements
             }
 
             String uuid = UUID.randomUUID().toString();
-            String lsid = lsid(obj.getClass(), uuid);
+            String lsid = obj.getClass().getSimpleName() + ":" + uuid;
             ei.setLsid(rstring(lsid));
+
+            log.warn("Assigned temporary LSID: " + lsid);
+
             return ei.getLsid().getValue();
 
         }
@@ -1008,7 +1033,6 @@ public class ExporterI extends AbstractAmdServant implements
         }
 
         public String getImageAcquiredPixels(int arg0) {
-            // TODO Auto-generated method stub
             return null;
         }
 
@@ -1017,7 +1041,6 @@ public class ExporterI extends AbstractAmdServant implements
         }
 
         public String getImageCreationDate(int arg0) {
-            // TODO Auto-generated method stub
             return null;
         }
 
@@ -1046,7 +1069,7 @@ public class ExporterI extends AbstractAmdServant implements
         }
 
         public String getImageID(int arg0) {
-            return lsid(images.get(arg0));
+            return handleLsid(images.get(arg0));
         }
 
         public String getImageInstrumentRef(int arg0) {

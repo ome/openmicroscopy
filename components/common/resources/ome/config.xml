@@ -81,6 +81,16 @@
         <property name="visibility" value="hidden"/>
     </bean>
     <!--  DATABASE PROPERTIES -->
+    <bean class="ome.system.Preference" id="omero.db.authority">
+       <property name="db" value="true"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.db.uuid">
+       <property name="db" value="true"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
     <bean class="ome.system.Preference" id="omero.db.host">
        <property name="db" value="false"/>
        <property name="aliases" value="database.host"/>

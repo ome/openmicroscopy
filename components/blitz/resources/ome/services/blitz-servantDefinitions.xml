@@ -63,6 +63,7 @@
     <constructor-arg>
         <bean class="ome.services.blitz.impl.ExporterI">
             <constructor-arg ref="throttlingStrategy"/>
+            <constructor-arg ref="databaseIdentity"/>
         </bean>
     </constructor-arg>
   </bean>
