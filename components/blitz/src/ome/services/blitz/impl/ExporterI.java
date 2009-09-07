@@ -41,7 +41,6 @@ import ome.system.ServiceFactory;
 import ome.util.Filterable;
 import ome.util.messages.InternalMessage;
 import ome.xml.DOMUtil;
-import ome.xml.OMEXMLFactory;
 import ome.xml.OMEXMLNode;
 import omero.ServerError;
 import omero.api.AMD_Exporter_addImage;
@@ -53,6 +52,7 @@ import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api._ExporterOperations;
+import omero.model.Arc;
 import omero.model.Details;
 import omero.model.Event;
 import omero.model.ExternalInfo;
@@ -60,6 +60,7 @@ import omero.model.ExternalInfoI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.Instrument;
 import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
@@ -244,7 +245,7 @@ public class ExporterI extends AbstractAmdServant implements
     private ServerError startOutput() {
 
         retrieve.initialize(factory);
-        OMEXMLMetadata xmlMetadata = convertXml(retrieve);
+        IMetadata xmlMetadata = convertXml(retrieve);
         if (xmlMetadata != null) {
             Object root = xmlMetadata.getRoot();
             if (root instanceof OMEXMLNode) {
@@ -334,20 +335,13 @@ public class ExporterI extends AbstractAmdServant implements
     // XML Generation (public for testing)
     // =========================================================================
 
-    public static OMEXMLMetadata convertXml(MetadataRetrieve retrieve) {
+    public static IMetadata convertXml(MetadataRetrieve retrieve) {
         try {
-            OMEXMLMetadata xmlMeta = (OMEXMLMetadata) MetadataTools
-                    .createOMEXMLMetadata();
-            xmlMeta.setRoot(OMEXMLFactory.newOMENode());
+            IMetadata xmlMeta = MetadataTools.createOMEXMLMetadata();
+            xmlMeta.createRoot();
             MetadataTools.convertMetadata(retrieve, xmlMeta);
             return xmlMeta;
         } catch (ClassCastException cce) {
-            return null;
-        } catch (IOException io) {
-            return null;
-        } catch (ParserConfigurationException e) {
-            return null;
-        } catch (SAXException e) {
             return null;
         }
     }
@@ -406,6 +400,8 @@ public class ExporterI extends AbstractAmdServant implements
         }
 
         private final List<Image> images = new ArrayList<Image>();
+
+        private final List<Instrument> instruments = new ArrayList<Instrument>();
 
         private static String nsString(omero.RString rs) {
             return rs == null ? null : rs.getValue();
@@ -506,20 +502,100 @@ public class ExporterI extends AbstractAmdServant implements
             images.add(image);
         }
 
-        public String getArcType(int arg0, int arg1) {
-            // TODO Auto-generated method stub
-            return null;
+        // Code generated methods
+        // =====================================================================
+        /**
+         * <pre>
+         * Arc                      | Instrument+/LightSource+/Arc
+         * ChannelComponent         | Image+/LogicalChannel+/ChannelComponent+
+         * Circle                   | Image+/DisplayOptions/ROI+/Union/Shape+/Circle
+         * Contact                  | Group+/Contact
+         * Dataset                  | Dataset+
+         * DatasetRef               | Image+/DatasetRef+
+         * Detector                 | Instrument+/Detector+
+         * DetectorSettings         | Image+/LogicalChannel+/DetectorRef
+         * Dichroic                 | Instrument+/Dichroic+
+         * Dimensions               | Image+/Pixels+
+         * DisplayOptions           | Image+/DisplayOptions
+         * DisplayOptionsProjection | Image+/DisplayOptions/Projection
+         * DisplayOptionsTime       | Image+/DisplayOptions/Time
+         * Ellipse                  | Image+/DisplayOptions/ROI+/Union/Shape+/Ellipse
+         * EmFilter                 | Instrument+/Filter+/EmFilter
+         * ExFilter                 | Instrument+/Filter+/ExFilter
+         * Experiment               | Experiment+
+         * Experimenter             | Experimenter+
+         * ExperimenterMembership   | Experimenter+/GroupRef+
+         * Filament                 | Instrument+/LightSource+/Filament
+         * Filter                   | Instrument+/Filter+
+         * FilterSet                | Instrument+/FilterSet+
+         * GreyChannel              | Image+/DisplayOptions/GreyChannel
+         * GreyChannelMap           | Image+/DisplayOptions/GreyChannel
+         * Group                    | Group+
+         * GroupRef                 | Experimenter+/GroupRef+
+         * Image                    | Image+
+         * ImagingEnvironment       | Image+/ImagingEnvironment
+         * Instrument               | Instrument+
+         * Laser                    | Instrument+/LightSource+/Laser
+         * LightSource              | Instrument+/LightSource+
+         * LightSourceRef           | Image+/MicrobeamManipulation+/LightSourceRef+
+         * LightSourceSettings      | Image+/LogicalChannel+/LightSourceRef
+         * Line                     | Image+/DisplayOptions/ROI+/Union/Shape+/Line
+         * LogicalChannel           | Image+/LogicalChannel+
+         * Mask                     | Image+/DisplayOptions/ROI+/Union/Shape+/Mask
+         * MaskPixels               | Image+/DisplayOptions/ROI+/Union/Shape+/Mask/MaskPixels
+         * MicrobeamManipulation    | Image+/MicrobeamManipulation+
+         * MicrobeamManipulationRef | Experiment+/MicrobeamManipulationRef+
+         * Microscope               | Instrument+/Microscope
+         * OTF                      | Instrument+/OTF+
+         * Objective                | Instrument+/Objective+
+         * ObjectiveSettings        | Image+/ObjectiveRef
+         * Path                     | Image+/DisplayOptions/ROI+/Union/Shape+/Path
+         * Pixels                   | Image+/Pixels+
+         * Plane                    | Image+/Pixels+/Plane+
+         * PlaneTiming              | Image+/Pixels+/Plane+/PlaneTiming
+         * Plate                    | Plate+
+         * PlateRef                 | Screen+/PlateRef+
+         * Point                    | Image+/DisplayOptions/ROI+/Union/Shape+/Point
+         * Polygon                  | Image+/DisplayOptions/ROI+/Union/Shape+/Polygon
+         * Polyline                 | Image+/DisplayOptions/ROI+/Union/Shape+/Polyline
+         * Project                  | Project+
+         * ProjectRef               | Dataset+/ProjectRef+
+         * Pump                     | Instrument+/LightSource+/Laser/Pump
+         * ROI                      | Image+/DisplayOptions/ROI+
+         * ROIRef                   | Image+/MicrobeamManipulation+/ROIRef+
+         * Reagent                  | Screen+/Reagent+
+         * Rect                     | Image+/DisplayOptions/ROI+/Union/Shape+/Rect
+         * Region                   | Image+/Region+
+         * Screen                   | Screen+
+         * ScreenAcquisition        | Screen+/ScreenAcquisition+
+         * ScreenRef                | Plate+/ScreenRef+
+         * Shape                    | Image+/DisplayOptions/ROI+/Union/Shape+
+         * StageLabel               | Image+/StageLabel
+         * StagePosition            | Image+/Pixels+/Plane+/StagePosition
+         * Thumbnail                | Image+/Thumbnail
+         * TiffData                 | Image+/Pixels+/TiffData+
+         * TransmittanceRange       | Instrument+/Filter+/TransmittanceRange
+         * Well                     | Plate+/Well+
+         * WellSample               | Plate+/Well+/WellSample+
+         * WellSampleRef            | Screen+/ScreenAcquisition+/WellSampleRef+
+         * </pre>
+         */
+
+        public String getArcType(int instrument, int lightsource) {
+            return handleLsid(((Arc) instruments.get(instrument)
+                    .copyLightSource().get(lightsource)).getType());
         }
 
-        public String getChannelComponentColorDomain(int arg0, int arg1,
-                int arg2) {
-            // TODO Auto-generated method stub
-            return null;
+        public String getChannelComponentColorDomain(int image,
+                int logicalchannel, int channelcomponent) {
+            // return images.get(image).getPixels(0).getChannel(logicalchannel)
+            // .getLogicalChannel().getPhotometricInterpretation()
+            // .getValue().getValue();
+            // Not implemented in OMEROMetadataStoreClient
         }
 
         public int getChannelComponentCount(int arg0, int arg1) {
-            // TODO Auto-generated method stub
-            return 0;
+            // Not implemented in OMEROMetadataStoreClient
         }
 
         public Integer getChannelComponentIndex(int arg0, int arg1, int arg2) {
@@ -612,19 +688,19 @@ public class ExporterI extends AbstractAmdServant implements
             return null;
         }
 
-        public int getDetectorCount(int arg0) {
-            // TODO Auto-generated method stub
-            return 0;
+        public int getDetectorCount(int instrument) {
+            return instruments.get(instrument).sizeOfDetector();
         }
 
-        public Float getDetectorGain(int arg0, int arg1) {
-            // TODO Auto-generated method stub
-            return null;
+        public Float getDetectorGain(int instrument, int detector) {
+            return Double.valueOf(
+                    instruments.get(instrument).copyDetector().get(detector)
+                            .getGain().getValue()).floatValue();
         }
 
-        public String getDetectorID(int arg0, int arg1) {
-            // TODO Auto-generated method stub
-            return null;
+        public String getDetectorID(int instrument, int detector) {
+            return handlLsid(instruments.get(instrument).copyDetector().get(
+                    detector));
         }
 
         public String getDetectorManufacturer(int arg0, int arg1) {
