@@ -11350,4 +11350,46 @@ public class OmeroMetadata implements MetadataRetrieve {
         return null;
     }
 
+    public String getDichroicID(int arg0, int arg1) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String getFilterID(int arg0, int arg1) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String getFilterSetID(int arg0, int arg1) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    // Methods from bf upgrade(s);
+    
+    public int getRoiLinkCount(int arg0, int arg1) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public String getRoiLinkDirection(int arg0, int arg1, int arg2) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String getRoiLinkName(int arg0, int arg1, int arg2) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String getRoiLinkRef(int arg0, int arg1, int arg2) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String getGroupID(int arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
