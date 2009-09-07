@@ -121,7 +121,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             command = ["sc", "query", svc_name]
             popen = ctx.popen(command) # popen
             output = popen.communicate()[0]
-            if 0 <= output.find("FAILED 1060"):
+            if 0 <= output.find("1060"):
                 return "DOESNOTEXIST"
             else:
                 return output
