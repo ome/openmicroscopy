@@ -9,6 +9,7 @@ import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 import ome.services.blitz.impl.ExporterI;
 import omero.api.AMD_Exporter_addImage;
+import omero.api.AMD_Exporter_getBytes;
 import omero.model.Image;
 import omero.model.ImageI;
 
@@ -41,7 +42,7 @@ public class ExporterITest extends AbstractServantTest {
         ExporterI.Retrieve retrieve = new ExporterI.Retrieve();
         retrieve.addImage(new ImageI());
         String xml = ExporterI.generateXml(retrieve);
-        System.out.println(xml);
+        assertNotNull(xml);
     }
 
     //
@@ -55,16 +56,34 @@ public class ExporterITest extends AbstractServantTest {
 
     @Test
     public void testBasicExport() throws Exception {
-        Image i = new ImageI();
-        i.setAcquisitionDate(rtime(0));
-        i.setName(rstring("basic export"));
-        i = assertSaveAndReturn(i);
+        Image i = assertNewImage();
         assertAddImage(i.getId().getValue());
+        byte[] buf = assertGetBytes(1024 * 1024);
+        assertNotNull(buf);
+        assertTrue(buf.length > 1);
 
+        // Now let's compare the XML
+        String xml1 = new String(buf);
+        ExporterI.Retrieve retrieve = new ExporterI.Retrieve();
+        retrieve.addImage(i);
+        String xml2 = ExporterI.generateXml(retrieve);
+        assertEquals(xml1, xml2);
+
+        // After reading, nothing should be returned
+        buf = assertGetBytes(1024 * 1024);
+        assertEquals(0, buf.length);
     }
 
     // Helpers
     // =========================================================================
+
+    private Image assertNewImage() throws Exception {
+        Image i = new ImageI();
+        i.setAcquisitionDate(rtime(0));
+        i.setName(rstring("basic export"));
+        i = assertSaveAndReturn(i);
+        return i;
+    }
 
     private void assertAddImage(long id) throws Exception {
 
@@ -80,6 +99,23 @@ public class ExporterITest extends AbstractServantTest {
             }
         }, id, null);
         rv.assertPassed();
+    }
+
+    private byte[] assertGetBytes(int size) throws Exception {
+
+        final RV rv = new RV();
+        user_e.getBytes_async(new AMD_Exporter_getBytes() {
+
+            public void ice_exception(Exception ex) {
+                rv.ex = ex;
+            }
+
+            public void ice_response(byte[] buf) {
+                rv.rv = buf;
+            }
+        }, size, null);
+        rv.assertPassed();
+        return (byte[]) rv.rv;
     }
 
 }

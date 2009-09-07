@@ -13,8 +13,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,9 +32,12 @@ import ome.conditions.InternalException;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
-import ome.services.throttling.Adapter;
+import ome.services.util.Executor;
 import ome.services.util.Executor.SimpleWork;
+import ome.services.util.Executor.Work;
+import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.util.Filterable;
 import ome.xml.DOMUtil;
 import ome.xml.OMEXMLFactory;
 import ome.xml.OMEXMLNode;
@@ -39,6 +45,7 @@ import omero.ServerError;
 import omero.api.AMD_Exporter_addImage;
 import omero.api.AMD_Exporter_asXml;
 import omero.api.AMD_Exporter_getBytes;
+import omero.api.AMD_Exporter_start;
 import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
@@ -49,8 +56,11 @@ import omero.model.ExternalInfo;
 import omero.model.ExternalInfoI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageI;
 import omero.util.IceMapper;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
@@ -66,7 +76,9 @@ import Ice.Current;
 public class ExporterI extends AbstractAmdServant implements
         _ExporterOperations, ServiceFactoryAware, BlitzOnly {
 
-    private static final int MAX_SIZE = 1024 * 1024;
+    private final static Log log = LogFactory.getLog(ExporterI.class);
+
+    private final static int MAX_SIZE = 1024 * 1024;
 
     /**
      * Current user choice as to what output method should be used when
@@ -103,7 +115,7 @@ public class ExporterI extends AbstractAmdServant implements
 
     private volatile Output out = Output.xml;
 
-    private volatile MetadataRetrieve retrieve;
+    private volatile Retrieve retrieve;
 
     /**
      * Reference to the temporary file which is currently being
@@ -131,27 +143,32 @@ public class ExporterI extends AbstractAmdServant implements
     public void addImage_async(AMD_Exporter_addImage __cb, final long id,
             Current __current) throws ServerError {
 
-        State.check(this);
+        State state = State.check(this);
+        ServerError se = assertConfig(state);
+        if (se != null) {
+            __cb.ice_exception(se);
+        }
 
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-
-        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
-                .getExecutor(), factory.principal, new SimpleWork(this,
-                "byImage") {
-
-            @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return null;
-            }
-        }));
+        retrieve.addImage(new ImageI(id, false));
+        __cb.ice_response();
+        return;
 
     }
 
+    /**
+     * 
+     */
     public void asXml_async(AMD_Exporter_asXml __cb, Current __current)
             throws ServerError {
 
-        State.check(this);
+        State state = State.check(this);
+        ServerError se = assertConfig(state);
+        if (se != null) {
+            __cb.ice_exception(se);
+        }
         this.out = Output.xml;
+        __cb.ice_response();
+        return;
 
     }
 
@@ -162,25 +179,61 @@ public class ExporterI extends AbstractAmdServant implements
         switch (state) {
         case waiting:
             __cb.ice_response(new byte[] {});
-            break;
+            return;
         case config:
-            start(); // Transitions to output so fall through
+            ServerError se = startOutput(); // Transitions to output so fall
+            // through
+            if (se != null) {
+                __cb.ice_exception(se);
+                return;
+            }
         case output:
-            read(size);
-            break;
+            __cb.ice_response(read(size));
+            return;
         default:
             throw new InternalException("Unknown state: " + state);
         }
     }
 
-    // Output methods
+    // State methods
     // =========================================================================
+
+    /**
+     * Transition from waiting to config
+     */
+    private ServerError assertConfig(State state) {
+        switch (state) {
+        case waiting:
+            startConfig(); // Transitions to config, so fall through
+        case config:
+            return null;
+        case output:
+            return new omero.ApiUsageException(null, null,
+                    "Cannot configure during output");
+        default:
+            return new omero.InternalException(null, null, "Unknown state: "
+                    + state);
+        }
+    }
+
+    /**
+     * Transition from waiting to config
+     */
+    private void startConfig() {
+        if (file != null) {
+            file.delete();
+            file = null;
+        }
+        retrieve = new Retrieve();
+        offset = 0;
+    }
 
     /**
      * Transitions from config to output.
      */
-    private void start() {
+    private ServerError startOutput() {
 
+        retrieve.initialize(factory);
         OMEXMLMetadata xmlMetadata = convertXml(retrieve);
         if (xmlMetadata != null) {
             Object root = xmlMetadata.getRoot();
@@ -190,24 +243,27 @@ public class ExporterI extends AbstractAmdServant implements
                 try {
 
                     file = File.createTempFile("ome", "xml");
+                    file.deleteOnExit();
                     FileOutputStream fos = new FileOutputStream(file);
                     DOMUtil.writeXML(fos, node.getDOMElement()
                             .getOwnerDocument());
+                    fos.close();
                     retrieve = null;
                     offset = 0;
 
-                    return; // ONLY VALID EXIT
+                    return null; // ONLY VALID EXIT
 
                 } catch (IOException ioe) {
-                    throw new RuntimeException(ioe);
+                    log.error(ioe);
                 } catch (TransformerException e) {
-                    throw new RuntimeException(e);
+                    log.error(e);
                 }
 
             }
         }
 
-        throw new InternalException("Failed to create export");
+        return new omero.InternalException(null, null,
+                "Failed to create export");
 
     }
 
@@ -222,19 +278,45 @@ public class ExporterI extends AbstractAmdServant implements
 
         byte[] buf = new byte[size];
 
+        RandomAccessFile ra = null;
         try {
-            FileInputStream is = new FileInputStream(file);
-            int read = is.read(buf, (int) offset, size); // FIXME
-            
-            // Handle end of file
-            if (read != size) {
+            ra = new RandomAccessFile(file, "r");
+            ra.seek(offset);
+            int read = ra.read(buf);
 
+            // Handle end of file
+            if (read < 0) {
+                offset = read; // Transition to waiting
+            } else if (read < size) {
+                offset = -1; // Transition to waiting
+                byte[] newBuf = new byte[read];
+                System.arraycopy(buf, 0, newBuf, 0, read);
+                return newBuf;
+            } else {
+                // This should be fairly unlikely, but if the last read
+                // brought us to the end of the file, then we should go
+                // ahead and reset so that the next call doesn't block.
+                if ((offset + read) == ra.length()) {
+                    offset = -2; // Transition to waiting
+                } else {
+                    offset += read;
+                }
             }
 
         } catch (IOException io) {
+
             throw new RuntimeException(io);
+        } finally {
+
+            if (ra != null) {
+                try {
+                    ra.close();
+                } catch (IOException e) {
+                    log.warn("IOException on file close");
+                }
+            }
+
         }
-        
 
         return buf;
     }
@@ -298,7 +380,7 @@ public class ExporterI extends AbstractAmdServant implements
 
     public static class Retrieve implements MetadataRetrieve {
 
-        private final static List<Image> images = new ArrayList<Image>();
+        private final List<Image> images = new ArrayList<Image>();
 
         private static String nsString(omero.RString rs) {
             return rs == null ? null : rs.getValue();
@@ -342,6 +424,46 @@ public class ExporterI extends AbstractAmdServant implements
             String lsid = lsid(obj.getClass(), uuid);
             ei.setLsid(rstring(lsid));
             return ei.getLsid().getValue();
+
+        }
+
+        public void initialize(ServiceFactoryI factory) {
+
+            Executor ex = factory.getExecutor();
+            Principal p = factory.principal;
+
+            Map<Image, Image> replacements = new HashMap<Image, Image>();
+            for (Image image : images) {
+                if (!image.isLoaded()) {
+
+                    final Image i = image;
+                    Work work = new SimpleWork(this, "initialize") {
+                        @Transactional(readOnly = true)
+                        public Object doWork(Session session, ServiceFactory sf) {
+                            return session.get("ome.model.core.Image", i
+                                    .getId().getValue());
+                        }
+                    };
+
+                    Filterable replacement = (Filterable) ex.execute(p, work);
+                    IceMapper mapper = new IceMapper();
+                    replacements.put(image, (Image) mapper.map(replacement));
+
+                }
+            }
+
+            List<Image> newImages = new ArrayList<Image>();
+            for (int i = 0; i < images.size(); i++) {
+                Image image = images.get(i);
+                Image replacement = replacements.get(image);
+                if (replacement != null) {
+                    newImages.add(replacement);
+                } else {
+                    newImages.add(image);
+                }
+            }
+            this.images.clear();
+            this.images.addAll(newImages);
 
         }
 
