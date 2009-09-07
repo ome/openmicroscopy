@@ -60,7 +60,7 @@ hr {
   margin: 0px;
   padding: 0 0 0 0;
   clear: both;
-  background: url('/appmedia/webgateway/img/hr_sep_1.gif') repeat-x center;
+  background: url('/webgateway/appmedia//img/hr_sep_1.gif') repeat-x center;
   height: 10px;
 }
 
@@ -162,11 +162,11 @@ hr {
   display: inline;
   width: 10px;
   height: 16px;
-  background: url('/appmedia/webgateway/img/white_arrow_down_bigger.gif') no-repeat center;
+  background: url('/webgateway/appmedia//img/white_arrow_down_bigger.gif') no-repeat center;
 }
 
 .popped .drop-img { 
-  background: url('/appmedia/webgateway/img/white_arrow_up_bigger.gif') no-repeat center;
+  background: url('/webgateway/appmedia//img/white_arrow_up_bigger.gif') no-repeat center;
 }
 
 .drop-left { 
@@ -276,7 +276,7 @@ hr {
 }
 
 #wblitz-workarea button#full-size {
-  background: url('/appmedia/webgateway/img/1_1.gif') no-repeat center;
+  background: url('/webgateway/appmedia//img/1_1.gif') no-repeat center;
   height: 22px;
   width: 22px;
   padding: 0;
@@ -285,7 +285,7 @@ hr {
 }
 
 #wblitz-workarea button#full-screen {
-  background: url('/appmedia/webgateway/img/fs.gif') no-repeat center;
+  background: url('/webgateway/appmedia//img/fs.gif') no-repeat center;
   height: 22px;
   width: 22px;
   padding: 0;

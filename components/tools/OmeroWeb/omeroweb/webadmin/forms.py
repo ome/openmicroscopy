@@ -263,6 +263,7 @@ class ContainedExperimentersForm(forms.Form):
 
 
 class UploadPhotoForm(forms.Form):
+    
     photo = forms.FileField(required=False)
 
     def clean_photo(self):
@@ -273,3 +274,24 @@ class UploadPhotoForm(forms.Form):
         if self.cleaned_data.get('photo').size > 204800:
             raise forms.ValidationError('Photo size file cannot be greater them 200KB.')
 
+
+class EnumerationEntry(forms.Form):
+    
+    new_entry = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
+
+
+class EnumerationEntries(forms.Form):
+    
+    def __init__(self, entries, *args, **kwargs):
+        super(EnumerationEntries, self).__init__(*args, **kwargs)        
+        for i,e in enumerate(entries):
+            try:
+                if kwargs['initial']['entries']:
+                    self.fields[str(e.id)] = forms.CharField(max_length=250, initial=e.value, widget=forms.TextInput(attrs={'size':30}), label=i+1)
+                else:
+                    self.fields[str(e.id)] = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), label=i+1)
+            except:
+                self.fields[str(e.id)] = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), label=i+1)
+                    
+        self.fields.keyOrder = [str(k) for k in self.fields.keys()]
+    

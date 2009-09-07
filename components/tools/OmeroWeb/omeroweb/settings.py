@@ -138,6 +138,8 @@ INSTALLED_APPS = (
     'omeroweb.webgateway',
 )
 
+IGNORABLE_404_ENDS = ('favicon.ico')
+
 # Cookies config
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
 SESSION_COOKIE_AGE = 86400 # 1 day in sec (86400)

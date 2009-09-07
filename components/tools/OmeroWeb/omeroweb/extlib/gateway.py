@@ -1303,8 +1303,49 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     def getEnumeration(self, klass, string):
         types = self.getTypesService()
-        return types.getEnumeration(str(klass), str(string))
+        obj = types.getEnumeration(str(klass), str(string))
+        if obj is not None:
+            return EnumerationWrapper(self, obj)
+        else:
+            return None
     
+    def getEnumerationById(self, klass, eid):
+        query_serv = self.getQueryService()
+        obj =  query_serv.find(klass, long(eid))
+        if obj is not None:
+            return EnumerationWrapper(self, obj)
+        else:
+            return None
+            
+    def getOriginalEnumerations(self):
+        types = self.getTypesService()
+        for e in types.getOriginalEnumerations():
+            yield EnumerationWrapper(self, e)
+
+    def getEnumerations(self):
+        types = self.getTypesService()
+        return types.getEnumerationTypes() 
+    
+    def getEnumerationsWithEntries(self):
+        types = self.getTypesService()
+        return types.getEnumerationsWithEntries()
+    
+    def deleteEnumeration(self, obj):
+        types = self.getTypesService()
+        types.deleteEnumeration(obj)
+        
+    def createEnumeration(self, obj):
+        types = self.getTypesService()
+        types.createEnumeration(obj)
+    
+    def resetEnumerations(self, klass):
+        types = self.getTypesService()
+        types.resetEnumerations(klass)
+    
+    def updateEnumerations(self, new_entries):
+        types = self.getTypesService()
+        types.updateEnumerations(new_entries)
+        
     ################################################
     ##   Validators     
     
@@ -2342,4 +2383,6 @@ class EventLogWrapper (omero.gateway.BlitzObjectWrapper):
     LINK_CLASS = "EventLog"
 
 class EnumerationWrapper (omero.gateway.BlitzObjectWrapper):
-    pass
+    
+    def getType(self):
+        return self._obj.__class__.__name__

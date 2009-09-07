@@ -57,11 +57,13 @@ from controller.group import BaseGroups, BaseGroup
 from controller.script import BaseScripts, BaseScript
 from controller.drivespace import BaseDriveSpace
 from controller.uploadfile import BaseUploadFile
+from controller.enums import BaseEnums
 
 from models import Gateway
 from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
                    ExperimenterLdapForm, GroupForm, ScriptForm, MyAccountForm, \
-                   MyAccountLdapForm, ContainedExperimentersForm, UploadPhotoForm
+                   MyAccountLdapForm, ContainedExperimentersForm, UploadPhotoForm, \
+                   EnumerationEntry, EnumerationEntries
 
 from extlib import gateway
 
@@ -601,6 +603,71 @@ def manage_script(request, action, sc_id=None, **kwargs):
     return HttpResponse(rsp)
 
 @isAdminConnected
+def enums(request, **kwargs):
+    enums = True
+    template = "omeroadmin/enums.html"
+        
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+    
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums}
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    
+    controller = BaseEnums(conn)
+    
+    context = {'info':info, 'eventContext':eventContext, 'controller':controller}
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
+
+@isAdminConnected
+def manage_enum(request, action, klass, eid=None, **kwargs):
+    enums = True
+    template = "omeroadmin/enum_form.html"
+        
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+    
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums}
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    
+    controller = BaseEnums(conn, klass)
+    if action == "save":
+        form = EnumerationEntries(entries=controller.entries, data=request.POST.copy())
+        if form.is_valid():
+            controller.saveEntries(form.data)
+            return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
+    elif action == "delete" and eid is not None:
+        controller.deleteEntry(eid)
+        return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
+    elif action == "new":
+        form = EnumerationEntry()
+    elif action == "reset":
+        controller.resetEnumerations()
+        return HttpResponseRedirect(reverse("waenums"))
+    elif action == "addnew":
+        form = EnumerationEntry(data=request.POST.copy())
+        if form.is_valid():
+            new_entry = request.REQUEST['new_entry'].encode('utf-8')
+            controller.saveEntry(new_entry)
+            return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
+    else:
+        form = EnumerationEntries(entries=controller.entries, initial={'entries':True})
+    
+    context = {'info':info, 'eventContext':eventContext, 'controller':controller, 'action':action, 'form':form}
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
+
+@isAdminConnected
 def imports(request, **kwargs):
     return HttpResponseRedirect(reverse("waindex"))
 
@@ -753,7 +820,7 @@ def piechart(request, **kwargs):
         from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
         import numpy as np
         import matplotlib.pyplot as plt
-        from pylab import *    
+        from pylab import * 
     except:
         logger.error(traceback.format_exc())
         

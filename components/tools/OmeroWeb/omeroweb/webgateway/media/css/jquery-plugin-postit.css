@@ -31,7 +31,7 @@
   font-weight: bold;
   text-align: center;
   cursor: -moz-grab;
-  cursor: url('/appmedia/webgateway/img/openhand.cur'), pointer, auto;
+  cursor: url('/webgateway/appmedia//img/openhand.cur'), pointer, auto;
 }
 
 .postit h2 { 
@@ -76,7 +76,7 @@
   position: absolute;
   right: 0px;
   top: 0px;
-  background-image: url("/appmedia/webgateway/img/close.gif");
+  background-image: url("/webgateway/appmedia//img/close.gif");
   background-repeat: no-repeat;
   background-position: center center;
   width: 1.5em;
@@ -93,7 +93,7 @@
 .postit-resize-btn {
   position: absolute;
   right: 0px;
-  background-image: url("/appmedia/webgateway/img/resize.gif");
+  background-image: url("/webgateway/appmedia//img/resize.gif");
   background-repeat: no-repeat;
   background-position: center center;
   height: 8px;
@@ -105,7 +105,7 @@
   position: absolute;
   left: 0px;
   top: 0px;
-  background: url('/appmedia/webgateway/img/white_arrow_up.gif') no-repeat center;
+  background: url('/webgateway/appmedia//img/white_arrow_up.gif') no-repeat center;
   background-position: center center;
   width: 1.5em;
   height: 1.5em;
@@ -113,7 +113,7 @@
 }
 
 .postit.collapsed .postit-toggle-btn { 
-  background: url('/appmedia/webgateway/img/white_arrow_down.gif') no-repeat center;
+  background: url('/webgateway/appmedia//img/white_arrow_down.gif') no-repeat center;
 }
 
 .postit table {

@@ -27,6 +27,8 @@ import logging
 
 from django.core.management import execute_manager
 
+logger = logging.getLogger('manage')
+
 try:
     import settings # Assumed to be in the same directory.
 except ImportError:

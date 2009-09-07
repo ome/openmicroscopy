@@ -41,7 +41,7 @@
 {% endblock %}
 
 {% block content %}
-<p><img src="{% url wastatic "images/add.png" %}" alt="add" title="add"> <a href="{% url wamanagescriptaction "new" %}">{% trans "Add new script" %}</a></p>
+<p><img src="{% url wastatic "images/add.png" %}" alt="add" title="add"> <a href="{% url wamanagescriptid "new" %}">{% trans "Add new script" %}</a></p>
 
 <h2>Scripts</h2>
 {% if controller.scriptsCount %}

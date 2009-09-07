@@ -87,6 +87,7 @@ def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=N
         blitzcon.user = UserProxy(blitzcon)
         return blitzcon
     except:
+        logger.debug(traceback.format_exc())
         if not retry:
             return None
         logger.error("Critical error during connect, retrying after _purge")

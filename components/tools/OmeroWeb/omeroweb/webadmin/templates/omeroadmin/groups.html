@@ -42,7 +42,7 @@
 
 {% block content %}
 
-<p><img src="{% url wastatic "images/add.png" %}" alt="add" title="add"> <a href="{% url wamanagegroupaction "new" %}">{% trans "Add new group" %}</a></p>
+<p><img src="{% url wastatic "images/add.png" %}" alt="add" title="add"> <a href="{% url wamanagegroupid "new" %}">{% trans "Add new group" %}</a></p>
 
 <h2>{% trans "Groups" %}</h2>
 {% if controller.groupsCount %}

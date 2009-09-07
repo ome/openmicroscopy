@@ -41,20 +41,21 @@ admin.site.register(EmailTemplate)
 handler404 = "omeroweb.feedback.views.handler404"
 handler500 = "omeroweb.feedback.views.handler500"
 
+
 # url patterns
 urlpatterns = patterns('',
 
     # admin panel support
     (r'^admin/(.*)', admin.site.root),
     # Require link to admin media
-    url( r'^admin_static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), 'django'), 'contrib'), 'admin'), 'media').replace('\\','/') }, name="admin_static" ),
+    url( r'^admin_static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(os.path.realpath(admin.__file__)), 'media').replace('\\','/') }, name="admin_static" ),
     
-    (r'^appmedia/webgateway/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'webgateway/media')}),
+    (r'^webgateway/appmedia//(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'webgateway/media')}),
     (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),
     (r'(?i)^webclient/', include('omeroweb.webclient.urls')),
     (r'(?i)^feedback/', include('omeroweb.feedback.urls')),
     (r'(?i)^webgateway/', include('omeroweb.webgateway.urls')),
     
-    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/webadmin/static/images/ome.ico'}),
+    #(r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/webadmin/static/images/ome.ico'}),
 
 )
