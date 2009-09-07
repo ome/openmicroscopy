@@ -871,6 +871,8 @@ class CLI(cmd.Cmd, Context):
         import Ice
         data = Ice.InitializationData()
         data.properties = Ice.createProperties()
+        for k,v in properties.items():
+            data.properties.setProperty(k,v)
         self.parsePropertyFile(data, output)
         return data
 

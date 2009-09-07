@@ -10,7 +10,6 @@ package ome.services.blitz.impl;
 import static omero.rtypes.rstring;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -32,12 +31,14 @@ import ome.conditions.InternalException;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.util.Executor;
 import ome.services.util.Executor.SimpleWork;
 import ome.services.util.Executor.Work;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.Filterable;
+import ome.util.messages.InternalMessage;
 import ome.xml.DOMUtil;
 import ome.xml.OMEXMLFactory;
 import ome.xml.OMEXMLNode;
@@ -364,7 +365,16 @@ public class ExporterI extends AbstractAmdServant implements
 
     public void close_async(AMD_StatefulServiceInterface_close __cb,
             Current __current) {
-        callInvokerOnRawArgs(__cb, __current);
+
+        retrieve = null;
+        if (file != null) {
+            file.delete();
+            file = null;
+        }
+
+        InternalMessage msg = new UnregisterServantMessage(this,
+                factory.principal.getName(), __current);
+        factory.context.publishEvent(msg);
 
     }
 

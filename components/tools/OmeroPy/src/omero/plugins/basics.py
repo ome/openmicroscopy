@@ -28,6 +28,15 @@ class DebugControl(BaseControl):
         self.ctx.setdebug()
         self.ctx.pub(args)
 
+class TraceControl(BaseControl):
+    def help(self, args = None):
+        self.ctx.out("Run command with tracing turned on")
+    def __call__(self, *args):
+        args = Arguments(*args)
+        import trace
+        tracer = trace.Trace()
+        tracer.runfunc(self.ctx.pub, args)
+
 class ProfileControl(BaseControl):
     def help(self, args = None):
         self.ctx.out("Run command with profiling")
@@ -103,5 +112,6 @@ try:
     register("version", VersionControl)
     register("debug", DebugControl)
     register("profile", ProfileControl)
+    register("trace", TraceControl)
 except NameError:
     VersionControl()._main()
