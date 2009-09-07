@@ -195,6 +195,12 @@ public class InternalRepositoryI extends _InternalRepositoryDisp {
         return null;
     }
 
+    public String getFilePath(final OriginalFile file, Current __current)
+            throws omero.ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     // Helpers
     // =========================================================================
     
