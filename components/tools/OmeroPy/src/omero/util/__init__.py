@@ -195,7 +195,8 @@ class Servant(object):
 
     def __init__(self):
         self.resources = omero.util.Resources()
-        self.logger = logging.getLogger(self.__class__.__name__)
+        log_name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+        self.logger = logging.getLogger(log_name)
         self.logger.info("Initialized")
 
     def cleanup(self):
@@ -320,8 +321,7 @@ class Resources:
                     method = getattr(m[0],m[1])
                     method()
                 except:
-                    print "Error cleaning resource:", m
-                    traceback.print_exc()
+                    self.logger.error("Error cleaning resource: %s" % m[0], exc_info=1)
             self.stuff = None
             self.logger.info("Stopping")
         finally:

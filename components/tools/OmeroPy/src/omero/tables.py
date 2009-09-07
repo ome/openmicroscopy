@@ -18,7 +18,7 @@
 #
 
 import os
-import sys
+import Ice
 import time
 import numpy
 import signal
@@ -31,12 +31,16 @@ import exceptions
 import portalocker # Third-party
 from path import path
 
-import omero, Ice
+import omero
 import omero_api_Tables_ice
 
 from omero.rtypes import *
+from omero_ext import pysys
+from omero_sys_ParametersI import ParametersI
+
 
 tables = __import__("tables") # Pytables
+
 
 class HdfStorage(object):
     """
@@ -247,18 +251,55 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
     Implementation of the omero.grid.Tables API. Provides
     spreadsheet like functionality across the OMERO.grid.
     This servant serves as a session-less, user-less
-    resource for obtaining omero.grid.Sheet proxies.
+    resource for obtaining omero.grid.Table proxies.
     """
 
     def __init__(self):
         omero.util.Servant.__init__(self)
-        self.mount = self.communicator().getProperies().getProperty("omero.mount")
+        self._get_dir()
+        self._get_uuid()
+        self._get_repo()
+
+    def _get_dir(self):
+        """
+        First step in initialization is to find the .omero/repository
+        directory. If this is not created, then a required server has
+        not started, and so this instance will not start.
+        """
+        wait = int(self.communicator().getProperties().getPropertyWithDefault("omero.repo.wait", "1"))
+        self.repo_dir = self.communicator().getProperties().getProperty("omero.repo.dir")
+        self.repo_cfg = path(self.repo_dir) / ".omero" / "repository"
+        start = time.time()
+        while not self.repo_cfg.exists() and wait < (time.time() - start):
+            self.logger.info("%s doesn't exist; waiting 5 seconds..." % self.repo_cfg)
+            time.sleep(5)
+            count -= 1
+        if not self.repo_cfg.exists():
+            msg = "No repository found: %s" % self.repo_cfg
+            self.logger.error(msg)
+            raise omero.ResourceError(None, None, msg)
+
+    def _get_uuid(self):
+        """
+        Second step in initialization is to find the database uuid
+        for this grid instance. Multiple OMERO.grids could be watching
+        the same directory.
+        """
         self.sf = omero.util.internal_service_factory()
         self.resources.add(SessionHolder(self.sf))
-        self.repo_uuid = "FIXME -- GET A REAL REPO UUID"
-        self.repo_obj = self.sf.getQueryObject().findByString(\
+        cfg = self.sf.getConfigService()
+        self.db_uuid = cfg.getDatabaseUuid()
+        self.instance = self.repo_cfg / self.db_uuid
+
+    def _get_repo(self):
+        """
+        Third step in initialization is to find the repository object
+        for the UUID found in .omero/repository/<db_uuid>
+        """
+        self.repo_uuid = (self.instance / "repo_uuid").lines()[0].strip()
+        self.repo_obj = self.sf.getQueryService().findByQuery(\
             "select r from Repository r where uuid = :uuid",
-            ParametersI().addString("uuid",self.repo))
+            ParametersI().add("uuid",self.repo_uuid))
 
     def getRepository(self, current = None):
         """
@@ -293,6 +334,7 @@ class SessionHolder(object):
 
     def __init__(self, sf):
         self.sf = sf
+        self.logger = logging.getLogger("omero.tables.SessionHolder")
 
     def check(self):
         self.sf.keepAlive(None)
@@ -301,8 +343,8 @@ class SessionHolder(object):
         try:
             self.sf.destroy()
         except exceptions.Exception, e:
-            self.logger.debug("Exception destroying session: %s" % e)
+            self.logger.debug("Exception destroying session: %s", exc_info = 1)
 
 if __name__ == "__main__":
     app = omero.util.Server(TablesI, "TablesAdapter", Ice.Identity("Tables",""))
-    sys.exit(app.main(sys.argv))
+    pysys.exit(app.main(pysys.argv))

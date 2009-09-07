@@ -13,26 +13,10 @@ import omero.tables
 import portalocker
 import tables
 
+from tablestest.library import TestCase
 from path import path
 
-class TestHdfFile(unittest.TestCase):
-
-    def setUp (self):
-        unittest.TestCase.setUp(self)
-        self.dir = path(tempfile.gettempdir()) / "test-omero"
-        if not self.dir.exists():
-            self.dir.mkdir()
-        # Creates a single tempdir under /tmp/test-omero
-        # and under *that* directory we'll create more
-        # directories for each test. That prevents the
-        # horrendous of directories that might otherwise
-        # getet created.
-        self.dir = self.tmpdir()
-
-    def tmpdir(self):
-        """
-        """
-        return tempfile.mkdtemp(dir=str(self.dir))
+class TestHdfFile(TestCase):
 
     def check(self, hdf, isInit, isRW):
         self.assertEquals(isInit, hdf.initialized)
