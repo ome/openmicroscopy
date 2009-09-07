@@ -241,34 +241,34 @@ public class ExporterI extends AbstractAmdServant implements
      */
     private ServerError startOutput() {
 
-        retrieve.initialize(factory);
-        IMetadata xmlMetadata = convertXml(retrieve);
-        if (xmlMetadata != null) {
-            Object root = xmlMetadata.getRoot();
-            if (root instanceof OMEXMLNode) {
-                OMEXMLNode node = (OMEXMLNode) root;
-
-                try {
-
-                    file = File.createTempFile("ome", "xml");
-                    file.deleteOnExit();
-                    FileOutputStream fos = new FileOutputStream(file);
-                    DOMUtil.writeXML(fos, node.getDOMElement()
-                            .getOwnerDocument());
-                    fos.close();
-                    retrieve = null;
-                    offset = 0;
-
-                    return null; // ONLY VALID EXIT
-
-                } catch (IOException ioe) {
-                    log.error(ioe);
-                } catch (TransformerException e) {
-                    log.error(e);
-                }
-
-            }
-        }
+//        retrieve.initialize(factory);
+//        IMetadata xmlMetadata = convertXml(retrieve);
+//        if (xmlMetadata != null) {
+//            Object root = xmlMetadata.getRoot();
+//            if (root instanceof OMEXMLNode) {
+//                OMEXMLNode node = (OMEXMLNode) root;
+//
+//                try {
+//
+//                    file = File.createTempFile("ome", "xml");
+//                    file.deleteOnExit();
+//                    FileOutputStream fos = new FileOutputStream(file);
+//                    DOMUtil.writeXML(fos, node.getDOMElement()
+//                            .getOwnerDocument());
+//                    fos.close();
+//                    retrieve = null;
+//                    offset = 0;
+//
+//                    return null; // ONLY VALID EXIT
+//
+//                } catch (IOException ioe) {
+//                    log.error(ioe);
+//                } catch (TransformerException e) {
+//                    log.error(e);
+//                }
+//
+//            }
+//        }
 
         return new omero.InternalException(null, null,
                 "Failed to create export");
