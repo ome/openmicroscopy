@@ -62,11 +62,11 @@
     </node>
 
     <node name="node1">
-      <server-instance template="ProcessorTemplate" index="1"/>
+      <server-instance template="ProcessorTemplate" index="1" dir="/MOUNT1"/>
     </node>
 
     <node name="node2">
-      <server-instance template="ProcessorTemplate" index="2"/>
+      <server-instance template="ProcessorTemplate" index="2" dir="/MOUNT2"/>
     </node>
 
   </application>
