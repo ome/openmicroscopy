@@ -78,9 +78,9 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.grid.GridServices" class="omero.grid._GridServicesTie" singleton="false">
+  <bean id="omero.grid.SharedResources" class="omero.grid._SharedResourcesTie" singleton="false">
     <constructor-arg>
-        <bean class="ome.services.blitz.impl.GridServicesI">
+        <bean class="ome.services.blitz.impl.SharedResourcesI">
             <constructor-arg ref="throttlingStrategy"/>
             <constructor-arg ref="TopicManager"/>
             <constructor-arg ref="Registry"/>

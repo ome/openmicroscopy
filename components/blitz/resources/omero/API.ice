@@ -12,8 +12,8 @@
 #include <omero/ModelF.ice>
 #include <omero/Collections.ice>
 #include <omero/Constants.ice>
-#include <omero/GridServices.ice>
 #include <omero/Repositories.ice>
+#include <omero/SharedResources.ice>
 #include <omero/ROMIO.ice>
 #include <omero/RTypes.ice>
 #include <omero/Scripts.ice>
@@ -980,9 +980,10 @@ module omero {
 	    Search*          createSearchService() throws ServerError;
 	    ThumbnailStore*  createThumbnailStore() throws ServerError;
 
-            // Extended services ----------------------------------------------
+            // Shared resources -----------------------------------------------
 
-            omero::grid::GridServices* getGridServices() throws ServerError;
+	    ["deprecated:The SharedResources API is experimental"]
+            omero::grid::SharedResources* sharedResources() throws ServerError;
 
             // General methods ------------------------------------------------
 

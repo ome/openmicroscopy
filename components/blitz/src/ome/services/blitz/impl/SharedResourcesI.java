@@ -34,7 +34,7 @@ import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.grid.TablePrx;
 import omero.grid.TablesPrx;
-import omero.grid._GridServicesOperations;
+import omero.grid._SharedResourcesOperations;
 import omero.model.Format;
 import omero.model.FormatI;
 import omero.model.Job;
@@ -50,14 +50,14 @@ import org.springframework.transaction.annotation.Transactional;
 import Ice.Current;
 
 /**
- * Implementation of the GridServices interface.
+ * Implementation of the SharedResources interface.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.1
- * @see ome.grid.GridServices
+ * @see ome.grid.SharedResources
  */
-public class GridServicesI extends AbstractAmdServant implements
-        _GridServicesOperations, BlitzOnly, ServiceFactoryAware {
+public class SharedResourcesI extends AbstractAmdServant implements
+        _SharedResourcesOperations, BlitzOnly, ServiceFactoryAware {
 
     private final TopicManager topicManager;
 
@@ -65,7 +65,7 @@ public class GridServicesI extends AbstractAmdServant implements
 
     private ServiceFactoryI sf;
 
-    public GridServicesI(BlitzExecutor be, TopicManager topicManager,
+    public SharedResourcesI(BlitzExecutor be, TopicManager topicManager,
             Registry registry) {
         super(null, be);
         this.topicManager = topicManager;
@@ -130,8 +130,7 @@ public class GridServicesI extends AbstractAmdServant implements
     }
 
     @SuppressWarnings("unchecked")
-    public RepositoryMap acquireRepositories(Current current)
-            throws ServerError {
+    public RepositoryMap repositories(Current current) throws ServerError {
 
         // Possibly need to throttle the numbers of acquisitions per time.
         // Need to keep up with closing
@@ -181,18 +180,13 @@ public class GridServicesI extends AbstractAmdServant implements
         return map;
     }
 
-    public TablePrx acquireTable(OriginalFile file, Current __current)
-            throws ServerError {
-        return null;
-    }
-
     @SuppressWarnings("unchecked")
     public TablePrx newTable(final Repository repo, String path,
             Current __current) throws ServerError {
 
-        if (repo == null || repo.getId() == null) {
+        if (repo == null) {
             throw new ValidationException(null, null,
-                    "repo argument must be managed.");
+                    "repo argument cannot be null.");
         }
 
         // Okay. All's valid.
@@ -214,15 +208,13 @@ public class GridServicesI extends AbstractAmdServant implements
         Format omero_tables = new FormatI();
         omero_tables.setValue(rstring("OMERO.tables"));
         OriginalFile file = repoPrx.register(path, omero_tables);
-        return acquireWritableTable(file, 60, __current);
+        return openTable(file, __current);
 
     }
 
     @SuppressWarnings("unchecked")
-    public TablePrx acquireWritableTable(final OriginalFile file, int seconds,
-            Current __current) throws ServerError {
-
-        checkAcquisitionWait(seconds);
+    public TablePrx openTable(final OriginalFile file, Current __current)
+            throws ServerError {
 
         // Now make sure the current user has permissions to do this
         if (file == null || file.getId() == null) {

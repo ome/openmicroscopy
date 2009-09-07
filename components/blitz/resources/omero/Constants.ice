@@ -81,7 +81,7 @@ module omero {
     const string REPOSITORYINFO   = "omero.api.IRepositoryInfo";
     const string RENDERINGSETTINGS= "omero.api.IRenderingSettings";
     const string METADATASERVICE  = "omero.api.IMetadata";
-    const string GRIDSERVICES     = "omero.grid.GridServices";
+    const string SHAREDRESOURCES  = "omero.grid.SharedResources";
 
     // User context for logging in
     const string USERNAME = "omero.user";

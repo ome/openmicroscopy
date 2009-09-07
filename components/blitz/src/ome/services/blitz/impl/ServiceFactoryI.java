@@ -96,7 +96,6 @@ import omero.constants.CONTAINERSERVICE;
 import omero.constants.DELETESERVICE;
 import omero.constants.EXPORTERSERVICE;
 import omero.constants.GATEWAYSERVICE;
-import omero.constants.GRIDSERVICES;
 import omero.constants.JOBHANDLE;
 import omero.constants.LDAPSERVICE;
 import omero.constants.METADATASERVICE;
@@ -112,14 +111,15 @@ import omero.constants.ROISERVICE;
 import omero.constants.SCRIPTSERVICE;
 import omero.constants.SEARCH;
 import omero.constants.SESSIONSERVICE;
+import omero.constants.SHAREDRESOURCES;
 import omero.constants.SHARESERVICE;
 import omero.constants.THUMBNAILSTORE;
 import omero.constants.TIMELINESERVICE;
 import omero.constants.TYPESSERVICE;
 import omero.constants.UPDATESERVICE;
-import omero.grid.GridServicesPrx;
-import omero.grid.GridServicesPrxHelper;
 import omero.grid.InteractiveProcessorI;
+import omero.grid.SharedResourcesPrx;
+import omero.grid.SharedResourcesPrxHelper;
 import omero.util.IceMapper;
 
 import org.aopalliance.aop.Advice;
@@ -389,9 +389,9 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // ~ Other interface methods
     // =========================================================================
 
-    public GridServicesPrx getGridServices(Current current) throws ServerError {
-        return GridServicesPrxHelper.uncheckedCast(createByName(
-                GRIDSERVICES.value, current));
+    public SharedResourcesPrx shareResources(Current current) throws ServerError {
+        return SharedResourcesPrxHelper.uncheckedCast(createByName(
+                SHAREDRESOURCES.value, current));
     }
 
     public ServiceInterfacePrx getByName(String name, Current current)
