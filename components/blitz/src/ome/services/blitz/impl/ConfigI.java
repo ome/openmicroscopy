@@ -13,6 +13,7 @@ import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
 import omero.api.AMD_IConfig_getConfigValue;
 import omero.api.AMD_IConfig_getDatabaseTime;
+import omero.api.AMD_IConfig_getDatabaseUuid;
 import omero.api.AMD_IConfig_getServerTime;
 import omero.api.AMD_IConfig_getVersion;
 import omero.api.AMD_IConfig_setConfigValue;
@@ -42,6 +43,11 @@ public class ConfigI extends AbstractAmdServant implements _IConfigOperations {
     }
 
     public void getDatabaseTime_async(AMD_IConfig_getDatabaseTime __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+    }
+    
+    public void getDatabaseUuid_async(AMD_IConfig_getDatabaseUuid __cb,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
     }

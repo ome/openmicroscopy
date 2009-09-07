@@ -10,8 +10,10 @@ import static omero.rtypes.rtime;
 import ome.services.blitz.impl.ExporterI;
 import ome.services.blitz.impl.OmeroMetadata;
 import ome.services.db.DatabaseIdentity;
+import omero.RString;
 import omero.api.AMD_Exporter_addImage;
 import omero.api.AMD_Exporter_getBytes;
+import omero.api.AMD_IConfig_getDatabaseUuid;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.PixelsI;
@@ -55,7 +57,18 @@ public class ExporterITest extends AbstractServantTest {
 
     @Test
     public void testForDatabaseUuid() throws Exception {
-        fail("NYI");
+        final RV rv = new RV();
+        user_config.getDatabaseUuid_async(new AMD_IConfig_getDatabaseUuid(){
+
+            public void ice_exception(Exception ex) {
+                rv.ex = ex;
+            }
+
+            public void ice_response(String __ret) {
+                rv.rv = __ret;
+            }}, current("getDatabaseUuid"));
+        rv.assertPassed();
+        assertNotNull(rv.rv);
     }
 
     @Test

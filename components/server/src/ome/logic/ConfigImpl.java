@@ -323,7 +323,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
         }
         return m.group(1);
     }
-
+    
     @PermitAll
     // see above
     public String getDatabaseVersion() {
@@ -341,16 +341,16 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
                 }).get(0);
     }
 
-    // As of yet, non-remote public methods
-    // =========================================================================
-
+    @PermitAll
+    // see above
     public String getDatabaseUuid() {
         return jdbc.query(
                 "select value from configuration where name = 'omero.db.uuid' ",
                 new ParameterizedRowMapper<String>() {
                     public String mapRow(ResultSet arg0, int arg1)
                             throws SQLException {
-                        return arg0.getString("value");
+                        String s = arg0.getString("value");
+                        return s;
                     }
 
                 }).get(0);

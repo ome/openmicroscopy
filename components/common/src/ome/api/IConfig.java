@@ -151,9 +151,9 @@ public interface IConfig extends ServiceInterface {
     String key, String value, String test) throws ApiUsageException, SecurityViolation;
 
     /**
-     * Provides the system {@link ome.system.Preference}. OMERO-internal values
-     * will be in the form Major.minor.patch, starting with the value 4.0.0 for
-     * the 4.0 release, Spring 2009.
+     * Provides the release version. OMERO-internal values will be in the form
+     * Major.minor.patch, starting with the value 4.0.0 for the 4.0 release,
+     * Spring 2009.
      * 
      * Customized values should begin with a alphabetic sequence followed by a
      * hyphen: ACME-0.0.1 and any build information should follow the patch
@@ -163,5 +163,18 @@ public interface IConfig extends ServiceInterface {
      * @see #VERSION_REGEX
      */
     String getVersion();
+
+    /**
+     * Provides the UUID for this OMERO (database) instance. To make imports and
+     * exports function properly, only one physical database should be active
+     * with a given instance UUID. All other copies of the database with that
+     * UUID are invalid as soon as one modification is made.
+     * 
+     * This value is stored in the configuration table under the key
+     * "omero.db.uuid"
+     * 
+     * @return String not null.
+     */
+    String getDatabaseUuid();
 
 }
