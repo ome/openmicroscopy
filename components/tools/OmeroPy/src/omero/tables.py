@@ -38,57 +38,78 @@ from omero.rtypes import *
 
 tables = __import__("tables") # Pytables
 
-class StorageException(exceptions.Exception):
-    pass
-class StorageLockedException(StorageException):
-    pass
-
 class HdfStorage(object):
     """
-    Provides HDF-storage for measurement results.
+    Provides HDF-storage for measurement results. Instances simply
+    provide utility methods and initializaiton. Since fields are
+    accessed directly, no locking or other checks are provided
+    here.
     """
 
-    def __init__(self, hdf_dir):
+    def __init__(self, hdf_dir, allow_read_only = False):
         """
         hdf_dir should be the path to a directory where this HDF instance
-        can be stored (Not None or Empty)
+        can be stored (Not None or Empty). Once this method is finished,
+        self.hdf is guaranteed to be a PyTables HDF file, but not necesarrily
+        initialized (see self.initialized)
         """
 
         if hdf_dir is None or hdf_dir == "":
-            raise exceptions.Exception("Invalid hdf_dir")
+            raise omero.ValidationException(None, None, "Invalid hdf_dir")
 
+        self.log = logging.getLogger("omero.tables.HdfStorage")
         self.dir = path(hdf_dir)
+        self.hdf_path = self.dir / "main.h5"
+        self.read_write = True # Our intention
+
         if not self.dir.exists():
             self.dir.mkdir(700)
 
         # Throws portalocker.LockException if this directory is already locked.
-        self.lock = open(".lock","w+")
+        self.lock = open( self.dir/".lock", "w+" )
         try:
             portalocker.lock(self.lock, portalocker.LOCK_NB|portalocker.LOCK_EX)
         except portalocker.LockException, le:
-            raise StorageLockedException(le)
+            if allow_read_only:
+                self.read_write = False # Downgrading
+            else:
+                raise omero.LockTimeout(None, None, "Cannot acquire exclusive write lock on: %s" % self.dir)
 
-        self.hdf_path = self.dir / "main.h5"
-        if self.hdf_path.exists():
-            self.hdf = self._newfile_("r+")
+        if self.read_write:
+            if self.hdf_path.exists():
+                self.initialized = False
+            else:
+                self.initialized = True
+            self.hdf = self.openfile("a")
         else:
-            self.hdf = None
+            count = 3
+            while count > 0:
+                try:
+                    self.hdf = self.openfile("r")
+                except IOError:
+                    count = count -1
+            msg = "Failed to acquire read-only file: %s" % self.hdf_path
+            log.error(msg)
+            raise omero.LockTimeout(None, None, "File not created by lock owner: %s" % self.hdf_path)
 
-    def _newfile_(self, mode):
+
+    def openfile(self, mode):
         return tables.openFile(self.hdf_path, mode=mode, title="OMERO HDF Measurement Storege", rootUEP="/")
 
-    def create(self, names, descs, types, metadata = {}):
+
+    def initialize(self, names, descs, types, metadata = {}):
         """
-        Can only be called if the HDF storage file does not exist.
+        Can only be called if the HDF storage file was created during __init__.
         """
 
-        if self.hdf:
-            raise StorageException("%s already exists" % self.hdf_path)
+        if self.initialized:
+            raise omero.ApiUsageException(None, None, "HDF already initialized")
+
+        if not self.read_write:
+            raise omero.ApiUsageException(None, None, "File opened read-only")
 
         if len(names) != len(descs) or len(descs) != len(types):
-            raise StorageException("Mismatched array size: %s, %s, %s" % (names, descs, types))
-
-        self.hdf = self._newfile_("a")
+            raise omero.ValidationException("Mismatched array size: %s, %s, %s" % (names, descs, types))
 
         self.definition = {}
         for i in range(len(names)):
@@ -103,6 +124,12 @@ class HdfStorage(object):
             self.mea.attrs[k] = v
             # See attrs._f_list("user") to retrieve these.
         self.hdf.flush()
+
+    def isInitialized(self):
+        pass
+
+    def version(self):
+        pass
 
     def append(self, data):
         row = self.mea.row
@@ -189,7 +216,7 @@ class TableI(omero.api.Table, omero.util.Servant):
     def getWhereList(self, condition, variables, start, stop, step, current = None):
         if stop == 0:
             stop = None
-        if step = 0:
+        if step == 0:
             step = None
         return self.storage.mea.getWhereList(condition, variables, None, start, stop, step)
 
@@ -201,7 +228,7 @@ class TableI(omero.api.Table, omero.util.Servant):
             cols[i].values = rows[i]
 
         data = omero.grid.Data()
-        data.lastModification = FIXME AND ADD A LOCK
+        data.lastModification = self.lastModification
         data.rowNumbers = rowNumbers
         data.columns = cols
         return data

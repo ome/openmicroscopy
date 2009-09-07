@@ -78,6 +78,16 @@
     </constructor-arg>
   </bean>
 
+  <bean id="omero.grid.GridServices" class="omero.grid._GridServicesTie" singleton="false">
+    <constructor-arg>
+        <bean class="ome.services.blitz.impl.GridServicesI">
+            <constructor-arg ref="throttlingStrategy"/>
+            <constructor-arg ref="topicManager"/>
+            <constructor-arg ref="registry"/>
+        </bean>
+    </constructor-arg>
+  </bean>
+
   <!-- Stateless ome.api service-based
   ==============================================================================
   See documentation at http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/package-summary.html

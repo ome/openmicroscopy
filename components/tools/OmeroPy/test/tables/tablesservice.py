@@ -15,14 +15,16 @@ class TestTables(unittest.TestCase):
 
     def testUnownedTable(self):
         ofile = omero.model.OriginalFileI()
-        table = self.root.sf.acquireTable(ofile, 60)
+        grid = self.root.sf.getGridServices()
+        table = grid.acquireTable(ofile, 60)
         self.assert_(table)
         ofile = table.getOriginalFile()
         self.client.sf.acquireTable(ofile, 60)
 
     def testAddingColumns(self):
         ofile = omero.model.OriginalFileI()
-        table = self.client.sf.acquireTable(ofile, 60)
+        grid = self.client.sf.getGridServices()
+        table = grid.acquireTable(ofile, 60)
         self.assert_(table)
         col = omero.tables.LongColumn()
         col.name = "a"

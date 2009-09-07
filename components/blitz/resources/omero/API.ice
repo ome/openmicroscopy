@@ -12,7 +12,8 @@
 #include <omero/ModelF.ice>
 #include <omero/Collections.ice>
 #include <omero/Constants.ice>
-#include <omero/Repository.ice>
+#include <omero/GridServices.ice>
+#include <omero/Repositories.ice>
 #include <omero/ROMIO.ice>
 #include <omero/RTypes.ice>
 #include <omero/Scripts.ice>
@@ -340,7 +341,7 @@ module omero {
 	    idempotent omero::model::IObject refresh(omero::model::IObject iObject) throws ServerError;
 	};
 
-	/*
+	/**
 	 * Forward declaration; see omero/api/IRoi.ice
 	 *
 	 * If you receive a segfault or a bus error in Python, be sure to
@@ -348,7 +349,7 @@ module omero {
 	 * more information see:
 	 *
 	 * http://www.zeroc.com/forums/bug-reports/3883-bus-error-under-mac-ox-10-4-icepy-3-3-0-a.html#post17120
-	 */
+	 **/
         interface IRoi; //
 
 	/*
@@ -947,6 +948,7 @@ module omero {
 	interface ServiceFactory extends Glacier2::Session
 	{
 	    // Central OMERO.blitz stateless services.
+
 	    IAdmin*          getAdminService() throws ServerError;
 	    IConfig*         getConfigService() throws ServerError;
 	    IContainer*      getContainerService() throws ServerError;
@@ -967,6 +969,7 @@ module omero {
 	    IMetadata*       getMetadataService() throws ServerError;
 
 	    // Central OMERO.blitz stateful services.
+
 	    Gateway*         createGateway() throws ServerError;
 	    Exporter*        createExporter() throws ServerError;
 	    JobHandle*       createJobHandle() throws ServerError;
@@ -975,6 +978,12 @@ module omero {
 	    RenderingEngine* createRenderingEngine() throws ServerError;
 	    Search*          createSearchService() throws ServerError;
 	    ThumbnailStore*  createThumbnailStore() throws ServerError;
+
+            // Extended services ----------------------------------------------
+
+            omero::grid::GridServices* getGridServices() throws ServerError;
+
+            // General methods ------------------------------------------------
 
 	    /*
 	     * Allows looking up any service by name. See Constants.ice
@@ -986,48 +995,6 @@ module omero {
 	    ServiceInterface* getByName(string name) throws ServerError;
 
 	    StatefulServiceInterface* createByName(string name) throws ServerError;
-
-            //
-	    // Shared resources. Here an acquisition framework is
-	    // in place such that it is not guaranteed that a resource
-            // will be free, and therefore a null proxy may be returned.
-            // ================================================================
-            //
-
-            /**
-             * Waits up to seconds to acquire a slot in a processor
-             * which can handle the given job.
-             */
-	    omero::grid::InteractiveProcessor*
-		acquireProcessor(omero::model::Job job, int seconds)
-		throws ServerError;
-
-            omero::grid::RepositoryMap
-                acquireRepositories()
-		throws ServerError;
-
-            /**
-             * Waits up to seconds to acquire an exclusive write lock
-             * on the given Table, and returns null if the lock cannot
-             * be obtained. After that it is possible to use volatile
-             * table in read-only mode.
-             *
-             * If the OriginalFile does not have an id set (is non-managed),
-             * then an OriginalFile object with Format "OMERO.tables" will
-             * be created. Only the name and the annotation links of the
-             * file object need to be filled out.
-             */
-            omero::grid::Table*
-                acquireTable(omero::model::OriginalFile file, int seconds)
-                throws ServerError;
-
-            /**
-             * Returns a read-only Table instance which will be closed on the
-             * first modification.
-             */
-            omero::grid::Table*
-                volatileTable(omero::model::OriginalFile file)
-                throws ServerError;
 
 	    /*
 	     * Subscribe to a given topic. The topic must exist and the user must

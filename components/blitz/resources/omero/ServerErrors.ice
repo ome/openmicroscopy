@@ -27,7 +27,10 @@
  *   |_ ResourceError (non-recoverable)
  *   |
  *   |_ ConcurrencyException (recoverable)
- *   |  |_ OptimisticLockException (changed data)
+ *   |  |_ ConcurrentModification (data was changed)
+ *   |  |_ OptimisticLockException (changed data conflicts)
+ *   |  |_ LockTimeout (took too long to aquire lock)
+ *   |  |_ TryAgain (took too long to aquire lock)
  *   |  \_ TooManyUsersException
  *   |     \_ DatabaseBusyException
  *   |
@@ -209,10 +212,17 @@ module omero
   /**
    * Too many simultaneous database users.
    */
+  exception ConcurrentModification extends ConcurrencyException
+    {
+    };
+
+  /**
+   * Too many simultaneous database users.
+   */
   exception DatabaseBusyException extends ConcurrencyException
     {
     };
-    
+
   /**
    * Conflicting changes to the same piece of data.
    */

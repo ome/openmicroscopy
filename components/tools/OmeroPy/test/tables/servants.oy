@@ -17,8 +17,13 @@ class TestTables(unittest.TestCase):
         tables = omero.tables.TablesI()
         table = omero.tables.newTable()
 
+
+    def testModificationCheckForReadOnlyFile(self):
+        fail()
+
 def test_suite():
     return 1
 
 if __name__ == '__main__':
     unittest.main()
+

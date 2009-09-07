@@ -7,14 +7,11 @@
 
 package ome.services.blitz.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import ome.api.JobHandle;
 import ome.conditions.SessionException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
@@ -99,6 +96,7 @@ import omero.constants.CONTAINERSERVICE;
 import omero.constants.DELETESERVICE;
 import omero.constants.EXPORTERSERVICE;
 import omero.constants.GATEWAYSERVICE;
+import omero.constants.GRIDSERVICES;
 import omero.constants.JOBHANDLE;
 import omero.constants.LDAPSERVICE;
 import omero.constants.METADATASERVICE;
@@ -119,18 +117,9 @@ import omero.constants.THUMBNAILSTORE;
 import omero.constants.TIMELINESERVICE;
 import omero.constants.TYPESSERVICE;
 import omero.constants.UPDATESERVICE;
+import omero.grid.GridServicesPrx;
+import omero.grid.GridServicesPrxHelper;
 import omero.grid.InteractiveProcessorI;
-import omero.grid.InteractiveProcessorPrx;
-import omero.grid.InternalRepositoryPrx;
-import omero.grid.RepositoryMap;
-import omero.grid.RepositoryPrx;
-import omero.grid.TablePrx;
-import omero.grid.TablesPrx;
-import omero.model.Job;
-import omero.model.JobStatus;
-import omero.model.JobStatusI;
-import omero.model.OriginalFile;
-import omero.model.Repository;
 import omero.util.IceMapper;
 
 import org.aopalliance.aop.Advice;
@@ -141,7 +130,6 @@ import org.hibernate.Session;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.transaction.annotation.Transactional;
 
 import Ice.ConnectTimeoutException;
 import Ice.ConnectionLostException;
@@ -401,6 +389,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // ~ Other interface methods
     // =========================================================================
 
+    public GridServicesPrx getGridServices(Current current) throws ServerError {
+        return GridServicesPrxHelper.uncheckedCast(createByName(
+                GRIDSERVICES.value, current));
+    }
+
     public ServiceInterfacePrx getByName(String name, Current current)
             throws ServerError {
 
@@ -448,211 +441,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         }
         topicManager.register(topicName, prx);
         log.info("Registered " + prx + " for " + topicName);
-    }
-
-    // Acquisition framework
-    // =========================================================================
-
-    private void checkAcquisitionWait(int seconds) {
-        if (seconds > (3 * 60)) {
-            ApiUsageException aue = new ApiUsageException();
-            aue.message = "Delay is too long. Maximum = 3 minutes.";
-        }
-    }
-
-    private interface RepeatTask<T extends Ice.ObjectPrx, U extends Ice.ObjectPrx> {
-        U lookupService(T server);
-    }
-
-    private <T extends Ice.ObjectPrx, U extends Ice.ObjectPrx> U repeatLookup(
-            List<T> objectPrxs, int seconds, RepeatTask<T, U> task) {
-
-        long start = System.currentTimeMillis();
-        long stop = seconds < 0 ? start : (start + (seconds * 1000L));
-        do {
-
-            for (T prx : objectPrxs) {
-                if (prx != null) {
-                    try {
-
-                        U service = task.lookupService(prx);
-                        if (service != null) {
-                            return service;
-                        }
-
-                        try {
-                            Thread.sleep((stop - start) / 10);
-                        } catch (InterruptedException ie) {
-                            // ok.
-                        }
-                    } catch (Ice.NoEndpointException nee) {
-                        // This means that there probably is none.
-                        // Wait a little longer
-                        try {
-                            Thread.sleep((stop - start) / 3);
-                        } catch (InterruptedException ie) {
-                            // ok.
-                        }
-                    }
-                }
-            }
-        } while (stop < System.currentTimeMillis());
-
-        return null;
-    }
-
-    public RepositoryMap acquireRepositories(Current current)
-            throws ServerError {
-        // Possibly need to throttle the numbers of acquisitions per time.
-        // Need to keep up with closing
-        // might need to cache the found repositories.
-
-        InternalRepositoryPrx[] repos = registry.lookupRepositories();
-
-        RepositoryMap map = new RepositoryMap();
-        map.descriptions = new ArrayList<Repository>();
-        map.proxies = new ArrayList<RepositoryPrx>();
-
-        for (InternalRepositoryPrx i : repos) {
-            if (i == null) {
-                continue;
-            }
-            Repository desc = i.getDescription();
-            RepositoryPrx proxy = i.getProxy();
-            map.descriptions.add(desc);
-            map.proxies.add(proxy);
-        }
-
-        return map;
-    }
-
-    @SuppressWarnings("unchecked")
-    public TablePrx acquireTable(final OriginalFile file, int seconds,
-            Current __current) throws ServerError {
-
-        checkAcquisitionWait(seconds);
-
-        // Now make sure the current user has permissions to do this
-        if (file == null) {
-
-            return null;
-
-        } else if (file.getId() != null) {
-
-            executor.execute(principal, new Executor.SimpleWork(this,
-                    "checkOriginalFilePermissions", file.getId().getValue()) {
-                @Transactional(readOnly = true)
-                public Object doWork(Session session, ServiceFactory sf) {
-                    return sf.getQueryService().get(
-                            ome.model.core.OriginalFile.class,
-                            file.getId().getValue());
-
-                }
-            });
-            file.unload();
-
-        } else {
-
-            // Overwrites
-            omero.RTime creation = omero.rtypes.rtime(System
-                    .currentTimeMillis());
-            file.setCtime(creation);
-            file.setAtime(creation);
-            file.setMtime(creation);
-            file.setSha1(omero.rtypes.rstring("DIR"));
-            file.setFormat(new omero.model.FormatI());
-            file.getFormat().setValue(omero.rtypes.rstring("OMERO.tables"));
-            file.setRepository(null);
-            file.setPath(omero.rtypes.rstring("TBD"));
-            file.setSize(omero.rtypes.rlong(0));
-            IceMapper mapper = new IceMapper();
-            final ome.model.core.OriginalFile f = (ome.model.core.OriginalFile) mapper
-                    .reverse(file);
-            Long id = (Long) executor.execute(principal,
-                    new Executor.SimpleWork(this, "saveNewOriginalFile", file
-                            .getName().getValue()) {
-                        @Transactional(readOnly = false)
-                        public Object doWork(Session session, ServiceFactory sf) {
-                            return sf.getUpdateService().saveAndReturnObject(f)
-                                    .getId();
-                        }
-                    });
-            file.setId(omero.rtypes.rlong(id));
-            file.unload();
-
-        }
-
-        // Okay. All's valid.
-        TablesPrx[] tables = registry.lookupTables();
-        TablePrx tablePrx = (TablePrx) repeatLookup(Arrays.asList(tables),
-                seconds, new RepeatTask<TablesPrx, TablePrx>() {
-                    public TablePrx lookupService(TablesPrx server) {
-                        return server.getTable(file);
-                    }
-                });
-        return tablePrx;
-
-    }
-
-    public TablePrx volatileTable(OriginalFile file, Current __current)
-            throws ServerError {
-        throw new ApiUsageException(null, null, "NYI");
-    }
-
-    public InteractiveProcessorPrx acquireProcessor(final Job submittedJob,
-            int seconds, Current current) throws ServerError {
-
-        checkAcquisitionWait(seconds);
-
-        final IceMapper mapper = new IceMapper();
-
-        // First create the job with a status of WAITING.
-        // The InteractiveProcessor will be responsible for its
-        // further lifetime.
-        final ome.model.jobs.Job savedJob = (ome.model.jobs.Job) this.executor
-                .execute(this.principal, new Executor.SimpleWork(this,
-                        "submitJob") {
-                    @Transactional(readOnly = false)
-                    public ome.model.jobs.Job doWork(Session session,
-                            ServiceFactory sf) {
-
-                        final JobHandle handle = sf.createJobHandle();
-                        try {
-                            JobStatus status = new JobStatusI();
-                            status.setValue(omero.rtypes
-                                    .rstring(JobHandle.WAITING));
-                            submittedJob.setStatus(status);
-                            submittedJob.setMessage(omero.rtypes
-                                    .rstring("Interactive job. Waiting."));
-
-                            handle.submit((ome.model.jobs.Job) mapper
-                                    .reverse(submittedJob));
-                            return handle.getJob();
-                        } catch (ApiUsageException e) {
-                            return null;
-                        } finally {
-                            if (handle != null) {
-                                handle.close();
-                            }
-                        }
-                    }
-                });
-
-        if (savedJob == null) {
-            throw new ApiUsageException(null, null, "Could not submit job. ");
-        }
-
-        // Unloading job to prevent lazy-initialization exceptions.
-        Job unloadedJob = (Job) mapper.map(savedJob);
-        unloadedJob.unload();
-
-        // Lookup processor
-        // Create wrapper (InteractiveProcessor)
-        // Create session (with session)
-        // Setup environment
-        // Send off to processor
-
-        return null;
     }
 
     public void setCallback(ClientCallbackPrx callback, Ice.Current current) {

@@ -59,7 +59,7 @@ module omero {
     const string CONFIGSERVICE    = "omero.api.IConfig";
     const string CONTAINERSERVICE = "omero.api.IContainer";
     const string GATEWAYSERVICE   = "omero.api.Gateway";
-    const string EXPORTERSERVICE   = "omero.api.Exporter";
+    const string EXPORTERSERVICE  = "omero.api.Exporter";
     const string DELETESERVICE    = "omero.api.IDelete";
     const string LDAPSERVICE      = "omero.api.ILdap";
     const string PIXELSSERVICE    = "omero.api.IPixels";
@@ -81,6 +81,7 @@ module omero {
     const string REPOSITORYINFO   = "omero.api.IRepositoryInfo";
     const string RENDERINGSETTINGS= "omero.api.IRenderingSettings";
     const string METADATASERVICE  = "omero.api.IMetadata";
+    const string GRIDSERVICES     = "omero.grid.GridServices";
 
     // User context for logging in
     const string USERNAME = "omero.user";

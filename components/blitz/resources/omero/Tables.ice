@@ -76,9 +76,6 @@ module omero {
             ColumnArray
                 getHeaders();
 
-            omero::RTypeDict
-                getMetadata();
-
             long
                 getNumberOfRows();
 
@@ -101,14 +98,50 @@ module omero {
             // Writing ========================================================
             //
 
+            void
+                addData(ColumnArray cols);
+
+            //
+            // Metadata =======================================================
+            //
+
+            omero::RTypeDict
+                getAllMetadata();
+
+            omero::RType
+                getMetadata(string key);
+
+            void
+                setAllMetadata(omero::RTypeDict dict);
+
+            void
+                setMetadata(string key, omero::RType value);
+
+            //
+            // Life-cycle =====================================================
+            //
+
+            /**
+             * Initializes the structure based on
+             **/
+            void
+                initialize(ColumnArray cols);
+
             /**
              * Adds a column and returns the position index of the new column.
              **/
             int
                 addColumn(Column col);
 
+            /**
+             **/
             void
-                addData(ColumnArray cols);
+                delete();
+
+            /**
+             **/
+            void
+                close();
 
         };
 
