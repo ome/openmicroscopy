@@ -15,7 +15,8 @@ import threading
 import exceptions
 import logging.handlers
 
-from omero.rtypes import *
+from omero.rtypes import ObjectFactories as rFactories
+from omero.columns import ObjectFactories as cFactories
 
 LOGDIR = os.path.join("var","log")
 LOGFORMAT =  """%(asctime)s %(levelname)-5s [%(name)40s] (%(threadName)-10s) %(message)s"""
@@ -158,7 +159,7 @@ class Server(Ice.Application):
         try:
             self.objectfactory = omero.ObjectFactory()
             self.objectfactory.registerObjectFactory(self.communicator())
-            for of in ObjectFactories.values():
+            for of in rFactories.values() + cFactories.values():
                 of.register(self.communicator())
             self.adapter = self.communicator().createObjectAdapter(self.adapter_name)
             self.impl = self.impl_class()
@@ -248,8 +249,18 @@ class Task(threading.Thread):
 
     def sleep(self):
         start = time.time()
-        while not self.exit and (time.time() - start) < self.sleeptime:
-            time.sleep(5)
+        while True:
+            try:
+                elapsed = time.time() - start
+                if elapsed > self.sleeptime or self.exit:
+                    break
+                time.sleep(5)
+            except exceptions.Exception, ex:
+                # Ignoring since this is due to shutdown weirdness: ticket:1450
+                if isinstance(ex, AttributeError) and ex[0].startswith("'NoneType'"):
+                    pass
+                else:
+                    raise
 
     def stop(self, wait = True):
         """
@@ -328,6 +339,26 @@ class Resources:
             lock.release()
             self.thread.stop(wait=True)
             self.logger.info("Stopped")
+
+class SessionHolder(object):
+    """
+    Simple session holder to be put into omero.util.Resources
+    Calls sf.keepAlive(None) during ever check call, and
+    sf.destroy() on cleanup()
+    """
+
+    def __init__(self, sf):
+        self.sf = sf
+        self.logger = logging.getLogger("omero.util.SessionHolder")
+
+    def check(self):
+        self.sf.keepAlive(None)
+
+    def cleanup(self):
+        try:
+            self.sf.destroy()
+        except exceptions.Exception, e:
+            self.logger.debug("Exception destroying session: %s", exc_info = 1)
 
 class Environment:
     """
