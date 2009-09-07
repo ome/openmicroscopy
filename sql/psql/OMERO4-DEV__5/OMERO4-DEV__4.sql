@@ -175,6 +175,8 @@ language sql;
 
 insert into configuration (name, value) values ('omero.db.uuid',uuid());
 
+ALTER TABLE plate ADD COLUMN bytes bytea;
+
 UPDATE dbpatch set message = 'Database updated.', finished = now()
  WHERE currentVersion  = 'OMERO4-DEV'     and
           currentPatch    = 5             and

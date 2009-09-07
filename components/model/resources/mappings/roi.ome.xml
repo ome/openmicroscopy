@@ -110,6 +110,7 @@
                         <optional name="width" type="double"/>
                         <optional name="height" type="double"/>
                         <optional name="pixels" type="ome.model.core.Pixels"/>
+			<optional name="bytes" type="byte[]"/>
                 </properties>
         </type>
         <type id="ome.model.roi.Ellipse" discriminator="ellipse" superclass="ome.model.roi.Shape">

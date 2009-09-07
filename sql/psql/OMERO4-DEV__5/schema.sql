@@ -1739,6 +1739,7 @@
         x2 float8,
         y1 float8,
         y2 float8,
+        bytes bytea,
         d varchar(255),
         anchor varchar(255),
         baselineShift varchar(255),
