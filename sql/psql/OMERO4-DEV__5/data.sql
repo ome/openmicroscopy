@@ -36,9 +36,7 @@ BEGIN
       RETURN nv;
 END;' LANGUAGE plpgsql;
 
-alter table seq_table
-    alter column sequence_name set not null,
-    add primary key (sequence_name);
+alter table seq_table alter column sequence_name set not null;
 
 --
 -- First, we install a unique constraint so that it is only possible
@@ -378,6 +376,12 @@ insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select ome_nextval('seq_format'),-35,0,0,0,'audio/mpeg';
 insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select ome_nextval('seq_format'),-35,0,0,0,'audio/wav';
+insert into format (id,permissions,owner_id,group_id,creation_id,value)
+    select ome_nextval('seq_format'),-35,0,0,0,'Repository';
+insert into format (id,permissions,owner_id,group_id,creation_id,value)
+    select ome_nextval('seq_format'),-35,0,0,0,'Directory';
+insert into format (id,permissions,owner_id,group_id,creation_id,value)
+    select ome_nextval('seq_format'),-35,0,0,0,'OMERO.tables';
 insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
     select ome_nextval('seq_pulse'),-35,0,0,0,'CW';
 insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
@@ -711,26 +715,26 @@ insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
 insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
     select ome_nextval('seq_filtertype'),-35,0,0,0,'Unknown';
 
-create or replace function digest(text, text) returns bytea
-    AS '$libdir/pgcrypto', 'pg_digest'
-    language c;
-
-create or replace function sha1(text) returns character(40)
-    as ;
-begin
-return encode(digest($1, ''sha1''), ''hex'');
-end;
-' LANGUAGE plpgsql;
+--
+-- Cryptographic functions for specifying UUID
+--
 
 create or replace function uuid() returns character(36)
 as '
-select substring(x.my_rand from 1 for 8)||''-''||substring(x.my_rand from 9 for 4)||'-4'||substring(x.my_rand from 13 for 3)||''-''||x.clock_1||substring(x.my_rand from 16 for 3)||'-'||substring(x.my_rand from 19 for 12)
+    select substring(x.my_rand from 1 for 8)||''-''||
+           substring(x.my_rand from 9 for 4)||''-4''||
+           substring(x.my_rand from 13 for 3)||''-''||x.clock_1||
+           substring(x.my_rand from 16 for 3)||''-''||
+           substring(x.my_rand from 19 for 12)
 from
-(select sha1(now()::text||random()) as my_rand, to_hex(8+(3*random())::int) as clock_1) as x;'
+(select md5(now()::text||random()) as my_rand, to_hex(8+(3*random())::int) as clock_1) as x;'
 language sql;
 
+--
+-- Configuration table including a UUID uniquely identifying this database.
+--
 create table configuration ( name varchar(255) primary key, value text );
-insert into configuration ('omero.db.uuid',uuid());
+insert into configuration values ('omero.db.uuid',uuid());
 
 alter table pixels add column url varchar(2048);
 alter table originalfile add column url varchar(2048);
