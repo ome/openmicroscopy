@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 //Java imports
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,8 +52,10 @@ import org.jhotdraw.geom.BezierPath.Node;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureMaskFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.util.SVGTransform;
@@ -64,6 +68,9 @@ import pojos.LineData;
 import pojos.ROIData;
 import pojos.RectangleData;
 import pojos.ShapeData;
+import pojos.PolygonData;
+import pojos.MaskData;
+import pojos.PolylineData;
 import pojos.ShapeSettingsData;
 
 
@@ -277,6 +284,37 @@ class InputServerStrategy
 	}
 	
 	/**
+	 * Transforms the passed mask into its UI corresponding object.
+	 * 
+	 * @param data The mask to transform.
+	 * @return See above.
+	 */
+	private MeasureMaskFigure createMaskFigure(MaskData data)
+	{
+		
+		double x = data.getX();
+		double y = data.getY();
+		double width = data.getWidth();
+		double height = data.getHeight();
+		BufferedImage mask = data.getMask();
+		
+		MeasureMaskFigure fig = new MeasureMaskFigure(x, y, width, 
+				height, mask);
+		addShapeSettings(fig, data.getShapeSettings());
+		AffineTransform transform;
+		try {
+			transform = SVGTransform.toTransform(data.getTransform());
+			TRANSFORM.set(fig, transform);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
+		}
+		
+		return fig;
+	}
+	
+	
+	/**
 	 * Transforms the passed line into its UI corresponding object.
 	 * 
 	 * @param data The line to transform.
@@ -305,6 +343,63 @@ class InputServerStrategy
 			// e.printStackTrace();
 		}
 		
+		return fig;
+	}
+	
+
+	/**
+	 * Transforms the polygon into its UI corresponding object.
+	 * 
+	 * @param data The polygon to transform.
+	 * @return See above.
+	 */
+	private MeasureBezierFigure createPolygonFigure(PolygonData data)
+	{
+		
+		MeasureBezierFigure fig = new MeasureBezierFigure();
+		List<Point2D> points = data.getPoints();
+		for(Point2D point : points)
+			fig.addNode(new Node(point.getX(), point.getY()));
+
+	
+		addShapeSettings(fig, data.getShapeSettings());
+		AffineTransform transform;
+		try {
+			transform = SVGTransform.toTransform(data.getTransform());
+			TRANSFORM.set(fig, transform);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
+		}
+		fig.setClosed(true);
+		return fig;
+	}
+	
+	/**
+	 * Transforms the passed polyline into its UI corresponding object.
+	 * 
+	 * @param data The polyline to transform.
+	 * @return See above.
+	 */
+	private MeasureBezierFigure createPolygonFigure(PolylineData data)
+	{
+		
+		MeasureBezierFigure fig = new MeasureBezierFigure();
+		List<Point2D> points = data.getPoints();
+		for(Point2D point : points)
+			fig.addNode(new Node(point.getX(), point.getY()));
+
+	
+		addShapeSettings(fig, data.getShapeSettings());
+		AffineTransform transform;
+		try {
+			transform = SVGTransform.toTransform(data.getTransform());
+			TRANSFORM.set(fig, transform);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
+		}
+		fig.setClosed(false);		
 		return fig;
 	}
 	
