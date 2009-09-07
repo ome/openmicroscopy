@@ -64,6 +64,7 @@
         <!-- If we could disable shares here, then it would be possible
         to remove admin, ldap, share and possibly more! -->
         <value>classpath:ome/services/service-ome.api.IAdmin.xml</value>
+        <value>classpath:ome/services/service-ome.api.IConfig.xml</value>
         <value>classpath:ome/services/service-ome.api.ILdap.xml</value>
         <value>classpath:ome/services/service-ome.api.IQuery.xml</value>
         <value>classpath:ome/services/service-ome.api.IShare.xml</value>
