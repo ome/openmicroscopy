@@ -65,7 +65,7 @@ def internal_service_factory(self, communicator, user="root", group=None, retrie
 
     """
     log = logging.getLogger("omero.utils")
-    gotSession = False
+
     tryCount = 0
     excpt = None
     query = communicator.stringToProxy("IceGrid/Query")
@@ -74,25 +74,21 @@ def internal_service_factory(self, communicator, user="root", group=None, retrie
     if client_uuid is None:
         client_uuid = str(uuid.uuid4())
 
-    while (not gotSession) and (tryCount < retries):
+    while tryCount < retries:
         try:
-            time.sleep(interval)
             blitz = query.findAllObjectsByType("::Glacier2::SessionManager")[0]
             blitz = Glacier2.SessionManagerPrx.checkedCast(blitz)
             sf = blitz.create(user, None, {"omero.client.uuid":client_uuid})
             # Group currently unused.
-            sf = omero.api.ServiceFactoryPrx.checkedCast(sf)
-            gotSession = True
+            return omero.api.ServiceFactoryPrx.checkedCast(sf)
         except Exception, e:
             tryCount += 1
             log.info("Failed to get session on attempt %s", str(tryCount))
             excpt = e
+            time.sleep(interval)
 
-    if gotSession:
-        return sf
-    else:
-        log.info("Reason: %s", str(excpt))
-        raise Exception
+    log.warn("Reason: %s", str(excpt))
+    raise excpt
 
 def long_to_path(id, root=""):
     """
