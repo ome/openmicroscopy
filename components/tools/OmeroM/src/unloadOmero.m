@@ -36,6 +36,16 @@ if ~strcmp(w,'')
     disp('  ');
 end
 
+% See comment in omeroKeepAlive.m
+keep_alives = timerfind('Tag','omeroKeepAlive');
+if size(keep_alives) > 0,
+    disp('Stopping all omeroKeepAlive timers');
+    for i=1:size(keep_alives),
+        stop(keep_alives(i));
+        delete(keep_alives(i));
+    end
+end
+
 try
     OmeroClient_Jar=fullfile(findOmero, 'omero_client.jar');
     javarmpath(OmeroClient_Jar);

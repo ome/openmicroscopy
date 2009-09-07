@@ -6,9 +6,14 @@ function keep_alive = omeroKeepAlive( omero_client )
 % If any invocation of the doKeepAlive callback fails, then execution will
 % be terminated. To stop the timer manually, use:
 %
+%   stop(keep_alive);
 %   delete(keep_alive);
 %
-% The Timer will be started before returning.
+% The Timer will be started before returning. On unloadOmero, all timers
+% with the tag 'omeroKeepAlive' will be stopped and deleted to remove
+% Java objects from the runtime.
+%
+% ----
 %
 % See: http://www.mathworks.com/access/helpdesk/help/techdoc/ref/timer.html
 %
@@ -29,6 +34,6 @@ function keep_alive = omeroKeepAlive( omero_client )
     end
   end
 
-  keep_alive = timer('TimerFcn', @doKeepAlive, 'StartDelay',10, 'ExecutionMode', 'fixedDelay', 'Period', 60);
+  keep_alive = timer('Tag', 'omeroKeepAlive', 'TimerFcn', @doKeepAlive, 'StartDelay',10, 'ExecutionMode', 'fixedDelay', 'Period', 60);
   start(keep_alive);
 end
