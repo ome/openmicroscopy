@@ -8,11 +8,13 @@ package ome.services.blitz.test;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 import ome.services.blitz.impl.ExporterI;
+import ome.services.blitz.impl.OmeroMetadata;
 import ome.services.db.DatabaseIdentity;
 import omero.api.AMD_Exporter_addImage;
 import omero.api.AMD_Exporter_getBytes;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.PixelsI;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -20,7 +22,7 @@ import org.testng.annotations.Test;
 @Test(groups = "integration")
 public class ExporterITest extends AbstractServantTest {
 
-    DatabaseIdentity db = new DatabaseIdentity("test","test");
+    DatabaseIdentity db = new DatabaseIdentity("test", "test");
     ExporterI user_e, root_e;
 
     @Override
@@ -41,7 +43,7 @@ public class ExporterITest extends AbstractServantTest {
 
     @Test
     public void testSimpleXml() throws Exception {
-        ExporterI.Retrieve retrieve = new ExporterI.Retrieve(db);
+        OmeroMetadata retrieve = new OmeroMetadata(db);
         retrieve.addImage(new ImageI());
         String xml = ExporterI.generateXml(retrieve);
         assertNotNull(xml);
@@ -60,7 +62,7 @@ public class ExporterITest extends AbstractServantTest {
     public void testForExistingExternalInfo() throws Exception {
         fail("NYI ~ all queries will need to load them.");
     }
-    
+
     @Test
     public void testBasicExport() throws Exception {
         Image i = assertNewImage();
@@ -71,9 +73,10 @@ public class ExporterITest extends AbstractServantTest {
 
         // Now let's compare the XML
         String xml1 = new String(buf);
-        ExporterI.Retrieve retrieve = new ExporterI.Retrieve(db);
+        OmeroMetadata retrieve = new OmeroMetadata(db);
         retrieve.addImage(i);
         String xml2 = ExporterI.generateXml(retrieve);
+        System.out.println(xml1);
         assertEquals(xml1, xml2);
 
         // After reading, nothing should be returned
@@ -85,10 +88,15 @@ public class ExporterITest extends AbstractServantTest {
     // =========================================================================
 
     private Image assertNewImage() throws Exception {
-        Image i = new ImageI();
-        i.setAcquisitionDate(rtime(0));
-        i.setName(rstring("basic export"));
-        i = assertSaveAndReturn(i);
+        long id = this.makePixels();
+        Image i = (Image) assertFindByQuery(
+                "select i from Image i join fetch i.pixels p where p.id = "
+                        + id, null).get(0);
+        // Image i = new ImageI();
+        // i.setAcquisitionDate(rtime(0));
+        // i.setName(rstring("basic export"));
+        // i.addPixels(new PixelsI(id, false));
+        // i = assertSaveAndReturn(i);
         return i;
     }
 

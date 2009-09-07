@@ -48,7 +48,7 @@ public class DatabaseIdentity {
     public DatabaseIdentity(String authority, String uuid) {
         this.authority = authority;
         this.uuid = uuid;
-        this.format = String.format("urn:lsid:%s:%%s:%s_%%s", authority, uuid);
+        this.format = String.format("urn:lsid:%s:%%s:%s_%%s%%s", authority, uuid);
         log.info("Using LSID format: " + format);
     }
 
