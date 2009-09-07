@@ -11,135 +11,77 @@
 import unittest, os, tempfile, exceptions
 import omero.tables
 import portalocker
+import logging
 import tables
 
 from tablestest.library import TestCase
 from path import path
 
+
+logging.basicConfig(level=logging.CRITICAL)
+
+
 class TestHdfFile(TestCase):
 
-    def check(self, hdf, isInit, isRW):
-        self.assertEquals(isInit, hdf.initialized)
-        if hdf.initialized:
-            self.assertTrue( hdf.ome )
-            self.assertTrue( hdf.mea )
+    def init(self, hdf, meta=False):
+        if meta:
+            m = {"analysisA":1,"analysisB":"param","analysisC":4.1}
+        else:
+            m = None
+        hdf.initialize(["a","b","c"],["first","second","third"],[tables.Int64Col, tables.Int64Col, tables.Int64Col],m)
 
-    def testValidDirectory(self):
+    def hdfpath(self):
+        tmpdir = self.tmpdir()
+        return path(tmpdir) / "test.h5"
+
+    def testInvalidFile(self):
         self.assertRaises(omero.ApiUsageException, omero.tables.HdfStorage, None)
         self.assertRaises(omero.ApiUsageException, omero.tables.HdfStorage, '')
+        bad = path(self.tmpdir()) / "doesntexist" / "test.h5"
+        self.assertRaises(omero.ApiUsageException, omero.tables.HdfStorage, bad)
 
-    def testDirectoryLockingWithRO(self):
-        tmpdir = self.tmpdir()
-        hdf1 = omero.tables.HdfStorage(tmpdir)
-        self.check(hdf1, False, True)
+    def testValidFile(self):
+        omero.tables.HdfStorage(self.hdfpath())
 
-        hdf2 = omero.tables.HdfStorage(tmpdir, True)
-        self.check(hdf2, False, False)
-
-        hdf2.close()
-        hdf1.close()
-
-        hdf3 = omero.tables.HdfStorage(tmpdir)
-        self.check(hd3, False, True)
-        hdf3.close()
-
-    def testDirectoryLockingWithoutRO(self):
-        tmpdir = self.tmpdir()
-        hdf1 = omero.tables.HdfStorage(tmpdir)
-        self.check(hdf1, False, True)
-
+    def testLocking(self):
+        tmp = self.hdfpath()
+        hdf1 = omero.tables.HdfStorage(tmp)
         try:
-            hdf2 = omero.tables.HdfStorage(tmpdir)
-            self.fail("This should throw")
+            hdf2 = omero.tables.HdfStorage(tmp)
+            self.fail("should be locked")
         except omero.LockTimeout, lt:
             pass
-        hdf1.close()
-
-        hdf3 = omero.tables.HdfStorage(tmpdir)
-        self.check(hdf3, False, True)
-        hdf3.close()
+        hdf1.cleanup()
+        hdf3 = omero.tables.HdfStorage(tmp)
 
     def testSimpleCreation(self):
-        hdf = omero.tables.HdfStorage(self.tmpdir())
-        self.check(hdf, False, True)
-        hdf.initialize(["a","b","c"],["first","second","third"],[tables.Int64Col, tables.Int64Col, tables.Int64Col])
-        self.check(hdf, True, True)
-        hdf.close()
+        hdf = omero.tables.HdfStorage(self.hdfpath())
+        self.init(hdf, False)
+        hdf.cleanup()
 
     def testCreationWithMetadata(self):
-        hdf = omero.tables.HdfStorage(self.tmpdir())
-        self.check(hdf, False, True)
-        hdf.initialize(["a","b","c"],["first","second","third"],[tables.Int64Col, tables.Int64Col, tables.Int64Col],{"analysisA":1,"analysisB":"param","analysisC":4.1})
-        self.check(hdf, True, True)
-        hdf.close()
+        hdf = omero.tables.HdfStorage(self.hdfpath())
+        self.init(hdf, True)
+        hdf.cleanup()
 
     def testAddSingleRow(self):
-        hdf = omero.tables.HdfStorage(self.tmpdir())
-        self.check(hdf, False, True)
-        hdf.initialize(["a","b","c"],["first","second","third"],[tables.Int64Col, tables.Int64Col, tables.Int64Col],{"analysisA":1,"analysisB":"param","analysisC":4.1})
+        hdf = omero.tables.HdfStorage(self.hdfpath())
+        self.init(hdf, True)
         hdf.append({"a":1,"b":2,"c":3})
-        self.check(hdf, True, True)
-        hdf.close()
+        hdf.cleanup()
 
     def testInitializationOnInitializedFileFails(self):
-        t = self.tmpdir()
-        hdf = omero.tables.HdfStorage(t)
-        self.check(hdf, False, True)
-        hdf.initialize(["a","b","c"],["first","second","third"],[tables.Int64Col, tables.Int64Col, tables.Int64Col],{"analysisA":1,"analysisB":"param","analysisC":4.1})
-        self.check(hdf, True, True)
-        hdf.close()
-        hdf = omero.tables.HdfStorage(t)
-        self.check(hdf, True, True)
+        p = self.hdfpath()
+        hdf = omero.tables.HdfStorage(p)
+        self.init(hdf, True)
+        hdf.cleanup()
+        hdf = omero.tables.HdfStorage(p)
         try:
-            hdf.initialize(["a","b","c"],["first","second","third"],[tables.Int64Col, tables.Int64Col, tables.Int64Col],{"analysisA":1,"analysisB":"param","analysisC":4.1})
+            self.init(hdf, True)
             self.fail()
         except omero.ApiUsageException:
             pass
-        hdf.close()
-
-    def testInitializationOnReadyFileFailsWithInit(self):
-        t = self.tmpdir()
-        hdf1 = omero.tables.HdfStorage(t)
-        hdf1.initialize(["a","b","c"],["first","second","third"],[tables.Int64Col, tables.Int64Col, tables.Int64Col],{"analysisA":1,"analysisB":"param","analysisC":4.1})
-        self.check(hdf1, True, True)
-        hdf2 = omero.tables.HdfStorage(t)
-        self.check(hdf2, True, False)
-        try:
-            hdf2.initialize(["a","b","c"],["first","second","third"],[tables.Int64Col, tables.Int64Col, tables.Int64Col],{"analysisA":1,"analysisB":"param","analysisC":4.1})
-            self.fail()
-        except omero.ApiUsageException:
-            pass
-        hdf2.close()
-        hdf1.close()
-
-    def testInitializationOnReadyFileFailsWithoutInit(self):
-        t = self.tmpdir()
-        hdf1 = omero.tables.HdfStorage(t)
-        self.check(hdf1, False, True)
-        #hdf1.initialize(["a","b","c"],["first","second","third"],[tables.Int64Col, tables.Int64Col, tables.Int64Col],{"analysisA":1,"analysisB":"param","analysisC":4.1})
-        hdf2 = omero.tables.HdfStorage(t)
-        self.check(hdf2, False, False)
-        try:
-            hdf2.initialize(["a","b","c"],["first","second","third"],[tables.Int64Col, tables.Int64Col, tables.Int64Col],{"analysisA":1,"analysisB":"param","analysisC":4.1})
-            self.fail()
-        except omero.ApiUsageException:
-            pass
-        hdf2.close()
-        hdf1.close()
-
-    def testReadOnlyWaitsForFileCreation(self):
-        t = self.tmpdir()
-        hdf1 = omero.tables.HdfStorage(t)
-        self.check(hdf1, False, True)
-        hdf2 = omero.tables.HdfStorage(t)
-        self.check(hdf1, False, False)
-        try:
-            hdf2.initialize(["a","b","c"],["first","second","third"],[tables.Int64Col, tables.Int64Col, tables.Int64Col],{"analysisA":1,"analysisB":"param","analysisC":4.1})
-            self.fail()
-        except omero.LockError:
-            pass
-        hdf2.close()
-        hdf1.close()
+        hdf.cleanup()
 
     def testAddColumn(self):
         self.fail("NYI")
@@ -149,9 +91,10 @@ class TestHdfFile(TestCase):
 
     def testHandlesExistingDirectory(self):
         t = path(self.tmpdir())
-        t.mkdir()
-        hdf = omero.tables.HdfStorage(t)
-        hdf.close()
+        h = t / "test.h5"
+        self.assertTrue(t.exists())
+        hdf = omero.tables.HdfStorage(h)
+        hdf.cleanup()
 
     def testVersion(self):
         self.fail()

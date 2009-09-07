@@ -17,10 +17,14 @@ import traceback
 import subprocess
 import exceptions
 import portalocker # Third-party
+
 from path import path
+from functools import wraps
+
 
 import omero
 
+from omero.columns import *
 from omero.rtypes import *
 from omero_ext import pysys
 from omero_sys_ParametersI import ParametersI
@@ -28,167 +32,249 @@ from omero_sys_ParametersI import ParametersI
 
 tables = __import__("tables") # Pytables
 
+def remoted(func):
+    """ Decorator for catching any uncaught exception and converting it to an InternalException """
+
+    def exc_handler(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except exceptions.Exception, e:
+            if isinstance(e, omero.ServerError):
+                raise e
+            else:
+                msg = traceback.format_exc()
+                raise omero.InternalException(msg, None, "Internal exception")
+    return exc_handler
+remoted = wraps(remoted)
+
+def locked(func):
+    """ Decorator for using the self.__lock argument of the calling class """
+
+    def with_lock(*args, **kwargs):
+        self = args[0]
+        self.__lock.acquire()
+        try:
+            return func(*args, **kwargs)
+        finally:
+            self.__lock.release()
+    return with_lock
+locked = wraps(locked)
+
+
+def stamped(func, update = False):
+    """
+    Decorator which takes the first argument after "self" and compares
+    that to the last modification time. If the stamp is older, then the
+    method call will throw an omero.OptimisticLockException. Otherwise,
+    execution will complete normally. If update is True, then the
+    last modification time will be updated after the method call if it
+    is successful.
+
+    Note: stamped implies locked
+
+    """
+
+    def check_and_update_stamp(*args, **kwargs):
+        self = args[0]
+        stamp = args[1]
+        if stamp < self.__stamp:
+            raise omero.OptimisticLockException(None, None, "Resource modified by another thread")
+
+        return func(*args, **kwargs)
+        if update:
+            self.__stamp = time.time()
+    return locked(check_and_update_stamp)
+stamped = wraps(stamped)
+
+
+
+class HdfList(object):
+    """
+    Since two calls to tables.openFile() return non-equal files
+    with equal fileno's, portalocker cannot be used to prevent
+    the creation of two HdfStorage instances from the same
+    Python process.
+    """
+
+    def __init__(self):
+        self.__lock = threading.RLock()
+        self.__filenos = {}
+        self.__paths = {}
+
+    def addOrThrow(self, hdfpath, hdffile, action):
+        fileno = hdffile.fileno()
+        if fileno in self.__filenos.keys():
+            raise omero.LockTimeout(None, None, "File already opened by process: %s" % hdfpath, 0)
+        else:
+            self.__filenos[fileno] = hdffile
+            self.__paths[hdfpath] = hdffile
+            action()
+    addOrThrow = locked(addOrThrow)
+
+    def getOrCreate(self, hdfpath):
+        try:
+            return self.__paths[hdfpath]
+        except KeyError:
+            return HdfStorage(hdfpath) # Adds itself.
+    getOrCreate = locked(getOrCreate)
+
+    def remove(self, hdfpath, hdffile):
+        del self.__filenos[hdffile.fileno()]
+        del self.__paths[hdfpath]
+    remove = locked(remove)
+
+# Global object for maintaining files
+HDFLIST = HdfList()
 
 class HdfStorage(object):
     """
-    Provides HDF-storage for measurement results. Instances simply
-    provide utility methods and initializaiton. Since fields are
-    accessed directly, no locking or other checks are provided
-    here.
+    Provides HDF-storage for measurement results. At most a single
+    instance will be available for any given physical HDF5 file.
     """
 
-    def __init__(self, hdf_dir, allow_read_only = False):
+
+    def __init__(self, file_path):
+
         """
-        hdf_dir should be the path to a directory where this HDF instance
-        can be stored (Not None or Empty). Once this method is finished,
-        self.hdf is guaranteed to be a PyTables HDF file, but not necesarrily
-        initialized (see self.initialized)
+        file_path should be the path to a file in a valid directory where
+        this HDF instance can be stored (Not None or Empty). Once this
+        method is finished, self.__hdf_file is guaranteed to be a PyTables HDF
+        file, but not necessarily initialized.
         """
 
-        if hdf_dir is None or hdf_dir == "":
-            raise omero.ValidationException(None, None, "Invalid hdf_dir")
+        if file_path is None or str(file_path) == "":
+            raise omero.ValidationException(None, None, "Invalid file_path")
 
-        self.log = logging.getLogger("omero.tables.HdfStorage")
-        self.dir = path(hdf_dir)
-        self.hdf_path = self.dir / "main.h5"
-        self.read_write = True # Our intention
+        self.__log = logging.getLogger("omero.tables.HdfStorage")
+        self.__lock = threading.RLock()
+        self.__hdf_path = path(file_path)
+        self.__hdf_file = self.__openfile("a")
+        self.__tables = []
+        self.__stamp = time.time()
 
-        if not self.dir.exists():
-            self.dir.mkdir(700)
+        # These are what we'd like to have
+        self.__mea = None
+        self.__ome = None
 
-        # Throws portalocker.LockException if this directory is already locked.
-        self.lock = open( self.dir/".lock", "w+" )
+        # Now we try to lock the file, if this fails, we rollback
+        # any previous initialization (opening the file)
         try:
-            portalocker.lock(self.lock, portalocker.LOCK_NB|portalocker.LOCK_EX)
+            fileno = self.__hdf_file.fileno()
+            HDFLIST.addOrThrow(self.__hdf_path, self.__hdf_file, \
+                lambda: portalocker.lock(self.__hdf_file, portalocker.LOCK_NB|portalocker.LOCK_EX))
         except portalocker.LockException, le:
-            if allow_read_only:
-                self.read_write = False # Downgrading
-            else:
-                raise omero.LockTimeout(None, None, "Cannot acquire exclusive write lock on: %s" % self.dir)
+            self.cleanup()
+            raise omero.LockTimeout(None, None, "Cannot acquire exclusive lock on: %s" % self.__hdf_path, 0)
 
-        if self.read_write:
-            if self.hdf_path.exists():
-                self.initialized = False
-            else:
-                self.initialized = True
-            self.hdf = self.openfile("a")
-        else:
-            count = 3
-            while count > 0:
-                try:
-                    self.hdf = self.openfile("r")
-                except IOError:
-                    count = count -1
-            msg = "Failed to acquire read-only file: %s" % self.hdf_path
-            log.error(msg)
-            raise omero.LockTimeout(None, None, "File not created by lock owner: %s" % self.hdf_path)
+        try:
+            self.__ome = self.__hdf_file.root.OME
+            self.__mea = self.__ome.Measurements
+            self.__types = self.__hdf_file.root.ColumnTypes[:]
+            self.__descriptions = self.__hdf_file.root.ColumnDescriptions[:]
+            self.__initialized = True
+        except tables.NoSuchNodeError:
+            self.__initialized = False
 
+    #
+    # Non-locked methods
+    #
 
-    def openfile(self, mode):
-        return tables.openFile(self.hdf_path, mode=mode, title="OMERO HDF Measurement Storege", rootUEP="/")
+    def __openfile(self, mode):
+        try:
+            return tables.openFile(self.__hdf_path, mode=mode, title="OMERO HDF Measurement Storege", rootUEP="/")
+        except IOError, io:
+            msg = "HDFStorage initialized with bad path: %s" % self.__hdf_path
+            self.__log.error(msg)
+            raise omero.ValidationException(None, None, msg)
 
+    def __initcheck(self):
+        if not self.__initialized:
+            raise omero.ApiUsageException(None, None, "Not yet initialized")
 
-    def initialize(self, names, descs, types, metadata = {}):
+    #
+    # Locked methods
+    #
+
+    def initialize(self, cols, metadata = {}):
         """
-        Can only be called if the HDF storage file was created during __init__.
+
         """
 
-        if self.initialized:
-            raise omero.ApiUsageException(None, None, "HDF already initialized")
+        if self.__initialized:
+            raise omero.ValidationException(None, None, "Already initialized.")
 
-        if not self.read_write:
-            raise omero.ApiUsageException(None, None, "File opened read-only")
+        self.__definition = columns2definition(cols)
+        self.__ome = self.__hdf_file.createGroup("/", "OME")
+        self.__mea = self.__hdf_file.createTable(self.__ome, "Measurements", self.__definition)
 
-        if len(names) != len(descs) or len(descs) != len(types):
-            raise omero.ValidationException("Mismatched array size: %s, %s, %s" % (names, descs, types))
+        self.__types = [ x.ice_staticId() for x in cols ]
+        self.__descriptions = [ (x.description != None) and x.description or "" for x in cols ]
+        self.__hdf_file.createArray(self.__ome, "ColumnTypes", self.__types)
+        self.__hdf_file.createArray(self.__ome, "ColumnDescriptions", self.__descriptions)
 
-        self.definition = {}
-        for i in range(len(names)):
-            self.definition[names[i]] = types[i](pos=i)
-            # Ignoring description for now
+        self.__mea.attrs.version = "v1"
+        self.__mea.attrs.initialized = time.time()
+        if metadata:
+            for k, v in metadata.items():
+                self.__mea.attrs[k] = v
+                # See attrs._f_list("user") to retrieve these.
 
-        self.ome = self.hdf.createGroup("/","OME")
-        self.mea = self.hdf.createTable(self.ome, "Measurements", self.definition)
-        self.mea.attrs.version = 1
+        self.__mea.flush()
+        self.__hdf_file.flush()
+        self.__initialized = True
+    initialize = locked(initialize) # End method
 
-        for k,v in metadata.items():
-            self.mea.attrs[k] = v
-            # See attrs._f_list("user") to retrieve these.
-        self.hdf.flush()
+    def incr(self, table):
+        if table in self.__tables:
+            raise omero.ApiUsageException(None, Non, "Already added")
+        self.__tables.append(table)
+        return len(self.__tables)
+    incr = locked(incr)
 
-    def isInitialized(self):
-        pass
+    def decr(self, table):
+        if not (table in self.__tables):
+            raise omero.ApiUsageException(None, None, "Unknown table")
+        self.__tables.remove(table)
+        l = len(self.__tables)
+        if l == 0:
+            self.cleanup()
+        return l
+    decr = locked(decr)
 
-    def version(self):
-        pass
+    def uptodate(self, stamp):
+        return self.__stamp <= stamp
+    uptodate = locked(uptodate)
 
-    def append(self, data):
-        row = self.mea.row
-        for k,v in data.items():
-            row[k] = v
-        row.append()
+    def rows(self):
+        self.__initcheck()
+        return self.__mea.nrows
+    rows = locked(rows)
 
-    def close(self):
-        if self.hdf:
-            self.hdf.close()
-        self.lock.close()
-
-class TableI(omero.grid.Table, omero.util.Servant):
-    """
-    Spreadsheet implementation based on pytables.
-    """
-
-    def __init__(self, file_obj, dir_path):
-        omero.util.Servant.__init__(self)
-        self.file_obj = file_obj
-        self.dir_path = dir_path
-        # This may throw
-        self.storage = HdfStorage(dir_path)
-
-    def check(self):
-        """
-        Called periodically to check the resource is alive. Returns
-        False if this resource can be cleaned up. (Resources API)
-        """
-        self.logger.debug("Checking %s" % self )
-        return False
-
-    def __str__(self):
-        if hasattr(self, "uuid"):
-            return "Table-%s" % self.uuid
-        else:
-            return "Table-uninitialized"
-
-    # TABLES READ API ============================
-
-    def getOriginalFile(self, current = None):
-        return self.file_obj
-
-    def isWrite(self, current = None):
-        raise exceptions.Exception("NYI")
-
-    def getHeaders(self, current = None):
-        return self._getColumns(0)
-
-    def _getColumns(self, size):
-        names = self.storage.mea.colnames
-        types = self.storage.mea.coltypes
+    def cols(self, size, current):
+        self.__initcheck()
+        ic = current.adapter.getCommunicator()
+        types = self.__types
+        names = self.__mea.colnames
         cols = []
-        for name in names:
-            typ = types[name]
-            if type == "int64":
-                col = omero.grid.LongColumn(name,"")
-                col.values = [0]*size
+        for i in range(len(types)):
+            t = types[i]
+            n = names[i]
+            try:
+                col = ic.findObjectFactory(t).create(t)
+                col.name = n
+                col.size(size)
                 cols.append(col)
-            else:
-                raise omero.ValidationException("BAD COLUMN TYPE: %s" % type)
-
+            except:
+                msg = traceback.format_exc()
+                raise omero.ValidationException(None, msg, "BAD COLUMN TYPE: %s for %s" % (t,n))
         return cols
+    cols = locked(cols)
 
-    def getMetadata(self, current = None):
+    def meta(self):
+        self.__initcheck()
         metadata = {}
-        attr = self.storage.mea.attrs
-        keys = list(self.storage.mea.attrs._v_attrnamesuser)
+        attr = self.__mea.attrs
+        keys = list(self.__mea.attrs._v_attrnamesuser)
         for key in keys:
             val = attr[key]
             if type(val) == numpy.float64:
@@ -200,37 +286,142 @@ class TableI(omero.grid.Table, omero.util.Servant):
             else:
                 raise omero.ValidationException("BAD TYPE: %s" % type(val))
             metadata[key] = val
+        meta = locked(meta)
+
+    def append(self, cols):
+        # Optimize!
+        arrays = []
+        names = []
+        for col in cols:
+            names.append(col.name)
+            arrays.append(col.array())
+        data = numpy.rec.fromarrays(arrays, names=names)
+        self.__mea.append(data)
+        self.__mea.flush()
+    append = locked(append)
+
+    #
+    # Stamped methods
+    #
+
+    def getWhereList(self, stamp, condition, variables, unused, start, stop, step):
+        self.__initcheck()
+        return self.__mea.getWhereList(condition, variables, None, start, stop, step)
+    getWhereList = stamped(getWhereList)
+
+    def readCoordinates(self, stamp, rowNumbers, current):
+        self.__initcheck()
+        rows = self.__mea.readCoordinates(rowNumbers)
+        cols = self.cols(None, current)
+        for col in cols:
+            col.values = rows[col.name]
+
+        data = omero.grid.Data()
+        data.columns = cols
+        data.rowNumbers = rowNumbers
+        data.lastModification = self.__stamp
+        return data
+    readCoordinates = stamped(readCoordinates)
+
+    #
+    # Lifecycle methods
+    #
+
+    def check(self):
+        return False
+
+    def cleanup(self):
+        self.__log.info("Cleaning storage: %s" % self.__hdf_path)
+        if self.__mea:
+            self.__mea.flush()
+            self.__mea = None
+        if self.__ome:
+            self.__ome = None
+        if self.__hdf_file:
+            HDFLIST.remove(self.__hdf_path, self.__hdf_file)
+        self.__hdffile = None
+    cleanup = locked(cleanup)
+
+# End class HdfStorage
+
+
+class TableI(omero.grid.Table, omero.util.Servant):
+    """
+    Spreadsheet implementation based on pytables.
+    """
+
+    def __init__(self, storage):
+        omero.util.Servant.__init__(self)
+        self.storage = storage
+        self.storage.incr(self)
+        self.stamp = time.time()
+
+    def check(self):
+        """
+        Called periodically to check the resource is alive. Returns
+        False if this resource can be cleaned up. (Resources API)
+        """
+        self.logger.debug("Checking %s" % self)
+        return False
+
+    def cleanup(self):
+        """
+        Decrements the counter on the held storage to allow it to
+        be cleaned up.
+        """
+        if self.storage:
+            self.storage.decr(self)
+            self.storage = None
+
+    def __str__(self):
+        if hasattr(self, "uuid"):
+            return "Table-%s" % self.uuid
+        else:
+            return "Table-uninitialized"
+
+    # TABLES READ API ============================
+
+    def getOriginalFile(self, current = None):
+        return self.file_obj
+    getOriginalFile = remoted(getOriginalFile)
+
+    def getHeaders(self, current = None):
+        return self.storage.cols(None, current)
+    getHeaders = remoted(getHeaders)
+
+    def getMetadata(self, current = None):
+        return self.storage.meta()
+    getMetadata = remoted(getMetadata)
 
     def getNumberOfRows(self, current = None):
-        return self.storage.mea.nrows
+        return self.storage.rows()
+    getNumberOfRows = remoted(getNumberOfRows)
 
     def getWhereList(self, condition, variables, start, stop, step, current = None):
         if stop == 0:
             stop = None
         if step == 0:
             step = None
-        return self.storage.mea.getWhereList(condition, variables, None, start, stop, step)
+        return self.storage.getWhereList(self.stamp, condition, variables, None, start, stop, step)
+    getWhereList = remoted(getWhereList)
 
     def readCoordinates(self, rowNumbers, current = None):
-        rows = self.strage.mea.readCoordinates(rowNumbers)
-        cols = self.getHeaders(current)
-        descr = rows.dtype.descr
-        for i in range(len(descr)):
-            cols[i].values = rows[i]
-
-        data = omero.grid.Data()
-        data.lastModification = self.lastModification
-        data.rowNumbers = rowNumbers
-        data.columns = cols
-        return data
+        return self.storage.readCoordinates(self.stamp, rowNumbers, current)
+    readCoordinates = remoted(readCoordinates)
 
     # TABLES WRITE API ===========================
 
+    def initialize(self, cols, current = None):
+        self.storage.initialize(cols)
+    initialize = remoted(initialize)
+
     def addColumn(self, col, current = None):
         raise omero.ApiUsageException(None, None, "NYI")
+    addColumn = remoted(addColumn)
 
     def addData(self, cols, current = None):
-        pass
+        self.storage.append(cols)
+    addData = remoted(addData)
 
 
 class TablesI(omero.grid.Tables, omero.util.Servant):
@@ -241,8 +432,19 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
     resource for obtaining omero.grid.Table proxies.
     """
 
-    def __init__(self):
+    def __init__(self,\
+        table_cast = omero.grid.TablePrx.uncheckedCast,\
+        internal_repo_cast = omero.grid.InternalRepositoryPrx.checkedCast):
+
         omero.util.Servant.__init__(self)
+
+        # Storing these methods, mainly to allow overriding via
+        # test methods. Static methods are evil.
+        self._table_cast = table_cast
+        self._internal_repo_cast = internal_repo_cast
+
+        self.__lock = threading.RLock()
+        self.__stores = []
         self._get_dir()
         self._get_uuid()
         self._get_repo()
@@ -273,7 +475,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         the same directory.
         """
         self.sf = omero.util.internal_service_factory()
-        self.resources.add(SessionHolder(self.sf))
+        self.resources.add(omero.util.SessionHolder(self.sf))
         cfg = self.sf.getConfigService()
         self.db_uuid = cfg.getDatabaseUuid()
         self.instance = self.repo_cfg / self.db_uuid
@@ -281,57 +483,39 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
     def _get_repo(self):
         """
         Third step in initialization is to find the repository object
-        for the UUID found in .omero/repository/<db_uuid>
+        for the UUID found in .omero/repository/<db_uuid>, and then
+        create a proxy for the InternalRepository attached to that.
         """
         self.repo_uuid = (self.instance / "repo_uuid").lines()[0].strip()
-        self.repo_obj = self.sf.getQueryService().findByQuery(\
-            "select f from OriginalFile f where sha1 = :uuid",
-            ParametersI().add("uuid",self.repo_uuid))
+        self.repo_obj = self.sf.getQueryService().findByQuery("select f from OriginalFile f where sha1 = :uuid",
+            ParametersI().add("uuid", self.repo_uuid))
+        self.repo_mgr = self.communicator().stringToProxy("InternalRepository-%s" % self.repo_uuid)
+        self.repo_mgr = self._internal_repo_cast(self.repo_mgr)
+        self.repo_svc = self.repo_mgr.getProxy()
 
     def getRepository(self, current = None):
         """
         Returns the Repository object for this Tables server.
         """
         return self.repo_svc
+    getRepository = remoted(getRepository)
 
     def getTable(self, file_obj, current = None):
         """
-        Create and/or register a table servant
+        Create and/or register a table servant.
         """
-        file_obj = self.load_ofile(file_obj.id.val)
-        if file_obj.id.val != self.repo_obj.id.val:
-            return None
 
-        # This might throw based on locking
-        dir_path = omero.utils.long_to_path( self.mount, file_obj.id.val )
-        table = TableI(file_obj, dir_path)
+        # Will throw an exception if not allowed.
+        file_path = self.repo_mgr.getFilePath(file_obj)
 
+        storage = HDFLIST.getOrCreate(file_path)
+        table = TableI(storage)
         self.resources.add(table)
+
         prx = current.adapter.addWithUUID(table)
-        return omero.grid.TablePrx.uncheckedCast(prx)
-
-    def load_ofile(self, id):
-        return self.sf.getQueryService().get("OriginalFile", id)
-
-
-class SessionHolder(object):
-    """
-    Simple session holder to be put into omero.util.Resources
-    """
-
-    def __init__(self, sf):
-        self.sf = sf
-        self.logger = logging.getLogger("omero.tables.SessionHolder")
-
-    def check(self):
-        self.sf.keepAlive(None)
-
-    def cleanup(self):
-        try:
-            self.sf.destroy()
-        except exceptions.Exception, e:
-            self.logger.debug("Exception destroying session: %s", exc_info = 1)
+        return self._table_cast(prx)
+    getTable = remoted(getTable)
 
 if __name__ == "__main__":
-    app = omero.util.Server(TablesI, "TablesAdapter", Ice.Identity("Tables",""))
+    app = omero.util.Server(TablesI, "TablesAdapter", Ice.Identity("Tables", ""))
     pysys.exit(app.main(pysys.argv))
