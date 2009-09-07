@@ -39,6 +39,8 @@ DROP FUNCTION omero_assert_omero4_dev_4();
 INSERT into dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
              values ('OMERO4-DEV',   5,              'OMERO4-DEV',            4);
 
+ insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
+    select ome_nextval('seq_pixelstype'),-35,0,0,0,'bit';
  insert into format (id,permissions,owner_id,group_id,creation_id,value)
      select ome_nextval('seq_format'),-35,0,0,0,'Companion/PNG';
  insert into format (id,permissions,owner_id,group_id,creation_id,value)

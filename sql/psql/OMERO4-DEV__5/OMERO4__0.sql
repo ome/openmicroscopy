@@ -298,6 +298,8 @@ CREATE TRIGGER shape_roi_index_trigger
 
 -- 4D4 --> 4D5
 
+ insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
+    select ome_nextval('seq_pixelstype'),-35,0,0,0,'bit';
  insert into format (id,permissions,owner_id,group_id,creation_id,value)
      select ome_nextval('seq_format'),-35,0,0,0,'Companion/PNG';
  insert into format (id,permissions,owner_id,group_id,creation_id,value)

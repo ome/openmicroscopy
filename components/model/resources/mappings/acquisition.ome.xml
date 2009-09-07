@@ -669,7 +669,7 @@
 	<enum id="ome.model.enums.PixelsType">
 		<!-- Note: a combination of the objects PixelTypes and
 		     ExtendedPixelTypes from the model -->
-		<!-- Note: 'bit' is not implemented at present -->
+		<entry name="bit"/>
 		<entry name="int8"/>
 		<entry name="int16"/>
 		<entry name="int32"/>

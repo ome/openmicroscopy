@@ -197,6 +197,8 @@ insert into medium (id,permissions,owner_id,group_id,creation_id,value)
 insert into medium (id,permissions,owner_id,group_id,creation_id,value)
     select ome_nextval('seq_medium'),-35,0,0,0,'Unknown';
 insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
+    select ome_nextval('seq_pixelstype'),-35,0,0,0,'bit';
+insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
     select ome_nextval('seq_pixelstype'),-35,0,0,0,'int8';
 insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
     select ome_nextval('seq_pixelstype'),-35,0,0,0,'int16';
