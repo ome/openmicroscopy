@@ -119,6 +119,7 @@ public interface Registry {
             }
 
             while (tryCount < retries) {
+                
                 try {
                     Map<String, String> ctx = new HashMap<String, String>();
                     ctx.put("omero.client.uuid", client_uuid);
@@ -129,15 +130,27 @@ public interface Registry {
                     SessionPrx sf = blitz.create(user, null, ctx);
                     // Group currently unused.
                     return omero.api.ServiceFactoryPrxHelper.checkedCast(sf);
+                } catch (Ice.ObjectAdapterDeactivatedException oade) {
+                    // Server is going down. wait an interval and this may have
+                    // been shutdown, too.
+                    excpt = oade;
                 } catch (Exception e) {
-                    tryCount += 1;
                     log.info("Failed to get session on attempt " + tryCount);
+                    tryCount += 1;
                     excpt = e;
-                    Thread.sleep(interval);
                 }
+
+                tryCount += 1;
+
+                try {
+                    Thread.sleep(interval*1000);
+                } catch (InterruptedException ie) {
+                    // pass;
+                }
+
             }
 
-            log.warn("Reason: " + excpt);
+            log.warn("Failed to get internal service factory", excpt);
             throw excpt;
 
         }
