@@ -14,9 +14,15 @@ type hierarchy which know how to convert themselves
 to PyTables types.
 """
 
-import omero, Ice, numpy
+import omero, Ice
 
-tables = __import__("tables") # Pytables
+try:
+    import numpy
+    tables = __import__("tables") # Pytables
+    has_pytables = True
+except ImportError:
+    has_pytables = False
+
 
 def columns2definition(cols):
     """
