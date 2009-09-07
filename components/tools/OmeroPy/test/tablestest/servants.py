@@ -11,7 +11,7 @@
 import Ice
 import exceptions
 import omero, omero.tables
-import unittest, os, logging
+import unittest, sys, os, logging
 
 from omero.columns import *
 from path import path
@@ -253,5 +253,10 @@ def test_suite():
     return 1
 
 if __name__ == '__main__':
-    unittest.main()
-
+    if "profile" in sys.argv:
+        sys.argv.remove("profile")
+        import cProfile
+        cProfile.run("unittest.main()", sort=3)
+        # stats.strip_dirs().sort_stats('time').print_stats(20)
+    else:
+        unittest.main()

@@ -9,18 +9,18 @@ package ome.testing;
 // Java imports
 
 // Third-party libraries
-import org.jmock.Mock;
-
-// Application-internal dependencies
 import ome.api.IAdmin;
 import ome.api.IAnalysis;
-import ome.api.IPixels;
+import ome.api.IConfig;
 import ome.api.IContainer;
+import ome.api.IPixels;
 import ome.api.IQuery;
 import ome.api.ITypes;
 import ome.api.IUpdate;
 import ome.system.ServiceFactory;
 import omeis.providers.re.RenderingEngine;
+
+import org.jmock.Mock;
 
 /**
  * <a href="http://jmock.org">JMock'ed</a> ServiceFactory whose public fields
@@ -72,6 +72,13 @@ public class MockServiceFactory extends ServiceFactory {
         return (IPixels) mockPixels.proxy();
     }
 
+    public Mock mockConfig = new Mock(IConfig.class);
+
+    @Override
+    public IConfig getConfigService() {
+        return (IConfig) mockConfig.proxy();
+    }
+    
     public Mock mockContainer = new Mock(IContainer.class);
 
     @Override

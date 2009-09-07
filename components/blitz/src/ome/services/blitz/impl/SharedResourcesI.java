@@ -41,7 +41,6 @@ import omero.model.Job;
 import omero.model.JobStatus;
 import omero.model.JobStatusI;
 import omero.model.OriginalFile;
-import omero.model.Repository;
 import omero.util.IceMapper;
 
 import org.hibernate.Session;
@@ -129,6 +128,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
         return null;
     }
 
+    static String QUERY = "select o from OriginalFile o where o.format.value = 'Repository'";
+
     @SuppressWarnings("unchecked")
     public RepositoryMap repositories(Current current) throws ServerError {
 
@@ -137,21 +138,21 @@ public class SharedResourcesI extends AbstractAmdServant implements
         // might need to cache the found repositories.
 
         IceMapper mapper = new IceMapper();
-        List<Repository> objs = (List<Repository>) mapper
-                .map((List<Filterable>) sf.executor.execute(sf.executor
-                        .principal(), new Executor.SimpleWork(this,
-                        "acquireRepositories") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        return sf.getQueryService().findAll(
-                                ome.model.meta.Repository.class, null);
-                    }
-                }));
+        List<OriginalFile> objs = (List<OriginalFile>) mapper
+                .map((List<Filterable>) sf.executor.execute(sf.principal,
+                        new Executor.SimpleWork(this, "acquireRepositories") {
+                            @Transactional(readOnly = true)
+                            public Object doWork(Session session,
+                                    ServiceFactory sf) {
+                                return sf.getQueryService().findAllByQuery(
+                                        QUERY, null);
+                            }
+                        }));
 
         InternalRepositoryPrx[] repos = registry.lookupRepositories();
 
         RepositoryMap map = new RepositoryMap();
-        map.descriptions = new ArrayList<Repository>();
+        map.descriptions = new ArrayList<OriginalFile>();
         map.proxies = new ArrayList<RepositoryPrx>();
 
         List<Long> found = new ArrayList<Long>();
@@ -160,7 +161,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
                 continue;
             }
             try {
-                Repository desc = i.getDescription();
+                OriginalFile desc = i.getDescription();
                 RepositoryPrx proxy = i.getProxy();
                 map.descriptions.add(desc);
                 map.proxies.add(proxy);
@@ -170,7 +171,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
             }
         }
 
-        for (Repository r : objs) {
+        for (OriginalFile r : objs) {
             if (!found.contains(r.getId().getValue())) {
                 map.descriptions.add(r);
                 map.proxies.add(null);
@@ -180,14 +181,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
         return map;
     }
 
-    @SuppressWarnings("unchecked")
-    public TablePrx newTable(final Repository repo, String path,
-            Current __current) throws ServerError {
-
-        if (repo == null) {
-            throw new ValidationException(null, null,
-                    "repo argument cannot be null.");
-        }
+    public TablePrx newTable(final long repo, String path, Current __current)
+            throws ServerError {
 
         // Okay. All's valid.
         InternalRepositoryPrx[] repos = registry.lookupRepositories();
@@ -196,10 +191,14 @@ public class SharedResourcesI extends AbstractAmdServant implements
                 new RepeatTask<InternalRepositoryPrx, RepositoryPrx>() {
                     public RepositoryPrx lookupService(
                             InternalRepositoryPrx server) {
-                        final Repository description = server.getDescription();
-                        if (description.getId().getValue() == repo.getId()
-                                .getValue()) {
-                            return server.getProxy();
+                        try {
+                            OriginalFile description = server.getDescription();
+                            RepositoryPrx prx = server.getProxy();
+                            if (description.getId().getValue() == repo) {
+                                return prx;
+                            }
+                        } catch (ServerError e) {
+                            // fall through to null
                         }
                         return null;
                     }
@@ -238,8 +237,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         // Okay. All's valid.
         TablesPrx[] tables = registry.lookupTables();
-        TablePrx tablePrx = (TablePrx) repeatLookup(Arrays.asList(tables),
-                seconds, new RepeatTask<TablesPrx, TablePrx>() {
+        TablePrx tablePrx = (TablePrx) repeatLookup(Arrays.asList(tables), 60,
+                new RepeatTask<TablesPrx, TablePrx>() {
                     public TablePrx lookupService(TablesPrx server) {
                         return server.getTable(file);
                     }

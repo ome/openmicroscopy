@@ -32,14 +32,28 @@ module omero {
 
         interface Repository {
 
+            // Return the OriginalFile descriptor for this Repository. It will have
+            // the path "/"
+            omero::model::OriginalFile root() throws ServerError;
+
             //
             // Basic directory listing methods. This needs to be flushed out.
             // Possibly OriginalFile map or some special structure, since we
             // need to know what is an original file and what is not yet.
             //
+
+            // TODO should we return OriginalFiles here for acmTime, etc.
             omero::api::StringSet list(string path) throws ServerError;
             omero::api::StringSet listDirs(string path) throws ServerError;
             omero::api::StringSet listFiles(string path) throws ServerError;
+
+            // These list methods provide only registered files
+            omero::api::OriginalFileList listKnown(string path) throws ServerError;
+            omero::api::OriginalFileList listKnownDirs(string path) throws ServerError;
+            omero::api::OriginalFileList listKnownFiles(string path) throws ServerError;
+
+            // Or do we use an options object here?
+
 
             /**
              * Create an OriginalFile in the database for the given path.
@@ -96,15 +110,16 @@ module omero {
             //
             // Provides all the stateful services dealing with binary data
             //
-            omero::api::RawFileStore*    createRawFileStore(omero::model::OriginalFile file);
-            omero::api::RawPixelsStore*  createRawPixelsStore(omero::model::OriginalFile file);
-            omero::api::RenderingEngine* createRenderingEngine(omero::model::OriginalFile file);
-            omero::api::ThumbnailStore*  createThumbnailStore(omero::model::OriginalFile file);
+            omero::api::RawFileStore*    createRawFileStore(omero::model::OriginalFile file) throws ServerError;
+            omero::api::RawPixelsStore*  createRawPixelsStore(omero::model::OriginalFile file) throws ServerError;
+            omero::api::RenderingEngine* createRenderingEngine(omero::model::OriginalFile file) throws ServerError;
+            omero::api::ThumbnailStore*  createThumbnailStore(omero::model::OriginalFile file) throws ServerError;
 
             // Other repository methods
-            omero::model::OriginalFile   getDescription();
-            Repository*                  getProxy(); // If this returns null, user will have to wait
+            omero::model::OriginalFile   getDescription() throws ServerError;
+            Repository*                  getProxy() throws ServerError;  // If this returns null, user will have to wait
 
+            string                       getFilePath(omero::model::OriginalFile file) throws ServerError;
 
         };
 

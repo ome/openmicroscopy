@@ -455,8 +455,8 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         directory. If this is not created, then a required server has
         not started, and so this instance will not start.
         """
-        wait = int(self.communicator().getProperties().getPropertyWithDefault("omero.repo.wait", "1"))
-        self.repo_dir = self.communicator().getProperties().getProperty("omero.repo.dir")
+        wait = int(self.communicator.getProperties().getPropertyWithDefault("omero.repo.wait", "1"))
+        self.repo_dir = self.communicator.getProperties().getProperty("omero.repo.dir")
         self.repo_cfg = path(self.repo_dir) / ".omero" / "repository"
         start = time.time()
         while not self.repo_cfg.exists() and wait < (time.time() - start):
@@ -489,7 +489,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         self.repo_uuid = (self.instance / "repo_uuid").lines()[0].strip()
         self.repo_obj = self.sf.getQueryService().findByQuery("select f from OriginalFile f where sha1 = :uuid",
             ParametersI().add("uuid", self.repo_uuid))
-        self.repo_mgr = self.communicator().stringToProxy("InternalRepository-%s" % self.repo_uuid)
+        self.repo_mgr = self.communicator.stringToProxy("InternalRepository-%s" % self.repo_uuid)
         self.repo_mgr = self._internal_repo_cast(self.repo_mgr)
         self.repo_svc = self.repo_mgr.getProxy()
 

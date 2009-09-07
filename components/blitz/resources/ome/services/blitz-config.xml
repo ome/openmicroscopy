@@ -59,7 +59,7 @@
     which run standalone, but not for this bean.
     </description>
     <property name="jobDetail" ref="repositoryTakeoverRun" />
-    <property name="repeatInterval" value="120" />
+    <property name="repeatInterval" value="60000" /><!-- millis -->
   </bean>
 
   <!-- Redirector configuration -->

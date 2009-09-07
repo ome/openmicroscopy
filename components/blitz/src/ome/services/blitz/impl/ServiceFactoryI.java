@@ -389,7 +389,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // ~ Other interface methods
     // =========================================================================
 
-    public SharedResourcesPrx shareResources(Current current) throws ServerError {
+    public SharedResourcesPrx sharedResources(Current current) throws ServerError {
         return SharedResourcesPrxHelper.uncheckedCast(createByName(
                 SHAREDRESOURCES.value, current));
     }

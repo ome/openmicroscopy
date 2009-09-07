@@ -151,6 +151,9 @@ public interface TopicManager extends ApplicationListener {
                         .checkedCast(objectPrx);
                 candidates = query
                         .findAllObjectsByType("::IceStorm::TopicManager");
+            } catch (Ice.CommunicatorDestroyedException cde) {
+                // Nothing we can do. Return null;
+                return null;
             } catch (Exception e) {
                 log.warn("Error querying for topic manager", e);
             }

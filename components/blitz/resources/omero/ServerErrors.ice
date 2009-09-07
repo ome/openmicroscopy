@@ -230,6 +230,14 @@ module omero
     {
     };
 
+  /**
+   * Lock cannot be acquired and has timed out.
+   */
+  exception LockTimeout extends ConcurrencyException
+    {
+        int seconds; // Informational field on how long timeout was
+    };
+
   // API USAGE
 
   exception ApiUsageException extends ServerError
@@ -239,7 +247,7 @@ module omero
   exception OverUsageException extends ApiUsageException
     {
     };
-    
+
   exception QueryException extends ApiUsageException
     {
     };

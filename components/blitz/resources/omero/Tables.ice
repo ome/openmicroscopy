@@ -84,9 +84,6 @@ module omero {
             omero::model::OriginalFile
                 getOriginalFile();
 
-            bool
-                isWrite();
-
             /**
              * Returns empty columns.
              **/

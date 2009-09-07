@@ -163,6 +163,7 @@ class Server(Ice.Application):
                 of.register(self.communicator())
             self.adapter = self.communicator().createObjectAdapter(self.adapter_name)
             self.impl = self.impl_class()
+            self.impl.communicator = self.communicator()
             self.impl.serverid = self.communicator().getProperties().getProperty("Ice.ServerId")
 
             self.adapter.add(self.impl, self.identity)

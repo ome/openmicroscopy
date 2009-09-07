@@ -49,7 +49,7 @@ module omero {
              * the same semantics as the openTable method.
              */
             omero::grid::Table*
-                newTable(Repository* repo, string path)
+                newTable(long repoId, string path)
                 throws ServerError;
 
             /**

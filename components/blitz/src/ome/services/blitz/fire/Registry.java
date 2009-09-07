@@ -119,7 +119,7 @@ public interface Registry {
             }
 
             while (tryCount < retries) {
-                
+
                 try {
                     Map<String, String> ctx = new HashMap<String, String>();
                     ctx.put("omero.client.uuid", client_uuid);
@@ -143,7 +143,7 @@ public interface Registry {
                 tryCount += 1;
 
                 try {
-                    Thread.sleep(interval*1000);
+                    Thread.sleep(interval * 1000);
                 } catch (InterruptedException ie) {
                     // pass;
                 }
@@ -194,10 +194,15 @@ public interface Registry {
          */
         public void addObject(Ice.ObjectPrx obj) throws Exception {
             IceGrid.AdminSessionPrx session = getAdminSession();
+            IceGrid.AdminPrx admin = session.getAdmin();
+            String str = ic.identityToString(obj.ice_getIdentity());
             try {
-                session.getAdmin().addObject(obj);
-                log.info("Added " + ic.identityToString(obj.ice_getIdentity())
+                admin.addObject(obj);
+                log.info("Added " + str 
                         + " to registry");
+            } catch (IceGrid.ObjectExistsException e) {
+                admin.updateObject(obj);
+                log.info("Updated " + str + " in registry");
             } finally {
                 session.destroy();
             }
