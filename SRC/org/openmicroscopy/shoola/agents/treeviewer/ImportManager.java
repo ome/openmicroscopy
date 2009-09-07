@@ -51,6 +51,7 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.util.FileImportComponent;
+import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -266,32 +267,32 @@ public class ImportManager
 	 * @param files The files to import.
 	 * @return See above.
 	 */
-	public Map<File, StatusLabel> initialize(List<Object> files)
+	public List<ImportObject> initialize(Map<File, String> files)
 	{
-		Map<File, StatusLabel> map = new LinkedHashMap<File, StatusLabel>();
+		List<ImportObject> list = new ArrayList<ImportObject>();
 		if (files == null) return null;
 		total = 0;
 		toImport.clear();
 		components.clear();
-		Iterator i = files.iterator();
+		Entry entry;
+		Iterator i = files.entrySet().iterator();
 		FileImportComponent c;
 		File f;
-		Object ho;
+		ImportObject obj;
 		while (i.hasNext()) {
-			ho = i.next();
-			if (ho instanceof File) {
-				f = (File) ho;
-				toImport.add(f);
-				c = new FileImportComponent(this, f);
-				map.put(f, c.getStatus());
-				c.addPropertyChangeListener(
-						FileImportComponent.SEND_FILE_PROPERTY, this);
-				components.put(f.getAbsolutePath(), c);
-			}
+			entry = (Entry) i.next();
+			f = (File) entry.getKey();
+			toImport.add(f);
+			c = new FileImportComponent(this, f);
+			obj = new ImportObject(f, c.getStatus(), (String) entry.getValue());
+			list.add(obj);
+			c.addPropertyChangeListener(
+					FileImportComponent.SEND_FILE_PROPERTY, this);
+			components.put(f.getAbsolutePath(), c);
 		}
 		total = toImport.size();
 		layoutEntries();
-		return map;
+		return list;
 	}
 	
 	/**

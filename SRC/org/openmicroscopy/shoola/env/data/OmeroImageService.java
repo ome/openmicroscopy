@@ -387,13 +387,13 @@ public interface OmeroImageService
 	 * @param groupID	The id of the group.
 	 * @param archived 	Pass <code>true</code> to archived the files, 
 	 * 					<code>false</code> otherwise.
-	 * @param folder	The number of folder before the name or <code>-1</code>.
+	 * @param name		The name of the imported image.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.                            
 	 */
 	public Object importImage(DataObject container, File image, 
 			StatusLabel status, long userID, long groupID, boolean archived,
-			int folder)
+			String name)
 		throws ImportException;
 	
 	/**

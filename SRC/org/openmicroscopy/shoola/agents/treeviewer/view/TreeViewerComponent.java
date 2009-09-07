@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
@@ -79,6 +78,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
@@ -2229,6 +2229,32 @@ class TreeViewerComponent
 		if (model.getState() == DISCARDED) return;
 		Browser browser = model.getSelectedBrowser();
 		int type = browser.getBrowserType();
+		List<TreeImageDisplay> parents = new ArrayList<TreeImageDisplay>();
+		TreeImageDisplay node = null;
+		if (type == Browser.PROJECT_EXPLORER || 
+				type == Browser.SCREENS_EXPLORER) {
+			//File chooser import.
+			node = browser.getLastSelectedDisplay();
+		} else return;
+		Map<File, String> files = toImport.getFiles();
+		if (files == null || files.size() == 0) return;
+		if (importManager == null) {
+			importManager = new ImportManager();
+			importManager.addPropertyChangeListener(controller);
+		}
+		List<ImportObject> list = importManager.initialize(files);
+		if (!view.isImporterVisible())
+			view.setImporterVisibility(importManager.getUIDelegate(), true);
+		view.setImportStatus("Importing...", true);
+		if (node == null)
+			model.importFiles(parents, list, toImport.isArchived());
+		else {
+			model.importFiles(node, list, toImport.isArchived());
+		}
+		/*
+		if (model.getState() == DISCARDED) return;
+		Browser browser = model.getSelectedBrowser();
+		int type = browser.getBrowserType();
 		List<Object> l = new ArrayList<Object>();
 		int total = 0;
 		List<File> files = toImport.getFiles();
@@ -2291,6 +2317,7 @@ class TreeViewerComponent
 			model.importFiles(node, map, toImport.isArchived(), 
 					toImport.getNumberOfFolders());
 		}
+		*/
 	}
 
 	/**

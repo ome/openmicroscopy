@@ -46,8 +46,6 @@ import java.util.Set;
 
 import javax.swing.filechooser.FileSystemView;
 
-
-
 //Third-party libraries
 import Ice.ConnectionLostException;
 
@@ -59,7 +57,6 @@ import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 //import Ice.Communicator;
 import ome.conditions.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
@@ -4384,12 +4381,12 @@ class OMEROGateway
 	 * @param file The file to import.
 	 * @param archived 	Pass <code>true</code> to archived the files, 
 	 * 					<code>false</code> otherwise.
-	 * @param folder	The number of folder before the name or <code>-1</code>.
+	 * @param name		The name to give to the imported image.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
 	Object importImage(DataObject container, File file, StatusLabel status,
-			boolean archived, int folder)
+			boolean archived, String name)
 		throws ImportException
 	{
 		try {
@@ -4398,37 +4395,10 @@ class OMEROGateway
 			importLibrary.addObserver(status);
 			if (container != null) 
 				importLibrary.setTarget(container.asIObject());
-			String name = file.getName();
-			if (folder > 0) {
-				//prepare the name
-				String path = file.getAbsolutePath();
-				String[] l = UIUtilities.splitString(path);
-		    	String extension = null;
-		    	if (path.endsWith("\\")) extension = "\\";
-		    	else if (path.endsWith("/")) extension = "/";
-		    	String start = null;
-		    	if (path.startsWith("\\")) start = "\\";
-		    	else if (path.startsWith("/")) start = "/";
-		    	String sep = UIUtilities.getStringSeparator(path);
-		    	if (sep == null) sep = "";
-		    	String text = "";
-		    	if (l != null && l.length > 1) {
-		    		int n = 0;
-		    		if (folder < l.length) n = l.length-folder-2;
-		    		if (n < 0) n = 0;
-		    		int m = l.length-1;
-		    		for (int i = l.length-1; i > n; i--) {
-		    			if (i == m) text = l[i];
-		    			else text = l[i]+sep+text;
-					}
-		    		if (n == 0 && start != null) text = start+text;
-		    		if (extension != null) text = text+extension;
-		    		name = text;
-		    	}
-			}
+			if (name != null && name.trim().length() == 0) name = null;
 			List<Pixels> pixels = 
 				importLibrary.importImage(file, 0, 0, 1, name, null, 
-					archived, null);
+					archived, true, null);
 			if (pixels != null && pixels.size() > 0) {
 				Pixels p = pixels.get(0);
 				long id = p.getImage().getId().getValue();

@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -33,6 +34,7 @@ import java.util.Map.Entry;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -62,7 +64,7 @@ public class ImagesImporter
     private BatchCall   			loadCall;
     
     /** Collection of objects to import. */
-    private Map<File, StatusLabel> images;
+    private List<ImportObject> images;
     
     /** The id of the user currently logged in. */
     private long 		 			userID;
@@ -88,16 +90,17 @@ public class ImagesImporter
     /** 
      * Imports the file.
      * 
-     * @param f The file to import.
+     * @param f 	 The file to import.
      * @param status The element indicating the status of the import.
+     * @param name	 The name of the imported image.
      */
-    private void importFile(File f, StatusLabel status)
+    private void importFile(File f, StatusLabel status, String name)
     {
     	partialResult = new HashMap<File, Object>();
     	OmeroImageService os = context.getImageService();
     	try {
     		Object ho = os.importImage(container, f, status, userID, groupID,
-    				archived, folder);
+    				archived, name);
     		partialResult.put(f, ho);
 		} catch (Exception e) {
 			partialResult.put(f, e);
@@ -138,15 +141,16 @@ public class ImagesImporter
     	if (loadCall != null) {
     		add(loadCall); 
     	} else {
-    		Entry entry;
-    		Iterator i = images.entrySet().iterator();
+    		ImportObject io;
+    		Iterator i = images.iterator();
     		File ho;
     		while (i.hasNext()) {
-				entry = (Entry) i.next();
-				final File f = (File) entry.getKey();
-				final StatusLabel label = (StatusLabel) entry.getValue();
+				io = (ImportObject) i.next();
+				final File f = io.getFile();
+				final String name = io.getName();
+				final StatusLabel label = io.getStatus();
 				add(new BatchCall("Importing file") {
-            		public void doCall() { importFile(f, label); }
+            		public void doCall() { importFile(f, label, name); }
             	}); 
 			}
     	}
@@ -185,10 +189,9 @@ public class ImagesImporter
 	 * @param groupID	The id of the group.
 	 * @param archived 	Pass <code>true</code> to archived the files, 
 	 * 					<code>false</code> otherwise.
-	 * @param folder	The number of folder before the name or <code>-1</code>.
      */
-    public ImagesImporter(DataObject container, Map<File, StatusLabel> images, 
-    					long userID, long groupID, boolean archived, int folder)
+    public ImagesImporter(DataObject container, List<ImportObject> images, 
+    					long userID, long groupID, boolean archived)
     {
     	if (images == null || images.size() == 0)
     		throw new IllegalArgumentException("No images to import.");
@@ -197,7 +200,6 @@ public class ImagesImporter
     	this.images = images;
     	this.container = container;
     	this.archived = archived;
-    	this.folder = folder;
     	//loadCall = makeBatchCall(container, images, userID, groupID);
     }
     

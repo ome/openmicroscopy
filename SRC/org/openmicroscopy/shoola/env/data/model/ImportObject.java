@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject
+ * org.openmicroscopy.shoola.env.data.model.ImportObject
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -20,20 +20,19 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.util;
+package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
 import java.io.File;
-import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 
 /**
- * Helper class where parameters required for the imports are stored.
+ * Helper class hosting information about the file to import.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *     <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,41 +44,64 @@ import java.util.Map;
  * </small>
  * @since 3.0-Beta4
  */
-public class ImportableObject
+public class ImportObject
 {
 
-	/** The collection of files to import. */
-	private Map<File, String> 	files;
+	/** The file to import. */
+	private File 		file;
 	
-	/** Flag indicating to archive the files or not. */
-	private boolean 	archived;
+	/** The object displaying the import status. */
+	private StatusLabel status;
+	
+	/** The name within the system to give to the file. */
+	private String		name;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param files 	The collection of files to import.
-	 * @param archived 	Pass <code>true</code> to archive the files, 
-	 * 					<code>false</code> otherwise.
+	 * @param file 		The file to import.
+	 * @param status 	The object displaying the import status.
 	 */
-	ImportableObject(Map<File, String> files, boolean archived)
+	public ImportObject(File file, StatusLabel status)
 	{
-		this.files = files;
-		this.archived = archived;
+		this(file, status, null);
 	}
 	
 	/**
-	 * Returns the collection of files to import.
+	 * Creates a new instance.
 	 * 
-	 * @return See above.
+	 * @param file 		The file to import.
+	 * @param status 	The object displaying the import status.
+	 * @param name		The name of the file.
 	 */
-	public Map<File, String> getFiles() { return files; }
+	public ImportObject(File file, StatusLabel status, String name)
+	{
+		if (file == null)
+			throw new IllegalArgumentException("No file to import.");
+		this.file = file;
+		this.name = name;
+		this.status = status;
+	}
 	
 	/**
-	 * Returns <code>true</code> to archive the files, 
-	 * <code>false</code> otherwise.
+	 * Returns the file to import.
 	 * 
 	 * @return See above.
 	 */
-	public boolean isArchived() { return archived; }
+	public File getFile() { return file; }
+	
+	/** 
+	 * Returns the name to give to the imported image.
+	 * 
+	 * @return See above.
+	 */
+	public String getName() { return name; }
+	
+	/**
+	 * Returns the component indicating the status of the import.
+	 * 
+	 * @return See above.
+	 */
+	public StatusLabel getStatus() { return status; }
 	
 }

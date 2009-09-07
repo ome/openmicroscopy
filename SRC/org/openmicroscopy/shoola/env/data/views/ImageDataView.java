@@ -34,6 +34,8 @@ import java.util.Map;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
@@ -251,12 +253,11 @@ public interface ImageDataView
 	 * @param groupID	The id of the group.
 	 * @param archived 	Pass <code>true</code> to archived the files, 
 	 * 					<code>false</code> otherwise.
-	 * @param folder	The number of folder before the name or <code>-1</code>.
 	 * @param observer	Callback handler.
 	 * @return See above.
 	 */
-	public CallHandle importImages(DataObject container, Map<File, StatusLabel>
-		images, long userID, long groupID, boolean archived, int folder,
+	public CallHandle importImages(DataObject container, List<ImportObject>
+		images, long userID, long groupID, boolean archived,
 		AgentEventListener observer);
 
 	/**

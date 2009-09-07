@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -67,9 +66,8 @@ import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -872,13 +870,12 @@ class TreeViewerModel
 	 * @param files 	The files to import.
 	 * @param archived 	Pass <code>true</code> to archived the files, 
 	 * 					<code>false</code> otherwise.
-	 * @param folder	The number of folder before the name or <code>-1</code>.
 	 */
-	void importFiles(List<TreeImageDisplay> nodes, Map<File, StatusLabel> files,
-			boolean archived, int folder)
+	void importFiles(List<TreeImageDisplay> nodes, List<ImportObject> files,
+			boolean archived)
 	{
 		ImagesImporter loader = new ImagesImporter(component, nodes, files,
-			archived, folder);
+			archived);
 		loader.load();
 	}
 	
@@ -889,13 +886,12 @@ class TreeViewerModel
 	 * @param files 	The files to import.
 	 * @param archived 	Pass <code>true</code> to archived the files, 
 	 * 					<code>false</code> otherwise.
-	 * @param folder	The number of folder before the name or <code>-1</code>.
 	 */
-	void importFiles(TreeImageDisplay node, Map<File, StatusLabel> files, 
-			boolean archived, int folder)
+	void importFiles(TreeImageDisplay node, List<ImportObject> files, 
+			boolean archived)
 	{
 		ImagesImporter loader = new ImagesImporter(component, node, files,
-				archived, folder);
+				archived);
 		loader.load();
 	}
 	

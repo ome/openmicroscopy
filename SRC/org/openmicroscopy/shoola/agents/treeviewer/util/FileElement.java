@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject
+ * org.openmicroscopy.shoola.agents.treeviewer.util.FileElement
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -25,15 +25,13 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 //Java imports
 import java.io.File;
-import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /**
- * Helper class where parameters required for the imports are stored.
+ * Hosts information about the file to import.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *     <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,41 +43,52 @@ import java.util.Map;
  * </small>
  * @since 3.0-Beta4
  */
-public class ImportableObject
+class FileElement
 {
 
-	/** The collection of files to import. */
-	private Map<File, String> 	files;
+	/** The file to host. */
+	private File file;
 	
-	/** Flag indicating to archive the files or not. */
-	private boolean 	archived;
+	/** The name of the imported file. */
+	private String name;
 	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param files 	The collection of files to import.
-	 * @param archived 	Pass <code>true</code> to archive the files, 
-	 * 					<code>false</code> otherwise.
-	 */
-	ImportableObject(Map<File, String> files, boolean archived)
+	/** Creates a new instance. */
+	FileElement(File file)
 	{
-		this.files = files;
-		this.archived = archived;
+		if (file == null)
+			throw new IllegalArgumentException("No file set");
+		this.file = file;
 	}
 	
 	/**
-	 * Returns the collection of files to import.
+	 * Returns the name to give to the imported file.
 	 * 
 	 * @return See above.
 	 */
-	public Map<File, String> getFiles() { return files; }
+	String getName()
+	{
+		if (name == null) return file.getAbsolutePath();
+		return name;
+	}
 	
 	/**
-	 * Returns <code>true</code> to archive the files, 
-	 * <code>false</code> otherwise.
+	 * Sets the name to give to the imported file.
+	 * 
+	 * @param name The name to set.
+	 */
+	void setName(String name) { this.name = name; }
+	
+	/** 
+	 * Returns the file hosted by this component.
 	 * 
 	 * @return See above.
 	 */
-	public boolean isArchived() { return archived; }
+	File getFile() { return file; }
+	
+	/** 
+	 * Overridden to return the name to give to the imported file.
+	 * @see Object#toString()
+	 */
+	public String toString() { return getName(); }
 	
 }

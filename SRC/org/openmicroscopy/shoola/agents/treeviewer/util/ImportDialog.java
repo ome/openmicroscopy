@@ -96,6 +96,12 @@ public class ImportDialog
 	/** Action id indicating to refresh the file view. */
 	private static final int	REFRESH = 2;
 	
+	/** Action id indicating to reset the names. */
+	private static final int	RESET = 3;
+	
+	/** Action id indicating to apply the partial names to all. */
+	private static final int	APPLY_TO_ALL = 4;
+	
 	/** The title of the dialog. */
 	private static final String TITLE = "Import";
 	
@@ -109,8 +115,9 @@ public class ImportDialog
 	private static final String END = ".";
 	
 	/** Text of the sub-message. */
-	private static final String SUB_MESSAGE = "File Naming: by default, the " +
-			"name the imported file is the absolute path.";
+	private static final String SUB_MESSAGE = "The name of the file will be, " +
+			"by default, the absolute path. \n You can either edit the name " +
+			"or set the number of directories before the file's name.";
 	
 	/** The approval option the user chose. */
 	private int					option;
@@ -129,6 +136,15 @@ public class ImportDialog
 	
 	/** Button to import the files. */
 	private JButton				refreshButton;
+	
+	/** 
+	 * Resets the name of all files to either the full path
+	 * or the partial name if selected. 
+	 */
+	private JButton				resetButton;
+	
+	/** Apply the partial name to all files. */
+	private JButton				applyToAllButton;
 	
 	/** Box indicating to archive or not the files. */
 	private JCheckBox			archived;
@@ -172,10 +188,12 @@ public class ImportDialog
 		archived = new JCheckBox();
 		archived.setText("Archived files");
 		numberOfFolders = new NumericalTextField();
-		numberOfFolders.setText("1");
+		numberOfFolders.addPropertyChangeListener(this);
+		numberOfFolders.setText("0");
+		numberOfFolders.setColumns(3);
 		numberOfFolders.setEnabled(false);
 		partialName = new JCheckBox();
-		partialName.setText("Partial path. Directories before " +
+		partialName.setText("Partial path: Directories before " +
 				"the file's name:");
 		partialName.addChangeListener(this);
 		chooser = new JFileChooser();
@@ -196,7 +214,7 @@ public class ImportDialog
 			}
 		}
 		*/
-		table = new FileSelectionTable();
+		table = new FileSelectionTable(this);
 		table.addPropertyChangeListener(this);
 		cancelButton = new JButton("Close");
 		cancelButton.setToolTipText("Close the dialog and do not import.");
@@ -211,7 +229,18 @@ public class ImportDialog
 		refreshButton.setToolTipText("Reloads the files view.");
 		refreshButton.setActionCommand(""+REFRESH);
 		refreshButton.addActionListener(this);
-		getRootPane().setDefaultButton(cancelButton);
+		resetButton = new JButton("Reset");
+		resetButton.setToolTipText("Resets the name of all files to either " +
+				"the full path or the partial name if selected.");
+		resetButton.setActionCommand(""+RESET);
+		resetButton.addActionListener(this);
+		applyToAllButton = new JButton("Apply Partial Name");
+		applyToAllButton.setToolTipText("Apply the partial name to " +
+				"all files in the queue.");
+		applyToAllButton.setActionCommand(""+APPLY_TO_ALL);
+		applyToAllButton.addActionListener(this);
+		applyToAllButton.setEnabled(false);
+		//getRootPane().setDefaultButton(cancelButton);
 	}
 	
 	/** 
@@ -223,6 +252,10 @@ public class ImportDialog
 	{
 		JPanel bar = new JPanel();
 		bar.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		bar.add(applyToAllButton);
+		bar.add(Box.createHorizontalStrut(5));
+		bar.add(resetButton);
+		bar.add(Box.createHorizontalStrut(20));
 		bar.add(cancelButton);
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(importButton);
@@ -340,15 +373,9 @@ public class ImportDialog
     	//Set the current directory as the defaults
     	UIUtilities.setDefaultFolder(
     			chooser.getCurrentDirectory().toString());
-    	
-    	int field = -1;
-    	if (partialName.isSelected()) {
-    		Number n = (Number) numberOfFolders.getValueAsNumber();
-        	if (n != null) field = (Integer) n;
-    	}
 
     	ImportableObject object = new ImportableObject(table.getFilesToImport(),
-    			archived.isSelected(), field);
+    			archived.isSelected());
     	firePropertyChange(IMPORT_PROPERTY, null, object);
     	setVisible(false);
     	dispose();
@@ -396,6 +423,45 @@ public class ImportDialog
 		}
 	}
     
+	/**
+	 * Returns the name to display for a file.
+	 * 
+	 * @param fullPath The file's absolute path.
+	 * @return See above.
+	 */
+	String getDisplayedFileName(String fullPath)
+	{
+		if (fullPath == null || !partialName.isSelected()) return fullPath;
+		String[] l = UIUtilities.splitString(fullPath);
+    	String extension = null;
+    	if (fullPath.endsWith("\\")) extension = "\\";
+    	else if (fullPath.endsWith("/")) extension = "/";
+    	String start = null;
+    	if (fullPath.startsWith("\\")) start = "\\";
+    	else if (fullPath.startsWith("/")) start = "/";
+    	String sep = UIUtilities.getStringSeparator(fullPath);
+    	if (sep == null) sep = "";
+    	String text = "";
+    	int folder = -1;
+    	Integer number = (Integer) numberOfFolders.getValueAsNumber();
+    	if (number != null && number >= 0) folder = (Integer) number;
+    	if (folder == -1) return null;
+    	if (l != null && l.length > 1) {
+    		int n = 0;
+    		if (folder < l.length) n = l.length-folder-2;
+    		if (n < 0) n = 0;
+    		int m = l.length-1;
+    		for (int i = l.length-1; i > n; i--) {
+    			if (i == m) text = l[i];
+    			else text = l[i]+sep+text;
+			}
+    		if (n == 0 && start != null) text = start+text;
+    		if (extension != null) text = text+extension;
+    		return text;
+    	}
+    	return null;
+	}
+	
     /** 
      * Creates a new instance.
      * 
@@ -427,13 +493,6 @@ public class ImportDialog
 		table.removeAllFiles();
 	}
 	
-    /**
-     * Returns the collection of files to import.
-     * 
-     * @return See above.
-     */
-    public List<File> getFilesToImport() { return table.getFilesToImport(); }
-    
     /**
      * Shows the chooser dialog. 
      * 
@@ -476,7 +535,12 @@ public class ImportDialog
 		} else if (JFileChooser.SELECTED_FILES_CHANGED_PROPERTY.equals(name)) {
 			File[] files = chooser.getSelectedFiles();
 			table.allowAddition(files != null && files.length > 0);
-		} 
+		} else if (NumericalTextField.TEXT_UPDATED_PROPERTY.equals(name)) {
+			if (partialName.isSelected()) {
+		    	Integer number = (Integer) numberOfFolders.getValueAsNumber();
+		    	if (number != null && number >= 0) table.applyToAll();
+			}
+		}
 	}
 
 	/**
@@ -496,6 +560,12 @@ public class ImportDialog
 			case REFRESH:
 				chooser.rescanCurrentDirectory();
 				chooser.repaint();
+				break;
+			case RESET: 
+				table.resetFilesName();
+				break;
+			case APPLY_TO_ALL:
+				table.applyToAll();
 		}
 	}
 
@@ -505,6 +575,7 @@ public class ImportDialog
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
+		applyToAllButton.setEnabled(partialName.isSelected());
 		numberOfFolders.setEnabled(partialName.isSelected());
 	}
 	

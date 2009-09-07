@@ -34,6 +34,8 @@ import java.util.Map;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
@@ -275,15 +277,15 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#importImages(DataObject, Map, long, long, boolean, int, 
+     * @see ImageDataView#importImages(DataObject, List, long, long, boolean, int, 
      * AgentEventListener)
      */
 	public CallHandle importImages(DataObject container, 
-			Map<File, StatusLabel> images, long userID, long groupID, boolean
-			archived, int folder, AgentEventListener observer)
+			List<ImportObject> images, long userID, long groupID, boolean
+			archived, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ImagesImporter(container, images, userID, 
-				groupID, archived, folder);
+				groupID, archived);
 		return cmd.exec(observer);
 	}
 

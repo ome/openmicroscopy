@@ -28,8 +28,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
@@ -44,7 +46,6 @@ import javax.swing.table.TableColumn;
 import layout.TableLayout;
 
 //Application-internal dependencies
-import omero.IllegalArgumentException;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -112,6 +113,9 @@ class FileSelectionTable
 	/** The table displaying the collection to files to import. */
 	private JXTable				table;
 	
+	/** Reference to the model. */
+	private ImportDialog 		model;
+	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
@@ -136,10 +140,10 @@ class FileSelectionTable
 		Object[][] data = new Object[0][0];
 		table = new JXTable(new FileTableModel(data, COLUMNS));
 		TableColumn tc = table.getColumnModel().getColumn(SELECTED_INDEX);
-		
 		final BooleanCellRenderer check = new BooleanCellRenderer();
 		tc.setCellRenderer(check);
 		tc.setCellEditor(new DefaultCellEditor(check));
+		
 		Highlighter h = HighlighterFactory.createAlternateStriping(
 				UIUtilities.BACKGROUND_COLOUR_EVEN, 
 				UIUtilities.BACKGROUND_COLOUR_ODD);
@@ -212,14 +216,21 @@ class FileSelectionTable
 		removeButton.setEnabled(value);
 		removeAllButton.setEnabled(value);
 		if (value) {
-			int[] rows = table.getSelectedRows();
+			//int[] rows = table.getSelectedRows();
 			//removeButton.setEnabled(rows != null && rows.length > 0);
 		}
 	}
 	
-	/** Creates a new instance. */
-	FileSelectionTable()
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param model The model.
+	 */
+	FileSelectionTable(ImportDialog model)
 	{
+		if (model == null)
+			throw new IllegalArgumentException("No model.");
+		this.model = model;
 		initComponents();
 		builGUI();
 	}
@@ -237,17 +248,16 @@ class FileSelectionTable
 	 * 
 	 * @return See above.
 	 */
-	List<File> getFilesToImport()
+	Map<File, String> getFilesToImport()
 	{
-		List<File> files = new ArrayList<File>();
+		Map<File, String> files = new HashMap<File, String>();
 		int n = table.getRowCount();
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		FileElement element;
-		
 		for (int i = 0; i < n; i++) {
 			element = (FileElement) model.getValueAt(i, FILE_INDEX);
 			if ((Boolean) model.getValueAt(i, SELECTED_INDEX))
-				files.add(element.getFile());
+				files.put(element.getFile(), element.getName());
 		}
 		return files;
 	}
@@ -282,26 +292,55 @@ class FileSelectionTable
 		addButton.setEnabled(false);
 		enabledControl(true);
 		File f;
-		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		//Check if the file has already 
 		List<String> inQueue = new ArrayList<String>();
 		FileElement element;
 		for (int i = 0; i < table.getRowCount(); i++) {
-			element = (FileElement) model.getValueAt(i, FILE_INDEX);
+			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
 			inQueue.add(element.getFile().getAbsolutePath());
 		}
 		Iterator<File> i = files.iterator();
 		while (i.hasNext()) {
 			f = i.next();
 			if (!inQueue.contains(f.getAbsolutePath())) {
-				model.insertRow(table.getRowCount(), 
-						new Object[] {new FileElement(f), 
-					Boolean.valueOf(true)});
+				element = new FileElement(f);
+				//set the name.
+				element.setName(model.getDisplayedFileName(
+						f.getAbsolutePath()));
+				dtm.insertRow(table.getRowCount(), 
+						new Object[] {element, Boolean.valueOf(true)});
 			}
 		}
-		//table.repaint();
 	}
 
+	/**Resets the names of all selected files. */
+	void resetFilesName()
+	{
+		int n = table.getRowCount();
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		FileElement element;
+		for (int i = 0; i < n; i++) {
+			element = (FileElement) model.getValueAt(i, FILE_INDEX);
+			element.setName(element.getFile().getAbsolutePath());
+		}
+		table.repaint();
+	}
+	
+	/** Applies the partial names to all the files. */
+	void applyToAll()
+	{
+		int n = table.getRowCount();
+		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+		FileElement element;
+		for (int i = 0; i < n; i++) {
+			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
+			element.setName(model.getDisplayedFileName(
+					element.getFile().getAbsolutePath()));
+		}
+		table.repaint();
+	}
+	
 	/**
 	 * Adds or removes files from the import queue.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -321,37 +360,7 @@ class FileSelectionTable
 				removeAllFiles();
 		}
 	}
-	
-	/** Helper inner class used to store the file. */
-	class FileElement 
-	{
-		
-		/** The file to host. */
-		private File file;
-		
-		/** Creates a new instance. */
-		FileElement(File file)
-		{
-			if (file == null)
-				throw new IllegalArgumentException("No file set");
-			this.file = file;
-		}
-		
-		/** 
-		 * Returns the file hosted by this component.
-		 * 
-		 * @return See above.
-		 */
-		File getFile() { return file; }
-		
-		/** 
-		 * Overridden to return the name of the file and not the full path.
-		 * @see Object#toString()
-		 */
-		public String toString() { return file.getName(); }
-		
-	}
-	
+
 	/** Inner class so that some cells cannot be edited. */
 	class FileTableModel 
 		extends DefaultTableModel
@@ -374,9 +383,20 @@ class FileSelectionTable
 		 */
 		public boolean isCellEditable(int row, int column)
 		{
-			return (column != FILE_INDEX);
+			return true;//(column != FILE_INDEX);
+		}
+
+		/**
+		 * Overridden to set the name of the image to save.
+		 * @see DefaultTableModel#setValueAt(Object, int, int)
+		 */
+		public void setValueAt(Object value, int row, int col)
+		{   
+			FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
+			if (value instanceof String) f.setName((String) value);
+			fireTableCellUpdated(row, col);
 		}
 		
 	}
-	
+
 }

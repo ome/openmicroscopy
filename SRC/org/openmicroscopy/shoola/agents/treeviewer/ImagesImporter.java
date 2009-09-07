@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
@@ -69,16 +70,13 @@ public class ImagesImporter
     private List<TreeImageDisplay>	nodes;
     
     /** The collection of files to import. */
-    private Map<File, StatusLabel>  files;
+    private List<ImportObject>  files;
     
     /** Container to download the image into or <code>null</code>. */
     private DataObject				container;
     
     /** Flag indicating to archive the files or not. */
     private boolean 				archived;
-    
-    /** The number of folder before the name or <code>-1</code>.. */
-    private int  					folder;
     
     /**
      * Creates a new instance.
@@ -89,17 +87,15 @@ public class ImagesImporter
      * @param files	 	The collection of files to import.
      * @param archived 	Pass <code>true</code> to archived the files, 
 	 * 					<code>false</code> otherwise.
-	 * @param folder	The number of folder before the name or <code>-1</code>.
      */
     public ImagesImporter(TreeViewer viewer, TreeImageDisplay node,
-    		Map<File, StatusLabel> files, boolean archived, int folder)
+    		List<ImportObject> files, boolean archived)
 	{
 		super(viewer);
 		if (files == null || files.size() == 0)
 			throw new IllegalArgumentException("No images to import.");
 		this.files = files;
 		this.archived = archived;
-		this.folder = folder;
 		if (node != null) {
 			nodes = new ArrayList<TreeImageDisplay>(1); 
 			Object ho = node.getUserObject();
@@ -119,10 +115,9 @@ public class ImagesImporter
      * @param files		The collection of files to import.
      * @param archived 	Pass <code>true</code> to archived the files, 
 	 * 					<code>false</code> otherwise.
-	 * @param folder	The number of folder before the name or <code>-1</code>.
      */
 	public ImagesImporter(TreeViewer viewer, List<TreeImageDisplay> nodes,
-			Map<File, StatusLabel> files, boolean archived, int folder)
+			List<ImportObject> files, boolean archived)
 	{
 		super(viewer);
 		if (files == null || files.size() == 0)
@@ -130,7 +125,6 @@ public class ImagesImporter
 		this.files = files;
 		this.nodes = nodes;
 		this.archived = archived;
-		this.folder = folder;
 		container = null;
 	}
 	
@@ -141,7 +135,7 @@ public class ImagesImporter
     public void load()
     {
     	handle = ivView.importImages(container, files, getCurrentUserID(), -1, 
-    			archived, folder, this);
+    			archived, this);
     }
 
     /**
