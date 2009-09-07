@@ -23,6 +23,7 @@ LOGSIZE = 500000000
 LOGNUM = 9
 LOGMODE = "a"
 
+
 def configure_logging(logdir, logfile, loglevel = logging.INFO, format = LOGFORMAT, filemode = LOGMODE, time_rollover = False):
 
     if not time_rollover:
@@ -43,6 +44,84 @@ def configure_logging(logdir, logfile, loglevel = logging.INFO, format = LOGFORM
     rootLogger.setLevel(loglevel)
     rootLogger.addHandler(fileLog)
     return rootLogger
+
+
+def internal_service_factory(self, communicator, user="root", group=None, retries=6, interval=10, client_uuid=None):
+    """
+        Try to return a ServiceFactory from the grid.
+
+        Try a number of times then give up and raise the
+        last exception returned. This method will only
+        work internally to the grid, i.e. behind the Glacier2
+        firewall. It is intended for internal servers to
+        be able to create sessions for accessing the database.
+
+          communicator := Ice.Communicator used to find the registry
+          user         := Username which should have a session created
+          group        := Group into which the session should be logged
+          retries      := Number of session creation retries before throwing
+          interval     := Seconds between retries
+          client_uuid  := Uuid of the client which should be used
+
+    """
+    log = logging.getLogger("omero.utils")
+    gotSession = False
+    tryCount = 0
+    excpt = None
+    query = communicator.stringToProxy("IceGrid/Query")
+    query = IceGrid.QueryPrx.checkedCast(query)
+
+    if client_uuid is None:
+        client_uuid = str(uuid.uuid4())
+
+    while (not gotSession) and (tryCount < retries):
+        try:
+            time.sleep(interval)
+            blitz = query.findAllObjectsByType("::Glacier2::SessionManager")[0]
+            blitz = Glacier2.SessionManagerPrx.checkedCast(blitz)
+            sf = blitz.create(user, None, {"omero.client.uuid":client_uuid})
+            # Group currently unused.
+            sf = omero.api.ServiceFactoryPrx.checkedCast(sf)
+            gotSession = True
+        except Exception, e:
+            tryCount += 1
+            log.info("Failed to get session on attempt %s", str(tryCount))
+            excpt = e
+
+    if gotSession:
+        return sf
+    else:
+        log.info("Reason: %s", str(excpt))
+        raise Exception
+
+def long_to_path(id, root=""):
+    """
+    Converts a long to a path such that for all directiories only
+    a 1000 files and a 1000 subdirectories will be returned.
+
+    This method duplicates the logic in
+    ome.io.nio.AbstractFileSystemService.java:getPath()
+    """
+    suffix = ""
+    remaining = id
+    dirno = 0
+
+    if id is None or id == "":
+        raise exceptions.Exception("Expecting a not-null id.")
+
+    id = long(id)
+
+    if id < 0:
+        raise exceptions.Exception("Expecting a non-negative id.")
+
+    while (remaining > 999):
+        remaining /= 1000
+
+        if remaining > 0:
+            dirno = remaining % 1000
+            suffix = os.path.join("Dir-%03d" % dirno, suffix)
+
+    return os.path.join(root, "%s%s" %(suffix,id))
 
 class Server(Ice.Application):
     """

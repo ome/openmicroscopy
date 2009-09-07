@@ -34,13 +34,15 @@ class DropBox(Ice.Application):
             return -1
            
         try:
-            root = omero.client(config.host, config.port)
+            omero.client(config.host, config.port)
         except:
             log.exception("Failed to get client: \n")
             return -1
           
-        try:   
-            sf = self.getOmeroServiceFactory()
+        try:
+            sf = omero.util.internal_service_factory(\
+                self.communicator(), "root", "system",\
+                retries=config.maxRetries, interval=config.retryInterval)
         except:
             log.exception("Failed to get Session: \n")
             return -1
@@ -103,36 +105,3 @@ class DropBox(Ice.Application):
         return 0
 
 
-    def getOmeroServiceFactory(self):
-        """
-            Try to return a ServiceFactory from the grid.
-            
-            Try a number of times then give up and raise the 
-            last exception returned.
-        """
-        gotSession = False 
-        tryCount = 0
-        excpt = None
-        query = self.communicator().stringToProxy("IceGrid/Query")
-        query = IceGrid.QueryPrx.checkedCast(query)
-
-        while (not gotSession) and (tryCount < config.maxTries):
-            try:
-                time.sleep(config.retryInterval)
-                blitz = query.findAllObjectsByType("::Glacier2::SessionManager")[0]
-                blitz = Glacier2.SessionManagerPrx.checkedCast(blitz)
-                sf = blitz.create("root", None, {"omero.client.uuid":str(uuid.uuid1())})
-                sf = omero.api.ServiceFactoryPrx.checkedCast(sf)
-                gotSession = True
-            except Exception, e:
-                tryCount += 1
-                log.info("Failed to get session on attempt %s", str(tryCount))
-                excpt = e
-
-        if gotSession:
-            return sf
-        else:
-            log.info("Reason: %s", str(excpt))
-            raise Exception
-
-        
