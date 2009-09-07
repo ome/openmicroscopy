@@ -32,6 +32,8 @@ import omero.ShutdownInProgress;
 import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.ClientCallbackPrx;
 import omero.api.ClientCallbackPrxHelper;
+import omero.api.ExporterPrx;
+import omero.api.ExporterPrxHelper;
 import omero.api.GatewayPrx;
 import omero.api.GatewayPrxHelper;
 import omero.api.IAdminPrx;
@@ -92,6 +94,7 @@ import omero.constants.CLIENTUUID;
 import omero.constants.CONFIGSERVICE;
 import omero.constants.CONTAINERSERVICE;
 import omero.constants.DELETESERVICE;
+import omero.constants.EXPORTERSERVICE;
 import omero.constants.GATEWAYSERVICE;
 import omero.constants.JOBHANDLE;
 import omero.constants.LDAPSERVICE;
@@ -342,6 +345,13 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // ~ Stateful
     // =========================================================================
 
+
+    public ExporterPrx createExporter(Current current) throws ServerError {
+        return ExporterPrxHelper.uncheckedCast(createByName(
+                EXPORTERSERVICE.value, current));
+    }
+
+    
     public GatewayPrx createGateway(Ice.Current current) throws ServerError {
         return GatewayPrxHelper.uncheckedCast(createByName(
                 GATEWAYSERVICE.value, current));

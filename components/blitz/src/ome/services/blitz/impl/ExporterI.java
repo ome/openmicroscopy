@@ -9,28 +9,36 @@ package ome.services.blitz.impl;
 
 import static omero.rtypes.rstring;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
 import loci.formats.meta.MetadataRetrieve;
+import loci.formats.ome.OMEXMLMetadata;
+import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.throttling.Adapter;
 import ome.services.util.Executor.SimpleWork;
 import ome.system.ServiceFactory;
+import ome.xml.DOMUtil;
 import ome.xml.OMEXMLFactory;
+import ome.xml.OMEXMLNode;
 import omero.ServerError;
 import omero.api.AMD_Exporter_addImage;
 import omero.api.AMD_Exporter_asXml;
 import omero.api.AMD_Exporter_getBytes;
-import omero.api.AMD_Exporter_start;
 import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
@@ -58,6 +66,8 @@ import Ice.Current;
 public class ExporterI extends AbstractAmdServant implements
         _ExporterOperations, ServiceFactoryAware, BlitzOnly {
 
+    private static final int MAX_SIZE = 1024 * 1024;
+
     /**
      * Current user choice as to what output method should be used when
      * {@link ExporterI#start_async(AMD_Exporter_start, Current)} is invoked.
@@ -66,11 +76,46 @@ public class ExporterI extends AbstractAmdServant implements
         xml, tiff, hdf;
     }
 
+    /**
+     * Utility enum for asserting the state of Exporter instances.
+     */
+    private enum State {
+        config, output, waiting;
+        static State check(ExporterI self) {
+
+            if (self.file != null && self.retrieve != null) {
+                throw new InternalException("Doing 2 things at once");
+            }
+
+            if (self.retrieve != null) {
+                return config;
+            }
+
+            if (self.file != null) {
+                return self.offset < 0 ? waiting : output;
+            }
+
+            return waiting;
+        }
+    }
+
     private/* final */ServiceFactoryI factory;
 
     private volatile Output out = Output.xml;
 
     private volatile MetadataRetrieve retrieve;
+
+    /**
+     * Reference to the temporary file which is currently being
+     */
+    private volatile File file;
+
+    /**
+     * Offset into the file which we are currently reading. This field. is only
+     * valid when the file field is non-null. If it is less than zero, then the
+     * current file has been completely read.
+     */
+    private volatile long offset = 0;
 
     public ExporterI(BlitzExecutor be) {
         super(null, be);
@@ -85,6 +130,8 @@ public class ExporterI extends AbstractAmdServant implements
 
     public void addImage_async(AMD_Exporter_addImage __cb, final long id,
             Current __current) throws ServerError {
+
+        State.check(this);
 
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
 
@@ -102,23 +149,108 @@ public class ExporterI extends AbstractAmdServant implements
 
     public void asXml_async(AMD_Exporter_asXml __cb, Current __current)
             throws ServerError {
+
+        State.check(this);
         this.out = Output.xml;
+
     }
 
     public void getBytes_async(AMD_Exporter_getBytes __cb, int size,
             Current __current) throws ServerError {
-        String xml = generateXml(this.retrieve);
+
+        State state = State.check(this);
+        switch (state) {
+        case waiting:
+            __cb.ice_response(new byte[] {});
+            break;
+        case config:
+            start(); // Transitions to output so fall through
+        case output:
+            read(size);
+            break;
+        default:
+            throw new InternalException("Unknown state: " + state);
+        }
+    }
+
+    // Output methods
+    // =========================================================================
+
+    /**
+     * Transitions from config to output.
+     */
+    private void start() {
+
+        OMEXMLMetadata xmlMetadata = convertXml(retrieve);
+        if (xmlMetadata != null) {
+            Object root = xmlMetadata.getRoot();
+            if (root instanceof OMEXMLNode) {
+                OMEXMLNode node = (OMEXMLNode) root;
+
+                try {
+
+                    file = File.createTempFile("ome", "xml");
+                    FileOutputStream fos = new FileOutputStream(file);
+                    DOMUtil.writeXML(fos, node.getDOMElement()
+                            .getOwnerDocument());
+                    retrieve = null;
+                    offset = 0;
+
+                    return; // ONLY VALID EXIT
+
+                } catch (IOException ioe) {
+                    throw new RuntimeException(ioe);
+                } catch (TransformerException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        }
+
+        throw new InternalException("Failed to create export");
+
+    }
+
+    /**
+     * Read size bytes, and transition to "waiting" If any exception is thrown,
+     * the offset for the current file will not be updated.
+     */
+    private byte[] read(int size) {
+        if (size > MAX_SIZE) {
+            throw new ApiUsageException("Max read size is: " + MAX_SIZE);
+        }
+
+        byte[] buf = new byte[size];
+
+        try {
+            FileInputStream is = new FileInputStream(file);
+            int read = is.read(buf, (int) offset, size); // FIXME
+            
+            // Handle end of file
+            if (read != size) {
+
+            }
+
+        } catch (IOException io) {
+            throw new RuntimeException(io);
+        }
+        
+
+        return buf;
     }
 
     // XML Generation (public for testing)
     // =========================================================================
 
-    public static String generateXml(MetadataRetrieve retrieve) {
+    public static OMEXMLMetadata convertXml(MetadataRetrieve retrieve) {
         try {
-            IMetadata xmlMeta = MetadataTools.createOMEXMLMetadata();
+            OMEXMLMetadata xmlMeta = (OMEXMLMetadata) MetadataTools
+                    .createOMEXMLMetadata();
             xmlMeta.setRoot(OMEXMLFactory.newOMENode());
             MetadataTools.convertMetadata(retrieve, xmlMeta);
-            return MetadataTools.getOMEXML(xmlMeta);
+            return xmlMeta;
+        } catch (ClassCastException cce) {
+            return null;
         } catch (IOException io) {
             return null;
         } catch (ParserConfigurationException e) {
@@ -126,6 +258,11 @@ public class ExporterI extends AbstractAmdServant implements
         } catch (SAXException e) {
             return null;
         }
+    }
+
+    public static String generateXml(MetadataRetrieve retrieve) {
+        IMetadata xmlMeta = convertXml(retrieve);
+        return MetadataTools.getOMEXML(xmlMeta);
     }
 
     // Stateful interface methods

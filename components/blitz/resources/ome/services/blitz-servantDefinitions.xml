@@ -59,6 +59,14 @@
     </constructor-arg>
   </bean>
 
+  <bean id="omero.api.Exporter" class="omero.api._ExporterTie" singleton="false">
+    <constructor-arg>
+        <bean class="ome.services.blitz.impl.ExporterI">
+            <constructor-arg ref="throttlingStrategy"/>
+        </bean>
+    </constructor-arg>
+  </bean>
+
   <bean id="omero.api.ITimeline" class="omero.api._ITimelineTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.TimelineI">
