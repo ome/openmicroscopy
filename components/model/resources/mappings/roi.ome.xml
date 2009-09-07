@@ -74,6 +74,10 @@
         </abstract>
         <type id="ome.model.roi.Text" discriminator="text" superclass="ome.model.roi.Shape">
                 <properties>
+                        <!-- Offset of the text: specifies the coordinates of the top-left
+                             corner of the text box -->
+                        <optional name="x" type="double"/>
+                        <!-- Text values -->
                         <optional name="textValue" type="text"/>
                         <optional name="anchor" type="string"/><!-- start, middle, end -->
                         <optional name="decoration" type="string"/><!-- underline, overline, line-through -->
