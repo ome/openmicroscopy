@@ -655,6 +655,34 @@ module omero {
         // Forward definition. See omero/api/Gateway.ice
 	interface Gateway;
 
+        ["ami", "amd"] interface Exporter extends StatefulServiceInterface {
+
+            // Config ================================================
+
+            /*
+             * Adds a single image with basic metadata to the Exporter for inclusion
+             * on the next call to getBytes().
+             */
+            void addImage(long id) throws ServerError;
+
+            /*
+             * Sets the output format as OME-XML (default).
+             */
+            void asXml() throws ServerError;
+
+            // Output ================================================
+
+            /*
+             * Returns "size" bytes from the output file. On the first invocation,
+             * this method ends the configuration process, creates a temporary file
+             * in the given format. Once the returned number of bytes is less than
+             * size or equal to 0, the file is completely read and will be removed
+             * from the server. Configuration methods can now safely be called.
+             */
+            Ice::ByteSeq getBytes(int size) throws ServerError;
+
+        };
+
 	/*
 	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/JobHandle.html
 	 */
@@ -938,6 +966,7 @@ module omero {
 
 	    // Central OMERO.blitz stateful services.
 	    Gateway*         createGateway() throws ServerError;
+	    Exporter*        createExporter() throws ServerError;
 	    JobHandle*       createJobHandle() throws ServerError;
 	    RawFileStore*    createRawFileStore() throws ServerError;
 	    RawPixelsStore*  createRawPixelsStore() throws ServerError;

@@ -20,6 +20,10 @@
     <dependency org="batik" name="batik-parser" rev="${versions.batik}" conf="build,client,server->default"/>
     <dependency org="batik" name="batik-util" rev="${versions.batik}" conf="build,client,server->default"/>
     <dependency org="jts" name="jts" rev="${versions.jts}" conf="build,server->default"/>
+    <!-- Export -->
+    <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/>
+    <dependency org="OME" name="loci-common" rev="${versions.bio-formats}"/>
+    <dependency org="loci" name="ome-xml" rev="${versions.bio-formats}"/>
   </dependencies>
 </ivy-module>
 
