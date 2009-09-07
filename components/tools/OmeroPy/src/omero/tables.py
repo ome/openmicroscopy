@@ -5,18 +5,6 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-# TODO:
-#  - handle dangling files
-#  - special columns:
-#    - OMERO ID columns
-#    - timestamp column for when row was added (for online update not import)
-#    - timeseries column
-#    - MeasurementRun ID
-#    - Temporary files?
-#    - Deleting files/cleaning up services
-#    - Closing files / Deleting them
-#
-
 import os
 import Ice
 import time
@@ -32,7 +20,6 @@ import portalocker # Third-party
 from path import path
 
 import omero
-import omero_api_Tables_ice
 
 from omero.rtypes import *
 from omero_ext import pysys
@@ -146,7 +133,7 @@ class HdfStorage(object):
             self.hdf.close()
         self.lock.close()
 
-class TableI(omero.api.Table, omero.util.Servant):
+class TableI(omero.grid.Table, omero.util.Servant):
     """
     Spreadsheet implementation based on pytables.
     """
@@ -298,21 +285,21 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         """
         self.repo_uuid = (self.instance / "repo_uuid").lines()[0].strip()
         self.repo_obj = self.sf.getQueryService().findByQuery(\
-            "select r from Repository r where uuid = :uuid",
+            "select f from OriginalFile f where sha1 = :uuid",
             ParametersI().add("uuid",self.repo_uuid))
 
     def getRepository(self, current = None):
         """
         Returns the Repository object for this Tables server.
         """
-        return self.repo_obj
+        return self.repo_svc
 
     def getTable(self, file_obj, current = None):
         """
         Create and/or register a table servant
         """
         file_obj = self.load_ofile(file_obj.id.val)
-        if file_obj.repository.id != self.repo_obj.id:
+        if file_obj.id.val != self.repo_obj.id.val:
             return None
 
         # This might throw based on locking
@@ -321,7 +308,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
         self.resources.add(table)
         prx = current.adapter.addWithUUID(table)
-        return omero.api.TablePrx.uncheckedCast(prx)
+        return omero.grid.TablePrx.uncheckedCast(prx)
 
     def load_ofile(self, id):
         return self.sf.getQueryService().get("OriginalFile", id)

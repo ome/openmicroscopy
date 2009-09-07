@@ -22,7 +22,9 @@
   Defines the configuration needed to start the Repository Java server.
   </description>
 
-  <bean id="internalRepository" class="ome.services.blitz.repo.InternalRepositoryI"/>
+  <bean id="internalRepository" class="ome.services.blitz.repo.InternalRepositoryI">
+    <constructor-arg value="${omero.repo.dir}"/>
+  </bean>
   
   <!-- This is used by ome.services.blitz.Entry to call waitForShutdown -->
   <bean id="Ice.Communicator" factory-bean="internalRepository" factory-method="getCommunicator"/>

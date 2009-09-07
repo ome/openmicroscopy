@@ -30,28 +30,32 @@ module omero {
              * Waits up to seconds to acquire a slot in a processor
              * which can handle the given job.
              **/
-	    omero::grid::InteractiveProcessor*
-		acquireProcessor(omero::model::Job job, int seconds)
-		throws ServerError;
+	       omero::grid::InteractiveProcessor*
+		      acquireProcessor(omero::model::Job job, int seconds)
+		      throws ServerError;
 
             /**
-             * Returns a map between Repository descriptions (omero::model::Repository
+             * Returns a map between Repository descriptions (omero::model::OriginalFile
              * instances) and RepositoryPrx instances (possibly null).
              **/
             omero::grid::RepositoryMap
                 acquireRepositories()
-		throws ServerError;
+		        throws ServerError;
+
+            /**
+             * Creates a new Format("OMERO.tables") file at the given path
+             * on the given repository.
+             */
+            omero::grid::Table*
+                newTable(omero::model::OriginalFile repo, string path)
+                throws ServerError;
 
             /**
              * Waits up to seconds to acquire an exclusive write lock
              * on the given Table, and returns null if the lock cannot
              * be obtained. After that it is possible to use volatile
-             * table in read-only mode.
-             *
-             * If the OriginalFile does not have an id set (is non-managed),
-             * then an OriginalFile object with Format "OMERO.tables" will
-             * be created. Only the name and the annotation links of the
-             * file object need to be filled out.
+             * table in read-only mode. The file instance must be managed
+             * (i.e. have a non-null id)
              */
             omero::grid::Table*
                 acquireWritableTable(omero::model::OriginalFile file, int seconds)

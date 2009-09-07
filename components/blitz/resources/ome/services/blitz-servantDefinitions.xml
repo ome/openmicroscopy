@@ -82,8 +82,8 @@
     <constructor-arg>
         <bean class="ome.services.blitz.impl.GridServicesI">
             <constructor-arg ref="throttlingStrategy"/>
-            <constructor-arg ref="topicManager"/>
-            <constructor-arg ref="registry"/>
+            <constructor-arg ref="TopicManager"/>
+            <constructor-arg ref="Registry"/>
         </bean>
     </constructor-arg>
   </bean>

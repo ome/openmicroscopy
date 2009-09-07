@@ -42,7 +42,7 @@ public class MeasurementStore implements OmeroMeasurementStore {
     private final Map<String, IObject> lsidMap = new HashMap<String, IObject>();
 
     private final List<Long> roiIds = new ArrayList<Long>();
-    
+
     private final LocalUpdate update;
 
     private final TablePrx table;
@@ -96,6 +96,22 @@ public class MeasurementStore implements OmeroMeasurementStore {
         }
         initialized = true;
 
+    }
+
+    public void addObject(String lsid, IObject obj) {
+        if (lsid != null) {
+            if (obj == null) {
+                lsidMap.remove(lsid);
+            } else {
+                lsidMap.put(lsid, obj);
+            }
+        }
+    }
+
+    public void addObjects(Map<String, IObject> map) {
+        if (map != null) {
+            lsidMap.putAll(map);
+        }
     }
 
     public void addRows(Object[][] rows) throws ServerError {

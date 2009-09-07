@@ -12,6 +12,7 @@
 #include <omero/ModelF.ice>
 #include <omero/RTypes.ice>
 #include <omero/Collections.ice>
+#include <omero/Repositories.ice>
 #include <omero/ServerErrors.ice>
 
 module omero {
@@ -58,7 +59,7 @@ module omero {
         class LongColumn extends Column {
             omero::api::LongArray values;
         };
-        
+
         class StringColumn extends Column {
             omero::api::StringArray values;
         };
@@ -174,11 +175,11 @@ module omero {
             /**
              * Returns the Repository which this Tables service is watching.
              **/
-             omero::model::Repository
+             omero::grid::Repository*
                 getRepository();
 
             /**
-             * Returns the Table service for the given directory.
+             * Returns the Table service for the given "OMERO.tables" file.
              */
             Table*
                 getTable(omero::model::OriginalFile file);

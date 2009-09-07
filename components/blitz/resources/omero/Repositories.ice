@@ -50,7 +50,7 @@ module omero {
              * TODO should this just return and not throw?
              *
              */
-            omero::model::OriginalFile     register(string path, omero::model::Format fmt) throws ServerError;
+            omero::model::OriginalFile register(string path, omero::model::Format fmt) throws ServerError;
 
             /**
              * Load the OriginalFile at the given path with annotations and
@@ -59,14 +59,14 @@ module omero {
              *
              * TODO should this just return null instead?
              */
-            omero::model::OriginalFile     load(string path) throws ServerError;
+            omero::model::OriginalFile load(string path) throws ServerError;
 
             /**
              * Returns a special RawFileStore which permits only reading.
              * Any call to a write or configuration method will throw an
              * ApiUsageException.
              */
-            omero::api::RawFileStore*    read(string path) throws ServerError;
+            omero::api::RawFileStore* read(string path) throws ServerError;
 
             /**
              * Returns a special RawFileStore which permits only writing.
@@ -102,7 +102,7 @@ module omero {
             omero::api::ThumbnailStore*  createThumbnailStore(omero::model::OriginalFile file);
 
             // Other repository methods
-            omero::model::Repository     getDescription();
+            omero::model::OriginalFile   getDescription();
             Repository*                  getProxy(); // If this returns null, user will have to wait
 
 
@@ -112,7 +112,7 @@ module omero {
         ["java:type:java.util.ArrayList<omero.grid.RepositoryPrx>:java.util.List<omero.grid.RepositoryPrx>"]
         sequence<Repository*> RepositoryProxyList;
         struct RepositoryMap {
-            omero::api::RepositoryList descriptions;
+            omero::api::OriginalFileList descriptions;
             RepositoryProxyList proxies;
         };
 

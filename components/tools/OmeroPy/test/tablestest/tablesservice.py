@@ -13,6 +13,21 @@ import omero, omero.tables
 
 class TestTables(unittest.TestCase):
 
+    def testBlankTable(self):
+        grid = self.client.sf.getGridServices()
+        repoMap = grid.acquireRepositories()
+        repoObj = repoMap.descriptions[0]
+        repoPrx = repoMap.proxies[0]
+        table = self.client.sf.newTable(repoObj, "/test")
+        self.assert_( table )
+        cols = []
+        lc = omero.tables.LongColumn('lc',None,None)
+        cols.append(lc)
+        table.initialize(lc)
+        lc.values = [1,2,3,4]
+        table.addData(lc)
+        self.assertEquals([1],table.getWhereList('(lc==1)'))
+
     def testUnownedTable(self):
         ofile = omero.model.OriginalFileI()
         grid = self.root.sf.getGridServices()

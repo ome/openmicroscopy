@@ -103,7 +103,6 @@
 			<optional name="ctime" type="timestamp"/>
 			<required name="sha1" type="string"/>
 			<required name="format" type="ome.model.enums.Format"/>
-			<manyone  name="repository" type="ome.model.meta.Repository"/>
 		</properties>
 	</type>
 	<type id="ome.model.core.PlaneInfo" annotated="true">
@@ -594,8 +593,10 @@
 		<entry name="audio/basic"/>
 		<entry name="audio/mpeg"/>
 		<entry name="audio/wav"/>
-                <!-- Internal formats -->
-                <entry name="OMERO.tables"/>
+		<!-- Internal formats -->
+		<entry name="Repository"/>
+		<entry name="Directory"/>
+		<entry name="OMERO.tables"/>
 		<!-- Note: Other and Unknown are not needed use text/plain or application/octet-stream -->
 	</enum>
 <!-- Pixels Entity -->

@@ -7,6 +7,8 @@
 
 package ome.services.blitz.impl;
 
+import static omero.rtypes.rstring;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,8 +21,10 @@ import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
+import ome.util.Filterable;
 import omero.ApiUsageException;
 import omero.ServerError;
+import omero.ValidationException;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
@@ -31,6 +35,8 @@ import omero.grid.RepositoryPrx;
 import omero.grid.TablePrx;
 import omero.grid.TablesPrx;
 import omero.grid._GridServicesOperations;
+import omero.model.Format;
+import omero.model.FormatI;
 import omero.model.Job;
 import omero.model.JobStatus;
 import omero.model.JobStatusI;
@@ -123,11 +129,25 @@ public class GridServicesI extends AbstractAmdServant implements
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public RepositoryMap acquireRepositories(Current current)
             throws ServerError {
+
         // Possibly need to throttle the numbers of acquisitions per time.
         // Need to keep up with closing
         // might need to cache the found repositories.
+
+        IceMapper mapper = new IceMapper();
+        List<Repository> objs = (List<Repository>) mapper
+                .map((List<Filterable>) sf.executor.execute(sf.executor
+                        .principal(), new Executor.SimpleWork(this,
+                        "acquireRepositories") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getQueryService().findAll(
+                                ome.model.meta.Repository.class, null);
+                    }
+                }));
 
         InternalRepositoryPrx[] repos = registry.lookupRepositories();
 
@@ -135,14 +155,27 @@ public class GridServicesI extends AbstractAmdServant implements
         map.descriptions = new ArrayList<Repository>();
         map.proxies = new ArrayList<RepositoryPrx>();
 
+        List<Long> found = new ArrayList<Long>();
         for (InternalRepositoryPrx i : repos) {
             if (i == null) {
                 continue;
             }
-            Repository desc = i.getDescription();
-            RepositoryPrx proxy = i.getProxy();
-            map.descriptions.add(desc);
-            map.proxies.add(proxy);
+            try {
+                Repository desc = i.getDescription();
+                RepositoryPrx proxy = i.getProxy();
+                map.descriptions.add(desc);
+                map.proxies.add(proxy);
+                found.add(desc.getId().getValue());
+            } catch (Ice.LocalException e) {
+                // Ok.
+            }
+        }
+
+        for (Repository r : objs) {
+            if (!found.contains(r.getId().getValue())) {
+                map.descriptions.add(r);
+                map.proxies.add(null);
+            }
         }
 
         return map;
@@ -154,60 +187,62 @@ public class GridServicesI extends AbstractAmdServant implements
     }
 
     @SuppressWarnings("unchecked")
+    public TablePrx newTable(final Repository repo, String path,
+            Current __current) throws ServerError {
+
+        if (repo == null || repo.getId() == null) {
+            throw new ValidationException(null, null,
+                    "repo argument must be managed.");
+        }
+
+        // Okay. All's valid.
+        InternalRepositoryPrx[] repos = registry.lookupRepositories();
+        RepositoryPrx repoPrx = (RepositoryPrx) repeatLookup(Arrays
+                .asList(repos), 60,
+                new RepeatTask<InternalRepositoryPrx, RepositoryPrx>() {
+                    public RepositoryPrx lookupService(
+                            InternalRepositoryPrx server) {
+                        final Repository description = server.getDescription();
+                        if (description.getId().getValue() == repo.getId()
+                                .getValue()) {
+                            return server.getProxy();
+                        }
+                        return null;
+                    }
+                });
+
+        Format omero_tables = new FormatI();
+        omero_tables.setValue(rstring("OMERO.tables"));
+        OriginalFile file = repoPrx.register(path, omero_tables);
+        return acquireWritableTable(file, 60, __current);
+
+    }
+
+    @SuppressWarnings("unchecked")
     public TablePrx acquireWritableTable(final OriginalFile file, int seconds,
             Current __current) throws ServerError {
 
         checkAcquisitionWait(seconds);
 
         // Now make sure the current user has permissions to do this
-        if (file == null) {
+        if (file == null || file.getId() == null) {
 
-            return null;
-
-        } else if (file.getId() != null) {
-
-            sf.executor.execute(sf.principal, new Executor.SimpleWork(this,
-                    "checkOriginalFilePermissions", file.getId().getValue()) {
-                @Transactional(readOnly = true)
-                public Object doWork(Session session, ServiceFactory sf) {
-                    return sf.getQueryService().get(
-                            ome.model.core.OriginalFile.class,
-                            file.getId().getValue());
-
-                }
-            });
-            file.unload();
-
-        } else {
-
-            // Overwrites
-            omero.RTime creation = omero.rtypes.rtime(System
-                    .currentTimeMillis());
-            file.setCtime(creation);
-            file.setAtime(creation);
-            file.setMtime(creation);
-            file.setSha1(omero.rtypes.rstring("DIR"));
-            file.setFormat(new omero.model.FormatI());
-            file.getFormat().setValue(omero.rtypes.rstring("OMERO.tables"));
-            file.setRepository(null);
-            file.setPath(omero.rtypes.rstring("TBD"));
-            file.setSize(omero.rtypes.rlong(0));
-            IceMapper mapper = new IceMapper();
-            final ome.model.core.OriginalFile f = (ome.model.core.OriginalFile) mapper
-                    .reverse(file);
-            Long id = (Long) sf.executor.execute(sf.principal,
-                    new Executor.SimpleWork(this, "saveNewOriginalFile", file
-                            .getName().getValue()) {
-                        @Transactional(readOnly = false)
-                        public Object doWork(Session session, ServiceFactory sf) {
-                            return sf.getUpdateService().saveAndReturnObject(f)
-                                    .getId();
-                        }
-                    });
-            file.setId(omero.rtypes.rlong(id));
-            file.unload();
+            throw new ValidationException(null, null,
+                    "file must be a managed instance.");
 
         }
+
+        sf.executor.execute(sf.principal, new Executor.SimpleWork(this,
+                "checkOriginalFilePermissions", file.getId().getValue()) {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return sf.getQueryService().get(
+                        ome.model.core.OriginalFile.class,
+                        file.getId().getValue());
+
+            }
+        });
+        file.unload();
 
         // Okay. All's valid.
         TablesPrx[] tables = registry.lookupTables();

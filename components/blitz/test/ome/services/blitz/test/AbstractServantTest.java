@@ -15,6 +15,7 @@ import ome.security.SecuritySystem;
 import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.AdminI;
+import ome.services.blitz.impl.ConfigI;
 import ome.services.blitz.impl.QueryI;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.impl.UpdateI;
@@ -50,6 +51,7 @@ public abstract class AbstractServantTest extends TestCase {
     protected UpdateI user_update, root_update;
     protected QueryI user_query, root_query;
     protected AdminI user_admin, root_admin;
+    protected ConfigI user_config, root_config;
 
     public class RV {
         public Exception ex;
@@ -92,9 +94,11 @@ public abstract class AbstractServantTest extends TestCase {
         user_update = new UpdateI(sf.getUpdateService(), be);
         user_query = new QueryI(sf.getQueryService(), be);
         user_admin = new AdminI(sf.getAdminService(), be);
+        user_config = new ConfigI(sf.getConfigService(), be);
         configure(user_update, user_initializer);
         configure(user_query, user_initializer);
         configure(user_admin, user_initializer);
+        configure(user_config, user_initializer);
 
         root = new ManagedContextFixture(ctx);
         root.setCurrentUserAndGroup("root", "system");
@@ -105,9 +109,11 @@ public abstract class AbstractServantTest extends TestCase {
         root_update = new UpdateI(sf.getUpdateService(), be);
         root_query = new QueryI(sf.getQueryService(), be);
         root_admin = new AdminI(sf.getAdminService(), be);
+        root_config = new ConfigI(sf.getConfigService(), be);
         configure(root_update, root_initializer);
         configure(root_query, root_initializer);
         configure(root_admin, root_initializer);
+        configure(root_config, root_initializer);
     }
 
     protected void configure(AbstractAmdServant servant,

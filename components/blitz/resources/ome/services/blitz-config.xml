@@ -39,6 +39,29 @@
     <constructor-arg ref="sessionCache"/>
   </bean>
 
+  <bean id="legacyRepository" class="ome.services.blitz.repo.LegacyRepositoryI" destroy-method="close">
+      <constructor-arg index="0" ref="BlitzAdapter"/>
+      <constructor-arg index="1" ref="Registry"/>
+      <constructor-arg index="2" ref="executor"/>
+      <constructor-arg index="3" ref="uuid"/>
+      <constructor-arg index="4" value="${omero.data.dir}"/>
+  </bean>
+  <bean id="repositoryTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="legacyRepository" />
+    <property name="targetMethod" value="takeover" />
+    <property name="concurrent"   value="false"/>
+  </bean>
+  <bean id="repositoryTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+    <description>
+    Runs periodically to give repositories a chance to take over for any dead
+    instance. Calling takeover during regular initialization would cause startup
+    to block. This is okay for separate repository (non-LegacyRepository) instances
+    which run standalone, but not for this bean.
+    </description>
+    <property name="jobDetail" ref="repositoryTakeoverRun" />
+    <property name="repeatInterval" value="120" />
+  </bean>
+
   <!-- Redirector configuration -->
   <alias name="${omero.cluster.redirector}" alias="redirector"/>
   

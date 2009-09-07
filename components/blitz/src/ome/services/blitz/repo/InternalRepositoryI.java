@@ -6,7 +6,9 @@
  */
 package ome.services.blitz.repo;
 
+import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -23,9 +25,10 @@ import omero.api.ThumbnailStorePrx;
 import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
 import omero.grid._InternalRepositoryDisp;
+import omero.model.Format;
+import omero.model.FormatI;
 import omero.model.OriginalFile;
-import omero.model.Repository;
-import omero.model.RepositoryI;
+import omero.model.OriginalFileI;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,7 +52,7 @@ public class InternalRepositoryI extends _InternalRepositoryDisp {
 
     private final Registry reg;
 
-    private final Repository description;
+    private final OriginalFile description;
 
     private final RepositoryPrx proxy;
 
@@ -62,11 +65,13 @@ public class InternalRepositoryI extends _InternalRepositoryDisp {
     private final String dbUuid;
 
     private final String repoUuid;
+    
+    private final String repoDir;
 
-    public InternalRepositoryI() throws Exception {
+    public InternalRepositoryI(String repoDir) throws Exception {
 
-        String mount = System.getProperty("omero.repo");
-        log.info("Initializing repository in" + mount);
+        this.repoDir = repoDir;
+        log.info("Initializing repository in" + repoDir);
 
         //
         // Ice Initialization
@@ -90,10 +95,8 @@ public class InternalRepositoryI extends _InternalRepositoryDisp {
         ServiceFactoryPrx sf = reg.getInternalServiceFactory("root", null, 5,
                 12, UUID.randomUUID().toString());
         try {
-            dbUuid = sf.getConfigService().getDatabaseUuid().getValue();
-            File mountDir = new File(mount);
-            File omeroDir = new File(mountDir, ".omero");
-            File uuidDir = new File(omeroDir, dbUuid);
+            dbUuid = sf.getConfigService().getDatabaseUuid();
+            File uuidDir = getUuidDir();
             if (!uuidDir.exists()) {
                 uuidDir.mkdirs();
                 log.info("Creating " + uuidDir);
@@ -107,16 +110,24 @@ public class InternalRepositoryI extends _InternalRepositoryDisp {
             if (line == null || line.trim().equals("")) {
                 repoUuid = UUID.randomUUID().toString();
                 raf.writeChars(repoUuid);
-                Repository r = new RepositoryI();
-                r.setUuid(rstring(repoUuid));
-                r.setName(rstring(mount));
-                r.setType(rstring("unused"));
-                description = (Repository) sf.getUpdateService()
+                Format fmt = new FormatI();
+                fmt.setValue(rstring("Repository"));
+                OriginalFile r = new OriginalFileI();
+                r.setFormat(fmt);
+                r.setSha1(rstring(repoUuid));
+                r.setName(rstring(repoDir));
+                r.setPath(rstring("/"));
+                omero.RTime tick = rtime(System.currentTimeMillis());
+                r.setCtime(tick);
+                r.setAtime(tick);
+                r.setMtime(tick);
+                r.setSize(rlong(0));
+                description = (OriginalFile) sf.getUpdateService()
                         .saveAndReturnObject(r);
                 log.info("Registered new repository: " + repoUuid);
             } else {
                 repoUuid = line.trim();
-                description = (Repository) sf.getQueryService().findByString(
+                description = (OriginalFile) sf.getQueryService().findByString(
                         "Repository", "uuid", repoUuid);
                 log.info("Opened repository: " + repoUuid);
             }
@@ -127,7 +138,7 @@ public class InternalRepositoryI extends _InternalRepositoryDisp {
         //
         // Servants
         //
-        PublicRepositoryI pr = new PublicRepositoryI();
+        PublicRepositoryI pr = new PublicRepositoryI(-1, null, null);
         proxy = RepositoryPrxHelper.uncheckedCast(oa.addWithUUID(pr));
 
         //
@@ -153,7 +164,7 @@ public class InternalRepositoryI extends _InternalRepositoryDisp {
         return oa;
     }
 
-    public Repository getDescription(Current __current) {
+    public OriginalFile getDescription(Current __current) {
         return description;
     }
 
@@ -182,6 +193,18 @@ public class InternalRepositoryI extends _InternalRepositoryDisp {
             Current __current) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    // Helpers
+    // =========================================================================
+    
+
+    private File getUuidDir() {
+        File mountDir = new File(this.repoDir);
+        File omeroDir = new File(mountDir, ".omero");
+        File specDir = new File(omeroDir, "repository");
+        File uuidDir = new File(specDir, dbUuid);
+        return uuidDir;
     }
 
 }

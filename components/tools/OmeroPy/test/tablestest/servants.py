@@ -46,19 +46,26 @@ class mocked_internal_service_factory(object):
 class mocked_service_factory(object):
     def __init__(self):
         self.db_uuid = str(uuid4())
-        self.query_values = []
+        self.return_values = []
     def getConfigService(self):
-        return mocked_config_service(self.db_uuid)
+        return mocked_config_service(self.db_uuid, self.return_values)
     def getQueryService(self):
-        return mocked_query_service(self.query_values)
+        return mocked_query_service(self.return_values)
     def destroy(self):
         pass
 
 class mocked_config_service(object):
-    def __init__(self, db_uuid):
+    def __init__(self, db_uuid, return_values):
         self.db_uuid = db_uuid
+        self.return_values = return_values
     def getDatabaseUuid(self):
         return self.db_uuid
+    def getConfigValue(self, str):
+        rv = self.return_values.pop(0)
+        if isinstance(rv, omero.ServerError):
+            raise rv
+        else:
+            return rv
 
 class mocked_query_service(object):
     def __init__(self, return_values):
@@ -94,7 +101,11 @@ class TestTables(TestCase):
         f = f / "repo_uuid"
         f.write_lines(repo_uuid)
 
+    # Note: some of the following method were added as __init__ called
+    # first _get_dir() and then _get_uuid(), so the naming is off
+
     def testTablesIGetDirNoRepoSet(self):
+        self.sf.return_values.append(self.tmpdir())
         self.assertRaises(omero.ResourceError, omero.tables.TablesI)
 
     def testTablesIGetDirNoRepoCreated(self):
@@ -112,12 +123,12 @@ class TestTables(TestCase):
 
     def testTablesIGetDirGetsRepoGetsSFCantFindRepoObject(self):
         self.repofile(self.sf.db_uuid, str(uuid4()))
-        self.sf.query_values.append( omero.ApiUsageException(None, None, "Cant Find") )
+        self.sf.return_values.append( omero.ApiUsageException(None, None, "Cant Find") )
         self.assertRaises(omero.ApiUsageException, omero.tables.TablesI)
 
     def testTablesIGetDirGetsRepoGetsSFGetsRepo(self):
         self.repofile(self.sf.db_uuid, str(uuid4()))
-        self.sf.query_values.append( omero.model.RepositoryI( 1, False) )
+        self.sf.return_values.append( omero.model.RepositoryI( 1, False) )
         tables = omero.tables.TablesI()
 
     def testTables(self):

@@ -12,6 +12,10 @@
       <property name="Ice.Default.CollocationOptimized" value="0"/>
     </properties>
 
+    <properties id="Repository">
+      <property name="omero.repo.wait" value="300"/><!-- seconds -->
+    </properties>
+
     <properties id="Basics">
       <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
       <property name="Ice.Override.ConnectTimeout" value="5000"/>
@@ -79,7 +83,7 @@
         <option>-Xmx400M</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Domero.name=Repository-${index}</option>
-        <option>-Domero.repo=${dir}</option>
+        <option>-Domero.repo.dir=${dir}</option>
         <option>-jar</option>
         <option>lib/server/blitz.jar</option>
         <option>OMERO.repository</option>
@@ -90,6 +94,7 @@
           <properties refid="Profile"/>
           <properties refid="Basics"/>
           <properties refid="MultiThreaded"/>
+          <properties refid="Repository"/>
         </properties>
       </server>
     </server-template>
@@ -156,6 +161,8 @@
           <properties refid="Profile"/>
           <properties refid="Basics"/>
           <properties refid="MultiThreaded"/>
+          <properties refid="Repository"/>
+          <property name="omero.repo.dir" value="${dir}"/>
         </properties>
       </server>
     </server-template>
@@ -172,6 +179,8 @@
           <properties refid="Profile"/>
           <properties refid="Basics"/>
           <properties refid="MultiThreaded"/>
+          <properties refid="Repository"/>
+          <property name="omero.repo.dir" value="${dir}"/>
         </properties>
       </server>
     </server-template>

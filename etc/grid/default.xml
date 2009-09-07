@@ -50,11 +50,9 @@
       <server-instance template="FSTemplate"/>
       <server-instance template="ShellTemplate" id="Web" act="on-demand"/>
       <server-instance template="StormTemplate"/>
-      <!-- There should only be one of each server per host per mount.
-           "" defaults to use omero.data.dir -->
-      <server-instance template="RepositoryTemplate" index="0" dir=""/>
-      <server-instance template="ProcessorTemplate" index="0" dir=""/>
-      <server-instance template="TablesTemplate" index="0" dir=""/>
+      <!-- This requires defining omero.data.dir here -->
+      <server-instance template="ProcessorTemplate" index="0" dir=""/><!-- assumes legacy -->
+      <server-instance template="TablesTemplate" index="0" dir=""/><!-- assumes legacy -->
     </node>
 
     <node name="backup">
@@ -62,11 +60,15 @@
     </node>
 
     <node name="node1">
-      <server-instance template="ProcessorTemplate" index="1" dir="/OMERO"/>
+      <!-- There should only be one of each server per physical mount.
+           The process will change to the named directory -->
+        <server-instance template="RepositoryTemplate" index="node1" dir="/MOUNT"/>
+        <server-instance template="ProcessorTemplate" index="node1" dir="/MOUNT"/>
+        <server-instance template="TablesTemplate" index="node1" dir="/MOUNT"/>
     </node>
 
     <node name="node2">
-      <server-instance template="ProcessorTemplate" index="2" dir="/OMERO"/>
+      <server-instance template="ProcessorTemplate" index="node2" dir="/OMERO"/>
     </node>
 
   </application>

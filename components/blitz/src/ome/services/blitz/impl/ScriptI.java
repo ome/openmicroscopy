@@ -385,8 +385,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                         }
                     }
                     ScriptJobI job = buildJob(id);
-                    InteractiveProcessorPrx proc = factory.acquireProcessor(
-                            job, 10, __current);
+                    InteractiveProcessorPrx proc = factory.getGridServices().
+                        acquireProcessor(job, 10);
                     omero.grid.ProcessPrx prx = proc.execute(rmap(map));
                     prx._wait();
                     Map<String, RType> results = proc.getResults(prx).getValue();
@@ -515,8 +515,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     + " is not persistent.");
         }
         ScriptJobI job = buildJob(file.getId());
-        InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10,
-                __current);
+        InteractiveProcessorPrx proc = this.factory.getGridServices().
+                acquireProcessor(job, 10);
         if (proc == null) {
             throw new InternalException(null, null, "No processor acquired.");
         }
