@@ -16,6 +16,7 @@
 #include <omero/ROMIO.ice>
 #include <omero/RTypes.ice>
 #include <omero/Scripts.ice>
+#include <omero/Tables.ice>
 #include <omero/System.ice>
 #include <Glacier2/Session.ice>
 #include <Ice/BuiltinSequences.ice>
@@ -990,14 +991,35 @@ module omero {
 	    // Shared resources. Here an acquisition framework is
 	    // in place such that it is not guaranteed that a resource
             // will be free, and therefore a null proxy may be returned.
+            // ================================================================
             //
 
+            /**
+             * Waits up to seconds to acquire a slot in a processor
+             * which can handle the given job.
+             */
 	    omero::grid::InteractiveProcessor*
 		acquireProcessor(omero::model::Job job, int seconds)
 		throws ServerError;
 
             omero::grid::RepositoryMap
                 acquireRepositories()
+		throws ServerError;
+
+            /**
+             * Waits up to seconds to acquire an exclusive write lock
+             * on the given Table.
+             */
+            omero::grid::Table
+                acquireTable(omero::model::OriginalFile file, int seconds)
+                throws ServerError;
+
+            /**
+             * Returns a read-only Table instance which will be closed on the
+             * first modification.
+             */
+            omero::grid::Table
+                volatileTable(omero::model::OriginalFile file)
                 throws ServerError;
 
 	    /*
