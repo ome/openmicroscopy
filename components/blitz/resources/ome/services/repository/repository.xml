@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2009 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+
+<beans>
+
+  <description>
+  Defines the configuration needed to start the Repository Java server.
+  </description>
+
+  <bean id="internalRepository" class="ome.services.blitz.repo.InternalRepositoryI"/>
+  
+  <!-- This is used by ome.services.blitz.Entry to call waitForShutdown -->
+  <bean id="Ice.Communicator" factory-bean="internalRepository" factory-method="getCommunicator"/>
+  <bean id="Ice.ObjectAdapter" factory-bean="internalRepository" factory-method="getObjectAdapter"/>
+  <bean id="publiRepository" factory-bean="internalRepository" factory-method="getProxy"/>
+
+</beans>

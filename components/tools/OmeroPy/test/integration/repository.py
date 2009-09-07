@@ -1,0 +1,94 @@
+#!/usr/bin/env python
+
+"""
+   Integration test focused on the Repository API
+
+   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+   Use is subject to license terms supplied in LICENSE.txt
+
+"""
+import unittest, time
+import test.integration.library as lib
+import omero
+from omero.rtypes import *
+import omero_api_Repository_ice
+
+class TestRepository(lib.ITest):
+
+    def testBasicUsage(self):
+
+        test_file = "FIXME.dv"
+        remote_file = "/root/dir1/test.dv"
+
+        write_start = time.time()
+
+        repoMap = self.client.sf.acquireRepositories()
+        self.assert_( len(repoMap) > 1 )
+
+        repoPrx = repoMap.values()[0]
+        self.assert_( repoPrx ) # Could be None
+
+        # This is a write-only (no read, no config)
+        # version of this service.
+        rawFileStore = repoPrx.write(remote_file)
+        try:
+            offset = 0
+            file = open(test_file,"rb")
+            try:
+                while True:
+                    block = file.read(block_size)
+                    if not block:
+                        break
+                    rawFileStore.write(block, offset, len(block))
+                    offset += len(block)
+            finally:
+                file.close()
+        finally:
+            rawFileStore.close()
+
+        write_end = time.time()
+
+        # Check the SHA1
+        file = repoPrx.load(remote_file)
+        sha1_remote = file.sha1.val
+        sha1_local = self.client.sha1(test_file)
+
+
+        HOW ARE WE CHECKING SHA1 HERE
+
+
+        read_start = time.time()
+
+        #
+        # Raw pixels
+        #
+        rawPixelsStore = repoPrx.pixels(remote_file)
+        try:
+        finally:
+            rawPixelsStore.close()
+
+        read_end = time.time()
+
+        #
+        # Rendering
+        #
+
+        renderingEngine = repoPrx.render(remote_file)
+        try:
+            planeDef = omero.romio.PlaneDef()
+            planeDef.z = 0
+            planeDef.t = 0
+            rgbBuffer = renderingEngine.render(planeDef)
+        finally:
+            renderingEngine.close()
+
+        thumbnailStore = repoPrx.thumbs(remote_file)
+        thumbnailStore.close()
+        rawFileStore = repoPrx.read(remote_file)
+        rawFileStore.close()
+        repoPrx.rename(remote_file, remote_file + ".old")
+        repoPrx.delete(remote_file + ".old")
+
+
+if __name__ == '__main__':
+    unittest.main()

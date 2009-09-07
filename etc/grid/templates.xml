@@ -70,6 +70,30 @@
       </server>
     </server-template>
 
+    <server-template id="RepositoryTemplate">
+      <parameter name="index"/>
+      <parameter name="dir"/>
+      <parameter name="config" default="default"/>
+      <server id="Repository-${index}" exe="java" activation="always" pwd="${OMERO_HOME}">
+        <option>-Dlog4j.configuration=etc/log4j.xml</option>
+        <option>-Xmx400M</option>
+        <option>-Djava.awt.headless=true</option>
+        <option>-Domero.name=Repository-${index}</option>
+        <option>-Domero.repo=${dir}</option>
+        <option>-jar</option>
+        <option>lib/server/blitz.jar</option>
+        <option>OMERO.repository</option>
+        <adapter name="RepositoryAdapter" register-process="true" endpoints="tcp">
+          <object identity="Repository-${index}" type="::omero::grid::InternalRepository"/>
+        </adapter>
+        <properties>
+          <properties refid="Profile"/>
+          <properties refid="Basics"/>
+          <properties refid="MultiThreaded"/>
+        </properties>
+      </server>
+    </server-template>
+
     <server-template id="IndexerTemplate">
       <parameter name="index"/>
       <parameter name="config" default="default"/>
@@ -123,7 +147,7 @@
     <server-template id="ProcessorTemplate">
       <parameter name="index"/>
       <parameter name="exe" default="python"/>
-      <server id="Processor${index}" exe="${exe}" activation="always">
+      <server id="Processor-${index}" exe="${exe}" activation="always">
         <option>${OMEROPY_SERV}processor.py</option>
         <env>${PYTHONPATH}</env>
         <adapter name="ProcessorAdapter" replica-group="ProcessorAdapters" register-process="true" endpoints="tcp"/>

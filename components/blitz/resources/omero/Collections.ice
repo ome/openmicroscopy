@@ -119,6 +119,9 @@ module omero {
         ["java:type:java.util.ArrayList<omero.model.PixelsType>:java.util.List<omero.model.PixelsType>"]
             sequence<omero::model::PixelsType> PixelsTypeList;
 
+        ["java:type:java.util.ArrayList<omero.model.Repository>:java.util.List<omero.model.Repository>"]
+            sequence<omero::model::Repository> RepositoryList;
+
         ["java:type:java.util.ArrayList<omero.model.Roi>:java.util.List<omero.model.Roi>"]
             sequence<omero::model::Roi> RoiList;
 

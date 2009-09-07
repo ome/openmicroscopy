@@ -12,6 +12,7 @@
 #include <omero/ModelF.ice>
 #include <omero/Collections.ice>
 #include <omero/Constants.ice>
+#include <omero/Repository.ice>
 #include <omero/ROMIO.ice>
 #include <omero/RTypes.ice>
 #include <omero/Scripts.ice>
@@ -716,7 +717,7 @@ module omero {
 	["ami", "amd"] interface RawPixelsStore extends StatefulServiceInterface
 	{
 	    void setPixelsId(long pixelsId, bool bypassOriginalFile) throws ServerError;
-		idempotent void prepare(omero::sys::LongList pixelsIds) throws ServerError;
+            idempotent void prepare(omero::sys::LongList pixelsIds) throws ServerError;
 	    idempotent int getPlaneSize() throws ServerError;
 	    idempotent int getRowSize() throws ServerError;
 	    idempotent int getStackSize() throws ServerError;
@@ -985,12 +986,19 @@ module omero {
 
 	    StatefulServiceInterface* createByName(string name) throws ServerError;
 
+            //
 	    // Shared resources. Here an acquisition framework is
-	    // in place such that it is not guaranteed that
+	    // in place such that it is not guaranteed that a resource
+            // will be free, and therefore a null proxy may be returned.
+            //
 
 	    omero::grid::InteractiveProcessor*
 		acquireProcessor(omero::model::Job job, int seconds)
 		throws ServerError;
+
+            omero::grid::RepositoryMap
+                acquireRepositories()
+                throws ServerError;
 
 	    /*
 	     * Subscribe to a given topic. The topic must exist and the user must

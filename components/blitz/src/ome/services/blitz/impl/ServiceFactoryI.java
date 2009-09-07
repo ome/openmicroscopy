@@ -7,6 +7,7 @@
 
 package ome.services.blitz.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import ome.conditions.SessionException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.fire.TopicManager;
+import ome.services.blitz.repo.InternalRepositoryI;
 import ome.services.blitz.util.ServantHolder;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.blitz.util.UnregisterServantMessage;
@@ -119,11 +121,16 @@ import omero.constants.UPDATESERVICE;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
+import omero.grid.InternalRepositoryPrx;
+import omero.grid.InternalRepositoryPrxHelper;
 import omero.grid.ProcessorPrx;
 import omero.grid.ProcessorPrxHelper;
+import omero.grid.RepositoryMap;
+import omero.grid.RepositoryPrx;
 import omero.model.Job;
 import omero.model.JobStatus;
 import omero.model.JobStatusI;
+import omero.model.Repository;
 import omero.util.IceMapper;
 
 import org.aopalliance.aop.Advice;
@@ -345,13 +352,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // ~ Stateful
     // =========================================================================
 
-
     public ExporterPrx createExporter(Current current) throws ServerError {
         return ExporterPrxHelper.uncheckedCast(createByName(
                 EXPORTERSERVICE.value, current));
     }
 
-    
     public GatewayPrx createGateway(Ice.Current current) throws ServerError {
         return GatewayPrxHelper.uncheckedCast(createByName(
                 GATEWAYSERVICE.value, current));
@@ -444,6 +449,45 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         log.info("Registered " + prx + " for " + topicName);
     }
 
+    public RepositoryMap acquireRepositories(Current current)
+            throws ServerError {
+        // Possibly need to throttle the numbers of acquisitions per time.
+        // Need to keep up with closing
+        // might need to cache the found repositories.
+
+        // Temporary. Find the first
+        Ice.ObjectPrx objectPrx = adapter.getCommunicator().stringToProxy(
+                "IceGrid/Query");
+        IceGrid.QueryPrx query = IceGrid.QueryPrxHelper.checkedCast(objectPrx);
+        Ice.ObjectPrx[] candidates = query
+                .findAllObjectsByType(InternalRepositoryI.ice_staticId());
+        InternalRepositoryPrx[] repos = new InternalRepositoryPrx[candidates.length];
+        for (int i = 0; i < repos.length; i++) {
+            try {
+                repos[i] = InternalRepositoryPrxHelper
+                        .checkedCast(candidates[i]);
+            } catch (Exception e) {
+                log.info("Not adding " + candidates[i]);
+            }
+        }
+
+        RepositoryMap map = new RepositoryMap();
+        map.descriptions = new ArrayList<Repository>();
+        map.proxies = new ArrayList<RepositoryPrx>();
+
+        for (InternalRepositoryPrx i : repos) {
+            if (i == null) {
+                continue;
+            }
+            Repository desc = i.getDescription();
+            RepositoryPrx proxy = i.getProxy();
+            map.descriptions.add(desc);
+            map.proxies.add(proxy);
+        }
+
+        return map;
+    }
+
     public InteractiveProcessorPrx acquireProcessor(final Job submittedJob,
             int seconds, Current current) throws ServerError {
 
@@ -502,27 +546,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         long start = System.currentTimeMillis();
         long stop = seconds < 0 ? start : (start + (seconds * 1000L));
         do {
-
-            Ice.ObjectPrx objectPrx = adapter.getCommunicator().stringToProxy(
-                    "IceGrid/Query");
-            IceGrid.QueryPrx query = IceGrid.QueryPrxHelper
-                    .checkedCast(objectPrx);
-            Ice.ObjectPrx[] candidates = query
-                    .findAllObjectsByType("::omero::grid::Processor");
-
-            // //current.con
-
-            for (Ice.ObjectPrx op : candidates) {
-                ProcessorPrx p;
-                try {
-                    p = ProcessorPrxHelper.checkedCast(op);
-                    if (p != null) {
-                        // p.login()
-                    }
-                } catch (Exception e) {
-                    // continue
-                }
-            }
 
             Ice.ObjectPrx prx = adapter.getCommunicator().stringToProxy(
                     "Processor");

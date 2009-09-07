@@ -22,7 +22,7 @@
     <constructor-arg index="2" ref="ome.server"/>
   </bean>
 
-  <bean    id="OMERO.blitz.test"
+  <bean   id="OMERO.blitz.test"
     	  class="ome.system.OmeroContext"
     	  lazy-init="true">
 	<constructor-arg index="0">
@@ -37,5 +37,16 @@
       </list>
     </constructor-arg>
     <constructor-arg index="1" value="true"/>
+  </bean>
+  
+  <bean   id="OMERO.repository"
+          class="ome.system.OmeroContext"
+          lazy-init="true">
+    <constructor-arg index="0">
+      <list>
+        <!-- Primary reason for this context -->
+        <value>classpath:ome/services/repository/repository.xml</value>
+      </list>
+    </constructor-arg>
   </bean>
 </beans>

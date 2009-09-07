@@ -195,6 +195,9 @@ public class Entry {
             if (ctx.containsBean("Ice.Communicator")) {
                 ic = (Ice.Communicator) ctx.getBean("Ice.Communicator");
             } else {
+                // TODO This should be adapted to work for any process
+                // that doesn't need to add servants. Here "Indexer" could
+                // be replaced by omero.name or similar.
                 ic = Ice.Util.initialize(id);
                 Ice.ObjectAdapter oa = ic.createObjectAdapter("IndexerAdapter");
                 oa.activate();

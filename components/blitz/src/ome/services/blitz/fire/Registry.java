@@ -9,8 +9,16 @@ package ome.services.blitz.fire;
 
 import java.util.Arrays;
 
+import ome.services.blitz.repo.InternalRepositoryI;
+import omero.grid.InternalRepositoryPrx;
+import omero.grid.InternalRepositoryPrxHelper;
+import omero.grid.ProcessorPrx;
+import omero.grid.ProcessorPrxHelper;
+import omero.grid.RepositoryPrx;
+import omero.grid._ProcessorDisp;
 import omero.internal.ClusterNodePrx;
 import omero.internal.ClusterNodePrxHelper;
+import omero.internal._ClusterNodeDisp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,6 +62,10 @@ public interface Registry {
      * during lookup (null {@link IceGrid.QueryPrx} for example)
      */
     public abstract ClusterNodePrx[] lookupClusterNodes();
+    
+    public abstract ProcessorPrx[] lookupProcessors();
+    
+    public abstract InternalRepositoryPrx[] lookupRepositories();
     
     public class Impl implements Registry {
 
@@ -137,9 +149,6 @@ public interface Registry {
             return false;
         }
 
-        /* (non-Javadoc)
-         * @see ome.services.blitz.fire.T#lookupClusterNodes()
-         */
         public ClusterNodePrx[] lookupClusterNodes() {
             IceGrid.QueryPrx query = getGridQuery();
             if (query == null) {
@@ -148,7 +157,7 @@ public interface Registry {
             try {
                 Ice.ObjectPrx[] candidates = null;
                 candidates = query
-                        .findAllObjectsByType("::omero::internal::ClusterNode");
+                        .findAllObjectsByType(_ClusterNodeDisp.ice_staticId());
                 ClusterNodePrx[] nodes = new ClusterNodePrx[candidates.length];
                 for (int i = 0; i < nodes.length; i++) {
                     nodes[i] = ClusterNodePrxHelper
@@ -159,6 +168,53 @@ public interface Registry {
                 return nodes;
             } catch (Exception e) {
                 log.warn("Could not query cluster nodes " + e);
+                return null;
+            }
+        }
+        
+        public ProcessorPrx[] lookupProcessors() {
+            IceGrid.QueryPrx query = getGridQuery();
+            if (query == null) {
+                return null; // EARLY EXIT
+            }
+            try {
+                Ice.ObjectPrx[] candidates = null;
+                candidates = query
+                        .findAllObjectsByType(_ProcessorDisp.ice_staticId());
+                ProcessorPrx[] procs = new ProcessorPrx[candidates.length];
+                for (int i = 0; i < procs.length; i++) {
+                    procs[i] = ProcessorPrxHelper
+                            .uncheckedCast(candidates[i]);
+                }
+                log.info("Found " + procs.length + " processor(s) : "
+                        + Arrays.toString(procs));
+                return procs;
+            } catch (Exception e) {
+                log.warn("Could not query processors " + e);
+                return null;
+            }
+        }
+        
+        
+        public InternalRepositoryPrx[] lookupRepositories() {
+            IceGrid.QueryPrx query = getGridQuery();
+            if (query == null) {
+                return null; // EARLY EXIT
+            }
+            try {
+                Ice.ObjectPrx[] candidates = null;
+                candidates = query
+                        .findAllObjectsByType(InternalRepositoryI.ice_staticId());
+                InternalRepositoryPrx[] repos = new InternalRepositoryPrx[candidates.length];
+                for (int i = 0; i < repos.length; i++) {
+                    repos[i] = InternalRepositoryPrxHelper
+                            .uncheckedCast(candidates[i]);
+                }
+                log.info("Found " + repos.length + " repo(s) : "
+                        + Arrays.toString(repos));
+                return repos;
+            } catch (Exception e) {
+                log.warn("Could not query repositories " + e);
                 return null;
             }
         }
