@@ -121,8 +121,10 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             command = ["sc", "query", svc_name]
             popen = ctx.popen(command) # popen
             output = popen.communicate()[0]
-            ctx.dbg("Checking for %s: %s" % (svc_name, output))
-            return output
+            if 0 <= output.find("FAILED 1060"):
+                return "DOESNOTEXIST"
+            else:
+                return output
 
     #
     # End Windows Methods
@@ -359,7 +361,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         if self._isWindows():
             svc_name = "OMERO.%s" % self._node()
             output = self._query_service(svc_name)
-            if 0 <= output.find("does not exist"):
+            if 0 <= output.find("DOESNOTEXIST"):
 	        self.ctx.die(203, "%s does not exist. Use 'start' first." % svc_name)
             self.ctx.out(self.ctx.popen(["sc","stop",svc_name]).communicate()[0]) # popen
             self.ctx.out(self.ctx.popen(["sc","delete",svc_name]).communicate()[0]) # popen
