@@ -1020,4 +1020,21 @@ public class TestServiceFactory implements ServiceFactoryPrx
         return null;
     }
     
+    public omero.api.ExporterPrx createExporter() throws ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public omero.api.ExporterPrx createExporter(Map<String, String> __ctx) throws ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    public omero.grid.SharedResourcesPrx sharedResources() {
+    	return null;
+    }
+
+    public omero.grid.SharedResourcesPrx sharedResources(java.util.Map<java.lang.String,java.lang.String> arg0) {
+    	return null;
+    }
 }
