@@ -130,6 +130,7 @@ module omero {
 
         // Arrays
 
+        sequence<bool> BoolArray;
         sequence<byte> ByteArray;
         sequence<short> ShortArray;
         sequence<int> IntegerArray;

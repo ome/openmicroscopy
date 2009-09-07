@@ -574,7 +574,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
     // Types
 
-    @Test( groups = "ticket:1436" )
+    @Test( groups = {"ticket:1436","broken"} )
     public void testTypesWorks() throws Exception {
 
         ITypes t;

@@ -8,8 +8,12 @@
 package ome.services.blitz.fire;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import ome.services.blitz.repo.InternalRepositoryI;
+import omero.api.ServiceFactoryPrx;
 import omero.grid.InternalRepositoryPrx;
 import omero.grid.InternalRepositoryPrxHelper;
 import omero.grid.ProcessorPrx;
@@ -24,6 +28,8 @@ import omero.internal._ClusterNodeDisp;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import Glacier2.SessionManagerPrx;
+import Glacier2.SessionPrx;
 import IceGrid.PermissionDeniedException;
 
 /**
@@ -36,8 +42,27 @@ import IceGrid.PermissionDeniedException;
 public interface Registry {
 
     /**
-     * Returns an active {@link IceGrid.QueryPrx} or null if none is
-     * available.
+     * Try to return a ServiceFactory from the grid.
+     * 
+     * Try a number of times then give up and raise the last exception returned.
+     * This method will only work internally to the grid, i.e. behind the
+     * Glacier2 firewall. It is intended for internal servers to be able to
+     * create sessions for accessing the database.
+     * 
+     *<pre>
+     * communicator := Ice.Communicator used to find the registry
+     * user         := Username which should have a session created
+     * group        := Group into which the session should be logged
+     * retries      := Number of session creation retries before throwing
+     * interval     := Seconds between retries
+     * client_uuid  := Uuid of the client which should be used
+     * </pre>
+     */
+    ServiceFactoryPrx getInternalServiceFactory(String user, String group,
+            int retries, int interval, String client_uuid) throws Exception;
+
+    /**
+     * Returns an active {@link IceGrid.QueryPrx} or null if none is available.
      */
     public abstract IceGrid.QueryPrx getGridQuery();
 
@@ -59,17 +84,17 @@ public interface Registry {
     public abstract boolean removeObjectSafely(Ice.Identity id);
 
     /**
-     * Returns all found cluster nodes or null if something goes wrong
-     * during lookup (null {@link IceGrid.QueryPrx} for example)
+     * Returns all found cluster nodes or null if something goes wrong during
+     * lookup (null {@link IceGrid.QueryPrx} for example)
      */
     public abstract ClusterNodePrx[] lookupClusterNodes();
-    
+
     public abstract ProcessorPrx[] lookupProcessors();
-    
+
     public abstract InternalRepositoryPrx[] lookupRepositories();
-    
+
     public abstract TablesPrx[] lookupTables();
-    
+
     public class Impl implements Registry {
 
         private final static Log log = LogFactory.getLog(Registry.class);
@@ -80,7 +105,46 @@ public interface Registry {
             this.ic = ic;
         }
 
-        /* (non-Javadoc)
+        public ServiceFactoryPrx getInternalServiceFactory(String user,
+                String group, int retries, int interval, String client_uuid)
+                throws Exception {
+
+            int tryCount = 0;
+            Exception excpt = null;
+            Ice.ObjectPrx prx = ic.stringToProxy("IceGrid/Query");
+            IceGrid.QueryPrx query = IceGrid.QueryPrxHelper.checkedCast(prx);
+
+            if (client_uuid == null || client_uuid == "") {
+                client_uuid = UUID.randomUUID().toString();
+            }
+
+            while (tryCount < retries) {
+                try {
+                    Map<String, String> ctx = new HashMap<String, String>();
+                    ctx.put("omero.client.uuid", client_uuid);
+                    prx = query
+                            .findAllObjectsByType("::Glacier2::SessionManager")[0];
+                    SessionManagerPrx blitz = Glacier2.SessionManagerPrxHelper
+                            .checkedCast(prx);
+                    SessionPrx sf = blitz.create(user, null, ctx);
+                    // Group currently unused.
+                    return omero.api.ServiceFactoryPrxHelper.checkedCast(sf);
+                } catch (Exception e) {
+                    tryCount += 1;
+                    log.info("Failed to get session on attempt " + tryCount);
+                    excpt = e;
+                    Thread.sleep(interval);
+                }
+            }
+
+            log.warn("Reason: " + excpt);
+            throw excpt;
+
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
          * @see ome.services.blitz.fire.T#getGridQuery()
          */
         public IceGrid.QueryPrx getGridQuery() {
@@ -95,7 +159,9 @@ public interface Registry {
             }
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see ome.services.blitz.fire.T#getAdminSession()
          */
         public IceGrid.AdminSessionPrx getAdminSession()
@@ -108,7 +174,9 @@ public interface Registry {
             return session;
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see ome.services.blitz.fire.T#addObject(Ice.ObjectPrx)
          */
         public void addObject(Ice.ObjectPrx obj) throws Exception {
@@ -122,7 +190,9 @@ public interface Registry {
             }
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see ome.services.blitz.fire.T#removeObject(Ice.Identity)
          */
         public void removeObject(Ice.Identity id) throws Exception {
@@ -136,7 +206,9 @@ public interface Registry {
             }
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see ome.services.blitz.fire.T#removeObjectSafely(Ice.Identity)
          */
         public boolean removeObjectSafely(Ice.Identity id) {
@@ -159,8 +231,8 @@ public interface Registry {
             }
             try {
                 Ice.ObjectPrx[] candidates = null;
-                candidates = query
-                        .findAllObjectsByType(_ClusterNodeDisp.ice_staticId());
+                candidates = query.findAllObjectsByType(_ClusterNodeDisp
+                        .ice_staticId());
                 ClusterNodePrx[] nodes = new ClusterNodePrx[candidates.length];
                 for (int i = 0; i < nodes.length; i++) {
                     nodes[i] = ClusterNodePrxHelper
@@ -174,7 +246,7 @@ public interface Registry {
                 return null;
             }
         }
-        
+
         public ProcessorPrx[] lookupProcessors() {
             IceGrid.QueryPrx query = getGridQuery();
             if (query == null) {
@@ -182,12 +254,11 @@ public interface Registry {
             }
             try {
                 Ice.ObjectPrx[] candidates = null;
-                candidates = query
-                        .findAllObjectsByType(_ProcessorDisp.ice_staticId());
+                candidates = query.findAllObjectsByType(_ProcessorDisp
+                        .ice_staticId());
                 ProcessorPrx[] procs = new ProcessorPrx[candidates.length];
                 for (int i = 0; i < procs.length; i++) {
-                    procs[i] = ProcessorPrxHelper
-                            .uncheckedCast(candidates[i]);
+                    procs[i] = ProcessorPrxHelper.uncheckedCast(candidates[i]);
                 }
                 log.info("Found " + procs.length + " processor(s) : "
                         + Arrays.toString(procs));
@@ -197,7 +268,7 @@ public interface Registry {
                 return null;
             }
         }
-        
+
         public TablesPrx[] lookupTables() {
             IceGrid.QueryPrx query = getGridQuery();
             if (query == null) {
@@ -205,12 +276,11 @@ public interface Registry {
             }
             try {
                 Ice.ObjectPrx[] candidates = null;
-                candidates = query
-                        .findAllObjectsByType(_ProcessorDisp.ice_staticId());
+                candidates = query.findAllObjectsByType(_ProcessorDisp
+                        .ice_staticId());
                 TablesPrx[] tables = new TablesPrx[candidates.length];
                 for (int i = 0; i < tables.length; i++) {
-                    tables[i] = TablesPrxHelper
-                            .uncheckedCast(candidates[i]);
+                    tables[i] = TablesPrxHelper.uncheckedCast(candidates[i]);
                 }
                 log.info("Found " + tables.length + " table services(s) : "
                         + Arrays.toString(tables));
@@ -220,7 +290,7 @@ public interface Registry {
                 return null;
             }
         }
-        
+
         public InternalRepositoryPrx[] lookupRepositories() {
             IceGrid.QueryPrx query = getGridQuery();
             if (query == null) {
@@ -228,8 +298,8 @@ public interface Registry {
             }
             try {
                 Ice.ObjectPrx[] candidates = null;
-                candidates = query
-                        .findAllObjectsByType(InternalRepositoryI.ice_staticId());
+                candidates = query.findAllObjectsByType(InternalRepositoryI
+                        .ice_staticId());
                 InternalRepositoryPrx[] repos = new InternalRepositoryPrx[candidates.length];
                 for (int i = 0; i < repos.length; i++) {
                     repos[i] = InternalRepositoryPrxHelper

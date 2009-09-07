@@ -6,13 +6,19 @@
  */
 package ome.services.blitz.repo;
 
+import static omero.rtypes.rstring;
+
 import java.io.File;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.UUID;
 
 import ome.services.blitz.fire.Registry;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
+import omero.api.ServiceFactoryPrx;
 import omero.api.ThumbnailStorePrx;
 import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
@@ -21,7 +27,6 @@ import omero.model.OriginalFile;
 import omero.model.Repository;
 import omero.model.RepositoryI;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -42,38 +47,30 @@ public class InternalRepositoryI extends _InternalRepositoryDisp {
 
     private final Ice.ObjectAdapter oa;
 
+    private final Registry reg;
+
     private final Repository description;
 
     private final RepositoryPrx proxy;
 
+    private final RandomAccessFile raf;
+
+    private final FileChannel channel;
+
+    private final FileLock lock;
+
+    private final String dbUuid;
+
     private final String repoUuid;
-    
-    private final String ownUuid = Ice.Util.generateUUID();
 
     public InternalRepositoryI() throws Exception {
 
-        String repo = System.getProperty("omero.repo");
-        log.info("Directory: " + repo);
+        String mount = System.getProperty("omero.repo");
+        log.info("Initializing repository in" + mount);
 
-        File repoDir = new File(repo);
-        File repoFile = new File(repoDir.getAbsolutePath() + File.separator
-                + ".omero.repository");
-
-        // WILL HAVE TO WAIT ON BLITZ TO COME ONLINE
-
-        if (!repoFile.exists()) {
-            repoUuid = UUID.randomUUID().toString();
-            FileUtils.writeStringToFile(repoFile, repoUuid);
-            log.info("Initialized new repository: " + repoUuid);
-            // UUID SHOULDN'T EXIST IN DB
-            description = new RepositoryI();
-        } else {
-            repoUuid = FileUtils.readFileToString(repoFile);
-            log.info("Opened repository: " + repoUuid);
-            // UUID SHOULD EXIST IN DB
-            description = new RepositoryI();
-        }
-
+        //
+        // Ice Initialization
+        //
         id = new Ice.InitializationData();
         id.properties = Ice.Util.createProperties();
         String ICE_CONFIG = System.getProperty("ICE_CONFIG");
@@ -81,23 +78,70 @@ public class InternalRepositoryI extends _InternalRepositoryDisp {
             id.properties.load(ICE_CONFIG);
         }
         ic = Ice.Util.initialize(id);
+        reg = new Registry.Impl(ic);
         oa = ic.createObjectAdapter("RepositoryAdapter");
-        
         String serverId = ic.getProperties().getProperty("Ice.Admin.ServerId");
         Ice.Identity id = Ice.Util.stringToIdentity(serverId);
         Ice.ObjectPrx obj = oa.add(this, id);
 
+        //
+        // Database access
+        //
+        ServiceFactoryPrx sf = reg.getInternalServiceFactory("root", null, 5,
+                12, UUID.randomUUID().toString());
+        try {
+            dbUuid = sf.getConfigService().getDatabaseUuid().getValue();
+            File mountDir = new File(mount);
+            File omeroDir = new File(mountDir, ".omero");
+            File uuidDir = new File(omeroDir, dbUuid);
+            if (!uuidDir.exists()) {
+                uuidDir.mkdirs();
+                log.info("Creating " + uuidDir);
+            }
+
+            File repoLock = new File(uuidDir, "omero.grid.repository");
+            raf = new RandomAccessFile(repoLock, "rw");
+            channel = raf.getChannel();
+            lock = channel.lock();
+            String line = raf.readLine();
+            if (line == null || line.trim().equals("")) {
+                repoUuid = UUID.randomUUID().toString();
+                raf.writeChars(repoUuid);
+                Repository r = new RepositoryI();
+                r.setUuid(rstring(repoUuid));
+                r.setName(rstring(mount));
+                r.setType(rstring("unused"));
+                description = (Repository) sf.getUpdateService()
+                        .saveAndReturnObject(r);
+                log.info("Registered new repository: " + repoUuid);
+            } else {
+                repoUuid = line.trim();
+                description = (Repository) sf.getQueryService().findByString(
+                        "Repository", "uuid", repoUuid);
+                log.info("Opened repository: " + repoUuid);
+            }
+        } finally {
+            sf.destroy();
+        }
+
+        //
+        // Servants
+        //
         PublicRepositoryI pr = new PublicRepositoryI();
         proxy = RepositoryPrxHelper.uncheckedCast(oa.addWithUUID(pr));
 
+        //
+        // Activation & Registration
+        //
         oa.activate();
-
-        // Now that we're active, register us with the grid if we haven't
-        // already been.
         Registry reg = new Registry.Impl(ic);
         if (reg.getGridQuery().findObjectById(id) == null) {
             reg.addObject(obj);
         }
+
+    }
+
+    public void close() {
 
     }
 

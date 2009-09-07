@@ -31,20 +31,36 @@ module omero {
 
         };
 
-        class ImageColumn {
+        class FileColumn extends Column {
             omero::api::LongArray values;
         };
 
-        class RoiColumn {
+        class ImageColumn extends Column {
             omero::api::LongArray values;
         };
 
-        class DoubleColumn {
+        class RoiColumn extends Column {
+            omero::api::LongArray values;
+        };
+
+        class WellColumn extends Column {
+            omero::api::LongArray values;
+        };
+
+        class BoolColumn extends Column {
+            omero::api::BoolArray values;
+        };
+
+        class DoubleColumn extends Column {
             omero::api::DoubleArray values;
         };
 
-        class LongColumn {
+        class LongColumn extends Column {
             omero::api::LongArray values;
+        };
+        
+        class StringColumn extends Column {
+            omero::api::StringArray values;
         };
 
         sequence<Column> ColumnArray;
