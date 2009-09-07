@@ -7,17 +7,10 @@
 
 package ome.services.blitz.impl;
 
-import static omero.rtypes.rstring;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import javax.xml.transform.TransformerException;
 
@@ -31,12 +24,6 @@ import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.db.DatabaseIdentity;
-import ome.services.util.Executor;
-import ome.services.util.Executor.SimpleWork;
-import ome.services.util.Executor.Work;
-import ome.system.Principal;
-import ome.system.ServiceFactory;
-import ome.util.Filterable;
 import ome.util.messages.InternalMessage;
 import ome.xml.DOMUtil;
 import ome.xml.OMEXMLNode;
@@ -44,27 +31,15 @@ import omero.ServerError;
 import omero.api.AMD_Exporter_addImage;
 import omero.api.AMD_Exporter_asXml;
 import omero.api.AMD_Exporter_getBytes;
-import omero.api.AMD_Exporter_start;
 import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api._ExporterOperations;
-import omero.model.Arc;
-import omero.model.Details;
-import omero.model.Event;
-import omero.model.ExternalInfo;
-import omero.model.ExternalInfoI;
-import omero.model.IObject;
-import omero.model.Image;
 import omero.model.ImageI;
-import omero.model.Instrument;
-import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 

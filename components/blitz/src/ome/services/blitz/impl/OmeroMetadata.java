@@ -165,45 +165,37 @@ public class OmeroMetadata implements MetadataRetrieve {
 
     }
 
-    public void initialize(ServiceFactoryI factory) {
-
-        Executor ex = factory.getExecutor();
-        Principal p = factory.principal;
+    public void initialize(org.hibernate.Session session) {
 
         Map<Image, Image> replacements = new HashMap<Image, Image>();
         for (Image image : imageList) {
             if (!image.isLoaded()) {
 
                 final Image i = image;
-                Work work = new SimpleWork(this, "initialize") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(org.hibernate.Session session,
-                            ServiceFactory sf) {
-                        QueryBuilder qb = new QueryBuilder();
-                        qb.select("i");
-                        qb.from("Image", "i");
-                        qb.join("i.details.owner", "i_o", false, true);
-                        qb.join("i.details.group", "i_g", false, true);
-                        qb.join("i.pixels", "p", true, true);
-                        qb.join("p.details.owner", "p_o", false, true);
-                        qb.join("p.details.group", "p_g", false, true);
-                        qb.join("p.channels", "c", true, true);
-                        qb.join("c.logicalChannel", "l", true, true);
-                        qb.join("i.instrument", "n", true, true);
-                        qb.join("n.objective", "o", true, true);
-                        qb.join("o.correction", "o_cor", true, true);
-                        qb.join("o.immersion", "o_imm", true, true);
-                        qb.join("n.details.owner", "n_o", false, true);
-                        qb.join("n.details.group", "n_g", false, true);
-                        qb.where();
-                        qb.and("i.id = " + i.getId().getValue());
-                        return qb.query(session).uniqueResult();
-                    }
-                };
+                QueryBuilder qb = new QueryBuilder();
+                qb.select("i");
+                qb.from("Image", "i");
+                qb.join("i.details.owner", "i_o", false, true);
+                qb.join("i.details.group", "i_g", false, true);
+                qb.join("i.pixels", "p", true, true);
+                qb.join("p.details.owner", "p_o", false, true);
+                qb.join("p.details.group", "p_g", false, true);
+                qb.join("p.channels", "c", true, true);
+                qb.join("c.logicalChannel", "l", true, true);
+                qb.join("i.instrument", "n", true, true);
+                qb.join("n.objective", "o", true, true);
+                qb.join("o.correction", "o_cor", true, true);
+                qb.join("o.immersion", "o_imm", true, true);
+                qb.join("n.details.owner", "n_o", false, true);
+                qb.join("n.details.group", "n_g", false, true);
+                qb.where();
+                qb.and("i.id = " + i.getId().getValue());
+                // eturn qb.query(session).uniqueResult();
 
-                Filterable replacement = (Filterable) ex.execute(p, work);
-                IceMapper mapper = new IceMapper();
-                replacements.put(image, (Image) mapper.map(replacement));
+                ome.model.core.Image img = (ome.model.core.Image) session.get(
+                        ome.model.core.Image.class, i.getId().getValue());
+                Image replacement = (Image) new IceMapper().map(img);
+                replacements.put(image, replacement);
 
             }
         }
