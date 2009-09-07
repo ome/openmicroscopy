@@ -20,7 +20,7 @@
       were set on the command line. These values may be overwritten
       by `bin/omero config` values.
       -->
-      <property name="omero.example" value="my_value"/>
+      <property name="omero.example"  value="my_value"/>
     </properties>
 
     <replica-group id="BlitzAdapters">
@@ -30,9 +30,13 @@
     </replica-group>
 
     <replica-group id="ProcessorAdapters">
-      <!--load-balancing type="adaptive" load-sample="5" n-replicas="2"/-->
       <load-balancing type="round-robin"/>
       <object identity="Processor" type="::omero::grid::Processor"/>
+    </replica-group>
+
+    <replica-group id="TablesAdapters">
+      <load-balancing type="round-robin"/>
+      <object identity="Tables" type="::omero::grid::Tables"/>
     </replica-group>
 
     <node name="master">
@@ -41,13 +45,16 @@
         session-timeout="300"
         server-endpoints="tcp -h 127.0.0.1"/>
       <server-instance template="BlitzTemplate" index="0" config="default"/>
-      <server-instance template="RepositoryTemplate" index="0" dir="/MOUNT"/>
       <server-instance template="IndexerTemplate" index="0"/>
       <server-instance template="DropBoxTemplate"/>
       <server-instance template="FSTemplate"/>
-      <server-instance template="ProcessorTemplate" index="0"/>
       <server-instance template="ShellTemplate" id="Web" act="on-demand"/>
       <server-instance template="StormTemplate"/>
+      <!-- There should only be one of each server per host per mount.
+           "" defaults to use omero.data.dir -->
+      <server-instance template="RepositoryTemplate" index="0" dir=""/>
+      <server-instance template="ProcessorTemplate" index="0" dir=""/>
+      <server-instance template="TablesTemplate" index="0" dir=""/>
     </node>
 
     <node name="backup">

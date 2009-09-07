@@ -8,6 +8,7 @@
 package ome.services.blitz.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,7 +20,6 @@ import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.fire.TopicManager;
-import ome.services.blitz.repo.InternalRepositoryI;
 import ome.services.blitz.util.ServantHolder;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.blitz.util.UnregisterServantMessage;
@@ -121,16 +121,15 @@ import omero.constants.TYPESSERVICE;
 import omero.constants.UPDATESERVICE;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
-import omero.grid.InteractiveProcessorPrxHelper;
 import omero.grid.InternalRepositoryPrx;
-import omero.grid.InternalRepositoryPrxHelper;
-import omero.grid.ProcessorPrx;
-import omero.grid.ProcessorPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
+import omero.grid.TablePrx;
+import omero.grid.TablesPrx;
 import omero.model.Job;
 import omero.model.JobStatus;
 import omero.model.JobStatusI;
+import omero.model.OriginalFile;
 import omero.model.Repository;
 import omero.util.IceMapper;
 
@@ -189,7 +188,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     final TopicManager topicManager;
 
     final Registry registry;
-    
+
     /**
      * {@link Executor} to be used by servant implementations which do not
      * delegate to the server package where all instances are wrapped with AOP
@@ -212,8 +211,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     public ServiceFactoryI(Ice.Current current, OmeroContext context,
             SessionManager manager, Executor executor, Principal p,
-            List<HardWiredInterceptor> interceptors,
-            TopicManager topicManager, Registry registry) throws ApiUsageException {
+            List<HardWiredInterceptor> interceptors, TopicManager topicManager,
+            Registry registry) throws ApiUsageException {
         this.adapter = current.adapter;
         this.clientId = clientId(current);
         this.context = context;
@@ -451,6 +450,57 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         log.info("Registered " + prx + " for " + topicName);
     }
 
+    // Acquisition framework
+    // =========================================================================
+
+    private void checkAcquisitionWait(int seconds) {
+        if (seconds > (3 * 60)) {
+            ApiUsageException aue = new ApiUsageException();
+            aue.message = "Delay is too long. Maximum = 3 minutes.";
+        }
+    }
+
+    private interface RepeatTask<T extends Ice.ObjectPrx, U extends Ice.ObjectPrx> {
+        U lookupService(T server);
+    }
+
+    private <T extends Ice.ObjectPrx, U extends Ice.ObjectPrx> U repeatLookup(
+            List<T> objectPrxs, int seconds, RepeatTask<T, U> task) {
+
+        long start = System.currentTimeMillis();
+        long stop = seconds < 0 ? start : (start + (seconds * 1000L));
+        do {
+
+            for (T prx : objectPrxs) {
+                if (prx != null) {
+                    try {
+
+                        U service = task.lookupService(prx);
+                        if (service != null) {
+                            return service;
+                        }
+
+                        try {
+                            Thread.sleep((stop - start) / 10);
+                        } catch (InterruptedException ie) {
+                            // ok.
+                        }
+                    } catch (Ice.NoEndpointException nee) {
+                        // This means that there probably is none.
+                        // Wait a little longer
+                        try {
+                            Thread.sleep((stop - start) / 3);
+                        } catch (InterruptedException ie) {
+                            // ok.
+                        }
+                    }
+                }
+            }
+        } while (stop < System.currentTimeMillis());
+
+        return null;
+    }
+
     public RepositoryMap acquireRepositories(Current current)
             throws ServerError {
         // Possibly need to throttle the numbers of acquisitions per time.
@@ -476,13 +526,83 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         return map;
     }
 
+    @SuppressWarnings("unchecked")
+    public TablePrx acquireTable(final OriginalFile file, int seconds,
+            Current __current) throws ServerError {
+
+        checkAcquisitionWait(seconds);
+
+        // Now make sure the current user has permissions to do this
+        if (file == null) {
+
+            return null;
+
+        } else if (file.getId() != null) {
+
+            executor.execute(principal, new Executor.SimpleWork(this,
+                    "checkOriginalFilePermissions", file.getId().getValue()) {
+                @Transactional(readOnly = true)
+                public Object doWork(Session session, ServiceFactory sf) {
+                    return sf.getQueryService().get(
+                            ome.model.core.OriginalFile.class,
+                            file.getId().getValue());
+
+                }
+            });
+            file.unload();
+
+        } else {
+
+            // Overwrites
+            omero.RTime creation = omero.rtypes.rtime(System
+                    .currentTimeMillis());
+            file.setCtime(creation);
+            file.setAtime(creation);
+            file.setMtime(creation);
+            file.setSha1(omero.rtypes.rstring("DIR"));
+            file.setFormat(new omero.model.FormatI());
+            file.getFormat().setValue(omero.rtypes.rstring("OMERO.tables"));
+            file.setRepository(null);
+            file.setPath(omero.rtypes.rstring("TBD"));
+            file.setSize(omero.rtypes.rlong(0));
+            IceMapper mapper = new IceMapper();
+            final ome.model.core.OriginalFile f = (ome.model.core.OriginalFile) mapper
+                    .reverse(file);
+            Long id = (Long) executor.execute(principal,
+                    new Executor.SimpleWork(this, "saveNewOriginalFile", file
+                            .getName().getValue()) {
+                        @Transactional(readOnly = false)
+                        public Object doWork(Session session, ServiceFactory sf) {
+                            return sf.getUpdateService().saveAndReturnObject(f)
+                                    .getId();
+                        }
+                    });
+            file.setId(omero.rtypes.rlong(id));
+            file.unload();
+
+        }
+
+        // Okay. All's valid.
+        TablesPrx[] tables = registry.lookupTables();
+        TablePrx tablePrx = (TablePrx) repeatLookup(Arrays.asList(tables),
+                seconds, new RepeatTask<TablesPrx, TablePrx>() {
+                    public TablePrx lookupService(TablesPrx server) {
+                        return server.getTable(file);
+                    }
+                });
+        return tablePrx;
+
+    }
+
+    public TablePrx volatileTable(OriginalFile file, Current __current)
+            throws ServerError {
+        throw new ApiUsageException(null, null, "NYI");
+    }
+
     public InteractiveProcessorPrx acquireProcessor(final Job submittedJob,
             int seconds, Current current) throws ServerError {
 
-        if (seconds > (3 * 60)) {
-            ApiUsageException aue = new ApiUsageException();
-            aue.message = "Delay is too long. Maximum = 3 minutes.";
-        }
+        checkAcquisitionWait(seconds);
 
         final IceMapper mapper = new IceMapper();
 
@@ -531,43 +651,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // Create session (with session)
         // Setup environment
         // Send off to processor
-        long start = System.currentTimeMillis();
-        long stop = seconds < 0 ? start : (start + (seconds * 1000L));
-        do {
 
-            Ice.ObjectPrx prx = adapter.getCommunicator().stringToProxy(
-                    "Processor");
-            if (prx != null) {
-                ProcessorPrx processor;
-                try {
-                    processor = ProcessorPrxHelper.checkedCast(prx);
-                    if (processor != null) {
-                        long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
-                        InteractiveProcessorI ip = new InteractiveProcessorI(
-                                this.principal, this.sessionManager,
-                                this.executor, processor, unloadedJob, timeout);
-                        Ice.Identity id = new Ice.Identity();
-                        id.category = current.id.name;
-                        id.name = Ice.Util.generateUUID();
-                        Ice.ObjectPrx rv = registerServant(current, id, ip);
-                        return InteractiveProcessorPrxHelper.uncheckedCast(rv);
-                    }
-                    try {
-                        Thread.sleep((stop - start) / 10);
-                    } catch (InterruptedException ie) {
-                        // ok.
-                    }
-                } catch (Ice.NoEndpointException nee) {
-                    // This means that there probably is none.
-                    // Wait a little longer
-                    try {
-                        Thread.sleep((stop - start) / 3);
-                    } catch (InterruptedException ie) {
-                        // ok.
-                    }
-                }
-            }
-        } while (stop < System.currentTimeMillis());
         return null;
     }
 

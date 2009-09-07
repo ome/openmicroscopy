@@ -569,6 +569,7 @@
 		<entry name="MetamorphTiff"/>
 		<entry name="Tiff"/>
 		<entry name="Openlab"/>
+                <!-- Standardized -->
 		<entry name="text/csv"/>
 		<entry name="text/plain"/>
 		<entry name="text/xml"/>
@@ -593,6 +594,8 @@
 		<entry name="audio/basic"/>
 		<entry name="audio/mpeg"/>
 		<entry name="audio/wav"/>
+                <!-- Internal formats -->
+                <entry name="OMERO.tables"/>
 		<!-- Note: Other and Unknown are not needed use text/plain or application/octet-stream -->
 	</enum>
 <!-- Pixels Entity -->

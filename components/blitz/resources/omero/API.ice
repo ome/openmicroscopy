@@ -1008,9 +1008,16 @@ module omero {
 
             /**
              * Waits up to seconds to acquire an exclusive write lock
-             * on the given Table.
+             * on the given Table, and returns null if the lock cannot
+             * be obtained. After that it is possible to use volatile
+             * table in read-only mode.
+             *
+             * If the OriginalFile does not have an id set (is non-managed),
+             * then an OriginalFile object with Format "OMERO.tables" will
+             * be created. Only the name and the annotation links of the
+             * file object need to be filled out.
              */
-            omero::grid::Table
+            omero::grid::Table*
                 acquireTable(omero::model::OriginalFile file, int seconds)
                 throws ServerError;
 
@@ -1018,7 +1025,7 @@ module omero {
              * Returns a read-only Table instance which will be closed on the
              * first modification.
              */
-            omero::grid::Table
+            omero::grid::Table*
                 volatileTable(omero::model::OriginalFile file)
                 throws ServerError;
 

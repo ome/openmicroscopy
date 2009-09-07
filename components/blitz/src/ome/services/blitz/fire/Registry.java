@@ -14,7 +14,8 @@ import omero.grid.InternalRepositoryPrx;
 import omero.grid.InternalRepositoryPrxHelper;
 import omero.grid.ProcessorPrx;
 import omero.grid.ProcessorPrxHelper;
-import omero.grid.RepositoryPrx;
+import omero.grid.TablesPrx;
+import omero.grid.TablesPrxHelper;
 import omero.grid._ProcessorDisp;
 import omero.internal.ClusterNodePrx;
 import omero.internal.ClusterNodePrxHelper;
@@ -66,6 +67,8 @@ public interface Registry {
     public abstract ProcessorPrx[] lookupProcessors();
     
     public abstract InternalRepositoryPrx[] lookupRepositories();
+    
+    public abstract TablesPrx[] lookupTables();
     
     public class Impl implements Registry {
 
@@ -195,6 +198,28 @@ public interface Registry {
             }
         }
         
+        public TablesPrx[] lookupTables() {
+            IceGrid.QueryPrx query = getGridQuery();
+            if (query == null) {
+                return null; // EARLY EXIT
+            }
+            try {
+                Ice.ObjectPrx[] candidates = null;
+                candidates = query
+                        .findAllObjectsByType(_ProcessorDisp.ice_staticId());
+                TablesPrx[] tables = new TablesPrx[candidates.length];
+                for (int i = 0; i < tables.length; i++) {
+                    tables[i] = TablesPrxHelper
+                            .uncheckedCast(candidates[i]);
+                }
+                log.info("Found " + tables.length + " table services(s) : "
+                        + Arrays.toString(tables));
+                return tables;
+            } catch (Exception e) {
+                log.warn("Could not query tables " + e);
+                return null;
+            }
+        }
         
         public InternalRepositoryPrx[] lookupRepositories() {
             IceGrid.QueryPrx query = getGridQuery();
