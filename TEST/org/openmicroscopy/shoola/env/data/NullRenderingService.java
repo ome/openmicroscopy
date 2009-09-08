@@ -44,6 +44,7 @@ import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -309,9 +310,9 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#loadROI(long, long)
+     * @see OmeroImageService#loadROI(long, List, long)
      */
-	public Object loadROI(long imageID, long userID)
+	public List<ROIResult> loadROI(long imageID, List<Long>fileID, long userID)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

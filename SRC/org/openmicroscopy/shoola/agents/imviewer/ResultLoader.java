@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.ROILoader
+ * org.openmicroscopy.shoola.agents.imviewer.ResultLoader
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -20,21 +20,21 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement;
+package org.openmicroscopy.shoola.agents.imviewer;
 
 
 //Java imports
 import java.util.Collection;
-import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.DataObject;
 
 /**
- * Loads the ROI related to a given image.
+ * Loads the possible ROI result linked to the passed object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *     <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -46,65 +46,51 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since 3.0-Beta4
  */
-public class ROILoader 
-	extends MeasurementViewerLoader
+public class ResultLoader 
+	extends DataLoader
 {
 
-	/** The id of the image the ROIs are related to. */
-	private long		imageID;
-	
-	/** The id of the user. */
-	private long		userID;
-	
-	/** The id of the files to load. */
-	private List<Long> fileID;
-	
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
-   
-    /**
-     * Creates a new instance. 
-     * 
-     * @param viewer	The viewer this data loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param imageID	The id of the image the ROIs are related to.
-     * @param fileID	The id of the file to load.
-     * @param userID	The id of the user.
-     */
-	public ROILoader(MeasurementViewer viewer, long imageID, List<Long> fileID,
-			long userID)
+    
+    private DataObject	object;
+    
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model		Reference to the model.
+	 * @param object	The object hosting the results.	
+	 */
+	public ResultLoader(ImViewer model, DataObject object)
 	{
-		super(viewer);
-		if (imageID < 0) 
-			throw new IllegalArgumentException("No image specified.");
-		this.imageID = imageID;
-		this.userID = userID;
-		this.fileID = fileID;
+		super(model);
+		
 	}
 	
 	/**
-     * Loads the ROI.
-     * @see MeasurementViewerLoader#load()
+     * Loads the attachments .
+     * @see DataLoader#load()
      */
     public void load()
     {
-    	handle = idView.loadROI(imageID, fileID, userID, this);
+        
     }
-    
+
     /**
-     * Cancels the data loading.
-     * @see MeasurementViewerLoader#cancel()
+     * Cancels the ongoing data retrieval.
+     * @see DataLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
-    /**
-     * Feeds the result back to the viewer.
-     * @see MeasurementViewerLoader#handleResult(Object)
+    /** 
+     * Feeds the result back to the viewer. 
+     * @see DataLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-    	if (viewer.getState() == MeasurementViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setServerROI((Collection) result);
+        if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
+        viewer.setContainers((Collection) result);
     }
-
+    
+    
 }

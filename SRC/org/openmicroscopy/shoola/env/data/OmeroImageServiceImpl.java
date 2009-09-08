@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -652,14 +653,17 @@ class OmeroImageServiceImpl
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#loadROI(long, long)
+	 * @see OmeroImageService#loadROI(long, List, long)
 	 */
-	public Object loadROI(long imageID, long userID)
+	public List<ROIResult> loadROI(long imageID, List<Long> fileID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (imageID <= 0)
 			throw new IllegalArgumentException("No image specified.");
-		return gateway.loadROI(imageID, userID);
+		List<ROIResult> results = new ArrayList<ROIResult>();
+		if (fileID == null || fileID.size() == 0) 
+			results.add(new ROIResult(gateway.loadROI(imageID, userID)));
+		return results;//;
 	}
 	
 }

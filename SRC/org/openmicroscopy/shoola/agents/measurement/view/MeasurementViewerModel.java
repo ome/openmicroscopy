@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.ROILoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.util.file.IOUtil;
@@ -464,7 +465,14 @@ class MeasurementViewerModel
 		throws ROICreationException, NoSuchROIException
 	{
 		state = MeasurementViewer.READY;
-		List<ROI> roiList = roiComponent.loadROI(rois);
+		List<ROI> roiList = new ArrayList<ROI>();
+		Iterator r = rois.iterator();
+		ROIResult result;
+		
+		while (r.hasNext()) {
+			result = (ROIResult) r.next();
+			roiList.addAll(roiComponent.loadROI(result.getROIs()));
+		}
 		if (roiList == null) return false;
 		serverROI = true;
 		Iterator<ROI> i = roiList.iterator();
@@ -759,10 +767,12 @@ class MeasurementViewerModel
 	/** Loads the ROI associated to the image. */
 	void fireLoadROIFromServer()
 	{
+		List<Long> files = new ArrayList<Long>();
 		state = MeasurementViewer.LOADING_ROI;
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
-		currentLoader = new ROILoader(component, getImageID(), exp.getId());
+		currentLoader = new ROILoader(component, getImageID(), files,
+				exp.getId());
 		currentLoader.load();
 	}
 	

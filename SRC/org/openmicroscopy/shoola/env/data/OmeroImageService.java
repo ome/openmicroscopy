@@ -40,6 +40,7 @@ import omero.constants.projection.ProjectionType;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -446,9 +447,10 @@ public interface OmeroImageService
 			long userID, long groupID);
 
 	/**
-	 * Loads the ROI related to the specified image.
+	 * Loads the ROI related to the specified image and the file.
 	 * 
 	 * @param imageID 	The image's ID.
+	 * @param fileIDs	The id of the original file.
 	 * @param userID	The user's ID.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -456,7 +458,8 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object loadROI(long imageID, long userID)
+	public List<ROIResult> loadROI(long imageID, List<Long> fileIDs, 
+			long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
 }

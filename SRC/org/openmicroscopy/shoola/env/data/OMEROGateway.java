@@ -4548,7 +4548,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Object loadROI(long imageID, long userID)
+	Collection loadROI(long imageID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -4556,12 +4556,12 @@ class OMEROGateway
 			IRoiPrx service = getROIService();
 			//Convert to pojo data.
 			RoiResult result = service.findByImage(imageID, new RoiOptions());
-			if (result == null) return new Object();
+			if (result == null) return new HashSet();
 			return PojoMapper.asDataObjects(result.rois);
 		} catch (Exception e) {
 			handleException(e, "Cannot load the ROI for image: "+imageID);
 		}
-		return new Object();
+		return new HashSet();
 	}
 	//tmp
 	//static MonitorServerPrx getMonitorServer() { return monitorPrx; }

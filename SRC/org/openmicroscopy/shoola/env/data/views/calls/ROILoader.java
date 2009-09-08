@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.List;
+
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -59,16 +61,18 @@ public class ROILoader
      * Creates a {@link BatchCall} to load the ROIs.
      * 
      * @param imageID The id of the image.
+     * @param fileID  The id of the file.
      * @param userID  The id of the user. 
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeLoadCalls(final long imageID, final long userID)
+    private BatchCall makeLoadCalls(final long imageID, final List<Long> fileID,
+    		final long userID)
     {
     	return new BatchCall("load ROI") {
     		            public void doCall() throws Exception
             {
     		    OmeroImageService svc = context.getImageService();
-    		    results = svc.loadROI(imageID, userID);
+    		    results = svc.loadROI(imageID, fileID, userID);
             }
         };
     }
@@ -89,11 +93,12 @@ public class ROILoader
 	 * Creates a new instance.
 	 * 
 	 * @param imageID 	The image's ID.
+	 * @param fileID	The ID of the files.
 	 * @param userID	The user's ID.
 	 */
-	public ROILoader(long imageID, long userID)
+	public ROILoader(long imageID, List<Long> fileID, long userID)
 	{
-		loadCall = makeLoadCalls(imageID, userID);
+		loadCall = makeLoadCalls(imageID, fileID, userID);
 	}
 	
 }

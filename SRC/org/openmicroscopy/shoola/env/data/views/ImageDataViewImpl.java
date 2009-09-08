@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.env.data.views;
 //Java imports
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 
@@ -38,7 +37,6 @@ import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
@@ -338,12 +336,12 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#analyseFretFit(long, long, long, AgentEventListener)
+     * @see ImageDataView#loadROI(long, Long, long, AgentEventListener)
      */
-	public CallHandle loadROI(long imageID, long userID,
+	public CallHandle loadROI(long imageID, List<Long> fileID, long userID,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ROILoader(imageID, userID);
+		BatchCallTree cmd = new ROILoader(imageID, fileID, userID);
 		return cmd.exec(observer);
 	}
 	
