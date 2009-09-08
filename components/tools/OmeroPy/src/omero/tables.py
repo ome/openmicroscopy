@@ -517,5 +517,11 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
     getTable = remoted(getTable)
 
 if __name__ == "__main__":
+
+    # These are optional imports in columns.py, but for this
+    # service to run, they must be present.
+    __import__("numpy")
+    __import__("tables")
+
     app = omero.util.Server(TablesI, "TablesAdapter", Ice.Identity("Tables", ""))
     pysys.exit(app.main(pysys.argv))
