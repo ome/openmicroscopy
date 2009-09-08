@@ -2423,7 +2423,7 @@ public class OMEROMetadataStoreClient
     				{
                         indexes = new LinkedHashMap<String, Integer>();
                         indexes.put("imageIndex", series);
-                        indexes.put("originalFileIndex", originalFileIndex);
+                        indexes.put("originalFileIndex", usedFileIndex);
                         addCompanionFileAnnotationTo(imageKey, indexes,
                         		                     usedFileIndex);
     				}
