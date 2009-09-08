@@ -16,7 +16,7 @@
 {% ifequal action "new" %}
     <h2>{% trans "Add new entry to " %} <strong>{{ controller.klass }}</strong></h2>
     
-    <form action="{% url wamanageenum "addnew" controller.klass %}" method="POST">
+    <form action="{% url wamanageenum "new" controller.klass %}" method="POST">
     <table>
       <tbody>
         {% for field in form %}

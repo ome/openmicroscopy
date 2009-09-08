@@ -606,14 +606,15 @@ def manage_script(request, action, sc_id=None, **kwargs):
 def enums(request, **kwargs):
     enums = True
     template = "omeroadmin/enums.html"
-        
+    error = request.REQUEST.get('error') and request.REQUEST.get('error').replace("_", " ") or None
+    
     conn = None
     try:
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
     
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums}
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums, 'error':error}
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
     
     controller = BaseEnums(conn)
@@ -648,16 +649,21 @@ def manage_enum(request, action, klass, eid=None, **kwargs):
         controller.deleteEntry(eid)
         return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
     elif action == "new":
-        form = EnumerationEntry()
+        if request.method == "POST":
+            form = EnumerationEntry(data=request.POST.copy())
+            if form.is_valid():
+                new_entry = request.REQUEST['new_entry'].encode('utf-8')
+                controller.saveEntry(new_entry)
+                return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
+        else:
+            form = EnumerationEntry()
     elif action == "reset":
-        controller.resetEnumerations()
-        return HttpResponseRedirect(reverse("waenums"))
-    elif action == "addnew":
-        form = EnumerationEntry(data=request.POST.copy())
-        if form.is_valid():
-            new_entry = request.REQUEST['new_entry'].encode('utf-8')
-            controller.saveEntry(new_entry)
-            return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
+        try:
+            controller.resetEnumerations()
+        except:
+            return HttpResponseRedirect(reverse(viewname="waenums")+("?error=Enumeration_cannot_be_reset"))
+        else:
+            return HttpResponseRedirect(reverse("waenums"))
     else:
         form = EnumerationEntries(entries=controller.entries, initial={'entries':True})
     
