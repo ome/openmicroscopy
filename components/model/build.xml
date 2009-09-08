@@ -53,6 +53,7 @@
 		<dsl template="ome/dsl/data.vm" filepattern="${resrc.dest}/data.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
 		<dsl template="ome/dsl/views.vm" filepattern="${resrc.dest}/views.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
 		<dsl template="ome/dsl/enums.vm" filepattern="${blitz.comp}/target/generated/resources/enums.properties"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
+		<dsl template="ome/dsl/enums_update.vm" filepattern="${resrc.dest}/enums_update.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
 		<delete>
 			<fileset dir="${src.dest}" includes="**/*.java">
 				<present present="both" targetdir="${src.dir}"/>
@@ -86,6 +87,7 @@
 		<copy file="${resrc.dest}/ddl.sql" tofile="${sql.dir}/schema.sql"/>
 		<copy file="${resrc.dest}/data.sql" tofile="${sql.dir}/data.sql"/>
 		<copy file="${resrc.dest}/views.sql" tofile="${sql.dir}/views.sql"/>
+		<copy file="${resrc.dest}/enums_update.sql" tofile="${sql.dir}/enums_update.sql"/>
 		<replace file="${sql.dir}/data.sql" token="@DBPATCH@" value="${omero.db.patch}"/>
 		<replace file="${sql.dir}/data.sql" token="@DBVERSION@" value="${omero.db.version}"/>
 	</target>

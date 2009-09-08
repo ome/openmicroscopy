@@ -447,6 +447,10 @@ insert into format (id,permissions,owner_id,group_id,creation_id,value)
 insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select ome_nextval('seq_format'),-35,0,0,0,'Companion/Openlab';
 insert into format (id,permissions,owner_id,group_id,creation_id,value)
+    select ome_nextval('seq_format'),-35,0,0,0,'MIAS';
+insert into format (id,permissions,owner_id,group_id,creation_id,value)
+    select ome_nextval('seq_format'),-35,0,0,0,'Companion/MIAS';
+insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select ome_nextval('seq_format'),-35,0,0,0,'text/csv';
 insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select ome_nextval('seq_format'),-35,0,0,0,'text/plain';
@@ -454,6 +458,8 @@ insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select ome_nextval('seq_format'),-35,0,0,0,'text/xml';
 insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select ome_nextval('seq_format'),-35,0,0,0,'text/html';
+insert into format (id,permissions,owner_id,group_id,creation_id,value)
+    select ome_nextval('seq_format'),-35,0,0,0,'text/ini';
 insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select ome_nextval('seq_format'),-35,0,0,0,'text/rtf';
 insert into format (id,permissions,owner_id,group_id,creation_id,value)

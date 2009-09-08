@@ -625,11 +625,14 @@
 		<entry name="Companion/Tiff"/>
 		<entry name="Openlab"/>
 		<entry name="Companion/Openlab"/>
+		<entry name="MIAS"/>
+		<entry name="Companion/MIAS"/>
                 <!-- Standardized -->
 		<entry name="text/csv"/>
 		<entry name="text/plain"/>
 		<entry name="text/xml"/>
 		<entry name="text/html"/>
+		<entry name="text/ini"/>
 		<entry name="text/rtf"/>
 		<entry name="text/richtext"/>
 		<entry name="text/x-python"/>
