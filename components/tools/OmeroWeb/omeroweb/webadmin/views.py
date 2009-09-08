@@ -661,7 +661,7 @@ def manage_enum(request, action, klass, eid=None, **kwargs):
         try:
             controller.resetEnumerations()
         except:
-            return HttpResponseRedirect(reverse(viewname="waenums")+("?error=Enumeration_cannot_be_reset"))
+            return HttpResponseRedirect(reverse(viewname="waenums")+("?error=Enumeration_%s_cannot_be_reset" % (klass)))
         else:
             return HttpResponseRedirect(reverse("waenums"))
     else:
