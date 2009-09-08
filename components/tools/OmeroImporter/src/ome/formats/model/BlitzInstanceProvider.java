@@ -28,10 +28,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ome.formats.enums.EnumerationProvider;
-import ome.formats.importer.MetaLightSource;
 import ome.formats.model.handler.ModelObjectHandlerFactory;
 import omero.model.IObject;
 import omero.model.LightSource;
+import omero.model.Shape;
 
 /**
  * An instance provider which uses reflection to fulfill the contract of an 
@@ -72,6 +72,10 @@ public class BlitzInstanceProvider implements InstanceProvider
             if (klass.equals(LightSource.class))
             {
                 return (T) new MetaLightSource();
+            }
+            if (klass.equals(Shape.class))
+            {
+            	return (T) new MetaShape();
             }
             Constructor<T> constructor = getConstructor(klass); 
             IObject o = constructor.newInstance();

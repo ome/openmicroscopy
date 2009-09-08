@@ -2,9 +2,9 @@ package ome.formats.utests;
 
 import ome.util.LSID;
 import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.MetaLightSource;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
+import ome.formats.model.MetaLightSource;
 import omero.model.Arc;
 import omero.model.LightSettings;
 import omero.model.LightSource;

@@ -36,17 +36,19 @@ import Glacier2.PermissionDeniedException;
 import static omero.rtypes.*;
 import ome.formats.enums.EnumerationProvider;
 import ome.formats.enums.IQueryEnumProvider;
-import ome.formats.importer.MetaLightSource;
 import ome.formats.importer.util.ClientKeepAlive;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.ChannelProcessor;
 import ome.formats.model.IObjectContainerStore;
 import ome.formats.model.InstrumentProcessor;
+import ome.formats.model.MetaLightSource;
+import ome.formats.model.MetaShape;
 import ome.formats.model.PixelsProcessor;
 import ome.formats.model.InstanceProvider;
 import ome.formats.model.ModelProcessor;
 import ome.formats.model.PlaneInfoProcessor;
 import ome.formats.model.ReferenceProcessor;
+import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
 import ome.util.LSID;
@@ -88,6 +90,7 @@ import omero.model.DetectorSettings;
 import omero.model.DetectorType;
 import omero.model.Dichroic;
 import omero.model.DimensionOrder;
+import omero.model.Ellipse;
 import omero.model.Experiment;
 import omero.model.ExperimentType;
 import omero.model.Filament;
@@ -110,7 +113,9 @@ import omero.model.LaserMedium;
 import omero.model.LaserType;
 import omero.model.LightSettings;
 import omero.model.LightSource;
+import omero.model.Line;
 import omero.model.LogicalChannel;
+import omero.model.Mask;
 import omero.model.Medium;
 import omero.model.Microscope;
 import omero.model.MicroscopeI;
@@ -119,19 +124,26 @@ import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
+import omero.model.Path;
 import omero.model.PhotometricInterpretation;
 import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
+import omero.model.Point;
+import omero.model.Polygon;
 import omero.model.ProjectI;
 import omero.model.Project;
 import omero.model.Pulse;
 import omero.model.Reagent;
+import omero.model.Rect;
+import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenAcquisition;
 import omero.model.ScreenI;
+import omero.model.Shape;
 import omero.model.StageLabel;
+import omero.model.Text;
 import omero.model.TransmittanceRange;
 import omero.model.TransmittanceRangeI;
 import omero.model.Well;
@@ -256,8 +268,9 @@ public class OMEROMetadataStoreClient
         modelProcessors.add(new InstrumentProcessor());
         modelProcessors.add(new PlaneInfoProcessor());
         modelProcessors.add(new WellProcessor());
-        modelProcessors.add(new TargetProcessor());
-        modelProcessors.add(new ReferenceProcessor());
+        modelProcessors.add(new ShapeProcessor());
+        modelProcessors.add(new TargetProcessor());  // Should be second last
+        modelProcessors.add(new ReferenceProcessor());  // Should be last
         
         // Fix check for broken 4.0 immersions table
         //checkImmersions();
@@ -734,6 +747,79 @@ public class OMEROMetadataStoreClient
         return true;
     }
     
+    /**
+     * Handles the upcast to the "real" concrete type and the correct LSID
+     * mapping if required.
+     * @param klass Class to retrieve a container for.
+     * @param indexes Indexes into the OME-XML data model.
+     * @param lsid LSID of the container.
+     * @return Created container or <code>null</code> if the container cache
+     * already contains <code>lsid</code>.
+     */
+    private IObjectContainer handleAbstractLightSource(
+    		Class<? extends IObject> klass,
+    		LinkedHashMap<String, Integer> indexes, LSID lsid)
+    {
+        LSID lsLSID = new LSID(LightSource.class,
+                               indexes.get("instrumentIndex"),
+                               indexes.get("lightSourceIndex"));
+        if (containerCache.containsKey(lsLSID))
+        {
+            IObjectContainer container = containerCache.get(lsLSID);
+            MetaLightSource mls = 
+                (MetaLightSource) container.sourceObject;
+            LightSource realInstance = 
+                (LightSource) getSourceObjectInstance(klass);
+            mls.copyData(realInstance);
+            container.sourceObject = realInstance;
+            if (container.LSID == null
+                || container.LSID.equals(lsLSID.toString()))
+            {
+                container.LSID = lsid.toString();
+            }
+            containerCache.put(lsid, container);
+            return container;
+        }
+        return null;
+    }
+    
+    /**
+     * Handles the upcast to the "real" concrete type and the correct LSID
+     * mapping if required.
+     * @param klass Class to retrieve a container for.
+     * @param indexes Indexes into the OME-XML data model.
+     * @param lsid LSID of the container.
+     * @return Created container or <code>null</code> if the container cache
+     * already does not contain <code>lsid</code>.
+     */
+    private IObjectContainer handleAbstractShape(
+    		Class<? extends IObject> klass,
+    		LinkedHashMap<String, Integer> indexes, LSID lsid)
+    {
+        LSID shapeLSID = new LSID(Shape.class,
+                                  indexes.get("imageIndex"),
+                                  indexes.get("roiIndex"),
+                                  indexes.get("shapeIndex"));
+        if (containerCache.containsKey(shapeLSID))
+        {
+            IObjectContainer container = containerCache.get(shapeLSID);
+            MetaShape metaShape = 
+                (MetaShape) container.sourceObject;
+            Shape realInstance = 
+                (Shape) getSourceObjectInstance(klass);
+            metaShape.copyData(realInstance);
+            container.sourceObject = realInstance;
+            if (container.LSID == null
+                || container.LSID.equals(shapeLSID.toString()))
+            {
+                container.LSID = lsid.toString();
+            }
+            containerCache.put(lsid, container);
+            return container;
+        }
+        return null;
+    }
+    
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#getIObjectContainer(java.lang.Class, java.util.LinkedHashMap)
      */
@@ -761,26 +847,28 @@ public class OMEROMetadataStoreClient
             || klass.equals(Filament.class))
             && !containerCache.containsKey(lsid))
         {
-            LSID lsLSID = new LSID(LightSource.class,
-                                   indexes.get("instrumentIndex"),
-                                   indexes.get("lightSourceIndex"));
-            if (containerCache.containsKey(lsLSID))
-            {
-                IObjectContainer container = containerCache.get(lsLSID);
-                MetaLightSource mls = 
-                    (MetaLightSource) container.sourceObject;
-                LightSource realInstance = 
-                    (LightSource) getSourceObjectInstance(klass);
-                mls.copyData(realInstance);
-                container.sourceObject = realInstance;
-                if (container.LSID == null
-                    || container.LSID.equals(lsLSID.toString()))
-                {
-                    container.LSID = lsid.toString();
-                }
-                containerCache.put(lsid, container);
-                return container;
-            }
+        	IObjectContainer toReturn = 
+        		handleAbstractLightSource(klass, indexes, lsid);
+        	if (toReturn != null)
+        	{
+        		return toReturn;
+        	}
+        }
+        // Because of the Shape abstract type, here we need to handle
+        // the upcast to the "real" concrete type and the correct LSID
+        // mapping.
+        if ((klass.equals(Text.class) || klass.equals(Rect.class)
+            || klass.equals(Mask.class) || klass.equals(Ellipse.class)
+            || klass.equals(Point.class) || klass.equals(Path.class)
+            || klass.equals(Polygon.class) || klass.equals(Line.class))
+            && !containerCache.containsKey(lsid))
+        {
+        	IObjectContainer toReturn = 
+        		handleAbstractShape(klass, indexes, lsid);
+        	if (toReturn != null)
+        	{
+        		return toReturn;
+        	}
         }
         // We may have first had a concrete method call request, put the object
         // in a container and in the cache. Now we have a request with only the
@@ -799,6 +887,25 @@ public class OMEROMetadataStoreClient
                 if (containerCache.containsKey(lsLSID))
                 {
                     return containerCache.get(lsLSID);
+                }
+            }
+        }
+        if (klass.equals(Shape.class)
+            && !containerCache.containsKey(lsid))
+        {
+            Class[] concreteClasses = 
+                new Class[] { Text.class, Rect.class, Mask.class, Ellipse.class,
+            		          Point.class, Path.class, Polygon.class,
+            		          Line.class };
+            for (Class concreteClass : concreteClasses)
+            {
+                LSID shapeLSID = new LSID(concreteClass,
+                                          indexes.get("imageIndex"),
+                                          indexes.get("roiIndex"),
+                                          indexes.get("shapeIndex"));
+                if (containerCache.containsKey(shapeLSID))
+                {
+                    return containerCache.get(shapeLSID);
                 }
             }
         }
@@ -3200,40 +3307,58 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setCircleID(String arg0, int arg1, int arg2, int arg3)
+    private Ellipse getCircle(int imageIndex, int roiIndex, int shapeIndex)
     {
-
-        //
-
+        LinkedHashMap<String, Integer> indexes =
+        	new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("roiIndex", roiIndex);
+        indexes.put("shapeIndex", shapeIndex);
+        return getSourceObject(Ellipse.class, indexes);
     }
-
-    public void setCircleCx(String arg0, int arg1, int arg2, int arg3)
+    
+    public void setCircleCx(String cx, int imageIndex, int roiIndex,
+			int shapeIndex)
     {
+    	Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
+    	o.setCx(toRType(Double.parseDouble(cx)));
+	}
 
-        //
+	public void setCircleCy(String cy, int imageIndex, int roiIndex,
+			int shapeIndex)
+	{
+    	Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
+    	o.setCy(toRType(Double.parseDouble(cy)));
+	}
 
-    }
+	public void setCircleID(String id, int imageIndex, int roiIndex,
+			int shapeIndex)
+	{
+    	checkDuplicateLSID(Ellipse.class, id);
+        LinkedHashMap<String, Integer> indexes =
+        	new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("roiIndex", roiIndex);
+        indexes.put("shapeIndex", shapeIndex);
+        IObjectContainer o = getIObjectContainer(Ellipse.class, indexes);
+        o.LSID = id;
+	}
 
-    public void setCircleCy(String arg0, int arg1, int arg2, int arg3)
-    {
+	public void setCircleR(String r, int imageIndex, int roiIndex,
+			int shapeIndex)
+	{
+    	Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
+    	Double radius = Double.parseDouble(r);
+    	o.setRx(toRType(radius));
+    	o.setRy(toRType(radius));
+	}
 
-        //
-
-    }
-
-    public void setCircleR(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setCircleTransform(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
+	public void setCircleTransform(String transform, int imageIndex,
+			int roiIndex, int shapeIndex)
+	{
+    	Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
+    	o.setTransform(toRType(transform));
+	}
 
     public void setContactExperimenter(String arg0, int arg1)
     {
@@ -4235,21 +4360,6 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setShapeID(String arg0, int arg1, int arg2, int arg3)
-    {
-
-    }
-
-    public void setShapeTheT(Integer arg0, int arg1, int arg2, int arg3)
-    {
-
-    }
-
-    public void setShapeTheZ(Integer arg0, int arg1, int arg2, int arg3)
-    {
-
-    }
-
     public void setThumbnailID(String arg0, int arg1)
     {
 
@@ -4368,221 +4478,157 @@ public class OMEROMetadataStoreClient
         //
 
     }
-
-    public void setShapeBaselineShift(String arg0, int arg1, int arg2, int arg3)
+    
+    private Shape getShape(int imageIndex, int roiIndex, int shapeIndex)
     {
-
-        //
-
-    }
-
-    public void setShapeDirection(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeFillColor(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeFillOpacity(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeFillRule(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeFontFamily(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeFontSize(Integer arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeFontStretch(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeFontStyle(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeFontVariant(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeFontWeight(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeG(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeGlyphOrientationVertical(Integer arg0, int arg1,
-            int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeLocked(Boolean arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeStrokeAttribute(String arg0, int arg1, int arg2,
-            int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeStrokeColor(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeStrokeDashArray(String arg0, int arg1, int arg2,
-            int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeStrokeLineCap(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeStrokeLineJoin(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeStrokeMiterLimit(Integer arg0, int arg1, int arg2,
-            int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeStrokeOpacity(Float arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeStrokeWidth(Integer arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeText(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeTextAnchor(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeTextDecoration(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeTextFill(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeTextStroke(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeVectorEffect(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeVisibility(Boolean arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    public void setShapeWritingMode(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
+        LinkedHashMap<String, Integer> indexes =
+        	new LinkedHashMap<String, Integer>();
+        indexes.put("imageIndex", imageIndex);
+        indexes.put("roiIndex", roiIndex);
+        indexes.put("shapeIndex", shapeIndex);
+        return getSourceObject(Shape.class, indexes);
     }
     
+    public void setShapeBaselineShift(String baselineShift, int imageIndex,
+			int roiIndex, int shapeIndex)
+    {
+    	Shape o = getShape(imageIndex, roiIndex, shapeIndex);
+	}
+
+	public void setShapeDirection(String direction, int imageIndex,
+			int roiIndex, int shapeIndex)
+	{
+	}
+
+	public void setShapeFillColor(String fillColor, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeFillOpacity(String fillOpacity, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeFillRule(String fillRule, int imageIndex, int roiIndex,
+			int shapeIndex) {
+	}
+
+	public void setShapeFontFamily(String fontFamily, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeFontSize(Integer fontSize, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeFontStretch(String fontStretch, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeFontStyle(String fontStyle, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeFontVariant(String fontVariant, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeFontWeight(String fontWeight, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeG(String g, int imageIndex, int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeGlyphOrientationVertical(
+			Integer glyphOrientationVertical, int imageIndex, int roiIndex,
+			int shapeIndex) {
+	}
+
+	public void setShapeID(String id, int imageIndex, int roiIndex,
+			int shapeIndex) {
+	}
+
+	public void setShapeLocked(Boolean locked, int imageIndex, int roiIndex,
+			int shapeIndex) {
+	}
+
+	public void setShapeStrokeAttribute(String strokeAttribute, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeStrokeColor(String strokeColor, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeStrokeDashArray(String strokeDashArray, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeStrokeLineCap(String strokeLineCap, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeStrokeLineJoin(String strokeLineJoin, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeStrokeMiterLimit(Integer strokeMiterLimit,
+			int imageIndex, int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeStrokeOpacity(Float strokeOpacity, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeStrokeWidth(Integer strokeWidth, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeText(String text, int imageIndex, int roiIndex,
+			int shapeIndex) {
+	}
+
+	public void setShapeTextAnchor(String textAnchor, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeTextDecoration(String textDecoration, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeTextFill(String textFill, int imageIndex, int roiIndex,
+			int shapeIndex) {
+	}
+
+	public void setShapeTextStroke(String textStroke, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeTheT(Integer theT, int imageIndex, int roiIndex,
+			int shapeIndex) {
+		Shape o = getShape(imageIndex, roiIndex, shapeIndex);
+		o.setTheT(toRType(theT));
+	}
+
+	public void setShapeTheZ(Integer theZ, int imageIndex, int roiIndex,
+			int shapeIndex) {
+		Shape o = getShape(imageIndex, roiIndex, shapeIndex);
+		o.setTheZ(toRType(theZ));
+	}
+
+	public void setShapeVectorEffect(String vectorEffect, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeVisibility(Boolean visibility, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+	public void setShapeWritingMode(String writingMode, int imageIndex,
+			int roiIndex, int shapeIndex) {
+	}
+
+
    /*-----------*/
     
     public class SortProjectsByName implements Comparator<Project>{

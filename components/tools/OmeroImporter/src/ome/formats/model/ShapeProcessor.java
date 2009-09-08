@@ -23,9 +23,9 @@
 
 package ome.formats.model;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
-import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Roi;
 import omero.model.Shape;
@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * Processes the shapes of a IObjectContainerStore and ensures
- * that the roi containers are present.
+ * that the ROI containers are present.
  * 
  * @author Chris Allan <callan at blackcat dot ca>
  *
@@ -57,10 +57,14 @@ public class ShapeProcessor implements ModelProcessor
             store.getIObjectContainers(Shape.class);
         for (IObjectContainer container : containers)
         {
-            Integer roiIndex = container.indexes.get("roiIndex");
             Integer imageIndex = container.indexes.get("imageIndex");
-            LSID roiLSID = new LSID(Roi.class, imageIndex, roiIndex);
-            store.getSourceObject(roiLSID); // Creates an ROI if one doesn't exist
+            Integer roiIndex = container.indexes.get("roiIndex");
+			LinkedHashMap<String, Integer> indexes = 
+				new LinkedHashMap<String, Integer>();
+			indexes.put("imageIndex", imageIndex);
+			indexes.put("roiIndex", roiIndex);
+			// Creates an ROI if one doesn't exist
+			store.getIObjectContainer(Roi.class, indexes);
         }
     }
 }

@@ -1,4 +1,4 @@
-package ome.formats.importer;
+package ome.formats.model;
 
 import Ice.Current;
 import omero.RDouble;
