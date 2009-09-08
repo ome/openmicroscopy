@@ -2521,9 +2521,6 @@ public class OMEROMetadataStoreClient
     					                           formatString);
     					pathIndexMap.put(absolutePath, usedFileIndex);
     					originalFileIndex++;
-        				LSID originalFileKey = 
-        					new LSID(OriginalFile.class, usedFileIndex);
-        				addReference(pixelsKey, originalFileKey);
     				}
     				
     				if (isCompanionFile)
@@ -2533,6 +2530,12 @@ public class OMEROMetadataStoreClient
                         indexes.put("originalFileIndex", usedFileIndex);
                         addCompanionFileAnnotationTo(imageKey, indexes,
                         		                     usedFileIndex);
+    				}
+    				else
+    				{
+        				LSID originalFileKey = 
+        					new LSID(OriginalFile.class, usedFileIndex);
+        				addReference(pixelsKey, originalFileKey);
     				}
     			}
     		}
@@ -2561,6 +2564,17 @@ public class OMEROMetadataStoreClient
     		}
     	}
     	return filteredFiles;
+    }
+
+    /**
+     * Returns the current set of filtered companion files that the Bio-Formats
+     * image reader contains.
+     * @return See above.
+     * @see getFilteredSeriesCompanionFiles()
+     */
+    public List<String> getFilteredCompanionFiles()
+    {
+    	return filterFilenames(reader.getUsedFiles(true));
     }
     
     /**
@@ -2607,43 +2621,12 @@ public class OMEROMetadataStoreClient
     /**
      * Writes binary original file data to the OMERO server.
      * @param files Files to populate against an original file list.
-     * @param pixels Original file list source.
+     * @param originalFileMap Map of absolute path against original file
+     * objects that we are to populate.
      */
-    public void writeFilesToFileStore(File[] files, Pixels pixels)
+    public void writeFilesToFileStore(
+    		List<File> files, Map<String, OriginalFile> originalFileMap)
     {
-        // Populate a hash map of filepath --> original file
-        List<OriginalFile> originalFileList = pixels.linkedOriginalFileList();
-        Map<String, OriginalFile> originalFileMap =
-            new HashMap<String, OriginalFile>(originalFileList.size());
-        for (OriginalFile originalFile: originalFileList)
-        {
-            String filePath = originalFile.getPath().getValue();
-            originalFileMap.put(filePath, originalFile);
-        }
-        
-        // Companion files
-        List<Annotation> annotationList = new ArrayList<Annotation>();
-        Image image = pixels.getImage();
-        annotationList.addAll(image.linkedAnnotationList());
-        if (image.sizeOfWellSamples() > 0)
-        {
-        	List<WellSample> wellSamples = image.copyWellSamples();
-        	Plate plate = wellSamples.get(0).getWell().getPlate();
-        	log.debug("Found " + plate.sizeOfAnnotationLinks() +
-        			  " annotations linked to Plate.");
-        	annotationList.addAll(plate.linkedAnnotationList());
-        }
-        for (Annotation annotation : annotationList)
-        {
-            if (annotation instanceof FileAnnotation)
-            {
-                FileAnnotation fileAnnotation = (FileAnnotation) annotation;
-                OriginalFile o = fileAnnotation.getFile();
-                String filePath = o.getPath().getValue();
-                originalFileMap.put(filePath, o);
-            }
-        }
-
         // Lookup each source file in our hash map and write it to the
         // correct original file object server side.
         byte[] buf = new byte[1048576];  // 1 MB buffer

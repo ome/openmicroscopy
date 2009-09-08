@@ -25,7 +25,10 @@ import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import loci.formats.FormatException;
 import loci.common.DataTools;
@@ -38,8 +41,11 @@ import ome.formats.importer.util.Actions;
 
 
 import omero.ServerError;
+import omero.model.Annotation;
+import omero.model.FileAnnotation;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Plate;
 
@@ -385,41 +391,50 @@ public class ImportLibrary implements IObservable
             notifyObservers(Actions.DATA_STORED, args);  
         }
         
+        // Original file absolute path to original file map for uploading
+    	Map<String, OriginalFile> originalFileMap =
+    		new HashMap<String, OriginalFile>();
+    	for (Pixels pixels : pixList)
+    	{
+    		Image i = pixels.getImage();
+    		for (Annotation annotation : i.linkedAnnotationList())
+    		{
+    			if (annotation instanceof FileAnnotation)
+    			{
+    				FileAnnotation fa = (FileAnnotation) annotation;
+    				OriginalFile of = fa.getFile();
+    				originalFileMap.put(of.getPath().getValue(), of);
+    			}
+    		}
+    		for (OriginalFile of : pixels.linkedOriginalFileList())
+    		{
+    			originalFileMap.put(of.getPath().getValue(), of);
+    		}
+    	}
+    	
+    	List<File> fileNameList = new ArrayList<File>();
         if (archive)
         {
-        	for (int series = 0; series < seriesCount; series++)
+        	for (String filename : reader.getUsedFiles())
         	{
-        		reader.setSeries(series);
-        		String[] fileNameList = reader.getSeriesUsedFiles();
-        		notifyObservers(Actions.IMPORT_ARCHIVING, args);
-        		File[] files = new File[fileNameList.length + 1];
-        		for (int i = 0; i < fileNameList.length; i++) 
-        		{
-        			files[i] = new File(fileNameList[i]); 
-        		}
-        		files[fileNameList.length] = metadataFiles.get(series);
-        		store.writeFilesToFileStore(files, pixList.get(series));
+        		fileNameList.add(new File(filename));
         	}
         } 
         else
         {
-        	for (int series = 0; series < seriesCount; series++)
+        	for (String filename : store.getFilteredCompanionFiles())
         	{
-        		List<String> fileNameList = 
-        			store.getFilteredSeriesCompanionFiles();
-        		if (fileNameList != null)
-        		{
-        			notifyObservers(Actions.IMPORT_ARCHIVING, args);
-        			File[] files = new File[fileNameList.size() + 1];
-        			for (int i = 0; i < fileNameList.size(); i++)
-        			{
-        				files[i] = new File(fileNameList.get(i));
-        			}
-        			files[fileNameList.size()] = metadataFiles.get(series);
-        			store.writeFilesToFileStore(files, pixList.get(series));
-        		}
+        		fileNameList.add(new File(filename));
         	}
         }
+        fileNameList.addAll(metadataFiles);
+        if (fileNameList.size() != originalFileMap.size())
+        {
+        	log.warn(String.format("Original file number mismatch, %d!=%d.", 
+        			fileNameList.size(), originalFileMap.size()));
+        }
+		notifyObservers(Actions.IMPORT_ARCHIVING, args);
+		store.writeFilesToFileStore(fileNameList, originalFileMap);
         
         if (saveSha1)
         {
