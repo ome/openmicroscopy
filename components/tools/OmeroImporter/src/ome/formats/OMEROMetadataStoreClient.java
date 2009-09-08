@@ -2408,17 +2408,17 @@ public class OMEROMetadataStoreClient
     				{
     					// PATH 3: We're archiving and the file is not a
     					// companion file, create it, put the new original file
-    					// index into our cached map and increment the next
-    					// original file's index.
+    					// index into our cached map, increment the next
+    					// original file's index and link it to our pixels set.
     					createOriginalFileFromFile(usedFile, indexes,
     					                           formatString);
     					pathIndexMap.put(absolutePath, usedFileIndex);
     					originalFileIndex++;
+        				LSID originalFileKey = 
+        					new LSID(OriginalFile.class, usedFileIndex);
+        				addReference(pixelsKey, originalFileKey);
     				}
     				
-    				LSID originalFileKey = 
-    					new LSID(OriginalFile.class, usedFileIndex);
-    				addReference(pixelsKey, originalFileKey);
     				if (isCompanionFile)
     				{
                         indexes = new LinkedHashMap<String, Integer>();
