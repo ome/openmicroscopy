@@ -12,7 +12,6 @@
 #include <omero/ModelF.ice>
 #include <omero/Collections.ice>
 #include <omero/Constants.ice>
-#include <omero/Repositories.ice>
 #include <omero/SharedResources.ice>
 #include <omero/ROMIO.ice>
 #include <omero/RTypes.ice>
@@ -936,6 +935,7 @@ module omero {
 	     */
 	    void shutdownIn(long milliseconds);
 	};
+
 
 	/*
 	 * Starting point for all OMERO.blitz interaction. Similar to the

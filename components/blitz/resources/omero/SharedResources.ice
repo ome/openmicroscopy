@@ -6,8 +6,8 @@
  *
  */
 
-#ifndef OMERO_GRIDSERVICES_ICE
-#define OMERO_GRIDSERVICES_ICE
+#ifndef OMERO_SHAREDRESOURCES_ICE
+#define OMERO_SHAREDRESOURCES_ICE
 
 #include <omero/Repositories.ice>
 #include <omero/Scripts.ice>

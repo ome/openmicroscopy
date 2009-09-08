@@ -10,7 +10,6 @@
 #define OMERO_API_IROI_ICE
 
 #include <omero/API.ice>
-#include <omero/model/Shape.ice>
 #include <omero/ServerErrors.ice>
 
 // Items for a separate service:
