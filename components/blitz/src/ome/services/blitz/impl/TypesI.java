@@ -8,25 +8,14 @@
 package ome.services.blitz.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
-
 import ome.api.ITypes;
 import ome.services.blitz.util.BlitzExecutor;
-import ome.services.blitz.util.ServiceFactoryAware;
-import ome.services.throttling.Adapter;
-import ome.services.util.Executor;
-import ome.services.util.Executor.SimpleWork;
-import ome.system.ServiceFactory;
-import ome.util.Filterable;
 import omero.ServerError;
 import omero.api.AMD_ITypes_allEnumerations;
 import omero.api.AMD_ITypes_createEnumeration;
@@ -41,7 +30,6 @@ import omero.api.AMD_ITypes_updateEnumeration;
 import omero.api.AMD_ITypes_updateEnumerations;
 import omero.api._ITypesOperations;
 import omero.model.IObject;
-import omero.sys.Parameters;
 import omero.util.IceMapper;
 import Ice.Current;
 import Ice.UserException;
