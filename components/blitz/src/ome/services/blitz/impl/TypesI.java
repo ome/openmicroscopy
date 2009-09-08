@@ -8,14 +8,25 @@
 package ome.services.blitz.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
 
 import ome.api.ITypes;
 import ome.services.blitz.util.BlitzExecutor;
+import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.throttling.Adapter;
+import ome.services.util.Executor;
+import ome.services.util.Executor.SimpleWork;
+import ome.system.ServiceFactory;
+import ome.util.Filterable;
 import omero.ServerError;
 import omero.api.AMD_ITypes_allEnumerations;
 import omero.api.AMD_ITypes_createEnumeration;
@@ -30,6 +41,7 @@ import omero.api.AMD_ITypes_updateEnumeration;
 import omero.api.AMD_ITypes_updateEnumerations;
 import omero.api._ITypesOperations;
 import omero.model.IObject;
+import omero.sys.Parameters;
 import omero.util.IceMapper;
 import Ice.Current;
 import Ice.UserException;
@@ -42,10 +54,10 @@ import Ice.UserException;
  * @see ome.api.ITypes
  */
 public class TypesI extends AbstractAmdServant implements _ITypesOperations {
-
-    public TypesI(ITypes service, BlitzExecutor be) {
-        super(service, be);
-    }
+    
+	public TypesI(ITypes service, BlitzExecutor be) {
+		super(service, be);
+	}
 
     // Interface methods
     // =========================================================================
@@ -103,10 +115,33 @@ public class TypesI extends AbstractAmdServant implements _ITypesOperations {
 
     }
 
+    private final static Log log = LogFactory.getLog(TypesI.class);
+
     public void getEnumerationsWithEntries_async(
             AMD_ITypes_getEnumerationsWithEntries __cb, Current __current)
             throws ServerError {
-        callInvokerOnRawArgs(__cb, __current);
+        
+        IceMapper mapper = new IceMapper(new IceMapper.ReturnMapping(){
+
+            public Object mapReturnValue(IceMapper mapper, Object value)
+                    throws UserException {
+                
+            	if (value == null) {
+                    return null;
+                } 
+            	Map<Class, List<ome.model.IEnum>> map = (Map<Class, List<ome.model.IEnum>>) value;
+                Map<String, List<IObject>> rv = new HashMap<String, List<IObject>>();
+                for (Class key : map.keySet()) {
+                    Object v = map.get(key);
+                    String kr = key.getSimpleName();
+                    List<IObject> vr = (List<IObject>) IceMapper.FILTERABLE_COLLECTION.mapReturnValue(mapper, v);
+                    rv.put(kr, vr);
+                }
+                return rv;
+                
+            }});
+
+        callInvokerOnMappedArgs(mapper, __cb, __current);
 
     }
 
