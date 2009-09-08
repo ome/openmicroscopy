@@ -28,6 +28,7 @@ module omero {
         class ExternalInfo;
         class Family;
         class Filament;
+	class Format;
         class IObject;
         class Image;
         class Instrument;
