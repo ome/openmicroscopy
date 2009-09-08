@@ -1319,16 +1319,26 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             
     def getOriginalEnumerations(self):
         types = self.getTypesService()
+        rv = dict()
         for e in types.getOriginalEnumerations():
-            yield EnumerationWrapper(self, e)
-
+            if rv.get(e.__class__.__name__) is None:
+                rv[e.__class__.__name__] = list()
+            rv[e.__class__.__name__].append(EnumerationWrapper(self, e))
+        return rv
+        
     def getEnumerations(self):
         types = self.getTypesService()
         return types.getEnumerationTypes() 
     
     def getEnumerationsWithEntries(self):
         types = self.getTypesService()
-        return types.getEnumerationsWithEntries()
+        rv = dict()
+        for key, value in types.getEnumerationsWithEntries().items():
+            r = list()
+            for e in value:
+                r.append(EnumerationWrapper(self, e))
+            rv[key+"I"] = r
+        return rv
     
     def deleteEnumeration(self, obj):
         types = self.getTypesService()
@@ -2385,4 +2395,4 @@ class EventLogWrapper (omero.gateway.BlitzObjectWrapper):
 class EnumerationWrapper (omero.gateway.BlitzObjectWrapper):
     
     def getType(self):
-        return self._obj.__class__.__name__
+        return self._obj.__class__
