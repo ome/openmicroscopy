@@ -252,6 +252,10 @@ public class OMEROMetadataStore
     	{
     		handle(lsid, (Experiment) sourceObject, indexes); 
     	}
+    	else if (sourceObject instanceof Roi)
+    	{
+    	    handle(lsid, (Roi) sourceObject, indexes);
+    	}
     	else if (sourceObject instanceof Rect)
     	{
     	    handle(lsid, (Rect) sourceObject, indexes);
@@ -790,6 +794,28 @@ public class OMEROMetadataStore
         Well w = getWell(plateIndex, wellIndex);
         w.addWellSample(sourceObject);
     }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Roi sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        int imageIndex = indexes.get("imageIndex");
+        Image i = getImage(imageIndex);
+        List<Roi> rois = roiMap.get(imageIndex);
+        if (rois == null)
+        {
+            rois = new ArrayList<Roi>();
+            roiMap.put(imageIndex, rois);
+        }
+        rois.add(sourceObject);
+        i.addRoi(sourceObject);
+    }
 
     /**
      * Handles inserting a specific type of model object into our object graph.
@@ -807,7 +833,6 @@ public class OMEROMetadataStore
         r.addShape(sourceObject);
     }
     
-
     /**
      * Handles inserting a specific type of model object into our object graph.
      * @param LSID LSID of the model object.
@@ -823,7 +848,6 @@ public class OMEROMetadataStore
         Roi r = getRoi(imageIndex, roiIndex);
         r.addShape(sourceObject);
     }
-    
 
     /**
      * Handles inserting a specific type of model object into our object graph.
@@ -840,7 +864,6 @@ public class OMEROMetadataStore
         Roi r = getRoi(imageIndex, roiIndex);
         r.addShape(sourceObject);
     }
-    
 
     /**
      * Handles inserting a specific type of model object into our object graph.
@@ -873,7 +896,6 @@ public class OMEROMetadataStore
         Roi r = getRoi(imageIndex, roiIndex);
         r.addShape(sourceObject);
     }
-    
 
     /**
      * Handles inserting a specific type of model object into our object graph.
@@ -1272,7 +1294,6 @@ public class OMEROMetadataStore
     private Well getWell(int plateIndex, int wellIndex)
     {
         return wellList.get(wellIndex);
- 
     }
 
     /**
@@ -1284,23 +1305,7 @@ public class OMEROMetadataStore
      */
     private Roi getRoi(int imageIndex, int roiIndex)
     {
-        Image i = getImage(imageIndex);
         List<Roi> rois = roiMap.get(imageIndex);
-        
-        if (rois == null)
-        {
-            rois = new ArrayList<Roi>();
-            roiMap.put(imageIndex, rois);
-        }
-        
-        if (rois.size() == roiIndex)
-        {
-            Roi roi = new Roi();
-            rois.add(roi);
-            i.addRoi(roi);
-            return roi;
-        }
-
         return rois.get(roiIndex);
     }
     
