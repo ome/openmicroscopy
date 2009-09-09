@@ -186,22 +186,29 @@ class Server(Ice.Application):
         self.logger.info("Starting")
 
         try:
+
             self.objectfactory = omero.clients.ObjectFactory()
             self.objectfactory.registerObjectFactory(self.communicator())
             for of in rFactories.values() + cFactories.values():
                 of.register(self.communicator())
-            self.impl_class.communicator = self.communicator() # FIXME use context object
+
             try:
+                self.impl_class.communicator = self.communicator() # FIXME use context object
                 self.impl = self.impl_class()
+                self.impl.serverid = self.communicator().getProperties().getProperty("Ice.ServerId")
             except:
                 self.logger.error("Failed initialization", exc_info=1)
                 sys.exit(100)
-            self.impl.serverid = self.communicator().getProperties().getProperty("Ice.ServerId")
 
-            self.adapter = self.communicator().createObjectAdapter(self.adapter_name)
-            prx = self.adapter.add(self.impl, self.identity)
-            add_grid_object(self.communicator(), prx)
-            self.adapter.activate()
+            try:
+                self.adapter = self.communicator().createObjectAdapter(self.adapter_name)
+                prx = self.adapter.add(self.impl, self.identity)
+                self.adapter.activate()
+                add_grid_object(self.communicator(), prx) # This must happen _after_ activation
+            except:
+                self.logger.error("Failed activation", exc_info=1)
+                sys.exit(200)
+
             self.logger.info("Blocking until shutdown")
             self.communicator().waitForShutdown()
         finally:
@@ -391,6 +398,10 @@ class SessionHolder(object):
     def cleanup(self):
         try:
             self.sf.destroy()
+        except Ice.ConnectionLostException, cle:
+            pass
+        except Ice.ConnectionRefusedException, cre:
+            pass
         except exceptions.Exception, e:
             self.logger.debug("Exception destroying session: %s", exc_info = 1)
 
