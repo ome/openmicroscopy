@@ -9,12 +9,6 @@
         </style>
     </head>
     <body>
-       <div id="wrapper">
-          <div id="banner">
-          </div>
-       </div>
-       <div id="main_content">
-       TITLE
-       </div>
+TITLE
     </body>
 </html>
