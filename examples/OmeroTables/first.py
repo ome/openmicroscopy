@@ -13,4 +13,4 @@ t.initialize([l])
 l.values = [1,2,3,4]
 t.addData([l])
 ids = t.getWhereList('(name==1)',{},0,0,0)
-data = t.readCoordinates(rv)
+data = t.readCoordinates(ids)
