@@ -23,10 +23,8 @@
 			<!-- Note: in the model acquisitionDate is called creationDate but the DB already has a creation date for the object -->
 			<!-- Note: in the model acquisitionDate(creationDate) is optional so if not available should be set to current time on import-->
 			<optional name="imagingEnvironment" type="ome.model.acquisition.ImagingEnvironment"/>
-			<optional name="objectiveSettings" type="ome.model.acquisition.ObjectiveSettings">
-				<!-- Note: objectiveSettings maps to ObjectiveRef (ID and values) in model-->
-				<rule id="INS_OBJ_SYNCH" description="only if instrument defined"/>
-			</optional>
+			<!-- Note: objectiveSettings maps to ObjectiveRef (ID and values) in model-->
+			<optional name="objectiveSettings" type="ome.model.acquisition.ObjectiveSettings"/>
 			<optional name="instrument" type="ome.model.acquisition.Instrument"/>
 			<!-- Note: instrument is called InstrumentRef (ID only ref) in model-->
 			<optional name="stageLabel" type="ome.model.acquisition.StageLabel"/>
@@ -72,16 +70,12 @@
 			<optional name="waveIncrement" type="int"/>
 			<optional name="timeIncrement" type="double"/>
 			<optional name="methodology" type="string"/>
-			<onemany name="planeInfo" type="ome.model.core.PlaneInfo" inverse="pixels">
-				<!-- Note: planeInfo is called Plane in model and is zeromany -->
-				<rule id="PLANE_INFO_CARDINALITY" description="0|sizez*sizey*sizec"/>
-			</onemany>
+			<!-- Note: planeInfo is called Plane in model and is zeromany -->
+			<onemany name="planeInfo" type="ome.model.core.PlaneInfo" inverse="pixels"/>
 			<!-- TODO: storage -->
 			<parent name="pixelsFileMaps" type="ome.model.core.PixelsOriginalFileMap" target="ome.model.core.OriginalFile"/>
 			<!-- Acquisition Context 2 -->
-			<onemany name="channels" type="ome.model.core.Channel" inverse="pixels" ordered="true">
-				<rule id="CHANNEL_CARDINALITY" description="Must be sizeC channels"/>
-			</onemany>
+			<onemany name="channels" type="ome.model.core.Channel" inverse="pixels" ordered="true"/>
 			<!--Display Settings 1-->
 			<zeromany name="settings" type="ome.model.display.RenderingDef" inverse="pixels"/>
 			<zeromany name="thumbnails" type="ome.model.display.Thumbnail" inverse="pixels"/>
@@ -161,12 +155,8 @@
 		<properties>
 			<optional name="temperature" type="double"/>
 			<optional name="airPressure" type="double"/>
-			<optional name="humidity" type="double">
-				<rule id="HUMIDITY_RANGE" type="range" description="0-1"/>
-			</optional>
-			<optional name="co2percent" type="double">
-				<rule id="CO2_RANGE" type="range" description="0-1"/>
-			</optional>
+			<optional name="humidity" type="double"/>
+			<optional name="co2percent" type="double"/>
 		</properties>
 	</type>
 <!-- 
@@ -177,26 +167,11 @@
 	<type id="ome.model.core.Channel" annotated="true">
 		<!-- Note: Channel is not in model-->
 		<properties>
-			<optional name="statsInfo" type="ome.model.stats.StatsInfo"><!-- Note: statsInfo is not in model-->
-				<rule id="STATSINFO_DEP" type="dependency" description="depends on pixelType"/>
-				<!--TODO: depends how?-->
-			</optional>
-			<optional name="red" type="int">
-				<rule id="COLOR_REQ" type="conditionalNull" description="color must exist if PIType == RGB|ARGB|CMYK|HSV"/>
-				<rule id="COLOR_RANGE" type="range" description="rule0_255 all values between 0-255"/>
-			</optional>
-			<optional name="green" type="int">
-				<rule id="COLOR_REQ" type="conditionalNull" description="color must exist if PIType == RGB|ARGB|CMYK|HSV"/>
-				<rule id="COLOR_RANGE" type="range" description="rule0_255 all values between 0-255"/>
-			</optional>
-			<optional name="blue" type="int">
-				<rule id="COLOR_REQ" type="conditionalNull" description="color must exist if PIType == RGB|ARGB|CMYK|HSV"/>
-				<rule id="COLOR_RANGE" type="range" description="rule0_255 all values between 0-255"/>
-			</optional>
-			<optional name="alpha" type="int">
-				<rule id="COLOR_REQ" type="conditionalNull" description="color must exist if PIType == RGB|ARGB|CMYK|HSV"/>
-				<rule id="COLOR_RANGE" type="range" description="rule0_255 all values between 0-255"/>
-			</optional>
+			<optional name="statsInfo" type="ome.model.stats.StatsInfo"/><!-- Note: statsInfo is not in model-->
+			<optional name="red" type="int"/>
+			<optional name="green" type="int"/>
+			<optional name="blue" type="int"/>
+			<optional name="alpha" type="int"/>
 			<manyone name="logicalChannel" type="ome.model.core.LogicalChannel" inverse="channels"/>
 			<manyone name="pixels" type="ome.model.core.Pixels" ordered="true"/>
 		</properties>
@@ -216,10 +191,8 @@
 			<optional name="ndFilter" type="double"/>
 			<optional name="otf" type="ome.model.acquisition.OTF"/>
 			<!-- Note: oft is called OTFRef (ID only Ref) in model-->
-			<optional name="detectorSettings" type="ome.model.acquisition.DetectorSettings">
-				<!-- Note: detectorSettings is called DetectorRef (ID and values) in model-->
-				<rule id="DETECTOR_SETTINGS_REQ" type="conditionalNull" description="if defined, the instrument must be defined"/>
-			</optional>
+			<optional name="detectorSettings" type="ome.model.acquisition.DetectorSettings"/>
+			<!-- Note: detectorSettings is called DetectorRef (ID and values) in model-->
 			<optional name="lightSourceSettings" type="ome.model.acquisition.LightSettings"/>
 			<!-- Note: lightSourceSettings is called LightSourceRef (ID and values) in model-->
 			<optional name="filterSet" type="ome.model.acquisition.FilterSet"/>
@@ -266,16 +239,13 @@
 			<!-- Note: BinaryFile is in model but not used in the DB  -->
 			<optional name="filterSet" type="ome.model.acquisition.FilterSet"/>
 			<required name="objective" type="ome.model.acquisition.Objective"/>
-			<!-- TODO: rule to check image_link_objective ? -->
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
 	</type>
 	<type id="ome.model.acquisition.LightSettings">
 		<!-- Note: LightSettings are stored in LightSourceRef in model-->
 		<properties>
-			<optional name="attenuation" type="double">
-				<rule id="ATTENUATION_RANGE" type="range" description="0-1"/>
-			</optional>
+			<optional name="attenuation" type="double"/>
 			<optional name="wavelength" type="int"/>
 			<required name="lightSource" type="ome.model.acquisition.LightSource"/>
 			<!-- Note: lightSource is ID in model-->
@@ -421,9 +391,7 @@
 			<optional name="cutOut" type="int"/>
 			<optional name="cutInTolerance" type="int"/>
 			<optional name="cutOutTolerance" type="int"/>
-			<optional name="transmittance" type="double">
-				<rule id="TRANSMITTANCE_RANGE" type="range" description="0-1"/>
-			</optional>
+			<optional name="transmittance" type="double"/>
 		</properties>
 	</type>
 <!-- 
