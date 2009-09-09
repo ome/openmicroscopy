@@ -161,6 +161,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     boolean doClose = true;
 
     public final String clientId;
+    
+    public final Glacier2.SessionControlPrx control;
 
     private ClientCallbackPrx callback;
 
@@ -197,11 +199,13 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // ~ Initialization and context methods
     // =========================================================================
 
-    public ServiceFactoryI(Ice.Current current, OmeroContext context,
+    public ServiceFactoryI(Ice.Current current, Glacier2.SessionControlPrx control,
+            OmeroContext context,
             SessionManager manager, Executor executor, Principal p,
             List<HardWiredInterceptor> interceptors, TopicManager topicManager,
             Registry registry) throws ApiUsageException {
         this.adapter = current.adapter;
+        this.control = control;
         this.clientId = clientId(current);
         this.context = context;
         this.sessionManager = manager;

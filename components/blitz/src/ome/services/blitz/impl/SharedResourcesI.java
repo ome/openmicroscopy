@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 
 import ome.api.JobHandle;
@@ -94,6 +93,13 @@ public class SharedResourcesI extends AbstractAmdServant implements
     // Acquisition framework
     // =========================================================================
 
+    private void allow(Ice.ObjectPrx prx) {
+        if (prx != null && sf.control != null) {
+            sf.control.identities().add(
+                    new Ice.Identity[]{prx.ice_getIdentity()});
+        }
+    }
+    
     private void checkAcquisitionWait(int seconds) throws ApiUsageException {
         if (seconds > (3 * 60)) {
             ApiUsageException aue = new ApiUsageException();
@@ -187,6 +193,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
                 map.descriptions.add(desc);
                 map.proxies.add(proxy);
                 found.add(desc.getId().getValue());
+                allow(proxy);
             } catch (Ice.LocalException e) {
                 // Ok.
             }
@@ -330,6 +337,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
                         }, file);
                     }
                 });
+        
+        allow(tablePrx);
         return tablePrx;
 
     }
@@ -407,6 +416,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
         id.category = current.id.name;
         id.name = Ice.Util.generateUUID();
         Ice.ObjectPrx rv = sf.registerServant(current, id, ip);
+        allow(rv);
         return InteractiveProcessorPrxHelper.uncheckedCast(rv);
 
     }

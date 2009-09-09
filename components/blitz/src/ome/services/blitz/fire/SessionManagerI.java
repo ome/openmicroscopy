@@ -40,6 +40,8 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 import Glacier2.CannotCreateSessionException;
+import Glacier2.IdentitySetPrx;
+import Glacier2.StringSetPrx;
 
 /**
  * Central login logic for all OMERO.blitz clients. It is required to create a
@@ -120,8 +122,12 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             wrapped.type = "ApiUsageException";
             throw wrapped;
         }
-
+        
         try {
+            
+            // First thing we do is guarantee that the client is giving us
+            // the required information.
+            ServiceFactoryI.clientId(current); // throws ApiUsageException
 
             // Before asking the ring, see if we already have the
             // session locally.
@@ -164,10 +170,20 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             // Event raised to add to Ring
 
             // Create the ServiceFactory
-            ServiceFactoryI session = new ServiceFactoryI(current, context,
-                    sessionManager, executor, sp, CPTORS, topicManager, registry);
+            ServiceFactoryI session = new ServiceFactoryI(current, control,
+                    context, sessionManager, executor, sp, CPTORS, topicManager,
+                    registry);
 
             Ice.Identity id = session.sessionId();
+
+            if (control != null) {
+                // Not having a control implies that this is an internal
+                // call, not coming through Glacier, so we can trust it.
+                StringSetPrx cat = control.categories();
+                cat.add(new String[]{id.category});
+                cat.add(new String[]{id.name});
+            }
+            
             Ice.ObjectPrx _prx = current.adapter.add(session, id);
             _prx = current.adapter.createDirectProxy(id);
 
