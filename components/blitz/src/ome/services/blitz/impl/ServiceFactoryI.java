@@ -656,6 +656,9 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                             // Cleanup stateless
                             // -----------------
                             // Do nothing.
+                        } else if (servant instanceof SharedResourcesI) {
+                            // Not currently doing anything.
+                            // But will eventually need to cleanup cache.
                         } else {
                             throw new ome.conditions.InternalException(
                                     "Unknown servant type: " + servant);

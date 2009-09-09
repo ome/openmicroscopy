@@ -32,6 +32,7 @@ import omero.grid.InternalRepositoryPrx;
 import omero.grid.ProcessorPrx;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
+import omero.grid.RepositoryPrxHelper;
 import omero.grid.TablePrx;
 import omero.grid.TablesPrx;
 import omero.grid._SharedResourcesOperations;
@@ -43,6 +44,8 @@ import omero.model.JobStatusI;
 import omero.model.OriginalFile;
 import omero.util.IceMapper;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +60,8 @@ import Ice.Current;
  */
 public class SharedResourcesI extends AbstractAmdServant implements
         _SharedResourcesOperations, BlitzOnly, ServiceFactoryAware {
+
+    private final static Log log = LogFactory.getLog(SharedResourcesI.class);
 
     private final TopicManager topicManager;
 
@@ -90,6 +95,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
         U lookupService(T server) throws ServerError;
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Ice.ObjectPrx, U extends Ice.ObjectPrx> U repeatLookup(
             List<T> objectPrxs, int seconds, RepeatTask<T, U> task)
             throws ServerError {
@@ -100,26 +106,22 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
             for (T prx : objectPrxs) {
                 if (prx != null) {
+
+                    prx = (T) prx.ice_timeout(5);
+
                     try {
 
                         U service = task.lookupService(prx);
                         if (service != null) {
                             return service;
                         }
-
-                        try {
-                            Thread.sleep((stop - start) / 10);
-                        } catch (InterruptedException ie) {
-                            // ok.
-                        }
+                    } catch (ServerError se) {
+                        log.warn("ServerError on task.lookupService(" + prx
+                                + ") :" + se);
                     } catch (Ice.NoEndpointException nee) {
-                        // This means that there probably is none.
-                        // Wait a little longer
-                        try {
-                            Thread.sleep((stop - start) / 3);
-                        } catch (InterruptedException ie) {
-                            // ok.
-                        }
+                        // Proxy is not alive
+                    } catch (Ice.TimeoutException te) {
+                        // Proxy is not alive.
                     }
                 }
             }
@@ -190,20 +192,23 @@ public class SharedResourcesI extends AbstractAmdServant implements
                 .asList(repos), 60,
                 new RepeatTask<InternalRepositoryPrx, RepositoryPrx>() {
                     public RepositoryPrx lookupService(
-                            InternalRepositoryPrx server) {
-                        try {
-                            OriginalFile description = server.getDescription();
-                            RepositoryPrx prx = server.getProxy();
-                            if (description.getId().getValue() == repo) {
-                                return prx;
-                            }
-                        } catch (ServerError e) {
-                            // fall through to null
+                            InternalRepositoryPrx server) throws ServerError {
+                        OriginalFile description = server.getDescription();
+                        RepositoryPrx prx = server.getProxy();
+                        if (description.getId().getValue() == repo) {
+                            return prx;
                         }
                         return null;
                     }
                 });
-
+        
+        if (repoPrx == null) {
+            return null;
+        } else {
+            // Attempt to fix an odd timeout exception during register()
+            repoPrx = RepositoryPrxHelper.checkedCast(repoPrx);
+        }
+        
         Format omero_tables = new FormatI();
         omero_tables.setValue(rstring("OMERO.tables"));
         OriginalFile file = repoPrx.register(path, omero_tables);

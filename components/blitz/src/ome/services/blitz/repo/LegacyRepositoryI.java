@@ -163,7 +163,7 @@ public class LegacyRepositoryI extends _InternalRepositoryDisp {
                     public Object doWork(SimpleJdbcOperations jdbc) {
                         return jdbc.queryForInt(
                                 "select count(*) from originalfile "
-                                        + "where id = ? and url is none", file
+                                        + "where id = ? and url is null", file
                                         .getId().getValue());
                     }
                 });

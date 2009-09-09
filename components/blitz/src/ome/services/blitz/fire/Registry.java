@@ -21,6 +21,7 @@ import omero.grid.ProcessorPrxHelper;
 import omero.grid.TablesPrx;
 import omero.grid.TablesPrxHelper;
 import omero.grid._ProcessorDisp;
+import omero.grid._TablesDisp;
 import omero.internal.ClusterNodePrx;
 import omero.internal.ClusterNodePrxHelper;
 import omero.internal._ClusterNodeDisp;
@@ -294,8 +295,7 @@ public interface Registry {
             }
             try {
                 Ice.ObjectPrx[] candidates = null;
-                candidates = query.findAllObjectsByType(_ProcessorDisp
-                        .ice_staticId());
+                candidates = query.findAllObjectsByType(_TablesDisp.ice_staticId());
                 TablesPrx[] tables = new TablesPrx[candidates.length];
                 for (int i = 0; i < tables.length; i++) {
                     tables[i] = TablesPrxHelper.uncheckedCast(candidates[i]);
