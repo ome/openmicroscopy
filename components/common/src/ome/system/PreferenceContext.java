@@ -30,7 +30,7 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
  * <li>Java {@link System#getProperties()}</li>
  * <li>Any configured property files</li>
  * </ul>
- *
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/800">#800</a>
@@ -73,13 +73,13 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
 
         // Ok, then if we've found something use it.
         // otherwise use /omero/prefs/default
-        if (OMERO != null) {
-            setUserTreePath(ROOT + "/" + OMERO);
-        } else {
-            setUserTreePath(ROOT + "/default");
+        if (OMERO == null) {
+            OMERO = "default";
         }
 
-	log.error(String.format("PreferenceContext %s %s %s %s", OMERO, DEFAULT, ROOT, path));
+        setUserTreePath(ROOT + "/" + OMERO);
+        log.info("Preferences used: " + ROOT + "/" + OMERO);
+
     }
 
     @Override
@@ -93,24 +93,23 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
      * properties} for this instance.
      */
     public String getProperty(String key) {
-	log.error(String.format("getProperty %s %s", key, this.path));
         try {
             try {
                 Preferences.userRoot().node(this.path).sync();
             } catch (BackingStoreException e) {
                 log.error("Error synchronizing for mergeProperties()");
             }
-            return parseStringValue("${"+key+"}", mergeProperties(), new HashSet<String>());
+            return parseStringValue("${" + key + "}", mergeProperties(),
+                    new HashSet<String>());
         } catch (BeanDefinitionStoreException bdse) {
             return null; // Unknown property. Ok
         } catch (IOException e) {
-            log.error("Error on mergeProperties()",e);
+            log.error("Error on mergeProperties()", e);
             return null;
         }
     }
 
     public void setProperty(String key, String value) {
-	log.error(String.format("setProperty %s %s %s", key, value, this.path));
         Preferences prefs = Preferences.userRoot().node(this.path);
         if (value != null) {
             prefs.put(key, value);
@@ -120,7 +119,7 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
         try {
             prefs.flush();
         } catch (BackingStoreException e) {
-            log.error("Error flushing prefs on setProperty: "+key);
+            log.error("Error flushing prefs on setProperty: " + key);
         }
     }
 
@@ -135,21 +134,21 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
     // =========================================================================
 
     public String resolveAlias(String key) {
-        
+
         if (preferences.containsKey(key)) {
             return key;
         }
-        
+
         for (String current : preferences.keySet()) {
             Preference preference = preferences.get(current);
             if (preference.hasAlias(key)) {
                 return current;
             }
         }
-        
+
         return key;
     }
-    
+
     public boolean checkDatabase(String key) {
         Preference preference = getPreferenceOrDefault(key);
 
