@@ -53,10 +53,7 @@ def cmd(args,\
     command += [ "-Dlog4j.configuration=%s" % os.path.join("etc", "log4j.xml") ]
 
     # Preapre arguments
-    if xargs == None:
-        if os.environ.has_key("JAVA_OPTS"):
-            command += shlex.split(os.environ["JAVA_OPTS"])
-    else:
+    if xargs != None:
         command += xargs
 
     # Prepare debugging
@@ -66,6 +63,10 @@ def cmd(args,\
     else:
         if debug:
             command += ["-Xdebug",debug_string]
+
+    # Add JAVA_OPTS at the end. ticket:1439
+    if os.environ.has_key("JAVA_OPTS"):
+        command += shlex.split(os.environ["JAVA_OPTS"])
 
     # Do any mandatory configuration very late
     command += [ "-Djava.awt.headless=true" ]
