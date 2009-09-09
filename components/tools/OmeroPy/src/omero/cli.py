@@ -971,6 +971,8 @@ class CLI(cmd.Cmd, Context):
             if -1 == plugin.find("#"): # Omit emacs files
                 try:
                     execfile( plugin, loc )
+                except KeyboardInterrupt:
+                    raise
                 except:
                     self.err("Error loading:"+plugin)
                     traceback.print_exc()
