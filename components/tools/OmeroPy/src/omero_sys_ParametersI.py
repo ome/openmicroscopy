@@ -8,10 +8,14 @@
  */
 """
 
+import Ice
 import omero
 import omero_System_ice
 from omero.rtypes import *
 
+_omero = Ice.openModule("omero")
+_omero_sys = Ice.openModule("omero.sys")
+__name__ = "omero.sys"
 
 class ParametersI(omero.sys.Parameters):
     """
@@ -323,3 +327,5 @@ class ParametersI(omero.sys.Parameters):
             rlongs.val.append(rlong(l))
         self.add(name, rlongs)
         return self
+
+_omero_sys.ParametersI = ParametersI

@@ -16,10 +16,12 @@ import os
 import time
 from path import path
 
+
+import omero
+import omero_ServerErrors_ice
 from omero.cli import Arguments
 from omero.cli import BaseControl
 from omero.cli import NonZeroReturnCode
-from omero_ext import pysys
 
 try:
     import win32service

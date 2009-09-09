@@ -25,9 +25,7 @@ import shlex as pyshlex
 from exceptions import Exception as Exc
 from threading import Thread, Lock
 from omero_version import omero_version
-from omero_ext import pysys
 from path import path
-import Ice
 
 #
 # Static setup
@@ -466,6 +464,7 @@ class BaseControl:
         getPropertiesForPrefix(prefix) where the default is
         to return all properties.
         """
+        import Ice
         if not hasattr(self, "_props") or self._props == None:
             self._props = Ice.createProperties()
             for cfg in self._cfglist():

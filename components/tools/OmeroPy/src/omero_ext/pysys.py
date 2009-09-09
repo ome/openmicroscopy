@@ -9,6 +9,10 @@ omero.sys package which causes weird issues at certain levels in the
 hierarchy. When those arise, pysys can be used as a replacement.
 """
 
+import logging
+logging.basicConfig()
+logging.getLogger("omero_ext").warn("Deprecated: use __import__('sys') if necessary")
+
 import sys
 argv = sys.argv
 stdout = sys.stdout

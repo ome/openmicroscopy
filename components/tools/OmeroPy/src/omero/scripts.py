@@ -18,7 +18,6 @@
 """
 
 import exceptions, omero
-from omero_ext import pysys
 from omero.rtypes import *
 
 class Type:

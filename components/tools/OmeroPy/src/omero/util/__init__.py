@@ -7,16 +7,17 @@
 #
 
 import os
+import sys
 import Ice
 import time
+import uuid
 import omero
+import IceGrid
 import logging
+import Glacier2
 import threading
 import exceptions
 import logging.handlers
-
-from omero.rtypes import ObjectFactories as rFactories
-from omero.columns import ObjectFactories as cFactories
 
 LOGDIR = os.path.join("var","log")
 LOGFORMAT =  """%(asctime)s %(levelname)-5s [%(name)40s] (%(threadName)-10s) %(message)s"""
@@ -47,7 +48,7 @@ def configure_logging(logdir, logfile, loglevel = logging.INFO, format = LOGFORM
     return rootLogger
 
 
-def internal_service_factory(self, communicator, user="root", group=None, retries=6, interval=10, client_uuid=None):
+def internal_service_factory(communicator, user="root", group=None, retries=6, interval=10, client_uuid=None):
     """
         Try to return a ServiceFactory from the grid.
 
@@ -90,6 +91,28 @@ def internal_service_factory(self, communicator, user="root", group=None, retrie
 
     log.warn("Reason: %s", str(excpt))
     raise excpt
+
+def create_admin_session(communicator):
+    """
+    """
+    reg = communicator.stringToProxy("IceGrid/Registry")
+    reg = IceGrid.RegistryPrx.checkedCast(reg)
+    adm = reg.createAdminSession('null', '')
+    return adm
+
+def add_grid_object(communicator, obj):
+    """
+    """
+    sid = communicator.identityToString(obj.ice_getIdentity())
+    adm = create_admin_session(communicator)
+    prx = adm.getAdmin()
+    try:
+        try:
+            prx.addObject(obj)
+        except IceGrid.ObjectExistsException:
+            prx.updateObject(obj)
+    finally:
+            adm.destroy()
 
 def long_to_path(id, root=""):
     """
@@ -145,33 +168,43 @@ class Server(Ice.Application):
     """
 
     def __init__(self, impl_class, adapter_name, identity, logdir = LOGDIR):
+
         self.impl_class = impl_class
         self.adapter_name = adapter_name
         self.identity = identity
         self.logdir = logdir
 
     def run(self,args):
+
+        from omero.rtypes import ObjectFactories as rFactories
+        from omero.columns import ObjectFactories as cFactories
+
         program_name = self.communicator().getProperties().getProperty("Ice.ProgramName")
         configure_logging(self.logdir, program_name+".log")
         self.shutdownOnInterrupt()
         self.logger = logging.getLogger("omero.util.Server")
         self.logger.info("Starting")
+
         try:
-            self.objectfactory = omero.ObjectFactory()
+            self.objectfactory = omero.clients.ObjectFactory()
             self.objectfactory.registerObjectFactory(self.communicator())
             for of in rFactories.values() + cFactories.values():
                 of.register(self.communicator())
-            self.adapter = self.communicator().createObjectAdapter(self.adapter_name)
-            self.impl = self.impl_class()
-            self.impl.communicator = self.communicator()
+            self.impl_class.communicator = self.communicator() # FIXME use context object
+            try:
+                self.impl = self.impl_class()
+            except:
+                self.logger.error("Failed initialization", exc_info=1)
+                sys.exit(100)
             self.impl.serverid = self.communicator().getProperties().getProperty("Ice.ServerId")
 
-            self.adapter.add(self.impl, self.identity)
-            self.logger.info("Activating")
+            self.adapter = self.communicator().createObjectAdapter(self.adapter_name)
+            prx = self.adapter.add(self.impl, self.identity)
+            add_grid_object(self.communicator(), prx)
             self.adapter.activate()
-        finally:
             self.logger.info("Blocking until shutdown")
             self.communicator().waitForShutdown()
+        finally:
             self.logger.info("Cleanup")
             self.cleanup()
             self.logger.info("Stopped")

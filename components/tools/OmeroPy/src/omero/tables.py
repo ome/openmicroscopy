@@ -22,14 +22,15 @@ from path import path
 from functools import wraps
 
 
-import omero
+import omero # Do we need both??
+import omero.clients
 
+# For ease of use
 from omero.columns import *
 from omero.rtypes import *
-from omero_ext import pysys
-from omero_sys_ParametersI import ParametersI
 
 
+sys = __import__("sys") # Python sys
 tables = __import__("tables") # Pytables
 
 def remoted(func):
@@ -437,6 +438,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         internal_repo_cast = omero.grid.InternalRepositoryPrx.checkedCast):
 
         omero.util.Servant.__init__(self)
+        self.communicator = TablesI.communicator # FIXME take context object
 
         # Storing these methods, mainly to allow overriding via
         # test methods. Static methods are evil.
@@ -445,18 +447,32 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
         self.__lock = threading.RLock()
         self.__stores = []
+        self._get_sf()
         self._get_dir()
         self._get_uuid()
         self._get_repo()
 
+    def _get_sf(self):
+        """
+        First step in initialization is to setup a session with the
+        server.
+        """
+        self.sf = omero.util.internal_service_factory(self.communicator)
+        self.resources.add(omero.util.SessionHolder(self.sf))
+
     def _get_dir(self):
         """
-        First step in initialization is to find the .omero/repository
+        Second step in initialization is to find the .omero/repository
         directory. If this is not created, then a required server has
         not started, and so this instance will not start.
         """
         wait = int(self.communicator.getProperties().getPropertyWithDefault("omero.repo.wait", "1"))
         self.repo_dir = self.communicator.getProperties().getProperty("omero.repo.dir")
+
+        if not self.repo_dir:
+            # Implies this is the legacy directory. Obtain from server
+            self.repo_dir = self.sf.getConfigService().getConfigValue("omero.data.dir")
+
         self.repo_cfg = path(self.repo_dir) / ".omero" / "repository"
         start = time.time()
         while not self.repo_cfg.exists() and wait < (time.time() - start):
@@ -470,25 +486,30 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
     def _get_uuid(self):
         """
-        Second step in initialization is to find the database uuid
+        Third step in initialization is to find the database uuid
         for this grid instance. Multiple OMERO.grids could be watching
         the same directory.
         """
-        self.sf = omero.util.internal_service_factory()
-        self.resources.add(omero.util.SessionHolder(self.sf))
         cfg = self.sf.getConfigService()
         self.db_uuid = cfg.getDatabaseUuid()
         self.instance = self.repo_cfg / self.db_uuid
 
     def _get_repo(self):
         """
-        Third step in initialization is to find the repository object
+        Fourth step in initialization is to find the repository object
         for the UUID found in .omero/repository/<db_uuid>, and then
         create a proxy for the InternalRepository attached to that.
         """
+
+        # Get and parse the uuid from the RandomAccessFile format from FileMaker
         self.repo_uuid = (self.instance / "repo_uuid").lines()[0].strip()
+        if len(self.repo_uuid) != 38:
+            raise omero.ResourceError("Poorly formed UUID: %s" % self.repo_uuid)
+        self.repo_uuid = self.repo_uuid[2:]
+
+        # Using the repo_uuid, find our OriginalFile object
         self.repo_obj = self.sf.getQueryService().findByQuery("select f from OriginalFile f where sha1 = :uuid",
-            ParametersI().add("uuid", self.repo_uuid))
+            omero.sys.ParametersI().add("uuid", rstring(self.repo_uuid)))
         self.repo_mgr = self.communicator.stringToProxy("InternalRepository-%s" % self.repo_uuid)
         self.repo_mgr = self._internal_repo_cast(self.repo_mgr)
         self.repo_svc = self.repo_mgr.getProxy()
@@ -523,5 +544,8 @@ if __name__ == "__main__":
     __import__("numpy")
     __import__("tables")
 
+    # Logging hack
+    TablesI.__module__ = "omero.tables"
+
     app = omero.util.Server(TablesI, "TablesAdapter", Ice.Identity("Tables", ""))
-    pysys.exit(app.main(pysys.argv))
+    sys.exit(app.main(sys.argv))
