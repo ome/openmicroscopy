@@ -20,9 +20,12 @@ blitz_generated = os.path.abspath( os.path.join( top, "components", "blitz", "ge
 tools_include = os.path.abspath( os.path.join( top, "components", "tools", "target", "include" ) )
 tools_library = os.path.abspath( os.path.join( top, "components", "tools", "target", "lib" ) )
 omerocpp_dir = os.path.abspath( os.path.join( top, "components", "tools", "OmeroCpp") )
+header = os.path.join( blitz_resources, "header.txt" )
+
 # Relative
 resources = os.path.abspath("resources")
 generated = os.path.abspath("generated")
+
 # Support ICE_HOME
 if os.environ.has_key("ICE_HOME"):
     ice_home = os.path.abspath( os.environ["ICE_HOME"] )
@@ -109,7 +112,7 @@ def slice_py(env, where, dir):
     return actions
 
 def slice_html(env, where, dir):
-    command = ["slice2html"] + common()
+    command = ["slice2html","--indexhdr",header,"--hdr",header] + common()
     actions = []
     for basename, filename in basenames(where, dir):
         c = env.Command(

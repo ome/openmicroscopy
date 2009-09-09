@@ -1,0 +1,19 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>
+            OMERO API Index
+        </title>
+        <style media="screen" type="text/css">
+        html, body {
+            margin: 10px;
+            padding: 0;
+            font-size: 12px;
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+        }
+        </style>
+    </head>
+    <body>
+TITLE
+    </body>
+</html>
