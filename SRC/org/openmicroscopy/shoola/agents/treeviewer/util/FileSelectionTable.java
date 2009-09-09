@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
@@ -93,12 +95,12 @@ class FileSelectionTable
 	private static final int		SELECTED_INDEX = 1;
 	
 	/** The columns of the table. */
-	private static final String[] COLUMNS;
+	private static final Vector<String> COLUMNS;
 	
 	static {
-		COLUMNS = new String[2];
-		COLUMNS[FILE_INDEX] = "File";
-		COLUMNS[SELECTED_INDEX] = "Import";
+		COLUMNS = new Vector<String>(2);
+		COLUMNS.add("File");
+		COLUMNS.add("Import");
 	}
 	
 	/** The button to move an item from the remaining items to current items. */
@@ -137,8 +139,7 @@ class FileSelectionTable
 		removeButton.addActionListener(this);
 		removeAllButton.setActionCommand(""+REMOVE_ALL);
 		removeAllButton.addActionListener(this);
-		Object[][] data = new Object[0][0];
-		table = new JXTable(new FileTableModel(data, COLUMNS));
+		table = new JXTable(new FileTableModel(COLUMNS));
 		TableColumn tc = table.getColumnModel().getColumn(SELECTED_INDEX);
 		final BooleanCellRenderer check = new BooleanCellRenderer();
 		tc.setCellRenderer(check);
@@ -199,8 +200,11 @@ class FileSelectionTable
 		int[] rows = table.getSelectedRows();
 		if (rows == null || rows.length == 0) return;
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
-		for (int i = 0; i < rows.length; i++) 
-			model.removeRow(i);
+		Vector v = model.getDataVector();
+		for (int i = 0; i < rows.length; i++) {
+			v.remove(rows[i]);
+		}
+		table.repaint();
 		int n = table.getRowCount();
 		firePropertyChange(REMOVE_PROPERTY, n-1, n);
 		enabledControl(table.getRowCount() > 0);
@@ -275,8 +279,8 @@ class FileSelectionTable
 		int n = table.getRowCount();
 		if (n == 0) return;
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
-		for (int i = 0; i < n; i++) 
-			model.removeRow(i);
+		model.getDataVector().clear();
+		table.repaint();
 		firePropertyChange(REMOVE_PROPERTY, -1, 0);
 		enabledControl(false);
 	}
@@ -308,8 +312,7 @@ class FileSelectionTable
 				//set the name.
 				element.setName(model.getDisplayedFileName(
 						f.getAbsolutePath()));
-				dtm.insertRow(table.getRowCount(), 
-						new Object[] {element, Boolean.valueOf(true)});
+				dtm.addRow(new Object[] {element, Boolean.valueOf(true)});
 			}
 		}
 	}
@@ -318,6 +321,7 @@ class FileSelectionTable
 	void resetFilesName()
 	{
 		int n = table.getRowCount();
+		if (n == 0) return;
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		FileElement element;
 		for (int i = 0; i < n; i++) {
@@ -369,12 +373,11 @@ class FileSelectionTable
 		/**
 		 * Creates a new instance.
 		 * 
-		 * @param rows		The rows to display.
 		 * @param columns	The columns to display.
 		 */
-		FileTableModel(Object[][] rows, Object[] columns)
+		FileTableModel(Vector<String> columns)
 		{
-			super(rows, columns);
+			super(null, columns);
 		}
 		
 		/**

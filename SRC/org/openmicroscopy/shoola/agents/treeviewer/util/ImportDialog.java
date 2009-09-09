@@ -252,8 +252,8 @@ public class ImportDialog
 	{
 		JPanel bar = new JPanel();
 		bar.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		bar.add(applyToAllButton);
-		bar.add(Box.createHorizontalStrut(5));
+		//bar.add(applyToAllButton);
+		//bar.add(Box.createHorizontalStrut(5));
 		bar.add(resetButton);
 		bar.add(Box.createHorizontalStrut(20));
 		bar.add(cancelButton);
@@ -575,6 +575,7 @@ public class ImportDialog
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
+		table.applyToAll();
 		applyToAllButton.setEnabled(partialName.isSelected());
 		numberOfFolders.setEnabled(partialName.isSelected());
 	}
