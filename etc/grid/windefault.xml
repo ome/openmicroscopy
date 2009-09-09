@@ -32,7 +32,7 @@
       <property name="omero.example" value="my_value"/>
     </properties>
 
-    <include file="templates.xml">
+    <include file="templates.xml"/>
 
     <node name="master">
       <server-instance template="Glacier2Template"
