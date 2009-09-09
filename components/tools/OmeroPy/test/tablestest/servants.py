@@ -12,11 +12,11 @@ import Ice
 import exceptions
 import omero, omero.tables
 import unittest, sys, os, logging
+import tablestest.library as lib
 
 from omero.columns import *
 from path import path
 from uuid import uuid4
-from tablestest.library import TestCase
 
 logging.basicConfig(level=logging.CRITICAL)
 
@@ -122,18 +122,26 @@ class mock_storage(object):
     def decr(self, *args):
         self.down = True
 
-class TestTables(TestCase):
+class TestTables(lib.TestCase):
 
     def setUp(self):
-        TestCase.setUp(self)
+        lib.TestCase.setUp(self)
         omero.util.internal_service_factory = mocked_internal_service_factory()
         self.sf = omero.util.internal_service_factory.sf
         self.communicator = communicator_provider(mock_communicator())
         self.current = mock_current(self.communicator())
-        omero.tables.TablesI.communicator = self.communicator
+        omero.tables.TablesI.communicator = self.communicator()
 
-    def tablesI(self):
-        return omero.tables.TablesI(mock_table(), mock_internal_repo(self.tmp))
+    def tablesI(self, internal_repo = None):
+        if internal_repo is None:
+            internal_repo = mock_internal_repo(self.tmp)
+        return omero.tables.TablesI(mock_table(), internal_repo)
+
+    def repouuid(self):
+        """
+        Returns a string similar to that written by RandomAccessFile.writeUTF() in Java
+        """
+        return "XX%s" % uuid4()
 
     def repodir(self, make = True):
         self.tmp = path(self.tmpdir())
@@ -143,12 +151,14 @@ class TestTables(TestCase):
             repo.makedirs()
         return str(repo)
 
-    def repofile(self, db_uuid, repo_uuid):
+    def repofile(self, db_uuid, repo_uuid=None):
+        if repo_uuid == None:
+            repo_uuid = self.repouuid()
         f = self.repodir()
         f = path(f) / db_uuid
         f.makedirs()
         f = f / "repo_uuid"
-        f.write_lines(repo_uuid)
+        f.write_lines([repo_uuid])
 
     # Note: some of the following method were added as __init__ called
     # first _get_dir() and then _get_uuid(), so the naming is off
@@ -171,18 +181,18 @@ class TestTables(TestCase):
         self.assertRaises(exceptions.IOError, omero.tables.TablesI)
 
     def testTablesIGetDirGetsRepoGetsSFCantFindRepoObject(self):
-        self.repofile(self.sf.db_uuid, str(uuid4()))
+        self.repofile(self.sf.db_uuid)
         self.sf.return_values.append( omero.ApiUsageException(None, None, "Cant Find") )
         self.assertRaises(omero.ApiUsageException, omero.tables.TablesI)
 
     def testTablesIGetDirGetsRepoGetsSFGetsRepo(self):
-        self.repofile(self.sf.db_uuid, str(uuid4()))
+        self.repofile(self.sf.db_uuid)
         self.sf.return_values.append( omero.model.OriginalFileI( 1, False) )
         tables = self.tablesI()
 
     def testTables(self, newfile = True):
         if newfile:
-            self.repofile(self.sf.db_uuid, str(uuid4()))
+            self.repofile(self.sf.db_uuid)
         f = omero.model.OriginalFileI( 1, False)
         self.sf.return_values.append( f )
         tables = self.tablesI()
@@ -248,6 +258,31 @@ class TestTables(TestCase):
             self.assertEquals(1, data.columns[0].values[i])
             self.assertEquals(2.0, data.columns[1].values[i])
         table.cleanup()
+
+    def testErrorInStorage(self):
+        self.repofile(self.sf.db_uuid)
+        f = omero.model.OriginalFileI( 1, False)
+        self.sf.return_values.append( f )
+
+        internal_repo = mock_internal_repo(self.tmp)
+        f = open(internal_repo.path,"w")
+        f.write("this file is not HDF")
+        f.close()
+
+        tables = self.tablesI(internal_repo)
+        self.assertRaises(omero.ValidationException, tables.getTable, f, self.current)
+
+    def testErrorInGet(self):
+        self.repofile(self.sf.db_uuid)
+        f = omero.model.OriginalFileI( 1, False)
+        self.sf.return_values.append( f )
+        tables = self.tablesI()
+        table = tables.getTable(f, self.current).table # From mock
+        cols = [ omero.columns.LongColumnI('name','desc',None) ]
+        table.initialize(cols)
+        cols[0].values = [1,2,3,4]
+        table.addData(cols)
+        table.getWhereList('(name==1)',None,0,0,0,self.current)
 
 def test_suite():
     return 1

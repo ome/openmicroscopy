@@ -35,31 +35,33 @@ tables = __import__("tables") # Pytables
 
 def remoted(func):
     """ Decorator for catching any uncaught exception and converting it to an InternalException """
-
+    log = logging.getLogger("omero.remote")
     def exc_handler(*args, **kwargs):
         try:
-            return func(*args, **kwargs)
+            rv = func(*args, **kwargs)
+            #log.info("%s(%s,%s)=>%s" % (func, args, kwargs, rv))
+            return rv
         except exceptions.Exception, e:
+            #log.warn("%s=>%s(%s)" % (func, type(e), e), exc_info=1)
             if isinstance(e, omero.ServerError):
                 raise e
             else:
                 msg = traceback.format_exc()
                 raise omero.InternalException(msg, None, "Internal exception")
+    exc_handler = wraps(func)(exc_handler)
     return exc_handler
-remoted = wraps(remoted)
 
 def locked(func):
-    """ Decorator for using the self.__lock argument of the calling class """
-
+    """ Decorator for using the self._lock argument of the calling class """
     def with_lock(*args, **kwargs):
         self = args[0]
-        self.__lock.acquire()
+        self._lock.acquire()
         try:
             return func(*args, **kwargs)
         finally:
-            self.__lock.release()
+            self._lock.release()
+    with_lock = wraps(func)(with_lock)
     return with_lock
-locked = wraps(locked)
 
 
 def stamped(func, update = False):
@@ -74,19 +76,19 @@ def stamped(func, update = False):
     Note: stamped implies locked
 
     """
-
     def check_and_update_stamp(*args, **kwargs):
         self = args[0]
         stamp = args[1]
-        if stamp < self.__stamp:
+        if stamp < self._stamp:
             raise omero.OptimisticLockException(None, None, "Resource modified by another thread")
 
-        return func(*args, **kwargs)
-        if update:
-            self.__stamp = time.time()
+        try:
+            return func(*args, **kwargs)
+        finally:
+            if update:
+                self._stamp = time.time()
+    checked_and_update_stamp = wraps(func)(check_and_update_stamp)
     return locked(check_and_update_stamp)
-stamped = wraps(stamped)
-
 
 
 class HdfList(object):
@@ -98,7 +100,7 @@ class HdfList(object):
     """
 
     def __init__(self):
-        self.__lock = threading.RLock()
+        self._lock = threading.RLock()
         self.__filenos = {}
         self.__paths = {}
 
@@ -147,11 +149,12 @@ class HdfStorage(object):
             raise omero.ValidationException(None, None, "Invalid file_path")
 
         self.__log = logging.getLogger("omero.tables.HdfStorage")
-        self.__lock = threading.RLock()
         self.__hdf_path = path(file_path)
         self.__hdf_file = self.__openfile("a")
         self.__tables = []
-        self.__stamp = time.time()
+
+        self._lock = threading.RLock()
+        self._stamp = time.time()
 
         # These are what we'd like to have
         self.__mea = None
@@ -243,7 +246,7 @@ class HdfStorage(object):
     decr = locked(decr)
 
     def uptodate(self, stamp):
-        return self.__stamp <= stamp
+        return self._stamp <= stamp
     uptodate = locked(uptodate)
 
     def rows(self):
@@ -307,7 +310,7 @@ class HdfStorage(object):
 
     def getWhereList(self, stamp, condition, variables, unused, start, stop, step):
         self.__initcheck()
-        return self.__mea.getWhereList(condition, variables, None, start, stop, step)
+        return self.__mea.getWhereList(condition, variables, None, start, stop, step).tolist()
     getWhereList = stamped(getWhereList)
 
     def readCoordinates(self, stamp, rowNumbers, current):
@@ -315,12 +318,12 @@ class HdfStorage(object):
         rows = self.__mea.readCoordinates(rowNumbers)
         cols = self.cols(None, current)
         for col in cols:
-            col.values = rows[col.name]
+            col.values = rows[col.name].tolist()
 
         data = omero.grid.Data()
         data.columns = cols
         data.rowNumbers = rowNumbers
-        data.lastModification = self.__stamp
+        data.lastModification = long(self._stamp*1000) # Convert to millis since epoch
         return data
     readCoordinates = stamped(readCoordinates)
 
@@ -445,7 +448,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         self._table_cast = table_cast
         self._internal_repo_cast = internal_repo_cast
 
-        self.__lock = threading.RLock()
+        self._lock = threading.RLock()
         self.__stores = []
         self._get_sf()
         self._get_dir()
@@ -528,6 +531,9 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
         # Will throw an exception if not allowed.
         file_path = self.repo_mgr.getFilePath(file_obj)
+        p = path(file_path).dirname()
+        if not p.exists():
+            p.makedirs()
 
         storage = HDFLIST.getOrCreate(file_path)
         table = TableI(storage)
@@ -546,6 +552,7 @@ if __name__ == "__main__":
 
     # Logging hack
     TablesI.__module__ = "omero.tables"
+    TableI.__module__ = "omero.tables"
 
     app = omero.util.Server(TablesI, "TablesAdapter", Ice.Identity("Tables", ""))
     sys.exit(app.main(sys.argv))

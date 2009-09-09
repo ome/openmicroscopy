@@ -10,27 +10,20 @@
 #define OMERO_REPOSITORY_ICE
 
 #include <omero/ModelF.ice>
+#include <omero/ServicesF.ice>
 #include <omero/Collections.ice>
 #include <omero/ServerErrors.ice>
 
 module omero {
 
-// Forward declarations
-module api {
-    interface RawFileStore;
-    interface RawPixelsStore;
-    interface RenderingEngine;
-    interface ThumbnailStore;
-};
-
-/*
+   /*
     * Interfaces and types running the backend.
     * Used by OMERO.blitz to manage the public
     * omero.api types.
     */
 module grid {
 
-    interface Repository {
+    ["ami"] interface Repository {
 
         // Return the OriginalFile descriptor for this Repository. It will have
         // the path "/"
@@ -105,7 +98,7 @@ module grid {
     /**
         * Internal portion of the API used for management. Not available to clients.
         */
-    interface InternalRepository {
+    ["ami"] interface InternalRepository {
 
         //
         // Provides all the stateful services dealing with binary data

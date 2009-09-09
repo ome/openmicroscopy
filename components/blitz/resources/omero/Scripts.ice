@@ -88,7 +88,7 @@ module omero {
          * with notification of any of the possible
          * ends-of-life that a Process might experience
          */
-        interface ProcessCallback {
+        ["ami"] interface ProcessCallback {
 
             /*
              * Process terminated normally. Return code provided.
@@ -117,7 +117,7 @@ module omero {
          * Thin wrapper around a system-level process. Most closely
          * resembles Python's subprocess.Popen class.
          */
-        interface Process {
+        ["ami"] interface Process {
 
             /*
              * Returns the return code of the process, or null
@@ -160,20 +160,20 @@ module omero {
          * Jobs are responsible for loading arguments from the
          * environment via the session id.
          */
-        interface Processor {
+        ["ami"] interface Processor {
 
             /*
              * Starts a process based on the given job. If
              * this processor cannot handle the given job, a
              * null process will be returned.
              */
-            ["ami"] Process* processJob(string session, omero::model::Job j) throws ServerError;
+            Process* processJob(string session, omero::model::Job j) throws ServerError;
 
             /*
              * Parses a job and returns metadata definition required
              * for properly submitting the job.
              */
-            ["ami"] JobParams parseJob(string session, omero::model::Job j) throws ServerError;
+            JobParams parseJob(string session, omero::model::Job j) throws ServerError;
 
         };
 
@@ -184,7 +184,7 @@ module omero {
          * processors should be acquired from the ServiceFactory.
          * Otherwise, a Job can be submitted via JobHandle.
          */
-        interface InteractiveProcessor {
+        ["ami"] interface InteractiveProcessor {
 
             /*
              * Returns the system clock time in milliseconds since the epoch
@@ -209,7 +209,7 @@ module omero {
              * Executes an instance of the job returned by getJob() using
              * the given map as inputs.
              */
-            ["ami"] Process* execute(omero::RMap inputs) throws ServerError;
+            Process* execute(omero::RMap inputs) throws ServerError;
 
             /*
              * Retrieve the results for the given process. This will throw
@@ -222,7 +222,7 @@ module omero {
              * instances uploaded after completion under the key values of the
              * same name.
              */
-            ["ami"] omero::RMap getResults(Process* proc) throws ServerError;
+            omero::RMap getResults(Process* proc) throws ServerError;
 
         };
     };

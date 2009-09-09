@@ -12,6 +12,9 @@ import static omero.rtypes.rstring;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 
 import ome.api.JobHandle;
 import ome.services.blitz.fire.Registry;
@@ -25,7 +28,9 @@ import ome.util.Filterable;
 import omero.ApiUsageException;
 import omero.ServerError;
 import omero.ValidationException;
-import omero.rtypes;
+import omero.grid.AMI_InternalRepository_getDescription;
+import omero.grid.AMI_InternalRepository_getProxy;
+import omero.grid.AMI_Tables_getTable;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
@@ -47,7 +52,6 @@ import omero.model.JobStatus;
 import omero.model.JobStatusI;
 import omero.model.OriginalFile;
 import omero.util.IceMapper;
-import omero.util.ObjectFactoryRegistrar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,6 +59,8 @@ import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
+import Ice.LocalException;
+import Ice.UserException;
 
 /**
  * Implementation of the SharedResources interface.
@@ -97,63 +103,50 @@ public class SharedResourcesI extends AbstractAmdServant implements
     }
 
     private interface RepeatTask<U extends Ice.ObjectPrx> {
-        U lookupService(Ice.ObjectPrx server) throws ServerError;
+        void requestService(Ice.ObjectPrx server, ResultHolder holder)
+                throws ServerError;
+    }
+
+    private class ResultHolder<U> {
+
+        private final CountDownLatch c = new CountDownLatch(1);
+
+        private final int timeout;
+
+        private volatile U rv = null;
+
+        ResultHolder(int timeoutSeconds) {
+            timeout = timeoutSeconds;
+        }
+
+        void set(U obj) {
+            if (obj != null) {
+                rv = obj;
+                c.countDown();
+            }
+        }
+
+        U get() {
+            try {
+                c.await(timeout, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                // oh well.
+            }
+            return rv;
+        }
     }
 
     @SuppressWarnings("unchecked")
-    private <U extends Ice.ObjectPrx> U repeatLookup(
-            List<Ice.ObjectPrx> objectPrxs, int seconds, Ice.Current current,
-            RepeatTask<U> task) throws ServerError {
+    private <U extends Ice.ObjectPrx> U lookup(List<Ice.ObjectPrx> objectPrxs,
+            int seconds, RepeatTask<U> task) throws ServerError {
 
-        // Setting up a second communicator to see if the timeout exceptions
-        // will go away. A checkedCast or similar will be needed to reconvert
-        Ice.InitializationData id = new Ice.InitializationData();
-        id.properties = current.adapter.getCommunicator().getProperties()
-                ._clone();
-        Ice.Communicator ic = Ice.Util.initialize(id);
-        ObjectFactoryRegistrar.registerObjectFactory(ic,
-                ObjectFactoryRegistrar.INSTANCE);
-        for (rtypes.ObjectFactory of : rtypes.ObjectFactories.values()) {
-            of.register(ic);
+        ResultHolder<U> holder = new ResultHolder<U>(seconds);
+        for (Ice.ObjectPrx prx : objectPrxs) {
+            if (prx != null) {
+                task.requestService(prx, holder);
+            }
         }
-        try {
-            long start = System.currentTimeMillis();
-            long stop = seconds < 0 ? start : (start + (seconds * 1000L));
-            do {
-
-                for (Ice.ObjectPrx prx : objectPrxs) {
-                    if (prx != null) {
-
-                        prx = ic.stringToProxy(prx.ice_toString()).ice_timeout(
-                                5);
-
-                        try {
-
-                            U service = task.lookupService(prx);
-                            if (service != null) {
-                                return service;
-                            }
-                        } catch (ServerError se) {
-                            log.warn("ServerError on task.lookupService(" + prx
-                                    + ") :" + se);
-                            // The following exceptions all signify a bad proxy
-                        } catch (Ice.ObjectNotExistException onee) {
-                            // bad proxy
-                        } catch (Ice.NoEndpointException nee) {
-                            // bad proxy
-                        } catch (Ice.TimeoutException te) {
-                            // bad proxy
-                        } catch (Exception e) {
-                            log.warn("Other exception", e);
-                        }
-                    }
-                }
-            } while (stop < System.currentTimeMillis());
-
-            return null;
-        } finally {
-            ic.destroy();
-        }
+        return holder.get();
     }
 
     static String QUERY = "select o from OriginalFile o where o.format.value = 'Repository'";
@@ -214,19 +207,59 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         // Okay. All's valid.
         InternalRepositoryPrx[] repos = registry.lookupRepositories();
-        RepositoryPrx repoPrx = (RepositoryPrx) repeatLookup(Arrays
-                .<Ice.ObjectPrx> asList(repos), 60, __current,
+
+        RepositoryPrx repoPrx = (RepositoryPrx) lookup(Arrays
+                .<Ice.ObjectPrx> asList(repos), 60,
                 new RepeatTask<RepositoryPrx>() {
-                    public RepositoryPrx lookupService(Ice.ObjectPrx prx)
-                            throws ServerError {
-                        InternalRepositoryPrx server = InternalRepositoryPrxHelper
-                                .checkedCast(prx);
-                        OriginalFile description = server.getDescription();
-                        RepositoryPrx repoPrx = server.getProxy();
-                        if (description.getId().getValue() == repo) {
-                            return repoPrx;
-                        }
-                        return null;
+                    public void requestService(Ice.ObjectPrx prx,
+                            final SharedResourcesI.ResultHolder holder) {
+
+                        final InternalRepositoryPrx server = InternalRepositoryPrxHelper
+                                .uncheckedCast(prx);
+
+                        server
+                                .getDescription_async(new AMI_InternalRepository_getDescription() {
+
+                                    @Override
+                                    public void ice_exception(LocalException ex) {
+                                        holder.set(null);
+                                    }
+
+                                    @Override
+                                    public void ice_exception(UserException ex) {
+                                        holder.set(null);
+                                    }
+
+                                    @Override
+                                    public void ice_response(
+                                            OriginalFile description) {
+                                        if (description != null
+                                                && description.getId()
+                                                        .getValue() == repo) {
+                                            server
+                                                    .getProxy_async(new AMI_InternalRepository_getProxy() {
+
+                                                        @Override
+                                                        public void ice_exception(
+                                                                LocalException ex) {
+                                                            holder.set(null);
+                                                        }
+
+                                                        @Override
+                                                        public void ice_exception(
+                                                                UserException ex) {
+                                                            holder.set(null);
+                                                        }
+
+                                                        @Override
+                                                        public void ice_response(
+                                                                RepositoryPrx __ret) {
+                                                            holder.set(__ret);
+                                                        }
+                                                    });
+                                        }
+                                    }
+                                });
                     }
                 });
 
@@ -246,7 +279,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
     }
 
     @SuppressWarnings("unchecked")
-    public TablePrx openTable(final OriginalFile file, Current __current)
+    public TablePrx openTable(final OriginalFile file, final Current __current)
             throws ServerError {
 
         // Now make sure the current user has permissions to do this
@@ -271,12 +304,30 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         // Okay. All's valid.
         TablesPrx[] tables = registry.lookupTables();
-        TablePrx tablePrx = (TablePrx) repeatLookup(Arrays
-                .<Ice.ObjectPrx> asList(tables), 60, __current,
+        TablePrx tablePrx = (TablePrx) lookup(Arrays
+                .<Ice.ObjectPrx> asList(tables), 60,
                 new RepeatTask<TablePrx>() {
-                    public TablePrx lookupService(Ice.ObjectPrx prx) {
-                        TablesPrx server = TablesPrxHelper.checkedCast(prx);
-                        return server.getTable(file);
+                    public void requestService(Ice.ObjectPrx prx,
+                            final ResultHolder holder) {
+                        final TablesPrx server = TablesPrxHelper
+                                .uncheckedCast(prx);
+                        server.getTable_async(new AMI_Tables_getTable() {
+
+                            @Override
+                            public void ice_exception(LocalException ex) {
+                                holder.set(null);
+                            }
+
+                            @Override
+                            public void ice_response(TablePrx __ret) {
+                                holder.set(__ret);
+                            }
+
+                            @Override
+                            public void ice_exception(UserException ex) {
+                                holder.set(null);
+                            }
+                        }, file);
                     }
                 });
         return tablePrx;
@@ -338,30 +389,25 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         // Okay. All's valid.
         ProcessorPrx[] procs = registry.lookupProcessors();
-        InteractiveProcessorPrx interactivePrx = (InteractiveProcessorPrx) repeatLookup(
-                Arrays.<Ice.ObjectPrx> asList(procs), seconds, current,
-                new RepeatTask<InteractiveProcessorPrx>() {
-                    public InteractiveProcessorPrx lookupService(
-                            Ice.ObjectPrx prx) throws ServerError {
+        ProcessorPrx server = (ProcessorPrx) lookup(Arrays
+                .<Ice.ObjectPrx> asList(procs), seconds,
+                new RepeatTask<ProcessorPrx>() {
+                    public void requestService(Ice.ObjectPrx prx,
+                            ResultHolder holder) throws ServerError {
                         ProcessorPrx server = ProcessorPrxHelper
                                 .checkedCast(prx);
-                        if (server != null) {
-                            long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
-                            InteractiveProcessorI ip = new InteractiveProcessorI(
-                                    sf.principal, sf.sessionManager,
-                                    sf.executor, server, unloadedJob, timeout);
-                            Ice.Identity id = new Ice.Identity();
-                            id.category = current.id.name;
-                            id.name = Ice.Util.generateUUID();
-                            Ice.ObjectPrx rv = sf.registerServant(current, id,
-                                    ip);
-                            return InteractiveProcessorPrxHelper
-                                    .uncheckedCast(rv);
-                        }
-                        return null;
+                        holder.set(server);
                     }
                 });
-        return interactivePrx;
+
+        long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
+        InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
+                sf.sessionManager, sf.executor, server, unloadedJob, timeout);
+        Ice.Identity id = new Ice.Identity();
+        id.category = current.id.name;
+        id.name = Ice.Util.generateUUID();
+        Ice.ObjectPrx rv = sf.registerServant(current, id, ip);
+        return InteractiveProcessorPrxHelper.uncheckedCast(rv);
 
     }
 }

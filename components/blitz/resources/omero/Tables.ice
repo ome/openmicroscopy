@@ -74,7 +74,7 @@ module omero {
 
         };
 
-        interface Table {
+        ["ami"] interface Table {
 
 
             //
@@ -82,16 +82,19 @@ module omero {
             //
 
             omero::model::OriginalFile
-                getOriginalFile();
+                getOriginalFile()
+                throws omero::ServerError;
 
             /**
              * Returns empty columns.
              **/
             ColumnArray
-                getHeaders();
+                getHeaders()
+                throws omero::ServerError;
 
             long
-                getNumberOfRows();
+                getNumberOfRows()
+                throws omero::ServerError;
 
             /**
              * http://www.pytables.org/docs/manual/apb.html
@@ -102,10 +105,12 @@ module omero {
              *
              **/
             omero::api::LongArray
-                getWhereList(string condition, omero::RTypeDict variables, long start, long stop, long step);
+                getWhereList(string condition, omero::RTypeDict variables, long start, long stop, long step)
+                throws omero::ServerError;
 
             Data
-                readCoordinates(omero::api::LongArray rowNumbers);
+                readCoordinates(omero::api::LongArray rowNumbers)
+                throws omero::ServerError;
 
 
             //
@@ -113,23 +118,28 @@ module omero {
             //
 
             void
-                addData(ColumnArray cols);
+                addData(ColumnArray cols)
+                throws omero::ServerError;
 
             //
             // Metadata =======================================================
             //
 
             omero::RTypeDict
-                getAllMetadata();
+                getAllMetadata()
+                throws omero::ServerError;
 
             omero::RType
-                getMetadata(string key);
+                getMetadata(string key)
+                throws omero::ServerError;
 
             void
-                setAllMetadata(omero::RTypeDict dict);
+                setAllMetadata(omero::RTypeDict dict)
+                throws omero::ServerError;
 
             void
-                setMetadata(string key, omero::RType value);
+                setMetadata(string key, omero::RType value)
+                throws omero::ServerError;
 
             //
             // Life-cycle =====================================================
@@ -139,23 +149,27 @@ module omero {
              * Initializes the structure based on
              **/
             void
-                initialize(ColumnArray cols);
+                initialize(ColumnArray cols)
+                throws omero::ServerError;
 
             /**
              * Adds a column and returns the position index of the new column.
              **/
             int
-                addColumn(Column col);
+                addColumn(Column col)
+                throws omero::ServerError;
 
             /**
              **/
             void
-                delete();
+                delete()
+                throws omero::ServerError;
 
             /**
              **/
             void
-                close();
+                close()
+                throws omero::ServerError;
 
         };
 
@@ -167,19 +181,22 @@ module omero {
     // ========================================================================
     //
 
-        interface Tables {
+        ["ami"] interface Tables {
 
             /**
              * Returns the Repository which this Tables service is watching.
              **/
              omero::grid::Repository*
-                getRepository();
+                getRepository()
+                throws omero::ServerError;
 
             /**
              * Returns the Table service for the given "OMERO.tables" file.
              */
             Table*
-                getTable(omero::model::OriginalFile file);
+                getTable(omero::model::OriginalFile file)
+                throws omero::ServerError;
+
 
         };
 
