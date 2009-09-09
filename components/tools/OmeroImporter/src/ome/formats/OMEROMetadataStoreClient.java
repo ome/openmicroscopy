@@ -3303,44 +3303,49 @@ public class OMEROMetadataStoreClient
     public void setCircleCx(String cx, int imageIndex, int roiIndex,
 			int shapeIndex)
     {
-    	Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
-    	o.setCx(toRType(Double.parseDouble(cx)));
+    	// XXX: Disabled for now
+    	//Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
+    	//o.setCx(toRType(Double.parseDouble(cx)));
 	}
 
 	public void setCircleCy(String cy, int imageIndex, int roiIndex,
 			int shapeIndex)
 	{
-    	Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
-    	o.setCy(toRType(Double.parseDouble(cy)));
+		// XXX: Disabled for now
+    	//Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
+    	//o.setCy(toRType(Double.parseDouble(cy)));
 	}
 
 	public void setCircleID(String id, int imageIndex, int roiIndex,
 			int shapeIndex)
 	{
-    	checkDuplicateLSID(Ellipse.class, id);
-        LinkedHashMap<String, Integer> indexes =
-        	new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("roiIndex", roiIndex);
-        indexes.put("shapeIndex", shapeIndex);
-        IObjectContainer o = getIObjectContainer(Ellipse.class, indexes);
-        o.LSID = id;
+		// XXX: Disabled for now
+    	//checkDuplicateLSID(Ellipse.class, id);
+        //LinkedHashMap<String, Integer> indexes =
+        //	new LinkedHashMap<String, Integer>();
+        //indexes.put("imageIndex", imageIndex);
+        //indexes.put("roiIndex", roiIndex);
+        //indexes.put("shapeIndex", shapeIndex);
+        //IObjectContainer o = getIObjectContainer(Ellipse.class, indexes);
+        //o.LSID = id;
 	}
 
 	public void setCircleR(String r, int imageIndex, int roiIndex,
 			int shapeIndex)
 	{
-    	Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
-    	Double radius = Double.parseDouble(r);
-    	o.setRx(toRType(radius));
-    	o.setRy(toRType(radius));
+		// XXX: Disabled for now
+    	//Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
+    	//Double radius = Double.parseDouble(r);
+    	//o.setRx(toRType(radius));
+    	//o.setRy(toRType(radius));
 	}
 
 	public void setCircleTransform(String transform, int imageIndex,
 			int roiIndex, int shapeIndex)
 	{
-    	Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
-    	o.setTransform(toRType(transform));
+		// XXX: Disabled for now
+    	//Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
+    	//o.setTransform(toRType(transform));
 	}
 
     public void setContactExperimenter(String arg0, int arg1)
@@ -4475,7 +4480,6 @@ public class OMEROMetadataStoreClient
     public void setShapeBaselineShift(String baselineShift, int imageIndex,
 			int roiIndex, int shapeIndex)
     {
-    	Shape o = getShape(imageIndex, roiIndex, shapeIndex);
 	}
 
 	public void setShapeDirection(String direction, int imageIndex,
@@ -4589,14 +4593,16 @@ public class OMEROMetadataStoreClient
 
 	public void setShapeTheT(Integer theT, int imageIndex, int roiIndex,
 			int shapeIndex) {
-		Shape o = getShape(imageIndex, roiIndex, shapeIndex);
-		o.setTheT(toRType(theT));
+		// XXx: Disabled for now
+		//Shape o = getShape(imageIndex, roiIndex, shapeIndex);
+		//o.setTheT(toRType(theT));
 	}
 
 	public void setShapeTheZ(Integer theZ, int imageIndex, int roiIndex,
 			int shapeIndex) {
-		Shape o = getShape(imageIndex, roiIndex, shapeIndex);
-		o.setTheZ(toRType(theZ));
+		// XXX: Disabled for now
+		//Shape o = getShape(imageIndex, roiIndex, shapeIndex);
+		//o.setTheZ(toRType(theZ));
 	}
 
 	public void setShapeVectorEffect(String vectorEffect, int imageIndex,
