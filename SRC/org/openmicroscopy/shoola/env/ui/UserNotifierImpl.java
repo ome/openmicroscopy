@@ -293,7 +293,7 @@ public class UserNotifierImpl
 	public void notifyDownload(FileAnnotationData data, File directory)
 	{
 		if (data == null) return;
-		OriginalFile f = ((FileAnnotation) data.asAnnotation()).getFile();
+		OriginalFile f = (OriginalFile) data.getContent();
 		manager.saveFileToDisk(f, directory);
 	}
 	

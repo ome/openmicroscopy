@@ -40,6 +40,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.actions.MetadataAction;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
@@ -601,6 +602,16 @@ class EditorComponent
 				doc.setThumbnail(file.getAbsolutePath());
 				file.delete();
 			}
+		} else if (uiView instanceof OriginalMetadataComponent) {
+			try {
+				((OriginalMetadataComponent) uiView).serOriginalFile(file);
+				file.delete();
+			} catch (Exception e) {
+				UserNotifier un = 
+					MetadataViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Original Metadata", "An error occurred while " +
+						"reading the original metadata.");
+			}
 		}
 	}
 
@@ -667,5 +678,5 @@ class EditorComponent
 				
 		};
 	}
-	
+
 }

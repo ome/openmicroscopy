@@ -591,6 +591,8 @@ class EditorModel
 		return attachments.size();
 	}
 	
+	private FileAnnotationData originalMetadata;
+	
 	/**
 	 * Returns the collection of the tags linked to the <code>DataObject</code>.
 	 * 
@@ -602,9 +604,32 @@ class EditorModel
 		if (data == null) return new ArrayList();
 		Collection attachements = data.getAttachments(); 
 		if (attachements == null) return new ArrayList();
+		Iterator i = attachements.iterator();
+		FileAnnotationData f;
+		String ns;
+		while (i.hasNext()) {
+			f = (FileAnnotationData) i.next();
+			ns = f.getNameSpace();
+			if (FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
+				//tmp
+				String name = f.getFileName();
+				if (name.contains("original_metadata"))
+					originalMetadata = f;
+			}
+		}
+		//if (originalMetadata != null) attachements.remove(originalMetadata);
 		return sorter.sort(attachements); 
 	}
 
+	/**
+	 * Returns the companion file generated while importing the file
+	 * and containing the metadata found in the file, or <code>null</code>
+	 * if no file was generated.
+	 * 
+	 * @return See above
+	 */
+	FileAnnotationData getOriginalMetadata() { return originalMetadata; }
+	
 	/**
 	 * Returns the number of people who viewed the image.
 	 * 
@@ -891,6 +916,7 @@ class EditorModel
 	    	channelPlaneInfoMap.clear();
 	    imageAcquisitionData = null;
 	    instrumentData = null;
+	    originalMetadata = null;
 	    if (refObject instanceof ImageData) {
 	    	fireChannelEnumerationsLoading();
 	    	fireImageEnumerationsLoading();
@@ -1772,7 +1798,6 @@ class EditorModel
 	{
 		FileLoader loader = new FileLoader(component, data, uiView);
 		loader.load();
-		
 	}
 	
 	/**

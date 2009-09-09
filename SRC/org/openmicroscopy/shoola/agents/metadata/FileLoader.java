@@ -37,7 +37,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.FileAnnotationData;
 
 /** 
- * Loads images like png, TIFF etc linked to a given object.
+ * Loads images like PNG, TIFF etc linked to a given object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,7 +62,7 @@ public class FileLoader
     /** The component where to feed the results back to. */
     private Object 				uiView;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  		handle;
     
 	/**

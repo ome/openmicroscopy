@@ -276,7 +276,7 @@ class EditorControl
 	 * @return See above.
 	 */
 	boolean isSingleMode() { return view.isSingleMode(); }
-	
+
 	/**
 	 * Reacts to property change.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

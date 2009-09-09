@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.env.init.StartupException;
 /** 
  * Oversees the functioning of the whole container, holds the container's
  * configuration and manages agents life-cycle. 
- * Also delegates intitialization tasks to 
+ * Also delegates initialization tasks to 
  * {@link org.openmicroscopy.shoola.env.init.Initializer}.
  * 
  * <p>This class is a Singleton.  The singleton object can't be retrieved by 
@@ -177,7 +177,7 @@ public final class Container
 	
 	
 	/** 
-	 * Intializes the member fields. 
+	 * Initializes the member fields. 
 	 * <p>The absolute path to the installation directory is obtained from
 	 * <code>home</code>.  If this parameter doesn't specify an absolute path,
 	 * then it'll be translated into an absolute path.  Translation is system 

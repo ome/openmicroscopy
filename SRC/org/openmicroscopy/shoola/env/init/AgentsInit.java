@@ -108,7 +108,7 @@ public final class AgentsInit
 	 * 						directory. 
 	 * @return A new registry, populated as specified above.
 	 * @throws Exception If the configuration file couldn't be read in and
-	 * 						parsed correclty.
+	 * 						parsed correctly.
 	 */
 	private Registry createAgentRegistry(String configFile)
 		throws Exception

@@ -375,7 +375,6 @@ class UserNotifierManager
 		loaders.put(path, loader);
 		if (!download.isVisible())
 			UIUtilities.centerAndShow(download);
-		
 	}
 	
 	/**

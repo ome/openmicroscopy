@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
+import pojos.FileAnnotationData;
 
 /** 
  * Component displaying the acquisition information.
@@ -125,6 +126,9 @@ class AcquisitionDataUI
 	/** The component hosting the instrument info. */
 	private JXTaskPane 							instrumentPane;
 	
+	/** The component hosting the original metadata. */
+	private JXTaskPane							originalMetadataPane;
+	
 	/** Collection of components hosting the channel. */
 	private List<ChannelAcquisitionComponent> 	channelComps;
 	
@@ -133,6 +137,9 @@ class AcquisitionDataUI
 	
 	/** The constraints used to lay out the components in the container. */
 	private GridBagConstraints					constraints;
+	
+	/** Component displaying the original metadata. */
+	private OriginalMetadataComponent			originalMetadata;
 	
 	/** Initializes the UI components. */
 	private void initComponents()
@@ -151,6 +158,11 @@ class AcquisitionDataUI
 		instrumentPane.add(instrument);
 		instrumentPane.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
+		originalMetadataPane = EditorUtil.createTaskPane("Original Metadata");
+		originalMetadataPane.addPropertyChangeListener(
+				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
+		originalMetadata = new OriginalMetadataComponent(model);
+		originalMetadataPane.add(originalMetadata);
 	}
 	
 	/** Builds and lays out the components. */
@@ -166,6 +178,8 @@ class AcquisitionDataUI
 		constraints.anchor = GridBagConstraints.WEST;
 		constraints.insets = new Insets(0, 2, 2, 0);
 		constraints.weightx = 1.0;
+		container.add(originalMetadataPane, constraints);
+        constraints.gridy++;
         container.add(instrumentPane, constraints);
         constraints.gridy++;
         container.add(imagePane, constraints);
@@ -179,10 +193,11 @@ class AcquisitionDataUI
 		if (n == 0) return;
 		Component[] comps = container.getComponents();
 		for (int i = 0; i < comps.length; i++) {
-			if (comps[i] != imagePane && comps[i] != instrumentPane)
+			if (comps[i] != imagePane && comps[i] != instrumentPane &&
+					comps[i] != originalMetadataPane)
 				container.remove(comps[i]);
 		}
-		constraints.gridy = 2;
+		constraints.gridy = 3;
         Iterator<JXTaskPane> i = channelAcquisitionPanes.keySet().iterator();
         while (i.hasNext()) {
             ++constraints.gridy;
@@ -424,6 +439,7 @@ class AcquisitionDataUI
 		instrument.setRootObject();
 		imageAcquisition.setRootObject();
 		channelAcquisitionPanes.clear();
+		originalMetadata.clear();
 		layoutUI();
 		repaint();
 		if (!imagePane.isCollapsed() && load)
@@ -501,6 +517,11 @@ class AcquisitionDataUI
 			controller.loadImageAcquisitionData();
 		} else if (src == instrumentPane) {
 			controller.loadInstrumentData();
+		} else if (src == originalMetadataPane) {
+			FileAnnotationData f = model.getOriginalMetadata();
+			//make sure we only download it once.
+			if (f != null && !originalMetadata.isMetadataLoaded())
+				model.loadFile(f, originalMetadata);
 		} else {
 			ChannelData channel = channelAcquisitionPanes.get(src);
 			controller.loadChannelAcquisitionData(channel);
