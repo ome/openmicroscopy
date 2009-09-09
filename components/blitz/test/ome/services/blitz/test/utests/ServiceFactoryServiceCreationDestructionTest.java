@@ -109,7 +109,7 @@ public class ServiceFactoryServiceCreationDestructionTest extends
         });
 
         Principal p = new Principal("session", "group", "type");
-        sf = new ServiceFactoryI(current, context, manager, executor, p, hwi, null, null);
+        sf = new ServiceFactoryI(current, null, context, manager, executor, p, hwi, null, null);
     };
 
     @Test

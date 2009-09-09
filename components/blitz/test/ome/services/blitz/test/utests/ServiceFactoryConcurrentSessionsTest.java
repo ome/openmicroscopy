@@ -85,13 +85,13 @@ public class ServiceFactoryConcurrentSessionsTest extends MockObjectTestCase {
 
         Principal p = new Principal("user1", "group", "event");
 
-        sf1 = new ServiceFactoryI(current, ctx, manager, executor, p,
+        sf1 = new ServiceFactoryI(current, null, ctx, manager, executor, p,
                 new ArrayList<HardWiredInterceptor>(), null, null);
         curr1.id = id1;
         curr1.adapter = adapter;
 
         Principal p2 = new Principal("user2", "group", "event");
-        sf2 = new ServiceFactoryI(current, ctx, manager, executor, p2,
+        sf2 = new ServiceFactoryI(current, null, ctx, manager, executor, p2,
                 new ArrayList<HardWiredInterceptor>(), null, null);
         curr2.id = id2;
         curr2.adapter = adapter;
