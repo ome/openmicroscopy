@@ -6,8 +6,6 @@
     Use is subject to license terms supplied in LICENSE.txt
 -->
 
-  <application name="templates">
-
     <properties id="Blitz">
       <property name="Ice.Default.CollocationOptimized" value="0"/>
     </properties>
@@ -157,7 +155,9 @@
         <option>-m</option>
         <option>omero.processor</option>
         <env>${PYTHONPATH}</env>
-        <adapter name="ProcessorAdapter" replica-group="ProcessorAdapters" register-process="true" endpoints="tcp"/>
+        <adapter name="ProcessorAdapter" register-process="true" endpoints="tcp">
+          <object identity="Processor-${index}" type="::omero::grid::Processor"/>
+        </adapter>
         <properties>
           <properties refid="Profile"/>
           <properties refid="Basics"/>
@@ -176,7 +176,9 @@
         <option>-m</option>
         <option>omero.tables</option>
         <env>${PYTHONPATH}</env>
-        <adapter name="TablesAdapter" replica-group="TablesAdapters" register-process="true" endpoints="tcp"/>
+        <adapter name="TablesAdapter" register-process="true" endpoints="tcp">
+          <object identity="Tables-${index}" type="::omero::grid::Tables"/>
+        </adapter>
         <properties>
           <properties refid="Profile"/>
           <properties refid="Basics"/>
@@ -306,6 +308,10 @@
       </icebox>
     </server-template>
 
-  </application>
+    <replica-group id="BlitzAdapters">
+      <load-balancing type="adaptive" load-sample="5" n-replicas="2"/>
+      <object identity="BlitzVerifier" type="::Glacier2::PermissionVerifier"/>
+      <object identity="BlitzManager" type="::Glacier2::SessionManager"/>
+    </replica-group>
 
 </icegrid>

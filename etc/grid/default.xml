@@ -6,7 +6,7 @@
     Use is subject to license terms supplied in LICENSE.txt
 -->
 
-  <application name="OMERO" import-default-templates="true">
+  <application name="OMERO">
 
     <variable name="OMERO_HOME"   value="."/>
     <variable name="OMEROPY_HOME" value="lib/python/"/>
@@ -23,21 +23,7 @@
       <property name="omero.example"  value="my_value"/>
     </properties>
 
-    <replica-group id="BlitzAdapters">
-      <load-balancing type="adaptive" load-sample="5" n-replicas="2"/>
-      <object identity="BlitzVerifier" type="::Glacier2::PermissionVerifier"/>
-      <object identity="BlitzManager" type="::Glacier2::SessionManager"/>
-    </replica-group>
-
-    <replica-group id="ProcessorAdapters">
-      <load-balancing type="round-robin"/>
-      <object identity="Processor" type="::omero::grid::Processor"/>
-    </replica-group>
-
-    <replica-group id="TablesAdapters">
-      <load-balancing type="round-robin"/>
-      <object identity="Tables" type="::omero::grid::Tables"/>
-    </replica-group>
+    <include file="templates.xml"/>
 
     <node name="master">
       <server-instance template="Glacier2Template"
