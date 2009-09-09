@@ -78,34 +78,35 @@ sys.path.append(lib)
 not_root(top)
 
 try:
-    import omero.cli
-except ImportError, ie:
-    print "*"*80
-    print """
-    ERROR: Could not import omero.cli! (%s)
 
-    This means that your installation is incomplete. Contact
-    the OME mailing lists for more information:
+    try:
+        import omero.cli
+    except ImportError, ie:
+        print "*"*80
+        print """
+        ERROR: Could not import omero.cli! (%s)
 
-    https://www.openmicroscopy.org/site/community
+        This means that your installation is incomplete. Contact
+        the OME mailing lists for more information:
 
-    If you are building from source, please supply the build log
-    as well as which version you are building from. If you
-    downloaded a distribution, please provide which link you
-    used.
-    """ % ie
-    print "*"*80
-    print """
-    Debugging Info:
-    --------------
-    CWD=%s
-    VERSION=%s
-    OMERO_HOME=%s
-    PYTHONPATH=%s
-    """ % (os.getcwd(), sys.version.replace("\n"," "), omero_home, sys.path)
-    sys.exit(2)
+        https://www.openmicroscopy.org/site/community
 
-try:
+        If you are building from source, please supply the build log
+        as well as which version you are building from. If you
+        downloaded a distribution, please provide which link you
+        used.
+        """ % ie
+        print "*"*80
+        print """
+        Debugging Info:
+        --------------
+        CWD=%s
+        VERSION=%s
+        OMERO_HOME=%s
+        PYTHONPATH=%s
+        """ % (os.getcwd(), sys.version.replace("\n"," "), omero_home, sys.path)
+        sys.exit(2)
+
     rv = omero.cli.argv()
     sys.exit(rv)
 except KeyboardInterrupt, ki:
