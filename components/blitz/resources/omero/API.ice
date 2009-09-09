@@ -10,9 +10,9 @@
 #define OMERO_API_ICE
 
 #include <omero/ModelF.ice>
+#include <omero/ServicesF.ice>
 #include <omero/Collections.ice>
 #include <omero/Constants.ice>
-#include <omero/SharedResources.ice>
 #include <omero/ROMIO.ice>
 #include <omero/RTypes.ice>
 #include <omero/Scripts.ice>
