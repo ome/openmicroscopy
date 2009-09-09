@@ -20,7 +20,9 @@ See LICENSE for details.
 
 """
 
-import cmd, string, re, os, sys, subprocess, socket, exceptions, traceback, glob, platform, time
+sys = __import__("sys")
+
+import cmd, string, re, os, subprocess, socket, exceptions, traceback, glob, platform, time
 import shlex as pyshlex
 from exceptions import Exception as Exc
 from threading import Thread, Lock
@@ -201,14 +203,14 @@ class Context:
         Prints text to a given string, caputring any exceptions.
         """
         try:
-            stream.write(text % {"program_name": pysys.argv[0]})
+            stream.write(text % {"program_name": sys.argv[0]})
             if newline:
                 stream.write("\n")
             else:
                 stream.flush()
         except:
-            print >>pysys.stderr, "Error printing text"
-            print >>pysys.stdout, text
+            print >>sys.stderr, "Error printing text"
+            print >>sys.stdout, text
             if self.isdebug:
                 traceback.print_exc()
 
@@ -220,7 +222,7 @@ class Context:
         Note: this was initially created for running during
         testing when PYTHONPATH is not properly set.
         """
-        path = list(pysys.path)
+        path = list(sys.path)
         for i in range(0,len(path)-1):
             if path[i] == '':
                 path[i] = os.getcwd()
@@ -242,7 +244,7 @@ class Context:
         return dir
 
     def pub(self, args):
-        self.safePrint(str(args), pysys.stdout)
+        self.safePrint(str(args), sys.stdout)
 
     def input(self, prompt, hidden = False):
         """
@@ -260,13 +262,13 @@ class Context:
         """
         Expects as single string as argument"
         """
-        self.safePrint(text, pysys.stdout, newline)
+        self.safePrint(text, sys.stdout, newline)
 
     def err(self, text, newline = True):
         """
         Expects a single string as argument.
         """
-        self.safePrint(text, pysys.stderr, newline)
+        self.safePrint(text, sys.stderr, newline)
 
     def dbg(self, text, newline = True):
         """
@@ -574,10 +576,10 @@ class BaseControl:
         but it may be useful for testing purposes.
         """
         if __name__ == "__main__":
-            if not self._likes(pysys.argv[1:]):
+            if not self._likes(sys.argv[1:]):
                 self.help()
             else:
-                self.__call__(pysys.argv[1:])
+                self.__call__(sys.argv[1:])
 
 class HelpControl(BaseControl):
     """
@@ -613,7 +615,7 @@ See 'help <command>' for more information on syntax
 Type 'quit' to exit
 
 Available commands:
-""" % {"program_name":pysys.argv[0],"version":VERSION}
+""" % {"program_name":sys.argv[0],"version":VERSION}
 
             for name in controls:
                 print """ %s""" % name
@@ -888,7 +890,7 @@ class CLI(cmd.Cmd, Context):
         import omero
         try:
             data = self.initData(properties)
-            self._client = omero.client(pysys.argv, id = data)
+            self._client = omero.client(sys.argv, id = data)
             self._client.createSession()
             return self._client
         except Exc, exc:
@@ -977,7 +979,7 @@ class CLI(cmd.Cmd, Context):
     ## End Cli
     ###########################################################
 
-def argv(args=pysys.argv):
+def argv(args=sys.argv):
     """
     Main entry point for the OMERO command-line interface. First
     loads all plugins by passing them the classes defined here
