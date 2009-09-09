@@ -25,16 +25,20 @@ import ome.util.Filterable;
 import omero.ApiUsageException;
 import omero.ServerError;
 import omero.ValidationException;
+import omero.rtypes;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
 import omero.grid.InternalRepositoryPrx;
+import omero.grid.InternalRepositoryPrxHelper;
 import omero.grid.ProcessorPrx;
+import omero.grid.ProcessorPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
 import omero.grid.TablePrx;
 import omero.grid.TablesPrx;
+import omero.grid.TablesPrxHelper;
 import omero.grid._SharedResourcesOperations;
 import omero.model.Format;
 import omero.model.FormatI;
@@ -43,6 +47,7 @@ import omero.model.JobStatus;
 import omero.model.JobStatusI;
 import omero.model.OriginalFile;
 import omero.util.IceMapper;
+import omero.util.ObjectFactoryRegistrar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -91,43 +96,64 @@ public class SharedResourcesI extends AbstractAmdServant implements
         }
     }
 
-    private interface RepeatTask<T extends Ice.ObjectPrx, U extends Ice.ObjectPrx> {
-        U lookupService(T server) throws ServerError;
+    private interface RepeatTask<U extends Ice.ObjectPrx> {
+        U lookupService(Ice.ObjectPrx server) throws ServerError;
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Ice.ObjectPrx, U extends Ice.ObjectPrx> U repeatLookup(
-            List<T> objectPrxs, int seconds, RepeatTask<T, U> task)
-            throws ServerError {
+    private <U extends Ice.ObjectPrx> U repeatLookup(
+            List<Ice.ObjectPrx> objectPrxs, int seconds, Ice.Current current,
+            RepeatTask<U> task) throws ServerError {
 
-        long start = System.currentTimeMillis();
-        long stop = seconds < 0 ? start : (start + (seconds * 1000L));
-        do {
+        // Setting up a second communicator to see if the timeout exceptions
+        // will go away. A checkedCast or similar will be needed to reconvert
+        Ice.InitializationData id = new Ice.InitializationData();
+        id.properties = current.adapter.getCommunicator().getProperties()
+                ._clone();
+        Ice.Communicator ic = Ice.Util.initialize(id);
+        ObjectFactoryRegistrar.registerObjectFactory(ic,
+                ObjectFactoryRegistrar.INSTANCE);
+        for (rtypes.ObjectFactory of : rtypes.ObjectFactories.values()) {
+            of.register(ic);
+        }
+        try {
+            long start = System.currentTimeMillis();
+            long stop = seconds < 0 ? start : (start + (seconds * 1000L));
+            do {
 
-            for (T prx : objectPrxs) {
-                if (prx != null) {
+                for (Ice.ObjectPrx prx : objectPrxs) {
+                    if (prx != null) {
 
-                    prx = (T) prx.ice_timeout(5);
+                        prx = ic.stringToProxy(prx.ice_toString()).ice_timeout(
+                                5);
 
-                    try {
+                        try {
 
-                        U service = task.lookupService(prx);
-                        if (service != null) {
-                            return service;
+                            U service = task.lookupService(prx);
+                            if (service != null) {
+                                return service;
+                            }
+                        } catch (ServerError se) {
+                            log.warn("ServerError on task.lookupService(" + prx
+                                    + ") :" + se);
+                            // The following exceptions all signify a bad proxy
+                        } catch (Ice.ObjectNotExistException onee) {
+                            // bad proxy
+                        } catch (Ice.NoEndpointException nee) {
+                            // bad proxy
+                        } catch (Ice.TimeoutException te) {
+                            // bad proxy
+                        } catch (Exception e) {
+                            log.warn("Other exception", e);
                         }
-                    } catch (ServerError se) {
-                        log.warn("ServerError on task.lookupService(" + prx
-                                + ") :" + se);
-                    } catch (Ice.NoEndpointException nee) {
-                        // Proxy is not alive
-                    } catch (Ice.TimeoutException te) {
-                        // Proxy is not alive.
                     }
                 }
-            }
-        } while (stop < System.currentTimeMillis());
+            } while (stop < System.currentTimeMillis());
 
-        return null;
+            return null;
+        } finally {
+            ic.destroy();
+        }
     }
 
     static String QUERY = "select o from OriginalFile o where o.format.value = 'Repository'";
@@ -189,26 +215,29 @@ public class SharedResourcesI extends AbstractAmdServant implements
         // Okay. All's valid.
         InternalRepositoryPrx[] repos = registry.lookupRepositories();
         RepositoryPrx repoPrx = (RepositoryPrx) repeatLookup(Arrays
-                .asList(repos), 60,
-                new RepeatTask<InternalRepositoryPrx, RepositoryPrx>() {
-                    public RepositoryPrx lookupService(
-                            InternalRepositoryPrx server) throws ServerError {
+                .<Ice.ObjectPrx> asList(repos), 60, __current,
+                new RepeatTask<RepositoryPrx>() {
+                    public RepositoryPrx lookupService(Ice.ObjectPrx prx)
+                            throws ServerError {
+                        InternalRepositoryPrx server = InternalRepositoryPrxHelper
+                                .checkedCast(prx);
                         OriginalFile description = server.getDescription();
-                        RepositoryPrx prx = server.getProxy();
+                        RepositoryPrx repoPrx = server.getProxy();
                         if (description.getId().getValue() == repo) {
-                            return prx;
+                            return repoPrx;
                         }
                         return null;
                     }
                 });
-        
+
         if (repoPrx == null) {
             return null;
         } else {
             // Attempt to fix an odd timeout exception during register()
-            repoPrx = RepositoryPrxHelper.checkedCast(repoPrx);
+            repoPrx = RepositoryPrxHelper.checkedCast(__current.adapter
+                    .getCommunicator().stringToProxy(repoPrx.ice_toString()));
         }
-        
+
         Format omero_tables = new FormatI();
         omero_tables.setValue(rstring("OMERO.tables"));
         OriginalFile file = repoPrx.register(path, omero_tables);
@@ -242,9 +271,11 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         // Okay. All's valid.
         TablesPrx[] tables = registry.lookupTables();
-        TablePrx tablePrx = (TablePrx) repeatLookup(Arrays.asList(tables), 60,
-                new RepeatTask<TablesPrx, TablePrx>() {
-                    public TablePrx lookupService(TablesPrx server) {
+        TablePrx tablePrx = (TablePrx) repeatLookup(Arrays
+                .<Ice.ObjectPrx> asList(tables), 60, __current,
+                new RepeatTask<TablePrx>() {
+                    public TablePrx lookupService(Ice.ObjectPrx prx) {
+                        TablesPrx server = TablesPrxHelper.checkedCast(prx);
                         return server.getTable(file);
                     }
                 });
@@ -308,10 +339,12 @@ public class SharedResourcesI extends AbstractAmdServant implements
         // Okay. All's valid.
         ProcessorPrx[] procs = registry.lookupProcessors();
         InteractiveProcessorPrx interactivePrx = (InteractiveProcessorPrx) repeatLookup(
-                Arrays.asList(procs), seconds,
-                new RepeatTask<ProcessorPrx, InteractiveProcessorPrx>() {
+                Arrays.<Ice.ObjectPrx> asList(procs), seconds, current,
+                new RepeatTask<InteractiveProcessorPrx>() {
                     public InteractiveProcessorPrx lookupService(
-                            ProcessorPrx server) throws ServerError {
+                            Ice.ObjectPrx prx) throws ServerError {
+                        ProcessorPrx server = ProcessorPrxHelper
+                                .checkedCast(prx);
                         if (server != null) {
                             long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
                             InteractiveProcessorI ip = new InteractiveProcessorI(
