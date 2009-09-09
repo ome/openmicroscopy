@@ -226,21 +226,6 @@ public class FileAnnotationData extends AnnotationData {
             //throw new IllegalArgumentException("Format not supported.");
         }
     }
-
-    /**
-     * Returns the format of the original file.
-     * 
-     * @return See above.
-     */
-    private String getOriginalFormat()
-    {
-    	OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
-        String unknown = UNKNOWN;
-        String format = f == null ? unknown : (f.getFormat() == null ? unknown
-                : (f.getFormat().getValue() == null ? unknown : f.getFormat()
-                        .getValue().getValue()));
-        return format;
-    }
     
     /**
      * Creates a new instance.
@@ -269,6 +254,21 @@ public class FileAnnotationData extends AnnotationData {
         format = null;
     }
 
+    /**
+     * Returns the format of the original file.
+     * 
+     * @return See above.
+     */
+    public String getOriginalFormat()
+    {
+    	OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
+        String unknown = UNKNOWN;
+        String format = f == null ? unknown : (f.getFormat() == null ? unknown
+                : (f.getFormat().getValue() == null ? unknown : f.getFormat()
+                        .getValue().getValue()));
+        return format;
+    }
+    
     /**
      * Sets the description of the annotation.
      * 
@@ -493,7 +493,7 @@ public class FileAnnotationData extends AnnotationData {
 
     /**
      * Returns <code>true</code> if it is a movie file.
-     * <code>false</code> othwerwise.
+     * <code>false</code> otherwise.
      * 
      * @return See above.
      */
