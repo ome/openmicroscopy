@@ -488,20 +488,20 @@ INSERT INTO filtertype (id,permissions,owner_id,group_id,creation_id,value) SELE
 INSERT INTO filtertype (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_filtertype'),-35,0,0,0,'Unknown';
 
 -- Format : ================== 
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'application/octet-stream';
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'text/richtext';
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'video/jpeg2000';
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'video/mpeg';
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'video/mp4';
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'video/quicktime';
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'image/bmp';
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'image/gif';
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'image/jpeg';
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'image/tiff';
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'image/png';
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'audio/basic';
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'audio/mpeg';
-INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT nextval('seq_format'),-35,0,0,0,'audio/wav';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_format'),-35,0,0,0,'application/octet-stream';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_format'),-35,0,0,0,'text/richtext';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_format'),-35,0,0,0,'video/jpeg2000';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_format'),-35,0,0,0,'video/mpeg';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_format'),-35,0,0,0,'video/mp4';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_format'),-35,0,0,0,'video/quicktime';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_format'),-35,0,0,0,'image/bmp';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_format'),-35,0,0,0,'image/gif';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_format'),-35,0,0,0,'image/jpeg';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_format'),-35,0,0,0,'image/tiff';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_format'),-35,0,0,0,'image/png';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_format'),-35,0,0,0,'audio/basic';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_format'),-35,0,0,0,'audio/mpeg';
+INSERT INTO format (id,permissions,owner_id,group_id,creation_id,value) SELECT ome_nextval('seq_format'),-35,0,0,0,'audio/wav';
 UPDATE format SET value = 'application/msword' WHERE value = 'application/ms-word';
 UPDATE format SET value = 'application/vnd.ms-excel' WHERE value = 'application/ms-excel';
 UPDATE format SET value = 'application/vnd.ms-powerpoint' WHERE value = 'application/ms-powerpoint';
