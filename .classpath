@@ -133,5 +133,6 @@
 	<classpathentry kind="lib" path="lib/repository/omero-clients-util-Beta-4.1.0-DEV.jar"/>
 	<classpathentry kind="lib" path="lib/repository/swingx-0.9.4.jar"/>
 	<classpathentry kind="lib" path="lib/repository/TableLayout-2006-11-27.jar"/>
+	<classpathentry kind="lib" path="lib/repository/jul-to-slf4j-1.5.8.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>
