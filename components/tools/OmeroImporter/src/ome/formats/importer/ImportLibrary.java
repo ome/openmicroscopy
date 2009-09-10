@@ -197,7 +197,6 @@ public class ImportLibrary implements IObservable
         } catch (java.io.IOException e) {
             IOException(fileName);
         }*/
-        
         reader.close();
         reader.setMetadataStore(store);
         reader.setMinMaxStore(store);

@@ -74,7 +74,19 @@ public class TestEngineConfig extends IniPreferences
     public static final String CONFIG_FEEDBACK = "feedback_url";
     
     public static final String DEFAULT_FEEDBACK = "http://users.openmicroscopy.org.uk/~brain/omero/bugcollector.php";
-	
+    
+    public static final String CONFIG_FEEDBACK_LOGIN_URL = "login_url";
+
+    public static final String CONFIG_FEEDBACK_LOGIN_USERNAME = "login_username";
+
+    public static final String CONFIG_FEEDBACK_LOGIN_PASSWORD = "login_password";
+
+    public static final String CONFIG_FEEDBACK_MESSAGE_URL = "message_url";
+
+    public static final String CONFIG_FEEDBACK_COMMENT_URL = "comment_url";
+    
+    public static final String DEFAULT_COMMENT_URL = "http://mage.openmicroscopy.org.uk/qa/initial/";
+    
 	/**
 	 * Test engine configuration, backed by an initiation file.
 	 * @param file The file to use as a backing store.
@@ -250,6 +262,46 @@ public class TestEngineConfig extends IniPreferences
     }
     
     /**
+     * Returns the feedback login url configuration property.
+     */
+    public String getFeedbackLoginUrl()
+    {
+        return node(CONFIG_ROOT).get(CONFIG_FEEDBACK_LOGIN_URL, null);
+    }    
+
+    /**
+     * Returns the feedback login url configuration property.
+     */
+    public String getFeedbackLoginUsername()
+    {
+        return node(CONFIG_ROOT).get(CONFIG_FEEDBACK_LOGIN_USERNAME, null);
+    } 
+
+    /**
+     * Returns the feedback login url configuration property.
+     */
+    public String getFeedbackLoginPassword()
+    {
+        return node(CONFIG_ROOT).get(CONFIG_FEEDBACK_LOGIN_PASSWORD, null);
+    } 
+
+    /**
+     * Returns the feedback login url configuration property.
+     */
+    public String getFeedbackMessageUrl()
+    {
+        return node(CONFIG_ROOT).get(CONFIG_FEEDBACK_MESSAGE_URL, null);
+    } 
+    
+    /**
+     * Returns the comment system url configuration property.
+     */
+    public String getCommentUrl()
+    {
+        return node(CONFIG_ROOT).get(CONFIG_FEEDBACK_COMMENT_URL, DEFAULT_COMMENT_URL);
+    }
+    
+    /**
      * Sets the error-on configuration property. Does this by first lowercasing
      * the string, and then checking for an equivalent enumeration in
      * {@link ErrorOn}
@@ -287,5 +339,4 @@ public class TestEngineConfig extends IniPreferences
         }
         return true;
 	}
-
 }

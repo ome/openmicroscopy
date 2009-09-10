@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.logging.Log;
@@ -55,8 +57,11 @@ public class TestEngine
     // Mutable state
     int errors = 0;
    
-    private String login_url = "http://mage.openmicroscopy.org.uk/qa/login/";
-    private String message_url = "http://mage.openmicroscopy.org.uk/qa/feedback/test_result/";
+    private String login_url;
+    private String login_username;
+    private String login_password;
+    private String message_url;
+    private String comment_url;
 
     private Date start;
     
@@ -69,6 +74,12 @@ public class TestEngine
         pf.setProxyTargetClass(true);
         store = (OMEROMetadataStoreClient) pf.getProxy();
     	wrapper = new OMEROWrapper();
+    	
+        login_url = config.getFeedbackLoginUrl();
+        login_username = config.getFeedbackLoginUsername();
+        login_password = config.getFeedbackLoginPassword();
+        message_url = config.getFeedbackMessageUrl();
+        comment_url = config.getCommentUrl();
     	
         // Login
     	if (config.getSessionKey() != null)
@@ -208,7 +219,7 @@ public class TestEngine
 			}
 			catch (Throwable e)
 			{
-				// Flush our file log to disk
+			    // Flush our file log to disk
 			    try 
 			    {
 			        iniFile.flush();
@@ -219,8 +230,11 @@ public class TestEngine
 				//store.logout();
 			    
 				log.error("Failed on file: " + file.getAbsolutePath());
+				log.error(e);
+				e.printStackTrace();
+				
 				errors += 1;
-				sendRequest("", "TestEngine Error", e.toString(), file);
+				sendRequest("", "TestEngine Error", e, file);
 				//throw e;
 			}
 		}
@@ -282,13 +296,14 @@ public class TestEngine
     /**
      * Sends error message to feedback system.
      */
-    private void sendRequest(String email, String comment, String error, File file)
+    private void sendRequest(String email, String comment, Throwable error, File file)
     {
         List<Part> postList = new ArrayList<Part>();
-        
+
         Date end = new Date();
         Format formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-
+        
+        /*
         String parent = file.getParent();
         String[] splitPath = parent.split(File.separator);
         String feedback_id = "";
@@ -308,7 +323,43 @@ public class TestEngine
         
         try {
             HtmlMessenger messenger = new HtmlMessenger(message_url, postList);
-
+            
+            messenger.login(login_url, login_username, login_password);
+            String serverReply = messenger.executePost();
+            log.info("Feedback sent. Returned: " + serverReply);
+        }
+        catch( Exception e ) {
+            log.error("Error while sending debug information.", e);
+            //Get the full debug text
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            
+            String debugText = sw.toString();
+            
+            log.error("Feedback failed with: " + debugText);
+        }
+        */
+        
+        StringWriter strw = new StringWriter();
+        error.printStackTrace(new PrintWriter(strw));
+                
+        comment = comment + ", Started: " + formatter.format(start) + ", Ended: " + formatter.format(end);
+        
+        postList.add(new StringPart("java_version", System.getProperty("java.version")));
+        postList.add(new StringPart("java_classpath", System.getProperty("java.class.path")));
+        postList.add(new StringPart("os_name", System.getProperty("os.name")));
+        postList.add(new StringPart("os_arch", System.getProperty("os.arch")));
+        postList.add(new StringPart("os_version", System.getProperty("os.version")));
+        postList.add(new StringPart("error", "File: " + file.getAbsolutePath() + "\n]n" + strw.toString()));
+        postList.add(new StringPart("comment", comment));
+        postList.add(new StringPart("email", email));
+        postList.add(new StringPart("app_name", "5"));
+        postList.add(new StringPart("import_session", "test"));
+        
+        try {
+            HtmlMessenger messenger = new HtmlMessenger(comment_url, postList);
+            @SuppressWarnings("unused")
             String serverReply = messenger.executePost();
             log.info("Feedback sent. Returned: " + serverReply);
         }

@@ -27,8 +27,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
@@ -196,11 +196,19 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
             emailText = emailTextField.getText();
             commentText = commentTextArea.getText();
             
-            userPrefs.put("userEmail", emailText);
-            userPrefs.putBoolean("sendFiles", uploadCheckmark.isSelected());
-            
-            sendRequest(emailText, commentText, "Extra data goes here.");
-        	dispose();
+            if (!validEmail(emailText))
+            {
+                JOptionPane.showMessageDialog(this, 
+                        "Your email address must be valid\n" +
+                        "(or blank) to send feedback.");              
+            }
+            else
+            {
+                userPrefs.put("userEmail", emailText);
+                userPrefs.putBoolean("sendFiles", uploadCheckmark.isSelected()); 
+                sendRequest(emailText, commentText, "Extra data goes here.");
+                dispose();
+            }
         }
         
         if (source == ignoreBtn)
@@ -253,6 +261,16 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         }
     }
     
+    
+    // Validate the basic construct for the user's email
+    public boolean validEmail(String emailAddress)
+    {
+        String[] parts = emailAddress.split("@");
+        if (parts.length == 2 && parts[0].length() != 0 && parts[1].length() != 0)
+            return true;
+        else
+            return false;
+    }
     
     /**
      * @param args

@@ -59,7 +59,8 @@ public class CommentMessenger extends JDialog implements ActionListener
     
     boolean debug = false;
     
-    String url = "http://users.openmicroscopy.org.uk/~brain/omero/commentcollector.php";
+    //String url = "http://users.openmicroscopy.org.uk/~brain/omero/commentcollector.php";
+    String url = "http://mage.openmicroscopy.org.uk/qa/initial/";
     
     private static final String ICON = "gfx/nuvola_mail_send64.png";
 
@@ -171,9 +172,18 @@ public class CommentMessenger extends JDialog implements ActionListener
             emailText = emailTextField.getText();
             commentText = commentTextArea.getText();
             
-            userPrefs.put("userEmail", emailText);
+            if (!validEmail(emailText))
+            {
+                JOptionPane.showMessageDialog(this, 
+                        "Your email address must be valid\n" +
+                        "(or blank) to send a comment.");              
+            }
+            else
+            {
+                userPrefs.put("userEmail", emailText);
+                sendRequest(emailText, commentText, "Extra data goes here.");               
+            }
             
-            sendRequest(emailText, commentText, "Extra data goes here.");
         }
     }
 
@@ -196,7 +206,11 @@ public class CommentMessenger extends JDialog implements ActionListener
             HtmlMessenger messenger = new HtmlMessenger(url, postList);
             @SuppressWarnings("unused")
             String serverReply = messenger.executePost();
-            JOptionPane.showMessageDialog(this, serverReply);
+            if (serverReply != null)
+                JOptionPane.showMessageDialog(this, "Thank you for your feedback.\n\n" +
+                		"If you included your email address, you\n" +
+                		"should receive a confirmation shortly.\n" +
+                		"\n");
             this.dispose();
         }
         catch( Exception e ) {
@@ -208,6 +222,16 @@ public class CommentMessenger extends JDialog implements ActionListener
         }
     }
         
+    // Validate the basic construct for the user's email
+    public boolean validEmail(String emailAddress)
+    {
+        String[] parts = emailAddress.split("@");
+        if (parts.length == 2 && parts[0].length() != 0 && parts[1].length() != 0)
+            return true;
+        else
+            return false;
+    }
+    
     /**
      * @param args
      * @throws Exception 
