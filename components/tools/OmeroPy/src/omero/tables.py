@@ -369,8 +369,9 @@ class TableI(omero.grid.Table, omero.util.Servant):
     Spreadsheet implementation based on pytables.
     """
 
-    def __init__(self, storage):
+    def __init__(self, file_obj, storage):
         omero.util.Servant.__init__(self)
+        self.file_obj = file_obj
         self.storage = storage
         self.storage.incr(self)
         self.stamp = time.time()
@@ -555,7 +556,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
             p.makedirs()
 
         storage = HDFLIST.getOrCreate(file_path)
-        table = TableI(storage)
+        table = TableI(file_obj, storage)
         self.resources.add(table)
 
         prx = current.adapter.addWithUUID(table)
