@@ -2,7 +2,8 @@
 <html>
     <head>
         <title>
-            OMERO API Index
+            OMERO API Index - 
+TITLE
         </title>
         <style media="screen" type="text/css">
 @import "/static/css/apistyle.css";
@@ -13,6 +14,3 @@
           <div id="banner">
           </div>
        </div>
-TITLE
-    </body>
-</html>
