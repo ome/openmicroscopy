@@ -315,6 +315,14 @@ class PolygonData(ShapeData):
             string = string + str(element);
         return string;
 
+    def stringToTupleList(pointString):
+        elements = [];
+        list = pointString.split(',');
+        numTokens = len(list);
+        for tokenPair in range(0,numTokens/2):
+            elements.append((int(list[tokenPair*2]), int(list[tokenPair*2+1])));
+        return elements;
+
     def createBaseType(self):
         return PolygonI();
 
@@ -344,6 +352,15 @@ class PolylineData(ShapeData):
                 string = string + ',';
             string = string + str(element);
         return string;
+            
+    def stringToTupleList(pointString):
+        elements = [];
+        list = pointString.split(',');
+        numTokens = len(list);
+        for tokenPair in range(0,numTokens/2):
+            elements.append((int(list[tokenPair*2]), int(list[tokenPair*2+1])));
+        return elements;
+            
         
     def createBaseType(self):
         return PolylineI();
