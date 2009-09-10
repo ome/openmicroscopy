@@ -14,7 +14,7 @@ import ome.services.blitz.fire.Ring;
 import ome.services.sessions.state.SessionCache;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
-import omero.internal.ClusterNodePrx;
+import omero.grid.ClusterNodePrx;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
