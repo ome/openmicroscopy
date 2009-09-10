@@ -44,7 +44,7 @@ class ShapeSettingsData:
         shape.setFillColor(self.fillColour);
         shape.setFillOpacity(self.fillOpacity);
         shape.setFillRule(self.fillRule);
-        
+    
     def setStrokeSettings(self, colour, width = 1, opacity = 0):
         self.strokeColour = rsting(colour);
         self.strokeWidth = rint(width);
@@ -53,6 +53,15 @@ class ShapeSettingsData:
     def setFillSettings(self, colour, opacity = 0):
         self.fillColour = rsting(colour);
         self.fillOpacity = rfloat(opacity);   
+    
+    def getStrokeSettings(self):
+        return (self.strokeColour, self.strokeWidth);
+    
+    def getFillSettings(self):
+        return (self.fillColour, fill.Opacity);
+    
+    def getSettings(self):
+        return (self.getStrokeSettings(), self.getFillSettings());
         
 class ROICoordinate:
     
@@ -119,8 +128,8 @@ class EllipseData(ShapeData):
         return EllipseI();
 
     def acceptVisitor(self, visitor):
-        visitor.visitEllipse(cx, cy, rx, ry);
-
+        visitor.drawEllipse(cx, cy, rx, ry, self.shapeSettings.getSettings());
+        
 class RectangleData(ShapeData):
         
     def __init__(self, roicoord = ROICoordinate(), x = 0, y = 0, width = 0, height = 0):
@@ -142,7 +151,7 @@ class RectangleData(ShapeData):
         return RectI();
 
     def acceptVisitor(self, visitor):
-        visitor.visitRectangle(self.x, self.y, self.width, self.height);
+        visitor.drawRectangle(self.x, self.y, self.width, self.height, self.shapeSettings.getSettings());
 
 class LineData(ShapeData):
         
@@ -163,6 +172,9 @@ class LineData(ShapeData):
 
     def createBaseType(self):
         return LineI();
+
+    def acceptVisitor(self, visitor):
+        visitor.drawLine(self.x1, self.y1, self.x2, self.y2, self.shapeSettings.getSettings());
 
 class MaskData(ShapeData):
         
@@ -186,6 +198,10 @@ class MaskData(ShapeData):
     def createBaseType(self):
         return MaskI();
 
+    def acceptVisitor(self, visitor):
+        visitor.drawMask(self.x, self.y, self.width, self.height, self.bytesdata, self.shapeSettings.getSettings());
+
+
 class PointData(ShapeData):
             
     def __init__(self, roicoord = ROICoordinate(), x = 0, y = 0):
@@ -201,6 +217,10 @@ class PointData(ShapeData):
 
     def createBaseType(self):
         return PointI();
+
+    def acceptVisitor(self, visitor):
+        visitor.drawPoint(self.x, self.y, self.shapeSettings.getSettings());
+
 
 class PolygonData(ShapeData):
     
@@ -225,6 +245,9 @@ class PolygonData(ShapeData):
     def createBaseType(self):
         return PolygonI();
 
+    def acceptVisitor(self, visitor):
+        visitor.drawPolygon(self.stringToTupleList(self.points), self.shapeSettings.getSettings());
+
 class PolylineData(ShapeData):
         
     def __init__(self, roicoord = ROICoordinate(), pointsList = [0,0]):
@@ -248,4 +271,6 @@ class PolylineData(ShapeData):
     def createBaseType(self):
         return PolylineI();
 
+    def acceptVisitor(self, visitor):
+        visitor.drawPolygon(self.stringToList(self.points), self.shapeSettings.getSettings());
 
