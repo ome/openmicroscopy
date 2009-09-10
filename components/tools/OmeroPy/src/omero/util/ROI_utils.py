@@ -55,14 +55,28 @@ class ShapeSettingsData:
         self.fillOpacity = rfloat(opacity);   
     
     def getStrokeSettings(self):
-        return (self.strokeColour, self.strokeWidth);
+        return (self.strokeColour.getValue(), self.strokeWidth.getValue());
     
     def getFillSettings(self):
-        return (self.fillColour, fill.Opacity);
+        return (self.fillColour.getValue(), self.fillOpacity.getValue());
     
     def getSettings(self):
         return (self.getStrokeSettings(), self.getFillSettings());
-        
+    
+    def getShapeSettingsFromROI(self, roi):
+        self.strokeColour = roi.getStrokeColor();
+        self.strokeWidth = roi.getStrokeWidth();
+        self.strokeOpacity = roi.getStrokeOpacity();
+        self.strokeDashArray = roi.getStrokeDashArray();
+        self.strokeDashOffset = roi.getStrokeDashOffset();
+        self.strokeLineCap = roi.getStrokeLineCap();
+        self.strokeLineJoin = roi.getStrokeLineJoin();
+        self.strokeMiterLimit =  roi.getStrokeMiterLimit();
+        self.fillColour = roi.getFillColor();
+        self.fillOpacity = roi.getFillOpacity();
+        self.fillRule = roi.getFillRule();
+
+    
 class ROICoordinate:
     
     def __init__(self, z = 0, t = 0):
@@ -70,14 +84,19 @@ class ROICoordinate:
         self.theT = rint(t);
 
     def setROICoord(self, roi):
-        roi.setTheZ(roi.theZ);
-        roi.setTheT(roi.theT);
+        roi.setTheZ(self.theZ);
+        roi.setTheT(self.theT);
+        
+    def setCoordFromROI(self, roi):
+        self.theZ = roi.getTheZ();
+        self.theT = roi.getTheT();
 
 class ShapeData:
 
     def __init__(self):
         self.coord = ROICoordinate();
         self.shapeSettings = ShapeSettingsData();
+        self.ROI = None;
         
     def setCoord(self, coord):
         self.coord = coord;
@@ -92,7 +111,7 @@ class ShapeData:
         self.shapeSettings = settings;
     
     def setROIShapeSettings(self, roi):
-        self.shapeSettings.setShapeSettings(roi);
+        self.shapeSettings.setROIShapeSettings(roi);
 
     def acceptVisitor(self, visitor):
         abstract();
@@ -100,21 +119,39 @@ class ShapeData:
     def createBaseType(self):
         abstract();
         
-    def createROI(self):
-        roi = createBaseType();
+    def getROI(self):
+        if(self.roi != None):
+            return self.roi;
+        self.roi = self.createBaseType();
         self.setROICoord(roi);
         self.setROIGeometry(roi);
         self.setROIShapeSettings(roi);
-        return roi;
+        return self.roi;
+        
+    def getShapeSettingsFromROI(self, roi):
+        self.shapeSettings.getShapeSettingsFromROI(roi);
+        
+    def getCoordFromROI(self, roi):
+        self.coord.setCoordFromROI(roi);
+        
+    def getGeometryFromROI(self , roi):
+        abstract();
+        
+    def fromROI(self, roi):
+        self.roi = roi;
+        self.getShapeSettingsFromROI(roi);
+        self.getCoordFromROI(roi);
+        self.getGeometryFromROI(roi);
         
 class EllipseData(ShapeData):
         
     def __init__(self, roicoord = ROICoordinate(), cx = 0, cy = 0, rx = 0, ry = 0):
+        ShapeData.__init__(self);
         self.cx = rdouble(cx);
         self.cy = rdouble(cy);
         self.rx = rdouble(rx);
         self.ry = rdouble(ry);
-        self.setROICoord(roicoord);
+        self.setCoord(roicoord);
         
     def setROIGeometry(self, ellipse):
         ellipse.setTheZ(self.coord.theZ);
@@ -124,20 +161,27 @@ class EllipseData(ShapeData):
         ellipse.setRx(self.rx);
         ellipse.setRy(self.ry);
 
+    def getGeometryFromROI(self, roi):
+        self.cx = roi.getCx();
+        self.cy = roi.getCy();
+        self.rx = roi.getRx();
+        self.ry = roi.getRy();
+
     def createBaseType(self):
         return EllipseI();
 
     def acceptVisitor(self, visitor):
-        visitor.drawEllipse(cx, cy, rx, ry, self.shapeSettings.getSettings());
+        visitor.drawEllipse(self.cx.getValue(), self.cy.getValue(), self.rx.getValue(), self.ry.getValue(), self.shapeSettings.getSettings());
         
 class RectangleData(ShapeData):
         
     def __init__(self, roicoord = ROICoordinate(), x = 0, y = 0, width = 0, height = 0):
+        ShapeData.__init__(self);
         self.x = rdouble(x);
         self.y = rdouble(y);
         self.width = rdouble(width);
         self.height = rdouble(height);
-        self.setROICoord(roicoord);
+        self.setCoord(roicoord);
     
     def setGeometry(self, rectangle):
         rectangle.setTheZ(self.coord.theZ);
@@ -146,6 +190,12 @@ class RectangleData(ShapeData):
         rectangle.setY(self.y);
         rectangle.setWidth(self.width);
         rectangle.setHeight(self.height);
+
+    def getGeometryFromROI(self, roi):
+        self.x = roi.getX();
+        self.y = roi.getY();
+        self.width = roi.getWidth();
+        self.height = roi.getHeight();
 
     def createBaseType(self):
         return RectI();
@@ -156,11 +206,12 @@ class RectangleData(ShapeData):
 class LineData(ShapeData):
         
     def __init__(self, roicoord = ROICoordinate(), x1 = 0, y1 = 0, x2 = 0, y2 = 0):
+        ShapeData.__init__(self);
         self.x1 = rdouble(x1);
         self.y1 = rdouble(y1);
         self.x2 = rdouble(x2);
         self.y2 = rdouble(y2);
-        self.setROICoord(roicoord);
+        self.setCoord(roicoord);
     
     def setGeometry(self, line):
         line.setTheZ(self.coord.theZ);
@@ -170,21 +221,28 @@ class LineData(ShapeData):
         line.setX2(self.x2);
         line.setY2(self.y2);
 
+    def getGeometryFromROI(self, roi):
+        self.x1 = roi.getX1();
+        self.y1 = roi.getY1();
+        self.x2 = roi.getX2();
+        self.y2 = roi.getY2();
+
     def createBaseType(self):
         return LineI();
 
     def acceptVisitor(self, visitor):
-        visitor.drawLine(self.x1, self.y1, self.x2, self.y2, self.shapeSettings.getSettings());
+        visitor.drawLine(self.x1.getValue(), self.y1.getValue(), self.x2.getValue(), self.y2.getValue(), self.shapeSettings.getSettings());
 
 class MaskData(ShapeData):
         
     def __init__(self, roicoord = ROICoordinate(), bytes = None, x = 0, y = 0, width = 0, height = 0):
+        ShapeData.__init__(self);
         self.x = rdouble(x);
         self.y = rdouble(y);
         self.width = rdouble(width);
         self.height = rdouble(height);
         self.bytesdata = bytes;
-        self.setROICoord(roicoord);
+        self.setCoord(roicoord);
     
     def setGeometry(self, mask):
         mask.setTheZ(self.coord.theZ);
@@ -195,19 +253,26 @@ class MaskData(ShapeData):
         mask.setHeight(self.height);
         mask.setBytes(self.bytedata);
 
+    def getGeometryFromROI(self, roi):
+        self.x = roi.getX();
+        self.y = roi.getY();
+        self.width = roi.getWidth();
+        self.height = roi.getHeight();
+        self.bytesdata = roi.getBytes();
+
     def createBaseType(self):
         return MaskI();
 
     def acceptVisitor(self, visitor):
-        visitor.drawMask(self.x, self.y, self.width, self.height, self.bytesdata, self.shapeSettings.getSettings());
-
+        visitor.drawMask(self.x.getValue(), self.y.getValue(), self.width.getValue(), self.height.getValue(), self.bytesdata, self.shapeSettings.getSettings());
 
 class PointData(ShapeData):
             
     def __init__(self, roicoord = ROICoordinate(), x = 0, y = 0):
+        ShapeData.__init__(self);
         self.x = rdouble(x);
         self.y = rdouble(y);
-        self.setROICoord(roicoord);
+        self.setCoord(roicoord);
     
     def setGeometry(self, point):
         point.setTheZ(self.coord.theZ);
@@ -215,23 +280,31 @@ class PointData(ShapeData):
         point.setX(self.x);
         point.setY(self.y);
 
+    def getGeometryFromROI(self, roi):
+        self.x = roi.getX();
+        self.y = roi.getY();
+
     def createBaseType(self):
         return PointI();
 
     def acceptVisitor(self, visitor):
-        visitor.drawPoint(self.x, self.y, self.shapeSettings.getSettings());
+        visitor.drawPoint(self.x.getValue(), self.y.getValue(), self.shapeSettings.getSettings());
 
 
 class PolygonData(ShapeData):
     
     def __init__(self, roicoord = ROICoordinate(), pointsList = [0,0]):
+        ShapeData.__init__(self);
         self.points = rstring(self.listToString(pointsList));
-        self.setROICoord(roicoord);
+        self.setCoord(roicoord);
     
-    def setGeometry(self, point):
-        point.setTheZ(self.coord.theZ);
-        point.setTheT(self.coord.theZ);
-        point.setPoints(self.points);
+    def setGeometry(self, polygon):
+        polygon.setTheZ(self.coord.theZ);
+        polygon.setTheT(self.coord.theZ);
+        polygon.setPoints(self.points);
+
+    def getGeometryFromROI(self, roi):
+        self.points = roi.getPoints();
 
     def listToString(pointsList):
         string = '';
@@ -251,13 +324,17 @@ class PolygonData(ShapeData):
 class PolylineData(ShapeData):
         
     def __init__(self, roicoord = ROICoordinate(), pointsList = [0,0]):
+        ShapeData.__init__(self);
         self.points = rstring(self.listToString(pointsList));
-        self.setROICoord(roicoord);
+        self.setCoord(roicoord);
     
     def setGeometry(self, point):
         point.setTheZ(self.coord.theZ);
         point.setTheT(self.coord.theZ);
         point.setPoints(self.points);
+
+    def getGeometryFromROI(self, roi):
+        self.points = roi.getPoints();
 
     def listToString(pointsList):
         string = '';
@@ -272,5 +349,5 @@ class PolylineData(ShapeData):
         return PolylineI();
 
     def acceptVisitor(self, visitor):
-        visitor.drawPolygon(self.stringToList(self.points), self.shapeSettings.getSettings());
+        visitor.drawPolygon(self.stringToTupleList(self.points), self.shapeSettings.getSettings());
 
