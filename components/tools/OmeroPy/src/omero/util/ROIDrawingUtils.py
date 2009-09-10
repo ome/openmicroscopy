@@ -49,31 +49,74 @@ class DrawingCanvas:
         fillColour = self.getFillColour(shapeSettings);
         strokeColour = self.getStrokeColour(shapeSettings);
         strokeWidth = self.getStrokeWidth(shapeSettings);
-        self.draw.rectangle((x,y,w,h), fill = fillColour, outline = strokeColour);
+        if(affineTransform==None):
+            self.draw.rectangle((x,y,w,h), fill = fillColour, outline = strokeColour);
+        else:
+            im = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0));
+            newDraw = ImageDraw.Draw(im);
+            newDraw.rectangle((x,y,w,h), fill = fillColour, outline = strokeColour);
+            newImage = im.transform((self.width,self.height), Image.AFFINE, affineTransform);
+            self.image.paste(newImage);
+        
         
     def drawPolygon(self, pointTupleList, shapeSettings, affineTransform = None):
         fillColour = self.getFillColour(shapeSettings);
         strokeColour = self.getStrokeColour(shapeSettings);
         strokeWidth = self.getStrokeWidth(shapeSettings);
-        self.draw.polygon(pointTupleList, fill = fillColour, outline = strokeColour);
-
+        if(affineTransform==None):
+            self.draw.polygon(pointTupleList, fill = fillColour, outline = strokeColour);
+        else:
+            im = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0));
+            newDraw = ImageDraw.Draw(im);
+            self.draw.polygon(pointTupleList, fill = fillColour, outline = strokeColour);
+            newImage = im.transform((self.width,self.height), Image.AFFINE, affineTransform);
+            self.image.paste(newImage);
+ 
     def drawLine(self, x1, y1, x2, y2, shapeSettings, affineTransform = None):
         fillColour = self.getFillColour(shapeSettings);
         strokeColour = self.getStrokeColour(shapeSettings);
         strokeWidth = self.getStrokeWidth(shapeSettings);
-        self.draw.line([(x1, y1), (x2, y2)], fill = strokeColour, width = strokeWidth);
+        if(affineTransform==None):
+            self.draw.line([(x1, y1), (x2, y2)], fill = strokeColour, width = strokeWidth);
+        else:
+            im = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0));
+            newDraw = ImageDraw.Draw(im);
+            self.draw.line([(x1, y1), (x2, y2)], fill = strokeColour, width = strokeWidth);
+            newImage = im.transform((self.width,self.height), Image.AFFINE, affineTransform);
+            self.image.paste(newImage);
        
     def drawPolyline(self, pointTupleList, shapeSettings, affineTransform = None):
         fillColour = self.getFillColour(shapeSettings);
         strokeColour = self.getStrokeColour(shapeSettings);
         strokeWidth = self.getStrokeWidth(shapeSettings);
-        self.draw.line(pointTupleList, fill = fillColour, outline = strokeColour);
+        if(affineTransform==None):
+            self.draw.line(pointTupleList, fill = fillColour, outline = strokeColour);
+        else:
+            im = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0));
+            newDraw = ImageDraw.Draw(im);
+            self.draw.line(pointTupleList, fill = fillColour, outline = strokeColour);
+            newImage = im.transform((self.width,self.height), Image.AFFINE, affineTransform);
+            self.image.paste(newImage);
     
     def drawMask(self, x, y, width, height, bytes, shapeSettings, affineTransform = None):
         fillColour = self.getFillColour(shapeSettings);
         mask = Image.fromstring('1', (width, height), bytes);
-        self.draw.bitmap(x, y, mask, fill = fillColour);
+        if(affineTransform==None):
+            self.draw.bitmap(x, y, mask, fill = fillColour);
+        else:
+            im = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0));
+            newDraw = ImageDraw.Draw(im);
+            self.draw.bitmap(x, y, mask, fill = fillColour);
+            newImage = im.transform((self.width,self.height), Image.AFFINE, affineTransform);
+            self.image.paste(newImage);
         
     def drawText(self, x, y, text, shapeSettings, affineTransform = None):
         textColour = self.getStrokeColour(shapeSettings);
-        self.draw.text((x, y), text, fill = textColour); 
+        if(affineTransform==None):
+            self.draw.text((x, y), text, fill = textColour); 
+        else:
+            im = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0));
+            newDraw = ImageDraw.Draw(im);
+            self.draw.text((x, y), text, fill = textColour); 
+            newImage = im.transform((self.width,self.height), Image.AFFINE, affineTransform);
+            self.image.paste(newImage);
