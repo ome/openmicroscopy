@@ -90,11 +90,11 @@ class DrawingCanvas:
         strokeColour = self.getStrokeColour(shapeSettings);
         strokeWidth = self.getStrokeWidth(shapeSettings);
         if(affineTransform==None):
-            self.draw.line(pointTupleList, fill = fillColour, outline = strokeColour);
+            self.draw.line(pointTupleList, fill = fillColour, width = strokeWidth);
         else:
             im = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0));
             newDraw = ImageDraw.Draw(im);
-            self.draw.line(pointTupleList, fill = fillColour, outline = strokeColour);
+            self.draw.line(pointTupleList, fill = strokeColour, width = strokeColour);
             newImage = im.transform((self.width,self.height), Image.AFFINE, affineTransform);
             self.image.paste(newImage);
     

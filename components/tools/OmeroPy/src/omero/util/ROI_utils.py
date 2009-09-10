@@ -1,3 +1,43 @@
+'''
+*
+*------------------------------------------------------------------------------
+*  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+*
+*
+* 	This program is free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation; either version 2 of the License, or
+*  (at your option) any later version.
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License along
+*  with this program; if not, write to the Free Software Foundation, Inc.,
+*  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*
+*------------------------------------------------------------------------------
+'''
+
+###
+#
+# ROIUtils allows the mapping of omero.model.ROIDataTypesI to python types
+# and to create ROIDataTypesI from ROIUtil types. 
+# These methods also implement the 
+#
+#
+# @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+# 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+# @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+# 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+# @version 3.0
+# <small>
+# (<b>Internal version:</b> $Revision: $Date: $)
+# </small>
+# @since 3.0-Beta4
+#/
+
 from omero.model import RoiI
 from omero.model import EllipseI
 from omero.model import LineI
@@ -91,6 +131,10 @@ class ROICoordinate:
         self.theZ = roi.getTheZ();
         self.theT = roi.getTheT();
 
+class ROIDrawingI:
+    def acceptVisitor(self, visitor):
+        abstract();
+
 class ShapeData:
 
     def __init__(self):
@@ -143,7 +187,7 @@ class ShapeData:
         self.getCoordFromROI(roi);
         self.getGeometryFromROI(roi);
         
-class EllipseData(ShapeData):
+class EllipseData(ShapeData, ROIDrawingI):
         
     def __init__(self, roicoord = ROICoordinate(), cx = 0, cy = 0, rx = 0, ry = 0):
         ShapeData.__init__(self);
@@ -173,7 +217,7 @@ class EllipseData(ShapeData):
     def acceptVisitor(self, visitor):
         visitor.drawEllipse(self.cx.getValue(), self.cy.getValue(), self.rx.getValue(), self.ry.getValue(), self.shapeSettings.getSettings());
         
-class RectangleData(ShapeData):
+class RectangleData(ShapeData, ROIDrawingI):
         
     def __init__(self, roicoord = ROICoordinate(), x = 0, y = 0, width = 0, height = 0):
         ShapeData.__init__(self);
@@ -203,7 +247,7 @@ class RectangleData(ShapeData):
     def acceptVisitor(self, visitor):
         visitor.drawRectangle(self.x, self.y, self.width, self.height, self.shapeSettings.getSettings());
 
-class LineData(ShapeData):
+class LineData(ShapeData, ROIDrawingI):
         
     def __init__(self, roicoord = ROICoordinate(), x1 = 0, y1 = 0, x2 = 0, y2 = 0):
         ShapeData.__init__(self);
@@ -233,7 +277,7 @@ class LineData(ShapeData):
     def acceptVisitor(self, visitor):
         visitor.drawLine(self.x1.getValue(), self.y1.getValue(), self.x2.getValue(), self.y2.getValue(), self.shapeSettings.getSettings());
 
-class MaskData(ShapeData):
+class MaskData(ShapeData, ROIDrawingI):
         
     def __init__(self, roicoord = ROICoordinate(), bytes = None, x = 0, y = 0, width = 0, height = 0):
         ShapeData.__init__(self);
@@ -266,7 +310,7 @@ class MaskData(ShapeData):
     def acceptVisitor(self, visitor):
         visitor.drawMask(self.x.getValue(), self.y.getValue(), self.width.getValue(), self.height.getValue(), self.bytesdata, self.shapeSettings.getSettings());
 
-class PointData(ShapeData):
+class PointData(ShapeData, ROIDrawingI):
             
     def __init__(self, roicoord = ROICoordinate(), x = 0, y = 0):
         ShapeData.__init__(self);
@@ -291,7 +335,7 @@ class PointData(ShapeData):
         visitor.drawPoint(self.x.getValue(), self.y.getValue(), self.shapeSettings.getSettings());
 
 
-class PolygonData(ShapeData):
+class PolygonData(ShapeData, ROIDrawingI):
     
     def __init__(self, roicoord = ROICoordinate(), pointsList = [0,0]):
         ShapeData.__init__(self);
@@ -330,7 +374,7 @@ class PolygonData(ShapeData):
     def acceptVisitor(self, visitor):
         visitor.drawPolygon(self.stringToTupleList(self.points.getValue()), self.shapeSettings.getSettings());
 
-class PolylineData(ShapeData):
+class PolylineData(ShapeData, ROIDrawingI):
         
     def __init__(self, roicoord = ROICoordinate(), pointsList = [0,0]):
         ShapeData.__init__(self);
