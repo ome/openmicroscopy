@@ -8,7 +8,7 @@
 
 """
 
-import unittest, os, tempfile, exceptions
+import unittest, os, tempfile, exceptions, time
 import omero.tables
 import portalocker
 import logging
@@ -21,14 +21,29 @@ from path import path
 logging.basicConfig(level=logging.CRITICAL)
 
 
-class TestHdfFile(TestCase):
+class TestHdfStorage(TestCase):
+
+    def cols(self):
+        a = omero.columns.LongColumnI('a','first',None)
+        b = omero.columns.LongColumnI('b','first',None)
+        c = omero.columns.LongColumnI('c','first',None)
+        return [a,b,c]
 
     def init(self, hdf, meta=False):
         if meta:
             m = {"analysisA":1,"analysisB":"param","analysisC":4.1}
         else:
             m = None
-        hdf.initialize(["a","b","c"],["first","second","third"],[tables.Int64Col, tables.Int64Col, tables.Int64Col],m)
+        hdf.initialize(self.cols(), m)
+
+    def append(self, hdf, map):
+        cols = self.cols()
+        for col in cols:
+            try:
+                col.values = [map[col.name]]
+            except KeyError:
+                col.values = []
+        hdf.append(cols)
 
     def hdfpath(self):
         tmpdir = self.tmpdir()
@@ -67,7 +82,20 @@ class TestHdfFile(TestCase):
     def testAddSingleRow(self):
         hdf = omero.tables.HdfStorage(self.hdfpath())
         self.init(hdf, True)
-        hdf.append({"a":1,"b":2,"c":3})
+        self.append(hdf, {"a":1,"b":2,"c":3})
+        hdf.cleanup()
+
+    def testSorting(self): # Probably shouldn't work
+        hdf = omero.tables.HdfStorage(self.hdfpath())
+        self.init(hdf, True)
+        self.append(hdf, {"a":0,"b":2,"c":3})
+        self.append(hdf, {"a":4,"b":4,"c":4})
+        self.append(hdf, {"a":0,"b":1,"c":0})
+        self.append(hdf, {"a":0,"b":0,"c":0})
+        self.append(hdf, {"a":0,"b":4,"c":0})
+        self.append(hdf, {"a":0,"b":0,"c":0})
+        rows = hdf.getWhereList(time.time(), '(a==0)', None, 'b', None, None, None)
+        # Doesn't work yet.
         hdf.cleanup()
 
     def testInitializationOnInitializedFileFails(self):

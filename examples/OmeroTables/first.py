@@ -14,3 +14,6 @@ l.values = [1,2,3,4]
 t.addData([l])
 ids = t.getWhereList('(name==1)',{},0,0,0)
 data = t.readCoordinates(ids)
+print data.columns[0].values[0]
+data = t.slice([0],[0])
+print data.columns[0].values[0]

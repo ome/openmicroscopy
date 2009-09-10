@@ -15,7 +15,15 @@
 #include <omero/Repositories.ice>
 #include <omero/ServerErrors.ice>
 
+
+/*
+ * The Tables API is intended to provide an storage mechanism
+ * for tabular data.
+ *
+ * See https://trac.openmicroscopy.org.uk/omero/wiki/OmeroTables
+ */
 module omero {
+
 
     module grid {
 
@@ -25,6 +33,11 @@ module omero {
     // ========================================================================
     //
 
+        /**
+         * Base type for dealing working with tabular data. For efficiency,
+         * data is grouped by type, i.e. column. These value objects are passed
+         * through the [Table] interface.
+         **/
         class Column {
 
             string name;
@@ -112,6 +125,13 @@ module omero {
                 readCoordinates(omero::api::LongArray rowNumbers)
                 throws omero::ServerError;
 
+            /**
+             * Simple slice method which will return only the given columns
+             * and rows.
+             **/
+            Data
+                slice(omero::api::LongArray colNumbers, omero::api::LongArray rowNumbers)
+                throws omero::ServerError;
 
             //
             // Writing ========================================================

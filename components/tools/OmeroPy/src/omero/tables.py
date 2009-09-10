@@ -313,18 +313,33 @@ class HdfStorage(object):
         return self.__mea.getWhereList(condition, variables, None, start, stop, step).tolist()
     getWhereList = stamped(getWhereList)
 
+    def _data(self, cols, rowNumbers):
+        data = omero.grid.Data()
+        data.columns = cols
+        data.rowNumbers = rowNumbers
+        data.lastModification = long(self._stamp*1000) # Convert to millis since epoch
+        return data
+
     def readCoordinates(self, stamp, rowNumbers, current):
         self.__initcheck()
         rows = self.__mea.readCoordinates(rowNumbers)
         cols = self.cols(None, current)
         for col in cols:
             col.values = rows[col.name].tolist()
+        return self._data(cols, rowNumbers)
+    readCoordinates = stamped(readCoordinates)
 
-        data = omero.grid.Data()
-        data.columns = cols
-        data.rowNumbers = rowNumbers
-        data.lastModification = long(self._stamp*1000) # Convert to millis since epoch
-        return data
+    def slice(self, stamp, colNumbers, rowNumbers, current):
+        self.__initcheck()
+        rows = self.__mea.readCoordinates(rowNumbers)
+        cols = self.cols(None, current)
+        rv   = []
+        for i in range(len(cols)):
+            if i in colNumbers:
+                col = cols[i]
+                col.values = rows[col.name].tolist()
+                rv.append(col)
+        return self._data(cols, rowNumbers)
     readCoordinates = stamped(readCoordinates)
 
     #
@@ -412,6 +427,10 @@ class TableI(omero.grid.Table, omero.util.Servant):
     def readCoordinates(self, rowNumbers, current = None):
         return self.storage.readCoordinates(self.stamp, rowNumbers, current)
     readCoordinates = remoted(readCoordinates)
+
+    def slice(self, colNumbers, rowNumbers, current = None):
+        return self.storage.slice(self.stamp, colNumbers, rowNumbers, current)
+    slice = remoted(slice)
 
     # TABLES WRITE API ===========================
 
