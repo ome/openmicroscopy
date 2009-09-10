@@ -40,7 +40,6 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.actions.MetadataAction;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
@@ -49,6 +48,8 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -611,6 +612,11 @@ class EditorComponent
 					MetadataViewerAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("Original Metadata", "An error occurred while " +
 						"reading the original metadata.");
+				Logger logger = MetadataViewerAgent.getRegistry().getLogger();
+				LogMessage msg = new LogMessage();
+				msg.print("Error while reading metadata file.");
+				msg.print(e);
+				logger.error(this, msg);
 			}
 		}
 	}
