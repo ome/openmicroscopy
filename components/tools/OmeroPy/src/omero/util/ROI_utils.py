@@ -33,7 +33,7 @@ class ShapeSettingsData:
         self.fillOpacity = rfloat(0);
         self.fillRule = rstring('');
         
-    def setShapeSettings(self, shape):
+    def setROIShapeSettings(self, shape):
         shape.setStrokeColor(self.strokeColour);
         shape.setStrokeWidth(self.strokeWidth);
         shape.setStrokeDashArray(self.strokeDashArray);
@@ -60,14 +60,44 @@ class ROICoordinate:
         self.theZ = rint(z);
         self.theT = rint(t);
 
+    def setROICoord(self, roi):
+        roi.setTheZ(roi.theZ);
+        roi.setTheT(roi.theT);
+
 class ShapeData:
 
     def __init__(self):
         self.coord = ROICoordinate();
-
-    def setGeometry(self, shape):
+        self.shapeSettings = ShapeSettingsData();
+        
+    def setCoord(self, coord):
+        self.coord = coord;
+    
+    def setROICoord(self, roi):
+        self.coord.setROICoord(roi);
+        
+    def setROIGeometry(self, shape):
         abstract();
 
+    def setShapeSettings(self, settings):
+        self.shapeSettings = settings;
+    
+    def setROIShapeSettings(self, roi):
+        self.shapeSettings.setShapeSettings(roi);
+
+    def acceptVisitor(self, visitor):
+        abstract();
+
+    def createBaseType(self):
+        abstract();
+        
+    def createROI(self):
+        roi = createBaseType();
+        self.setROICoord(roi);
+        self.setROIGeometry(roi);
+        self.setROIShapeSettings(roi);
+        return roi;
+        
 class EllipseData(ShapeData):
         
     def __init__(self, roicoord = ROICoordinate(), cx = 0, cy = 0, rx = 0, ry = 0):
@@ -75,15 +105,21 @@ class EllipseData(ShapeData):
         self.cy = rdouble(cy);
         self.rx = rdouble(rx);
         self.ry = rdouble(ry);
-        self.coord = roicoord;
-    
-    def setGeometry(self, ellipse):
+        self.setROICoord(roicoord);
+        
+    def setROIGeometry(self, ellipse):
         ellipse.setTheZ(self.coord.theZ);
         ellipse.setTheT(self.coord.theZ);
         ellipse.setCx(self.cx);
         ellipse.setCy(self.cy);
         ellipse.setRx(self.rx);
         ellipse.setRy(self.ry);
+
+    def createBaseType(self):
+        return EllipseI();
+
+    def acceptVisitor(self, visitor):
+        visitor.visitEllipse(cx, cy, rx, ry);
 
 class RectangleData(ShapeData):
         
@@ -92,7 +128,7 @@ class RectangleData(ShapeData):
         self.y = rdouble(y);
         self.width = rdouble(width);
         self.height = rdouble(height);
-        self.coord = roicoord;
+        self.setROICoord(roicoord);
     
     def setGeometry(self, rectangle):
         rectangle.setTheZ(self.coord.theZ);
@@ -101,7 +137,13 @@ class RectangleData(ShapeData):
         rectangle.setY(self.y);
         rectangle.setWidth(self.width);
         rectangle.setHeight(self.height);
-        
+
+    def createBaseType(self):
+        return RectI();
+
+    def acceptVisitor(self, visitor):
+        visitor.visitRectangle(self.x, self.y, self.width, self.height);
+
 class LineData(ShapeData):
         
     def __init__(self, roicoord = ROICoordinate(), x1 = 0, y1 = 0, x2 = 0, y2 = 0):
@@ -109,7 +151,7 @@ class LineData(ShapeData):
         self.y1 = rdouble(y1);
         self.x2 = rdouble(x2);
         self.y2 = rdouble(y2);
-        self.coord = roicoord;
+        self.setROICoord(roicoord);
     
     def setGeometry(self, line):
         line.setTheZ(self.coord.theZ);
@@ -119,6 +161,9 @@ class LineData(ShapeData):
         line.setX2(self.x2);
         line.setY2(self.y2);
 
+    def createBaseType(self):
+        return LineI();
+
 class MaskData(ShapeData):
         
     def __init__(self, roicoord = ROICoordinate(), bytes = None, x = 0, y = 0, width = 0, height = 0):
@@ -127,7 +172,7 @@ class MaskData(ShapeData):
         self.width = rdouble(width);
         self.height = rdouble(height);
         self.bytesdata = bytes;
-        self.coord = roicoord;
+        self.setROICoord(roicoord);
     
     def setGeometry(self, mask):
         mask.setTheZ(self.coord.theZ);
@@ -138,12 +183,15 @@ class MaskData(ShapeData):
         mask.setHeight(self.height);
         mask.setBytes(self.bytedata);
 
+    def createBaseType(self):
+        return MaskI();
+
 class PointData(ShapeData):
             
     def __init__(self, roicoord = ROICoordinate(), x = 0, y = 0):
         self.x = rdouble(x);
         self.y = rdouble(y);
-        self.coord = roicoord;
+        self.setROICoord(roicoord);
     
     def setGeometry(self, point):
         point.setTheZ(self.coord.theZ);
@@ -151,11 +199,14 @@ class PointData(ShapeData):
         point.setX(self.x);
         point.setY(self.y);
 
+    def createBaseType(self):
+        return PointI();
+
 class PolygonData(ShapeData):
     
     def __init__(self, roicoord = ROICoordinate(), pointsList = [0,0]):
         self.points = rstring(self.listToString(pointsList));
-        self.coord = roicoord;
+        self.setROICoord(roicoord);
     
     def setGeometry(self, point):
         point.setTheZ(self.coord.theZ);
@@ -170,12 +221,15 @@ class PolygonData(ShapeData):
                 string = string + ',';
             string = string + str(element);
         return string;
+
+    def createBaseType(self):
+        return PolygonI();
 
 class PolylineData(ShapeData):
         
     def __init__(self, roicoord = ROICoordinate(), pointsList = [0,0]):
         self.points = rstring(self.listToString(pointsList));
-        self.coord = roicoord;
+        self.setROICoord(roicoord);
     
     def setGeometry(self, point):
         point.setTheZ(self.coord.theZ);
@@ -190,51 +244,8 @@ class PolylineData(ShapeData):
                 string = string + ',';
             string = string + str(element);
         return string;
+        
+    def createBaseType(self):
+        return PolylineI();
 
-def createDefaultProperties():
-    properties = ROIProperties();
-    return properties;
-
-def createEllipse(ellipsedata, settings):
-    ellipse = EllipseI();
-    ellipsedata.setGeometry(ellipse);
-    settings.setShapeSettings(ellipse);
-    return ellipse;
-
-def createRectangle(rectangledata, settings):
-    rectangle = RectangleI();
-    rectangledata.setGeometry(rectangle);
-    settings.setShapeSettings(rectangle);
-    return rectangle;
-    
-def createLine(linedata, settings):
-    line = LineI();
-    linedata.setGeometry(line);
-    settings.setShapeSettings(line);
-    return line;
-    
-def createMask(maskdata, settings):
-    mask = MaskI();
-    maskdata.setGeometry(mask);
-    settings.setShapeSettings(mask);
-    return mask;
-    
-def createPoint(pointdata, settings):
-    point = PointI();
-    pointdata.setGeometry(point);
-    settings.setShapeSettings(point);
-    return point;
-    
-def createPolygon(polygondata, settings):
-    polygon = PolygonI();
-    polygondata.setGeometry(polygon);
-    settings.setShapeSettings(polygon);
-    return polygon;
-    
-def createPolyline(polylinedata, settings):
-    polyline = PolylineI();
-    polylinedata.setGeometry(polyline);
-    settings.setShapeSettings(polyline);
-    return polyline;
-    
 
