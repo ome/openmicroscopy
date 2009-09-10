@@ -1,6 +1,6 @@
 /*
  *   $Id$
- * 
+ *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
@@ -15,6 +15,14 @@
 module omero
 {
 
+/**
+
+Primitives for working with binary data.
+
+@see omero::api::RenderingEngine
+@see omero::api::RawPixelsStore
+
+ **/
 module romio
 {
     sequence<Ice::ByteSeq> RGBBands;
@@ -33,7 +41,7 @@ module romio
     const int XY = 0;
     const int ZY = 1;
     const int XZ = 2;
- 
+
     class PlaneDef
     {
       int slice;

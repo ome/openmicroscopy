@@ -37,17 +37,17 @@ module omero {
         ["java:type:java.util.HashMap<Long,Long>:java.util.Map<Long,Long>"]
             dictionary<long, long> CountMap;
 
-        /*
+        /**
          * ParamMap replaces the ome.parameters.QueryParam
          * type, since the use of varargs is not possible.
-         */
+         **/
         ["java:type:java.util.HashMap"]
             dictionary<string,omero::RType> ParamMap;
 
-        /*
+        /**
          * IdByteMap is used by the ThumbnailService for the multiple thumbnail
          * retrieval methods.
-         */
+         **/
         ["java:type:java.util.HashMap"]
             dictionary<long,Ice::ByteSeq> IdByteMap;
 

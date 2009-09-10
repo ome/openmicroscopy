@@ -15,25 +15,25 @@
  */
 module omero {
 
-    module internal {
+    module grid {
 
-        /*
+        /**
          * Interface implemented by each server instance. Instances lookup one
          * another in the IceGrid registry.
-         */
+         **/
         interface ClusterNode {
 
-            /*
+            /**
              * Each node acquires the uuids of all other active nodes on start
              * up. The uuid is an internal value and does not
              * correspond to a session.
-             */
+             **/
              string getNodeUuid();
-             
-            /*
+
+            /**
              * Let all cluster nodes know that the instance with this
              * uuid is going down.
-             */
+             **/
             void down(string uuid);
 
         };

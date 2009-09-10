@@ -324,7 +324,7 @@ java component.
 
     <target name="release-slice2html">
       <mkdir dir="${dist.dir}/docs/api/slice2html"/>
-      <apply executable="slice2html" parallel="true">
+      <apply executable="slice2html" parallel="true" failonerror="true">
            <arg value="--hdr"/>
            <arg value="${blitz.comp}/resources/header.txt"/>
            <arg value="-I"/>
@@ -335,7 +335,9 @@ java component.
            <arg value="${omero.home}/target/Ice/slice"/>
            <arg value="--output-dir"/>
            <arg value="${dist.dir}/docs/api/slice2html"/>
+        <!-- The order here is important. Later docs overwrite earlier ones -->
         <fileset dir="${omero.home}/components/tools" includes="**/resources/**/*.ice"/>
+        <fileset dir="${omero.home}/components/server/src" includes="**/*.ice"/>
         <fileset dir="${omero.home}/components/blitz/generated" includes="**/*.ice"/>
         <fileset dir="${omero.home}/components/blitz/resources" includes="**/*.ice"/>
         <fileset dir="${omero.home}/components/blitz/resources" includes="README.ice"/>
@@ -344,7 +346,7 @@ java component.
 
     <target name="release-epydoc">
        <mkdir dir="${dist.dir}/docs/api/epydoc"/>
-       <exec executable="epydoc">
+       <exec executable="epydoc" failonerror="true">
            <arg value="--html"/>
            <arg value="-n"/>
            <arg value="OmeroPy API Documentation"/>

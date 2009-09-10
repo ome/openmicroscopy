@@ -22,9 +22,9 @@ import ome.services.sessions.state.SessionCache;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
-import omero.internal.ClusterNodePrx;
-import omero.internal.ClusterNodePrxHelper;
-import omero.internal._ClusterNodeDisp;
+import omero.grid.ClusterNodePrx;
+import omero.grid.ClusterNodePrxHelper;
+import omero.grid._ClusterNodeDisp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

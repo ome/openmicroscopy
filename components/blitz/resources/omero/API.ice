@@ -21,55 +21,58 @@
 #include <Glacier2/Session.ice>
 #include <Ice/BuiltinSequences.ice>
 
-/*
- * The omero::api module defines all the central verbs for working
- * with OMERO.blitz. Arguments and return values consist of those
- * types defined in the other ice files available here. With no
- * further custom code, it is possible to interoperate with
- * OMERO.blitz simply via the definitions here. Start with the
- * ServiceFactory definition at the end of this file.
- *
- * Note: Using these types is significantly easier in combination with
- * the JavaDocs of the OMERO.server, specifically the ome.api
- * package. Where not further noted below, the follow mappings between
- * ome.api argument types and omero::api argument types hold:
- *
- *     +-----------------------+------------------------+
- *     |        ome.api        |      omero::api        |
- *     +-----------------------+------------------------+
- *     |java.lang.Class        |string                  |
- *     +-----------------------+------------------------+
- *     |java.util.Set          |java.util.List/vector   |
- *     +-----------------------+------------------------+
- *     |IPojo options (Map)    |omero::sys::ParamMap    |
- *     +-----------------------+------------------------+
- *     |If null needed         |omero::RType subclass   |
- *     +-----------------------+------------------------+
- *     |...                    |...                     |
- *     +-----------------------+------------------------+
- */
+
 module omero {
 
+    /** The omero::api module defines all the central verbs for working with OMERO.blitz.
+     *
+     * <p> Arguments and return values consist of those
+     * types defined in the other ice files available here. With no
+     * further custom code, it is possible to interoperate with
+     * OMERO.blitz simply via the definitions here. Start with the
+     * ServiceFactory definition at the end of this file.</p>
+     *
+     * <p> Note: Using these types is significantly easier in combination with
+     * the JavaDocs of the OMERO.server, specifically the ome.api
+     * package. Where not further noted below, the follow mappings between
+     * ome.api argument types and omero::api argument types hold: </p>
+     *
+     * <pre>
+     *     +-----------------------+------------------------+
+     *     |        ome.api        |      omero::api        |
+     *     +-----------------------+------------------------+
+     *     |java.lang.Class        |string                  |
+     *     +-----------------------+------------------------+
+     *     |java.util.Set          |java.util.List/vector   |
+     *     +-----------------------+------------------------+
+     *     |IPojo options (Map)    |omero::sys::ParamMap    |
+     *     +-----------------------+------------------------+
+     *     |If null needed         |omero::RType subclass   |
+     *     +-----------------------+------------------------+
+     *     |...                    |...                     |
+     *     +-----------------------+------------------------+
+     * </pre>
+     **/
     module api {
 
-	/*
+	/**
 	 * Service marker similar to ome.api.ServiceInterface. Any object which
 	 * IS-A ServiceInterface but IS-NOT-A StatefulServiceInterface (below)
 	 * is be definition a "stateless service"
-	 */
+	 **/
 	interface ServiceInterface
 	{
 	};
 
 	sequence<ServiceInterface*> ServiceList;
 
-	/*
+	/**
 	 * Service marker for stateful services which permits the closing
 	 * of a particular service before the destruction of the session.
-	 */
+	 **/
 	["ami", "amd"] interface StatefulServiceInterface extends ServiceInterface
 	{
-	    /*
+	    /**
 	     * Causes the blitz server to store the service implementation to disk
 	     * to free memory. This is typically done automatically by the server
 	     * when a pre-defined memory limit is reached, but can be used by the
@@ -78,10 +81,10 @@ module omero {
 	     *
 	     * Activation will happen automatically whether passivation was done
 	     * manually or automatically.
-	     */
+	     **/
 	    void passivate() throws ServerError;
 
-	    /*
+	    /**
 	     * Load a service implementation from disk if it was previously
 	     * passivated. It is unnecessary to call this method since activation
 	     * happens automatically, but calling this may prevent a short
@@ -89,10 +92,10 @@ module omero {
 	     *
 	     * It is safe to call this method at any time, even when the service
 	     * is not passivated.
-	     */
+	     **/
 	    void activate() throws ServerError;
 
-	    /*
+	    /**
 	     * Frees all resources -- passivated or active -- for the given
 	     * stateful service and removes its name from the object adapter.
 	     * Any further method calls will fail with a Ice::NoSuchObjectException.
@@ -100,27 +103,27 @@ module omero {
 	     * Note: with JavaEE, the close method was called publically,
 	     * and internally this called destroy(). As of the OmeroBlitz
 	     * migration, this functionality has been combined.
-	     */
+	     **/
             void close() throws ServerError;
 
-	    /*
+	    /**
 	     * To free clients from tracking the mapping from session to stateful
 	     * service, each stateful service can returns its own context information.
-	     */
+	     **/
 	    idempotent omero::sys::EventContext getCurrentEventContext() throws ServerError;
 	};
 
 	// Stateless service
 	// ===================================================================================
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IAdmin.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IAdmin.html">IAdmin.html</a>
+	 **/
 	["ami", "amd"] interface IAdmin extends ServiceInterface
 	{
 
 	    // Getters
-            idempotent bool canUpdate(omero::model::IObject obj) throws ServerError;
+	    idempotent bool canUpdate(omero::model::IObject obj) throws ServerError;
 	    idempotent omero::model::Experimenter getExperimenter(long id) throws ServerError;
 	    idempotent omero::model::Experimenter lookupExperimenter(string name) throws ServerError;
 	    idempotent ExperimenterList lookupExperimenters() throws ServerError;
@@ -171,9 +174,9 @@ module omero {
 	    idempotent omero::sys::EventContext getEventContext() throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IConfig.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IConfig.html">IConfig.html</a>
+	 **/
 
 	["ami", "amd"] interface IConfig extends ServiceInterface
 	{
@@ -186,9 +189,9 @@ module omero {
 	    idempotent omero::RTime getServerTime() throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IDelete.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IDelete.html">IDelete.html</a>
+	 **/
 	["ami", "amd"] interface IDelete extends omero::api::ServiceInterface
 	{
 	    omero::api::IObjectList checkImageDelete(long id, bool force) throws ServerError;
@@ -200,9 +203,9 @@ module omero {
             void deletePlate(long plateId) throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ILdap.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ILdap.html">ILdap.html</a>
+	 **/
 	["ami", "amd"] interface ILdap extends ServiceInterface
 	{
 	    idempotent ExperimenterList searchAll() throws ServerError;
@@ -224,9 +227,9 @@ module omero {
 	};
 
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IPixels.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IPixels.html">IPixels.html</a>
+	 **/
 	["ami", "amd"] interface IPixels extends ServiceInterface
 	{
 	    idempotent omero::model::Pixels retrievePixDescription(long pixId) throws ServerError;
@@ -236,7 +239,7 @@ module omero {
 	    idempotent omero::model::RenderingDef loadRndSettings(long renderingSettingsId) throws ServerError;
 	    void saveRndSettings(omero::model::RenderingDef rndSettings) throws ServerError;
 	    idempotent int getBitDepth(omero::model::PixelsType type) throws ServerError;
-            idempotent omero::model::IObject getEnumeration(string enumClass, string value) throws ServerError;
+	    idempotent omero::model::IObject getEnumeration(string enumClass, string value) throws ServerError;
 	    idempotent IObjectList getAllEnumerations(string enumClass) throws ServerError;
 	    omero::RLong copyAndResizePixels(long pixelsId,
 					     omero::RInt sizeX,
@@ -261,9 +264,9 @@ module omero {
 	    void setChannelGlobalMinMax(long pixelsId, int channelIndex, double min, double max) throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IContainer.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IContainer.html">IContainer.html</a>
+	 **/
 	["ami", "amd"] interface IContainer extends ServiceInterface
 	{
 	    idempotent IObjectList loadContainerHierarchy(string rootType, omero::sys::LongList rootIds, omero::sys::Parameters options) throws ServerError;
@@ -284,9 +287,9 @@ module omero {
 	    void deleteDataObjects(IObjectList objs, omero::sys::Parameters options) throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IMetadata.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IMetadata.html">IMetadata.html</a>
+	 **/
 	["ami", "amd"] interface IMetadata extends ServiceInterface
 	{
 	    idempotent LogicalChannelList loadChannelAcquisitionData(omero::sys::LongList ids) throws ServerError;
@@ -304,9 +307,9 @@ module omero {
 
 	//interface IMetadata; /* Forward definition. See omero/api/Metadata.ice */
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IProjection.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IProjection.html">IProjection.html</a>
+	 **/
 	["ami", "amd"] interface IProjection extends ServiceInterface
 	{
 	    Ice::ByteSeq projectStack(long pixelsId,
@@ -323,9 +326,9 @@ module omero {
 	};
 
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IQuery.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IQuery.html">IQuery.html</a>
+	 **/
 	["ami", "amd"] interface IQuery extends ServiceInterface
 	{
 	    idempotent omero::model::IObject get(string klass, long id) throws ServerError;
@@ -348,35 +351,35 @@ module omero {
 	 * also import the definition "import omero_api_IRoi_ice". For
 	 * more information see:
 	 *
-	 * http://www.zeroc.com/forums/bug-reports/3883-bus-error-under-mac-ox-10-4-icepy-3-3-0-a.html#post17120
+	 * <a href="http://www.zeroc.com/forums/bug-reports/3883-bus-error-under-mac-ox-10-4-icepy-3-3-0-a.html#post17120">this thread</a>
 	 **/
         interface IRoi; //
 
-	/*
+	/**
 	 * Forward declaration; see omero/api/IScript.ice
 	 *
 	 * If you receive a segfault or a bus error in Python, be sure to
 	 * also import the definition "import omero_api_IScript_ice". For
 	 * more information see:
 	 *
-	 * http://www.zeroc.com/forums/bug-reports/3883-bus-error-under-mac-ox-10-4-icepy-3-3-0-a.html#post17120
-	 */
+	 * <a href="http://www.zeroc.com/forums/bug-reports/3883-bus-error-under-mac-ox-10-4-icepy-3-3-0-a.html#post17120">this thread</a>
+	 **/
         interface IScript; //
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ISession.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ISession.html">ISession.html</a>
+	 **/
 	["ami", "amd"] interface ISession extends ServiceInterface
 	{
 	    omero::model::Session createSession(omero::sys::Principal p, string credentials) throws ServerError;
 	    omero::model::Session createUserSession(long timeToLiveMilliseconds, long timeToIdleMilliseconds,
 						    string defaultGroup, omero::model::Permissions umask) throws ServerError;
-            omero::model::Session getSession(string sessionUuid) throws ServerError;
+	    omero::model::Session getSession(string sessionUuid) throws ServerError;
 	    int getReferenceCount(string sessionUuid) throws ServerError;
 	    omero::model::Session updateSession(omero::model::Session sess) throws ServerError;
 	    int closeSession(omero::model::Session sess) throws ServerError;
 	    // System users
-            omero::model::Session createSessionWithTimeout(omero::sys::Principal p,
+	    omero::model::Session createSessionWithTimeout(omero::sys::Principal p,
                                                            long timeToLiveMilliseconds) throws ServerError;
 	    omero::model::Session createSessionWithTimeouts(omero::sys::Principal p,
 	                                                    long timeToLiveMilliseconds,
@@ -391,9 +394,9 @@ module omero {
 	    StringSet getOutputKeys(string sess) throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IShare.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IShare.html">IShare.html<a/>
+	 **/
 	["ami", "amd"] interface IShare extends ServiceInterface
 	{
 	    void activate(long shareId) throws ServerError;
@@ -452,9 +455,9 @@ module omero {
         IObjectList getEvents(long shareId, omero::model::Experimenter exp, omero::RTime from, omero::RTime to) throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ITypes.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ITypes.html">ITypes.html</a>
+	 **/
 	["ami", "amd"] interface ITypes extends ServiceInterface
 	{
 	    omero::model::IObject createEnumeration(omero::model::IObject newEnum) throws ServerError;
@@ -470,9 +473,9 @@ module omero {
 	    void resetEnumerations(string enumClass) throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IUpdate.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IUpdate.html">IUpdate.html</a>
+	 **/
 	["ami", "amd"] interface IUpdate extends ServiceInterface
 	{
 	    void saveObject(omero::model::IObject obj) throws ServerError;
@@ -484,9 +487,9 @@ module omero {
 	    void indexObject(omero::model::IObject row) throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IRenderingSettings.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IRenderingSettings.html">IRenderingSettings.html</a>
+	 **/
 	["ami", "amd"] interface IRenderingSettings extends ServiceInterface
 	{
 	    bool sanityCheckPixels(omero::model::Pixels pFrom, omero::model::Pixels pTo) throws ServerError;
@@ -510,9 +513,9 @@ module omero {
 	    omero::sys::LongList setOriginalSettingsInSet(string type, omero::sys::LongList noteIds) throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IRepositoryInfo.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IRepositoryInfo.html">IRepositoryInfo.html</a>
+	 **/
 	["ami", "amd"] interface IRepositoryInfo extends ServiceInterface
 	{
 	    idempotent long getUsedSpaceInKilobytes() throws ServerError;
@@ -523,7 +526,7 @@ module omero {
 	};
 
 
-	/*
+	/**
 	 * Service for the querying of OMERO metadata based on creation and modification
 	 * time. Currently supported types for querying include:
 	 *
@@ -581,10 +584,10 @@ module omero {
 	 * in the ome.api package.
 	 *
 	 * TODOS: binning, stateful caching, ...
-	 */
+	 **/
 	["ami", "amd"] interface ITimeline extends ServiceInterface {
 
-        /*
+        /**
 	     * Return the last LIMIT annotation __Links__ whose parent (IAnnotated)
 	     * matches one of the parentTypes, whose child (Annotation) matches one
 	     * of the childTypes (limit of one for the moment), and who namespace
@@ -597,55 +600,55 @@ module omero {
 	     * AND'ed to the query to filter results.
 	     *
 	     * Merges by default based on parentType.
-	     */
+	     **/
 	    IObjectList
 		getMostRecentAnnotationLinks(StringSet parentTypes, StringSet childTypes,
 					     StringSet namespaces, omero::sys::Parameters p)
 		throws ServerError;
 
-	    /*
+	    /**
 	     * Return the last LIMIT comment annotation links attached to a share by
 	     * __others__.
 	     *
 	     * Note: Currently the storage of these objects is not optimal
 	     * and so this method may change.
-	     */
+	     **/
 	    IObjectList
 		getMostRecentShareCommentLinks(omero::sys::Parameters p)
 		throws ServerError;
 
-	    /*
+	    /**
 	     * Returns the last LIMIT objects of TYPES as ordered by
 	     * creation/modification times in the Event table.
-	     */
+	     **/
 	    IObjectListMap
 		getMostRecentObjects(StringSet types, omero::sys::Parameters p, bool merge)
 		throws ServerError;
 
-	    /*
+	    /**
 	     * Returns the given LIMIT objects of TYPES as ordered by
 	     * creation/modification times in the Event table, but
 	     * within the given time window.
-	     */
+	     **/
 	    IObjectListMap
 		getByPeriod(StringSet types, omero::RTime start, omero::RTime end, omero::sys::Parameters p,  bool merge)
 		throws ServerError;
 
-	    /*
+	    /**
 	     * Queries the same information as getByPeriod, but only returns the counts
 	     * for the given objects.
-	     */
+	     **/
 	    StringLongMap
 		countByPeriod(StringSet types, omero::RTime start, omero::RTime end, omero::sys::Parameters p)
 		throws ServerError;
 
-	    /*
+	    /**
 	     * Returns the EventLog table objects which are queried to produce the counts above.
 	     * Note the concept of "period inclusion" mentioned above.
 	     *
 	     * WORKAROUND WARNING: this method returns non-managed EventLogs (i.e.
 	     * eventLog.getId() == null) for "Image acquisitions".
-	     */
+	     **/
 	    EventLogList
 		getEventLogsByPeriod(omero::RTime start, omero::RTime end, omero::sys::Parameters p)
 		throws ServerError;
@@ -656,39 +659,43 @@ module omero {
 	// ===================================================================================
 
         // Forward definition. See omero/api/Gateway.ice
-	interface Gateway;
+    interface Gateway;
 
+        /**
+         * Stateful service for generating OME-XML or OME-TIFF from data stored
+         * in OMERO.
+         **/
         ["ami", "amd"] interface Exporter extends StatefulServiceInterface {
 
             // Config ================================================
 
-            /*
+            /**
              * Adds a single image with basic metadata to the Exporter for inclusion
              * on the next call to getBytes().
-             */
+             **/
             void addImage(long id) throws ServerError;
 
-            /*
+            /**
              * Sets the output format as OME-XML (default).
-             */
+             **/
             void asXml() throws ServerError;
 
             // Output ================================================
 
-            /*
+            /**
              * Returns "size" bytes from the output file. On the first invocation,
              * this method ends the configuration process, creates a temporary file
              * in the given format. Once the returned number of bytes is less than
              * size or equal to 0, the file is completely read and will be removed
              * from the server. Configuration methods can now safely be called.
-             */
+             **/
             Ice::ByteSeq getBytes(int size) throws ServerError;
 
         };
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/JobHandle.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/JobHandle.html">JobHandle.html</a>
+	 **/
 	["ami", "amd"] interface JobHandle extends StatefulServiceInterface
 	{
 	    long submit(omero::model::Job j) throws ServerError;
@@ -702,9 +709,9 @@ module omero {
 	    void cancelJob()  throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/RawFileStore.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/RawFileStore.html">RawFileStore.html</a>
+	 **/
 	["ami", "amd"] interface RawFileStore extends StatefulServiceInterface
 	{
 	    void setFileId(long fileId) throws ServerError;
@@ -713,9 +720,9 @@ module omero {
 	    idempotent bool exists() throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/RawPixelsStore.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/RawPixelsStore.html">RawPixelsStore.html</a>
+	 **/
 	["ami", "amd"] interface RawPixelsStore extends StatefulServiceInterface
 	{
 	    void setPixelsId(long pixelsId, bool bypassOriginalFile) throws ServerError;
@@ -747,9 +754,9 @@ module omero {
 	    idempotent Ice::ByteSeq calculateMessageDigest() throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/omeis/re/providers/RenderingEngine.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/omeis/re/providers/RenderingEngine.html">RenderingEngine.html</a>
+	 **/
 	["ami", "amd"] interface RenderingEngine extends StatefulServiceInterface
 	{
 	    omero::romio::RGBBuffer render(omero::romio::PlaneDef def) throws ServerError;
@@ -799,9 +806,9 @@ module omero {
 	    double getPixelsTypeLowerBound(int w) throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/Search.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/Search.html">Search.html</a>
+	 **/
 	["ami", "amd"] interface Search extends StatefulServiceInterface
 	{
 
@@ -882,9 +889,9 @@ module omero {
 	    void remove() throws ServerError;
 	};
 
-	/*
-	 * See http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ThumbnailStore.html
-	 */
+	/**
+	 * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ThumbnailStore.html">ThumbnailStore.html</a>
+	 **/
 	["ami", "amd"] interface ThumbnailStore extends StatefulServiceInterface
 	{
 	    bool setPixelsId(long pixelsId) throws ServerError;
@@ -905,47 +912,42 @@ module omero {
 	};
 
 
-	/*
+	/**
 	 * Primary callback interface for interaction between client and
 	 * server session ("ServiceFactory"). Where possible these methods
 	 * will be called one-way to prevent clients from hanging the server.
-	 */
+	 **/
 
 	["ami"] interface ClientCallback
 	{
 
-	    /*
+	    /**
 	     * Heartbeat-request made by the server to guarantee that the client
 	     * is alive. If the client is still active, then some method should
 	     * be made on the server to update the last idle time.
-	     */
+	     **/
 	    void requestHeartbeat();
 
-	    /*
+	    /**
 	     * The session to which this ServiceFactory is connected has been
 	     * closed. Almost no further method calls (if any) are possible.
 	     * Create a new session via omero.client.createSession()
-	     */
+	     **/
 	    void sessionClosed();
 
-	    /*
+	    /**
 	     * Message that the server will be shutting down in the
 	     * given number of milliseconds, after which all new and
 	     * running method invocations will recieve a CancelledException.
-	     */
+	     **/
 	    void shutdownIn(long milliseconds);
 	};
 
 
-	/*
-	 * Starting point for all OMERO.blitz interaction. Similar to the
-	 * ome.system.ServiceFactory class in the OMERO.server and its
-	 * RMI/Java clients, this ServiceFactory once properly created
+	/**
+	 * Starting point for all OMERO.blitz interaction. This ServiceFactory once properly created
 	 * creates functioning proxies to the server.
-	 *
-	 * The difference between the two types is that the blitz instance
-	 * sits server-side.
-	 */
+	 **/
 	interface ServiceFactory extends Glacier2::Session
 	{
 	    // Central OMERO.blitz stateless services.
@@ -982,31 +984,42 @@ module omero {
 
             // Shared resources -----------------------------------------------
 
+        /**
+         * Returns a reference to a back-end manager. The [omero::grid::SharedResources]
+         * service provides look ups for various facilities offered by OMERO:
+         * <ul>
+         *   <li><a href="http://trac.openmicroscopy.org.uk/omero/wiki/OmeroScripts">OMERO.scripts</a>
+         *   <li><a href="http://trac.openmicroscopy.org.uk/omero/wiki/OmeroTables">OMERO.tables</a>
+         * </ul>
+         * These facilities may or may not be available on first request.
+         *
+         * @see omero::grid::SharedResources
+         */
 	    ["deprecated:The SharedResources API is experimental"]
             omero::grid::SharedResources* sharedResources() throws ServerError;
 
             // General methods ------------------------------------------------
 
-	    /*
+	    /**
 	     * Allows looking up any service by name. See Constants.ice
 	     * for examples of services. If a service has been added
 	     * by third-parties, getByName can be used even though
 	     * no concrete method is available.
-	     */
+	     **/
 
 	    ServiceInterface* getByName(string name) throws ServerError;
 
 	    StatefulServiceInterface* createByName(string name) throws ServerError;
 
-	    /*
+	    /**
 	     * Subscribe to a given topic. The topic must exist and the user must
 	     * have sufficient permissions for that topic. Further the proxy object
 	     * must match the required type for the topic as encoded in the topic
 	     * name.
-	     */
+	     **/
 	    void subscribe(string topicName, Object* prx) throws ServerError;
 
-	    /*
+	    /**
 	     * Sets the single callback used by the ServiceFactory
 	     * to communicate with the client application. A default
 	     * callback is set by the omero::client object on
@@ -1014,15 +1027,15 @@ module omero {
 	     *
 	     * See the client object's documentation in each language
 	     * mapping for ways to use the callback.
-	     */
+	     **/
 	    void setCallback(ClientCallback* callback);
 
-	    /*
+	    /**
 	     * Deprecated misnomer.
-	     */
+	     **/
 	    ["deprecated:close() is deprecated. use closeOnDestroy() instead."] void close();
 
-	    /*
+	    /**
 	     * Marks the session for closure rather than detachment, which will
 	     * be triggered by the destruction of the Glacier2 connection via
 	     * router.destroySession()
@@ -1030,10 +1043,10 @@ module omero {
 	     * Closing the session rather the detaching is more secure, since all
 	     * resources are removed from the server and can safely be set once
 	     * it is clear that a client is finished with those resources.
-	     */
+	     **/
 	    void closeOnDestroy();
 
-	    /*
+	    /**
 	     * Marks the session for detachment rather than closure, which will
 	     * be triggered by the destruction of the Glacier2 connection via
 	     * router.destroySession()
@@ -1041,19 +1054,19 @@ module omero {
 	     * This is the default and allows a lost session to be reconnected,
 	     * at a slight security cost since the session will persist longer
 	     * and can be used by others if the UUID is intercepted.
-	     */
+	     **/
 	    void detachOnDestroy();
 
 	    // Session management
 
-	    /*
+	    /**
 	     * Returns a list of string ids for currently active services. This will
 	     * _not_ keep services alive, and in fact checks for all expired services
 	     * and removes them.
-	     */
+	     **/
 	    StringSet activeServices();
 
-	    /*
+	    /**
 	     * Requests that the given services be marked as alive. It is
 	     * possible that one of the services has already timed out, in which
 	     * case the returned long value will be non-zero.
@@ -1064,15 +1077,15 @@ module omero {
 	     *
 	     * Except for fatal server or session errors, this method should never
 	     * throw an exception.
-	     */
+	     **/
 	    long keepAllAlive(ServiceList proxies);
 
-	    /*
+	    /**
 	     * Returns true if the given service is alive.
 	     *
 	     * Except for fatal server or session errors, this method should never
 	     * throw an exception.
-	     */
+	     **/
 	    bool keepAlive(ServiceInterface* proxy);
 
 	};

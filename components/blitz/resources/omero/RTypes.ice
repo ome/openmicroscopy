@@ -11,33 +11,15 @@
 
 #include <omero/ModelF.ice>
 
-/*
- * Simple type definitions used for remoting purposes.
- *
- * RType-sub["protected"] classes permit both the passing of null values to
- * OMERO.blitz, since the Ice protocol maps null values to default
- * (the empty string, 0.0, etc.), and a simple implementation of an
- * "Any" value.
- *
- * Usage (C++):
- *
- *    omero::RBoolPtr b1 = new omero::RBool(true);
- *    omero::RBoolPtr b2 = someObjPtr->getBool();
- *    if (b2 && b2.val) { ... };
- *    // the first test, checks if the pointer is null
- *
- * Usage (Java):
- *    omero.RBool b1 = new omero.RBool(true);
- *    omero.RBool b2 = someObj.getBool();
- *    if (b2!=null && b2.val) { ... };
- *    // no operator overloading; check for null directly.
- *
- */
+//
+// Simple type definitions used for remoting purposes.
+// See README.ice for a description of the omero module.
+//
 module omero {
 
-  /*
+  /**
    * Simple base ["protected"] class. Essentially abstract.
-   */
+   **/
   ["protected"] class RType
   {
     /**
@@ -45,16 +27,19 @@ module omero {
      * of 0 means they are equivalent and were almost certainly
      * created by the same constructor call, e.g.
      *
+     * <pre>
      *   rbool(true).compare(rbool(true)) == 0
+     * </pre>
      *
      * This method was originally addd (Oct 2008) to force the
      * base RType class to be abstract in all languages.
-     */
+     **/
     int compare(RType rhs);
   };
 
-  /*
-   */
+  /**
+   * Boolean wrapper.
+   **/
   ["protected"] class RBool extends RType
   {
     bool val;
@@ -62,8 +47,9 @@ module omero {
   };
 
 
-  /*
-   */
+  /**
+   * Double wrapper.
+   **/
   ["protected"] class RDouble extends RType
   {
     double val;
@@ -71,8 +57,9 @@ module omero {
   };
 
 
-  /*
-   */
+  /**
+   * Float wrapper.
+   **/
   ["protected"] class RFloat extends RType
   {
     float val;
@@ -80,8 +67,9 @@ module omero {
   };
 
 
-  /*
-   */
+  /**
+   * Integer wrapper.
+   **/
   ["protected"] class RInt extends RType
   {
     int val;
@@ -89,8 +77,9 @@ module omero {
   };
 
 
-  /*
-   */
+  /**
+   * Long Wrapper.
+   **/
   ["protected"] class RLong extends RType
   {
     long val;
@@ -98,41 +87,46 @@ module omero {
   };
 
 
-  /*
-   */
+  /**
+   * String wrapper.
+   **/
   ["protected"] class RString extends RType
   {
     string val;
     string getValue();
   };
 
-  /*
+  /**
    * Extends RString and simply provides runtime
    * information to the server that this string
    * is intended as a ["protected"] class parameter. Used especially
    * by omero::system::ParamMap (omero/System.ice)
-   *
+   * 
    * Usage:
+   * <pre>
    *   omero::RClass c = ...; // from service
    *   if (!c.null && c.val.equals("Image")) { ... }
-   */
+   * </pre>
+   **/
   ["protected"] class RClass extends RString
   {
   };
 
 
 
-  /* A simple Time implementation. The long value is the number
+  /**
+   * A simple Time implementation. The long value is the number
    * of milliseconds since the epoch (January 1, 1970).
-   */
+   **/
   ["protected"] class RTime extends RType
   {
     long val;
     long getValue();
   };
 
-  /*
-   */
+  /**
+   * Wrapper for an [omero::model::IObject] instance.
+   **/
   ["protected"] class RObject extends RType
   {
     omero::model::IObject val;
@@ -142,10 +136,19 @@ module omero {
 
   // Collections
 
+  /**
+   * Simple sequence of [RType] instances. Note: when passing
+   * an RTypeSeq over the wire, null sequence is maintained and
+   * will be turned into an empty sequence. If nullability is
+   * required, see the [RCollection] types.
+   *
+   * @see RCollection
+   * @see RTypeDict
+   */
   ["java:type:java.util.ArrayList<RType>:java.util.List<RType>"]
   sequence<RType> RTypeSeq;
 
-  /*
+  /**
    * The collection ["protected"] classes permit the passing of sequences of all
    * other RTypes (including other collections) and it is itself
    * nullable. The allows for similar arguments to collections in
@@ -158,7 +161,7 @@ module omero {
    *
    * This flexible mechanism is not used in all API calls because
    * the flexibility brings a performance penalty.
-   */
+   **/
   ["protected"] class RCollection extends RType
   {
     RTypeSeq val;
@@ -169,26 +172,46 @@ module omero {
     void addAll(RTypeSeq value);
   };
 
-  // Mapped to an array on the server of a type given
-  // by a random member of the RTypeSeq. Only pass
-  // homogenous lists.
+  /**
+   * [RCollection] mapped to an array on the server of a type given
+   * by a random member of the RTypeSeq. Only pass consistent arrays!
+   * homogenous lists.
+   **/
   ["protected"] class RArray extends RCollection
   {
   };
 
-  // Mapped to a java.util.List on the server
+  /**
+   * [RCollection] mapped to a java.util.List on the server
+   **/
   ["protected"] class RList extends RCollection
   {
   };
 
-  // Mapped to a java.util.HashSet on the server
+  /**
+   * [RCollection] mapped to a java.util.HashSet on the server
+   **/
   ["protected"] class RSet extends RCollection
   {
   };
 
+  /**
+   * Simple dictionary of [RType] instances. Note: when passing
+   * an RTypeDict over the wire, a null map will not be maintained and
+   * will be turned into an empty map. If nullability is
+   * required, see the [RMap] type.
+   **/
   ["java:type:java.util.HashMap<String,RType>"]
   dictionary<string,omero::RType> RTypeDict;
 
+  /**
+   * Similar to [RCollection], the [RMap] class permits the passing
+   * of a possible null [RTypeDict] where any other [RType] is
+   * expected.
+   *
+   * @see RTypeDict
+   * @see RCollection
+   **/
   ["protected"] class RMap extends RType {
     RTypeDict val;
     RTypeDict getValue();

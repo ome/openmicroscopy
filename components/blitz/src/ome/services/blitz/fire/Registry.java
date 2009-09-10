@@ -14,17 +14,17 @@ import java.util.UUID;
 
 import ome.services.blitz.repo.InternalRepositoryI;
 import omero.api.ServiceFactoryPrx;
+import omero.grid.ClusterNodePrx;
+import omero.grid.ClusterNodePrxHelper;
 import omero.grid.InternalRepositoryPrx;
 import omero.grid.InternalRepositoryPrxHelper;
 import omero.grid.ProcessorPrx;
 import omero.grid.ProcessorPrxHelper;
 import omero.grid.TablesPrx;
 import omero.grid.TablesPrxHelper;
+import omero.grid._ClusterNodeDisp;
 import omero.grid._ProcessorDisp;
 import omero.grid._TablesDisp;
-import omero.internal.ClusterNodePrx;
-import omero.internal.ClusterNodePrxHelper;
-import omero.internal._ClusterNodeDisp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

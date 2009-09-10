@@ -119,33 +119,36 @@ module omero {
                 ShapeStatsList perShape;
             };
 
-	["ami","amd"] interface IRoi extends ServiceInterface
-	    {
+        /**
+         * Interface for working with regions of interest.
+         **/
+        ["ami","amd"] interface IRoi extends ServiceInterface
+            {
 
-                /*
+                /**
                  * Returns a RoiResult with a single Roi member.
                  * Shape linkages are properly created.
                  * All Shapes are loaded, as is the Pixels and Image object.
                  * TODO: Annotations?
-                 */
+                 **/
                 RoiResult findByRoi(long roiId, RoiOptions opts) throws omero::ServerError;
 
                 /**
                  * Returns all the Rois in an Image, indexed via Shape.
                  *
                  * Loads Rois as findByRoi.
-                 */
+                 **/
                 RoiResult findByImage(long imageId, RoiOptions opts) throws omero::ServerError;
 
                 /**
                  * Returns all the Rois on the given plane, indexed via Shape.
                  *
                  * Loads Rois as findByRoi.
-                 */
+                 **/
                 RoiResult findByPlane(long imageId, int z, int t, RoiOptions opts) throws omero::ServerError;
 
-		/**
-		 * Find ROIs which intersect the given shape. If z/t/visible/locked are filled,
+                /**
+                 * Find ROIs which intersect the given shape. If z/t/visible/locked are filled,
                  * only intersections on the given plane(s) or with the given properties are
                  * taken into account.
                  *
@@ -153,14 +156,14 @@ module omero {
                  *
                  * Loads Rois as findByRoi.
                  *
-		 **/
-		RoiResult findByIntersection(long imageId, omero::model::Shape shape, RoiOptions opts) throws omero::ServerError;
+                 **/
+                RoiResult findByIntersection(long imageId, omero::model::Shape shape, RoiOptions opts) throws omero::ServerError;
 
-		/**
-		 * Find ROIs which intersect any of the given shape.
+                /**
+                 * Find ROIs which intersect any of the given shape.
                  * Otherwise as findByIntersection.
-		 **/
-		RoiResult findByAnyIntersection(long imageId, ShapeList shapes, RoiOptions opts) throws omero::ServerError;
+                 **/
+                RoiResult findByAnyIntersection(long imageId, ShapeList shapes, RoiOptions opts) throws omero::ServerError;
 
                 /**
                  * Calculate the points contained within a given shape
@@ -169,7 +172,7 @@ module omero {
 
                 /**
                  * Calculate stats for all the shapes within the given Roi.
-                 */
+                 **/
                 RoiStats getRoiStats(long roiId) throws omero::ServerError;
 
                 /**
@@ -182,7 +185,7 @@ module omero {
                  **/
                 ShapeStatsList getShapeStatsList(LongList shapeIdList) throws omero::ServerError;
 
-	    };
+            };
 
     };
 

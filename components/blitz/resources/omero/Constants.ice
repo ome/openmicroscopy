@@ -11,49 +11,52 @@
 
 module omero {
 
+  /**
+   * Most client-intended constants are provided in this module.
+   **/      
   module constants {
 
-    /*
+    /**
      * Key in the ImplicitContext which must be filled
      * by all omero.client implementations.
-     */
+     **/
     const string CLIENTUUID = "omero.client.uuid";
 
-    /*
+    /**
      * Default Ice.GC.Interval for OmeroCpp (60 seconds)
-     */
+     **/
     const int GCINTERVAL = 60;
 
-    /*
+    /**
      * Default Glacier2 port. Used to define '@omero.port@' if not set.
-     */
+     **/
     const int GLACIER2PORT = 4063;
 
-    /*
+    /**
      * Default Ice.MessageSizeMax (65536kb). Not strictly necessary, but helps to
      * curb memory issues. Must be set before communicator initialization.
-     */
+     **/
     const int MESSAGESIZEMAX = 65536;
 
-    /*
+    /**
      * Default Ice.Override.ConnectTimeout (5000). Also not strictly necessary,
      * but prevents clients being blocked by failed servers. -1 disables.
-     */
+     **/
      const int CONNECTTIMEOUT = 5000;
 
-    /*
+    /**
      * Default connection string for connecting to Glacier2
      * (Ice.Default.Router). The '@omero.port@' and '@omero.host@' values will
      * be replaced by the properties with those names from the context.
-     */
+     **/
     const string DEFAULTROUTER = "OMERO.Glacier2/router:tcp -p @omero.port@ -h @omero.host@";
 
-    /*
+    /**
      * Server-side names used for each of the services
      * defined in API.ice. These names can be used in
      * the ServiceFactory.getByName() and createByName()
      * methods.
-     */
+     **/
     const string ADMINSERVICE     = "omero.api.IAdmin";
     const string ANALYSISSERVICE  = "omero.api.IAnalysis";
     const string CONFIGSERVICE    = "omero.api.IConfig";
@@ -106,9 +109,9 @@ module omero {
 
     module jobs {
 
-      /*
+      /**
        * Used by JobHandle as the status of jobs
-       */
+       **/
       const string SUBMITTED = "Submitted";
       const string RESUBMITTED = "Resubmitted";
       const string QUEUED = "Queued";
@@ -122,16 +125,16 @@ module omero {
     };
 
     module projection {
-      /*
+      /**
        * Methodology strings
-       */
+       **/
       const string MAXIMUMINTENSITYMETHODOLOGY = "MAXIMUM_INTENSITY_PROJECTION";
       const string MEANINTENSITYMETHODOLOGY = "MEAN_INTENSITY_PROJECTION";
       const string SUMINTENSITYMETHODOLOGY = "SUM_INTENSITY_PROJECTION";
 
-      /*
+      /**
        * Used by the IProjection methods to declare which projection to perform.
-       */
+       **/
       enum ProjectionType {
         MAXIMUMINTENSITY,
         MEANINTENSITY,

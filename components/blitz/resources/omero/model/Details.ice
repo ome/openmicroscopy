@@ -1,9 +1,9 @@
 /*
  *   $Id$
- * 
+ *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- * 
+ *
  */
 
 #ifndef CLASS_DETAILS
@@ -11,15 +11,15 @@
 
 #include <omero/model/IObject.ice>
 
-module omero { 
+module omero {
 
-  module model { 
+  module model {
 
-    /*
+    /**
      * Embedded component of every OMERO.blitz type. Since this is
      * not an IObject subclass, no attempt is made to hide the state
      * of this object, since it cannot be "unloaded".
-     */
+     **/
     ["protected"] class Details
     {
 
@@ -55,7 +55,7 @@ module omero {
 
     };
 
-  }; 
+  };
 
 };
-#endif 
+#endif
