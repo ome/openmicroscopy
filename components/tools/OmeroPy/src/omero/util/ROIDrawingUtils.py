@@ -25,6 +25,15 @@ class DrawingCanvas:
             element.acceptVisitor(self);
         return self.image;
     
+    def getFillColour(self, shapeSettings):
+        return shapeSettings[1][0];
+
+    def getStrokeColour(self, shapeSettings):
+        return shapeSettings[0][0];
+
+    def getStrokeWidth(self, shapeSettings):
+        return shapeSettings[0][1];
+    
     def drawEllipse(self, cx, cy, rx, ry, shapeSettings, affineTransform = None):
         x = cx-rx;
         y = cy-ry;
