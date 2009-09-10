@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import ome.model.core.OriginalFile;
 import ome.parameters.Filter;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
@@ -21,19 +22,26 @@ import ome.services.throttling.Adapter;
 import ome.services.util.Executor.SimpleWork;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
+import omero.InternalException;
 import omero.ServerError;
 import omero.api.AMD_IRoi_findByAnyIntersection;
 import omero.api.AMD_IRoi_findByImage;
 import omero.api.AMD_IRoi_findByIntersection;
 import omero.api.AMD_IRoi_findByPlane;
 import omero.api.AMD_IRoi_findByRoi;
+import omero.api.AMD_IRoi_getImageMeasurements;
+import omero.api.AMD_IRoi_getMeasuredRois;
+import omero.api.AMD_IRoi_getMeasuredRoisMap;
 import omero.api.AMD_IRoi_getPoints;
 import omero.api.AMD_IRoi_getRoiStats;
 import omero.api.AMD_IRoi_getShapeStats;
 import omero.api.AMD_IRoi_getShapeStatsList;
+import omero.api.AMD_IRoi_getTable;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
 import omero.api._IRoiOperations;
+import omero.constants.namespaces.NSMEASUREMENT;
+import omero.model.OriginalFileI;
 import omero.model.Roi;
 import omero.model.Shape;
 import omero.util.IceMapper;
@@ -259,8 +267,134 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
         }));
     }
 
+    // Measurement results.
+    // =========================================================================
+
+    public void getImageMeasurements_async(AMD_IRoi_getImageMeasurements __cb,
+            final long imageId, final RoiOptions opts, Current __current)
+            throws ServerError {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "getImageMeasurements", imageId) {
+
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+
+                QueryBuilder qb = new QueryBuilder();
+                qb.select("fa");
+                qb.from("Image", "i");
+                qb.join("i.wellSamples", "ws", false, false);
+                qb.join("ws.well", "well", false, false);
+                qb.join("well.plate", "plate", false, false);
+                qb.join("plate.annotationLinks", "links", false, false);
+                qb.join("links.child", "child", false, false);
+                qb.where();
+                qb.and("child.ns = '" + NSMEASUREMENT.value + "'");
+                qb.and("i.id = :id");
+                qb.param("id", imageId);
+                qb.filter("fa", filter(opts));
+                return qb.query(session).list();
+            }
+        }));
+    }
+
+    public void getMeasuredRoisMap_async(AMD_IRoi_getMeasuredRoisMap __cb,
+            final long imageId, List<Long> annotationIds, RoiOptions opts,
+            Current __current) throws ServerError {
+
+        throw new InternalException(null, null, "NYI");
+
+    }
+
+    public void getMeasuredRois_async(AMD_IRoi_getMeasuredRois __cb,
+            final long imageId, final long annotationId, final RoiOptions opts,
+            Current __current) throws ServerError {
+
+        final IceMapper mapper = new RoiResultMapper(opts);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "getMeasuredRois", imageId) {
+
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                Query q = session
+                        .createQuery("select distinct r from Roi r join r.image i "
+                                + "join fetch r.shapes join i.wellSamples ws join ws.well well "
+                                + "join well.plate plate join plate.annotationLinks links "
+                                + "join links.child annotation a where a.id = :aid and i.id = :iid "
+                                + "order by r.id");
+                q.setParameter("iid", imageId);
+                q.setParameter("aid", annotationId);
+                return q.list();
+
+            }
+        }));
+    }
+
+    public void getTable_async(AMD_IRoi_getTable __cb, final long annotationId,
+            final Current __current) throws ServerError {
+
+        final IceMapper mapper = new IceMapper(IceMapper.UNMAPPED);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "getOriginalFile", annotationId) {
+
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+
+                QueryBuilder qb = new QueryBuilder();
+                qb.select("f");
+                qb.from("FileAnnotation", "fa");
+                qb.join("fa.file", "f", false, true);
+                qb.where();
+                qb.and("fa.id = :id");
+                qb.param("id", annotationId);
+                OriginalFile file = (OriginalFile) qb.query(session)
+                        .uniqueResult();
+                file.unload();
+
+                try {
+                    return factory.sharedResources(__current).openTable(
+                            new OriginalFileI(file.getId(), false));
+                } catch (ServerError e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        }));
+    }
+
     // Helpers
     // =========================================================================
+
+    private Filter filter(RoiOptions opts) {
+        Filter f = new Filter();
+        if (opts != null) {
+            if (opts.userId != null) {
+                f.owner(opts.userId.getValue());
+            }
+            if (opts.groupId != null) {
+                f.group(opts.groupId.getValue());
+            }
+            Integer offset = null;
+            Integer limit = null;
+            if (opts.offset != null) {
+                offset = opts.offset.getValue();
+            }
+            if (opts.limit != null) {
+                limit = opts.limit.getValue();
+            }
+            if (offset != null || limit != null) {
+                f.page(offset, limit);
+            }
+        }
+        return f;
+    }
 
     private static class RoiQueryBuilder extends QueryBuilder {
 

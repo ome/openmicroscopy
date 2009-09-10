@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.conditions.ApiUsageException;
+import ome.parameters.Filter;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -44,6 +45,14 @@ public class QueryBuilder {
     private final Map<String, Collection> listParams = new HashMap<String, Collection>();
 
     private String self;
+
+    private Filter filter;
+
+    /**
+     * The path which the userId and the groupId in the {@link Filter} (if
+     * present} will be applied to.
+     */
+    private String filterTarget;
 
     /** Booleans which represent what is already complete */
     private boolean select, from, join, where, order, group;
@@ -206,7 +215,7 @@ public class QueryBuilder {
         appendSpace();
         return this;
     }
-    
+
     /**
      * Appends the string representation of the {@link QueryBuilder} argument
      * inside of parentheses.
@@ -228,8 +237,6 @@ public class QueryBuilder {
         return this;
     }
 
-    
-    
     public QueryBuilder order(String path, boolean ascending) {
         if (!select || !from || !join || !where || group) {
             throwUsage();
@@ -261,12 +268,37 @@ public class QueryBuilder {
     }
 
     public Query query(Session session) {
+        
+        if (filter != null && filterTarget != null) {
+            if (filter.owner() >= 0) {
+                this.and(filterTarget+".details.owner.id");
+                String alias = this.unique_alias("owner");
+                this.append(alias);
+                this.param(alias, filter.owner());
+
+            }
+            if (filter.group() >= 0) {
+                this.and(filterTarget+".details.group.id=");
+                String alias = this.unique_alias("group");
+                this.append(alias);
+                this.param(alias, filter.group());
+            }
+        }
+        
         Query q = session.createQuery(sb.toString());
         for (String key : params.keySet()) {
             q.setParameter(key, params.get(key));
         }
         for (String key : listParams.keySet()) {
             q.setParameterList(key, listParams.get(key));
+        }
+        if (filter != null) {
+            if (filter.limit !=null) {
+                q.setMaxResults(filter.limit);
+            }
+            if (filter.offset != null) {
+                q.setFirstResult(filter.offset);
+            }
         }
         return q;
     }
@@ -307,5 +339,10 @@ public class QueryBuilder {
     public void skipWhere() {
         join = true;
         where = true;
+    }
+
+    public void filter(String string, Filter filter) {
+        filterTarget = string;
+        this.filter = filter;
     }
 }

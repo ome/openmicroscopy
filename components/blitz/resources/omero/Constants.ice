@@ -13,7 +13,7 @@ module omero {
 
   /**
    * Most client-intended constants are provided in this module.
-   **/      
+   **/
   module constants {
 
     /**
@@ -98,6 +98,9 @@ module omero {
         const string REDIRECT = "omero.cluster.redirect";
     };
 
+    /**
+     * Namespaces for the [omero::api::IMetadata] interface.
+     **/
     module metadata {
         const string NSINSIGHTTAGSET = "openmicroscopy.org/omero/insight/tagset";
         const string NSINSIGHTRATING = "openmicroscopy.org/omero/insight/rating";
@@ -105,6 +108,13 @@ module omero {
         const string NSEDITOREXPERIMENT = "openmicroscopy.org/omero/editor/experiment";
         const string NSMOVIEMPEG = "openmicroscopy.org/omero/movie/mpeg";
         const string NSMOVIEQT = "openmicroscopy.org/omero/movie/qt";
+    };
+
+    /**
+     * General namespaces for <a href="http://trac.openmicroscopy.org.uk/omero/wiki/StructuredAnnotations">StructuredAnnotations</a>
+     **/
+    module namespaces {
+        const string NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
     };
 
     module jobs {

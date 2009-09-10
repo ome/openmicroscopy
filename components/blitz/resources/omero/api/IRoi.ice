@@ -106,6 +106,8 @@ module omero {
 
         sequence<ShapeStats> ShapeStatsList;
 
+        dictionary<long, RoiResult> LongRoiResultMap;
+
         /**
          * Container for ShapeStats, one with the combined values,
          * and one per shape.
@@ -184,6 +186,39 @@ module omero {
                  * Calculate the stats for the points within the given Shapes.
                  **/
                 ShapeStatsList getShapeStatsList(LongList shapeIdList) throws omero::ServerError;
+
+                //
+                // Measurement-based methods
+                //
+
+                /**
+                 * Returns a list of [omero::model::FileAnnotation] instances with the namespace
+                 * "openmicroscopy.org/measurements"
+                 *
+                 * @param opts, userId and groupId are respected based on the ownership of the annotation.
+                 **/
+                AnnotationList getImageMeasurements(long imageId, RoiOptions opts) throws omero::ServerError;
+
+                /**
+                 * Loads the ROIs which are linked to by the given [omero::model::FileAnnotation] id for
+                 * the given image.
+                 *
+                 * @param annotationId if -1, logic is identical to findByImage(imageId, opts)
+                 **/
+                RoiResult getMeasuredRois(long imageId, long annotationId, RoiOptions opts) throws omero::ServerError;
+
+                /**
+                 * Returns a map from [omero::model::FileAnnotation] ids to [RoiResult] instances.
+                 * Logic is identical to getMeasuredRois, but Roi data will not be duplicated. (i.e.
+                 * the objects are referentially identical)
+                 **/
+                LongRoiResultMap getMeasuredRoisMap(long imageId, LongList annotationIds, RoiOptions opts) throws omero::ServerError;
+
+                /**
+                 * Returns the OMERO.tables service via the [omero::model::FileAnnotation] id returned
+                 * by getImageMeasurements.
+                 **/
+                omero::grid::Table* getTable(long annotationId) throws omero::ServerError;
 
             };
 
