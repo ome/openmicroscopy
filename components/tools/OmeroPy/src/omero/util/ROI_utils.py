@@ -306,16 +306,17 @@ class PolygonData(ShapeData):
     def getGeometryFromROI(self, roi):
         self.points = roi.getPoints();
 
-    def listToString(pointsList):
+    def listToString(self, pointsList):
         string = '';
         cnt = 0;
         for element in pointsList:
-            if(cnt > 0 and cnt % 2 == 0 ):
+            if(cnt!=0):
                 string = string + ',';
+            cnt += 1;
             string = string + str(element);
         return string;
 
-    def stringToTupleList(pointString):
+    def stringToTupleList(self, pointString):
         elements = [];
         list = pointString.split(',');
         numTokens = len(list);
@@ -327,7 +328,7 @@ class PolygonData(ShapeData):
         return PolygonI();
 
     def acceptVisitor(self, visitor):
-        visitor.drawPolygon(self.stringToTupleList(self.points), self.shapeSettings.getSettings());
+        visitor.drawPolygon(self.stringToTupleList(self.points.getValue()), self.shapeSettings.getSettings());
 
 class PolylineData(ShapeData):
         
@@ -344,16 +345,17 @@ class PolylineData(ShapeData):
     def getGeometryFromROI(self, roi):
         self.points = roi.getPoints();
 
-    def listToString(pointsList):
+    def listToString(self, pointsList):
         string = '';
         cnt = 0;
         for element in pointsList:
-            if(cnt > 0 and cnt % 2 == 0 ):
+            if(cnt > 0):
                 string = string + ',';
             string = string + str(element);
+            cnt+=1;
         return string;
             
-    def stringToTupleList(pointString):
+    def stringToTupleList(self, pointString):
         elements = [];
         list = pointString.split(',');
         numTokens = len(list);
@@ -366,5 +368,5 @@ class PolylineData(ShapeData):
         return PolylineI();
 
     def acceptVisitor(self, visitor):
-        visitor.drawPolygon(self.stringToTupleList(self.points), self.shapeSettings.getSettings());
+        visitor.drawPolyline(self.stringToTupleList(self.points.getValue()), self.shapeSettings.getSettings());
 
