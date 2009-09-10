@@ -323,14 +323,28 @@ java component.
     </target>
 
     <target name="release-slice2html">
-      <copy todir="${dist.dir}/docs/api/slice2html">
-        <fileset dir="${blitz.comp}/generated" includes="**/*.html"/>
-      </copy>
+      <mkdir dir="${dist.dir}/docs/api/slice2html"/>
+      <apply executable="slice2html" parallel="true">
+           <arg value="--hdr"/>
+           <arg value="${blitz.comp}/resources/header.txt"/>
+           <arg value="-I"/>
+           <arg value="${blitz.comp}/generated"/>
+           <arg value="-I"/>
+           <arg value="${blitz.comp}/resources"/>
+           <arg value="-I"/>
+           <arg value="${omero.home}/target/Ice/slice"/>
+           <arg value="--output-dir"/>
+           <arg value="${dist.dir}/docs/api/slice2html"/>
+        <fileset dir="${omero.home}/components/tools" includes="**/resources/**/*.ice"/>
+        <fileset dir="${omero.home}/components/blitz/generated" includes="**/*.ice"/>
+        <fileset dir="${omero.home}/components/blitz/resources" includes="**/*.ice"/>
+        <fileset dir="${omero.home}/components/blitz/resources" includes="README.ice"/>
+       </apply>
     </target>
 
     <target name="release-epydoc">
        <mkdir dir="${dist.dir}/docs/api/epydoc"/>
-       <exec executable="epydoc" failifexecutionfails="false"> <!-- In case dot is missing -->
+       <exec executable="epydoc">
            <arg value="--html"/>
            <arg value="-n"/>
            <arg value="OmeroPy API Documentation"/>
