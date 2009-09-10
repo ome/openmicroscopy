@@ -42,7 +42,7 @@ def remoted(func):
             #log.info("%s(%s,%s)=>%s" % (func, args, kwargs, rv))
             return rv
         except exceptions.Exception, e:
-            #log.warn("%s=>%s(%s)" % (func, type(e), e), exc_info=1)
+            log.info("%s=>%s(%s)" % (func, type(e), e))
             if isinstance(e, omero.ServerError):
                 raise e
             else:
@@ -104,13 +104,13 @@ class HdfList(object):
         self.__filenos = {}
         self.__paths = {}
 
-    def addOrThrow(self, hdfpath, hdffile, action):
+    def addOrThrow(self, hdfpath, hdffile, hdfstorage, action):
         fileno = hdffile.fileno()
         if fileno in self.__filenos.keys():
             raise omero.LockTimeout(None, None, "File already opened by process: %s" % hdfpath, 0)
         else:
-            self.__filenos[fileno] = hdffile
-            self.__paths[hdfpath] = hdffile
+            self.__filenos[fileno] = hdfstorage
+            self.__paths[hdfpath] = hdfstorage
             action()
     addOrThrow = locked(addOrThrow)
 
@@ -164,7 +164,7 @@ class HdfStorage(object):
         # any previous initialization (opening the file)
         try:
             fileno = self.__hdf_file.fileno()
-            HDFLIST.addOrThrow(self.__hdf_path, self.__hdf_file, \
+            HDFLIST.addOrThrow(self.__hdf_path, self.__hdf_file, self,\
                 lambda: portalocker.lock(self.__hdf_file, portalocker.LOCK_NB|portalocker.LOCK_EX))
         except portalocker.LockException, le:
             self.cleanup()
@@ -550,6 +550,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         """
 
         # Will throw an exception if not allowed.
+        self.logger.info("getTable: %s" % file_obj and file_obj.id and file_obj.id.val)
         file_path = self.repo_mgr.getFilePath(file_obj)
         p = path(file_path).dirname()
         if not p.exists():

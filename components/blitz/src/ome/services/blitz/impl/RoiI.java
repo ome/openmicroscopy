@@ -290,9 +290,9 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 qb.join("ws.well", "well", false, false);
                 qb.join("well.plate", "plate", false, false);
                 qb.join("plate.annotationLinks", "links", false, false);
-                qb.join("links.child", "child", false, false);
+                qb.join("links.child", "fa", false, false);
                 qb.where();
-                qb.and("child.ns = '" + NSMEASUREMENT.value + "'");
+                qb.and("fa.ns = '" + NSMEASUREMENT.value + "'");
                 qb.and("i.id = :id");
                 qb.param("id", imageId);
                 qb.filter("fa", filter(opts));
@@ -325,7 +325,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                         .createQuery("select distinct r from Roi r join r.image i "
                                 + "join fetch r.shapes join i.wellSamples ws join ws.well well "
                                 + "join well.plate plate join plate.annotationLinks links "
-                                + "join links.child annotation a where a.id = :aid and i.id = :iid "
+                                + "join links.child a where a.id = :aid and i.id = :iid "
                                 + "order by r.id");
                 q.setParameter("iid", imageId);
                 q.setParameter("aid", annotationId);
@@ -350,13 +350,12 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 QueryBuilder qb = new QueryBuilder();
                 qb.select("f");
                 qb.from("FileAnnotation", "fa");
-                qb.join("fa.file", "f", false, true);
+                qb.join("fa.file", "f", false, false);
                 qb.where();
                 qb.and("fa.id = :id");
                 qb.param("id", annotationId);
                 OriginalFile file = (OriginalFile) qb.query(session)
                         .uniqueResult();
-                file.unload();
 
                 try {
                     return factory.sharedResources(__current).openTable(
