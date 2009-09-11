@@ -8,7 +8,7 @@
 """
 
 import subprocess, optparse, os, sys, signal, time
-from omero.cli import Arguments, BaseControl, VERSION, OMERODIR
+from omero.cli import Arguments, BaseControl, CLI, VERSION, OMERODIR
 import omero.java
 
 START_CLASS="ome.formats.importer.cli.CommandLineImporter"
@@ -47,4 +47,4 @@ try:
     register("import", ImportControl)
     register("testengine", TestEngine)
 except NameError:
-    ImportControl()._main()
+    ImportControl(None)._main()

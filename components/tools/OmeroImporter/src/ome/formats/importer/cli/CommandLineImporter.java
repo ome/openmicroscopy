@@ -10,6 +10,7 @@ import loci.formats.FormatException;
 import loci.formats.ImageReader;
 
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import omero.ServerError;
@@ -256,16 +257,7 @@ public class CommandLineImporter
         // If we've been asked to display used files, display them and exit.
         if (getUsedFiles)
         {
-        	ImageReader reader = new ImageReader();
-        	try
-        	{
-        		reader.setId(path);
-        		for (String usedFile : reader.getUsedFiles())
-        		{
-        			System.out.println(usedFile);
-        		}
-        		return;
-        	}
+        	try { System.exit(new ImportCandidates(path).run()); }
         	catch (Throwable t)
         	{
         		log.error("Error retrieving used files.", t);
