@@ -50,7 +50,7 @@ namespace omero {
     }
 
     /**
-     * Return the index in the vector of the given element.
+     * Cast an IObjectList vector to a vector of the template type.
      */
     template<class T> std::vector<T> cast(omero::api::IObjectList& v) {
         std::vector<T> rv;
@@ -59,6 +59,7 @@ namespace omero {
             rv.push_back(T::dynamicCast(*beg));
             beg++;
         }
+        return rv;
     }
 
 }
