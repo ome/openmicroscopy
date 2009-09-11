@@ -91,7 +91,7 @@ Usage (C++):
     omero::RBoolPtr b2 = someObjPtr->getBool();
     if (b2 && b2.val) { ... };
     // the first test, checks if the pointer is null
-</p>
+</pre>
 
 <p>
  Usage (Java):
