@@ -19,7 +19,6 @@ import exceptions
 import portalocker # Third-party
 
 from path import path
-from functools import wraps
 
 
 import omero # Do we need both??
@@ -28,6 +27,7 @@ import omero.clients
 # For ease of use
 from omero.columns import *
 from omero.rtypes import *
+from omero_ext.functional import wraps
 
 
 sys = __import__("sys") # Python sys

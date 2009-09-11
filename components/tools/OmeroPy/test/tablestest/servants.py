@@ -202,7 +202,7 @@ class TestTables(lib.TestCase):
 
     def testTableIncrDecr(self):
         storage = mock_storage()
-        table = omero.tables.TableI(storage)
+        table = omero.tables.TableI(omero.model.OriginalFileI(1,None), storage)
         self.assertTrue(storage.up)
         table.cleanup()
         self.assertTrue(storage.down)
@@ -212,7 +212,7 @@ class TestTables(lib.TestCase):
         table1 = mocktable.table
         storage = table1.storage
         storage.initialize([LongColumnI("a",None,[])])
-        table2 = omero.tables.TableI(storage)
+        table2 = omero.tables.TableI(omero.model.OriginalFileI(1, None), storage)
         table2.cleanup()
         table1.cleanup()
 
@@ -222,7 +222,7 @@ class TestTables(lib.TestCase):
         storage = table.storage
         storage.initialize([LongColumnI("a",None,[])])
         self.assertTrue(storage.uptodate(table.stamp))
-        storage._HdfStorage__stamp += 1 # Not really allowed
+        storage._stamp += 1 # Not really allowed
         self.assertFalse(storage.uptodate(table.stamp))
         table.cleanup()
 
@@ -232,7 +232,7 @@ class TestTables(lib.TestCase):
         storage = table.storage
         storage.initialize([LongColumnI("a",None,[])])
         self.assertTrue(storage.uptodate(table.stamp))
-        storage._HdfStorage__stamp += 1 # Not really allowed
+        storage._stamp += 1 # Not really allowed
         self.assertFalse(storage.uptodate(table.stamp))
         table.cleanup()
 
