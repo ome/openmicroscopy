@@ -389,6 +389,3 @@ class ProcessorI(omero.grid.Processor):
         self.logger.info("Cleaning up")
         self.resources.cleanup()
 
-if __name__ == "__main__":
-    app = omero.util.Server(ProcessorI, "ProcessorAdapter", Ice.Identity("Processor",""))
-    sys.exit(app.main(sys.argv))

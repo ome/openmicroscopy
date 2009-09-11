@@ -152,8 +152,7 @@
       <parameter name="dir"/>
       <parameter name="exe" default="python"/>
       <server id="Processor-${index}" exe="${exe}" activation="always">
-        <option>-m</option>
-        <option>omero.processor</option>
+        <option>${OMEROPY_HOME}runProcessor.py</option>
         <env>${PYTHONPATH}</env>
         <adapter name="ProcessorAdapter" register-process="true" endpoints="tcp">
           <object identity="Processor-${index}" type="::omero::grid::Processor"/>
@@ -173,8 +172,7 @@
       <parameter name="dir"/>
       <parameter name="exe" default="python"/>
       <server id="Tables-${index}" exe="${exe}" activation="always">
-        <option>-m</option>
-        <option>omero.tables</option>
+        <option>${OMEROPY_HOME}runTables.py</option>
         <env>${PYTHONPATH}</env>
         <adapter name="TablesAdapter" register-process="true" endpoints="tcp">
           <object identity="Tables-${index}" type="::omero::grid::Tables"/>

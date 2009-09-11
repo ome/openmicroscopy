@@ -563,17 +563,3 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         prx = current.adapter.addWithUUID(table)
         return self._table_cast(prx)
     getTable = remoted(getTable)
-
-if __name__ == "__main__":
-
-    # These are optional imports in columns.py, but for this
-    # service to run, they must be present.
-    __import__("numpy")
-    __import__("tables")
-
-    # Logging hack
-    TablesI.__module__ = "omero.tables"
-    TableI.__module__ = "omero.tables"
-
-    app = omero.util.Server(TablesI, "TablesAdapter", Ice.Identity("Tables", ""))
-    sys.exit(app.main(sys.argv))
