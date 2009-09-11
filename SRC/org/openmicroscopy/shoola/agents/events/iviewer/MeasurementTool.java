@@ -35,6 +35,7 @@ import java.util.Map;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 import pojos.ChannelData;
+import pojos.FileAnnotationData;
 import pojos.PixelsData;
 
 /** 
@@ -87,6 +88,9 @@ public class MeasurementTool
     /** The channel metadata. */
     private List<ChannelData> 	channelData;
     
+    /** The measurements if any. */
+    private List<FileAnnotationData> measurements;
+    
     /**
      * Creates a new instance.
      * 
@@ -121,6 +125,26 @@ public class MeasurementTool
         this.activeChannels = activeChannels;
         this.magnification = magnification;
         requesterBounds = bounds;
+    }
+    
+    /**
+     * Sets the measurements.
+     * 
+     * @param measurements The value to set.
+     */
+    public void setMeasurements(List<FileAnnotationData> measurements)
+    {
+    	this.measurements = measurements;
+    }
+    
+    /**
+     * Returns the measurements if any.
+     * 
+     * @return See above.
+     */
+    public List<FileAnnotationData> getMeasurements()
+    {
+    	return measurements;
     }
     
     /**

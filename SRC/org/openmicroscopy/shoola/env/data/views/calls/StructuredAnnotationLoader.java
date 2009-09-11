@@ -52,7 +52,10 @@ public class StructuredAnnotationLoader
 {
 
 	/** Indicates to load the annotation related to a given object. */
-	public static final int RATING = 0;
+	public static final int RATING = 10;
+	
+	/** Indicates to load the annotation related to a given object. */
+	public static final int MEASUREMENT = 11;
 	
 	/** Indicates to load structured data */
 	public static final int ALL = 1;
@@ -106,6 +109,28 @@ public class StructuredAnnotationLoader
             {
             	OmeroMetadataService os = context.getMetadataService();
                 result = os.loadRatings(type, id, userID);
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to load the measurement related to the object
+     * identified by the class and the id.
+     * 
+     * @param type 		The type of the object.
+     * @param id		The id of the object.
+     * @param userID	The id of the user who tagged the object or 
+     * 					<code>-1</code> if the user is not specified.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadMeasurements(final Class type, final long id, 
+    							final long userID)
+    {
+        return new BatchCall("Loading Measurements") {
+            public void doCall() throws Exception
+            {
+            	OmeroMetadataService os = context.getMetadataService();
+                result = os.loadMeasurements(type, id, userID);
             }
         };
     }
@@ -277,7 +302,11 @@ public class StructuredAnnotationLoader
 					loadCall = loadRatings(object.getClass(), ho.getId(), 
 							userID);
 				}
-				
+				break;
+			case MEASUREMENT:
+				DataObject ho = (DataObject) object;
+				loadCall = loadMeasurements(object.getClass(), ho.getId(), 
+						userID);
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");

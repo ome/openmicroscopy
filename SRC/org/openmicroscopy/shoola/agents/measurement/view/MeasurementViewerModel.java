@@ -76,6 +76,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import pojos.ChannelData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.PixelsData;
 
 /** 
@@ -161,6 +162,9 @@ class MeasurementViewerModel
     
     /** Boolean indicating that the tool is dealing with server ROI. */
     private boolean					serverROI;
+    
+    /** The measurements associated to the image. */
+    private List<FileAnnotationData> measurements;
     
     /** 
 	 * Sorts the passed nodes by row.
@@ -764,10 +768,22 @@ class MeasurementViewerModel
 		}
 	}
 	
-	/** Loads the ROI associated to the image. */
-	void fireLoadROIFromServer()
+	/** 
+	 * Loads the ROI associated to the image. 
+	 * 
+	 * @param measurements The measurements if any.
+	 */
+	void fireLoadROIFromServer(List<FileAnnotationData> measurements)
 	{
-		List<Long> files = new ArrayList<Long>();
+		this.measurements = measurements;
+		List<Long> files = null;
+		if (measurements != null) {
+			files = new ArrayList<Long>();
+			Iterator<FileAnnotationData> i = measurements.iterator();
+			while (i.hasNext())
+				files.add(i.next().getId());
+		}
+		
 		state = MeasurementViewer.LOADING_ROI;
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();

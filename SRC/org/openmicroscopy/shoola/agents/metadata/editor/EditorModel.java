@@ -617,7 +617,7 @@ class EditorModel
 					originalMetadata = f;
 			}
 		}
-		//if (originalMetadata != null) attachements.remove(originalMetadata);
+		if (originalMetadata != null) attachements.remove(originalMetadata);
 		return sorter.sort(attachements); 
 	}
 

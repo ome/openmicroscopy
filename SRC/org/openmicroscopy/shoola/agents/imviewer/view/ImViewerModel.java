@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImageDataLoader;
+import org.openmicroscopy.shoola.agents.imviewer.MeasurementsLoader;
 import org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsCreator;
@@ -75,6 +76,8 @@ import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.PlateData;
+import pojos.WellData;
 import pojos.WellSampleData;
 
 /** 
@@ -253,8 +256,10 @@ class ImViewerModel
     /** The collection of containers hosting the image. */
     private Collection 					containers;
     
-    /** The collection of sorted channel data, sorted by emission wavelength. */
-    //private List<ChannelData>			sortedChannels;
+    /** 
+     * The collection of measurements linked to either the image or the plate.
+     */
+    private Collection 					measurements;
     
     /**  
      * Flag indicating if the viewer should be opened as a separate window
@@ -1719,6 +1724,7 @@ class ImViewerModel
 		this.grandParent = grandParent;
 		if (metadataViewer != null)
 			metadataViewer.setParentRootObject(parent);
+		fireMeasurementsLoading();
 	}
 	
 	/**
@@ -2014,4 +2020,31 @@ class ImViewerModel
      */
     boolean isSeparateWindow() { return separateWindow; }
    
+    /** Loads the measurements associated to the plate if any specified. */
+    void fireMeasurementsLoading()
+    {
+    	if (parent instanceof WellData) {
+    		PlateData p = ((WellData) parent).getPlate();
+    		MeasurementsLoader loader = new MeasurementsLoader(component, p);
+    		loader.load();
+    	}
+    }
+
+	/**
+	 * Sets the measurements associated to either the image or the plate.
+	 * 
+	 * @param result The collection to set.
+	 */
+	void setMeasurements(Collection result)
+	{
+		measurements = result;
+	}
+    
+	/**
+	 * Returns the measurements if any.
+	 * 
+	 * @return See above.
+	 */
+	Collection getMeasurements() { return measurements; }
+	
 }

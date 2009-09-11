@@ -61,7 +61,7 @@ public class ROIToolAction
     private static final String DESCRIPTION = "Bring up the Measurement tool.";
 
     /** 
-     * Sets the enabled flag depending on the tabbed selected.
+     * Sets the enabled flag depending on the selected tab.
      * @see ViewerAction#onTabSelection()
      */
     protected void onTabSelection()

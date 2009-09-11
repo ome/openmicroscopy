@@ -69,7 +69,18 @@ public class ROIResult
 	 * Creates a new instance.
 	 * 
 	 * @param rois 	 The collection of ROIs.
-	 * @param fileID The 
+	 * @param fileID The id of the file.
+	 */
+	public ROIResult(Collection rois, long fileID)
+	{
+		this(rois, fileID, null);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param rois 	 The collection of ROIs.
+	 * @param fileID The id of the file.
 	 */
 	public ROIResult(Collection rois, long fileID, Object result)
 	{

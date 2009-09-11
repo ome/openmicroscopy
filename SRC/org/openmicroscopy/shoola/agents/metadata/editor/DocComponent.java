@@ -328,7 +328,8 @@ class DocComponent
 					openButton.setActionCommand(""+OPEN);
 					openButton.addActionListener(this);
 				} 
-				if (FileAnnotationData.COMPANION_FILE_NS.equals(ns))
+				if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) ||
+					FileAnnotationData.MEASUREMENT_NS.equals(ns))
 					deleteButton = null;
 			}
 		} else if (data instanceof TagAnnotationData) {
@@ -370,7 +371,10 @@ class DocComponent
 				FileAnnotationData f = (FileAnnotationData) data;
 				String fileName = f.getFileName();
 				label.setToolTipText(formatTootTip(f));
-				label.setText(EditorUtil.getPartialName(fileName));
+				if (FileAnnotationData.MEASUREMENT_NS.equals(fileName))
+					label.setText(f.getDescription());
+				else label.setText(EditorUtil.getPartialName(fileName));
+					
 				Iterator<CustomizedFileFilter> i = FILTERS.iterator();
 				CustomizedFileFilter filter;
 				long id = f.getId();

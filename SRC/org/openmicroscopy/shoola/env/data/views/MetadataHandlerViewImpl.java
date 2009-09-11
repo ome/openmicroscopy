@@ -311,4 +311,18 @@ class MetadataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 	
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadRatings(Object, long, 
+	 * 										AgentEventListener)
+	 */
+	public CallHandle loadMeasurement(Object dataObject, long userID, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new StructuredAnnotationLoader(
+ 				StructuredAnnotationLoader.MEASUREMENT, dataObject, 
+ 					userID);
+		return cmd.exec(observer);
+	}
+	
 }

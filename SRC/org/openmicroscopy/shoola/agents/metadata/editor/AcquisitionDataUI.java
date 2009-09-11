@@ -446,6 +446,7 @@ class AcquisitionDataUI
 			controller.loadImageAcquisitionData();
 		if (!instrumentPane.isCollapsed() && load)
 			controller.loadInstrumentData();
+		originalMetadataPane.setCollapsed(true);
 	}
 	
 	/**

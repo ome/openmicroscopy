@@ -1936,6 +1936,7 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.MOVIE_QUICK_TIME_NS);
 				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
 				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
+				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 		}
 		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
@@ -1960,6 +1961,41 @@ class OmeroMetadataServiceImpl
 			return i.next();	
 		}
 		return null;
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#loadRatings(Class, long, long)
+	 */
+	public Collection loadMeasurements(Class type, long id, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		List<Long> ids = null;
+		if (userID != -1) {
+			ids = new ArrayList<Long>(1);
+			ids.add(userID);
+		}
+		List<Long> nodeIds = new ArrayList<Long>(1);
+		nodeIds.add(id);
+		List<Class> types = new ArrayList<Class>();
+		types.add(FileAnnotationData.class);
+		Map map = gateway.loadAnnotations(type, nodeIds, types, ids, 
+				new Parameters());
+		if (map == null || map.size() == 0) return new ArrayList();
+		Collection l = (Collection) map.get(id);
+		List<FileAnnotationData> list = new ArrayList<FileAnnotationData>();
+		if (l != null) {
+			Iterator i = l.iterator();
+			FileAnnotationData fa;
+			String ns;
+			while (i.hasNext()) {
+				fa = (FileAnnotationData) i.next();
+				ns = fa.getNameSpace();
+				if (FileAnnotationData.MEASUREMENT_NS.equals(ns))
+					list.add(fa);
+			}
+		}
+		return list;
 	}
 	
 }

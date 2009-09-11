@@ -92,7 +92,7 @@ public class MeasurementAgent
     		viewer.setIconImage(evt.getThumbnail());
     		viewer.setRndImage(evt.getRenderedImage());
     		MeasurementViewerFactory.addRequest(evt);
-    		viewer.activate();
+    		viewer.activate(evt.getMeasurements());
     	}
     }
 

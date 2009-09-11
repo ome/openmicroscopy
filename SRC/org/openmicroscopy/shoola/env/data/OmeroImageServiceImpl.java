@@ -660,10 +660,7 @@ class OmeroImageServiceImpl
 	{
 		if (imageID <= 0)
 			throw new IllegalArgumentException("No image specified.");
-		List<ROIResult> results = new ArrayList<ROIResult>();
-		if (fileID == null || fileID.size() == 0) 
-			results.add(new ROIResult(gateway.loadROI(imageID, userID)));
-		return results;//;
+		return gateway.loadROI(imageID, fileID, userID);
 	}
 	
 }

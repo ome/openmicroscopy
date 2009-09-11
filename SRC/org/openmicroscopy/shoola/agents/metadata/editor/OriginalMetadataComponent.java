@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -42,9 +43,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -55,6 +61,7 @@ import javax.swing.table.DefaultTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -111,22 +118,44 @@ class OriginalMetadataComponent
 	private boolean metadataLoaded;
 	
 	/** Button to download the file. */
-	private JButton	downloadButton;
+	private JButton		downloadButton;
+	
+	/** Builds the tool bar displaying the controls. */
+	private JComponent	toolBar;
+	
+	/** The bar displaying the status. */
+	private JComponent	statusBar;
 	
 	/** Initializes the components. */
 	private void initComponents()
 	{
 		IconManager icons = IconManager.getInstance();
 		downloadButton = new JButton();
-		downloadButton = new JButton(icons.getIcon(
-				IconManager.DOWNLOAD));
+		Icon icon = icons.getIcon(IconManager.DOWNLOAD);
+		downloadButton = new JButton(icon);
 		downloadButton.setOpaque(false);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
-		downloadButton.setToolTipText("Download the selected file.");
+		downloadButton.setToolTipText("Download the metadata file.");
 		downloadButton.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent evt) { download(); }
 		});
+		toolBar = buildToolBar();
+		
+		JXBusyLabel label = new JXBusyLabel(new Dimension(icon.getIconWidth(), 
+				icon.getIconHeight()));
+		label.setBusy(true);
+		label.setText("Loading metadata");
+		//label.setHorizontalTextPosition(JXBusyLabel.RIGHT);
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(label);
+		p.add(Box.createHorizontalStrut(5));
+		p.add(new JLabel("Loading metadata"));
+		statusBar = UIUtilities.buildComponentPanel(p);
+		
+		setLayout(new BorderLayout(0, 0));
+		add(statusBar, BorderLayout.NORTH);
 	}
 	
     /** 
@@ -177,8 +206,8 @@ class OriginalMetadataComponent
 				p.add(createTable(l), constraints);
 			}
 		}
-		setLayout(new BorderLayout(0, 0));
-		add(buildToolBar(), BorderLayout.NORTH);
+		removeAll();
+		add(toolBar, BorderLayout.NORTH);
 		add(p, BorderLayout.CENTER);
 	}
 	
@@ -234,6 +263,7 @@ class OriginalMetadataComponent
 	{ 
 		metadataLoaded = false; 
 		removeAll();
+		add(statusBar, BorderLayout.NORTH);
 	}
 	
 	/**
@@ -241,7 +271,7 @@ class OriginalMetadataComponent
 	 * 
 	 * @param file The file to read.
 	 */
-	void serOriginalFile(File file)
+	void setOriginalFile(File file)
 		throws IOException
 	{
 		metadataLoaded = true;
@@ -264,7 +294,6 @@ class OriginalMetadataComponent
 				}
 			}
 			buildGUI(components);
-
 		} finally {
 			input.close();
 		}

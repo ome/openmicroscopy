@@ -62,6 +62,8 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
+import pojos.FileAnnotationData;
+
 /** 
  * Implements the {@link MeasurementViewer} interface to provide the 
  * functionality required of the Measurement viewer component.
@@ -190,9 +192,9 @@ class MeasurementViewerComponent
 
     /** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#activate()
+     * @see MeasurementViewer#activate(List)
      */
-	public void activate()
+	public void activate(List<FileAnnotationData> measurements)
 	{
 		int state = model.getState();
         switch (state) {
@@ -204,7 +206,7 @@ class MeasurementViewerComponent
         		UIUtilities.setDefaultSize(model.getDrawingView(), d);
         		model.getDrawingView().setSize(d);
         		//model.fireROILoading(null);
-        		model.fireLoadROIFromServer();
+        		model.fireLoadROIFromServer(measurements);
         		//fireStateChange();
                 break;
             case DISCARDED:

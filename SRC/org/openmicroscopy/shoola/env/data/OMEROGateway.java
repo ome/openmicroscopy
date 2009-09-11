@@ -53,6 +53,7 @@ import Ice.ConnectionLostException;
 import loci.formats.FormatException;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
+import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
@@ -241,7 +242,7 @@ class OMEROGateway
 	/** The projection service. */
 	private IProjectionPrx							projService;
 	
-	/** The search stateful service. */
+	/** The search state-full service. */
 	private SearchPrx								searchService;
 	
 	/** The Admin service. */
@@ -282,7 +283,7 @@ class OMEROGateway
 
 	/** 
 	 * Used whenever a broken link is detected to get the Login Service and
-	 * try reestabishing a valid link to <i>OMERO</i>. 
+	 * try re-establishing a valid link to <i>OMERO</i>. 
 	 */
 	private DataServicesFactory     				dsFactory;
 
@@ -4548,21 +4549,43 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Collection loadROI(long imageID, long userID)
+	List<ROIResult> loadROI(long imageID, List<Long> measurements, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
+		List<ROIResult> results = new ArrayList<ROIResult>();
 		try {
-			IRoiPrx service = getROIService();
-			//Convert to pojo data.
-			RoiResult result = service.findByImage(imageID, new RoiOptions());
-			if (result == null) return new HashSet();
-			return PojoMapper.asDataObjects(result.rois);
+			IRoiPrx svc = getROIService();
+			RoiOptions options = new RoiOptions();
+			options.userId = omero.rtypes.rlong(userID);
+			RoiResult r;
+			if (measurements == null || measurements.size() == 0) {
+				r = svc.findByImage(imageID, new RoiOptions());
+				if (r == null) return results;
+				results.add(new ROIResult(PojoMapper.asDataObjects(r.rois)));
+			} else { //measurements
+				Map<Long, RoiResult> map = svc.getMeasuredRoisMap(imageID, 
+						measurements, options);
+				if (map == null) return results;
+				Iterator<Long> i = map.keySet().iterator();
+				Long id;
+				ROIResult result;
+				while (i.hasNext()) {
+					id = i.next();
+					r = map.get(id);
+					//get the table
+					
+					result = new ROIResult(PojoMapper.asDataObjects(r.rois), id);
+					results.add(result);
+				}
+			}
+			
 		} catch (Exception e) {
 			handleException(e, "Cannot load the ROI for image: "+imageID);
 		}
-		return new HashSet();
+		return results;
 	}
+	
 	//tmp
 	//static MonitorServerPrx getMonitorServer() { return monitorPrx; }
 	

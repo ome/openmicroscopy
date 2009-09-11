@@ -40,6 +40,8 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
+import pojos.FileAnnotationData;
+
 /** 
  * Defines the interface provided by the measurement component. 
  * The Viewer provides a top-level window hosting the controls and 
@@ -89,9 +91,10 @@ public interface MeasurementViewer
      * If the state is not {@link #NEW}, then this method simply moves the
      * window to front.
      * 
+     * @param measurements The measurements to load if any.
      * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
      */
-    public void activate();
+    public void activate(List<FileAnnotationData> measurements);
     
     /**
      * Transitions the viewer to the {@link #DISCARDED} state.

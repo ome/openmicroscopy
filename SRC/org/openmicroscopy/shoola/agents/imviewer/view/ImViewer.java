@@ -1027,12 +1027,12 @@ public interface ImViewer
 	 * 					otherwise.
 	 */
 	void selectAllChannels(boolean selection);
-	
+
 	/**
-	 * Returns the number of microns per pixels.
+	 * Sets the measurements associated to either the image or the plate.
 	 * 
-	 * @return
+	 * @param result The collection to set.
 	 */
-	//int getMicronsPerPixels();
+	void setMeasurements(Collection result);
 	
 }

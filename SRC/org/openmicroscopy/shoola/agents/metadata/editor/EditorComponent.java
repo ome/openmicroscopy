@@ -605,7 +605,7 @@ class EditorComponent
 			}
 		} else if (uiView instanceof OriginalMetadataComponent) {
 			try {
-				((OriginalMetadataComponent) uiView).serOriginalFile(file);
+				((OriginalMetadataComponent) uiView).setOriginalFile(file);
 				file.delete();
 			} catch (Exception e) {
 				UserNotifier un = 

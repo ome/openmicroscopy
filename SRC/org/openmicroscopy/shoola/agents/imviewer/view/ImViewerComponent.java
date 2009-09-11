@@ -35,8 +35,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -82,6 +84,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /** 
@@ -373,6 +376,30 @@ class ImViewerComponent
 		return true;
 	}
 	
+	/**
+	 * Posts an event to bring up the measurement tool.
+	 * 
+	 * @param measurements The measurements to load.
+	 */
+	private void postMeasurementEvent(List<FileAnnotationData> measurements)
+	{
+		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+		MeasurementTool request = new MeasurementTool(model.getImageID(), 
+				model.getPixelsData(), model.getImageName(), 
+				model.getDefaultZ(), model.getDefaultT(),
+				model.getActiveChannelsColorMap(), model.getZoomFactor(), 
+				view.getBounds(), model.getChannelData());
+		request.setThumbnail(model.getImageIcon());
+		request.setRenderedImage(model.getBrowser().getRenderedImage());
+		request.setMeasurements(measurements);
+		bus.post(request);
+		int tabbedIndex = model.getTabbedIndex();
+		if (tabbedIndex != ImViewer.VIEW_INDEX) {
+			view.selectTabbedPane(ImViewer.VIEW_INDEX);
+			renderXYPlane();
+		}
+	}
+
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straight 
@@ -1840,20 +1867,49 @@ class ImViewerComponent
 	 */
 	public void showMeasurementTool()
 	{
-		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-		MeasurementTool request = new MeasurementTool(model.getImageID(), 
-				model.getPixelsData(), model.getImageName(), 
-				model.getDefaultZ(), model.getDefaultT(),
-				model.getActiveChannelsColorMap(), model.getZoomFactor(), 
-				view.getBounds(), model.getChannelData());
-		request.setThumbnail(model.getImageIcon());
-		request.setRenderedImage(model.getBrowser().getRenderedImage());
-		bus.post(request);
-		int tabbedIndex = model.getTabbedIndex();
-		if (tabbedIndex != ImViewer.VIEW_INDEX) {
-			view.selectTabbedPane(ImViewer.VIEW_INDEX);
-			renderXYPlane();
+		Collection measurements = model.getMeasurements();
+		/*
+		if (measurements == null || measurements.size() == 0) {
+			postMeasurementEvent(null);
+			return;
 		}
+			*/
+		MessageBox msg = new MessageBox(view, "Measurements", 
+		"Select the measurements to display alongside the image.");
+		Map<JCheckBox, FileAnnotationData> boxes = 
+			new LinkedHashMap<JCheckBox, FileAnnotationData>();
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		if (measurements != null) {
+			Iterator i = measurements.iterator();
+			FileAnnotationData fa;
+			JCheckBox box;
+			while (i.hasNext()) {
+				fa = (FileAnnotationData) i.next();
+				box = new JCheckBox(fa.getDescription());
+				box.setSelected(true);
+				p.add(box);
+				boxes.put(box, fa);
+			}
+		}
+		
+		msg.setNoText("Cancel");
+		msg.setYesText("Apply");
+		msg.addBodyComponent(p);
+		int option = msg.centerMsgBox();
+		List<FileAnnotationData> files = new ArrayList<FileAnnotationData>();
+		/*
+		if (option == MessageBox.YES_OPTION) {
+			Entry entry;
+			i = boxes.entrySet().iterator();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				if (((JCheckBox) entry.getKey()).isSelected())
+					files.add((FileAnnotationData) entry.getValue());
+			}
+			if (files.size() > 0) postMeasurementEvent(files);
+		}
+		*/
 	}
 
 	/** 
@@ -2649,6 +2705,16 @@ class ImViewerComponent
 		view.setChannelsSelection(ImViewerUI.ALL_VIEW);
 		renderXYPlane();
 		postActiveChannelSelection(ChannelSelection.CHANNEL_SELECTION);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setMeasurements(Collection)
+	 */
+	public void setMeasurements(Collection result)
+	{
+		if (model.getState() == DISCARDED) return;
+		model.setMeasurements(result);
 	}
 	
 }

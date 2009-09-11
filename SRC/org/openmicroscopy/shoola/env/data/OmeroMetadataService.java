@@ -395,10 +395,11 @@ public interface OmeroMetadataService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Loads the ratings associated to the passed objects.
 	 * 
-	 * @param nodeType
-	 * @param nodeIds
-	 * @param userID
+	 * @param nodeType  The type of object.
+	 * @param nodeIds	The ids of the object.
+	 * @param userID	The user id.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
@@ -623,6 +624,22 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object loadInstrument(long instrumentID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads the measurement associated to a given object.
+	 * 
+	 * @param type 		The type of the object.
+     * @param id		The id of the object.
+     * @param userID	The id of the user who added attachments to the object 
+     * 					or <code>-1</code> if the user is not specified.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection loadMeasurements(Class type, long id, long userID) 
 		throws DSOutOfServiceException, DSAccessException;
 	
 }
