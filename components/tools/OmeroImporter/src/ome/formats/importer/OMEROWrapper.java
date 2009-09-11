@@ -64,7 +64,6 @@ public class OMEROWrapper extends MinMaxCalculator
             
             // OR if we find it in the system properties use that.
             String readers = System.getProperty(READERS_KEY);
-            System.out.println(readers);
             if (readers != null) {
                 log.info("Using user configured readers: "+readers);
                 iReader = new ImageReader(new ClassList(readers, IFormatReader.class, null));

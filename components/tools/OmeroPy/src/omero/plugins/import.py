@@ -26,7 +26,19 @@ class ImportControl(BaseControl):
         log4j = "-Dlog4j.configuration=log4j-cli.properties"
         classpath = [ file.abspath() for file in client_dir.files("*.jar") ]
         xargs = [ log4j, "-Xmx1024M", "-cp", os.pathsep.join(classpath) ]
-        p = omero.java.popen(self.command + args.args, debug=False, xargs = xargs, stdout=sys.stdout)
+
+        # Here we permit passing ---file=some_output_file in order to
+        # facilitate the omero.util.import_candidates.as_dictionary
+        # call. This may not always be necessary.
+        out = None
+        for i in args.args:
+            if i.startswith("---file="):
+                out = i
+        if out:
+            args.args.remove(out)
+            out = open(out[8:], "w")
+
+        p = omero.java.popen(self.command + args.args, debug=False, xargs = xargs, stdout=out, stderr=None)
         self.ctx.rv = p.wait()
 
     def help(self, args = None):

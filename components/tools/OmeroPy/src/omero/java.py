@@ -117,7 +117,8 @@ def popen(args,\
         chdir = None,\
         debug = None,\
         debug_string = DEFAULT_DEBUG,\
-        stdout = subprocess.PIPE):
+        stdout = subprocess.PIPE,\
+        stderr = subprocess.PIPE):
     """
     Creates a subprocess.Popen object and returns it. Uses cmd() internally to create
     the Java command to be executed. This is the same logic as run(use_exec=False) but
@@ -127,4 +128,4 @@ def popen(args,\
     check_java(command)
     if not chdir:
         chdir = os.getcwd()
-    return subprocess.Popen(command, stdout=stdout, cwd=chdir, env = os.environ)
+    return subprocess.Popen(command, stdout=stdout, stderr=stderr, cwd=chdir, env = os.environ)

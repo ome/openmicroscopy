@@ -104,10 +104,18 @@ public class ImportCandidates extends DirectoryWalker {
         return new HashSet<String>();
     }
 
-    public String[] singleFile(File file) throws FormatException, IOException {
-        reader.setId(file.getAbsolutePath());
-        String[] rv = reader.getUsedFiles();
-        return rv;
+    public String[] singleFile(File file) {
+        try {
+            reader.setId(file.getAbsolutePath());
+            String[] rv = reader.getUsedFiles();
+            return rv;
+	} catch (FormatException e) {
+            log.debug("FormatException: " + file.getAbsolutePath());
+        } catch (Exception e) {
+            log.error("Exception: " + file.getAbsolutePath(), e);
+        }
+	return null;
+
     }
 
     @Override
@@ -118,21 +126,23 @@ public class ImportCandidates extends DirectoryWalker {
             return;
         }
 
-        try {
-            String[] used = singleFile(file);
-            allFiles.addAll(Arrays.asList(used));
-            for (String string : used) {
-                Set<String> users = usedBy.get(string);
-                if (users == null) {
-                    users = new HashSet<String>();
-                    usedBy.put(string, users);
-                }
-                users.add(file.getAbsolutePath());
+        if (file.getName().startsWith(".")) {
+            return; // Omitting dot files.
+        }
+
+        String[] used = singleFile(file);
+        if (used == null) {
+            return;
+        }
+
+        allFiles.addAll(Arrays.asList(used));
+        for (String string : used) {
+            Set<String> users = usedBy.get(string);
+            if (users == null) {
+                users = new HashSet<String>();
+                usedBy.put(string, users);
             }
-        } catch (FormatException e) {
-            log.info("FormatException: " + file.getAbsolutePath());
-        } catch (IOException e) {
-            log.warn("IOException: " + file.getAbsolutePath());
+            users.add(file.getAbsolutePath());
         }
     }
 
@@ -183,11 +193,11 @@ class Groups {
             sb.append("#======================================\n");
             sb.append("# Group: " + key);
             sb.append("\n");
-            sb.append("# Used by: ");
-            for (String key : theyUseMe) {
-                sb.append(" " + key + " ");
-            }
-            sb.append("\n");
+            //sb.append("# Used by: ");
+            //for (String key : theyUseMe) {
+            //    sb.append(" " + key + " ");
+            //}
+            //sb.append("\n");
             sb.append(key);
             sb.append("\n");
             for (String val : iUseThem) {

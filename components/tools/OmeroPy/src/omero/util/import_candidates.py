@@ -1,43 +1,48 @@
 #!/usr/bin/env python
 """
-   Startup plugin for command-line importer.
+   Utility method for calling the equivalent of "bin/omero import -f".
+   Results are parsed when using as_dictionary.
 
    Copyright 2009 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
+import sys
 from omero.cli import CLI
 import tempfile
 
-def as_stdout(path):
+def _to_list(path):
         if isinstance(path,str):
-            path = [str]
+            path = [path]
         else:
             path = list(path)
+	return path
 
+def as_stdout(path):
+        path = _to_list(path)
         cli = CLI()
         cli.loadplugins()
         cli.invoke(["import", "-f"]+path)
 
 def as_dictionary(path):
-        old_stdout = sys.stdout
-        try:
-            t = tempfile.TemporaryFile()
-            sys.stdout = t
-            as_stdout(path)
-        finally:
-            sys.stdout = old_stdout
 
-        t.seek(0)
-        output = t.readlines()
-        t.close()
+        t = tempfile.NamedTemporaryFile()
+        path = _to_list(path)
+	path.insert(0, "---file=%s" % t.name)
+	as_stdout(path)
+	f = open(t.name,"r")
+	output = f.readlines()
+	f.close()
+	t.close()
 
         gline = -1
         key = None
         groups = {}
         for line in output:
             line = line.strip()
+            if len(line) == 0:
+                continue
             if line.startswith("#"):
                 gline = -1
             else:
@@ -48,8 +53,6 @@ def as_dictionary(path):
                 else:
                     groups[key].append(line)
 
-        from pprint import pprint
-        pprint(groups)
         return groups
 
 
