@@ -24,7 +24,7 @@
 #
 # ROIUtils allows the mapping of omero.model.ROIDataTypesI to python types
 # and to create ROIDataTypesI from ROIUtil types. 
-# These methods also implement the 
+# These methods also implement the acceptVisitor method linking to the ROIDrawingCanvas.
 #
 #
 # @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -52,14 +52,26 @@ from omero.rtypes import rstring
 from omero.rtypes import rint 
 from omero.rtypes import rfloat 
 
+
+##
+# abstract, defines the method that call it as abstract.
+#
+#
 def abstract():
     import inspect
     caller = inspect.getouterframes(inspect.currentframe())[1][3]
     raise NotImplementedError(caller + ' must be implemented in subclass')
 
-
+##
+# ShapeSettingsData contains all the display information about the ROI that aggregates it.
+#
 class ShapeSettingsData:
 
+    ##
+    # Initialises the default values of the ShapeSettings.
+    # Stroke has default colour of darkGrey
+    # StrokeWidth defaults to 1
+    #
     def __init__(self):   
         self.strokeColour = rstring('#444444');
         self.strokeWidth = rint(1);
@@ -73,6 +85,10 @@ class ShapeSettingsData:
         self.fillOpacity = rfloat(0);
         self.fillRule = rstring('');
         
+    ##
+    # Applies the settings in the ShapeSettingsData to the ROITypeI
+    # @param shape the omero.model.ROITypeI that these settings will be applied to
+    #
     def setROIShapeSettings(self, shape):
         shape.setStrokeColor(self.strokeColour);
         shape.setStrokeWidth(self.strokeWidth);
@@ -85,24 +101,50 @@ class ShapeSettingsData:
         shape.setFillOpacity(self.fillOpacity);
         shape.setFillRule(self.fillRule);
     
+    ##
+    # Set the Stroke settings of the ShapeSettings.
+    # @param colour The colour of the stroke.
+    # @param width The stroke width.
+    # @param opacity The stroke opacity.
+    #
     def setStrokeSettings(self, colour, width = 1, opacity = 0):
         self.strokeColour = rsting(colour);
         self.strokeWidth = rint(width);
         self.strokeOpacity = rfloat(opacity);
 
+    ###
+    # Set the Fill Settings for the ShapeSettings.
+    # @param colour The fill colour of the shape.
+    # @param opacity The opacity of the fill.
     def setFillSettings(self, colour, opacity = 0):
         self.fillColour = rsting(colour);
         self.fillOpacity = rfloat(opacity);   
     
+    ##
+    # Get the stroke settings as the tuple (strokeColour, strokeWidth).
+    # @return See above.
+    #
     def getStrokeSettings(self):
         return (self.strokeColour.getValue(), self.strokeWidth.getValue());
     
+    ##
+    # Get the fill setting as a tuple of (fillColour, opacity)
+    # @return See above.
+    #
     def getFillSettings(self):
         return (self.fillColour.getValue(), self.fillOpacity.getValue());
     
+    ##
+    # Get the tuple ((stokeColor, strokeWidth), (fillColour, fillOpacity)).
+    # @return see above.
+    #
     def getSettings(self):
         return (self.getStrokeSettings(), self.getFillSettings());
     
+    ##
+    # Set the current shapeSettings from the ROI roi.
+    # @param roi see above.
+    #
     def getShapeSettingsFromROI(self, roi):
         self.strokeColour = roi.getStrokeColor();
         self.strokeWidth = roi.getStrokeWidth();
@@ -116,21 +158,39 @@ class ShapeSettingsData:
         self.fillOpacity = roi.getFillOpacity();
         self.fillRule = roi.getFillRule();
 
-    
+##
+# This class stores the ROI Coordinate (Z,T).
+#
 class ROICoordinate:
     
+    ##
+    # Initialise the ROICoordinate.
+    # @param z The z-section.
+    # @param t The timepoint.
     def __init__(self, z = 0, t = 0):
         self.theZ = rint(z);
         self.theT = rint(t);
 
+    ##
+    # Set the (z, t) for the roi using the (z, t) of the ROICoordinate.
+    # @param roi The ROI to set the (z, t) on.
+    #
     def setROICoord(self, roi):
         roi.setTheZ(self.theZ);
         roi.setTheT(self.theT);
         
+    ## 
+    # Get the (z, t) from the ROI.
+    # @param See above.
+    # 
     def setCoordFromROI(self, roi):
         self.theZ = roi.getTheZ();
         self.theT = roi.getTheT();
 
+##
+# Interface to inherit for accepting ROIDrawing as a visitor.
+# @param visitor The ROIDrawingCompoent.
+#
 class ROIDrawingI:
     def acceptVisitor(self, visitor):
         abstract();
