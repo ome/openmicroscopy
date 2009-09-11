@@ -49,6 +49,9 @@ from cStringIO import StringIO
 from math import sqrt
 from omero.rtypes import rstring, rint, rlong, rbool, rtime
 
+import omero_Constants_ice  
+import omero_ROMIO_ice
+
 # TODO: what is this for?
 SLEEPTIME = 30
 
