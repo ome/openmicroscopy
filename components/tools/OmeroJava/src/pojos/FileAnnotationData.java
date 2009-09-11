@@ -79,6 +79,13 @@ public class FileAnnotationData extends AnnotationData {
     public static final String MOVIE_QUICK_TIME_NS = 
     	"openmicroscopy.org/omero/movie/quicktime";
     
+    /** 
+     * The name space used to indicate that the <code>FileAnnotation</code> 
+     * is a <code>Measurement</code> file.
+     */
+    public static final String MEASUREMENT_NS = 
+    	"openmicroscopy.org/omero/measurement";
+    
     /** Identifies the <code>PDF</code> file formats. */
     public static final String PDF = "pdf";
 
