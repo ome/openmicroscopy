@@ -245,38 +245,24 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
             List<IEnum> listToDel = new ArrayList<IEnum>();
             List<IEnum> newList = new ArrayList<IEnum>();
 
-            for (Long i = 1L; i < newProp.size() + 1; i++) {
-
-                String val = newProp.getProperty(klass.getName() + "."
+            int nps = newProp.size();
+            int lod = listOnDB.size();
+            
+            for (Long i = 1L; i < nps + 1; i++) {
+        		String val = newProp.getProperty(klass.getName() + "."
                         + i.toString());
-                if (listOnDB.size() >= newProp.size()) {
-
-                    boolean flag = false;
-                    for (IEnum oldOb : listOnDB) {
-                        if (val.equals(oldOb.getValue())) {
-                            if (i.intValue() == oldOb.getId().intValue()) {
-                                newList.add(oldOb);
-                                listToDel.add(oldOb);
-                                flag = true;
-                            }
-                        }
-                    }
-
-                    if (!flag) {
-                        IEnum newEntry = klass.getConstructor(String.class)
-                                .newInstance(val);
-                        newList.add(i.intValue() - 1, newEntry);
-                    }
-
-                } else {
-                    IEnum newEntry = klass.getConstructor(String.class)
-                            .newInstance(val);
-                    newList.add(i.intValue() - 1, newEntry);
+        		IEnum newEntry = klass.getConstructor(String.class).newInstance(val);
+        		newList.add(i.intValue() - 1, newEntry);
+        	}
+            
+            if (lod > nps) {
+            	for (int j = nps-1; j < lod; j++) {
+               		IEnum oldOb = listOnDB.get(j - 1);    
+                  	listToDel.add(oldOb);
                 }
             }
-
-            listOnDB.removeAll(listToDel);
-            for (IEnum en : listOnDB) {
+            
+            for (IEnum en : listToDel) {
                 deleteEnumeration(en);
             }
 
