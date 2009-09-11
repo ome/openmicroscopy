@@ -21,8 +21,16 @@ import ome.formats.OMEROMetadataStoreClient;
 import omero.model.Channel;
 import omero.model.Pixels;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class OMEROWrapper extends MinMaxCalculator
 {
+    
+    private final static Log log = LogFactory.getLog(OMEROWrapper.class);
+    
+    public static String READERS_KEY = "omero.import.readers";
+    
     private ChannelSeparator separator;
     private ChannelFiller filler;
     public Boolean minMaxSet = null; 
@@ -39,6 +47,7 @@ public class OMEROWrapper extends MinMaxCalculator
     {
         try
         {
+                        
             // Set up static config file
             String readersDirectory = System.getProperty("user.dir") + File.separator + "config";
             String readersFile = readersDirectory + File.separator + "importer_readers.txt";
@@ -53,6 +62,13 @@ public class OMEROWrapper extends MinMaxCalculator
                         new ClassList("importer_readers.txt", IFormatReader.class, OMEROWrapper.class));                
             }
             
+            // OR if we find it in the system properties use that.
+            String readers = System.getProperty(READERS_KEY);
+            System.out.println(readers);
+            if (readers != null) {
+                log.info("Using user configured readers: "+readers);
+                iReader = new ImageReader(new ClassList(readers, IFormatReader.class, null));
+            }            
             
             filler = new ChannelFiller(iReader);
         }

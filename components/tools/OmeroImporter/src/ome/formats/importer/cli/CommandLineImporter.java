@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 
 import loci.formats.FormatException;
-import loci.formats.ImageReader;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -107,7 +106,6 @@ public class CommandLineImporter
         }
         library.setTarget(target);
         library.importImage(f, 0, 0, 1, name, description, false, true, null);
-        store.logout();
     }
     
     /**
@@ -134,6 +132,8 @@ public class CommandLineImporter
                 "  -k\tOMERO session key (can be used in place of -u and -w)\n" +
                 "\n" +
                 "Optional arguments:\n" +
+                "  -c\tContinue importing after errors\n" +
+                "  -l\tUse the list of readers rather than the default\n" +
                 "  -f\tDisplay the used files [does not require mandatory arguments]\n" +
                 "  -d\tOMERO dataset Id to import image into\n" +
                 "  -r\tOMERO screen Id to import plate into\n" +
@@ -162,7 +162,7 @@ public class CommandLineImporter
     public static void main(String[] args)
     {
     	LongOpt debug = new LongOpt("debug", LongOpt.NO_ARGUMENT, null, 1);
-        Getopt g = new Getopt(APP_NAME, args, "fs:u:w:d:r:k:x:n:p:h",
+        Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
         		              new LongOpt[] { debug });
         int a;
         String username = null;
@@ -175,6 +175,7 @@ public class CommandLineImporter
         String name = null;
         String description = null;
         boolean getUsedFiles = false;
+        boolean continueImport = false;
         while ((a = g.getopt()) != -1)
         {
             switch (a)
@@ -232,13 +233,24 @@ public class CommandLineImporter
                 }
                 case 'x':
                 {
-                	description = g.getOptarg();
-                	break;
+                    description = g.getOptarg();
+                    break;
                 }
                 case 'f':
                 {
                 	getUsedFiles = true;
                 	break;
+                }
+                case 'c':
+                {
+                	continueImport = true;
+                	break;
+                }
+                case 'l':
+                {
+                    String readers = g.getOptarg();
+                    System.setProperty(OMEROWrapper.READERS_KEY, readers);
+                    break;
                 }
                 default:
                 {
@@ -248,16 +260,23 @@ public class CommandLineImporter
         }
 
         // Parse out our file path
-        if (args.length - g.getOptind() != 1)
+        String[] rest = new String[args.length - g.getOptind()];
+        System.arraycopy(args, g.getOptind(), rest, 0, args.length - g.getOptind());
+        ImportCandidates candidates = new ImportCandidates(rest);
+        if (candidates.size() < 1)
         {
+            System.err.println("No imports found");
             usage();
         }
-        String path = args[g.getOptind()];
         
         // If we've been asked to display used files, display them and exit.
         if (getUsedFiles)
         {
-        	try { System.exit(new ImportCandidates(path).run()); }
+        	try
+        	{
+        		candidates.print();
+        		System.exit(0);
+        	}
         	catch (Throwable t)
         	{
         		log.error("Error retrieving used files.", t);
@@ -276,11 +295,6 @@ public class CommandLineImporter
         CommandLineImporter c = null;
         try
         {
-            // Ensure that we have an image name
-            if (name == null)
-            {
-                name = path;
-            }
             if (sessionKey != null)
             {
                 c = new CommandLineImporter(sessionKey, hostname, port);
@@ -289,8 +303,18 @@ public class CommandLineImporter
             {
                 c = new CommandLineImporter(username, password, hostname, port);
             }
-            c.library.addObserver(new LoggingImportMonitor());
-            c.importImage(path, targetClass, targetId, name, description);
+
+            for (String _path : candidates.getPaths())
+            {
+                String _name = name;
+                // Ensure that we have an image name
+                if (_name == null)
+                {
+                    _name = _path;
+                }
+                c.library.addObserver(new LoggingImportMonitor());
+                c.importImage(_path, targetClass, targetId, _name, description);
+            }
             System.exit(0);  // Exit with specified return code
         }
         catch (Throwable t)
