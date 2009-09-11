@@ -35,6 +35,7 @@
             <li><a href="{% url waenums %}"{% if info.enums %} class="menu" {% endif %}>{% trans "Enumerations" %}</a></li>
             <li><a href="{% url waexperimenters %}"{% if info.experimenters %} class="menu" {% endif %}>{% trans "Scientists" %}</a></li>
             <li><a href="{% url wagroups %}"{% if info.groups %} class="menu" {% endif %}>{% trans "Groups" %}</a></li>
+            <li><a href="{% url waldap %}"{% if info.ldap %} class="menu" {% endif %}>{% trans "Ldap" %}</a></li>
             {% endif %}
             <li><a href="{% url wamyaccount "edit" %}"{% if info.myaccount %} class="menu" {% endif %}>{% trans "My Account" %}</a></li>
             <li><a href="javascript:openHelp()">{% trans "Help" %}</a></li>

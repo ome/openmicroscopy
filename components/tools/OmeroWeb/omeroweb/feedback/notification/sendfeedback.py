@@ -25,6 +25,7 @@
 import traceback
 import logging
 import httplib, urllib
+from django.conf import settings
 
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
@@ -35,21 +36,25 @@ logger = logging.getLogger('sendfeedback')
 
 class SendFeedback(object):
 
-    feedback_url = "users.openmicroscopy.org.uk:80"
+    feedback_url = settings.FEEDBACK_URL
 
     def send_feedback(self, feedback):
         try:
             conn = httplib.HTTPConnection(self.feedback_url)
             try:
                 try:
-                    p = {'error': feedback['error'], "type":feedback['app']}
+                    p = {'error': feedback['error'], "app_name":feedback['app_name']}
                     if feedback['email'] is not None:
                         p['email'] = feedback['email']
                     if feedback['comment'] is not None:
                         p['comment'] = feedback['comment']
                     if feedback['env'] is not None:
                         try:
-                            p['java_class_path'] = feedback['env']['path']
+                            p['python_classpath'] = feedback['env']['path']
+                        except:
+                            pass
+                        try:
+                            p['python_version'] = feedback['env']['python_version']
                         except:
                             pass
                         try:
@@ -63,14 +68,10 @@ class SendFeedback(object):
                         try:
                             p['os_version'] = feedback['env']['os_version']
                         except:
-                            pass
-                        try:
-                            p['java_version'] = feedback['env']['python_version']
-                        except:
-                            pass
+                            pass                        
                     params = urllib.urlencode(p)
                     headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "text/plain"}
-                    conn.request("POST", "/~brain/omero/bugcollector.php", params, headers)
+                    conn.request("POST", "/qa/initial/", params, headers)
                     response = conn.getresponse()
 
                     if response.status == 200:
@@ -114,4 +115,4 @@ class SendFeedback(object):
             pass
         if len(env) == 0:
             env = None
-        self.send_feedback({"email": email, "comment":comment, "error": error, "app":"web_bugs", "env":env})
+        self.send_feedback({"email": email, "comment":comment, "error": error, "app_name": 6, "env":env})

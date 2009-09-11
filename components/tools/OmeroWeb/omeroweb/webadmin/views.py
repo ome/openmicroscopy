@@ -542,7 +542,25 @@ def manage_group(request, action, gid=None, **kwargs):
 
 @isAdminConnected
 def ldap(request, **kwargs):
-    return HttpResponseRedirect(reverse("waindex"))
+    scripts = True
+    template = "omeroadmin/ldap_search.html"
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+    
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'scripts':scripts}
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    controller = None
+    
+    context = {'info':info, 'eventContext':eventContext, 'controller':controller}
+    
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
 
 @isAdminConnected
 def scripts(request, **kwargs):
@@ -661,6 +679,7 @@ def manage_enum(request, action, klass, eid=None, **kwargs):
         try:
             controller.resetEnumerations()
         except:
+            logger.error(traceback.format_exc())
             return HttpResponseRedirect(reverse(viewname="waenums")+("?error=Enumeration_%s_cannot_be_reset" % (klass)))
         else:
             return HttpResponseRedirect(reverse("waenums"))

@@ -62,7 +62,7 @@ MANAGERS = ADMINS
 # That mechanism sent to the administrator every errors.
 # We are very appreciative if you can deliver them to:
 #   Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>
-ERROR2EMAIL_NOTIFICATION = True
+ERROR2EMAIL_NOTIFICATION = False
 
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
@@ -137,6 +137,8 @@ INSTALLED_APPS = (
     'omeroweb.webclient',
     'omeroweb.webgateway',
 )
+
+FEEDBACK_URL = "mage.openmicroscopy.org.uk:80"
 
 IGNORABLE_404_ENDS = ('favicon.ico')
 
