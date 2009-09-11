@@ -45,28 +45,19 @@ module monitors {
      *   =================
      */
      
+    /* ENUMERATIONS */
+    /*
+     * Enumeration for Monitor types.
+     * 
+     */
+    enum MonitorType { Persistent, OneShot, Inactivity };
+
     /*
      * Enumeration for Monitor file types.
      * 
      */
     enum FileType { File, Dir, Link, Mount, Unknown };
 
-    /*
-     * File stats.
-     *
-     * What stats are likely to be needed? Could this struct be trimmed down
-     * or does it need any further attributes?
-     */
-    struct FileStats {
-        string baseName;
-        string owner;
-        long size;
-        float mTime;
-        float cTime;
-        float aTime;
-        FileType type;
-    };
-        
     /*
      * Enumeration for Monitor path modes.
      *
@@ -89,7 +80,7 @@ module monitors {
      * 
      * Not all event types may be implemented for a given operating system.
      */
-    enum EventType { Create, Modify, Delete, All };
+    enum EventType { Create, Modify, Delete, MoveIn, MoveOut, All, System };
 
     /*
      * Enumeration for Monitor state.
@@ -100,10 +91,27 @@ module monitors {
      */
     enum MonitorState { Stopped, Started };
 
+    /* STRUCTURES */
+    /*
+     * File stats.
+     *
+     * What stats are likely to be needed? Could this struct be trimmed down
+     * or does it need any further attributes?
+     */
+    struct FileStats {
+        string baseName;
+        string owner;
+        long size;
+        float mTime;
+        float cTime;
+        float aTime;
+        FileType type;
+    };
+        
     
     /*
-     *   Interface declaration
-     *   =====================
+     *   Interface declarations
+     *   ======================
      */
     
     interface MonitorServer {
@@ -121,16 +129,26 @@ module monitors {
          * path does not exist or is inaccessible to the monitor. An exception will be raised
          * if a monitor cannot be created for any other reason.
          *
-         * @param type, event type to monitor (EventType).
+         * @param mType, type of monitor to create (MonitorType).
+         * @param eType, event type to monitor (EventType).
          * @param pathString, full path of directory of interest (string).
-         * @param wl, list of extensions of interest (Ice::StringSeq).
-         * @param mode, path mode of monitor (PathMode).
+         * @param wl, list of files or extensions of interest (Ice::StringSeq).
+         * @param pMode, path mode of monitor (PathMode).
          * @param proxy, a proxy of the client to which notifications will be sent (MonitorClient*).
+         * @param timeout, time in seconds fo monitor to time out (float).
+         * @param ignoreSysFiles, ignore system files or not (bool).
          * @return monitorId, a uuid1 (string).
          * @throws OmeroFSError
          */
-        string createMonitor(EventType eType, string pathString, Ice::StringSeq whitelist, 
-                                Ice::StringSeq blacklist, PathMode pMode, MonitorClient* proxy)
+        string createMonitor(MonitorType mType, 
+                                EventType eType, 
+                                PathMode pMode, 
+                                string pathString, 
+                                Ice::StringSeq whitelist, 
+                                Ice::StringSeq blacklist, 
+                                MonitorClient* proxy,
+                                float timeout,
+                                bool ignoreSysFiles)
             throws OmeroFSError;
         
         /*
@@ -238,6 +256,18 @@ module monitors {
          *       omero-fs://url/path/to/file.ext
          */
          
+        /*
+         * Query the existence of a file 
+         *
+         * An exception will be raised if the method fails to determine the existence.
+         *
+         * @param fileId, see above.
+         * @return existence of file.
+         * @throws OmeroFSError
+         */
+        idempotent bool fileExists(string fileId)
+            throws OmeroFSError;
+            
         /*
          * Get base name of a file, this is the name 
          * stripped of any path, e.g. file.ext 

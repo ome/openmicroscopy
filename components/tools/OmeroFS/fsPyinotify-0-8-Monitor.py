@@ -22,7 +22,7 @@ import path as pathModule
 import monitors
  
 
-class Monitor(threading.Thread):
+class PlatformMonitor(object):
     """
         A Thread to monitor a path.
         
@@ -31,7 +31,7 @@ class Monitor(threading.Thread):
 
     """
 
-    def __init__(self, eventType, pathString, pathMode, whitelist, blacklist, proxy, monitorId):
+    def setUp(self, eventType, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, monitorId, proxy):
         """
             Initialise Monitor thread.
             
@@ -107,7 +107,7 @@ class Monitor(threading.Thread):
         self.proxy.callback(monitorId, eventList)
 
                 
-    def run(self):
+    def start(self):
         """
             Start monitoring an FSEventStream.
    
@@ -137,13 +137,7 @@ class Monitor(threading.Thread):
             
         """
         self.notifier.stop()
-        
-    def getPathString(self):
-        """
-
-        """
-        return self.pathString
-        
+                
 
 class ProcessEvent(pyinotify.ProcessEvent):
 

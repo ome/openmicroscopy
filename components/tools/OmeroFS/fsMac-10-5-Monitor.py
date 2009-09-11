@@ -29,7 +29,7 @@ class UnsupportedPathMode(Exception):
 class UnsupportedEventType(Exception):
     pass
 
-class Monitor(threading.Thread):
+class PlatformMonitor(object):
     """
         A Thread to monitor a path.
         
@@ -37,7 +37,7 @@ class Monitor(threading.Thread):
         :group Other methods: run, stop
 
     """
-    def __init__(self, eventType, pathString, pathMode, whitelist, blacklist, proxy, monitorId):
+    def setUp(self, eventType, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, monitorId, proxy):
         """
             Initialise Monitor thread.
             
@@ -58,8 +58,6 @@ class Monitor(threading.Thread):
                     returned in the callback.
          
         """
-        threading.Thread.__init__(self)
- 
         if str(pathMode) not in ['Flat', 'Follow']:
             raise UnsupportedPathMode("Path Mode " + str(pathMode) + " not yet supported on this platform")
             
@@ -117,8 +115,7 @@ class Monitor(threading.Thread):
         if self.streamRef == None:
             raise Exception('Failed to create FSEvent Stream')
 
-        
-    def run(self):
+    def start(self):
         """
             Start monitoring an FSEventStream.
    
@@ -141,6 +138,24 @@ class Monitor(threading.Thread):
 
         # Blocks
         FSEvents.CFRunLoopRun()
+
+    def stop(self):        
+        """
+            Stop monitoring an FSEventStream.
+   
+            This method attempts to stop the CFRunLoop. It then
+            stops, invalidates and releases the FSEventStream.
+            
+            There should be a more robust approach in here that 
+            still kils the thread even if the first call fails.
+            
+            :return: No explicit return value.
+            
+        """
+        FSEvents.CFRunLoopStop(self.runLoopRef)
+        FSEvents.FSEventStreamStop(self.streamRef)
+        FSEvents.FSEventStreamInvalidate(self.streamRef)
+        FSEvents.FSEventStreamRelease(self.streamRef)
 
     def callback(self, streamRef, clientInfo, numEvents, 
                     eventPaths, eventMasks, eventIDs):
@@ -220,26 +235,3 @@ class Monitor(threading.Thread):
                     self.proxy.callback(monitorId, eventList)
 
         
-    def stop(self):        
-        """
-            Stop monitoring an FSEventStream.
-   
-            This method attempts to stop the CFRunLoop. It then
-            stops, invalidates and releases the FSEventStream.
-            
-            There should be a more robust approach in here that 
-            still kils the thread even if the first call fails.
-            
-            :return: No explicit return value.
-            
-        """
-        FSEvents.CFRunLoopStop(self.runLoopRef)
-        FSEvents.FSEventStreamStop(self.streamRef)
-        FSEvents.FSEventStreamInvalidate(self.streamRef)
-        FSEvents.FSEventStreamRelease(self.streamRef)
-        
-    def getPathString(self):
-        """
-        
-        """
-        return self.pathString

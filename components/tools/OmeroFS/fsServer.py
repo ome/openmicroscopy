@@ -41,7 +41,13 @@ class Server(Ice.Application):
         except:
             log.exception("System requirements not met: \n")
             return -1
- 
+        
+##        try:
+##            prop = self.communicator().getProperties().getPropertyWithDefault("omero.fs.foo","willikers")
+##            log.info("foo is %s", prop)
+##        except:
+##            log.exception("Failed get property foo: \n", )
+        
         # Create a MonitorServer, its adapter and activate it.
         try:
             mServer = fsMonitorServer.MonitorServerI()
@@ -59,3 +65,16 @@ class Server(Ice.Application):
         
         log.info('Stopping OMERO.fs Server')
         return 0
+
+if __name__ == '__main__':
+    try:
+        log.info('Trying to start OMERO.fs Server')   
+        app = Server()
+    except:
+        log.exception("Failed to start the server:\n")
+        log.info("Exiting with exit code: -1")
+        sys.exit(-1)
+    
+    exitCode = app.main(sys.argv)
+    log.info("Exiting with exit code: %d", exitCode)
+    sys.exit(exitCode)

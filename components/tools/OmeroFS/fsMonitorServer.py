@@ -1,12 +1,11 @@
 """
-    OMERO.fs Monitor module.
+    OMERO.fs MonitorServer module.
 
 
 """
 import logging
 import fsLogger
 log = logging.getLogger("fsserver."+__name__)
-
 
 import sys, traceback
 import uuid
@@ -22,12 +21,7 @@ except:
 # Imported as pathModule to avoid potential clashes.
 import path as pathModule
 
-# Now try to import the correct MonitorServer package
-import fsUtil
-try:
-    Monitor = __import__(fsUtil.monitorPackage())            
-except:
-    raise
+from fsMonitor import MonitorFactory
 
 import monitors
 
@@ -64,13 +58,16 @@ class MonitorServerI(monitors.MonitorServer):
         Methods published in the slice interface omerofs.ice
     
     """
-    def createMonitor(self, eType, pathString, whitelist, blacklist, pMode, proxy, current=None):
+    def createMonitor(self, mType, eType, pMode, pathString, whitelist, blacklist, proxy, timeout, ignoreSysFiles, current=None):
         """
             Create a the Monitor for a given path.
         
             :Parameters:
+                mType : 
+                    The type of monitor.
+                    
                 eType : 
-                    The event type to be monitored.
+                    The event type to be monitored.          
                     
                 pathString : string
                     A string representing a path to be monitored.
@@ -102,7 +99,7 @@ class MonitorServerI(monitors.MonitorServer):
         monitorId = self._getNextMonitorId()
 
         try:
-            self.monitors[monitorId] = Monitor.Monitor(eType, pathString, pMode, whitelist, blacklist, self, monitorId)
+            self.monitors[monitorId] = MonitorFactory.createMonitor(mType, eType, pMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, self, monitorId)
         except Exception, e:
             log.error('Failed to create monitor: ' + str(e))
             raise monitors.OmeroFSError('Failed to create monitor: ' + str(e))       
@@ -736,8 +733,8 @@ class MonitorServerI(monitors.MonitorServer):
         proxy = self.proxies[monitorId]
         
         try:
+            log.info('Event notification on monitor id=' + monitorId + ' => ' + str(eventList))
             proxy.fsEventHappened(monitorId, eventList)
-            log.debug('Event notification on monitor id=' + monitorId + ' => ' + str(eventList))
         except Exception, e:
             log.info('Callback to monitor id=' + monitorId + ' failed. Reason: ' + str(e))
 

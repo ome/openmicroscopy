@@ -21,7 +21,7 @@ import monitors
 import win32file
 import win32con
 
-class Monitor(threading.Thread):
+class PlatformMonitor(object):
     """
         A Thread to monitor a path.
         
@@ -30,7 +30,7 @@ class Monitor(threading.Thread):
 
     """
 
-    def __init__(self, eventType, pathString, pathMode, whitelist, blacklist, proxy, monitorId):
+    def setUp(self, eventType, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, monitorId, proxy):
         """
             Initialise Monitor thread.
                         
@@ -55,7 +55,7 @@ class Monitor(threading.Thread):
         self.event = threading.Event()
         log.debug('Monitor set-up on =' + str(self.pathsToMonitor))
                 
-    def run(self):
+    def start(self):
         """
             Start monitoring.
             

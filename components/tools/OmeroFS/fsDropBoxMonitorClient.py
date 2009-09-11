@@ -97,7 +97,7 @@ class MonitorClientI(monitors.MonitorClient):
                             self.importFile(fileInfo.fileId, exName)
 
                         # Deal with lsm files
-                        if fileExt == ".lsm":
+                        elif fileExt == ".lsm":
                             self.importFile(fileInfo.fileId, exName)
 
                         # Deal with dv files and their logs
@@ -296,6 +296,20 @@ class MonitorClientI(monitors.MonitorClient):
 
         """
         self.serverProxy = serverProxy
+
+
+    def setSelfProxy(self, selfProxy):
+        """
+            Setter for serverProxy
+
+            :Parameters:
+                selfProxy : monitors.MonitorClientPrx
+                    proxy to this client object
+
+            :return: No explicit return value.
+
+        """
+        self.selfProxy = selfProxy
 
 
     def setId(self, id):
