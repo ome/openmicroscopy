@@ -10,7 +10,10 @@
 """
 
 import test.integration.library as lib
-import omero, tempfile, unittest, os, sys
+import tempfile, unittest, os, sys
+
+import omero
+import omero.api
 import omero_api_IScript_ice
 from omero.rtypes import *
 
@@ -144,7 +147,7 @@ class TestPing(lib.ITest):
         output = p.getResults(process)
 
         self._checkstd(output, "stdout")
-        self._checkstd(output, "stderr")        
+        self._checkstd(output, "stderr")
 
 if __name__ == '__main__':
     unittest.main()
