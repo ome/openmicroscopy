@@ -342,7 +342,7 @@ class HdfStorage(object):
                 col = cols[i]
                 col.values = rows[col.name].tolist()
                 rv.append(col)
-        return self._data(cols, rowNumbers)
+        return self._data(rv, rowNumbers)
     readCoordinates = stamped(readCoordinates)
 
     #
