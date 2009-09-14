@@ -662,5 +662,19 @@ class OmeroImageServiceImpl
 			throw new IllegalArgumentException("No image specified.");
 		return gateway.loadROI(imageID, fileID, userID);
 	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#exportImageAsXML(long, File)
+	 */
+	public Object exportImageAsXML(long imageID, File file)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (imageID <= 0)
+			throw new IllegalArgumentException("No image specified.");
+		if (file == null)
+			throw new IllegalArgumentException("No File specified.");
+		return gateway.exportImageAsXML(file, imageID);
+	}
 	
 }

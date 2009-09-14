@@ -125,8 +125,11 @@ class EditorControl
 	/** Action ID to analyze the image. */
 	static final int	ANALYSE_FLIM = 9;
 	
-	/** Action ID to resfrsh the selected tab. */
+	/** Action ID to refresh the selected tab. */
 	static final int	REFRESH = 10;
+	
+	/** Action ID to export the image. */
+	static final int	EXPORT = 11;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -220,6 +223,30 @@ class EditorControl
 					if (folder == null)
 						folder = UIUtilities.getDefaultFolder();
 					model.download(folder);
+				}
+			}
+		});
+		chooser.centerDialog();
+	}
+	
+	/** Brings up the folder chooser. */
+	private void export()
+	{
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
+				"Export", "Select where to export the image.");
+		chooser.setApproveButtonText("Export");
+		IconManager icons = IconManager.getInstance();
+		chooser.setTitleIcon(icons.getIcon(IconManager.EXPORT_48));
+		chooser.addPropertyChangeListener(new PropertyChangeListener() {
+		
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+					File folder = (File) evt.getNewValue();
+					if (folder == null)
+						folder = UIUtilities.getDefaultFolder();
+					model.exportImageAsXML(folder);
 				}
 			}
 		});
@@ -390,6 +417,9 @@ class EditorControl
 				break;
 			case REFRESH:
 				model.refresh();
+				break;
+			case EXPORT:
+				export();
 		}
 	}
 	

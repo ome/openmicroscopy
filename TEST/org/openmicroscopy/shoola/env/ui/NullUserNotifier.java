@@ -132,4 +132,9 @@ public class NullUserNotifier
 	 */
 	public void setLoadingStatus(int percent, long id, String name) {}
 
+	/**
+	 * @see UserNotifier#notifyActivity(Object)
+	 */
+	public void notifyActivity(Object activity) {}
+
 }

@@ -125,20 +125,15 @@ class ToolBar
         b = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         b.addMouseListener((NewObjectAction) a);
-        bar.add(b);
+        //bar.add(b);
         a = controller.getAction(TreeViewerControl.NEW_TAG_OBJECT);
         b = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         b.addMouseListener((NewObjectAction) a);
-        bar.add(b);
+        //bar.add(b);
         b = new JButton(controller.getAction(TreeViewerControl.SWITCH_USER));
         UIUtilities.unifiedButtonLookAndFeel(b);
         if (model.isMultiUser())  bar.add(b);
-        /*
-        if (Boolean.valueOf(System.getProperty("insight.switch_user", "false"))) {
-            bar.add(b);
-        }      
-        */  
         b = new JButton(controller.getAction(
         		TreeViewerControl.EDITOR_NO_SELECTION));
         UIUtilities.unifiedButtonLookAndFeel(b);

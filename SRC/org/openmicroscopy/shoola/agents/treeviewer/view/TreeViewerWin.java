@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
@@ -59,10 +58,7 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXLabel;
-import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
@@ -71,6 +67,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
@@ -110,17 +107,17 @@ class TreeViewerWin
     
     /** The component hosting the working pane. */
     private JSplitPane 			rightPane;
-    
-    /** The tabbed pane hosting the {@link Browser}s. */
-    private JTabbedPane 		tabs;
 
+    /** The component displaying the browser. */
+    private JComponent			browsersDisplay;
+    
     /** 
      * Collections of menu items to update when a node is selected
-     * or when a tabbed pane is selected.
+     * or when a tab pane is selected.
      */
     private List<JMenuItem>		menuItems;
     
-    /** The tool bar hosting the controls displaying by the popup menu. */
+    /** The tool bar hosting the controls displaying by the pop-up menu. */
     private ToolBar             toolBar;
     
     /** The status bar. */
@@ -152,47 +149,78 @@ class TreeViewerWin
      */
     private boolean isBrowserVisible(Browser browser)
     {
-        Component[] comps = tabs.getComponents();
+        Component[] comps = browsersDisplay.getComponents();
         for (int i = 0; i < comps.length; i++) {
             if (comps[i].equals(browser.getUI())) return true;
         }
         return false;
     }
 
+    /** 
+     * Returns the type of layout of the browser.
+     * 
+     * @return See above.
+     */
+    private String getLayoutType()
+    {
+    	String type = (String) 
+		TreeViewerAgent.getRegistry().lookup("BrowserLayout");
+    	if (type == null) type = "";
+		return type;
+    }
+    
     /** Creates the {@link JTabbedPane} hosting the browsers. */
     private void createTabbedPane()
     {
-        tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
-        tabs.setAlignmentX(LEFT_ALIGNMENT);
-        Font font = (Font) TreeViewerAgent.getRegistry().lookup(
-                "/resources/fonts/Titles");
-        tabs.setFont(font);
-        tabs.setForeground(UIUtilities.STEELBLUE);
+    	Map browsers = model.getBrowsers();
+    	Browser browser;
+    	if (getLayoutType().equals("JXTaskPane")) {
+    		JXTaskPaneContainerSingle 
+    			container = new JXTaskPaneContainerSingle();
+            browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+            JXTaskPane pane = new TaskPaneBrowser(browser);
+            pane.setCollapsed(false);
+            container.add(pane);
+            
+            browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
+            container.add(new TaskPaneBrowser(browser));
+            
+            browser = (Browser) browsers.get(Browser.TAGS_EXPLORER);
+            container.add(new TaskPaneBrowser(browser));
+            
+            browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
+            container.add(new TaskPaneBrowser(browser));
+            
+            browsersDisplay = container;
+    		
+    	} else {
+    		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
+    				JTabbedPane.WRAP_TAB_LAYOUT);
+            tabs.setAlignmentX(LEFT_ALIGNMENT);
+            Font font = (Font) TreeViewerAgent.getRegistry().lookup(
+                    "/resources/fonts/Titles");
+            tabs.setFont(font);
+            tabs.setForeground(UIUtilities.STEELBLUE);
+            
+            browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+            if (browser.isDisplayed())
+                tabs.addTab(browser.getTitle(), browser.getIcon(), 
+                		browser.getUI());
 
-        Map browsers = model.getBrowsers();
-        Browser browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
-        if (browser.isDisplayed())
-            tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-        /*
-        browser = (Browser) browsers.get(Browser.FILE_SYSTEM_EXPLORER);
-        if (browser.isDisplayed())
-            tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-        */
-        browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
-        if (browser.isDisplayed())
-            tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-       
-        /*
-        browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
-        if (browser.isDisplayed())
-            tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-       */
-        browser = (Browser) browsers.get(Browser.TAGS_EXPLORER);
-        if (browser.isDisplayed())
-            tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-        browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
-        if (browser.isDisplayed())
-            tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+            browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
+            if (browser.isDisplayed())
+                tabs.addTab(browser.getTitle(), browser.getIcon(), 
+                		browser.getUI());
+            browser = (Browser) browsers.get(Browser.TAGS_EXPLORER);
+            if (browser.isDisplayed())
+                tabs.addTab(browser.getTitle(), browser.getIcon(), 
+                		browser.getUI());
+            browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
+            if (browser.isDisplayed())
+                tabs.addTab(browser.getTitle(), browser.getIcon(), 
+                		browser.getUI());
+            browsersDisplay = tabs;
+    	}
     }
 
     /**
@@ -203,10 +231,12 @@ class TreeViewerWin
     private JMenuBar createMenuBar()
     {
         TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
-        JMenu[] menus = new JMenu[3];
-        menus[0] = createFileMenu();
-        menus[1] = createEditMenu();
-        menus[2] = createViewMenu();
+        List<JMenu> menus = new ArrayList<JMenu>();
+        menus.add(createFileMenu());
+        menus.add(createEditMenu());
+        if (!getLayoutType().equals("JXTaskPane")) 
+        	menus.add(createViewMenu());
+        
         JMenuBar bar = tb.getTaskBarMenuBar();
         JMenu[] existingMenus = new JMenu[bar.getMenuCount()];
         
@@ -215,8 +245,10 @@ class TreeViewerWin
 
 		bar.removeAll();
 		
-		for (int j = 0; j < menus.length; j++) 
-			bar.add(menus[j]);
+		Iterator<JMenu> k = menus.iterator();
+		while (k.hasNext()) 
+			bar.add(k.next());
+			
 		for (int i = 0; i < existingMenus.length; i++) 
 			bar.add(existingMenus[i]);
         return bar;
@@ -273,27 +305,11 @@ class TreeViewerWin
         item.setAction(
                 controller.getAction(TreeViewerControl.HIERARCHY_EXPLORER));
         menu.add(item);
-        /*
-        item = new JCheckBoxMenuItem();
-        browser = (Browser) browsers.get(Browser.FILE_SYSTEM_EXPLORER);
-        item.setSelected(browser.isDisplayed());
-        item.setAction(controller.getAction(
-        		TreeViewerControl.FILE_SYSTEM_EXPLORER));
-        menu.add(item);
-        */
         item = new JCheckBoxMenuItem();
         browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(TreeViewerControl.FILES_EXPLORER));
         menu.add(item);
-        /*
-        item = new JCheckBoxMenuItem();
-        browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
-        item.setSelected(browser.isDisplayed());
-        item.setAction(controller.getAction(
-        		TreeViewerControl.SCREENS_EXPLORER));
-        menu.add(item);
-        */
         item = new JCheckBoxMenuItem();
         browser = (Browser) browsers.get(Browser.TAGS_EXPLORER);
         item.setSelected(browser.isDisplayed());
@@ -390,7 +406,7 @@ class TreeViewerWin
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setOneTouchExpandable(true);
         splitPane.setContinuousLayout(true);
-        splitPane.setLeftComponent(tabs);
+        splitPane.setLeftComponent(browsersDisplay);
         //splitPane.setRightComponent(workingPane);
         splitPane.setRightComponent(rightPane);
         splitPane.setResizeWeight(0.1);
@@ -404,7 +420,7 @@ class TreeViewerWin
     /**
      * Creates a new instance. The
      * {@link #initialize(TreeViewerControl, TreeViewerModel) initialize}method
-     * should be called straigh after to link this View to the Controller.
+     * should be called straight after to link this View to the Controller.
      */
     TreeViewerWin()
     {
@@ -433,7 +449,7 @@ class TreeViewerWin
         initComponents();
         setJMenuBar(createMenuBar());
         buildGUI();
-        controller.attachUIListeners(tabs);
+        controller.attachUIListeners(browsersDisplay);
         String title = model.getExperimenterNames()+"'s ";
         setTitle(title+TITLE);
     }
@@ -453,11 +469,15 @@ class TreeViewerWin
      */
     void addBrowser(Browser browser)
     {
-        if (!(isBrowserVisible(browser)))
-            tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-        tabs.removeChangeListener(controller.getTabbedListener());
-        tabs.setSelectedComponent(browser.getUI());
-        tabs.addChangeListener(controller.getTabbedListener());
+    	if (browsersDisplay instanceof JTabbedPane) {
+    		JTabbedPane tabs = (JTabbedPane) browsersDisplay;
+    		 if (!(isBrowserVisible(browser)))
+    	            tabs.addTab(browser.getTitle(), browser.getIcon(), 
+    	            		browser.getUI());
+    	        tabs.removeChangeListener(controller.getTabbedListener());
+    	        tabs.setSelectedComponent(browser.getUI());
+    	        tabs.addChangeListener(controller.getTabbedListener());
+    	}
     }
 
     /**
@@ -467,36 +487,39 @@ class TreeViewerWin
      */
     void removeBrowser(Browser browser)
     {
-        if (isBrowserVisible(browser)) {
-            tabs.remove(browser.getUI());
-            Component c = tabs.getSelectedComponent();
-            if (c == null) {
-                model.setSelectedBrowser(null);
-                return;
-            }
-            Map browsers = model.getBrowsers();
-            Iterator i = browsers.values().iterator();
-            boolean selected = false;
-            while (i.hasNext()) {
-                browser = (Browser) i.next();
-                if (c.equals(browser.getUI())) {
-                    model.setSelectedBrowser(browser);
-                    selected = true;
-                    break;
+    	if (browsersDisplay instanceof JTabbedPane) {
+    		JTabbedPane tabs = (JTabbedPane) browsersDisplay;
+    		if (isBrowserVisible(browser)) {
+                tabs.remove(browser.getUI());
+                Component c = tabs.getSelectedComponent();
+                if (c == null) {
+                    model.setSelectedBrowser(null);
+                    return;
                 }
+                Map browsers = model.getBrowsers();
+                Iterator i = browsers.values().iterator();
+                boolean selected = false;
+                while (i.hasNext()) {
+                    browser = (Browser) i.next();
+                    if (c.equals(browser.getUI())) {
+                        model.setSelectedBrowser(browser);
+                        selected = true;
+                        break;
+                    }
+                }
+                if (!selected)  model.setSelectedBrowser(null);
             }
-            if (!selected)  model.setSelectedBrowser(null);
-        }
+    	}
     }
     
     /**
-     * Brings up the popup menu on top of the specified component at the
+     * Brings up the pop-up menu on top of the specified component at the
      * specified point.
      * 
      * @param index The index of the menu. One of the following constants:
      * 				{@link TreeViewer#FULL_POP_UP_MENU} or 
      * 				{@link TreeViewer#PARTIAL_POP_UP_MENU}
-     * @param c 	The component that requested the popup menu.
+     * @param c 	The component that requested the pop-up menu.
      * @param p 	The point at which to display the menu, relative to the
      *            	<code>component</code>'s coordinates.
      *  
@@ -580,12 +603,12 @@ class TreeViewerWin
     	}
     	switch (displayMode) {
 			case TreeViewer.SEARCH_MODE:
-				splitPane.remove(tabs);
+				splitPane.remove(browsersDisplay);
 	    		splitPane.setLeftComponent(finderScrollPane);
 				break;
 			case TreeViewer.EXPLORER_MODE:
 				splitPane.remove(finderScrollPane);
-	    		splitPane.setLeftComponent(tabs);
+	    		splitPane.setLeftComponent(browsersDisplay);
 				break;
 		}
     }
@@ -620,9 +643,9 @@ class TreeViewerWin
     }
     
     /**
-     * Enables the tabbed pane depending on the specified parameter.
+     * Enables the tab pane depending on the specified parameter.
      * 
-     * @param b Pass <code>true</code> to enable the tabbed pane,
+     * @param b Pass <code>true</code> to enable the tab pane,
      *          <code>false</code> otherwise.
      */
     void onStateChanged(boolean b)
@@ -635,7 +658,8 @@ class TreeViewerWin
 
         }
         //if (browser != null) browser.onComponentStateChange(b);
-        tabs.setEnabled(b);
+        
+        browsersDisplay.setEnabled(b);
     }
     
     /** 
@@ -666,7 +690,7 @@ class TreeViewerWin
     
     /** 
      * Updates the text of the menu items when a node is selected
-     * or when a tabbed pane is selected.
+     * or when a tab pane is selected.
      */
     void updateMenuItems()
     {
@@ -810,7 +834,5 @@ class TreeViewerWin
         UIUtilities.incrementRelativeToAndShow(invokerBounds, this);
         invokerBounds = null;
     }
-
-
 
 }

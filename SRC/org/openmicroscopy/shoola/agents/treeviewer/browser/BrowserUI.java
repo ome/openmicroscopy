@@ -42,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -64,7 +65,7 @@ import javax.swing.tree.TreeSelectionModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -108,7 +109,10 @@ class BrowserUI
     private JTree           		treeDisplay;
     
     /** The tool bar hosting the controls. */
-    private JToolBar				menuBar;
+    private JToolBar				rightMenuBar;
+    
+    /** The tool bar hosting the controls. */
+    private JToolBar				leftMenuBar;
     
     /** The Controller. */
     private BrowserControl  		controller;
@@ -156,16 +160,36 @@ class BrowserUI
 		}
     }
     
+    /**
+     * Builds the tool bar.
+     * 
+     * @return See above.
+     */
+    private JPanel buildToolBar()
+    {
+    	JPanel bar = new JPanel();
+    	bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
+    	bar.setBorder(null);
+    	JPanel p = new JPanel();
+    	p.setLayout(new FlowLayout(FlowLayout.LEFT));
+    	p.setBorder(null);
+    	p.add(leftMenuBar);
+    	p.setPreferredSize(leftMenuBar.getPreferredSize());
+    	bar.add(p);
+    	p = new JPanel();
+    	p.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+    	p.setBorder(null);
+    	p.add(rightMenuBar);
+    	p.setPreferredSize(rightMenuBar.getPreferredSize());
+    	bar.add(p);
+    	return bar;
+    }
+    
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
         setLayout(new BorderLayout(0, 0));
-        JPanel p = new JPanel();
-        p.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        p.setBorder(null);
-        p.add(menuBar);
-        p.setPreferredSize(menuBar.getPreferredSize());
-        add(p, BorderLayout.NORTH);
+        add(buildToolBar(), BorderLayout.NORTH);
         scrollPane = new JScrollPane(treeDisplay);
         add(scrollPane, BorderLayout.CENTER);
         treeDisplay.addMouseListener(new MouseAdapter() {
@@ -193,18 +217,18 @@ class BrowserUI
     }
     
     /** Helper method to create the menu bar. */
-    private void createMenuBar()
+    private void createMenuBars()
     {
-        menuBar = new JToolBar();
-        menuBar.setBorder(null);
-        menuBar.setRollover(true);
-        menuBar.setFloatable(false);
+        rightMenuBar = new JToolBar();
+        rightMenuBar.setBorder(null);
+        rightMenuBar.setRollover(true);
+        rightMenuBar.setFloatable(false);
        
         JButton button;
         if (model.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
         	button = new JButton(controller.getAction(BrowserControl.INFO));
             button.setBorderPainted(false);
-            menuBar.add(button);
+            rightMenuBar.add(button);
         }
         ButtonGroup group = new ButtonGroup();
         JToggleButton b = new JToggleButton();
@@ -213,21 +237,50 @@ class BrowserUI
         b.setSelected(true);
         b.setAction(controller.getAction(BrowserControl.SORT));
         
-        menuBar.add(b);
+        rightMenuBar.add(b);
         b = new JToggleButton(controller.getAction(BrowserControl.SORT_DATE));
-        
         b.setBorderPainted(true);
         group.add(b);
-        menuBar.add(b);
+        rightMenuBar.add(b);
        
         partialButton = new JToggleButton(
         				controller.getAction(BrowserControl.PARTIAL_NAME));
         partialButton.setBorderPainted(true);
-        menuBar.add(partialButton);
-        menuBar.add(new JSeparator(JSeparator.VERTICAL));
+        rightMenuBar.add(partialButton);
+        rightMenuBar.add(new JSeparator(JSeparator.VERTICAL));
         button = new JButton(controller.getAction(BrowserControl.COLLAPSE));
         button.setBorderPainted(false);
-        menuBar.add(button);
+        rightMenuBar.add(button);
+        
+        
+        leftMenuBar = new JToolBar();
+        leftMenuBar.setBorder(null);
+        leftMenuBar.setRollover(true);
+        leftMenuBar.setFloatable(false);
+        BrowserManageAction a;
+        switch (model.getBrowserType()) {
+			case Browser.PROJECT_EXPLORER:
+				a = (BrowserManageAction) 
+					controller.getAction(BrowserControl.NEW_CONTAINER);
+				button = new JButton(a);
+				button.setBorderPainted(false);
+				b.addMouseListener(a);
+				leftMenuBar.add(button);
+				break;
+			case Browser.TAGS_EXPLORER:
+				a = (BrowserManageAction) 
+					controller.getAction(BrowserControl.NEW_TAG);
+				button = new JButton(a);
+				button.setBorderPainted(false);
+				b.addMouseListener(a);
+				leftMenuBar.add(button);
+		}
+        button = new JButton(controller.getAction(BrowserControl.DELETE));
+		button.setBorderPainted(false);
+		leftMenuBar.add(button);
+		button = new JButton(controller.getAction(BrowserControl.IMPORT));
+		button.setBorderPainted(false);
+		leftMenuBar.add(button);
     }
 
     /** 
@@ -561,9 +614,7 @@ class BrowserUI
 							//case Browser.COUNTING_ITEMS:  
 								break;
 							default:
-								DeleteCmd c = new DeleteCmd(
-												model.getParentModel());
-								c.execute();
+								model.delete();
 						}
 				}
 			}
@@ -886,7 +937,7 @@ class BrowserUI
     		throw new IllegalArgumentException("Model cannot be null");
         this.controller = controller;
         this.model = model;
-        createMenuBar();
+        createMenuBars();
         createTrees(exp);
         buildGUI();
     }

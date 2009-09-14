@@ -191,4 +191,11 @@ public interface UserNotifier
      */
     public void setLoadingStatus(int percent, long id, String path);
     
+    /**
+     * Notifies the user of an activity such as movie creation.
+     * 
+     * @param activity The activity to register.
+     */
+    public void notifyActivity(Object activity);
+    
 }

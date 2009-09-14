@@ -41,7 +41,10 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserDeleteAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserImportAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserInfoAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CollapseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ShowNameAction;
@@ -89,6 +92,18 @@ class BrowserControl
     /** Identifies the <code>Info</code> action. */
 	static final Integer    INFO = Integer.valueOf(5);
    
+    /** Identifies the <code>Delete</code> action. */
+	static final Integer    DELETE = Integer.valueOf(6);
+   
+	/** Identifies the <code>New container</code> action. */
+	static final Integer    NEW_CONTAINER = Integer.valueOf(7);
+   
+	/** Identifies the <code>New tag</code> action. */
+	static final Integer    NEW_TAG = Integer.valueOf(8);
+	
+	/** Identifies the <code>Import</code> action. */
+	static final Integer    IMPORT = Integer.valueOf(9);
+	
     /** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -110,6 +125,12 @@ class BrowserControl
         actionsMap.put(SORT_DATE, new SortByDateAction(model));
         actionsMap.put(PARTIAL_NAME, new ShowNameAction(model));
         actionsMap.put(INFO, new BrowserInfoAction(model));
+        actionsMap.put(DELETE, new BrowserDeleteAction(model));
+        actionsMap.put(NEW_CONTAINER, new BrowserManageAction(model, 
+        		BrowserManageAction.NEW_CONTAINERS));
+        actionsMap.put(NEW_TAG, new BrowserManageAction(model, 
+        		BrowserManageAction.NEW_TAGS));
+        actionsMap.put(IMPORT, new BrowserImportAction(model));
     }
     
     /**

@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -683,6 +684,23 @@ class EditorComponent
 			case EditorUI.ACQUISITION_INDEX:
 				
 		};
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#exportImageAsXML(File)
+	 */
+	public void exportImageAsXML(File folder)
+	{
+		Object refObject = model.getRefObject();
+		if (!(refObject instanceof ImageData)) return;
+		if (folder == null) folder = UIUtilities.getDefaultFolder();
+		ExportActivityParam param = new ExportActivityParam(folder, 
+				(ImageData) refObject, ExportActivityParam.EXPORT_AS_XML);
+		IconManager icons = IconManager.getInstance();
+		param.setIcon(icons.getIcon(IconManager.EXPORT_22));
+		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(param);
 	}
 
 }

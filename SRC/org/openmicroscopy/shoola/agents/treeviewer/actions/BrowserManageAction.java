@@ -1,26 +1,27 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction 
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *  
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
+
 
 
 //Java imports
@@ -30,7 +31,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.Action;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -39,22 +39,22 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-/** 
- * Brings up the <code>New Object</code> menu.
+/**
+ * Brings up the <code>Manager</code> menu.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ *         <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since 3.0-Beta3
+ * @since 3.0-Beta4
  */
-public class NewObjectAction    
-	extends TreeViewerAction
-    implements MouseListener
+public class BrowserManageAction 
+	extends BrowserAction
+	 implements MouseListener
 {
 
 	/** Indicates to show the menu for tags. */
@@ -64,11 +64,8 @@ public class NewObjectAction
 	public static final int		NEW_CONTAINERS = 1;
 	
     /** The description of the action. */
-    public static final String NAME = "New";
-    
-    /** The description of the action. */
-    private static final String DESCRIPTION = "Create new Project, Dataset, " +
-    		"etc.";
+    private static final String DESCRIPTION_CONTAINERS = 
+    	"Create new Project, Dataset or Screen.";
 
     /** The description of the action. */
     private static final String DESCRIPTION_TAGS = "Create new Tag Set or Tag";
@@ -86,9 +83,17 @@ public class NewObjectAction
      */
     private void checkIndex(int index)
     {
+    	IconManager im = IconManager.getInstance();
     	switch (index) {
 			case NEW_CONTAINERS:
+				putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
+				putValue(Action.SHORT_DESCRIPTION, 
+	                UIUtilities.formatToolTipText(DESCRIPTION_CONTAINERS));
+				break;
 			case NEW_TAGS:
+				putValue(Action.SMALL_ICON, im.getIcon(IconManager.TAG));
+				putValue(Action.SHORT_DESCRIPTION, 
+		                UIUtilities.formatToolTipText(DESCRIPTION_TAGS));
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
@@ -97,48 +102,35 @@ public class NewObjectAction
     
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
-     * @see TreeViewerAction#onBrowserStateChange(Browser)
+     * @see BrowserAction#onStateChange()
      */
-    protected void onBrowserStateChange(Browser browser)
+    protected void onStateChange()
     {
-        if (browser == null) return;
-        switch (browser.getState()) {
-            case Browser.LOADING_DATA:
-            case Browser.LOADING_LEAVES:
-            case Browser.COUNTING_ITEMS:  
-                setEnabled(false);
-                break;
-            default:
-            	setEnabled(true);
-        }
+    	 switch (model.getState()) {
+	    	 case Browser.LOADING_DATA:
+	         case Browser.LOADING_LEAVES:
+	         case Browser.COUNTING_ITEMS:  
+	             setEnabled(false);
+	             break;
+	         default:
+	         	setEnabled(true);
+         }
     }
     
-    /**
+	/**
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      * @param index One of the constants defined by this class.
      */
-    public NewObjectAction(TreeViewer model, int index)
-    {
-        super(model);
-        checkIndex(index);
-        this.index = index;
-        IconManager im = IconManager.getInstance();
-        switch (index) {
-			case NEW_TAGS:
-				putValue(Action.SMALL_ICON, im.getIcon(IconManager.TAG));
-				putValue(Action.SHORT_DESCRIPTION, 
-		                UIUtilities.formatToolTipText(DESCRIPTION_TAGS));
-				break;
-			case NEW_CONTAINERS:
-				putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
-			putValue(Action.SHORT_DESCRIPTION, 
-	                UIUtilities.formatToolTipText(DESCRIPTION));
-		}
-    }
-    
-    /** 
+	public BrowserManageAction(Browser model, int index)
+	{
+		super(model);
+		checkIndex(index);
+		this.index = index;
+	}
+	
+	/** 
      * Sets the location of the point where the <code>mousePressed</code>
      * event occurred. 
      * @see MouseListener#mousePressed(MouseEvent)
@@ -155,15 +147,15 @@ public class NewObjectAction
         if (point == null) point = me.getPoint();
         if (source instanceof Component && isEnabled()) {
         	switch (index) {
-				case NEW_TAGS:
-					model.showMenu(TreeViewer.CREATE_MENU_TAGS, 
-		            		(Component) source, point);
-					break;
-				case NEW_CONTAINERS:
-					model.showMenu(TreeViewer.CREATE_MENU_CONTAINERS, 
-		            		(Component) source, point);
+			case NEW_TAGS:
+				model.showMenu(TreeViewer.CREATE_MENU_TAGS, 
+	            		(Component) source, point);
+				break;
+			case NEW_CONTAINERS:
+				model.showMenu(TreeViewer.CREATE_MENU_CONTAINERS, 
+	            		(Component) source, point);
         	}
-        }  
+        }
     }
     
     /** 

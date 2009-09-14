@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.BasicAnalyseDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
+import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -124,9 +125,22 @@ class MetadataViewerComponent
 	private void createMovie(MovieExportParam parameters)
 	{
 		if (parameters == null) return;
+		/*
 		firePropertyChange(CREATING_MOVIE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
-		model.createMovie(parameters);
+				*/
+		
+		if (parameters == null) return;
+		Object refObject = model.getRefObject();
+		if (!(refObject instanceof ImageData)) return;
+		ImageData img = (ImageData) refObject;
+		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
+		MovieActivityParam activity = new MovieActivityParam(parameters, null,
+				img);
+		IconManager icons = IconManager.getInstance();
+		activity.setIcon(icons.getIcon(IconManager.MOVIE_22));
+		un.notifyActivity(activity);
+		//model.createMovie(parameters);
 	}
 	
 	/**

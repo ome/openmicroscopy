@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -74,16 +75,22 @@ class DownloadsDialog
 	static final String 		CANCEL_LOADING_PROPERTY = "cancelLoading";
 	
 	/** Indicates that the dialog is a download dialog. */
-	private static final int	DOWNLOAD = 0;
+	static final int	DOWNLOAD = 0;
 	
 	/** Indicates that the dialog is a upload dialog. */
-	private static final int	UPLOAD = 1;
+	static final int	UPLOAD = 1;
+	
+	/** Indicates that the dialog is an activity dialog. */
+	static final int	ACTIVITY = 2;
 	
 	/** The title of the dialog if it is a download dialog. */
 	private static final String TITLE_DOWNLOAD = "Downloads";
 	
 	/** The title of the dialog if it is a upload dialog. */
 	private static final String TITLE_UPLOAD = "Uploads";
+	
+	/** The title of the dialog if it is an activity dialog. */
+	private static final String TITLE_ACTIVITY = "Activities";
 	
 	/** The columns for the layout of the {@link #entries}. */
 	private static final double[] COLUMNS = {TableLayout.FILL};
@@ -98,7 +105,7 @@ class DownloadsDialog
 	private JButton							cleanupButton;
 	
 	/** Collection of the entries. */
-	private List<FileLoadingComponent>		components;
+	private List<JComponent>		components;
 	
 	/** The index of the dialog. */
 	private int								dialogIndex;
@@ -106,7 +113,7 @@ class DownloadsDialog
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		components = new ArrayList<FileLoadingComponent>();
+		components = new ArrayList<JComponent>();
 		entries = new JPanel();
 		entries.setBackground(UIUtilities.BACKGROUND);
 		cleanupButton = new JButton("Clean Up");
@@ -121,9 +128,22 @@ class DownloadsDialog
 	/** Removes all entries. */
 	private void cleanup()
 	{
-		components.clear();
-		entries.removeAll();
-		repaint();
+		List<JComponent> toRemove = new ArrayList<JComponent>();
+		
+		Iterator<JComponent> i = components.iterator();
+		JComponent comp;
+		while (i.hasNext()) {
+			comp = i.next();
+			if (comp instanceof FileLoadingComponent) {
+				if (!((FileLoadingComponent) comp).isOngoingActivity())
+					toRemove.add(comp);
+			} else if (comp instanceof ActivityComponent) {
+				if (!((ActivityComponent) comp).isOngoingActivity())
+					toRemove.add(comp);
+			}
+		}
+		components.removeAll(toRemove);
+		layoutEntries();
 	}
 	
 	/**
@@ -160,10 +180,10 @@ class DownloadsDialog
 		entries.setLayout(layout);
 		int index = 0;
 		Iterator i = components.iterator();
-		FileLoadingComponent c;
+		JComponent c;
 		while (i.hasNext()) {
 			layout.insertRow(index, TableLayout.PREFERRED);
-			c = (FileLoadingComponent) i.next();
+			c = (JComponent) i.next();
 			entries.add(c, "0, "+index+", f, c");
 			if (index%2 == 0)
 				c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
@@ -191,6 +211,10 @@ class DownloadsDialog
 			case UPLOAD:
 				dialogIndex = value;
 				setTitle(TITLE_UPLOAD);
+				break;
+			case ACTIVITY:
+				dialogIndex = ACTIVITY;
+				setTitle(TITLE_ACTIVITY);
 		}
 	}
 	
@@ -235,10 +259,14 @@ class DownloadsDialog
 	{
 		Iterator i = components.iterator();
 		FileLoadingComponent c;
+		Object obj;
 		while (i.hasNext()) {
-			c = (FileLoadingComponent) i.next();
-			if (c.getFileID() == fileID && c.getAbsolutePath().equals(name))
-				c.setStatus(percent);
+			obj = i.next();
+			if (obj instanceof FileLoadingComponent) {
+				c = (FileLoadingComponent) obj;
+				if (c.getFileID() == fileID && c.getAbsolutePath().equals(name))
+					c.setStatus(percent);
+			}
 		}
 	}
 	
@@ -259,6 +287,19 @@ class DownloadsDialog
 	}
 
 	/**
+	 * Adds the passed component to the list.
+	 * 
+	 * @param component The component to add.
+	 */
+	void addDownloadEntry(JComponent component)
+	{
+		if (component == null) return;
+		component.addPropertyChangeListener(this);
+		components.add(component);
+		layoutEntries();
+	}
+	
+	/**
 	 * Listen to property fired by {@link FileLoadingComponent}s.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
@@ -274,17 +315,24 @@ class DownloadsDialog
 			FileLoadingComponent c;
 			Iterator i = components.iterator();
 			FileLoadingComponent toRemove = null;
+			Object obj;
 			while (i.hasNext()) {
-				c = (FileLoadingComponent) i.next();
-				if (c.getAbsolutePath().equals(path)) {
-					toRemove = c;
-					break;
+				obj = i.next();
+				if (obj instanceof FileLoadingComponent) {
+					c = (FileLoadingComponent) obj;
+					if (c.getAbsolutePath().equals(path)) {
+						toRemove = c;
+						break;
+					}
 				}
 			}
 			if (toRemove != null) {
 				components.remove(toRemove);
 				layoutEntries();
 			}
+		} else if (ActivityComponent.REMOVE_ACTIVITY_PROPERTY.equals(name)) {
+			components.remove(evt.getNewValue());
+			layoutEntries();
 		}
 	}
 

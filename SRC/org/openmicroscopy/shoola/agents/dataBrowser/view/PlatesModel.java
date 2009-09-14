@@ -22,30 +22,29 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
+
+
+//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
-
-import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateData;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /**
- *
+ * A concrete Model for a collection of plates.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *     <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -90,8 +89,13 @@ class PlatesModel
 		}
 	}
 	
-	@Override
-	protected DataBrowserLoader createDataLoader(boolean refresh, Collection ids) {
+	/**
+	 * Creates a concrete loader.
+	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
+	 */
+	protected DataBrowserLoader createDataLoader(boolean refresh, 
+			Collection ids)
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}

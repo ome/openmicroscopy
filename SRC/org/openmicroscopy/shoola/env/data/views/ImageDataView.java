@@ -33,7 +33,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
@@ -327,6 +326,17 @@ public interface ImageDataView
 	 * @return See above.
 	 */
 	public CallHandle loadROI(long imageID, List<Long> fileID, long userID, 
+			AgentEventListener observer);
+
+	/**
+	 * Exports the image as an XML file.
+	 * 
+	 * @param imageID	The image's id.
+	 * @param file		The file where to export the image.
+	 * @param observer 	Callback handler.
+	 * @return See above.
+	 */
+	public CallHandle exportImageAsXml(long imageID, File file,
 			AgentEventListener observer);
 	
 }

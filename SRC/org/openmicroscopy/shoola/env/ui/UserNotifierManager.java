@@ -30,7 +30,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -40,22 +39,18 @@ import javax.swing.JOptionPane;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
-
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.svc.SvcRegistry;
 import org.openmicroscopy.shoola.svc.communicator.Communicator;
 import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
 import org.openmicroscopy.shoola.svc.transport.HttpChannel;
-import org.openmicroscopy.shoola.util.ui.FileTableNode;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ExperimenterData;
 
 /** 
@@ -125,6 +120,9 @@ class UserNotifierManager
 	
 	/** The Dialog used to send comments. */
 	private MessengerDialog					commentDialog;
+	
+	/** The dialog keeping track of the activity files. */
+	private DownloadsDialog					activityDialog;
 	
 	/**
 	 * Submits files that failed to import.
@@ -343,7 +341,7 @@ class UserNotifierManager
 		log.debug(this, "original: "+file);
 		if (file == null) return;
 		if (download == null) {
-			Registry reg = container.getRegistry();
+			Registry reg = getRegistry();
 			JFrame f = reg.getTaskBar().getFrame();
 			download = new DownloadsDialog(f, IconManager.getInstance(reg));
 			download.addPropertyChangeListener(this);
@@ -387,7 +385,7 @@ class UserNotifierManager
 	{
 		if (data == null) return;
 		if (download == null) {
-			Registry reg = container.getRegistry();
+			Registry reg = getRegistry();
 			JFrame f = reg.getTaskBar().getFrame();
 			download = new DownloadsDialog(f, IconManager.getInstance(reg));
 			download.addPropertyChangeListener(this);
@@ -426,6 +424,25 @@ class UserNotifierManager
 	}
 	
 	/**
+	 * Registers the passed activity.
+	 * 
+	 * @param activity The activity to register.
+	 */
+	void registerActivity(ActivityComponent activity)
+	{
+		if (activity == null) return;
+		if (activityDialog == null) {
+			Registry reg = getRegistry();
+			JFrame f = reg.getTaskBar().getFrame();
+			activityDialog = new DownloadsDialog(f, 
+					IconManager.getInstance(reg), DownloadsDialog.ACTIVITY);
+		}
+		activityDialog.addDownloadEntry(activity);
+		if (!activityDialog.isVisible())
+			UIUtilities.centerAndShow(activityDialog);
+	}
+	
+	/**
 	 * Returns the version number.
 	 * 
 	 * @return See above.
@@ -436,6 +453,13 @@ class UserNotifierManager
 		Object version = container.getRegistry().lookup(LookupNames.VERSION);
 		return (String) version;
 	}
+	
+	/**
+	 * Returns the reference to the registry.
+	 * 
+	 * @return See above.
+	 */
+	Registry getRegistry() { return container.getRegistry(); }
 	
 	/**
 	 * Creates or recycles the messenger dialog.

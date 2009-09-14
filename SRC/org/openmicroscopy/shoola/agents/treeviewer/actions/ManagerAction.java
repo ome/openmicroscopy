@@ -69,7 +69,7 @@ public class ManagerAction
     private Point point;
     
     /** 
-     * Sets the action enabled dependong on the state of the {@link Browser}.
+     * Sets the action enabled depending on the state of the {@link Browser}.
      * @see TreeViewerAction#onBrowserStateChange(Browser)
      */
     protected void onBrowserStateChange(Browser browser)
@@ -125,7 +125,7 @@ public class ManagerAction
     
     /** 
      * Sets the location of the point where the <code>mousePressed</code>
-     * event occured. 
+     * event occurred. 
      * @see MouseListener#mousePressed(MouseEvent)
      */
     public void mousePressed(MouseEvent me) { point = me.getPoint(); }
@@ -144,21 +144,21 @@ public class ManagerAction
     
     /** 
      * Required by {@link MouseListener} I/F but not actually needed in our
-     * case, no-op implementation.
+     * case, no-operation implementation.
      * @see MouseListener#mouseEntered(MouseEvent)
      */   
     public void mouseEntered(MouseEvent e) {}
 
     /** 
      * Required by {@link MouseListener} I/F but not actually needed in our
-     * case, no-op implementation.
+     * case, no-operation implementation.
      * @see MouseListener#mouseExited(MouseEvent)
      */   
     public void mouseExited(MouseEvent e) {}
     
     /** 
      * Required by {@link MouseListener} I/F but not actually needed in our
-     * case, no-op implementation.
+     * case, no-operation implementation.
      * @see MouseListener#mouseClicked(MouseEvent)
      */   
     public void mouseClicked(MouseEvent e) {}

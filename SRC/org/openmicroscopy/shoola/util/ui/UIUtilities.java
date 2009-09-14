@@ -128,7 +128,6 @@ public class UIUtilities
 	/** The default color of the description. */
     public static final Color				DEFAULT_FONT_COLOR = Color.GRAY;
 
-    
 	/**
 	 * This property should be exposed but is NOT.
 	 */

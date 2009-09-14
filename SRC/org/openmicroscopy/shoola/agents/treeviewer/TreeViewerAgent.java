@@ -68,6 +68,9 @@ public class TreeViewerAgent
     /** Determine if the multiple users flag is on or off. */
     public static final String MULTI_USER = "MultiUser";
     
+    /** Determine how to lay out the browsers. */
+    public static final String LAYOUT_TYPE = "BrowserLayout";
+    
 	/** Reference to the registry. */
     private static Registry         registry;
     

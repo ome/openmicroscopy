@@ -353,5 +353,12 @@ public interface Editor
 
 	/** Refreshes the currently selected tab. */
 	public void refresh();
+
+	/**
+	 * Exports the image.
+	 * 
+	 * @param folder The folder where to export the image.
+	 */
+	public void exportImageAsXML(File folder);
 	
 }

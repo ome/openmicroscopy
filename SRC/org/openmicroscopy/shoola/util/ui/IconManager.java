@@ -452,7 +452,7 @@ public class IconManager
     /** A 22x22 version of the <code>image</code> icon. */
     public static final int IMAGE_22 = 128;
     
-    /** A 22x22 version of the <code>image</code> icon. */
+    /** A 48x48 version of the <code>image</code> icon. */
     public static final int MOVIE_48 = 129;
     
     /** The <code>Color Picker</code> icon. */

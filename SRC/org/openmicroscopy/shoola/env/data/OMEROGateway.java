@@ -72,6 +72,7 @@ import omero.SecurityViolation;
 import omero.ServerError;
 import omero.SessionException;
 import omero.client;
+import omero.api.ExporterPrx;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
 import omero.api.IDeletePrx;
@@ -186,6 +187,9 @@ class OMEROGateway
 	/** Maximum size of pixels read at once. */
 	private static final int				INC = 262144;//256000;
 	
+	/** The maximum number read at once. */
+	private static final int				MAX_BYTES = 1024;
+	
 	/** 
 	 * The maximum number of thumbnails retrieved before restarting the
 	 * thumbnails service.
@@ -277,6 +281,9 @@ class OMEROGateway
 	
 	/** The ROI (Region of Interest) service. */
 	private IRoiPrx									roiService;
+	
+	/** The exporter service. */
+	private ExporterPrx								exporterService;
 	
 	/** Tells whether we're currently connected and logged into <i>OMERO</i>. */
 	private boolean                 				connected;
@@ -869,7 +876,7 @@ class OMEROGateway
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private IDeletePrx getDeleteService()
@@ -892,7 +899,7 @@ class OMEROGateway
 	 *   
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private ThumbnailStorePrx getThumbService()
@@ -918,6 +925,29 @@ class OMEROGateway
 		return null;
 	}
 
+	/**
+	 * Returns the {@link ExporterPrx} service.
+	 *   
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private ExporterPrx getExporterService()
+		throws DSAccessException, DSOutOfServiceException
+	{ 
+		try {
+			if (exporterService == null) {
+				exporterService = entry.createExporter();
+				services.add(exporterService);
+			}
+			return exporterService; 
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Exporter service.");
+		}
+		return null;
+	}
+	
 	/**
 	 * Returns the {@link RawFileStorePrx} service.
 	 *  
@@ -1068,7 +1098,7 @@ class OMEROGateway
 	 * @param pixelsID	The pixels ID.
 	 * @param re		The rendering engine to load.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
 	private synchronized void needDefault(long pixelsID, RenderingEnginePrx re)
@@ -1114,7 +1144,7 @@ class OMEROGateway
 	 * @param groupID	The id of the group.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
 	private List<Experimenter> containedExperimenters(long groupID)
@@ -1614,7 +1644,7 @@ class OMEROGateway
 	 * @param options Options to retrieve the data.
 	 * @return A <code>Set</code> with all root nodes that were found.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#findContainerHierarchies(Class, List, Map)
 	 */
@@ -2119,7 +2149,7 @@ class OMEROGateway
 	 * Retrieves the thumbnail for the passed set of pixels.
 	 * 
 	 * @param pixelsID	The id of the pixels set the thumbnail is for.
-	 * @param maxLength	The maximum length of the thumbnail width or heigth
+	 * @param maxLength	The maximum length of the thumbnail width or height
 	 * 					depending on the pixel size.
 	 * @return See above.
 	 * @throws RenderingServiceException If an error occurred while trying to 
@@ -4575,15 +4605,65 @@ class OMEROGateway
 					r = map.get(id);
 					//get the table
 					
-					result = new ROIResult(PojoMapper.asDataObjects(r.rois), id);
+					result = new ROIResult(PojoMapper.asDataObjects(r.rois), 
+							id);
 					results.add(result);
 				}
+				
 			}
 			
 		} catch (Exception e) {
 			handleException(e, "Cannot load the ROI for image: "+imageID);
 		}
 		return results;
+	}
+	
+	/**
+	 * Returns the file 
+	 * 
+	 * @param file		The file to write the bytes.
+	 * @param imageID	The id of the image.
+	 * @return See above.
+	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException
+	 */
+	synchronized File exportImageAsXML(File f, long imageID)
+		throws DSAccessException, DSOutOfServiceException
+	{
+		isSessionAlive();
+		try {
+			FileOutputStream stream = new FileOutputStream(f);
+			ExporterPrx service = getExporterService();
+			//service.activate();
+			service.asXml();
+			service.addImage(imageID);
+			byte[] buf;
+			while (true) {
+			  buf = service.getBytes(MAX_BYTES);
+			  stream.write(buf);
+			  if (buf.length < MAX_BYTES) {
+				 break;
+			  }
+			}
+			if (stream != null) stream.close();
+			
+			return f;
+		} catch (Throwable t) {
+			t.printStackTrace();
+			if (exporterService != null) {
+				try {
+					exporterService.close();
+				} catch (Exception e) {
+					//nothing we can do
+				}
+			}
+			exporterService = null;
+			if (t instanceof ServerError) {
+				throw new DSOutOfServiceException(
+						"Thumbnail service null for image: "+imageID, t);
+			} 
+		}
+		return f;
 	}
 	
 	//tmp

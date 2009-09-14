@@ -81,6 +81,9 @@ class ToolBar
 	/** Button to analyze the image. */
 	private JButton			flimButton;
 	
+	/** Button to export the image. */
+	private JButton			exportButton;
+	
 	/** Indicates the loading progress. */
 	private JXBusyLabel		busyLabel;
 	
@@ -143,7 +146,7 @@ class ToolBar
 		rndButton.addActionListener(controller);
 		rndButton.setActionCommand(""+EditorControl.RENDERER);
 		rndButton.setEnabled(false);
-		icon = icons.getIcon(IconManager.CREATE_MOVIE);
+		icon = icons.getIcon(IconManager.MOVIE);
 		if (icon != null) {
 			if (icon.getIconHeight() > h) h = icon.getIconHeight();
 			if (icon.getIconWidth() > w) w = icon.getIconWidth();
@@ -168,12 +171,20 @@ class ToolBar
 		refreshButton.addActionListener(controller);
 		refreshButton.setActionCommand(""+EditorControl.REFRESH);
 		
+		icon = icons.getIcon(IconManager.EXPORT);
+		exportButton = new JButton(icon);
+		exportButton.setToolTipText("Export the image.");
+		exportButton.addActionListener(controller);
+		exportButton.setActionCommand(""+EditorControl.EXPORT);
+		
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 		UIUtilities.unifiedButtonLookAndFeel(createMovieButton);
 		UIUtilities.unifiedButtonLookAndFeel(rndButton);
 		UIUtilities.unifiedButtonLookAndFeel(flimButton);
 		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
+		UIUtilities.unifiedButtonLookAndFeel(exportButton);
+		
 		
 		Dimension d = new Dimension(w, h);
     	busyLabel = new JXBusyLabel(d);
@@ -203,6 +214,8 @@ class ToolBar
     	bar.setBorder(null);
     	bar.add(createMovieButton);
     	//if (model.isLifetime()) {
+    	bar.add(Box.createHorizontalStrut(5));
+        bar.add(exportButton);
     	bar.add(Box.createHorizontalStrut(5));
         bar.add(flimButton);
     	return bar;

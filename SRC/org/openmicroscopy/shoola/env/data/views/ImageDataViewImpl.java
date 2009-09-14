@@ -33,7 +33,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
@@ -42,6 +41,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.EnumerationLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ExportLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.FretAnalyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesImporter;
@@ -342,6 +342,18 @@ class ImageDataViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ROILoader(imageID, fileID, userID);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#exportImageAsXml(long, File, AgentEventListener)
+     */
+	public CallHandle exportImageAsXml(long imageID, File file,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ExportLoader(imageID, file, 
+				ExportLoader.EXPORT_AS_XML);
 		return cmd.exec(observer);
 	}
 	

@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Point;
 import java.util.Collection;
 import java.util.List;
@@ -628,5 +629,42 @@ public interface Browser
 
 	/** Displays the list of supported file formats. */
 	void showSupportedFiles();
+
+	/**
+	 * Returns <code>true</code> if the specified object is writable,
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho    The data object to check.
+	 * @return See above.
+	 */
+	public boolean isObjectWritable(Object ho);
+	
+	/**
+	 * Deletes the {@link DataObject}s hosted by the passed nodes.
+	 * 
+	 * @param nodes The nodes hosting the {@link DataObject}s to delete.
+	 */
+	public void deleteObjects(List nodes);
+
+	/**
+	 * Brings up the menu to manage the data.
+	 * 
+	 * @param index		The index of the menu.
+	 * @param invoker   The component that requested the pop-up menu.
+	 * @param loc       The point at which to display the menu, relative to the
+	 *                  <code>component</code>'s coordinates.
+	 */
+	void showMenu(int index, Component source, Point point);
+
+	/**
+	 * Returns <code>true</code> if there is an on-going import.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isImporting();
+
+	/** Brings up the importer. */
+	void showImporter();
 
 }

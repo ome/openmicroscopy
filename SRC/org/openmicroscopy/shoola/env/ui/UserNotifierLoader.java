@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.ui;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
@@ -59,6 +60,9 @@ abstract class UserNotifierLoader
     /** Convenience reference for subclasses. */
     protected final MetadataHandlerView	mhView;
     
+    /** Convenience reference for subclasses. */
+    protected final ImageDataView		ivView;
+    
     /**
      * Creates a new instance.
      * 
@@ -73,7 +77,9 @@ abstract class UserNotifierLoader
     	this.viewer = viewer;
     	this.registry = registry;
     	mhView = (MetadataHandlerView) 
-     	registry.getDataServicesView(MetadataHandlerView.class);
+     		registry.getDataServicesView(MetadataHandlerView.class);
+    	ivView = (ImageDataView) 
+ 			registry.getDataServicesView(ImageDataView.class);
     }
     
     /**
@@ -85,7 +91,7 @@ abstract class UserNotifierLoader
         handleException(new Exception("No data available."));
     }
     
-    /** Notifies the user that the data retrieval has been cancelled. */
+    /** Notifies the user that the data retrieval has been canceled. */
     public void handleCancellation() 
     {
         String info = "The data retrieval has been cancelled.";
@@ -106,9 +112,13 @@ abstract class UserNotifierLoader
         registry.getLogger().error(this, msg);
         registry.getUserNotifier().notifyError("Data Loading Failure", 
                                                s, exc);
+        onException();
     }
     
-    /** Fires an asynchrnonous data loading. */
+    /** Subclasses should override this method. */
+    protected void onException() {};
+    
+    /** Fires an asynchronous data loading. */
     public abstract void load();
     
     /** Cancels any ongoing data loading. */

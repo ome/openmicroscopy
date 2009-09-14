@@ -318,4 +318,14 @@ public class NullRenderingService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#exportImageAsXML(long, File)
+     */
+	public Object exportImageAsXML(long imageID, File folder)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
 }

@@ -29,20 +29,19 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Map;
-
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.FileAnnotation;
 import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
+import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 
@@ -331,6 +330,29 @@ public class UserNotifierImpl
 	public void setLoadingStatus(int percent, long fileID, String fileName)
 	{
 		manager.setLoadingStatus(percent, fileID, fileName);
+	}
+
+	/** 
+	 * Implemented as specified by {@link UserNotifier}. 
+	 * @see UserNotifier#notifyActivity(Object)
+	 */ 
+	public void notifyActivity(Object activity)
+	{
+		if (activity == null) return;
+		ActivityComponent comp = null;
+		if (activity instanceof MovieActivityParam) {
+			MovieActivityParam p = (MovieActivityParam) activity;
+			comp = new MovieActivity(this, manager.getRegistry(), p);
+		} else if (activity instanceof ExportActivityParam) {
+			ExportActivityParam p = (ExportActivityParam) activity;
+			comp = new ExportActivity(this, manager.getRegistry(), p);
+		}
+		if (comp != null) {
+			manager.registerActivity(comp);
+			comp.startActivity();
+			UserNotifierLoader loader = comp.createLoader();
+			loader.load();
+		}
 	}
 	
 }

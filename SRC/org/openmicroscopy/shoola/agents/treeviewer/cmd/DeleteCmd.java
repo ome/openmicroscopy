@@ -33,7 +33,6 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import pojos.DataObject;
 
 /** 
@@ -52,25 +51,23 @@ public class DeleteCmd
 {
 
     /** Reference to the model. */
-    private TreeViewer model;
+    private Browser model;
     
     /**
      * Creates a new instance.
      * 
      * @param model Reference to the model. Mustn't be <code>null</code>.
      */
-    public DeleteCmd(TreeViewer model)
+    public DeleteCmd(Browser model)
     {
-        if (model == null) throw new IllegalArgumentException("No model.");
         this.model = model;
     }
     
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        Browser browser = model.getSelectedBrowser();
-        if (browser == null) return;
-        TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+    	if (model == null) return;
+        TreeImageDisplay[] nodes = model.getSelectedDisplays();
         if (nodes.length == 0) return;
         List<TreeImageDisplay> objects = new ArrayList<TreeImageDisplay>();
         TreeImageDisplay n;

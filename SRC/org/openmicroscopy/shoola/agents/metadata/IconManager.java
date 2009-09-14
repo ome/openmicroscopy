@@ -236,7 +236,7 @@ public class IconManager
     public static final int           EDITOR_12 = 60;
     
     /** The <code>Create Movie</code> icon. */
-    public static final int           CREATE_MOVIE = 61;
+    public static final int           MOVIE = 61;
     
     /** The <code>Histogram</code> image. */
     public static final int 		  TEMPORARY_HISTOGRAM = 62;
@@ -271,11 +271,23 @@ public class IconManager
     /** The <code>Analyze 48x48</code> icon. */
     public static  final int          ANALYSE_48 = 72;
     
+    /** The <code>Export</code> icon. */
+    public static final int           EXPORT = 73;
+    
+    /** The <code>Export 48x48</code> icon. */
+    public static final int           EXPORT_48 = 74;
+    
+    /** A 22x22 version of the <code>movie</code> icon. */
+    public static final int 		  MOVIE_22 = 75;
+    
+    /** A 22x22 version of the <code>Export</code> icon. */
+    public static final int 		  EXPORT_22 = 76;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 72;
+	private static final int          MAX_ID = 76;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -340,7 +352,7 @@ public class IconManager
         relPaths[TAG_SET] = "nuvola_knotesRedRed16.png";
         relPaths[DOWNLOAD_12] = "nuvola_download_manager11.png";
         relPaths[EDITOR_12] = "omeroEditorLink11.png";
-        relPaths[CREATE_MOVIE] = "openOffice_stock_insert-video-plugin-16.png";
+        relPaths[MOVIE] = "openOffice_stock_insert-video-plugin-16.png";
         relPaths[TEMPORARY_HISTOGRAM] = "histogram_temporary.png";
         relPaths[HISTOGRAM] = "histogram16.png";
         relPaths[CONTRAST_STRETCHING] = "openOffice_stock_new-drawing-16.png";
@@ -352,6 +364,10 @@ public class IconManager
         relPaths[RGB] = "rgb16.png";
         relPaths[ANALYSE] = "nuvola_kchart16.png";
         relPaths[ANALYSE_48] = "nuvola_kchart48.png";
+        relPaths[EXPORT] = "nuvola_kchart16.png";
+        relPaths[EXPORT_48] = "nuvola_kchart48.png";
+        relPaths[MOVIE_22] = "openOffice_stock_insert-video-plugin-22.png";
+        relPaths[EXPORT_22] = "nuvola_kchart16.png";
 	}
    
 	/** The sole instance. */

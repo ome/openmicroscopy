@@ -148,6 +148,7 @@ class FileLoadingComponent
 		barPane.removeAll();
 		add(new JLabel(icons.getIcon(IconManager.DOCUMENT_32)), "0, 0");
 		toolBar.removeAll();
+		cancelButton.setVisible(false);
 		if (init) {
 			barPane.add(new JLabel(fileName), "0, 0, c, c");
 			JProgressBar bar = new JProgressBar();
@@ -155,6 +156,7 @@ class FileLoadingComponent
 			//bar.setPreferredSize(new Dimension(20, 60));
 			//JPanel p = UIUtilities.buildComponentPanelCenter(bar);
 			//p.setOpaque(false);
+			cancelButton.setVisible(true);
 			bar.setBackground(barPane.getBackground());
 			barPane.add(bar, "0, 1");
 			toolBar.add(cancelButton);
@@ -189,6 +191,14 @@ class FileLoadingComponent
 		initComponents();
 		buildGUI(true, null);
 	}
+	
+	/**
+	 * Returns <code>true</code> if the activity is still on-going,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isOngoingActivity() { return cancelButton.isVisible(); }
 	
 	/** 
 	 * Lays out component depending of the passed percentage.

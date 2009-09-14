@@ -462,4 +462,18 @@ public interface OmeroImageService
 			long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * Exports the passed image as an XML file.
+	 * 
+	 * @param imageID The ID of the image.
+	 * @param folder  The folder where to export the image.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object exportImageAsXML(long imageID, File folder)
+		throws DSOutOfServiceException, DSAccessException;
+
 }

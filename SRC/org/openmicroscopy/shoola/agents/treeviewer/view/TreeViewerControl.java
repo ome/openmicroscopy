@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
@@ -52,6 +54,8 @@ import javax.swing.event.MenuListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXTaskPane;
+import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -104,6 +108,7 @@ import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
@@ -454,6 +459,8 @@ class TreeViewerControl
 		});
 	}
 	
+	
+	
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize(TreeViewerWin) initialize} method 
@@ -488,9 +495,9 @@ class TreeViewerControl
 		loadingWindow.setAlwaysOnTop(false);
 		loadingWindow.setStatus("Saving changes");
 	}
-	
+
 	/**
-	 * Returns the {@link ChangeListener} attached to the tabbed pane,
+	 * Returns the {@link ChangeListener} attached to the tab pane,
 	 * or creates one if none initialized.
 	 * 
 	 * @return See above.
@@ -526,16 +533,21 @@ class TreeViewerControl
 		}
 		return tabsListener;
 	}
-
+	
 	/**
 	 * Adds listeners to UI components.
 	 *
-	 * @param tabs
+	 * @param component The component to attach a listener to.
 	 */
-	void attachUIListeners(JTabbedPane tabs)
+	void attachUIListeners(JComponent component)
 	{
 		//Register listener
-		tabs.addChangeListener(getTabbedListener());
+		if (component instanceof JTabbedPane) {
+			((JTabbedPane) component).addChangeListener(getTabbedListener());
+		} else if (component instanceof JXTaskPaneContainer) {
+			component.addPropertyChangeListener(
+					JXTaskPaneContainerSingle.SELECTED_TASKPANE_PROPERTY, this);
+		}
 	}
 
 	/**
@@ -699,7 +711,7 @@ class TreeViewerControl
 			PasteCmd cmd = new PasteCmd(model);
 			cmd.execute();
 		} else if (DataBrowser.REMOVE_ITEMS_PROPERTY.equals(name)) {
-			DeleteCmd cmd = new DeleteCmd(model);
+			DeleteCmd cmd = new DeleteCmd(model.getSelectedBrowser());
 	        cmd.execute();
 		} else if (Finder.RESULTS_FOUND_PROPERTY.equals(name)) {
 			model.setSearchResult(pce.getNewValue());
@@ -776,9 +788,31 @@ class TreeViewerControl
 		} else if (ImportDialog.IMPORT_PROPERTY.equals(name)) {
 			ImportableObject object = (ImportableObject) pce.getNewValue();
 			model.importFiles(object);
+		} else if (JXTaskPaneContainerSingle.SELECTED_TASKPANE_PROPERTY.equals(
+				name)) {
+			handleTaskPaneSelection((JXTaskPane) pce.getNewValue());
 		}
 	}
 
+	private void handleTaskPaneSelection(JXTaskPane pane)
+	{
+		JXTaskPaneContainerSingle container = 
+			(JXTaskPaneContainerSingle) pane.getParent();
+		if (pane.isCollapsed() && container.hasTaskPaneExpanded()) return;
+		model.clearFoundResults();
+
+		if (!container.hasTaskPaneExpanded())
+			model.setSelectedBrowser(null);
+		else {
+			if (pane instanceof TaskPaneBrowser) {
+				TaskPaneBrowser p = (TaskPaneBrowser) pane;
+				model.setSelectedBrowser(p.getBrowser());
+			} else {
+				model.setSelectedBrowser(null);
+			}
+		}
+	}
+	
 	/**
 	 * Reacts to state changes in the {@link TreeViewer} and in the
 	 * {@link Browser}.
@@ -786,15 +820,19 @@ class TreeViewerControl
 	 */
 	public void stateChanged(ChangeEvent ce)
 	{
-		switch (model.getSelectedBrowser().getState()) {
-			case Browser.BROWSING_DATA:
-				loadingWindow.setStatus(TreeViewer.LOADING_TITLE);
-				UIUtilities.centerAndShow(loadingWindow);
-				return;
-			case Browser.READY:
-				loadingWindow.setVisible(false);
-				break;
+		Browser browser = model.getSelectedBrowser();
+		if (browser != null) {
+			switch (browser.getState()) {
+				case Browser.BROWSING_DATA:
+					loadingWindow.setStatus(TreeViewer.LOADING_TITLE);
+					UIUtilities.centerAndShow(loadingWindow);
+					return;
+				case Browser.READY:
+					loadingWindow.setVisible(false);
+					break;
+			}
 		}
+		
 		switch (model.getState()) {
 			case TreeViewer.DISCARDED:
 				view.closeViewer();

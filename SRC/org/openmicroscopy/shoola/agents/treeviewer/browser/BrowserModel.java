@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.ScreenPlateLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -778,6 +779,13 @@ class BrowserModel
 		if (nodes == null || nodes.size() == 0) return;
 		FilesChecker loader = new FilesChecker(component, nodes);
 		loader.load();
+	}
+
+	/** Creates a {@link DeleteCmd} command to execute the action. */
+	void delete()
+	{
+		DeleteCmd c = new DeleteCmd(component);
+		c.execute();
 	}
 	
 }

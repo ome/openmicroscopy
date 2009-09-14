@@ -22,24 +22,23 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-import java.awt.event.ActionEvent;
 
+
+//Java imports
+import java.awt.event.ActionEvent;
 import javax.swing.Action;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
- * 
+ * Action to import the images.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,7 +61,7 @@ public class ImportAction
     private static final String DESCRIPTION = "Import the selected images.";
     
     /** 
-     * Sets the action enabled dependong on the state of the {@link Browser}.
+     * Sets the action enabled depending on the state of the {@link Browser}.
      * @see TreeViewerAction#onBrowserStateChange(Browser)
      */
     protected void onBrowserStateChange(Browser browser)

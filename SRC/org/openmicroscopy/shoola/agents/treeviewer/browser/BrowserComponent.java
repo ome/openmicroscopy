@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 //Java imports
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -1303,7 +1304,7 @@ class BrowserComponent
 	}
 	
 	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#onImportFinished(List)
 	 */
 	public void onImportFinished(List<TreeImageDisplay> nodes)
@@ -1342,7 +1343,7 @@ class BrowserComponent
 	}
 	
 	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#setImportedFile(ImageData)
 	 */
 	public void setImportedFile(ImageData image)
@@ -1353,7 +1354,7 @@ class BrowserComponent
 	}
 	
 	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#isFileImported(String)
 	 */
 	public boolean isFileImported(String path)
@@ -1363,7 +1364,7 @@ class BrowserComponent
 	}
 
 	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#showSupportedFiles()
 	 */
 	public void showSupportedFiles()
@@ -1371,6 +1372,51 @@ class BrowserComponent
 		if (model.getState() == DISCARDED) return;
 		firePropertyChange(FILE_FORMATS_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#isObjectWritable(Object)
+	 */
+	public boolean isObjectWritable(Object ho)
+	{
+		return model.getParentModel().isObjectWritable(ho);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#deleteObjects(List)
+	 */
+	public void deleteObjects(List nodes)
+	{
+		model.getParentModel().deleteObjects(nodes);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#showMenu(int, Component, Point)
+	 */
+	public void showMenu(int index, Component invoker, Point loc)
+	{
+		model.getParentModel().showMenu(index, invoker, loc);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#isImporting()
+	 */
+	public boolean isImporting()
+	{ 
+		return model.getParentModel().isImporting();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#showImporter()
+	 */
+	public void showImporter()
+	{
+		model.getParentModel().showImporter();
 	}
 	
 }

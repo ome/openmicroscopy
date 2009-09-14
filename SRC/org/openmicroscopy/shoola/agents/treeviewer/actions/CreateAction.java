@@ -162,23 +162,32 @@ public class CreateAction
              putValue(Action.SHORT_DESCRIPTION, 
                      UIUtilities.formatToolTipText(DESCRIPTION_PLATE));
                      */
-        	TreeImageDisplay[] nodes = 
-        		model.getSelectedBrowser().getSelectedDisplays();
-        	if (nodes != null && nodes.length == 1)
-        		setEnabled(model.isObjectWritable(ho) && !model.isImporting());
-        	else setEnabled(false);
+        	Browser browser = model.getSelectedBrowser();
+        	if (browser == null) {
+        		setEnabled(false);
+        	} else {
+        		TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+            	if (nodes != null && nodes.length == 1)
+            		setEnabled(model.isObjectWritable(ho) && 
+            				!model.isImporting());
+            	else setEnabled(false);
+        	}
             nodeType = CreateCmd.IMAGE;
             putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
             name = NAME_IMAGE;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
         } else if (ho instanceof DatasetData) {
-        	TreeImageDisplay[] nodes = 
-        		model.getSelectedBrowser().getSelectedDisplays();
-        	if (nodes != null && nodes.length == 1)
-        		setEnabled(model.isObjectWritable(ho)
-        				&& !model.isImporting());
-        	else setEnabled(false);
+        	Browser browser = model.getSelectedBrowser();
+        	if (browser == null) {
+        		setEnabled(false);
+        	} else {
+        		TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+        		if (nodes != null && nodes.length == 1)
+            		setEnabled(model.isObjectWritable(ho)
+            				&& !model.isImporting());
+            	else setEnabled(false);
+        	}
             nodeType = CreateCmd.IMAGE;
             putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
             name = NAME_IMAGE;
