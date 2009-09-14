@@ -1,24 +1,48 @@
 from PIL import ImageDraw;
 from PIL import Image;
 
+
+##
+# Drawing canvas allows the creation of shapes on an
+# image using PIL, the class can be supplied with an
+# image and will write on that or can create an image.
+# The object will also visit a list of objects supplied 
+# and draw their respective shapes if they accept the
+# DrawingCanvas visior.
+#
 class DrawingCanvas:
     
+    ##
+    # Create the default object.
+    #
     def __init__(self):
         self.width = 0;
         self.height = 0;
         self.image = None;
         self.draw = None;    
-        
+    
+    ##
+    # Create a new image to draw on with width, height and background colour (0,0,0,0)
+    # @param width See above.
+    # @param height See above.
     def createImage(self, width, height):
-        self.image = Image.new('RGBA', (width, height), (0, 0, 0, 255));
+        self.image = Image.new('RGBA', (width, height), (0, 0, 0, 0));
         self.width = width;
         self.height = height;
-        
+    
+    ##
+    # Set the image to draw on as image which has width, height.
+    # @param image The image to draw on.   
+    # @param width See above.
+    # @param height See above.
     def setImage(self, image, width, height):
         self.image = image;
         self.width = width;
         self.height = height;
-        
+    
+    ##
+    # Visit all the elements in the element list and draw their shapes.
+    # @param elementList See above.
     def drawElements(self, elementList):
         if(self.draw == None):
             self.draw = ImageDraw.Draw(self.image);
@@ -26,15 +50,35 @@ class DrawingCanvas:
             element.acceptVisitor(self);
         return self.image;
     
+    ##
+    # Get the fill colour from the ShapeSettings object from it's tuple.
+    # @param shapeSetting See above.
+    #
     def getFillColour(self, shapeSettings):
         return shapeSettings[1][0];
 
+    ##
+    # Get the stroke colour from the ShapeSettings object from it's tuple.
+    # @param shapeSetting See above.
+    #
     def getStrokeColour(self, shapeSettings):
         return shapeSettings[0][0];
 
+    ##
+    # Get the stroke width from the ShapeSettings object from it's tuple.
+    # @param shapeSetting See above.
+    #
     def getStrokeWidth(self, shapeSettings):
         return shapeSettings[0][1];
     
+    ##
+    # Draw an ellipse at (cx, cy) with major and minor axis (rx,ry).
+    # @param cx See above.
+    # @param cy See above.
+    # @param rx See above.
+    # @param ry See above.
+    # @param shapeSettings The shapes display properties(colour,etc).
+    # @param affineTransform The affine transform that the shape has to undergo before drawing.
     def drawEllipse(self, cx, cy, rx, ry, shapeSettings, affineTransform = None):
         x = cx-rx;
         y = cy-ry;
@@ -45,6 +89,14 @@ class DrawingCanvas:
         strokeWidth = self.getStrokeWidth(shapeSettings);
         self.draw.ellipse((x,y,w,h), fill = fillColour, outline = strokeColour);
                       
+    ##
+    # Draw a rectangle at (x, y) with width, height (width, height).
+    # @param x See above.
+    # @param y See above.
+    # @param width See above.
+    # @param height See above.
+    # @param shapeSettings The shapes display properties(colour,etc).
+    # @param affineTransform The affine transform that the shape has to undergo before drawing.
     def drawRectangle(self, x, y, w, h, shapeSettings, affineTransform = None):
         fillColour = self.getFillColour(shapeSettings);
         strokeColour = self.getStrokeColour(shapeSettings);
@@ -59,6 +111,11 @@ class DrawingCanvas:
             self.image.paste(newImage);
         
         
+    ##
+    # Draw an polygon with the points in pointTupleList which are [(x1, y1), (x2, y2)...].
+    # @param pointTupleList See above.
+    # @param shapeSettings The shapes display properties(colour,etc).
+    # @param affineTransform The affine transform that the shape has to undergo before drawing.
     def drawPolygon(self, pointTupleList, shapeSettings, affineTransform = None):
         fillColour = self.getFillColour(shapeSettings);
         strokeColour = self.getStrokeColour(shapeSettings);
@@ -72,6 +129,14 @@ class DrawingCanvas:
             newImage = im.transform((self.width,self.height), Image.AFFINE, affineTransform);
             self.image.paste(newImage);
  
+    ##
+    # Draw a line from (x1, y1) to (x2,y2).
+    # @param x1 See above.
+    # @param y1 See above.
+    # @param x2 See above.
+    # @param y2 See above.
+    # @param shapeSettings The shapes display properties(colour,etc).
+    # @param affineTransform The affine transform that the shape has to undergo before drawing.
     def drawLine(self, x1, y1, x2, y2, shapeSettings, affineTransform = None):
         fillColour = self.getFillColour(shapeSettings);
         strokeColour = self.getStrokeColour(shapeSettings);
@@ -85,6 +150,11 @@ class DrawingCanvas:
             newImage = im.transform((self.width,self.height), Image.AFFINE, affineTransform);
             self.image.paste(newImage);
        
+    ##
+    # Draw an polyline with the points in pointTupleList which are [(x1, y1), (x2, y2)...].
+    # @param pointTupleList See above.
+    # @param shapeSettings The shapes display properties(colour,etc).
+    # @param affineTransform The affine transform that the shape has to undergo before drawing.
     def drawPolyline(self, pointTupleList, shapeSettings, affineTransform = None):
         fillColour = self.getFillColour(shapeSettings);
         strokeColour = self.getStrokeColour(shapeSettings);
@@ -98,6 +168,15 @@ class DrawingCanvas:
             newImage = im.transform((self.width,self.height), Image.AFFINE, affineTransform);
             self.image.paste(newImage);
     
+    ##
+    # Draw a mask at (x, y) with (width, height).
+    # @param x See above.
+    # @param y See above.
+    # @param width See above.
+    # @param height See above.
+    # @param bytes The mask in bytes.
+    # @param shapeSettings The shapes display properties(colour,etc).
+    # @param affineTransform The affine transform that the shape has to undergo before drawing.
     def drawMask(self, x, y, width, height, bytes, shapeSettings, affineTransform = None):
         fillColour = self.getFillColour(shapeSettings);
         mask = Image.fromstring('1', (width, height), bytes);
@@ -109,7 +188,14 @@ class DrawingCanvas:
             self.draw.bitmap(x, y, mask, fill = fillColour);
             newImage = im.transform((self.width,self.height), Image.AFFINE, affineTransform);
             self.image.paste(newImage);
-        
+    
+    ##
+    # Draw text at (x, y) with major and minor axis (rx,ryr).
+    # @param x See above.
+    # @param y See above.
+    # @param text The text to draw.
+    # @param shapeSettings The shapes display properties(colour,etc).
+    # @param affineTransform The affine transform that the shape has to undergo before drawing.
     def drawText(self, x, y, text, shapeSettings, affineTransform = None):
         textColour = self.getStrokeColour(shapeSettings);
         if(affineTransform==None):
