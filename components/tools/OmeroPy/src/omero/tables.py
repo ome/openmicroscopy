@@ -173,8 +173,8 @@ class HdfStorage(object):
         try:
             self.__ome = self.__hdf_file.root.OME
             self.__mea = self.__ome.Measurements
-            self.__types = self.__hdf_file.root.ColumnTypes[:]
-            self.__descriptions = self.__hdf_file.root.ColumnDescriptions[:]
+            self.__types = self.__ome.ColumnTypes[:]
+            self.__descriptions = self.__ome.ColumnDescriptions[:]
             self.__initialized = True
         except tables.NoSuchNodeError:
             self.__initialized = False
