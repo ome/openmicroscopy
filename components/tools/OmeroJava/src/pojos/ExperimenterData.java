@@ -8,7 +8,10 @@
 package pojos;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static omero.rtypes.*;
 import omero.model.Experimenter;
@@ -229,4 +232,26 @@ public class ExperimenterData extends DataObject {
         return getGroups().get(0);
     }
 
+    /**
+     * Returns a map whose keys are the id of the group the user
+     * is a member of and the values are <code>true</code> if the user
+     * is leader of the group, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public Map<Long, Boolean> isLeader()
+    {
+    	Map<Long, Boolean> map = new HashMap<Long, Boolean>();
+    	List<GroupData> groups = getGroups();
+    	if (groups == null) return map;
+    	Iterator<GroupData> i = groups.iterator();
+    	GroupData group;
+    	long id = getId();
+    	while (i.hasNext()) {
+			group = i.next();
+			map.put(group.getId(), group.getOwner().getId() == id);
+		}
+    	return map;
+    }
+    
 }
