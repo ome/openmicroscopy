@@ -110,17 +110,33 @@ class BaseGroup(BaseController):
         
         self.conn.setMembersOfGroup(self.group._obj, add_exps, rm_exps)
     
-    def createGroup(self, name, eid, description=None):
+    def createGroup(self, name, eid, permissions, description=None):
         new_gr = ExperimenterGroupI()
         new_gr.name = rstring(str(name))
         new_gr.description = rstring(str(description))
+        self.setObjectPermissions(new_gr, self.setActualPermissions(permissions))
         gr_owner = self.conn.getExperimenter(long(eid))._obj
         self.conn.createGroup(new_gr, gr_owner)
     
-    def updateGroup(self, name, eid, description=None):
+    def updateGroup(self, name, eid, permissions, description=None):
         up_gr = self.group._obj
         up_gr.name = rstring(str(name))
         up_gr.description = rstring(str(description))
+        self.setObjectPermissions(up_gr, self.setActualPermissions(permissions))
         gr_owner = self.conn.getExperimenter(long(eid))._obj
         up_gr.details.owner = gr_owner
         self.conn.updateGroup(up_gr, gr_owner)
+
+    def getActualPermissions(self):
+        perm = self.getObjectPermissions(self.group)
+        if perm['owner'] == 'rw' and perm['group'] == 'r' and perm['world'] == None:
+            return 1
+        elif perm['owner'] == 'rw' and perm['group'] == None and perm['world'] == None:
+            return 0    
+        
+    def setActualPermissions(self, perm):
+        perm = int(perm)
+        if perm == 1:
+            return {'owner':'rw', 'group':'r', 'world':None}
+        else:
+            return {'owner':'rw', 'group':None, 'world':None}

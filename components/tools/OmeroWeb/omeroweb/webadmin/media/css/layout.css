@@ -215,6 +215,11 @@ td.input {
     padding: 2px 2px 2px 20px;
 }
 
+td.input ul {
+    list-style: none;
+    margin-left: -30px;
+}
+
 ul.errorList {
     list-style: none;
     color: #e3646f;

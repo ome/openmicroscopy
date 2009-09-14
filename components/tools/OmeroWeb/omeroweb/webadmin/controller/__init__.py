@@ -75,7 +75,7 @@ class BaseController(object):
     #####################################################################
     # Permissions
     
-    def objectPermissions(self, obj, permissions):
+    def setObjectPermissions(self, obj, permissions):
         if obj.details.getPermissions() is None:
             perm = PermissionsI()
         else:
@@ -121,3 +121,40 @@ class BaseController(object):
             perm.setWorldWrite(False)
     
         obj.details.setPermissions(perm)
+        
+    def getObjectPermissions(self, obj):
+        perm = None
+        if obj.details.getPermissions() is None:
+            raise AttributeError('Object has no permissions')
+        else:
+            perm = obj.details.getPermissions()
+        
+        permissions = {'owner':None, 'group':None, 'world':None}
+        if perm.isUserRead() and perm.isUserWrite():
+            permissions['owner'] = 'rw'
+        elif not perm.isUserRead() and perm.isUserWrite():
+            permissions['owner'] = 'w'
+        elif perm.isUserRead() and not perm.isUserWrite():
+            permissions['owner'] = 'r'
+        else:
+            permissions['owner'] = None
+        
+        if perm.isGroupRead() and perm.isGroupWrite():
+            permissions['group'] = 'rw'
+        elif not perm.isGroupRead() and perm.isGroupWrite():
+            permissions['group'] = 'w'
+        elif perm.isGroupRead() and not perm.isGroupWrite():
+            permissions['group'] = 'r'
+        else:
+            permissions['group'] = None
+        
+        if perm.isWorldRead() and perm.isWorldWrite():
+            permissions['world'] = 'rw'
+        elif not perm.isWorldRead() and perm.isWorldWrite():
+            permissions['world'] = 'w'
+        elif perm.isWorldRead() and not perm.isWorldWrite():
+            permissions['world'] = 'r'
+        else:
+            permissions['world'] = None
+        
+        return permissions

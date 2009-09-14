@@ -50,7 +50,7 @@ class BaseUploadFile(BaseController):
             oFile.setSize(rlong(long(newFile.size)));
             oFile.setSha1(rstring("pending"));
             oFile.setFormat(format);
-            self.objectPermissions(oFile, {'owner':'rw', 'group':'r', 'world':'r'})
+            self.setObjectPermissions(oFile, {'owner':'rw', 'group':'r', 'world':'r'})
             self.conn.saveFile(newFile, oFile.id.val)
             has._obj.setFile(oFile)
             self.conn.saveObject(has._obj)
@@ -67,7 +67,7 @@ class BaseUploadFile(BaseController):
             oFile.setSize(rlong(long(newFile.size)));
             oFile.setSha1(rstring("pending"));
             oFile.setFormat(format);
-            self.objectPermissions(oFile, {'owner':'rw', 'group':'r', 'world':'r'})
+            self.setObjectPermissions(oFile, {'owner':'rw', 'group':'r', 'world':'r'})
 
             of = self.conn.saveAndReturnObject(oFile);
             self.conn.saveFile(newFile, of.id)
@@ -75,11 +75,11 @@ class BaseUploadFile(BaseController):
             fa = FileAnnotationI()
             fa.setFile(of._obj)
             fa.setNs(rstring("openmicroscopy.org/omero/experimenter/photo"))
-            self.objectPermissions(fa, {'owner':'rw', 'group':'r', 'world':'r'})
+            self.setObjectPermissions(fa, {'owner':'rw', 'group':'r', 'world':'r'})
             l_ea = ExperimenterAnnotationLinkI()
             l_ea.setParent(self.conn.getUser()._obj)
             l_ea.setChild(fa)
-            self.objectPermissions(l_ea, {'owner':'rw', 'group':'r', 'world':'r'})
+            self.setObjectPermissions(l_ea, {'owner':'rw', 'group':'r', 'world':'r'})
             self.conn.saveObject(l_ea)
         
 

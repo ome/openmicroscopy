@@ -85,7 +85,7 @@ class BaseController(object):
     #####################################################################
     # Permissions
     
-    def objectPermissions(self, obj, permissions):
+    def setObjectPermissions(self, obj, permissions):
         if permissions['owner'] == 'rw':
             obj.details.permissions.setUserRead(True)
             obj.details.permissions.setUserWrite(True)
