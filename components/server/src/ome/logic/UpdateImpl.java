@@ -14,9 +14,10 @@
 
 package ome.logic;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
@@ -26,7 +27,6 @@ import ome.api.ServiceInterface;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.meta.EventLog;
@@ -43,9 +43,7 @@ import ome.util.Utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -154,20 +152,19 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     }
 
     @RolesAllowed("user")
-    public long[] saveAndReturnIds(IObject[] graph) {
+    public List<Long> saveAndReturnIds(IObject[] graph) {
 
         if (graph == null || graph.length == 0) {
-            return new long[0]; // EARLY EXIT!
+            return Collections.emptyList(); // EARLY EXIT!
         }
 
-        final long[] ids = new long[graph.length];
+        final List<Long> ids = new ArrayList<Long>(graph.length);
         final ReloadFilter filter = new ReloadFilter(session());
         doAction(graph, filter, new UpdateAction<IObject[]>() {
             @Override
             public IObject[] run(IObject[] value, UpdateFilter filter, Session s) {
                 for (int i = 0; i < value.length; i++) {
-
-                    ids[i] = internalSave(value[i], (ReloadFilter) filter, s);
+                    ids.add(i, internalSave(value[i], (ReloadFilter) filter, s));
                 }
                 return null;
             }

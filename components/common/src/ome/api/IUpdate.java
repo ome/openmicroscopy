@@ -9,6 +9,7 @@ package ome.api;
 
 // Java imports
 import java.util.Collection;
+import java.util.List;
 
 import ome.annotations.Validate;
 import ome.conditions.ValidationException;
@@ -28,6 +29,12 @@ import ome.model.IObject;
  * <b>should be discarded</b>.
  * </p>
  * 
+ * <p>{@link #saveAndReturnIds(IObject[])} behaves slightly differently in that
+ * it does <em>not</em> handle object modifications. The graph of objects
+ * passed in can consist <em>ONLY</em> if either newly created objects without
+ * ids or of unloaded objects with ids.
+ * </p>
+ * 
  * <p>
  * All methods throw {@link ome.conditions.ValidationException} if the input
  * objects do not pass validation, and
@@ -45,6 +52,10 @@ import ome.model.IObject;
  */
 public interface IUpdate extends ServiceInterface {
 
+    /** Logic differs from other methods. See class description
+     * @see ome.api.IUpdate */
+    List<Long> saveAndReturnIds(IObject[] objects);
+    
     /** @see ome.api.IUpdate */
     void saveCollection(@Validate(IObject.class)
     Collection<IObject> graph);

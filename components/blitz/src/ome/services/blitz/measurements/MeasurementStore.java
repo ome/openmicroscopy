@@ -169,11 +169,11 @@ public class MeasurementStore implements OmeroMeasurementStore {
         }
         if (unsaved.size() > 0) {
             IObject[] objs = unsaved.toArray(new IObject[unsaved.size()]);
-            long[] ids = update.saveAndReturnIds(objs);
-            for (int i = 0; i < ids.length; i++) {
-                unsaved.get(i).setId(ids[i]);
+            List<Long> ids = update.saveAndReturnIds(objs);
+            for (int i = 0; i < ids.size(); i++) {
+                unsaved.get(i).setId(ids.get(i));
                 unsaved.get(i).unload();
-                roiIds.add(ids[i]);
+                roiIds.add(ids.get(i));
             }
         }
 

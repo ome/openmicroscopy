@@ -1,6 +1,7 @@
 package ome.server.itests.scalability;
 
 import java.util.Arrays;
+import java.util.List;
 
 import ome.model.IObject;
 import ome.parameters.Parameters;
@@ -25,10 +26,10 @@ public class ImportMetadataTest extends AbstractManagedContextTest {
     @Test
     public void testSave() {
         StopWatch sw = new CommonsLogStopWatch("test.import.save");
-        long[] ids = iUpdate.saveAndReturnIds(data());
-        Long[] ids2 = new Long[ids.length];
-        for (int i = 0; i < ids.length; i++) {
-            ids2[i] = Long.valueOf(ids[i]);
+        List<Long> ids = iUpdate.saveAndReturnIds(data());
+        Long[] ids2 = new Long[ids.size()];
+        for (int i = 0; i < ids.size(); i++) {
+            ids2[i] = ids.get(i);
         }
         iQuery.findAllByQuery("select p from Pixels p where p.image.id in (:list)",
                 new Parameters().addList("list", Arrays.<Long>asList(ids2)));

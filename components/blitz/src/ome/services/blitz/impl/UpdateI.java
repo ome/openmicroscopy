@@ -15,6 +15,7 @@ import omero.ServerError;
 import omero.api.AMD_IUpdate_deleteObject;
 import omero.api.AMD_IUpdate_indexObject;
 import omero.api.AMD_IUpdate_saveAndReturnArray;
+import omero.api.AMD_IUpdate_saveAndReturnIds;
 import omero.api.AMD_IUpdate_saveAndReturnObject;
 import omero.api.AMD_IUpdate_saveArray;
 import omero.api.AMD_IUpdate_saveCollection;
@@ -83,6 +84,11 @@ public class UpdateI extends AbstractAmdServant implements _IUpdateOperations {
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, obj);
 
+    }
+
+    public void saveAndReturnIds_async(AMD_IUpdate_saveAndReturnIds __cb,
+            List<IObject> graph, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, graph);
     }
 
 }

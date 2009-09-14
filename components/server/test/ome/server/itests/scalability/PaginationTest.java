@@ -3,6 +3,7 @@ package ome.server.itests.scalability;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import ome.model.IObject;
@@ -18,8 +19,6 @@ import ome.testing.Report;
 
 import org.testng.annotations.Test;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
-
 @Test(groups = { "integration" })
 public class PaginationTest extends AbstractManagedContextTest {
 
@@ -28,7 +27,7 @@ public class PaginationTest extends AbstractManagedContextTest {
 
     @Test
     public void testLotsOfSaves() {
-        long[] ids = null;
+        List<Long> ids = null;
         IObject[] objs = null;
         
         for (int j = 0; j < 5; j++) {

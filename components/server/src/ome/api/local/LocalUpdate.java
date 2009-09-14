@@ -23,7 +23,4 @@ public interface LocalUpdate extends ome.api.IUpdate {
 
     void flush();
 
-    /** @see ome.api.IUpdate */
-    long[] saveAndReturnIds(IObject[] objects);
-    
 }

@@ -1373,17 +1373,12 @@ public class OMEROMetadataStore
     	StopWatch s1 = new CommonsLogStopWatch("omero.saveImportGraph");
     	Image[] imageArray = 
     		imageList.values().toArray(new Image[imageList.size()]);
-    	long[] imageIds = ((LocalUpdate) iUpdate).saveAndReturnIds(imageArray);
+    	List<Long> imageIdList = iUpdate.saveAndReturnIds(imageArray);
     	s1.stop();
     	
     	// To conform loosely with the method contract, reload a subset of
     	// the original graph so that it may be manipulated by the caller.
     	StopWatch s2 = new CommonsLogStopWatch("omero.buildReturnCollection");
-    	List<Long> imageIdList = new ArrayList<Long>(imageIds.length);
-    	for (long imageId : imageIds)
-    	{
-    		imageIdList.add(imageId);
-    	}
     	Parameters p = new Parameters();
     	p.addIds(imageIdList);
     	List<Pixels> toReturn = iQuery.findAllByQuery(
