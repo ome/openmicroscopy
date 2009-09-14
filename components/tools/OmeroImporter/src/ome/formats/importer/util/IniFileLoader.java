@@ -188,19 +188,27 @@ public class IniFileLoader
     	{
     		for (String key : maps.keys())
     		{
-    			String value = maps.get(key, null);
-    			try
+    			String mapValues = maps.get(key, null);
+    			log.info("Raw Flex reader map values: " + mapValues);
+    			if (mapValues == null)
     			{
-    				FlexReader.mapServer(key, value);
-    				log.info(String.format(
-    					"Added Flex reader server map '%s' = '%s'.",
-    					key, value));
+    				return;
     			}
-    			catch (FormatException e)
+    			for (String mapValue : mapValues.trim().split((";")))
     			{
-    				log.warn(String.format(
-    					"Unable to add Flex reader server map '%s' = '%s'", 
-    					key, value), e);
+	    			try
+	    			{
+	    				FlexReader.mapServer(key, mapValue);
+	    				log.info(String.format(
+	    					"Added Flex reader server map '%s' = '%s'.",
+	    					key, mapValue));
+	    			}
+	    			catch (FormatException e)
+	    			{
+	    				log.warn(String.format(
+	    					"Unable to add Flex reader server map '%s' = '%s'", 
+	    					key, mapValue), e);
+	    			}
     			}
     		}
     	}

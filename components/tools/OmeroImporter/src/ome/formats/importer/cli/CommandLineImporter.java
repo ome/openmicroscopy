@@ -12,6 +12,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.util.IniFileLoader;
 import omero.ServerError;
 import omero.model.Dataset;
 import omero.model.IObject;
@@ -141,6 +142,7 @@ public class CommandLineImporter
                 "  -x\tImage description to use\n" +
                 "  -p\tOMERO server port [defaults to 4063]\n" +
                 "  -h\tDisplay this help and exit\n" +
+                "  --debug\tTurn debug logging on\n" +
                 "\n" +
                 "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n" +
                 "\n" +
@@ -161,6 +163,7 @@ public class CommandLineImporter
      */
     public static void main(String[] args)
     {
+    	IniFileLoader.getIniFileLoader(args);
     	LongOpt debug = new LongOpt("debug", LongOpt.NO_ARGUMENT, null, 1);
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
         		              new LongOpt[] { debug });
