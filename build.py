@@ -29,7 +29,7 @@ def build_hudson():
     #
     # Documentation and build reports
     #
-    java_omero("release-javadoc")
+    java_omero("release-docs")
     java_omero("release-findbugs")
     ## java_omero("release-jdepend") ## Doesn't yet work. Running from hudson
 

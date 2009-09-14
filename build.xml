@@ -356,7 +356,9 @@ java component.
        </exec>
     </target>
 
-    <target name="release-javadoc" depends="release-epydoc,release-slice2html" description="Generate Javadocs for all components under dist/docs/api">
+    <target name="release-docs" depends="release-javadoc,release-epydoc,release-slice2html" description="Generate Docs for all components under dist/docs/api"/>
+
+    <target name="release-javadoc" description="Generate Javadocs for all components under dist/docs/api">
         <mkdir dir="${dist.dir}/docs/api"/>
         <patternset id="all.java.files">
             <!-- Includes prefixed with "**" in order to pick up
