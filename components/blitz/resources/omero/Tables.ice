@@ -127,7 +127,8 @@ module omero {
 
             /**
              * Simple slice method which will return only the given columns
-             * and rows.
+             * and rows. If colNumbers or rowNumbers is empty (or None), then all values
+             * will be returned.
              **/
             Data
                 slice(omero::api::LongArray colNumbers, omero::api::LongArray rowNumbers)

@@ -331,11 +331,14 @@ class HdfStorage(object):
 
     def slice(self, stamp, colNumbers, rowNumbers, current):
         self.__initcheck()
-        rows = self.__mea.readCoordinates(rowNumbers)
+        if rowNumbers is None or len(rowNumbers) == 0:
+	    rows = self.__mea.read()
+        else:
+            rows = self.__mea.readCoordinates(rowNumbers)
         cols = self.cols(None, current)
         rv   = []
         for i in range(len(cols)):
-            if i in colNumbers:
+            if colNumbers is None or len(colNumbers) == 0 or i in colNumbers:
                 col = cols[i]
                 col.values = rows[col.name].tolist()
                 rv.append(col)
