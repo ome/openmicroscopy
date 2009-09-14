@@ -1278,22 +1278,6 @@ public class OMEROMetadataStoreClient
     {
     }
 
-    public void setDisplayOptionsProjectionZStart(Integer start, int imageIndex)
-    {
-    }
-
-    public void setDisplayOptionsProjectionZStop(Integer stop, int imageIndex)
-    {
-    }
-
-    public void setDisplayOptionsTimeTStart(Integer start, int imageIndex)
-    {
-    }
-
-    public void setDisplayOptionsTimeTStop(Integer stop, int imageIndex)
-    {
-    }
-
     public void setDisplayOptionsZoom(Float zoom, int imageIndex)
     {
     }
@@ -3690,48 +3674,6 @@ public class OMEROMetadataStoreClient
     	o.setType((FilterType) getEnumeration(FilterType.class, type));
     }
 
-    public void setGreyChannelBlackLevel(Float arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    public void setGreyChannelChannelNumber(Integer arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    public void setGreyChannelGamma(Float arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    public void setGreyChannelMapColorMap(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    public void setGreyChannelWhiteLevel(Float arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    public void setGreyChannelisOn(Boolean arg0, int arg1)
-    {
-
-        //
-
-    }
-
     public void setGroupName(String arg0, int arg1)
     {
 
@@ -3761,13 +3703,6 @@ public class OMEROMetadataStoreClient
     }
 
     public void setImageGroupRef(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    public void setImageObjective(String arg0, int arg1)
     {
 
         //
