@@ -4604,15 +4604,13 @@ class OMEROGateway
 					id = i.next();
 					r = map.get(id);
 					//get the table
-					
 					result = new ROIResult(PojoMapper.asDataObjects(r.rois), 
 							id);
 					results.add(result);
 				}
-				
 			}
-			
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot load the ROI for image: "+imageID);
 		}
 		return results;
@@ -4631,8 +4629,9 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();
+		FileOutputStream stream = null;
 		try {
-			FileOutputStream stream = new FileOutputStream(f);
+			stream = new FileOutputStream(f);
 			ExporterPrx service = getExporterService();
 			//service.activate();
 			service.asXml();
@@ -4649,21 +4648,24 @@ class OMEROGateway
 			
 			return f;
 		} catch (Throwable t) {
-			t.printStackTrace();
+			
+			/*
 			if (exporterService != null) {
 				try {
 					exporterService.close();
 				} catch (Exception e) {
-					//nothing we can do
+					handleException(t, "Cannot export the image");
 				}
 			}
+			*/
 			exporterService = null;
-			if (t instanceof ServerError) {
-				throw new DSOutOfServiceException(
-						"Thumbnail service null for image: "+imageID, t);
-			} 
+			if (f != null) f.delete();
+			try {
+				if (stream != null) stream.close();
+			} catch (Exception e) {}
+			handleException(t, "Cannot export the image");
+			return null;
 		}
-		return f;
 	}
 	
 	//tmp

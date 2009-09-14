@@ -39,6 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -1868,20 +1869,19 @@ class ImViewerComponent
 	public void showMeasurementTool()
 	{
 		Collection measurements = model.getMeasurements();
-		/*
 		if (measurements == null || measurements.size() == 0) {
 			postMeasurementEvent(null);
 			return;
 		}
-			*/
 		MessageBox msg = new MessageBox(view, "Measurements", 
 		"Select the measurements to display alongside the image.");
 		Map<JCheckBox, FileAnnotationData> boxes = 
 			new LinkedHashMap<JCheckBox, FileAnnotationData>();
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		Iterator i;
 		if (measurements != null) {
-			Iterator i = measurements.iterator();
+			i = measurements.iterator();
 			FileAnnotationData fa;
 			JCheckBox box;
 			while (i.hasNext()) {
@@ -1894,11 +1894,11 @@ class ImViewerComponent
 		}
 		
 		msg.setNoText("Cancel");
-		msg.setYesText("Apply");
+		msg.setYesText("Display");
 		msg.addBodyComponent(p);
 		int option = msg.centerMsgBox();
 		List<FileAnnotationData> files = new ArrayList<FileAnnotationData>();
-		/*
+		
 		if (option == MessageBox.YES_OPTION) {
 			Entry entry;
 			i = boxes.entrySet().iterator();
@@ -1909,7 +1909,6 @@ class ImViewerComponent
 			}
 			if (files.size() > 0) postMeasurementEvent(files);
 		}
-		*/
 	}
 
 	/** 

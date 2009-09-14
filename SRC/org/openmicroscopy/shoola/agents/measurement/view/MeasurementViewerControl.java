@@ -497,7 +497,6 @@ class MeasurementViewerControl
 			model.setDataChanged();
 		}
 	}
-
 	
 	/**
 	 * Required by the {@link DrawingListener} I/F used to update 
@@ -506,12 +505,10 @@ class MeasurementViewerControl
 	 */
 	public void figureChanged(FigureEvent e)
 	{
+		if (model.isServerROI()) return;
 		Figure f = e.getFigure();
 		if (f instanceof ROIFigure) 
-		{
-			ROIFigure roiFigure = (ROIFigure) f;
-			handleFigureChange(roiFigure);
-		}
+			handleFigureChange( (ROIFigure) f);
 	}
 	
 	/** 
@@ -550,35 +547,35 @@ class MeasurementViewerControl
 	}
 
 	/**
-	 * Required by the I/F but no-op implementation in our case.
+	 * Required by the I/F but no-operation implementation in our case.
 	 * @see WindowFocusListener#windowLostFocus(WindowEvent)
 	 */
 	public void windowLostFocus(WindowEvent e) {}
 	
 	/**
-	 * Required by the {@link DrawingListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link DrawingListener} I/F but no-operation 
+	 * implementation in our case.
 	 * @see DrawingListener#areaInvalidated(DrawingEvent)
 	 */
 	public void areaInvalidated(DrawingEvent e) {}
 
 	/**
-	 * Required by the {@link DrawingListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link DrawingListener} I/F but no-operation 
+	 * implementation in our case.
 	 * @see FigureListener#figureAdded(FigureEvent)
 	 */
 	public void figureAdded(FigureEvent e) {}
 
 	/**
-	 * Required by the {@link DrawingListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link DrawingListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see FigureListener#figureAreaInvalidated(FigureEvent)
 	 */
 	public void figureAreaInvalidated(FigureEvent e) {}
 	
 	/**
-	 * Required by the {@link DrawingListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link DrawingListener} I/F but no-operation 
+	 * implementation in our case.
 	 * @see FigureListener#figureRemoved(FigureEvent)
 	 */
 	public void figureRemoved(FigureEvent e) {}
