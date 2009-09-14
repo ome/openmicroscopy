@@ -68,7 +68,12 @@ public class ImportCandidates extends DirectoryWalker {
 
             for (String string : paths) {
                 try {
-                    walk(new File(string), null);
+                    File f = new File(string);
+                    if (f.isDirectory()) {
+                        walk(f, null);
+                    } else {
+                        handleFile(f, 0, null);
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
