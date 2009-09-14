@@ -195,34 +195,72 @@ class ROIDrawingI:
     def acceptVisitor(self, visitor):
         abstract();
 
+##
+# The base class for all ROIShapeData objects.
+#
 class ShapeData:
 
+    ##
+    # Constructor sets up the coord, shapeSettings and ROI objects.
+    #
     def __init__(self):
         self.coord = ROICoordinate();
         self.shapeSettings = ShapeSettingsData();
         self.ROI = None;
         
+    ##
+    # Set the coord of the class to coord.
+    # @param See above.
+    #
     def setCoord(self, coord):
         self.coord = coord;
     
+    ## 
+    # Set the ROICoordinate of the roi.
+    # @param roi See above.
+    #
     def setROICoord(self, roi):
         self.coord.setROICoord(roi);
-        
-    def setROIGeometry(self, shape):
+    
+    ##
+    # Set the Geometry of the roi from the geometry in ShapeData.
+    # @param roi See above.
+    #    
+    def setROIGeometry(self, roi):
         abstract();
 
+    ##
+    # Set the Settings of the ShapeDate form the settings object. 
+    # @param settings See above.
+    #    
     def setShapeSettings(self, settings):
         self.shapeSettings = settings;
     
+    ##
+    # Set the Settings of the roi from the setting in ShapeData.
+    # @param roi See above.
+    #    
     def setROIShapeSettings(self, roi):
         self.shapeSettings.setROIShapeSettings(roi);
 
+    ##
+    # Accept visitor.
+    # @param visitor See above.
+    #    
     def acceptVisitor(self, visitor):
         abstract();
 
+    ##
+    # Create the base type of ROI for this shape.
+    #
     def createBaseType(self):
         abstract();
         
+    ##
+    # Get the roi from the ShapeData. If the roi already exists return it.
+    # Otherwise create it from the ShapeData and return it.
+    # @return See above.
+    #
     def getROI(self):
         if(self.roi != None):
             return self.roi;
@@ -231,24 +269,52 @@ class ShapeData:
         self.setROIGeometry(roi);
         self.setROIShapeSettings(roi);
         return self.roi;
-        
+    
+    ##
+    # Set the shape settings object from the roi.
+    # @param roi see above.
+    #  
     def getShapeSettingsFromROI(self, roi):
         self.shapeSettings.getShapeSettingsFromROI(roi);
-        
+    
+    ##
+    # Set the ROICoordinate from the roi.
+    # @param roi See above.
+    #    
     def getCoordFromROI(self, roi):
         self.coord.setCoordFromROI(roi);
         
+    ##
+    # Set the Geometr from the roi.
+    # @param roi See above.
+    #    
     def getGeometryFromROI(self , roi):
         abstract();
         
+    ##
+    # Get all settings from the roi, Geomerty, Shapesettins, ROICoordinate.
+    # @param roi See above.
+    #
     def fromROI(self, roi):
         self.roi = roi;
         self.getShapeSettingsFromROI(roi);
         self.getCoordFromROI(roi);
         self.getGeometryFromROI(roi);
-        
+
+##
+# The EllispeData class contains all the manipulation and create of EllipseI
+# types.
+# It also accepts the ROIDrawingUtils visitor for drawing ellipses.
+#
 class EllipseData(ShapeData, ROIDrawingI):
-        
+    
+    ##
+    # Constructor for EllipseData object.
+    # @param roicoord The ROICoordinate of the object (default: 0,0)
+    # @param cx The centre x coordinate of the ellipse.   
+    # @param cy The centre y coordinate of the ellipse.   
+    # @param rx The major axis of the ellipse.   
+    # @param ry The minor axis of the ellipse.   
     def __init__(self, roicoord = ROICoordinate(), cx = 0, cy = 0, rx = 0, ry = 0):
         ShapeData.__init__(self);
         self.cx = rdouble(cx);
@@ -256,7 +322,10 @@ class EllipseData(ShapeData, ROIDrawingI):
         self.rx = rdouble(rx);
         self.ry = rdouble(ry);
         self.setCoord(roicoord);
-        
+    
+    ##
+    # overridden, @See ShapeData#setROIGeometry
+    #    
     def setROIGeometry(self, ellipse):
         ellipse.setTheZ(self.coord.theZ);
         ellipse.setTheT(self.coord.theZ);
@@ -265,20 +334,41 @@ class EllipseData(ShapeData, ROIDrawingI):
         ellipse.setRx(self.rx);
         ellipse.setRy(self.ry);
 
+    ##
+    # overridden, @See ShapeData#getGeometryFromROI
+    #    
     def getGeometryFromROI(self, roi):
         self.cx = roi.getCx();
         self.cy = roi.getCy();
         self.rx = roi.getRx();
         self.ry = roi.getRy();
 
+    ##
+    # overridden, @See ShapeData#createBaseType
+    #    
     def createBaseType(self):
         return EllipseI();
 
+    ##
+    # overridden, @See ShapeData#acceptVisitor
+    #    
     def acceptVisitor(self, visitor):
         visitor.drawEllipse(self.cx.getValue(), self.cy.getValue(), self.rx.getValue(), self.ry.getValue(), self.shapeSettings.getSettings());
         
+##
+# The RectangleData class contains all the manipulation and create of RectI
+# types.
+# It also accepts the ROIDrawingUtils visitor for drawing rectangles.
+#
 class RectangleData(ShapeData, ROIDrawingI):
-        
+    
+    ##
+    # Constructor for RectangleData object.
+    # @param roicoord The ROICoordinate of the object (default: 0,0)
+    # @param x The top left x - coordinate of the shape.   
+    # @param y The top left y - coordinate of the shape.   
+    # @param width The width of the shape.   
+    # @param height The height of the shape.     
     def __init__(self, roicoord = ROICoordinate(), x = 0, y = 0, width = 0, height = 0):
         ShapeData.__init__(self);
         self.x = rdouble(x);
@@ -287,6 +377,9 @@ class RectangleData(ShapeData, ROIDrawingI):
         self.height = rdouble(height);
         self.setCoord(roicoord);
     
+    ##
+    # overridden, @See ShapeData#setGeometry
+    #    
     def setGeometry(self, rectangle):
         rectangle.setTheZ(self.coord.theZ);
         rectangle.setTheT(self.coord.theZ);
@@ -295,20 +388,40 @@ class RectangleData(ShapeData, ROIDrawingI):
         rectangle.setWidth(self.width);
         rectangle.setHeight(self.height);
 
+    ##
+    # overridden, @See ShapeData#getGeometryFromROI
+    #    
     def getGeometryFromROI(self, roi):
         self.x = roi.getX();
         self.y = roi.getY();
         self.width = roi.getWidth();
         self.height = roi.getHeight();
 
+    ##
+    # overridden, @See ShapeData#createBaseType
+    #    
     def createBaseType(self):
         return RectI();
 
+    ##
+    # overridden, @See ShapeData#acceptVisitor
+    #    
     def acceptVisitor(self, visitor):
         visitor.drawRectangle(self.x, self.y, self.width, self.height, self.shapeSettings.getSettings());
-
+##
+# The LineData class contains all the manipulation and create of LineI
+# types.
+# It also accepts the ROIDrawingUtils visitor for drawing lines.
+#
 class LineData(ShapeData, ROIDrawingI):
         
+    ##
+    # Constructor for LineData object.
+    # @param roicoord The ROICoordinate of the object (default: 0,0)
+    # @param x1 The first x coordinate of the shape.   
+    # @param y1 The first y coordinate of the shape.   
+    # @param x2 The second x  coordinate of the shape.   
+    # @param y2 The second y coordinate of the shape.   
     def __init__(self, roicoord = ROICoordinate(), x1 = 0, y1 = 0, x2 = 0, y2 = 0):
         ShapeData.__init__(self);
         self.x1 = rdouble(x1);
@@ -317,6 +430,9 @@ class LineData(ShapeData, ROIDrawingI):
         self.y2 = rdouble(y2);
         self.setCoord(roicoord);
     
+    ##
+    # overridden, @See ShapeData#setGeometry
+    #    
     def setGeometry(self, line):
         line.setTheZ(self.coord.theZ);
         line.setTheT(self.coord.theZ);
@@ -325,20 +441,42 @@ class LineData(ShapeData, ROIDrawingI):
         line.setX2(self.x2);
         line.setY2(self.y2);
 
+    ##
+    # overridden, @See ShapeData#getGeometryFromROI
+    #    
     def getGeometryFromROI(self, roi):
         self.x1 = roi.getX1();
         self.y1 = roi.getY1();
         self.x2 = roi.getX2();
         self.y2 = roi.getY2();
 
+    ##
+    # overridden, @See ShapeData#createBaseType
+    #    
     def createBaseType(self):
         return LineI();
 
+    ##
+    # overridden, @See ShapeData#acceptVisitor
+    #    
     def acceptVisitor(self, visitor):
         visitor.drawLine(self.x1.getValue(), self.y1.getValue(), self.x2.getValue(), self.y2.getValue(), self.shapeSettings.getSettings());
 
+##
+# The MaskData class contains all the manipulation and create of MaskI
+# types.
+# It also accepts the ROIDrawingUtils visitor for drawing masks.
+#
 class MaskData(ShapeData, ROIDrawingI):
         
+    ##
+    # Constructor for MaskData object.
+    # @param roicoord The ROICoordinate of the object (default: 0,0)
+    # @param bytes The mask data.
+    # @param x The top left x - coordinate of the shape.   
+    # @param y The top left y - coordinate of the shape.   
+    # @param width The width of the shape.   
+    # @param height The height of the shape.     
     def __init__(self, roicoord = ROICoordinate(), bytes = None, x = 0, y = 0, width = 0, height = 0):
         ShapeData.__init__(self);
         self.x = rdouble(x);
@@ -348,6 +486,9 @@ class MaskData(ShapeData, ROIDrawingI):
         self.bytesdata = bytes;
         self.setCoord(roicoord);
     
+    ##
+    # overridden, @See ShapeData#setGeometry
+    #    
     def setGeometry(self, mask):
         mask.setTheZ(self.coord.theZ);
         mask.setTheT(self.coord.theZ);
@@ -357,6 +498,9 @@ class MaskData(ShapeData, ROIDrawingI):
         mask.setHeight(self.height);
         mask.setBytes(self.bytedata);
 
+    ##
+    # overridden, @See ShapeData#getGeometryFromROI
+    #    
     def getGeometryFromROI(self, roi):
         self.x = roi.getX();
         self.y = roi.getY();
@@ -364,52 +508,98 @@ class MaskData(ShapeData, ROIDrawingI):
         self.height = roi.getHeight();
         self.bytesdata = roi.getBytes();
 
+    ##
+    # overridden, @See ShapeData#createBaseType
+    #    
     def createBaseType(self):
         return MaskI();
 
+    ##
+    # overridden, @See ShapeData#acceptVisitor
+    #    
     def acceptVisitor(self, visitor):
         visitor.drawMask(self.x.getValue(), self.y.getValue(), self.width.getValue(), self.height.getValue(), self.bytesdata, self.shapeSettings.getSettings());
 
+##
+# The PointData class contains all the manipulation and create of PointI
+# types.
+# It also accepts the ROIDrawingUtils visitor for drawing points.
+#
 class PointData(ShapeData, ROIDrawingI):
             
+    ##
+    # Constructor for PointData object.
+    # @param roicoord The ROICoordinate of the object (default: 0,0)
+    # @param x The x coordinate of the shape.   
+    # @param y The y coordinate of the shape.   
     def __init__(self, roicoord = ROICoordinate(), x = 0, y = 0):
         ShapeData.__init__(self);
         self.x = rdouble(x);
         self.y = rdouble(y);
         self.setCoord(roicoord);
     
+    ##
+    # overridden, @See ShapeData#setGeometry
+    #    
     def setGeometry(self, point):
         point.setTheZ(self.coord.theZ);
         point.setTheT(self.coord.theZ);
         point.setX(self.x);
         point.setY(self.y);
 
+    ##
+    # overridden, @See ShapeData#getGeometryFromROI
+    #    
     def getGeometryFromROI(self, roi):
         self.x = roi.getX();
         self.y = roi.getY();
 
+    ##
+    # overridden, @See ShapeData#createBaseType
+    #    
     def createBaseType(self):
         return PointI();
 
+    ##
+    # overridden, @See ShapeData#acceptVisitor
+    #    
     def acceptVisitor(self, visitor):
         visitor.drawPoint(self.x.getValue(), self.y.getValue(), self.shapeSettings.getSettings());
 
-
+##
+# The PolygonData class contains all the manipulation and create of PolygonI
+# types.
+# It also accepts the ROIDrawingUtils visitor for drawing polygons.
+#
 class PolygonData(ShapeData, ROIDrawingI):
     
+    ##
+    # Constructor for PolygonData object.
+    # @param roicoord The ROICoordinate of the object (default: 0,0)
+    # @param pointList The list of points that make up the polygon, as pairs [x1, y1, x2, y2 ..].   
     def __init__(self, roicoord = ROICoordinate(), pointsList = [0,0]):
         ShapeData.__init__(self);
         self.points = rstring(self.listToString(pointsList));
         self.setCoord(roicoord);
     
+    ##
+    # overridden, @See ShapeData#setGeometry
+    #    
     def setGeometry(self, polygon):
         polygon.setTheZ(self.coord.theZ);
         polygon.setTheT(self.coord.theZ);
         polygon.setPoints(self.points);
 
+    ##
+    # overridden, @See ShapeData#getGeometryFromROI
+    #    
     def getGeometryFromROI(self, roi):
         self.points = roi.getPoints();
 
+    ##
+    # Convert a pointsList[x1,y1,x2,y2..] to a string.
+    # @param pointsList The list of points to convert.
+    # @return The pointsList converted to a string.
     def listToString(self, pointsList):
         string = '';
         cnt = 0;
@@ -420,6 +610,10 @@ class PolygonData(ShapeData, ROIDrawingI):
             string = string + str(element);
         return string;
 
+    ##
+    # Convert a string of points to a tuple list [(x1,y1),(x2,y2)..].
+    # @param pointString The string to convert.
+    # @return The tuple list converted from a string.
     def stringToTupleList(self, pointString):
         elements = [];
         list = pointString.split(',');
@@ -428,27 +622,52 @@ class PolygonData(ShapeData, ROIDrawingI):
             elements.append((int(list[tokenPair*2]), int(list[tokenPair*2+1])));
         return elements;
 
+    ##
+    # overridden, @See ShapeData#createBaseType
+    #    
     def createBaseType(self):
         return PolygonI();
 
+    ##
+    # overridden, @See ShapeData#acceptVisitor
+    #    
     def acceptVisitor(self, visitor):
         visitor.drawPolygon(self.stringToTupleList(self.points.getValue()), self.shapeSettings.getSettings());
 
+##
+# The PolylineData class contains all the manipulation and create of PolylineI
+# types.
+# It also accepts the ROIDrawingUtils visitor for drawing polylines.
+#
 class PolylineData(ShapeData, ROIDrawingI):
         
+    ##
+    # Constructor for PolylineData object.
+    # @param roicoord The ROICoordinate of the object (default: 0,0)
+    # @param pointList The list of points that make up the polygon, as pairs [x1, y1, x2, y2 ..].   
     def __init__(self, roicoord = ROICoordinate(), pointsList = [0,0]):
         ShapeData.__init__(self);
         self.points = rstring(self.listToString(pointsList));
         self.setCoord(roicoord);
     
+    ##
+    # overridden, @See ShapeData#setGeometry
+    #    
     def setGeometry(self, point):
         point.setTheZ(self.coord.theZ);
         point.setTheT(self.coord.theZ);
         point.setPoints(self.points);
 
+    ##
+    # overridden, @See ShapeData#getGeometryFromROI
+    #    
     def getGeometryFromROI(self, roi):
         self.points = roi.getPoints();
 
+    ##
+    # Convert a pointsList[x1,y1,x2,y2..] to a string.
+    # @param pointsList The list of points to convert.
+    # @return The pointsList converted to a string.
     def listToString(self, pointsList):
         string = '';
         cnt = 0;
@@ -459,6 +678,10 @@ class PolylineData(ShapeData, ROIDrawingI):
             cnt+=1;
         return string;
             
+    ##
+    # Convert a string of points to a tuple list [(x1,y1),(x2,y2)..].
+    # @param pointString The string to convert.
+    # @return The tuple list converted from a string.
     def stringToTupleList(self, pointString):
         elements = [];
         list = pointString.split(',');
@@ -466,11 +689,16 @@ class PolylineData(ShapeData, ROIDrawingI):
         for tokenPair in range(0,numTokens/2):
             elements.append((int(list[tokenPair*2]), int(list[tokenPair*2+1])));
         return elements;
-            
         
+    ##
+    # overridden, @See ShapeData#createBaseType
+    #    
     def createBaseType(self):
         return PolylineI();
 
+    ##
+    # overridden, @See ShapeData#acceptVisitor
+    #    
     def acceptVisitor(self, visitor):
         visitor.drawPolyline(self.stringToTupleList(self.points.getValue()), self.shapeSettings.getSettings());
 
