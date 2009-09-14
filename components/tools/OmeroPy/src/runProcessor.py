@@ -5,6 +5,7 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+import sys
 import Ice
 import omero
 
