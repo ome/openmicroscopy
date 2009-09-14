@@ -663,7 +663,29 @@ module omero {
 
         /**
          * Stateful service for generating OME-XML or OME-TIFF from data stored
-         * in OMERO.
+         * in OMERO. Intended usage:
+         * <pre>
+         *
+         *   ExporterPrx e = sf.createExporter();
+         *
+         *   // Exporter is currently in the "configuration" state
+         *
+         *   e.asXml();
+         *   e.addImage(1);
+         *
+         *   // As soon as "getBytes()" is called, the Exporter is in the
+         *   // "output" state, and will stay there until all data has been
+         *   // read.
+         *
+         *   byte[] buf;
+         *   while (true) {
+         *      buf = e.getBytes(1024);
+         *      // Store to file locally
+         *      if (buf.length < 1024) {
+         *          break;
+         *       }
+         *   }
+         * </pre>
          **/
         ["ami", "amd"] interface Exporter extends StatefulServiceInterface {
 

@@ -24,6 +24,8 @@ import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.db.DatabaseIdentity;
+import ome.services.util.Executor;
+import ome.system.ServiceFactory;
 import ome.util.messages.InternalMessage;
 import ome.xml.DOMUtil;
 import ome.xml.OMEXMLNode;
@@ -37,9 +39,12 @@ import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api._ExporterOperations;
 import omero.model.ImageI;
+import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 
@@ -215,39 +220,51 @@ public class ExporterI extends AbstractAmdServant implements
      * Transitions from config to output.
      */
     private ServerError startOutput() {
+        try {
+            factory.executor.execute(factory.principal,
+                    new Executor.SimpleWork(this, "generateOutput") {
+                        @Transactional(readOnly = true)
+                        public Object doWork(Session session, ServiceFactory sf) {
+                            retrieve.initialize(session);
+                            IMetadata xmlMetadata = convertXml(retrieve);
+                            if (xmlMetadata != null) {
+                                Object root = xmlMetadata.getRoot();
+                                if (root instanceof OMEXMLNode) {
+                                    OMEXMLNode node = (OMEXMLNode) root;
 
-//        retrieve.initialize(factory);
-//        IMetadata xmlMetadata = convertXml(retrieve);
-//        if (xmlMetadata != null) {
-//            Object root = xmlMetadata.getRoot();
-//            if (root instanceof OMEXMLNode) {
-//                OMEXMLNode node = (OMEXMLNode) root;
-//
-//                try {
-//
-//                    file = File.createTempFile("ome", "xml");
-//                    file.deleteOnExit();
-//                    FileOutputStream fos = new FileOutputStream(file);
-//                    DOMUtil.writeXML(fos, node.getDOMElement()
-//                            .getOwnerDocument());
-//                    fos.close();
-//                    retrieve = null;
-//                    offset = 0;
-//
-//                    return null; // ONLY VALID EXIT
-//
-//                } catch (IOException ioe) {
-//                    log.error(ioe);
-//                } catch (TransformerException e) {
-//                    log.error(e);
-//                }
-//
-//            }
-//        }
+                                    try {
 
-        return new omero.InternalException(null, null,
-                "Failed to create export");
+                                        file = File
+                                                .createTempFile("ome", "xml");
+                                        file.deleteOnExit();
+                                        FileOutputStream fos = new FileOutputStream(
+                                                file);
+                                        DOMUtil.writeXML(fos, node
+                                                .getDOMElement()
+                                                .getOwnerDocument());
+                                        fos.close();
+                                        retrieve = null;
+                                        offset = 0;
 
+                                        return null; // ONLY VALID EXIT
+
+                                    } catch (IOException ioe) {
+                                        log.error(ioe);
+                                    } catch (TransformerException e) {
+                                        log.error(e);
+                                    }
+
+                                }
+                            }
+                            return null;
+                        }
+                    });
+            return null;
+        } catch (Exception e) {
+            omero.InternalException ie = new omero.InternalException();
+            IceMapper.fillServerError(ie, e);
+            return ie;
+        }
     }
 
     /**
@@ -328,14 +345,12 @@ public class ExporterI extends AbstractAmdServant implements
 
     public void activate_async(AMD_StatefulServiceInterface_activate __cb,
             Current __current) {
-        callInvokerOnRawArgs(__cb, __current);
-
+        // Do nothing for the moment
     }
 
     public void passivate_async(AMD_StatefulServiceInterface_passivate __cb,
             Current __current) {
-        callInvokerOnRawArgs(__cb, __current);
-
+        // Do nothing for the moment
     }
 
     public void close_async(AMD_StatefulServiceInterface_close __cb,

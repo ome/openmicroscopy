@@ -49,6 +49,7 @@ import ome.services.util.Executor.SimpleWork;
 import ome.services.util.Executor.Work;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.ProxyCleanupFilter;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.Filterable;
 import omero.model.Arc;
@@ -167,6 +168,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 
     public void initialize(org.hibernate.Session session) {
 
+        Map<Image, ome.model.core.Image> lookups = new HashMap<Image, ome.model.core.Image>();
         Map<Image, Image> replacements = new HashMap<Image, Image>();
         for (Image image : imageList) {
             if (!image.isLoaded()) {
@@ -190,16 +192,18 @@ public class OmeroMetadata implements MetadataRetrieve {
                 qb.join("n.details.group", "n_g", false, true);
                 qb.where();
                 qb.and("i.id = " + i.getId().getValue());
-                // eturn qb.query(session).uniqueResult();
-
-                ome.model.core.Image img = (ome.model.core.Image) session.get(
-                        ome.model.core.Image.class, i.getId().getValue());
-                Image replacement = (Image) new IceMapper().map(img);
-                replacements.put(image, replacement);
+                lookups.put(image, (ome.model.core.Image) qb.query(session).uniqueResult());
 
             }
         }
-
+        session.clear();
+        
+        IceMapper mapper = new IceMapper();
+        for (Image image : lookups.keySet()) {
+            Image replacement = (Image) mapper.map(new ProxyCleanupFilter().filter("", lookups.get(image)));
+            replacements.put(image, replacement);
+        }
+        
         List<Image> newImages = new ArrayList<Image>();
         for (int i = 0; i < imageList.size(); i++) {
             Image image = imageList.get(i);
