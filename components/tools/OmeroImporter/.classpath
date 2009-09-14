@@ -11,6 +11,7 @@
 	<classpathentry kind="lib" path="target/libs/ini4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/java-getopt.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-logging.jar"/>
+	<classpathentry kind="lib" path="target/libs/commons-io.jar"/>
 	<classpathentry kind="lib" path="target/libs/loci-common.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-codec.jar"/>
 	<classpathentry kind="lib" path="target/libs/omero_client.jar"/>
