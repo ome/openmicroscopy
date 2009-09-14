@@ -97,12 +97,12 @@ Usage (C++):
  Usage (Java):
 </p>
 
-<p>
+<pre>
     omero.RBool b1 = new omero.RBool(true);
     omero.RBool b2 = someObj.getBool();
     if (b2!=null && b2.val) { ... };
     // no operator overloading; check for null directly.
-</p>
+</pre>
 
 
 **/
