@@ -245,7 +245,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
     };
 
-    public final static ReturnMapping STRING_FILTERABLE_COLLECTION_MAP = new ReturnMapping() {
+    public final static ReturnMapping PRIMITIVE_FILTERABLE_COLLECTION_MAP = new ReturnMapping() {
 
         public Object mapReturnValue(IceMapper mapper, Object value)
                 throws Ice.UserException {

@@ -199,7 +199,7 @@ public class TimelineI extends AbstractAmdServant implements
             throws ServerError {
 
         final IceMapper mapper = new IceMapper(
-                IceMapper.STRING_FILTERABLE_COLLECTION_MAP);
+                IceMapper.PRIMITIVE_FILTERABLE_COLLECTION_MAP);
 
         runnableCall(__current, new Adapter(__cb, __current, mapper, factory
                 .getExecutor(), factory.principal, new SimpleWork(this,
@@ -286,7 +286,7 @@ public class TimelineI extends AbstractAmdServant implements
             final boolean merge, Current __current) throws ServerError {
 
         final IceMapper mapper = new IceMapper(
-                IceMapper.STRING_FILTERABLE_COLLECTION_MAP);
+                IceMapper.PRIMITIVE_FILTERABLE_COLLECTION_MAP);
 
         runnableCall(__current, new Adapter(__cb, __current, mapper, factory
                 .getExecutor(), factory.principal, new SimpleWork(this,

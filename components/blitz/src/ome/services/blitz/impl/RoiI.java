@@ -9,8 +9,10 @@ package ome.services.blitz.impl;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import ome.model.core.OriginalFile;
 import ome.parameters.Filter;
@@ -282,7 +284,6 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-
                 QueryBuilder qb = new QueryBuilder();
                 qb.select("fa");
                 qb.from("Image", "i");
@@ -301,12 +302,41 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
         }));
     }
 
+    protected List<ome.model.roi.Roi> loadMeasuredRois(Session session,
+            long imageId, long annotationId) {
+        Query q = session
+                .createQuery("select distinct r from Roi r join r.image i "
+                        + "join fetch r.shapes join i.wellSamples ws join ws.well well "
+                        + "join well.plate plate join plate.annotationLinks links "
+                        + "join links.child a where a.id = :aid and i.id = :iid "
+                        + "order by r.id");
+        q.setParameter("iid", imageId);
+        q.setParameter("aid", annotationId);
+        return q.list();
+    }
+
     public void getMeasuredRoisMap_async(AMD_IRoi_getMeasuredRoisMap __cb,
-            final long imageId, List<Long> annotationIds, RoiOptions opts,
+            final long imageId, final List<Long> annotationIds, RoiOptions opts,
             Current __current) throws ServerError {
 
-        throw new InternalException(null, null, "NYI");
+        final IceMapper mapper = new IceMapper(new RoiResultMapReturnMapper(opts));
 
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "getMeasuredRoisMap", imageId) {
+
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                if (annotationIds == null) {
+                    return null;
+                }
+                Map<Long, List<ome.model.roi.Roi>> rv = new HashMap<Long, List<ome.model.roi.Roi>>();
+                for (Long annotationId : annotationIds) {
+                    rv.put(annotationId, loadMeasuredRois(session, imageId, annotationId));
+                }
+                return rv;
+            }
+        }));
     }
 
     public void getMeasuredRois_async(AMD_IRoi_getMeasuredRois __cb,
@@ -321,16 +351,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                Query q = session
-                        .createQuery("select distinct r from Roi r join r.image i "
-                                + "join fetch r.shapes join i.wellSamples ws join ws.well well "
-                                + "join well.plate plate join plate.annotationLinks links "
-                                + "join links.child a where a.id = :aid and i.id = :iid "
-                                + "order by r.id");
-                q.setParameter("iid", imageId);
-                q.setParameter("aid", annotationId);
-                return q.list();
-
+                return loadMeasuredRois(session, imageId, annotationId);
             }
         }));
     }
@@ -479,4 +500,32 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
         }
     }
 
+    private static class RoiResultMapReturnMapper implements
+            IceMapper.ReturnMapping {
+
+        private final RoiOptions opts;
+
+        public RoiResultMapReturnMapper(RoiOptions opts) {
+            this.opts = opts;
+        }
+
+        @SuppressWarnings("unchecked")
+        public Object mapReturnValue(IceMapper mapper, Object value)
+                throws Ice.UserException {
+
+            Map<Long, RoiResult> rv = new HashMap<Long, RoiResult>();
+            Map<Long, List<Roi>> iv = (Map<Long, List<Roi>>) IceMapper.PRIMITIVE_FILTERABLE_COLLECTION_MAP
+                    .mapReturnValue(mapper, value);
+
+            RoiResultMapper m = new RoiResultMapper(opts);
+
+            for (Map.Entry<Long, List<Roi>> entry : iv.entrySet()) {
+                rv.put(entry.getKey(), (RoiResult) m.mapReturnValue(entry
+                        .getValue()));
+            }
+
+            return rv;
+        }
+
+    }
 }
