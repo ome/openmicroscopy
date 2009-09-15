@@ -68,7 +68,7 @@ public class IconManager
 	public static final int		RESULTS = 3;
 	
 	/** The <code>Load</code> icon. */
-	public static final int		LOAD = 4;
+	public static final int		LOAD_22 = 4;
 	
 	/** The <code>Refresh</code> icon. */
 	public static final int		REFRESH = 5;
@@ -168,12 +168,15 @@ public class IconManager
 
     /** The <code>CornerIcon</code> icon. */
     public static final int          CORNERICON = 39;
-        
+    
+    /** The <code>Load</code> icon. */
+    public static final int          LOAD = 40;
+    
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 39;
+    private static final int    MAX_ID = 40;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -186,7 +189,7 @@ public class IconManager
         relPaths[INSPECTOR] = "nuvola_viewmag16.png";
         relPaths[MANAGER] = "nuvola_find16.png";
         relPaths[RESULTS] = "nuvola_view_text16.png";
-        relPaths[LOAD] = "nuvola_revert22.png";
+        relPaths[LOAD_22] = "nuvola_revert22.png";
         relPaths[REFRESH] = "nuvola_reload16.png";
         relPaths[LEFT_ARROW_22] = "nuvola_1leftarrow22.png";
         relPaths[RIGHT_ARROW_22] = "nuvola_1rightarrow22.png";
@@ -221,6 +224,7 @@ public class IconManager
         relPaths[TEXT_16] = "text16.png";
         relPaths[QUESTION_32] = "nuvola_filetype32.png";
         relPaths[CORNERICON] = "cornericon.png";
+        relPaths[LOAD] = "nuvola_revert16.png";
     }
     
     /** 

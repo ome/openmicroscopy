@@ -112,7 +112,7 @@ public class PojoMapper
     }
     
     /**
-     * Converts the speficied {@link IObject} into its corresponding 
+     * Converts the specified {@link IObject} into its corresponding 
      * {@link DataObject}.
      * 
      * @param object    The object to convert.

@@ -138,7 +138,7 @@ public class EditorUtil
     public static final String	PUBLIC = "public";
     
     /** Text describing the <code>Group</code> permission. */
-    public static final String	GROUP_VISIBLE = "group";
+    public static final String	GROUP_VISIBLE = "group visible";
     
     /** Text describing the <code>Group</code> permission. */
     public static final String	GROUP_DESCRIPTION = 

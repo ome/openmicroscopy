@@ -24,7 +24,8 @@ package org.openmicroscopy.shoola.util.ui.drawingtools;
 
 
 //Java imports
-import java.util.ArrayList;
+import java.awt.event.MouseMotionListener;
+import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.DefaultDrawing;
@@ -57,27 +58,27 @@ public class DrawingComponent
 	implements DrawingListener
 {	
 	
-	/** Component managaging the drawing. */
+	/** Component managing the drawing. */
     private	DefaultDrawing				drawing;
 
-    /** Component managaging the drawing. */
+    /** Component managing the drawing. */
 	private	DrawingEditor				drawingEditor;
 	
 	/** Component hosting the drawing. */
 	private DrawingCanvasView			drawingView;
 	
 	/** List of figure listeners. */
-	private ArrayList<FigureListener> 	figureListeners;
+	private List<FigureListener> 	figureListeners;
 	
 	/** 
 	 * This variable is true if the drawingCanvas will attach all the figure
-	 * listeners in the figureListeners arraylist to newly created figures. 
+	 * listeners in the figureListeners list to newly created figures. 
 	 */
 	private boolean 					createListeners;
 	
 	/** 
 	 * Constructor for the drawing canvas. This creates and links the 
-	 * defaultDrawing, drawing editro and drawingViews. 
+	 * defaultDrawing, drawing editor and drawingViews. 
 	 */
 	public DrawingComponent()
 	{
@@ -99,7 +100,7 @@ public class DrawingComponent
 	
 	/** 
 	 * Sets up the listener structure so that all figure listeners in the 
-	 * figure listner arraylist will be added to the createdfigures.
+	 * figure listener list will be added to the created figures.
 	 */ 
 	public void createFigureListeners()
 	{

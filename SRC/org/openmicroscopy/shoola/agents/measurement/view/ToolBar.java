@@ -31,6 +31,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.HashMap;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -306,7 +307,8 @@ class ToolBar
 	 * 						Mustn't be <code>null</code>.
 	 * @param model			Reference to the View. Mustn't be <code>null</code>.
 	 */
-	ToolBar(MeasurementViewer component, MeasurementViewerUI view, MeasurementViewerControl controller,
+	ToolBar(MeasurementViewer component, MeasurementViewerUI view, 
+			MeasurementViewerControl controller,
 			MeasurementViewerModel model)
 	{
 		if (component == null) 

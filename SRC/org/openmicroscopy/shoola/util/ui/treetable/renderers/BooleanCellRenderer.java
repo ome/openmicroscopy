@@ -72,9 +72,9 @@ public class BooleanCellRenderer
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		if (value != null && value instanceof Boolean) 
+		if (value instanceof Boolean) 
 			setSelected((Boolean) value);
-		else setSelected(Boolean.valueOf(false));
+		//else setSelected(Boolean.valueOf(false));
 		return this;
 	}
 	

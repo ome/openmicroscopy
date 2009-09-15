@@ -81,6 +81,7 @@ public class ROIResult
 	 * 
 	 * @param rois 	 The collection of ROIs.
 	 * @param fileID The id of the file.
+	 * @param result The result table associated to the ROIS.
 	 */
 	public ROIResult(Collection rois, long fileID, Object result)
 	{
@@ -88,6 +89,13 @@ public class ROIResult
 		this.fileID = fileID;
 		this.result = result;
 	}
+	
+	/**
+	 * Sets the results.
+	 * 
+	 * @param result The value to set.
+	 */
+	public void setResult(Object result) { this.result = result; }
 	
 	/**
 	 * Returns the collection of ROIs.

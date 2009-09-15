@@ -71,7 +71,9 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PermissionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -952,8 +954,29 @@ class TreeViewerModel
 	 */
 	boolean isMultiUser()
 	{
-		return (Boolean) TreeViewerAgent.getRegistry().lookup(
+		Boolean b = (Boolean) TreeViewerAgent.getRegistry().lookup(
 				TreeViewerAgent.MULTI_USER);
+		if (!b) return false;
+		ExperimenterData exp = getExperimenter();
+		Map<Long, Boolean> map = exp.isLeader();
+		if (map.containsKey(userGroupID)) {
+			b = map.get(userGroupID);
+			if (b) return true;
+		}
+		//Now we check the status of the group.
+		List<GroupData> l = exp.getGroups();
+		GroupData group;
+		Iterator<GroupData> i = l.iterator();
+		PermissionData permission;
+		while (i.hasNext()) {
+			group = i.next();
+			//Check status of that group
+			if (group.getId() == userGroupID) {
+				permission = group.getPermissions();
+				return (permission.isGroupRead() && permission.isGroupWrite());
+			}
+		}
+		return false;
 	}
 	
 }

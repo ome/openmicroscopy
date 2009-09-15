@@ -35,6 +35,7 @@ import layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
@@ -60,6 +61,9 @@ class UserUI
 	/** The title of the chart. */
 	static final String TITLE = "Disk Space";
 
+	/** The title of the chart. */
+	private static final String TITLE_DETAILS = "User's details";
+	
 	/** The component displaying the user profile. */
 	private UserProfile 	profile;
 	
@@ -81,18 +85,20 @@ class UserUI
 	{
 		profile = new UserProfile(model);
 		profile.addPropertyChangeListener(control);
-		diskSpace = new UserDiskSpace(this);
 		
-		diskTask = new JXTaskPane();
+		JXTaskPane pane = EditorUtil.createTaskPane(TITLE_DETAILS);
+		pane.setCollapsed(false);
+		pane.add(profile, null, 0);
+		
+		diskSpace = new UserDiskSpace(this);
+		diskTask = EditorUtil.createTaskPane(TITLE);
 		diskTask.add(diskSpace, null, 0);
-		diskTask.setTitle(TITLE);
-		diskTask.setCollapsed(true);
 		diskTask.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 		double[][] size = {{TableLayout.FILL}, 
 				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		setLayout(new TableLayout(size));
-		add(profile, "0, 0");
+		add(pane, "0, 0");
 		add(diskTask, "0, 1");
 	}
 	

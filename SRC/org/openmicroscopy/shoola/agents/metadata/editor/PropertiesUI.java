@@ -573,7 +573,7 @@ class PropertiesUI
         	 p.add(descriptionPanel);
          }
          p.add(Box.createVerticalStrut(5));
-         p.add(buildPermissions(null));
+         //p.add(buildPermissions(null));
          return p;
     }
     

@@ -54,6 +54,7 @@ import loci.formats.FormatException;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
@@ -96,6 +97,9 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.projection.ProjectionType;
+import omero.grid.Column;
+import omero.grid.Data;
+import omero.grid.TablePrx;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
@@ -4589,11 +4593,43 @@ class OMEROGateway
 			RoiOptions options = new RoiOptions();
 			options.userId = omero.rtypes.rlong(userID);
 			RoiResult r;
+			ROIResult result;
 			if (measurements == null || measurements.size() == 0) {
 				r = svc.findByImage(imageID, new RoiOptions());
 				if (r == null) return results;
 				results.add(new ROIResult(PojoMapper.asDataObjects(r.rois)));
 			} else { //measurements
+				//tmp
+				long id = measurements.get(0);
+				System.err.println(id);
+				r = svc.findByImage(imageID, new RoiOptions());
+				if (r == null) return results;
+				result = new ROIResult(PojoMapper.asDataObjects(r.rois), id);
+				TablePrx table = svc.getTable(id);
+				Column[] cols = table.getHeaders();
+				String[] headers = new String[cols.length];
+				String[] headersDescriptions = new String[cols.length];
+				for (int i = 0; i < cols.length; i++) {
+					headers[i] = cols[i].name;
+					headersDescriptions[i] = cols[i].description;
+				}
+				int n = (int) table.getNumberOfRows();
+				Object[][] data = new Object[n][cols.length];
+				Data d;
+				long[] a = new long[1], b = new long[1];
+				for (int i = 0; i < data.length; i++) {
+					a[0] = i; 
+					for (int j = 0; j < n; j++) {
+						b[0] = j;
+						d = table.slice(a, b);
+						data[j][i] = d.toString();
+					}
+				}
+				table.close();
+				result.setResult(new TableResult(data, headers));
+				results.add(result);
+				
+				/*
 				Map<Long, RoiResult> map = svc.getMeasuredRoisMap(imageID, 
 						measurements, options);
 				if (map == null) return results;
@@ -4608,6 +4644,7 @@ class OMEROGateway
 							id);
 					results.add(result);
 				}
+				*/
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

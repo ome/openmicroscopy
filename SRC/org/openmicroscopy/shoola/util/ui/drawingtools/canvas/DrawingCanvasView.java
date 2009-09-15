@@ -53,6 +53,7 @@ public class DrawingCanvasView
 	extends DefaultDrawingView
 {
 
+	/** The flag indicating to duplicate or not. */
 	private boolean 	duplicateAction = false;
 	
 	/** The default background. */
@@ -97,23 +98,25 @@ public class DrawingCanvasView
         if (p.x > 0) g.setColor(BACKGROUND);
     }
 	
-	public void duplicate() {
-       this.setDuplicateAction();
+	/**
+	 * Overridden to set the drawing action.
+	 * @see DefaultDrawingView#duplicate()
+	 */
+	public void duplicate()
+	{
+		duplicateAction = true;
        super.duplicate();
     }
 	
-	private void setDuplicateAction()
-	{
-		duplicateAction = true;
-	}
+	/** Un-sets the duplicate action. */
+	public void unsetDuplicate() { duplicateAction = false; }
 	
-	public void unsetDuplicate()
-	{
-		duplicateAction = false;
-	}
+	/**
+	 * Returns <code>true</code> if the action is turned on,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isDuplicate() { return duplicateAction; }
 	
-	public boolean isDuplicate()
-	{
-		return duplicateAction;
-	}
 }

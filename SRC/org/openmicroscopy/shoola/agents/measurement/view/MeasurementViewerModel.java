@@ -616,10 +616,10 @@ class MeasurementViewerModel
 		
 	/**
 	 * Removes the <code>ROIShape</code> corresponding to the passed id on 
-	 * the plane coord.
+	 * the plane coordinates.
 	 * 
 	 * @param id The id of the <code>ROI</code>.
-	 * @param coord the coord of the shape to delete.
+	 * @param coord the coordinates of the shape to delete.
 	 * @throws NoSuchROIException If the ROI does not exist.
 	 */
 	void removeROIShape(long id, Coord3D coord)
@@ -686,7 +686,7 @@ class MeasurementViewerModel
 	 * the passed figure.
 	 * 
 	 * @param figure The figure to create the <code>ROI</code> from.
-	 * @param addAttribs add atrributs to figure
+	 * @param addAttribs add attributes to figure
 	 * @return Returns the created <code>ROI</code>.
 	 * @throws ROICreationException If the ROI cannot be created.
 	 * @throws NoSuchROIException If the ROI does not exist.
@@ -722,7 +722,7 @@ class MeasurementViewerModel
 	}
 	
 	/**
-	 * Map figure attributes to ROIa nd ROIShape annotations where necessary. 
+	 * Map figure attributes to ROI and ROIShape annotations where necessary. 
 	 * @param attribute see above.
 	 * @param figure see above.
 	 */
@@ -837,7 +837,7 @@ class MeasurementViewerModel
 	 * @param shape 	The ROIShape to propagate.
 	 * @param timePoint The timepoint to propagate to.
 	 * @param zSection 	The z-section to propagate to.
-	 * @return arraylist A list of the newly added shapes.
+	 * @return A list of the newly added shapes.
 	 * @throws NoSuchROIException	Thrown if ROI with id does not exist.
 	 * @throws ROICreationException	Thrown if the ROI cannot be created.
 	 */
@@ -904,9 +904,9 @@ class MeasurementViewerModel
 	}
 		
 	/**
-	 * Fires an asynchronous call to analyse the passed shapes.
+	 * Fires an asynchronous call to analyze the passed shapes.
 	 *  
-	 * @param shapeList The shapelist to analyse. Mustn't be <code>null</code>.
+	 * @param shapeList The shapelist to analyze. Mustn't be <code>null</code>.
 	 */
 	void fireAnalyzeShape(List<ROIShape> shapeList)
 	{
@@ -1067,7 +1067,7 @@ class MeasurementViewerModel
 	}
 
 	/**
-	 * Clones the specifed ROI.
+	 * Clones the specified ROI.
 	 * 
 	 * @param id The id of the ROI to clone.
 	 * @return See above.

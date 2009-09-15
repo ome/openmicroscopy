@@ -189,8 +189,8 @@ class InputServerStrategy
 	 */
 	private ROIShape createROIShape(ShapeData data, ROI roi)
 	{
-		int z = 0;//data.getZ();
-		int t = 0;//data.getT();
+		int z = data.getZ();
+		int t = data.getT();
 		if (z < 0 || t < 0) return null;
 		Coord3D coord = new Coord3D(z, t);
 		ROIFigure fig = createROIFigure(data);

@@ -41,11 +41,13 @@ import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -60,9 +62,11 @@ import org.openmicroscopy.shoola.agents.util.ui.GroupsRenderer;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.PermissionData;
 
 /** 
  * Component displaying the user details.
@@ -126,6 +130,43 @@ class UserProfile
     
     /** The groups the user is a member of. */
     private GroupData[] 			groupData;
+
+    /** Indicates if the <code>DataObject</code> is only visible by owner. */
+    private JRadioButton 		privateBox;
+    
+    /** 
+     * Indicates if the <code>DataObject</code> is only visible by members
+     * of the group the user belongs to. 
+     */
+    private JRadioButton 		groupBox;
+    
+    /**
+     * Builds and lays out the panel displaying the permissions of the edited
+     * file.
+     * 
+     * @param permissions   The permissions of the edited object.
+     * @return See above.
+     */
+    private JPanel buildPermissions(PermissionData permissions)
+    {
+        JPanel content = new JPanel();
+        content.setBackground(UIUtilities.BACKGROUND_COLOR);
+        boolean b = true;;
+       	if (permissions != null && permissions.isGroupRead()) {
+       		//groupBox.setSelected(true);
+       		//b = false;
+       	}
+   		groupBox.setEnabled(b);
+   		privateBox.setEnabled(b);
+       	content.add(privateBox);
+       	content.add(groupBox);
+       	JPanel p = UIUtilities.buildComponentPanel(content, 0, 0);
+       	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+       	p.setBorder(
+				BorderFactory.createTitledBorder("Permission for all data"));
+       	
+        return p;
+    }
     
     /** Modifies the existing password. */
     private void changePassword()
@@ -170,6 +211,23 @@ class UserProfile
             return;
         }
         model.changePassword(old, confirm);
+    }
+    
+    /** Upgrades the permissions of all data within the selected group. */
+    private void upgradePermissions()
+    {
+    	GroupData data = (GroupData) groups.getSelectedItem();
+    	//ask Question to user.
+    	MessageBox msg = new MessageBox(
+    			MetadataViewerAgent.getRegistry().getTaskBar().getFrame(), 
+    			"Permissions update", 
+		"Upgrading the permissions cannot be undone. \nAre you sure you " +
+		"want to continue?");
+		msg.setYesText("Upgrade");
+		int option = msg.centerMsgBox();
+		if (option == MessageBox.YES_OPTION)
+			model.upgradePermissions();
+		else privateBox.setSelected(true);
     }
     
     /** Initializes the components composing this display. */
@@ -225,6 +283,21 @@ class UserProfile
 			groups.addActionListener(this);
 			groups.setEnabled(true);
 		} else groups.setEnabled(false);
+		
+        groupBox = new JRadioButton(EditorUtil.GROUP_VISIBLE);
+        groupBox.setToolTipText(EditorUtil.GROUP_DESCRIPTION);
+        //groupBox.setEnabled(false);
+        privateBox =  new JRadioButton(EditorUtil.PRIVATE);
+        privateBox.setSelected(true);
+        //privateBox.setEnabled(false);
+    	ButtonGroup group = new ButtonGroup();
+       	group.add(privateBox);
+       	group.add(groupBox);
+       	groupBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				upgradePermissions();
+			}
+		});
     }
     
     /**
@@ -422,6 +495,9 @@ class UserProfile
 		c.weightx = 1.0;  
     	add(buildContentPanel(), c);
     	if (model.isCurrentUserOwner(model.getRefObject())) {
+    		GroupData group = (GroupData) groups.getSelectedItem();
+    		c.gridy++;
+    		add(buildPermissions(group.getPermissions()), c); 
     		c.gridy++;
     		add(Box.createVerticalStrut(5), c); 
     		c.gridy++;
@@ -464,7 +540,6 @@ class UserProfile
 				if (value != null && !v.equals(value))
 					return true;
 			}
-			
 		}
 		return false;
 	}
@@ -526,6 +601,7 @@ class UserProfile
 	public void actionPerformed(ActionEvent e)
 	{
 		selectedIndex = groups.getSelectedIndex();
+		buildGUI();
 		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 							Boolean.TRUE);
 	}

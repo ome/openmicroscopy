@@ -30,7 +30,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -50,7 +49,6 @@ import org.jhotdraw.geom.Insets2D;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
-import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
 import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.TransformedDrawingTextTool;
 
 /** 

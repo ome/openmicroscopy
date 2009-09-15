@@ -89,7 +89,6 @@ public class ROITable
 	
 	/** Reference to the object manager. */
 	private ObjectManager   manager;
-    
 
 	/**
 	 * Returns <code>true</code> if all the roishapes in the shapelist 

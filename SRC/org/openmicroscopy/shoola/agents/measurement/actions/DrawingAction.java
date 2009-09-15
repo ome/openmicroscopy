@@ -26,15 +26,14 @@ package org.openmicroscopy.shoola.agents.measurement.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.Action;
-import javax.swing.Icon;
 import javax.swing.JToggleButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -79,7 +78,8 @@ public class DrawingAction
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(button.getToolTipText()));
 		//resize icons
-		putValue(Action.SMALL_ICON, button.getIcon());
+		putValue(Action.SMALL_ICON, Factory.scaleIcon(button.getIcon()));
+		
 	}
 	
 	/** 

@@ -191,11 +191,17 @@ public class EditorUI
     	remove(component);
     	setDataToSave(false);
     	toolBar.setStatus(false);
+    	boolean add = true;
     	if (uo instanceof ExperimenterData)  {
-    		toolBar.buildUI();
-    		userUI.buildUI();
-    		userUI.repaint();
-    		component = userTabbedPane; 
+    		ExperimenterData exp = (ExperimenterData) uo;
+			ExperimenterData current = MetadataViewerAgent.getUserDetails();
+			if (current.getId() == exp.getId()) {
+				toolBar.buildUI();
+	    		userUI.buildUI();
+	    		userUI.repaint();
+	    		component = userTabbedPane; 
+			} else add = false;
+    		
     	} else if (!(uo instanceof DataObject)) {	
     		toolBar.buildUI();
     		component = defaultPane;
@@ -205,7 +211,7 @@ public class EditorUI
         	generalPane.layoutUI();
         	component = tabPane;
     	}
-    	add(component, BorderLayout.CENTER);
+    	if (add) add(component, BorderLayout.CENTER);
     	validate();
     	repaint();
     }

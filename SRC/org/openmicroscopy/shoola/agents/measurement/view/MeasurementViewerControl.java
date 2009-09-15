@@ -262,9 +262,7 @@ class MeasurementViewerControl
         actionsMap = new HashMap<Integer, MeasurementViewerAction>();
         createActions();
     }
-    
 
-    
     /** 
      * Attaches a window listener to the view to discard the model when 
      * the user closes the window.
@@ -292,7 +290,7 @@ class MeasurementViewerControl
  		
  		});
     	 
-    	 view.getDrawingView().addMouseMotionListener(new MouseMotionAdapter()
+    	view.getDrawingView().addMouseMotionListener(new MouseMotionAdapter()
 		{
 			
 			@Override
@@ -498,6 +496,7 @@ class MeasurementViewerControl
 		}
 	}
 	
+	private Figure figure;
 	/**
 	 * Required by the {@link DrawingListener} I/F used to update 
 	 * the measurements of a component and the different dataviews. 
@@ -505,10 +504,9 @@ class MeasurementViewerControl
 	 */
 	public void figureChanged(FigureEvent e)
 	{
-		if (model.isServerROI()) return;
 		Figure f = e.getFigure();
 		if (f instanceof ROIFigure) 
-			handleFigureChange( (ROIFigure) f);
+			handleFigureChange((ROIFigure) f);
 	}
 	
 	/** 

@@ -74,9 +74,9 @@ class UserDiskSpace
 		this.view = view;
 		data = new JPanel();
 		data.setLayout(new BorderLayout());
-		data.setPreferredSize(new Dimension(300, 200));
+		data.setPreferredSize(new Dimension(280, 270));
 		data.setBackground(UIUtilities.BACKGROUND_COLOR);
-		setPreferredSize(new Dimension(320, 200));
+		setPreferredSize(new Dimension(300, 270));
 		getViewport().add(data);
 	}
 

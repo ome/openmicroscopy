@@ -84,6 +84,12 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 public class Factory
 {
     
+	/** The default width of the icon. */
+	public static final int		DEFAULT_ICON_WIDTH = 16;
+	
+	/** The default height of the icon. */
+	public static final int		DEFAULT_ICON_HEIGHT = 16;
+	
 	/** The default width of a thumbnail. */
     public static final int   	THUMB_DEFAULT_WIDTH = 96; 
     
@@ -733,6 +739,38 @@ public class Factory
     		return icon;
     	} catch (Exception e) {}
     	return null;
+    }
+    
+    /**
+     * Scales the passed icon.
+     * 
+     * @param icon 	The icon to scale.
+     * @return See above.
+     */
+    public static Icon scaleIcon(Icon icon)
+    {
+    	return scaleIcon(icon, DEFAULT_ICON_WIDTH, DEFAULT_ICON_HEIGHT);
+    }
+    
+    /**
+     * Scales the passed icon.
+     * 
+     * @param icon 	The icon to scale.
+     * @param width	The width of the new icon.
+     * @param height The height of the new icon.
+     * @return See above.
+     */
+    public static Icon scaleIcon(Icon icon, int width, int height)
+    {
+    	if (icon == null) return null;
+    	if (width <= 0) width = DEFAULT_ICON_WIDTH;
+    	if (height <= 0) width = DEFAULT_ICON_HEIGHT;
+    	ImageIcon img = (ImageIcon) icon;
+    	BufferedImage bi = new BufferedImage(icon.getIconWidth(), 
+    			icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
+    	Graphics g = bi.createGraphics();
+    	g.drawImage(img.getImage(), 0, 0, width, height, null);
+    	return (Icon) (new ImageIcon(bi));
     }
     
 }

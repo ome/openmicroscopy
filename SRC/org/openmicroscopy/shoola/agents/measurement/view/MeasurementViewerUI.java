@@ -842,7 +842,7 @@ class MeasurementViewerUI
      * Saves the results table.
      * 
      * @throws IOException Thrown if the data cannot be written.
-     * @return false if save cancelled. 
+     * @return See above.
      */
     boolean saveResultsTable() 
     	throws IOException
@@ -880,6 +880,7 @@ class MeasurementViewerUI
     	}
     }
     
+    /** Lays out the UI. */
     void layoutUI()
     {
     	if (model.isServerROI()) {
@@ -936,7 +937,7 @@ class MeasurementViewerUI
 			addedShapes = model.propagateShape(shape, timePoint, zSection);
 			ROIFigure figToDelete = null;
 			ROIFigure roiFig;
-			for(ROIShape newShape : addedShapes)
+			for (ROIShape newShape : addedShapes)
 			{
 				if (newShape.getCoord3D().equals(model.getCurrentView()))
 				{
@@ -969,7 +970,8 @@ class MeasurementViewerUI
 	}
 	
 	/**
-	 * Deletes the selected shape from current coord to timepoint and z-section.
+	 * Deletes the selected shape from current coordinate to timepoint 
+	 * and z-section.
 	 *  
 	 * @param shape 	The initial shape to delete.
 	 * @param timePoint The timepoint to delete to.

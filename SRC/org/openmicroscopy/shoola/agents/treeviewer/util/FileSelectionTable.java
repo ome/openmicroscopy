@@ -33,10 +33,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -53,7 +51,6 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.treetable.renderers.BooleanCellRenderer;
 
 /**
  * Component displaying the files to import.
@@ -141,10 +138,11 @@ class FileSelectionTable
 		removeAllButton.addActionListener(this);
 		table = new JXTable(new FileTableModel(COLUMNS));
 		TableColumn tc = table.getColumnModel().getColumn(SELECTED_INDEX);
-		final BooleanCellRenderer check = new BooleanCellRenderer();
-		tc.setCellRenderer(check);
-		tc.setCellEditor(new DefaultCellEditor(check));
-		
+		//final BooleanCellRenderer check = new BooleanCellRenderer();
+		//tc.setCellRenderer(check);
+		//tc.setCellEditor(new DefaultCellEditor(check));
+		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
+		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
 		Highlighter h = HighlighterFactory.createAlternateStriping(
 				UIUtilities.BACKGROUND_COLOUR_EVEN, 
 				UIUtilities.BACKGROUND_COLOUR_ODD);
@@ -384,10 +382,7 @@ class FileSelectionTable
 		 * Overridden so that some cells cannot be edited.
 		 * @see DefaultTableModel#isCellEditable(int, int)
 		 */
-		public boolean isCellEditable(int row, int column)
-		{
-			return true;//(column != FILE_INDEX);
-		}
+		public boolean isCellEditable(int row, int column) { return true; }
 
 		/**
 		 * Overridden to set the name of the image to save.
@@ -397,9 +392,12 @@ class FileSelectionTable
 		{   
 			FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
 			if (value instanceof String) f.setName((String) value);
+			if (value instanceof Boolean) {
+				super.setValueAt(value, row, col);
+			}
+				
 			fireTableCellUpdated(row, col);
 		}
-		
 	}
 
 }

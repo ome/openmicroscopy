@@ -205,8 +205,8 @@ class MeasurementViewerComponent
         							(int) (model.getSizeY()*f));
         		UIUtilities.setDefaultSize(model.getDrawingView(), d);
         		model.getDrawingView().setSize(d);
-        		//model.fireROILoading(null);
-        		model.fireLoadROIFromServer(measurements);
+        		model.fireROILoading(null);
+        		//model.fireLoadROIFromServer(measurements);
         		//fireStateChange();
                 break;
             case DISCARDED:
@@ -814,8 +814,7 @@ class MeasurementViewerComponent
      * @see MeasurementViewer#setServerROI(Collection)
      */
 	public void setServerROI(Collection result)
-	{
-		if (model.getState() != LOADING_ROI)
+	{		if (model.getState() != LOADING_ROI)
 			throw new IllegalArgumentException("The method can only " +
 					"be invoked in the LOADING_ROI state.");
 		try {

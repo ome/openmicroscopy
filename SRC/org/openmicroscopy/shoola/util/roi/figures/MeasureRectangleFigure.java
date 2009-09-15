@@ -28,21 +28,16 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -70,9 +65,10 @@ public class MeasureRectangleFigure
 	extends RectangleTextFigure
 	implements ROIFigure
 {
-	 /**
-     * This is used to perform faster drawing and hit testing.
-     */
+	
+	/**
+	 * This is used to perform faster drawing and hit testing.
+	 */
 	protected	Rectangle2D 		bounds;
 	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */

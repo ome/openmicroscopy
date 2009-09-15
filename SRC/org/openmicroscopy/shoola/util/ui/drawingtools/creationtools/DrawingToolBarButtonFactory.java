@@ -83,7 +83,7 @@ public class DrawingToolBarButtonFactory
      * @param edit The drawing editor.
      * @return See above.
      */
-    public static Collection<Action> createSelectionActions(DrawingEditor edit)
+    private static Collection<Action> createSelectionActions(DrawingEditor edit)
     {
         LinkedList<Action> a = new LinkedList<Action>();
         a.add(new DuplicateAction());
