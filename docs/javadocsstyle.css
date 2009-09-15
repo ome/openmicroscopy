@@ -1,0 +1,173 @@
+/* @override http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/stylesheet.css */
+
+/* Javadoc style sheet */
+
+/* Define colors, fonts and other style attributes here to override the defaults */
+
+html {
+	background-color: #B3B3E6;
+}
+
+/* Page background color */
+
+body {
+	background-color: #FFFFFF;
+	color: #000000;
+	border: 1px solid black;
+	padding-right: 5px;
+	padding-left: 5px;
+	font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+}
+
+/* Headings */
+
+h1 {
+	font-size: 145%
+}
+
+hr {
+	opacity: 0.35;
+}
+
+/* Table colors */
+
+.TableHeadingColor {
+	background: #CCCCFF;
+	color: #000000
+}
+
+/* Dark mauve */
+
+.TableSubHeadingColor {
+	background: #EEEEFF;
+	color: #000000
+}
+
+/* Light mauve */
+
+.TableRowColor {
+	background: #FFFFFF;
+	color: #000000
+}
+
+/* White */
+
+/* Font used in left-hand frame lists */
+
+.FrameTitleFont {
+	font-size: 100%;
+	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+	color: #000000
+}
+
+.FrameHeadingFont {
+	font-size: 90%;
+	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+	color: #000000
+}
+
+.FrameItemFont {
+	font-size: 75%;
+	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+	color: #000000
+}
+
+/* Navigation bar fonts and colors */
+
+body table tr td.NavBarCell1 table tbody tr td.NavBarCell1 {
+	padding-top: 0px;
+	height: auto;
+}
+
+body table tr td.NavBarCell1 table{
+	padding-top: 0px;
+	padding-right: 40%;
+	background-color: #9797be;
+	margin: 2px 0px 2px 0px;
+	background-image: none;
+	width: 100%;
+}
+
+body table tr td.NavBarCell1 table tbody tr td.NavBarCell1{
+	padding-top: 0px;
+	background-color: #9797be;
+	margin: 2px 0px 2px 0px;
+	background-image: none;
+}
+
+body table tr td.NavBarCell1 {
+	padding-top:71px;
+	background-color: #000066;
+	background-image: url(http://validator.openmicroscopy.org.uk/static/images/ome_trac_back_top.png);
+	background-repeat: no-repeat;
+	background-position: top right;
+margin: 2px 0px 2px 0px;
+	height: 0px;
+
+}
+
+.NavBarCell1 {
+	background-color: #EEEEFF;
+	color: #9797be;
+	width: inherit;
+	height: inherit;
+}
+
+/* Light mauve */
+
+.NavBarCell1Rev {
+	background-color: #00008B;
+	color: #FFFFFF
+}
+
+/* Dark Blue */
+
+.NavBarFont1 {
+	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+	color: #bbbbc8;
+}
+
+td.NavBarCell1 a {
+	text-decoration: none;
+}
+
+a font.NavBarFont1 {
+	color: #000066
+}
+
+.NavBarFont1Rev {
+	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+	color: #FFFFFF;
+	color: #FFFFFF;
+}
+
+.NavBarCell2 {
+	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+	background-color: #FFFFFF;
+	color: #000000
+}
+
+.NavBarCell3 {
+	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+	background-color: #FFFFFF;
+	color: #000000
+}
+
+#omero-static-logo {
+	background-color: fuchsia;
+}
+
+div#omero-spacer {
+	padding-top: 22em;
+}
+
+#omero-static-section {
+	background-color: #FFFFFF;
+	float: left;
+	position: absolute;
+	top: 150px;
+	margin-right: 15px;
+	width: 800px;
+	z-index: 1;
+	height: 24em;
+}

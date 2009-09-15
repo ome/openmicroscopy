@@ -378,7 +378,8 @@ java component.
             use="true"
             breakiterator="true"
             windowtitle="OMERO (OME Remote Objects) Server"
-            overview="docs/overview.html">
+            overview="docs/overview.html"
+            stylesheetfile="docs/javadocsstyle.css">
 
             <classpath>
                 <fileset dir="lib">
