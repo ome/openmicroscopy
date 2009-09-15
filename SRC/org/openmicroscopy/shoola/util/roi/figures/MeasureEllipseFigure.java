@@ -33,12 +33,18 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKeys;
+import org.jhotdraw.draw.Figure;
+import org.jhotdraw.draw.Handle;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -67,8 +73,11 @@ public class MeasureEllipseFigure
 	implements ROIFigure
 {
 	
+	/** Is this figure read only. */
+	private boolean 			readOnly;
+	
 	/** Bounds of the measurement. */
-	private Rectangle2D			 measurementBounds;
+	private Rectangle2D			measurementBounds;
 	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
 	protected ROI				roi;
@@ -88,7 +97,7 @@ public class MeasureEllipseFigure
 	/** Creates a new instance. */
 	public MeasureEllipseFigure()
 	{
-		this(0, 0, 0, 0);
+		this("Text", 0, 0, 0, 0, false);
 	}
 	
 	/** 
@@ -99,15 +108,17 @@ public class MeasureEllipseFigure
 	 * @param y     The y-coordinate of the figure.
 	 * @param width	The width of the figure. 
 	 * @param height The height of the figure. 
+	 * @param readOnly The figure is read only.
 	 */
 	public MeasureEllipseFigure(String text, double x, double y, double width,
-			double height)
+			double height, boolean readOnly)
 	{
 		super(text, x, y, width, height);
 		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
 	   	shape=null;
 		roi=null;
 		status = IDLE;
+		setReadOnly(readOnly);
 	}
 	
 	/** 
@@ -117,7 +128,18 @@ public class MeasureEllipseFigure
 	 */
 	public MeasureEllipseFigure(String text)
 	{
-		this(text, 0, 0, 0, 0);
+		this(text, 0, 0, 0, 0, false);
+	}
+	
+
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param readOnly The Roi is read only. 
+	 */
+	public MeasureEllipseFigure(boolean readOnly)
+	{
+		this("Text", 0, 0, 0, 0, readOnly);
 	}
 	
 	/** 
@@ -130,7 +152,7 @@ public class MeasureEllipseFigure
 	 */
 	public MeasureEllipseFigure(double x, double y, double width, double height)
 	{
-		this(ROIFigure.DEFAULT_TEXT, x, y, width, height);
+		this(ROIFigure.DEFAULT_TEXT, x, y, width, height, false);
 	}
 	
 	/** 
@@ -420,7 +442,6 @@ public class MeasureEllipseFigure
 	}
 	
 	
-	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#setROIShape(ROIShape)
@@ -483,6 +504,49 @@ public class MeasureEllipseFigure
 	}
 	
 	/**
+	 * Overridden to stop updating shape if read only
+	 * @see AbstractAttributedFigure#transform(AffineTransform)
+	 */
+	public void transform(AffineTransform tx)
+	{
+		if(!readOnly)
+			super.transform(tx);
+	}
+		
+	/**
+	 * Overridden to stop updating shape if readonly.
+	 * @see AbstractAttributedFigure#setBounds(Double, Double)
+	 */
+	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
+	{
+		if(!readOnly)
+			super.setBounds(anchor, lead);
+	}
+	
+	/**
+	 * Overridden to return the correct handles.
+	 * @see AbstractAttributedFigure#createHandles(int)
+	 */
+	public Collection<Handle> createHandles(int detailLevel) 
+	{
+		if(!readOnly)
+			super.createHandles(detailLevel);
+		return new LinkedList<Handle>();
+	}
+
+	/**
+	 * Invalidate the figure and remove the cachedTransformedShape, this means
+	 * that the figures geometry has changed and it should be redrawn.
+	 * @see AbstractAttributedFigure#invalidate()
+	 */
+	public void invalidate()
+	{
+		if(!readOnly)
+			super.invalidate();
+	}
+
+	
+	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#setStatus(int)
 	 */
@@ -493,5 +557,33 @@ public class MeasureEllipseFigure
 	 * @see ROIFigure#getStatus()
 	 */
 	public int getStatus() { return status; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#isReadOnly()
+	 */
+	public boolean isReadOnly() { return readOnly;}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setReadOnly(boolean)
+	 */
+	public void setReadOnly(boolean readOnly) 
+	{ 
+		this.readOnly = readOnly; 
+		setEditable(!readOnly);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.RotateEllipseFigure#clone()
+	 */
+	public MeasureEllipseFigure clone()
+	{
+		MeasureEllipseFigure that = (MeasureEllipseFigure) super.clone();
+		that.setReadOnly(this.isReadOnly());
+		return that;
+	}
+	
 	
 }

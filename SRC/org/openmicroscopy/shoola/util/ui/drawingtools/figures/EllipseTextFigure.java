@@ -34,6 +34,7 @@ import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 import java.util.LinkedList;
 
 //Third-party libraries
@@ -69,10 +70,10 @@ public class EllipseTextFigure
 	implements TextHolderFigure
 {
 	/** Is the attribute update from a transform update. */
-	private boolean 				fromTransformUpdate;
+	protected boolean 				fromTransformUpdate;
 	
 	/** Flag indicating if the figure is editable or not. */
-	private boolean 							editable;
+	protected boolean 							editable;
 
 	/** Cache of the TextFigure's layout. */
 	transient private  	TextLayout 				textLayout;
@@ -176,7 +177,7 @@ public class EllipseTextFigure
 	}
 
 	@Override 
-	public LinkedList<Handle> createHandles(int detailLevel) 
+	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		LinkedList<Handle> handles = new LinkedList<Handle>();
 	    if (detailLevel == 0) 
@@ -374,7 +375,11 @@ public class EllipseTextFigure
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#isEditable()
 	 */
-	public boolean isEditable() { return editable; }
+	public boolean isEditable() 
+	{ 
+		System.err.println(editable);
+		return this.editable; 
+	}
 	
 	/**
 	 * Required by the {@link TextHolderFigure} I/F but no-op implementation

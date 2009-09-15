@@ -826,7 +826,7 @@ class MeasurementViewerComponent
 					"be invoked in the LOADING_ROI state.");
 		try {
 			if (result != null) { //some ROI previously saved.
-				model.setServerROI(result);
+				model.setServerROI(result, true);
 			} 	
 		} catch (Exception e) {
 			e.printStackTrace();

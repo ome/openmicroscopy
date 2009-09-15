@@ -28,16 +28,21 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jhotdraw.draw.AbstractAttributedFigure;
+import org.jhotdraw.draw.Handle;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -65,10 +70,12 @@ public class MeasureRectangleFigure
 	extends RectangleTextFigure
 	implements ROIFigure
 {
+	/** Is this figure read only. */
+	private boolean readOnly;
 	
 	/**
-	 * This is used to perform faster drawing and hit testing.
-	 */
+    * This is used to perform faster drawing and hit testing.
+    */
 	protected	Rectangle2D 		bounds;
 	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
@@ -85,7 +92,15 @@ public class MeasureRectangleFigure
     /** Creates a new instance. */
     public MeasureRectangleFigure() 
     {
-        this("Text", 0, 0, 0, 0);
+        this("Text", 0, 0, 0, 0, false);
+    }
+
+    /** Creates a new instance. 
+	 * @param readOnly The figure is read only.
+	 */
+    public MeasureRectangleFigure(boolean readOnly) 
+    {
+        this("Text", 0, 0, 0, 0, readOnly);
     }
 
     /** 
@@ -94,8 +109,22 @@ public class MeasureRectangleFigure
      * */
     public MeasureRectangleFigure(String text) 
     {
-        this(text, 0, 0, 0, 0);
+        this(text, 0, 0, 0, 0, false);
     }
+ 
+    /** 
+     * Creates a new instance.
+     * @param x    coord of the figure. 
+     * @param y    coord of the figure. 
+     * @param width of the figure. 
+     * @param height of the figure. 
+      * */
+    public MeasureRectangleFigure(double x, double y, double width, 
+			double height) 
+    {
+    	this("Text", x, y, width, height, false);
+    }
+
     
     /** 
      * Creates a new instance.
@@ -103,11 +132,12 @@ public class MeasureRectangleFigure
      * @param y    coord of the figure. 
      * @param width of the figure. 
      * @param height of the figure. 
+ 	 * @param readOnly The figure is read only.
      * */
     public MeasureRectangleFigure(double x, double y, double width, 
-			double height) 
+			double height, boolean readOnly) 
     {
-    	this("Text", x, y, width, height);
+    	this("Text", x, y, width, height, readOnly);
     }
     
     /** 
@@ -117,9 +147,10 @@ public class MeasureRectangleFigure
      * @param y    coord of the figure. 
      * @param width of the figure. 
      * @param height of the figure. 
-     * */
+ 	 * @param readOnly The figure is read only.
+ 	 * */
     public MeasureRectangleFigure(String text, double x, double y, double width, 
-    							double height) 
+    							double height, boolean readOnly) 
     {
 		super(text, x, y, width, height);
 		setAttributeEnabled(MeasurementAttributes.HEIGHT, true);
@@ -129,6 +160,7 @@ public class MeasureRectangleFigure
         shape = null;
 		roi = null;
 		status = IDLE;
+		setReadOnly(readOnly);
     }
     
     /** 
@@ -241,7 +273,38 @@ public class MeasureRectangleFigure
 			
 		}
 	}
-				
+	
+	/**
+	 * Overridden to stop updating shape if read only
+	 * @see AbstractAttributedFigure#transform(AffineTransform)
+	 */
+	public void transform(AffineTransform tx)
+	{
+		if(!readOnly)
+			super.transform(tx);
+	}
+	
+	/**
+	 * Overridden to stop updating shape if readonly.
+	 * @see AbstractAttributedFigure#setBounds(Double, Double)
+	 */
+	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
+	{
+		if(!readOnly)
+			super.setBounds(anchor, lead);
+	}
+	
+	/**
+	 * Overridden to return the correct handles.
+	 * @see AbstractAttributedFigure#createHandles(int)
+	 */
+	public Collection<Handle> createHandles(int detailLevel) 
+	{
+		if(!readOnly)
+			super.createHandles(detailLevel);
+		return new LinkedList<Handle>();
+	}
+	
 	/**
 	 * Calculates the bounds of the rendered figure, including the text rendered. 
 	 * @return see above.
@@ -404,6 +467,22 @@ public class MeasureRectangleFigure
 	
 	public int getStatus() { return status; }
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#isReadOnly()
+	 */
+	public boolean isReadOnly() { return readOnly;}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setReadOnly(boolean)
+	 */
+	public void setReadOnly(boolean readOnly) 
+	{ 
+		this.readOnly = readOnly; 
+		setEditable(!readOnly);
+	}
+
 }
 
 

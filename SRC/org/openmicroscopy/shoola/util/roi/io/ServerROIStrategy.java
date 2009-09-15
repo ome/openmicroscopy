@@ -69,16 +69,18 @@ public class ServerROIStrategy
 	 * 
 	 * @param rois The server side ROI to convert.
 	 * @param component
+	 * @param readOnly Is the ROI read only.
 	 * @throws NoSuchROIException
 	 * @throws ROICreationException
 	 * @returns See above.
 	 */
-	public List<ROI> read(Collection rois, ROIComponent component)
+	public List<ROI> read(Collection rois, ROIComponent component, 
+			boolean readOnly)
 		throws NoSuchROIException, ROICreationException, 
 				ROICreationException	   
 	{
 		if (rois == null || rois.size() == 0) return new ArrayList<ROI>();
-		return inputStrategy.readROI(rois, component);
+		return inputStrategy.readROI(rois, component, readOnly);
 	}
 	
 }

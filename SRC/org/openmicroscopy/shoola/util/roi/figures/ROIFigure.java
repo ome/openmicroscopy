@@ -133,6 +133,19 @@ public interface ROIFigure
 	 */
 	public int getStatus();
 	
+	/**
+	 * Is this roi ReadOnly, if so it will not be possible to move or
+	 * resize it.
+	 * @return See above.
+	 */
+	public boolean isReadOnly(); 
+	
+	/**
+	 * Set this roi to be ReadOnly if readOnly true. if so it will not be 
+	 * possible to move or resize it.
+	 * @param readOnly See above.
+	 */
+	public void setReadOnly(boolean readOnly);
 }
 
 

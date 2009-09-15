@@ -151,9 +151,10 @@ class InputServerStrategy
 	 * Transforms a server ROI into its UI representation.
 	 * 
 	 * @param roi The object to transform.
+	 * @param readOnly The object is readOnly.
 	 * @return See above.
 	 */
-	private ROI createROI(ROIData roi)
+	private ROI createROI(ROIData roi, boolean readOnly)
 		throws NoSuchROIException, ROICreationException
 	{
 		long id = roi.getId();
@@ -168,7 +169,7 @@ class InputServerStrategy
 			j = list.iterator();
 			while (j.hasNext()) {
 				shapeData = (ShapeData) j.next();
-				shape = createROIShape(shapeData, newROI);
+				shape = createROIShape(shapeData, newROI, readOnly);
 				if (shape != null) {
 					shape.getFigure().setMeasurementUnits(
 							component.getMeasurementUnits());
@@ -185,15 +186,16 @@ class InputServerStrategy
 	 * 
 	 * @param data 	The object to transform.
 	 * @param roi	The UI ROI hosting the newly created shape.
+	 * @param readOnly The object is readOnly.
 	 * @return See above.
 	 */
-	private ROIShape createROIShape(ShapeData data, ROI roi)
+	private ROIShape createROIShape(ShapeData data, ROI roi, boolean readOnly)
 	{
 		int z = data.getZ();
 		int t = data.getT();
 		if (z < 0 || t < 0) return null;
 		Coord3D coord = new Coord3D(z, t);
-		ROIFigure fig = createROIFigure(data);
+		ROIFigure fig = createROIFigure(data, readOnly);
 		// Check that the parent element is not a text element, as they have not
 		// got any other text associated with them.
 		MeasurementAttributes.TEXT.set(fig, "Dangerous");
@@ -206,22 +208,23 @@ class InputServerStrategy
 	 * Creates a figure corresponding to the passed shape.
 	 * 
 	 * @param shape The shape to transform.
+ 	 * @param readOnly The object is readOnly.
 	 * @return See above.
 	 */
-	private ROIFigure createROIFigure(ShapeData shape)
+	private ROIFigure createROIFigure(ShapeData shape, boolean readOnly)
 	{
 		if (shape instanceof RectangleData) {
-			return createRectangleFigure((RectangleData) shape);			
+			return createRectangleFigure((RectangleData) shape, readOnly);			
 		} else if (shape instanceof EllipseData) {
-			return createEllipseFigure((EllipseData) shape);
+			return createEllipseFigure((EllipseData) shape, readOnly);
 		} else if (shape instanceof LineData) {
-			return createLineFigure((LineData) shape);			
+			return createLineFigure((LineData) shape, readOnly);			
 		} else if (shape instanceof PolylineData) {
-			return createPolylineFigure((PolylineData) shape);			
+			return createPolylineFigure((PolylineData) shape ,readOnly);			
 		} else if (shape instanceof PolygonData) {
-			return createPolygonFigure((PolygonData) shape);			
+			return createPolygonFigure((PolygonData) shape, readOnly);			
 		} else if (shape instanceof MaskData) {
-			return createMaskFigure((MaskData) shape);			
+			return createMaskFigure((MaskData) shape, readOnly);			
 		}
 		return null;
 	}
@@ -230,9 +233,11 @@ class InputServerStrategy
 	 * Transforms the passed ellipse into its UI corresponding object.
 	 * 
 	 * @param data The ellipse to transform.
+	 * @param readOnly Is the figure read only.
 	 * @return See above.
 	 */
-	private MeasureEllipseFigure createEllipseFigure(EllipseData data)
+	private MeasureEllipseFigure createEllipseFigure(EllipseData data, 
+													boolean readOnly)
 	{
 		
 		double cx = data.getX();
@@ -244,8 +249,7 @@ class InputServerStrategy
 		double y = cy-ry;
 		double width = rx*2d;
 		double height = ry*2d;
-		
-		MeasureEllipseFigure fig = new MeasureEllipseFigure();
+		MeasureEllipseFigure fig = new MeasureEllipseFigure(readOnly);
 		fig.setEllipse(x, y, width, height);
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
@@ -264,9 +268,11 @@ class InputServerStrategy
 	 * Transforms the passed rectangle into its UI corresponding object.
 	 * 
 	 * @param data The rectangle to transform.
+	 * @param readOnly Is the figure read only.
 	 * @return See above.
 	 */
-	private MeasureRectangleFigure createRectangleFigure(RectangleData data)
+	private MeasureRectangleFigure createRectangleFigure(RectangleData data,
+											boolean readOnly)
 	{
 		
 		double x = data.getX();
@@ -275,7 +281,7 @@ class InputServerStrategy
 		double height = data.getHeight();
 		
 		MeasureRectangleFigure fig = new MeasureRectangleFigure(x, y, width, 
-				height);
+				height, readOnly);
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
 		try {
@@ -293,9 +299,10 @@ class InputServerStrategy
 	 * Transforms the passed mask into its UI corresponding object.
 	 * 
 	 * @param data The mask to transform.
+	 * @param readOnly Is the figure read only.
 	 * @return See above.
 	 */
-	private MeasureMaskFigure createMaskFigure(MaskData data)
+	private MeasureMaskFigure createMaskFigure(MaskData data, boolean readOnly)
 	{
 		
 		double x = data.getX();
@@ -305,7 +312,7 @@ class InputServerStrategy
 		BufferedImage mask = data.getMask();
 		
 		MeasureMaskFigure fig = new MeasureMaskFigure(x, y, width, 
-				height, mask);
+				height, mask, readOnly);
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
 		try {
@@ -324,9 +331,11 @@ class InputServerStrategy
 	 * Transforms the passed line into its UI corresponding object.
 	 * 
 	 * @param data The line to transform.
+	 * @param readOnly Is the figure read only.
 	 * @return See above.
 	 */
-	private MeasureLineFigure createLineFigure(LineData data)
+	private MeasureLineFigure createLineFigure(LineData data, 
+												boolean readOnly)
 	{
 		
 		double x1 = data.getX1();
@@ -334,7 +343,7 @@ class InputServerStrategy
 		double x2 = data.getX2();
 		double y2 = data.getY2();
 		
-		MeasureLineFigure fig = new MeasureLineFigure();
+		MeasureLineFigure fig = new MeasureLineFigure(readOnly);
 		fig.removeAllNodes();
 		fig.addNode(new Node(new Double(x1), new Double(y1)));
 		fig.addNode(new Node(new Double(x2), new Double(y2)));
@@ -357,12 +366,14 @@ class InputServerStrategy
 	 * Transforms the polygon into its UI corresponding object.
 	 * 
 	 * @param data The polygon to transform.
+	 * @param readOnly Is the figure read only.
 	 * @return See above.
 	 */
-	private MeasureBezierFigure createPolygonFigure(PolygonData data)
+	private MeasureBezierFigure createPolygonFigure(PolygonData data, 
+															boolean readOnly)
 	{
 		
-		MeasureBezierFigure fig = new MeasureBezierFigure();
+		MeasureBezierFigure fig = new MeasureBezierFigure(readOnly);
 		List<Point2D> points = data.getPoints();
 		for(Point2D point : points)
 			fig.addNode(new Node(point.getX(), point.getY()));
@@ -385,12 +396,14 @@ class InputServerStrategy
 	 * Transforms the passed polyline into its UI corresponding object.
 	 * 
 	 * @param data The polyline to transform.
+	 * @param readOnly Is the figure read only.
 	 * @return See above.
 	 */
-	private MeasureBezierFigure createPolylineFigure(PolylineData data)
+	private MeasureBezierFigure createPolylineFigure(PolylineData data, 
+															boolean readOnly)
 	{
 		
-		MeasureBezierFigure fig = new MeasureBezierFigure();
+		MeasureBezierFigure fig = new MeasureBezierFigure(readOnly);
 		List<Point2D> points = data.getPoints();
 		for(Point2D point : points)
 			fig.addNode(new Node(point.getX(), point.getY()));
@@ -443,7 +456,7 @@ class InputServerStrategy
 	 * @throws NoSuchROIException if there is an error creating line connection 
 	 * figure.
 	 */
-	List<ROI> readROI(Collection rois, ROIComponent component)
+	List<ROI> readROI(Collection rois, ROIComponent component, boolean readOnly)
 			throws ROICreationException, NoSuchROIException
 	{
 		if (component == null)
@@ -454,7 +467,7 @@ class InputServerStrategy
 		while (i.hasNext()) {
 			o = i.next();
 			if (o instanceof ROIData) 
-				roiList.add(createROI((ROIData) o));
+				roiList.add(createROI((ROIData) o, readOnly));
 		}
 		return roiList;
 	}

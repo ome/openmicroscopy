@@ -31,17 +31,22 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jhotdraw.draw.AbstractAttributedFigure;
+import org.jhotdraw.draw.Handle;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -68,6 +73,9 @@ public class MeasureMaskFigure
 	extends RectangleTextFigure
 	implements ROIFigure
 {
+	/** Is this figure read only. */
+	private boolean readOnly;
+	
 	 /**
      * This is used to perform faster drawing and hit testing.
      */
@@ -92,7 +100,7 @@ public class MeasureMaskFigure
     /** Creates a new instance. */
     public MeasureMaskFigure() 
     {
-        this("Text", 0, 0, 0, 0, null);
+        this("Text", 0, 0, 0, 0, null, false);
     }
 
     /** 
@@ -101,7 +109,7 @@ public class MeasureMaskFigure
      * */
     public MeasureMaskFigure(String text) 
     {
-        this(text, 0, 0, 0, 0, null);
+        this(text, 0, 0, 0, 0, null, false);
     }
     
     /** 
@@ -114,7 +122,22 @@ public class MeasureMaskFigure
     public MeasureMaskFigure(double x, double y, double width, 
 			double height, BufferedImage mask) 
     {
-    	this("Text", x, y, width, height, mask);
+    	this("Text", x, y, width, height, mask, false);
+    }
+    
+
+    /** 
+     * Creates a new instance.
+     * @param x    coord of the figure. 
+     * @param y    coord of the figure. 
+     * @param width of the figure. 
+     * @param height of the figure. 
+     * @param readOnly Is the figure read only.
+     * */
+    public MeasureMaskFigure(double x, double y, double width, 
+			double height, BufferedImage mask, boolean readOnly) 
+    {
+    	this("Text", x, y, width, height, mask, readOnly);
     }
     
     /** 
@@ -124,9 +147,10 @@ public class MeasureMaskFigure
      * @param y    coord of the figure. 
      * @param width of the figure. 
      * @param height of the figure. 
+     * @param readOnly the figure is readOnly
      * */
     public MeasureMaskFigure(String text, double x, double y, double width, 
-    							double height, BufferedImage mask) 
+    							double height, BufferedImage mask, boolean readOnly) 
     {
 		super(text, x, y, width, height);
 		this.mask = mask;
@@ -137,6 +161,7 @@ public class MeasureMaskFigure
         shape = null;
 		roi = null;
 		status = IDLE;
+		setReadOnly(readOnly);
     }
     
     /**
@@ -270,7 +295,38 @@ public class MeasureMaskFigure
 			
 		}
 	}
-				
+	
+	/**
+	 * Overridden to stop updating shape if read only
+	 * @see AbstractAttributedFigure#transform(AffineTransform)
+	 */
+	public void transform(AffineTransform tx)
+	{
+		if(!readOnly)
+			super.transform(tx);
+	}
+	
+	/**
+	 * Overridden to stop updating shape if readonly.
+	 * @see AbstractAttributedFigure#setBounds(Double, Double)
+	 */
+	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
+	{
+		if(!readOnly)
+			super.setBounds(anchor, lead);
+	}
+			
+	/**
+	 * Overridden to return the correct handles.
+	 * @see AbstractAttributedFigure#createHandles(int)
+	 */
+	public Collection<Handle> createHandles(int detailLevel) 
+	{
+		if(!readOnly)
+			super.createHandles(detailLevel);
+		return new LinkedList<Handle>();
+	}
+	
 	/**
 	 * Calculates the bounds of the rendered figure, including the text rendered. 
 	 * @return see above.
@@ -444,5 +500,21 @@ public class MeasureMaskFigure
 	
 	public int getStatus() { return status; }
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#isReadOnly()
+	 */
+	public boolean isReadOnly() { return readOnly;}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setReadOnly(boolean)
+	 */
+	public void setReadOnly(boolean readOnly) 
+	{ 
+		this.readOnly = readOnly; 
+		setEditable(!readOnly);
+	}
+
 }
 

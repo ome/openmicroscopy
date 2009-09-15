@@ -27,19 +27,24 @@ package org.openmicroscopy.shoola.util.roi.figures;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jhotdraw.draw.AbstractAttributedFigure;
+import org.jhotdraw.draw.Handle;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -67,7 +72,9 @@ public class MeasureLineFigure
 	extends LineTextFigure
 	implements ROIFigure
 {
-	
+	/** Is this figure read only. */
+	private boolean readOnly;
+
 	/** The bounds of the bezier figure. */
 	private ArrayList<Rectangle2D> 		boundsArray;
 	
@@ -115,14 +122,24 @@ public class MeasureLineFigure
 	/** Creates a new instance. */
 	public MeasureLineFigure()
 	{
-		this("text");
+		this("text", false);
 	}
 
+
+	/** Creates a new instance. 
+	 * @param readOnly the figure is read only.
+	 */
+	public MeasureLineFigure(boolean readOnly)
+	{
+		this("text", readOnly);
+	}
+	
 	/**
 	 * Create instance of the line figure.
 	 * @param text The text to add to the figure.
+	 * @param readOnly the figure is read only.
 	 */
-	public MeasureLineFigure(String text)
+	public MeasureLineFigure(String text, boolean readOnly)
 	{
 		super(text);
 		boundsArray = new ArrayList<Rectangle2D>();
@@ -133,6 +150,7 @@ public class MeasureLineFigure
 		shape = null;
 		roi = null;
 		status = IDLE;
+		setReadOnly(readOnly);
 	}
 	
 	/**
@@ -215,6 +233,38 @@ public class MeasureLineFigure
 			g.drawString(this.getROI().getID()+"", (int)bounds.getX(), (int)bounds.getY());
 		}
 	}
+	
+	/**
+	 * Overridden to stop updating shape if read only
+	 * @see AbstractAttributedFigure#transform(AffineTransform)
+	 */
+	public void transform(AffineTransform tx)
+	{
+		if(!readOnly)
+			super.transform(tx);
+	}
+		
+	/**
+	 * Overridden to stop updating shape if readonly.
+	 * @see AbstractAttributedFigure#setBounds(Double, Double)
+	 */
+	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
+	{
+		if(!readOnly)
+			super.setBounds(anchor, lead);
+	}
+		
+	/**
+	 * Overridden to return the correct handles.
+	 * @see AbstractAttributedFigure#createHandles(int)
+	 */
+	public Collection<Handle> createHandles(int detailLevel) 
+	{
+		if(!readOnly)
+			super.createHandles(detailLevel);
+		return new LinkedList<Handle>();
+	}
+
 	
 	/**
 	 * Get the length array. These are the lengths of each segment of the line. 
@@ -543,6 +593,22 @@ public class MeasureLineFigure
 	 */
 	public int getStatus() { return status; }
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#isReadOnly()
+	 */
+	public boolean isReadOnly() { return readOnly;}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setReadOnly(boolean)
+	 */
+	public void setReadOnly(boolean readOnly) 
+	{ 
+		this.readOnly = readOnly; 
+		setEditable(!readOnly);
+	}
+
 }
 
 

@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.util.roi.figures;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.event.MouseListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashSet;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
+import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.TextFigure;
 
 //Application-internal dependencies
@@ -62,6 +64,9 @@ public class MeasureTextFigure
 	implements ROIFigure
 {
 	
+	/** Is this figure read only. */
+	private boolean readOnly;
+	
 	private Shape				cachedTransformedShape;
 	private	Rectangle2D 		bounds;
 	private ROI					roi;
@@ -74,7 +79,7 @@ public class MeasureTextFigure
     /** Creates a new instance. Default value <code>(0, 0) </code>.*/
     public MeasureTextFigure() 
     {
-        this(0, 0);
+        this(0, 0, false);
     }
     
     /**
@@ -82,8 +87,20 @@ public class MeasureTextFigure
      * 
      * @param x	The x-coordinate of the top-left corner.
      * @param y The y-coordinate of the top-left corner.
-     */
-    public MeasureTextFigure(double x, double y) 
+  	 */
+    public MeasureTextFigure(double x, double y)
+    {
+    	this(x, y, false);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param x	The x-coordinate of the top-left corner.
+     * @param y The y-coordinate of the top-left corner.
+ 	 * @param readOnly The figure is read only.
+ 	 */
+    public MeasureTextFigure(double x, double y, boolean readOnly) 
     {
     	super();
     	this.willChange();
@@ -92,8 +109,31 @@ public class MeasureTextFigure
     	shape = null;
    		roi = null;
    		status = IDLE;
-    }
-
+   		setReadOnly(readOnly);
+   }
+	
+	/**
+	 * Overridden to stop updating shape if read only
+	 * @see AbstractAttributedFigure#transform(AffineTransform)
+	 */
+	public void transform(AffineTransform tx)
+	{
+		if(!readOnly)
+			super.transform(tx);
+	}
+	
+	
+	/**
+	 * Overridden to stop updating shape if readonly.
+	 * @see AbstractAttributedFigure#setBounds(Double, Double)
+	 */
+	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
+	{
+		if(!readOnly)
+			super.setBounds(anchor, lead);
+	}
+	
+    
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getROI()
@@ -151,6 +191,22 @@ public class MeasureTextFigure
 	
 	public int getStatus() { return status; }
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#isReadOnly()
+	 */
+	public boolean isReadOnly() { return readOnly;}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setReadOnly(boolean)
+	 */
+	public void setReadOnly(boolean readOnly) 
+	{ 
+		this.readOnly = readOnly; 
+		setEditable(!readOnly);
+	}
+
 }
 
 
