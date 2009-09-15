@@ -393,14 +393,20 @@ class TableI(omero.grid.Table, omero.util.Servant):
         be cleaned up.
         """
         if self.storage:
-            self.storage.decr(self)
-            self.storage = None
+            try:
+                self.storage.decr(self)
+            finally:
+                self.storage = None
 
     def __str__(self):
         if hasattr(self, "uuid"):
             return "Table-%s" % self.uuid
         else:
             return "Table-uninitialized"
+
+    def close(self, current = None):
+        self.cleanup()
+    close = remoted(close)
 
     # TABLES READ API ============================
 
