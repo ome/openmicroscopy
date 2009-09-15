@@ -34,8 +34,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -47,6 +51,8 @@ import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -205,8 +211,8 @@ class MeasurementViewerComponent
         							(int) (model.getSizeY()*f));
         		UIUtilities.setDefaultSize(model.getDrawingView(), d);
         		model.getDrawingView().setSize(d);
-        		model.fireROILoading(null);
-        		//model.fireLoadROIFromServer(measurements);
+        		//model.fireROILoading(null);
+        		model.fireLoadROIFromServer(measurements);
         		//fireStateChange();
                 break;
             case DISCARDED:
@@ -814,7 +820,8 @@ class MeasurementViewerComponent
      * @see MeasurementViewer#setServerROI(Collection)
      */
 	public void setServerROI(Collection result)
-	{		if (model.getState() != LOADING_ROI)
+	{		
+		if (model.getState() != LOADING_ROI)
 			throw new IllegalArgumentException("The method can only " +
 					"be invoked in the LOADING_ROI state.");
 		try {
@@ -824,10 +831,13 @@ class MeasurementViewerComponent
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 		//bring up the UI.
 		view.layoutUI();
-		view.rebuildManagerTable();
+		//view.rebuildManagerTable();
+		
+		
+		
+		
 		view.updateDrawingArea();
 		view.setReadyStatus();
 		fireStateChange();

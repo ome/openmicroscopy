@@ -495,8 +495,7 @@ class MeasurementViewerControl
 			model.setDataChanged();
 		}
 	}
-	
-	private Figure figure;
+
 	/**
 	 * Required by the {@link DrawingListener} I/F used to update 
 	 * the measurements of a component and the different dataviews. 

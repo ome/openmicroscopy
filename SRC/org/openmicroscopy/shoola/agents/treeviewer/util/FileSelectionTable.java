@@ -138,9 +138,6 @@ class FileSelectionTable
 		removeAllButton.addActionListener(this);
 		table = new JXTable(new FileTableModel(COLUMNS));
 		TableColumn tc = table.getColumnModel().getColumn(SELECTED_INDEX);
-		//final BooleanCellRenderer check = new BooleanCellRenderer();
-		//tc.setCellRenderer(check);
-		//tc.setCellEditor(new DefaultCellEditor(check));
 		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
 		Highlighter h = HighlighterFactory.createAlternateStriping(

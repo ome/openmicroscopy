@@ -194,9 +194,11 @@ class ObjectManager
                 }
             }
  
-            public void configureColumnWidths(JXTable table, TableColumnExt columnExt) 
+            public void configureColumnWidths(JXTable table, 
+            		TableColumnExt columnExt) 
             {
-            	columnExt.setPreferredWidth(columnWidths.get(columnExt.getHeaderValue()));
+            	columnExt.setPreferredWidth(
+            			columnWidths.get(columnExt.getHeaderValue()));
             }
         };
     	objectsTable.setHorizontalScrollEnabled(true);
@@ -217,7 +219,7 @@ class ObjectManager
 	 * @param view 	Reference to the control. Mustn't be <code>null</code>.
 	 * @param model	Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	ObjectManager(MeasurementViewerUI	view, MeasurementViewerModel model)
+	ObjectManager(MeasurementViewerUI view, MeasurementViewerModel model)
 	{
 		if (view == null) throw new IllegalArgumentException("No view.");
 		if (model == null) throw new IllegalArgumentException("No model.");
@@ -227,11 +229,8 @@ class ObjectManager
 		buildGUI();
 	}
 	
-	/**
-	 * Rebuild Tree
-	 * 
-	 */
-	public void rebuildTable()
+	/** Rebuilds Tree */
+	void rebuildTable()
 	{
 		TreeMap<Long, ROI> roiList = model.getROI();
 		Iterator<ROI> iterator = roiList.values().iterator();
@@ -252,7 +251,6 @@ class ObjectManager
 		}
 
 	}
-	
 	
 	/**
 	 * Returns the name of the component.
@@ -284,7 +282,7 @@ class ObjectManager
 		while (i.hasNext())
 		{
 			roi=(ROI) i.next();
-			Iterator<ROIShape> j=roi.getShapes().values().iterator();
+			Iterator<ROIShape> j = roi.getShapes().values().iterator();
 			while (j.hasNext())
 			{
 				objectsTable.addROIShape(j.next());
@@ -297,7 +295,7 @@ class ObjectManager
 	 * 
 	 * @param shapeList The collection of ROIShapes to add.
 	 */
-	public void addROIShapes(List<ROIShape> shapeList)
+	void addROIShapes(List<ROIShape> shapeList)
 	{
 		objectsTable.addROIShapeList(shapeList);
 	}
@@ -356,7 +354,7 @@ class ObjectManager
 	 * Delete the ROI shapes in the shapelist and belonging 
 	 * @param shapeList see above.
 	 */
-	public void deleteROIShapes(ArrayList<ROIShape> shapeList)
+	void deleteROIShapes(ArrayList<ROIShape> shapeList)
 	{
 		view.deleteROIShapes(shapeList);
 		this.rebuildTable();
@@ -368,7 +366,7 @@ class ObjectManager
 	 * @param id see above.
 	 * @param shapeList see above.
 	 */
-	public void duplicateROI(long id, ArrayList<ROIShape> shapeList)
+	void duplicateROI(long id, ArrayList<ROIShape> shapeList)
 	{
 		view.duplicateROI(id, shapeList);
 		this.rebuildTable();
@@ -404,7 +402,7 @@ class ObjectManager
 	 * @param id see above. see above.
 	 * @param shapeList see above.
 	 */
-	public void splitROI(long id, ArrayList<ROIShape> shapeList)
+	void splitROI(long id, ArrayList<ROIShape> shapeList)
 	{
 			view.splitROI(id, shapeList);
 			this.rebuildTable();
@@ -418,7 +416,6 @@ class ObjectManager
 		objectsTable.invalidate(); 
 		objectsTable.repaint();
 	}
-
 
 	/**
 	 * Show the roi assistant for the roi.
@@ -452,6 +449,6 @@ class ObjectManager
 	 * @see TabPaneInterface#getIndex()
 	 */
 	public int getIndex() { return INDEX; }
-	
+
 }
 	

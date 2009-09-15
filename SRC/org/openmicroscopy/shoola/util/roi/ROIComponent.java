@@ -30,7 +30,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 //Third-party libraries
@@ -128,6 +130,9 @@ public class ROIComponent
 	/** Show the measurement units. */
 	private MeasurementUnits			units;
 	
+	/** The map whose key is a file result ID and value a list of rois. */
+	private Map<Long, List<ROI>>		roiResult;
+	
 	/**
      * Helper method to set the attributes of the newly created figure.
      * 
@@ -176,6 +181,7 @@ public class ROIComponent
 	{
 		roiCollection = new ROICollection();
 		units = new MeasurementUnits(0, 0, 0 , false);
+		roiResult = new LinkedHashMap<Long, List<ROI>>();
 	}
 
 	/**
@@ -308,7 +314,7 @@ public class ROIComponent
 	 * 
 	 * @param output The output stream to write the ROI into.
 	 * @throws ParsingException Thrown if an error occurs while creating the 
-	 * 							xml element. 
+	 * 							XML element. 
 	 */
 	public void saveROI(OutputStream output) 
 		throws ParsingException
@@ -351,19 +357,33 @@ public class ROIComponent
 	/**
 	 * Reads the ROIs from the server and returns the UI representations.
 	 * 
+	 * @param fileID The id of the file.
 	 * @param rois The collection of ROIs to convert.
 	 * @return See above.
 	 * @throws NoSuchROIException
 	 * @throws ROICreationException
 	 */
-	public List<ROI> loadROI(Collection rois) 
+	public List<ROI> loadROI(long fileID, Collection rois) 
 		throws NoSuchROIException, ROICreationException	
 	{
 		if (rois == null)
 			throw new NullPointerException("No rois to transform.");
 		if (serverStrategy == null)
 			serverStrategy = new ServerROIStrategy();
-		return serverStrategy.read(rois, this);
+		List<ROI> l = serverStrategy.read(rois, this);
+		roiResult.put(fileID, l);
+		return l;
+	}
+	
+	/**
+	 * Returns the list of ROIs associated to that file.
+	 * 
+	 * @param fileID The id of the file.
+	 * @return See above.
+	 */
+	public List<ROI> getROIList(long fileID)
+	{
+		return roiResult.get(fileID);
 	}
 	
 	/**
@@ -432,7 +452,7 @@ public class ROIComponent
 	 * 
 	 * @return See above.
 	 */
-	public TreeMap<Long, ROI>  getROIMap()
+	public TreeMap<Long, ROI> getROIMap()
 	{
 		return roiCollection.getROIMap();
 	}

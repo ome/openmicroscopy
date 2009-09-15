@@ -166,6 +166,9 @@ class MeasurementViewerModel
     /** The measurements associated to the image. */
     private List<FileAnnotationData> measurements;
     
+    /** The collection of ROIs and tables related to the measurements. */
+    private Collection 				 measurementResults;
+    
     /** 
 	 * Sorts the passed nodes by row.
 	 * 
@@ -458,6 +461,30 @@ class MeasurementViewerModel
 	}
 
 	/**
+	 * Returns the file corresponding to the passed id.
+	 * 
+	 * @param fileID The id of the file.
+	 * @return See above.
+	 */
+	FileAnnotationData getMeasurement(long fileID)
+	{
+		Iterator<FileAnnotationData> i = measurements.iterator();
+		FileAnnotationData fa;
+		while (i.hasNext()) {
+			fa = i.next();
+			if (fa.getId() == fileID) return fa;
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the collection of measurements results.
+	 * 
+	 * @return See above.
+	 */
+	Collection getMeasurementResults() { return measurementResults; }
+	
+	/**
 	 * Sets the server ROIS.
 	 * 
 	 * @param rois The collection of Rois.
@@ -468,6 +495,7 @@ class MeasurementViewerModel
 	boolean setServerROI(Collection rois)
 		throws ROICreationException, NoSuchROIException
 	{
+		measurementResults = rois;
 		state = MeasurementViewer.READY;
 		List<ROI> roiList = new ArrayList<ROI>();
 		Iterator r = rois.iterator();
@@ -475,7 +503,8 @@ class MeasurementViewerModel
 		
 		while (r.hasNext()) {
 			result = (ROIResult) r.next();
-			roiList.addAll(roiComponent.loadROI(result.getROIs()));
+			roiList.addAll(roiComponent.loadROI(result.getFileID(), 
+					result.getROIs()));
 		}
 		if (roiList == null) return false;
 		serverROI = true;

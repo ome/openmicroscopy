@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -813,8 +814,7 @@ class MeasurementViewerUI
     	roiManager.update();
     	roiResults.refreshResults();
     }
-	
-    
+
     /**
      * Returns the drawing.
      * 
@@ -885,9 +885,23 @@ class MeasurementViewerUI
     {
     	if (model.isServerROI()) {
     		tabs.removeAll();
+    		Collection l = model.getMeasurementResults();
+    		Iterator i= l.iterator();
+    		ROIResult result;
+    		ServerROITable comp;
+    		while (i.hasNext()) {
+    			result = (ROIResult) i.next();
+				comp = new ServerROITable(this, model);
+				comp.setResult(result);
+				tabs.addTab(comp.getComponentName(), comp.getComponentIcon(), 
+						comp);
+			}
+    		tabs.setSelectedIndex(0);
+    		/*
     		tabs.addTab(roiManager.getComponentName(), 
 					roiManager.getComponentIcon(), roiManager);
     		tabs.setSelectedIndex(0);
+    		*/
     	}
     }
     

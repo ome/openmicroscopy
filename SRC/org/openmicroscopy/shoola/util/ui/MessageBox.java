@@ -23,6 +23,8 @@
 package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
+import java.awt.Point;
+
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -166,11 +168,22 @@ public class MessageBox
      */
     public int showMsgBox()
     {
-    	setLocation(getParent().getLocation());
+    	return showMsgBox(getParent().getLocation());
+    }
+   
+    /**
+     * Shows the message box and returns the option selected by the user. 
+     * 
+     * @param location The location of the top-left corner of the dialog.
+     * @return The option selected by the user. 
+     */
+    public int showMsgBox(Point location)
+    {
+    	setLocation(location);
     	setVisible(true);
     	return option;	
     }
-   
+    
     /**
      * Shows the message box and returns the option selected by the user. 
      * 

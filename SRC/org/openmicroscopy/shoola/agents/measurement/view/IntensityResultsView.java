@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,7 +77,7 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import pojos.ChannelData;
 
 /** 
- * Displats the intensity results.
+ * Displays the intensity results.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -168,7 +167,7 @@ class IntensityResultsView
 	}
 	
 	/** 
-	 * Intensity view state, if Analysiing we should not all the user to 
+	 * Intensity view state, if Analysing we should not all the user to 
 	 * change combobox or save. 
 	 */
 	private State						state = State.READY;
@@ -555,7 +554,7 @@ class IntensityResultsView
 	/**
 	 * Get the analysis results from the model and convert to the 
 	 * necessary array. data types using the ROIStats wrapper then
-	 * create the approriate table data and summary statistics.  
+	 * create the appropriate table data and summary statistics.  
 	 */
 	void displayAnalysisResults()
 	{
@@ -675,7 +674,7 @@ class IntensityResultsView
 	{
 		
 		/**
-		 * Overriddent to make sure that the cell is not editable.
+		 * Overridden to make sure that the cell is not editable.
 		 * @see DefaultTableModel#isCellEditable(int, int)
 		 */
 		public boolean isCellEditable(int row, int col) { return false; }

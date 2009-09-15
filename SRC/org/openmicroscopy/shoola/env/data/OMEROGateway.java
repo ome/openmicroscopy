@@ -97,8 +97,14 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.projection.ProjectionType;
+import omero.grid.BoolColumn;
 import omero.grid.Column;
 import omero.grid.Data;
+import omero.grid.DoubleColumn;
+import omero.grid.ImageColumn;
+import omero.grid.LongColumn;
+import omero.grid.RoiColumn;
+import omero.grid.StringColumn;
 import omero.grid.TablePrx;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
@@ -4601,32 +4607,10 @@ class OMEROGateway
 			} else { //measurements
 				//tmp
 				long id = measurements.get(0);
-				System.err.println(id);
 				r = svc.findByImage(imageID, new RoiOptions());
 				if (r == null) return results;
 				result = new ROIResult(PojoMapper.asDataObjects(r.rois), id);
-				TablePrx table = svc.getTable(id);
-				Column[] cols = table.getHeaders();
-				String[] headers = new String[cols.length];
-				String[] headersDescriptions = new String[cols.length];
-				for (int i = 0; i < cols.length; i++) {
-					headers[i] = cols[i].name;
-					headersDescriptions[i] = cols[i].description;
-				}
-				int n = (int) table.getNumberOfRows();
-				Object[][] data = new Object[n][cols.length];
-				Data d;
-				long[] a = new long[1], b = new long[1];
-				for (int i = 0; i < data.length; i++) {
-					a[0] = i; 
-					for (int j = 0; j < n; j++) {
-						b[0] = j;
-						d = table.slice(a, b);
-						data[j][i] = d.toString();
-					}
-				}
-				table.close();
-				result.setResult(new TableResult(data, headers));
+				result.setResult(createTableResult(svc.getTable(id)));
 				results.add(result);
 				
 				/*
@@ -4654,13 +4638,75 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Transforms the passed table.
+	 * 
+	 * @param table The table to convert.
+	 * @return See above
+	 * @throws DSAccessException If an error occurred while trying to 
+	 *                           retrieve data from OMEDS service.
+	 */
+	private TableResult createTableResult(TablePrx table)
+		throws DSAccessException
+	{
+		if (table == null) return null;
+		try {
+			Column[] cols = table.getHeaders();
+			String[] headers = new String[cols.length];
+			String[] headersDescriptions = new String[cols.length];
+			for (int i = 0; i < cols.length; i++) {
+				headers[i] = cols[i].name;
+				headersDescriptions[i] = cols[i].description;
+			}
+			int n = (int) table.getNumberOfRows();
+			Object[][] data = new Object[n][cols.length];
+			Data d;
+			Column column;
+			long[] a = new long[1], b = new long[1];
+			for (int i = 0; i < cols.length; i++) {
+				a[0] = i; 
+				for (int j = 0; j < n; j++) {
+					b[0] = j;
+					d = table.slice(a, b);
+					column = d.columns[0];
+					if (column instanceof LongColumn) {
+						data[j][i] = ((LongColumn) column).values[0];
+					} else if (column instanceof DoubleColumn) {
+						data[j][i] = ((DoubleColumn) column).values[0];
+					} else if (column instanceof StringColumn) {
+						data[j][i] = ((StringColumn) column).values[0];
+					} else if (column instanceof BoolColumn) {
+						data[j][i] = ((BoolColumn) column).values[0];
+					} else if (column instanceof RoiColumn) {
+						data[j][i] = ((RoiColumn) column).values[0];
+					} else if (column instanceof ImageColumn) {
+						data[j][i] = ((ImageColumn) column).values[0];
+					} 
+				}
+			}
+			table.close();
+			return new TableResult(data, headers);
+		} catch (Exception e) {
+			try {
+				if (table != null) table.close();
+			} catch (Exception ex) {
+				//Digest exception
+			}
+			new DSAccessException("Unable to read the table.");
+		}
+		return null;
+		
+	}
+	
+	/**
 	 * Returns the file 
 	 * 
 	 * @param file		The file to write the bytes.
 	 * @param imageID	The id of the image.
 	 * @return See above.
-	 * @throws DSAccessException
-	 * @throws DSOutOfServiceException
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	synchronized File exportImageAsXML(File f, long imageID)
 		throws DSAccessException, DSOutOfServiceException
