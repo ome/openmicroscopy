@@ -43,8 +43,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
-import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
@@ -859,11 +857,6 @@ class ImViewerControl
 			view.hidePlaneInfoDetails();
 		} else if (ProjSavingDialog.LOAD_ALL_PROPERTY.equals(pName)) {
 			model.loadAllContainers();
-		} else if (MetadataViewer.CREATING_MOVIE_PROPERTY.equals(pName)) {
-			boolean b = ((Boolean) pce.getNewValue()).booleanValue();
-			Action a = getAction(CREATE_MOVIE);
-			if (a != null) a.setEnabled(!b);
-			view.setMovieStatus(b);
 		} else if (MetadataViewer.SELECTED_CHANNEL_PROPERTY.equals(pName)) {
 			int index = (Integer) pce.getNewValue();
 			model.onChannelSelection(index);

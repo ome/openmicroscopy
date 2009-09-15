@@ -2220,7 +2220,12 @@ class ImViewerUI
 	 * @param b Pass <code>true</code> to indicate the creation,
 	 * 			<code>false</code> to indicate that the creation is done.
 	 */
-	void setMovieStatus(boolean b) { toolBar.setMovieStatus(b); }
+	void setMeasurementLaunchingStatus(boolean b)
+	{ 
+		Action a = controller.getAction(ImViewerControl.MEASUREMENT_TOOL);
+		a.setEnabled(!b);
+		toolBar.setMeasurementLaunchingStatus(b);
+	}
 	
 	/**
 	 * Updates the scale bar menu.

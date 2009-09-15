@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -1869,6 +1870,7 @@ class ImViewerComponent
 	public void showMeasurementTool(Point point)
 	{
 		Collection measurements = model.getMeasurements();
+		view.setMeasurementLaunchingStatus(true);
 		if (measurements == null || measurements.size() == 0) {
 			postMeasurementEvent(null);
 			return;
@@ -1921,6 +1923,10 @@ class ImViewerComponent
 	{
 		if (model.getState() != READY) return;
 		if (comp == null) return;
+		view.setMeasurementLaunchingStatus(false);
+		
+		
+		
 		model.getBrowser().addComponent(comp, ImViewer.VIEW_INDEX);
 		comp.setVisible(true);
 		view.repaint();

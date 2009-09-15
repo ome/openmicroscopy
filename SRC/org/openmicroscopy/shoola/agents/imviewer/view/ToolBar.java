@@ -112,26 +112,26 @@ class ToolBar
     /** Button used to show or hide the renderer. */
     private JToggleButton			metadataButton;
     
-    /** Button used to show or hide the history of rendering changes. */
+    /** Button used to show or hide the renderer. */
     private JToggleButton			historyButton;
-    
+
     /** Box used to present the compression selected. */
     private JComboBox				compressionBox;
 
     /** Button to paste the rendering settings. */
 	private JButton					pasteButton;
 	
-	 /** Button to paste the rendering settings. */
-	private JButton					movieButton;
+	/** Button to launch the measurement tool. */
+	private JButton					measurementButton;
+	
+	/** Indicates the launching of the measurement tool. */
+	private JXBusyLabel				measurementLabel;
 	
 	/** Indicates the loading progress. */
 	private JXBusyLabel				busyLabel;
-	
-	/** Indicates the movie creation. */
-	private JXBusyLabel				busyMovieLabel;
 
 	/** The index of the movie icon. */
-	private static final int		MOVIE_INDEX = 17;
+	private static final int		MEASUREMENT_INDEX = 13;
 	
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
@@ -192,26 +192,26 @@ class ToolBar
         bar.add(button); 
         bar.add(new JSeparator(JSeparator.VERTICAL));
         Action a = controller.getAction(ImViewerControl.MEASUREMENT_TOOL);
-        button = new JButton(a);
-        button.addMouseListener((ROIToolAction) a);
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button); 
-        bar.add(new JSeparator(JSeparator.VERTICAL));
-        button = new JButton(controller.getAction(ImViewerControl.SAVE));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);
-        movieButton = new JButton(controller.getAction(
-        		ImViewerControl.CREATE_MOVIE));
+        measurementButton = new JButton(a);
+        measurementButton.addMouseListener((ROIToolAction) a);
+        UIUtilities.unifiedButtonLookAndFeel(measurementButton);
+        bar.add(measurementButton); 
+        Icon icon = measurementButton.getIcon();
         int h = UIUtilities.DEFAULT_ICON_HEIGHT;
 		int w = UIUtilities.DEFAULT_ICON_WIDTH;
-		Icon icon = movieButton.getIcon();
 		if (icon != null) {
 			if (icon.getIconHeight() > h) h = icon.getIconHeight();
 			if (icon.getIconWidth() > w) w = icon.getIconWidth();
 		}
-		
-        UIUtilities.unifiedButtonLookAndFeel(movieButton);
-        bar.add(movieButton);
+        
+        bar.add(new JSeparator(JSeparator.VERTICAL));
+        button = new JButton(controller.getAction(ImViewerControl.SAVE));
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(button);
+        button = new JButton(controller.getAction(
+        		ImViewerControl.CREATE_MOVIE));
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(button);
         a = controller.getAction(ImViewerControl.USER);
         button = new JButton(a);
         button.addMouseListener((UserAction) a);
@@ -223,10 +223,10 @@ class ToolBar
     	busyLabel.setEnabled(true);
     	busyLabel.setVisible(false);
     	
-    	busyMovieLabel = new JXBusyLabel(d);
-    	busyMovieLabel.setToolTipText("Creating movie. Please wait.");
-    	busyMovieLabel.setEnabled(true);
-    	busyMovieLabel.setVisible(true);
+    	measurementLabel = new JXBusyLabel(d);
+    	measurementLabel.setToolTipText("Loading ROIs. Please wait.");
+    	measurementLabel.setEnabled(true);
+    	measurementLabel.setVisible(true);
     }
     
     /** Initializes the components composing this tool bar. */
@@ -352,16 +352,16 @@ class ToolBar
 	 * @param b Pass <code>true</code> to indicate the creation,
 	 * 			<code>false</code> to indicate that the creation is done.
 	 */
-	void setMovieStatus(boolean b)
+	void setMeasurementLaunchingStatus(boolean b)
 	{ 
 		if (bar != null) {
-    		busyMovieLabel.setBusy(b);
+			measurementLabel.setBusy(b);
     		if (!b) {
-    			bar.remove(busyMovieLabel);
-    			bar.add(movieButton, MOVIE_INDEX);
+    			bar.remove(measurementLabel);
+    			bar.add(measurementButton, MEASUREMENT_INDEX);
         	} else {
-        		bar.remove(movieButton);
-        		bar.add(busyMovieLabel, MOVIE_INDEX);
+        		bar.remove(measurementButton);
+        		bar.add(measurementLabel, MEASUREMENT_INDEX);
         	}
     		bar.revalidate();
     		bar.repaint();
