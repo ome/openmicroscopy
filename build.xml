@@ -350,6 +350,8 @@ java component.
            <arg value="--html"/>
            <arg value="-n"/>
            <arg value="OmeroPy API Documentation"/>
+           <arg value="--css"/>
+           <arg value="docs/epydocsstyle.css"/>
            <arg value="-o"/>
            <arg value="${dist.dir}/docs/api/epydoc"/>
            <arg value="${dist.dir}/lib/python/omero"/>
