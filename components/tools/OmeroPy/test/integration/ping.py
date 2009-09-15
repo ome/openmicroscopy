@@ -13,6 +13,8 @@ import test.integration.library as lib
 import tempfile, unittest, os, sys
 
 import omero
+import omero.clients
+import omero.model
 import omero.api
 import omero_api_IScript_ice
 from omero.rtypes import *

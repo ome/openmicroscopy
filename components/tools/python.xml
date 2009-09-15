@@ -26,6 +26,16 @@
         </sequential>
     </macrodef>
 
+    <macrodef name="run_py">
+        <attribute name="failonerror" default="true"/>
+        <element name="args" implicit="true"/>
+        <sequential>
+            <exec executable="python" failonerror="@{failonerror}">
+                <args/>
+            </exec>
+        </sequential>
+    </macrodef>
+
     <target name="python-build" unless="env.NOPYTHON">
         <property name="py.target" value="${basedir}/build/lib"/>
         <mkdir dir="${py.target}"/>
@@ -48,12 +58,11 @@
     </target>
 
     <target name="python-integration" unless="env.NOPYTHON">
-        <setup_py failonerror="false">
+        <run_py failonerror="false">
             <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
-            <arg value="test"/>
-            <arg value="-s"/>
-            <arg value="test.integration.suite"/>
-        </setup_py>
+            <env key="PYTHONPATH" path=".:test:build/lib:${env.PYTHONPATH}"/>
+            <arg file="${basedir}/test/integration/suite.py"/>
+        </run_py>
     </target>
 
     <target name="python-install" unless="env.NOPYTHON">

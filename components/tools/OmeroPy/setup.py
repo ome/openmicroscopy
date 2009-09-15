@@ -37,7 +37,7 @@ Python bindings to the OMERO.blitz server.
       url="https://trac.openmicroscopy.org.uk/omero/wiki/OmeroPy",
       download_url="https://trac.openmicroscopy.org.uk/omero/wiki/OmeroPy",
       package_dir = {"": "target"},
-      packages=['', 'omero', 'omero.plugins','omero.api','omero.install','omero.model','omero.sys','omero.util','omero.romio','omero_ext','omero.gateway','omero.gateway.scripts'],
+      packages=['', 'xmlrunner', 'omero', 'omero.plugins','omero.api','omero.install','omero.model','omero.sys','omero.util','omero.romio','omero_ext','omero.gateway','omero.gateway.scripts'],
       package_data={'omero.gateway':['pilfonts/*'], 'omero.gateway.scripts':['imgs/*']},
       test_suite='test.suite'
 )

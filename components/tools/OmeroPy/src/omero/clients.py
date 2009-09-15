@@ -246,7 +246,7 @@ class BaseClient(object):
         try:
             self.closeSession()
         except exceptions.Exception, e:
-            self.__logging.warning("Ignoring error in client.__del__:" + str(e.__class__))
+            self.__logger.warning("Ignoring error in client.__del__:" + str(e.__class__))
 
     def getCommunicator(self):
         """

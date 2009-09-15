@@ -14,8 +14,8 @@ import unittest
 class TopLevel(unittest.TestCase):
     pass
 
-def additional_tests():
+def _additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
-    suite.addTest(load("test.tables.tablesservice.py"))
+    suite.addTest(load("test.tablestest.service"))
     return suite

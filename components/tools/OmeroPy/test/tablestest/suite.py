@@ -14,9 +14,9 @@ import unittest
 class TopLevel(unittest.TestCase):
     pass
 
-def additional_tests():
+def _additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
-    suite.addTest(load("test.tables.hdfstorage"))
-    suite.addTest(load("test.tables.servants"))
+    suite.addTest(load("test.tablestest.hdfstorage"))
+    suite.addTest(load("test.tablestest.servants"))
     return suite
