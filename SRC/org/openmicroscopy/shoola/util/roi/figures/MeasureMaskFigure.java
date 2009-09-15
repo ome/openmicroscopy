@@ -46,6 +46,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.jhotdraw.draw.AbstractAttributedFigure;
+import org.jhotdraw.draw.BoundsOutlineHandle;
 import org.jhotdraw.draw.Handle;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -323,8 +324,13 @@ public class MeasureMaskFigure
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		if(!readOnly)
-			super.createHandles(detailLevel);
-		return new LinkedList<Handle>();
+			return super.createHandles(detailLevel);
+		else
+		{
+			LinkedList<Handle> handles = new LinkedList<Handle>();
+			handles.add(new BoundsOutlineHandle(this));
+			return handles;
+		}
 	}
 	
 	/**

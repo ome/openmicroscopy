@@ -98,12 +98,18 @@ public class DrawingToolBarButtonFactory
      * 
      * @param tb		The tool bar displaying the controls.
      * @param editor	The drawing editor.
+     * @param readOnly  If the objects are read only then no menus should be 
+     * 					displayed.
      */
     public static void addSelectionToolTo(JToolBar tb, 
-    					final DrawingEditor editor)
+    					final DrawingEditor editor, boolean readOnly)
     {
-    	ButtonFactory.addSelectionToolTo(tb, editor, 
+    	if(!readOnly)
+    		ButtonFactory.addSelectionToolTo(tb, editor, 
         		createDrawingActions(editor), createSelectionActions(editor));
+    	else
+    		ButtonFactory.addSelectionToolTo(tb, editor, 
+    				new LinkedList<Action>(), new LinkedList<Action>()); 
     }
     
     /**

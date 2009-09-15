@@ -192,7 +192,8 @@ class ToolBar
 	    
 		toolBar = DrawingToolBarButtonFactory.createDefaultBar();
 		DrawingEditor editor = model.getDrawingEditor();
-		DrawingToolBarButtonFactory.addSelectionToolTo(toolBar, editor);
+		DrawingToolBarButtonFactory.addSelectionToolTo(toolBar, editor,
+				true);
 		component = toolBar.getComponent(toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
 			setUpToggleButton((JToggleButton) component);

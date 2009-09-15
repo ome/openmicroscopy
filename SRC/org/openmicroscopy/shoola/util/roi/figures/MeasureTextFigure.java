@@ -30,12 +30,16 @@ import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
+import org.jhotdraw.draw.BoundsOutlineHandle;
+import org.jhotdraw.draw.Handle;
 import org.jhotdraw.draw.TextFigure;
 
 //Application-internal dependencies
@@ -133,7 +137,22 @@ public class MeasureTextFigure
 			super.setBounds(anchor, lead);
 	}
 	
-    
+	/**
+	 * Overridden to return the correct handles.
+	 * @see AbstractAttributedFigure#createHandles(int)
+	 */
+	public Collection<Handle> createHandles(int detailLevel) 
+	{
+		if(!readOnly)
+			return super.createHandles(detailLevel);
+		else
+		{
+			LinkedList<Handle> handles = new LinkedList<Handle>();
+			handles.add(new BoundsOutlineHandle(this));
+			return handles;
+		}
+	}
+   
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getROI()

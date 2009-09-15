@@ -43,8 +43,10 @@ import java.util.Map;
 //Application-internal dependencies
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKeys;
+import org.jhotdraw.draw.BoundsOutlineHandle;
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.Handle;
+import org.jhotdraw.draw.NullHandle;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -530,8 +532,13 @@ public class MeasureEllipseFigure
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		if(!readOnly)
-			super.createHandles(detailLevel);
-		return new LinkedList<Handle>();
+			return super.createHandles(detailLevel);
+		else
+		{
+			LinkedList<Handle> handles = new LinkedList<Handle>();
+			handles.add(new BoundsOutlineHandle(this));
+			return handles;
+		}
 	}
 
 	/**
