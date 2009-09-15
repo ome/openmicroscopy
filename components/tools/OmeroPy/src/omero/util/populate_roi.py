@@ -31,9 +31,14 @@ from StringIO import StringIO
 from getpass import getpass
 from getopt import getopt, GetoptError
 
-from omero import client, rdouble, rstring, rint
+# XXX: Haxxor
+import omero.clients
+import omero_Tables_ice
+import omero_SharedResources_ice
+from omero.rtypes import rdouble, rstring, rint
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ImageI, FileAnnotationI, RoiI, EllipseI
 from omero.grid import ImageColumn, RoiColumn, DoubleColumn
+from omero import client
 
 
 def usage(error):
@@ -169,7 +174,9 @@ class MeasurementCtx(object):
         plate_annotation_link = PlateAnnotationLinkI()
         plate_annotation_link.parent = unloaded_plate
         plate_annotation_link.child = self.file_annotation
-        self.update_service.saveObject(plate_annotation_link)
+        plate_annotation_link = \
+                self.update_service.saveAndReturnObject(plate_annotation_link)
+        self.file_annotation = plate_annotation_link.child
         
         # Establish the rest of our initial state
         self.table_initialized = False
@@ -211,11 +218,16 @@ class MeasurementCtx(object):
         ellipse.ry = diameter
         roi.addShape(ellipse)
         roi.image = image
+        unloaded_file_annotation = \
+                FileAnnotationI(self.file_annotation.id, False)
+        roi.linkAnnotation(unloaded_file_annotation)
         return roi
 
     def parse_result_files(self):
         raw_file_store = self.service_factory.createRawFileStore()
         try:
+            rois = list()
+            columns = None
             for result_file in result_files:
                 print "Parsing: %s" % result_file.name.val
                 image = self.image_from_original_file(result_file)
@@ -224,8 +236,8 @@ class MeasurementCtx(object):
                 data = raw_file_store.read(0L, result_file.size.val)
                 rows = list(csv.reader(StringIO(data), delimiter='\t'))
                 rows.reverse()
-                columns = self.get_empty_columns(len(rows[0]))
-                rois = list()
+                if columns is None:
+                    columns = self.get_empty_columns(len(rows[0]))
                 for row in rows:
                     try:
                         for i, value in enumerate(row):
@@ -237,13 +249,19 @@ class MeasurementCtx(object):
                         for i, value in enumerate(row):
                             columns[i + 2].name = value
                         break
-                print "ROI count: %d" % len(rois)
+            n_roi = len(rois)
+            print "Total ROI count: %d" % n_roi
+            for i in range((len(rois) / 1000) + 1):
                 t0 = int(time.time() * 1000)
-                rois = self.update_service.saveAndReturnArray(rois)
+                a = i * 1000
+                b = (i + 1) * 1000
+                to_save = rois[a:b]
+                print "Saving %d ROI at [%d:%d]" % (len(to_save), a, b)
+                to_save = self.update_service.saveAndReturnIds(to_save)
                 print "ROI update took %sms" % (int(time.time() * 1000) - t0)
-                for roi in rois:
-                    columns[self.ROI_COL].values.append(roi.id.val)
-                self.update_table(columns)
+                for roi in to_save:
+                    columns[self.ROI_COL].values.append(roi)
+            self.update_table(columns)
         finally:
             raw_file_store.close()
 
@@ -286,24 +304,29 @@ if __name__ == "__main__":
         password = getpass()
     
     c = client(hostname, port)
-    if session_key is not None:
-        service_factory = c.createSession(session_key)
-    else:
-        service_factory = c.createSession(username, password)
-    query_service = service_factory.getQueryService()
+    c.enableKeepAlive(60)
+    try:
+        if session_key is not None:
+            service_factory = c.createSession(session_key)
+        else:
+            service_factory = c.createSession(username, password)
+        query_service = service_factory.getQueryService()
     
-    analysis_ctx = MIASPlateAnalysisCtx(query_service, plate_id)
-    n_measurements = len(analysis_ctx.measurements.keys())
-    if measurement is not None and measurement >= n_measurements:
-        usage("Measurement %d not a valid index!")
-    if info:
-        print "Found %d measurements." % n_measurements
-        for i, value in enumerate(analysis_ctx.measurements.values()):
-            print "Measurement %d has %d result files." % (i, len(value))
-        sys.exit(0)
-    for key in analysis_ctx.measurements.keys():
-        log_file = analysis_ctx.log_files[key]
-        result_files = analysis_ctx.measurements[key]
-        measurement_ctx = MeasurementCtx(analysis_ctx, service_factory,
-                                         log_file, result_files)
-        measurement_ctx.parse_result_files()
+        analysis_ctx = MIASPlateAnalysisCtx(query_service, plate_id)
+        n_measurements = len(analysis_ctx.measurements.keys())
+        if measurement is not None and measurement >= n_measurements:
+            usage("Measurement %d not a valid index!")
+        if info:
+            print "Found %d measurements." % n_measurements
+            for i, value in enumerate(analysis_ctx.measurements.values()):
+                print "Measurement %d has %d result files." % (i, len(value))
+            sys.exit(0)
+        for i, key in enumerate(analysis_ctx.measurements.keys()):
+            log_file = analysis_ctx.log_files[key]
+            result_files = analysis_ctx.measurements[key]
+            if len(result_files) > 0 and (measurement is None or measurement == i):
+                measurement_ctx = MeasurementCtx(analysis_ctx, service_factory,
+                                                 log_file, result_files)
+                measurement_ctx.parse_result_files()
+    finally:
+        c.closeSession()
