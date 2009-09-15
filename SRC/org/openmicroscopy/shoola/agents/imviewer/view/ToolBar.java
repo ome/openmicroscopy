@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+
+import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -42,6 +44,7 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXBusyLabel;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -188,8 +191,9 @@ class ToolBar
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button); 
         bar.add(new JSeparator(JSeparator.VERTICAL));
-        button = new JButton(
-        		controller.getAction(ImViewerControl.MEASUREMENT_TOOL));
+        Action a = controller.getAction(ImViewerControl.MEASUREMENT_TOOL);
+        button = new JButton(a);
+        button.addMouseListener((ROIToolAction) a);
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button); 
         bar.add(new JSeparator(JSeparator.VERTICAL));
@@ -208,9 +212,9 @@ class ToolBar
 		
         UIUtilities.unifiedButtonLookAndFeel(movieButton);
         bar.add(movieButton);
-        UserAction a = (UserAction) controller.getAction(ImViewerControl.USER);
+        a = controller.getAction(ImViewerControl.USER);
         button = new JButton(a);
-        button.addMouseListener(a);
+        button.addMouseListener((UserAction) a);
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
         

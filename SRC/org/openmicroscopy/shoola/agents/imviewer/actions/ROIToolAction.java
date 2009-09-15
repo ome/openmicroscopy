@@ -26,8 +26,14 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 
 //Java imports
+import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
 import javax.swing.Action;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
@@ -52,6 +58,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class ROIToolAction 
 	extends ViewerAction
+	implements MouseListener
 {
 
 	/** The name of the action. */
@@ -60,6 +67,9 @@ public class ROIToolAction
     /** The description of the action. */
     private static final String DESCRIPTION = "Bring up the Measurement tool.";
 
+    /** The location of the mouse pressed. */
+    private Point point;
+    
     /** 
      * Sets the enabled flag depending on the selected tab.
      * @see ViewerAction#onTabSelection()
@@ -101,7 +111,48 @@ public class ROIToolAction
      */
     public void actionPerformed(ActionEvent e)
     {
-    	model.showMeasurementTool();
+    	//model.showMeasurementTool();
+    }
+
+    /** 
+     * Sets the location of the point where the <code>mousePressed</code>
+     * event occurred. 
+     * @see MouseListener#mousePressed(MouseEvent)
+     */
+    public void mousePressed(MouseEvent me) { point = me.getPoint(); }
+    
+    /** 
+     * Brings up the menu. 
+     * @see MouseListener#mouseReleased(MouseEvent)
+     */
+    public void mouseReleased(MouseEvent me)
+    {
+        Object source = me.getSource();
+        if (point == null) point = me.getPoint();
+        if (source instanceof Component && isEnabled()) {
+        	 SwingUtilities.convertPointToScreen(point, (Component) source);
+        	 model.showMeasurementTool(point);
+        }
     }
     
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in our
+     * case, no-operation implementation.
+     * @see MouseListener#mouseEntered(MouseEvent)
+     */   
+    public void mouseEntered(MouseEvent e) {}
+
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in our
+     * case, no-operation implementation.
+     * @see MouseListener#mouseExited(MouseEvent)
+     */   
+    public void mouseExited(MouseEvent e) {}
+    
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in our
+     * case, no-operation implementation.
+     * @see MouseListener#mouseClicked(MouseEvent)
+     */   
+    public void mouseClicked(MouseEvent e) {}
 }

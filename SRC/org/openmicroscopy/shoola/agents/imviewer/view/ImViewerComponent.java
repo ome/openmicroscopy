@@ -1864,9 +1864,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#showMeasurementTool()
+	 * @see ImViewer#showMeasurementTool(Point)
 	 */
-	public void showMeasurementTool()
+	public void showMeasurementTool(Point point)
 	{
 		Collection measurements = model.getMeasurements();
 		if (measurements == null || measurements.size() == 0) {
@@ -1896,7 +1896,9 @@ class ImViewerComponent
 		msg.setNoText("Cancel");
 		msg.setYesText("Display");
 		msg.addBodyComponent(p);
-		int option = msg.centerMsgBox();
+		int option;
+		if (point != null) option = msg.showMsgBox(point);
+		else option = msg.centerMsgBox();
 		List<FileAnnotationData> files = new ArrayList<FileAnnotationData>();
 		
 		if (option == MessageBox.YES_OPTION) {

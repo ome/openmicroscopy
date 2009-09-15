@@ -664,8 +664,13 @@ public interface ImViewer
 	 */
 	public void setTextVisible(boolean b);
 
-	/** Brings up on screen the Measurement Tool. */
-	public void showMeasurementTool();
+	/** 
+	 * Brings up on screen the Measurement Tool.
+	 * 
+	 * 
+	 * @param loc The point at which to display the dialog.
+	 */
+	public void showMeasurementTool(Point loc);
 	
 	/**
 	 * Adds the passed component to the viewer.
