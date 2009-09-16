@@ -68,9 +68,13 @@ public class FigureSelectionHandle
 		Shape bounds = getOwner().getBounds();
 		Figure f = getOwner();
 		Color colour = (Color)f.getAttribute(AttributeKeys.STROKE_COLOR);
+		double width = (Double)f.getAttribute(AttributeKeys.STROKE_WIDTH);
 		f.setAttribute(AttributeKeys.STROKE_COLOR, colour.brighter());
-		f.draw(g);
+		f.setAttribute(AttributeKeys.STROKE_WIDTH, width+1);
+		if(f.isVisible())
+			f.draw(g);
 		f.setAttribute(AttributeKeys.STROKE_COLOR, colour);
+		f.setAttribute(AttributeKeys.STROKE_WIDTH, width);
 		
 	}
 }
