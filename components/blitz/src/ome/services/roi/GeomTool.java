@@ -18,14 +18,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.model.meta.EventLog;
 import ome.services.messages.ShapeChangeMessage;
+import ome.services.util.Executor;
+import ome.system.Principal;
+import ome.system.ServiceFactory;
 import ome.tools.hibernate.SessionFactory;
 import ome.util.Filterable;
 import omero.RBool;
@@ -54,6 +56,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
@@ -70,17 +73,30 @@ public class GeomTool implements ApplicationListener {
 
     protected Log log = LogFactory.getLog(GeomTool.class);
 
+    protected final AtomicBoolean hasShapes = new AtomicBoolean(true);
+
     protected final SimpleJdbcOperations jdbc;
 
     protected final SessionFactory factory;
 
     protected final PixelData data;
 
+    protected final Executor ex;
+
+    protected final String uuid;
+
     public GeomTool(PixelData data, SimpleJdbcOperations jdbc,
             SessionFactory factory) {
+        this(data, jdbc, factory, null, null);
+    }
+
+    public GeomTool(PixelData data, SimpleJdbcOperations jdbc,
+            SessionFactory factory, Executor ex, String uuid) {
         this.data = data;
         this.jdbc = jdbc;
         this.factory = factory;
+        this.ex = ex;
+        this.uuid = uuid;
         try {
             jdbc.update("alter table shape add column pg_geom polygon;");
             jdbc.update("create index pg_geom_idx on shape"
@@ -97,12 +113,58 @@ public class GeomTool implements ApplicationListener {
 
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof ShapeChangeMessage) {
+
+            if (ex != null) {
+                log.info("Setting hasShapes=true");
+                hasShapes.set(true);
+                return; // If there's an executor, no reason to make the user
+                        // wait.
+            }
+
             ShapeChangeMessage scm = (ShapeChangeMessage) event;
             List<Long> shapeIds = new ArrayList<Long>();
             for (EventLog log : scm) {
                 shapeIds.add(log.getEntityId());
             }
             synchronizeShapeGeometries(shapeIds);
+        }
+    }
+
+    public void backgroundSynchronizeShapeGeometries() {
+
+        if (ex == null || !hasShapes.get()) {
+            return; // Can't run in background or nothing to run on
+        }
+
+        if (!hasShapes.compareAndSet(true, false)) {
+            log.warn("hasShapes changed to false");
+        }
+
+        try {
+            ex.execute(new Principal(uuid, "system", "Internal"), new Executor.SimpleWork(this,
+                    "backgroundSynchronization") {
+
+                @Transactional(readOnly = false)
+                public Object doWork(Session session, ServiceFactory sf) {
+                    boolean found = true;
+                    while (found) {
+                        List<Long> l = getNullShapes();
+                        if (l.size() == 0) {
+                            found = false;
+                        } else {
+                            log
+                                    .info("Batch processing " + l.size()
+                                            + " shapes");
+                            synchronizeShapeGeometries(l);
+                        }
+                    }
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            hasShapes.set(true);
+            log
+                    .warn("Exception during batch processing: setting hasShapes=true");
         }
     }
 
@@ -499,7 +561,7 @@ public class GeomTool implements ApplicationListener {
      * Maps from multiple possible user-provided names of shapes (e.g.
      * "::omero::model::Text", "Text", "TextI", "omero.model.TextI",
      * "ome.model.roi.Text", ...) to the definitive database discriminator.
-     *
+     * 
      * @param string
      * @return
      */
@@ -508,10 +570,10 @@ public class GeomTool implements ApplicationListener {
             throw new ApiUsageException("Empty string");
         }
         String[] s = string.split("[.:]");
-        string = s[s.length-1];
+        string = s[s.length - 1];
         string = string.toLowerCase();
         if (string.endsWith("i")) {
-            string = string.substring(0, string.length()-1);
+            string = string.substring(0, string.length() - 1);
         }
         return string;
     }
@@ -569,6 +631,20 @@ public class GeomTool implements ApplicationListener {
 
         SmartShape ss = (SmartShape) shape;
         return ss;
+    }
+
+    private List<Long> getNullShapes() {
+        List<Long> l = jdbc
+                .query(
+                        "select id from shape where pg_geom is null limit 1000",
+                        new ParameterizedRowMapper<Long>() {
+                            public Long mapRow(ResultSet rs,
+                                    int rowNum)
+                                    throws SQLException {
+                                return rs.getLong("id");
+                            }
+                        });
+        return l;
     }
 
     private static final class IdRowMapper implements
