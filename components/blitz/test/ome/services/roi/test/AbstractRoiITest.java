@@ -7,12 +7,18 @@ package ome.services.roi.test;
 
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
+
+import java.util.List;
+
 import ome.services.blitz.impl.RoiI;
 import ome.services.blitz.test.AbstractServantTest;
 import ome.services.roi.GeomTool;
 import omero.api.AMD_IRoi_findByIntersection;
+import omero.api.AMD_IRoi_getImageMeasurements;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
+import omero.model.Annotation;
+import omero.model.FileAnnotation;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Roi;
@@ -88,6 +94,21 @@ public class AbstractRoiITest extends AbstractServantTest {
         assertNotNull(rr);
         assertEquals(size, rr.rois.size());
         return rr;
+    }
+    
+    protected List<FileAnnotation> assertGetImageMeasurements(long imageId)
+    throws Exception {
+        final RV rv = new RV();
+        user_roisvc.getImageMeasurements_async(new AMD_IRoi_getImageMeasurements(){
+            public void ice_exception(Exception ex) {
+                rv.ex = ex;
+            }
+            public void ice_response(List<Annotation> __ret) {
+                rv.rv = __ret;
+            }}, imageId, new RoiOptions(), current("getImageMeasurements"));
+     
+        rv.assertPassed();
+        return (List<FileAnnotation>) rv.rv;
     }
 
     //

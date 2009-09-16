@@ -287,6 +287,9 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 QueryBuilder qb = new QueryBuilder();
                 qb.select("fa");
                 qb.from("Image", "i");
+                qb.append(", Roi roi ");
+                qb.join("roi.annotationLinks", "rlinks",false, false);
+                qb.join("rlinks.child", "rfa", false, false);
                 qb.join("i.wellSamples", "ws", false, false);
                 qb.join("ws.well", "well", false, false);
                 qb.join("well.plate", "plate", false, false);
@@ -294,6 +297,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 qb.join("links.child", "fa", false, false);
                 qb.where();
                 qb.and("fa.ns = '" + NSMEASUREMENT.value + "'");
+                qb.and("rfa.id = fa.id");
                 qb.and("i.id = :id");
                 qb.param("id", imageId);
                 qb.filter("fa", filter(opts));

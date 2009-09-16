@@ -98,12 +98,14 @@ public class GeomTool implements ApplicationListener {
         this.ex = ex;
         this.uuid = uuid;
         try {
+            jdbc.queryForObject("select pg_geom from shape limit 1",
+                    String.class);
+            log.info("Shape.pg_geom already configured");
+        } catch (Exception e) {
             jdbc.update("alter table shape add column pg_geom polygon;");
             jdbc.update("create index pg_geom_idx on shape"
                     + " using gist (pg_geom);");
             log.info("Configured Shape.pg_geom");
-        } catch (Exception e) {
-            log.info("Shape.pg_geom already configured");
         }
     }
 
@@ -118,7 +120,7 @@ public class GeomTool implements ApplicationListener {
                 log.info("Setting hasShapes=true");
                 hasShapes.set(true);
                 return; // If there's an executor, no reason to make the user
-                        // wait.
+                // wait.
             }
 
             ShapeChangeMessage scm = (ShapeChangeMessage) event;
@@ -141,26 +143,25 @@ public class GeomTool implements ApplicationListener {
         }
 
         try {
-            ex.execute(new Principal(uuid, "system", "Internal"), new Executor.SimpleWork(this,
-                    "backgroundSynchronization") {
+            ex.execute(new Principal(uuid, "system", "Internal"),
+                    new Executor.SimpleWork(this, "backgroundSynchronization") {
 
-                @Transactional(readOnly = false)
-                public Object doWork(Session session, ServiceFactory sf) {
-                    boolean found = true;
-                    while (found) {
-                        List<Long> l = getNullShapes();
-                        if (l.size() == 0) {
-                            found = false;
-                        } else {
-                            log
-                                    .info("Batch processing " + l.size()
+                        @Transactional(readOnly = false)
+                        public Object doWork(Session session, ServiceFactory sf) {
+                            boolean found = true;
+                            while (found) {
+                                List<Long> l = getNullShapes();
+                                if (l.size() == 0) {
+                                    found = false;
+                                } else {
+                                    log.info("Batch processing " + l.size()
                                             + " shapes");
-                            synchronizeShapeGeometries(l);
+                                    synchronizeShapeGeometries(l);
+                                }
+                            }
+                            return null;
                         }
-                    }
-                    return null;
-                }
-            });
+                    });
         } catch (Exception e) {
             hasShapes.set(true);
             log
@@ -634,16 +635,14 @@ public class GeomTool implements ApplicationListener {
     }
 
     private List<Long> getNullShapes() {
-        List<Long> l = jdbc
-                .query(
-                        "select id from shape where pg_geom is null limit 1000",
-                        new ParameterizedRowMapper<Long>() {
-                            public Long mapRow(ResultSet rs,
-                                    int rowNum)
-                                    throws SQLException {
-                                return rs.getLong("id");
-                            }
-                        });
+        List<Long> l = jdbc.query(
+                "select id from shape where pg_geom is null limit 1000",
+                new ParameterizedRowMapper<Long>() {
+                    public Long mapRow(ResultSet rs, int rowNum)
+                            throws SQLException {
+                        return rs.getLong("id");
+                    }
+                });
         return l;
     }
 
