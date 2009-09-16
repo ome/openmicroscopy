@@ -662,6 +662,13 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                 manager.listDatasetsInProjectInGroup(o1_id, filter_group_id, page)
             elif whos == "mydata":
                 manager.listMyDatasetsInProject(o1_id, page)
+        elif o1_type == 'screen':
+            if filter_user_id is not None:
+                manager.listPlatesInScreenAsUser(o1_id, filter_user_id, page)
+            elif filter_group_id is not None:
+                manager.listPlatesInScreenInGroup(o1_id, filter_group_id, page)
+            elif whos == "mydata":
+                manager.listMyPlatesInScreen(o1_id, page)
         elif o1_type == 'dataset':
             if filter_user_id is not None:
                 manager.listImagesInDatasetAsUser(o1_id, filter_user_id, page)
@@ -743,6 +750,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                         manager.createDatasetCommentAnnotation(content)
                     elif o2_type == 'image':
                         manager.createImageCommentAnnotation(content)
+                    elif o1_type == 'plate':
+                        manager.createPlateCommentAnnotation(content)
                 elif o1_type and o1_id:
                     if o1_type == 'project':
                         manager.createProjectCommentAnnotation(content)
@@ -750,6 +759,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                         manager.createDatasetCommentAnnotation(content)
                     elif o1_type == 'image':
                         manager.createImageCommentAnnotation(content)
+                    elif o1_type == 'screen':
+                        manager.createScreenCommentAnnotation(content)
                 form_comment = CommentAnnotationForm()
             form_tag = TagAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
@@ -771,6 +782,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                         manager.createDatasetUriAnnotation(content)
                     elif o2_type == 'image':
                         manager.createImageUriAnnotation(content)
+                    elif o2_type == 'plate':
+                        manager.createPlateUriAnnotation(content)
                 elif o1_type and o1_id:
                     if o1_type == 'project':
                         manager.createProjectUriAnnotation(content)
@@ -778,6 +791,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                         manager.createDatasetUriAnnotation(content)
                     elif o1_type == 'image':
                         manager.createImageUriAnnotation(content)
+                    elif o1_type == 'screen':
+                        manager.createScreenUriAnnotation(content)
                 form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_tag = TagAnnotationForm()
             form_comment = CommentAnnotationForm()
@@ -800,6 +815,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                         manager.createDatasetTagAnnotation(tag, desc)
                     elif o2_type == 'image':
                         manager.createImageTagAnnotation(tag, desc)
+                    elif o2_type == 'plate':
+                        manager.createPlateTagAnnotation(tag, desc)
                 elif o1_type and o1_id:
                     if o1_type == 'project':
                         manager.createProjectTagAnnotation(tag, desc)
@@ -807,6 +824,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                         manager.createDatasetTagAnnotation(tag, desc)
                     elif o1_type == 'image':
                         manager.createImageTagAnnotation(tag, desc)
+                    elif o1_type == 'screen':
+                        manager.createScreenTagAnnotation(tag, desc)
                 form_tag = TagAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_comment = CommentAnnotationForm()
@@ -829,6 +848,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                             manager.createDatasetFileAnnotation(f)
                         elif o2_type == 'image':
                             manager.createImageFileAnnotation(f)
+                        elif o2_type == 'plate':
+                            manager.createPlateFileAnnotation(f)
                     elif o1_type and o1_id:
                         if o1_type == 'project':
                             manager.createProjectFileAnnotation(f)
@@ -836,6 +857,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                             manager.createDatasetFileAnnotation(f)
                         elif o1_type == 'image':
                             manager.createImageFileAnnotation(f)
+                        elif o1_type == 'screen':
+                            manager.createScreenFileAnnotation(f)
                     form_file = UploadFileForm()
             form_tag = TagAnnotationForm()
             form_comment = CommentAnnotationForm()
@@ -858,6 +881,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                             manager.createDatasetAnnotationLinks('tag',tags)
                         elif o2_type == 'image':
                             manager.createImageAnnotationLinks('tag',tags)
+                        elif o2_type == 'plate':
+                            manager.createPlateAnnotationLinks('tag',tags)
                     elif o1_type and o1_id:
                         if o1_type == 'project':
                             manager.createProjectAnnotationLinks('tag',tags)
@@ -865,6 +890,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                             manager.createDatasetAnnotationLinks('tag',tags)
                         elif o1_type == 'image':
                             manager.createImageAnnotationLinks('tag',tags)
+                        elif o1_type == 'screen':
+                            manager.createScreenAnnotationLinks('tag',tags)
                     form_tags = TagListForm(initial={'tags':manager.listTags()})
             
             form_urls = UrlListForm(initial={'urls':url_list})
@@ -889,6 +916,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                             manager.createDatasetAnnotationLinks('comment',comments)
                         elif o2_type == 'image':
                             manager.createImageAnnotationLinks('comment',comments)
+                        elif o2_type == 'plate':
+                            manager.createPlateAnnotationLinks('comment',comments)
                     elif o1_type and o1_id:
                         if o1_type == 'project':
                             manager.createProjectAnnotationLinks('comment',comments)
@@ -896,6 +925,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                             manager.createDatasetAnnotationLinks('comment',comments)
                         elif o1_type == 'image':
                             manager.createImageAnnotationLinks('comment',comments)
+                        elif o1_type == 'screen':
+                            manager.createScreenAnnotationLinks('comment',comments)
                     form_comments = CommentListForm(initial={'comments':manager.listComments()})
             
             form_tags = TagListForm(initial={'tags':tag_list})
@@ -920,6 +951,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                             manager.createDatasetAnnotationLinks('url',urls)
                         elif o2_type == 'image':
                             manager.createImageAnnotationLinks('url',urls)
+                        elif o2_type == 'plate':
+                            manager.createPlateAnnotationLinks('url',urls)
                     elif o1_type and o1_id:
                         if o1_type == 'project':
                             manager.createProjectAnnotationLinks('url',urls)
@@ -927,6 +960,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                             manager.createDatasetAnnotationLinks('url',urls)
                         elif o1_type == 'image':
                             manager.createImageAnnotationLinks('url',urls)
+                        elif o1_type == 'screen':
+                            manager.createScreenAnnotationLinks('url',urls)
                     form_urls = UrlListForm(initial={'urls':manager.listUrls()})
                     
             form_comments = CommentListForm(initial={'comments':comment_list})
@@ -951,6 +986,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                             manager.createDatasetAnnotationLinks('file',files)
                         elif o2_type == 'image':
                             manager.createImageAnnotationLinks('file',files)
+                        elif o2_type == 'plate':
+                            manager.createPlateAnnotationLinks('file',files)
                     elif o1_type and o1_id:
                         if o1_type == 'project':
                             manager.createProjectAnnotationLinks('file',files)
@@ -958,6 +995,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                             manager.createDatasetAnnotationLinks('file',files)
                         elif o1_type == 'image':
                             manager.createImageAnnotationLinks('file',files)
+                        elif o1_type == 'screen':
+                            manager.createScreenAnnotationLinks('file',files)
                     form_files = FileListForm(initial={'files':manager.listFiles()})
             
             form_comments = CommentListForm(initial={'comments':comment_list})
@@ -992,7 +1031,6 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
-
 
 @isUserConnected
 def manage_data_by_tag(request, tid=None, tid2=None, tid3=None, tid4=None, tid5=None, **kwargs):
@@ -1248,7 +1286,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         logger.error(traceback.format_exc())
     
     manager = None
-    if o_type == "dataset" or o_type == "project" or o_type == "image":
+    if o_type == "dataset" or o_type == "project" or o_type == "image" or o_type == "screen" or o_type == "plate":
         try:
             manager = BaseContainer(conn, o_type, o_id)
         except AttributeError, x:
@@ -1276,6 +1314,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         elif o_type == "project":
             template = "omeroweb/container_form.html"
             form = ContainerForm(initial={'name': manager.project.name, 'description':manager.project.description})
+            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
+        elif o_type == "screen":
+            template = "omeroweb/container_form.html"
+            form = ContainerForm(initial={'name': manager.screen.name, 'description':manager.screen.description})
+            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
+        elif o_type == "plate":
+            template = "omeroweb/container_form.html"
+            form = ContainerForm(initial={'name': manager.plate.name, 'description':manager.plate.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         elif o_type =="image" and o_id > 0:
             template = "omeroweb/container_form.html"
@@ -1334,6 +1380,28 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 description = request.REQUEST['description'].encode('utf-8')
                 #permissions = request.REQUEST.getlist('access_controll')
                 manager.updateProject(name, description)
+                return HttpResponseRedirect(url)
+            else:
+                template = "omeroweb/container_form.html"
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+        elif o_type == "screen":
+            form = ContainerForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                name = request.REQUEST['name'].encode('utf-8')
+                description = request.REQUEST['description'].encode('utf-8')
+                #permissions = request.REQUEST.getlist('access_controll')
+                manager.updateScreen(name, description)
+                return HttpResponseRedirect(url)
+            else:
+                template = "omeroweb/container_form.html"
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+        elif o_type == "plate":
+            form = ContainerForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                name = request.REQUEST['name'].encode('utf-8')
+                description = request.REQUEST['description'].encode('utf-8')
+                #permissions = request.REQUEST.getlist('access_controll')
+                manager.updatePlate(name, description)
                 return HttpResponseRedirect(url)
             else:
                 template = "omeroweb/container_form.html"
@@ -1410,6 +1478,17 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     description = request.REQUEST['description'].encode('utf-8')
                     #permissions = request.REQUEST.getlist('access_controll')
                     manager.createProject(name, description)
+                    return HttpResponseRedirect(url)
+                else:
+                    template = "omeroweb/container_new.html"
+                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
+            elif request.REQUEST['folder_type'] == "screen":
+                form = ContainerForm(data=request.REQUEST.copy())
+                if form.is_valid():
+                    name = request.REQUEST['name'].encode('utf-8')
+                    description = request.REQUEST['description'].encode('utf-8')
+                    #permissions = request.REQUEST.getlist('access_controll')
+                    manager.createScreen(name, description)
                     return HttpResponseRedirect(url)
                 else:
                     template = "omeroweb/container_new.html"
@@ -1922,6 +2001,11 @@ def update_clipboard(request, **kwargs):
                     if request.session['clipboard'][0] == 'dataset' and destination[0] == 'project':
                         try:
                             manager.copyDatasetToProject(request.session['clipboard'], destination)
+                        except Exception, x:
+                            return HttpResponse("Error: %s" % (x.__class__.__name__))
+                    elif request.session['clipboard'][0] == 'plate' and destination[0] == 'screen':
+                        try:
+                            manager.copyPlateToScreen(request.session['clipboard'], destination)
                         except Exception, x:
                             return HttpResponse("Error: %s" % (x.__class__.__name__))
                     elif request.session['clipboard'][0] == 'image' and destination[0] == 'dataset':

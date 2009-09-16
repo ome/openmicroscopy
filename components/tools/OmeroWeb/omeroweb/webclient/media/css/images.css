@@ -98,6 +98,10 @@ div#view, div#view2  {
     width: 610px;
     float:left;
 }
+.screen {
+    width: 610px;
+    float:left;
+}
 .dataset {
     width: 610px;
     float:left;

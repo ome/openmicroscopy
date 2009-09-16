@@ -226,6 +226,52 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
         return usage
     
+    # SPW
+    def lookupScreens(self, eid=None, page=None):
+        """ Retrieves every Screens. If user id not set, owned by 
+            the current user."""
+        
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        if eid is not None:
+            p.map["eid"] = rlong(long(eid))
+        else:
+            p.map["eid"] = rlong(self.getEventContext().userId)
+        sql = "select sc from Screen sc " \
+                "join fetch sc.details.creationEvent "\
+                "join fetch sc.details.owner join fetch sc.details.group " \
+                "where sc.details.owner.id=:eid order by sc.id asc"
+        for e in q.findAllByQuery(sql, p):
+            yield ScreenWrapper(self, e)
+    
+    def lookupPlatesInScreens (self, oid, eid=None, page=None):
+        """ Retrieves every Datasets in a for the given Project id. 
+            If user id not set, owned by the current user."""
+        
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        if eid is not None:
+            p.map["eid"] = rlong(long(eid))
+        else:
+            p.map["eid"] = rlong(self.getEventContext().userId)
+        p.map["oid"] = rlong(long(oid))
+        if page is not None:
+            f = omero.sys.Filter()
+            f.limit = rint(24)
+            f.offset = rint((int(page)-1)*24)
+            p.theFilter = f
+        sql = "select pl from Plate pl "\
+                "join fetch pl.details.creationEvent "\
+                "join fetch pl.details.owner join fetch pl.details.group " \
+                "left outer join fetch pl.screenLinks spl "\
+                "left outer join fetch spl.parent sc " \
+                "where sc.id=:oid and pl.details.owner.id=:eid "\
+                "order by pl.id asc"
+        for e in q.findAllByQuery(sql,p):
+            yield PlateWrapper(self, e)
+    
     
     # DATA RETRIVAL
     def lookupProjects (self, eid=None, page=None):
@@ -563,6 +609,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql = "select a from TagAnnotation as a " \
                 "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid )" \
                 "and a.details.owner.id=:eid "
+        elif o_type == "screen":
+            sql = "select a from TagAnnotation as a " \
+                "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid )" \
+                "and a.details.owner.id=:eid "
+        elif o_type == "plate":
+            sql = "select a from TagAnnotation as a " \
+                "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid )" \
+                "and a.details.owner.id=:eid "
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -585,6 +639,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         elif o_type == "project":
             sql = "select a from CommentAnnotation as a " \
                 "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid and a.ns is null"
+        elif o_type == "screen":
+            sql = "select a from CommentAnnotation as a " \
+                "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid and a.ns is null"
+        elif o_type == "plate":
+            sql = "select a from CommentAnnotation as a " \
+                "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
                 "and a.details.owner.id=:eid and a.ns is null"
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
@@ -609,6 +671,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql = "select a from UriAnnotation as a " \
                 "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
                 "and a.details.owner.id=:eid and a.ns is null "
+        elif o_type == "screen":
+            sql = "select a from UriAnnotation as a " \
+                "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid and a.ns is null "
+        elif o_type == "plate":
+            sql = "select a from UriAnnotation as a " \
+                "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid and a.ns is null "
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -631,6 +701,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         elif o_type == "project":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid and a.ns is null"
+        elif o_type == "screen":
+            sql = "select a from FileAnnotation as a join fetch a.file " \
+                "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid and a.ns is null"
+        elif o_type == "plate":
+            sql = "select a from FileAnnotation as a join fetch a.file " \
+                "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
                 "and a.details.owner.id=:eid and a.ns is null"
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
@@ -830,8 +908,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 yield ExperimenterGroupWrapper(self, e)
 
     def getCurrentSupervisor(self):
-        """ Gets the owner of a group to be a current user."""
-        
+        """ Gets the owner of a group for current user."""
         #default = self.getAdminService().getGroup(self.getEventContext().groupId)
         p = omero.sys.Parameters()
         p.map = {}
@@ -906,6 +983,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             return ProjectWrapper(self, pr)
         else:
             return None
+    
+    def getScreen (self, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        sql = "select sc from Screen sc join fetch sc.details.owner join fetch sc.details.group where sc.id=:oid "
+        sc = query_serv.findByQuery(sql,p)
+        if sc is not None:
+            return ScreenWrapper(self, sc)
+        else:
+            return None
 
     def getDataset (self, oid):
         query_serv = self.getQueryService()
@@ -918,6 +1007,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         ds = query_serv.findByQuery(sql,p)
         if ds is not None:
             return DatasetWrapper(self, ds)
+        else:
+            return None
+    
+    def getPlate (self, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        sql = "select pl from Plate pl join fetch pl.details.owner join fetch pl.details.group " \
+              "left outer join fetch pl.screenLinks spl " \
+              "left outer join fetch spl.parent sc where pl.id=:oid "
+        pl = query_serv.findByQuery(sql,p)
+        if pl is not None:
+            return PlateWrapper(self, pl)
         else:
             return None
 
@@ -991,6 +1094,17 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         pdl = query_serv.findByQuery(sql, p)
         return ProjectDatasetLinkWrapper(self, pdl)
     
+    def getScreenPlateLink (self, parent, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        p.map["parent"] = rlong(long(parent))
+        sql = "select spl from ScreenPlateLink as spl left outer join fetch spl.child as pl \
+                left outer join fetch spl.parent as sc where sc.id=:parent and pl.id=:oid"
+        pdl = query_serv.findByQuery(sql, p)
+        return ProjectDatasetLinkWrapper(self, pdl)
+    
     def getProjectDatasetLinks (self, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
@@ -1023,6 +1137,17 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         dsl = query_serv.findByQuery(sql, p)
         return AnnotationLinkWrapper(self, dsl)
     
+    def getPlateAnnotationLink (self, parent, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        p.map["parent"] = rlong(long(parent))
+        sql = "select pal from PlateAnnotationLink as pal left outer join fetch pal.child as an \
+                left outer join fetch pal.parent as pl where pl.id=:parent and an.id=:oid"
+        dsl = query_serv.findByQuery(sql, p)
+        return AnnotationLinkWrapper(self, dsl)
+    
     def getProjectAnnotationLink (self, parent, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
@@ -1031,6 +1156,17 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map["parent"] = rlong(long(parent))
         sql = "select pal from ProjectAnnotationLink as pal left outer join fetch pal.child as an \
                 left outer join fetch pal.parent as pr where pr.id=:parent and an.id=:oid"
+        dsl = query_serv.findByQuery(sql, p)
+        return AnnotationLinkWrapper(self, dsl)
+    
+    def getScreenAnnotationLink (self, parent, oid):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        p.map["parent"] = rlong(long(parent))
+        sql = "select sal from ScreenAnnotationLink as sal left outer join fetch sal.child as an \
+                left outer join fetch sal.parent as sc where pr.id=:parent and sc.id=:oid"
         dsl = query_serv.findByQuery(sql, p)
         return AnnotationLinkWrapper(self, dsl)
     
@@ -1495,7 +1631,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                     blitz = Gateway.objects.get(id=blitz_id)
                     from omeroweb.feedback.models import EmailToSend, EmailTemplate
                     t = EmailTemplate.objects.get(template="add_comment_to_share")
-                    e = EmailToSend(host=host, blitz=blitz, share=share_id, sender="", sender_email="", recipients=recipients, template=t)
+                    message = t.content_txt % (settings.APPLICATION_HOST, share_id, blitz_id)
+                    message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
+                    e = EmailToSend(recipients=recipients, template=t, sender=self.getUser().getFullName(), sender_email=self.getUser().email, message=message, message_html=message_html)
                     e.save()
     
     def createShare(self, host, blitz_id, imageInBasket, message, members, enable, expiration=None):
@@ -1546,11 +1684,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                     logger.error(x)
                     logger.error(traceback.format_exc())
                 else:
-                    from omeroweb.webadmin.models import Gateway
-                    blitz = Gateway.objects.get(id=blitz_id)
                     from omeroweb.feedback.models import EmailToSend, EmailTemplate
                     t = EmailTemplate.objects.get(template="create_share")
-                    e = EmailToSend(host=host, blitz=blitz, share=sid, sender=self.getUser().getFullName(), sender_email=self.getUser().email, recipients=recipients, template=t)
+                    message = t.content_txt % (settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
+                    message_html = t.content_html % (settings.APPLICATION_HOST, sid, blitz_id, settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
+                    e = EmailToSend(recipients=recipients, template=t, sender=self.getUser().getFullName(), sender_email=self.getUser().email, message=message, message_html=message_html)
                     e.save()
     
     def updateShareOrDiscussion (self, host, blitz_id, share_id, message, add_members, rm_members, enable, expiration=None):
@@ -1577,8 +1715,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 	                blitz = Gateway.objects.get(id=blitz_id)
 	                from omeroweb.feedback.models import EmailToSend, EmailTemplate
 	                t = EmailTemplate.objects.get(template="add_member_to_share")
-	                e = EmailToSend(host=host, blitz=blitz, share=sid, sender=self.getUser().getFullName(), sender_email=self.getUser().email, recipients=recipients, template=t)
-	                e.save()
+	                message = t.content_txt % (settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
+                    message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
+                    e = EmailToSend(recipients=recipients, template=t, sender=self.getUser().getFullName(), sender_email=self.getUser().email, message=message, message_html=message_html)
+                    e.save()
 			
                 if len(rm_members) > 0:
                     try:
@@ -1592,7 +1732,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 	                blitz = Gateway.objects.get(id=blitz_id)
 	                from omeroweb.feedback.models import EmailToSend, EmailTemplate
 	                t = EmailTemplate.objects.get(template="remove_member_from_share")
-                    e = EmailToSend(host=host, blitz=blitz, share=sid, sender="", sender_email="", recipients=recipients, template=t)
+                    message = t.content_txt % (settings.APPLICATION_HOST, share_id, blitz_id)
+                    message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
+                    e = EmailToSend(recipients=recipients, template=t, sender=self.getUser().getFullName(), sender_email=self.getUser().email, message=message, message_html=message_html)
                     e.save()
     
     def setFile(self, buf):
@@ -2294,6 +2436,52 @@ class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper):
             raise NotImplementedError
 
 omero.gateway.ProjectWrapper = ProjectWrapper
+
+class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+    LINK_NAME = "copyPlateLinks"
+    CHILD = 'Plate'
+    
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Screen'
+        self.LINK_CLASS = "ScreenPlateLink"
+        self.CHILD_WRAPPER_CLASS = 'PlateWrapper'
+        self.PARENT_WRAPPER_CLASS = None
+        
+    def listChildren (self):
+        """ return a generator yielding child objects """
+        try:
+            childnodes = [ x.child for x in getattr(self._obj, self.LINK_NAME)()]
+
+            child_ids = [child.id.val for child in childnodes]
+            child_counter = None
+            if len(child_ids) > 0:
+                child_counter = self._conn.getCollectionCount(self.CHILD, \
+                    (PlateWrapper.LINK_NAME[4].lower() + \
+                    PlateWrapper.LINK_NAME[5:]), child_ids)
+                child_annotation_counter = self._conn.getCollectionCount(self.CHILD, "annotationLinks", child_ids)
+            for child in childnodes:
+                kwargs = dict()
+                if child_counter:
+                    kwargs['child_counter'] = child_counter.get(child.id.val)
+                if child_annotation_counter:
+                    kwargs['annotation_counter'] = child_annotation_counter.get(child.id.val)
+                yield PlateWrapper(self._conn, child, **kwargs)
+        except:
+            raise NotImplementedError
+
+ScreenWrapper = ScreenWrapper
+
+class PlateWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+    LINK_NAME = None
+    CHILD = None
+    
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Plate'
+        self.LINK_CLASS = None
+        self.CHILD_WRAPPER_CLASS = None
+        self.PARENT_WRAPPER_CLASS = "ScreenWrapper"
+
+PlateWrapper = PlateWrapper
 
 class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     members_counter = None

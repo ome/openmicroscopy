@@ -146,6 +146,12 @@ class ExperimenterQuerySetIterator(object):
                 # lastName = obj.details.owner.lastName.val if hasattr(obj.details.owner.lastName, 'val') else ""
                 # firstName = obj.details.owner.firstName.val if hasattr(obj.details.owner.firstName, 'val') else ""
                 # middleName = obj.details.owner.middleName.val if hasattr(obj.details.owner.middleName, 'val') else ""
+                omeName = None
+                if hasattr(obj.omeName, 'val'):
+                    omeName = obj.omeName.val
+                else:
+                    if obj.omeName is not None:
+                        omeName = obj.omeName
                 lastName = None
                 if hasattr(obj.lastName, 'val'):
                     lastName = obj.lastName.val
@@ -166,9 +172,9 @@ class ExperimenterQuerySetIterator(object):
                         middleName = obj.middleName
 
                 if middleName != '' and middleName is not None:
-                    name = "%s %s. %s" % (firstName, middleName[:1], lastName)
+                    name = "%s %s. %s (%s)" % (firstName, middleName[:1], lastName, omeName)
                 else:
-                    name = "%s %s" % (firstName, lastName)
+                    name = "%s %s (%s)" % (firstName, lastName, omeName)
 
                 l = len(name)
                 if l > 50:

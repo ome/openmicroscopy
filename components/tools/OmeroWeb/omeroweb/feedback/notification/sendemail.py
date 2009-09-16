@@ -193,11 +193,11 @@ class SendEmail(threading.Thread):
         msgRoot.preamble = 'This is a multi-part message in MIME format.'
         msgAlternative = MIMEMultipart('alternative')
         msgRoot.attach(msgAlternative)
-        
-        contentAlternative = details.template.content_txt % (details.host, details.share, details.blitz.id, details.sender)
+
+        contentAlternative = details.message
         msgText = MIMEText(contentAlternative)
         msgAlternative.attach(msgText)
-        content = details.template.content_html % (details.host, details.share, details.blitz.id, details.host, details.share, details.blitz.id, details.sender)
+        content = details.message_html
         msgText = MIMEText(content, 'html')
         msgAlternative.attach(msgText)
 
@@ -218,12 +218,68 @@ class SendEmail(threading.Thread):
         msgRoot.preamble = 'This is a multi-part message in MIME format.'
         msgAlternative = MIMEMultipart('alternative')
         msgRoot.attach(msgAlternative)
-        
-        contentAlternative = details.template.content_txt % (details.host, details.share, details.blitz.id)
+
+        contentAlternative = details.message
         msgText = MIMEText(contentAlternative)
         msgAlternative.attach(msgText)
+        content = details.message_html
+        msgText = MIMEText(content, 'html')
+        msgAlternative.attach(msgText)
+
+        fp = open(settings.STATIC_LOGO, 'rb')
+        msgImage = MIMEImage(fp.read())
+        fp.close()
+
+        msgImage.add_header('Content-ID', '<image1>')
+        msgRoot.attach(msgImage)
+        return msgRoot.as_string()
         
-        content = details.template.content_html % (details.host, details.share, details.blitz.id, details.host, details.share, details.blitz.id)
+    def add_member_to_share(self, details):
+        # Create the root message and fill in the from, to, and subject headers
+        # Create the root message and fill in the from, to, and subject headers
+        msgRoot = MIMEMultipart('related')
+        try:
+            msgRoot['Subject'] = 'OMERO.webclient - %s shared some data with you' % (details.sender)
+        except:
+            msgRoot['Subject'] = 'OMERO.webclient - unknown person shared some data with you'
+        try:
+            msgRoot['From'] = '%s <%s>' % (details.sender, details.sender_email)
+        except:
+            msgRoot['From'] = 'Unknown'
+        #msgRoot['To'] = self.recipients
+        msgRoot.preamble = 'This is a multi-part message in MIME format.'
+        msgAlternative = MIMEMultipart('alternative')
+        msgRoot.attach(msgAlternative)
+
+        contentAlternative = details.message
+        msgText = MIMEText(contentAlternative)
+        msgAlternative.attach(msgText)
+        content = details.message_html
+        msgText = MIMEText(content, 'html')
+        msgAlternative.attach(msgText)
+
+        fp = open(settings.STATIC_LOGO, 'rb')
+        msgImage = MIMEImage(fp.read())
+        fp.close()
+
+        msgImage.add_header('Content-ID', '<image1>')
+        msgRoot.attach(msgImage)
+        return msgRoot.as_string()
+        
+    def remove_member_from_share(self, details):
+        # Create the root message and fill in the from, to, and subject headers
+        msgRoot = MIMEMultipart('related')
+        msgRoot['Subject'] = 'OMERO.webclient - removed from share.'
+        msgRoot['From'] = settings.EMAIL_SENDER_ADDRESS
+
+        msgRoot.preamble = 'This is a multi-part message in MIME format.'
+        msgAlternative = MIMEMultipart('alternative')
+        msgRoot.attach(msgAlternative)
+
+        contentAlternative = details.message
+        msgText = MIMEText(contentAlternative)
+        msgAlternative.attach(msgText)
+        content = details.message_html
         msgText = MIMEText(content, 'html')
         msgAlternative.attach(msgText)
 

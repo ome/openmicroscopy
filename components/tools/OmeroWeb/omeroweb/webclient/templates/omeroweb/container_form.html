@@ -54,7 +54,12 @@
 {% if manager.image %}
     <h1>{% trans "Edit image" %}</h1>
 {% endif %}
-
+{% if manager.screen %}
+    <h1>{% trans "Edit screen" %}</h1>
+{% endif %}
+{% if manager.plate %}
+    <h1>{% trans "Edit plate" %}</h1>
+{% endif %}
 {% if form %}
 <div>
     
@@ -66,6 +71,12 @@
     {% endif %}
     {% if manager.image %}
         <form action="{% url manage_action_containers "save" "image" manager.image.id %}?url={{url}}" method="post">
+    {% endif %}
+    {% if manager.screen %}
+        <form action="{% url manage_action_containers "save" "screen" manager.screen.id %}?url={{url}}" method="post">
+    {% endif %}
+    {% if manager.plate %}
+        <form action="{% url manage_action_containers "save" "plate" manager.plate.id %}?url={{url}}" method="post">
     {% endif %}
     <table>
         {% for field in form %}

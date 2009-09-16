@@ -4,7 +4,7 @@
 {% load wikitags %}
 
 <div>
-{% if manager.project or manager.dataset %}
+{% if manager.project or manager.dataset or manager.screen or manager.plate %}
     {% if manager.project %}
     <ul class="simpleTree">
     <li class="root" id='0'><span>{{ nav.blitz }}</span>
@@ -20,7 +20,22 @@
         </ul>
     </li>
     </ul>
-
+    {% endif %}
+    {% if manager.screen %}
+    <ul class="simpleTree">
+    <li class="root" id='0'><span>{{ nav.blitz }}</span>
+        <ul>
+            <li class="line"> </li>
+            <li id="pr-{{ manager.screen.id }}" class="folder-close-last-static" style="position: static;">
+                <span>{{ manager.screen.name }}</span> 
+                {% if not manager.screen.isOwned %}
+                    <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>
+                {% endif %}
+            </li>
+            <li class="line-last"/>
+        </ul>
+    </li>
+    </ul>
     {% endif %}
 
     {% if manager.dataset %}
@@ -59,7 +74,44 @@
         </ul>
     </li>
     </ul>
-
+    {% endif %}
+    
+    {% if manager.plate %}
+    <ul class="simpleTree">
+    <li class="root" id='0'><span>{{ nav.blitz }}</span>
+        <ul>
+            <li class="line"> </li>
+            {% if manager.plate.copyScreenLinks %}
+            {% for c in manager.plate.copyScreenLinks %}
+            <li id="pr-{{ c.parent.id.val }}" class="folder-open-last-static" style="position: static;">
+                <span><a href="{% url manage_data nav.whos "screen" c.parent.id.val %}?view={{ nav.view }}">{{ c.parent.name.val }}</a></span> 
+                {% if not manager.plate.isOwned %}
+                    <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>
+                {% endif %}
+                <ul style="overflow: visible; display: block;">
+                    <li class="line"> </li>
+                    <li id="ds-{{ manager.plate.id }}" class="subfolder-close-last-static" style="position: static;">
+                        <span>{{ manager.plate.name }}</span> 
+                        {% if not manager.plate.isOwned %}
+                            <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>
+                        {% endif %}
+                    </li>
+                    <li class="line-last"/>
+                </ul>
+            </li>
+            {% endfor %}
+            {% else %}
+            <li id="ds-{{ manager.plate.id }}" class="subfolder-close-last-static" style="position: static;">
+                <span>{{ manager.plate.name }}</span> 
+                {% if not manager.plate.isOwned %}
+                    <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>
+                {% endif %}
+            </li>
+            {% endif %}
+            <li class="line-last"/>
+        </ul>
+    </li>
+    </ul>
     {% endif %}
 {% else %}
     {% if manager.image %}
