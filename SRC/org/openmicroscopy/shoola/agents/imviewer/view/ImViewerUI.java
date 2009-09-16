@@ -41,7 +41,6 @@ import java.awt.event.HierarchyBoundsAdapter;
 import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -51,7 +50,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BoxLayout;
@@ -277,9 +275,6 @@ class ImViewerUI
 
 	/** The central component. */
 	private JComponent							mainComponent;
-
-	/** Listener attached to the rendering node. */
-	private MouseAdapter						nodeListener;
 
 	/** The default index of the scale bar. */
 	private int									defaultIndex;
@@ -732,14 +727,14 @@ class ImViewerUI
 		menu.setMnemonic(KeyEvent.VK_S);
 		JMenuItem item = new JMenuItem(
 					controller.getAction(ImViewerControl.TAB_VIEW));
-		menu.add(item);
+		//menu.add(item);
 		item = new JMenuItem(
 			controller.getAction(ImViewerControl.TAB_GRID));
 		menu.add(item);
-		boolean b = model.getMaxZ() > 1;
+		item.setEnabled(model.getMaxC() > 1);
 		item = new JMenuItem(
 				controller.getAction(ImViewerControl.TAB_PROJECTION));
-		item.setEnabled(b);
+		item.setEnabled(model.getMaxZ() > 1);
 		menu.add(item);
 		return menu;
 	}
@@ -765,7 +760,7 @@ class ImViewerUI
 
 		viewPanel = new ClosableTabbedPaneComponent(ImViewer.VIEW_INDEX, 
 							browser.getTitle(), browser.getIcon(), "");
-		
+		viewPanel.setClosable(false);
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, 
 				{TableLayout.FILL, TableLayout.PREFERRED, 
 			TableLayout.PREFERRED}};
@@ -775,7 +770,8 @@ class ImViewerUI
 		viewPanel.add(controlPane.getTimeSliderPane(ImViewer.VIEW_INDEX), 
 						"1, 1");
 		if (model.isLifetime()) {
-			viewPanel.add(controlPane.getLifetimeSliderPane(ImViewer.VIEW_INDEX), 
+			viewPanel.add(
+					controlPane.getLifetimeSliderPane(ImViewer.VIEW_INDEX), 
 			"1, 2");
 		}
 		tabbedIconHeight = browser.getIcon().getIconHeight()+ICON_EXTRA;
@@ -1077,7 +1073,7 @@ class ImViewerUI
 		this.model = model;
 		toolBar = new ToolBar(this, controller);
 		controlPane = new ControlPane(controller, model, this); 
-		statusBar = new StatusBar();
+		statusBar = new StatusBar(model);
 		initSplitPanes();
 		refInsets = rendererSplit.getInsets();
 		addComponentListener(controller);
@@ -1877,18 +1873,18 @@ class ImViewerUI
 		int oldCompression = convertCompressionLevel();
 		switch (compressionLevel) {
 			case ToolBar.UNCOMPRESSED:
-				model.setCompressionLevel(ImViewerModel.UNCOMPRESSED);
+				model.setCompressionLevel(ImViewer.UNCOMPRESSED);
 				if (lens != null) lens.resetDataBuffered();
 				break;
 			case ToolBar.MEDIUM:
 				if (lens != null && oldCompression == ToolBar.UNCOMPRESSED) 
 					lens.resetDataBuffered();
-				model.setCompressionLevel(ImViewerModel.MEDIUM);
+				model.setCompressionLevel(ImViewer.MEDIUM);
 				break;
 			case ToolBar.LOW:
 				if (lens != null && oldCompression == ToolBar.UNCOMPRESSED) 
 					lens.resetDataBuffered();
-				model.setCompressionLevel(ImViewerModel.LOW);
+				model.setCompressionLevel(ImViewer.LOW);
 		}
 	}
 	
@@ -1899,16 +1895,28 @@ class ImViewerUI
 	 */
 	int convertCompressionLevel() 
 	{
-		switch (model.getCompressionLevel()) {
+		return convertCompressionLevel(model.getCompressionLevel());
+	}
+	
+	/** 
+	 * Returns the UI index corresponding to the current compression level.
+	 * 
+	 * @param level The value to check.
+	 * @return See above.
+	 */
+	int convertCompressionLevel(int level) 
+	{
+		switch (level) {
 			default:
-			case ImViewerModel.UNCOMPRESSED:
+			case ImViewer.UNCOMPRESSED:
 				return ToolBar.UNCOMPRESSED;
-			case ImViewerModel.MEDIUM:
+			case ImViewer.MEDIUM:
 				return ToolBar.MEDIUM;
-			case ImViewerModel.LOW:
+			case ImViewer.LOW:
 				return ToolBar.LOW;
 		}
 	}
+	 
 	
 	/**
 	 * Returns the UI index of the currently selected compression level.

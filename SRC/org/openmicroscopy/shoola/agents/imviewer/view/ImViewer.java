@@ -73,6 +73,21 @@ public interface ImViewer
 	extends ObservableComponent
 {
 
+	/** Flag to indicate that the image is not compressed. */
+	public static final int 	UNCOMPRESSED = RenderingControl.UNCOMPRESSED;
+	
+	/** 
+	 * Flag to indicate that the image is not compressed using a
+	 * medium Level of compression. 
+	 */
+	public static final int 	MEDIUM = RenderingControl.MEDIUM;
+	
+	/** 
+	 * Flag to indicate that the image is not compressed using a
+	 * low Level of compression. 
+	 */
+	public static final int 	LOW = RenderingControl.LOW;
+	
 	/** The title of the <code>Image</code> view. */
 	public static final String 	TITLE_VIEW_INDEX = "Image";
 	

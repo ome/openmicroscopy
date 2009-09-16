@@ -37,7 +37,7 @@ import pojos.ImageData;
 import pojos.PlateData;
 
 /**
- * Loasd the measurements associated to the specified object.
+ * Loads the measurements associated to the specified object.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -91,7 +91,7 @@ public class MeasurementsLoader
     public void load()
     {
         long userID = ImViewerAgent.getUserDetails().getId();
-        handle = mhView.loadMeasurement(object, userID, this);
+        handle = mhView.loadROIMeasurement(object, userID, this);
     }
 
     /**

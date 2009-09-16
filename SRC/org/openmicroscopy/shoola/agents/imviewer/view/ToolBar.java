@@ -44,9 +44,11 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXBusyLabel;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
@@ -304,6 +306,11 @@ class ToolBar
 		p.add(l);
 		p.add(compressionBox);
 		//add(UIUtilities.buildComponentPanel(p));
+		int value = (Integer) 
+			ImViewerAgent.getRegistry().lookup(LookupNames.CONNECTION_SPEED);
+		int setUp = view.convertCompressionLevel(value);
+		if (compression != setUp) compression = setUp;
+		
 		int index = view.convertCompressionLevel();
 		if (compression >= UNCOMPRESSED && compression <= LOW)
 			index = compression;

@@ -102,21 +102,6 @@ import pojos.WellSampleData;
 */
 class ImViewerModel
 {
-
-	/** Flag to indicate that the image is not compressed. */
-	static final int 			UNCOMPRESSED = RenderingControl.UNCOMPRESSED;
-	
-	/** 
-	 * Flag to indicate that the image is not compressed using a
-	 * medium Level of compression. 
-	 */
-	static final int 			MEDIUM = RenderingControl.MEDIUM;
-	
-	/** 
-	 * Flag to indicate that the image is not compressed using a
-	 * low Level of compression. 
-	 */
-	static final int 			LOW = RenderingControl.LOW;
 	
 	/** The maximum number of items in the history. */
 	private static final int	MAX_HISTORY = 10;
@@ -715,6 +700,7 @@ class ImViewerModel
 	 */
 	void firePlaneInfoRetrieval()
 	{
+		if (planeInfos != null && planeInfos.size() > 0) return;
 		PlaneInfoLoader loader = new PlaneInfoLoader(component, getPixelsID());
 		loader.load();
 	}
@@ -1768,9 +1754,9 @@ class ImViewerModel
     /**
      * Returns the <code>Plane Info</code> for the specified XY-plane.
      * 
-     * @param z The z coord.  Must be in the range <code>[0, sizeZ)</code>.
-	 * @param c The w coord.  Must be in the range <code>[0, sizeW)</code>.
-	 * @param t The t coord.  Must be in the range <code>[0, sizeT)</code>.
+     * @param z The z coordinate.  Must be in the range <code>[0, sizeZ)</code>.
+	 * @param c The w coordinate.  Must be in the range <code>[0, sizeW)</code>.
+	 * @param t The t coordinate.  Must be in the range <code>[0, sizeT)</code>.
      * @return See above.
      */
     PlaneInfo getPlane(int z, int c, int t)

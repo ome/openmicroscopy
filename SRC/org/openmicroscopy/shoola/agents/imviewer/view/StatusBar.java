@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -65,7 +68,7 @@ class StatusBar
     /** Displays the status message displayed on the left hand side. */
     private JLabel              leftStatus;
     
-    /** Displays the status message displayed on the rigth side. */
+    /** Displays the status message displayed on the right side. */
     private JLabel              rigthStatus;
     
     /** Displays some of the plane information. */
@@ -74,13 +77,23 @@ class StatusBar
     /** Button to display plane info. */
     private JButton				statusButton;
 
+    /** Reference to the model. */
+    private ImViewerModel		model;
+    
     /** Initializes the components. */
     private void initComponents()
     {
         IconManager icons = IconManager.getInstance();
         statusButton = new JButton(icons.getIcon(IconManager.STATUS_INFO));
+        statusButton.setToolTipText("Load the planes information.");
         statusButton.setContentAreaFilled(false);
         statusButton.setBorder(null);
+        statusButton.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				model.firePlaneInfoRetrieval();
+			}
+		});
         UIUtilities.unifiedButtonLookAndFeel(statusButton);
         leftStatus = new JLabel();
         rigthStatus = new JLabel();
@@ -101,9 +114,16 @@ class StatusBar
         add(Box.createRigidArea(new Dimension(20, 5)));
     }
     
-    /** Creates a new instance. */
-    StatusBar()
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param model Reference to the model.
+     */
+    StatusBar(ImViewerModel model)
     {
+    	if (model == null)
+    		throw new IllegalArgumentException("No model.");
+    	this.model = model;
         initComponents();
         buildUI();
     }

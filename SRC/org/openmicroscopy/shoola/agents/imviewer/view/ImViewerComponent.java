@@ -1912,6 +1912,8 @@ class ImViewerComponent
 					files.add((FileAnnotationData) entry.getValue());
 			}
 			if (files.size() > 0) postMeasurementEvent(files);
+		} else {
+			view.setMeasurementLaunchingStatus(false);
 		}
 	}
 
@@ -2721,6 +2723,10 @@ class ImViewerComponent
 	public void setMeasurements(Collection result)
 	{
 		if (model.getState() == DISCARDED) return;
+		if (result == null || result.size() == 0) {
+			Action a = controller.getAction(ImViewerControl.MEASUREMENT_TOOL);
+			a.setEnabled(false);
+		}
 		model.setMeasurements(result);
 	}
 	
