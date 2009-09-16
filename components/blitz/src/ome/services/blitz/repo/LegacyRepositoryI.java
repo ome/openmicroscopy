@@ -95,7 +95,7 @@ public class LegacyRepositoryI extends _InternalRepositoryDisp {
     public boolean takeover() {
 
         if (!state.compareAndSet(State.EAGER, State.WAITING)) {
-            log.info("Skipping takeover");
+            log.debug("Skipping takeover");
             return false;
         }
 
