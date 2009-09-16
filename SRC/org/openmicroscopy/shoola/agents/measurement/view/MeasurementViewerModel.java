@@ -468,6 +468,7 @@ class MeasurementViewerModel
 	 */
 	FileAnnotationData getMeasurement(long fileID)
 	{
+		if (measurements == null) return null;
 		Iterator<FileAnnotationData> i = measurements.iterator();
 		FileAnnotationData fa;
 		while (i.hasNext()) {
@@ -855,7 +856,7 @@ class MeasurementViewerModel
 			FileMap.setSavedFile(getServerName(), getUserName(), getPixelsID(), 
 								fileName);
 			if (!post) event = null;
-			setDataDiscarded();
+			nofityDataChanged(false);
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot close the stream "+e.getMessage());
@@ -875,7 +876,7 @@ class MeasurementViewerModel
 	List<ROIShape> propagateShape(ROIShape shape, int timePoint, int zSection) 
 		throws ROICreationException, NoSuchROIException
 	{
-		setDataChanged();
+		nofityDataChanged(true);
 		Coord3D coord = new Coord3D(zSection, timePoint);
 		return roiComponent.propagateShape(shape.getID(), shape.getCoord3D(), 
 			shape.getCoord3D(),coord);
@@ -896,7 +897,7 @@ class MeasurementViewerModel
 			drawingComponent.getDrawing().remove(shape.getFigure());
 		else
 		{
-			setDataChanged();
+			nofityDataChanged(true);
 			roiComponent.deleteShape(
 					shape.getID(), shape.getCoord3D(), new Coord3D(zSection, 
 							timePoint));
@@ -1059,32 +1060,22 @@ class MeasurementViewerModel
 	}
 
 	/**
-	 * Don't care about data changes.
-	 * Notifies listeners that the measurement tool does not have data to save.
+	 * Notifies listeners that the measurement tool does not have data to save
+	 * if <code>false</code>.
+	 * 
+	 * @param toSave Pass <code>true</code> to save the data, <code>false</code>
+	 * 				 otherwise.
 	 */
-	void setDataDiscarded()
+	void nofityDataChanged(boolean toSave)
 	{
-		//if (event == null) return;
+		if (serverROI) return;
+		if (event != null && toSave) return;
 		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
 		event = new SaveRelatedData(getPixelsID(), 
 					new SaveData(getPixelsID(), SaveData.MEASUREMENT_TYPE), 
 									"The ROI", false);
 		bus.post(event);
-		event = null;
-	}
-	
-	/**
-	 * The model has changed the data has not all been saved
-	 * Notifies listeners that the measurement tool has data to save.
-	 */
-	void setDataChanged()
-	{
-		if (event != null) return;
-		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
-		event = new SaveRelatedData(getPixelsID(), 
-						new SaveData(getPixelsID(), SaveData.MEASUREMENT_TYPE),
-									"The ROI", true);
-		bus.post(event);
+		if (!toSave) event = null;
 	}
 	
 	/**
@@ -1097,6 +1088,17 @@ class MeasurementViewerModel
 		component.analyseShapeList(shapeList);
 	}
 
+	/**
+	 * Returns the list of ROIs associated to that file.
+	 * 
+	 * @param fileID The id of the file.
+	 * @return See above.
+	 */
+	List<ROI> getROIList(long fileID)
+	{ 
+		return roiComponent.getROIList(fileID); 
+	}
+	
 	/**
 	 * Clones the specified ROI.
 	 * 

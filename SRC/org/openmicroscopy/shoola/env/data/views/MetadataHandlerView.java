@@ -341,7 +341,7 @@ public interface MetadataHandlerView
 	 * @param observer  	Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadMeasurement(Object dataObject, long userID,
+	public CallHandle loadROIMeasurement(Object dataObject, long userID,
 										AgentEventListener observer);
 	
 }

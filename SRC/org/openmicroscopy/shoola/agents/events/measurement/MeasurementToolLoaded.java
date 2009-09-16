@@ -33,7 +33,7 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
 
 /** 
- * 
+ * Event posted to either add or remove the measurement to the viewer.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

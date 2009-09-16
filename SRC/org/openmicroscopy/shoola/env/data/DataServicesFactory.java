@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -212,15 +213,16 @@ public class DataServicesFactory
 	 * @param connectionSpeed The connection speed.
 	 * @return See above.
 	 */
-	private boolean isFastConnection(int connectionSpeed)
+	private int isFastConnection(int connectionSpeed)
 	{
 		switch (connectionSpeed) {
 			case UserCredentials.HIGH:
-				return true;
+				return RenderingControl.UNCOMPRESSED;
 			case UserCredentials.MEDIUM:
+				return RenderingControl.MEDIUM;
 			case UserCredentials.LOW:
 			default:
-				return false;
+				return RenderingControl.LOW;
 		}
 	}
 	
@@ -325,9 +327,9 @@ public class DataServicesFactory
         omeroGateway.startFS(fsConfig);
         */
         registry.bind(LookupNames.USER_AUTHENTICATION, ldap);
-        boolean fastConnection = isFastConnection(uc.getSpeedLevel());
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
-        registry.bind(LookupNames.CONNECTION_SPEED, fastConnection);
+        registry.bind(LookupNames.CONNECTION_SPEED, 
+        		isFastConnection(uc.getSpeedLevel()));
         Map<GroupData, Set> groups;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
         try {
@@ -367,14 +369,15 @@ public class DataServicesFactory
 			reg.bind(LookupNames.CURRENT_USER_DETAILS, exp);
 			reg.bind(LookupNames.USER_GROUP_DETAILS, groups);
 			reg.bind(LookupNames.USERS_DETAILS, exps);
-			reg.bind(LookupNames.CONNECTION_SPEED, fastConnection);
+			reg.bind(LookupNames.CONNECTION_SPEED, 
+					isFastConnection(uc.getSpeedLevel()));
 		}
 	}
 	
 	/**
 	 * Tells whether the communication channel to <i>OMEDS</i> is currently
 	 * connected.
-	 * This means that we have established a connection and have sucessfully
+	 * This means that we have established a connection and have successfully
 	 * logged in.
 	 * 
 	 * @return	<code>true</code> if connected, <code>false</code> otherwise.

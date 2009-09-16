@@ -639,7 +639,7 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection loadMeasurements(Class type, long id, long userID) 
+	public Collection loadROIMeasurements(Class type, long id, long userID) 
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

@@ -303,10 +303,8 @@ class ObjectManager
 	/**
 	 * Selects the collection of figures.
 	 * 
-	 * @param l
-	 *            The collection of objects to select.
-	 * @param clear
-	 *            Pass <code>true</code> to clear the selection
+	 * @param l The collection of objects to select.
+	 * @param clear Pass <code>true</code> to clear the selection
 	 *            <code>false</code> otherwise.
 	 */
 	void setSelectedFigures(List<ROIShape> l, boolean clear)

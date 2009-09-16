@@ -4606,11 +4606,15 @@ class OMEROGateway
 				results.add(new ROIResult(PojoMapper.asDataObjects(r.rois)));
 			} else { //measurements
 				//tmp
+				long start = System.currentTimeMillis();
+				long m=0, end=0;
+				
 				long id = measurements.get(0);
 				r = svc.findByImage(imageID, new RoiOptions());
 				if (r == null) return results;
 				result = new ROIResult(PojoMapper.asDataObjects(r.rois), id);
-				result.setResult(createTableResult(svc.getTable(id)));
+				TablePrx t = svc.getTable(id);
+				result.setResult(createTableResult(t));
 				results.add(result);
 				
 				/*
@@ -4619,15 +4623,20 @@ class OMEROGateway
 				if (map == null) return results;
 				Iterator<Long> i = map.keySet().iterator();
 				Long id;
-				ROIResult result;
+				
 				while (i.hasNext()) {
 					id = i.next();
 					r = map.get(id);
 					//get the table
 					result = new ROIResult(PojoMapper.asDataObjects(r.rois), 
 							id);
+					result.setResult(createTableResult(svc.getTable(id)));
+					m = System.currentTimeMillis();
+					
 					results.add(result);
+					end =System.currentTimeMillis();
 				}
+				System.err.println("ROI: "+(m-start)+" Table: "+(end-m)+" total: "+(end-start));
 				*/
 			}
 		} catch (Exception e) {
@@ -4649,6 +4658,7 @@ class OMEROGateway
 		throws DSAccessException
 	{
 		if (table == null) return null;
+		long start = System.currentTimeMillis();
 		try {
 			Column[] cols = table.getHeaders();
 			String[] headers = new String[cols.length];
@@ -4661,27 +4671,39 @@ class OMEROGateway
 			Object[][] data = new Object[n][cols.length];
 			Data d;
 			Column column;
-			long[] a = new long[1], b = new long[1];
+			long[] a = new long[cols.length];
+			long[] b = new long[0];
 			for (int i = 0; i < cols.length; i++) {
-				a[0] = i; 
-				for (int j = 0; j < n; j++) {
-					b[0] = j;
-					d = table.slice(a, b);
-					column = d.columns[0];
-					if (column instanceof LongColumn) {
-						data[j][i] = ((LongColumn) column).values[0];
-					} else if (column instanceof DoubleColumn) {
-						data[j][i] = ((DoubleColumn) column).values[0];
-					} else if (column instanceof StringColumn) {
-						data[j][i] = ((StringColumn) column).values[0];
-					} else if (column instanceof BoolColumn) {
-						data[j][i] = ((BoolColumn) column).values[0];
-					} else if (column instanceof RoiColumn) {
-						data[j][i] = ((RoiColumn) column).values[0];
-					} else if (column instanceof ImageColumn) {
-						data[j][i] = ((ImageColumn) column).values[0];
-					} 
-				}
+				a[i] = i; 
+			}
+			d = table.slice(a, b);
+			for (int i = 0; i < cols.length; i++) {
+				column = d.columns[i];
+				if (column instanceof LongColumn) {
+					for (int j = 0; j < n; j++) {
+						data[j][i] = ((LongColumn) column).values[j];
+					}
+				} else if (column instanceof DoubleColumn) {
+					for (int j = 0; j < n; j++) {
+						data[j][i] = ((DoubleColumn) column).values[j];
+					}
+				} else if (column instanceof StringColumn) {
+					for (int j = 0; j < n; j++) {
+						data[j][i] = ((StringColumn) column).values[j];
+					}
+				} else if (column instanceof BoolColumn) {
+					for (int j = 0; j < n; j++) {
+						data[j][i] = ((BoolColumn) column).values[j];
+					}
+				} else if (column instanceof RoiColumn) {
+					for (int j = 0; j < n; j++) {
+						data[j][i] = ((RoiColumn) column).values[j];
+					}
+				} else if (column instanceof ImageColumn) {
+					for (int j = 0; j < n; j++) {
+						data[j][i] = ((ImageColumn) column).values[j];
+					}
+				} 
 			}
 			table.close();
 			return new TableResult(data, headers);

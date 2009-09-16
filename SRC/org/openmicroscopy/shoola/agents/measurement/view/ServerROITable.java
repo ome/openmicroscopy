@@ -25,12 +25,20 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
@@ -45,11 +53,18 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIMap;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
+
 import pojos.FileAnnotationData;
 
 /**
- *
+ * Displays the measurement related to the ROIs.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,6 +78,7 @@ import pojos.FileAnnotationData;
  */
 class ServerROITable 
 	extends JPanel
+	implements ListSelectionListener
 {
 
 	/** The index of the visible flag. */
@@ -87,6 +103,7 @@ class ServerROITable
 	private void initialize()
 	{
 		TableResult tr = (TableResult) result.getResult();
+		if (tr == null) return;
 		String[] headers = tr.getHeaders();
 		Object[][] data = tr.getData();
 		Object[][] rows = new Object[data.length][headers.length];
@@ -111,13 +128,52 @@ class ServerROITable
 				UIUtilities.BACKGROUND_COLOUR_EVEN, 
 				UIUtilities.BACKGROUND_COLOUR_ODD);
 		table.addHighlighter(h);
+		
+		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
+		table.setRowSelectionAllowed(true);
+		table.getSelectionModel().addListSelectionListener(this);
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout(0, 0));
-		add(new JScrollPane(table), BorderLayout.CENTER);
+		if (table != null) add(new JScrollPane(table), BorderLayout.CENTER);
+	}
+	
+	/** 
+	 * Shows or hides the ROI depending the passed value.
+	 * 
+	 * @param row   The row in the table.
+	 * @param value <code>true</code> to show the ROI, 
+	 * 				<code>false</code> to hide.
+	 */
+	private void handleVisibility(int row, boolean value)
+	{
+		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+		Iterator i = rowIDs.entrySet().iterator();
+		Entry entry;
+		long id = -1;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			if (((Integer) entry.getValue()) == row)
+				id = (Long) entry.getKey();
+		}
+		if (id != -1) {
+			try {
+				TreeMap<Coord3D, ROIShape> shapes;
+				Iterator<ROIShape> j;
+				ROIShape shape;
+				ROI roi = model.getROI(id);
+				shapes = roi.getShapes();
+				j = shapes.values().iterator();
+				while (j.hasNext()) {
+					shape = j.next();
+					shape.getFigure().setVisible(value);
+				}
+			} catch (Exception e) {}
+		}
 	}
 	
 	/**
@@ -135,6 +191,30 @@ class ServerROITable
 		rowIDs = new HashMap<Long, Integer>();
 	}
 
+	/**
+	 * Selects the row corresponding to the passed ROI's id.
+	 * 
+	 * @param roiIDs The collection of ROI's ids.
+	 */
+	void selectROI(List<Long> roiIDs)
+	{
+		/*
+		if (roiIDs == null || roiIDs.size() == 0) return;
+		Iterator<Long> i = roiIDs.iterator();
+		int index;
+		Long id;
+		table.getSelectionModel().removeListSelectionListener(this);
+		while (i.hasNext()) {
+			id = i.next();
+			if (rowIDs.containsKey(id)) {
+				index = rowIDs.get(id);
+				table.setRowSelectionInterval(index, index);
+			}
+		}
+		table.getSelectionModel().addListSelectionListener(this);
+		*/
+	}
+	
 	/**
 	 * Sets the result.
 	 * 
@@ -158,6 +238,7 @@ class ServerROITable
 	{
 		if (result == null) return "";
 		FileAnnotationData fa = model.getMeasurement(result.getFileID());
+		if (fa == null) return "";
 		return fa.getDescription();
 	}
 	
@@ -170,6 +251,68 @@ class ServerROITable
 	{
 		IconManager icons = IconManager.getInstance();
 		return icons.getIcon(IconManager.RESULTS);
+	}
+	
+	/**
+	 * Listens to selection in table. Selects the ROIs in the display.
+	 * @see ListSelectionListener#valueChanged(ListSelectionEvent)
+	 */
+	public void valueChanged(ListSelectionEvent e)
+	{
+		if (e.getValueIsAdjusting()) return;
+		ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+		List<Integer> indexes = new ArrayList<Integer>();
+		if (!lsm.isSelectionEmpty()) {
+			int minIndex = lsm.getMinSelectionIndex();
+            int maxIndex = lsm.getMaxSelectionIndex();
+            for (int i = minIndex; i <= maxIndex; i++) {
+                if (lsm.isSelectedIndex(i)) {
+                    indexes.add(i);
+                }
+            }
+		}
+		Entry entry;
+		ROI roi;
+		TreeMap<Coord3D, ROIShape> shapes;
+		Iterator<ROIShape> j;
+		ROIShape shape;
+		Iterator i = rowIDs.entrySet().iterator();
+		try {
+			List<ROIFigure> list = new ArrayList<ROIFigure>();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				if (indexes.contains(entry.getValue())) {
+					roi = model.getROI((Long) entry.getKey());
+					shapes = roi.getShapes();
+					j = shapes.values().iterator();
+					while (j.hasNext()) {
+						shape = j.next();
+						list.add(shape.getFigure());
+					}
+				}
+			}
+			DrawingCanvasView dv = model.getDrawingView();
+	    	dv.clearSelection();
+	    	Iterator<ROIFigure> k = list.iterator();
+	    	while (k.hasNext()) {
+	    		dv.addToSelection(k.next());
+			}
+			dv.grabFocus();
+	    	
+		} catch (Exception ex) {
+			// TODO: handle exception
+		}
+	}
+	
+	/**
+	 * Returns the ID of the file this component is hosting.
+	 * 
+	 * @return See above.
+	 */
+	long getFileID()
+	{
+		if (result == null) return -1;
+		return result.getFileID();
 	}
 	
 	/** Inner class so that some cells cannot be edited. */
@@ -196,6 +339,18 @@ class ServerROITable
 		{ 
 			return (column == VISIBILITY_INDEX);
 		}
+		
+		/**
+		 * Overridden to set the name of the image to save.
+		 * @see DefaultTableModel#setValueAt(Object, int, int)
+		 */
+		public void setValueAt(Object value, int row, int col)
+		{   
+			super.setValueAt(value, row, col);
+			if (col == VISIBILITY_INDEX) handleVisibility(row, (Boolean) value);	
+			fireTableCellUpdated(row, col);
+		}
+		
 	}
 	
 }

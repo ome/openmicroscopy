@@ -34,12 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -51,8 +47,6 @@ import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.ROIResult;
-import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -67,7 +61,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-
 import pojos.FileAnnotationData;
 
 /** 
@@ -249,7 +242,7 @@ class MeasurementViewerComponent
      */
 	public void setDataChanged()
 	{ 
-		model.setDataChanged(); 
+		model.nofityDataChanged(true);
 		firePropertyChange(ROI_CHANGED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
 	

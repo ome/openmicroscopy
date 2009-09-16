@@ -316,11 +316,11 @@ class MetadataHandlerViewImpl
 	 * @see MetadataHandlerView#loadRatings(Object, long, 
 	 * 										AgentEventListener)
 	 */
-	public CallHandle loadMeasurement(Object dataObject, long userID, 
+	public CallHandle loadROIMeasurement(Object dataObject, long userID, 
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationLoader(
- 				StructuredAnnotationLoader.MEASUREMENT, dataObject, 
+ 				StructuredAnnotationLoader.ROI_MEASUREMENT, dataObject, 
  					userID);
 		return cmd.exec(observer);
 	}

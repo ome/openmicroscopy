@@ -55,7 +55,7 @@ public class StructuredAnnotationLoader
 	public static final int RATING = 10;
 	
 	/** Indicates to load the annotation related to a given object. */
-	public static final int MEASUREMENT = 11;
+	public static final int ROI_MEASUREMENT = 11;
 	
 	/** Indicates to load structured data */
 	public static final int ALL = 1;
@@ -123,14 +123,14 @@ public class StructuredAnnotationLoader
      * 					<code>-1</code> if the user is not specified.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadMeasurements(final Class type, final long id, 
+    private BatchCall loadROIMeasurements(final Class type, final long id, 
     							final long userID)
     {
         return new BatchCall("Loading Measurements") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-                result = os.loadMeasurements(type, id, userID);
+                result = os.loadROIMeasurements(type, id, userID);
             }
         };
     }
@@ -303,9 +303,9 @@ public class StructuredAnnotationLoader
 							userID);
 				}
 				break;
-			case MEASUREMENT:
+			case ROI_MEASUREMENT:
 				DataObject ho = (DataObject) object;
-				loadCall = loadMeasurements(object.getClass(), ho.getId(), 
+				loadCall = loadROIMeasurements(object.getClass(), ho.getId(), 
 						userID);
 				break;
 			default:

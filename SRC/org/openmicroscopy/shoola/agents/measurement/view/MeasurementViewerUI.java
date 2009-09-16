@@ -26,13 +26,14 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -88,7 +89,6 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
  */
 class MeasurementViewerUI 
 	extends TopWindow 
-	implements MouseListener, MouseMotionListener
 {
 
 	/** The message displayed when a ROI cannot be retrieved. */
@@ -184,10 +184,13 @@ class MeasurementViewerUI
     private StatusBar					statusBar;
 
     /** the creation option to create multiple figures in the UI. */
-    private JCheckBoxMenuItem createMultipleFigure;
+    private JCheckBoxMenuItem 			createMultipleFigure;
     
     /** the creation option to create single figures in the UI. */
-    private JCheckBoxMenuItem createSingleFigure;
+    private JCheckBoxMenuItem 			createSingleFigure;
+    
+    /** The collection of components displaying the tables. */
+    private List<ServerROITable>		roiTables;
     
     /** 
      * Creates the menu bar.
@@ -272,9 +275,7 @@ class MeasurementViewerUI
         createFigureGroup.add(createMultipleFigure);
         creationMenu.add(createMultipleFigure);
         createMultipleFigure.setSelected(true); //TODO: retrieve info
-        
         menu.add(creationMenu);
-        
         return menu;
     }
     
@@ -282,6 +283,7 @@ class MeasurementViewerUI
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		roiTables = new ArrayList<ServerROITable>();
 		statusBar = new StatusBar();
 		toolBar = new ToolBar(component, this, controller, model);
 		roiManager = new ObjectManager(this, model);
@@ -293,31 +295,40 @@ class MeasurementViewerUI
 		calcWizard = new CalculationWizard(controller, model);
 		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 		DrawingCanvasView canvasView = model.getDrawingView();
-		canvasView.addMouseListener(this);
-		canvasView.addMouseMotionListener(this);
-		addTabbedPaneListener();
+		canvasView.addMouseListener(new MouseAdapter() {
+		    /**
+		     * Sets the cursor.
+			 * @see MouseListener#mouseEntered(java.awt.event.MouseEvent)
+			 */
+			public void mouseEntered(MouseEvent e)
+			{
+				Cursor cursor;
+				if (model.getDrawingEditor().getTool() instanceof 
+					DelegationSelectionTool)
+					cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+				else
+					cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+				getDrawingView().setCursor(cursor);
+			}
+			
+		});
+		
         tabs.setAlignmentX(LEFT_ALIGNMENT);
-	}
-	
-	/** Adds a listener to the tabbed pane. */
-	private void addTabbedPaneListener()
-	{
-		tabs.addChangeListener(new ChangeListener()
+        tabs.addChangeListener(new ChangeListener()
 		{
 			// This method is called whenever the selected tab changes
 			public void stateChanged(ChangeEvent evt)
 			{
-				//JTabbedPane pane=(JTabbedPane) evt.getSource();
-				// Get current tab
-				//int sel = pane.getSelectedIndex();
-				if (inDataView())
-				{
-					controller.analyseSelectedFigures();
+				if (model.isServerROI()) {
+					updateDrawingArea();
+				} else {
+					if (inDataView())
+						controller.analyseSelectedFigures();
 				}
 			}
 		});
 	}
-	
+
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
 	{
@@ -393,7 +404,7 @@ class MeasurementViewerUI
 	{
 		try
 		{
-			model.setDataChanged();
+			model.nofityDataChanged(true);
 			ROI newROI = model.cloneROI(idList.get(0));
 			for (ROIShape shape : shapeList)
 			{
@@ -438,7 +449,7 @@ class MeasurementViewerUI
 	{
 		try
 		{
-			model.setDataChanged();
+			model.nofityDataChanged(true);
 			ROI newROI = model.cloneROI(id);
 			for(ROIShape shape : shapeList)
 			{
@@ -483,7 +494,7 @@ class MeasurementViewerUI
 	{
 		try
 		{
-			model.setDataChanged();
+			model.nofityDataChanged(true);
 			ROI newROI = model.cloneROI(id);
 			for(ROIShape shape : shapeList)
 			{
@@ -512,7 +523,7 @@ class MeasurementViewerUI
 	{
 		try
 		{
-			model.setDataChanged();
+			model.nofityDataChanged(true);
 			for (ROIShape shape : shapeList)
 			{
 				if (getDrawing().contains(shape.getFigure()))
@@ -632,11 +643,9 @@ class MeasurementViewerUI
 			handleROIException(e, RETRIEVE_MSG);
 		}	
     }
-    /** 
-	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#showROIAssistant()
-	 */
-	public void showROIAssistant()
+    
+    /** Displays the ROI assistant. */
+	void showROIAssistant()
 	{
 		Registry reg = MeasurementAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
@@ -689,6 +698,19 @@ class MeasurementViewerUI
     	UIUtilities.setLocationRelativeToAndShow(this, assistant);
 	}
 	
+	void selectFiguresFromTable(List<ROIFigure> list)
+	{
+		if (list == null || list.size() == 0) return;
+		DrawingCanvasView dv = model.getDrawingView();
+    	dv.clearSelection();
+    	Iterator<ROIFigure> i = list.iterator();
+    	while (i.hasNext()) {
+    		dv.addToSelection(i.next());
+		}
+		dv.grabFocus();
+    	
+	}
+	
     /**
      * Selects the passed figure.
      * 
@@ -731,8 +753,21 @@ class MeasurementViewerUI
 			handleROIException(e, RETRIEVE_MSG);
 		}
 		dv.grabFocus();
-		roiInspector.setSelectedFigures(roiShapeList);
-		roiManager.setSelectedFigures(roiShapeList, false);
+		if (model.isServerROI()) {
+			List<Long> ids = new ArrayList<Long>();
+			Iterator<ROIShape> j = roiShapeList.iterator();
+			while (j.hasNext()) {
+				roiShape = (ROIShape) j.next();
+				ids.add(roiShape.getROI().getID());
+			}
+			Iterator<ServerROITable> k = roiTables.iterator();
+			while (k.hasNext()) {
+				k.next().selectROI(ids);
+			}
+		} else {
+			roiInspector.setSelectedFigures(roiShapeList);
+			roiManager.setSelectedFigures(roiShapeList, false);
+		}
     }
     
     /**
@@ -746,19 +781,33 @@ class MeasurementViewerUI
 		if (figures == null) return;
 		Iterator i = figures.iterator();
 		ROIFigure figure;
-		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+		List<ROIShape> shapeList = new ArrayList<ROIShape>();
 		ROI roi;
+		ROIShape shape;
 		try {
 			while (i.hasNext()) {
 				figure = (ROIFigure) i.next();
-				ROIShape shape = figure.getROIShape();
+				shape = figure.getROIShape();
 				if (shape != null) shapeList.add(shape);
 			}
 		} catch (Exception e) {
 			handleROIException(e, RETRIEVE_MSG);
 		}
-		roiInspector.setSelectedFigures(shapeList);
-		roiManager.setSelectedFigures(shapeList, true);
+		if (model.isServerROI()) {
+			List<Long> ids = new ArrayList<Long>();
+			Iterator<ROIShape> j = shapeList.iterator();
+			while (j.hasNext()) {
+				shape = (ROIShape) j.next();
+				ids.add(shape.getROI().getID());
+			}
+			Iterator<ServerROITable> k = roiTables.iterator();
+			while (k.hasNext()) {
+				k.next().selectROI(ids);
+			}
+		} else {
+			roiInspector.setSelectedFigures(shapeList);
+			roiManager.setSelectedFigures(shapeList, true);
+		}
 	}
     
     /**
@@ -886,22 +935,20 @@ class MeasurementViewerUI
     	if (model.isServerROI()) {
     		tabs.removeAll();
     		Collection l = model.getMeasurementResults();
-    		Iterator i= l.iterator();
+    		Iterator i = l.iterator();
     		ROIResult result;
     		ServerROITable comp;
     		while (i.hasNext()) {
     			result = (ROIResult) i.next();
 				comp = new ServerROITable(this, model);
 				comp.setResult(result);
+				roiTables.add(comp);
 				tabs.addTab(comp.getComponentName(), comp.getComponentIcon(), 
 						comp);
 			}
     		tabs.setSelectedIndex(0);
-    		/*
-    		tabs.addTab(roiManager.getComponentName(), 
-					roiManager.getComponentIcon(), roiManager);
-    		tabs.setSelectedIndex(0);
-    		*/
+    		getContentPane().remove(toolBar);
+    		setJMenuBar(null);
     	}
     }
     
@@ -912,25 +959,54 @@ class MeasurementViewerUI
 		drawing.removeDrawingListener(controller);
 		drawing.clear();
 		ShapeList list = null;
-		try {
-			list = model.getShapeList();
-		} catch (Exception e) {
-			handleROIException(e, RETRIEVE_MSG);
-		}
-		if (list != null) {
-			TreeMap map = list.getList();
-			Iterator i = map.values().iterator();
-			ROIShape shape;
-			while (i.hasNext()) {
-				shape = (ROIShape) i.next();
-				if (shape != null) 
-				{
-					drawing.add(shape.getFigure());
-					shape.getFigure().removeFigureListener(controller);
-					shape.getFigure().addFigureListener(controller);
+		if (model.isServerROI()) {
+			Component comp = tabs.getSelectedComponent();
+			if (comp instanceof ServerROITable) {
+				ServerROITable table = (ServerROITable) comp;
+				try {
+					List<ROI> rois = model.getROIList(table.getFileID());
+					Iterator<ROI> k = rois.iterator();
+					ROI roi;
+					TreeMap<Coord3D, ROIShape> shapes;
+					Iterator<ROIShape> j;
+					ROIShape shape;
+					while (k.hasNext()) {
+						roi = k.next();
+						shapes = roi.getShapes();
+						j = shapes.values().iterator();
+						while (j.hasNext()) {
+							shape = j.next();
+							drawing.add(shape.getFigure());
+							shape.getFigure().removeFigureListener(controller);
+							shape.getFigure().addFigureListener(controller);
+						}
+					}
+				} catch (Exception e) {
+					handleROIException(e, RETRIEVE_MSG);
+				}
+			}
+		} else {
+			try {
+				list = model.getShapeList();
+			} catch (Exception e) {
+				handleROIException(e, RETRIEVE_MSG);
+			}
+			if (list != null) {
+				TreeMap map = list.getList();
+				Iterator i = map.values().iterator();
+				ROIShape shape;
+				while (i.hasNext()) {
+					shape = (ROIShape) i.next();
+					if (shape != null) 
+					{
+						drawing.add(shape.getFigure());
+						shape.getFigure().removeFigureListener(controller);
+						shape.getFigure().addFigureListener(controller);
+					}
 				}
 			}
 		}
+		
 		setStatus(DEFAULT_MSG);
 		model.getDrawingView().setDrawing(drawing);
 		drawing.addDrawingListener(controller);
@@ -1075,6 +1151,7 @@ class MeasurementViewerUI
 		if (model.getState() != MeasurementViewer.READY) return;
 		model.calculateStats(shapeList);
 	}
+	
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
      * @see TopWindow#setOnScreen() 
@@ -1091,62 +1168,5 @@ class MeasurementViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
-
-    /**
-     * Sets the cursor.
-	 * @see MouseListener#mouseEntered(java.awt.event.MouseEvent)
-	 */
-	public void mouseEntered(MouseEvent e)
-	{
-		Cursor cursor;
-		if (model.getDrawingEditor().getTool() instanceof 
-			DelegationSelectionTool)
-			cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
-		else
-			cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
-		getDrawingView().setCursor(cursor);
-	}
-	
-	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseListener#mouseClicked(MouseEvent)
-	 */
-	public void mouseClicked(MouseEvent e) {}
-
-	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseListener#mouseExited(MouseEvent)
-	 */
-	public void mouseExited(MouseEvent e) {}
-
-	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseListener#mousePressed(MouseEvent)
-	 */
-	public void mousePressed(MouseEvent e) {}
-
-	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseListener#mouseReleased(MouseEvent)
-	 */
-	public void mouseReleased(MouseEvent e) {}
-
-	/**
-	 * Required by the {@link MouseMotionListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseMotionListener#mouseDragged(MouseEvent)
-	 */
-	public void mouseDragged(MouseEvent e) {}
-
-	/**
-	 * Required by the {@link MouseMotionListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseMotionListener#mouseMoved(MouseEvent)
-	 */
-	public void mouseMoved(MouseEvent e) {}
     
 }

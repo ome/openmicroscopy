@@ -1967,7 +1967,7 @@ class OmeroMetadataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#loadRatings(Class, long, long)
 	 */
-	public Collection loadMeasurements(Class type, long id, long userID) 
+	public Collection loadROIMeasurements(Class type, long id, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<Long> ids = null;
