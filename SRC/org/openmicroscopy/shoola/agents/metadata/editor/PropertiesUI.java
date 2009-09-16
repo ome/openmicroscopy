@@ -71,7 +71,6 @@ import pojos.ChannelData;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
-import pojos.PermissionData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -392,6 +391,34 @@ class PropertiesUI
         }
     }
     
+    private String isValidPixelsSize(Map details)
+    {
+    	String x = (String) details.get(EditorUtil.PIXEL_SIZE_X);
+    	String y = (String) details.get(EditorUtil.PIXEL_SIZE_X);
+    	String z = (String) details.get(EditorUtil.PIXEL_SIZE_X);
+    	String label = "Pixels Size (";
+    	
+    	String value = "";
+    	String zero = "0";
+    	if (!zero.equals(x)) {
+    		value += x;
+    		label = "X";
+    	}
+    	if (!zero.equals(y)) {
+    		if (value.length() == 0) value += y;
+    		else value +="x"+y;
+    		label += "Y";
+    	}
+    	if (!zero.equals(y)) {
+    		if (value.length() == 0) value += z;
+    		else value +="x"+z;
+    		label += "Z";
+    	}
+    	label += ") ";
+    	if (value.length() == 0) return null;
+    	return label+"="+value;
+    }
+    
     
 	/**
      * Builds the panel hosting the information
@@ -432,20 +459,18 @@ class PropertiesUI
     	content.add(label, "0, "+index);
     	content.add(value, "2, "+index);
     	
-    	index++;
-    	layout.insertRow(index, TableLayout.PREFERRED);
-    	label = UIUtilities.setTextFont("Pixels Size (XYZ) "+EditorUtil.MICRONS, 
-    			Font.BOLD, size);
-    	value = UIUtilities.createComponent(null);
-    	v = (String) details.get(EditorUtil.PIXEL_SIZE_X);
-    	v += " x ";
-    	v += (String) details.get(EditorUtil.PIXEL_SIZE_Y);
-    	v += " x ";
-    	v += (String) details.get(EditorUtil.PIXEL_SIZE_Z);
-    	value.setText(v);
-    	content.add(label, "0, "+index);
-    	content.add(value, "2, "+index);
-    	
+    	String s = isValidPixelsSize(details);
+    	if (s != null) {
+    		String[] split = s.split("=");
+    		index++;
+        	layout.insertRow(index, TableLayout.PREFERRED);
+        	label = UIUtilities.setTextFont(split[0]+EditorUtil.MICRONS, 
+        			Font.BOLD, size);
+        	value = UIUtilities.createComponent(null);
+        	value.setText(split[1]);
+        	content.add(label, "0, "+index);
+        	content.add(value, "2, "+index);
+    	}
     	index++;
     	layout.insertRow(index, TableLayout.PREFERRED);
     	label = UIUtilities.setTextFont("z-sections/timepoints", Font.BOLD, 
@@ -470,28 +495,6 @@ class PropertiesUI
     	
     	JPanel p = UIUtilities.buildComponentPanel(content);
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        return p;
-    }
-    
-    /**
-     * Builds and lays out the panel displaying the permissions of the edited
-     * file.
-     * 
-     * @param permissions   The permissions of the edited object.
-     * @return See above.
-     */
-    private JPanel buildPermissions(PermissionData permissions)
-    {
-        JPanel content = new JPanel();
-        content.setBackground(UIUtilities.BACKGROUND_COLOR);
-        content.setBorder(null);
-       	if (permissions != null && permissions.isGroupRead()) 
-       		groupBox.setSelected(true);
-       	content.add(privateBox);
-       	content.add(groupBox);
-       	JPanel p = UIUtilities.buildComponentPanel(content, 0, 0);
-       	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-       	p.setBorder(null);
         return p;
     }
   
