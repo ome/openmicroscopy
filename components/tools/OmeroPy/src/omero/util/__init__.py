@@ -289,19 +289,19 @@ class Task(threading.Thread):
         self.logger.info("Stopping")
 
     def sleep(self):
-        start = time.time()
-        while True:
-            try:
+        try:
+            start = time.time()
+            while True:
                 elapsed = time.time() - start
                 if elapsed > self.sleeptime or self.exit:
                     break
                 time.sleep(5)
-            except exceptions.Exception, ex:
-                # Ignoring since this is due to shutdown weirdness: ticket:1450
-                if isinstance(ex, AttributeError) and ex[0].startswith("'NoneType'"):
-                    pass
-                else:
-                    raise
+        except exceptions.Exception, ex:
+            # Ignoring since this is due to shutdown weirdness: ticket:1450
+            if isinstance(ex, AttributeError) and ex[0].startswith("'NoneType'"):
+                pass
+            else:
+                raise
 
     def stop(self, wait = True):
         """
