@@ -21,6 +21,13 @@
       by `bin/omero config` values.
       -->
       <property name="omero.example"  value="my_value"/>
+	  <!-- config settings for OmeroFS (moved from fsConfig)-->
+	  <property name="omero.fs.maxRetries"  value="5"/>
+	  <property name="omero.fs.retryInterval"  value="3"/>
+	  <property name="omero.fs.dropBoxDir"  value="DropBox"/>
+	  <property name="omero.fs.eventType"  value="Create"/>
+	  <property name="omero.fs.pathMode"  value="Follow"/>
+	  <property name="omero.fs.dirImportWait"  value="60"/>
     </properties>
 
     <include file="templates.xml"/>
