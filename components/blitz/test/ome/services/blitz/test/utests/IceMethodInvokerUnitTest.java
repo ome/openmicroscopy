@@ -46,8 +46,10 @@ import ome.model.enums.Family;
 import ome.model.enums.FilterType;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.roi.Roi;
 import ome.parameters.Parameters;
 import ome.parameters.QueryParameter;
+import ome.services.blitz.impl.RoiI;
 import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
 import ome.services.blitz.util.IceMethodInvoker;
 import ome.services.messages.GlobalMulticaster;
@@ -59,6 +61,7 @@ import omeis.providers.re.RenderingEngine;
 import omero.RString;
 import omero.RType;
 import omero.UnloadedCollectionException;
+import omero.api.RoiResult;
 import omero.model.Experimenter;
 import omero.model.ExperimenterI;
 import omero.model.Image;
@@ -1063,6 +1066,22 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         }
     }
 
+
+    // ~ RoiResults
+    // =========================================================================
+
+    @Test
+    public void testRoiResultMaps() throws Exception {
+        Map<Long, List<Roi>> rois = new HashMap<Long, List<Roi>>();
+        rois.put(1L, Collections.singletonList(new Roi()));
+        IceMapper mapper = new IceMapper();
+        Map<Long, RoiResult> rrs = (Map<Long, RoiResult>)
+            new RoiI.RoiResultMapReturnMapper(null).mapReturnValue(mapper, rois);
+        RoiResult rr = rrs.get(1L);
+        assertNotNull(rr);
+        
+    }
+    
     // ~ Helpers
     // =========================================================================
 

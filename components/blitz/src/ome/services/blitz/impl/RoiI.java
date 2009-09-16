@@ -288,7 +288,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 qb.select("fa");
                 qb.from("Image", "i");
                 qb.append(", Roi roi ");
-                qb.join("roi.annotationLinks", "rlinks",false, false);
+                qb.join("roi.annotationLinks", "rlinks", false, false);
                 qb.join("rlinks.child", "rfa", false, false);
                 qb.join("i.wellSamples", "ws", false, false);
                 qb.join("ws.well", "well", false, false);
@@ -320,10 +320,11 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
     }
 
     public void getMeasuredRoisMap_async(AMD_IRoi_getMeasuredRoisMap __cb,
-            final long imageId, final List<Long> annotationIds, RoiOptions opts,
-            Current __current) throws ServerError {
+            final long imageId, final List<Long> annotationIds,
+            RoiOptions opts, Current __current) throws ServerError {
 
-        final IceMapper mapper = new IceMapper(new RoiResultMapReturnMapper(opts));
+        final IceMapper mapper = new IceMapper(new RoiResultMapReturnMapper(
+                opts));
 
         runnableCall(__current, new Adapter(__cb, __current, mapper, factory
                 .getExecutor(), factory.principal, new SimpleWork(this,
@@ -336,7 +337,8 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 }
                 Map<Long, List<ome.model.roi.Roi>> rv = new HashMap<Long, List<ome.model.roi.Roi>>();
                 for (Long annotationId : annotationIds) {
-                    rv.put(annotationId, loadMeasuredRois(session, imageId, annotationId));
+                    rv.put(annotationId, loadMeasuredRois(session, imageId,
+                            annotationId));
                 }
                 return rv;
             }
@@ -439,13 +441,13 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
     }
 
-    private static class RoiResultMapper extends IceMapper {
+    public static class RoiResultMapper extends IceMapper {
         public RoiResultMapper(RoiOptions opts) {
             super(new RoiResultReturnMapper(opts));
         }
     }
 
-    private static class RoiResultReturnMapper implements
+    public static class RoiResultReturnMapper implements
             IceMapper.ReturnMapping {
 
         private final RoiOptions opts;
@@ -504,7 +506,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
         }
     }
 
-    private static class RoiResultMapReturnMapper implements
+    public static class RoiResultMapReturnMapper implements
             IceMapper.ReturnMapping {
 
         private final RoiOptions opts;
@@ -518,12 +520,11 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 throws Ice.UserException {
 
             Map<Long, RoiResult> rv = new HashMap<Long, RoiResult>();
-            Map<Long, List<Roi>> iv = (Map<Long, List<Roi>>) IceMapper.PRIMITIVE_FILTERABLE_COLLECTION_MAP
-                    .mapReturnValue(mapper, value);
+            Map<Long, List<ome.model.roi.Roi>> iv = (Map<Long, List<ome.model.roi.Roi>>) value;
 
             RoiResultMapper m = new RoiResultMapper(opts);
 
-            for (Map.Entry<Long, List<Roi>> entry : iv.entrySet()) {
+            for (Map.Entry<Long, List<ome.model.roi.Roi>> entry : iv.entrySet()) {
                 rv.put(entry.getKey(), (RoiResult) m.mapReturnValue(entry
                         .getValue()));
             }
