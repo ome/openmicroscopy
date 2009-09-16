@@ -40,7 +40,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
 import layout.TableLayout;
@@ -51,6 +53,7 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.treetable.renderers.StringCellRenderer;
 
 /**
  * Component displaying the files to import.
@@ -137,13 +140,18 @@ class FileSelectionTable
 		removeAllButton.setActionCommand(""+REMOVE_ALL);
 		removeAllButton.addActionListener(this);
 		table = new JXTable(new FileTableModel(COLUMNS));
-		TableColumn tc = table.getColumnModel().getColumn(SELECTED_INDEX);
+		TableColumnModel tcm = table.getColumnModel();
+		TableColumn tc = tcm.getColumn(SELECTED_INDEX);
 		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
 		Highlighter h = HighlighterFactory.createAlternateStriping(
 				UIUtilities.BACKGROUND_COLOUR_EVEN, 
 				UIUtilities.BACKGROUND_COLOUR_ODD);
 		table.addHighlighter(h);
+		TableCellRenderer renderer = new StringCellRenderer();
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			tcm.getColumn(i).setHeaderRenderer(renderer);
+		}
 	}
 	
 	/**

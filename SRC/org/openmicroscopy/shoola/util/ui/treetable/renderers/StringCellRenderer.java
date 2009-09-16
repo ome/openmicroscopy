@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 import java.awt.Component;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
 //Third-party libraries
@@ -58,6 +59,7 @@ public class StringCellRenderer
 	{
 		setOpaque(true);
 		setBorder(null);
+		setHorizontalAlignment(SwingConstants.CENTER);
 	}
 	
 	/**

@@ -25,6 +25,11 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,13 +39,20 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 
 //Third-party libraries
@@ -51,15 +63,23 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.file.ExcelWriter;
+import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIMap;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+import org.openmicroscopy.shoola.util.ui.treetable.renderers.StringCellRenderer;
 
 import pojos.FileAnnotationData;
 
@@ -94,10 +114,13 @@ class ServerROITable
 	private ROIResult 					result;
 	
 	/** The table displaying the collection to files to import. */
-	private JXTable						table;
+	private JTable						table;
 	
 	/* Map whose key is the id of the ROI and value its row. */
 	private Map<Long, Integer>			rowIDs;
+	
+	/** Button to export the data to excel. */
+	private JButton						export;
 	
 	/** Initializes the components. */
 	private void initialize()
@@ -121,25 +144,93 @@ class ServerROITable
 			}
 		}
 		table = new JXTable(new ServerROITableModel(rows, columns));
-		TableColumn tc = table.getColumnModel().getColumn(VISIBILITY_INDEX);
+		TableColumnModel tcm = table.getColumnModel();
+		TableColumn tc = tcm.getColumn(VISIBILITY_INDEX);
 		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
 		Highlighter h = HighlighterFactory.createAlternateStriping(
 				UIUtilities.BACKGROUND_COLOUR_EVEN, 
 				UIUtilities.BACKGROUND_COLOUR_ODD);
-		table.addHighlighter(h);
-		
+		//table.addHighlighter(h);
+		table.setShowGrid(true);
+		table.setGridColor(Color.LIGHT_GRAY);
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
 		table.setRowSelectionAllowed(true);
 		table.getSelectionModel().addListSelectionListener(this);
+		TableCellRenderer renderer = new StringCellRenderer();
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			tcm.getColumn(i).setHeaderRenderer(renderer);
+		}
+		
+		
+		export = new JButton("Save To Excel");
+		export.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				saveTable();
+			}
+		});
+	}
+
+	/** Saves the table. */
+	private void saveTable()
+	{
+		List<FileFilter> filterList = new ArrayList<FileFilter>();
+		FileFilter filter = new ExcelFilter();
+		filterList.add(filter);
+		FileChooser chooser=
+				new FileChooser(
+					view, FileChooser.SAVE, "Save the Results",
+					"Save the Results data to a file which can be loaded " +
+					"by a spreadsheet.",
+					filterList);
+		File f = UIUtilities.getDefaultFolder();
+	    if (f != null) chooser.setCurrentDirectory(f);
+		int choice = chooser.showDialog();
+		if (choice != JFileChooser.APPROVE_OPTION) return;
+		File file = chooser.getSelectedFile();
+		if (!file.getAbsolutePath().endsWith(ExcelFilter.EXCEL))
+		{
+			String fileName = file.getAbsolutePath()+"."+ExcelFilter.EXCEL;
+			file = new File(fileName);
+		}
+		String filename = file.getAbsolutePath();
+		ExcelWriter writer = new ExcelWriter(filename);
+		try {
+			writer.openFile();
+			writer.createSheet("Measurement");
+			writer.writeTableToSheet(0, 0, table.getModel());
+			BufferedImage originalImage = model.getRenderedImage();
+			BufferedImage image =  Factory.copyBufferedImage(originalImage);
+			
+			// Add the ROI for the current plane to the image.
+			//TODO: Need to check that.
+			model.setAttributes(MeasurementAttributes.SHOWID, true);
+			model.getDrawingView().print(image.getGraphics());
+			model.setAttributes(MeasurementAttributes.SHOWID, false);
+			String imageName = "ROIImage";
+			writer.addImageToWorkbook(imageName, image); 
+			int col = writer.getMaxColumn(0);
+			writer.writeImage(0, col+1, 256, 256,	imageName);
+			writer.close();
+		} catch (Exception e) {
+			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Save Measurements", 
+					"Unable to save the measurements");
+		}
+		
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout(0, 0));
-		if (table != null) add(new JScrollPane(table), BorderLayout.CENTER);
+		if (table != null) {
+			add(new JScrollPane(table), BorderLayout.CENTER);
+			add(UIUtilities.buildComponentPanelRight(export), 
+					BorderLayout.SOUTH);
+		}
 	}
 	
 	/** 

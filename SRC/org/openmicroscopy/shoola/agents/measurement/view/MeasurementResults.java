@@ -168,7 +168,8 @@ class MeasurementResults
 		createDefaultFields();
 		results = new ResultsTable();
 		results.getTableHeader().setReorderingAllowed(false);
-		MeasurementTableModel tm = new MeasurementTableModel(columnNames, model.getMeasurementUnits());
+		MeasurementTableModel tm = new MeasurementTableModel(columnNames, 
+				model.getMeasurementUnits());
 		results.setModel(tm);
 		results.setSelectionMode(
 				ListSelectionModel.SINGLE_SELECTION);
@@ -465,7 +466,7 @@ class MeasurementResults
 	boolean saveResults()
 		throws IOException
 	{
-		ArrayList<FileFilter> filterList=new ArrayList<FileFilter>();
+		List<FileFilter> filterList = new ArrayList<FileFilter>();
 		FileFilter filter=new ExcelFilter();
 		filterList.add(filter);
 		FileChooser chooser=
@@ -474,7 +475,7 @@ class MeasurementResults
 					"Save the Results data to a file which can be loaded " +
 					"by a spreadsheet.",
 					filterList);
-		File f=UIUtilities.getDefaultFolder();
+		File f = UIUtilities.getDefaultFolder();
 	    if (f != null) chooser.setCurrentDirectory(f);
 		int choice = chooser.showDialog();
 		if (choice != JFileChooser.APPROVE_OPTION) return false;
