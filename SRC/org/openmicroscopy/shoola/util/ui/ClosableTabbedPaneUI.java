@@ -217,21 +217,26 @@ class ClosableTabbedPaneUI
 		paintFocusIndicator(g, tabPlacement, rects, tabIndex, 
 				iconRect, textRect, selected);	
 		
-		 if (!(images.containsKey(tabIndex)))
-			 images.put(tabIndex, closeImage);
-		 int x = 2+rect.x+rect.width-19;
-		 int y = rect.y+2;
-		 int w = 0, h = 0;
-		 Image img = images.get(tabIndex);
-		 if (img != null) {
-			 w = img.getWidth(null);
-			 h = img.getHeight(null);
-			 g2D.drawImage(img, x, y, w, h, null); 
-			 Rectangle r = rectangles.get(tabIndex);
-			 if (r == null) r =  new Rectangle(x, y, w, h);
-			 else r.setBounds(x, y, w, h);
-			 rectangles.put(tabIndex, r);
-		 }
+		Component c = tabPane.getComponentAt(tabIndex); 
+		boolean closable = true;
+		if (c instanceof ClosableTabbedPaneComponent) {
+			closable = ((ClosableTabbedPaneComponent) c).isClosable();
+		}
+		if (!(images.containsKey(tabIndex)))
+			images.put(tabIndex, closeImage);
+		int x = 2+rect.x+rect.width-19;
+		int y = rect.y+2;
+		int w = 0, h = 0;
+		Image img = images.get(tabIndex);
+		if (img != null && closable) {
+			w = img.getWidth(null);
+			h = img.getHeight(null);
+			g2D.drawImage(img, x, y, w, h, null); 
+			Rectangle r = rectangles.get(tabIndex);
+			if (r == null) r =  new Rectangle(x, y, w, h);
+			else r.setBounds(x, y, w, h);
+			rectangles.put(tabIndex, r);
+		}
 	}
 	
 	/**

@@ -60,6 +60,9 @@ public class ClosableTabbedPaneComponent
 	/** The name of the tabbed component. */
 	private Icon		icon;
 	
+	/** Flag indicating if the component can be removed. */
+	private boolean		closable;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -97,7 +100,23 @@ public class ClosableTabbedPaneComponent
 		this.name = name;
 		this.icon = icon;
 		this.description = description;
+		closable = true;
 	}
+	
+	/**
+	 * Sets to <code>true</code> if the component can be closed,
+	 * <code>false</code>
+	 * @param closable
+	 */
+	public void setClosable(boolean closable) { this.closable = closable; }
+	
+	/**
+	 * Returns <code>true</code> if the component can be closed, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isClosable() { return closable; }
 	
 	/**
 	 * Returns the index of the tabbed component.
