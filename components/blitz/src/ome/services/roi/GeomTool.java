@@ -143,25 +143,25 @@ public class GeomTool implements ApplicationListener {
         }
 
         try {
-            ex.execute(new Principal(uuid, "system", "Internal"),
-                    new Executor.SimpleWork(this, "backgroundSynchronization") {
-
-                        @Transactional(readOnly = false)
-                        public Object doWork(Session session, ServiceFactory sf) {
-                            boolean found = true;
-                            while (found) {
-                                List<Long> l = getNullShapes();
-                                if (l.size() == 0) {
-                                    found = false;
-                                } else {
-                                    log.info("Batch processing " + l.size()
+            int count;
+            do {
+                count = (Integer) ex.execute(new Principal(uuid, "system",
+                        "Internal"), new Executor.SimpleWork(this,
+                        "backgroundSynchronization") {
+                    @Transactional(readOnly = false)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        List<Long> l = getNullShapes();
+                        if (l.size() > 0) {
+                            log
+                                    .info("Batch processing " + l.size()
                                             + " shapes");
-                                    synchronizeShapeGeometries(l);
-                                }
-                            }
-                            return null;
+                            synchronizeShapeGeometries(l);
                         }
-                    });
+                        return l.size();
+                    }
+                });
+            } while (count > 0);
+
         } catch (Exception e) {
             hasShapes.set(true);
             log
