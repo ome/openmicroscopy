@@ -42,16 +42,17 @@ import java.util.LinkedList;
 import java.util.List;
 
 //Third-party libraries
-
-//Application-internal dependencies
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.BoundsOutlineHandle;
 import org.jhotdraw.draw.Handle;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+import org.openmicroscopy.shoola.util.roi.util.FigureSelectionHandle;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
@@ -611,7 +612,7 @@ public class MeasureBezierFigure
 		else
 		{
 			LinkedList<Handle> handles = new LinkedList<Handle>();
-			handles.add(new BoundsOutlineHandle(this));
+			handles.add(new FigureSelectionHandle(this));
 			return handles;
 		}
 	}
