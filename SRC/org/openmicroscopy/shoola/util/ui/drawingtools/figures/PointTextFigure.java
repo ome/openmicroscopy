@@ -287,11 +287,7 @@ public class PointTextFigure
 	/* (non-Javadoc)
 	 * @see org.jhotdraw.draw.TextHolderFigure#isTextOverflow()
 	 */
-	public boolean isTextOverflow()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
+	public boolean isTextOverflow() { return false; }
 
 	/*
 	 * (non-Javadoc)

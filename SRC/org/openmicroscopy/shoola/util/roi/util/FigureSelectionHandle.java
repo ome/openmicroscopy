@@ -68,7 +68,11 @@ public class FigureSelectionHandle
 		Figure f = getOwner();
 		Color colour = (Color)f.getAttribute(AttributeKeys.STROKE_COLOR);
 		double width = (Double)f.getAttribute(AttributeKeys.STROKE_WIDTH);
-		f.setAttribute(AttributeKeys.STROKE_COLOR, colour.brighter());
+		Color strokeColour = colour.brighter();
+		if(strokeColour==colour)
+			strokeColour = Color.red;
+				
+		f.setAttribute(AttributeKeys.STROKE_COLOR, strokeColour);
 		f.setAttribute(AttributeKeys.STROKE_WIDTH, width+1);
 		if(f.isVisible())
 			g.scale(view.getScaleFactor(),view.getScaleFactor());

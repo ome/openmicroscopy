@@ -101,7 +101,10 @@ public class MeasureLineFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 	
-	/** The status of the figure. */
+	/** 
+	 * The status of the figure i.e. {@link ROIFigure#IDLE} or 
+	 * {@link ROIFigure#MOVING}. 
+	 */
 	private int 					status;
 	
 	/**
@@ -589,14 +592,14 @@ public class MeasureLineFigure
 	public void removeAllNodes() { super.removeAllNodes(); }
 	
 	/**
-	 * Sets the status of the figure.
-	 * @see ROIFigure#setStatus(int)
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see {@link ROIFigure#setStatus(boolean)}
 	 */
 	public void setStatus(int status) { this.status = status; }
 	
 	/**
-	 * Returns the status of the figure.
-	 * @see ROIFigure#getStatus()
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see {@link ROIFigure#getStatus()}
 	 */
 	public int getStatus() { return status; }
 	

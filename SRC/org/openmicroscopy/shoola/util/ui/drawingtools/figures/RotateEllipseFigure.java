@@ -616,10 +616,7 @@ public class RotateEllipseFigure
 	/**
 	 * Return false as no connections can exist.
 	 */
-	public boolean canConnect()
-	{
-		return false; 
-	}
+	public boolean canConnect() { return false; }
 	
 	/**
 	 * Return null as no connections can exist.

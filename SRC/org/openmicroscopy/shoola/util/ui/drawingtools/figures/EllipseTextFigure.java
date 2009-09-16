@@ -375,11 +375,7 @@ public class EllipseTextFigure
 	 * Implemented as specified by the {@link TextHolderFigure} I/F.
 	 * @see TextHolderFigure#isEditable()
 	 */
-	public boolean isEditable() 
-	{ 
-		System.err.println(editable);
-		return this.editable; 
-	}
+	public boolean isEditable() { return this.editable;	}
 	
 	/**
 	 * Required by the {@link TextHolderFigure} I/F but no-op implementation
@@ -391,11 +387,7 @@ public class EllipseTextFigure
 	/* (non-Javadoc)
 	 * @see org.jhotdraw.draw.TextHolderFigure#isTextOverflow()
 	 */
-	public boolean isTextOverflow()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
+	public boolean isTextOverflow()	{ return false; }
 
 	/*
 	 * (non-Javadoc)

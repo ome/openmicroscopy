@@ -72,12 +72,23 @@ public class MeasureTextFigure
 	private boolean readOnly;
 	
 	private Shape				cachedTransformedShape;
-	private	Rectangle2D 		bounds;
-	private ROI					roi;
-	private ROIShape 			shape;
 
-	private MeasurementUnits 	units;
+	/** This is used to perform faster drawing and hit testing.    */
+	protected	Rectangle2D 		bounds;
 	
+	/** The ROI containing the ROIFigure which in turn contains this Figure. */
+	protected 	ROI					roi;
+
+	/** The ROIFigure contains this Figure. */
+	protected 	ROIShape 			shape;
+	
+	/** The Measurement units, and values of the image. */
+	private MeasurementUnits 		units;
+	
+	/** 
+	 * The status of the figure i.e. {@link ROIFigure#IDLE} or 
+	 * {@link ROIFigure#MOVING}. 
+	 */
 	private int 				status;
 	
     /** Creates a new instance. Default value <code>(0, 0) </code>.*/
@@ -206,8 +217,16 @@ public class MeasureTextFigure
 	 */
 	public List<Point> getPoints() {  return null; }
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see {@link ROIFigure#setStatus(boolean)}
+	 */
 	public void setStatus(int status) { this.status = status; }
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see {@link ROIFigure#getStatus()}
+	 */
 	public int getStatus() { return status; }
 	
 	/**

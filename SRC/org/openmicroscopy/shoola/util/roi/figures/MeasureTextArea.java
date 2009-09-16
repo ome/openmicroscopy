@@ -339,12 +339,9 @@ public class MeasureTextArea
     }
     
     // EDITING
-    public boolean isEditable() {
-        return editable;
-    }
-    public void setEditable(boolean b) {
-        this.editable = b;
-    }
+    public boolean isEditable() { return editable; }
+    
+    public void setEditable(boolean b) { this.editable = b; }
     /**
      * Returns a specialized tool for the given coordinate.
      * <p>Returns null, if no specialized tool is available.
@@ -352,9 +349,7 @@ public class MeasureTextArea
     public Tool getTool(Point2D.Double p) {
         return (isEditable() && contains(p)) ? new TextAreaTool(this) : null;
     }
-    public TextHolderFigure getLabelFor() {
-        return this;
-    }
+    public TextHolderFigure getLabelFor() { return this; }
     
     
     // CONNECTING
@@ -409,19 +404,10 @@ public class MeasureTextArea
 	/* (non-Javadoc)
 	 * @see org.jhotdraw.draw.TextHolderFigure#isTextOverflow()
 	 */
-	public boolean isTextOverflow()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
+	public boolean isTextOverflow() { return false; }
 	
 	/* (non-Javadoc)
 	 * @see org.jhotdraw.draw.Figure#transform(java.awt.geom.AffineTransform)
 	 */
-	public void transform(AffineTransform tx)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-    
+	public void transform(AffineTransform tx) { }
 }
