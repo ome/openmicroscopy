@@ -77,35 +77,21 @@ class MIASPlateAnalysisCtx(object):
     detail_regex = re.compile(
         '^Well\d+_.*_detail_(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
         
-    def __init__(self, query_service, plate_id):
-        self.query_service = query_service
+    def __init__(self, original_files, original_file_image_map, plate_id):
         self.plate_id = plate_id
-        self.original_files = dict()
+        self.original_files = original_files
         self.log_files = dict()
         self.detail_files = dict()
         self.measurements = dict()
-        self.original_file_image_map = dict()
-        self._find_images_for_plate(plate_id)
-        for i, image in enumerate(self.images):
-            for annotation_link in image.copyAnnotationLinks():
-                annotation = annotation_link.child
-                if isinstance(annotation, FileAnnotationI):
-                    f = annotation.file
-                    self.original_files[f.id.val] = f
-                    self.original_file_image_map[f.id.val] = image
+        self.original_file_image_map = original_file_image_map
         self._populate_log_and_detail_files()
         self._populate_measurements()
-    
-    def _find_images_for_plate(self, plate_id):
-        self.images = self.query_service.findAllByQuery(
-            'select img from Image as img ' \
-            'left outer join fetch img.annotationLinks as a_links ' \
-            'join img.wellSamples as ws ' \
-            'join ws.well as w ' \
-            'join w.plate as p ' \
-            'join fetch a_links.child as a ' \
-            'join fetch a.file as o_file ' \
-            'where p.id = %d' % plate_id, None)
+
+    def is_this_type(klass, original_files):
+        for original_file in original_files.values():
+            if klass.log_regex.match(original_file.name.val):
+                return True
+    is_this_type = classmethod(is_this_type)
     
     def _populate_log_and_detail_files(self):
         for original_file in self.original_files.values():
@@ -134,6 +120,47 @@ class MIASPlateAnalysisCtx(object):
                     self.measurements[log_timestamp].append(
                         self.detail_files[detail_timestamp])
                     break
+
+class FlexPlateAnalysisCtx(object):
+
+    def is_this_type(klass, original_files):
+        return False
+    is_this_type = classmethod(is_this_type)
+
+class PlateAnalysisCtxFactory(object):
+
+    implementations = [FlexPlateAnalysisCtx, MIASPlateAnalysisCtx]
+
+    def __init__(self, query_service):
+        self.query_service = query_service
+    
+    def find_images_for_plate(self, plate_id):
+        return self.query_service.findAllByQuery(
+            'select img from Image as img ' \
+            'left outer join fetch img.annotationLinks as a_links ' \
+            'join img.wellSamples as ws ' \
+            'join ws.well as w ' \
+            'join w.plate as p ' \
+            'join fetch a_links.child as a ' \
+            'join fetch a.file as o_file ' \
+            'where p.id = %d' % plate_id, None)
+
+    def get_analysis_ctx(self, plate_id):
+        original_files = dict()
+        original_file_image_map = dict()
+        images = self.find_images_for_plate(plate_id)
+        for i, image in enumerate(images):
+            for annotation_link in image.copyAnnotationLinks():
+                annotation = annotation_link.child
+                if isinstance(annotation, FileAnnotationI):
+                    f = annotation.file
+                    original_files[f.id.val] = f
+                    original_file_image_map[f.id.val] = image
+        for klass in self.implementations:
+            if klass.is_this_type(original_files):
+                return klass(original_files,
+                             original_file_image_map,
+                             plate_id)
 
 class MeasurementCtx(object):
     
@@ -312,7 +339,8 @@ if __name__ == "__main__":
             service_factory = c.createSession(username, password)
         query_service = service_factory.getQueryService()
     
-        analysis_ctx = MIASPlateAnalysisCtx(query_service, plate_id)
+        factory = PlateAnalysisCtxFactory(query_service)
+        analysis_ctx = factory.get_analysis_ctx(plate_id)
         n_measurements = len(analysis_ctx.measurements.keys())
         if measurement is not None and measurement >= n_measurements:
             usage("Measurement %d not a valid index!")
