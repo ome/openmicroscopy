@@ -12,18 +12,32 @@ import java.util.Set;
 
 import ome.conditions.SecurityViolation;
 import ome.model.IEnum;
-import ome.model.IObject;
-import ome.model.acquisition.Filter;
-import ome.model.acquisition.Instrument;
-import ome.model.acquisition.Microscope;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
-import ome.model.core.Image;
-import ome.model.core.Pixels;
-import ome.model.display.Thumbnail;
-import ome.parameters.Parameters;
-import ome.system.ServiceFactory;
+
+import omero.model.IObject;
+import omero.model.PermissionsI;
+import omero.RString;
+import omero.ServerError;
+import omero.api.ServiceFactory;
+import omero.api.ServiceFactoryPrx;
+import omero.model.FilterI;
+import omero.model.Project;
+import omero.model.ProjectI;
+import omero.model.Dataset;
+import omero.model.DatasetI;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
+import omero.model.Microscope;
+import omero.model.Instrument;
+import omero.model.Filter;
+import omero.model.Pixels;
+import omero.model.Thumbnail;
+import omero.model.ThumbnailI;
+import omero.model.Image;
+import omero.sys.Parameters;
+import omero.sys.ParametersI;
+
+
+import static omero.rtypes.rstring;
 
 import org.testng.annotations.Test;
 
@@ -45,7 +59,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         groupA = user_other_group;
 
         // RW_RW_RW
-        permsA = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
         single(u, true);
         single(o, true);
         single(w, true);
@@ -53,7 +67,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_RW_Rx
-        permsA = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_Rx.toString());
         single(u, true);
         single(o, true);
         single(w, false);
@@ -61,7 +75,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_RW_xx
-        permsA = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_xx.toString());
         single(u, true);
         single(o, true);
         single(w, false);
@@ -69,7 +83,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_Rx_Rx
-        permsA = RW_Rx_Rx;
+        permsA = new PermissionsI(RW_Rx_Rx.toString());
         single(u, true);
         single(o, false);
         single(w, false);
@@ -77,7 +91,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_xx_xx
-        permsA = RW_xx_xx;
+        permsA = new PermissionsI(RW_xx_xx.toString());
         single(u, true);
         single(o, false);
         single(w, false);
@@ -85,7 +99,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // Rx_Rx_Rx
-        permsA = Rx_Rx_Rx;
+        permsA = new PermissionsI(Rx_Rx_Rx.toString());
         single(u, false);
         single(o, false);
         single(w, false);
@@ -93,7 +107,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // xx_xx_xx
-        permsA = xx_xx_xx;
+        permsA = new PermissionsI(xx_xx_xx.toString());
         single(u, false);
         single(o, false);
         single(w, false);
@@ -111,7 +125,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         groupA = common_group;
 
         // RW_RW_RW
-        permsA = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
         single(u, true);
         single(o, true);
         single(w, true);
@@ -119,7 +133,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_RW_Rx
-        permsA = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_Rx.toString());
         single(u, true);
         single(o, true);
         single(w, true);
@@ -127,7 +141,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_RW_xx
-        permsA = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_xx.toString());
         single(u, true);
         single(o, true);
         single(w, true);
@@ -135,7 +149,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_Rx_Rx
-        permsA = RW_Rx_Rx;
+        permsA = new PermissionsI(RW_Rx_Rx.toString());
         single(u, false);
         single(o, false);
         single(w, true);
@@ -143,7 +157,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_xx_xx
-        permsA = RW_xx_xx;
+        permsA = new PermissionsI(RW_xx_xx.toString());
         single(u, false);
         single(o, false);
         single(w, true);
@@ -151,7 +165,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // Rx_Rx_Rx
-        permsA = Rx_Rx_Rx;
+        permsA = new PermissionsI(Rx_Rx_Rx.toString());
         single(u, false);
         single(o, false);
         single(w, false);
@@ -159,7 +173,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // xx_xx_xx
-        permsA = xx_xx_xx;
+        permsA = new PermissionsI(xx_xx_xx.toString());
         single(u, false);
         single(o, false);
         single(w, false);
@@ -177,7 +191,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         groupA = system_group;
 
         // RW_RW_RW
-        permsA = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
         single(u, true);
         single(o, true);
         single(w, true);
@@ -185,7 +199,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_RW_Rx
-        permsA = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_Rx.toString());
         single(u, false);
         single(o, false);
         single(w, false);
@@ -193,7 +207,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_RW_xx
-        permsA = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_xx.toString());
         single(u, false);
         single(o, false);
         single(w, false);
@@ -201,7 +215,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // Rx_Rx_Rx
-        permsA = Rx_Rx_Rx;
+        permsA = new PermissionsI(Rx_Rx_Rx.toString());
         single(u, false);
         single(o, false);
         single(w, false);
@@ -209,7 +223,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // xx_xx_xx
-        permsA = xx_xx_xx;
+        permsA = new PermissionsI(xx_xx_xx.toString());
         single(u, false);
         single(o, false);
         single(w, false);
@@ -220,17 +234,18 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
 
     /**
      * attempts to change the prj instance at all cost.
+     * @throws ServerError 
      */
-    protected void single(ServiceFactory sf, boolean ok) {
+    protected void single(ServiceFactoryPrx u, boolean ok) throws ServerError {
         createProject(ownsfA, permsA, groupA);
         verifyDetails(prj, ownerA, groupA, permsA);
 
         Project t = null;
         String MSG = makeModifiedMessage();
-        prj.setName(MSG);
+        prj.setName(rstring(MSG));
 
         try {
-            t = sf.getUpdateService().saveAndReturnObject(prj);
+            t = (Project) u.getUpdateService().saveAndReturnObject(prj);
             if (!ok) {
                 fail("Secvio!");
             }
@@ -242,7 +257,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         }
 
         try {
-            sf.getUpdateService().deleteObject(prj);
+            u.getUpdateService().deleteObject(prj);
             if (!ok) {
                 fail("secvio!");
             }
@@ -269,8 +284,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         groupB = user_other_group;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, true);
         oneToMany(w, true, true);
@@ -278,8 +293,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_RW_Rx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_Rx.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, true);
         oneToMany(w, true, false);
@@ -287,8 +302,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_RW_xx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, true);
         oneToMany(w, true, false);
@@ -296,8 +311,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_Rx_Rx
-        permsA = RW_RW_RW;
-        permsB = RW_Rx_Rx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_Rx_Rx.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, false);
         oneToMany(w, true, false);
@@ -305,8 +320,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, false);
         oneToMany(w, true, false);
@@ -314,8 +329,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_Rx / RW_RW_Rx
-        permsA = RW_RW_Rx;
-        permsB = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_Rx.toString());
+        permsB = new PermissionsI(RW_RW_Rx.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, true);
         oneToMany(w, false, false);
@@ -323,8 +338,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_xx / RW_RW_xx
-        permsA = RW_RW_xx;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_xx.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, true);
         oneToMany(w, false, false);
@@ -332,8 +347,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_Rx_Rx / RW_Rx_Rx
-        permsA = RW_Rx_Rx;
-        permsB = RW_Rx_Rx;
+        permsA = new PermissionsI(RW_Rx_Rx.toString());
+        permsB = new PermissionsI(RW_Rx_Rx.toString());
         oneToMany(u, true, true);
         oneToMany(o, false, false);
         oneToMany(w, false, false);
@@ -341,8 +356,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_xx_xx / RW_xx_xx
-        permsA = RW_xx_xx;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_xx_xx.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(u, true, true);
         oneToMany(o, false, false);
         oneToMany(w, false, false);
@@ -350,8 +365,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // Rx_Rx_Rx / Rx_Rx_Rx
-        permsA = Rx_Rx_Rx;
-        permsB = Rx_Rx_Rx;
+        permsA = new PermissionsI(Rx_Rx_Rx.toString());
+        permsB = new PermissionsI(Rx_Rx_Rx.toString());
         oneToMany(u, false, false);
         oneToMany(o, false, false);
         oneToMany(w, false, false);
@@ -359,8 +374,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // Rx_xx_xx / xx_xx_xx
-        permsA = Rx_xx_xx;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(Rx_xx_xx.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         oneToMany(u, false, false);
         oneToMany(o, false, false);
         oneToMany(w, false, false);
@@ -368,8 +383,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_xx / RW_RW_RW
-        permsA = RW_RW_xx;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_xx.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, true);
         oneToMany(w, false, true); // this should fail like U_instr_U_micro
@@ -389,8 +404,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         groupB = user_other_group;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, true);
         oneToMany(w, true, true);
@@ -398,8 +413,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_RW_Rx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_Rx.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, true);
         oneToMany(w, true, false);
@@ -407,8 +422,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_RW_xx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, true);
         oneToMany(w, true, false);
@@ -416,8 +431,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, false);
         oneToMany(w, true, false);
@@ -425,8 +440,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / xx_xx_xx
-        permsA = RW_RW_RW;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         oneToMany(u, true, false);
         oneToMany(o, true, false);
         oneToMany(w, true, false);
@@ -434,8 +449,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_xx_xx / RW_xx_xx
-        permsA = RW_Rx_Rx;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_Rx_Rx.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(u, false, true);
         oneToMany(o, true, false);
         oneToMany(w, false, false);
@@ -443,8 +458,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // xx_xx_xx / xx_xx_xx
-        permsA = Rx_Rx_Rx;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(Rx_Rx_Rx.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         oneToMany(u, false, false);
         oneToMany(o, false, false);
         oneToMany(w, false, false);
@@ -464,8 +479,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         groupB = user_other_group;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, true);
         oneToMany(w, true, true);
@@ -473,8 +488,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_RW_Rx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_Rx.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, true);
         oneToMany(w, true, false);
@@ -482,8 +497,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_RW_xx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, true);
         oneToMany(w, true, false);
@@ -491,8 +506,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(u, true, false);
         oneToMany(o, true, true);
         oneToMany(w, true, false);
@@ -500,8 +515,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / xx_xx_xx
-        permsA = RW_RW_RW;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         oneToMany(u, true, false);
         oneToMany(o, true, false);
         oneToMany(w, true, false);
@@ -509,8 +524,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_xx_xx / RW_xx_xx
-        permsA = RW_Rx_Rx;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_Rx_Rx.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(u, true, false);
         oneToMany(o, false, true);
         oneToMany(w, false, false);
@@ -518,8 +533,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // xx_xx_xx / xx_xx_xx
-        permsA = Rx_Rx_Rx;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(Rx_Rx_Rx.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         oneToMany(u, false, false);
         oneToMany(o, false, false);
         oneToMany(w, false, false);
@@ -538,8 +553,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         groupB = system_group;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         oneToMany(u, true, true);
         oneToMany(o, true, true);
         oneToMany(w, true, true);
@@ -547,8 +562,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_RW_Rx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_Rx.toString());
         oneToMany(u, true, false);
         oneToMany(o, true, false);
         oneToMany(w, true, false);
@@ -556,8 +571,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_RW_xx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         oneToMany(u, true, false);
         oneToMany(o, true, false);
         oneToMany(w, true, false);
@@ -565,8 +580,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(u, true, false);
         oneToMany(o, true, false);
         oneToMany(w, true, false);
@@ -574,8 +589,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_xx_xx / RW_xx_xx
-        permsA = RW_xx_xx;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_xx_xx.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(u, true, false);
         oneToMany(o, false, false);
         oneToMany(w, false, false);
@@ -583,8 +598,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // xx_xx_xx / xx_xx_xx
-        permsA = xx_xx_xx;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(xx_xx_xx.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         oneToMany(u, false, false);
         oneToMany(o, false, false);
         oneToMany(w, false, false);
@@ -597,7 +612,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
      * first tries to change both the pixel and the thumbnail and the tries to
      * delete them
      */
-    protected void oneToMany(ServiceFactory sf, boolean pix_ok, boolean tb_ok) {
+    protected void oneToMany(ServiceFactoryPrx u, boolean pix_ok, boolean tb_ok) {
 
         createPixels(ownsfA, groupA, permsA);
         createThumbnail(ownsfB, groupB, permsB, pix);
@@ -608,14 +623,15 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         Pixels t = null;
         Thumbnail tB = null;
         String MSG = makeModifiedMessage();
-        String oldMsg = pix.getSha1();
+        RString oldMsg = pix.getSha1();
 
-        pix.setSha1(MSG);
+        pix.setSha1(rstring(MSG));
 
         try {
-            pix.putAt(Pixels.THUMBNAILS, Collections.singleton(new Thumbnail(tb
-                    .getId(), false)));
-            t = sf.getUpdateService().saveAndReturnObject(pix);
+        
+            pix.putAt(Pixels.THUMBNAILS, Collections.singleton(new ThumbnailI(tb
+                    .getId().getValue(), false)));
+            t = (Pixels) u.getUpdateService().saveAndReturnObject(pix);
             t.addThumbnail(tb); // used to update the pixel version in tb
             if (!pix_ok) {
                 fail("secvio!");
@@ -629,10 +645,10 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
             }
         }
 
-        tb.setRef(MSG);
+        tb.setRef(rstring(MSG));
 
         try {
-            tB = sf.getUpdateService().saveAndReturnObject(tb);
+            tB = (Thumbnail) u.getUpdateService().saveAndReturnObject(tb);
             if (!tb_ok) {
                 fail("secvio!");
             }
@@ -644,7 +660,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         }
 
         try {
-            sf.getUpdateService().deleteObject(tb);
+            u.getUpdateService().deleteObject(tb);
             if (!tb_ok) {
                 fail("secvio!");
             }
@@ -653,7 +669,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
             pix.putAt(Pixels.THUMBNAILS, null);
             // must be internal to try/catch otherwise, explodes
             // since tb still references the pix.
-            deleteRecurisvely(sf, pix);
+            deleteRecurisvely(u, pix);
             if (!pix_ok) {
                 fail("secvio!");
             }
@@ -681,8 +697,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         groupB = user_other_group;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         uniManyToOne(u, true, true);
         uniManyToOne(o, true, true);
         uniManyToOne(w, true, true);
@@ -690,8 +706,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         uniManyToOne(r, true, true);
 
         // RW_RW_RW / RW_RW_Rx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_Rx.toString());
         uniManyToOne(u, true, true);
         uniManyToOne(o, true, true);
         uniManyToOne(w, true, false);
@@ -699,8 +715,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         uniManyToOne(r, true, true);
 
         // RW_RW_RW / RW_RW_xx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_Rx; // Rx-->xx
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_Rx.toString()); // Rx-->xx
         uniManyToOne(u, true, true);
         uniManyToOne(o, true, true);
         uniManyToOne(w, true, false); // fixme
@@ -708,8 +724,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         uniManyToOne(r, true, true);
 
         // RW_RW_RW / RW_Rx_Rx
-        permsA = RW_RW_RW;
-        permsB = RW_Rx_Rx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_Rx_Rx.toString());
         uniManyToOne(u, true, true);
         uniManyToOne(o, true, false);
         uniManyToOne(w, true, false);
@@ -717,8 +733,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         uniManyToOne(r, true, true);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         uniManyToOne(u, true, true);
         uniManyToOne(o, true, false);
         uniManyToOne(w, true, false);
@@ -726,8 +742,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         uniManyToOne(r, true, true);
 
         // RW_RW_Rx / RW_RW_Rx
-        permsA = RW_RW_Rx;
-        permsB = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_Rx.toString());
+        permsB = new PermissionsI(RW_RW_Rx.toString());
         uniManyToOne(u, true, true);
         uniManyToOne(o, true, true);
         uniManyToOne(w, false, false);
@@ -735,8 +751,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         uniManyToOne(r, true, true);
 
         // RW_RW_xx / RW_RW_xx
-        permsA = RW_RW_xx;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_xx.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         uniManyToOne(u, true, true);
         uniManyToOne(o, true, true);
         uniManyToOne(w, false, false);
@@ -744,8 +760,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         uniManyToOne(r, true, true);
 
         // RW_Rx_Rx / RW_Rx_Rx
-        permsA = RW_Rx_Rx;
-        permsB = RW_Rx_Rx;
+        permsA = new PermissionsI(RW_Rx_Rx.toString());
+        permsB = new PermissionsI(RW_Rx_Rx.toString());
         uniManyToOne(u, true, true);
         uniManyToOne(o, false, false);
         uniManyToOne(w, false, false);
@@ -753,8 +769,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         uniManyToOne(r, true, true);
 
         // RW_xx_xx / RW_xx_xx
-        permsA = RW_xx_xx;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_xx_xx.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         uniManyToOne(u, true, true);
         uniManyToOne(o, false, false);
         uniManyToOne(w, false, false);
@@ -762,8 +778,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         uniManyToOne(r, true, true);
 
         // Rx_Rx_Rx / Rx_Rx_Rx
-        permsA = Rx_Rx_Rx;
-        permsB = Rx_Rx_Rx;
+        permsA = new PermissionsI(Rx_Rx_Rx.toString());
+        permsB = new PermissionsI(Rx_Rx_Rx.toString());
         uniManyToOne(u, false, false);
         uniManyToOne(o, false, false);
         uniManyToOne(w, false, false);
@@ -771,8 +787,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         uniManyToOne(r, true, true);
 
         // Rx_xx_xx / xx_xx_xx
-        permsA = Rx_xx_xx;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(Rx_xx_xx.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         uniManyToOne(u, false, false);
         uniManyToOne(o, false, false);
         uniManyToOne(w, false, false);
@@ -781,8 +797,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
 
     }
 
-    protected void uniManyToOne(ServiceFactory sf, boolean instr_ok,
-            boolean micro_ok) {
+    protected void uniManyToOne(ServiceFactoryPrx u, boolean instr_ok,
+            boolean micro_ok) throws ServerError {
 
         createMicroscope(ownsfB, groupB, permsB);
         createInstrument(ownsfA, groupA, permsA, micro);
@@ -793,12 +809,12 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         Instrument tI = null;
         Microscope tM = null;
         String MSG = makeModifiedMessage();
-        String oldMsg = micro.getModel();
+        String oldMsg = micro.getModel().getValue();
 
-        micro.setModel(MSG);
+        micro.setModel(rstring(MSG));
 
         try {
-            tM = sf.getUpdateService().saveAndReturnObject(micro);
+            tM = (Microscope) u.getUpdateService().saveAndReturnObject(micro);
             if (!micro_ok) {
                 fail("secvio!");
             }
@@ -806,17 +822,17 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
             instr.setMicroscope(tM); // resetting to prevent version errors.
         } catch (SecurityViolation sv) {
             // rollback
-            micro.setModel(oldMsg);
+            micro.setModel(rstring(oldMsg));
             if (micro_ok) {
                 throw sv;
             }
         }
 
-        Filter filter = new Filter();
+        Filter filter = new FilterI();
         instr.addFilter(filter);
 
         try {
-            tI = sf.getUpdateService().saveAndReturnObject(instr);
+            tI = (Instrument) u.getUpdateService().saveAndReturnObject(instr);
             if (!instr_ok) {
                 fail("secvio!");
             }
@@ -832,12 +848,12 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         try {
             // done for recursive delete.
             tI.setMicroscope(null);
-            deleteRecurisvely(sf, tI);
+            deleteRecurisvely(u, tI);
             if (!instr_ok) {
                 fail("secvio!");
             }
 
-            sf.getUpdateService().deleteObject(micro);
+            u.getUpdateService().deleteObject(micro);
             if (!micro_ok) {
                 fail("secvio!");
             }
@@ -860,7 +876,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         groupA = groupB = groupC = user_other_group;
 
         // RW_RW_RW / RW_RW_RW / RW_RW_RW
-        permsA = permsB = permsC = RW_RW_RW;
+        permsA = permsB = permsC = new PermissionsI(RW_RW_RW.toString());
         manyToMany(u, true, true, true);
         manyToMany(o, true, true, true);
         manyToMany(w, true, true, true);
@@ -868,9 +884,9 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         manyToMany(r, true, true, true);
 
         // RW_RW_RW / RW_RW_xx / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
-        permsC = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
+        permsC = new PermissionsI(RW_RW_RW.toString());
         manyToMany(u, true, true, true);
         manyToMany(o, true, true, true);
         manyToMany(w, true, false, true);
@@ -878,9 +894,9 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         manyToMany(r, true, true, true);
 
         // RW_RW_RW / RW_xx_xx / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
-        permsC = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
+        permsC = new PermissionsI(RW_RW_RW.toString());
         manyToMany(u, true, true, true);
         manyToMany(o, true, false, true);
         manyToMany(w, true, false, true);
@@ -892,7 +908,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
     /**
      * performs various write operations on linked projects and datasets.
      */
-    protected void manyToMany(ServiceFactory sf, boolean prj_ok, boolean ds_ok,
+    protected void manyToMany(ServiceFactoryPrx u, boolean prj_ok, boolean ds_ok,
             boolean link_ok) {
 
         createProject(ownsfA, permsA, groupA);
@@ -908,10 +924,10 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         Project test = null;
         String MSG = makeModifiedMessage();
 
-        ds.setName(MSG);
+        ds.setName(rstring(MSG));
         try {
             ds.putAt(Dataset.PROJECTLINKS, null);
-            testB = sf.getUpdateService().saveAndReturnObject(ds);
+            testB = (Dataset) u.getUpdateService().saveAndReturnObject(ds);
             if (!ds_ok) {
                 fail("secvio!");
             }
@@ -922,11 +938,11 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
             }
         }
 
-        prj.setName(MSG);
+        prj.setName(rstring(MSG));
 
         try {
             prj.putAt(Project.DATASETLINKS, null);
-            test = sf.getUpdateService().saveAndReturnObject(prj);
+            test = (Project) u.getUpdateService().saveAndReturnObject(prj);
             if (!prj_ok) {
                 fail("secvio!");
             }
@@ -941,8 +957,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         // should be immutable!!!
 
         try {
-            sf.getUpdateService().deleteObject( // proxy needed
-                    new ProjectDatasetLink(link.getId(), false));
+            u.getUpdateService().deleteObject( // proxy needed
+                    new ProjectDatasetLinkI(link.getId(), false));
             if (!link_ok) {
                 fail("secvio!");
             }
@@ -956,7 +972,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         }
 
         try {
-            deleteRecurisvely(sf, ds);
+            deleteRecurisvely(u, ds);
             if (!ds_ok) {
                 fail("secvio!");
             }
@@ -967,7 +983,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         }
 
         try {
-            deleteRecurisvely(sf, prj);
+            deleteRecurisvely(u, prj);
             if (!prj_ok) {
                 fail("secvio!");
             }
@@ -990,7 +1006,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         groupA = groupB = user_other_group;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = permsB = RW_RW_RW;
+        permsA = permsB = new PermissionsI(RW_RW_RW.toString());
         imagePixels(u, true, true);
         imagePixels(o, true, true);
         imagePixels(w, true, true);
@@ -998,8 +1014,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         imagePixels(r, true, true);
 
         // RW_RW_RW / RW_RW_xx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         imagePixels(u, true, true);
         imagePixels(o, true, true);
         imagePixels(w, true, false);
@@ -1007,8 +1023,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         imagePixels(r, true, true);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         imagePixels(u, true, true);
         imagePixels(o, true, false);
         imagePixels(w, true, false);
@@ -1017,7 +1033,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
 
     }
 
-    protected void imagePixels(ServiceFactory sf, boolean img_ok, boolean pix_ok) {
+    protected void imagePixels(ServiceFactoryPrx w, boolean img_ok, boolean pix_ok) throws ServerError {
         createPixels(ownsfB, groupB, permsB);
         verifyDetails(pix, ownerB, groupB, permsB);
 
@@ -1026,9 +1042,9 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
 
         String outerJoin = "select i from Image i "
                 + "left outer join fetch i.pixels " + "where i.id = :id";
-        Parameters params = new Parameters().addId(img.getId());
+        Parameters params = new ParametersI().addId(img.getId().getValue());
 
-        Image test = sf.getQueryService().findByQuery(outerJoin, params);
+        Image test = (Image) w.getQueryService().findByQuery(outerJoin, params);
         if (img_ok) {
             assertNotNull(test);
             if (pix_ok) {
@@ -1057,7 +1073,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
      * @DEV.TODO Need to move to common helper
      */
     @Test(enabled = false)
-    public static void deleteRecurisvely(ServiceFactory sf, IObject target) {
+    public static void deleteRecurisvely(ServiceFactoryPrx u, IObject target) {
         // Deleting all links to target
         Set<String> fields = target.fields();
         for (String field : fields) {
@@ -1071,13 +1087,13 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
                 for (Object object : coll) {
                     if (object instanceof IObject) {
                         IObject iobj = (IObject) object;
-                        deleteRecurisvely(sf, iobj);
+                        deleteRecurisvely(u, iobj);
                     }
                 }
             }
         }
         // Now actually delete target
-        sf.getUpdateService().deleteObject(target);
+        u.getUpdateService().deleteObject(target);
 
     }
 }

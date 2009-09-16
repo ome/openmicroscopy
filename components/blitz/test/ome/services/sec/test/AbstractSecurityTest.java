@@ -12,11 +12,11 @@ import junit.framework.TestCase;
 
 import ome.system.Login;
 import ome.system.OmeroContext;
-import ome.system.ServiceFactory;
 import omero.client;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
+import omero.api.ServiceFactory;
 import omero.api.ServiceFactoryPrx;
 
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -29,7 +29,7 @@ public class AbstractSecurityTest extends TestCase {
     
     protected client c;
     
-    protected ServiceFactory tmp = new ServiceFactory("ome.client.test");
+    protected ome.system.ServiceFactory tmp = new ome.system.ServiceFactory("ome.client.test");
 
     protected DataSource dataSource = (DataSource) tmp.getContext().getBean(
             "dataSource");
@@ -38,7 +38,7 @@ public class AbstractSecurityTest extends TestCase {
 
     protected Login rootLogin = (Login) tmp.getContext().getBean("rootLogin");
 
-    protected ServiceFactory rootServices;
+    protected ServiceFactoryPrx rootServices;
 
     protected ServiceFactoryPrx serviceFactory;
 

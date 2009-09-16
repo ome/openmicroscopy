@@ -6,11 +6,13 @@
  */
 package ome.services.sec.test;
 
-import ome.api.IAdmin;
 import ome.conditions.SecurityViolation;
-import ome.model.meta.Experimenter;
 import ome.system.Login;
 import ome.system.ServiceFactory;
+
+import static omero.rtypes.*;
+import omero.model.Experimenter;
+import omero.api.IAdminPrx;
 
 import org.testng.annotations.Test;
 
@@ -29,8 +31,8 @@ public class PasswordTest extends AbstractAccountTest {
     @Test
     public void testSudoCanChangePassword() throws Exception {
         try {
-            IAdmin sudoAdmin = getSudoAdmin("ome");
-            sudoAdmin.changePassword("testing...");
+            IAdminPrx sudoAdmin = getSudoAdmin("ome");
+            sudoAdmin.changePassword(rstring("testing..."));
             assertCanLogin(sudo_name, "testing...");
             try {
                 sudoAdmin.synchronizeLoginCache();
@@ -42,25 +44,25 @@ public class PasswordTest extends AbstractAccountTest {
             assertCannotLogin(sudo_name, "ome");
         } finally {
             // return to normal.
-            getSudoAdmin("testing...").changePassword("ome");
+            getSudoAdmin("testing...").changePassword(rstring("ome"));
         }
     }
 
     @Test
     public void testSudoCanChangeOthersPassword() throws Exception {
 
-        Experimenter e = createNewUser(rootAdmin);
+        omero.model.Experimenter e = createNewUser(rootAdmin);
         resetPasswordTo_ome(e);
-        assertCanLogin(e.getOmeName(), "ome");
+        assertCanLogin(e.getOmeName().getValue(), "ome");
 
-        getSudoAdmin("ome").changeUserPassword(e.getOmeName(), "foo");
-        assertCanLogin(e.getOmeName(), "foo");
-        assertCannotLogin(e.getOmeName(), "bar");
-        assertCannotLogin(e.getOmeName(), "");
+        getSudoAdmin("ome").changeUserPassword(e.getOmeName().getValue(), rstring("foo"));
+        assertCanLogin(e.getOmeName().getValue(), "foo");
+        assertCannotLogin(e.getOmeName().getValue(), "bar");
+        assertCannotLogin(e.getOmeName().getValue(), "");
 
-        getSudoAdmin("ome").changeUserPassword(e.getOmeName(), "");
-        assertCanLogin(e.getOmeName(), "");
-        assertCanLogin(e.getOmeName(), "NOTCORRECT");
+        getSudoAdmin("ome").changeUserPassword(e.getOmeName().getValue(), rstring(""));
+        assertCanLogin(e.getOmeName().getValue(), "");
+        assertCanLogin(e.getOmeName().getValue(), "NOTCORRECT");
 
     }
 
@@ -71,13 +73,13 @@ public class PasswordTest extends AbstractAccountTest {
     public void testUserCanChangeOwnPassword() throws Exception {
         Experimenter e = createNewUser(rootAdmin);
         resetPasswordTo_ome(e);
-        assertCanLogin(e.getOmeName(), "ome");
+        assertCanLogin(e.getOmeName().getValue(), "ome");
 
-        ServiceFactory userServices = new ServiceFactory(new Login(e
-                .getOmeName(), "ome"));
+        ServiceFactory userServices = new ServiceFactory(
+                new Login(e.getOmeName().getValue(), "ome"));
         userServices.getAdminService().changePassword("test");
-        assertCanLogin(e.getOmeName(), "test");
-        assertCannotLogin(e.getOmeName(), "ome");
+        assertCanLogin(e.getOmeName().getValue(), "test");
+        assertCannotLogin(e.getOmeName().getValue(), "ome");
 
     }
 
@@ -85,16 +87,16 @@ public class PasswordTest extends AbstractAccountTest {
     public void testUserCantChangeOthersPassword() throws Exception {
         Experimenter e = createNewUser(getSudoAdmin("ome"));
         resetPasswordTo_ome(e);
-        assertCanLogin(e.getOmeName(), "ome");
+        assertCanLogin(e.getOmeName().getValue(), "ome");
 
         Experimenter target = createNewUser(getSudoAdmin("ome"));
         resetPasswordTo_ome(target);
-        assertCanLogin(target.getOmeName(), "ome");
+        assertCanLogin(target.getOmeName().getValue(), "ome");
 
-        ServiceFactory userServices = new ServiceFactory(new Login(e
-                .getOmeName(), "ome"));
-        userServices.getAdminService().changeUserPassword(target.getOmeName(),
-                "test");
+        ServiceFactory userServices = new ServiceFactory(
+                new Login(e.getOmeName().getValue(), "ome"));
+        userServices.getAdminService().changeUserPassword(
+                target.getOmeName().getValue(),"test");
 
     }
 
@@ -106,16 +108,16 @@ public class PasswordTest extends AbstractAccountTest {
 
         Experimenter e = createNewUser(rootAdmin);
         setPasswordtoEmptyString(e);
-        assertCanLogin(e.getOmeName(), "bob");
-        assertCanLogin(e.getOmeName(), "");
-        assertCanLogin(e.getOmeName(), "ome");
+        assertCanLogin(e.getOmeName().getValue(), "bob");
+        assertCanLogin(e.getOmeName().getValue(), "");
+        assertCanLogin(e.getOmeName().getValue(), "ome");
 
-        new ServiceFactory(new Login(e.getOmeName(), "blah")).getAdminService()
+        new ServiceFactory(new Login(e.getOmeName().getValue(), "blah")).getAdminService()
                 .changePassword("ome");
 
-        assertCannotLogin(e.getOmeName(), "bob");
-        assertCannotLogin(e.getOmeName(), "");
-        assertCanLogin(e.getOmeName(), "ome");
+        assertCannotLogin(e.getOmeName().getValue(), "bob");
+        assertCannotLogin(e.getOmeName().getValue(), "");
+        assertCanLogin(e.getOmeName().getValue(), "ome");
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -124,7 +126,7 @@ public class PasswordTest extends AbstractAccountTest {
         assertCanLogin(sudo_name, "");
         assertCanLogin(sudo_name, "ome");
 
-        getSudoAdmin("blah").changePassword("ome");
+        getSudoAdmin("blah").changePassword(rstring("ome"));
 
         assertCannotLogin(sudo_name, "bob");
         assertCannotLogin(sudo_name, "");
@@ -141,15 +143,15 @@ public class PasswordTest extends AbstractAccountTest {
         Experimenter e = createNewUser(rootAdmin);
         removePasswordEntry(e);
 
-        assertCannotLogin(e.getOmeName(), "bob");
-        assertCannotLogin(e.getOmeName(), "");
-        assertCannotLogin(e.getOmeName(), "ome");
+        assertCannotLogin(e.getOmeName().getValue(), "bob");
+        assertCannotLogin(e.getOmeName().getValue(), "");
+        assertCannotLogin(e.getOmeName().getValue(), "ome");
 
         resetPasswordTo_ome(e);
 
-        assertCannotLogin(e.getOmeName(), "bob");
-        assertCannotLogin(e.getOmeName(), "");
-        assertCanLogin(e.getOmeName(), "ome");
+        assertCannotLogin(e.getOmeName().getValue(), "bob");
+        assertCannotLogin(e.getOmeName().getValue(), "");
+        assertCanLogin(e.getOmeName().getValue(), "ome");
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -173,15 +175,15 @@ public class PasswordTest extends AbstractAccountTest {
         Experimenter e = createNewUser(rootAdmin);
         nullPasswordEntry(e);
 
-        assertCannotLogin(e.getOmeName(), "bob");
-        assertCannotLogin(e.getOmeName(), "");
-        assertCannotLogin(e.getOmeName(), "ome");
+        assertCannotLogin(e.getOmeName().getValue(), "bob");
+        assertCannotLogin(e.getOmeName().getValue(), "");
+        assertCannotLogin(e.getOmeName().getValue(), "ome");
 
         resetPasswordTo_ome(e);
 
-        assertCannotLogin(e.getOmeName(), "bob");
-        assertCannotLogin(e.getOmeName(), "");
-        assertCanLogin(e.getOmeName(), "ome");
+        assertCannotLogin(e.getOmeName().getValue(), "bob");
+        assertCannotLogin(e.getOmeName().getValue(), "");
+        assertCanLogin(e.getOmeName().getValue(), "ome");
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

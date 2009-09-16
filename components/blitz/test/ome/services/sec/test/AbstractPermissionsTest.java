@@ -11,34 +11,40 @@ import static ome.model.internal.Permissions.Right.WRITE;
 import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.WORLD;
+import static omero.rtypes.rstring;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-import ome.model.IObject;
-import ome.model.acquisition.Instrument;
-import ome.model.acquisition.Microscope;
-import ome.model.containers.ProjectDatasetLink;
-import ome.model.core.Image;
-import ome.model.core.Pixels;
 import ome.model.display.Thumbnail;
-import ome.model.enums.MicroscopeType;
-import ome.model.internal.Details;
 import ome.system.Login;
-import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
-
-import static omero.rtypes.*;
 import omero.ServerError;
-import omero.model.Experimenter;
-import omero.model.ExperimenterI;
-import omero.model.ExperimenterGroup;
-import omero.model.ExperimenterGroupI;
-import omero.model.PermissionsI;
-import omero.model.Project;
-import omero.model.ProjectI;
+import omero.model.IObject;
+import omero.api.ServiceFactory;
+import omero.api.ServiceFactoryPrx;
 import omero.model.Dataset;
 import omero.model.DatasetI;
+import omero.model.Details;
+import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupI;
+import omero.model.ExperimenterI;
+import omero.model.Image;
+import omero.model.ImageI;
+import omero.model.Instrument;
+import omero.model.InstrumentI;
+import omero.model.Microscope;
+import omero.model.MicroscopeI;
+import omero.model.MicroscopeType;
+import omero.model.MicroscopeTypeI;
 import omero.model.Permissions;
+import omero.model.Pixels;
+import omero.model.Project;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
+import omero.model.ProjectI;
 
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
@@ -67,31 +73,31 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
      * and check returns e. goto b.
      */
 
-    final static protected Permissions RW_RW_RW = new PermissionsI(),
-            RW_RW_xx = new PermissionsI().revoke(WORLD, READ, WRITE),
-            RW_xx_xx = new PermissionsI().revoke(WORLD, READ, WRITE).revoke(
-                    GROUP, READ, WRITE), xx_xx_xx = new Permissions().revoke(
+    final static protected ome.model.internal.Permissions RW_RW_RW = new ome.model.internal.Permissions(),
+            RW_RW_xx = new ome.model.internal.Permissions().revoke(WORLD, READ, WRITE),
+            RW_xx_xx = new ome.model.internal.Permissions().revoke(WORLD, READ, WRITE).revoke(
+                    GROUP, READ, WRITE), xx_xx_xx = new ome.model.internal.Permissions().revoke(
                     WORLD, READ, WRITE).revoke(GROUP, READ, WRITE).revoke(USER,
-                    READ, WRITE), RW_RW_Rx = new Permissions().revoke(WORLD,
-                    WRITE), RW_Rx_Rx = new Permissions().revoke(WORLD, WRITE)
-                    .revoke(GROUP, WRITE), Rx_Rx_Rx = new Permissions().revoke(
+                    READ, WRITE), RW_RW_Rx = new ome.model.internal.Permissions().revoke(WORLD,
+                    WRITE), RW_Rx_Rx = new ome.model.internal.Permissions().revoke(WORLD, WRITE)
+                    .revoke(GROUP, WRITE), Rx_Rx_Rx = new ome.model.internal.Permissions().revoke(
                     WORLD, WRITE).revoke(GROUP, WRITE).revoke(USER, WRITE),
-            Rx_Rx_xx = new Permissions().revoke(WORLD, READ, WRITE).revoke(
+            Rx_Rx_xx = new ome.model.internal.Permissions().revoke(WORLD, READ, WRITE).revoke(
                     GROUP, WRITE).revoke(USER, WRITE),
-            Rx_xx_xx = new Permissions().revoke(WORLD, READ, WRITE).revoke(
+            Rx_xx_xx = new ome.model.internal.Permissions().revoke(WORLD, READ, WRITE).revoke(
                     GROUP, READ, WRITE).revoke(USER, WRITE);
 
     protected ExperimenterGroup system_group = new ExperimenterGroupI(0L, false),
             common_group = new ExperimenterGroupI(),
             user_other_group = new ExperimenterGroupI();
-
+   
     protected Experimenter root = new ExperimenterI(0L, false),
             pi = new ExperimenterI(), user = new ExperimenterI(),
             other = new ExperimenterI(), world = new ExperimenterI();
 
     protected String gname, cname;
 
-    protected ServiceFactory u, o, w, p, r;
+    ServiceFactoryPrx r, p, w, u, o;
 
     protected Project prj;
 
@@ -101,7 +107,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 
     protected Pixels pix;
 
-    protected Thumbnail tb;
+    protected omero.model.Thumbnail tb;
 
     protected Image img;
 
@@ -109,7 +115,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 
     protected Instrument instr;
 
-    protected ServiceFactory ownsfA, ownsfB, ownsfC;
+    protected ServiceFactoryPrx ownsfA, ownsfB, ownsfC;
 
     protected Permissions permsA, permsB, permsC;
 
@@ -142,12 +148,15 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
         // create the PI for the new group
         Login piLogin = new Login(UUID.randomUUID().toString(), "empty", gname,
                 "Test");
-        p = new ServiceFactory(piLogin);
+        p = c.createSession(piLogin.getName(), piLogin.getPassword());
         pi.setOmeName(rstring(piLogin.getName()));
         pi.setFirstName(rstring("read"));
         pi.setLastName(rstring("security -- leader of user_other_group"));
         pi = new ExperimenterI(rootAdmin.createUser(pi, gname), false);
-        rootAdmin.addGroups(pi, common_group);
+        
+        List<ExperimenterGroup> common_groups = new ArrayList<ExperimenterGroup>();
+        common_groups.add(common_group);
+        rootAdmin.addGroups(pi, common_groups);
 
         // make the PI the group leader.
         rootAdmin.setGroupOwner(user_other_group, pi);
@@ -156,21 +165,21 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
         // create a new user in that group
         Login userLogin = new Login(UUID.randomUUID().toString(), "empty",
                 gname, "Test");
-        u = new ServiceFactory(userLogin);
+        u = c.createSession(userLogin.getName(), userLogin.getPassword());
         user.setOmeName(rstring(userLogin.getName()));
         user.setFirstName(rstring("read"));
         user.setLastName(rstring("security"));
-        user = new Experimenter(rootAdmin.createUser(user, gname), false);
+        user = new ExperimenterI(rootAdmin.createUser(user, gname), false);
         rootAdmin.addGroups(user, user_other_group, common_group);
 
         // create another user in that group
         Login otherLogin = new Login(UUID.randomUUID().toString(), "empty",
                 gname, "Test");
-        o = new ServiceFactory(otherLogin);
+        o = c.createSession(otherLogin.getName(), otherLogin.getPassword());
         other.setOmeName(rstring(otherLogin.getName()));
         other.setFirstName(rstring("read"));
         other.setLastName(rstring("security2"));
-        other = new Experimenter(rootAdmin.createUser(other, gname), false);
+        other = new ExperimenterI(rootAdmin.createUser(other, gname), false);
         rootAdmin.addGroups(other, user_other_group, common_group);
 
         // create a third regular user not in that group
@@ -178,11 +187,11 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
          * not
          * gname!
          */);
-        w = new ServiceFactory(worldLogin);
+        w = c.createSession(worldLogin.getName(), worldLogin.getPassword());
         world.setOmeName(rstring(worldLogin.getName()));
         world.setFirstName(rstring("read"));
         world.setLastName(rstring("Security -- not in their group"));
-        world = new Experimenter(rootAdmin.createUser(world, cname), false);
+        world = new ExperimenterI(rootAdmin.createUser(world, cname), false);
         // not in same group
 
     }
@@ -223,11 +232,11 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
         IObject v;
         try
         {
-            v = (IObject) rootQuery.get(_i.getClass().toString(), _i.getId());
+            v = (IObject) rootQuery.get(_i.getClass().toString(), _i.getId().getValue());
             Details d = v.getDetails();
             assertEquals(d.getOwner().getId(), _user.getId());
             assertEquals(d.getGroup().getId(), _group.getId());
-            assertTrue(_perms.sameRights(v.getDetails().getPermissions()));
+            assertTrue(_perms.equals(v.getDetails().getPermissions()));
         } catch (ServerError e)
         {
             // TODO Auto-generated catch block
@@ -236,87 +245,87 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
         }
     }
 
-    protected void createProject(ServiceFactory sf, Permissions perms,
-            ExperimenterGroup group) {
+    protected void createProject(ServiceFactoryPrx ownsfA2, Permissions perms,
+            ExperimenterGroup group) throws ServerError {
         prj = new ProjectI();
         prj.setName(rstring("single"));
         prj.getDetails().setPermissions(perms);
         prj.getDetails().setGroup(group);
-        prj = sf.getUpdateService().saveAndReturnObject(prj);
+        prj = (Project) ownsfA2.getUpdateService().saveAndReturnObject(prj);
     }
 
-    protected void createDataset(ServiceFactory sf, Permissions perms,
-            ExperimenterGroup group) {
+    protected void createDataset(ServiceFactoryPrx ownsfB2, Permissions perms,
+            ExperimenterGroup group) throws ServerError {
         ds = new DatasetI();
-        ds.setName("single");
+        ds.setName(rstring("single"));
         ds.getDetails().setPermissions(perms);
         ds.getDetails().setGroup(group);
-        ds = sf.getUpdateService().saveAndReturnObject(ds);
+        ds = (Dataset) ownsfB2.getUpdateService().saveAndReturnObject(ds);
     }
 
-    protected void createPDLink(ServiceFactory sf, Permissions perms,
-            ExperimenterGroup group) {
-        link = new ProjectDatasetLink();
+    protected void createPDLink(ServiceFactoryPrx ownsfC2, Permissions perms,
+            ExperimenterGroup group) throws ServerError {
+        link = new ProjectDatasetLinkI();
         link.link(prj, ds);
         link.getDetails().setPermissions(perms);
         link.getDetails().setGroup(group);
-        link = sf.getUpdateService().saveAndReturnObject(link);
-        ds = link.child();
-        prj = link.parent();
+        link = (ProjectDatasetLink) ownsfC2.getUpdateService().saveAndReturnObject(link);
+        ds = link.getChild();
+        prj = link.getParent();
     }
 
-    protected void createPixels(ServiceFactory sf, ExperimenterGroup group,
+    protected void createPixels(ServiceFactoryPrx ownsfA2, ExperimenterGroup group,
             Permissions perms) {
         pix = ObjectFactory.createPixelGraph(null);
         pix.getDetails().setGroup(group);
         // pix.getDetails().setPermissions(perms); must be done for whole graph
-        sf.setUmask(perms);
-        pix = sf.getUpdateService().saveAndReturnObject(pix);
-        sf.setUmask(null);
+        ownsfA2.setUmask(perms);
+        pix = ownsfA2.getUpdateService().saveAndReturnObject(pix);
+        ownsfA2.setUmask(null);
     }
 
-    protected void createThumbnail(ServiceFactory sf, ExperimenterGroup group,
+    protected void createThumbnail(ServiceFactoryPrx ownsfB2, ExperimenterGroup group,
             Permissions perms, Pixels _p) {
         tb = ObjectFactory.createThumbnails(_p);
         tb.getDetails().setPermissions(perms);
         tb.getDetails().setGroup(group);
-        tb = sf.getUpdateService().saveAndReturnObject(tb);
+        tb = ownsfB2.getUpdateService().saveAndReturnObject(tb);
     }
 
-    protected void createImage(ServiceFactory sf, ExperimenterGroup group,
-            Permissions perms, Pixels p) {
-        img = new Image();
-        img.setName("special");
+    protected void createImage(ServiceFactoryPrx ownsfA2, ExperimenterGroup group,
+            Permissions perms, Pixels p) throws ServerError {
+        img = new ImageI();
+        img.setName(rstring("special"));
         Details d = img.getDetails();
         d.setGroup(group);
         d.setPermissions(perms);
         img.addPixels(p);
-        img = sf.getUpdateService().saveAndReturnObject(img);
+        img = (Image) ownsfA2.getUpdateService().saveAndReturnObject(img);
     }
 
-    protected void createMicroscope(ServiceFactory sf, ExperimenterGroup group,
-            Permissions perms) {
-        MicroscopeType type = new MicroscopeType();
-        type.setValue("Upright");
-        micro = new Microscope();
-        micro.setManufacturer("test");
-        micro.setModel("model");
-        micro.setSerialNumber("123456789");
+    protected void createMicroscope(ServiceFactoryPrx ownsfB2, ExperimenterGroup group,
+            Permissions perms) throws ServerError {
+        MicroscopeType type = new MicroscopeTypeI();
+        type.setValue(rstring("Upright"));
+        micro = new MicroscopeI();
+        micro.setManufacturer(rstring("test"));
+        micro.setModel(rstring("model"));
+        micro.setSerialNumber(rstring("123456789"));
         micro.setType(type);
         Details d = micro.getDetails();
         d.setGroup(group);
         d.setPermissions(perms);
-        micro = sf.getUpdateService().saveAndReturnObject(micro);
+        micro = (Microscope) ownsfB2.getUpdateService().saveAndReturnObject(micro);
     }
 
-    protected void createInstrument(ServiceFactory sf, ExperimenterGroup group,
-            Permissions perms, Microscope m) {
-        instr = new Instrument();
+    protected void createInstrument(ServiceFactoryPrx ownsfA2, ExperimenterGroup group,
+            Permissions perms, Microscope m) throws ServerError {
+        instr = new InstrumentI();
         instr.setMicroscope(m);
         Details d = instr.getDetails();
         d.setGroup(group);
         d.setPermissions(perms);
-        instr = sf.getUpdateService().saveAndReturnObject(instr);
+        instr = (Instrument) ownsfA2.getUpdateService().saveAndReturnObject(instr);
     }
 
     protected String makeModifiedMessage() {

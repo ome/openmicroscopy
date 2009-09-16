@@ -8,14 +8,23 @@ package ome.services.sec.test;
 
 import ome.conditions.SecurityViolation;
 import ome.model.acquisition.Instrument;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.Thumbnail;
 import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
+
+import omero.RString;
+import omero.api.ServiceFactoryPrx;
+import omero.model.Dataset;
+import omero.model.DatasetI;
+import omero.model.PermissionsI;
+import omero.model.Project;
+import omero.model.ProjectI;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
+
+import static omero.rtypes.rstring;
 
 import org.testng.annotations.Test;
 
@@ -38,7 +47,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         groupA = user_other_group;
 
         // RW_xx_xx : should not be readable by anyone but user.
-        permsA = RW_xx_xx;
+        permsA = new PermissionsI(RW_xx_xx.toString());
         canCreate = true;
         single(u, true);
         single(o, false);
@@ -47,7 +56,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_RW_xx : now let's up the readability
-        permsA = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_xx.toString());
         canCreate = true;
         single(u, true);
         single(o, true);
@@ -56,7 +65,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_RW_RW : now let's up the readability one more time
-        permsA = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         single(u, true);
         single(o, true);
@@ -65,7 +74,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // xx_xx_xx : and if we make it invisible
-        permsA = xx_xx_xx;
+        permsA = new PermissionsI(xx_xx_xx.toString());
         canCreate = true;
         single(u, false);
         single(o, false);
@@ -83,7 +92,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         groupA = common_group;
 
         // RW_xx_xx : should not be readable by anyone but world.
-        permsA = RW_xx_xx;
+        permsA = new PermissionsI(RW_xx_xx.toString());
         canCreate = true;
         single(u, false);
         single(o, false);
@@ -92,7 +101,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_RW_xx : now let's up the readability
-        permsA = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_xx.toString());
         canCreate = true;
         single(u, true);
         single(o, true);
@@ -101,7 +110,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_RW_RW : now let's up the readability one more time
-        permsA = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         single(u, true);
         single(o, true);
@@ -110,7 +119,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // xx_xx_xx : and if we make it invisible
-        permsA = xx_xx_xx;
+        permsA = new PermissionsI(xx_xx_xx.toString());
         canCreate = true;
         single(u, false);
         single(o, false);
@@ -129,7 +138,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         groupA = system_group;
 
         // RW_xx_xx : should not be readable by anyone but world.
-        permsA = RW_xx_xx;
+        permsA = new PermissionsI(RW_xx_xx.toString());
         canCreate = true;
         single(u, false);
         single(o, false);
@@ -138,7 +147,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_RW_xx : now let's up the readability
-        permsA = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_xx.toString());
         canCreate = true;
         single(u, false);
         single(o, false);
@@ -147,7 +156,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // RW_RW_RW : now let's up the readability one more time
-        permsA = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         single(u, true);
         single(o, true);
@@ -156,7 +165,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         single(r, true);
 
         // xx_xx_xx : and if we make it invisible
-        permsA = xx_xx_xx;
+        permsA = new PermissionsI(xx_xx_xx.toString());
         canCreate = true;
         single(u, false);
         single(o, false);
@@ -171,7 +180,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
      * a {@link ServiceFactory}. If ok is true, then the lookups should
      * succeed.
      */
-    protected void single(ServiceFactory sf, boolean ok) {
+    protected void single(ServiceFactoryPrx sf, boolean ok) {
         createProject(ownsfA, permsA, groupA);
         verifyDetails(prj, ownerA, groupA, permsA);
 
@@ -207,8 +216,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         groupA = groupB = user_other_group;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         oneToMany(u, true, true);
         oneToMany(o, true, true);
@@ -218,8 +227,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
 
         // RW_RW_RW / RW_RW_xx : now lets lower visibility
         // thumbnail readable by other but not by world
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         canCreate = true;
         oneToMany(u, true, true);
         oneToMany(o, true, true);
@@ -228,8 +237,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         canCreate = true;
         oneToMany(u, true, true);
         oneToMany(o, true, false);
@@ -238,8 +247,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / xx_xx_xx
-        permsA = RW_RW_RW;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         canCreate = true;
         oneToMany(u, true, false);
         oneToMany(o, true, false);
@@ -248,8 +257,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_xx / RW_RW_xx
-        permsA = RW_RW_xx;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_xx.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         canCreate = true;
         oneToMany(u, true, true);
         oneToMany(o, true, true);
@@ -258,8 +267,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_xx_xx / RW_xx_xx
-        permsA = RW_xx_xx;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_xx_xx.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         canCreate = true;
         oneToMany(u, true, true);
         oneToMany(o, false, false);
@@ -268,8 +277,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // xx_xx_xx / xx_xx_xx
-        permsA = xx_xx_xx;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(xx_xx_xx.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         canCreate = false;
         oneToMany(u, false, false);
         oneToMany(o, false, false);
@@ -290,8 +299,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         groupB = user_other_group;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         oneToMany(u, true, true);
         oneToMany(o, true, true);
@@ -301,8 +310,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
 
         // RW_RW_RW / RW_RW_xx : now lets lower visibility
         // thumbnail readable by other but not by world
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         canCreate = true;
         oneToMany(u, true, true);
         oneToMany(o, true, true);
@@ -311,8 +320,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         canCreate = true;
         oneToMany(u, true, true);
         oneToMany(o, true, false);
@@ -321,8 +330,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / xx_xx_xx
-        permsA = RW_RW_RW;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         canCreate = true;
         oneToMany(u, true, false);
         oneToMany(o, true, false);
@@ -331,8 +340,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_xx_xx / RW_xx_xx
-        permsA = RW_xx_xx;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_xx_xx.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         canCreate = false;
         oneToMany(u, false, false);
         oneToMany(o, true, false);
@@ -341,8 +350,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // xx_xx_xx / xx_xx_xx
-        permsA = xx_xx_xx;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(xx_xx_xx.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         canCreate = false;
         oneToMany(u, false, false);
         oneToMany(o, false, false);
@@ -363,8 +372,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         groupB = user_other_group;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         oneToMany(u, true, true);
         oneToMany(o, true, true);
@@ -373,8 +382,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_RW_xx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         canCreate = true;
         oneToMany(u, true, true);
         oneToMany(o, true, true);
@@ -383,8 +392,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // xx_xx_xx / RW_RW_RW
-        permsA = xx_xx_xx;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(xx_xx_xx.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         canCreate = false;
         oneToMany(u, false, true);
         oneToMany(o, false, true);
@@ -405,8 +414,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         groupB = system_group;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         oneToMany(u, true, true);
         oneToMany(o, true, true);
@@ -415,8 +424,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_RW_xx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         canCreate = true;
         oneToMany(u, true, false);
         oneToMany(o, true, false);
@@ -425,8 +434,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         canCreate = true;
         oneToMany(u, true, false);
         oneToMany(o, true, false);
@@ -435,8 +444,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // RW_xx_xx / RW_xx_xx
-        permsA = RW_xx_xx;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_xx_xx.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         canCreate = true;
         oneToMany(u, true, false);
         oneToMany(o, false, false);
@@ -445,8 +454,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, true, true);
 
         // xx_xx_xx / xx_xx_xx
-        permsA = xx_xx_xx;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(xx_xx_xx.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         canCreate = true;
         oneToMany(u, false, false);
         oneToMany(o, false, false);
@@ -462,7 +471,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
      * succeed for the top-level pixel, and if tb_ok is true, then that pixel
      * should contain a single thumbnail.
      */
-    protected void oneToMany(ServiceFactory sf, boolean pix_ok, boolean tb_ok) {
+    protected void oneToMany(ServiceFactoryPrx sf, boolean pix_ok, boolean tb_ok) {
         createPixels(ownsfA, groupA, permsA);
         verifyDetails(pix, ownerA, groupA, permsA);
 
@@ -526,8 +535,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         groupA = groupB = user_other_group;
 
         // RW_RW_RW / RW_RW_RW : readable by all
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         manyToOne(u, true, true);
         manyToOne(o, true, true);
@@ -536,8 +545,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         manyToOne(r, true, true);
 
         // RW_RW_xx / RW_RW_RW
-        permsA = RW_RW_xx;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_xx.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         manyToOne(u, true, true);
         manyToOne(o, true, true);
@@ -546,8 +555,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         manyToOne(r, true, true);
 
         // RW_xx_xx / RW_RW_RW
-        permsA = RW_xx_xx;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_xx_xx.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         manyToOne(u, true, true);
         manyToOne(o, false, true);
@@ -556,8 +565,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         manyToOne(r, true, true);
 
         // RW_xx_xx / RW_xx_xx
-        permsA = RW_xx_xx;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_xx_xx.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         manyToOne(u, true, true);
         manyToOne(o, false, true);
@@ -566,8 +575,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         manyToOne(r, true, true);
 
         // RW_RW_RW / xx_xx_xx
-        permsA = RW_RW_RW;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         canCreate = false;
         manyToOne(u, true, false);
         manyToOne(o, true, false);
@@ -587,8 +596,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         groupB = user_other_group;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         manyToOne(u, true, true);
         manyToOne(o, true, true);
@@ -597,8 +606,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         manyToOne(r, true, true);
 
         // RW_RW_xx / RW_RW_RW
-        permsA = RW_RW_xx;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_xx.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         manyToOne(u, true, true);
         manyToOne(o, true, true);
@@ -607,8 +616,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         manyToOne(r, true, true);
 
         // RW_RW_RW / xx_xx_xx
-        permsA = RW_RW_RW;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         canCreate = false;
         manyToOne(u, true, false);
         manyToOne(o, true, false);
@@ -624,7 +633,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
      * succeed for the top-level pixel, and if tb_ok is true, then that pixel
      * should contain a single thumbnail.
      */
-    protected void manyToOne(ServiceFactory sf, boolean tb_ok, boolean pix_ok) {
+    protected void manyToOne(ServiceFactoryPrx sf, boolean tb_ok, boolean pix_ok) {
         createPixels(ownsfB, groupB, permsB);
         verifyDetails(pix, ownerB, groupB, permsB);
 
@@ -679,14 +688,14 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         groupA = groupB = user_other_group;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         uniManyOne(u, true, true);
 
     }
 
-    protected void uniManyOne(ServiceFactory sf, boolean instr_ok,
+    protected void uniManyOne(ServiceFactoryPrx sf, boolean instr_ok,
             boolean micro_ok) {
 
         createMicroscope(ownsfB, groupB, permsB);
@@ -731,7 +740,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         groupA = groupB = groupC = user_other_group;
 
         // RW_RW_RW / RW_RW_RW / RW_RW_RW
-        permsA = permsB = permsC = RW_RW_RW;
+        permsA = permsB = permsC = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         manyToMany(u, true, true);
         manyToMany(o, true, true);
@@ -740,9 +749,9 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         manyToMany(r, true, true);
 
         // RW_RW_RW / RW_RW_xx / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
-        permsC = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
+        permsC = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         manyToMany(u, true, true);
         manyToMany(o, true, true);
@@ -751,9 +760,9 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         manyToMany(r, true, true);
 
         // RW_RW_RW / RW_xx_xx / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
-        permsC = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
+        permsC = new PermissionsI(RW_RW_RW.toString());
         canCreate = true;
         manyToMany(u, true, true);
         manyToMany(o, true, false);
@@ -769,25 +778,25 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
      * succeed for the top-level project, and if ds_ok is true, then that
      * project should contain a single linked dataset.
      */
-    protected void manyToMany(ServiceFactory sf, boolean prj_ok, boolean ds_ok) {
+    protected void manyToMany(ServiceFactoryPrx sf, boolean prj_ok, boolean ds_ok) {
 
-        prj = new Project();
-        prj.setName("links");
+        prj = new ProjectI();
+        prj.setName(rstring("links"));
         prj.getDetails().setPermissions(permsA);
         prj.getDetails().setGroup(groupA);
 
-        Dataset ds = new Dataset();
-        ds.setName("links");
+        Dataset ds = new DatasetI();
+        ds.setName(rstring("links"));
         ds.getDetails().setPermissions(permsB);
         ds.getDetails().setGroup(groupB);
 
-        prj = ownsfA.getUpdateService().saveAndReturnObject(prj);
-        ds = ownsfB.getUpdateService().saveAndReturnObject(ds);
-        link = new ProjectDatasetLink();
+        prj = (Project) ownsfA.getUpdateService().saveAndReturnObject(prj);
+        ds = (Dataset) ownsfB.getUpdateService().saveAndReturnObject(ds);
+        link = new ProjectDatasetLinkI();
         link.link(prj, ds);
         link.getDetails().setPermissions(permsC);
         link.getDetails().setGroup(groupC);
-        link = ownsfC.getUpdateService().saveAndReturnObject(link);
+        link = (ProjectDatasetLink) ownsfC.getUpdateService().saveAndReturnObject(link);
 
         // RW_RW_RW / RW_RW_RW
         verifyDetails(prj, ownerA, groupA, permsA);
@@ -834,8 +843,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         groupA = groupB = user_other_group;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         imagePixels(u, true, true);
         imagePixels(o, true, true);
         imagePixels(w, true, true);
@@ -843,8 +852,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         imagePixels(r, true, true);
 
         // RW_RW_RW / RW_RW_xx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         imagePixels(u, true, true);
         imagePixels(o, true, true);
         imagePixels(w, true, false);
@@ -852,8 +861,8 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         imagePixels(r, true, true);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         imagePixels(u, true, true);
         imagePixels(o, true, false);
         imagePixels(w, true, false);
@@ -862,7 +871,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
 
     }
 
-    protected void imagePixels(ServiceFactory sf, boolean img_ok, boolean pix_ok) {
+    protected void imagePixels(ServiceFactoryPrx sf, boolean img_ok, boolean pix_ok) {
         createPixels(ownsfB, groupB, permsB);
         createImage(ownsfA, groupA, permsA, pix);
 

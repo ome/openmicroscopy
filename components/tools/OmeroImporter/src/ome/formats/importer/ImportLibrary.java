@@ -432,7 +432,7 @@ public class ImportLibrary implements IObservable
         	log.warn(String.format("Original file number mismatch, %d!=%d.", 
         			fileNameList.size(), originalFileMap.size()));
         }
-		notifyObservers(Actions.IMPORT_ARCHIVING, args);
+        if (archive) notifyObservers(Actions.IMPORT_ARCHIVING, args);
 		store.writeFilesToFileStore(fileNameList, originalFileMap);
         
         if (saveSha1)

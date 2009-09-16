@@ -6,20 +6,34 @@
  */
 package ome.services.sec.test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ome.conditions.SecurityViolation;
 import ome.model.ILink;
-import ome.model.IObject;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
-import ome.model.core.Image;
-import ome.model.internal.Details;
-import ome.model.internal.Permissions;
+
+import static omero.rtypes.rstring;
+import omero.RString;
+import omero.ServerError;
+import omero.model.IObject;
+import omero.api.ServiceFactoryPrx;
+import omero.model.ImageI;
+import omero.model.Project;
+import omero.model.ProjectI;
+import omero.model.Dataset;
+import omero.model.DatasetI;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
+import omero.model.Image;
+import omero.model.PermissionsI;
+import omero.model.Details;
+import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
+import omero.model.Permissions;
+
 import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
@@ -44,8 +58,8 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     // single plays little role in USE, but verify not locked
     @Override
     public void testSingleProject_U() throws Exception {
-        createProject(u, RW_Rx_Rx, user_other_group);
-        verifyDetails(prj, user, user_other_group, RW_Rx_Rx);
+        createProject(u, new PermissionsI(RW_Rx_Rx.toString()), user_other_group);
+        verifyDetails(prj, user, user_other_group, new PermissionsI(RW_Rx_Rx.toString()));
         verifyLockStatus(prj, false);
         verifyLocked(u, prj, d(prj, RW_xx_xx), true);
         verifyLocked(u, prj, d(prj, common_group), true);
@@ -53,16 +67,16 @@ public class UseSecurityTest extends AbstractPermissionsTest {
 
     @Override
     public void testSingleProject_W() throws Exception {
-        createProject(w, RW_Rx_Rx, common_group);
-        verifyDetails(prj, world, common_group, RW_Rx_Rx);
+        createProject(w, new PermissionsI(RW_Rx_Rx.toString()), common_group);
+        verifyDetails(prj, world, common_group, new PermissionsI(RW_Rx_Rx.toString()));
         verifyLockStatus(prj, false);
         verifyLocked(w, prj, d(prj, RW_xx_xx), true); // no other group
     }
 
     @Override
     public void testSingleProject_R() throws Exception {
-        createProject(r, RW_Rx_Rx, system_group);
-        verifyDetails(prj, root, system_group, RW_Rx_Rx);
+        createProject(r, new PermissionsI(RW_Rx_Rx.toString()), system_group);
+        verifyDetails(prj, root, system_group, new PermissionsI(RW_Rx_Rx.toString()));
         verifyLockStatus(prj, false);
         verifyLocked(r, prj, d(prj, RW_xx_xx), true);
         verifyLocked(r, prj, d(prj, common_group), true);
@@ -85,66 +99,74 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         will_lock = true;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         oneToMany(ownsfA, false, RW_xx_xx, common_group);
         oneToMany(r, true, other);
 
         // RW_RW_RW / RW_RW_Rx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_Rx.toString());
         oneToMany(ownsfA, false, RW_xx_xx, common_group);
         oneToMany(r, true, other);
 
         // RW_RW_RW / RW_RW_xx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         oneToMany(ownsfA, false, RW_xx_xx, common_group);
         oneToMany(r, true, other);
 
         // RW_RW_RW / RW_Rx_Rx
-        permsA = RW_RW_RW;
-        permsB = RW_Rx_Rx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_Rx_Rx.toString());
         oneToMany(ownsfA, false, RW_xx_xx, common_group);
         oneToMany(r, true, other);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(ownsfA, false, RW_xx_xx, common_group);
         oneToMany(r, true, other);
 
         // RW_RW_Rx / RW_RW_Rx
-        permsA = RW_RW_Rx;
-        permsB = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_Rx.toString());
+        permsB = new PermissionsI(RW_RW_Rx.toString());
         oneToMany(ownsfA, false, RW_xx_xx, common_group);
         oneToMany(r, true, other);
 
         // RW_RW_xx / RW_RW_xx
-        permsA = RW_RW_xx;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_xx.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         oneToMany(ownsfA, false, RW_xx_xx, common_group);
         oneToMany(r, false, other);
 
         // RW_Rx_Rx / RW_Rx_Rx
-        permsA = RW_Rx_Rx;
-        permsB = RW_Rx_Rx;
+        permsA = new PermissionsI(RW_Rx_Rx.toString());
+        permsB = new PermissionsI(RW_Rx_Rx.toString());
         oneToMany(ownsfA, false, RW_xx_xx, common_group);
         oneToMany(r, true, other);
 
         // RW_xx_xx / RW_xx_xx
-        permsA = RW_xx_xx;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_xx_xx.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(ownsfA, false, xx_xx_xx, common_group);
         oneToMany(r, false, other);
 
         // Rx_Rx_Rx / Rx_Rx_Rx
-        permsA = Rx_Rx_Rx;
-        permsB = Rx_Rx_Rx;
+        permsA = new PermissionsI(Rx_Rx_Rx.toString());
+        permsB = new PermissionsI(Rx_Rx_Rx.toString());
         oneToMany(ownsfA, false, RW_xx_xx, common_group);
         oneToMany(r, true, other);
 
         // xx_xx_xx / xx_xx_xx No need. can't create.
+    }
+
+    private void oneToMany(ServiceFactoryPrx ownsfA, boolean b,
+            Permissions rwXxXx, omero.model.ExperimenterGroup commonGroup)
+    {
+        // TODO Auto-generated method stub
+        //
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Override
@@ -160,38 +182,38 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         will_lock = true;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, user);
 
         // RW_RW_RW / RW_RW_Rx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_Rx.toString());
         oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, user);
 
         // RW_RW_RW / RW_RW_xx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, user);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, user);
 
         // RW_RW_RW / xx_xx_xx
-        permsA = RW_RW_RW;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, user);
 
         // RW_RW_xx / RW_xx_xx
-        permsA = RW_RW_xx;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_xx.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, false, user);
 
@@ -211,38 +233,38 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         will_lock = true;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         oneToMany(ownsfB, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, other);
 
         // RW_RW_RW / RW_RW_Rx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_Rx.toString());
         oneToMany(ownsfB, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, other);
 
         // RW_RW_RW / RW_RW_xx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         oneToMany(ownsfB, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, other);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(ownsfB, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, other);
 
         // RW_RW_RW / xx_xx_xx
-        permsA = RW_RW_RW;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         oneToMany(ownsfB, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, other);
 
         // RW_RW_xx / RW_xx_xx
-        permsA = RW_RW_xx;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_xx.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(ownsfB, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, false, other);
     }
@@ -262,50 +284,50 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         // root can read everything and so can lock everything.
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, other);
 
         // RW_RW_RW / RW_RW_Rx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_Rx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_Rx.toString());
         oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, other);
 
         // RW_RW_RW / RW_RW_xx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, other);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, other);
 
         // RW_RW_RW / xx_xx_xx
-        permsA = RW_RW_RW;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
         oneToMany(r, true, other);
 
         // RW_xx_xx / RW_xx_xx
-        permsA = RW_xx_xx;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_xx_xx.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         oneToMany(ownsfA, false, common_group, xx_xx_xx, RW_RW_xx);
         oneToMany(r, false, other);
 
         // xx_xx_xx / xx_xx_xx
-        permsA = xx_xx_xx;
-        permsB = xx_xx_xx;
+        permsA = new PermissionsI(xx_xx_xx.toString());
+        permsB = new PermissionsI(xx_xx_xx.toString());
         oneToMany(ownsfA, false, common_group);
         oneToMany(r, false, other);
 
     }
 
-    protected void oneToMany(ServiceFactory sf, boolean can_change,
+    protected void oneToMany(ServiceFactoryPrx sf, boolean can_change,
             Object... details_changed) {
 
         // whether or not this is valid is handled in the ReadSecurityTest.
@@ -338,14 +360,14 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         // root can read everything and so can lock everything.
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
-        uniManyToOne(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
+        uniManyToOne(ownsfA, false, common_group, new PermissionsI(RW_xx_xx.toString()), new PermissionsI(RW_RW_xx.toString()));
         uniManyToOne(r, true, other);
     }
 
-    protected void uniManyToOne(ServiceFactory sf, boolean can_change,
-            Object... details_changed) {
+    protected void uniManyToOne(ServiceFactoryPrx sf, boolean can_change,
+            Object... details_changed) throws ServerError {
 
         // whether or not this is valid is handled in the ReadSecurityTest.
         // an exception here means something went wrong elsewhere; most likely,
@@ -363,7 +385,9 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         // microscope should be easy enough
         if (will_lock) {
             r.getUpdateService().deleteObject(instr);
-            boolean[] unlocked = r.getAdminService().unlock(micro);
+            List<IObject> micros = new ArrayList<IObject>();
+            micros.add(micro);
+            boolean[] unlocked = r.getAdminService().unlock(micros);
             assertTrue(unlocked[0]);
         }
 
@@ -379,19 +403,19 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         groupA = groupB = groupC = user_other_group;
 
         // RW_RW_RW / RW_RW_RW / RW_RW_RW
-        permsA = permsB = permsC = RW_RW_RW;
+        permsA = permsB = permsC = new PermissionsI(RW_RW_RW.toString());
         manyToMany();
 
         // RW_RW_RW / RW_RW_xx / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
-        permsC = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
+        permsC = new PermissionsI(RW_RW_RW.toString());
         manyToMany();
 
         // RW_RW_RW / RW_xx_xx / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
-        permsC = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
+        permsC = new PermissionsI(RW_RW_RW.toString());
         manyToMany();
 
     }
@@ -410,19 +434,19 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         will_lock = true;
 
         // RW_RW_RW / RW_RW_RW / RW_RW_RW
-        permsA = permsB = permsC = RW_RW_RW;
+        permsA = permsB = permsC = new PermissionsI(RW_RW_RW.toString());
         manyToMany();
 
         // RW_RW_RW / RW_RW_xx / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
-        permsC = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
+        permsC = new PermissionsI(RW_RW_RW.toString());
         manyToMany();
 
         // RW_RW_RW / RW_xx_xx / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
-        permsC = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
+        permsC = new PermissionsI(RW_RW_RW.toString());
         manyToMany();
 
     }
@@ -466,27 +490,27 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         will_lock = true;
 
         // RW_RW_RW / RW_RW_RW
-        permsA = RW_RW_RW;
-        permsB = RW_RW_RW;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_RW.toString());
         imagePixels(u, false, false, common_group);
         imagePixels(r, true, true, other);
 
         // RW_RW_RW / RW_RW_Rx
-        permsA = RW_RW_RW;
-        permsB = RW_RW_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_RW_xx.toString());
         imagePixels(u, false, false, common_group);
         imagePixels(r, true, false, other);
 
         // RW_RW_RW / RW_xx_xx
-        permsA = RW_RW_RW;
-        permsB = RW_xx_xx;
+        permsA = new PermissionsI(RW_RW_RW.toString());
+        permsB = new PermissionsI(RW_xx_xx.toString());
         imagePixels(u, false, false, common_group);
         imagePixels(r, true, false, other);
 
     }
 
-    protected void imagePixels(ServiceFactory sf, boolean can_change_img,
-            boolean can_change_pix, Object... details_changed) {
+    protected void imagePixels(ServiceFactoryPrx sf, boolean can_change_img,
+            boolean can_change_pix, Object... details_changed) throws ServerError {
 
         // whether or not this is valid is handled in the ReadSecurityTest.
         // an exception here means something went wrong elsewhere; most likely,
@@ -519,16 +543,16 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     @Test
     public void testNoLoadOnNonReadableProxy() throws Exception {
 
-        prj = new Project();
-        prj.setName("noloadonnonreadable");
+        prj = new ProjectI();
+        prj.setName(rstring("noloadonnonreadable"));
         prj.getDetails().setPermissions(Permissions.USER_PRIVATE);
-        prj = u.getUpdateService().saveAndReturnObject(prj);
+        prj = (Project) u.getUpdateService().saveAndReturnObject(prj);
         assertFalse(prj.getDetails().getPermissions().isSet(Flag.LOCKED));
 
         prj.unload();
-        ds = new Dataset();
-        ds.setName("tryingtoattachtononloadablenonreadable");
-        link = new ProjectDatasetLink();
+        ds = new DatasetI();
+        ds.setName(rstring("tryingtoattachtononloadablenonreadable"));
+        link = new ProjectDatasetLinkI();
         link.link(prj, ds);
         try {
             w.getUpdateService().saveObject(link);
@@ -544,10 +568,10 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     public void testDeletingSingleLockedObject() throws Exception {
         Permissions perms = new Permissions().set(Flag.LOCKED);
 
-        prj = new Project();
-        prj.setName("deletinglocked");
+        prj = new ProjectI();
+        prj.setName(rstring("deletinglocked"));
         prj.getDetails().setPermissions(perms);
-        prj = u.getUpdateService().saveAndReturnObject(prj);
+        prj = (Project) u.getUpdateService().saveAndReturnObject(prj);
         assertTrue(prj.getDetails().getPermissions().isSet(Flag.LOCKED));
         u.getUpdateService().deleteObject(prj);
     }
@@ -558,21 +582,21 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     /** tests both transient and managed entities */
     public void test_ProjectIsLockedOnAddedDataset() throws Exception {
 
-        prj = new Project();
-        prj.setName("ticket:337");
-        prj = u.getUpdateService().saveAndReturnObject(prj);
+        prj = new ProjectI();
+        prj.setName(rstring("ticket:337"));
+        prj = (Project) u.getUpdateService().saveAndReturnObject(prj);
 
         assertFalse(prj.getDetails().getPermissions().isSet(Flag.LOCKED));
 
-        ds = new Dataset();
-        ds.setName("ticket:337");
+        ds = new DatasetI();
+        ds.setName(rstring("ticket:337"));
         prj.linkDataset(ds);
 
-        prj = u.getUpdateService().saveAndReturnObject(prj);
+        prj = (Project) u.getUpdateService().saveAndReturnObject(prj);
         ds = prj.linkedDatasetList().get(0);
 
-        prj = u.getQueryService().find(prj.getClass(), prj.getId().longValue());
-        ds = u.getQueryService().find(ds.getClass(), ds.getId().longValue());
+        prj = u.getQueryService().find(prj.getClass(), prj.getId().getValue());
+        ds = u.getQueryService().find(ds.getClass(), ds.getId().getValue());
 
         assertTrue(prj.getDetails().getPermissions().isSet(Flag.LOCKED));
         assertTrue(ds.getDetails().getPermissions().isSet(Flag.LOCKED));
@@ -651,16 +675,16 @@ public class UseSecurityTest extends AbstractPermissionsTest {
 
         Permissions perms = new Permissions().set(Flag.LOCKED);
 
-        prj = new Project();
-        prj.setName("ticket:337");
+        prj = new ProjectI();
+        prj.setName(rstring("ticket:337"));
         prj.getDetails().setPermissions(perms);
 
-        Project t = u.getUpdateService().saveAndReturnObject(prj);
+        Project t = (Project) u.getUpdateService().saveAndReturnObject(prj);
         assertTrue(t.getDetails().getPermissions().isSet(Flag.LOCKED));
 
-        t = u.getUpdateService().saveAndReturnObject(prj); // cloning
+        t = (Project) u.getUpdateService().saveAndReturnObject(prj); // cloning
         t.getDetails().getPermissions().set(Flag.LOCKED);
-        t = u.getUpdateService().saveAndReturnObject(t); // save changes on
+        t = (Project) u.getUpdateService().saveAndReturnObject(t); // save changes on
         // managed
         assertTrue(t.getDetails().getPermissions().isSet(Flag.LOCKED));
 
@@ -669,25 +693,25 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     @Test(groups = "ticket:339")
     public void test_HandlesExplicitPermissionReduction() throws Exception {
 
-        prj = new Project();
-        prj.setName("ticket:339");
-        ds = new Dataset();
-        ds.setName("ticket:339");
+        prj = new ProjectI();
+        prj.setName(rstring("ticket:339"));
+        ds = new DatasetI();
+        ds.setName(rstring("ticket:339"));
         prj.linkDataset(ds);
 
         Permissions perms = Permissions.READ_ONLY; // relatively common
         // use-case
         prj.getDetails().setPermissions(perms);
 
-        Project t = u.getUpdateService().saveAndReturnObject(prj);
+        Project t = (Project) u.getUpdateService().saveAndReturnObject(prj);
 
     }
 
     @Test(groups = "ticket:357")
     public void test_OneToOnesGetLockedAsWell() throws Exception {
 
-        img = new Image();
-        img.setName("ticket:357");
+        img = new ImageI();
+        img.setName(rstring("ticket:357"));
         pix = ObjectFactory.createPixelGraph(null);
         img.addPixels(pix);
 
@@ -701,18 +725,18 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     // ~ Helpers
     // =========================================================================
 
-    private void reacquire(ServiceFactory sf) {
-        prj = sf.getQueryService()
-                .find(prj.getClass(), prj.getId().longValue());
+    private void reacquire(ServiceFactoryPrx u) {
+        prj = u.getQueryService()
+                .find(prj.getClass(), prj.getId().getValue());
         assertTrue("Permissions should still be locked.", prj.getDetails()
                 .getPermissions().isSet(Flag.LOCKED));
     }
 
-    private void assertSucceeds(ServiceFactory sf) {
-        prj = sf.getUpdateService().saveAndReturnObject(prj);
+    private void assertSucceeds(ServiceFactoryPrx sf) throws ServerError {
+        prj = (Project) sf.getUpdateService().saveAndReturnObject(prj);
     }
 
-    private void assertFails(ServiceFactory sf) {
+    private void assertFails(ServiceFactoryPrx sf) throws ServerError {
         try {
             assertSucceeds(sf);
             fail("secvio!");
@@ -721,9 +745,9 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         }
     }
 
-    private void assertNoChange(ServiceFactory sf) {
+    private void assertNoChange(ServiceFactoryPrx sf) {
         Permissions p1 = prj.getDetails().getPermissions();
-        prj = sf.getUpdateService().saveAndReturnObject(prj);
+        prj = (Project) sf.getUpdateService().saveAndReturnObject(prj);
         Permissions p2 = prj.getDetails().getPermissions();
         assertTrue(p1.sameRights(p2));
     }
@@ -734,13 +758,13 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         assertEquals(was_locked, d.getPermissions().isSet(Flag.LOCKED));
     }
 
-    protected void verifyLocked(ServiceFactory sf, IObject _i, Details d,
+    protected void verifyLocked(ServiceFactoryPrx u, IObject _i, Details d,
             boolean can_change) {
 
         // shouldn't be able to remove read
         try {
             _i.getDetails().copy(d);
-            sf.getUpdateService().saveObject(_i);
+            u.getUpdateService().saveObject(_i);
             if (!can_change) {
                 fail("secvio!");
             }
