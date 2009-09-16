@@ -33,11 +33,22 @@ class DropBox(Ice.Application):
             log.exception("System requirements not met: \n")
             return -1
            
-##        try:
-##            prop = self.communicator().getProperties().getPropertyWithDefault("omero.fs.foo","willikers")
-##            log.info("foo is %s", prop)
-##        except:
-##            log.exception("Failed get property foo: \n", )
+        try:
+            maxRetries = int(self.communicator().getProperties().getPropertyWithDefault(
+                            "omero.fs.maxRetries","5"))
+            retryInterval = int(self.communicator().getProperties().getPropertyWithDefault(
+                                "omero.fs.retryInterval","3"))
+            dropBoxDir = self.communicator().getProperties().getPropertyWithDefault(
+                                "omero.fs.dropBoxDir","DropBox")
+            eventType = self.communicator().getProperties().getPropertyWithDefault(
+                                "omero.fs.eventType","Create")
+            pathMode = self.communicator().getProperties().getPropertyWithDefault(
+                                "omero.fs.pathMode","Follow")
+            dirImportWait = int(self.communicator().getProperties().getPropertyWithDefault(
+                                "omero.fs.dirImportWait","60"))
+                                
+        except:
+            log.exception("Failed get properties from templates.xml: \n", )
         
         try:
             omero.client(config.host, config.port)
@@ -46,9 +57,9 @@ class DropBox(Ice.Application):
             return -1
           
         try:
-            sf = omero.util.internal_service_factory(\
-                self.communicator(), "root", "system",\
-                retries=config.maxRetries, interval=config.retryInterval)
+            sf = omero.util.internal_service_factory(
+                    self.communicator(), "root", "system",
+                    retries=maxRetries, interval=retryInterval)
         except:
             log.exception("Failed to get Session: \n")
             return -1
@@ -61,7 +72,7 @@ class DropBox(Ice.Application):
         
         try:
             dropBoxBase = configService.getConfigValue("omero.data.dir")
-            dropBoxBase = os.path.join(dropBoxBase, config.dropBoxDir)
+            dropBoxBase = os.path.join(dropBoxBase, dropBoxDir)
         except:
             log.exception("Failed to use a query service : \n")
             return -1
@@ -85,13 +96,15 @@ class DropBox(Ice.Application):
 
             mClientProxy = monitors.MonitorClientPrx.checkedCast(adapter.createProxy(identity))
             monitorType = monitors.MonitorType.__dict__["Persistent"]
-            eventType = monitors.EventType.__dict__[config.eventType]
-            pathMode = monitors.PathMode.__dict__[config.pathMode]
+            eventType = monitors.EventType.__dict__[eventType]
+            pathMode = monitors.PathMode.__dict__[pathMode]
             serverId = fsServer.createMonitor(monitorType, eventType, pathMode, dropBoxBase, list(config.fileTypes),  [], mClientProxy, 0.0, True)
 
             mClient.setId(serverId)
             mClient.setServerProxy(fsServer)
             mClient.setSelfProxy(mClientProxy)
+            mClient.setDropBoxDir(dropBoxDir)
+            mClient.setDirImportWait(dirImportWait)
             mClient.setMaster(self)
             fsServer.startMonitor(serverId)
 

@@ -59,15 +59,14 @@ class PlatformMonitor(object):
          
         """
         if str(pathMode) not in ['Flat', 'Follow']:
-            raise UnsupportedPathMode("Path Mode " + str(pathMode) + " not yet supported on this platform")
-            
+            raise UnsupportedPathMode("Path Mode " + str(pathMode) + " not yet supported on this platform")            
         self.pathMode = pathMode
         
         if str(eventType) not in ['Create']:
             raise UnsupportedEventType("Event Type " + str(eventType) + " not yet supported on this platform")
-            
         self.eventType = eventType
         
+        self.ignoreSysFiles = ignoreSysFiles
         self.proxy = proxy
         
         #: an FSEvents.FSEventStream StreamRef object reference.
@@ -199,6 +198,7 @@ class PlatformMonitor(object):
             if self.pathMode != monitors.PathMode.Flat or str(dir.path) == eventPaths[i]:
                 new, old, chg = dir.getChangedFiles(eventPaths[i])
 
+                #log.info("New files 1: %s", str(new))
                 # The new and changed files are only potentially new. In both cases
                 # zero-sized files are files that have been opened for writing but
                 # not written to and closed. It is possible that a zero-sized file
@@ -213,17 +213,39 @@ class PlatformMonitor(object):
                 # include files that have been moved, renamed or copied.
                 if len(new) > 0: 
                     new = dir.pruneZeroFiles(new)
+                #log.info("New files 2: %s", str(new))
                     
                 # Files that have changed but are not zero-sized. These 
                 # could include new files or files that have had their size, ctime,
                 # etc, changed.
                 if len(chg) > 0:
                     new.extend(dir.pruneZeroFiles(chg))    
+                #log.info("New files 3: %s", str(new))
                           
                 # Prune out new directories, those are not of interest.
-                if len(new) > 0: 
-                    new = dir.pruneDirectories(new)
-                    
+                #if len(new) > 0: 
+                #    new = dir.pruneDirectories(new)
+                #log.info("New files 4: %s", str(new))
+                
+                # Prune out 'untitled folder' directories, those are not of interest.
+                for fileName in new:
+                    try:
+                        fileName.index('untitled folder')
+                        new.remove(fileName)
+                    except:
+                        pass
+
+                # Prune out 'system files if necessary.
+                # (this should be buried deeper, ie they shouldn't even be part of the underlying tree)
+                if self.ignoreSysFiles:
+                    for fileName in new:
+                        #log.info("System file? : %s", pathModule.path(fileName).basename())
+                        try:
+                            if pathModule.path(fileName).basename().index('.') == 0:
+                                new.remove(fileName)
+                        except:
+                            pass
+                        
                 # If there any new files then tell the client.
                 if len(new) > 0:
                     eventList = []
@@ -231,7 +253,7 @@ class PlatformMonitor(object):
                         eventType = monitors.EventType.Create
                         eventList.append((fileName,eventType))
                     
-                    log.info('Event notification on monitor id=' + monitorId + ' => ' + str(eventList))
+                    #log.info('Event notification on monitor id=' + monitorId + ' => ' + str(eventList))
                     self.proxy.callback(monitorId, eventList)
 
         

@@ -48,10 +48,16 @@ class PlatformMonitor(object):
          
         """
         threading.Thread.__init__(self)
+
+        self.eventType = eventType
+        self.recurse = not (pathMode == "Flat")
         self.pathsToMonitor = pathString
         self.whitelist = whitelist
-        self.proxy = proxy
+        self.blacklist = blacklist
+        self.ignoreSysFiles = ignoreSysFiles
         self.idString = monitorId
+        self.proxy = proxy
+
         self.event = threading.Event()
         log.debug('Monitor set-up on =' + str(self.pathsToMonitor))
                 
@@ -102,7 +108,7 @@ class PlatformMonitor(object):
             results = win32file.ReadDirectoryChangesW (
                 hDir,
                 4096,
-                True, # recurse
+                self.recurse, # recurse
                 win32con.FILE_NOTIFY_CHANGE_FILE_NAME |
                 win32con.FILE_NOTIFY_CHANGE_DIR_NAME |
                 win32con.FILE_NOTIFY_CHANGE_ATTRIBUTES |

@@ -4,18 +4,13 @@
 host = "localhost"
 port = 4063
 
-# session acquisition retry parameters
-# these deal with the time it can take the server to start.
-maxTries = 5      # number   
-retryInterval = 3 # seconds. 
-
 # dropdox directory settings
 clientIdString = "DropBox"
 clientAdapterName = "omerofs.DropBox"
-dropBoxDir = "DropBox"
 
-# This config item should be removed. See tickets: #1420 and #1421
-excludedUsers = []
+# fs server settings
+serverIdString = "FSServer"
+serverAdapterName = "omerofs.MonitorServer"
 
 # A more general solution needs to be found for the various
 # multi-file formats. For now this is how .dv files are handled...
@@ -25,18 +20,6 @@ relatedTypes = {".dv" : [".log"]}
 waitTimes = {".dv": 30}
 # e.g. how long after a log file appears should it be abandoned (seconds).
 dropTimes = {".dv": 120}
-
-# fs server settings
-serverIdString = "FSServer"
-serverAdapterName = "omerofs.MonitorServer"
-
-# At present just looking for new files
-eventType = "Create"
-
-#    pyinotify as it stands misses some events when a new
-#    directory is created, "Follow" will not report all events
-#    until this issue is fixed.
-pathMode = "Follow"
 
 # file extensions to watch for.
 #     (although only .ome.tif are of genuine interest.)
@@ -55,13 +38,16 @@ for ext in relatedTypes.keys():
 blacklist = [""]
 
 # importer path relative to dist or base install directory
-climporter = "bin/omero import"
+#climporter = "bin/omero import"
+
+# This path may need to be used when testing if the above path causes problems.
+climporter = "../components/tools/OmeroImporter/target/importer-cli"
 
 # Values used only by the test client
 # dropdox directory settings
-testClientIdString = "FSTestClient"
-testClientAdapterName = "omerofs.FSTestClient"
-testBase = "/OMERO/"
+#testClientIdString = "FSTestClient"
+#testClientAdapterName = "omerofs.FSTestClient"
+##testBase = "/OMERO/"
 ##testBase = "/OMERODEV/"
 
 ###
