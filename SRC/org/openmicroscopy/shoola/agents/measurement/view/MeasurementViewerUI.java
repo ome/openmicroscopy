@@ -760,9 +760,9 @@ class MeasurementViewerUI
 				roiShape = (ROIShape) j.next();
 				ids.add(roiShape.getROI().getID());
 			}
-			Iterator<ServerROITable> k = roiTables.iterator();
-			while (k.hasNext()) {
-				k.next().selectROI(ids);
+			Component c = tabs.getSelectedComponent();
+			if (c instanceof ServerROITable) {
+				((ServerROITable) c).selectROI(ids);
 			}
 		} else {
 			roiInspector.setSelectedFigures(roiShapeList);

@@ -4605,18 +4605,19 @@ class OMEROGateway
 				if (r == null) return results;
 				results.add(new ROIResult(PojoMapper.asDataObjects(r.rois)));
 			} else { //measurements
-				//tmp
-				long start = System.currentTimeMillis();
-				long m=0, end=0;
 				
-				long id = measurements.get(0);
-				r = svc.findByImage(imageID, new RoiOptions());
-				if (r == null) return results;
-				result = new ROIResult(PojoMapper.asDataObjects(r.rois), id);
-				TablePrx t = svc.getTable(id);
-				result.setResult(createTableResult(t));
-				results.add(result);
-				
+				Iterator<Long> i = measurements.iterator();
+				long id;
+				while (i.hasNext()) {
+					id = i.next();
+					r = svc.findByImage(imageID, new RoiOptions());
+					if (r == null) return results;
+					result = new ROIResult(PojoMapper.asDataObjects(r.rois), id);
+					TablePrx t = svc.getTable(id);
+					result.setResult(createTableResult(t));
+					results.add(result);
+					
+				}
 				/*
 				Map<Long, RoiResult> map = svc.getMeasuredRoisMap(imageID, 
 						measurements, options);

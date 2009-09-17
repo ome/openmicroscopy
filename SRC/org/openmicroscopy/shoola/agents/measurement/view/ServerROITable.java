@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -162,8 +163,6 @@ class ServerROITable
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			tcm.getColumn(i).setHeaderRenderer(renderer);
 		}
-		
-		
 		export = new JButton("Save To Excel");
 		export.addActionListener(new ActionListener() {
 			
@@ -219,7 +218,6 @@ class ServerROITable
 			un.notifyInfo("Save Measurements", 
 					"Unable to save the measurements");
 		}
-		
 	}
 	
 	/** Builds and lays out the UI. */
@@ -268,6 +266,17 @@ class ServerROITable
 	}
 	
 	/**
+	 * Makes the table scroll to the passed row.
+	 * 
+	 * @param row The row to handle.
+	 */
+	private void scrollToRow(int row)
+	{
+		Rectangle r = table.getCellRect(row, 0, true);
+		table.scrollRectToVisible(r);
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param view 	Reference to the control. Mustn't be <code>null</code>.
@@ -289,21 +298,22 @@ class ServerROITable
 	 */
 	void selectROI(List<Long> roiIDs)
 	{
-		/*
 		if (roiIDs == null || roiIDs.size() == 0) return;
 		Iterator<Long> i = roiIDs.iterator();
 		int index;
 		Long id;
 		table.getSelectionModel().removeListSelectionListener(this);
+		table.clearSelection();
 		while (i.hasNext()) {
 			id = i.next();
 			if (rowIDs.containsKey(id)) {
 				index = rowIDs.get(id);
-				table.setRowSelectionInterval(index, index);
+				table.addRowSelectionInterval(index, index);
+				scrollToRow(index);
 			}
 		}
+		table.repaint();
 		table.getSelectionModel().addListSelectionListener(this);
-		*/
 	}
 	
 	/**
@@ -385,6 +395,7 @@ class ServerROITable
 			DrawingCanvasView dv = model.getDrawingView();
 	    	dv.clearSelection();
 	    	Iterator<ROIFigure> k = list.iterator();
+	    	System.err.println(list);
 	    	while (k.hasNext()) {
 	    		dv.addToSelection(k.next());
 			}
