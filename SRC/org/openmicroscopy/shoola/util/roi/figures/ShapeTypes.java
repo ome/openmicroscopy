@@ -48,6 +48,7 @@ import java.util.List;
  */
 public class ShapeTypes
 {	
+	
 	/** The collection of supported shapes. */
 	public static final List<String> SHAPE_LIST; 
 	

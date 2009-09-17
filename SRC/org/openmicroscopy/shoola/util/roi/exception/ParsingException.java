@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.util.roi.exception;
 //Application-internal dependencies
 
 /** 
- * Reports an error occured while parsing an input stream with XML tags.
+ * Reports an error occurred while parsing an input stream with XML tags.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

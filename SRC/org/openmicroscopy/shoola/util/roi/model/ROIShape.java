@@ -27,6 +27,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -69,13 +70,13 @@ public class ROIShape
 	 * Annotations are stored according to a key, object mapping, just like the 
 	 * attribute objects of JHotDraw. 
 	 */
-	private HashMap<AnnotationKey, Object> annotations = new HashMap<AnnotationKey,Object>();
+	private Map<AnnotationKey, Object> annotations = new HashMap<AnnotationKey,Object>();
 	
 	/**
      * Forbidden annotations can't be set by the setAnnotation() operation.
      * They can only be changed by basicSetAnnotations().
      */
-    private HashSet<AnnotationKey> forbiddenAnnotations;
+    private Set<AnnotationKey> forbiddenAnnotations;
     
 
 	/**

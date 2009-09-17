@@ -31,6 +31,7 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -993,6 +994,7 @@ class MeasurementViewerUI
 		drawing.removeDrawingListener(controller);
 		drawing.clear();
 		ShapeList list = null;
+		ROIFigure figure;
 		if (model.isServerROI()) {
 			Component comp = tabs.getSelectedComponent();
 			if (comp instanceof ServerROITable) {
@@ -1010,14 +1012,20 @@ class MeasurementViewerUI
 						j = shapes.values().iterator();
 						while (j.hasNext()) {
 							shape = j.next();
-							drawing.add(shape.getFigure());
-							shape.getFigure().removeFigureListener(controller);
-							shape.getFigure().addFigureListener(controller);
+							figure = shape.getFigure();
+							drawing.add(figure);
+							figure.addFigureListener(controller);
 						}
 					}
 				} catch (Exception e) {
 					handleROIException(e, RETRIEVE_MSG);
 				}
+			}
+			DrawingCanvasView canvas = model.getDrawingView();
+			KeyListener[] l = canvas.getKeyListeners();
+			if (l != null) {
+				for (int i = 0; i < l.length; i++)
+					canvas.removeKeyListener(l[i]);
 			}
 		} else {
 			try {
@@ -1033,14 +1041,13 @@ class MeasurementViewerUI
 					shape = (ROIShape) i.next();
 					if (shape != null) 
 					{
-						drawing.add(shape.getFigure());
-						shape.getFigure().removeFigureListener(controller);
-						shape.getFigure().addFigureListener(controller);
+						figure = shape.getFigure();
+						drawing.add(figure);
+						figure.addFigureListener(controller);
 					}
 				}
 			}
 		}
-		
 		setStatus(DEFAULT_MSG);
 		model.getDrawingView().setDrawing(drawing);
 		drawing.addDrawingListener(controller);

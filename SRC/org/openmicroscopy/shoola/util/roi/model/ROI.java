@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 //Third-party libraries
@@ -71,14 +72,14 @@ public class ROI
 	AttachmentMap 							attachments;
 	
 	/** Annotations in the ROI. */
-	private HashMap<AnnotationKey, Object> 	annotations 
+	private Map<AnnotationKey, Object> 	annotations 
 										= new HashMap<AnnotationKey,Object>();
 	
 	/**
      * Forbidden annotations can't be set by the setAnnotation() operation.
      * They can only be changed by basicSetAnnotations().
      */
-    private HashSet<AnnotationKey> forbiddenAnnotations;
+    private Set<AnnotationKey> forbiddenAnnotations;
     
     /**
      * Construct the ROI with id.

@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.util.roi.exception;
 //Application-internal dependencies
 
 /** 
- * Reports an error occured while retrieving a ROI.
+ * Reports an error occurred while retrieving a ROI.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

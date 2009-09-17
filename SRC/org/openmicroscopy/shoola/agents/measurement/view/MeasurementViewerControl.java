@@ -446,6 +446,7 @@ class MeasurementViewerControl
 	 */
 	public void figureRemoved(DrawingEvent e)
 	{
+		System.err.println("Remove");
 		if (model.getState() != MeasurementViewer.READY) return;
 		Figure f = e.getFigure();
 		if (f instanceof ROIFigure) view.removeROI((ROIFigure) f);
@@ -514,7 +515,7 @@ class MeasurementViewerControl
 	 */
 	public void keyTyped(KeyEvent e)
 	{
-		char ANALYSECHAR='a';
+		char ANALYSECHAR = 'a';
 		if (e.getKeyChar() == ANALYSECHAR) {
 			Collection<Figure> selectedFigures = 
 				view.getDrawingView().getSelectedFigures(); 

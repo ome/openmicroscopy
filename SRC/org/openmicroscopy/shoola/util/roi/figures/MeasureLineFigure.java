@@ -73,23 +73,24 @@ public class MeasureLineFigure
 	extends LineTextFigure
 	implements ROIFigure
 {
+	
 	/** Is this figure read only. */
 	private boolean readOnly;
 
 	/** The bounds of the bezier figure. */
-	private ArrayList<Rectangle2D> 		boundsArray;
+	private List<Rectangle2D> 		boundsArray;
 	
 	/** The list of lengths of sections on the line. */
-	private ArrayList<Double> 				lengthArray;
+	private List<Double> 				lengthArray;
 	
 	/** The list of angles of sections on the line. */
-	private ArrayList<Double> 				angleArray;
+	private List<Double> 				angleArray;
 
 	/** The list of X coords of the nodes on the line. */
-	private ArrayList<Double>			pointArrayX;
+	private List<Double>			pointArrayX;
 	
 	/** The list of Y coords of the nodes on the line. */
-	private ArrayList<Double>			pointArrayY;
+	private List<Double>			pointArrayY;
 	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
 	protected 	ROI					roi;
@@ -279,7 +280,7 @@ public class MeasureLineFigure
 	 * Get the length array. These are the lengths of each segment of the line. 
 	 * @return see above.
 	 */
-	public ArrayList<Double> getLengthArray()
+	public List<Double> getLengthArray()
 	{
 		return lengthArray;
 	}
@@ -288,7 +289,7 @@ public class MeasureLineFigure
 	 * Get the angle array. These are the angles between each segment of the line. 
 	 * @return see above.
 	 */
-	public ArrayList<Double> getAngleArray()
+	public List<Double> getAngleArray()
 	{
 		return angleArray;
 	}

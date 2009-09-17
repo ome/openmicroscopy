@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
 
 
 /**
- * A linw figure with text.
+ * A line figure with text.
  * 
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

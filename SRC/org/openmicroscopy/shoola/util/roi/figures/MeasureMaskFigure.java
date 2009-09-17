@@ -74,12 +74,13 @@ public class MeasureMaskFigure
 	extends RectangleTextFigure
 	implements ROIFigure
 {
+	
 	/** Is this figure read only. */
 	private boolean readOnly;
 	
-	 /**
-     * This is used to perform faster drawing and hit testing.
-     */
+	/**
+	 * This is used to perform faster drawing and hit testing.
+	 */
 	protected	Rectangle2D 		bounds;
 	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
@@ -99,9 +100,7 @@ public class MeasureMaskFigure
 	 * {@link ROIFigure#MOVING}. 
 	 */
 	private int 					status;
-	
-	
-	
+
     /** Creates a new instance. */
     public MeasureMaskFigure() 
     {

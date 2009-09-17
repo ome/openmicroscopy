@@ -24,8 +24,9 @@ package org.openmicroscopy.shoola.util.ui.drawingtools;
 
 
 //Java imports
-import java.awt.event.MouseMotionListener;
 import java.util.List;
+
+import javax.swing.ActionMap;
 
 //Third-party libraries
 import org.jhotdraw.draw.DefaultDrawing;

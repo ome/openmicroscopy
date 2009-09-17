@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure 
+  * org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -114,10 +114,11 @@ public class MeasureEllipseFigure
 	{
 		super(text, x, y, width, height);
 		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
-	   	shape=null;
-		roi=null;
+	   	shape = null;
+		roi = null;
 		status = IDLE;
 		setReadOnly(readOnly);
+		
 	}
 	
 	/** 
@@ -129,12 +130,12 @@ public class MeasureEllipseFigure
 	{
 		this(text, 0, 0, 0, 0, false);
 	}
-	
 
 	/** 
 	 * Creates a new instance. 
 	 * 
-	 * @param readOnly The Roi is read only. 
+	 * @param readOnly Pass <code>true</code> if the ROI is read only, 
+	 * 				   <code>false</code> otherwise.
 	 */
 	public MeasureEllipseFigure(boolean readOnly)
 	{
@@ -279,7 +280,7 @@ public class MeasureEllipseFigure
 			g.setFont(new Font("Arial", Font.PLAIN, (int) sz));
 			Rectangle2D stringBoundsbounds = 
 				g.getFontMetrics().getStringBounds(ellipseArea, g);
-			measurementBounds=
+			measurementBounds =
 					new Rectangle2D.Double(getCentreX()
 							-stringBoundsbounds.getWidth()/2, this.getCentreY()
 							+stringBoundsbounds.getHeight()/2, 
@@ -375,7 +376,8 @@ public class MeasureEllipseFigure
 	}
 	
 	/**
-	 * Calculate the area of the figure. 
+	 * Calculates the area of the figure. 
+	 * 
 	 * @return see above.
 	 */
 	public double getArea()
@@ -385,7 +387,8 @@ public class MeasureEllipseFigure
 	}
 	
 	/**
-	 * Calculate the perimeter of the figure. 
+	 * Calculates the perimeter of the figure. 
+	 * 
 	 * @return see above.
 	 */
 	public double getPerimeter()
@@ -489,11 +492,11 @@ public class MeasureEllipseFigure
 		double startX = r.getX();
 		double startY =  r.getY();
 		double x, y;
-		for (y=startY; y<yEnd; ++y)
-			for (x=startX; x<xEnd; ++x)
+		for (y = startY; y < yEnd; ++y)
+			for (x = startX; x < xEnd; ++x)
 //				if(containsMapped(x,y))
-				if(transformedEllipse.intersects(x, y, 0.001, 0.001))
-					vector.add(new Point((int)x, (int)y));
+				if (transformedEllipse.intersects(x, y, 0.001, 0.001))
+					vector.add(new Point((int) x, (int) y));
 		return vector; 
 	}
 	
