@@ -271,15 +271,17 @@ public class QueryBuilder {
         
         if (filter != null && filterTarget != null) {
             if (filter.owner() >= 0) {
-                this.and(filterTarget+".details.owner.id");
+                this.and(filterTarget+".details.owner.id = ");
                 String alias = this.unique_alias("owner");
+		this.append(":");
                 this.append(alias);
                 this.param(alias, filter.owner());
 
             }
             if (filter.group() >= 0) {
-                this.and(filterTarget+".details.group.id=");
+                this.and(filterTarget+".details.group.id = ");
                 String alias = this.unique_alias("group");
+		this.append(":");
                 this.append(alias);
                 this.param(alias, filter.group());
             }
