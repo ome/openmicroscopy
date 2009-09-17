@@ -11,8 +11,11 @@ import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
+import omero.api.RoiResult;
 import omero.constants.namespaces.NSMEASUREMENT;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
@@ -93,6 +96,15 @@ public class ImageMeasurementsTest extends AbstractRoiITest {
         
         List<FileAnnotation> fas = assertGetImageMeasurements(i.getId().getValue());
         assertEquals(fas.toString(), 1, fas.size());
+        
+        long aid = fas.get(0).getId().getValue();
+        Map<Long, RoiResult> rv = assertGetMeasuredRoisMap(i.getId().getValue(),
+                Arrays.asList(aid));
+        assertEquals(1, rv.size());
+        RoiResult rr = rv.get(aid);
+        assertNotNull(rr);
+        assertEquals(1, rr.rois.size());
+        
     }
 
 }

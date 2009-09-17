@@ -9,12 +9,14 @@ import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
 import java.util.List;
+import java.util.Map;
 
 import ome.services.blitz.impl.RoiI;
 import ome.services.blitz.test.AbstractServantTest;
 import ome.services.roi.GeomTool;
 import omero.api.AMD_IRoi_findByIntersection;
 import omero.api.AMD_IRoi_getRoiMeasurements;
+import omero.api.AMD_IRoi_getMeasuredRoisMap;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
 import omero.model.Annotation;
@@ -109,6 +111,21 @@ public class AbstractRoiITest extends AbstractServantTest {
      
         rv.assertPassed();
         return (List<FileAnnotation>) rv.rv;
+    }
+    
+    protected Map<Long, RoiResult> assertGetMeasuredRoisMap(long imageId, List<Long> annotationIds)
+    throws Exception {
+        final RV rv = new RV();
+        user_roisvc.getMeasuredRoisMap_async(new AMD_IRoi_getMeasuredRoisMap(){
+            public void ice_exception(Exception ex) {
+                rv.ex = ex;
+            }
+            public void ice_response(Map<Long, RoiResult> __ret) {
+                rv.rv = __ret;
+            }}, imageId, annotationIds, new RoiOptions(), current("getMeasuredRoisMap"));
+     
+        rv.assertPassed();
+        return (Map<Long, RoiResult>) rv.rv;
     }
 
     //

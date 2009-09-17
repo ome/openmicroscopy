@@ -54,6 +54,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,7 +101,8 @@ public class GeomTool implements ApplicationListener {
         try {
             jdbc.queryForObject("select pg_geom from shape limit 1",
                     String.class);
-            log.info("Shape.pg_geom already configured");
+        } catch (EmptyResultDataAccessException erdae) {
+            // Ignore.
         } catch (Exception e) {
             jdbc.update("alter table shape add column pg_geom polygon;");
             jdbc.update("create index pg_geom_idx on shape"
