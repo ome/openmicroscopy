@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.roi.util;
 //Java imports
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
@@ -75,10 +76,12 @@ public class FigureSelectionHandle
 				
 		f.setAttribute(AttributeKeys.STROKE_COLOR, strokeColour);
 		f.setAttribute(AttributeKeys.STROKE_WIDTH, width+1);
+		AffineTransform at = g.getTransform();
 		if (f.isVisible()) {
 			g.scale(view.getScaleFactor(), view.getScaleFactor());
 			f.draw(g);
 		}
+		g.setTransform(at);
 		f.setAttribute(AttributeKeys.STROKE_COLOR, colour);
 		f.setAttribute(AttributeKeys.STROKE_WIDTH, width);
 	}
