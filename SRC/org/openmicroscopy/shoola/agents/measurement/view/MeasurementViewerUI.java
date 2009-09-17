@@ -980,7 +980,7 @@ class MeasurementViewerUI
 				tabs.addTab(comp.getComponentName(), comp.getComponentIcon(), 
 						comp);
 			}
-    		tabs.setSelectedIndex(0);
+    		if (l.size() > 0) tabs.setSelectedIndex(0);
     		getContentPane().remove(toolBar);
     		setJMenuBar(null);
     	}

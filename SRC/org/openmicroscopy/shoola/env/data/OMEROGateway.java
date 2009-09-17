@@ -338,42 +338,79 @@ class OMEROGateway
 	/** The service to import files. */
 	private OMEROMetadataStoreClient				importStore;
 	
+	
 	/**
-	 * Applies the rendering settings of the specified pixels set to the plate.
-	 * Returns the map with result.
+	 * Transforms the passed table.
 	 * 
-	 * @param pixelsID The pixels set to handle.
-	 * @param plateID  The id of the plate.
-	 * @return See above.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @param table The table to convert.
+	 * @return See above
+	 * @throws DSAccessException If an error occurred while trying to 
+	 *                           retrieve data from OMEDS service.
 	 */
-	private Map applySettingsToPlate(long pixelsID, long plateID)
-		throws DSOutOfServiceException, DSAccessException
+	private TableResult createTableResult(TablePrx table)
+		throws DSAccessException
 	{
+		if (table == null) return null;
+		long start = System.currentTimeMillis();
 		try {
-			IQueryPrx service = getQueryService();
-			String sql = "select i from Plate as p " +
-			"left outer join p.wells as w " +
-			"left outer join w.wellSamples as s " +
-			"left outer join s.image as i where p.id = :id";
-			ParametersI param = new ParametersI();
-			param.addLong("id", plateID);
-			List<IObject> images = service.findAllByQuery(sql, param);
-			Iterator i = images.iterator();
-			List<Long> ids = new ArrayList<Long>();
-			IObject o;
-			while (i.hasNext()) {
-				o = (IObject) i.next();
-				ids.add(o.getId().getValue());
+			Column[] cols = table.getHeaders();
+			String[] headers = new String[cols.length];
+			String[] headersDescriptions = new String[cols.length];
+			for (int i = 0; i < cols.length; i++) {
+				headers[i] = cols[i].name;
+				headersDescriptions[i] = cols[i].description;
 			}
-			return getRenderingSettingsService().applySettingsToImages(pixelsID, 
-					ids);
+			int n = (int) table.getNumberOfRows();
+			Object[][] data = new Object[n][cols.length];
+			Data d;
+			Column column;
+			long[] a = new long[cols.length];
+			long[] b = new long[0];
+			for (int i = 0; i < cols.length; i++) {
+				a[i] = i; 
+			}
+			d = table.slice(a, b);
+			for (int i = 0; i < cols.length; i++) {
+				column = d.columns[i];
+				if (column instanceof LongColumn) {
+					for (int j = 0; j < n; j++) {
+						data[j][i] = ((LongColumn) column).values[j];
+					}
+				} else if (column instanceof DoubleColumn) {
+					for (int j = 0; j < n; j++) {
+						data[j][i] = ((DoubleColumn) column).values[j];
+					}
+				} else if (column instanceof StringColumn) {
+					for (int j = 0; j < n; j++) {
+						data[j][i] = ((StringColumn) column).values[j];
+					}
+				} else if (column instanceof BoolColumn) {
+					for (int j = 0; j < n; j++) {
+						data[j][i] = ((BoolColumn) column).values[j];
+					}
+				} else if (column instanceof RoiColumn) {
+					for (int j = 0; j < n; j++) {
+						data[j][i] = ((RoiColumn) column).values[j];
+					}
+				} else if (column instanceof ImageColumn) {
+					for (int j = 0; j < n; j++) {
+						data[j][i] = ((ImageColumn) column).values[j];
+					}
+				} 
+			}
+			table.close();
+			return new TableResult(data, headers);
 		} catch (Exception e) {
-			handleException(e, "Cannot apply settings to plate "+plateID);
+			try {
+				if (table != null) table.close();
+			} catch (Exception ex) {
+				//Digest exception
+			}
+			new DSAccessException("Unable to read the table.");
 		}
 		return null;
 	}
+	
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
 	 * Methods in this class are required to fill in a meaningful context
@@ -4605,21 +4642,6 @@ class OMEROGateway
 				if (r == null) return results;
 				results.add(new ROIResult(PojoMapper.asDataObjects(r.rois)));
 			} else { //measurements
-				
-				
-				Iterator<Long> i = measurements.iterator();
-				long id;
-				while (i.hasNext()) {
-					id = i.next();
-					r = svc.findByImage(imageID, new RoiOptions());
-					if (r == null) return results;
-					result = new ROIResult(PojoMapper.asDataObjects(r.rois), id);
-					TablePrx t = svc.getTable(id);
-					result.setResult(createTableResult(t));
-					results.add(result);
-					
-				}
-				/*
 				Map<Long, RoiResult> map = svc.getMeasuredRoisMap(imageID, 
 						measurements, options);
 				if (map == null) return results;
@@ -4630,93 +4652,46 @@ class OMEROGateway
 					id = i.next();
 					r = map.get(id);
 					//get the table
-					System.err.println(r.rois.size());
 					result = new ROIResult(PojoMapper.asDataObjects(r.rois), 
 							id);
 					result.setResult(createTableResult(svc.getTable(id)));
 					results.add(result);
 				}
-				*/
 				
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot load the ROI for image: "+imageID);
 		}
 		return results;
 	}
 	
 	/**
-	 * Transforms the passed table.
+	 * Loads the <code>FileAnnotationData</code>s for the passed image.
 	 * 
-	 * @param table The table to convert.
-	 * @return See above
-	 * @throws DSAccessException If an error occurred while trying to 
-	 *                           retrieve data from OMEDS service.
+	 * @param imageID 	The image's id.
+	 * @param userID	The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
-	private TableResult createTableResult(TablePrx table)
-		throws DSAccessException
+	Collection loadROIMeasurements(long imageID, long userID)
+		throws DSOutOfServiceException, DSAccessException
 	{
-		if (table == null) return null;
-		long start = System.currentTimeMillis();
+		isSessionAlive();
 		try {
-			Column[] cols = table.getHeaders();
-			String[] headers = new String[cols.length];
-			String[] headersDescriptions = new String[cols.length];
-			for (int i = 0; i < cols.length; i++) {
-				headers[i] = cols[i].name;
-				headersDescriptions[i] = cols[i].description;
-			}
-			int n = (int) table.getNumberOfRows();
-			Object[][] data = new Object[n][cols.length];
-			Data d;
-			Column column;
-			long[] a = new long[cols.length];
-			long[] b = new long[0];
-			for (int i = 0; i < cols.length; i++) {
-				a[i] = i; 
-			}
-			d = table.slice(a, b);
-			for (int i = 0; i < cols.length; i++) {
-				column = d.columns[i];
-				if (column instanceof LongColumn) {
-					for (int j = 0; j < n; j++) {
-						data[j][i] = ((LongColumn) column).values[j];
-					}
-				} else if (column instanceof DoubleColumn) {
-					for (int j = 0; j < n; j++) {
-						data[j][i] = ((DoubleColumn) column).values[j];
-					}
-				} else if (column instanceof StringColumn) {
-					for (int j = 0; j < n; j++) {
-						data[j][i] = ((StringColumn) column).values[j];
-					}
-				} else if (column instanceof BoolColumn) {
-					for (int j = 0; j < n; j++) {
-						data[j][i] = ((BoolColumn) column).values[j];
-					}
-				} else if (column instanceof RoiColumn) {
-					for (int j = 0; j < n; j++) {
-						data[j][i] = ((RoiColumn) column).values[j];
-					}
-				} else if (column instanceof ImageColumn) {
-					for (int j = 0; j < n; j++) {
-						data[j][i] = ((ImageColumn) column).values[j];
-					}
-				} 
-			}
-			table.close();
-			return new TableResult(data, headers);
+			IRoiPrx svc = getROIService();
+			RoiOptions options = new RoiOptions();
+			options.userId = omero.rtypes.rlong(userID);
+			return PojoMapper.asDataObjects(svc.getRoiMeasurements(imageID, 
+					options));
+			
 		} catch (Exception e) {
-			try {
-				if (table != null) table.close();
-			} catch (Exception ex) {
-				//Digest exception
-			}
-			new DSAccessException("Unable to read the table.");
+			handleException(e, "Cannot load the ROI measurements for image: "+
+					imageID);
 		}
-		return null;
-		
+		return new ArrayList<DataObject>();
 	}
 	
 	/**

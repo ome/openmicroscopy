@@ -1970,6 +1970,7 @@ class OmeroMetadataServiceImpl
 	public Collection loadROIMeasurements(Class type, long id, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+		
 		List<Long> ids = null;
 		if (userID != -1) {
 			ids = new ArrayList<Long>(1);
@@ -1996,6 +1997,7 @@ class OmeroMetadataServiceImpl
 			}
 		}
 		return list;
+		//return gateway.loadROIMeasurements(id, userID);
 	}
 	
 }

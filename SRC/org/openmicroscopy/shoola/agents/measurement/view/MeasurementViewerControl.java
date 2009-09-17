@@ -474,7 +474,7 @@ class MeasurementViewerControl
 				shapeList.add(shapeMap.get(shapeIterator.next()));
 			if (shapeList.size() != 0) model.analyseShapeList(shapeList);
 		}
-		//view.setSelectedFigures(figures);
+		view.setSelectedFigures(figures);
 	}
 
 	/**
