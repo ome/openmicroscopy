@@ -35,6 +35,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.events.iviewer.ImageViewport;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
@@ -222,6 +223,20 @@ public class ImViewerAgent
     							evt.getRefPixelsID());
     }
     
+    /**
+     * Displays the passed rectangle if possible
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleImageViewportEvent(ImageViewport evt)
+    {
+    	if (evt == null) return;
+    	ImViewer viewer = ImViewerFactory.getImageViewer(
+				evt.getPixelsID());
+    	if (viewer == null) return;
+    	viewer.scrollToViewport(evt.getBounds());
+    }
+    
     /** Creates a new instance. */
     public ImViewerAgent() {}
     
@@ -252,6 +267,7 @@ public class ImViewerAgent
         bus.register(this, SaveRelatedData.class);
         bus.register(this, FocusGainedEvent.class);
         bus.register(this, RndSettingsCopied.class);
+        bus.register(this, ImageViewport.class);
     }
 
     /**
@@ -294,6 +310,8 @@ public class ImViewerAgent
 			handleFocusGainedEvent((FocusGainedEvent) e);
         else if (e instanceof RndSettingsCopied)
 			handleRndSettingsCopiedEvent((RndSettingsCopied) e);
+        else if (e instanceof ImageViewport)
+			handleImageViewportEvent((ImageViewport) e);
     }
 
 }

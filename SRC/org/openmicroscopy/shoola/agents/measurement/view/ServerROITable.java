@@ -38,14 +38,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
-
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -73,7 +71,6 @@ import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
-import org.openmicroscopy.shoola.util.roi.model.ROIMap;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
@@ -303,13 +300,21 @@ class ServerROITable
 		int index;
 		Long id;
 		table.getSelectionModel().removeListSelectionListener(this);
-		table.clearSelection();
+		int[] array = table.getSelectedRows();
+		List<Integer> l = new ArrayList<Integer>();
+		if (array != null) {
+			for (int j = 0; j < array.length; j++) 
+				l.add(array[j]);
+		}
+		if (roiIDs.size() <= l.size()) table.clearSelection();
 		while (i.hasNext()) {
 			id = i.next();
 			if (rowIDs.containsKey(id)) {
 				index = rowIDs.get(id);
-				table.addRowSelectionInterval(index, index);
-				scrollToRow(index);
+				if (!l.contains(index)) {
+					table.addRowSelectionInterval(index, index);
+					scrollToRow(index);
+				}
 			}
 		}
 		table.repaint();
@@ -392,15 +397,7 @@ class ServerROITable
 					}
 				}
 			}
-			DrawingCanvasView dv = model.getDrawingView();
-	    	dv.clearSelection();
-	    	Iterator<ROIFigure> k = list.iterator();
-	    	System.err.println(list);
-	    	while (k.hasNext()) {
-	    		dv.addToSelection(k.next());
-			}
-			dv.grabFocus();
-	    	
+			view.setTableSelectedFigure(list);
 		} catch (Exception ex) {
 			// TODO: handle exception
 		}

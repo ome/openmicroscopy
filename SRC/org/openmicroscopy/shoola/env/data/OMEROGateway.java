@@ -4606,6 +4606,7 @@ class OMEROGateway
 				results.add(new ROIResult(PojoMapper.asDataObjects(r.rois)));
 			} else { //measurements
 				
+				
 				Iterator<Long> i = measurements.iterator();
 				long id;
 				while (i.hasNext()) {
@@ -4629,16 +4630,14 @@ class OMEROGateway
 					id = i.next();
 					r = map.get(id);
 					//get the table
+					System.err.println(r.rois.size());
 					result = new ROIResult(PojoMapper.asDataObjects(r.rois), 
 							id);
 					result.setResult(createTableResult(svc.getTable(id)));
-					m = System.currentTimeMillis();
-					
 					results.add(result);
-					end =System.currentTimeMillis();
 				}
-				System.err.println("ROI: "+(m-start)+" Table: "+(end-m)+" total: "+(end-start));
 				*/
+				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

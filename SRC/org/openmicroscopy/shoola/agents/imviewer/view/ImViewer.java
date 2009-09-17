@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
@@ -1054,5 +1055,12 @@ public interface ImViewer
 	 * @param result The collection to set.
 	 */
 	void setMeasurements(Collection result);
+
+	/**
+	 * Scrolls to viewport.
+	 * 
+	 * @param bounds The rectangle to display if possible.
+	 */
+	public void scrollToViewport(Rectangle bounds);
 	
 }

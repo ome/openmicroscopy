@@ -30,6 +30,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +40,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -2728,6 +2728,16 @@ class ImViewerComponent
 			a.setEnabled(false);
 		}
 		model.setMeasurements(result);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#scrollToViewport(Rectangle)
+	 */
+	public void scrollToViewport(Rectangle bounds)
+	{
+		if (bounds == null) return;
+		model.getBrowser().scrollTo(bounds, false);
 	}
 	
 }

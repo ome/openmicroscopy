@@ -55,6 +55,7 @@ import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.ImageViewport;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
@@ -191,6 +192,18 @@ class MeasurementViewerUI
     
     /** The collection of components displaying the tables. */
     private List<ServerROITable>		roiTables;
+
+    /**
+     * Scrolls to the passed figure.
+     * 
+     * @param figure The figure to handle.
+     */
+    private void scrollToFigure(ROIFigure figure)
+    {
+    	EventBus bus = MeasurementAgent.getRegistry().getEventBus();
+    	bus.post(new ImageViewport(model.getImageID(), model.getPixelsID(),
+    			figure.getBounds().getBounds()));
+    }
     
     /** 
      * Creates the menu bar.
@@ -440,8 +453,9 @@ class MeasurementViewerUI
 	}
 	
 	/**
-	 * split the ROIShapes from the ROI with id and the ROIShapes selected in the shapeList 
-	 * from that ROI.
+	 * Splits the ROIShapes from the ROI with id and the ROIShapes selected in 
+	 * the shapeList from that ROI.
+	 * 
 	 * @param id see above.
 	 * @param shapeList see above.
 	 */
@@ -453,8 +467,9 @@ class MeasurementViewerUI
 			ROI newROI = model.cloneROI(id);
 			for(ROIShape shape : shapeList)
 			{
-				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
-				if(getDrawing().contains(shape.getFigure()))
+				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), 
+						shape);
+				if (getDrawing().contains(shape.getFigure()))
 				{
 					shape.getFigure().removeFigureListener(controller);
 					getDrawing().removeDrawingListener(controller);
@@ -498,8 +513,9 @@ class MeasurementViewerUI
 			ROI newROI = model.cloneROI(id);
 			for(ROIShape shape : shapeList)
 			{
-				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
-				if(newShape.getCoord3D().equals(model.getCurrentView()))
+				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), 
+						shape);
+				if (newShape.getCoord3D().equals(model.getCurrentView()))
 				{
 					getDrawing().removeDrawingListener(controller);
 					this.getDrawing().add(newShape.getFigure());
@@ -516,7 +532,8 @@ class MeasurementViewerUI
 	}
 	
 	/**
-	 * Delete the ROI with id and the ROIShapes selected in the shapeList 
+	 * Deletes the ROI with id and the ROIShapes selected in the shapeList.
+	 * 
 	 * @param shapeList see above.
 	 */
 	void deleteROIShapes( ArrayList<ROIShape> shapeList)
@@ -698,19 +715,6 @@ class MeasurementViewerUI
     	UIUtilities.setLocationRelativeToAndShow(this, assistant);
 	}
 	
-	void selectFiguresFromTable(List<ROIFigure> list)
-	{
-		if (list == null || list.size() == 0) return;
-		DrawingCanvasView dv = model.getDrawingView();
-    	dv.clearSelection();
-    	Iterator<ROIFigure> i = list.iterator();
-    	while (i.hasNext()) {
-    		dv.addToSelection(i.next());
-		}
-		dv.grabFocus();
-    	
-	}
-	
     /**
      * Selects the passed figure.
      * 
@@ -735,27 +739,13 @@ class MeasurementViewerUI
     	DrawingCanvasView dv = model.getDrawingView();
     	dv.clearSelection();
     	dv.addToSelection(figure);
-		Collection figures = dv.getSelectedFigures();
-		if (figures == null) return;
-		Iterator i = figures.iterator();
-		List<ROIShape> roiShapeList = new ArrayList();
-		ROIFigure f;
-		ROIShape roiShape;
-		try {
-			while (i.hasNext()) {
-				f = (ROIFigure) i.next();
-			//	roi = model.getROIShape(f.getROIShape().getID());
-			//	if (roi != null) roiList.add(roi);
-				roiShape = f.getROIShape();
-				roiShapeList.add(roiShape);
-			}
-		} catch (Exception e) {
-			handleROIException(e, RETRIEVE_MSG);
-		}
+		List<ROIShape> roiShapeList = new ArrayList<ROIShape>();
+		roiShapeList.add(figure.getROIShape());
 		dv.grabFocus();
 		if (model.isServerROI()) {
 			List<Long> ids = new ArrayList<Long>();
 			Iterator<ROIShape> j = roiShapeList.iterator();
+			ROIShape roiShape;
 			while (j.hasNext()) {
 				roiShape = (ROIShape) j.next();
 				ids.add(roiShape.getROI().getID());
@@ -800,15 +790,42 @@ class MeasurementViewerUI
 				shape = (ROIShape) j.next();
 				ids.add(shape.getROI().getID());
 			}
-			Iterator<ServerROITable> k = roiTables.iterator();
-			while (k.hasNext()) {
-				k.next().selectROI(ids);
+			Component c = tabs.getSelectedComponent();
+			if (c instanceof ServerROITable) {
+				((ServerROITable) c).selectROI(ids);
 			}
 		} else {
 			roiInspector.setSelectedFigures(shapeList);
 			roiManager.setSelectedFigures(shapeList, true);
 		}
 	}
+    
+    /**
+     * Sets the figures selected from the table.
+     * 
+     * @param figures
+     */
+    void setTableSelectedFigure(List<ROIFigure> figures)
+    {
+    	DrawingCanvasView dv = model.getDrawingView();
+    	Iterator<ROIFigure> k = figures.iterator();
+    	ROIFigure figure;
+    	dv.clearSelection();
+    	if (figures == null || figures.size() == 0) return;
+    	dv.removeFigureSelectionListener(controller);
+    	int n = figures.size()-1;
+    	int index = 0;
+    	while (k.hasNext()) {
+    		figure = k.next();
+    		dv.addToSelection(figure);
+    		if (index == n) {
+    			scrollToFigure(figure);	
+    		}
+    		index++;
+		}
+    	dv.addFigureSelectionListener(controller);
+		dv.grabFocus();
+    }
     
     /**
      * Removes the specified figure from the display.
@@ -820,8 +837,10 @@ class MeasurementViewerUI
     	if (figure == null) return;
     	try {
     		model.removeROIShape(figure.getROI().getID());
-    	    roiManager.removeFigure(figure);
-        	roiResults.refreshResults();
+    		if (!model.isServerROI()) {
+    			roiManager.removeFigure(figure);
+    			roiResults.refreshResults();
+    		}
 		} catch (Exception e) {
 			handleROIException(e, DELETE_MSG);
 		}
@@ -845,8 +864,10 @@ class MeasurementViewerUI
     	if (roi == null) return;
     	List<ROI> roiList = new ArrayList<ROI>();
     	roiList.add(roi);
-    	roiManager.addFigures(roiList);
-    	roiResults.refreshResults();
+    	if (!model.isServerROI()) {
+    		roiManager.addFigures(roiList);
+        	roiResults.refreshResults();
+    	}
     }
     
     /**
@@ -859,9 +880,11 @@ class MeasurementViewerUI
     	if (model.getState() != MeasurementViewer.READY) return;
     	if (figure == null) return;
     	getDrawingView().repaint();
-    	roiInspector.setModelData(figure);
-    	roiManager.update();
-    	roiResults.refreshResults();
+    	if (!model.isServerROI()) {
+    		roiInspector.setModelData(figure);
+        	roiManager.update();
+        	roiResults.refreshResults();
+    	}
     }
 
     /**
@@ -879,13 +902,24 @@ class MeasurementViewerUI
     DrawingCanvasView getDrawingView() { return model.getDrawingView(); }
     
     /** Rebuilds the ROI table. */
-    void rebuildManagerTable() { roiManager.rebuildTable(); }
+    void rebuildManagerTable()
+    { 
+    	if (!model.isServerROI()) roiManager.rebuildTable(); 
+    }
     
     /** Rebuilds the results table. */
-    void refreshResultsTable() { roiResults.refreshResults(); }
+    void refreshResultsTable()
+    { 
+    	if (!model.isServerROI())
+    		roiResults.refreshResults();
+    }
     
     /** Rebuild the inspector table. */
-    void refreshInspectorTable() { roiInspector.repaint(); } 
+    void refreshInspectorTable()
+    { 
+    	if (!model.isServerROI())
+    		roiInspector.repaint();
+    } 
     
     /** 
      * Saves the results table.
@@ -1046,7 +1080,7 @@ class MeasurementViewerUI
 				}
 				newShape.getFigure().calculateMeasurements();
 			}
-			roiManager.addROIShapes(addedShapes);
+			if (!model.isServerROI()) roiManager.addROIShapes(addedShapes);
 		}
 		catch (ROICreationException e)
 		{
