@@ -85,7 +85,7 @@ importerMap = {'.dcm':'Dicom',
 '.ome.tif':'OMETiff',
 '.liff':'Openlab'};
 
-fomatMap = {'.avi':'AVI',
+formatMap = {'.avi':'AVI',
 '.qt':'QT',
 '.pic':'Pict',
 '.eps':'EPS',
@@ -101,7 +101,7 @@ IMPORTER = 'application/importer';
 def getExtension(filename):
     if(filename==None):
         return filename;
-    str = filename.split(',');
+    str = filename.split('.');
     if(len(str)<2):
         return None;
     return str[len(str)-1];
@@ -109,8 +109,8 @@ def getExtension(filename):
 def getFormat(filename):
     if(getExtension(filename)==None):
         return (UNKNOWN, UNKNOWN);
-    if(getExtension(filename) in importMap):
-        return (IMPORTER, importMap[filename]);
+    if(getExtension(filename) in importerMap):
+        return (IMPORTER, importerMap[filename]);
     if(getExtension(filename) in formatMap):
         return (KNOWNMIMETYPE, formatMap[filename]);
     if(mimetypes.guess_type(filename) != (None, None)):

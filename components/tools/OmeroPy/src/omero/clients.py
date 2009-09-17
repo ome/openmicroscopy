@@ -23,7 +23,12 @@ try:
     import omero_Constants_ice
     import omero_sys_ParametersI
     import omero.rtypes
-
+    from omero.rtypes import rlong
+    from omero.rtypes import rint
+    from omero.rtypes import rstring
+    from omero.rtypes import rdouble
+    from omero.rtypes import rfloat
+    
 finally:
     __name__ = __save__
     del __save__

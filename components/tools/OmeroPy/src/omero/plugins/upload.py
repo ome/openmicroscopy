@@ -11,6 +11,7 @@
 """
 
 from omero.cli import BaseControl
+import omero.util.originalfileutils;
 class UploadControl(BaseControl):
 
     def help(self, args = None):
@@ -23,10 +24,11 @@ Syntax: %(program_name)s upload <filename>
     def __call__(self, *args):
         import omero
         args = Arguments(*args)
-        id = self.ctx.initData()
-        client = omero.client(id)
+        client = self.ctx.conn()
         for f in args:
-            obj = client.upload(f)
+            format = omero.util.originalfileutils.getFormat(f);
+            omeroFormat = format[1];    
+            obj = client.upload(f, f, f, omeroFormat)
             print "Uploaded %s as " % f + str(obj.id.val)
 
 try:
