@@ -35,21 +35,6 @@
 # </small>
 # @since 3.0-Beta4
 #/
-import omero.scripts as scripts
-import omero
-import getopt, sys, os, subprocess
-import omero_api_Gateway_ice
-import omero_api_IScript_ice
-import omero.scripts as scripts
-import numpy;
-import PixelsTypeToPython;
-from struct import *
-from omero.rtypes import *
-import PIL
-from PIL import Image
-import hashlib
-import omero_Constants_ice
-import ImageDraw
 import mimetypes;
 
 importerMap = {'.dcm':'Dicom',
@@ -105,7 +90,7 @@ fomatMap = {'.avi':'AVI',
 '.pic':'Pict',
 '.eps':'EPS',
 '.psd':'PSD',
-'.jp2':'video/jpeg2000'
+'.jp2':'video/jpeg2000',
 '.tif':'image/tiff',
 '.tiff':'image/tiff'};
 
