@@ -285,7 +285,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
                 QueryBuilder qb = new QueryBuilder();
-                qb.select("fa");
+                qb.select("distinct fa");
                 qb.from("Image", "i");
                 qb.append(", Roi roi ");
                 qb.join("roi.annotationLinks", "rlinks", false, false);
