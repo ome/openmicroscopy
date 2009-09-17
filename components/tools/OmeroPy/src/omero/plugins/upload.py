@@ -28,8 +28,10 @@ Syntax: %(program_name)s upload <filename>
         for f in args:
             format = omero.util.originalfileutils.getFormat(f);
             omeroFormat = format[1];    
+            if(format[0]==omero.util.originalfileutils.IMPORTER):
+                self.ctx.out("This file should be imported using omero import");
             obj = client.upload(f, f, f, omeroFormat)
-            print "Uploaded %s as " % f + str(obj.id.val)
+            self.ctx.out("Uploaded %s as " % f + str(obj.id.val))
 
 try:
     register("upload", UploadControl)
