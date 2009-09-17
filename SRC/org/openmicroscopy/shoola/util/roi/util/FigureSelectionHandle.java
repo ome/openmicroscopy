@@ -26,23 +26,16 @@ package org.openmicroscopy.shoola.util.roi.util;
 //Java imports
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
-import java.security.acl.Owner;
 
 //Third-party libraries
-import org.jhotdraw.draw.AbstractHandle;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.BoundsOutlineHandle;
 import org.jhotdraw.draw.Figure;
-import static org.jhotdraw.draw.AttributeKeys.TRANSFORM;
 
 //Application-internal dependencies
 
 /**
- *
+ * Handles the selection of the figures.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,27 +51,36 @@ public class FigureSelectionHandle
 	extends BoundsOutlineHandle
 {
 	
-	public FigureSelectionHandle(Figure owner) 
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param figure The figure to handle.
+	 */
+	public FigureSelectionHandle(Figure figure) 
 	{
-		super(owner);
+		super(figure);
 	}
 
-	@Override public void draw(Graphics2D g) 
+	/**
+	 * Overridden to modify the stroke of the figure is selected.
+	 * @see BoundsOutlineHandle#draw(Graphics2D)
+	 */
+	public void draw(Graphics2D g) 
 	{
 		Figure f = getOwner();
 		Color colour = (Color)f.getAttribute(AttributeKeys.STROKE_COLOR);
 		double width = (Double)f.getAttribute(AttributeKeys.STROKE_WIDTH);
 		Color strokeColour = colour.brighter();
-		if(strokeColour==colour)
-			strokeColour = Color.red;
+		if (strokeColour == colour) strokeColour = Color.red;
 				
 		f.setAttribute(AttributeKeys.STROKE_COLOR, strokeColour);
 		f.setAttribute(AttributeKeys.STROKE_WIDTH, width+1);
-		if(f.isVisible())
-			g.scale(view.getScaleFactor(),view.getScaleFactor());
+		if (f.isVisible()) {
+			g.scale(view.getScaleFactor(), view.getScaleFactor());
 			f.draw(g);
+		}
 		f.setAttribute(AttributeKeys.STROKE_COLOR, colour);
 		f.setAttribute(AttributeKeys.STROKE_WIDTH, width);
-		
 	}
+	
 }

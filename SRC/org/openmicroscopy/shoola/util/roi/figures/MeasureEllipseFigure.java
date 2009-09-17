@@ -372,9 +372,9 @@ public class MeasureEllipseFigure
 	 */
 	public String addUnits(String str)
 	{
-		if (shape==null) return str;
-		if (units.isInMicrons()) return str+UIUtilities.MICRONS_SYMBOL
-				+UIUtilities.SQUARED_SYMBOL;
+		if (shape == null) return str;
+		if (units.isInMicrons()) 
+			return str+UIUtilities.MICRONS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 	
@@ -394,11 +394,11 @@ public class MeasureEllipseFigure
 	 */
 	public double getPerimeter()
 	{
-		if (getMeasurementWidth() ==getMeasurementHeight()) 
+		if (getMeasurementWidth() == getMeasurementHeight()) 
 			return getMeasurementWidth()*2*Math.PI;
 		
-		double a=Math.max(getMeasurementWidth(), getMeasurementHeight());
-		double b=Math.min(getMeasurementWidth(), getMeasurementHeight());
+		double a = Math.max(getMeasurementWidth(), getMeasurementHeight());
+		double b = Math.min(getMeasurementWidth(), getMeasurementHeight());
 		// approximation of c for ellipse. 
 		return Math.PI*(3*a+3*b-Math.sqrt((a+3*b)*(b+3*a)));
 	}
@@ -422,8 +422,6 @@ public class MeasureEllipseFigure
 		return roi;
 	}
 	
-	
-	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getROIShape()
@@ -433,17 +431,14 @@ public class MeasureEllipseFigure
 		return shape;
 	}
 	
-	
-	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#setROI(ROI)
 	 */
 	public void setROI(ROI roi)
 	{
-		this.roi=roi;
+		this.roi = roi;
 	}
-	
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
@@ -512,17 +507,17 @@ public class MeasureEllipseFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if(!readOnly)
+		if (!readOnly)
 			super.transform(tx);
 	}
 		
 	/**
-	 * Overridden to stop updating shape if readonly.
+	 * Overridden to stop updating shape if read only.
 	 * @see AbstractAttributedFigure#setBounds(Double, Double)
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if(!readOnly)
+		if (!readOnly)
 			super.setBounds(anchor, lead);
 	}
 	
@@ -532,7 +527,7 @@ public class MeasureEllipseFigure
 	 */
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
-		if(!readOnly)
+		if (!readOnly)
 			return super.createHandles(detailLevel);
 		else
 		{
@@ -549,7 +544,7 @@ public class MeasureEllipseFigure
 	 */
 	public void invalidate()
 	{
-		if(!readOnly)
+		if (!readOnly)
 			super.invalidate();
 	}
 
@@ -592,6 +587,5 @@ public class MeasureEllipseFigure
 		that.setReadOnly(this.isReadOnly());
 		return that;
 	}
-	
 	
 }

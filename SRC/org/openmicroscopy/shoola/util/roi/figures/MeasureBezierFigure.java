@@ -104,6 +104,60 @@ public class MeasureBezierFigure
 	 */
 	private int 					status;
 	
+	
+	/**
+	 * Returns the points(pixels) on the polyline return this as an array.
+	 * 
+	 * @return See above.
+	 */
+	private List<Point> getLinePoints()
+	{
+		List<Point> vector = new ArrayList<Point>();
+		Point2D pt1, pt2;
+		for (int i = 0 ; i < getNodeCount()-1; i++)
+		{
+			pt1 = getPoint(i);
+			pt2 = getPoint(i+1);
+			iterateLine(new Line2D.Double(pt1, pt2), vector);
+		}
+		return vector;
+	}
+		
+	/**
+	 * Iterates the line to get the points under it.
+	 * 
+	 * @param line the line to iterate.
+	 * @param vector the vector to add the point to.
+	 */
+	private void iterateLine(Line2D line, List<Point> vector)
+	{
+		Point2D start = line.getP1();
+		Point2D end = line.getP2();
+		Point2D m = new Point2D.Double(end.getX()-start.getX(),
+				end.getY()-start.getY());
+		double lengthM = (Math.sqrt(m.getX()*m.getX()+m.getY()*m.getY()));
+		Point2D mNorm = new Point2D.Double(m.getX()/lengthM,m.getY()/lengthM);
+		LinkedHashMap<Point2D, Boolean> 
+		map = new LinkedHashMap<Point2D, Boolean>();
+		Point2D pt;
+		Point2D quantisedPoint;
+		for (double i = 0 ; i < lengthM ; i+=0.1)
+		{
+			pt = new Point2D.Double(start.getX()+i*mNorm.getX(),
+				start.getY()+i*mNorm.getY());
+			quantisedPoint = new Point2D.Double(Math.floor(pt.getX()), 
+				Math.floor(pt.getY()));
+			if (!map.containsKey(quantisedPoint))
+				map.put(quantisedPoint, Boolean.TRUE);
+		}
+		Iterator<Point2D> i = map.keySet().iterator();
+		while (i.hasNext())
+		{
+			pt  = i.next();
+			vector.add(new Point((int) pt.getX(), (int) pt.getY()));
+		}
+	}
+	
 	/** Creates an instance of the bezier figure. */
 	public MeasureBezierFigure()
 	{
@@ -131,10 +185,16 @@ public class MeasureBezierFigure
 		this(text, false, false);
 	}
 	
-	
+	/**
+	 * Creates an instance of the Bezier figure (closed).
+	 * 
+	 * @param text The string displayed in the figure. 
+	 * @param closed Pass <code>true</code> if the figure is a polygon,
+	 * 				 <code>false</code> if it is a polyline.
+	 */
 	public MeasureBezierFigure(String text, boolean closed)
 	{
-		this(text, closed,false);
+		this(text, closed, false);
 	}
 	
 	/**
@@ -184,14 +244,14 @@ public class MeasureBezierFigure
 				{
 					g.setColor(
 							MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-					g.drawString(polygonArea, (int)bounds.getX(), 
-							(int)bounds.getY());
+					g.drawString(polygonArea, (int) bounds.getX(), 
+							(int) bounds.getY());
 				}
 				if (MeasurementAttributes.SHOWID.get(this))
 				{
 					g.setColor(this.getTextColor());
-					g.drawString(this.getROI().getID()+"", (int)bounds.getX(), 
-							(int)bounds.getY());
+					g.drawString(this.getROI().getID()+"", (int) bounds.getX(), 
+							(int) bounds.getY());
 				}
 			}
 			else
@@ -466,6 +526,7 @@ public class MeasureBezierFigure
 		}
 	}
 	
+	
 	/**
 	 * Overridden to return a copy of the figure
 	 * @see BezierTextFigure#clone()
@@ -474,6 +535,33 @@ public class MeasureBezierFigure
 	{
 		return (MeasureBezierFigure) super.clone();
 	}
+	
+	/**
+	 * Returns the points(pixels) in the polygon return this as an array.
+	 * 
+	 * @return See above.
+	 */
+	private List<Point> getAreaPoints()
+	{
+		Rectangle r = path.getBounds();
+		double iX = Math.floor(r.getX());
+		double iY = Math.floor(r.getY());
+		List<Point> vector = new ArrayList<Point>();
+		path.toPolygonArray();
+		Point2D point = new Point2D.Double(0,0);
+		for (int x = 0 ; x < Math.ceil(r.getWidth()); x++)
+		{
+			for ( int y = 0 ; y < Math.ceil(r.getHeight()) ; y++)
+			{
+				point.setLocation(iX+x, iY+y);
+				if (path.contains(point))
+					vector.add(new Point((int) point.getX(), (int)  
+							point.getY()));
+			}
+		}
+		return vector;
+	}
+
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
@@ -503,119 +591,6 @@ public class MeasureBezierFigure
 		if (isClosed()) return getAreaPoints();
 		return getLinePoints();
 	}
-	
-	/**
-	 * Get the points(pixels) in the polygon return this as an array.
-	 * @return see above.
-	 */
-	private List<Point> getAreaPoints()
-	{
-		Rectangle r = path.getBounds();
-		double iX = Math.floor(r.getX());
-		double iY = Math.floor(r.getY());
-		List<Point> vector = new ArrayList<Point>();
-		path.toPolygonArray();
-		Point2D point = new Point2D.Double(0,0);
-		for (int x = 0 ; x < Math.ceil(r.getWidth()); x++)
-		{
-			for ( int y = 0 ; y < Math.ceil(r.getHeight()) ; y++)
-			{
-				point.setLocation(iX+x, iY+y);
-				if (path.contains(point))
-					vector.add(new Point((int) point.getX(), (int)  
-							point.getY()));
-			}
-		}
-		return vector;
-	}
-	
-	/**
-	 * Get the points(pixels) on the polyline return this as an array.
-	 * @return see above.
-	 */
-	private List<Point> getLinePoints()
-	{
-		List<Point> vector = new ArrayList<Point>();
-		Point2D pt1, pt2;
-		for (int i = 0 ; i < getNodeCount()-1; i++)
-		{
-			pt1 = getPoint(i);
-			pt2 = getPoint(i+1);
-			iterateLine(new Line2D.Double(pt1, pt2), vector);
-		}
-		return vector;
-	}
-		
-	/**
-	 * Iterate the line to get the points under it.
-	 * @param line the line to iterate.
-	 * @param vector the vector to add the point to.
-	 */
-	private void iterateLine(Line2D line, List<Point> vector)
-	{
-		Point2D start = line.getP1();
-		Point2D end = line.getP2();
-		Point2D m = new Point2D.Double(end.getX()-start.getX(),
-				end.getY()-start.getY());
-		double lengthM = (Math.sqrt(m.getX()*m.getX()+m.getY()*m.getY()));
-		Point2D mNorm = new Point2D.Double(m.getX()/lengthM,m.getY()/lengthM);
-		LinkedHashMap<Point2D, Boolean> 
-		map = new LinkedHashMap<Point2D, Boolean>();
-		Point2D pt;
-		Point2D quantisedPoint;
-		for (double i = 0 ; i < lengthM ; i+=0.1)
-		{
-			pt = new Point2D.Double(start.getX()+i*mNorm.getX(),
-				start.getY()+i*mNorm.getY());
-			quantisedPoint = new Point2D.Double(Math.floor(pt.getX()), 
-				Math.floor(pt.getY()));
-			if (!map.containsKey(quantisedPoint))
-				map.put(quantisedPoint, Boolean.TRUE);
-		}
-		Iterator<Point2D> i = map.keySet().iterator();
-		while (i.hasNext())
-		{
-			pt  = i.next();
-			vector.add(new Point((int) pt.getX(), (int) pt.getY()));
-		}
-		
-	}
-	
-	/**
-	 * Overridden to stop updating shape if read only
-	 * @see AbstractAttributedFigure#transform(AffineTransform)
-	 */
-	public void transform(AffineTransform tx)
-	{
-		if(!readOnly)
-			super.transform(tx);
-	}
-	
-	/**
-	 * Overridden to stop updating shape if read only.
-	 * @see AbstractAttributedFigure#setBounds(Double, Double)
-	 */
-	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
-	{
-		if(!readOnly)
-			super.setBounds(anchor, lead);
-	}
-	
-	/**
-	 * Overridden to return the correct handles.
-	 * @see AbstractAttributedFigure#createHandles(int)
-	 */
-	public Collection<Handle> createHandles(int detailLevel) 
-	{
-		if(!readOnly)
-			return super.createHandles(detailLevel);
-		else
-		{
-			LinkedList<Handle> handles = new LinkedList<Handle>();
-			handles.add(new FigureSelectionHandle(this));
-			return handles;
-		}
-	}
 		
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
@@ -628,6 +603,7 @@ public class MeasureBezierFigure
 	 * @see ROIFigure#getStatus()
 	 */
 	public int getStatus() { return status; }
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#isReadOnly()
@@ -644,6 +620,41 @@ public class MeasureBezierFigure
 		setEditable(!readOnly);
 	}
 
+	/**
+	 * Overridden to stop updating shape if read only
+	 * @see AbstractAttributedFigure#transform(AffineTransform)
+	 */
+	public void transform(AffineTransform tx)
+	{
+		if (!readOnly)
+			super.transform(tx);
+	}
+	
+	/**
+	 * Overridden to stop updating shape if read only.
+	 * @see AbstractAttributedFigure#setBounds(Double, Double)
+	 */
+	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
+	{
+		if (!readOnly)
+			super.setBounds(anchor, lead);
+	}
+	
+	/**
+	 * Overridden to return the correct handles.
+	 * @see AbstractAttributedFigure#createHandles(int)
+	 */
+	public Collection<Handle> createHandles(int detailLevel) 
+	{
+		if (!readOnly)
+			return super.createHandles(detailLevel);
+		else
+		{
+			LinkedList<Handle> handles = new LinkedList<Handle>();
+			handles.add(new FigureSelectionHandle(this));
+			return handles;
+		}
+	}
 }
 
 
