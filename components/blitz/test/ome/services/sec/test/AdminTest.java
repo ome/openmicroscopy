@@ -15,7 +15,6 @@ import java.util.UUID;
 import omero.ServerError;
 import omero.api.IAdminPrx;
 import omero.api.ServiceFactoryPrx;
-import omero.metadatastore.IObjectContainer;
 import omero.model.Experimenter;
 import omero.model.ExperimenterI;
 import omero.model.ExperimenterGroup;
@@ -29,9 +28,6 @@ import omero.sys.Roles;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
-import ome.formats.model.ModelProcessor;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.system.Login;
 
 import org.testng.annotations.Test;
