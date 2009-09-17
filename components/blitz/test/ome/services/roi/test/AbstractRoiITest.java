@@ -14,7 +14,7 @@ import ome.services.blitz.impl.RoiI;
 import ome.services.blitz.test.AbstractServantTest;
 import ome.services.roi.GeomTool;
 import omero.api.AMD_IRoi_findByIntersection;
-import omero.api.AMD_IRoi_getImageMeasurements;
+import omero.api.AMD_IRoi_getRoiMeasurements;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
 import omero.model.Annotation;
@@ -99,13 +99,13 @@ public class AbstractRoiITest extends AbstractServantTest {
     protected List<FileAnnotation> assertGetImageMeasurements(long imageId)
     throws Exception {
         final RV rv = new RV();
-        user_roisvc.getImageMeasurements_async(new AMD_IRoi_getImageMeasurements(){
+        user_roisvc.getRoiMeasurements_async(new AMD_IRoi_getRoiMeasurements(){
             public void ice_exception(Exception ex) {
                 rv.ex = ex;
             }
             public void ice_response(List<Annotation> __ret) {
                 rv.rv = __ret;
-            }}, imageId, new RoiOptions(), current("getImageMeasurements"));
+            }}, imageId, new RoiOptions(), current("getRoiMeasurements"));
      
         rv.assertPassed();
         return (List<FileAnnotation>) rv.rv;

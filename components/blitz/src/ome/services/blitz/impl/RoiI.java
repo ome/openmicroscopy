@@ -31,7 +31,7 @@ import omero.api.AMD_IRoi_findByImage;
 import omero.api.AMD_IRoi_findByIntersection;
 import omero.api.AMD_IRoi_findByPlane;
 import omero.api.AMD_IRoi_findByRoi;
-import omero.api.AMD_IRoi_getImageMeasurements;
+import omero.api.AMD_IRoi_getRoiMeasurements;
 import omero.api.AMD_IRoi_getMeasuredRois;
 import omero.api.AMD_IRoi_getMeasuredRoisMap;
 import omero.api.AMD_IRoi_getPoints;
@@ -272,7 +272,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
     // Measurement results.
     // =========================================================================
 
-    public void getImageMeasurements_async(AMD_IRoi_getImageMeasurements __cb,
+    public void getRoiMeasurements_async(AMD_IRoi_getRoiMeasurements __cb,
             final long imageId, final RoiOptions opts, Current __current)
             throws ServerError {
 
@@ -280,7 +280,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
         runnableCall(__current, new Adapter(__cb, __current, mapper, factory
                 .getExecutor(), factory.principal, new SimpleWork(this,
-                "getImageMeasurements", imageId) {
+                "getRoiMeasurements", imageId) {
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {

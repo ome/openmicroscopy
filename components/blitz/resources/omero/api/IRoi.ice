@@ -193,11 +193,12 @@ module omero {
 
                 /**
                  * Returns a list of [omero::model::FileAnnotation] instances with the namespace
-                 * "openmicroscopy.org/measurements"
+                 * "openmicroscopy.org/measurements" which are attached to the [omero::model::Plate]
+		 * containing the given image AND which are attached to at least one [omero::model::Roi]
                  *
                  * @param opts, userId and groupId are respected based on the ownership of the annotation.
                  **/
-                AnnotationList getImageMeasurements(long imageId, RoiOptions opts) throws omero::ServerError;
+                AnnotationList getRoiMeasurements(long imageId, RoiOptions opts) throws omero::ServerError;
 
                 /**
                  * Loads the ROIs which are linked to by the given [omero::model::FileAnnotation] id for
