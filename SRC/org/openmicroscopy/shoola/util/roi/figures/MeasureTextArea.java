@@ -39,13 +39,11 @@ import java.text.AttributedString;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedDecoratedFigure;
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.FontSizeHandle;
 import org.jhotdraw.draw.Handle;
 import org.jhotdraw.draw.TextAreaTool;

@@ -44,7 +44,6 @@ import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
-import org.jhotdraw.draw.BoundsOutlineHandle;
 import org.jhotdraw.draw.Handle;
 
 //Application-internal dependencies

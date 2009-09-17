@@ -36,15 +36,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.BoundsOutlineHandle;
-import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.Handle;
-import org.jhotdraw.draw.NullHandle;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;

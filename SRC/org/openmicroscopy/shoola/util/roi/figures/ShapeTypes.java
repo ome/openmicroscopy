@@ -22,18 +22,20 @@
  */
 package org.openmicroscopy.shoola.util.roi.figures;
 
+
+
+//Java imports
 import java.util.ArrayList;
 import java.util.List;
 
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
+ * Supported shapes
  * 
- *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;

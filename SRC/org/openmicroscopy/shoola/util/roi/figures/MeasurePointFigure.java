@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.util.roi.figures;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -35,18 +34,14 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
-import org.jhotdraw.draw.BoundsOutlineHandle;
 import org.jhotdraw.draw.Handle;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;

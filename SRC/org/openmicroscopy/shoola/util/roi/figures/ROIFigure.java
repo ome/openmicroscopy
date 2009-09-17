@@ -23,11 +23,10 @@
 package org.openmicroscopy.shoola.util.roi.figures;
 
 //Java imports
-
-//Third-party libraries
 import java.awt.Point;
 import java.util.List;
 
+//Third-party libraries
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
