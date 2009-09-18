@@ -671,6 +671,10 @@ public class client {
                 // ok. Server probably went down
             } catch (Ice.ConnectTimeoutException cte) {
                 // ok. Server probably went down
+            } catch (Ice.DNSException dns) {
+                // ok. client is having network issues
+            } catch (Ice.SocketException se) {
+                // ok. client is having network issues
             } finally {
                 oldIc.destroy();
             }
