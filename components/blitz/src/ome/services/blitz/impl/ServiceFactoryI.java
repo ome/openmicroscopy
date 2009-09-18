@@ -663,6 +663,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                         } else if (servant instanceof SharedResourcesI) {
                             // Not currently doing anything.
                             // But will eventually need to cleanup cache.
+                            ((SharedResourcesI)servant).close();
                         } else {
                             throw new ome.conditions.InternalException(
                                     "Unknown servant type: " + servant);

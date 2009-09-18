@@ -11,7 +11,9 @@ import static omero.rtypes.rstring;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +43,7 @@ import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
 import omero.grid.TablePrx;
+import omero.grid.TablePrxHelper;
 import omero.grid.TablesPrx;
 import omero.grid.TablesPrxHelper;
 import omero.grid._SharedResourcesOperations;
@@ -73,6 +76,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
     private final static Log log = LogFactory.getLog(SharedResourcesI.class);
 
+    private final Set<String> tableIds = new HashSet<String>();
+    
     private final TopicManager topicManager;
 
     private final Registry registry;
@@ -90,6 +95,23 @@ public class SharedResourcesI extends AbstractAmdServant implements
         this.sf = sf;
     }
 
+    public void close() {
+        synchronized (tableIds) {
+            for (String id : tableIds) {
+                TablePrx table = 
+                    TablePrxHelper.uncheckedCast(
+                            sf.adapter.getCommunicator().stringToProxy(id).ice_oneway());
+                try {
+                    table.close();
+                } catch (Exception e) {
+                    log.warn("Exception while closing table oneway: "+e);
+                }
+                
+            }
+            tableIds.clear();
+        }
+    }
+
     // Acquisition framework
     // =========================================================================
 
@@ -97,6 +119,15 @@ public class SharedResourcesI extends AbstractAmdServant implements
         if (prx != null && sf.control != null) {
             sf.control.identities().add(
                     new Ice.Identity[]{prx.ice_getIdentity()});
+        }
+    }
+    
+    private void register(TablePrx prx) {
+        if (prx != null) {
+            synchronized(tableIds) {
+                tableIds.add(
+                    Ice.Util.identityToString(prx.ice_getIdentity()));
+            }
         }
     }
     
@@ -339,6 +370,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
                 });
         
         allow(tablePrx);
+        register(tablePrx);
         return tablePrx;
 
     }
