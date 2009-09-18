@@ -95,7 +95,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             this.panel = panel;
         }
 
-        public void update(IObservable importLibrary, ImportEvent event) {
+        public void onUpdate(IObservable importLibrary, ImportEvent event) {
             if (event instanceof ImportEvent.ERRORS_SEND) {
                 cancelUploads = false;
                 errorTable.enableCancelBtn(true);

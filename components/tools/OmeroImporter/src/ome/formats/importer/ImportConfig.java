@@ -111,9 +111,11 @@ public class ImportConfig {
     public final StrValue targetClass = new StrValue("targetClass", this);
     public final LongValue targetId = new LongValue("targetId", this, 0);
 
-    public final BoolValue contOnError = new BoolValue("contOnError", this, false   );
     public final BoolValue debug = new BoolValue("debug", this, false);
+    public final BoolValue contOnError = new BoolValue("contOnError", this, false   );
+    public final BoolValue sendReport = new BoolValue("sendFiles", this, false);
     public final BoolValue sendFiles = new BoolValue("sendFiles", this, false);
+
     public final BoolValue useFullPath = new BoolValue("useFullPath", this, true);
     public final BoolValue savedFileNaming = new BoolValue("savedFileNaming",
             this, false);

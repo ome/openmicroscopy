@@ -12,15 +12,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import loci.formats.FileInfo;
-import loci.formats.FormatException;
+import ome.formats.importer.util.ErrorHandler;
 
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -38,8 +36,9 @@ public class ImportCandidates extends DirectoryWalker {
 
     private final static Log log = LogFactory.getLog(ImportCandidates.class);
 
-    final private Groups groups;
+    final private IObserver observer;
     final private OMEROWrapper reader;
+    final private Groups groups;
     final private Set<String> allFiles = new HashSet<String>();
     final private Map<String, Set<String>> usedBy = new HashMap<String, Set<String>>();
     final private List<ImportContainer> containers = new ArrayList<ImportContainer>();
@@ -48,14 +47,21 @@ public class ImportCandidates extends DirectoryWalker {
      * Main constructor which iterates over all the paths calling
      * {@link #walk(File, Collection)}.
      * 
+     * @param reader
+     *            instance used for parsing each of the paths. Not used once the
+     *            constructor completes.
      * @param paths
-     * @param verbose
-     * @throws IOException
+     *            file paths which are searched. May be directories.
+     * @param observer
+     *            {@link IObserver} which will monitor any exceptions during
+     *            {@link OMEROWrapper#setId(String)}. Otherwise no error
+     *            reporting takes place.
      */
-    public ImportCandidates(OMEROWrapper reader, String[] paths) {
+    public ImportCandidates(OMEROWrapper reader, String[] paths,
+            IObserver observer) {
         super(TrueFileFilter.INSTANCE, 4);
-
         this.reader = reader;
+        this.observer = observer;
 
         if (paths != null && paths.length == 2 && "".equals(paths[0])
                 && "".equals(paths[1])) {
@@ -96,6 +102,7 @@ public class ImportCandidates extends DirectoryWalker {
      */
     public ImportCandidates(OMEROWrapper reader, ImportContainer[] containers) {
         this.reader = reader;
+        this.observer = null;
         this.groups = null;
         if (containers != null) {
             this.containers.addAll(Arrays.asList(containers));
@@ -150,17 +157,41 @@ public class ImportCandidates extends DirectoryWalker {
     }
 
     private ImportContainer singleFile(File file) {
-        try {
-            reader.setId(file.getAbsolutePath());
-            return new ImportContainer(file, null, null, null, false, null,
-                    reader.getFormat(), reader.getUsedFiles(), reader.isSPWReader(file.getAbsolutePath()));
-        } catch (FormatException e) {
-            log.debug("FormatException: " + file.getAbsolutePath());
-        } catch (Exception e) {
-            log.error("Exception: " + file.getAbsolutePath(), e);
-        }
-        return null;
 
+        if (file == null) {
+            return null;
+        }
+
+        String path = file.getAbsolutePath();
+        String format = null;
+        String[] usedFiles = null;
+        try {
+            reader.setId(path);
+            format = reader.getFormat();
+            usedFiles = reader.getUsedFiles();
+            
+            return new ImportContainer(file, null, null, null, false, null,
+                    reader.getFormat(), usedFiles , reader
+                            .isSPWReader(path));
+        } catch (Exception e) {
+            
+            if (usedFiles == null || usedFiles.length == 0) {
+                if (new File(path).exists()) {
+                    usedFiles = new String[]{path};
+                }
+            }
+            
+            ImportEvent event = new ErrorHandler.FILE_EXCEPTION(path, e, usedFiles, format);
+            try {
+                observer.update(null, event);
+            } catch (Exception ex) {
+                log.error(
+                        String.format("Error on %s with %s", observer, event),
+                        ex);
+            }
+        }
+
+        return null;
     }
 
     @Override

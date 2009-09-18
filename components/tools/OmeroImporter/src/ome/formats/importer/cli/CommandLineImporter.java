@@ -6,6 +6,7 @@ import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import omero.model.Dataset;
@@ -22,20 +23,22 @@ import org.apache.log4j.Logger;
  * @author Chris Allan <callan@glencoesoftware.com>
  * @author Josh Moore josh at glencoesoftware.com
  */
-public class CommandLineImporter
-{
+public class CommandLineImporter {
     /** Logger for this class. */
     private static Log log = LogFactory.getLog(CommandLineImporter.class);
 
     /** Name that will be used for usage() */
     private static final String APP_NAME = "importer-cli";
-    
+
     /** Configuration used by all components */
     public final ImportConfig config;
-    
+
     /** Base importer library, this is what we actually use to import. */
     public final ImportLibrary library;
-    
+
+    /** ErrorHandler which is also responsible for uploading files */
+    public final ErrorHandler handler;
+
     /** Bio-Formats reader wrapper customized for OMERO. */
     private final OMEROWrapper reader;
 
@@ -44,28 +47,30 @@ public class CommandLineImporter
 
     /** Candidates for import */
     private final ImportCandidates candidates;
-    
+
     /** If true, then only a report on used files will be produced */
     private final boolean getUsedFiles;
-    
+
     /**
      * Main entry class for the application.
      */
-    public CommandLineImporter(final ImportConfig config, String[] paths, boolean getUsedFiles)
-        throws Exception
-    {
+    public CommandLineImporter(final ImportConfig config, String[] paths,
+            boolean getUsedFiles) throws Exception {
         this.config = config;
+        config.loadAll();
+
         this.getUsedFiles = getUsedFiles;
-        reader = new OMEROWrapper(config);
-        candidates = new ImportCandidates(reader, paths);
-        
+        this.reader = new OMEROWrapper(config);
+        this.handler = new ErrorHandler(config);
+        candidates = new ImportCandidates(reader, paths, handler);
+
         if (paths == null || paths.length == 0 || getUsedFiles) {
-            
+
             store = null;
             library = null;
-            
-        } else {            
-        
+
+        } else {
+
             // Ensure that we have all of our required login arguments
             if (!config.canLogin()) {
                 config.requestFromUser(); // stdin if anything missing.
@@ -73,54 +78,68 @@ public class CommandLineImporter
             }
             store = config.createStore();
             library = new ImportLibrary(store, reader);
-        
         }
-        
-        Runtime.getRuntime().addShutdownHook(new Thread(){
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                config.saveAll();
+                try {
+                    config.saveAll();
+                } catch (Exception e) {
+                    log.error("Error during config.saveAll", e);
+                }
+                cleanup();
             }
         });
     }
 
-    public int run() {
-        
+    public int start() {
+
         if (candidates.size() < 1) {
-            System.err.println("No imports found");
-            usage();
+            if (handler.errorCount() > 0) {
+                System.err.println("No imports due to errors!");
+            } else {
+                System.err.println("No imports found");
+                usage();
+            }
         }
-        
-        if (getUsedFiles)
-        {
-            try
-            {
+
+        else if (getUsedFiles) {
+            try {
                 candidates.print();
                 return 0;
-            }
-            catch (Throwable t)
-            {
+            } catch (Throwable t) {
                 log.error("Error retrieving used files.", t);
                 return 2;
             }
         }
-        
-        else
-        {
+
+        else {
             library.addObserver(new LoggingImportMonitor());
             library.addObserver(new ErrorHandler(config));
             library.importCandidates(config, candidates);
-        
         }
-        
+
+        report();
         return 0;
 
     }
     
+    void report() {
+        boolean report = config.sendReport.get();
+        boolean files = config.sendFiles.get();
+        if (report) {
+            log.info("Sending error report "
+                    + (files ? "with files " : " ") + "...");
+            handler.update(null, new ImportEvent.DEBUG_SEND(files));
+        }
+    }
+
     /**
-     * Cleans up after a successful or unsuccessful image import.
+     * Cleans up after a successful or unsuccessful image import. This method
+     * only does the minimum required cleanup, so that it can be called
+     * during shutdown.
      */
-    public void cleanup()
-    {
+    public void cleanup() {        
         if (store != null) {
             store.logout();
         }
@@ -129,159 +148,159 @@ public class CommandLineImporter
     /**
      * Prints usage to STDERR and exits with return code 1.
      */
-    public static void usage()
-    {
-        System.err.println(String.format(
-                "Usage: %s [OPTION]... [FILE]\n" +
-                "Import single files into an OMERO instance.\n" +
-                "\n" +
-                "Mandatory arguments:\n" +
-                "  -s\tOMERO server hostname\n" +
-                "  -u\tOMERO experimenter name (username)\n" +
-                "  -w\tOMERO experimenter password\n" +
-                "  -k\tOMERO session key (can be used in place of -u and -w)\n" +
-                "\n" +
-                "Optional arguments:\n" +
-                "  -c\tContinue importing after errors\n" +
-                "  -l\tUse the list of readers rather than the default\n" +
-                "  -f\tDisplay the used files [does not require mandatory arguments]\n" +
-                "  -d\tOMERO dataset Id to import image into\n" +
-                "  -r\tOMERO screen Id to import plate into\n" +
-                "  -n\tImage name to use\n" +
-                "  -x\tImage description to use\n" +
-                "  -p\tOMERO server port [defaults to 4063]\n" +
-                "  -h\tDisplay this help and exit\n" +
-                "  --debug\tTurn debug logging on\n" +
-                "\n" +
-                "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n" +
-                "\n" +
-                "Report bugs to <ome-users@openmicroscopy.org.uk>",
-                APP_NAME, APP_NAME));
+    public static void usage() {
+        System.err
+                .println(String
+                        .format(
+                                "Usage: %s [OPTION]... [FILE]\n"
+                                        + "Import single files into an OMERO instance.\n"
+                                        + "\n"
+                                        + "Mandatory arguments:\n"
+                                        + "  -s\tOMERO server hostname\n"
+                                        + "  -u\tOMERO experimenter name (username)\n"
+                                        + "  -w\tOMERO experimenter password\n"
+                                        + "  -k\tOMERO session key (can be used in place of -u and -w)\n"
+                                        + "\n"
+                                        + "Optional arguments:\n"
+                                        + "  -c\tContinue importing after errors\n"
+                                        + "  -l\tUse the list of readers rather than the default\n"
+                                        + "  -f\tDisplay the used files [does not require mandatory arguments]\n"
+                                        + "  -d\tOMERO dataset Id to import image into\n"
+                                        + "  -r\tOMERO screen Id to import plate into\n"
+                                        + "  -n\tImage name to use\n"
+                                        + "  -x\tImage description to use\n"
+                                        + "  -p\tOMERO server port [defaults to 4063]\n"
+                                        + "  -h\tDisplay this help and exit\n"
+                                        + "\n"
+                                        + "  --debug\tTurn debug logging on\n"
+                                        + "  --report\tReport errors to the OME team\n"
+                                        + "  --upload\tUpload broken files with report\n"
+                                        + "  --email=...\tEmail for reported errors\n "
+                                        + "\n"
+                                        + "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
+                                        + "\n"
+                                        + "Report bugs to <ome-users@openmicroscopy.org.uk>",
+                                APP_NAME, APP_NAME));
         System.exit(1);
     }
-    
+
     /**
      * Command line application entry point which parses CLI arguments and
      * passes them into the importer. Return codes are:
      * <ul>
-     *   <li>0 on success</li>
-     *   <li>1 on argument parsing failure</li>
-     *   <li>2 on exception during import</li>
+     * <li>0 on success</li>
+     * <li>1 on argument parsing failure</li>
+     * <li>2 on exception during import</li>
      * </ul>
-     * @param args Command line arguments.
+     * 
+     * @param args
+     *            Command line arguments.
      */
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         ImportConfig config = new ImportConfig();
-    	LongOpt debug = new LongOpt("debug", LongOpt.NO_ARGUMENT, null, 1);
+        LongOpt debug = new LongOpt("debug", LongOpt.NO_ARGUMENT, null, 1);
+        LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 2);
+        LongOpt upload = new LongOpt("upload", LongOpt.NO_ARGUMENT, null, 3);
+        LongOpt email = new LongOpt("email", LongOpt.REQUIRED_ARGUMENT, null, 4);
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
-        		              new LongOpt[] { debug });
+                new LongOpt[] { debug, report, upload, email });
         int a;
 
         boolean getUsedFiles = false;
-        
-        while ((a = g.getopt()) != -1)
-        {
-            switch (a)
-            {
-            	case 1:
-            	{
-            		// We're modifying the Log4j logging level of everything
-            		// under the ome.format package hierarchically. We're using
-            		// OMEROMetadataStoreClient as a convenience.
-            		Logger l = Logger.getLogger(OMEROMetadataStoreClient.class);
-            		l.setLevel(Level.DEBUG);
-            		config.debug.set(true);
-            		break;
-            	}
-                case 's':
-                {
-                    config.hostname.set(g.getOptarg());
-                    break;
-                }
-                case 'u':
-                {
-                    config.username.set(g.getOptarg());
-                    break;
-                }
-                case 'w':
-                {
-                    config.password.set(g.getOptarg());
-                    break;
-                }
-                case 'k':
-                {
-                    config.sessionKey.set(g.getOptarg());
-                    break;
-                }
-                case 'p':
-                {
-                    config.port.set(Integer.parseInt(g.getOptarg()));
-                    break;
-                }
-                case 'd':
-                {
-                    config.targetClass.set(Dataset.class.getName());
-                    config.targetId.set(Long.parseLong(g.getOptarg()));
-                    break;
-                }
-               	case 'r':
-                {
-                    config.targetClass.set(Screen.class.getName());
-                    config.targetId.set(Long.parseLong(g.getOptarg()));
-                	break;
-                }
-                case 'n':
-                {
-                    config.name.set(g.getOptarg());
-                    break;
-                }
-                case 'x':
-                {
-                    config.description.set(g.getOptarg());
-                    break;
-                }
-                case 'f':
-                {
-                	getUsedFiles = true;
-                	break;
-                }
-                case 'c':
-                {
-                    config.contOnError.set(true);
-                	break;
-                }
-                case 'l':
-                {
-                    config.readersPath.set(g.getOptarg());
-                    break;
-                }
-                default:
-                {
-                    usage();
-                }
+
+        while ((a = g.getopt()) != -1) {
+            switch (a) {
+            case 1: {
+                // We're modifying the Log4j logging level of everything
+                // under the ome.format package hierarchically. We're using
+                // OMEROMetadataStoreClient as a convenience.
+                Logger l = Logger.getLogger(OMEROMetadataStoreClient.class);
+                l.setLevel(Level.DEBUG);
+                config.debug.set(true);
+                break;
+            }
+            case 2: {
+                config.sendReport.set(true);
+                break;
+            }
+            case 3: {
+                config.sendFiles.set(true);
+                break;
+            }
+            case 4: {
+                config.email.set(g.getOptarg());
+                break;
+            }
+            case 's': {
+                config.hostname.set(g.getOptarg());
+                break;
+            }
+            case 'u': {
+                config.username.set(g.getOptarg());
+                break;
+            }
+            case 'w': {
+                config.password.set(g.getOptarg());
+                break;
+            }
+            case 'k': {
+                config.sessionKey.set(g.getOptarg());
+                break;
+            }
+            case 'p': {
+                config.port.set(Integer.parseInt(g.getOptarg()));
+                break;
+            }
+            case 'd': {
+                config.targetClass.set(Dataset.class.getName());
+                config.targetId.set(Long.parseLong(g.getOptarg()));
+                break;
+            }
+            case 'r': {
+                config.targetClass.set(Screen.class.getName());
+                config.targetId.set(Long.parseLong(g.getOptarg()));
+                break;
+            }
+            case 'n': {
+                config.name.set(g.getOptarg());
+                break;
+            }
+            case 'x': {
+                config.description.set(g.getOptarg());
+                break;
+            }
+            case 'f': {
+                getUsedFiles = true;
+                break;
+            }
+            case 'c': {
+                config.contOnError.set(true);
+                break;
+            }
+            case 'l': {
+                config.readersPath.set(g.getOptarg());
+                break;
+            }
+            default: {
+                usage();
+            }
             }
         }
 
         // Start the importer and import the image we've been given
         String[] rest = new String[args.length - g.getOptind()];
-        System.arraycopy(args, g.getOptind(), rest, 0, args.length - g.getOptind());
+        System.arraycopy(args, g.getOptind(), rest, 0, args.length
+                - g.getOptind());
         CommandLineImporter c = null;
         int rc = 0;
-        try
-        {
+        try {
             c = new CommandLineImporter(config, rest, getUsedFiles);
-            rc = c.run();
-        }
-        catch (Throwable t)
-        {
-            log.error("Error during import process." , t);
+            rc = c.start();
+        } catch (Throwable t) {
+            log.error("Error during import process.", t);
             rc = 2;
-        }
-        finally
-        {
-            if (c != null)
-            {
+        } finally {
+            if (c != null) {
                 c.cleanup();
             }
         }

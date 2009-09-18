@@ -15,6 +15,7 @@ import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.cli.ErrorHandler;
 import omero.model.Pixels;
 
 import org.apache.commons.logging.Log;
@@ -125,7 +126,9 @@ public class OMEROImportFixture {
     public void doImport() throws Exception {
         String fileName = file.getAbsolutePath();
         ImportConfig config = new ImportConfig();
-        ImportCandidates candidates = new ImportCandidates(reader, new String[]{fileName});
+        ErrorHandler handler = new ErrorHandler(config); // FIXME should be specialized.
+        ImportCandidates candidates = new ImportCandidates(reader, new String[]{fileName}, handler);
+        library.addObserver(handler);
         library.importCandidates(config, candidates);
         throw new RuntimeException("NYI");
     }

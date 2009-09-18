@@ -61,7 +61,6 @@ public class ImportHandler {
     private int numOfDone = 0;
 
     private String[] files = null;
-    protected boolean errorsCollected = false;
 
     public ImportHandler(GuiImporter viewer, FileQueueTable qTable,
             ImportConfig config, ImportLibrary library,
@@ -192,7 +191,6 @@ public class ImportHandler {
                     }
 
                 } catch (FormatException fe) {
-                    System.err.println(fe.getMessage());
                     log.error("Format exception while importing image.", fe);
                     qTable.setProgressFailed(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
@@ -225,7 +223,7 @@ public class ImportHandler {
                     } else {
                         String[] files = { importContainer[j].file
                                 .getAbsolutePath() };
-                        addError(fe, importContainer[j].file, files, null);
+                        // FIXME addErrro(fe, importContainer[j].file, files, null);
                     }
 
                     try {
@@ -292,7 +290,7 @@ public class ImportHandler {
                     files = importContainer[j].usedFiles;
                     String readerType = importContainer[j].reader;
 
-                    addError(error, importContainer[j].file, files, readerType);
+                    // FIXMEaddError(error, importContainer[j].file, files, readerType);
 
                     if (importStatus < 0)
                         importStatus = -3;
@@ -333,7 +331,7 @@ public class ImportHandler {
                 log.error("SQL exception when updating import status.", e);
             }
 
-        if (errorsCollected) {
+        if (false){ // FIXME errorsCollected) {
             JOptionPane.showMessageDialog(viewer,
                     "\nYour import has produced one or more errors, "
                             + "\nvisit the 'Import Errors' tab for details.",
@@ -355,25 +353,6 @@ public class ImportHandler {
                 + minutes + " minute(s), " + seconds + " second(s).");
 
         viewer.appendToOutputLn("> Image import completed!");
-    }
-
-    private void addError(Throwable error, File file, String[] files,
-            String readerType) {
-        ErrorContainer errorContainer = new ErrorContainer();
-        errorContainer.setFiles(files);
-        errorContainer.setSelectedFile(file);
-        errorContainer.setReaderType(readerType);
-        errorContainer.setCommentType("2");
-
-        errorContainer.setJavaVersion(System.getProperty("java.version"));
-        errorContainer.setJavaClasspath(System.getProperty("java.class.path"));
-        errorContainer.setOSName(System.getProperty("os.name"));
-        errorContainer.setOSArch(System.getProperty("os.arch"));
-        errorContainer.setOSVersion(System.getProperty("os.version"));
-        errorContainer.setError(error);
-
-        errorsCollected = true;
-        viewer.errorHandler.delegate.addError(errorContainer);
     }
 
 }

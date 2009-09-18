@@ -12,6 +12,10 @@ import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
+import ome.formats.importer.util.ErrorContainer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * {@link IObserver} based on the gui ErrorHandler code which collects all
@@ -24,15 +28,30 @@ import ome.formats.importer.ImportLibrary;
  */
 public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
 
+    private final static Log log = LogFactory.getLog(ErrorHandler.class);
+    
     public ErrorHandler(ImportConfig config) {
         super(config);
     }
 
-    public void update(IObservable importLibrary, ImportEvent event) {
+    public void onUpdate(IObservable importLibrary, ImportEvent event) {
+        
+        if (event instanceof FILE_EXCEPTION) {
+            FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
+            log.error(ev.toLog());
+        }
+        
         if (event instanceof ImportEvent.DEBUG_SEND) {
+            
+            for (ErrorContainer error : errors) {
+                error.setEmail(config.email.get());
+                error.setComment("Sent from CLI");
+            }
+            
             sendFiles = ((ImportEvent.DEBUG_SEND) event).sendFiles;
             sendErrors();
         }
+        
     }
 
 }

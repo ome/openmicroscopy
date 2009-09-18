@@ -34,6 +34,7 @@ import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.util.ErrorHandler;
 import ome.formats.model.InstanceProvider;
 import omero.ServerError;
 import omero.model.Annotation;
@@ -158,8 +159,13 @@ public class ImportLibrary implements IObservable
                             index, numDone, paths.size(), path, "",
                             false, false, null, null);
                     numDone++;
-                } catch (Exception e) {
-                    notifyObservers(new ImportEvent.EXCEPTION_EVENT(path, e));
+                } catch (Exception e) {                    
+                    if (!config.contOnError.get()) {
+                        log.info("Exiting on error");
+                        return;
+                    } else {
+                        log.info("Continuing after errror");
+                    }
                 }
             }
         }
@@ -180,6 +186,7 @@ public class ImportLibrary implements IObservable
     /**
      * Uses the {@link OMEROMetadataStoreClient} to save the current all
      * image metadata provided.
+     * 
      * @param userSpecifiedImageName A user specified image name.
      * @param userSpecifiedImageDescription A user specified description.
      * @param archive Whether or not the user requested the original files to
@@ -216,7 +223,11 @@ public class ImportLibrary implements IObservable
     }
     
     /**
-     * Perform an image import.
+     * Perform an image import.  <em>Note: this method both notifes {@link #observers}
+     * of error states AND throws the exception to cancel processing.</em>
+     * {@link #importCandidates(ImportConfig, ImportCandidates)}
+     * uses {@link ImportConfig#contOnError} to act on these exceptions.
+     * 
      * @param file Target file to import.
      * @param index Index of the import in a set. <code>0</code> is safe if 
      * this is a singular import.
@@ -249,17 +260,21 @@ public class ImportLibrary implements IObservable
     		                        String userSpecifiedImageDescription,
     		                        boolean archive, boolean useMetadataFile,
     		                        Double[] userPixels, IObject userSpecifiedTarget)
-    	throws FormatException, IOException, ServerError
+    	throws FormatException, IOException, Exception
     {   
-        
+
+        String fileName = file.getAbsolutePath();
+        String shortName = file.getName();
+        String format = null;
+        String[] usedFiles = null;
+
         try {
             
-            String fileName = file.getAbsolutePath();
-            String shortName = file.getName();
-        
             notifyObservers(new ImportEvent.LOADING_IMAGE(shortName, index, numDone, total));
         
             open(file.getAbsolutePath());
+            format = reader.getFormat();
+            usedFiles = reader.getUsedFiles();
             
             notifyObservers(new ImportEvent.LOADED_IMAGE(shortName, index, numDone, total));
             
@@ -370,10 +385,18 @@ public class ImportLibrary implements IObservable
                     
             notifyObservers(new ImportEvent.IMPORT_THUMBNAILING(index, null, userSpecifiedTarget, null, 0, null));
             store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
-            notifyObservers(new ImportEvent.IMPORT_DONE(index, null, userSpecifiedTarget, null, 0, null));
+            notifyObservers(new ImportEvent.IMPORT_DONE(index, null, userSpecifiedTarget, null, 0, null, pixList));
             
             return pixList;
-        
+        } catch (IOException io) {
+            notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, io, usedFiles, format));
+            throw io;
+        } catch (FormatException fe) {
+            notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, fe, usedFiles, format));
+            throw fe;
+        } catch (Exception e) {
+            notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(e));
+            throw e;
         } finally {
             store.createRoot(); // CLEAR MetadataStore
         }

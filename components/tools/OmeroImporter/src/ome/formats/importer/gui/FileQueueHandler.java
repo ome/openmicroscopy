@@ -139,7 +139,7 @@ public class FileQueueHandler
             paths[i] = _files[i].getAbsolutePath();
         }
 
-        final ImportCandidates candidates = new ImportCandidates(reader, paths);
+        final ImportCandidates candidates = new ImportCandidates(reader, paths, this);
         final List<ImportContainer> containers = candidates.getContainers();
         
         Boolean spw = spwOrNull(containers);

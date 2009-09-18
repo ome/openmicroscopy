@@ -38,6 +38,7 @@ import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 
@@ -708,7 +709,7 @@ public class GuiImporter extends JFrame
         if (event instanceof EXCEPTION_EVENT)
         {
             FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
-            if (ev.exception instanceof IOException) {
+            if (IOException.class.isAssignableFrom(ev.exception.getClass())) {
             
                 final JOptionPane optionPane = new JOptionPane( 
                         "The importer cannot retrieve one of your images in a timely manner.\n" +
@@ -719,13 +720,14 @@ public class GuiImporter extends JFrame
                         " - An archived file has not been fully retrieved from backup.\n\n" +
                         "The importer will now try to continue with the remainer of your imports.\n",
                         JOptionPane.ERROR_MESSAGE);
-            }
             
-            final JDialog dialog = new JDialog(this, "IO Error");
-            dialog.setAlwaysOnTop(true);
-            dialog.setContentPane(optionPane);
-            dialog.pack();
-            dialog.setVisible(true);
+                final JDialog dialog = new JDialog(this, "IO Error");
+                dialog.setAlwaysOnTop(true);
+                dialog.setContentPane(optionPane);
+                dialog.pack();
+                dialog.setVisible(true);
+                
+            }
         }
         
         
