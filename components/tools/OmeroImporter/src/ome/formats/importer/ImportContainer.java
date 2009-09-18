@@ -18,12 +18,12 @@ public class ImportContainer
 	final public File file;
 	final public Long projectID;
 	final public String imageName;
-	final public boolean archive;
-    final public Double[] userPixels;
     final public String reader;
     final public String[] usedFiles;
     final public boolean isSPW;
     
+    private boolean archive;
+    private Double[] userPixels;
     private String userSpecifiedImageName;
     private IObject target;
     private FileInfo[] fileInfo;
@@ -44,6 +44,11 @@ public class ImportContainer
 		this.isSPW = isSPW;
 	}
 
+    public String getUserSpecifiedName()
+    {
+        return userSpecifiedImageName;
+    }   
+
 	public void setUserSpecifiedFileName(String name)
 	{
 	    this.userSpecifiedImageName = name;
@@ -53,9 +58,27 @@ public class ImportContainer
 	{
 	    return target;
 	}
-
-    public String getUserSpecifiedName()
+	
+	public void setTarget(IObject obj) {
+	    this.target = obj;
+	}
+	
+	public Double[] getUserPixels()
+	{
+        return userPixels;
+    }
+	
+    public void setUserPixels(Double[] userPixels)
     {
-        return userSpecifiedImageName;
-    }	
+        this.userPixels = userPixels;
+    }   
+    
+    public void setArchive(boolean archive)
+    {
+        this.archive = archive;
+    }
+
+    public boolean getArchive() {
+        return this.archive;
+    }
 }

@@ -137,7 +137,7 @@ public class FileQueueHandler
                     return;                    
                 for (File f : files)
                 {             
-                    
+                    /*
                     addFileToQueue(f, dialog.screen, 
                             dialog.screen.getName().getValue(),
                             null, 
@@ -145,6 +145,7 @@ public class FileQueueHandler
                             0,
                             dialog.archiveImage.isSelected(),
                             null, null, reader.getFormat(), reader.getUsedFiles(), true);
+                     */
                 }
                 
                 qTable.centerOnRow(qTable.queue.getRowCount()-1);
@@ -163,12 +164,13 @@ public class FileQueueHandler
                 
                 if (dialog.fileCheckBox.isEnabled() == true)
                     useFullPath = null;                    
-                               
+                /*
                 addFileToQueue(file, dialog.dataset,
                         dialog.dataset.getName().getValue(), dialog.project.getName().getValue(), 
                         useFullPath, dialog.numOfDirectories, 
                         dialog.archiveImage.isSelected(), dialog.project.getId().getValue(),
                         pixelSizes, null, null, false);
+                */
                 qTable.importBtn.requestFocus();
                 
             } else { 
@@ -225,14 +227,9 @@ public class FileQueueHandler
                     return;                    
                 for (ImportContainer ic : containers)
                 {             
-                    
-                    addFileToQueue(ic.file, dialog.screen, 
-                            dialog.screen.getName().getValue(),
-                            null, 
-                            false, 
-                            0,
-                            dialog.archiveImage.isSelected(),
-                            null, null, ic.reader, ic.usedFiles, true);
+                    ic.setTarget(dialog.screen);
+                    String title = dialog.screen.getName().getValue(); 
+                    addFileToQueue(ic, title, false, 0);
                 }
                 
                 qTable.centerOnRow(qTable.queue.getRowCount()-1);
@@ -253,16 +250,14 @@ public class FileQueueHandler
                 
                 for (ImportContainer ic : containers)
                 {
-                    addFileToQueue(ic.file, dialog.dataset, 
-                            dialog.dataset.getName().getValue(), 
-                            dialog.project.getName().getValue(),
-                            useFullPath, 
-                            dialog.numOfDirectories,
-                            dialog.archiveImage.isSelected(),
-                            dialog.project.getId().getValue(),
-                            pixelSizes,
-                            ic.reader,
-                            ic.usedFiles, false);
+                    ic.setTarget(dialog.dataset);
+                    ic.setUserPixels(pixelSizes);
+                    ic.setArchive(dialog.archiveImage.isSelected());
+                    String title =
+                    dialog.project.getName().getValue() + " / " +
+                    dialog.dataset.getName().getValue();
+                    
+                    addFileToQueue(ic, title, useFullPath, dialog.numOfDirectories);
                 }
                 
                 qTable.centerOnRow(qTable.queue.getRowCount()-1);
@@ -342,7 +337,7 @@ public class FileQueueHandler
             try {
                 if (qTable.importing == false)
                 {
-                    ImportCandidates candidates = qTable.getFilesAndObjectTypes();
+                    ImportContainer[] candidates = qTable.getFilesAndObjectTypes();
 
                     if (candidates != null)
                     {
@@ -437,41 +432,20 @@ public class FileQueueHandler
     }
     
     @SuppressWarnings("unchecked")
-    private void addFileToQueue(File file, IObject object, String dName, 
-            String project, Boolean useFullPath, 
-            int numOfDirectories, boolean archiveImage, Long projectID, Double[] pixelSizes, String reader, String[] usedFiles, boolean isSPW)
-    {
+    private void addFileToQueue(ImportContainer container, String pdsString, Boolean useFullPath, int numOfDirectories) {
         Vector row = new Vector();
         String imageName;
-        String userSpecifiedName = null;
         
-        if (useFullPath != null)
-            userSpecifiedName = imageName = getImageName(file, useFullPath, numOfDirectories);
-        else
-            imageName = file.getAbsolutePath();
-        
-        String pdsString = null;
-        
-        if (project != null)
-        {
-            pdsString = project + "/" + dName;
-        } else
-        {
-            pdsString = dName;
+        if (useFullPath != null) {
+            imageName = getImageName(container.file, useFullPath, numOfDirectories);
+        } else {
+            imageName = container.file.getAbsolutePath();
         }
 
         row.add(imageName);
         row.add(pdsString);
         row.add("added");
-        row.add(object);
-        row.add(file);
-        row.add(archiveImage);
-        row.add(projectID);
-        row.add(pixelSizes);
-        row.add(userSpecifiedName);
-        row.add(reader);
-        row.add(usedFiles);
-        row.add(isSPW);
+        row.add(container);
         qTable.table.addRow(row);
         if (qTable.table.getRowCount() == 1)
             qTable.importBtn.setEnabled(true);

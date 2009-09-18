@@ -50,7 +50,7 @@ public class ImportHandler {
 
     private final ImportConfig config;
     private final ImportLibrary library;
-    private final ImportCandidates candidates;
+    private final ImportContainer[] importContainer;
     private final HistoryDB db; // THIS SHOULD NOT BE HERE!
 
     private final GuiImporter viewer;
@@ -65,10 +65,10 @@ public class ImportHandler {
 
     public ImportHandler(GuiImporter viewer, FileQueueTable qTable,
             ImportConfig config, ImportLibrary library,
-            ImportCandidates candidates) {
+            ImportContainer[] containers) {
         this.config = config;
         this.library = library;
-        this.candidates = candidates;
+        this.importContainer = containers;
         if (viewer.historyTable != null) {
             this.db = viewer.historyTable.db;
         } else {
@@ -138,8 +138,6 @@ public class ImportHandler {
             log.error("SQL exception updating history DB.", e);
         }
 
-        final ImportContainer[] importContainer = candidates.getContainers().toArray(new ImportContainer[0]);
-        
         for (int i = 0; i < importContainer.length; i++) {
             File selected_file = importContainer[i].file;
             if (qTable.setProgressPending(i)) {
@@ -182,9 +180,9 @@ public class ImportHandler {
                     library.importImage(importContainer[j].file, j, numOfDone,
                             numOfPendings, importContainer[j]
                                     .getUserSpecifiedName(), null, // Description
-                            container.archive, true, // Metadata file creation
+                            container.getArchive(), true, // Metadata file creation
                             // (TODO: Enable in container and UI)
-                            container.userPixels, container.getTarget());
+                            container.getUserPixels(), container.getTarget());
                     this.library.clear();
                     try {
                         if (db != null)
@@ -291,9 +289,8 @@ public class ImportHandler {
                     qTable.setProgressFailed(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
 
-                    String abs = importContainer[j].file.getAbsolutePath();
-                    files = candidates.getUsedFiles(abs);
-                    String readerType = candidates.getReaderType(abs);
+                    files = importContainer[j].usedFiles;
+                    String readerType = importContainer[j].reader;
 
                     addError(error, importContainer[j].file, files, readerType);
 

@@ -338,33 +338,16 @@ public class FileQueueTable
     /**
      * @return ImportContainer
      */
-    public ImportCandidates getFilesAndObjectTypes() {
+    public ImportContainer[] getFilesAndObjectTypes() {
 
         int num = table.getRowCount();     
         ImportContainer[] importContainer = new ImportContainer[num];
 
         for (int i = 0; i < num; i++)
         {
-            try
-            {
-                boolean archive = (Boolean) table.getValueAt(i, 5);
-                File file = new File(table.getValueAt(i, 4).toString());
-                Long projectID = (Long) table.getValueAt(i, 6);
-                String imageName = table.getValueAt(i, 0).toString();
-                IObject target = (IObject) table.getValueAt(i, 3);
-                importContainer[i] = new ImportContainer(file, projectID, target, imageName, archive, 
-                        (Double[]) table.getValueAt(i, 7), (String) table.getValueAt(i, 8),
-                        (String[]) table.getValueAt(i,9), (Boolean) table.getValueAt(i, 10));
-                if (table.getValueAt(i,8) != null)
-                    importContainer[i].setUserSpecifiedFileName((String)table.getValueAt(i, 8));
-            }
-            catch (ArrayIndexOutOfBoundsException e)
-            {
-            	log.error("Error retrieving project and dataset from table.", e);
-            }
-
+            importContainer[i] = (ImportContainer) table.getValueAt(i, 3);
         }
-        return new ImportCandidates(null, importContainer);
+        return importContainer;
     }
 
     public void actionPerformed(ActionEvent e)
