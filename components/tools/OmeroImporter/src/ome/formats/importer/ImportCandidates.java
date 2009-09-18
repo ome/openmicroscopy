@@ -30,10 +30,54 @@ import org.apache.commons.logging.LogFactory;
  * number and members of a given import. This facility permits iterating over a
  * directory.
  * 
+ * This class is NOT thread-safe.
+ * 
  * @since Beta4.1
  */
 public class ImportCandidates extends DirectoryWalker {
 
+    /**
+     * Event raised during a pass through the directory structure given to
+     * {@link ImportCandidates}. A {@link Scanning} event will not necessarily
+     * be raised for every file or directory, but the values will be valid for
+     * each event.
+     * 
+     * If {@link #totalFiles} is less than 0, then the directory is currently be
+     * scanned and the count is unknown. Once {@link #totalFiles} is positive,
+     * it will remain constant.
+     * 
+     * If {@link #cancel()} is called, then directory searching will cease. The
+     * {@link ImportCandidates} instance will be left with <em>no</em>
+     * {@link ImportContainer}s.
+     */
+    public static class SCANNING extends ImportEvent {
+        public final File file;
+        public final int depth;
+        public final int numFiles;
+        public final int totalFiles;
+        private boolean cancel = false;
+
+        public SCANNING(File file, int depth, int numFiles, int totalFiles) {
+            this.file = file;
+            this.depth = depth;
+            this.numFiles = numFiles;
+            this.totalFiles = totalFiles;
+        }
+
+        /**
+         * Can be called to cancel the current action.
+         */
+        public void cancel() {
+            this.cancel = true;
+        }
+    }
+
+    /**
+     * Marker exception raised if the {@link SCANNING#cancel()} method is
+     * called by an {@link IObserver} instance.
+     */
+    public static class CANCEL extends RuntimeException {};
+    
     private final static Log log = LogFactory.getLog(ImportCandidates.class);
 
     final private IObserver observer;
@@ -42,6 +86,29 @@ public class ImportCandidates extends DirectoryWalker {
     final private Set<String> allFiles = new HashSet<String>();
     final private Map<String, Set<String>> usedBy = new HashMap<String, Set<String>>();
     final private List<ImportContainer> containers = new ArrayList<ImportContainer>();
+
+    /**
+     * Current count of files processed. This will be incremented in two phases:
+     * once during directory counting, and once during parsing.
+     */
+    int count = 0;
+
+    /**
+     * Total number of files which have been / will be examined. During the
+     * first pass, this value is negative.
+     */
+    int total = -1;
+
+    /**
+     * Current directory during a walk.
+     */
+    File dir = null;
+    
+    /**
+     * Whether or not one of the {@link SCANNING} events had {@link SCANNING#cancel()}
+     * called.
+     */
+    boolean cancelled = false;
 
     /**
      * Main constructor which iterates over all the paths calling
@@ -79,21 +146,22 @@ public class ImportCandidates extends DirectoryWalker {
             return;
         }
 
-        for (String string : paths) {
-            try {
-                File f = new File(string);
-                if (f.isDirectory()) {
-                    walk(f, null);
-                } else {
-                    handleFile(f, 0, null);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        Groups g;
+        try {
+            execute(paths);
+            total = count;
+            count = 0;
+            execute(paths);
+            g = new Groups(usedBy);
+            g.parse(containers);
+        } catch (CANCEL c) {
+            cancelled = true;
+            g = null;
+            total = -1;
+            count = -1;
         }
-        groups = new Groups(usedBy);
-        groups.parse(containers);
-
+        groups = g;
+        
     }
 
     /**
@@ -123,6 +191,10 @@ public class ImportCandidates extends DirectoryWalker {
 
     public int size() {
         return containers.size();
+    }
+    
+    public boolean wasCancelled() {
+        return cancelled;
     }
 
     public List<String> getPaths() {
@@ -156,6 +228,37 @@ public class ImportCandidates extends DirectoryWalker {
         return new ArrayList<ImportContainer>(containers);
     }
 
+    /**
+     * Method called during
+     * {@link ImportCandidates#ImportCandidates(OMEROWrapper, String[], IObserver)}
+     * to operate on all the given paths. This will be called twice: once
+     * without reading the files, and once (with the known total) using
+     * {@link #reader}
+     * 
+     * @param paths
+     */
+    private void execute(String[] paths) {
+        for (String string : paths) {
+            try {
+                File f = new File(string);
+                if (f.isDirectory()) {
+                    walk(f, null);
+                } else {
+                    handleFile(f, 0, null);
+                }
+                // Forcing an event for each path, so that at least one
+                // event is raised per file despite the count of handlefile.
+                SCANNING s = new SCANNING(f, 0, count, total);
+                observer.update(null, s);
+                if (s.cancel) {
+                    throw new CANCEL();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     private ImportContainer singleFile(File file) {
 
         if (file == null) {
@@ -169,19 +272,19 @@ public class ImportCandidates extends DirectoryWalker {
             reader.setId(path);
             format = reader.getFormat();
             usedFiles = reader.getUsedFiles();
-            
+
             return new ImportContainer(file, null, null, null, false, null,
-                    reader.getFormat(), usedFiles , reader
-                            .isSPWReader(path));
+                    reader.getFormat(), usedFiles, reader.isSPWReader(path));
         } catch (Exception e) {
-            
+
             if (usedFiles == null || usedFiles.length == 0) {
                 if (new File(path).exists()) {
-                    usedFiles = new String[]{path};
+                    usedFiles = new String[] { path };
                 }
             }
-            
-            ImportEvent event = new ErrorHandler.FILE_EXCEPTION(path, e, usedFiles, format);
+
+            ImportEvent event = new ErrorHandler.FILE_EXCEPTION(path, e,
+                    usedFiles, format);
             try {
                 observer.update(null, event);
             } catch (Exception ex) {
@@ -197,13 +300,26 @@ public class ImportCandidates extends DirectoryWalker {
     @Override
     public void handleFile(File file, int depth, Collection collection) {
 
-        // Optimization.
-        if (allFiles.contains(file.getAbsolutePath())) {
+        count++;
+
+        // Our own filtering
+        if (file.getName().startsWith(".")) {
+            return; // Omitting dot files.
+        }
+
+        // If this is the 100th file, publish an event
+        if (count%100 == 0) {
+            observer.update(null, new SCANNING(file, depth, count, total));
+        }
+        
+        // If this is just a count, return
+        if (total < 0) {
             return;
         }
 
-        if (file.getName().startsWith(".")) {
-            return; // Omitting dot files.
+        // Optimization.
+        if (allFiles.contains(file.getAbsolutePath())) {
+            return;
         }
 
         ImportContainer info = singleFile(file);
