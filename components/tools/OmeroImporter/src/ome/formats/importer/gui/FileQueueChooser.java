@@ -188,7 +188,7 @@ public class FileQueueChooser
         }
         
         this.setControlButtonsAreShown(false);
-        this.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        this.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         this.setMultiSelectionEnabled(true);
         this.setDragEnabled(true);
         
@@ -393,7 +393,7 @@ public class FileQueueChooser
         {
             button = new JButton(name);
         } else {
-            java.net.URL imgURL = Main.class.getResource(image);
+            java.net.URL imgURL = GuiImporter.class.getResource(image);
             if (imgURL != null)
             {
                 button = new JButton(name, new ImageIcon(imgURL));

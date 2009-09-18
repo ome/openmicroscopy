@@ -1,5 +1,6 @@
 package ome.formats.importer;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -47,13 +48,17 @@ public class OMEROWrapper extends MinMaxCalculator
         try
         {
             String readers = config.getReadersPath();
-            iReader = new ImageReader(new ClassList(readers, IFormatReader.class, null));
+            Class<?> k = getClass();
+            if (new File(readers).exists()) {
+                k = null;
+            }
+            iReader = new ImageReader(new ClassList(readers, IFormatReader.class, k));
             
-            // Now we apply the invocation handler
-            iReader =  (ImageReader) Proxy.newProxyInstance(
-                    getClass().getClassLoader(),
-                    new Class[]{IFormatReader.class, ImageReader.class},
-                    new ReaderInvocationHandler(iReader));
+//            // Now we apply the invocation handler
+//            iReader =  (ImageReader) Proxy.newProxyInstance(
+//                    getClass().getClassLoader(),
+//                    new Class[]{IFormatReader.class},
+//                    new ReaderInvocationHandler(iReader));
             
             filler = new ChannelFiller(iReader);
         }

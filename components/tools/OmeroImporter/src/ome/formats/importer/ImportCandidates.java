@@ -9,14 +9,17 @@ package ome.formats.importer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import loci.formats.FileInfo;
 import loci.formats.FormatException;
 
 import org.apache.commons.io.DirectoryWalker;
@@ -39,6 +42,7 @@ public class ImportCandidates extends DirectoryWalker {
     final private OMEROWrapper reader;
     final private Set<String> allFiles = new HashSet<String>();
     final private Map<String, Set<String>> usedBy = new HashMap<String, Set<String>>();
+    final private List<ImportContainer> containers = new ArrayList<ImportContainer>();
 
     /**
      * Main constructor which iterates over all the paths calling
@@ -52,7 +56,7 @@ public class ImportCandidates extends DirectoryWalker {
         super(TrueFileFilter.INSTANCE, 4);
 
         this.reader = reader;
-        
+
         if (paths != null && paths.length == 2 && "".equals(paths[0])
                 && "".equals(paths[1])) {
 
@@ -61,44 +65,43 @@ public class ImportCandidates extends DirectoryWalker {
             // called.
             groups = Groups.test();
             System.exit(0);
-
-        } else if (paths == null || paths.length == 0) {
-
-            groups = null;
-
-        } else {
-
-            for (String string : paths) {
-                try {
-                    File f = new File(string);
-                    if (f.isDirectory()) {
-                        walk(f, null);
-                    } else {
-                        handleFile(f, 0, null);
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            groups = new Groups(usedBy);
-            groups.parse();
+            return;
         }
+
+        if (paths == null || paths.length == 0) {
+            groups = null;
+            return;
+        }
+
+        for (String string : paths) {
+            try {
+                File f = new File(string);
+                if (f.isDirectory()) {
+                    walk(f, null);
+                } else {
+                    handleFile(f, 0, null);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        groups = new Groups(usedBy);
+        groups.parse(containers);
+
     }
 
     /**
-     * Takes {@link ImportContainer} array to support explicit candidates.
+     * Takes {@link ImportContainer} array to support explicit candidates. The
+     * {@link Groups} strategy is not currently enforced.
      */
     public ImportCandidates(OMEROWrapper reader, ImportContainer[] containers) {
         this.reader = reader;
-        if (containers == null) {
-            groups = null;
-        } else {
-            for (int i = 0; i < containers.length; i++) {
-                
-            }
+        this.groups = null;
+        if (containers != null) {
+            this.containers.addAll(Arrays.asList(containers));
         }
     }
-    
+
     /**
      * Prints the "standard" representation of the groups, which is parsed by
      * other software layers. The format is: 1) any empty lines are ignored, 2)
@@ -112,38 +115,51 @@ public class ImportCandidates extends DirectoryWalker {
     }
 
     public int size() {
-        if (groups == null) {
-            return -1;
-        }
-        return groups.groups.size();
+        return containers.size();
     }
 
-    public Set<String> getPaths() {
-        if (groups != null) {
-            return new HashSet<String>(groups.groups.keySet());
+    public List<String> getPaths() {
+        List<String> paths = new ArrayList<String>();
+        for (ImportContainer i : containers) {
+            paths.add(i.file.getAbsolutePath());
         }
-        return Collections.emptySet();
+        return paths;
     }
-    
+
+    public String getReaderType(String abs) {
+        for (ImportContainer i : containers) {
+            if (i.file.getAbsolutePath().equals(abs)) {
+                return i.reader;
+            }
+        }
+        throw new RuntimeException("Unfound reader for: " + abs);
+    }
+
+    public String[] getUsedFiles(String abs) {
+        for (ImportContainer i : containers) {
+            if (i.file.getAbsolutePath().equals(abs)) {
+                return i.usedFiles;
+            }
+        }
+        throw new RuntimeException("Unfound reader for: " + abs);
+    }
+
     @SuppressWarnings("unchecked")
-    public Set<ImportContainer> getContainers() {
-        if (groups != null) {
-            return new HashSet(groups.groups.values());
-        }
-        return Collections.emptySet();
+    public List<ImportContainer> getContainers() {
+        return new ArrayList<ImportContainer>(containers);
     }
 
-    public String[] singleFile(File file) {
+    private ImportContainer singleFile(File file) {
         try {
             reader.setId(file.getAbsolutePath());
-            String[] rv = reader.getUsedFiles();
-            return rv;
-	} catch (FormatException e) {
+            return new ImportContainer(file, null, null, null, false, null,
+                    reader.getFormat(), reader.getUsedFiles(), reader.isSPWReader(file.getAbsolutePath()));
+        } catch (FormatException e) {
             log.debug("FormatException: " + file.getAbsolutePath());
         } catch (Exception e) {
             log.error("Exception: " + file.getAbsolutePath(), e);
         }
-	return null;
+        return null;
 
     }
 
@@ -159,13 +175,14 @@ public class ImportCandidates extends DirectoryWalker {
             return; // Omitting dot files.
         }
 
-        String[] used = singleFile(file);
-        if (used == null) {
+        ImportContainer info = singleFile(file);
+        if (info == null) {
             return;
         }
 
-        allFiles.addAll(Arrays.asList(used));
-        for (String string : used) {
+        containers.add(info);
+        allFiles.addAll(Arrays.asList(info.usedFiles));
+        for (String string : info.usedFiles) {
             Set<String> users = usedBy.get(string);
             if (users == null) {
                 users = new HashSet<String>();
@@ -175,146 +192,177 @@ public class ImportCandidates extends DirectoryWalker {
         }
     }
 
-}
+    /**
+     * The {@link Groups} class servers as an algorithm for sorting the usedBy
+     * map from the {@link ImportCandidates#walk(File, Collection)} method.
+     * These objects should never leave the outer class.
+     */
+    private static class Groups {
 
-class Groups extends ImportContainer {
+        private class Group {
+            String key;
+            Set<String> theyUseMe;
+            Set<String> iUseThem;
 
-    class Group {
-        String key;
-        Set<String> theyUseMe;
-        Set<String> iUseThem;
+            public Group(String key) {
+                this.key = key;
+                this.theyUseMe = new HashSet(usedBy.get(key));
+                this.theyUseMe.remove(key);
+                this.iUseThem = new HashSet<String>();
+                for (Map.Entry<String, Set<String>> entry : usedBy.entrySet()) {
+                    if (entry.getValue().contains(key)) {
+                        iUseThem.add(entry.getKey());
+                    }
+                }
+                iUseThem.remove(key);
+            }
 
-        public Group(String key) {
-            this.key = key;
-            this.theyUseMe = new HashSet(usedBy.get(key));
-            this.theyUseMe.remove(key);
-            this.iUseThem = new HashSet<String>();
-            for (Map.Entry<String, Set<String>> entry : usedBy.entrySet()) {
-                if (entry.getValue().contains(key)) {
-                    iUseThem.add(entry.getKey());
+            public void removeSelfIfSingular() {
+                int users = theyUseMe.size();
+                int used = iUseThem.size();
+                if (used <= 1 && users > 0) {
+                    groups.remove(key);
                 }
             }
-            iUseThem.remove(key);
-        }
 
-        public void removeSelfIfSingular() {
-            int users = theyUseMe.size();
-            int used = iUseThem.size();
-            if (used <= 1 && users > 0) {
-                groups.remove(key);
-            }
-        }
-
-        public String toShortString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(key);
-            sb.append("\n");
-            for (String val : iUseThem) {
-                sb.append(val);
+            public String toShortString() {
+                StringBuilder sb = new StringBuilder();
+                sb.append(key);
                 sb.append("\n");
+                for (String val : iUseThem) {
+                    sb.append(val);
+                    sb.append("\n");
+                }
+                return sb.toString();
             }
-            return sb.toString();
+
+            @Override
+            public String toString() {
+                StringBuilder sb = new StringBuilder();
+                sb.append("#======================================\n");
+                sb.append("# Group: " + key);
+                sb.append("\n");
+                // sb.append("# Used by: ");
+                // for (String key : theyUseMe) {
+                // sb.append(" " + key + " ");
+                // }
+                // sb.append("\n");
+                sb.append(key);
+                sb.append("\n");
+                for (String val : iUseThem) {
+                    sb.append(val);
+                    sb.append("\n");
+                }
+                return sb.toString();
+            }
+
+        }
+
+        private final Map<String, Set<String>> usedBy;
+        private final Map<String, Group> groups = new HashMap<String, Group>();
+        private List<String> ordering;
+
+        Groups(Map<String, Set<String>> usedBy) {
+            this.usedBy = usedBy;
+            for (String key : usedBy.keySet()) {
+                groups.put(key, new Group(key));
+            }
+        }
+
+        public int size() {
+            return ordering.size();
+        }
+
+        public List<String> getPaths() {
+            size(); // Check.
+            return ordering;
+        }
+
+        Groups parse(List<ImportContainer> containers) {
+            if (ordering != null) {
+                throw new RuntimeException("Already ordered");
+            }
+            for (Group g : new HashSet<Group>(groups.values())) {
+                g.removeSelfIfSingular();
+            }
+            ordering = new ArrayList<String>(groups.keySet());
+            // Here we remove all the superfluous import containers.
+            List<ImportContainer> copy = new ArrayList<ImportContainer>(
+                    containers);
+            containers.clear();
+            for (String key : ordering) {
+                for (ImportContainer importContainer : copy) {
+                    if (importContainer.file.getAbsolutePath().equals(key)) {
+                        containers.add(importContainer);
+                    }
+                }
+            }
+            return this;
+        }
+
+        void print() {
+            Collection<Group> values = groups.values();
+            if (values.size() == 1) {
+                System.out.println(values.iterator().next().toShortString());
+            } else {
+                for (Group g : values) {
+                    System.out.println(g);
+                }
+            }
         }
 
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            sb.append("#======================================\n");
-            sb.append("# Group: " + key);
-            sb.append("\n");
-            //sb.append("# Used by: ");
-            //for (String key : theyUseMe) {
-            //    sb.append(" " + key + " ");
-            //}
-            //sb.append("\n");
-            sb.append(key);
-            sb.append("\n");
-            for (String val : iUseThem) {
-                sb.append(val);
+            for (Group g : groups.values()) {
+                sb.append(g.toString());
                 sb.append("\n");
             }
             return sb.toString();
         }
 
-    }
-
-    final Map<String, Set<String>> usedBy;
-    final Map<String, Group> groups = new HashMap<String, Group>();
-
-    Groups(Map<String, Set<String>> usedBy) {
-        super(null, null, null, null, false, null);
-        this.usedBy = usedBy;
-        for (String key : usedBy.keySet()) {
-            groups.put(key, new Group(key));
+        static void line(String s) {
+            System.out.println("\n# ************ " + s + " ************ \n");
         }
-    }
 
-    Groups parse() {
-        for (Group g : new HashSet<Group>(groups.values())) {
-            g.removeSelfIfSingular();
+        static Groups test(int count, Map<String, Set<String>> t) {
+
+            System.out.println("\n\n");
+            line("TEST " + count);
+            Groups g = new Groups(t);
+            System.out.println(g);
+            g.parse(new ArrayList<ImportContainer>());
+            line("RESULT " + count);
+            System.out.println(g);
+            return g;
+
         }
-        return this;
-    }
 
-    void print() {
-        Collection<Group> values = groups.values();
-        if (values.size() == 1) {
-            System.out.println(values.iterator().next().toShortString());
-        } else {
-            for (Group g : values) {
-                System.out.println(g);
-            }
+        static Groups test() {
+            System.out.println("\n");
+            line("NOTICE");
+            System.out
+                    .println("#  You have entered \"\" \"\" as the path to import.");
+            System.out
+                    .println("#  This runs the test suite. If you would like to");
+            System.out.println("#  import the current directory use \"\".");
+
+            Map<String, Set<String>> t = new HashMap<String, Set<String>>();
+            t.put("a.dv.log", new HashSet(Arrays.asList("b.dv")));
+            t.put("b.dv", new HashSet(Arrays.asList("b.dv")));
+            test(1, t);
+
+            t = new HashMap<String, Set<String>>();
+            t.put("a.png", new HashSet(Arrays.asList("a.png")));
+            test(2, t);
+
+            t = new HashMap<String, Set<String>>();
+            t.put("a.tiff", new HashSet(Arrays.asList("a.tiff", "c.lei")));
+            t.put("b.tiff", new HashSet(Arrays.asList("b.tiff", "c.lei")));
+            t.put("c.lei", new HashSet(Arrays.asList("c.lei")));
+            return test(3, t);
+
         }
-    }
-    
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (Group g : groups.values()) {
-            sb.append(g.toString());
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
-
-    static void line(String s) {
-        System.out.println("\n# ************ " + s + " ************ \n");
-    }
-
-    static Groups test(int count, Map<String, Set<String>> t) {
-
-        System.out.println("\n\n");
-        line("TEST " + count);
-        Groups g = new Groups(t);
-        System.out.println(g);
-        g.parse();
-        line("RESULT " + count);
-        System.out.println(g);
-        return g;
-
-    }
-
-    static Groups test() {
-        System.out.println("\n");
-        line("NOTICE");
-        System.out.println("#  You have entered \"\" \"\" as the path to import.");
-        System.out.println("#  This runs the test suite. If you would like to");
-        System.out.println("#  import the current directory use \"\".");
-
-        Map<String, Set<String>> t = new HashMap<String, Set<String>>();
-        t.put("a.dv.log", new HashSet(Arrays.asList("b.dv")));
-        t.put("b.dv", new HashSet(Arrays.asList("b.dv")));
-        test(1, t);
-
-        t = new HashMap<String, Set<String>>();
-        t.put("a.png", new HashSet(Arrays.asList("a.png")));
-        test(2, t);
-
-        t = new HashMap<String, Set<String>>();
-        t.put("a.tiff", new HashSet(Arrays.asList("a.tiff", "c.lei")));
-        t.put("b.tiff", new HashSet(Arrays.asList("b.tiff", "c.lei")));
-        t.put("c.lei", new HashSet(Arrays.asList("c.lei")));
-        return test(3, t);
 
     }
 

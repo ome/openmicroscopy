@@ -41,7 +41,6 @@ import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ETable;
 import ome.formats.importer.util.ErrorContainer;
-import ome.formats.importer.util.GuiCommonElements;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

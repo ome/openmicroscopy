@@ -15,6 +15,9 @@ import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
 import ome.formats.Main;
+import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.gui.LoginHandler;
+import ome.formats.importer.util.IniFileLoader;
 import ome.system.UpgradeCheck;
 
 import org.apache.commons.logging.Log;
@@ -45,6 +48,8 @@ public class ImportConfig {
     private final Preferences _prefs = Preferences.userNodeForPackage(Main.class);
 
     private final String[] args;
+    
+    private final IniFileLoader ini;
     
     // STATE
 
@@ -79,7 +84,7 @@ public class ImportConfig {
         // ini.updateFlexReaderServerMaps();
 
         configured = true;
-
+        ini = IniFileLoader.getIniFileLoader(args, IniFileLoader.Callback.DEFAULT);
         
         if (args != null) {
             this.args = new String[args.length];
@@ -115,11 +120,7 @@ public class ImportConfig {
      */
     public String getHomeUrl() {
         return _home_url;
-    }
-
-
-
-    
+    }    
 
 
     public String getReadersPath() {
@@ -150,11 +151,8 @@ public class ImportConfig {
         return true;
     }
 
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
     public void setUsername(String username) {
+        _prefs.put("username", username);
         this.username = username;
     }
 
@@ -167,6 +165,7 @@ public class ImportConfig {
     }
 
     public void setPort(int port) {
+        _prefs.putInt("port", port);
         this.port = port;
     }
 
@@ -201,17 +200,17 @@ public class ImportConfig {
     }
 
 
-    public void setUIBounds(Rectangle bounds) {
-        // TODO Auto-generated method stub
-        
-    }
-
 
     public String getVersionNumber() {
         // TODO Auto-generated method stub
         return null;
     }
 
+
+    public void setServer(String currentServer) {
+        _prefs.put("server", currentServer);
+        this.hostname = currentServer;
+    }
 
     public String getServerPort() {
         // TODO Auto-generated method stub
@@ -252,10 +251,7 @@ public class ImportConfig {
         
     }
 
-    public Rectangle getUIBounds() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+
 
     public String getLogFileName() {
         // TODO Auto-generated method stub
@@ -290,6 +286,42 @@ public class ImportConfig {
     public void setSavedDirectory(String path) {
         _prefs.put("savedDirectory", path);
 
+    }
+    
+    //
+    // Delegates to IniFileLoader
+    //
+
+    public Rectangle getUIBounds() {
+        return ini.getUIBounds();
+    }
+
+    public void setUIBounds(Rectangle bounds) {
+        ini.setUIBounds(bounds);
+    }
+
+    //
+    // Test related methods
+    //
+    
+    public Class<?> getImplClass(String key) {
+        if ("LoginHandler".equals(key)) {
+            String k = System.getProperty("LoginHandlerClass");
+            if (k != null) {
+                try {
+                    return Class.forName(k);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return LoginHandler.class;
+        }
+        throw new RuntimeException("Unknown key");
+    }
+
+    public OMEROMetadataStoreClient createStore() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

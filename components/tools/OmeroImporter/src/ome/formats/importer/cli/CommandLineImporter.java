@@ -186,7 +186,7 @@ public class CommandLineImporter
             	}
                 case 's':
                 {
-                    config.setHostname(g.getOptarg());
+                    config.setServer(g.getOptarg());
                     break;
                 }
                 case 'u':

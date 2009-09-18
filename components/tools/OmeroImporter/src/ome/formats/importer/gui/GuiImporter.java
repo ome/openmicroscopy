@@ -35,6 +35,7 @@ import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 
 import javax.swing.JDialog;
@@ -59,8 +60,6 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.Version;
 import ome.formats.importer.util.BareBonesBrowserLaunch;
-import ome.formats.importer.util.GuiCommonElements;
-import ome.formats.importer.util.IniFileLoader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -334,7 +333,13 @@ public class GuiImporter extends JFrame
             log.debug("Disabling history");
         }
         
-        loginHandler = new LoginHandler(this, historyTable, false, false);
+        try {
+            Class loginHandlerCls = config.getImplClass("LoginHandler");
+            Constructor c = loginHandlerCls.getConstructor(GuiImporter.class, HistoryTable.class);
+            loginHandler = (LoginHandler) c.newInstance(this, historyTable);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         
         LogAppender.getInstance().setTextArea(debugTextPane);
         appendToOutputLn("> Starting the importer (revision "

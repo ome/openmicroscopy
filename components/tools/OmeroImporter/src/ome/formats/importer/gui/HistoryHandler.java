@@ -9,7 +9,6 @@ import javax.swing.UIManager;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObserver;
-import ome.formats.importer.util.GuiCommonElements;
 
 @SuppressWarnings("serial")
 public class HistoryHandler 

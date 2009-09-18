@@ -33,7 +33,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.util.GuiCommonElements;
 
 import omero.RLong;
 import omero.model.Screen;

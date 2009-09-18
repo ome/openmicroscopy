@@ -46,7 +46,6 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ETable;
-import ome.formats.importer.util.GuiCommonElements;
 import omero.model.IObject;
 
 import org.apache.commons.logging.Log;
@@ -324,7 +323,7 @@ public class FileQueueTable
         {
             button = new JButton(name);
         } else {
-            java.net.URL imgURL = Main.class.getResource(image);
+            java.net.URL imgURL = GuiImporter.class.getResource(image);
             if (imgURL != null)
             {
                 button = new JButton(null, new ImageIcon(imgURL));
@@ -354,7 +353,8 @@ public class FileQueueTable
                 String imageName = table.getValueAt(i, 0).toString();
                 IObject target = (IObject) table.getValueAt(i, 3);
                 importContainer[i] = new ImportContainer(file, projectID, target, imageName, archive, 
-                        (Double[]) table.getValueAt(i, 7));
+                        (Double[]) table.getValueAt(i, 7), (String) table.getValueAt(i, 8),
+                        (String[]) table.getValueAt(i,9), (Boolean) table.getValueAt(i, 10));
                 if (table.getValueAt(i,8) != null)
                     importContainer[i].setUserSpecifiedFileName((String)table.getValueAt(i, 8));
             }

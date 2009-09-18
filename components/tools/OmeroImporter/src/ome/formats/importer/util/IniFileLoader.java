@@ -110,7 +110,12 @@ public class IniFileLoader
     // Initial load passing in args
     public static IniFileLoader getIniFileLoader(String[] args, Callback cb)
     {
-        String filename = args.length > 0 ? args[0] : userSettingsFile;
+        String filename;
+        if (args != null && args.length > 0) {
+            filename = args[0];
+        } else {
+            filename = userSettingsFile;
+        }
         
         if (ini == null)
         // it's ok, we can call this constructor

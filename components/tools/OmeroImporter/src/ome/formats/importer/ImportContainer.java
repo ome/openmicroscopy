@@ -9,23 +9,29 @@ package ome.formats.importer;
 
 import java.io.File;
 
+import loci.formats.FileInfo;
+
 import omero.model.IObject;
 
 public class ImportContainer
 {
-	public File file;
-	public Long projectID;
-	private IObject target;
-	public String imageName;
-	public boolean archive;
-    public Double[] userPixels;
-    public String userSpecifiedImageName;
+	final public File file;
+	final public Long projectID;
+	final public String imageName;
+	final public boolean archive;
+    final public Double[] userPixels;
+    final public String reader;
+    final public String[] usedFiles;
+    final public boolean isSPW;
     
-
+    private String userSpecifiedImageName;
+    private IObject target;
+    private FileInfo[] fileInfo;
+    
 	public ImportContainer(File file, Long projectID,
 			IObject target, 
 			String imageName, boolean archive, 
-			Double[] userPixels)
+			Double[] userPixels, String reader, String[] usedFiles, boolean isSPW)
 	{
 		this.file = file;
 		this.projectID = projectID;
@@ -33,6 +39,9 @@ public class ImportContainer
 		this.imageName = imageName;
 		this.archive = archive;
 		this.userPixels = userPixels;
+		this.reader = reader;
+		this.usedFiles = usedFiles;
+		this.isSPW = isSPW;
 	}
 
 	public void setUserSpecifiedFileName(String name)

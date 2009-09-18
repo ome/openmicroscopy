@@ -20,6 +20,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JFileChooser;
@@ -34,10 +35,10 @@ import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
-import ome.formats.importer.util.GuiCommonElements;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Screen;
@@ -53,12 +54,12 @@ public class FileQueueHandler
     /** Logger for this class */
     private static final Log log = LogFactory.getLog(FileQueueHandler.class);
 
-    public final static String ADD = "ADD";
-    public final static String REMOVE = "REMOVE";
-    public final static String CLEARDONE = "CLEARDONE";
-    public final static String CLEARFAILED = "CLEARFAILED";
-    public final static String IMPORT = "IMPORT";
-    public final static String REFRESH = "REFRESH";
+    public final static String ADD = "add";
+    public final static String REMOVE = "remove";
+    public final static String CLEARDONE = "clear_done";
+    public final static String CLEARFAILED = "clear_failed";
+    public final static String IMPORT = "import";
+    public final static String REFRESH = "refresh";
     
 	private final ImportConfig config;
     private final OMEROWrapper reader;
@@ -106,21 +107,32 @@ public class FileQueueHandler
         
         add(splitPane, BorderLayout.CENTER);
     }
+    
+    protected OMEROMetadataStoreClient store() {
+        return viewer.loginHandler.getMetadataStore();
+    }
 
     public void actionPerformed(ActionEvent e)
     {
-        final OMEROMetadataStoreClient store = viewer.loginHandler.getMetadataStore();
         final String action = e.getActionCommand();
         final File[] files = fileChooser.getSelectedFiles();
         
         //If the directory changed, don't show an image.
         if (action.equals(JFileChooser.APPROVE_SELECTION)) {
+            String msg = "DISABLED BY JOSH";
+            log.error(msg);
+            if (true) {
+                throw new RuntimeException(msg);
+            }
+            
+            if (false) { // DELETE THIS SECTION. COPY OF ANOTHER IN THIS FILE.
+            
             File file = fileChooser.getSelectedFile();
             
-            if (store != null && files != null && reader.isSPWReader(files[0].getAbsolutePath()))
+            if (store() != null && files != null && reader.isSPWReader(files[0].getAbsolutePath()))
             {
                 SPWDialog dialog =
-                    new SPWDialog(gui, viewer, "Screen Import", true, store);
+                    new SPWDialog(gui, viewer, "Screen Import", true, store());
                 if (dialog.cancelled == true || dialog.screen == null) 
                     return;                    
                 for (File f : files)
@@ -132,16 +144,16 @@ public class FileQueueHandler
                             false, 
                             0,
                             dialog.archiveImage.isSelected(),
-                            null, null);
+                            null, null, reader.getFormat(), reader.getUsedFiles(), true);
                 }
                 
                 qTable.centerOnRow(qTable.queue.getRowCount()-1);
                 qTable.importBtn.requestFocus();
             }
-            else if (store != null)
+            else if (store() != null)
             {
                 ImportDialog dialog = 
-                    new ImportDialog(gui, viewer, "Import", true, store);
+                    new ImportDialog(gui, viewer, "Import", true, store());
                 if (dialog.cancelled == true || dialog.dataset == null) 
                     return;
                 
@@ -156,7 +168,7 @@ public class FileQueueHandler
                         dialog.dataset.getName().getValue(), dialog.project.getName().getValue(), 
                         useFullPath, dialog.numOfDirectories, 
                         dialog.archiveImage.isSelected(), dialog.project.getId().getValue(),
-                        pixelSizes);
+                        pixelSizes, null, null, false);
                 qTable.importBtn.requestFocus();
                 
             } else { 
@@ -165,6 +177,7 @@ public class FileQueueHandler
                         "retrieve an OMEROMetadataStore and cannot continue." +
                         "The most likely cause for this error is that you" +
                 "are not logged in. Please try to login again.");
+            }
             }
         }
     }
@@ -179,72 +192,77 @@ public class FileQueueHandler
     
     public void propertyChange(PropertyChangeEvent e)
     {
-        final OMEROMetadataStoreClient store = viewer.loginHandler.getMetadataStore();
-
         String prop = e.getPropertyName();
         if (prop.equals(ADD))
         {
-            if (fileChooser.getSelectedFile() == null)
+            
+            final File[] _files = fileChooser.getSelectedFiles();                    
+
+            if (_files == null)
             {
                 mustSelectFile();
                 return;
             }
-            File[] files = fileChooser.getSelectedFiles();                    
 
-            for (File f : files)
-            {
-                if (!f.isFile()) 
-                {
-                    mustSelectFile();
-                    return;
-                }
+            String[] paths = new String[_files.length];
+            for (int i = 0; i < paths.length; i++) {
+                paths[i] = _files[i].getAbsolutePath();
             }
 
-            if (store != null && reader.isSPWReader(files[0].getAbsolutePath()))
+            final ImportCandidates candidates = new ImportCandidates(reader, paths);
+            final List<ImportContainer> containers = candidates.getContainers();
+            
+            Boolean spw = spwOrNull(containers);
+            if (spw == null) {
+                return; // Invalid containers.
+            }
+            
+            if (store() != null && spw.booleanValue())
             {
                 SPWDialog dialog =
-                    new SPWDialog(gui, viewer, "Screen Import", true, store);
+                    new SPWDialog(gui, viewer, "Screen Import", true, store());
                 if (dialog.cancelled == true || dialog.screen == null) 
                     return;                    
-                for (File f : files)
+                for (ImportContainer ic : containers)
                 {             
                     
-                    addFileToQueue(f, dialog.screen, 
+                    addFileToQueue(ic.file, dialog.screen, 
                             dialog.screen.getName().getValue(),
                             null, 
                             false, 
                             0,
                             dialog.archiveImage.isSelected(),
-                            null, null);
+                            null, null, ic.reader, ic.usedFiles, true);
                 }
                 
                 qTable.centerOnRow(qTable.queue.getRowCount()-1);
             }
-            else if (store != null)
+            else if (store() != null)
             {
                 ImportDialog dialog = 
-                    new ImportDialog(gui, viewer, "Image Import", true, store);
+                    new ImportDialog(gui, viewer, "Image Import", true, store());
                 if (dialog.cancelled == true || dialog.dataset == null) 
                     return;  
+
                 
                 Double[] pixelSizes = new Double[] {dialog.pixelSizeX, dialog.pixelSizeY, dialog.pixelSizeZ};
-                System.err.println(dialog.pixelSizeX);
                 Boolean useFullPath = dialog.useFullPath;
                 if (dialog.fileCheckBox.isSelected() == false)
                     useFullPath = null; //use the default bio-formats naming
                     
                 
-                for (File f : files)
+                for (ImportContainer ic : containers)
                 {
-                    if (f.isFile()) 
-                        addFileToQueue(f, dialog.dataset, 
-                                dialog.dataset.getName().getValue(), 
-                                dialog.project.getName().getValue(),
-                                useFullPath, 
-                                dialog.numOfDirectories,
-                                dialog.archiveImage.isSelected(),
-                                dialog.project.getId().getValue(),
-                                pixelSizes);
+                    addFileToQueue(ic.file, dialog.dataset, 
+                            dialog.dataset.getName().getValue(), 
+                            dialog.project.getName().getValue(),
+                            useFullPath, 
+                            dialog.numOfDirectories,
+                            dialog.archiveImage.isSelected(),
+                            dialog.project.getId().getValue(),
+                            pixelSizes,
+                            ic.reader,
+                            ic.usedFiles, false);
                 }
                 
                 qTable.centerOnRow(qTable.queue.getRowCount()-1);
@@ -257,7 +275,8 @@ public class FileQueueHandler
                         "are not logged in. Please try to login again.");
             }
         }
-        if (prop.equals(REMOVE))
+        
+        else if (prop.equals(REMOVE))
         {
                 int[] rows = qTable.queue.getSelectedRows();   
 
@@ -280,7 +299,8 @@ public class FileQueueHandler
                     }
                 }                
         }
-        if (prop.equals(CLEARDONE))
+        
+        else if (prop.equals(CLEARDONE))
         {
                 int numRows = qTable.queue.getRowCount();
 
@@ -293,7 +313,8 @@ public class FileQueueHandler
                 }
                 qTable.clearDoneBtn.setEnabled(false);
         }
-        if (prop.equals(CLEARFAILED))
+        
+        else if (prop.equals(CLEARFAILED))
         {
                 int numRows = qTable.queue.getRowCount();
 
@@ -306,7 +327,8 @@ public class FileQueueHandler
                 }  
                 qTable.clearFailedBtn.setEnabled(false);
         }
-        if (prop.equals(IMPORT))
+       
+        else if (prop.equals(IMPORT))
         {
             if (viewer.loggedIn == false)
             {
@@ -324,8 +346,8 @@ public class FileQueueHandler
 
                     if (candidates != null)
                     {
-                        ImportLibrary library = new ImportLibrary(store, reader);
-                        if (store != null) {
+                        ImportLibrary library = new ImportLibrary(store(), reader);
+                        if (store() != null) {
                             new ImportHandler(viewer, qTable, config, library, candidates);
                         }
                     }
@@ -356,16 +378,37 @@ public class FileQueueHandler
                 return;  
             }
         }
-        if (prop.equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY))
+        
+        else if (prop.equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY))
         {
             config.setSavedDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
         }       
-        if (prop.equals(REFRESH))
+        
+        else if (prop.equals(REFRESH))
         {
             fileChooser.setVisible(false);
             fileChooser.rescanCurrentDirectory();
             fileChooser.setVisible(true);
         }
+    }
+
+    /**
+     * Checks whether all the candidate imports in the list are either SPW or
+     * not SPW. If there is a mismatch, then a warning is shown and null returned,
+     * otherwise a Boolean of whether or not this is a SPW import will be returned.
+     */
+    private Boolean spwOrNull(final List<ImportContainer> containers) {
+        Boolean isSPW = null;
+        for (ImportContainer importContainer : containers) {
+            if (isSPW != null && importContainer.isSPW != isSPW.booleanValue()) {
+                JOptionPane.showMessageDialog(viewer, 
+                        "You have chosen some Screen-based images and some \n "+
+                        "non-screen-based images. Please import only one type at a time.");
+                return null;
+            }
+            isSPW = importContainer.isSPW;
+        }
+        return isSPW;
     }
     
     
@@ -396,7 +439,7 @@ public class FileQueueHandler
     @SuppressWarnings("unchecked")
     private void addFileToQueue(File file, IObject object, String dName, 
             String project, Boolean useFullPath, 
-            int numOfDirectories, boolean archiveImage, Long projectID, Double[] pixelSizes)
+            int numOfDirectories, boolean archiveImage, Long projectID, Double[] pixelSizes, String reader, String[] usedFiles, boolean isSPW)
     {
         Vector row = new Vector();
         String imageName;
@@ -426,6 +469,9 @@ public class FileQueueHandler
         row.add(projectID);
         row.add(pixelSizes);
         row.add(userSpecifiedName);
+        row.add(reader);
+        row.add(usedFiles);
+        row.add(isSPW);
         qTable.table.addRow(row);
         if (qTable.table.getRowCount() == 1)
             qTable.importBtn.setEnabled(true);
@@ -609,6 +655,7 @@ public class FileQueueHandler
                 {
                     row.add(projectName + "/" + objectName);   
                 }
+                // WHY ISN'T THIS CODE USING addFiletoQueue?!!?
                 row.add("added");
                 row.add(object);
                 row.add(file);

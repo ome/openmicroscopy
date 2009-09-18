@@ -531,5 +531,8 @@ public class ImportLibrary implements IObservable
       throw new RuntimeException("Unknown type with id: '" + type + "'");
     }
 
+    public void clear() {
+        store.createRoot();
+    }
 
 }

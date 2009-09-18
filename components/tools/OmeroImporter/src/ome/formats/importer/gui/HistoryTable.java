@@ -44,7 +44,6 @@ import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ETable;
-import ome.formats.importer.util.GuiCommonElements;
 import omero.model.Dataset;
 import omero.model.Screen;
 

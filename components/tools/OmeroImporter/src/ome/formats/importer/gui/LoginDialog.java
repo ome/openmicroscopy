@@ -44,7 +44,6 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
-import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.IniFileLoader;
 
 import layout.TableLayout;

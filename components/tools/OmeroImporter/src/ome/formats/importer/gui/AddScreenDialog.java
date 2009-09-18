@@ -19,7 +19,6 @@ import javax.swing.UIManager;
 import layout.TableLayout;
 
 import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.util.GuiCommonElements;
 import omero.model.Screen;
 
 

@@ -24,7 +24,6 @@ import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -32,8 +31,8 @@ import javax.swing.JOptionPane;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
-import ome.formats.importer.util.GuiCommonElements;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,24 +58,13 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     
     private static boolean NEW_LOGIN = true;
     
-    ArrayList<IObserver> observers = new ArrayList<IObserver>();
+    private final ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
     public volatile JFrame      f;
     
     private boolean            center;
-    
-    private String             username;
-
-    private String             password;
-
-    private int                port;
-
-    private String             server;
 
     private GuiImporter        viewer;
-
-    private Preferences        userPrefs = Preferences
-                                                 .userNodeForPackage(LoginHandler.class);
 
     private OMEROMetadataStoreClient store;
     
@@ -88,15 +76,22 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     
     private boolean modal, displayTop;
     
-    private HistoryTable historyTable = null;
-    
-    private GuiCommonElements   gui;
+    private final HistoryTable historyTable;
+    private final GuiCommonElements gui;
+    private final ImportConfig config;
 
-    LoginHandler(GuiImporter viewer, HistoryTable table, boolean modal, boolean center)
+    
+    public LoginHandler(GuiImporter viewer, HistoryTable table)
+    {
+        this(viewer, table, false, false);
+    }    
+    
+    public LoginHandler(GuiImporter viewer, HistoryTable table, boolean modal, boolean center)
     {
         this.viewer = viewer;
         this.center = center;
         this.modal = modal;
+        this.config = viewer.config;
 
         gui = new GuiCommonElements(viewer.config);
         
@@ -138,37 +133,37 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         {
             public void run()
             {
+                String server;
                 if (!NEW_LOGIN)
                 {
                     //SplashWindow.disposeSplash();
                     viewer.setVisible(true);
-                    
                     if (!modal)
                     {
-                        username = frame.username;
-                        password = frame.password;
+                        config.setUsername(frame.username);
+                        config.setPassword(frame.password);
+                        config.setServer(frame.currentServer);
+                        config.setPort(frame.port);
                         server = frame.currentServer;
-                        port = frame.port;
                         frame.updateServerList(server);                    
                     }
                     else
                     {
-                        username = dialog.username;
-                        password = dialog.password;
+                        config.setUsername(dialog.username);
+                        config.setPassword(dialog.password);
+                        config.setServer(dialog.currentServer);
+                        config.setPort(dialog.port);
                         server = dialog.currentServer;
-                        port = dialog.port;
                         dialog.updateServerList(server);                    
                     }
-                    userPrefs.put("username", username);
-                    userPrefs.put("server", server);
-                    userPrefs.putInt("port", port);
                 }
                 else
                 {
-                	username = lc.getUserName();
-                	password = lc.getPassword();
+                	config.setUsername(lc.getUserName());
+                	config.setPassword(lc.getPassword());
+                	config.setServer(lc.getHostName());
+                	config.setPort(lc.getPort());
                 	server = lc.getHostName();
-                	port = lc.getPort();
                 }
             
                 viewer.statusBar.setStatusIcon("gfx/server_trying16.png",
@@ -291,12 +286,11 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         return false;
     }
 
-    private boolean isValidLogin() throws Exception
+    protected boolean isValidLogin() throws Exception
     {
         try
         {
-            store = new OMEROMetadataStoreClient(viewer.config);
-            store.initialize(username, password, server, port);
+            store = config.createStore();
         }
         catch (Exception e)
         {

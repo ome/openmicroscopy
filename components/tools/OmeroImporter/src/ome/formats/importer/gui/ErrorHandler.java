@@ -25,7 +25,6 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ErrorContainer;
 import ome.formats.importer.util.FileUploader;
-import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.HtmlMessenger;
 
 import org.apache.commons.httpclient.methods.multipart.Part;

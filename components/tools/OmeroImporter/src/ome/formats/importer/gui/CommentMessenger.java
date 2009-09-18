@@ -33,7 +33,6 @@ import javax.swing.JTextPane;
 
 import layout.TableLayout;
 import ome.formats.importer.ImportConfig;
-import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.HtmlMessenger;
 
 import org.apache.commons.httpclient.methods.multipart.Part;

@@ -37,9 +37,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.util.GuiCommonElements;
-import ome.formats.importer.util.GuiCommonElements.DecimalNumberField;
-import ome.formats.importer.util.GuiCommonElements.WholeNumberField;
+import ome.formats.importer.gui.GuiCommonElements.DecimalNumberField;
+import ome.formats.importer.gui.GuiCommonElements.WholeNumberField;
 
 import omero.RLong;
 import omero.model.Dataset;
