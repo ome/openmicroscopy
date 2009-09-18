@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.CommentMessenger
+ * ome.formats.importer.gui.CommentMessenger
  *
  *------------------------------------------------------------------------------
  *
@@ -11,7 +11,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

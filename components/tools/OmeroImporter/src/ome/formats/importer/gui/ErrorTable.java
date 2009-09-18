@@ -1,4 +1,4 @@
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -35,15 +35,16 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import layout.TableLayout;
-
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
 import ome.formats.importer.util.ErrorContainer;
 import ome.formats.importer.util.GuiCommonElements;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 public class ErrorTable

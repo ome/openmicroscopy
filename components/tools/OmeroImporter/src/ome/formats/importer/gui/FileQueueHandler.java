@@ -1,5 +1,5 @@
 /*
- * ome.formats.testclient.TestClient
+ * ome.formats.importer.gui.FileQueueHandler
  *
  *------------------------------------------------------------------------------
  *
@@ -11,7 +11,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -30,14 +30,18 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
+import ome.formats.importer.ImportContainer;
+import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.Actions;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Screen;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 @SuppressWarnings("serial")
 public class FileQueueHandler 
@@ -48,7 +52,7 @@ public class FileQueueHandler
 	private Log log = LogFactory.getLog(FileQueueHandler.class);
 
     private Preferences    userPrefs = 
-        Preferences.userNodeForPackage(Main.class);
+        Preferences.userNodeForPackage(GuiImporter.class); FIXME
     
     private String savedDirectory = userPrefs.get("savedDirectory", "");
     
@@ -57,7 +61,7 @@ public class FileQueueHandler
  
     private OMEROWrapper    reader;
     
-    private Main          viewer;
+    private GuiImporter          viewer;
     
     FileQueueChooser fileChooser = null;
     public FileQueueTable qTable = null;
@@ -66,7 +70,7 @@ public class FileQueueHandler
     /**
      * @param viewer
      */
-    FileQueueHandler(Main viewer)
+    FileQueueHandler(GuiImporter viewer)
     {        
         this.viewer = viewer;
         

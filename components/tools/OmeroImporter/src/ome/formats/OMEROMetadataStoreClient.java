@@ -1,5 +1,12 @@
 package ome.formats;
 
+import static omero.rtypes.rbool;
+import static omero.rtypes.rdouble;
+import static omero.rtypes.rint;
+import static omero.rtypes.rlong;
+import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -27,25 +34,23 @@ import java.util.TreeMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import Glacier2.CannotCreateSessionException;
-import Glacier2.PermissionDeniedException;
-
-import static omero.rtypes.*;
+import loci.formats.IFormatReader;
+import loci.formats.ImageReader;
+import loci.formats.meta.IMinMaxStore;
+import loci.formats.meta.MetadataStore;
 import ome.formats.enums.EnumerationProvider;
 import ome.formats.enums.IQueryEnumProvider;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.util.ClientKeepAlive;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.ChannelProcessor;
 import ome.formats.model.IObjectContainerStore;
+import ome.formats.model.InstanceProvider;
 import ome.formats.model.InstrumentProcessor;
 import ome.formats.model.MetaLightSource;
 import ome.formats.model.MetaShape;
-import ome.formats.model.PixelsProcessor;
-import ome.formats.model.InstanceProvider;
 import ome.formats.model.ModelProcessor;
+import ome.formats.model.PixelsProcessor;
 import ome.formats.model.PlaneInfoProcessor;
 import ome.formats.model.ReferenceProcessor;
 import ome.formats.model.ShapeProcessor;
@@ -77,7 +82,6 @@ import omero.api.ThumbnailStorePrx;
 import omero.constants.METADATASTORE;
 import omero.metadatastore.IObjectContainer;
 import omero.model.AcquisitionMode;
-import omero.model.Annotation;
 import omero.model.Arc;
 import omero.model.ArcType;
 import omero.model.Binning;
@@ -132,12 +136,11 @@ import omero.model.PlaneInfo;
 import omero.model.Plate;
 import omero.model.Point;
 import omero.model.Polygon;
-import omero.model.ProjectI;
 import omero.model.Project;
+import omero.model.ProjectI;
 import omero.model.Pulse;
 import omero.model.Reagent;
 import omero.model.Rect;
-import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenAcquisition;
 import omero.model.ScreenI;
@@ -149,11 +152,11 @@ import omero.model.TransmittanceRangeI;
 import omero.model.Well;
 import omero.model.WellSample;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import loci.formats.IFormatReader;
-import loci.formats.ImageReader;
-import loci.formats.meta.IMinMaxStore;
-import loci.formats.meta.MetadataStore;
+import Glacier2.CannotCreateSessionException;
+import Glacier2.PermissionDeniedException;
 
 
 /**
@@ -167,7 +170,9 @@ public class OMEROMetadataStoreClient
     implements MetadataStore, IMinMaxStore, IObjectContainerStore
 {
     /** Logger for this class */
-    private Log log = LogFactory.getLog(OMEROMetadataStoreClient.class);
+    private final Log log = LogFactory.getLog(OMEROMetadataStoreClient.class);
+    
+    private final ImportConfig config;
     
     private MetadataStorePrx delegate;
     
@@ -243,6 +248,18 @@ public class OMEROMetadataStoreClient
     /** The default longest side of a thumbnail in OMERO.insight. */
     private static final int DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE = 96;
 
+    public OMEROMetadataStoreClient(ImportConfig config) {
+        this.config = config;
+    }
+    
+    public OMEROMetadataStoreClient(ServiceFactoryPrx prx) throws ServerError {
+        this.config = null;
+        if (serviceFactory == null)
+            throw new IllegalArgumentException("No factory.");
+        this.serviceFactory = serviceFactory;
+        initializeServices();
+    }
+   
     private void initializeServices()
         throws ServerError
     {
@@ -287,20 +304,6 @@ public class OMEROMetadataStoreClient
     public IQueryPrx getIQuery()
     {
         return iQuery;
-    }
-    
-    /**
-     * Initializes the MetadataStore with an already logged in, ready to go
-     * service factory.
-     * @param serviceFactory The factory. Mustn't be <code>null</code>.
-     */
-    public void initialize(ServiceFactoryPrx serviceFactory)
-        throws ServerError
-    {
-        if (serviceFactory == null)
-            throw new IllegalArgumentException("No factory.");
-        this.serviceFactory = serviceFactory;
-        initializeServices();
     }
     
     /**

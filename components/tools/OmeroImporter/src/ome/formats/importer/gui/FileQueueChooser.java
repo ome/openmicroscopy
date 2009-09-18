@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -36,13 +36,13 @@ import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import ome.formats.importer.util.Actions;
-
 import layout.TableLayout;
 import loci.formats.ImageReader;
+import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.util.Actions;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 public class FileQueueChooser 

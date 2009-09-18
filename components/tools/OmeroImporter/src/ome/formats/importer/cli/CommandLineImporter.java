@@ -2,20 +2,14 @@ package ome.formats.importer.cli;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
-
-import java.io.File;
-import java.io.IOException;
-
-import loci.formats.FormatException;
-
+import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
-import ome.formats.importer.util.IniFileLoader;
 import omero.ServerError;
 import omero.model.Dataset;
-import omero.model.IObject;
 import omero.model.Screen;
 
 import org.apache.commons.logging.Log;
@@ -27,86 +21,88 @@ import org.apache.log4j.Logger;
  * The base entry point for the CLI version of the OMERO importer.
  * 
  * @author Chris Allan <callan@glencoesoftware.com>
- *
+ * @author Josh Moore josh at glencoesoftware.com
  */
 public class CommandLineImporter
 {
     /** Logger for this class. */
     private static Log log = LogFactory.getLog(CommandLineImporter.class);
 
-    /** Default OMERO port */
-    private static final int PORT = 4063;
-    
     /** Name that will be used for usage() */
     private static final String APP_NAME = "importer-cli";
     
+    /** Configuration used by all components */
+    public final ImportConfig config;
+    
     /** Base importer library, this is what we actually use to import. */
-    public ImportLibrary library;
+    public final ImportLibrary library;
     
     /** Bio-Formats reader wrapper customized for OMERO. */
-    private OMEROWrapper reader;
+    private final OMEROWrapper reader;
 
     /** Bio-Formats {@link MetadataStore} implementation for OMERO. */
-    private OMEROMetadataStoreClient store;
+    private final OMEROMetadataStoreClient store;
 
+    /** Candidates for import */
+    private final ImportCandidates candidates;
+    
+    /** If true, then only a report on used files will be produced */
+    private final boolean getUsedFiles;
+    
     /**
      * Main entry class for the application.
      */
-    public CommandLineImporter(String username, String password,
-                               String host, int port)
+    public CommandLineImporter(ImportConfig config, String[] paths, boolean getUsedFiles)
         throws Exception
     {
-        store = new OMEROMetadataStoreClient();
-        store.initialize(username, password, host, port);
-        reader = new OMEROWrapper();
-        library = new ImportLibrary(store, reader);
-    }
-    
-    /**
-     * Secondary, session key based constructor.
-     */
-    public CommandLineImporter(String sessionKey, String host, int port)
-        throws Exception
-    {
-        store = new OMEROMetadataStoreClient();
-        store.initialize(host, port, sessionKey);
-        reader = new OMEROWrapper();
-        library = new ImportLibrary(store, reader);
-    }
-    
-    /**
-     * Adds a monitor to the import process.
-     * @param monitor The monitor.
-     */
-    public void addMonitor(LoggingImportMonitor monitor)
-    {
-        library.addObserver(monitor);
-    }
-    
-    /**
-     * Imports an image into OMERO.
-     * @param path The file path to import.
-     * @param targetClass The class of the target object to import the image
-     * into.
-     * @param targetId The Id of the target object to import the image into.
-     * @param name Image name to use for import.
-     * @param description Image description to use for import.
-     * @throws IOException If there is an error reading from <code>path</code>.
-     * @throws FormatException If there is an error parsing metadata.
-     * @throws ServerError If there is a problem interacting with the server.
-     */
-    public void importImage(String path, Class<? extends IObject> targetClass,
-    						Long targetId, String name, String description)
-        throws IOException, FormatException, ServerError
-    {
-        File f = new File(path);
-        IObject target = null;
-        if (targetId != null)
-        {
-            target = store.getTarget(targetClass, targetId);
+        this.config = config;
+        this.getUsedFiles = getUsedFiles;
+        reader = new OMEROWrapper(config);
+        candidates = new ImportCandidates(reader, paths);
+        if (!getUsedFiles) {
+            store = new OMEROMetadataStoreClient(config);
+            library = new ImportLibrary(store, reader);
+        } else {
+            store = null;
+            library = null;
         }
-        library.setTarget(target);
-        library.importImage(f, 0, 0, 1, name, description, false, true, null);
+    }
+
+    public void run() {
+        
+        if (candidates.size() < 1) {
+            System.err.println("No imports found");
+            usage();
+        }
+        
+        if (getUsedFiles)
+        {
+            try
+            {
+                candidates.print();
+                System.exit(0);
+            }
+            catch (Throwable t)
+            {
+                log.error("Error retrieving used files.", t);
+                System.exit(2);
+            }
+        }
+        
+        else
+        {
+            
+            // Ensure that we have all of our required login arguments
+            if (!config.canLogin()) {
+                usage(); // EXITS
+            }
+            
+            library.addObserver(new LoggingImportMonitor());
+            library.addObserver(new ErrorHandler());
+            library.importCandidates(config, candidates);
+        
+        }
+
     }
     
     /**
@@ -114,7 +110,9 @@ public class CommandLineImporter
      */
     public void cleanup()
     {
-    	store.logout();
+        if (store != null) {
+            store.logout();
+        }
     }
 
     /**
@@ -163,22 +161,14 @@ public class CommandLineImporter
      */
     public static void main(String[] args)
     {
-    	IniFileLoader.getIniFileLoader(args);
+        ImportConfig config = new ImportConfig(args);
     	LongOpt debug = new LongOpt("debug", LongOpt.NO_ARGUMENT, null, 1);
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
         		              new LongOpt[] { debug });
         int a;
-        String username = null;
-        String password = null;
-        String sessionKey = null;
-        String hostname = null;
-        int port = PORT;
-        Class<? extends IObject> targetClass = null;
-        Long targetId = null;
-        String name = null;
-        String description = null;
+
         boolean getUsedFiles = false;
-        boolean continueImport = false;
+        
         while ((a = g.getopt()) != -1)
         {
             switch (a)
@@ -194,49 +184,49 @@ public class CommandLineImporter
             	}
                 case 's':
                 {
-                    hostname = g.getOptarg();
+                    config.setHostname(g.getOptarg());
                     break;
                 }
                 case 'u':
                 {
-                    username = g.getOptarg();
+                    config.setUsername(g.getOptarg());
                     break;
                 }
                 case 'w':
                 {
-                    password = g.getOptarg();
+                    config.setPassword(g.getOptarg());
                     break;
                 }
                 case 'k':
                 {
-                    sessionKey = g.getOptarg();
+                    config.setSessionkey(g.getOptarg());
                     break;
                 }
                 case 'p':
                 {
-                    port = Integer.parseInt(g.getOptarg());
+                    config.setPort(Integer.parseInt(g.getOptarg()));
                     break;
                 }
                 case 'd':
                 {
-                	targetClass = Dataset.class;
-                    targetId = Long.parseLong(g.getOptarg());
+                    config.setTargetClass(Dataset.class);
+                    config.setTargetId(Long.parseLong(g.getOptarg()));
                     break;
                 }
                	case 'r':
                 {
-                	targetClass= Screen.class;
-                	targetId = Long.parseLong(g.getOptarg());
+                    config.setTargetClass(Screen.class);
+                    config.setTargetId(Long.parseLong(g.getOptarg()));
                 	break;
                 }
                 case 'n':
                 {
-                    name = g.getOptarg();
+                    config.setName(g.getOptarg());
                     break;
                 }
                 case 'x':
                 {
-                    description = g.getOptarg();
+                    config.setDescription(g.getOptarg());
                     break;
                 }
                 case 'f':
@@ -246,13 +236,12 @@ public class CommandLineImporter
                 }
                 case 'c':
                 {
-                	continueImport = true;
+                    config.setContinueOnErrors(true);
                 	break;
                 }
                 case 'l':
                 {
-                    String readers = g.getOptarg();
-                    System.setProperty(OMEROWrapper.READERS_KEY, readers);
+                    config.setReadersPath(g.getOptarg());
                     break;
                 }
                 default:
@@ -261,76 +250,29 @@ public class CommandLineImporter
                 }
             }
         }
-
-        // Parse out our file path
-        String[] rest = new String[args.length - g.getOptind()];
-        System.arraycopy(args, g.getOptind(), rest, 0, args.length - g.getOptind());
-        ImportCandidates candidates = new ImportCandidates(rest);
-        if (candidates.size() < 1)
-        {
-            System.err.println("No imports found");
-            usage();
-        }
         
-        // If we've been asked to display used files, display them and exit.
-        if (getUsedFiles)
-        {
-        	try
-        	{
-        		candidates.print();
-        		System.exit(0);
-        	}
-        	catch (Throwable t)
-        	{
-        		log.error("Error retrieving used files.", t);
-        		System.exit(2);
-        	}
-        }
-        
-        // Ensure that we have all of our required login arguments
-        if (((username == null || password == null) && sessionKey == null)
-            || hostname == null)
-        {
-            usage();
-        }
 
         // Start the importer and import the image we've been given
+        String[] rest = new String[args.length - g.getOptind()];
+        System.arraycopy(args, g.getOptind(), rest, 0, args.length - g.getOptind());
         CommandLineImporter c = null;
+        int rc = 0;
         try
         {
-            if (sessionKey != null)
-            {
-                c = new CommandLineImporter(sessionKey, hostname, port);
-            }
-            else
-            {
-                c = new CommandLineImporter(username, password, hostname, port);
-            }
-
-            for (String _path : candidates.getPaths())
-            {
-                String _name = name;
-                // Ensure that we have an image name
-                if (_name == null)
-                {
-                    _name = _path;
-                }
-                c.library.addObserver(new LoggingImportMonitor());
-                c.importImage(_path, targetClass, targetId, _name, description);
-            }
-            System.exit(0);  // Exit with specified return code
+            c = new CommandLineImporter(config, rest, getUsedFiles);
         }
         catch (Throwable t)
         {
             log.error("Error during import process." , t);
-            System.exit(2);
+            rc = 2;
         }
         finally
         {
-        	if (c != null)
-        	{
-        		c.cleanup();
-        	}
+            if (c != null)
+            {
+                c.cleanup();
+            }
         }
+        System.exit(rc);
     }
 }

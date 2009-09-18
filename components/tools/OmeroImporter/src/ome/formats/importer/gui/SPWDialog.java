@@ -1,5 +1,5 @@
 /*
- * ome.formats.testclient.ImportDialog
+ * ome.formats.importer.gui.ImportDialog
  *
  *------------------------------------------------------------------------------
  *
@@ -11,7 +11,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import static omero.rtypes.*;
 import java.awt.Dimension;

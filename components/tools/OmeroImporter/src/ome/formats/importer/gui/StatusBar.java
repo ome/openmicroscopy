@@ -1,5 +1,5 @@
 /*
- *  ome.formats.importer.StatusBar
+ *  ome.formats.importer.gui.StatusBar
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
@@ -20,7 +20,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 // Java imports
 import java.awt.Dimension;
@@ -166,7 +166,7 @@ public class StatusBar extends JPanel
     {
         if (path != null)
         {
-            java.net.URL imgURL = Main.class.getResource(path);
+            java.net.URL imgURL = GuiImporter.class.getResource(path);
             if (imgURL != null)
             {
                 status.setIcon(new ImageIcon(imgURL, description));

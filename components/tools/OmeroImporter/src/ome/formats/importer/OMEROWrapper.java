@@ -2,6 +2,9 @@ package ome.formats.importer;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -24,12 +27,10 @@ import omero.model.Pixels;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class OMEROWrapper extends MinMaxCalculator
+public class OMEROWrapper extends MinMaxCalculator implements ImportReader
 {
     
     private final static Log log = LogFactory.getLog(OMEROWrapper.class);
-    
-    public static String READERS_KEY = "omero.import.readers";
     
     private ChannelSeparator separator;
     private ChannelFiller filler;
@@ -43,31 +44,18 @@ public class OMEROWrapper extends MinMaxCalculator
     private ImageReader iReader;
 
     
-    public OMEROWrapper()
+    public OMEROWrapper(ImportConfig config)
     {
         try
         {
-                        
-            // Set up static config file
-            String readersDirectory = System.getProperty("user.dir") + File.separator + "config";
-            String readersFile = readersDirectory + File.separator + "importer_readers.txt";
+            String readers = config.getReadersPath();
+            iReader = new ImageReader(new ClassList(readers, IFormatReader.class, null));
             
-            File rFile = new File(readersFile);
-            if (rFile.exists())
-            {
-                iReader = new ImageReader(
-                        new ClassList(readersFile, IFormatReader.class, null));
-            } else {
-                iReader = new ImageReader(
-                        new ClassList("importer_readers.txt", IFormatReader.class, OMEROWrapper.class));                
-            }
-            
-            // OR if we find it in the system properties use that.
-            String readers = System.getProperty(READERS_KEY);
-            if (readers != null) {
-                log.info("Using user configured readers: "+readers);
-                iReader = new ImageReader(new ClassList(readers, IFormatReader.class, null));
-            }            
+            // Now we apply the invocation handler
+            iReader =  (ImageReader) Proxy.newProxyInstance(
+                    getClass().getClassLoader(),
+                    new Class[]{IFormatReader.class, ImageReader.class},
+                    new ReaderInvocationHandler(iReader));
             
             filler = new ChannelFiller(iReader);
         }
@@ -192,12 +180,6 @@ public class OMEROWrapper extends MinMaxCalculator
     	super.close(false);
     }
 
-    @Override
-    public OMEROMetadataStoreClient getMetadataStore()
-    {
-    	return (OMEROMetadataStoreClient) super.getMetadataStore();
-    }
-
     /**
      * Return the base image reader
      * @return See above.
@@ -205,5 +187,33 @@ public class OMEROWrapper extends MinMaxCalculator
     public ImageReader getImageReader()
     {
     	return iReader;
+    }
+}
+
+class ReaderInvocationHandler implements InvocationHandler {
+    static class UnknownFormatException extends FormatException {
+        UnknownFormatException(Throwable t) {
+            super(t);
+        }
+    }
+    private final IFormatReader reader;
+    public ReaderInvocationHandler(IFormatReader reader) {
+      reader.toString(); // NPE
+      this.reader = reader;
+    }
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+      if ("equals".equals(method.getName())) {
+        throw new UnsupportedOperationException();
+      } else if ("hashCode".equals(method.getName())) {
+        return new Integer(reader.hashCode());
+      } else if ("toString".equals(method.getName())) {
+        return "ReaderHandler [" + reader + "]";
+      } else {
+        try {
+          return method.invoke(proxy, args);
+        } catch (Exception e) {
+          throw new UnknownFormatException(e);
+        }
+      }
     }
 }

@@ -1,4 +1,4 @@
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -149,7 +149,7 @@ class ImportEntry {
     public ImageIcon getImage() {
         if (imagePath != null)
         {
-            java.net.URL imgURL = Main.class.getResource(imagePath);
+            java.net.URL imgURL = GuiImporter.class.getResource(imagePath);
             if (imgURL != null)
             {
                image = new ImageIcon(imgURL);

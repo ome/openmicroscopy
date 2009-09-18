@@ -1,5 +1,5 @@
 /*
- * ome.formats.testclient.LoginDialog
+ * ome.formats.importer.gui.LoginFrame
  *
  *------------------------------------------------------------------------------
  *
@@ -11,7 +11,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -119,7 +119,7 @@ public class LoginFrame extends JFrame
         gui = new GuiCommonElements();
         
         setTitle("Login");
-        setIconImage(gui.getImageIcon(Main.ICON).getImage());
+        setIconImage(gui.getImageIcon(GuiImporter.ICON).getImage());
 
         setLocation(200, 200);
         setResizable(false);
@@ -128,10 +128,10 @@ public class LoginFrame extends JFrame
         setLocationRelativeTo(main);
         //get the amount to offset the login by
         //get the amount to offset the login by
-        if (!center && Main.getSplashLocation() != null)
+        if (!center && GuiImporter.getSplashLocation() != null)
         {
-            int offset = Main.getSplashLocation().y 
-                    + gui.getImageIcon(Main.splash).getIconHeight() + 5;
+            int offset = GuiImporter.getSplashLocation().y 
+                    + gui.getImageIcon(GuiImporter.splash).getIconHeight() + 5;
             setLocation(this.getX(), offset);           
         }
         setUndecorated(true);

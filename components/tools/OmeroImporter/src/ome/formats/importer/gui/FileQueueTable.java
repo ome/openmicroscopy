@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -38,12 +38,16 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
+import ome.formats.importer.ImportContainer;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
 import ome.formats.importer.util.GuiCommonElements;
 import omero.model.IObject;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class FileQueueTable 
     extends JPanel

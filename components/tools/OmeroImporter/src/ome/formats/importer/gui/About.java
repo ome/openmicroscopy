@@ -1,5 +1,5 @@
 /*
- * ome.formats.testclient.About
+ * ome.formats.importer.gui.About
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -25,7 +25,7 @@
  // depreciated and is Copyright (C) 2005 Melissa Linkert, Curtis Rueden, 
  // Chris Allan. Brian Loranger, and Eric Kjellman.
 
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.io.BufferedReader;
 import java.io.IOException;

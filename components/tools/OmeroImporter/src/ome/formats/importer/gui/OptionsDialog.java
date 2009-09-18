@@ -1,5 +1,5 @@
 /*
- * ome.formats.testclient.ImportDialog
+ * ome.formats.importer.gui.OptionsDialog
  *
  *------------------------------------------------------------------------------
  *
@@ -11,7 +11,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.Component;
 import java.awt.Dimension;

@@ -1,5 +1,5 @@
 /*
- * ome.formats.AddDatasetDialog
+ * ome.formats.importer.gui.AddDatasetDialog
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

@@ -1,5 +1,5 @@
 /*
- * ome.formats.testclient.TestClient
+ * ome.formats.importer.gui.GuiImporter
  *
  *------------------------------------------------------------------------------
  *
@@ -11,7 +11,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -48,13 +48,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
-import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.BareBonesBrowserLaunch;
 import ome.formats.importer.util.GuiCommonElements;
@@ -72,31 +73,14 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
  * @author Brian W. Loranger
  */
 
-public class Main extends JFrame 
+public class GuiImporter extends JFrame 
     implements  ActionListener, WindowListener, IObserver, PropertyChangeListener, 
                 WindowStateListener, WindowFocusListener
 {
     private static final long   serialVersionUID = 1228000122345370913L;
-    
-    static IniFileLoader   ini;
-    
-    public static String        dbVersion = "300";
-    
-    public static String versionNumber = "3.1";
-    
-    /** The data of the last release date. */
-    public static String        releaseDate      
-         = "2008-06-16 16:18:13 +0100 (Mon, 16 Jun 2008)";
-
-    /** The repository revision. */
-    public static String        revision  = "$LastChangedRevision: 2524 $";
-
-    /** The data of the last repository revision. */
-    public static String        revisionDate     
-         = "$LastChangedDate: 2008-06-23 10:29:21 +0100 (Mon, 23 Jun 2008) $";
 
     /** Logger for this class. */
-    private static Log          log     = LogFactory.getLog(Main.class);
+    private static Log          log     = LogFactory.getLog(GuiImporter.class);
    
     // -- Constants --
     private final static boolean useSplashScreenAbout   = false;
@@ -151,20 +135,12 @@ public class Main extends JFrame
     
     private JTabbedPane         tPane;
 
-    @SuppressWarnings("unused")
-    private String              username;
-    @SuppressWarnings("unused")
-    private String              password;
-    @SuppressWarnings("unused")
-    private String              server;
-    @SuppressWarnings("unused")
-    private String              port;
 
     
     /**
      * Main entry class for the application
      */
-    public Main(String[] args)
+    public GuiImporter(String[] args)
     {
         //super(TITLE);
         
@@ -174,10 +150,7 @@ public class Main extends JFrame
         
         gui = new GuiCommonElements();
         
-        // Load up the main ini file
-        ini = IniFileLoader.getIniFileLoader(args);
-        ini.updateFlexReaderServerMaps();
-        
+
         // Add a shutdown hook for when app closes
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() { shutdown(); }
@@ -185,7 +158,7 @@ public class Main extends JFrame
         
         // Set app defaults
         setTitle(ini.getAppTitle());
-        setIconImage(gui.getImageIcon(Main.ICON).getImage());
+        setIconImage(gui.getImageIcon(GuiImporter.ICON).getImage());
         setPreferredSize(new Dimension(gui.bounds.width, gui.bounds.height));
         setSize(gui.bounds.width, gui.bounds.height);
         setLocation(gui.bounds.x, gui.bounds.y);      
@@ -693,7 +666,7 @@ public class Main extends JFrame
            { System.err.println(laf + " not supported."); }
         }
         
-        new Main(args);
+        new GuiImporter(args);
     }
 
     public static Point getSplashLocation()

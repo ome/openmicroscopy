@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.LogAppender
+ * ome.formats.importer.gui.LogAppender
  *
  *------------------------------------------------------------------------------
  *
@@ -12,7 +12,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;

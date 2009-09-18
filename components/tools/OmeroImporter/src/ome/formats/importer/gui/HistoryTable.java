@@ -1,4 +1,4 @@
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -38,18 +38,19 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jdesktop.swingx.JXDatePicker;
-
 import layout.TableLayout;
-
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
 import ome.formats.importer.util.GuiCommonElements;
 import omero.model.Dataset;
 import omero.model.Screen;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jdesktop.swingx.JXDatePicker;
 
 
 public class HistoryTable

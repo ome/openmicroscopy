@@ -1,5 +1,5 @@
 /*
- * ome.formats.testclient.LoginHandler
+ * ome.formats.importer.gui.LoginHandler
  *
  *------------------------------------------------------------------------------
  *
@@ -11,7 +11,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,6 +30,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.GuiCommonElements;
 
@@ -67,7 +69,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
 
     private String             server;
 
-    private Main               viewer;
+    private GuiImporter        viewer;
 
     private Preferences        userPrefs = Preferences
                                                  .userNodeForPackage(LoginHandler.class);
@@ -86,7 +88,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     
     private GuiCommonElements   gui;
 
-    LoginHandler(Main viewer, boolean modal, boolean center)
+    LoginHandler(GuiImporter viewer, boolean modal, boolean center)
     {
         this.viewer = viewer;
         this.center = center;
@@ -103,7 +105,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         displayLogin(true);
     }
     
-    public static synchronized LoginHandler getLoginHandler(Main viewer, boolean modal, boolean center)
+    public static synchronized LoginHandler getLoginHandler(GuiImporter viewer, boolean modal, boolean center)
     {
         if (ref == null) 
         try
@@ -298,7 +300,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         viewer.setVisible(true);
     }
     
-    private boolean displayLoginDialog(Main viewer, boolean modal)
+    private boolean displayLoginDialog(GuiImporter viewer, boolean modal)
     {
         if (modal == true)
         {

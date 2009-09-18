@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.History
+ * ome.formats.importer.gui.History
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.io.File;
 import java.sql.Connection;
@@ -42,10 +42,12 @@ import java.util.Date;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
+import ome.formats.importer.util.IniFileLoader;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import ome.formats.importer.util.IniFileLoader;
 
 /**
  * @author Brian W. Loranger
@@ -57,8 +59,6 @@ public class HistoryDB implements IObservable
 	private static Log log = LogFactory.getLog(HistoryDB.class);
 	
     private static int DB_VERSION = 300;
-    
-    IniFileLoader ini = IniFileLoader.getIniFileLoader();
     
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
@@ -88,7 +88,7 @@ public class HistoryDB implements IObservable
         
         // Connect to the database
         conn = DriverManager.getConnection(
-                "jdbc:hsqldb:file:" + saveDirectory + File.separator + "history" + Main.dbVersion,  // filenames
+                "jdbc:hsqldb:file:" + saveDirectory + File.separator + "history" + VERSION.dbVersion,  // filenames
                 "sa",                   // username
                 "");                    // password
         try 

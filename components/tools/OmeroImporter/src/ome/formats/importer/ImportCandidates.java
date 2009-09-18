@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.Set;
 
 import loci.formats.FormatException;
-import loci.formats.ImageReader;
 
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -36,7 +35,7 @@ public class ImportCandidates extends DirectoryWalker {
     private final static Log log = LogFactory.getLog(ImportCandidates.class);
 
     final private Groups groups;
-    final private OMEROWrapper reader = new OMEROWrapper();
+    final private ImportReader reader;
     final private Set<String> allFiles = new HashSet<String>();
     final private Map<String, Set<String>> usedBy = new HashMap<String, Set<String>>();
 
@@ -48,9 +47,11 @@ public class ImportCandidates extends DirectoryWalker {
      * @param verbose
      * @throws IOException
      */
-    public ImportCandidates(String[] paths) {
+    public ImportCandidates(ImportReader reader, String[] paths) {
         super(TrueFileFilter.INSTANCE, 4);
 
+        this.reader = reader;
+        
         if (paths != null && paths.length == 2 && "".equals(paths[0])
                 && "".equals(paths[1])) {
 

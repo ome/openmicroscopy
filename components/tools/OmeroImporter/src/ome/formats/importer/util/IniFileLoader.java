@@ -16,12 +16,9 @@ import java.io.File;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import javax.swing.JOptionPane;
-
 import loci.formats.FormatException;
 import loci.formats.in.FlexReader;
-
-import ome.formats.importer.Main;
+import ome.formats.importer.Version;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,7 +33,15 @@ import org.ini4j.IniFile.Mode;
  */
 public class IniFileLoader
 {
-    Log                     log = LogFactory.getLog(IniFileLoader.class);
+    private final static Log                     log = LogFactory.getLog(IniFileLoader.class);
+
+    public static interface Callback {
+        public static Callback DEFAULT = new Callback(){
+            public void backingStoreException(BackingStoreException bse) {
+                log.error(bse);
+            }};
+        void backingStoreException(BackingStoreException bse);
+    }
     
     // Dynamic user settings
     private         String          userSettingsDirectory;
@@ -57,7 +62,7 @@ public class IniFileLoader
      * IniFileLoader contructor(). Privately called singleton method.
      * @param userConfigFile
      */
-    private IniFileLoader(String userConfigFile)
+    private IniFileLoader(String userConfigFile, Callback cb)
     {       
         // Set up static config file
         staticConfigDirectory = System.getProperty("user.dir") + File.separator + "config";
@@ -68,15 +73,7 @@ public class IniFileLoader
             staticPrefs = new IniFile(new File(staticConfigFile), Mode.RO);
         } catch (BackingStoreException e) {
             log.error(e);
-            JOptionPane.showMessageDialog(null,
-                    "We were not able to find the importer config file.\n" +
-                    "Make sure you are running the importer from the\n" +
-                    "default directory.\n\n" +
-                    "You will not be able to use the importer until this\n" +
-                    "issue is resolved. Now exiting.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
+            cb.backingStoreException(e);
         }
         
         // Set up user config file
@@ -111,22 +108,22 @@ public class IniFileLoader
     }
 
     // Initial load passing in args
-    public static IniFileLoader getIniFileLoader(String[] args)
+    public static IniFileLoader getIniFileLoader(String[] args, Callback cb)
     {
         String filename = args.length > 0 ? args[0] : userSettingsFile;
         
         if (ini == null)
         // it's ok, we can call this constructor
-            ini = new IniFileLoader(filename);
+            ini = new IniFileLoader(filename, cb);
         return ini;
     }
 
     // Initial load passing in args
-    public static IniFileLoader getIniFileLoader()
+    public static IniFileLoader getIniFileLoader(Callback cb)
     {
         if (ini == null)
         // it's ok, we can call this constructor
-            ini = new IniFileLoader(null);
+            ini = new IniFileLoader(null, cb);
         return ini;
     }    
 
@@ -165,7 +162,7 @@ public class IniFileLoader
     public String getVersionNumber()
     {
         //return Main.versionNumber;
-        return staticPrefs.node("General").get("appVersion", Main.versionNumber);
+        return staticPrefs.node("General").get("appVersion", Version.versionNumber);
     }
 
     public Boolean isDebugConsole()
@@ -272,7 +269,7 @@ public class IniFileLoader
      */
     public static void main(String[] args)
     {
-        getIniFileLoader(args);
+        getIniFileLoader(args, Callback.DEFAULT);
     }
 
     public void displayDebugSettings()

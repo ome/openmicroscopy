@@ -1,7 +1,13 @@
-package ome.formats.importer.gui;
+/*
+ *   $Id$
+ *
+ *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
 
-import java.awt.BorderLayout;
-import java.awt.Color;
+package ome.formats.importer.cli;
+
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -10,14 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.JEditorPane;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
 
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
@@ -33,27 +31,17 @@ import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-@SuppressWarnings("serial")
-public class ErrorHandler 
-    extends JPanel implements IObserver, IObservable
+/**
+ * 
+ * @since Beta4.1
+ */
+public class ErrorHandler implements IObserver
 {
-	/** Logger for this class */
+
 	private static Log log = LogFactory.getLog(ErrorHandler.class);
 	
-    ArrayList<IObserver> observers = new ArrayList<IObserver>();
-    
-    private ErrorTable    errorTable;
     private ArrayList<ErrorContainer> errors = new ArrayList<ErrorContainer>();
     
-    GuiCommonElements gui = new GuiCommonElements();
-    JTextPane               debugTextPane;
-    StyledDocument          debugDocument;
-    Style                   debugStyle;
-    
-    DebugMessenger debugMessenger;
-    
-    private Thread runThread;
-
 	private int totalErrors;
 
 	private FileUploader fileUploader;
@@ -61,61 +49,6 @@ public class ErrorHandler
 	private boolean cancelUploads = false;
 
 	private boolean sendFiles = true;
-    
-    ErrorHandler()
-    {
-        this.setOpaque(false);
-        setLayout(new BorderLayout());
-        
-        errorTable = ErrorTable.getErrorTable();
-        
-        if (errorTable != null)
-            add(errorTable, BorderLayout.CENTER);
-        
-        errorTable.addObserver(this);
-    }
-    
-    
-    /**
-     * Creates a singularity of the error Handler
-     * @param viewer
-     * @return
-     */
-    public static synchronized ErrorHandler getErrorHandler()
-    {
-        if (ref == null) 
-            ref = new ErrorHandler();
-        return ref;
-    }
-    
-    private static ErrorHandler ref;
-    
-    
-    /**
-     * @param args
-     */
-    public static void main(String[] args)
-    {   
-        ErrorHandler eh = new ErrorHandler(); 
-        JFrame f = new JFrame();   
-        f.getContentPane().add(eh);
-        f.setVisible(true);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.pack();
-        
-        Vector<Object> row = new Vector<Object>();
-        row.add(new Boolean(true));
-        row.add("testfile.test");
-        row.add("test/test");
-        row.add(-1);
-        row.add(null);
-        row.add(null);
-        row.add(null);
-        eh.errorTable.addRow(row);
-        eh.errorTable.fireTableDataChanged();
-        eh.errorTable.setProgressSending(0);
-    }
-
 
 	public void update(IObservable importLibrary, ImportEvent event) 
 	{
@@ -128,26 +61,10 @@ public class ErrorHandler
 			debugMessenger.setAlwaysOnTop(true);
 		}
 		
-		if (message == Actions.DEBUG_SEND)
+		if (event instanceof ImportEvent.DEBUG_SEND)
 		{
-
-			sendFiles = ((Boolean)args[0]);
-			
-            runThread = new Thread()
-            {
-            	public void run()
-            	{
-            		try
-            		{
-            			sendErrors();
-            		}
-            		catch (Throwable error)
-            		{ 
-            		    error.printStackTrace();
-            		}
-            	}
-            };
-            runThread.start();
+			sendFiles = ((ImportEvent.DEBUG_SEND) event).sendFiles; 
+			sendErrors();
 		}
 		
 		if (message == Actions.FILE_UPLOAD_STARTED)
@@ -175,15 +92,10 @@ public class ErrorHandler
 	
 	private void sendErrors()
 	{		
-		errorTable.enableSendBtn(false);
 
 		for (int i = 0; i < errors.size(); i++)
 		{
-			if (cancelUploads ) 
-			{
-				errorTable.enableSendBtn(true);
-				break;
-			}
+
 			ErrorContainer errorContainer = errors.get(i);
 			if (errorContainer.getStatus() != -1) // if file not pending, skip it
 				continue;
@@ -204,13 +116,8 @@ public class ErrorHandler
 			postList.add(new StringPart("app_name", "2"));
 			postList.add(new StringPart("import_session", "test"));
 			postList.add(new StringPart("absolute_path", "blarg"));
-
-			String sendUrl = tokenUrl;
 			
-			boolean send = (Boolean)errorTable.table.getValueAt(i, 0);
-			//System.err.println(send);
-			
-			if (errorContainer.getSelectedFile() != null && sendFiles && send)
+			if (errorContainer.getSelectedFile() != null)
 			{
 				postList.add(new StringPart("selected_file", errorContainer.getSelectedFile().getName()));
 				postList.add(new StringPart("absolute_path", errorContainer.getAbsolutePath()));
@@ -344,23 +251,4 @@ public class ErrorHandler
 		notifyObservers(new ImportEvent.ERRORS_PENDING());
 	}
 
-    // Observable methods    
-    public boolean addObserver(IObserver object)
-    {
-        return observers.add(object);
-    }
-    
-    public boolean deleteObserver(IObserver object)
-    {
-        return observers.remove(object);
-        
-    }
-
-    public void notifyObservers(ImportEvent event)
-    {
-        for (IObserver observer:observers)
-        {
-            observer.update(this, event);
-        }
-    }
 }

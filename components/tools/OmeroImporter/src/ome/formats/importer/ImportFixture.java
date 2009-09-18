@@ -133,13 +133,12 @@ public class ImportFixture
         for (File file : fads.keySet())
         {
             String fileName = file.getAbsolutePath();
-            library.setTarget(fads.get(file));
-            library.open(fileName);
            	library.importImage(file, 0, 0, 1, file.getAbsolutePath(),
             			        null,
             			        false,  // To archive? 
             			        false,  // Create a metadata file?
-            			        null);
+            			        null,
+            			        fads.get(file));
         }
     }
 

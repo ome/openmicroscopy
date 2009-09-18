@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.DebugMessenger
+ * ome.formats.importer.gui.DebugMessenger
  *
  *------------------------------------------------------------------------------
  *
@@ -11,11 +11,10 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -35,14 +34,15 @@ import javax.swing.JTextPane;
 import javax.swing.text.Style;
 import javax.swing.text.StyledDocument;
 
+import layout.TableLayout;
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ErrorContainer;
 import ome.formats.importer.util.GuiCommonElements;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
-
-import layout.TableLayout;
 
 /**
  * @author TheBrain

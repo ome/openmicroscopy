@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.ui.ServerListRenderer 
+ * ome.formats.importer.gui.ServerListRenderer 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 
 

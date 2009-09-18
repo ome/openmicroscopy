@@ -1,5 +1,5 @@
 /*
- * ome.formats.testclient.LoginDialog
+ * ome.formats.importer.gui.LoginDialog
  *
  *------------------------------------------------------------------------------
  *
@@ -11,7 +11,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -127,10 +127,10 @@ public class LoginDialog extends JDialog
         setSize(new Dimension(loginWidth, loginHeight));
         setLocationRelativeTo(main);
         //get the amount to offset the login by
-        if (!center && Main.getSplashLocation() != null)
+        if (!center && GuiImporter.getSplashLocation() != null)
         {
-            int offset = Main.getSplashLocation().y 
-                    + gui.getImageIcon(Main.splash).getIconHeight() + 20;
+            int offset = GuiImporter.getSplashLocation().y 
+                    + gui.getImageIcon(GuiImporter.splash).getIconHeight() + 20;
             setLocation(this.getX(), offset);           
         }
         setUndecorated(true);
