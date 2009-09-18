@@ -1,4 +1,5 @@
 import omero
+import omero.model
 from omero.rtypes import *
 
 roi = omero.model.RoiI()
