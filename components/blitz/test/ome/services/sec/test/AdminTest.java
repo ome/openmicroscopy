@@ -78,7 +78,7 @@ public class AdminTest extends AbstractAccountTest {
         perms.setWorldWrite(true);  //.grant(Role.WORLD, Right.WRITE);
         i.getDetails().setOwner(new ExperimenterI(0L, false));
         u.getAdminService().changePermissions(i, perms);
-        i = (Image) u.getQueryService().get(i.getClass().toString(), i.getId().getValue());
+        i = (Image) u.getQueryService().get(i.getClass().getName(), i.getId().getValue());
         assertFalse(i.getDetails().getOwner().getId().equals(0L));
 
     }

@@ -16,7 +16,6 @@ import omero.client;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
-import omero.api.ServiceFactory;
 import omero.api.ServiceFactoryPrx;
 
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -25,14 +24,14 @@ import org.testng.annotations.Test;
 @Test(groups = { "client", "integration", "security" })
 public class AbstractSecurityTest extends TestCase {
     
-    protected OmeroContext context = OmeroContext.getInstance("ome.client.test");
+    protected OmeroContext context = OmeroContext.getInstance("OMERO.security.test");
     
     protected client c;
     
-    protected ome.system.ServiceFactory tmp = new ome.system.ServiceFactory("ome.client.test");
+    protected ome.system.ServiceFactory tmp = new ome.system.ServiceFactory(context);
 
     protected DataSource dataSource = (DataSource) tmp.getContext().getBean(
-            "dataSource");
+            "omero.security.test");
 
     protected SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate(dataSource);
 
@@ -51,10 +50,10 @@ public class AbstractSecurityTest extends TestCase {
     // shouldn't use beforeTestClass here because called by all subclasses
     // in their beforeTestClass i.e. super.setup(); ...
     protected void init() throws Exception {
-        
+
         // TODO: Make work        
-        c = new client("", 666);
-        serviceFactory = c.createSession("", "");
+        c = new client();
+        serviceFactory = c.createSession(rootLogin.getName(), rootLogin.getPassword());
         
         // Blitz services
         rootUpdate = serviceFactory.getUpdateService();
