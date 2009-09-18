@@ -83,9 +83,9 @@ class MonitorClientI(monitors.MonitorClient):
             :return: No explicit return value.
             
         """
-        ############### ! Set import to dummy mode for testing purposes.
+        # ############## ! Set import to dummy mode for testing purposes.
         # self.importFile = self.dummyImportFile 
-        ############### ! If the above line is not commented out nothing will import.
+        # ############## ! If the above line is not commented out nothing will import.
         if self.id == id:
             try:                       
                 for fileInfo in eventList:
@@ -124,15 +124,15 @@ class MonitorClientI(monitors.MonitorClient):
                             exName = self.getExperimenterFromPath(fileId)
                             fileExt, fileName, fileBase = self.getBestGuessImporter(fileId)
                         
-                            # Deal with jpg files
+                            # Deal with root level jpg files
                             if fileExt == ".jpg":
                                 self.importFile(fileId, exName)
 
-                            # Deal with lsm files
+                            # Deal with root level lsm files
                             elif fileExt == ".lsm":
                                 self.importFile(fileId, exName)
 
-                            # Deal with dv files and their logs
+                            # Deal with root level dv files and their logs
                             elif fileExt == ".dv":
                                 if (fileName+".log", exName) in self.onHold.keys():
                                     self.onHold[(fileName+".log", exName)].cancel()
@@ -141,7 +141,7 @@ class MonitorClientI(monitors.MonitorClient):
                                 else:
                                     self.onHold[(fileName,exName)] = threading.Timer(config.waitTimes[".dv"], self.importAnyway, (fileId, exName))
                                     self.onHold[(fileName,exName)].start()
-                            # Deal with log files and their dvs
+                            # Deal with root level log files and their dvs
                             elif fileExt == ".log":
                                 if (fileBase, exName) in self.onHold.keys():
                                     self.onHold[(fileBase, exName)].cancel()
@@ -151,7 +151,7 @@ class MonitorClientI(monitors.MonitorClient):
                                     self.onHold[(fileName,exName)] = threading.Timer(config.dropTimes[".dv"], self.ignoreFile, (fileName, exName))
                                     self.onHold[(fileName,exName)].start()
 
-                            # Deal with ome.tif files
+                            # Deal with root level ome.tif files
                             elif fileExt == ".tif" or fileExt == ".tiff":
                                 if pathModule.path(fileBase).ext == ".ome":
                                     command = [config.climporter + " -f " + fileId]
@@ -205,6 +205,8 @@ class MonitorClientI(monitors.MonitorClient):
     def getBestGuessImporter(self, fileId):
         """
             For the moment return file details.
+            
+            Eventually call some method on the importer
             
         """
         fileExt = pathModule.path(fileId).ext
@@ -263,6 +265,8 @@ class MonitorClientI(monitors.MonitorClient):
             command = [climporter +
                         " -s " + config.host +
                         " -f " + dirName ]
+            log.info("Windows command %s", str(command))
+            
         else:
             climporter = config.climporter
             # Wrap filename in single quotes, escape any ' characters first.
@@ -278,12 +282,15 @@ class MonitorClientI(monitors.MonitorClient):
         
         fileSet = set([])
         if retCode != 0:
-            log.info("***** error from importer-cli -f *****")        
-            log.info(output[1].split('\n')[0])
-            log.info("***** end of output from importer-cli *****")
+            log.info("***** ERROR stderr from import -f *****") 
+            # Log all lines at the moment. Only first few may be of interest - no usage!!
+            for line in output[1].split('\n'):
+                log.info(line)
+            log.info("***** end of output from import *****")
         else:
-            # The 6: is a kludge here need to check what bin/omero import -f returns
-            for line in output[0].split('\n')[6:]:
+            # Parse the output file (logging at the moment)
+            for line in output[0].split('\n'):
+                log.info(line)
                 if line.strip(string.whitespace) != '' and line[0] != '#':
                     fileSet.add(line)
         
@@ -351,6 +358,8 @@ class MonitorClientI(monitors.MonitorClient):
                                 " -s " + config.host +
                                 " -k " + key +
                                 " " + fileName ]
+                    log.info("Windows command %s", str(command))
+
                 else:
                     climporter = config.climporter
                     # Wrap filename in single quotes, escape any ' characters first.

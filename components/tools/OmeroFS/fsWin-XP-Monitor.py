@@ -47,10 +47,8 @@ class PlatformMonitor(object):
                     A threading.Event used to terminate the watch.
          
         """
-        threading.Thread.__init__(self)
-
-        self.eventType = eventType
-        self.recurse = not (pathMode == "Flat")
+        self.eventType = str(eventType)
+        self.recurse = not (str(pathMode) == "Flat")
         self.pathsToMonitor = pathString
         self.whitelist = whitelist
         self.blacklist = blacklist
@@ -103,7 +101,7 @@ class PlatformMonitor(object):
             win32con.OPEN_EXISTING,
             win32con.FILE_FLAG_BACKUP_SEMANTICS,
             None)
-		
+
         while not self.event.isSet():
             results = win32file.ReadDirectoryChangesW (
                 hDir,
@@ -117,16 +115,19 @@ class PlatformMonitor(object):
                 win32con.FILE_NOTIFY_CHANGE_SECURITY,
                 None,
                 None)
-				
+
             for action, file in results:
                 log.debug("Event : " + str(results))
-                if action == 1:
-                    filename = os.path.join(self.pathsToMonitor, file)
-                    try:
-                        if (len(self.whitelist) == 0) or (pathModule.path(filename).ext in self.whitelist):
-                            self.callback(self.idString, filename)
-                    except:
-                        log.exception("Failed to make callback: ")
+                # At the moment this gets around 'New Folder' appearing and then changing
+                if action in (1,5) :
+                    # Ignore default name for GUI created folders.
+                    if file.find('New Folder') == -1 :
+                        filename = os.path.join(self.pathsToMonitor, file)
+                        try:
+                            if (len(self.whitelist) == 0) or (pathModule.path(filename).ext in self.whitelist):
+                                self.callback(self.idString, filename)
+                        except:
+                            log.exception("Failed to make callback: ")
 
     def callback(self, id, eventPath):
         """

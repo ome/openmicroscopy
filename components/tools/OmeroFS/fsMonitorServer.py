@@ -101,7 +101,7 @@ class MonitorServerI(monitors.MonitorServer):
         try:
             self.monitors[monitorId] = MonitorFactory.createMonitor(mType, eType, pMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, self, monitorId)
         except Exception, e:
-            log.error('Failed to create monitor: ' + str(e))
+            log.exception('Failed to create monitor: ')
             raise monitors.OmeroFSError('Failed to create monitor: ' + str(e))       
 
         self.proxies[monitorId] = proxy    

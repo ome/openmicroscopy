@@ -41,7 +41,7 @@ blacklist = [""]
 #climporter = "bin/omero import"
 
 # This path may need to be used when testing if the above path causes problems.
-climporter = "../components/tools/OmeroImporter/target/importer-cli"
+climporter = "bin/omero import"
 
 # Values used only by the test client
 # dropdox directory settings
