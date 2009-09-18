@@ -44,7 +44,8 @@ import javax.swing.JOptionPane;
 
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
-import ome.formats.importer.util.IniFileLoader;
+import ome.formats.importer.ImportEvent;
+import ome.formats.importer.Version;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,7 +76,7 @@ public class HistoryDB implements IObservable
         return conn;
     }
     
-    private HistoryDB() throws SQLException, ClassNotFoundException
+    HistoryDB() throws SQLException, ClassNotFoundException
     {
         String saveDirectory = System.getProperty("user.home") + File.separator + "omero";
 
@@ -88,7 +89,7 @@ public class HistoryDB implements IObservable
         
         // Connect to the database
         conn = DriverManager.getConnection(
-                "jdbc:hsqldb:file:" + saveDirectory + File.separator + "history" + VERSION.dbVersion,  // filenames
+                "jdbc:hsqldb:file:" + saveDirectory + File.separator + "history" + Version.dbVersion,  // filenames
                 "sa",                   // username
                 "");                    // password
         try 
@@ -125,36 +126,6 @@ public class HistoryDB implements IObservable
         	//ignore SQL error if table already exists
         } 
     } // HistoryDB()
-
-    public static synchronized HistoryDB getHistoryDB()
-    {
-        if (ref == null) 
-        try
-        {
-            ref = new HistoryDB();
-        } catch (Exception e)
-        {
-        	log.error("Could not start history DB.", e);
-            if (alertOnce == false)
-            {
-            JOptionPane.showMessageDialog(null,
-                    "We were not able to connect to the history DB.\n" +
-                    "Make sure you do not have a second importer\n" +
-                    "running and try again.\n\n" +
-                    "In the meantime, you will still be able to use \n" +
-                    "the importer, but the history feature will be disable.",
-                    "Warning",
-                    JOptionPane.ERROR_MESSAGE);
-            }
-            alertOnce = true;
-            ref = null;
-            //System.exit(0);
-
-        }
-        return ref;
-    }
-    
-    private static HistoryDB ref;
     
     public void shutdown() throws SQLException {
 
@@ -368,7 +339,7 @@ public class HistoryDB implements IObservable
     public int updateImportStatus(int id, String status) throws SQLException
     {
         int result = update("UPDATE import_table SET status = '" + status + "' WHERE uID = " + id);
-        notifyObservers("QUICKBAR_UPDATE", null);
+        notifyObservers(new ImportEvent.QUICKBAR_UPDATE());
         return result;
     } // updateHistoryStatus()
 
@@ -479,11 +450,11 @@ public class HistoryDB implements IObservable
         return observers.remove(object);
     }
 
-    public void notifyObservers(Object message, Object[] args)
+    public void notifyObservers(ImportEvent event)
     {
         for (IObserver observer:observers)
         {
-            observer.update(this, message, args);
+            observer.update(this, event);
         }
     }
 }

@@ -1,6 +1,5 @@
 package ome.formats.importer;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -20,14 +19,13 @@ import loci.formats.in.InCellReader;
 import loci.formats.in.LeicaReader;
 import loci.formats.in.MIASReader;
 import loci.formats.meta.MetadataStore;
-import ome.formats.OMEROMetadataStoreClient;
 import omero.model.Channel;
 import omero.model.Pixels;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class OMEROWrapper extends MinMaxCalculator implements ImportReader
+public class OMEROWrapper extends MinMaxCalculator
 {
     
     private final static Log log = LogFactory.getLog(OMEROWrapper.class);

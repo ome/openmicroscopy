@@ -21,7 +21,6 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.Stack;
 import java.util.Vector;
-import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -38,8 +37,9 @@ import javax.swing.filechooser.FileFilter;
 
 import layout.TableLayout;
 import loci.formats.ImageReader;
+import ome.formats.Main;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
-import ome.formats.importer.util.Actions;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,17 +48,14 @@ import org.apache.commons.logging.LogFactory;
 public class FileQueueChooser 
     extends JFileChooser implements ActionListener
 {
+    public final static String REFRESHED = "refreshed";
+    
 	/** Logger for this class */
 	private Log log = LogFactory.getLog(FileQueueChooser.class);
 	
     boolean DEBUG = false;
     
     private static final long serialVersionUID = 1L;
-
-    private Preferences    userPrefs = 
-        Preferences.userNodeForPackage(Main.class);
-    
-    private String savedDirectory = userPrefs.get("savedDirectory", "");
     
     private String laf = UIManager.getLookAndFeel().getClass().getName();
     
@@ -67,12 +64,15 @@ public class FileQueueChooser
     
     private Component fileList = null;
     
-    ImageReader reader;
+    private final ImageReader reader;
+    
+    private final ImportConfig config;
     
     JButton refreshBtn;
     
-    FileQueueChooser(OMEROWrapper wrapper) {
+    FileQueueChooser(ImportConfig config, OMEROWrapper wrapper) {
         
+        this.config = config;
         this.reader = wrapper.getImageReader();
         try {
             JPanel fp = null;
@@ -80,7 +80,7 @@ public class FileQueueChooser
             
             String refreshIcon = "gfx/recycled12.png";
             refreshBtn = addButton("Refresh ", refreshIcon, null);
-            refreshBtn.setActionCommand(Actions.REFRESH);
+            refreshBtn.setActionCommand(REFRESHED);
             refreshBtn.addActionListener(this);
             JPanel panel = new JPanel();
 
@@ -180,12 +180,11 @@ public class FileQueueChooser
         catch (ArrayIndexOutOfBoundsException e) {}
         
         
-        if (savedDirectory.equals("") || !(new File(savedDirectory).exists()))
-        {
-            this.setCurrentDirectory(
-                    this.getFileSystemView().getHomeDirectory());
+        File dir = config.getSavedDirectory();
+        if (dir != null) {
+            this.setCurrentDirectory(dir);
         } else {
-            this.setCurrentDirectory(new File(savedDirectory));   
+            this.setCurrentDirectory(this.getFileSystemView().getHomeDirectory());
         }
         
         this.setControlButtonsAreShown(false);
@@ -437,7 +436,7 @@ public class FileQueueChooser
         { System.err.println(laf + " not supported."); }
         System.err.println("laf: " + UIManager.getLookAndFeel());
         
-        FileQueueChooser c = new FileQueueChooser(null);
+        FileQueueChooser c = new FileQueueChooser(null, null);
         
         JFrame f = new JFrame(); 
         c.setMultiSelectionEnabled(true);

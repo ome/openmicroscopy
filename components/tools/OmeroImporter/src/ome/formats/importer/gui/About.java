@@ -35,7 +35,7 @@ import java.io.InputStreamReader;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import ome.formats.importer.util.IniFileLoader;
+import ome.formats.importer.ImportConfig;
 
 /**
  * About is a small program for displaying version information in a dialog box.
@@ -45,16 +45,12 @@ import ome.formats.importer.util.IniFileLoader;
 public abstract class About
 {
 
-    static IniFileLoader ini;
-    
     private static String title;
 
     private static String msg;
 
-    public static void show(JFrame c, boolean useSplashScreen)
+    public static void show(JFrame c, ImportConfig config, boolean useSplashScreen)
     {
-
-        ini = IniFileLoader.getIniFileLoader();
         
         if (useSplashScreen == true)
         {
@@ -87,7 +83,7 @@ public abstract class About
                         }
                         in.close();
                         msg = sb.toString();
-                        msg = msg + "\n\n Version: " + ini.getVersionNumber();
+                        msg = msg + "\n\n Version: " + config.getVersionNumber();
                     }
                 } catch (IOException exc)
                 {
@@ -95,8 +91,8 @@ public abstract class About
                     msg = "OMERO.importer developer's edition.";
                 }
             }
-            if (ini.getAppTitle() != null)
-                title = "About " + ini.getAppTitle();
+            if (config.getAppTitle() != null)
+                title = "About " + config.getAppTitle();
             JOptionPane.showMessageDialog(c, msg, title,
                     JOptionPane.INFORMATION_MESSAGE); 
             c.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -105,7 +101,7 @@ public abstract class About
 
     public static void main(String[] args)
     {
-        show(null, false);
+        show(null, new ImportConfig(args), false);
         System.exit(0);
     }
 

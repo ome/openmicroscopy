@@ -78,13 +78,13 @@ public class AddDatasetDialog extends JDialog implements ActionListener
 
     Project                 project;
     
-    AddDatasetDialog(Window owner, String title, Boolean modal, Project project, OMEROMetadataStoreClient store)
+    AddDatasetDialog(GuiCommonElements gui, Window owner, String title, Boolean modal, Project project, OMEROMetadataStoreClient store)
     {
         this.project = project;
         this.store = store;
         this.owner = owner;
         
-        gui = new GuiCommonElements();
+        this.gui = gui;
         
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
@@ -192,6 +192,6 @@ public class AddDatasetDialog extends JDialog implements ActionListener
             } catch (Exception e) 
             { System.err.println(laf + " not supported."); }
         }
-        new AddDatasetDialog(null, "Add dataset to...", true, null, null);
+        new AddDatasetDialog(null, null, "Add dataset to...", true, null, null);
     }
 }

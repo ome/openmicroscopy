@@ -21,7 +21,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Vector;
-import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -33,9 +32,12 @@ import javax.swing.UIManager;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
-import ome.formats.importer.ImportContainer;
+import ome.formats.importer.ImportCandidates;
+import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportEvent;
+import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
-import ome.formats.importer.util.Actions;
+import ome.formats.importer.util.GuiCommonElements;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Screen;
@@ -48,48 +50,49 @@ public class FileQueueHandler
     extends JPanel 
     implements ActionListener, PropertyChangeListener, IObserver
 {
-	/** Logger for this class */
-	private Log log = LogFactory.getLog(FileQueueHandler.class);
+    /** Logger for this class */
+    private static final Log log = LogFactory.getLog(FileQueueHandler.class);
 
-    private Preferences    userPrefs = 
-        Preferences.userNodeForPackage(GuiImporter.class); FIXME
+    public final static String ADD = "ADD";
+    public final static String REMOVE = "REMOVE";
+    public final static String CLEARDONE = "CLEARDONE";
+    public final static String CLEARFAILED = "CLEARFAILED";
+    public final static String IMPORT = "IMPORT";
+    public final static String REFRESH = "REFRESH";
     
-    private String savedDirectory = userPrefs.get("savedDirectory", "");
+	private final ImportConfig config;
+    private final OMEROWrapper reader;
+    private final GuiImporter viewer;
+    private final GuiCommonElements gui;
     
-    public ImportHandler       importHandler;
-    private OMEROMetadataStoreClient  store;
- 
-    private OMEROWrapper    reader;
-    
-    private GuiImporter          viewer;
-    
-    FileQueueChooser fileChooser = null;
-    public FileQueueTable qTable = null;
-    private HistoryTable historyTable = null;
+    private final FileQueueChooser fileChooser;
+    private final FileQueueTable qTable;
+    private final HistoryTable historyTable;
     
     /**
      * @param viewer
      */
-    FileQueueHandler(GuiImporter viewer)
-    {        
+    FileQueueHandler(GuiImporter viewer, ImportConfig config)
+    {
+        this.config = config;
         this.viewer = viewer;
-        
-        reader = new OMEROWrapper();
+        this.reader = new OMEROWrapper(config);
+        this.gui = new GuiCommonElements(config);
+        this.historyTable = viewer.historyTable;
 
         //reader.setChannelStatCalculationStatus(true);
         
         setLayout(new BorderLayout());
-        fileChooser = new FileQueueChooser(reader);
+        fileChooser = new FileQueueChooser(config, reader);
         fileChooser.addActionListener(this);
         fileChooser.addPropertyChangeListener(this);
         
         //fc.setAccessory(new FindAccessory(fc));
         
-        qTable = new FileQueueTable();
+        qTable = new FileQueueTable(config);
         qTable.addPropertyChangeListener(this);
         
         // Functionality to allows the reimport button to work
-        historyTable = HistoryTable.getHistoryTable();
         if (historyTable != null)
         {
             historyTable.addObserver(this);
@@ -104,24 +107,20 @@ public class FileQueueHandler
         add(splitPane, BorderLayout.CENTER);
     }
 
-//  where member variables are declared
-    File[] files = null;
-    File file = null;
-    int[] rows = null;
-    
     public void actionPerformed(ActionEvent e)
     {
-        String action = e.getActionCommand();
+        final OMEROMetadataStoreClient store = viewer.loginHandler.getMetadataStore();
+        final String action = e.getActionCommand();
+        final File[] files = fileChooser.getSelectedFiles();
         
         //If the directory changed, don't show an image.
         if (action.equals(JFileChooser.APPROVE_SELECTION)) {
-            file = fileChooser.getSelectedFile();
-            store = viewer.loginHandler.getMetadataStore();
+            File file = fileChooser.getSelectedFile();
             
             if (store != null && files != null && reader.isSPWReader(files[0].getAbsolutePath()))
             {
                 SPWDialog dialog =
-                    new SPWDialog(viewer, "Screen Import", true, store);
+                    new SPWDialog(gui, viewer, "Screen Import", true, store);
                 if (dialog.cancelled == true || dialog.screen == null) 
                     return;                    
                 for (File f : files)
@@ -142,7 +141,7 @@ public class FileQueueHandler
             else if (store != null)
             {
                 ImportDialog dialog = 
-                    new ImportDialog(viewer, "Import", true, store);
+                    new ImportDialog(gui, viewer, "Import", true, store);
                 if (dialog.cancelled == true || dialog.dataset == null) 
                     return;
                 
@@ -180,15 +179,17 @@ public class FileQueueHandler
     
     public void propertyChange(PropertyChangeEvent e)
     {
+        final OMEROMetadataStoreClient store = viewer.loginHandler.getMetadataStore();
+
         String prop = e.getPropertyName();
-        if (prop.equals(Actions.ADD))
+        if (prop.equals(ADD))
         {
             if (fileChooser.getSelectedFile() == null)
             {
                 mustSelectFile();
                 return;
             }
-            files = fileChooser.getSelectedFiles();                    
+            File[] files = fileChooser.getSelectedFiles();                    
 
             for (File f : files)
             {
@@ -199,12 +200,10 @@ public class FileQueueHandler
                 }
             }
 
-            store = viewer.loginHandler.getMetadataStore();
-            
             if (store != null && reader.isSPWReader(files[0].getAbsolutePath()))
             {
                 SPWDialog dialog =
-                    new SPWDialog(viewer, "Screen Import", true, store);
+                    new SPWDialog(gui, viewer, "Screen Import", true, store);
                 if (dialog.cancelled == true || dialog.screen == null) 
                     return;                    
                 for (File f : files)
@@ -224,7 +223,7 @@ public class FileQueueHandler
             else if (store != null)
             {
                 ImportDialog dialog = 
-                    new ImportDialog(viewer, "Image Import", true, store);
+                    new ImportDialog(gui, viewer, "Image Import", true, store);
                 if (dialog.cancelled == true || dialog.dataset == null) 
                     return;  
                 
@@ -258,9 +257,9 @@ public class FileQueueHandler
                         "are not logged in. Please try to login again.");
             }
         }
-        if (prop.equals(Actions.REMOVE))
+        if (prop.equals(REMOVE))
         {
-                rows = qTable.queue.getSelectedRows();   
+                int[] rows = qTable.queue.getSelectedRows();   
 
                 if (rows.length == 0)
                 {
@@ -281,7 +280,7 @@ public class FileQueueHandler
                     }
                 }                
         }
-        if (prop.equals(Actions.CLEARDONE))
+        if (prop.equals(CLEARDONE))
         {
                 int numRows = qTable.queue.getRowCount();
 
@@ -294,7 +293,7 @@ public class FileQueueHandler
                 }
                 qTable.clearDoneBtn.setEnabled(false);
         }
-        if (prop.equals(Actions.CLEARFAILED))
+        if (prop.equals(CLEARFAILED))
         {
                 int numRows = qTable.queue.getRowCount();
 
@@ -307,7 +306,7 @@ public class FileQueueHandler
                 }  
                 qTable.clearFailedBtn.setEnabled(false);
         }
-        if (prop.equals(Actions.IMPORT))
+        if (prop.equals(IMPORT))
         {
             if (viewer.loggedIn == false)
             {
@@ -321,14 +320,14 @@ public class FileQueueHandler
             try {
                 if (qTable.importing == false)
                 {
-                    ImportContainer[] fads = qTable.getFilesAndObjectTypes();
+                    ImportCandidates candidates = qTable.getFilesAndObjectTypes();
 
-                    if (fads != null)
+                    if (candidates != null)
                     {
-                        store = viewer.loginHandler.getMetadataStore();
-                        if (store != null)
-                            importHandler = 
-                                new ImportHandler(viewer, qTable, store, reader, fads);
+                        ImportLibrary library = new ImportLibrary(store, reader);
+                        if (store != null) {
+                            new ImportHandler(viewer, qTable, config, library, candidates);
+                        }
                     }
                     qTable.importing = true;
                     qTable.queue.setRowSelectionAllowed(false);
@@ -359,10 +358,9 @@ public class FileQueueHandler
         }
         if (prop.equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY))
         {
-            savedDirectory = fileChooser.getCurrentDirectory().getAbsolutePath();
-            userPrefs.put("savedDirectory", savedDirectory);
+            config.setSavedDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
         }       
-        if (prop.equals(Actions.REFRESH))
+        if (prop.equals(REFRESH))
         {
             fileChooser.setVisible(false);
             fileChooser.rescanCurrentDirectory();
@@ -527,7 +525,7 @@ public class FileQueueHandler
             { System.err.println(laf + " not supported."); }
         }
         
-        FileQueueHandler fqh = new FileQueueHandler(null); 
+        FileQueueHandler fqh = new FileQueueHandler(null, null); 
         JFrame f = new JFrame();   
         f.getContentPane().add(fqh);
         f.setVisible(true);
@@ -536,11 +534,12 @@ public class FileQueueHandler
     }
 
     @SuppressWarnings("unchecked")
-    public void update(IObservable observable, Object message, Object[] args)
+    public void update(IObservable observable, ImportEvent event)
     {
-        if (message == "REIMPORT")
+        final OMEROMetadataStoreClient store = viewer.loginHandler.getMetadataStore();  
+
+        if (event instanceof ImportEvent.REIMPORT)
         {
-            store = viewer.loginHandler.getMetadataStore();  
             
             String objectName = "", projectName = "", fileName = "";
             Long objectID = 0L, projectID = 0L;

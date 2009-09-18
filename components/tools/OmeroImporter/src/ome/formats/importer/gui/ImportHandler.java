@@ -14,8 +14,6 @@
 
 package ome.formats.importer.gui;
 
-import static omero.rtypes.rlong;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -25,13 +23,12 @@ import java.util.Date;
 import javax.swing.JOptionPane;
 
 import loci.formats.FormatException;
-import ome.formats.importer.IObservable;
-import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
+import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
-import ome.formats.model.InstanceProvider;
+import ome.formats.importer.util.ErrorContainer;
 import omero.ResourceError;
 import omero.model.IObject;
 
@@ -48,27 +45,23 @@ import org.apache.commons.logging.LogFactory;
 public class ImportHandler
 {
 
-    private ImportConfig     config;
-    private ImportLibrary    library;
-    private ImportCandidates candidates;
-
-    private GuiImporter      viewer;
-    private static boolean   runState = false;
-    private Thread runThread;
-    HistoryDB db = null;
-
-    
-    //private ProgressMonitor monitor;
-    
-    private FileQueueTable  qTable;
-
     private static Log      log = LogFactory.getLog(ImportHandler.class);
+
+    private static boolean   runState = false;
+
+    private final ImportConfig     config;
+    private final ImportLibrary    library;
+    private final ImportCandidates candidates;
+    private final HistoryDB        db; // THIS SHOULD NOT BE HERE!
     
+    private final GuiImporter      viewer;
+    private final FileQueueTable  qTable;
+
+    private Thread runThread;
     private int numOfPendings = 0;
     private int numOfDone = 0;
     
     private String[] files = null;
-    private File selected_file = null;
     protected boolean errorsCollected = false;
 
     public ImportHandler(GuiImporter viewer, FileQueueTable qTable,
@@ -79,9 +72,12 @@ public class ImportHandler
         this.config = config;
         this.library = library;
         this.candidates = candidates;
+        if (viewer.historyTable != null) {
+            this.db = viewer.historyTable.db;
+        } else {
+            this.db = null;
+        }
 
-        db = HistoryDB.getHistoryDB();
-        
         if (runState == true)
         {
             log.error("ImportHandler running twice");
@@ -92,7 +88,6 @@ public class ImportHandler
         try {
             this.viewer = viewer;
             this.qTable = qTable;
-            this.library = library;
             library.addObserver(qTable);
             library.addObserver(viewer);
                        
@@ -153,37 +148,34 @@ public class ImportHandler
         	log.error("SQL exception updating history DB.", e);
         }
         
-        library.addObserver(new IObserver(){
-            public void update(IObservable importLibrary, ImportEvent event) {
-                
-            }});
-        
-        library.importCandidates(config, candidates);
-        
+
+        ImportContainer[] importContainer = candidates.getContainers().toArray(new ImportContainer[0]);
         for(int i = 0; i < importContainer.length; i++)
         {   
-            selected_file = importContainer[i].file;
-           	if (qTable.setProgressPending(i))
-           	{
+            File selected_file = importContainer[i].file;
+            if (qTable.setProgressPending(i))
+            {
                 numOfPendings++;
-               	try {
-               	    if (db != null)
-               	    {
-               	    	// FIXME: This is now "broken" with targets now able to be of type Screen or Dataset.
-               	        db.insertFileHistory(importKey, library.getExperimenterID(), i, importContainer[i].imageName, 
-               	         importContainer[i].projectID, importContainer[i].getTarget().getId().getValue(), 
-               	         "pending", importContainer[i].file);
-               	    }
-               	}
-               	catch (Exception e) 
-               	{
-               		log.error("Generic error while updating progress.", e);
-               	}
-           	}
+                try {
+                    if (db != null)
+                    {
+                        // FIXME: This is now "broken" with targets now able to be of type Screen or Dataset.
+                        db.insertFileHistory(importKey, library.getExperimenterID(), i, importContainer[i].imageName, 
+                         importContainer[i].projectID, importContainer[i].getTarget().getId().getValue(), 
+                         "pending", importContainer[i].file);
+                    }
+                }
+                catch (Exception e) 
+                {
+                    log.error("Generic error while updating progress.", e);
+                }
+            }
         }
         
+        library.importCandidates(config, candidates);
+                
         if (db != null)
-            db.notifyObservers("QUICKBAR_UPDATE", null);
+            db.notifyObservers(new ImportEvent.QUICKBAR_UPDATE());
         viewer.statusBar.setProgressMaximum(numOfPendings);
         
         numOfDone = 0;
@@ -251,8 +243,7 @@ public class ImportHandler
                     }
                     else
                     {
-                        String[] files = {importContainer[j].file.getAbsolutePath()};
-                        addError(fe, importContainer[j].file, files, null);
+                        addError(fe, container.file, null, null);
                     }
                     
                     try
@@ -400,22 +391,24 @@ public class ImportHandler
 
         viewer.appendToOutputLn("> Image import completed!");
     }
-    
 
-
-    /**
-     * Instantiates an unloaded target object to feed to the import library for
-     * usage during the import.
-     * @param klass Target object class.
-     * @param id Target object ID.
-     * @return Target object instance.
-     */
-    private <T extends IObject> T instantiateTarget(Class<T> klass, long id)
+    private void addError(Throwable error, File file, String[] files, String readerType)
     {
-    	InstanceProvider provider = library.getInstanceProvider();
-    	T o = provider.getInstance(klass);
-    	o.setId(rlong(id));
-    	o.unload();
-    	return o;
+        ErrorContainer errorContainer = new ErrorContainer();
+        errorContainer.setFiles(files);
+        errorContainer.setSelectedFile(file);
+        errorContainer.setReaderType(readerType);
+        errorContainer.setCommentType("2");
+        
+        errorContainer.setJavaVersion(System.getProperty("java.version"));
+        errorContainer.setJavaClasspath(System.getProperty("java.class.path"));
+        errorContainer.setOSName(System.getProperty("os.name"));
+        errorContainer.setOSArch(System.getProperty("os.arch"));
+        errorContainer.setOSVersion(System.getProperty("os.version"));
+        errorContainer.setError(error);
+
+        errorsCollected  = true;
+        viewer.errorHandler.delegate.addError(errorContainer);
     }
+    
 }

@@ -3,6 +3,11 @@ package ome.formats.importer.util;
 import java.io.File;
 import java.util.ArrayList;
 
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
+import ome.formats.importer.ImportEvent;
+import ome.formats.importer.util.FileUploadCounter.ProgressListener;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -14,17 +19,12 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ome.formats.importer.IObservable;
-import ome.formats.importer.IObserver;
-import ome.formats.importer.util.FileUploadCounter.ProgressListener;
-
 
 public class FileUploader implements IObservable
 {   
 
     private static Log         log = LogFactory.getLog(FileUploader.class);
 
-    private String url;
     private String[] files;
 
     private String session_id;
@@ -34,14 +34,9 @@ public class FileUploader implements IObservable
 
     private HttpClient client;
 
-    public FileUploader()
-    {
-    }
-    
     public FileUploader(HttpClient httpClient)
     {
         this.client = httpClient;
-        
     }
 
     public void setSessionId(String sessionId)
@@ -54,8 +49,6 @@ public class FileUploader implements IObservable
             log.warn("FileUploadContainer has not set session_id, autogenerating session id of: " + session_id);
         }
 
-
-        System.err.println(session_id);
     }
 
     public String getSessionId()
@@ -68,38 +61,18 @@ public class FileUploader implements IObservable
         if (client == null)
             client = new HttpClient();
         
-        this.url = url;
         this.files = upload.getFiles();
-        System.err.println(files.length);
         setSessionId(upload.getToken());
 
         PostMethod method = null;
 
-        // observer arguements passed to any observers
-        // [0] is filename
-        // [1] is file index from files
-        // [2] is file total from files
-        // [3] is uploaded bytes
-        // [4] is content length
-        // [5] is any errors passed back from error capture
-        final Object[] observerArgs;
-        observerArgs = new Object[6];
         int fileCount = 0;
         
         for (String f : files)
         {
             fileCount++;
-
-            System.err.println(f);
-
-            File file = new File(f);
-
-            observerArgs[0] = file.getName();
-            observerArgs[1] = fileCount;
-            observerArgs[2] = files.length;
-            observerArgs[3] = null;
-            observerArgs[4] = null;
-            observerArgs[5] = null;
+            final int count = fileCount;
+            final File file = new File(f);
 
             try {
                 HttpClientParams params = new HttpClientParams();
@@ -139,25 +112,20 @@ public class FileUploader implements IObservable
                         }
                         parts = partsDone;
 
-                        notifyObservers(Actions.FILE_UPLOAD_STARTED, observerArgs);
+                        notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
+                                file.getName(), count, files.length, null, null, null));
 
-                        //System.out.println("We are currently reading item " + observerArgs[1] + " of " + observerArgs[2]);
                         long uploadedBytes = bytesRead/2;
                         if (fileLength == -1) {
 
-                            observerArgs[3] = uploadedBytes;
-                            notifyObservers(Actions.FILE_UPLOAD_BYTES, observerArgs);
-
-                            //System.out.println("So far, " + uploadedBytes + " have been sent.");
-
+                            notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
+                                    file.getName(), count, files.length, uploadedBytes, null, null));
 
                         } else {
 
-                            observerArgs[3] = uploadedBytes;
-                            observerArgs[4] = fileLength;
-                            notifyObservers(Actions.FILE_UPLOAD_BYTES, observerArgs);
+                            notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
+                                    file.getName(), count, files.length, uploadedBytes, fileLength, null));
 
-                            //System.out.println("So far, " + uploadedBytes + " of " + fileLength" have been sent.");
                         }
                     }
                 };
@@ -168,26 +136,28 @@ public class FileUploader implements IObservable
 
                 int status = client.executeMethod(method);
 
-                if (status == HttpStatus.SC_OK) {            
-                    notifyObservers(Actions.FILE_UPLOAD_COMPLETE, observerArgs);
-
-                    System.err.println("Upload complete");
+                if (status == HttpStatus.SC_OK) {   
+                    
+                    notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
+                            file.getName(), count, files.length, null, null, null));
                     upload.setStatus(1);
 
                 } else {
-                    notifyObservers(Actions.FILE_UPLOAD_FAILED, observerArgs);
+                    notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
+                            file.getName(), count, files.length, null, null, null));
                 }
             } catch (Exception ex) {
-                observerArgs[5] = ex.getMessage();
-                notifyObservers(Actions.FILE_UPLOAD_ERROR, observerArgs);
+                notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
+                        file.getName(), count, files.length, null, null, ex));
                 ex.printStackTrace();
             } finally {
                 method.releaseConnection();
             }
         }
 
-        notifyObservers(Actions.FILE_UPLOAD_FINSIHED, observerArgs);
-        System.err.println("Upload finished. Token: " + upload.getToken());
+        notifyObservers(new ImportEvent.FILE_UPLOAD_FINISHED(
+                null, 0, 0, null, null, null));
+        
     }
 
     // Observable methods
@@ -202,11 +172,11 @@ public class FileUploader implements IObservable
 
     }
 
-    public void notifyObservers(Object message, Object[] args)
+    public void notifyObservers(ImportEvent event)
     {
         for (IObserver observer:observers)
         {
-            observer.update(this, message, args);
+            observer.update(this,event);
         }
     }
 
@@ -218,7 +188,8 @@ public class FileUploader implements IObservable
         String dvPath = "/Users/TheBrain/test_images_shortrun/dv/";
         String[] files = {dvPath + "CFPNEAT01_R3D.dv", dvPath + "IAGFP-Noc01_R3D.dv"};
 
-        FileUploader uploader = new FileUploader();
+        
+        FileUploader uploader = new FileUploader(new HttpClient());
         ErrorContainer upload = new ErrorContainer();
         upload.setFiles(files);
         uploader.uploadFiles(url, 5000, upload);

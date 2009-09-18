@@ -68,7 +68,7 @@ public class CommandLineImporter
         }
     }
 
-    public void run() {
+    public int run() {
         
         if (candidates.size() < 1) {
             System.err.println("No imports found");
@@ -80,12 +80,12 @@ public class CommandLineImporter
             try
             {
                 candidates.print();
-                System.exit(0);
+                return 0;
             }
             catch (Throwable t)
             {
                 log.error("Error retrieving used files.", t);
-                System.exit(2);
+                return 2;
             }
         }
         
@@ -98,10 +98,12 @@ public class CommandLineImporter
             }
             
             library.addObserver(new LoggingImportMonitor());
-            library.addObserver(new ErrorHandler());
+            library.addObserver(new ErrorHandler(config));
             library.importCandidates(config, candidates);
         
         }
+        
+        return 0;
 
     }
     
@@ -260,6 +262,7 @@ public class CommandLineImporter
         try
         {
             c = new CommandLineImporter(config, rest, getUsedFiles);
+            rc = c.run();
         }
         catch (Throwable t)
         {

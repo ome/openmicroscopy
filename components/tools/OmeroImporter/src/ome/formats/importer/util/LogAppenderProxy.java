@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.LogAppenderProxy
+ * ome.formats.importer.util.LogAppenderProxy
  *
  *------------------------------------------------------------------------------
  *
@@ -11,9 +11,12 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.importer;
+package ome.formats.importer.util;
 
 import java.io.File;
+
+import ome.formats.importer.ImportConfig;
+import ome.formats.importer.gui.LogAppender;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
@@ -22,20 +25,25 @@ import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.spi.LoggingEvent;
 
 public class LogAppenderProxy extends AppenderSkeleton implements Appender
-{
-    private static LogAppender delegate;
-    private static RollingFileAppender logfile_delegate;
-    
+{    
+    private final ImportConfig config;
+    private final String saveDirectory;
+    private final String logFileName;
+    private final LogAppender delegate;
+    private final RollingFileAppender logfile_delegate;
+   
     public final static boolean USE_LOG_FILE = true;
-    public final static String saveDirectory = System.getProperty("user.home") + File.separator + "omero" + File.separator + "log";
-    public final static String logfileName = "importer.log";
 
-    public LogAppenderProxy()
+    public LogAppenderProxy(ImportConfig config)
     {
         super(); 
+        this.config = config;
+        this.saveDirectory = config.getSaveDirectory();
+        this.logFileName = config.getLogFileName();
+        
         delegate = LogAppender.getInstance();
         logfile_delegate = new RollingFileAppender();
-        String f = new File(saveDirectory, logfileName).getAbsolutePath();
+        String f = new File(saveDirectory, logFileName).getAbsolutePath();
         logfile_delegate.setFile(f);
         // 10MB is the default size
         logfile_delegate.setMaxBackupIndex(10);

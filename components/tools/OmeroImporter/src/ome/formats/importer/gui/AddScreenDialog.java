@@ -31,8 +31,6 @@ public class AddScreenDialog extends JDialog implements ActionListener
     private Preferences    userPrefs = 
         Preferences.userNodeForPackage(ImportDialog.class);
     
-    GuiCommonElements       gui;
-    
     Window                  owner;
     
     JPanel                  mainPanel;
@@ -51,12 +49,10 @@ public class AddScreenDialog extends JDialog implements ActionListener
     
     OMEROMetadataStoreClient      store;
     
-    AddScreenDialog(Window owner, String title, Boolean modal, OMEROMetadataStoreClient store)
+    AddScreenDialog(GuiCommonElements gui, Window owner, String title, Boolean modal, OMEROMetadataStoreClient store)
     {
         this.store = store;
         this.owner = owner;
-        
-        gui = new GuiCommonElements();
         
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
@@ -164,6 +160,6 @@ public class AddScreenDialog extends JDialog implements ActionListener
             } catch (Exception e) 
             { System.err.println(laf + " not supported."); }
         }
-        new AddScreenDialog(null, "Add a Screen", true, null);
+        new AddScreenDialog(null, null, "Add a Screen", true, null);
     }
 }

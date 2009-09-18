@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class ImportCandidates extends DirectoryWalker {
     private final static Log log = LogFactory.getLog(ImportCandidates.class);
 
     final private Groups groups;
-    final private ImportReader reader;
+    final private OMEROWrapper reader;
     final private Set<String> allFiles = new HashSet<String>();
     final private Map<String, Set<String>> usedBy = new HashMap<String, Set<String>>();
 
@@ -47,7 +48,7 @@ public class ImportCandidates extends DirectoryWalker {
      * @param verbose
      * @throws IOException
      */
-    public ImportCandidates(ImportReader reader, String[] paths) {
+    public ImportCandidates(OMEROWrapper reader, String[] paths) {
         super(TrueFileFilter.INSTANCE, 4);
 
         this.reader = reader;
@@ -85,6 +86,20 @@ public class ImportCandidates extends DirectoryWalker {
     }
 
     /**
+     * Takes {@link ImportContainer} array to support explicit candidates.
+     */
+    public ImportCandidates(OMEROWrapper reader, ImportContainer[] containers) {
+        this.reader = reader;
+        if (containers == null) {
+            groups = null;
+        } else {
+            for (int i = 0; i < containers.length; i++) {
+                
+            }
+        }
+    }
+    
+    /**
      * Prints the "standard" representation of the groups, which is parsed by
      * other software layers. The format is: 1) any empty lines are ignored, 2)
      * any blocks of comments separate groups, 3) each group is begun by the
@@ -107,7 +122,15 @@ public class ImportCandidates extends DirectoryWalker {
         if (groups != null) {
             return new HashSet<String>(groups.groups.keySet());
         }
-        return new HashSet<String>();
+        return Collections.emptySet();
+    }
+    
+    @SuppressWarnings("unchecked")
+    public Set<ImportContainer> getContainers() {
+        if (groups != null) {
+            return new HashSet(groups.groups.values());
+        }
+        return Collections.emptySet();
     }
 
     public String[] singleFile(File file) {
@@ -154,7 +177,7 @@ public class ImportCandidates extends DirectoryWalker {
 
 }
 
-class Groups {
+class Groups extends ImportContainer {
 
     class Group {
         String key;
@@ -219,6 +242,7 @@ class Groups {
     final Map<String, Group> groups = new HashMap<String, Group>();
 
     Groups(Map<String, Set<String>> usedBy) {
+        super(null, null, null, null, false, null);
         this.usedBy = usedBy;
         for (String key : usedBy.keySet()) {
             groups.put(key, new Group(key));

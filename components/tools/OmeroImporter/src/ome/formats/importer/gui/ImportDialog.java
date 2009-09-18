@@ -125,7 +125,7 @@ public class ImportDialog extends JDialog implements ActionListener
     public JCheckBox fileCheckBox;
 
 
-    ImportDialog(JFrame owner, String title, boolean modal, OMEROMetadataStoreClient store)
+    ImportDialog(GuiCommonElements gui, JFrame owner, String title, boolean modal, OMEROMetadataStoreClient store)
     {
         super(owner);
         this.store = store;
@@ -146,7 +146,7 @@ public class ImportDialog extends JDialog implements ActionListener
         tabbedPane = new JTabbedPane();
         tabbedPane.setOpaque(false); // content panes must be opaque
 
-        gui = new GuiCommonElements();
+        this.gui = gui;
 
         
         /////////////////////// START IMPORT PANEL ////////////////////////
@@ -435,14 +435,14 @@ public class ImportDialog extends JDialog implements ActionListener
     {
         if (e.getSource() == addProjectBtn)
         {
-            new AddProjectDialog(this, "Add a new Project", true, store);
+            new AddProjectDialog(gui, this, "Add a new Project", true, store);
             refreshAndSetProject();
         }
 
         if (e.getSource() == addDatasetBtn)
         {
             project = ((ProjectItem) pbox.getSelectedItem()).getProject();
-            new AddDatasetDialog(this, "Add a new Dataset to: " + project.getName().getValue(), true, project, store);
+            new AddDatasetDialog(gui, this, "Add a new Dataset to: " + project.getName().getValue(), true, project, store);
             refreshAndSetDataset(project);
         }
         
@@ -536,7 +536,7 @@ public class ImportDialog extends JDialog implements ActionListener
         } catch (Exception e) 
         { System.err.println(laf + " not supported."); }
 
-        ImportDialog dialog = new ImportDialog(null, "Import Dialog", true, null);
+        ImportDialog dialog = new ImportDialog(null, null, "Import Dialog", true, null);
         if (dialog != null) System.exit(0);
     }
 }

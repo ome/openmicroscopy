@@ -51,11 +51,6 @@ public class ImportFixture
 
     private Map<File,Dataset>  fads = new HashMap<File, Dataset>();
     
-    public ImportFixture(OMEROMetadataStoreClient store)
-    {
-        this(store, new OMEROWrapper());
-    }
-
     public ImportFixture(OMEROMetadataStoreClient store, OMEROWrapper reader)
     {
         this.store = store;
@@ -117,19 +112,14 @@ public class ImportFixture
      * <li>{@link ImportLibrary#open(String)}</li>
      * <li>{@link ImportLibrary#calculateImageCount(String)}</li>
      * <li>{@link ImportLibrary#importMetadata()}</li>
-     * <li>{@link ImportLibrary#importData(long, String, ome.formats.testclient.ImportLibrary.Step)}</li>
+     * <li>{@link ImportLibrary#importData(long, String)}</li>
      * </ul>
      * 
      * @param step an action to take per plane. not null.
      * @throws Exception
      */
-    public void doImport(ImportLibrary.Step step) throws Exception
+    public void doImport() throws Exception
     {
-        if (step == null)
-        {
-            // FIXME: Blitz transition, ApiUsageException no longer client side.
-            throw new Exception("Step may not be null.");
-        }
         for (File file : fads.keySet())
         {
             String fileName = file.getAbsolutePath();
@@ -142,21 +132,4 @@ public class ImportFixture
         }
     }
 
-    /**
-     * runs import via
-     * {@link #doImport(ome.formats.testclient.ImportLibrary.Step)} with an
-     * empty {@link ImportLibrary.Step#step(int)} action.
-     * 
-     * @throws Exception
-     */
-    public void doImport() throws Exception
-    {
-        doImport(new ImportLibrary.Step()
-        {
-
-            @Override
-            public void step(int series, int n)
-            {}
-        });
-    }
 }

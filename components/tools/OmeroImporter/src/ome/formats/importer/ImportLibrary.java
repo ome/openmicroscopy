@@ -80,11 +80,11 @@ public class ImportLibrary implements IObservable
 
     private final ArrayList<IObserver> observers = new ArrayList<IObserver>();
 
-    private boolean dumpPixels = false;    
+    private final boolean dumpPixels = false;    
 
-    private OMEROMetadataStoreClient store;
+    private final OMEROMetadataStoreClient store;
 
-    private ImportReader  reader;
+    private final OMEROWrapper  reader;
 
     /**
      * The library will not close the client instance. The reader will be closed
@@ -93,7 +93,7 @@ public class ImportLibrary implements IObservable
      * @param store not null
      * @param reader not null
      */
-    public ImportLibrary(OMEROMetadataStoreClient client, ImportReader reader)
+    public ImportLibrary(OMEROMetadataStoreClient client, OMEROWrapper reader)
     {
         if (client == null || reader == null)
         {
@@ -105,7 +105,19 @@ public class ImportLibrary implements IObservable
         this.reader = reader;
     }
 
+    //
+    // Delegation methods
+    //
+    
 
+    public long getExperimenterID() {
+        return store.getExperimenterID();
+    }
+
+
+    public InstanceProvider getInstanceProvider() {
+        return store.getInstanceProvider();
+    }
 
     //
     // Observable methods
@@ -137,19 +149,17 @@ public class ImportLibrary implements IObservable
     public void importCandidates(ImportConfig config, ImportCandidates candidates) {
         List<String> paths = new ArrayList<String>(candidates.getPaths());
         if (paths != null) {
-            for (int i = 0; i < paths.size(); i++) {
-                String path = paths.get(i);
+            int numDone = 0;
+            for (int index = 0; index < paths.size(); index++) {
+                String path = paths.get(index);
                 
                 try {
                     List<Pixels> pix = importImage(new File(path), 
-                            i, i, paths.size(), path, "",
+                            index, numDone, paths.size(), path, "",
                             false, false, null, null);
-                    config.getReport().success(path, pix);
+                    numDone++;
                 } catch (Exception e) {
-                    config.getReport().exception(path, e);
-                    if (config.cancelOnError()) {
-                        return;
-                    }
+                    notifyObservers(new ImportEvent.EXCEPTION_EVENT(path, e));
                 }
             }
         }
@@ -193,7 +203,6 @@ public class ImportLibrary implements IObservable
     	// 1st we post-process the metadata that we've been given.
     	log.debug("Post-processing metadata.");
 
-    	List<File> metadataFiles = store.setArchive(archive, useMetadataFile);
     	store.setUserSpecifiedImageName(userSpecifiedImageName);
     	store.setUserSpecifiedImageDescription(userSpecifiedImageDescription);
     	if (userPixels != null)
@@ -259,6 +268,7 @@ public class ImportLibrary implements IObservable
             formatString = formatString.replace("Reader", "");
             
             // Save metadata and prepare the RawPixelsStore for our arrival.
+            List<File> metadataFiles = store.setArchive(archive, useMetadataFile);
             List<Pixels> pixList = 
             	importMetadata(userSpecifiedTarget,
             	               userSpecifiedImageName,
@@ -289,7 +299,7 @@ public class ImportLibrary implements IObservable
                 Pixels pixels = pixList.get(series); 
                 long pixId = pixels.getId().getValue(); 
                 
-                notifyObservers(new ImportEvent.DATASET_STORED(userSpecifiedTarget, pixId, series, size));
+                notifyObservers(new ImportEvent.DATASET_STORED(index, fileName, userSpecifiedTarget, pixId, series, size));
         
                 MessageDigest md = importData(pixId, fileName, series, size);
                 if (md != null)
@@ -299,7 +309,7 @@ public class ImportLibrary implements IObservable
                 	saveSha1 = true;
                 }
                 
-                notifyObservers(new ImportEvent.DATA_STORED(userSpecifiedTarget, pixId, series, size));
+                notifyObservers(new ImportEvent.DATA_STORED(index, fileName, userSpecifiedTarget, pixId, series, size));
             }
             
             // Original file absolute path to original file map for uploading
@@ -338,13 +348,14 @@ public class ImportLibrary implements IObservable
             		fileNameList.add(new File(filename));
             	}
             }
+            
             fileNameList.addAll(metadataFiles);
             if (fileNameList.size() != originalFileMap.size())
             {
             	log.warn(String.format("Original file number mismatch, %d!=%d.", 
             			fileNameList.size(), originalFileMap.size()));
             }
-            notifyObservers(new ImportEvent.IMPORT_ARCHIVING(userSpecifiedTarget, pixId, count.imageCount, series));
+            notifyObservers(new ImportEvent.IMPORT_ARCHIVING(index, null, userSpecifiedTarget, null, 0, null));
         	store.writeFilesToFileStore(fileNameList, originalFileMap);
             
             if (saveSha1)
@@ -357,9 +368,9 @@ public class ImportLibrary implements IObservable
                 store.populateMinMax();
             }
                     
-            notifyObservers(new ImportEvent.IMPORT_THUMBNAILING(userSpecifiedTarget, pixId, count.imageCount, series));
+            notifyObservers(new ImportEvent.IMPORT_THUMBNAILING(index, null, userSpecifiedTarget, null, 0, null));
             store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
-            notifyObservers(new ImportEvent.IMPORT_DONE(userSpecifiedTarget, pixId, count.imageCount, series));
+            notifyObservers(new ImportEvent.IMPORT_DONE(index, null, userSpecifiedTarget, null, 0, null));
             
             return pixList;
         
@@ -519,5 +530,6 @@ public class ImportLibrary implements IObservable
       }
       throw new RuntimeException("Unknown type with id: '" + type + "'");
     }
+
 
 }

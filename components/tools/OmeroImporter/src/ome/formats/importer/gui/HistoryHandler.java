@@ -1,4 +1,4 @@
-package ome.formats.importer;
+package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;
@@ -7,46 +7,27 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.IObserver;
+import ome.formats.importer.util.GuiCommonElements;
+
 @SuppressWarnings("serial")
 public class HistoryHandler 
     extends JPanel 
 {
-
-    ArrayList<IObserver> observers = new ArrayList<IObserver>();
+    public final static String CLEARHISTORY = "CLEARHISTORY";
+    public final static String HISTORYSEARCH = "HISTORYSEARCH";
+    public final static String HISTORYREIMPORT = "HISTORYREIMPORT";
     
-    private HistoryTable    table;
+    public final HistoryTable table;
     
-    HistoryHandler()
+    HistoryHandler(GuiImporter viewer)
     {
         this.setOpaque(false);
         setLayout(new BorderLayout());
-        
-        table = HistoryTable.getHistoryTable();
-        
-        //JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-        //        null, table);
-        
-        //splitPane.setResizeWeight(0.1);
-        
-        if (table != null)
-            add(table, BorderLayout.CENTER);
+        this.table = new HistoryTable(viewer);
+        add(table, BorderLayout.CENTER);
     }
-    
-    
-    /**
-     * Creates a singularity of the History Handler
-     * @param viewer
-     * @return
-     */
-    public static synchronized HistoryHandler getHistoryHandler()
-    {
-        if (ref == null) 
-            ref = new HistoryHandler();
-        return ref;
-    }
-    
-    private static HistoryHandler ref;
-    
     
     /**
      * @param args
@@ -75,7 +56,7 @@ public class HistoryHandler
             { System.err.println(laf + " not supported."); }
         }
         
-        HistoryHandler hh = new HistoryHandler(); 
+        HistoryHandler hh = new HistoryHandler(null); 
         JFrame f = new JFrame();   
         f.getContentPane().add(hh);
         f.setVisible(true);

@@ -15,12 +15,10 @@ package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -33,14 +31,13 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
-
+import layout.TableLayout;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.HtmlMessenger;
-import ome.formats.importer.util.IniFileLoader;
 
-import layout.TableLayout;
+import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.httpclient.methods.multipart.StringPart;
 
 /**
  * @author TheBrain
@@ -50,20 +47,9 @@ public class CommentMessenger extends JDialog implements ActionListener
 {
     private static final long serialVersionUID = -894653530593047377L;
     
-    IniFileLoader ini = IniFileLoader.getIniFileLoader();
-    
-    private Preferences    userPrefs = 
-        Preferences.userNodeForPackage(Main.class);
-
-    private String userEmail = userPrefs.get("userEmail", "");
-    
-    boolean debug = false;
-    
-    //String url = "http://users.openmicroscopy.org.uk/~brain/omero/commentcollector.php";
-    String url = "http://mage.openmicroscopy.org.uk/qa/initial/";
-    
     private static final String ICON = "gfx/nuvola_mail_send64.png";
 
+    ImportConfig            config;
     GuiCommonElements       gui;
     
     JPanel                  mainPanel;
@@ -81,10 +67,11 @@ public class CommentMessenger extends JDialog implements ActionListener
     JTextArea               commentTextArea;
     String                  commentText         = "";
     
-    CommentMessenger(JFrame owner, String title, Boolean modal)
+    CommentMessenger(JFrame owner, String title, ImportConfig config, Boolean modal, boolean debug)
     {
         super(owner);
-        gui = new GuiCommonElements();
+        this.config = config; 
+        this.gui = new GuiCommonElements(config);
         
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
@@ -144,7 +131,7 @@ public class CommentMessenger extends JDialog implements ActionListener
         emailTextField = gui.addTextField(commentPanel, "Email: ", emailText, 'E',
         "Input tyour email address here.", "(Optional)", TableLayout.PREFERRED, "0, 1, 2, 1", debug);
         
-        emailTextField.setText(userEmail);
+        emailTextField.setText(config.getEmail());
         
         commentTextArea = gui.addTextArea(commentPanel, "Comment:", 
                 "", 'W', "0, 2, 2, 2", debug);
@@ -180,7 +167,7 @@ public class CommentMessenger extends JDialog implements ActionListener
             }
             else
             {
-                userPrefs.put("userEmail", emailText);
+                config.setEmail(emailText);
                 sendRequest(emailText, commentText, "Extra data goes here.");               
             }
             
@@ -203,7 +190,7 @@ public class CommentMessenger extends JDialog implements ActionListener
         postList.add(new StringPart("import_session", "test"));
 
         try {
-            HtmlMessenger messenger = new HtmlMessenger(url, postList);
+            HtmlMessenger messenger = new HtmlMessenger(config.getFeedbackUrl(), postList);
             @SuppressWarnings("unused")
             String serverReply = messenger.executePost();
             if (serverReply != null)
@@ -238,6 +225,6 @@ public class CommentMessenger extends JDialog implements ActionListener
      */
     public static void main(String[] args) throws Exception
     {
-        new CommentMessenger(null, "Comment Dialog Test", true);
+        new CommentMessenger(null, "Comment Dialog Test", new ImportConfig(args), true, true);
     }
 }

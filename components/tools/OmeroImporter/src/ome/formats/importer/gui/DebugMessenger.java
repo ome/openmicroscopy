@@ -37,7 +37,8 @@ import javax.swing.text.StyledDocument;
 import layout.TableLayout;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
-import ome.formats.importer.util.Actions;
+import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ErrorContainer;
 import ome.formats.importer.util.GuiCommonElements;
 
@@ -52,12 +53,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
 {
     private static final long serialVersionUID = -1026712513033611084L;
 
-    
-    private Preferences    userPrefs = 
-        Preferences.userNodeForPackage(Main.class);
-
-    private String userEmail = userPrefs.get("userEmail", "");
-    private boolean sendFiles = userPrefs.getBoolean("sendFiles", true);
+    private final ImportConfig config;
     
     boolean debug = false;
     
@@ -95,10 +91,11 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
 
 	private JCheckBox uploadCheckmark;
     
-    DebugMessenger(JFrame owner, String title, Boolean modal, ArrayList<ErrorContainer> errorsArrayList)
+    DebugMessenger(JFrame owner, String title, ImportConfig config, Boolean modal, ArrayList<ErrorContainer> errorsArrayList)
     {
         super(owner);
-        gui = new GuiCommonElements();
+        this.config = config;
+        this.gui = new GuiCommonElements(config);
         this.owner = owner;
         this.errorsArrayList = errorsArrayList;
         
@@ -129,7 +126,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         gui.enterPressesWhenFocused(sendBtn);
         
         uploadCheckmark = gui.addCheckBox(mainPanel, "Send selected images.", "1,1,7,c", debug);
-        uploadCheckmark.setSelected(sendFiles);
+        uploadCheckmark.setSelected(config.getSendFiles());
                 
         // fill out the comments panel (changes according to icon existance)        
         Icon icon = gui.getImageIcon(ICON);
@@ -159,7 +156,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         emailTextField = gui.addTextField(commentPanel, "Email: ", emailText, 'E',
         "Input your email address here.", "(Optional)", TableLayout.PREFERRED, "0, 1, 2, 1", debug);
         
-        emailTextField.setText(userEmail);
+        emailTextField.setText(config.getEmail());
         
         commentTextArea = gui.addTextArea(commentPanel, "Please provide any additional information of importance.", 
                 "", 'W', "0, 2, 2, 3", debug);
@@ -204,8 +201,8 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
             }
             else
             {
-                userPrefs.put("userEmail", emailText);
-                userPrefs.putBoolean("sendFiles", uploadCheckmark.isSelected()); 
+                config.setEmail(emailText);
+                config.setSendFiles(uploadCheckmark.isSelected());
                 sendRequest(emailText, commentText, "Extra data goes here.");
                 dispose();
             }
@@ -233,11 +230,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
             errorContainer.setExtra(extraText);
     	}
 
-        final Object[] observerArgs;
-        observerArgs = new Object[1];
-        observerArgs[0] = uploadCheckmark.isSelected();
-    	
-    	notifyObservers(Actions.DEBUG_SEND, observerArgs);
+    	notifyObservers(new ImportEvent.DEBUG_SEND(uploadCheckmark.isSelected()));
     }
     
 
@@ -253,11 +246,11 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         
     }
 
-    public void notifyObservers(Object message, Object[] args)
+    public void notifyObservers(ImportEvent event)
     {
         for (IObserver observer:observers)
         {
-            observer.update(this, message, args);
+            observer.update(this, event);
         }
     }
     
@@ -285,7 +278,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         }
         catch (Exception e)
         {
-            new DebugMessenger(null, "Error Dialog Test", true, null);
+            new DebugMessenger(null, "Error Dialog Test", new ImportConfig(args), true, null);
         }
     }
 }

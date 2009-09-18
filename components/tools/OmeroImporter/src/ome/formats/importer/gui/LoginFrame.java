@@ -43,7 +43,6 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
-import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.IniFileLoader;
 
@@ -112,11 +111,10 @@ public class LoginFrame extends JFrame
     private Preferences    userPrefs = Preferences
                                              .userNodeForPackage(LoginFrame.class);
     
-    LoginFrame (JFrame owner, JFrame main, String title, boolean modal, boolean center)
+    LoginFrame (GuiCommonElements gui, JFrame owner, JFrame main, String title, boolean modal, boolean center)
     {   
         this.main = main;
-        
-        gui = new GuiCommonElements();
+        this.gui = gui;
         
         setTitle("Login");
         setIconImage(gui.getImageIcon(GuiImporter.ICON).getImage());
@@ -343,7 +341,7 @@ public class LoginFrame extends JFrame
             //server = srvr.getText();
             //port = prt.getText();
             cancelled = false;
-            firePropertyChange(Actions.LOGIN, false, true);
+            firePropertyChange(LoginHandler.LOGIN, false, true);
             this.dispose();
             if (f != null) f.dispose();
         }
@@ -412,7 +410,7 @@ public class LoginFrame extends JFrame
         }
         
         JFrame f = new JFrame();   
-        new LoginFrame(f, f, "", false, true); 
+        new LoginFrame(null, f, f, "", false, true); 
         f.setVisible(false);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.pack();

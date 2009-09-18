@@ -157,7 +157,11 @@ class ServerDialog
 	/** Available server. */
 	private JList		servers;
     
-    private GuiCommonElements gui = new GuiCommonElements();
+    private GuiCommonElements gui;
+    
+    public ServerDialog(GuiCommonElements gui) {
+        this.gui = gui;
+    }
 	
 	/**
 	 * Handles mouse clicks on the {@link #moreOptions}.

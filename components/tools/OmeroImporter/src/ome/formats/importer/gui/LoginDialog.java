@@ -44,7 +44,6 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
-import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.IniFileLoader;
 
@@ -58,8 +57,6 @@ public class LoginDialog extends JDialog
      */
     private static final long serialVersionUID = 1L;
 
-    IniFileLoader ini;
-    
     /**
      * 
      */
@@ -113,13 +110,12 @@ public class LoginDialog extends JDialog
     private Preferences    userPrefs = Preferences
                                              .userNodeForPackage(LoginDialog.class);
     
-    LoginDialog (JFrame owner, JFrame main, String title, boolean modal, boolean center)
+    LoginDialog (GuiCommonElements gui, JFrame owner, JFrame main, String title, boolean modal, boolean center)
     {   
         super(owner);
         this.main = main;
+        this.gui = gui;
         
-        gui = new GuiCommonElements();
-          
         setLocation(200, 200);
         setModal(modal);
         setResizable(false);
@@ -227,7 +223,7 @@ public class LoginDialog extends JDialog
         StyleConstants.setFontSize(style, 12);
         StyleConstants.setBold(style, true);
         
-        versionInfo = gui.addTextPane(mainPanel, ini.getVersionNumber(), "0, 1, l, b", 
+        versionInfo = gui.addTextPane(mainPanel, gui.config.getVersionNumber(), "0, 1, l, b", 
                 context, style, debug);
         
         // Add an action listener to the uname to move to pswd
@@ -342,14 +338,14 @@ public class LoginDialog extends JDialog
             //server = srvr.getText();
             //port = prt.getText();
             cancelled = false;
-            firePropertyChange(Actions.LOGIN, false, true);
+            firePropertyChange(LoginHandler.LOGIN, false, true);
             this.dispose();
             if (f != null) f.dispose();
         }
         if(e.getSource() == quitBtn)
         {
             cancelled = true;
-            firePropertyChange(Actions.LOGIN_CANCELLED, false, true);
+            firePropertyChange(LoginHandler.LOGIN_CANCELLED, false, true);
             this.dispose();
             if (f != null) f.dispose();
         }
@@ -414,7 +410,7 @@ public class LoginDialog extends JDialog
         }
         
         JFrame f = new JFrame();   
-        new LoginDialog(f, f, "", false, true); 
+        new LoginDialog(null, f, f, "", false, true); 
         f.setVisible(false);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.pack();

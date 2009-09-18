@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.HtmlMessenger
+ * ome.formats.importer.util.HtmlMessenger
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.

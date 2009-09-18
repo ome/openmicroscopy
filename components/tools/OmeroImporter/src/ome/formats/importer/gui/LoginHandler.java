@@ -32,7 +32,7 @@ import javax.swing.JOptionPane;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
-import ome.formats.importer.util.Actions;
+import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.GuiCommonElements;
 
 import org.apache.commons.logging.Log;
@@ -50,7 +50,11 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
  */
 public class LoginHandler implements IObservable, ActionListener, WindowListener, PropertyChangeListener, WindowStateListener, WindowFocusListener
 {
-	/** Logger for this class */
+	public final static String LOGIN = "LOGIN";
+
+    public final static String  LOGIN_CANCELLED = "LOGIN_CANCELLED";
+
+    /** Logger for this class */
 	private static Log log = LogFactory.getLog(LoginHandler.class);
     
     private static boolean NEW_LOGIN = true;
@@ -88,15 +92,15 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     
     private GuiCommonElements   gui;
 
-    LoginHandler(GuiImporter viewer, boolean modal, boolean center)
+    LoginHandler(GuiImporter viewer, HistoryTable table, boolean modal, boolean center)
     {
         this.viewer = viewer;
         this.center = center;
         this.modal = modal;
+
+        gui = new GuiCommonElements(viewer.config);
         
-        gui = new GuiCommonElements();
-        
-        historyTable = HistoryTable.getHistoryTable();
+        historyTable = table;
         if (historyTable != null)
             addObserver(historyTable);
         
@@ -104,36 +108,6 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         
         displayLogin(true);
     }
-    
-    public static synchronized LoginHandler getLoginHandler(GuiImporter viewer, boolean modal, boolean center)
-    {
-        if (ref == null) 
-        try
-        {
-            ref = new LoginHandler(viewer, modal, center);
-        } catch (Exception e)
-        {
-        	log.error("Error constructing login handler.", e);
-            JOptionPane.showMessageDialog(null,
-                    "Unknown exception.\n\n" +
-                    "We were not able to connect to the server.\n" +
-                    "Click OK to exit.",
-                    "Warning",
-                    JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
-
-        }
-        return ref;
-    }
-    
-    public static synchronized LoginHandler getLoginHandler()
-    {
-        if (ref == null)
-            throw new RuntimeException ("LoginHandler not created yet.");
-        return ref;
-    }
-    
-    private static LoginHandler ref;
     
     public void displayLogin(boolean displayTop)
     {
@@ -218,7 +192,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         viewer.enableMenus(true);
                         viewer.setImportEnabled(true);
                         viewer.loggedIn = true;
-                        notifyObservers("LOGGED_IN", null);
+                        notifyObservers(new ImportEvent.LOGGED_IN());
                                                 
                         // if this fails, using the old server without repositorySpace
                         try {
@@ -304,12 +278,12 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     {
         if (modal == true)
         {
-            dialog = new LoginDialog(viewer, viewer, "Login", modal, center);
+            dialog = new LoginDialog(gui, viewer, viewer, "Login", modal, center);
             dialog.setAlwaysOnTop(true);
             if (dialog.cancelled == true) return true;
         } else {
 
-            frame = new LoginFrame(viewer, viewer, "Login", modal, center);
+            frame = new LoginFrame(gui, viewer, viewer, "Login", modal, center);
             frame.addPropertyChangeListener(this);    
             
         }
@@ -321,7 +295,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     {
         try
         {
-            store = new OMEROMetadataStoreClient();
+            store = new OMEROMetadataStoreClient(viewer.config);
             store.initialize(username, password, server, port);
         }
         catch (Exception e)
@@ -348,11 +322,11 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         
         if (!NEW_LOGIN)
         {
-            if (prop.equals(Actions.LOGIN))
+            if (prop.equals(LOGIN))
             {
                 tryLogin();
             }
-            if (prop.equals(Actions.LOGIN_CANCELLED))
+            if (prop.equals(LOGIN_CANCELLED))
             {
                 loginCancelled();
             }
@@ -395,11 +369,11 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         
     }
 
-    public void notifyObservers(Object message, Object[] args)
+    public void notifyObservers(ImportEvent event)
     {
         for (IObserver observer:observers)
         {
-            observer.update(this, message, args);
+            observer.update(this, event);
         }
     }
 

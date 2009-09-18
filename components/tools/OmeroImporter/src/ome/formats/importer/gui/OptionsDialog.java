@@ -78,15 +78,12 @@ public class OptionsDialog extends JDialog implements ActionListener
 
     Component owner;
     
-    OptionsDialog(JFrame owner, String title, boolean modal)
+    OptionsDialog(GuiCommonElements gui, JFrame owner, String title, boolean modal)
     {
         super(owner);
         
         this.owner = owner;
 
-        // Load up the main ini file
-        ini = IniFileLoader.getIniFileLoader();
-        
         setLocation(200, 200);
         setTitle(title);
         setModal(modal);
@@ -97,7 +94,7 @@ public class OptionsDialog extends JDialog implements ActionListener
         tabbedPane = new JTabbedPane();
         tabbedPane.setOpaque(false); // content panes must be opaque
 
-        gui = new GuiCommonElements();
+        this.gui = gui;
 
         
         /////////////////////// START IMPORT PANEL ////////////////////////
@@ -221,7 +218,7 @@ public class OptionsDialog extends JDialog implements ActionListener
         } catch (Exception e) 
         { System.err.println(laf + " not supported."); }
 
-        OptionsDialog dialog = new OptionsDialog(null, "Options Dialog", true);
+        OptionsDialog dialog = new OptionsDialog(null, null, "Options Dialog", true);
         if (dialog != null) System.exit(0);
     }
 }

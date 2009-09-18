@@ -38,7 +38,7 @@ import javax.swing.table.TableColumnModel;
 import layout.TableLayout;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
-import ome.formats.importer.util.Actions;
+import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ETable;
 import ome.formats.importer.util.ErrorContainer;
 import ome.formats.importer.util.GuiCommonElements;
@@ -89,18 +89,18 @@ public class ErrorTable
     private boolean failedFiles = false;
     
     private CheckboxRenderer cbr;
-    CheckboxCellEditor cbe;
+    private CheckboxCellEditor cbe;
 
     private JPanel progressPanel;
     
-    JProgressBar bytesProgressBar; // byte progress for one file
-    JProgressBar filesProgressBar; // number of files in set (1 of 10 for example)
+    private JProgressBar bytesProgressBar; // byte progress for one file
+    private JProgressBar filesProgressBar; // number of files in set (1 of 10 for example)
     
     private Thread runThread;
 
-    ErrorTable()
+    public ErrorTable(GuiCommonElements gui)
     {   
-        gui = new GuiCommonElements();
+        this.gui = gui;
         
         // set to layout that will maximize on resizing
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
@@ -220,22 +220,6 @@ public class ErrorTable
         
         this.add(mainPanel);
     }
-    
-    
-    public static ErrorTable getErrorTable()
-    {
-        if (ref == null) 
-        try
-        {
-            ref = new ErrorTable();
-        } catch (Exception e)
-        {
-            log.error("Could not start error table.", e);
-        }
-        return ref;
-    }
-
-    private static ErrorTable ref;
 
     public void propertyChange(PropertyChangeEvent e)
     {
@@ -244,12 +228,12 @@ public class ErrorTable
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == sendBtn)
         {
-            notifyObservers(Actions.ERRORS_SEND, null);
+            notifyObservers(new ImportEvent.ERRORS_SEND());
         }
         if (e.getSource() == cancelBtn)
         {
             enableCancelBtn(false);
-            notifyObservers(Actions.ERRORS_UPLOAD_CANCELLED, null);
+            notifyObservers(new ImportEvent.ERRORS_UPLOAD_CANCELLED());
         }
     } 
 
@@ -273,7 +257,7 @@ public class ErrorTable
         }
     }
 
-    public void update(IObservable importLibrary, Object message, Object[] args)
+    public void update(IObservable importLibrary, ImportEvent event)
     {
 
     }
@@ -290,14 +274,120 @@ public class ErrorTable
         
     }
 
-    public void notifyObservers(Object message, Object[] args)
+    public void notifyObservers(ImportEvent event)
     {
         for (IObserver observer:observers)
         {
-            observer.update(this, message, args);
+            observer.update(this, event);
         }
     }
 
+
+    public void updateProgress(int rowIndex, int file, int value)
+    {
+        
+    }
+    
+    public void initProgress(int rowIndex, int files)
+    {
+        
+    }
+    
+    
+    public ArrayList<ErrorContainer> getErrors() {
+        return errors;
+    }
+
+
+    public void setErrors(ArrayList<ErrorContainer> errors) {
+        this.errors = errors;
+    }
+    
+    public void fireTableDataChanged()
+    {
+        table.fireTableDataChanged();
+    }
+    
+    public void addRow(Vector<Object> rowData)
+    {
+        table.addRow(rowData);
+        sendBtn.setEnabled(true);
+    }
+    
+    public void setProgressSending(int row)
+    {
+        table.setValueAt(1, row, 3);
+        failedFiles  = false;
+        table.fireTableDataChanged();
+        progressPanel.setVisible(true);
+        cancelBtn.setVisible(true); 
+        invalidate();
+    } 
+    
+    public void setProgressDone(int row)
+    {
+        table.setValueAt(20, row, 3);
+        failedFiles  = false;
+    }
+    
+    public void setFilesProgress(int value)
+    {
+        filesProgressBar.setValue(value);
+    }
+    
+    public void setFilesInSet(int value)
+    {
+        filesProgressBar.setMaximum(value);
+    }
+    
+    public void setBytesProgress(int value)
+    {
+        bytesProgressBar.setValue(value);
+    }
+
+    public void setBytesFileSize(int value) {
+        bytesProgressBar.setMaximum(value);
+    }
+    
+    public void enableSendBtn(boolean enabled)
+    {
+        sendBtn.setEnabled(enabled);
+    }
+
+
+    public void enableCancelBtn(boolean b) {
+        if (b)
+        {   
+            cancelBtn.setText("Cancel");
+            cancelBtn.setEnabled(b);
+        }
+        else
+        {
+            cancelBtn.setText("Cancelling...");
+            cancelBtn.setEnabled(b);
+        }
+    }
+
+
+    public void setCancelBtnCancelled() {
+        cancelBtn.setText("Cancelled");
+    }
+
+
+    public void setSendBtnEnable(boolean b) {
+        sendBtn.setEnabled(b);
+    }
+
+
+    public void setCancelBtnVisible(boolean b)
+    {
+        cancelBtn.setVisible(b);
+    }
+    
+    //
+    // Inner classes
+    //
+    
     class ErrorTableModel 
         extends DefaultTableModel 
         implements TableModelListener 
@@ -323,7 +413,7 @@ public class ErrorTable
         
     }
 
-    public class MyTableHeaderRenderer 
+    class MyTableHeaderRenderer 
         extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
@@ -361,7 +451,7 @@ public class ErrorTable
         public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
     }
 
-    public class LeftTableHeaderRenderer 
+    class LeftTableHeaderRenderer 
     extends DefaultTableCellRenderer 
 {
     // This method is called each time a column header
@@ -452,7 +542,7 @@ public class ErrorTable
     }
 
 
-    public class TextLeftRenderer
+    class TextLeftRenderer
         extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
@@ -480,7 +570,7 @@ public class ErrorTable
         }
     }
     
-    public class TextCellCenter
+    class TextCellCenter
         extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
@@ -626,106 +716,5 @@ public class ErrorTable
 
             return checkbox;
         }
-    }
-
-    public void updateProgress(int rowIndex, int file, int value)
-    {
-        
-    }
-    
-    public void initProgress(int rowIndex, int files)
-    {
-        
-    }
-    
-    
-    public ArrayList<ErrorContainer> getErrors() {
-        return errors;
-    }
-
-
-    public void setErrors(ArrayList<ErrorContainer> errors) {
-        this.errors = errors;
-    }
-    
-    public void fireTableDataChanged()
-    {
-        table.fireTableDataChanged();
-    }
-    
-    public void addRow(Vector<Object> rowData)
-    {
-        table.addRow(rowData);
-        sendBtn.setEnabled(true);
-    }
-    
-    public void setProgressSending(int row)
-    {
-        table.setValueAt(1, row, 3);
-        failedFiles  = false;
-        table.fireTableDataChanged();
-        progressPanel.setVisible(true);
-        cancelBtn.setVisible(true); 
-        invalidate();
-    } 
-    
-    public void setProgressDone(int row)
-    {
-        table.setValueAt(20, row, 3);
-        failedFiles  = false;
-    }
-    
-    public void setFilesProgress(int value)
-    {
-        filesProgressBar.setValue(value);
-    }
-    
-    public void setFilesInSet(int value)
-    {
-        filesProgressBar.setMaximum(value);
-    }
-    
-    public void setBytesProgress(int value)
-    {
-        bytesProgressBar.setValue(value);
-    }
-
-    public void setBytesFileSize(int value) {
-        bytesProgressBar.setMaximum(value);
-    }
-    
-    public void enableSendBtn(boolean enabled)
-    {
-        sendBtn.setEnabled(enabled);
-    }
-
-
-    public void enableCancelBtn(boolean b) {
-        if (b)
-        {   
-            cancelBtn.setText("Cancel");
-            cancelBtn.setEnabled(b);
-        }
-        else
-        {
-            cancelBtn.setText("Cancelling...");
-            cancelBtn.setEnabled(b);
-        }
-    }
-
-
-    public void setCancelBtnCancelled() {
-        cancelBtn.setText("Cancelled");
-    }
-
-
-    public void setSendBtnEnable(boolean b) {
-        sendBtn.setEnabled(b);
-    }
-
-
-    public void setCancelBtnVisible(boolean b)
-    {
-        cancelBtn.setVisible(b);
     }
 }

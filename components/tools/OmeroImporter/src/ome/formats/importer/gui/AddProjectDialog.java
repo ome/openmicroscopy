@@ -51,12 +51,12 @@ public class AddProjectDialog extends JDialog implements ActionListener
     
     OMEROMetadataStoreClient      store;
     
-    AddProjectDialog(Window owner, String title, Boolean modal, OMEROMetadataStoreClient store)
+    AddProjectDialog(GuiCommonElements gui, Window owner, String title, Boolean modal, OMEROMetadataStoreClient store)
     {
         this.store = store;
         this.owner = owner;
         
-        gui = new GuiCommonElements();
+        this.gui = gui;
         
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
@@ -164,6 +164,6 @@ public class AddProjectDialog extends JDialog implements ActionListener
             } catch (Exception e) 
             { System.err.println(laf + " not supported."); }
         }
-        new AddProjectDialog(null, "Add a Project", true, null);
+        new AddProjectDialog(null, null, "Add a Project", true, null);
     }
 }

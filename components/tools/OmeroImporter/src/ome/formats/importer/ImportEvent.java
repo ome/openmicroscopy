@@ -16,32 +16,63 @@ import omero.model.IObject;
  */
 public class ImportEvent {
 
-    private static class __COUNT_EVENT extends ImportEvent {
+    public String toLog() {
+        return "Event: " + getClass().getSimpleName();
+    }
+
+    
+    // Base classes
+
+    public static class COUNT_EVENT extends ImportEvent {
         public final String shortName;
         public final Integer index;
         public final Integer numDone;
         public final Integer total;
 
-        __COUNT_EVENT(String shortName, Integer index, Integer numDone,
+        COUNT_EVENT(String shortName, Integer index, Integer numDone,
                 Integer total) {
             this.shortName = shortName;
             this.index = index;
             this.numDone = numDone;
             this.total = total;
         }
+        
     }
 
-    private static class __TARGET_EVENT extends ImportEvent {
+    public static class PROGRESS_EVENT extends ImportEvent {
+        public final int index;
+        public final String filename;
         public final IObject target;
         public final Long pixId;
         public final int series;
         public final ImportSize size;
 
-        __TARGET_EVENT(IObject target, Long pixId, int series, ImportSize size) {
+        PROGRESS_EVENT(int index, String filename, IObject target, Long pixId, int series, ImportSize size) {
+            this.index = index;
+            this.filename = filename;
             this.target = target;
             this.pixId = pixId;
             this.series = series;
             this.size = size;
+        }
+    }
+
+    public static class FILE_UPLOAD_EVENT extends ImportEvent {
+        public final String filename;
+        public final int fileIndex;
+        public final int fileTotal;
+        public final Long uploadedBytes;
+        public final Long contentLength;
+        public final Exception exception;
+
+        FILE_UPLOAD_EVENT(String filename, int fileIndex, int fileTotal,
+                Long uploadedBytes, Long contentLength, Exception exception) {
+            this.filename = filename;
+            this.fileIndex = fileIndex;
+            this.fileTotal = fileTotal;
+            this.uploadedBytes = uploadedBytes;
+            this.contentLength = contentLength;
+            this.exception = exception;
         }
     }
 
@@ -56,9 +87,98 @@ public class ImportEvent {
     public static class ERRORS_SEND extends ImportEvent {
 
     }
+    
+    public static class ERRORS_COMPLETE extends ImportEvent {
+        
+    }
+    
+    public static class ERRORS_UPLOAD_CANCELLED extends ImportEvent {
+        
+    }
+
+    public static class REIMPORT extends ImportEvent {
+        
+    }
+    
+    public static class LOGGED_IN extends ImportEvent {
+        
+    }
+    
+    // file-upload events
+
+    public static class FILE_UPLOAD_STARTED extends FILE_UPLOAD_EVENT {
+        public FILE_UPLOAD_STARTED(String filename, int fileIndex, int fileTotal,
+                Long uploadedBytes, Long contentLength, Exception exception) {
+            super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,
+                    exception);
+        }
+    }
+    
+    public static class FILE_UPLOAD_BYTES extends FILE_UPLOAD_EVENT {
+        public FILE_UPLOAD_BYTES(String filename, int fileIndex, int fileTotal,
+                Long uploadedBytes, Long contentLength, Exception exception) {
+            super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,
+                    exception);
+        }
+    }
+    
+    public static class FILE_UPLOAD_COMPLETE extends FILE_UPLOAD_EVENT {
+        public FILE_UPLOAD_COMPLETE(String filename, int fileIndex, int fileTotal,
+                Long uploadedBytes, Long contentLength, Exception exception) {
+            super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,
+                    exception);
+        }
+    }
+    
+    public static class FILE_UPLOAD_FAILED extends FILE_UPLOAD_EVENT {
+        public FILE_UPLOAD_FAILED(String filename, int fileIndex, int fileTotal,
+                Long uploadedBytes, Long contentLength, Exception exception) {
+            super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,
+                    exception);
+        }
+    }
+    
+    public static class FILE_UPLOAD_ERROR extends FILE_UPLOAD_EVENT {
+        public FILE_UPLOAD_ERROR(String filename, int fileIndex, int fileTotal,
+                Long uploadedBytes, Long contentLength, Exception exception) {
+            super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,
+                    exception);
+        }
+    }
+    
+    public static class FILE_UPLOAD_FINISHED extends FILE_UPLOAD_EVENT {
+        public FILE_UPLOAD_FINISHED(String filename, int fileIndex, int fileTotal,
+                Long uploadedBytes, Long contentLength, Exception exception) {
+            super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,
+                    exception);
+        }
+    }
+    
+    public static class FILE_UPLOAD_CANCELLED extends FILE_UPLOAD_EVENT {
+        public FILE_UPLOAD_CANCELLED(String filename, int fileIndex, int fileTotal,
+                Long uploadedBytes, Long contentLength, Exception exception) {
+            super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,
+                    exception);
+        }
+    }
 
     // misc-events
 
+    public static class EXCEPTION_EVENT extends ImportEvent {
+        public final String filename;
+        public final Exception exception;
+        public EXCEPTION_EVENT(String filename, Exception exception) {
+            this.filename = filename;
+            this.exception = exception;
+        }
+    }
+    
+    public static class IO_EXCEPTION extends EXCEPTION_EVENT {
+        public IO_EXCEPTION(String filename, Exception exception) {
+            super(filename, exception);
+        }
+    }
+    
     public static class DEBUG_SEND extends ImportEvent {
         public final boolean sendFiles;
 
@@ -77,85 +197,85 @@ public class ImportEvent {
             this.series = series;
             this.seriesCount = seriesCount;
         }
+        
+        @Override
+        public String toLog() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(super.toLog());
+            sb.append(" ");
+            sb.append(String.format(
+                    "Image: %d Series: %d Total Series: %d",
+                    step,
+                    series,
+                    seriesCount));
+            return sb.toString();
+        }
     }
 
     // count-events
 
-    public static class LOADING_IMAGE extends __COUNT_EVENT {
+    public static class LOADING_IMAGE extends COUNT_EVENT {
         public LOADING_IMAGE(String shortName, Integer index, Integer numDone,
                 Integer total) {
             super(shortName, index, numDone, total);
         }
     }
 
-    public static class LOADED_IMAGE extends __COUNT_EVENT {
+    public static class LOADED_IMAGE extends COUNT_EVENT {
         public LOADED_IMAGE(String shortName, Integer index, Integer numDone,
                 Integer total) {
             super(shortName, index, numDone, total);
         }
     }
 
-    // target-events
+    //
+    // Progress-based events: these are used by the FileQueueTable (and others)
+    // to know which file index is currently in which state. They should possibly
+    // be moved closer to the classes using them.
+    //
 
-    public static class DATASET_STORED extends __TARGET_EVENT {
-        public DATASET_STORED(IObject target, Long pixId, int series,
+    public static class DATASET_STORED extends PROGRESS_EVENT {
+        public DATASET_STORED(int index, String filename, IObject target, Long pixId, int series,
                 ImportSize size) {
-            super(target, pixId, series, size);
+            super(index, filename, target, pixId, series, size);
         }
     }
 
-    public static class DATA_STORED extends __TARGET_EVENT {
-        public DATA_STORED(IObject target, Long pixId, int series,
+    public static class DATA_STORED extends PROGRESS_EVENT {
+        public DATA_STORED(int index, String filename, IObject target, Long pixId, int series,
                 ImportSize size) {
-            super(target, pixId, series, size);
+            super(index, filename, target, pixId, series, size);
         }
     }
 
-    public static class IMPORT_ARCHIVING extends __TARGET_EVENT {
-        public IMPORT_ARCHIVING(IObject target, Long pixId, int series,
+    public static class IMPORT_ARCHIVING extends PROGRESS_EVENT {
+        public IMPORT_ARCHIVING(int index, String filename, IObject target, Long pixId, int series,
                 ImportSize size) {
-            super(target, pixId, series, size);
+            super(index, filename, target, pixId, series, size);
         }
     }
 
-    public static class IMPORT_THUMBNAILING extends __TARGET_EVENT {
-        public IMPORT_THUMBNAILING(IObject target, Long pixId, int series,
+    public static class IMPORT_THUMBNAILING extends PROGRESS_EVENT {
+        public IMPORT_THUMBNAILING(int index, String filename, IObject target, Long pixId, int series,
                 ImportSize size) {
-            super(target, pixId, series, size);
+            super(index, filename, target, pixId, series, size);
         }
     }
 
-    public static class IMPORT_DONE extends __TARGET_EVENT {
-        public IMPORT_DONE(IObject target, Long pixId, int series,
+    public static class IMPORT_DONE extends PROGRESS_EVENT {
+        public IMPORT_DONE(int index, String filename, IObject target, Long pixId, int series,
                 ImportSize size) {
-            super(target, pixId, series, size);
+            super(index, filename, target, pixId, series, size);
         }
     }
 
-    public static final String REMOVE = "remove";
-    public static final String IMPORT = "import";
-    public static final String LOGIN = "login";
-    public static final String LOGIN_CANCELLED = "login_cancelled";
-    public static final String REFRESH = "refresh";
-    public static final String CLEARDONE = "clear_done";
-    public static final String CLEARFAILED = "clear_failed";
-    public static final String HISTORYSEARCH = "history_search";
-    public static final String CLEARHISTORY = "history_clear";
-    public static final String LOADED_IMAGE = "loaded_image";
-    public static final String DATASET_STORED = "dataset_stored";
-    public static final String DATA_STORED = "data_stored";
-    public static final String IMPORT_DONE = "import_done";
-    public static final String HISTORYREIMPORT = "history_reimport";
-    public static final String IO_EXCEPTION = "java.io.IOException";
-    public static final String IMPORT_THUMBNAILING = "import_thumbnailing";
-    public static final String FILE_UPLOAD_STARTED = "file_upload_started";
-    public static final String FILE_UPLOAD_COMPLETE = "file_upload_complete";
-    public static final String FILE_UPLOAD_FAILED = "file_upload_failed";
-    public static final Object FILE_UPLOAD_ERROR = "file_upload_error";
-    public static final Object FILE_UPLOAD_BYTES = "file_upload_bytes";
-    public static final Object FILE_UPLOAD_FINSIHED = "file_upload_finished";
-    public static final Object ERRORS_UPLOAD_CANCELLED = "errors_upload_cancelled";
-    public static final Object ERRORS_COMPLETE = "errors_complete";
-    public static final String SHOW_LOG_FILE_LOCATION = "show_log_file_location";
+    //
+    // Events which should be housed elsewhere
+    //
 
+    public static class QUICKBAR_UPDATE extends ImportEvent {
+
+    }
+    
+    
 }

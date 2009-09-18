@@ -38,10 +38,13 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import ome.formats.Main;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
+import ome.formats.importer.ImportCandidates;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
-import ome.formats.importer.util.Actions;
+import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ETable;
 import ome.formats.importer.util.GuiCommonElements;
 import omero.model.IObject;
@@ -82,7 +85,7 @@ public class FileQueueTable
     private CenterTextRenderer dpCellRenderer;
     private CenterTextRenderer statusCellRenderer;
     
-    FileQueueTable() {
+    FileQueueTable(ImportConfig config) {
             
 // ----- Variables -----
         // Debug Borders
@@ -102,7 +105,7 @@ public class FileQueueTable
 
 // ----- GUI Layout Elements -----
         
-        GuiCommonElements gui = new GuiCommonElements();
+        GuiCommonElements gui = new GuiCommonElements(config);
         
         // Start layout here
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
@@ -126,7 +129,7 @@ public class FileQueueTable
         addBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
         addBtn.setMinimumSize(new Dimension(buttonSize, buttonSize));
         addBtn.setSize(new Dimension(buttonSize, buttonSize));
-        addBtn.setActionCommand(Actions.ADD);
+        addBtn.setActionCommand(FileQueueHandler.ADD);
         addBtn.addActionListener(this);
         
         removeBtn = addButton("<<", removeIcon, null);
@@ -134,7 +137,7 @@ public class FileQueueTable
         removeBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
         removeBtn.setMinimumSize(new Dimension(buttonSize, buttonSize));
         removeBtn.setSize(new Dimension(buttonSize, buttonSize));
-        removeBtn.setActionCommand(Actions.REMOVE);
+        removeBtn.setActionCommand(FileQueueHandler.REMOVE);
         removeBtn.addActionListener(this);
         
         buttonPanel.add(Box.createRigidArea(new Dimension(0,60)));
@@ -216,17 +219,17 @@ public class FileQueueTable
         importPanel.add(Box.createHorizontalGlue());
         importPanel.add(clearDoneBtn);
         clearDoneBtn.setEnabled(false);
-        clearDoneBtn.setActionCommand(Actions.CLEARDONE);
+        clearDoneBtn.setActionCommand(FileQueueHandler.CLEARDONE);
         clearDoneBtn.addActionListener(this);
         importPanel.add(Box.createRigidArea(new Dimension(0,5)));
         importPanel.add(clearFailedBtn);
         clearFailedBtn.setEnabled(false);
-        clearFailedBtn.setActionCommand(Actions.CLEARFAILED);
+        clearFailedBtn.setActionCommand(FileQueueHandler.CLEARFAILED);
         clearFailedBtn.addActionListener(this);
         importPanel.add(Box.createRigidArea(new Dimension(0,10)));
         importPanel.add(importBtn);
         importBtn.setEnabled(false);
-        importBtn.setActionCommand(Actions.IMPORT);
+        importBtn.setActionCommand(FileQueueHandler.IMPORT);
         importBtn.addActionListener(this);
         gui.enterPressesWhenFocused(importBtn);
         queuePanel.add(Box.createRigidArea(new Dimension(0,5)));
@@ -336,7 +339,7 @@ public class FileQueueTable
     /**
      * @return ImportContainer
      */
-    public ImportContainer[] getFilesAndObjectTypes() {
+    public ImportCandidates getFilesAndObjectTypes() {
 
         int num = table.getRowCount();     
         ImportContainer[] importContainer = new ImportContainer[num];
@@ -361,26 +364,26 @@ public class FileQueueTable
             }
 
         }
-        return importContainer;
+        return new ImportCandidates(null, importContainer);
     }
 
     public void actionPerformed(ActionEvent e)
     {
         Object src = e.getSource();
         if (src == addBtn)
-            firePropertyChange(Actions.ADD, false, true);
+            firePropertyChange(FileQueueHandler.ADD, false, true);
         if (src == removeBtn)
-            firePropertyChange(Actions.REMOVE, false, true);
+            firePropertyChange(FileQueueHandler.REMOVE, false, true);
 //        if (src == refreshBtn)
-//            firePropertyChange(Actions.REFRESH, false, true);
+//            firePropertyChange(FileQueueHandler.REFRESH, false, true);
         if (src == clearDoneBtn)
-            firePropertyChange(Actions.CLEARDONE, false, true);
+            firePropertyChange(FileQueueHandler.CLEARDONE, false, true);
         if (src == clearFailedBtn)
-            firePropertyChange(Actions.CLEARFAILED, false, true);
+            firePropertyChange(FileQueueHandler.CLEARFAILED, false, true);
         if (src == importBtn)
         {
             queue.clearSelection();
-            firePropertyChange(Actions.IMPORT, false, true);
+            firePropertyChange(FileQueueHandler.IMPORT, false, true);
         }
     }
     
@@ -607,7 +610,7 @@ public class FileQueueTable
         } catch (Exception e) 
         { System.err.println(laf + " not supported."); }
         
-        FileQueueTable q = new FileQueueTable(); 
+        FileQueueTable q = new FileQueueTable(null); 
         JFrame f = new JFrame();   
         f.getContentPane().add(q);
         f.setVisible(true);
@@ -615,41 +618,41 @@ public class FileQueueTable
         f.pack();
     }
 
-    public void update(IObservable importLibrary, Object message, Object[] args)
+    public void update(IObservable importLibrary, ImportEvent event)
     {
-        if (message == Actions.LOADING_IMAGE)
-        {
-            setProgressPrepping((Integer) args[1]);
+        // TODO: all these setProgress methods could take a base
+        // ImportEvent class PROGRESS_EVENT and then we wouldn't
+        // need to do the instanceof's here.
+        if (event instanceof ImportEvent.LOADING_IMAGE) {
+            ImportEvent.LOADING_IMAGE ev = (ImportEvent.LOADING_IMAGE) event;
+            setProgressPrepping(ev.index);
         }
-        if (message == Actions.LOADED_IMAGE)
-        {
-            setProgressAnalyzing((Integer) args[1]);
+        else if (event instanceof ImportEvent.LOADED_IMAGE) {
+            ImportEvent.LOADED_IMAGE ev = (ImportEvent.LOADED_IMAGE) event;
+            setProgressAnalyzing(ev.index);
         }
-        
-        if (message == Actions.DATASET_STORED)
-        {
-            setProgressInfo((Integer)args[1], (Integer)args[6]);
+        else if (event instanceof ImportEvent.DATASET_STORED) {
+            ImportEvent.DATASET_STORED ev = (ImportEvent.DATASET_STORED) event;
+            setProgressInfo(ev.index, ev.size.imageCount);
         }
-        
-        if (message == Actions.IMPORT_STEP)
-        {
-            if ((Integer)args[1] <= getMaximum()) 
+        else if (event instanceof ImportEvent.IMPORT_STEP) {
+            ImportEvent.IMPORT_STEP ev = (ImportEvent.IMPORT_STEP) event;
+            if (ev.step <= getMaximum()) 
             {   
-                setImportProgress((Integer)args[2], (Integer)args[0], (Integer)args[1]);
+                setImportProgress(ev.seriesCount, ev.series, ev.step);
             }
         }
-        
-        if (message == Actions.IMPORT_DONE)
-        {
-            setProgressDone((Integer)args[1]);
+        else if (event instanceof ImportEvent.IMPORT_DONE) {
+            ImportEvent.IMPORT_DONE ev = (ImportEvent.IMPORT_DONE) event;
+            setProgressDone(ev.index);
         }
-        if (message == Actions.IMPORT_ARCHIVING)
-        {
-            setProgressArchiving((Integer)args[1]);
+        else if (event instanceof ImportEvent.IMPORT_ARCHIVING) {
+            ImportEvent.IMPORT_ARCHIVING ev = (ImportEvent.IMPORT_ARCHIVING) event;
+            setProgressArchiving(ev.index);
         }
-        if (message == Actions.IMPORT_THUMBNAILING)
-        {
-        	setProgressResettingDefaults((Integer)args[1]);
+        else if (event instanceof ImportEvent.IMPORT_THUMBNAILING) {
+            ImportEvent.IMPORT_THUMBNAILING ev = (ImportEvent.IMPORT_THUMBNAILING) event;
+        	setProgressResettingDefaults(ev.index);
         }
     }
     

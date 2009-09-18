@@ -36,7 +36,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.MalformedURLException;
-import java.util.ResourceBundle;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -56,11 +55,12 @@ import javax.swing.text.StyledDocument;
 
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
-import ome.formats.importer.util.Actions;
+import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportEvent;
+import ome.formats.importer.Version;
 import ome.formats.importer.util.BareBonesBrowserLaunch;
 import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.IniFileLoader;
-import ome.system.UpgradeCheck;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -79,7 +79,8 @@ public class GuiImporter extends JFrame
 {
     private static final long   serialVersionUID = 1228000122345370913L;
 
-    /** Logger for this class. */
+    private static final String show_log_file = "show_log_file_location";
+    
     private static Log          log     = LogFactory.getLog(GuiImporter.class);
    
     // -- Constants --
@@ -105,20 +106,21 @@ public class GuiImporter extends JFrame
     public static final String ERROR_ICON = "gfx/warning_msg16.png";
     public static final String LOGFILE_ICON = "gfx/nuvola_output16.png";
     
+    public final ImportConfig         config;
+    public final GuiCommonElements    gui;
+    public final ErrorHandler         errorHandler;
+    public final FileQueueHandler     fileQueueHandler;
+    public final StatusBar            statusBar;
+
     public LoginHandler         loginHandler;
-    public FileQueueHandler     fileQueueHandler;
-    public static HistoryDB     db;
-    public StatusBar            statusBar;
-    private GuiCommonElements   gui;
-    private static final    String HOME_URL = 
-        "http://trac.openmicroscopy.org.uk/shoola/wiki/OmeroInsightGettingStarted";
+    public HistoryHandler       historyHandler;
+    public HistoryTable         historyTable;
     
-    public ScreenLogin         view;
-    public ScreenLogo          viewTop;
+    public ScreenLogin          view;
+    public ScreenLogo           viewTop;
 
     private JMenuBar            menubar;
     private JMenu               fileMenu;
-    private JMenuItem           options;
     private JMenuItem           fileQuit;
     private JMenuItem           login;
     private JMenu               helpMenu;
@@ -140,15 +142,14 @@ public class GuiImporter extends JFrame
     /**
      * Main entry class for the application
      */
-    public GuiImporter(String[] args)
+    public GuiImporter(ImportConfig config)
     {
         //super(TITLE);
         
         javax.swing.ToolTipManager.sharedInstance().setDismissDelay(0);
-        
-        isUpgradeRequired();
-        
-        gui = new GuiCommonElements();
+
+        this.config = config;
+        this.gui = new GuiCommonElements(config);
         
 
         // Add a shutdown hook for when app closes
@@ -157,7 +158,7 @@ public class GuiImporter extends JFrame
         });
         
         // Set app defaults
-        setTitle(ini.getAppTitle());
+        setTitle(config.getAppTitle());
         setIconImage(gui.getImageIcon(GuiImporter.ICON).getImage());
         setPreferredSize(new Dimension(gui.bounds.width, gui.bounds.height));
         setSize(gui.bounds.width, gui.bounds.height);
@@ -218,7 +219,7 @@ public class GuiImporter extends JFrame
         helpMenu.add(helpHome);
         // Help --> Show log file location...
         JMenuItem helpShowLog = new JMenuItem("Show log file location...", gui.getImageIcon(LOGFILE_ICON));
-        helpShowLog.setActionCommand(Actions.SHOW_LOG_FILE_LOCATION);
+        helpShowLog.setActionCommand(show_log_file);
         helpShowLog.addActionListener(this);
         helpMenu.add(helpShowLog);
         helpMenu.add(helpAbout);
@@ -233,7 +234,7 @@ public class GuiImporter extends JFrame
         JPanel filePanel = new JPanel(new BorderLayout());
 
         // The file chooser sub-pane
-        fileQueueHandler = new FileQueueHandler(this);
+        fileQueueHandler = new FileQueueHandler(this, config);
         //splitPane.setResizeWeight(0.5);
 
         filePanel.add(fileQueueHandler, BorderLayout.CENTER);
@@ -325,18 +326,23 @@ public class GuiImporter extends JFrame
 
         this.setVisible(false);
 
-        loginHandler = LoginHandler.getLoginHandler(this, false, false);
+        try {
+            historyHandler = new HistoryHandler(this);
+            historyPanel.add(historyHandler, BorderLayout.CENTER);
+            historyTable = historyHandler.table;
+        } catch (Exception e) {
+            log.debug("Disabling history");
+        }
+        
+        loginHandler = new LoginHandler(this, historyTable, false, false);
         
         LogAppender.getInstance().setTextArea(debugTextPane);
         appendToOutputLn("> Starting the importer (revision "
-                + getPrintableKeyword(revision) + ").");
-        appendToOutputLn("> Build date: " + getPrintableKeyword(revisionDate));
-        appendToOutputLn("> Release date: " + releaseDate);
-        
-        HistoryHandler historyHandler = HistoryHandler.getHistoryHandler();
-        historyPanel.add(historyHandler, BorderLayout.CENTER);
-        
-        ErrorHandler errorHandler = ErrorHandler.getErrorHandler();
+                + getPrintableKeyword(Version.revision) + ").");
+        appendToOutputLn("> Build date: " + getPrintableKeyword(Version.revisionDate));
+        appendToOutputLn("> Release date: " + Version.releaseDate);
+
+        errorHandler = new ErrorHandler(config);
         errorHandler.addObserver(this);
         errorPanel.add(errorHandler, BorderLayout.CENTER);
         
@@ -344,24 +350,13 @@ public class GuiImporter extends JFrame
         
         //displayLoginDialog(this, true);
     }
-
-    // Check online to see if this is the current version
-    boolean isUpgradeRequired()
-    {
-        ResourceBundle bundle = ResourceBundle.getBundle("omero");
-        String version = bundle.getString("omero.version");
-        String url = bundle.getString("omero.upgrades.url");
-        UpgradeCheck check = new UpgradeCheck(url, version, "importer"); 
-        check.run();
-        return check.isUpgradeNeeded();
-    }
     
     // save ini file and gui settings on exist
     protected void shutdown()
     {
         // Get and save the UI window placement      
-        ini.setUIBounds(gui.getUIBounds());
-        ini.flushPreferences();
+        config.setUIBounds(gui.getUIBounds());
+        config.save();
     }
     
     /* Fixes menu issues with the about this app quit functions on mac */
@@ -381,10 +376,10 @@ public class GuiImporter extends JFrame
     public boolean displayLoginDialog(Object viewer, boolean modal, boolean displayTop)
     {   
         Image img = Toolkit.getDefaultToolkit().createImage(ICON);
-        view = new ScreenLogin(ini.getAppTitle(), gui.getImageIcon("gfx/login_background.png"), img,
-                ini.getVersionNumber(), ini.getServerPort());
+        view = new ScreenLogin(config.getAppTitle(), gui.getImageIcon("gfx/login_background.png"), img,
+                config.getVersionNumber(), config.getServerPort());
         view.showConnectionSpeed(false);
-        viewTop = new ScreenLogo(ini.getAppTitle(), gui.getImageIcon(splash), img);
+        viewTop = new ScreenLogo(config.getAppTitle(), gui.getImageIcon(splash), img);
         viewTop.setStatusVisible(false);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension d = viewTop.getExtendedSize();
@@ -505,10 +500,13 @@ public class GuiImporter extends JFrame
                 loginHandler.logout();
                 loginHandler = null;
             } else 
-            {                
-                loginHandler = LoginHandler.getLoginHandler(this, true, true);
+            {
+                HistoryTable table = null;
+                if (historyHandler != null) {
+                    table = historyHandler.table;
+                }
+                loginHandler = new LoginHandler(this, table, true, true);
                 loginHandler.displayLogin(false);
-                db = HistoryDB.getHistoryDB();
             }
         } else if ("quit".equals(cmd)) {
             if (gui.quitConfirmed(this, null) == true)
@@ -517,25 +515,25 @@ public class GuiImporter extends JFrame
             }
         } else if ("options".equals(cmd)) {
             OptionsDialog dialog = 
-                new OptionsDialog(this, "Import", true);
+                new OptionsDialog(gui, this, "Import", true);
         }
         else if ("about".equals(cmd))
         {
             // HACK - JOptionPane prevents shutdown on dispose
             setDefaultCloseOperation(EXIT_ON_CLOSE);
-            About.show(this, useSplashScreenAbout);
+            About.show(this, config, useSplashScreenAbout);
         }
         else if ("comment".equals(cmd))
         {
-            new CommentMessenger(this, "OMERO.importer Comment Dialog", true);
+            new CommentMessenger(this, "OMERO.importer Comment Dialog", config, true, true);
         }
         else if ("home".equals(cmd))
         {
-            BareBonesBrowserLaunch.openURL(HOME_URL);
+            BareBonesBrowserLaunch.openURL(config.getHomeUrl());
         }
-        else if (Actions.SHOW_LOG_FILE_LOCATION.equals(cmd))
+        else if (show_log_file.equals(cmd))
         {
-            File path = new File(ini.getUserSettingsDirectory());
+            File path = new File(config.getUserSettingsDirectory());
             try
             {
                 String url = path.toURI().toURL().toString();
@@ -597,28 +595,6 @@ public class GuiImporter extends JFrame
         helpMenu.setEnabled(toggle);
     }
 
-    // Getters and Setters
-
-    public void setPassword(String password)
-    {
-        this.password = password;
-    }
-
-    public void setPort(String port)
-    {
-        this.port = port;
-    }
-
-    public void setServer(String server)
-    {
-        this.server = server;
-    }
-
-    public void setUsername(String username)
-    {
-        this.username = username;
-    }
-
     public void windowClosing(WindowEvent e)  
     {
         if (gui.quitConfirmed(this, null) == true)
@@ -640,9 +616,8 @@ public class GuiImporter extends JFrame
      */
     public static void main(String[] args)
     {  
-        // Load up the main ini file
-        ini = IniFileLoader.getIniFileLoader(args);
-        USE_QUAQUA = ini.getUseQuaqua();
+        ImportConfig config = new ImportConfig(args);
+        USE_QUAQUA = config.getUseQuaqua();
         
         String laf = UIManager.getSystemLookAndFeelClassName() ;
 
@@ -666,7 +641,7 @@ public class GuiImporter extends JFrame
            { System.err.println(laf + " not supported."); }
         }
         
-        new GuiImporter(args);
+        new GuiImporter(config);
     }
 
     public static Point getSplashLocation()
@@ -675,46 +650,60 @@ public class GuiImporter extends JFrame
         //return splashLocation;
     }
 
-    public void update(IObservable importLibrary, Object message, Object[] args)
+    public void update(IObservable importLibrary, ImportEvent event)
     {
-        if (message == Actions.LOADING_IMAGE)
+        if (event instanceof ImportEvent.LOADING_IMAGE)
         {
-            statusBar.setProgress(true, -1, "Loading file " + args[2] + " of " + args[3]);
-            appendToOutput("> [" + args[1] + "] Loading image \"" + args[0] + "\"...\n");
+            ImportEvent.LOADING_IMAGE ev = (ImportEvent.LOADING_IMAGE) event;
+            
+            statusBar.setProgress(true, -1, "Loading file " + ev.numDone + " of " + ev.total);
+            appendToOutput("> [" + ev.index + "] Loading image \"" + ev.shortName + "\"...\n");
             statusBar.setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + 
-                    args[0] + "\" (file " + args[2] + " of " + args[3] + " imports)");
+                    ev.shortName + "\" (file " + ev.numDone + " of " + ev.total + " imports)");
         }
-        if (message == Actions.LOADED_IMAGE)
+        if (event instanceof ImportEvent.LOADED_IMAGE)
         {
-            statusBar.setProgress(true, -1, "Analyzing file " + args[2] + " of " + args[3]);
+            ImportEvent.LOADED_IMAGE ev = (ImportEvent.LOADED_IMAGE) event;
+            
+            statusBar.setProgress(true, -1, "Analyzing file " + ev.numDone + " of " + ev.total);
             appendToOutput(" Succesfully loaded.\n");
-            appendToOutput("> [" + args[1] + "] Importing metadata for " + "image \"" + args[0] + "\"... ");
+            appendToOutput("> [" + ev.index + "] Importing metadata for " + "image \"" + ev.shortName + "\"... ");
             statusBar.setStatusIcon("gfx/import_icon_16.png", "Analyzing the metadata for file \"" + 
-                    args[0] + "\" (file " + args[2] + " of " + args[3] + " imports)");            
+                    ev.shortName + "\" (file " + ev.numDone + " of " + ev.total + " imports)");            
         }
         
-        if (message == Actions.DATASET_STORED)
+        if (event instanceof ImportEvent.DATASET_STORED)
         {
-            appendToOutputLn("Successfully stored to dataset \"" + args[4] + "\" with id \"" + args[5] + "\".");
-            appendToOutputLn("> [" + args[1] + "] Importing pixel data for " + "image \"" + args[0] + "\"... ");
-            statusBar.setProgress(true, 0, "Importing file " + args[2] + " of " + args[3]);
-            statusBar.setProgressValue((Integer)args[2] - 1);
+            ImportEvent.DATASET_STORED ev = (ImportEvent.DATASET_STORED) event;
+            
+            int pro = -1; // (Integer)args[2] - 1
+            String num = "UNKNOWNNUM";
+            String tot = "UNKNOWNTOT";
+            appendToOutputLn("Successfully stored to "+ev.target.getClass().getSimpleName()+" \"" + 
+                    ev.filename + "\" with id \"" + ev.target.getId().getValue() + "\".");
+            appendToOutputLn("> [" + ev.series + "] Importing pixel data for " + "image \"" + ev.filename + "\"... ");
+            statusBar.setProgress(true, 0, "Importing file " + num + " of " + tot);
+            statusBar.setProgressValue(pro);
             statusBar.setStatusIcon("gfx/import_icon_16.png", "Importing the plane data for file \"" +
-                    args[0] + "\" (file " + args[2] + " of " + args[3] + " imports)");
+                    ev.filename + "\" (file " + num + " of " + tot + " imports)");
             appendToOutput("> Importing plane: ");
         }
         
-        if (message == Actions.DATA_STORED)
+        if (event instanceof ImportEvent.DATA_STORED)
         {
-            appendToOutputLn("> Successfully stored with pixels id \"" + args[5] + "\".");
-            appendToOutputLn("> [" + args[1] + "] Image imported successfully!");
+            ImportEvent.DATA_STORED ev = (ImportEvent.DATA_STORED) event;
+            
+            appendToOutputLn("> Successfully stored with pixels id \"" + ev.pixId + "\".");
+            appendToOutputLn("> [" + ev.filename + "] Image imported successfully!");
         }
         
-        if (message == Actions.IO_EXCEPTION)
+        if (event instanceof ImportEvent.IO_EXCEPTION)
         {
+            ImportEvent.IO_EXCEPTION ev = (ImportEvent.IO_EXCEPTION) event;
+            
             final JOptionPane optionPane = new JOptionPane( 
                     "The importer cannot retrieve one of your images in a timely manner.\n" +
-                    "The file in question is:\n'" + args[0] + "'\n\n" +
+                    "The file in question is:\n'" + ev.filename + "'\n\n" +
                     "There are a number of reasons you may see this error:\n" +
                     " - The file has been deleted.\n" +
                     " - There was a networking error retrieving a remotely saved file.\n" +
@@ -730,12 +719,12 @@ public class GuiImporter extends JFrame
         }
         
         
-        if (message == Actions.ERRORS_PENDING)
+        if (event instanceof ImportEvent.ERRORS_PENDING)
         {
             tPane.setIconAt(4, gui.getImageIcon(ERROR_ICON_ANIM));
         }
         
-        if (message == Actions.ERRORS_COMPLETE)
+        if (event instanceof ImportEvent.ERRORS_COMPLETE)
         {
             tPane.setIconAt(4, gui.getImageIcon(ERROR_ICON));
         }
@@ -759,7 +748,7 @@ public class GuiImporter extends JFrame
         {
             // HACK - JOptionPane prevents shutdown on dispose
             setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-            About.show(this, useSplashScreenAbout);
+            About.show(this, config, useSplashScreenAbout);
         }
         
         

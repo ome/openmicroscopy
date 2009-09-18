@@ -11,8 +11,8 @@ import java.io.File;
 import java.util.List;
 
 import loci.formats.FormatReader;
-import ome.conditions.ApiUsageException;
-import ome.formats.importer.ImportFixture;
+import ome.formats.importer.IObserver;
+import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import omero.model.Pixels;
@@ -57,10 +57,6 @@ public class OMEROImportFixture {
     private List<Pixels> pixels;
 
     private String name;
-
-    public OMEROImportFixture(OMEROMetadataStoreClient store) {
-        this(store, new OMEROWrapper());
-    }
 
     public OMEROImportFixture(OMEROMetadataStoreClient store,
             OMEROWrapper reader) {
@@ -126,29 +122,10 @@ public class OMEROImportFixture {
      *            an action to take per plane. not null.
      * @throws Exception
      */
-    public void doImport(ImportLibrary.Step step) throws Exception {
-        if (step == null) {
-            throw new ApiUsageException("Step may not be null.");
-        }
-        String fileName = file.getAbsolutePath();
-        library.setTarget(null);
-        pixels = library.importImage(file, 0, 0, 1, fileName, null, false, false, null);
-    }
-
-    /**
-     * runs import via
-     * {@link #doImport(ome.formats.testclient.ImportLibrary.Step)} with an
-     * empty {@link ImportLibrary.Step#step(int)} action.
-     * 
-     * @throws Exception
-     */
     public void doImport() throws Exception {
-        doImport(new ImportLibrary.Step() {
-
-            @Override
-            public void step(int series, int n) {
-            }
-        });
+        String fileName = file.getAbsolutePath();
+        library.addObserver(new IObserver(){});
+        ImportCandidates candidates = new ImportCandidates(reader, new String[]{fileName});
     }
 
     public void setFile(File file) {

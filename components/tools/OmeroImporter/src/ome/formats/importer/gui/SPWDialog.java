@@ -88,7 +88,7 @@ public class SPWDialog extends JDialog implements ActionListener
 
     private Long savedScreen = userPrefs.getLong("savedScreen", 0);
 
-    SPWDialog(JFrame owner, String title, boolean modal, OMEROMetadataStoreClient store)
+    SPWDialog(GuiCommonElements gui, JFrame owner, String title, boolean modal, OMEROMetadataStoreClient store)
     {
         super(owner);
         this.store = store;
@@ -108,7 +108,7 @@ public class SPWDialog extends JDialog implements ActionListener
         tabbedPane = new JTabbedPane();
         tabbedPane.setOpaque(false); // content panes must be opaque
 
-        gui = new GuiCommonElements();
+        this.gui = gui;
 
         
         /////////////////////// START IMPORT PANEL ////////////////////////
@@ -233,7 +233,7 @@ public class SPWDialog extends JDialog implements ActionListener
     {
         if (e.getSource() == addScreenBtn)
         {
-            new AddScreenDialog(this, "Add a new Screen", true, store);
+            new AddScreenDialog(gui, this, "Add a new Screen", true, store);
             refreshAndSetProject();
         }
 
@@ -278,7 +278,7 @@ public class SPWDialog extends JDialog implements ActionListener
         } catch (Exception e) 
         { System.err.println(laf + " not supported."); }
 
-        SPWDialog dialog = new SPWDialog(null, "Plate Import Dialog", true, null);
+        SPWDialog dialog = new SPWDialog(null, null, "Plate Import Dialog", true, null);
         if (dialog != null) System.exit(0);
     }
 }

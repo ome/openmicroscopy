@@ -42,7 +42,7 @@ import layout.TableLayout;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
-import ome.formats.importer.util.Actions;
+import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ETable;
 import ome.formats.importer.util.GuiCommonElements;
 import omero.model.Dataset;
@@ -60,10 +60,7 @@ public class HistoryTable
 	/** Logger for this class */
 	private static Log log = LogFactory.getLog(HistoryTable.class);
 	
-    /**
-     * 
-     */
-    ArrayList<IObserver> observers = new ArrayList<IObserver>();
+    final ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
     private static final long serialVersionUID = 1L;
     public HistoryTableModel table = new HistoryTableModel();
@@ -114,10 +111,13 @@ public class HistoryTable
     JButton         reimportBtn;
     JButton         clearBtn;
     
-    public static HistoryDB db = null;
-    long experimenterID;
-    private OMEROMetadataStoreClient store;
-    HistoryTaskBar historyTaskBar = new HistoryTaskBar();
+    /**
+     * THIS SHOULD NOT BE VISIBLE!
+     */
+    final HistoryDB db;
+    
+    private final GuiImporter viewer;
+    private final HistoryTaskBar historyTaskBar = new HistoryTaskBar();
 
     JList todayList = new JList(historyTaskBar.today);
     JList yesterdayList = new JList(historyTaskBar.yesterday);
@@ -126,17 +126,37 @@ public class HistoryTable
     JList thisMonthList = new JList(historyTaskBar.thisMonth);
     private boolean unknownProjectDatasetFlag;
 
-    HistoryTable()
-    {   
+    HistoryTable(GuiImporter viewer)
+    {
+        this.viewer = viewer;
         try {
             historyTaskBar.addPropertyChangeListener(this);
         } catch (Exception ex) {
         	log.error("Exception adding property change listener.", ex);
         }
-        
-        db = HistoryDB.getHistoryDB();
-        db.addObserver(this);
-        gui = new GuiCommonElements();
+
+        HistoryDB db = null;
+        try {
+            db = new HistoryDB();
+            db.addObserver(this);
+        } catch (Exception e) {
+            db = null;
+            log.error("Could not start history DB.", e);
+            if (HistoryDB.alertOnce == false)
+            {
+                JOptionPane.showMessageDialog(null,
+                    "We were not able to connect to the history DB.\n" +
+                    "Make sure you do not have a second importer\n" +
+                    "running and try again.\n\n" +
+                    "In the meantime, you will still be able to use \n" +
+                    "the importer, but the history feature will be disable.",
+                    "Warning",
+                    JOptionPane.ERROR_MESSAGE);
+                HistoryDB.alertOnce = true;
+            }
+        }
+        this.db = db;
+        this.gui = gui;
         
         // set to layout that will maximize on resizing
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
@@ -210,7 +230,7 @@ public class HistoryTable
         clearBtn = gui.addIconButton(mainPanel, "Wipe History", clearIcon, 
                 130, 32, (int)'S', "Click here to clear your history log.", "0,5,c,c", debug);   
         
-        clearBtn.setActionCommand(Actions.CLEARHISTORY);
+        clearBtn.setActionCommand(HistoryHandler.CLEARHISTORY);
         clearBtn.addActionListener(this);
         
         // *****Top right most row containing search field and buttons*****
@@ -220,7 +240,7 @@ public class HistoryTable
 
         searchBtn = gui.addButton(mainPanel, "Search", 'S', "Click here to search", "3,1,c,c", debug);
         
-        searchBtn.setActionCommand(Actions.HISTORYSEARCH);
+        searchBtn.setActionCommand(HistoryHandler.HISTORYSEARCH);
         searchBtn.addActionListener(this);
         
         // *****Middle right row containing the filter options*****
@@ -292,7 +312,7 @@ public class HistoryTable
         reimportBtn = gui.addButton(filterPanel, "Reimport", 'R', "Click here to reimport these images", "5,0,r,c", debug);
         reimportBtn.setEnabled(false);
         
-        reimportBtn.setActionCommand(Actions.HISTORYREIMPORT);
+        reimportBtn.setActionCommand(HistoryHandler.HISTORYREIMPORT);
         reimportBtn.addActionListener(this);
         
         mainPanel.add(scrollPane, "2,3,3,5");
@@ -302,49 +322,7 @@ public class HistoryTable
         
         this.add(mainPanel);
     }
-    
-    
-    public static HistoryTable getHistoryTable()
-    {
-        if (ref == null) 
-        try
-        {
-            ref = new HistoryTable();
-        } catch (Exception e)
-        {
-        	log.error("Could not start history DB.", e);
-            if (HistoryDB.alertOnce == false)
-            {
-            	JOptionPane.showMessageDialog(null,
-                    "We were not able to connect to the history DB.\n" +
-                    "Make sure you do not have a second importer\n" +
-                    "running and try again.\n\n" +
-                    "In the meantime, you will still be able to use \n" +
-                    "the importer, but the history feature will be disable.",
-                    "Warning",
-                    JOptionPane.ERROR_MESSAGE);
-            }
-            ref = null;
-            
-            HistoryDB.alertOnce = true;
-        }
-        return ref;
-    }
-
-    private static HistoryTable ref;
-    
-    private void getExperimenterID()
-    {
-        try {
-            LoginHandler loginHandler = LoginHandler.getLoginHandler();
-            store = loginHandler.getMetadataStore();
-            this.experimenterID = store.getExperimenterID();
-        } catch (NullPointerException e)
-        {
-            this.experimenterID = -1;
-        }
-    }
-
+ 
     private void ClearHistory()
     {
         String message = "This will delete your import history. \n" +
@@ -355,9 +333,9 @@ public class HistoryTable
                 JOptionPane.WARNING_MESSAGE,null,o,o[1]);
         if (result == 0) //yes clicked
         {
-            db.wipeUserHistory(experimenterID);
+            db.wipeUserHistory(getExperimenterID());
             updateOutlookBar();
-            getFileQuery(-1, experimenterID, searchField.getText(), 
+            getFileQuery(-1, getExperimenterID(), searchField.getText(), 
                     fromDate.getDate(), toDate.getDate());
         }
     }
@@ -433,7 +411,7 @@ public class HistoryTable
                     if (projectID != 0)
                     {
                         try {
-                            objectName = store.getTarget(Dataset.class, rs.getLong("datasetID")).getName().getValue();
+                            objectName = store().getTarget(Dataset.class, rs.getLong("datasetID")).getName().getValue();
                         } catch (Exception e)
                         {
                             objectName = "unknown";
@@ -445,7 +423,7 @@ public class HistoryTable
                         {
                             oldProjectID = projectID;
                             try {
-                                projectName = store.getProject(rs.getLong("projectID")).getName().getValue();
+                                projectName = store().getProject(rs.getLong("projectID")).getName().getValue();
                             } catch (Exception e)
                             {
                                 projectName = "unknown";
@@ -459,7 +437,7 @@ public class HistoryTable
                     else
                     {
                         try {
-                            objectName = store.getTarget(Screen.class, rs.getLong("datasetID")).getName().getValue();
+                            objectName = store().getTarget(Screen.class, rs.getLong("datasetID")).getName().getValue();
                         } catch (Exception e)
                         {
                             objectName = "unknown";
@@ -556,7 +534,7 @@ public class HistoryTable
 
     private void getQuickHistory(Integer importKey)
     {
-       getFileQuery(importKey, experimenterID, null, null, null);
+       getFileQuery(importKey, getExperimenterID(), null, null, null);
     }
 
     public void actionPerformed(ActionEvent e)
@@ -564,13 +542,13 @@ public class HistoryTable
         Object src = e.getSource();
         if (src == searchBtn || src == doneCheckBox || src == failedCheckBox 
                 || src == invalidCheckBox || src == pendingCheckBox)
-            getFileQuery(-1, experimenterID, searchField.getText(), 
+            getFileQuery(-1, getExperimenterID(), searchField.getText(), 
                     fromDate.getDate(), toDate.getDate());
         if (src == clearBtn)
             ClearHistory();
         if (src == reimportBtn)
         {
-            notifyObservers("REIMPORT", null);
+            notifyObservers(new ImportEvent.REIMPORT());
         }
     }
 
@@ -582,24 +560,33 @@ public class HistoryTable
             getQuickHistory((Integer)e.getNewValue());
         if (prop.equals("date"))
         {
-            getFileQuery(-1, experimenterID, searchField.getText(), 
+            getFileQuery(-1, getExperimenterID(), searchField.getText(), 
                     fromDate.getDate(), toDate.getDate());
         }
             
     }
 
-
-    public void update(IObservable importLibrary, Object message, Object[] args)
+    private OMEROMetadataStoreClient store() {
+        return viewer.loginHandler.getMetadataStore();
+    }
+    
+    private long getExperimenterID() {
+        return store().getExperimenterID();
+    }
+    
+    public void update(IObservable importLibrary, ImportEvent event)
     {
-        getExperimenterID();
-        if (experimenterID != -1 && message == "LOGGED_IN" || message == "QUICKBAR_UPDATE")
+        long experimenterID = getExperimenterID();
+        if (experimenterID != -1 && event instanceof ImportEvent.LOGGED_IN
+                || event instanceof ImportEvent.QUICKBAR_UPDATE)
             {
                 updateOutlookBar();
             }
     }
 
     // Observable methods
-    
+
+
     public boolean addObserver(IObserver object)
     {
         return observers.add(object);
@@ -611,11 +598,11 @@ public class HistoryTable
         
     }
 
-    public void notifyObservers(Object message, Object[] args)
+    public void notifyObservers(ImportEvent event)
     {
         for (IObserver observer:observers)
         {
-            observer.update(this, message, args);
+            observer.update(this, event);
         }
     }
 

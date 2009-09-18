@@ -67,12 +67,12 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 
+import layout.TableLayout;
+import ome.formats.Main;
+import ome.formats.importer.ImportConfig;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import ome.formats.importer.Main;
-
-import layout.TableLayout;
 
 
 /**
@@ -85,15 +85,18 @@ public class GuiCommonElements
 	/** Logger for this class */
 	private Log log = LogFactory.getLog(GuiCommonElements.class);
 	
+	public final ImportConfig config;
+	
     public boolean lafOpaque = true; // Hack for macness
     public boolean offsetButtons = false; //Another hack for macness
     public boolean motif = false;
+    public Rectangle bounds;
     
-    static IniFileLoader    ini = IniFileLoader.getIniFileLoader();
-    public Rectangle       bounds = ini.getUIBounds();
-    
-    public GuiCommonElements()
+    public GuiCommonElements(ImportConfig config)
     {
+        this.config = config;
+        this.bounds = config.getUIBounds();
+        
         String laf = UIManager.getLookAndFeel().getClass().getName();
         if (laf.equals("apple.laf.AquaLookAndFeel") 
                 || laf.equals("ch.randelshofer.quaqua.QuaquaLookAndFeel")) 
