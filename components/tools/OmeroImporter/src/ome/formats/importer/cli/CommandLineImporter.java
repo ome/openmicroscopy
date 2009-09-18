@@ -8,7 +8,6 @@ import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
-import omero.ServerError;
 import omero.model.Dataset;
 import omero.model.Screen;
 
@@ -52,20 +51,36 @@ public class CommandLineImporter
     /**
      * Main entry class for the application.
      */
-    public CommandLineImporter(ImportConfig config, String[] paths, boolean getUsedFiles)
+    public CommandLineImporter(final ImportConfig config, String[] paths, boolean getUsedFiles)
         throws Exception
     {
         this.config = config;
         this.getUsedFiles = getUsedFiles;
         reader = new OMEROWrapper(config);
         candidates = new ImportCandidates(reader, paths);
-        if (!getUsedFiles) {
-            store = new OMEROMetadataStoreClient(config);
-            library = new ImportLibrary(store, reader);
-        } else {
+        
+        if (paths == null || paths.length == 0 || getUsedFiles) {
+            
             store = null;
             library = null;
+            
+        } else {            
+        
+            // Ensure that we have all of our required login arguments
+            if (!config.canLogin()) {
+                config.requestFromUser(); // stdin if anything missing.
+                // usage(); // EXITS TODO this should check for a "quiet" flag
+            }
+            store = config.createStore();
+            library = new ImportLibrary(store, reader);
+        
         }
+        
+        Runtime.getRuntime().addShutdownHook(new Thread(){
+            public void run() {
+                config.saveAll();
+            }
+        });
     }
 
     public int run() {
@@ -91,12 +106,6 @@ public class CommandLineImporter
         
         else
         {
-            
-            // Ensure that we have all of our required login arguments
-            if (!config.canLogin()) {
-                usage(); // EXITS
-            }
-            
             library.addObserver(new LoggingImportMonitor());
             library.addObserver(new ErrorHandler(config));
             library.importCandidates(config, candidates);
@@ -163,7 +172,7 @@ public class CommandLineImporter
      */
     public static void main(String[] args)
     {
-        ImportConfig config = new ImportConfig(args);
+        ImportConfig config = new ImportConfig();
     	LongOpt debug = new LongOpt("debug", LongOpt.NO_ARGUMENT, null, 1);
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
         		              new LongOpt[] { debug });
@@ -182,53 +191,54 @@ public class CommandLineImporter
             		// OMEROMetadataStoreClient as a convenience.
             		Logger l = Logger.getLogger(OMEROMetadataStoreClient.class);
             		l.setLevel(Level.DEBUG);
+            		config.debug.set(true);
             		break;
             	}
                 case 's':
                 {
-                    config.setServer(g.getOptarg());
+                    config.hostname.set(g.getOptarg());
                     break;
                 }
                 case 'u':
                 {
-                    config.setUsername(g.getOptarg());
+                    config.username.set(g.getOptarg());
                     break;
                 }
                 case 'w':
                 {
-                    config.setPassword(g.getOptarg());
+                    config.password.set(g.getOptarg());
                     break;
                 }
                 case 'k':
                 {
-                    config.setSessionkey(g.getOptarg());
+                    config.sessionKey.set(g.getOptarg());
                     break;
                 }
                 case 'p':
                 {
-                    config.setPort(Integer.parseInt(g.getOptarg()));
+                    config.port.set(Integer.parseInt(g.getOptarg()));
                     break;
                 }
                 case 'd':
                 {
-                    config.setTargetClass(Dataset.class);
-                    config.setTargetId(Long.parseLong(g.getOptarg()));
+                    config.targetClass.set(Dataset.class.getName());
+                    config.targetId.set(Long.parseLong(g.getOptarg()));
                     break;
                 }
                	case 'r':
                 {
-                    config.setTargetClass(Screen.class);
-                    config.setTargetId(Long.parseLong(g.getOptarg()));
+                    config.targetClass.set(Screen.class.getName());
+                    config.targetId.set(Long.parseLong(g.getOptarg()));
                 	break;
                 }
                 case 'n':
                 {
-                    config.setName(g.getOptarg());
+                    config.name.set(g.getOptarg());
                     break;
                 }
                 case 'x':
                 {
-                    config.setDescription(g.getOptarg());
+                    config.description.set(g.getOptarg());
                     break;
                 }
                 case 'f':
@@ -238,12 +248,12 @@ public class CommandLineImporter
                 }
                 case 'c':
                 {
-                    config.setContinueOnErrors(true);
+                    config.contOnError.set(true);
                 	break;
                 }
                 case 'l':
                 {
-                    config.setReadersPath(g.getOptarg());
+                    config.readersPath.set(g.getOptarg());
                     break;
                 }
                 default:
@@ -252,7 +262,6 @@ public class CommandLineImporter
                 }
             }
         }
-        
 
         // Start the importer and import the image we've been given
         String[] rest = new String[args.length - g.getOptind()];

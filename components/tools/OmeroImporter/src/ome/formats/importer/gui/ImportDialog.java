@@ -13,14 +13,14 @@
 
 package ome.formats.importer.gui;
 
-import static omero.rtypes.*;
+import static omero.rtypes.rstring;
+
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -33,20 +33,18 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import layout.TableLayout;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.gui.GuiCommonElements.DecimalNumberField;
 import ome.formats.importer.gui.GuiCommonElements.WholeNumberField;
-
 import omero.RLong;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Project;
 import omero.model.ProjectI;
 
-import layout.TableLayout;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author "Brian W. Loranger"
@@ -111,15 +109,6 @@ public class ImportDialog extends JDialog implements ActionListener
     private static Log          log     = LogFactory.getLog(ImportDialog.class);
 
     public OMEROMetadataStoreClient store;
-
-    private Preferences    userPrefs = 
-        Preferences.userNodeForPackage(ImportDialog.class);
-
-    private Long savedProject = userPrefs.getLong("savedProject", 0);
-    private Long savedDataset = userPrefs.getLong("savedDataset", 0);
-    public Boolean useFullPath = userPrefs.getBoolean("savedFileNaming", true);
-    public Integer numOfDirectories = userPrefs.getInt("savedNumOfDirs", 0);
-    public Boolean OverrideImageName = userPrefs.getBoolean("OverrideImageName", false);
 
     public JCheckBox fileCheckBox;
 
@@ -203,7 +192,7 @@ public class ImportDialog extends JDialog implements ActionListener
         namedPanel = gui.addBorderedPanel(importPanel, namedTable, "File Naming", debug);
 
         fileCheckBox = gui.addCheckBox(namedPanel, "Override default file naming. Instead use:", "0,0,1", debug);
-        fileCheckBox.setSelected(OverrideImageName);
+        fileCheckBox.setSelected(gui.config.overrideImageName.get());
 
         String fullPathTooltip = "The full file+path name for " +
         "the file. For example: \"c:/myfolder/mysubfolder/myfile.dv\"";
@@ -224,7 +213,7 @@ public class ImportDialog extends JDialog implements ActionListener
                 "Add this number of directories to the file names",
                 3, 40, "1,3,l,c", debug);
         
-        numOfDirectoriesField.setText(numOfDirectories.toString());
+        numOfDirectoriesField.setText(Integer.toString(gui.config.numOfDirectories.get()));
 
         // focus on the partial path button if you enter the numofdirfield
         numOfDirectoriesField.addFocusListener(new FocusListener() {
@@ -240,7 +229,7 @@ public class ImportDialog extends JDialog implements ActionListener
         group.add(fullPathButton);
         group.add(partPathButton);
 
-        if (useFullPath == true )
+        if (gui.config.useFullPath.get() == true )
             group.setSelected(fullPathButton.getModel(), true);
         else
             group.setSelected(partPathButton.getModel(), true);
@@ -348,6 +337,9 @@ public class ImportDialog extends JDialog implements ActionListener
 
     private void buildProjectsAndDatasets()
     {
+        long savedProject = gui.config.savedProject.get();
+        long savedDataset = gui.config.savedDataset.get();
+        
         if (savedProject != 0 && projectItems != null) {
             for (int i = 0; i < projectItems.length; i++)
             {
@@ -395,11 +387,10 @@ public class ImportDialog extends JDialog implements ActionListener
         {
             //pbox.removeAllItems();
             projectItems = ProjectItem.createProjectItems(store.getProjects());            
-            savedProject = userPrefs.getLong("savedProject", 0);
             for (int k = 0; k < projectItems.length; k++ )
             {
                 RLong pId = projectItems[k].getProject().getId();                
-                if (pId != null && pId.getValue() == savedProject)
+                if (pId != null && pId.getValue() == gui.config.savedProject.get())
                 {
                     pbox.insertItemAt(projectItems[k], k);
                     pbox.setSelectedIndex(k);
@@ -413,7 +404,6 @@ public class ImportDialog extends JDialog implements ActionListener
 
     private void refreshAndSetDataset(Project p)
     {
-        savedDataset = userPrefs.getLong("savedDataset", 0);
         datasetItems = 
             DatasetItem.createDatasetItems(store.getDatasets(p));
         dbox.removeAllItems();
@@ -424,7 +414,7 @@ public class ImportDialog extends JDialog implements ActionListener
             addDatasetBtn.setEnabled(true);
             importBtn.setEnabled(true);
             dbox.insertItemAt(datasetItems[k], k);
-            if (dId != null && dId.getValue() == savedDataset)
+            if (dId != null && dId.getValue() == gui.config.savedDataset.get())
             {
                 dbox.setSelectedIndex(k);
             }                        
@@ -447,12 +437,12 @@ public class ImportDialog extends JDialog implements ActionListener
         
         if (e.getSource() == fullPathButton)
         {
-            useFullPath = true;
+            gui.config.useFullPath.set(true);
 
         }
         if (e.getSource() == partPathButton)
         {
-            useFullPath = false;
+            gui.config.useFullPath.set(false);
         }
         if (e.getSource() == cancelBtn)
         {
@@ -463,18 +453,14 @@ public class ImportDialog extends JDialog implements ActionListener
         {
             cancelled = false;
             importBtn.requestFocus();
-            numOfDirectories = numOfDirectoriesField.getValue();
+            gui.config.numOfDirectories.set(numOfDirectoriesField.getValue());
             dataset = ((DatasetItem) dbox.getSelectedItem()).getDataset();
             project = ((ProjectItem) pbox.getSelectedItem()).getProject();
-            userPrefs.putLong("savedProject", 
+            gui.config.savedProject.set(
                     ((ProjectItem) pbox.getSelectedItem()).getProject().getId().getValue());
-            userPrefs.putLong("savedDataset", dataset.getId().getValue());
-            userPrefs.putBoolean("OverrideImageName", fileCheckBox.isSelected());
-            if (fullPathButton.isSelected() == true)
-                userPrefs.putBoolean("savedFileNaming", true);
-            else 
-                userPrefs.putBoolean("savedFileNaming", false);
-            userPrefs.putInt("savedNumOfDirs", numOfDirectoriesField.getValue());
+            gui.config.savedDataset.set(dataset.getId().getValue());
+            gui.config.overrideImageName.set(fileCheckBox.isSelected());
+            gui.config.savedFileNaming.set(fullPathButton.isSelected());
             
             pixelSizeX = xPixelSize.getValue();
             pixelSizeY = yPixelSize.getValue();

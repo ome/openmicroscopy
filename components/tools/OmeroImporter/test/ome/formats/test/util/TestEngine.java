@@ -15,7 +15,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.JOptionPane;
+import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportLibrary;
+import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.util.HtmlMessenger;
+import ome.formats.test.util.TestEngineConfig.ErrorOn;
+import omero.ServerError;
+import omero.model.Dataset;
+import omero.model.IObject;
+import omero.model.Project;
 
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
@@ -25,15 +34,6 @@ import org.springframework.aop.framework.ProxyFactory;
 
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
-
-import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.ImportLibrary;
-import ome.formats.importer.OMEROWrapper;
-import ome.formats.importer.util.HtmlMessenger;
-import ome.formats.test.util.TestEngineConfig.ErrorOn;
-import omero.ServerError;
-import omero.model.Dataset;
-import omero.model.Project;
 
 public class TestEngine
 {   
@@ -73,7 +73,7 @@ public class TestEngine
         pf.addAdvice(interceptor);
         pf.setProxyTargetClass(true);
         store = (OMEROMetadataStoreClient) pf.getProxy();
-    	wrapper = new OMEROWrapper();
+    	wrapper = new OMEROWrapper(new ImportConfig());
     	
         login_url = config.getFeedbackLoginUrl();
         login_username = config.getFeedbackLoginUsername();
@@ -112,8 +112,7 @@ public class TestEngine
             String name = projectDirectory.getName(); 
             log.info("Storing dataset: " + name);
             Dataset dataset = store.addDataset(name, "", project);
-            importLibrary.setTarget(dataset);
-        	status = processDirectory(config.getPopulate(), projectDirectory);
+        	status = processDirectory(config.getPopulate(), projectDirectory, dataset);
         }
         else
         {
@@ -125,10 +124,9 @@ public class TestEngine
                     String name = datasetDirectory.getName(); 
                     log.info("Storing dataset: " + name);
                     Dataset dataset = store.addDataset(name, "", project);
-                    importLibrary.setTarget(dataset);
                     // In each sub-directory/dataset, import the images needed
         			status = processDirectory(config.getPopulate(),
-        					                  datasetDirectory);
+        					                  datasetDirectory, dataset);
         		}
         	}
         }
@@ -136,7 +134,7 @@ public class TestEngine
         return status;
     }
     
-    private boolean processDirectory(boolean populate, File directory)
+    private boolean processDirectory(boolean populate, File directory, IObject target)
     	throws Throwable
     {
     	String iniFilePath = directory + File.separator + "test_setup.ini";
@@ -213,7 +211,7 @@ public class TestEngine
                 
                 // Do import
 				interceptor.setSourceFile(file); 
-				importLibrary.importImage(file, 0, 0, 1, fileList[j], null, false, true, null);
+				importLibrary.importImage(file, 0, 0, 1, fileList[j], null, false, true, null, target);
 				iniFile.flush();
                 store.createRoot();
 			}

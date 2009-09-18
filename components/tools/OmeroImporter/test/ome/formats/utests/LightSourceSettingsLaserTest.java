@@ -1,16 +1,17 @@
 package ome.formats.utests;
 
-import ome.util.LSID;
+import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.MetaLightSource;
+import ome.util.LSID;
+import omero.api.ServiceFactoryPrx;
 import omero.model.Laser;
 import omero.model.LightSettings;
 import omero.model.LightSource;
 import omero.model.Pixels;
-import omero.api.ServiceFactoryPrx;
-import junit.framework.TestCase;
 
 public class LightSourceSettingsLaserTest extends TestCase
 {
@@ -32,7 +33,7 @@ public class LightSourceSettingsLaserTest extends TestCase
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
-        wrapper = new OMEROWrapper();
+        wrapper = new OMEROWrapper(new ImportConfig());
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);
         store.setEnumerationProvider(new TestEnumerationProvider());

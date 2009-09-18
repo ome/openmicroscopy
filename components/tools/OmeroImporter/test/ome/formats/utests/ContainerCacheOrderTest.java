@@ -2,14 +2,15 @@ package ome.formats.utests;
 
 import java.util.Map;
 
-import ome.util.LSID;
+import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
+import ome.util.LSID;
+import omero.api.ServiceFactoryPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Plate;
-import omero.api.ServiceFactoryPrx;
-import junit.framework.TestCase;
 
 public class ContainerCacheOrderTest extends TestCase
 {
@@ -33,7 +34,7 @@ public class ContainerCacheOrderTest extends TestCase
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
-        wrapper = new OMEROWrapper();
+        wrapper = new OMEROWrapper(new ImportConfig());
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);
         store.setEnumerationProvider(new TestEnumerationProvider());

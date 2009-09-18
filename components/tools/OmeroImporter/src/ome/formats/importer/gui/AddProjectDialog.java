@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -17,7 +16,6 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 
 import layout.TableLayout;
-
 import ome.formats.OMEROMetadataStoreClient;
 import omero.model.Project;
 
@@ -27,9 +25,6 @@ public class AddProjectDialog extends JDialog implements ActionListener
 {
     boolean debug = false;
 
-    private Preferences    userPrefs = 
-        Preferences.userNodeForPackage(ImportDialog.class);
-    
     GuiCommonElements       gui;
     
     Window                  owner;
@@ -123,7 +118,7 @@ public class AddProjectDialog extends JDialog implements ActionListener
             if (projectName.trim().length() > 0)
             {
                 project = store.addProject(projectName, projectDescription);
-                userPrefs.putLong("savedProject", project.getId().getValue());
+                gui.config.savedProject.set(project.getId().getValue());
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(owner, "The project's name can not be blank.");

@@ -26,8 +26,7 @@ import org.apache.log4j.spi.LoggingEvent;
 
 public class LogAppenderProxy extends AppenderSkeleton implements Appender
 {    
-    private final ImportConfig config;
-    private final String saveDirectory;
+    private final File saveDirectory;
     private final String logFileName;
     private final LogAppender delegate;
     private final RollingFileAppender logfile_delegate;
@@ -37,9 +36,8 @@ public class LogAppenderProxy extends AppenderSkeleton implements Appender
     public LogAppenderProxy(ImportConfig config)
     {
         super(); 
-        this.config = config;
-        this.saveDirectory = config.getSaveDirectory();
-        this.logFileName = config.getLogFileName();
+        this.saveDirectory = config.savedDirectory.get();
+        this.logFileName = config.getLogFile();
         
         delegate = LogAppender.getInstance();
         logfile_delegate = new RollingFileAppender();

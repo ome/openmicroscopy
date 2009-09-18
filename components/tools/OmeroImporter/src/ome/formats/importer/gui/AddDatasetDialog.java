@@ -28,7 +28,6 @@ import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -40,9 +39,7 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 
 import layout.TableLayout;
-
 import ome.formats.OMEROMetadataStoreClient;
-
 import omero.model.Dataset;
 import omero.model.Project;
 
@@ -52,9 +49,6 @@ public class AddDatasetDialog extends JDialog implements ActionListener
 {
     boolean debug = false;
 
-    private Preferences    userPrefs = 
-        Preferences.userNodeForPackage(ImportDialog.class);
-    
     GuiCommonElements       gui;
     
     Window                  owner;
@@ -151,7 +145,7 @@ public class AddDatasetDialog extends JDialog implements ActionListener
             if (datasetName.trim().length() > 0)
             {
                 dataset = store.addDataset(datasetName, datasetDescription, project);
-                userPrefs.putLong("savedDataset", dataset.getId().getValue());
+                gui.config.savedDataset.set(dataset.getId().getValue());
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(owner, "The project's name can not be blank.");

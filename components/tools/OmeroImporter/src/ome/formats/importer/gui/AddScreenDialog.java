@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -17,7 +16,6 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 
 import layout.TableLayout;
-
 import ome.formats.OMEROMetadataStoreClient;
 import omero.model.Screen;
 
@@ -27,9 +25,6 @@ public class AddScreenDialog extends JDialog implements ActionListener
 {
     boolean debug = false;
 
-    private Preferences    userPrefs = 
-        Preferences.userNodeForPackage(ImportDialog.class);
-    
     Window                  owner;
     
     JPanel                  mainPanel;
@@ -45,11 +40,12 @@ public class AddScreenDialog extends JDialog implements ActionListener
     String                  screenDescription;
     
     Screen                  screen;
-    
+    GuiCommonElements       gui;
     OMEROMetadataStoreClient      store;
     
     AddScreenDialog(GuiCommonElements gui, Window owner, String title, Boolean modal, OMEROMetadataStoreClient store)
     {
+        this.gui = gui;
         this.store = store;
         this.owner = owner;
         
@@ -119,7 +115,7 @@ public class AddScreenDialog extends JDialog implements ActionListener
             if (screenName.trim().length() > 0)
             {
                 screen = store.addScreen(screenName, screenDescription);
-                userPrefs.putLong("savedScreen", screen.getId().getValue());
+                gui.config.savedScreen.set(screen.getId().getValue());
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(owner, "The screen's name can not be blank.");

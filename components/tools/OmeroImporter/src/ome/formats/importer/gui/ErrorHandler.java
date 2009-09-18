@@ -64,7 +64,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
      * @param args
      */
     public static void main(String[] args) {
-        ImportConfig config = new ImportConfig(args);
+        ImportConfig config = new ImportConfig();
         ErrorHandler eh = new ErrorHandler(config);
         JFrame f = new JFrame();
         f.getContentPane().add(eh);

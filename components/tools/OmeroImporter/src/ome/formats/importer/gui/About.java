@@ -101,7 +101,7 @@ public abstract class About
 
     public static void main(String[] args)
     {
-        show(null, new ImportConfig(args), false);
+        show(null, new ImportConfig(), false);
         System.exit(0);
     }
 

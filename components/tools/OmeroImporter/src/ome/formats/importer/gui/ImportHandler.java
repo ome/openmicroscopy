@@ -253,7 +253,7 @@ public class ImportHandler {
                                             + "problem with a remote drive being inaccessable.\n\n"
                                             + " The file in question is: "
                                             + "\n"
-                                            + importContainer[j].imageName + "");
+                                            + importContainer[j].file.getAbsolutePath() + "");
                     try {
                         if (db != null) {
                             db.updateImportStatus(importKey, "incomplete");

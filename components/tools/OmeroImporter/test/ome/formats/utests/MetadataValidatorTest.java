@@ -23,6 +23,12 @@
 
 package ome.formats.utests;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -31,15 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Parameters;
-import org.testng.annotations.Test;
-
-import static org.testng.AssertJUnit.*;
-
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
@@ -57,14 +56,20 @@ import omero.model.Instrument;
 import omero.model.LightSettings;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
+import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
-import omero.model.OTF;
 import omero.model.Pixels;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
 import omero.model.Well;
 import omero.model.WellSample;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Parameters;
+import org.testng.annotations.Test;
 
 /**
  * Generic set of unit tests, that are designed to be initiated on a 
@@ -101,7 +106,7 @@ public class MetadataValidatorTest
         store.setEnumerationProvider(new TestEnumerationProvider());
         store.setInstanceProvider(
         		new BlitzInstanceProvider(store.getEnumerationProvider()));
-        wrapper = new OMEROWrapper();
+        wrapper = new OMEROWrapper(new ImportConfig());
         wrapper.setMetadataStore(store);
         store.setReader(wrapper);
         wrapper.setId(target);

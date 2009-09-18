@@ -28,13 +28,11 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
+import layout.TableLayout;
+import ome.formats.OMEROMetadataStoreClient;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.util.IniFileLoader;
-
-import layout.TableLayout;
 
 /**
  * @author "Brian W. Loranger"
@@ -73,8 +71,6 @@ public class OptionsDialog extends JDialog implements ActionListener
 
     public OMEROMetadataStoreClient store;
     
-    private IniFileLoader ini;
-
     Component owner;
     
     OptionsDialog(GuiCommonElements gui, JFrame owner, String title, boolean modal)
@@ -149,8 +145,8 @@ public class OptionsDialog extends JDialog implements ActionListener
         group.add(singlePaneBtn);
         group.add(triplePaneBtn);
         
-        log.debug("Using Quaqua?" + ini.getUseQuaqua());
-        if (ini.getUseQuaqua() == true)
+        log.debug("Using Quaqua?" + gui.config.getUseQuaqua());
+        if (gui.config.getUseQuaqua() == true)
         {
             triplePaneBtn.setSelected(true);
             singlePaneBtn.setSelected(false);
@@ -196,9 +192,9 @@ public class OptionsDialog extends JDialog implements ActionListener
         if (e.getSource() == okBtn && this.isDisplayable())
         {
             if (singlePaneBtn.isSelected())
-                ini.setUseQuaqua(false);
+                gui.config.setUseQuaqua(false);
             else
-                ini.setUseQuaqua(true);
+                gui.config.setUseQuaqua(true);
             this.dispose();
             gui.restartNotice(owner, null);
         }

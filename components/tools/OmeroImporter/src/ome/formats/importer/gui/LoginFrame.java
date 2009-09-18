@@ -17,17 +17,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Insets;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.prefs.Preferences;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -43,20 +39,13 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
-import ome.formats.importer.util.IniFileLoader;
-
 import layout.TableLayout;
 
 public class LoginFrame extends JFrame 
     implements ActionListener, PropertyChangeListener
 {
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
-    IniFileLoader ini;
-    
     /**
      * 
      */
@@ -70,8 +59,6 @@ public class LoginFrame extends JFrame
     Integer                 loginWidth = 551;
     
     String                  DEFAULT_SERVER_TEXT = "Add a New Server ->";
-    String                  SERVER_NAME_SEPARATOR = ",";
-    List<String>            serverList = new ArrayList<String>();
     JTextPane               serverText;
     
     Color                   panelColor = Color.black ;
@@ -99,17 +86,8 @@ public class LoginFrame extends JFrame
     
     Frame                  f;
     
-    public String           username;
-    public String           password;
-
-    public String           currentServer;
-    public int              port = 4063;
-
     public boolean          cancelled = true;
 
-    private Preferences    userPrefs = Preferences
-                                             .userNodeForPackage(LoginFrame.class);
-    
     LoginFrame (GuiCommonElements gui, JFrame owner, JFrame main, String title, boolean modal, boolean center)
     {   
         this.main = main;
@@ -132,19 +110,6 @@ public class LoginFrame extends JFrame
             setLocation(this.getX(), offset);           
         }
         setUndecorated(true);
-                
-        // Get the preference file options
-        username = userPrefs.get("username", username);
-        if (username != null) username = username.trim();
-        
-        
-        // password = userPrefs.get("password", password);
-        currentServer = userPrefs.get("server", currentServer);
-        if (currentServer != null) currentServer = currentServer.trim();
-        
-        serverList = getServerList();
-        
-        port = userPrefs.getInt("port", port);
         
         // Set up the main panel for tPane, quit, and send buttons
         double mainTable[][] =
@@ -190,7 +155,8 @@ public class LoginFrame extends JFrame
         StyleConstants.setAlignment(style, StyleConstants.ALIGN_RIGHT);
         StyleConstants.setForeground(style, textColor);
         
-        serverList = getServerList();
+        String currentServer = gui.config.hostname.get();
+        List<String> serverList = gui.config.getServerList();
         if (serverList == null || !serverList.contains(currentServer))
             currentServer = DEFAULT_SERVER_TEXT;
         serverText = gui.addTextPane(topPanel, currentServer, "2, 0, r, c", 
@@ -211,12 +177,12 @@ public class LoginFrame extends JFrame
         
         uname = gui.addTextField(topPanel, 
                 unameLabel, 
-                username, 'U',"Input your useername here.", "", 
+                gui.config.username.get(), 'U',"Input your useername here.", "", 
                 TableLayout.PREFERRED, "0, 1, 0, 1", debug);
                 
         pswd = gui.addPasswordField(topPanel, 
                 pswdLabel, 
-                password, 'U',"Input your useername here.", "", 
+                gui.config.password.get(), 'U',"Input your useername here.", "", 
                 TableLayout.PREFERRED, "2, 1, 3, 1", debug);
 
         style = context.getStyle(StyleContext.DEFAULT_STYLE);
@@ -225,7 +191,7 @@ public class LoginFrame extends JFrame
         StyleConstants.setFontSize(style, 12);
         StyleConstants.setBold(style, true);
         
-        versionInfo = gui.addTextPane(mainPanel, ini.getVersionNumber(), "0, 1, l, b", 
+        versionInfo = gui.addTextPane(mainPanel, gui.config.getVersionNumber(), "0, 1, l, b", 
                 context, style, debug);
         
         // Add an action listener to the uname to move to pswd
@@ -260,83 +226,15 @@ public class LoginFrame extends JFrame
                
         setVisible(true);
         
-       //serverList = getServerList();
-        //serverList.clear();
-        //removeAllServers();
     }
 
-    private List<String> getServerList()
-    {
-        String serverListString = null;
-        serverListString = userPrefs.get("servers", serverListString);
-        if (serverListString == null || serverListString.trim().length() == 0) {
-            return null;
-        } else {
-            String[] l = 
-                    serverListString.split(SERVER_NAME_SEPARATOR, 0);
-            if (l == null || l.length == 0) {
-                return null;
-            } else {
-                if (serverList != null) serverList.clear();
-                for (int index = 0; index < l.length; index++) {
-                    if (serverList != null)
-                        serverList.add(l[index].trim());
-                }
-            }
-        }
-        return serverList;
-    }
-
-    // Save the current serverList if the currentServer is not on the list
-    void updateServerList(String currentServer)
-    {
-        // get the server list 
-        if (currentServer.trim().length() == 0 || currentServer.contains(DEFAULT_SERVER_TEXT))
-        {
-            return;            
-        }
-
-        
-        List<String> l = getServerList();
-        if (l != null && l.contains(currentServer))
-        {
-            return;
-        }
-              
-        String serverListString = null;
-        serverListString = userPrefs.get("servers", serverListString);
-        if (serverListString == null || serverListString.length() == 0) {
-            userPrefs.put("servers", currentServer.trim());
-        } else {
-            userPrefs.put("servers", serverListString+SERVER_NAME_SEPARATOR+currentServer);
-        }
-    }
-    
-    private void removeServer(String server)
-    {
-        List<String> l = getServerList();
-        if (l == null) return;
-        l.remove(server);
-        Iterator<String> i = l.iterator();
-        String list = "";
-        int n = l.size()-1;
-        int index = 0;
-        while (i.hasNext()) {
-            list += (String) i.next();
-            if (index != n)
-                list += SERVER_NAME_SEPARATOR;
-            index++;
-        }
-        userPrefs.put("servers", list);
-        serverList = getServerList();
-    }
 
     public void actionPerformed(ActionEvent e)
     {
         if (e.getSource() == loginBtn)
         {
-            username = uname.getText();
-            password = new String(pswd.getPassword());
+            gui.config.username.set(uname.getText());
+            gui.config.password.set(new String(pswd.getPassword()));
             //server = srvr.getText();
             //port = prt.getText();
             cancelled = false;
@@ -351,12 +249,12 @@ public class LoginFrame extends JFrame
 
         if(e.getSource() == configBtn)
         {
-            serverList = getServerList();
+            List<String> serverList = gui.config.getServerList();
             ServerDialog serverDialog = new ServerDialog(serverList);
             serverDialog.setLocationRelativeTo(main);
             serverDialog.addPropertyChangeListener(this);
             serverDialog.setVisible(true);
-            currentServer = serverDialog.getCurrentServer();
+            String currentServer = serverDialog.getCurrentServer();
             if (currentServer.trim().length() == 0)
             {
                 currentServer = DEFAULT_SERVER_TEXT;
@@ -374,9 +272,9 @@ public class LoginFrame extends JFrame
         String e = evt.getPropertyName();
         if (ServerDialog.REMOVE_PROPERTY.equals(e)) {
             String oldValue = (String) evt.getOldValue();
-            removeServer(oldValue);
-            if (currentServer.equals(oldValue)) 
-                currentServer = DEFAULT_SERVER_TEXT;
+            gui.config.removeServer(oldValue);
+            if (gui.config.hostname.get().equals(oldValue)) 
+                gui.config.hostname.set(DEFAULT_SERVER_TEXT);
         }
     }
     

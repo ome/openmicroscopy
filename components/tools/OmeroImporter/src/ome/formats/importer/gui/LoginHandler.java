@@ -138,36 +138,19 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                 {
                     //SplashWindow.disposeSplash();
                     viewer.setVisible(true);
-                    if (!modal)
-                    {
-                        config.setUsername(frame.username);
-                        config.setPassword(frame.password);
-                        config.setServer(frame.currentServer);
-                        config.setPort(frame.port);
-                        server = frame.currentServer;
-                        frame.updateServerList(server);                    
-                    }
-                    else
-                    {
-                        config.setUsername(dialog.username);
-                        config.setPassword(dialog.password);
-                        config.setServer(dialog.currentServer);
-                        config.setPort(dialog.port);
-                        server = dialog.currentServer;
-                        dialog.updateServerList(server);                    
-                    }
+                    // Values should already be set on config.
                 }
                 else
                 {
-                	config.setUsername(lc.getUserName());
-                	config.setPassword(lc.getPassword());
-                	config.setServer(lc.getHostName());
-                	config.setPort(lc.getPort());
+                	config.username.set(lc.getUserName());
+                	config.password.set(lc.getPassword());
+                	config.hostname.set(lc.getHostName());
+                	config.port.set(lc.getPort());
                 	server = lc.getHostName();
                 }
             
                 viewer.statusBar.setStatusIcon("gfx/server_trying16.png",
-                "Trying to connect to " + server);
+                "Trying to connect to " + config.hostname.get());
                 viewer.statusBar.setProgress(true, -1, "connecting....");
                 
                 try
@@ -195,13 +178,13 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                             NumberFormat formatter = NumberFormat.getInstance(Locale.US);
                             String freeMB = formatter.format(freeSpace/1000);                
                             viewer.statusBar.setStatusIcon("gfx/server_connect16.png",
-                                    "Connected to " + server + ". Free space: " + 
+                                    "Connected to " + config.hostname.get() + ". Free space: " + 
                                     freeMB + " MB.");
                             return;
                         } catch (Exception e) 
                         {
                         	log.error("Exception retrieving repository free space.", e);
-                            viewer.statusBar.setStatusIcon("gfx/server_connect16.png", "Connected to " + server + ".");
+                            viewer.statusBar.setStatusIcon("gfx/server_connect16.png", "Connected to " + config.hostname.get() + ".");
                             return;
                         }
                     } else {   
@@ -231,7 +214,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                     
                     viewer.statusBar.setProgress(false, 0, "");
                     viewer.statusBar.setStatusIcon("gfx/error_msg16.png",
-                    "Server connection to " + server +" failed. " +
+                    "Server connection to " + config.hostname.get() +" failed. " +
                             "Please try again.");
                     
                     if (NEW_LOGIN)

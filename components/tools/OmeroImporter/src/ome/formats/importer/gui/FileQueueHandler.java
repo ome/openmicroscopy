@@ -119,71 +119,90 @@ public class FileQueueHandler
         
         //If the directory changed, don't show an image.
         if (action.equals(JFileChooser.APPROVE_SELECTION)) {
-            String msg = "DISABLED BY JOSH";
-            log.error(msg);
-            if (true) {
-                throw new RuntimeException(msg);
-            }
-            
-            if (false) { // DELETE THIS SECTION. COPY OF ANOTHER IN THIS FILE.
-            
-            File file = fileChooser.getSelectedFile();
-            
-            if (store() != null && files != null && reader.isSPWReader(files[0].getAbsolutePath()))
-            {
-                SPWDialog dialog =
-                    new SPWDialog(gui, viewer, "Screen Import", true, store());
-                if (dialog.cancelled == true || dialog.screen == null) 
-                    return;                    
-                for (File f : files)
-                {             
-                    /*
-                    addFileToQueue(f, dialog.screen, 
-                            dialog.screen.getName().getValue(),
-                            null, 
-                            false, 
-                            0,
-                            dialog.archiveImage.isSelected(),
-                            null, null, reader.getFormat(), reader.getUsedFiles(), true);
-                     */
-                }
-                
-                qTable.centerOnRow(qTable.queue.getRowCount()-1);
-                qTable.importBtn.requestFocus();
-            }
-            else if (store() != null)
-            {
-                ImportDialog dialog = 
-                    new ImportDialog(gui, viewer, "Import", true, store());
-                if (dialog.cancelled == true || dialog.dataset == null) 
-                    return;
-                
-                Double[] pixelSizes = new Double[] {dialog.pixelSizeX, dialog.pixelSizeY, dialog.pixelSizeZ};
-                
-                Boolean useFullPath = dialog.useFullPath;
-                
-                if (dialog.fileCheckBox.isEnabled() == true)
-                    useFullPath = null;                    
-                /*
-                addFileToQueue(file, dialog.dataset,
-                        dialog.dataset.getName().getValue(), dialog.project.getName().getValue(), 
-                        useFullPath, dialog.numOfDirectories, 
-                        dialog.archiveImage.isSelected(), dialog.project.getId().getValue(),
-                        pixelSizes, null, null, false);
-                */
-                qTable.importBtn.requestFocus();
-                
-            } else { 
-                JOptionPane.showMessageDialog(viewer, 
-                        "Due to an error the application is unable to \n" +
-                        "retrieve an OMEROMetadataStore and cannot continue." +
-                        "The most likely cause for this error is that you" +
-                "are not logged in. Please try to login again.");
-            }
-            }
+            addFiles();
         }
     }
 
+    private void addFiles()
+    {
+
+        final File[] _files = fileChooser.getSelectedFiles();                    
+
+        if (_files == null)
+        {
+            mustSelectFile();
+            return;
+        }
+
+        String[] paths = new String[_files.length];
+        for (int i = 0; i < paths.length; i++) {
+            paths[i] = _files[i].getAbsolutePath();
+        }
+
+        final ImportCandidates candidates = new ImportCandidates(reader, paths);
+        final List<ImportContainer> containers = candidates.getContainers();
+        
+        Boolean spw = spwOrNull(containers);
+        if (spw == null) {
+            return; // Invalid containers.
+        }
+        
+        if (store() != null && spw.booleanValue())
+        {
+            SPWDialog dialog =
+                new SPWDialog(gui, viewer, "Screen Import", true, store());
+            if (dialog.cancelled == true || dialog.screen == null) 
+                return;                    
+            for (ImportContainer ic : containers)
+            {             
+                ic.setTarget(dialog.screen);
+                String title = dialog.screen.getName().getValue(); 
+                addFileToQueue(ic, title, false, 0);
+            }
+            
+            qTable.centerOnRow(qTable.queue.getRowCount()-1);
+            qTable.importBtn.requestFocus();
+
+        }
+        else if (store() != null)
+        {
+            ImportDialog dialog = 
+                new ImportDialog(gui, viewer, "Image Import", true, store());
+            if (dialog.cancelled == true || dialog.dataset == null) 
+                return;  
+
+            
+            Double[] pixelSizes = new Double[] {dialog.pixelSizeX, dialog.pixelSizeY, dialog.pixelSizeZ};
+            Boolean useFullPath = gui.config.useFullPath.get();
+            if (dialog.fileCheckBox.isSelected() == false)
+                useFullPath = null; //use the default bio-formats naming
+                
+            
+            for (ImportContainer ic : containers)
+            {
+                ic.setTarget(dialog.dataset);
+                ic.setUserPixels(pixelSizes);
+                ic.setArchive(dialog.archiveImage.isSelected());
+                String title =
+                dialog.project.getName().getValue() + " / " +
+                dialog.dataset.getName().getValue();
+                
+                addFileToQueue(ic, title, useFullPath, gui.config.numOfDirectories.get());
+            }
+            
+            qTable.centerOnRow(qTable.queue.getRowCount()-1);
+            qTable.importBtn.requestFocus();
+
+            
+        } else {
+            JOptionPane.showMessageDialog(viewer, 
+                    "Due to an error the application is unable to \n" +
+                    "retrieve an OMEROMetadataStore and cannot continue." +
+                    "The most likely cause for this error is that you" +
+                    "are not logged in. Please try to login again.");
+        }
+    }
+    
     private void mustSelectFile()
     {
         JOptionPane.showMessageDialog(viewer, 
@@ -197,78 +216,7 @@ public class FileQueueHandler
         String prop = e.getPropertyName();
         if (prop.equals(ADD))
         {
-            
-            final File[] _files = fileChooser.getSelectedFiles();                    
-
-            if (_files == null)
-            {
-                mustSelectFile();
-                return;
-            }
-
-            String[] paths = new String[_files.length];
-            for (int i = 0; i < paths.length; i++) {
-                paths[i] = _files[i].getAbsolutePath();
-            }
-
-            final ImportCandidates candidates = new ImportCandidates(reader, paths);
-            final List<ImportContainer> containers = candidates.getContainers();
-            
-            Boolean spw = spwOrNull(containers);
-            if (spw == null) {
-                return; // Invalid containers.
-            }
-            
-            if (store() != null && spw.booleanValue())
-            {
-                SPWDialog dialog =
-                    new SPWDialog(gui, viewer, "Screen Import", true, store());
-                if (dialog.cancelled == true || dialog.screen == null) 
-                    return;                    
-                for (ImportContainer ic : containers)
-                {             
-                    ic.setTarget(dialog.screen);
-                    String title = dialog.screen.getName().getValue(); 
-                    addFileToQueue(ic, title, false, 0);
-                }
-                
-                qTable.centerOnRow(qTable.queue.getRowCount()-1);
-            }
-            else if (store() != null)
-            {
-                ImportDialog dialog = 
-                    new ImportDialog(gui, viewer, "Image Import", true, store());
-                if (dialog.cancelled == true || dialog.dataset == null) 
-                    return;  
-
-                
-                Double[] pixelSizes = new Double[] {dialog.pixelSizeX, dialog.pixelSizeY, dialog.pixelSizeZ};
-                Boolean useFullPath = dialog.useFullPath;
-                if (dialog.fileCheckBox.isSelected() == false)
-                    useFullPath = null; //use the default bio-formats naming
-                    
-                
-                for (ImportContainer ic : containers)
-                {
-                    ic.setTarget(dialog.dataset);
-                    ic.setUserPixels(pixelSizes);
-                    ic.setArchive(dialog.archiveImage.isSelected());
-                    String title =
-                    dialog.project.getName().getValue() + " / " +
-                    dialog.dataset.getName().getValue();
-                    
-                    addFileToQueue(ic, title, useFullPath, dialog.numOfDirectories);
-                }
-                
-                qTable.centerOnRow(qTable.queue.getRowCount()-1);
-                
-            } else {
-                JOptionPane.showMessageDialog(viewer, 
-                        "Due to an error the application is unable to \n" +
-                        "retrieve an OMEROMetadataStore and cannot continue." +
-                        "The most likely cause for this error is that you" +
-                        "are not logged in. Please try to login again.");
-            }
+            addFiles();
         }
         
         else if (prop.equals(REMOVE))
@@ -376,7 +324,7 @@ public class FileQueueHandler
         
         else if (prop.equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY))
         {
-            config.setSavedDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
+            config.savedDirectory.set(new File(fileChooser.getCurrentDirectory().getAbsolutePath()));
         }       
         
         else if (prop.equals(REFRESH))

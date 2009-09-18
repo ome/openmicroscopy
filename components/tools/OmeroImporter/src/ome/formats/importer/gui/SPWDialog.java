@@ -13,12 +13,12 @@
 
 package ome.formats.importer.gui;
 
-import static omero.rtypes.*;
+import static omero.rtypes.rstring;
+
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -29,16 +29,14 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import layout.TableLayout;
 import ome.formats.OMEROMetadataStoreClient;
-
 import omero.RLong;
 import omero.model.Screen;
 import omero.model.ScreenI;
 
-import layout.TableLayout;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author "Brian W. Loranger"
@@ -81,11 +79,6 @@ public class SPWDialog extends JDialog implements ActionListener
     private static Log          log     = LogFactory.getLog(SPWDialog.class);
 
     public OMEROMetadataStoreClient store;
-
-    private Preferences    userPrefs = 
-        Preferences.userNodeForPackage(SPWDialog.class);
-
-    private Long savedScreen = userPrefs.getLong("savedScreen", 0);
 
     SPWDialog(GuiCommonElements gui, JFrame owner, String title, boolean modal, OMEROMetadataStoreClient store)
     {
@@ -194,12 +187,12 @@ public class SPWDialog extends JDialog implements ActionListener
 
     private void buildScreens()
     {
-        if (savedScreen != 0 && screenItems != null) {
+        if (gui.config.savedScreen.get() != 0 && screenItems != null) {
             for (int i = 0; i < screenItems.length; i++)
             {
                 RLong pId = screenItems[i].getScreen().getId();
 
-                if (pId != null && pId.getValue() == savedScreen)
+                if (pId != null && pId.getValue() == gui.config.savedScreen.get())
                 {
                     sbox.setSelectedIndex(i);
                 }
@@ -214,11 +207,10 @@ public class SPWDialog extends JDialog implements ActionListener
         {
             //sbox.removeAllItems();
             screenItems = ScreenItem.createScreenItem(store.getScreens());            
-            savedScreen = userPrefs.getLong("savedScreen", 0);
             for (int k = 0; k < screenItems.length; k++ )
             {
                 RLong pId = screenItems[k].getScreen().getId();                
-                if (pId != null && pId.getValue() == savedScreen)
+                if (pId != null && pId.getValue() == gui.config.savedScreen.get())
                 {
                     sbox.insertItemAt(screenItems[k], k);
                     sbox.setSelectedIndex(k);
@@ -246,7 +238,7 @@ public class SPWDialog extends JDialog implements ActionListener
             cancelled = false;
             importBtn.requestFocus();
             screen = ((ScreenItem) sbox.getSelectedItem()).getScreen();
-            userPrefs.putLong("savedScreen", 
+            gui.config.savedScreen.set(
                     ((ScreenItem) sbox.getSelectedItem()).getScreen().getId().getValue());            
             this.dispose();
         }

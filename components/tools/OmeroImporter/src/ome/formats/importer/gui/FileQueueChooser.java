@@ -180,7 +180,7 @@ public class FileQueueChooser
         catch (ArrayIndexOutOfBoundsException e) {}
         
         
-        File dir = config.getSavedDirectory();
+        File dir = config.savedDirectory.get();
         if (dir != null) {
             this.setCurrentDirectory(dir);
         } else {

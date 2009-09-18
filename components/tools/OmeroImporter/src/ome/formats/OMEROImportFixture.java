@@ -11,8 +11,8 @@ import java.io.File;
 import java.util.List;
 
 import loci.formats.FormatReader;
-import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import omero.model.Pixels;
@@ -124,8 +124,10 @@ public class OMEROImportFixture {
      */
     public void doImport() throws Exception {
         String fileName = file.getAbsolutePath();
-        library.addObserver(new IObserver(){});
+        ImportConfig config = new ImportConfig();
         ImportCandidates candidates = new ImportCandidates(reader, new String[]{fileName});
+        library.importCandidates(config, candidates);
+        throw new RuntimeException("NYI");
     }
 
     public void setFile(File file) {

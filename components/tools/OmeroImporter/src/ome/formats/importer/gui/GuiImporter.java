@@ -13,6 +13,9 @@
 
 package ome.formats.importer.gui;
 
+import ome.formats.importer.util.ErrorHandler.*;
+
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -333,13 +336,7 @@ public class GuiImporter extends JFrame
             log.debug("Disabling history");
         }
         
-        try {
-            Class loginHandlerCls = config.getImplClass("LoginHandler");
-            Constructor c = loginHandlerCls.getConstructor(GuiImporter.class, HistoryTable.class);
-            loginHandler = (LoginHandler) c.newInstance(this, historyTable);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        loginHandler = new LoginHandler(this, historyTable);
         
         LogAppender.getInstance().setTextArea(debugTextPane);
         appendToOutputLn("> Starting the importer (revision "
@@ -359,9 +356,12 @@ public class GuiImporter extends JFrame
     // save ini file and gui settings on exist
     protected void shutdown()
     {
-        // Get and save the UI window placement      
-        config.setUIBounds(gui.getUIBounds());
-        config.save();
+        // Get and save the UI window placement
+        try {
+            config.setUIBounds(gui.getUIBounds());
+        } finally {
+            config.saveAll();
+        }
     }
     
     /* Fixes menu issues with the about this app quit functions on mac */
@@ -381,8 +381,10 @@ public class GuiImporter extends JFrame
     public boolean displayLoginDialog(Object viewer, boolean modal, boolean displayTop)
     {   
         Image img = Toolkit.getDefaultToolkit().createImage(ICON);
-        view = new ScreenLogin(config.getAppTitle(), gui.getImageIcon("gfx/login_background.png"), img,
-                config.getVersionNumber(), config.getServerPort());
+        view = new ScreenLogin(config.getAppTitle(),
+                gui.getImageIcon("gfx/login_background.png"),
+                img,
+                config.getVersionNumber(), Integer.toString(config.port.get()));
         view.showConnectionSpeed(false);
         viewTop = new ScreenLogo(config.getAppTitle(), gui.getImageIcon(splash), img);
         viewTop.setStatusVisible(false);
@@ -621,7 +623,8 @@ public class GuiImporter extends JFrame
      */
     public static void main(String[] args)
     {  
-        ImportConfig config = new ImportConfig(args);
+        ImportConfig config = new ImportConfig(args.length > 0 ? new File(args[0]) : null);
+        config.loadAll();
         USE_QUAQUA = config.getUseQuaqua();
         
         String laf = UIManager.getSystemLookAndFeelClassName() ;
@@ -681,9 +684,9 @@ public class GuiImporter extends JFrame
         {
             ImportEvent.DATASET_STORED ev = (ImportEvent.DATASET_STORED) event;
             
-            int pro = -1; // (Integer)args[2] - 1
-            String num = "UNKNOWNNUM";
-            String tot = "UNKNOWNTOT";
+            int num = ev.index;
+            int tot = ev.series;
+            int pro = num - 1;
             appendToOutputLn("Successfully stored to "+ev.target.getClass().getSimpleName()+" \"" + 
                     ev.filename + "\" with id \"" + ev.target.getId().getValue() + "\".");
             appendToOutputLn("> [" + ev.series + "] Importing pixel data for " + "image \"" + ev.filename + "\"... ");
@@ -702,19 +705,21 @@ public class GuiImporter extends JFrame
             appendToOutputLn("> [" + ev.filename + "] Image imported successfully!");
         }
         
-        if (event instanceof ImportEvent.IO_EXCEPTION)
+        if (event instanceof EXCEPTION_EVENT)
         {
-            ImportEvent.IO_EXCEPTION ev = (ImportEvent.IO_EXCEPTION) event;
+            FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
+            if (ev.exception instanceof IOException) {
             
-            final JOptionPane optionPane = new JOptionPane( 
-                    "The importer cannot retrieve one of your images in a timely manner.\n" +
-                    "The file in question is:\n'" + ev.filename + "'\n\n" +
-                    "There are a number of reasons you may see this error:\n" +
-                    " - The file has been deleted.\n" +
-                    " - There was a networking error retrieving a remotely saved file.\n" +
-                    " - An archived file has not been fully retrieved from backup.\n\n" +
-                    "The importer will now try to continue with the remainer of your imports.\n",
-                    JOptionPane.ERROR_MESSAGE);
+                final JOptionPane optionPane = new JOptionPane( 
+                        "The importer cannot retrieve one of your images in a timely manner.\n" +
+                        "The file in question is:\n'" + ev.filename + "'\n\n" +
+                        "There are a number of reasons you may see this error:\n" +
+                        " - The file has been deleted.\n" +
+                        " - There was a networking error retrieving a remotely saved file.\n" +
+                        " - An archived file has not been fully retrieved from backup.\n\n" +
+                        "The importer will now try to continue with the remainer of your imports.\n",
+                        JOptionPane.ERROR_MESSAGE);
+            }
             
             final JDialog dialog = new JDialog(this, "IO Error");
             dialog.setAlwaysOnTop(true);

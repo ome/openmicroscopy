@@ -18,7 +18,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.prefs.Preferences;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -125,7 +124,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         gui.enterPressesWhenFocused(sendBtn);
         
         uploadCheckmark = gui.addCheckBox(mainPanel, "Send selected images.", "1,1,7,c", debug);
-        uploadCheckmark.setSelected(config.getSendFiles());
+        uploadCheckmark.setSelected(config.sendFiles.get());
                 
         // fill out the comments panel (changes according to icon existance)        
         Icon icon = gui.getImageIcon(ICON);
@@ -155,7 +154,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         emailTextField = gui.addTextField(commentPanel, "Email: ", emailText, 'E',
         "Input your email address here.", "(Optional)", TableLayout.PREFERRED, "0, 1, 2, 1", debug);
         
-        emailTextField.setText(config.getEmail());
+        emailTextField.setText(config.email.get());
         
         commentTextArea = gui.addTextArea(commentPanel, "Please provide any additional information of importance.", 
                 "", 'W', "0, 2, 2, 3", debug);
@@ -200,8 +199,8 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
             }
             else
             {
-                config.setEmail(emailText);
-                config.setSendFiles(uploadCheckmark.isSelected());
+                config.email.set(emailText);
+                config.sendFiles.set(uploadCheckmark.isSelected());
                 sendRequest(emailText, commentText, "Extra data goes here.");
                 dispose();
             }
@@ -277,7 +276,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         }
         catch (Exception e)
         {
-            new DebugMessenger(null, "Error Dialog Test", new ImportConfig(args), true, null);
+            new DebugMessenger(null, "Error Dialog Test", new ImportConfig(), true, null);
         }
     }
 }

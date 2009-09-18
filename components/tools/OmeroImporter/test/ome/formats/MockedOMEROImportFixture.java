@@ -6,7 +6,7 @@
  */
 package ome.formats;
 
-import ome.formats.importer.ImportFixture;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.test.mock.MockFixture;
 import ome.system.OmeroContext;
@@ -49,7 +49,7 @@ public class MockedOMEROImportFixture extends OMEROImportFixture {
      */
     public MockedOMEROImportFixture(ServiceFactory sf, String password)
             throws Exception {
-        super(mockStore(sf, password), new OMEROWrapper());
+        super(mockStore(sf, password), new OMEROWrapper(new ImportConfig()));
     }
 
     public static OMEROMetadataStoreClient mockStore(ServiceFactory sf,

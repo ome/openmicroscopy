@@ -130,7 +130,7 @@ public class CommentMessenger extends JDialog implements ActionListener
         emailTextField = gui.addTextField(commentPanel, "Email: ", emailText, 'E',
         "Input tyour email address here.", "(Optional)", TableLayout.PREFERRED, "0, 1, 2, 1", debug);
         
-        emailTextField.setText(config.getEmail());
+        emailTextField.setText(config.email.get());
         
         commentTextArea = gui.addTextArea(commentPanel, "Comment:", 
                 "", 'W', "0, 2, 2, 2", debug);
@@ -166,7 +166,7 @@ public class CommentMessenger extends JDialog implements ActionListener
             }
             else
             {
-                config.setEmail(emailText);
+                config.email.set(emailText);
                 sendRequest(emailText, commentText, "Extra data goes here.");               
             }
             
@@ -224,6 +224,6 @@ public class CommentMessenger extends JDialog implements ActionListener
      */
     public static void main(String[] args) throws Exception
     {
-        new CommentMessenger(null, "Comment Dialog Test", new ImportConfig(args), true, true);
+        new CommentMessenger(null, "Comment Dialog Test", new ImportConfig(), true, true);
     }
 }

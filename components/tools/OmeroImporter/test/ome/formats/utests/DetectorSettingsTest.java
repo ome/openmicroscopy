@@ -1,16 +1,17 @@
 package ome.formats.utests;
 
-import ome.util.LSID;
+import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
+import ome.util.LSID;
+import omero.api.ServiceFactoryPrx;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
-import omero.model.Instrument;
 import omero.model.Image;
+import omero.model.Instrument;
 import omero.model.Pixels;
-import omero.api.ServiceFactoryPrx;
-import junit.framework.TestCase;
 
 public class DetectorSettingsTest extends TestCase
 {
@@ -34,7 +35,7 @@ public class DetectorSettingsTest extends TestCase
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
-        wrapper = new OMEROWrapper();
+        wrapper = new OMEROWrapper(new ImportConfig());
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);
         store.setEnumerationProvider(new TestEnumerationProvider());
