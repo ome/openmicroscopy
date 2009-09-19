@@ -404,7 +404,7 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
         return self.original_file.name.val[:-4]
     
     def get_empty_columns(self, headers):
-        columns = {'Image': ImageColumn('Image', '', list()}
+        columns = {'Image': ImageColumn('Image', '', list())}
         for header in headers:
             columns[header] = DoubleColumn(header, '', list())
         return columns
